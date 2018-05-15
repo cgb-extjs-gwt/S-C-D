@@ -41,6 +41,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 catch (Exception ex)
                 {
                     transaction.Rollback();
+
+                    throw ex;
                 }
             }
         }
@@ -59,6 +61,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 catch (Exception ex)
                 {
                     transaction.Rollback();
+
+                    throw ex;
                 }
             }
         }
