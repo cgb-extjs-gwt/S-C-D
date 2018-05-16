@@ -62,7 +62,8 @@ module.exports = function (env) {
             ],
 
             output: {
-                path: path.join(__dirname, 'build'),
+                //path: path.join(__dirname, 'build'),
+                path: '../wwwroot',
                 filename: 'bundle.js',
             },
 
