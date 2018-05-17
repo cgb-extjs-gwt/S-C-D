@@ -43,10 +43,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var entry = this.dbContext.Entry(item);
 
-            entry.State = 
-                item.Id == Guid.Empty 
-                    ? EntityState.Added 
-                    : EntityState.Modified;
+            if (item.Id == Guid.Empty)
+            {
+                entry.State = EntityState.Added;
+                item.Id = Guid.NewGuid();
+            }
+            else
+            {
+                entry.State = EntityState.Modified;
+            }
         }
 
         protected void SetDeleteState<TItem>(TItem item) where TItem : class, IIdentifiable
