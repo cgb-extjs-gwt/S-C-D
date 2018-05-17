@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="build\**" />
+    <Compile Remove="node_modules\**" />
+    <EmbeddedResource Remove="build\**" />
+    <EmbeddedResource Remove="node_modules\**" />
+    <None Remove="build\**" />
+    <None Remove="node_modules\**" />
+  </ItemGroup>
+
+</Project>
