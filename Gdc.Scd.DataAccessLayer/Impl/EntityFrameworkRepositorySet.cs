@@ -1,18 +1,27 @@
 ﻿using System;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
     public class EntityFrameworkRepositorySet : DbContext, IRepositorySet
     {
-        protected readonly IServiceProvider serviceProvider;
+        private readonly IServiceProvider serviceProvider;
+        private readonly IConfiguration configuration;
 
-        public EntityFrameworkRepositorySet(IServiceProvider serviceProvider)
+        public EntityFrameworkRepositorySet(IServiceProvider serviceProvider, IConfiguration configuration)
         {
             this.serviceProvider = serviceProvider;
+            this.configuration = configuration;
+
+            this.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            this.ChangeTracker.AutoDetectChangesEnabled = false;
+
+            this.Database.EnsureCreated();
         }
 
         public ITransaction BeginTransaction()
@@ -39,6 +48,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<TestEntity1>();
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+
+            optionsBuilder.UseSqlServer(this.configuration.GetSection("ConnectionStrings")["CommonDB"]);
         }
     }
 }

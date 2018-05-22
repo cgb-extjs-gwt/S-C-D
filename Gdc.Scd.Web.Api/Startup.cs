@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO;
+using Gdc.Scd.Core.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Gdc.Scd.Web
 {
@@ -26,6 +21,7 @@ namespace Gdc.Scd.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            this.InitModules(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,7 +36,7 @@ namespace Gdc.Scd.Web
                 app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
                 {
                     ConfigFile = "webpack.config.asp.js",
-                    ProjectPath = Path.Combine(parentDirectoryInfo.FullName, "Gdc.Scd.Web.Client")
+                    ProjectPath = Path.Combine(parentDirectoryInfo.FullName, "Gdc.Scd.Web.Client"),
                 });
             }
 
@@ -50,6 +46,19 @@ namespace Gdc.Scd.Web
                 routes.MapRoute(name: "DefaultApi", template: "api/{controller}/{action}");
                 routes.MapSpaFallbackRoute("spa-fallback", new { controller = "Home", action = "Index" }); // 2
             });
+        }
+
+        private void InitModules(IServiceCollection services)
+        {
+            this.InitModule<Scd.DataAccessLayer.Module>(services);
+            this.InitModule<Scd.BusinessLogicLayer.Module>(services);
+        }
+
+        private void InitModule<T>(IServiceCollection services) where T : IModule, new()
+        {
+            var module = new T();
+
+            module.Init(services);
         }
     }
 }

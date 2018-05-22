@@ -9,7 +9,7 @@ namespace Gdc.Scd.BusinessLogicLayer
     {
         public void Init(IServiceCollection services)
         {
-            services.AddSingleton(typeof(IDomainService<>), typeof(DomainService<>));
+            services.AddScoped(typeof(IDomainService<>), typeof(DomainService<>));
         }
     }
 }

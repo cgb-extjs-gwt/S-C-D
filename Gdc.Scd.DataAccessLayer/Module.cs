@@ -9,7 +9,7 @@ namespace Gdc.Scd.DataAccessLayer
     {
         public void Init(IServiceCollection services)
         {
-            services.AddScoped(typeof(IRepository<>), typeof(EntityFrameworkRepository<>));
+            services.AddScoped(typeof(EntityFrameworkRepository<>), typeof(EntityFrameworkRepository<>));
             services.AddScoped<IRepositorySet, EntityFrameworkRepositorySet>();
         }
     }

@@ -7,8 +7,9 @@ using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Web.Api.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
-namespace Gdc.Scd.Web.Controllers
+namespace Gdc.Scd.Web.Api.Controllers
 {
     public abstract class BaseDomainController<T> : Controller where T : IIdentifiable
     {
@@ -24,14 +25,21 @@ namespace Gdc.Scd.Web.Controllers
             return this.domainService.GetAll();
         }
 
-        public virtual IEnumerable<T> GetBy(int start, int limit, SortInfo[] sort = null, FilterInfo[] filter = null)
+        public virtual DataInfo<T> GetBy(int start, int limit, string sort = null, string filter = null)
         {
-            var query = this.domainService.GetAll().Skip(start).Take(limit);
+            var allItems = this.domainService.GetAll();
+            var query = allItems.Skip(start).Take(limit);
+            var sortInfos = sort == null ? null : JsonConvert.DeserializeObject<SortInfo[]>(sort);
+            var filterInfos = filter == null ? null : JsonConvert.DeserializeObject<FilterInfo[]>(sort);
 
-            query = this.OrderBy(query, sort);
-            query = this.Filter(query, filter);
+            query = this.OrderBy(query, sortInfos);
+            query = this.Filter(query, filterInfos);
 
-            return query;
+            return new DataInfo<T>
+            {
+                Items = query.ToArray(),
+                Total = this.Filter(allItems, filterInfos).Count()
+            };
         }
 
         public virtual T Get(Guid id)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Gdc.Scd.Core.Helpers
 {
@@ -10,7 +11,7 @@ namespace Gdc.Scd.Core.Helpers
         {
             var command = isDescending ? nameof(Queryable.OrderByDescending) : nameof(Queryable.OrderBy);
             var type = typeof(TEntity);
-            var property = type.GetProperty(orderByProperty);
+            var property = type.GetProperty(orderByProperty, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
             var parameter = Expression.Parameter(type, "p");
             var propertyAccess = Expression.MakeMemberAccess(parameter, property);
             var orderByExpression = Expression.Lambda(propertyAccess, parameter);
