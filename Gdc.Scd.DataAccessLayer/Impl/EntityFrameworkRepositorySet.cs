@@ -1,6 +1,5 @@
 ﻿using System;
 using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -48,8 +47,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<TestEntity1>();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
