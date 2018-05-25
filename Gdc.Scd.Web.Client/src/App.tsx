@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
-import Layout from './Layout/Components/Layout';
 import { Provider, connect } from 'react-redux';
 import { storeFactory } from './Common/StoreFactory';
+import { LayoutContainer } from './Layout/Components/Layout';
 
 declare var Ext:any;
 
@@ -11,23 +11,16 @@ Ext.require('Ext.plugin.Responsive');
 
 const store = storeFactory();
 
-// const LayoutConnected = connect<{}, LayoutPropsMethods>(
-//     null,
-//     dispatch => ({
-//         onMenuItemClick: (pathName, history) => dispatch(navigateActionCreator(pathName, history))
-//     } as LayoutPropsMethods)
-// )(Layout)
-
 /**
  * The main application view
  */
 const App = () => {
     return (
-        //<Provider store={store}>
+        <Provider store={store}>
             <Router>
-                <Layout/>
+                <LayoutContainer/>
             </Router>
-        //</Provider>
+        </Provider>
     )
 }
 

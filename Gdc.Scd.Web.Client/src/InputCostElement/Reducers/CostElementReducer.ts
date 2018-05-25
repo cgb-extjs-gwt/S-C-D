@@ -1,4 +1,6 @@
-import { Action } from "redux";
+import { Action, Reducer } from "redux";
+import { PageState } from "../../Layout/States/PageStates";
+import { CommonAction } from "../../Common/CommonAction";
 
 export interface SelectList<T> {
     selected: T,
@@ -17,12 +19,7 @@ export interface CostElementState {
     costBlocks: SelectList<CostBlock>,
 }
 
-const defaultState = () => (<CostElementState>{
-    title: 'Cost Elements',
-    isLoading: true,
-});
-
-export const costElementReducer = (state: CostElementState = defaultState(), action: Action<string>) => {
+export const costElementReducer: Reducer<CostElementState, CommonAction> = (state = null, action) => {
     switch(action.type) {
         default:
             return state;

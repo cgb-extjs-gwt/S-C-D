@@ -6,9 +6,11 @@ import { medium, large } from '../../responsiveFormulas';
 import Home from '../../Test/Home/Home';
 import About from '../../Test/About/About';
 import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
-import { CostElementsInput } from '../../InputCostElement/Components/CostElementsInput';
+import { CostElementsInputContainer } from '../../InputCostElement/Components/CostElementsInput';
+import { PageCommonState, PageTitle } from '../States/PageStates';
+import { connect } from 'react-redux';
 
-interface LayoutProps { //extends LayoutPropsMethods {
+interface LayoutProps extends PageTitle {
     history: any,
     location: any,
 }
@@ -20,13 +22,13 @@ interface LayoutProps { //extends LayoutPropsMethods {
 /**
  * The main application view and routes
  */
-class Layout extends React.Component<LayoutProps> {
+export class Layout extends React.Component<LayoutProps> {
     navigate = (path) => {
         this.props.history.push(path);
     }
 
     render() {
-        const { location, history } = this.props;
+        const { location, history, title } = this.props;
 
         const navMenuDefaults = {
             onItemClick: this.navigate,
@@ -53,12 +55,12 @@ class Layout extends React.Component<LayoutProps> {
                     />
                 </Panel>
 
-                <Panel title="Page title" layout="fit">
+                <Panel title={title} layout="fit">
                     <Switch>
                         <Route path="/" component={Home} exact/>
                         <Route path="/about" component={About}/>
                         <Route path="/pivot" component={ScdPivotGrid}/>
-                        <Route path="/input-cost-elements" component={CostElementsInput}/>
+                        <Route path="/input-cost-elements" component={CostElementsInputContainer}/>
                     </Switch>
                 </Panel>
             </Container>
@@ -66,4 +68,8 @@ class Layout extends React.Component<LayoutProps> {
     }
 }
 
-export default withRouter(Layout);
+const containerFactory = connect<{},{},{}, PageCommonState>(
+    state => state.page
+);
+
+export const LayoutContainer = withRouter(containerFactory(Layout));

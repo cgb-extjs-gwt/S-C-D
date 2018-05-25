@@ -1,16 +1,17 @@
-import { createStore, combineReducers, applyMiddleware } from "redux";
-import thunk from "redux-thunk";
-//import { navigationReducer } from "../Layout/Reducers/Navigation";
+ import { createStore, combineReducers, applyMiddleware, compose } from "redux";
+import { pageReducer } from "../Layout/Reducers/PageReducer";
+import { costElementReducer } from "../InputCostElement/Reducers/CostElementReducer";
+import { PageState } from "../Layout/States/PageStates";
+import { CommonAction } from "./CommonAction";
 
 export const storeFactory = () => {
-    //const reducer = combineReducers({currentPath: navigationReducer});
+    const reducer = combineReducers({ 
+        //page: compose(pageReducer, costElementReducer)
+        page: (state: PageState, action: CommonAction) => ({
+                ...pageReducer(state, action),
+                data: compose(costElementReducer)
+        })
+    });  
 
-    // const reducer = combineReducers({ 
-    // });  
-
-    // return createStore(
-    //     reducer, 
-    //     null, 
-    //     applyMiddleware(thunk)
-    // );
+    return createStore(reducer);
 }

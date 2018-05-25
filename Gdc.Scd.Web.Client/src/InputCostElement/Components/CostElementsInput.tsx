@@ -10,16 +10,27 @@ import {
     TabPanel
 } from '@extjs/ext-react';
 import FixedTabPanel from '../../Common/Components/FixedTabPanel';
+import { connect } from 'react-redux';
+import { PageCommonState } from '../../Layout/States/PageStates';
+import { CostElementState } from '../Reducers/CostElementReducer';
+import { openPage } from '../../Layout/Actions/PageActions';
 
-export interface CostElementsProps {
-    title: string
-    isLoading: boolean
+export interface CostElementsDispatch {
+    onInit();
+}
+
+export interface CostElementsProps extends CostElementState, CostElementsDispatch {
+    
 }
 
 export class CostElementsInput extends React.Component<CostElementsProps> {
-    public render() {
-        const { isLoading } = this.props;
+    constructor(props: CostElementsProps){
+        props.onInit();
 
+        super(props);
+    }
+
+    public render() {
         return (
             <Container layout="vbox">
                 <FormPanel defaults={{labelAlign: 'left'}}>
@@ -65,3 +76,12 @@ export class CostElementsInput extends React.Component<CostElementsProps> {
         );
     }
 }
+
+export const CostElementsInputContainer = connect<{},CostElementsDispatch,{},CostElementState>(
+    state => state,
+    dispatch => ({
+        onInit: () => {
+            dispatch(openPage('Cost elements inputs'));
+        }
+    })
+)(CostElementsInput);
