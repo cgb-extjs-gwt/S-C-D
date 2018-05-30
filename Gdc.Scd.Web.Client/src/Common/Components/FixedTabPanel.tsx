@@ -3,10 +3,11 @@ import { TabPanel, Panel, Container } from "@extjs/ext-react";
 
 export interface FixedTabPanelProps {
     activeTab?: number;
+    [key: string]: any;
 }
 
 // TabPanel from Ext.js wasn't work normaly.
-const FixedTabPanel: React.StatelessComponent<FixedTabPanelProps & any> = (props) => {
+const FixedTabPanel: React.StatelessComponent<FixedTabPanelProps> = props => {
     const activeTab = props.activeTab | 0;
     const tabTitles = React.Children.map(
         props.children, 

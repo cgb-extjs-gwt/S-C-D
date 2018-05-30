@@ -1,24 +1,29 @@
 import { Reducer } from "redux";
-import { PageState, PageTitle, PageData } from "../States/PageStates";
+import { PageState, PageTitle, PageData, PageError } from "../States/PageStates";
 import { CommonAction } from "../../Common/CommonAction";
-import { PAGE_OPEN } from "../Actions/PageActions";
+import { PAGE_OPEN, PAGE_INIT_SUCCESS, PAGE_INIT_ERROR, PageAction } from "../Actions/PageActions";
 
 const defaultState = () => (<PageState>{
-    title: '',
-    data: null
+    title: ''
 });
 
-export const pageReducer: Reducer<PageState, CommonAction> = (state = defaultState(), action) => {
+export const pageReducer: Reducer<PageState, PageAction> = (state = defaultState(), action) => {
     switch (action.type) {
         case PAGE_OPEN:
             return <PageState>{ 
                 title: (<PageTitle>action.data).title 
             };
 
-        case PAGE_OPEN:
+        case PAGE_INIT_SUCCESS:
             return <PageState>{ 
                 ...state,
-                title: (<PageData>action.data).data 
+                data: (<PageData>action.data).data 
+            };
+
+        case PAGE_INIT_ERROR:
+            return <PageState>{ 
+                ...state,
+                error: (<PageError>action.data).error 
             };
 
         default:
