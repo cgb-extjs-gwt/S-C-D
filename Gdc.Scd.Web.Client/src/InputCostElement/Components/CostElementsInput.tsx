@@ -12,13 +12,13 @@ import {
 import FixedTabPanel from '../../Common/Components/FixedTabPanel';
 import { connect } from 'react-redux';
 import { PageCommonState, PageState, PAGE_STATE_KEY } from '../../Layout/States/PageStates';
-import { CostElementInput } from '../States/CostElementState';
+import { CostElementInputState } from '../States/CostElementState';
 import { get } from '../Services/CostElementService';
-import { actionBuilder, selectApplication, selectScope, init, selectCostBlock } from '../Actions/InputCostElementActions';
+import { selectApplication, selectScope, init, selectCostBlock } from '../Actions/InputCostElementActions';
 import data from '../../Test/Home/data';
 import { NamedId } from '../../Common/States/NamedId';
 import { SelectList } from '../../Common/States/SelectList';
-import { CostBlockInput } from '../States/CostBlock';
+import { CostBlockInputState } from '../States/CostBlock';
 import { CostBlock as CostBlockComp } from './CostBlocks'
 
 export interface CostElementsDispatch {
@@ -28,7 +28,7 @@ export interface CostElementsDispatch {
     onCostBlockSelected(costBlockId: string);
 }
 
-export interface CostElementsProps extends CostElementInput, CostElementsDispatch {
+export interface CostElementsProps extends CostElementInputState, CostElementsDispatch {
     
 }
 
@@ -39,33 +39,46 @@ export class CostElementsInput extends React.Component<CostElementsProps> {
     }
 
     public render() {
-        const { applications, scopes, costBlocks } = this.props;
+        const { 
+            applications, 
+            selectedApplicationId, 
+            scopes, 
+            selectedScopeId,
+            visibleCostBlockIds,
+            selectedCostBlockId,
+            costBlocksInputs
+        } = this.props;
 
         return (
             <Container layout="vbox">
                 <FormPanel defaults={{labelAlign: 'left'}}>
-                    {this.applicationCombobox(applications)}
+                    {this.applicationCombobox(applications, selectedApplicationId)}
 
                     <ContainerField label="Scope" layout={{type: 'vbox', align: 'left'}}>
-                        { scopes && scopes.list.map(item => this.scopeRadioFild(item, scopes.selectedItemId))}
+                        { 
+                            scopes && 
+                            Array.from(scopes.values())
+                                 .map(item => this.scopeRadioFild(item, selectedScopeId))
+                        }
                     </ContainerField>
                 </FormPanel>
 
                 <Panel title="Cost Blocks:">
                     {
-                        costBlocks && 
-                        costBlocks.list && 
                         <FixedTabPanel 
                             tabBar={{
                                 layout: { pack: 'left' }
                             }}
                             activeTab={
-                                costBlocks.selectedItemId && 
-                                costBlocks.list.findIndex(item => item.id === costBlocks.selectedItemId)
+                                visibleCostBlockIds && visibleCostBlockIds.indexOf(selectedCostBlockId) 
                             }
                             onActiveItemChange={this.onActiveTabChange}
                         >
-                            {costBlocks.list.map(item => this.costBlockTab(item, costBlocks.selectedItemId))}
+                            { 
+                                costBlocksInputs && 
+                                Array.from(costBlocksInputs.values())
+                                     .map(item => this.costBlockTab(item, selectedCostBlockId)) 
+                            }
 
                             {/* <Container title="Tab 1">
                                 <FormPanel defaults={{labelAlign: 'left'}}>
@@ -95,19 +108,19 @@ export class CostElementsInput extends React.Component<CostElementsProps> {
 
     private onActiveTabChange = (tabPanel, newValue, oldValue) => {
         const activeTabIndex = tabPanel.getActiveItemIndex();
-        const selectedCostBlockId = this.props.costBlocks.list[activeTabIndex].id;
+        const selectedCostBlockId = this.props.visibleCostBlockIds[activeTabIndex];
 
         this.props.onCostBlockSelected(selectedCostBlockId);
     }
 
-    private applicationCombobox(application: SelectList<NamedId>) {
+    private applicationCombobox(applications: Map<string, NamedId>, selectedApplicationId: string) {
         const applicatonStore = Ext.create('Ext.data.Store', {
-            data: application && application.list
+            data: applications && Array.from(applications.values())
         });
 
         const selectedApplication = 
             applicatonStore.getData()
-                           .findBy(item => (item.data as NamedId).id === application.selectedItemId);
+                           .findBy(item => (item.data as NamedId).id === selectedApplicationId);
 
         return (
             <ComboBoxField 
@@ -134,16 +147,17 @@ export class CostElementsInput extends React.Component<CostElementsProps> {
         );
     }
 
-    private costBlockTab(costBlock: CostBlockInput, selectedCostBlockId: string) {
-        const { countries } = this.props;
+    private costBlockTab(costBlockInput: CostBlockInputState, selectedCostBlockId: string) {
+        const { countries, costBlockMetas } = this.props;
+        const costBlockMeta = costBlockMetas.get(costBlockInput.costBlockId);
 
         return (
-            <Container key={costBlock.id} title={costBlock.name}>
-                {
-                    costBlock.id === selectedCostBlockId && costBlock.costElements != null
-                        ? <CostBlockComp costBlock={costBlock} countries={countries} onCountrySelected={() => ''}/>
+            <Container key={costBlockInput.costBlockId} title={costBlockMeta.name}>
+                {/* {
+                    costBlockInput.costBlockId === selectedCostBlockId
+                        ? <CostBlockComp costBlock={costBlockInput} countries={countries} onCountrySelected={() => ''}/>
                         : null
-                }
+                } */}
             </Container>
         );
     }

@@ -16,7 +16,7 @@ const FixedTabPanel: React.StatelessComponent<FixedTabPanelProps> = props => {
     return (
         <Panel>
             <TabPanel {...props}>
-                {tabTitles.map((title, index) => <Container key={index} title={title}/>)}
+                {tabTitles && tabTitles.map((title, index) => <Container key={index} title={title}/>)}
             </TabPanel>
             <Panel>
                 {React.Children.toArray(props.children)[activeTab]}

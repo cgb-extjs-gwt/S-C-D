@@ -11,18 +11,20 @@ export const pageReducer: Reducer<PageState, PageAction> = (state = defaultState
     switch (action.type) {
         case PAGE_OPEN:
             return <PageState>{ 
-                title: (<PageTitle>action.data).title 
+                title: (<PageTitle>action.data).title,
+                isLoading: true
             };
 
         case PAGE_INIT_SUCCESS:
             return <PageState>{ 
                 ...state,
-                data: (<PageData>action.data).data 
+                isLoading: false
             };
 
         case PAGE_INIT_ERROR:
             return <PageState>{ 
                 ...state,
+                isLoading: false,
                 error: (<PageError>action.data).error 
             };
 

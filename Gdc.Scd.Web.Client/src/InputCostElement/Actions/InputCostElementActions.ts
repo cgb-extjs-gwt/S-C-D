@@ -1,5 +1,5 @@
 import { PageActionBuilder } from "../../Layout/Actions/PageActions";
-import { CostElementInput } from "../States/CostElementState";
+import { CostElementInputState } from "../States/CostElementState";
 import { NamedId } from "../../Common/States/NamedId";
 import { CommonAction } from "../../Common/CommonAction";
 import { Action, Dispatch } from "redux";
@@ -11,7 +11,7 @@ export const COST_ELEMENT_INTPUT_SELECT_APPLICATION = 'COST_ELEMENT_INTPUT.SELEC
 export const COST_ELEMENT_INTPUT_SELECT_SCOPE = 'COST_ELEMENT_INTPUT.SELECT.SCOPE';
 export const COST_ELEMENT_INTPUT_SELECT_COST_BLOCK = 'COST_ELEMENT_INTPUT.SELECT.COST_BLOCK';
 
-const actionBuilder = new PageActionBuilder<CostElementInput>(COST_ELEMENT_INTPUT_PAGE, 'Cost elements inputs');
+const actionBuilder = new PageActionBuilder(COST_ELEMENT_INTPUT_PAGE, 'Cost elements inputs');
 
 export const init = () => asyncAction(dispatch => {
     dispatch(actionBuilder.openPage());
@@ -30,7 +30,7 @@ export const selectApplication = (selectedApplicationId: string) => (<ItemSelect
     selectedItemId: selectedApplicationId
 })
 
-const initCostBlock = asyncAction<CostElementInput>((dispatch, state) => {
+const initCostBlock = asyncAction<CostElementInputState>((dispatch, state) => {
     
 })
 

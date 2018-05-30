@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Container, ComboBoxField, Panel } from '@extjs/ext-react';
-import { CostBlockInput } from '../States/CostBlock'
+import { CostBlockInputState } from '../States/CostBlock'
 import { NamedId } from '../../Common/States/NamedId';
 
 export interface CostBlockDispatch {
@@ -8,7 +8,7 @@ export interface CostBlockDispatch {
 }
 
 export interface CostBlockProps extends CostBlockDispatch {
-  costBlock: CostBlockInput,
+  costBlock: CostBlockInputState,
   countries: NamedId[]
 }
 

@@ -17,6 +17,7 @@ export interface PageError {
 // }
 
 export interface PageState extends PageTitle, PageData, PageError {
+    isLoading: boolean
 }
 
 // export interface PageState {

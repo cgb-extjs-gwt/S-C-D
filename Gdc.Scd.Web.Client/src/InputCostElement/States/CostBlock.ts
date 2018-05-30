@@ -5,14 +5,18 @@ export interface EditItem extends NamedId {
     value: number
 }
 
-export interface CostElementInput extends NamedId {
+export interface CostElementInput {
+    costElementId: string
     dependency: MultiSelectList<NamedId>
 }
 
-export interface CostBlockInput extends NamedId {
+export interface CostBlockInputState {
+    costBlockId: string
+    isLoaded: boolean
     selectedCountryId: string
     costElements: SelectList<CostElementInput>
-    inputLevelSelectedId: {
+    visibleCostElementIds: string[]
+    inputLevel: {
         selectedId: string
         filterSelectedIds: string[]
     }

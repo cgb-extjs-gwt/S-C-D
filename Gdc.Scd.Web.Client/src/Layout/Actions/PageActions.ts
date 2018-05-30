@@ -28,7 +28,7 @@ export interface PageAction<T = any> extends CommonAction<T> {
 //     data: { error }
 // });
 
-export class PageActionBuilder<TData> {
+export class PageActionBuilder {
     private pageName: string;
     private pageTitle: string;
 
@@ -41,8 +41,8 @@ export class PageActionBuilder<TData> {
         return this.createPageAction(PAGE_OPEN, <PageTitle>{ title: this.pageTitle })
     }
 
-    public initPageSuccess(data: TData) {
-        return this.createPageAction(PAGE_INIT_SUCCESS, <PageData>{ data });
+    public initPageSuccess<TData>(data: TData) {
+        return this.createPageAction(PAGE_INIT_SUCCESS, data);
     }
 
     public initPageError(error) {
