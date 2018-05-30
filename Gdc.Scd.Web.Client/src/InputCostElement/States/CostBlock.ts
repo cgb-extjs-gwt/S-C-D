@@ -7,18 +7,17 @@ export interface EditItem extends NamedId {
 
 export interface CostElementInput {
     costElementId: string
-    dependency: MultiSelectList<NamedId>
+    filter: MultiSelectList<NamedId>
 }
 
 export interface CostBlockInputState {
     costBlockId: string
-    isLoaded: boolean
     selectedCountryId: string
-    costElements: SelectList<CostElementInput>
+    costElement: SelectList<CostElementInput>
     visibleCostElementIds: string[]
     inputLevel: {
         selectedId: string
-        filterSelectedIds: string[]
+        filter: MultiSelectList<NamedId>
     }
     editItems: EditItem[]
 }

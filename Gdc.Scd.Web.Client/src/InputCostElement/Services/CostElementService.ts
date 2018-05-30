@@ -8,8 +8,8 @@ export const get = () => Promise.resolve(<CostElementInputDto>{
         { id: 'software', name: 'Software' }
     ],
     scopes: [
-        { id: 'centralcostelements', name: 'Central cost elements' },
-        { id: 'localcostelements', name: 'Local cost elements' }
+        { id: 'central', name: 'Central cost elements' },
+        { id: 'local', name: 'Local cost elements' }
     ],
     countries: [
         { id: 'Algeria', name: 'Algeria' },
@@ -43,10 +43,142 @@ export const get = () => Promise.resolve(<CostElementInputDto>{
         { id: 'UK & Ireland', name: 'UK & Ireland' },
     ],
     costBlockMetas: [
-        
+        { 
+            id: 'fieldservice', 
+            name: 'Field Service', 
+            applicationIds: ['hardware'],
+            costElements: [
+                { 
+                    id: 'traveltime', 
+                    name: 'Travel Time',
+                    scopeId: 'local',
+                    description: 'Travel Time description',
+                    dependency: null
+                },
+                { 
+                    id: 'onsitehourlyrate', 
+                    name: 'Onsite Hourly Rate',
+                    scopeId: 'local',
+                    description: 'Onsite Hourly Rate description',
+                    dependency: {
+                        id: 'rolecode',
+                        name: 'RoleCode (Code)'
+                    }
+                },
+                { 
+                    id: 'labourflatfee', 
+                    name: 'Labour Flat Fee',
+                    scopeId: 'local',
+                    description: 'Labour Flat Fee description',
+                    dependency: {
+                        id: 'servicelocation',
+                        name: 'ServiceLocation (Code)'
+                    }
+                },
+                { 
+                    id: 'travelcost', 
+                    name: 'Travel Cost',
+                    scopeId: 'local',
+                    description: 'Travel Cost description',
+                    dependency: null
+                },
+                { 
+                    id: 'repairtime', 
+                    name: 'Repair Time',
+                    scopeId: 'central',
+                    description: 'Repair Time description',
+                    dependency: null
+                },
+            ]
+        },
+        { 
+            id: 'servicesupportcost', 
+            name: 'Service Support Cost', 
+            applicationIds: ['hardware', 'software'],
+            costElements: [
+                { 
+                    id: '1stlevelsupportcostscountry', 
+                    name: '1st Level Support Costs Country',
+                    scopeId: 'local',
+                    description: '1st Level Support Costs Country description',
+                    dependency: null
+                },
+                { 
+                    id: '2ndlevelsupportcostsplanonemia', 
+                    name: '2nd Level Support Costs PLAnon EMEIA',
+                    scopeId: 'local',
+                    description: '2nd Level Support Costs PLAnon EMEIA description',
+                    dependency: null
+                },
+                { 
+                    id: '2ndLevelSupportCostsPLA', 
+                    name: '2nd Level Support Costs PLA',
+                    scopeId: 'central',
+                    description: '2nd Level Support Costs PLA description',
+                    dependency: null
+                }
+            ]
+        },
+        { 
+            id: 'logisticscost', 
+            name: 'Logistics Cost', 
+            applicationIds: ['hardware'],
+            costElements: [
+                { 
+                    id: 'standardhandlingincountry', 
+                    name: 'Standard Handling In Country',
+                    scopeId: 'local',
+                    description: 'Standard Handling In Country description',
+                    dependency: {
+                        id: 'reactiontime',
+                        name: 'ReactionTime (Code)'
+                    }
+                },
+                { 
+                    id: 'highavailabilityhandlingincountry', 
+                    name: 'High Availability Handling In Country',
+                    scopeId: 'local',
+                    description: 'High Availability Handling In Country description',
+                    dependency: {
+                        id: 'reactiontime',
+                        name: 'ReactionTime (Code)'
+                    }
+                },
+                { 
+                    id: 'standarddelivery', 
+                    name: 'Standard Delivery',
+                    scopeId: 'local',
+                    description: 'Standard Delivery description',
+                    dependency: {
+                        id: 'reactiontime',
+                        name: 'ReactionTime (Code)'
+                    }
+                },
+                { 
+                    id: 'expressdelivery', 
+                    name: 'Express Delivery',
+                    scopeId: 'local',
+                    description: 'Express Delivery description',
+                    dependency: {
+                        id: 'reactiontime',
+                        name: 'ReactionTime (Code)'
+                    }
+                },
+                { 
+                    id: 'taxandduties', 
+                    name: 'Tax And Duties',
+                    scopeId: 'central',
+                    description: 'Tax And Duties description',
+                    dependency: null
+                },
+            ]
+        },
     ],
     inputLevels: [
-        
+        { id: 'country',  name: 'Country' },
+        { id: 'pla',  name: 'PLA' },
+        { id: 'sog',  name: 'SOG' },
+        { id: 'wgr',  name: 'WGR' },
     ]
 })
 

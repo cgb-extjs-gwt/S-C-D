@@ -23,7 +23,7 @@ const createMap = <T extends NamedId>(array: T[]) => {
 }
 
 const getVisibleCostBlockIds = (costBlockMetas: CostBlockMeta[], selectedApplicationId: string) => {
-    return costBlockMetas.filter(costBlockMeta => costBlockMeta.applicationId === selectedApplicationId)
+    return costBlockMetas.filter(costBlockMeta => costBlockMeta.applicationIds.includes(selectedApplicationId))
                          .map(costBlockMeta => costBlockMeta.id);
 }
 
@@ -50,9 +50,8 @@ const initSuccess: Reducer<CostElementInputState, PageAction<CostElementInputDto
             selectedScopeId,
             costBlocksInputs: costBlockMetas.map(costBlockMeta => (<CostBlockInputState>{
                 costBlockId: costBlockMeta.id,
-                isLoaded: false,
                 selectedCountryId,
-                costElements: {
+                costElement: {
                     selectedItemId: null,
                     list: costBlockMeta.costElements.map(costElementMeta => (<CostElementInput>{
                         costElementId: costElementMeta.id
@@ -61,7 +60,7 @@ const initSuccess: Reducer<CostElementInputState, PageAction<CostElementInputDto
                 visibleCostElementIds: getVisibleCostElementIds(costBlockMeta.costElements, selectedScopeId),
                 inputLevel:{
                     selectedId: null,
-                    filterSelectedIds: null
+                    filter: null
                 },
                 editItems: null
             })),
@@ -76,7 +75,7 @@ const selectApplication: Reducer<CostElementInputState, ItemSelectedAction> = (s
         Array.from(state.costBlockMetas.values()), 
         state.selectedApplicationId);
 
-    const selectedCostBlockId = visibleCostBlockIds.indexOf(state.selectedCostBlockId) === -1 
+    const selectedCostBlockId = visibleCostBlockIds.includes(state.selectedCostBlockId)
         ? visibleCostBlockIds[0]
         : state.selectedCostBlockId;
 

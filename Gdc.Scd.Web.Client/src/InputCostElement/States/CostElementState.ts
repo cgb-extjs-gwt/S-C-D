@@ -2,12 +2,8 @@ import { SelectList } from "../../Common/States/SelectList";
 import { CostBlockInputState } from "./CostBlock";
 import { NamedId } from "../../Common/States/NamedId";
 
-export interface InputLevel extends NamedId {
-    filter: {
-        name: string
-        items: NamedId[]
-    }
-}
+// export interface InputLevel extends NamedId {
+// }
 
 export interface CostElementMeta extends NamedId {
     dependency: NamedId
@@ -16,7 +12,7 @@ export interface CostElementMeta extends NamedId {
 }
 
 export interface CostBlockMeta extends NamedId {
-    applicationId: string
+    applicationIds: string[]
     costElements: CostElementMeta[]
 }
 
@@ -25,7 +21,7 @@ export interface CostElementInputDto {
     scopes: NamedId[]
     countries: NamedId[]
     costBlockMetas: CostBlockMeta[]
-    inputLevels: InputLevel[]
+    inputLevels: NamedId[]
 }
 
 export interface CostElementInputState {
@@ -33,7 +29,7 @@ export interface CostElementInputState {
     scopes: Map<string, NamedId>
     countries: Map<string, NamedId>
     costBlockMetas: Map<string, CostBlockMeta>
-    inputLevels: Map<string, InputLevel> 
+    inputLevels: Map<string, NamedId> 
     selectedApplicationId: string
     selectedScopeId: string
     costBlocksInputs: CostBlockInputState[]
