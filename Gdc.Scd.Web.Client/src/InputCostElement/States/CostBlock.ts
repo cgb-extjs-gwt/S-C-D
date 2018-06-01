@@ -5,9 +5,13 @@ export interface EditItem extends NamedId {
     value: number
 }
 
+export interface CheckItem extends NamedId {
+    isChecked: boolean
+}
+
 export interface CostElementInput {
     costElementId: string
-    filter: MultiSelectList<NamedId>
+    filter: CheckItem[]
 }
 
 export interface CostBlockInputState {
@@ -17,7 +21,7 @@ export interface CostBlockInputState {
     visibleCostElementIds: string[]
     inputLevel: {
         selectedId: string
-        filter: MultiSelectList<NamedId>
+        filter: CheckItem[]
     }
     editItems: EditItem[]
 }

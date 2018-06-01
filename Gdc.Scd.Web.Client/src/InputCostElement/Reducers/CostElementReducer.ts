@@ -73,11 +73,11 @@ const initSuccess: Reducer<CostElementInputState, PageAction<CostElementInputDto
 const selectApplication: Reducer<CostElementInputState, ItemSelectedAction> = (state, action) => {
     const visibleCostBlockIds = getVisibleCostBlockIds(
         Array.from(state.costBlockMetas.values()), 
-        state.selectedApplicationId);
+        action.selectedItemId);
 
     const selectedCostBlockId = visibleCostBlockIds.includes(state.selectedCostBlockId)
-        ? visibleCostBlockIds[0]
-        : state.selectedCostBlockId;
+        ? state.selectedCostBlockId
+        : visibleCostBlockIds[0];
 
     return {
         ...state,
@@ -95,7 +95,7 @@ const selectScope: Reducer<CostElementInputState, ItemSelectedAction> = (state, 
             const costBlockMeta = state.costBlockMetas.get(costBlockInput.costBlockId);
             const visibleCostElementIds = getVisibleCostElementIds(
                 costBlockMeta.costElements, 
-                state.selectedScopeId);
+                action.selectedItemId);
 
             return {
                 ...costBlockInput,
@@ -105,7 +105,7 @@ const selectScope: Reducer<CostElementInputState, ItemSelectedAction> = (state, 
     }
 }
 
-export const costElementReducer: Reducer<CostElementInputState, Action<string>> = (state = <CostElementInputState>{}, action) => {
+export const costElementInputReducer: Reducer<CostElementInputState, Action<string>> = (state = <CostElementInputState>{}, action) => {
     switch(action.type) {
         case PAGE_INIT_SUCCESS:
             return initSuccess(state, <PageAction<CostElementInputDto>>action);

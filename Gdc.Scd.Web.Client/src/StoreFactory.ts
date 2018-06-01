@@ -1,7 +1,7 @@
 import { createStore, combineReducers, applyMiddleware } from "redux";
 import { PageState, PAGE_STATE_KEY } from "./Layout/States/PageStates";
 import { pageReducer } from "./Layout/Reducers/PageReducer";
-import { costElementReducer } from "./InputCostElement/Reducers/CostElementReducer";
+import { costElementInputReducer } from "./InputCostElement/Reducers/CostElementReducer";
 import { PageAction } from "./Layout/Actions/PageActions";
 import { AsyncAction } from "./Common/Actions/AsyncAction";
 
@@ -17,7 +17,7 @@ const asyncActionHandler = store => next => action => {
 const pageDataReducer = (state: PageState, action: PageAction) => {
     let data = state.data;
 
-    data = costElementReducer(data, action);
+    data = costElementInputReducer(data, action);
 
     return data;
 }

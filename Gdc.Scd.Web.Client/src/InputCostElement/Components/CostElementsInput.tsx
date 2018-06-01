@@ -64,7 +64,7 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
                     </ContainerField>
                 </FormPanel>
 
-                <Panel title="Cost Blocks:">
+                <Container title="Cost Blocks:">
                     {
                         costBlocks && 
                         costBlocks.list &&
@@ -77,32 +77,10 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
                             }
                             onActiveItemChange={this.onActiveTabChange}
                         >
-                            { 
-                                costBlocks.list.map(item => this.costBlockTab(item, costBlocks.selectedItemId)) 
-                            }
-
-                            {/* <Container title="Tab 1">
-                                <FormPanel defaults={{labelAlign: 'left'}}>
-                                    <ComboBoxField 
-                                        label="Application"
-                                        width="25%"/>
-
-                                    <ContainerField label="Scope" layout={{type: 'vbox', align: 'left'}}>
-                                        <RadioField boxLabel="Compact" name="priority"/>
-                                        <RadioField boxLabel="Mid-size" name="priority"/>
-                                        <RadioField boxLabel="SUV" name="priority"/>
-                                    </ContainerField>
-                                </FormPanel>
-                            </Container>
-                            <Container title="Tab 2" data={{id: 'tab2'}}>
-                                This is content for Tab 2!
-                            </Container>
-                            <Container title="Tab 3">
-                                This is content for Tab 3!
-                            </Container> */}
+                            {costBlocks.list.map(item => this.costBlockTab(item, costBlocks.selectedItemId))}
                         </FixedTabPanel>
                     }
-                </Panel>
+                </Container>
             </Container>
         );
     }
@@ -138,12 +116,15 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
     }
 
     private scopeRadioFild(scopeItem: NamedId, selectedScopeId: string) {
+        const { onScopeSelected } = this.props;
+
         return (
             <RadioField 
                 key={scopeItem.id} 
                 boxLabel={scopeItem.name} 
                 name="scope" 
                 checked={scopeItem.id === selectedScopeId}
+                onCheck={radioField => onScopeSelected(scopeItem.id)}
             />
         );
     }
@@ -193,7 +174,8 @@ const costBlockTabListMap = (
                         costElement => costBlockInput.visibleCostElementIds.includes(costElement.id))
                 },
                 filter: costElementInput && costElementInput.filter,
-                filterName: costElementMeta && costElementMeta.dependency.name
+                filterName: costElementMeta && costElementMeta.dependency.name,
+                description: costElementMeta && costElementMeta.description
             },
             inputLevel: {
                 selectList: {
