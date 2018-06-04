@@ -8,13 +8,26 @@ import { Filter } from './Filter';
 Ext.require('Ext.grid.plugin.CellEditing');
 
 export interface CostBlockActions {
-  onCountrySelected(countryId: string);
+  onCountrySelected(countryId: string)
+  onCostElementSelected(costElementId: string)
+  // onCostElementFilterSelectionChanged(
+  //   costElementId: string, 
+  //   filterItemId: string,
+  //   isSelected: boolean)
+  // onCostElementFilterReseted()
+  onInputLevelSelected(inputLevelId: string)
+  // onInputLevelFilterSelectionChanged(
+  //   inputLevelId: string, 
+  //   filterItemId: string,
+  //   isSelected: boolean)
+  // onInputLevelReseted()
 }
 
 export interface SelectListFilter {
   selectList: SelectList<NamedId>
   filter: CheckItem[],
-  filterName: string
+  filterName: string,
+  isVisibleFilter: boolean
 }
 
 export interface CostBlockProps {
@@ -28,18 +41,7 @@ export interface CostBlockProps {
 
 export class CostBlock extends React.Component<CostBlockProps & CostBlockActions> {
   public render() {
-    const { 
-      country, 
-      costElement: {
-        selectList: costElements,
-        filterName: costElFilterName,
-        filter: costElFilter,
-        description
-      },
-      inputLevel: {
-        selectList: inputLevels
-      } 
-    } = this.props;
+    const { country, costElement, inputLevel } = this.props;
 
     return (
       <Container layout={{ type: 'hbox', align: 'stretch '}}>
@@ -47,53 +49,55 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
           <Container layout="hbox">
             <FormPanel flex={1}>
               {this.countryCombobox(country)}
-              {this.radioFieldSet(costElements, 'Cost Elements')}
+              {
+                this.radioFieldSet(
+                  'costelements', 
+                  costElement.selectList, 
+                  'Cost Elements', 
+                  costElement => this.props.onCostElementSelected(costElement.id)
+                )
+              }
             </FormPanel>
 
-            <Filter 
-              title="Dependent from:" 
-              //valueColumnText={costElFilterName}
-              //items={costElFilter} 
-              valueColumnText="Test title"
-              height="500"
-              items={[
-                {id:'1', name:'test1', isChecked: true},
-                {id:'2', name:'test2', isChecked: false},
-                {id:'3', name:'test3', isChecked: false},
-                {id:'4', name:'test4', isChecked: false},
-                {id:'5', name:'test5', isChecked: false},
-                {id:'6', name:'test7', isChecked: false},
-              ]}
-              flex={1} 
-            />
+            { 
+              costElement.isVisibleFilter &&
+              <Filter 
+                title="Dependent from:" 
+                valueColumnText={costElement.filterName}
+                items={costElement.filter} 
+                height="500"
+                flex={1} 
+              />
+            }
           </Container>
 
           <Panel title="Description" padding="10">
-            {description}
+            {costElement.description}
           </Panel>
         </Container>
 
         <Container flex={1} layout="vbox" padding="0px 0px 0px 5px">
           <Container layout="hbox">
             <FormPanel flex={1}>
-              {this.radioFieldSet(inputLevels, 'Input Level')}
+              {
+                this.radioFieldSet(
+                  'inputlevels', 
+                  inputLevel.selectList, 
+                  'Input Level',
+                  inputLevel => this.props.onInputLevelSelected(inputLevel.id)
+                )
+              }
             </FormPanel>
             
-            <Filter 
-              //valueColumnText={costElFilterName}
-              //items={costElFilter} 
-              valueColumnText="Test title"
-              height="350"
-              items={[
-                {id:'1', name:'test1', isChecked: true},
-                {id:'2', name:'test2', isChecked: false},
-                {id:'3', name:'test3', isChecked: false},
-                {id:'4', name:'test4', isChecked: false},
-                {id:'5', name:'test5', isChecked: false},
-                {id:'6', name:'test7', isChecked: false},
-              ]}
-              flex={1} 
-            />
+            {
+              inputLevel.isVisibleFilter &&
+              <Filter 
+                valueColumnText={inputLevel.filterName}
+                items={inputLevel.filter} 
+                height="350"
+                flex={1} 
+              />
+            }
           </Container>
 
           {this.editGrid([], 'Name title', 'Value title')}
@@ -125,24 +129,41 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
     );
   }
 
-  private radioField(name: string, costElement: NamedId, selectedCostElementId: string) {
+  private radioField(
+    name: string, 
+    item: NamedId, 
+    selectedCostElementId: string,
+    onSelected: (item: NamedId) => void
+  ) {
     return (
       <RadioField 
-          key={costElement.id} 
-          boxLabel={costElement.name} 
+          key={item.id} 
+          boxLabel={item.name} 
           name={name} 
-          checked={costElement.id === selectedCostElementId}
+          checked={item.id === selectedCostElementId}
+          onCheck={radioField => onSelected(item)}
       />
     );
   }
 
-  private radioFieldSet(selectList: SelectList<NamedId>, label: string) {
+  private radioFieldSet(
+    setName: string, 
+    selectList: SelectList<NamedId>, 
+    label: string, 
+    onSelected: (item: NamedId) => void
+  ) {    
     return (
       <ContainerField label={label} layout={{type: 'vbox', align: 'left'}}>
         {
           selectList && 
-          selectList.list.map(costElement => 
-            this.radioField('costElement', costElement, selectList.selectedItemId))
+          selectList.list.map(item => 
+            this.radioField(
+              setName, 
+              item, 
+              selectList.selectedItemId,
+              onSelected
+            )
+          )
         }
       </ContainerField>
     );
@@ -168,20 +189,21 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
         shadow 
         height={400}
         columnLines={true}
-        //plugins={[{ type: 'cellediting', triggerEvent: 'singletap' }]}
-        //plugins={['cellediting', 'selectionreplicator']}
-        plugins={{
-          selectionreplicator: true,
-          //clipboard: true
-        }}
+        // plugins={[
+        //   { type: 'cellediting', triggerEvent: 'singletap' },
+        //   'selectionreplicator'
+        // ]}
+        plugins={['cellediting', 'selectionreplicator']}
         selectable={{
           rows: true,
           cells: true,
           columns: true,
-          drag: true
+          drag: true,
+          extensible: 'y'
         }}
+        
       >
-        <Column text={nameTitle} dataIndex="name" flex={1}/>
+        <Column text={nameTitle} dataIndex="name" flex={1} extensible={false}/>
         <Column text={valueTitle} dataIndex="value" flex={1} editable={true}/>
 
         <Toolbar docked="bottom">

@@ -19,7 +19,7 @@ export const Filter: React.StatelessComponent<FilterProps> = ({
     height
 }) => {
     const store = Ext.create('Ext.data.Store', {
-        groupField: 'isChecked',
+        //groupField: 'isChecked',
         data: items
     });
 

@@ -13,13 +13,14 @@ import FixedTabPanel from '../../Common/Components/FixedTabPanel';
 import { connect } from 'react-redux';
 import { PageCommonState, PageState, PAGE_STATE_KEY } from '../../Layout/States/PageStates';
 import { CostElementInputState, CostBlockMeta } from '../States/CostElementState';
-import { get } from '../Services/CostElementService';
+import { getCostElementInput } from '../Services/CostElementService';
 import { selectApplication, selectScope, init, selectCostBlock } from '../Actions/InputCostElementActions';
 import data from '../../Test/Home/data';
 import { NamedId } from '../../Common/States/NamedId';
 import { SelectList } from '../../Common/States/SelectList';
 import { CostBlockInputState } from '../States/CostBlock';
 import { CostBlock as CostBlockComp, CostBlockProps } from './CostBlocks'
+import { selectCountry, selectCostElement, selectInputLevel, getFilterItemsByCustomElementSelection, getFilterItemsByInputLevelSelection } from '../Actions/CostBlockInputActions';
 
 export interface CostElementActions {
     onInit();
@@ -28,6 +29,8 @@ export interface CostElementActions {
     onCostBlockSelected(costBlockId: string);
     tabActions: {
         onCountrySelected(countryId: string, costBlockId: string)
+        onCostElementSelected(costBlockId: string, costElementId: string)
+        onInputLevelSelected(costBlockId: string, inputLevelId: string)
     }
 }
 
@@ -130,13 +133,19 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
     }
 
     private costBlockTab(costBlockTab: CostBlockTab, selectedCostBlockId: string) {
-        const { onCountrySelected } = this.props.tabActions;
+        const { 
+            onCountrySelected, 
+            onCostElementSelected, 
+            onInputLevelSelected 
+        } = this.props.tabActions;
 
         return (
             <Container key={costBlockTab.id} title={costBlockTab.name}>
                 <CostBlockComp 
                     {...costBlockTab.costBlock} 
                     onCountrySelected={countryId => onCountrySelected(countryId, costBlockTab.id)} 
+                    onCostElementSelected={costElementId => onCostElementSelected(costBlockTab.id, costElementId)}
+                    onInputLevelSelected={inputLevelId => onInputLevelSelected(costBlockTab.id, inputLevelId)}
                 />
             </Container>
         );
@@ -174,8 +183,9 @@ const costBlockTabListMap = (
                         costElement => costBlockInput.visibleCostElementIds.includes(costElement.id))
                 },
                 filter: costElementInput && costElementInput.filter,
-                filterName: costElementMeta && costElementMeta.dependency.name,
-                description: costElementMeta && costElementMeta.description
+                filterName: costElementMeta && costElementMeta.dependency && costElementMeta.dependency .name,
+                description: costElementMeta && costElementMeta.description,
+                isVisibleFilter: costElementInput && costElementInput.filter && costElementInput.filter.length > 0
             },
             inputLevel: {
                 selectList: {
@@ -183,7 +193,8 @@ const costBlockTabListMap = (
                     list: Array.from(inputLevel.values())
                 },
                 filter: costElementInput && costElementInput.filter,
-                filterName: selectedInputLevel && selectedInputLevel.name
+                filterName: selectedInputLevel && selectedInputLevel.name,
+                isVisibleFilter: costElementInput && costElementInput.filter && costElementInput.filter.length > 0
             },
             editItems: []
         }
@@ -235,7 +246,13 @@ export const CostElementsInputContainer = connect<CostElementsProps,CostElementA
         onScopeSelected: scopeId => dispatch(selectScope(scopeId)),
         onCostBlockSelected: costBlockId => dispatch(selectCostBlock(costBlockId)),
         tabActions: {
-            onCountrySelected: () => ''
+            onCountrySelected: (countryId, costBlockId) => dispatch(selectCountry(countryId, costBlockId)),
+            onCostElementSelected: (costBlockId, costElementId) => dispatch(
+                getFilterItemsByCustomElementSelection(costBlockId, costElementId)
+            ),
+            onInputLevelSelected: (costBlockId, inputLevelId) => dispatch(
+                getFilterItemsByInputLevelSelection(costBlockId, inputLevelId)
+            )
         }
     })
 )(CostElementsInput);

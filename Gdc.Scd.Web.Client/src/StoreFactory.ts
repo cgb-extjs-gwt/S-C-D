@@ -4,20 +4,22 @@ import { pageReducer } from "./Layout/Reducers/PageReducer";
 import { costElementInputReducer } from "./InputCostElement/Reducers/CostElementReducer";
 import { PageAction } from "./Layout/Actions/PageActions";
 import { AsyncAction } from "./Common/Actions/AsyncAction";
+import { CostElementInputState } from "./InputCostElement/States/CostElementState";
+import { costBlockInputReducer } from "./InputCostElement/Reducers/CostBlockInputReducer";
 
 const asyncActionHandler = store => next => action => {
     if (action instanceof AsyncAction) {
-        //action(store.dispatch, store.getState())
         (<AsyncAction>action).handler(store.dispatch, store.getState());
     } else {
         next(action);
     }
 }
 
-const pageDataReducer = (state: PageState, action: PageAction) => {
+const pageDataReducer = (state: PageState<CostElementInputState>, action: PageAction) => {
     let data = state.data;
 
     data = costElementInputReducer(data, action);
+    data = costBlockInputReducer(data, action);
 
     return data;
 }

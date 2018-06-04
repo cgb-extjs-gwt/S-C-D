@@ -4,8 +4,8 @@ export interface PageTitle {
     title: string;
 }
 
-export interface PageData {
-    data: any
+export interface PageData<TData = any> {
+    data: TData
 }
 
 export interface PageError {
@@ -16,7 +16,7 @@ export interface PageError {
 //     name: string;
 // }
 
-export interface PageState extends PageTitle, PageData, PageError {
+export interface PageState<TData = any> extends PageTitle, PageData<TData>, PageError {
     isLoading: boolean
 }
 
@@ -27,6 +27,6 @@ export interface PageState extends PageTitle, PageData, PageError {
 //     data: any;
 // }
 
-export interface PageCommonState {
+export interface PageCommonState<TData = any> {
     page: PageState
 }
