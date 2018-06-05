@@ -28,5 +28,5 @@ export interface PageState<TData = any> extends PageTitle, PageData<TData>, Page
 // }
 
 export interface PageCommonState<TData = any> {
-    page: PageState
+    page: PageState<TData>
 }

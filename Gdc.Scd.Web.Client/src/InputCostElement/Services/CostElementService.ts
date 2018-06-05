@@ -1,6 +1,17 @@
 import { CostElementInputState, CostElementInputDto } from "../States/CostElementState";
-import { CostBlockInputState } from "../States/CostBlock";
+import { CostBlockInputState, EditItem } from "../States/CostBlock";
 import { NamedId } from "../../Common/States/NamedId";
+
+export interface Context {
+    applicationId: string
+    scopeId: string
+    countryId: string
+    costBlockId: string
+    costElementId: string
+    inputLevelId: string
+    costElementFilterIds: string[],
+    inputLevelFilterIds: string[]
+}
 
 export const getCostElementInput = () => Promise.resolve(<CostElementInputDto>{
     applications: [
@@ -206,4 +217,34 @@ export const getLevelInputFilterItems = (costBlockId: string, inputLevelId: stri
     }
 
     return Promise.resolve(filterItems)
+}
+
+export const getEditItems = (context: Context) => {
+    const editItems: EditItem[] = [];
+    const {
+        applicationId,
+        scopeId,
+        countryId,
+        costElementId,
+        costBlockId,
+        inputLevelId
+    } = context;
+
+    const editItemCount = 
+        applicationId.length + 
+        scopeId.length + 
+        countryId.length + 
+        costBlockId.length +
+        costElementId.length +
+        inputLevelId.length;
+
+    for (let i = 0; i < editItemCount; i++) {
+        editItems.push({
+            id: i.toString(),
+            name: `test${i}`,
+            value: i * editItemCount
+        });
+    }
+
+    return Promise.resolve(editItems);
 }

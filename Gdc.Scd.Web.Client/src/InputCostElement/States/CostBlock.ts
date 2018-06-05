@@ -14,14 +14,19 @@ export interface CostElementInput {
     filter: CheckItem[]
 }
 
+export interface InputLevelInput {
+    inputLevelId: string
+    filter: CheckItem[]
+}
+
 export interface CostBlockInputState {
     costBlockId: string
     selectedCountryId: string
     costElement: SelectList<CostElementInput>
     visibleCostElementIds: string[]
-    inputLevel: {
-        selectedId: string
-        filter: CheckItem[]
+    inputLevel: SelectList<InputLevelInput>
+    edit: {
+        originalItems: EditItem[],
+        editedItems: EditItem[]
     }
-    editItems: EditItem[]
 }

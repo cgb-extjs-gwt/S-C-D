@@ -3,7 +3,12 @@ import { Grid, CheckColumn, Column, Toolbar, Button } from '@extjs/ext-react';
 import { NamedId } from '../../Common/States/NamedId';
 import { CheckItem } from '../States/CostBlock';
 
-export interface FilterProps {
+export interface FilterActions {
+    onSelectionChanged?: (item: NamedId, isSelected: boolean) => void
+    onReset?: () => void
+}
+
+export interface FilterProps extends FilterActions {
     title?: string
     valueColumnText?: string
     items: CheckItem[]
@@ -16,8 +21,11 @@ export const Filter: React.StatelessComponent<FilterProps> = ({
     items, 
     flex, 
     valueColumnText,
-    height
+    height,
+    onSelectionChanged,
+    onReset
 }) => {
+    
     const store = Ext.create('Ext.data.Store', {
         //groupField: 'isChecked',
         data: items
@@ -34,11 +42,16 @@ export const Filter: React.StatelessComponent<FilterProps> = ({
             height={height}
             columnLines={true}
         >
-            <CheckColumn dataIndex="isChecked"/>
+            <CheckColumn 
+                dataIndex="isChecked"
+                onCheckChange={(cell, rowIndex, isChecked: boolean, record) =>{
+                    onSelectionChanged && onSelectionChanged(record.data, isChecked)
+                }}
+            />
             <Column text={valueColumnText || ''}  dataIndex="name" flex={1}/>
 
             <Toolbar docked="bottom">
-                <Button text="Reset" flex={1}/>
+                <Button text="Reset" flex={1} handler={() => onReset && onReset()}/>
             </Toolbar>
         </Grid>
     );

@@ -1,5 +1,5 @@
 import { Reducer, Action } from "redux";
-import { CostBlockInputState, CostElementInput } from "../States/CostBlock";
+import { CostBlockInputState, CostElementInput, InputLevelInput } from "../States/CostBlock";
 import { PAGE_INIT_SUCCESS, PageAction } from "../../Layout/Actions/PageActions";
 import { CostElementInputDto, CostElementMeta, CostElementInputState, CostBlockMeta } from "../States/CostElementState";
 import { 
@@ -27,7 +27,10 @@ import {
     COST_BLOCK_INPUT_LOAD_COST_ELEMENT_FILTER,
     CostlElementsFilterLoadedAction,
     InputLevelFilterLoadedAction,
-    COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER
+    COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER,
+    COST_BLOCK_INPUT_LOAD_EDIT_ITEMS,
+    EditItemsLoadedAction,
+    COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS
  } from "../Actions/CostBlockInputActions";
 import { mapIf } from "../../Common/Helpers/CommonHelpers";
 import { changeSelecitonFilterItem, resetFilter, loadFilter } from "./FilterReducer";
@@ -42,8 +45,35 @@ const getVisibleCostElementIds = (costElementMetas: CostElementMeta[], selectedS
                            .map(costElementMeta => costElementMeta.id);
 }
 
+const clearCostBlockFilters  = (costBlock: CostBlockInputState, clearSelected: boolean = false) => {
+    const result: CostBlockInputState = {
+        ...costBlock,
+        costElement: {
+            ...costBlock.costElement,
+            list: costBlock.costElement.list.map(costElement => ({
+                ...costElement,
+                filter: null
+            }))
+        },
+        inputLevel: {
+            ...costBlock.inputLevel,
+            list: costBlock.inputLevel.list.map(inputLevel => ({
+                ...inputLevel,
+                filter: null
+            }))
+        }
+    };
+
+    if (clearSelected) {
+        result.costElement.selectedItemId = null;
+        result.inputLevel.selectedItemId = null;
+    }
+
+    return result;
+}
+
 const initSuccess: Reducer<CostElementInputState, PageAction<CostElementInputDto>> = (state, action) => {
-    const { costBlockMetas, countries } = action.data;
+    const { costBlockMetas, countries, inputLevels } = action.data;
     const selectedCountryId = countries[0].id;
     const visibleCostBlockIds = getVisibleCostBlockIds(costBlockMetas, state.selectedApplicationId);
 
@@ -60,11 +90,16 @@ const initSuccess: Reducer<CostElementInputState, PageAction<CostElementInputDto
                     }))
                 },
                 visibleCostElementIds: getVisibleCostElementIds(costBlockMeta.costElements, state.selectedScopeId),
-                inputLevel:{
-                    selectedId: null,
-                    filter: null
+                inputLevel: {
+                    selectedItemId: null,
+                    list: inputLevels.map(inputLevel => (<InputLevelInput>{
+                        inputLevelId: inputLevel.id
+                    }))
                 },
-                editItems: null
+                edit: {
+                    originalItems: null,
+                    editedItems: null
+                }
             })),
             visibleCostBlockIds,
             selectedCostBlockId: visibleCostBlockIds[0]
@@ -83,6 +118,7 @@ const selectApplication: Reducer<CostElementInputState, ItemSelectedAction> = (s
 
     return {
         ...state,
+        costBlocksInputs: state.costBlocksInputs.map(costBlock => clearCostBlockFilters(costBlock, true)),
         visibleCostBlockIds,
         selectedCostBlockId
     }
@@ -98,7 +134,7 @@ const selectScope: Reducer<CostElementInputState, ItemSelectedAction> = (state, 
                 action.selectedItemId);
 
             return {
-                ...costBlockInput,
+                ...clearCostBlockFilters(costBlockInput, true),
                 visibleCostElementIds
             };
         })
@@ -138,8 +174,28 @@ const buildCostElementListItemChanger = <TAction extends CostElementAction>(
         })
     )
 
+const buildInputLevelFilterChanger = <TAction extends InputLevelAction>(
+    changeFn: ((costElement: InputLevelInput, action: TAction) => InputLevelInput)
+) => 
+    buildCostBlockChanger<TAction>(
+        (costBlock, action) => ({
+            ...costBlock,
+            inputLevel: {
+                ...costBlock.inputLevel,
+                list: mapIf(
+                    costBlock.inputLevel.list, 
+                    item => item.inputLevelId === action.inputLevelId, 
+                    item => changeFn(item, action)
+                )
+            }
+        })
+    )
+
 const selectCountry = buildCostBlockChanger<CountrySelectedAction>(
-    (costBlock, action) => ({...costBlock, selectedCountryId: action.countryId})
+    (costBlock, action) => ({
+        ...clearCostBlockFilters(costBlock), 
+        selectedCountryId: action.countryId,
+    })
 )
 
 const selectCostElement = buildCostBlockChanger<CostElementAction>(
@@ -171,28 +227,22 @@ const selectInputLevel = buildCostBlockChanger<InputLevelAction>(
         ...costBlcok,
         inputLevel: {
             ...costBlcok.inputLevel,
-            selectedId: action.inputLevelId
+            selectedItemId: action.inputLevelId
         }
     })
 )
 
-const changeSelectionInputLevelFilter = buildCostBlockChanger<InputLevelFilterSelectionChangedAction>(
-    (costBlcok, action) => ({
-        ...costBlcok,
-        inputLevel: {
-            ...costBlcok.inputLevel,
-            filter: changeSelecitonFilterItem(costBlcok.inputLevel.filter, action)
-        }
+const changeSelectionInputLevelFilter = buildInputLevelFilterChanger<InputLevelFilterSelectionChangedAction>(
+    (inputLevel, action) => ({
+        ...inputLevel, 
+        filter: changeSelecitonFilterItem(inputLevel.filter, action)
     })
 )
 
-const resetInputLevelFilter = buildCostBlockChanger<InputLevelAction>(
-    costBlcok => ({
-        ...costBlcok,
-        inputLevel: {
-            ...costBlcok.inputLevel,
-            filter: resetFilter(costBlcok.inputLevel.filter)
-        }
+const resetInputLevelFilter = buildInputLevelFilterChanger(
+    inputLevel => ({
+        ...inputLevel,
+        filter: resetFilter(inputLevel.filter)
     })
 )
 
@@ -203,12 +253,30 @@ const loadCostElementFilter = buildCostElementListItemChanger<CostlElementsFilte
     })
 )
 
-const loadLevelInputFilter = buildCostBlockChanger<InputLevelFilterLoadedAction>(
-    costBlcok => ({
-        ...costBlcok,
-        inputLevel: {
-            ...costBlcok.inputLevel,
-            filter: loadFilter(costBlcok.inputLevel.filter)
+const loadLevelInputFilter = buildInputLevelFilterChanger<InputLevelFilterLoadedAction>(
+    (inputLevel, action) => ({
+        ...inputLevel,
+        filter: loadFilter(action.filterItems)
+    })
+)
+
+const loadEditItems = buildCostBlockChanger<EditItemsLoadedAction>(
+    (costBlock, action) => ({
+        ...costBlock,
+        edit: {
+            ...costBlock.edit,
+            editedItems: [],
+            originalItems: action.editItems
+        }
+    })
+)
+
+const clearEditItems = buildCostBlockChanger(
+    costblock => ({
+        ...costblock,
+        edit: {
+            ...costblock.edit,
+            editedItems: []
         }
     })
 )
@@ -256,6 +324,12 @@ export const costBlockInputReducer: Reducer<CostElementInputState, Action<string
 
         case COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER:
             return loadLevelInputFilter(state, action)
+
+        case COST_BLOCK_INPUT_LOAD_EDIT_ITEMS:
+            return loadEditItems(state, action)
+
+        case COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS:
+            return clearEditItems(state, action)
 
         default:
             return state;

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, ComboBoxField, Panel, FormPanel, RadioField, ContainerField, Grid, Column, Toolbar, Button } from '@extjs/ext-react';
+import { Container, ComboBoxField, Panel, FormPanel, RadioField, ContainerField, Grid, Column, Toolbar, Button, Label } from '@extjs/ext-react';
 import { CostBlockInputState, EditItem, CheckItem } from '../States/CostBlock'
 import { NamedId } from '../../Common/States/NamedId';
 import { SelectList, MultiSelectList } from '../../Common/States/SelectList';
@@ -8,19 +8,20 @@ import { Filter } from './Filter';
 Ext.require('Ext.grid.plugin.CellEditing');
 
 export interface CostBlockActions {
-  onCountrySelected(countryId: string)
-  onCostElementSelected(costElementId: string)
-  // onCostElementFilterSelectionChanged(
-  //   costElementId: string, 
-  //   filterItemId: string,
-  //   isSelected: boolean)
-  // onCostElementFilterReseted()
-  onInputLevelSelected(inputLevelId: string)
-  // onInputLevelFilterSelectionChanged(
-  //   inputLevelId: string, 
-  //   filterItemId: string,
-  //   isSelected: boolean)
-  // onInputLevelReseted()
+  onCountrySelected?: (countryId: string) => void
+  onCostElementSelected?: (costElementId: string) => void
+  onCostElementFilterSelectionChanged?: (
+    costElementId: string, 
+    filterItemId: string,
+    isSelected: boolean) => void
+  onCostElementFilterReseted?: (costElementId: string) => void
+  onInputLevelSelected?: (inputLevelId: string) => void
+  onInputLevelFilterSelectionChanged?: (
+    inputLevelId: string, 
+    filterItemId: string,
+    isSelected: boolean) => void
+  onInputLevelFilterReseted?: (inputLevelId: string) => void
+  onEditItemsCleared?: () => void
 }
 
 export interface SelectListFilter {
@@ -36,12 +37,28 @@ export interface CostBlockProps {
     description: string
   }
   inputLevel: SelectListFilter
-  editItems: EditItem[]
+  edit: {
+    nameColumnTitle: string
+    valueColumnTitle: string
+    items: EditItem[]
+    isVisible: boolean
+  }
 }
 
 export class CostBlock extends React.Component<CostBlockProps & CostBlockActions> {
   public render() {
-    const { country, costElement, inputLevel } = this.props;
+    const { 
+      country, 
+      costElement, 
+      inputLevel,
+      onCostElementSelected,
+      onInputLevelSelected,
+      onCostElementFilterSelectionChanged,
+      onInputLevelFilterSelectionChanged,
+      onCostElementFilterReseted,
+      onInputLevelFilterReseted,
+      edit
+    } = this.props;
 
     return (
       <Container layout={{ type: 'hbox', align: 'stretch '}}>
@@ -54,7 +71,7 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
                   'costelements', 
                   costElement.selectList, 
                   'Cost Elements', 
-                  costElement => this.props.onCostElementSelected(costElement.id)
+                  costElement => onCostElementSelected && onCostElementSelected(costElement.id)
                 )
               }
             </FormPanel>
@@ -66,13 +83,30 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
                 valueColumnText={costElement.filterName}
                 items={costElement.filter} 
                 height="500"
-                flex={1} 
+                flex={1}
+                onSelectionChanged={
+                  (item: NamedId, isSelected: boolean) =>
+                    onCostElementFilterSelectionChanged &&
+                    onCostElementFilterSelectionChanged(
+                      costElement.selectList.selectedItemId,
+                      item.id,
+                      isSelected
+                    )
+                }
+                onReset={
+                  () => 
+                    onCostElementFilterReseted && 
+                    onCostElementFilterReseted(costElement.selectList.selectedItemId)
+                }
               />
             }
           </Container>
 
           <Panel title="Description" padding="10">
-            {costElement.description}
+            {
+              costElement.description != null &&
+              <Label html={costElement.description}/>
+            }
           </Panel>
         </Container>
 
@@ -84,7 +118,7 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
                   'inputlevels', 
                   inputLevel.selectList, 
                   'Input Level',
-                  inputLevel => this.props.onInputLevelSelected(inputLevel.id)
+                  inputLevel => onInputLevelSelected && onInputLevelSelected(inputLevel.id)
                 )
               }
             </FormPanel>
@@ -95,12 +129,25 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
                 valueColumnText={inputLevel.filterName}
                 items={inputLevel.filter} 
                 height="350"
-                flex={1} 
+                flex={1}
+                onSelectionChanged={
+                  (item: NamedId, isSelected: boolean) =>
+                    onInputLevelFilterSelectionChanged &&
+                    onInputLevelFilterSelectionChanged(
+                      inputLevel.selectList.selectedItemId,
+                      item.id,
+                      isSelected
+                    )
+                }
+                onReset={() => onInputLevelFilterReseted && onInputLevelFilterReseted(inputLevel.selectList.selectedItemId)}
               />
             }
           </Container>
 
-          {this.editGrid([], 'Name title', 'Value title')}
+          {
+            edit.isVisible && 
+            this.editGrid(edit.items, edit.nameColumnTitle, edit.valueColumnTitle)
+          }
         </Container>
       </Container>
     );
@@ -170,16 +217,10 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
   }
 
   private editGrid(items: EditItem[], nameTitle: string, valueTitle) {
+    const { onEditItemsCleared } = this.props;
+
     const store = Ext.create('Ext.data.Store', {
-        //data: items
-        data: [
-          {id:'1', name:'test1', value: 10},
-          {id:'2', name:'test2', value: 20},
-          {id:'3', name:'test3', value: 30},
-          {id:'4', name:'test4', value: 40},
-          {id:'5', name:'test5', value: 50},
-          {id:'6', name:'test7', value: 60},
-        ]
+        data: items
     });
 
     return (
@@ -207,7 +248,7 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
         <Column text={valueTitle} dataIndex="value" flex={1} editable={true}/>
 
         <Toolbar docked="bottom">
-            <Button text="Clear" flex={1}/>
+            <Button text="Clear" flex={1} handler={() => onEditItemsCleared && onEditItemsCleared()}/>
             <Button text="Save" flex={1}/>
         </Toolbar>
       </Grid>

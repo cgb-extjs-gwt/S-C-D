@@ -20,17 +20,30 @@ import { NamedId } from '../../Common/States/NamedId';
 import { SelectList } from '../../Common/States/SelectList';
 import { CostBlockInputState } from '../States/CostBlock';
 import { CostBlock as CostBlockComp, CostBlockProps } from './CostBlocks'
-import { selectCountry, selectCostElement, selectInputLevel, getFilterItemsByCustomElementSelection, getFilterItemsByInputLevelSelection } from '../Actions/CostBlockInputActions';
+import { selectCountry, selectCostElement, selectInputLevel, getFilterItemsByCustomElementSelection, getFilterItemsByInputLevelSelection, reloadFilterBySelectedCountry, changeSelectionCostElementFilter, changeSelectionInputLevelFilter, resetCostElementFilter, resetInputLevelFilter, loadEditItemsByContext, clearEditItems } from '../Actions/CostBlockInputActions';
 
 export interface CostElementActions {
-    onInit();
-    onApplicationSelected(aplicationId: string);
-    onScopeSelected(scopeId: string);
-    onCostBlockSelected(costBlockId: string);
+    onInit?: () => void;
+    onApplicationSelected?: (aplicationId: string) => void;
+    onScopeSelected?: (scopeId: string) => void;
+    onCostBlockSelected?: (costBlockId: string) => void;
     tabActions: {
-        onCountrySelected(countryId: string, costBlockId: string)
-        onCostElementSelected(costBlockId: string, costElementId: string)
-        onInputLevelSelected(costBlockId: string, inputLevelId: string)
+        onCountrySelected?: (countryId: string, costBlockId: string) => void
+        onCostElementSelected?: (costBlockId: string, costElementId: string) => void
+        onInputLevelSelected?: (costBlockId: string, inputLevelId: string) => void
+        onCostElementFilterSelectionChanged?: (
+            costBlockId: string,
+            costElementId: string, 
+            filterItemId: string,
+            isSelected: boolean) => void
+        onInputLevelFilterSelectionChanged?: (
+            costBlockId: string,
+            inputLevelId: string, 
+            filterItemId: string,
+            isSelected: boolean) => void
+        onCostElementFilterReseted?: (costBlockId: string, costElementId: string) => void
+        onInputLevelFilterReseted?: (costBlockId: string, inputLevelId: string) => void
+        onEditItemsCleared?: (costBlockId: string) => void
     }
 }
 
@@ -47,7 +60,7 @@ export interface CostElementsProps {
 export class CostElementsInput extends React.Component<CostElementsProps & CostElementActions> {
     constructor(props: CostElementsProps & CostElementActions){
         super(props);
-        props.onInit();
+        props.onInit && props.onInit();
     }
 
     public render() {
@@ -89,13 +102,17 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
     }
 
     private onActiveTabChange = (tabPanel, newValue, oldValue) => {
+        const { onCostBlockSelected } = this.props;
+
         const activeTabIndex = tabPanel.getActiveItemIndex();
         const selectedCostBlockId = this.props.costBlocks.list[activeTabIndex].id;
 
-        this.props.onCostBlockSelected(selectedCostBlockId);
+        onCostBlockSelected && onCostBlockSelected(selectedCostBlockId);
     }
 
     private applicationCombobox(application: SelectList<NamedId>) {
+        const { onApplicationSelected } = this.props;
+
         const applicatonStore = Ext.create('Ext.data.Store', {
             data: application && application.list
         });
@@ -113,7 +130,9 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
                 queryMode="local"
                 store={applicatonStore}
                 selection={selectedApplication}
-                onChange={(combobox, newValue, oldValue) => this.props.onApplicationSelected(newValue)}
+                onChange={(combobox, newValue, oldValue) => 
+                    onApplicationSelected && onApplicationSelected(newValue)
+                }
             />
         );
     }
@@ -127,7 +146,7 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
                 boxLabel={scopeItem.name} 
                 name="scope" 
                 checked={scopeItem.id === selectedScopeId}
-                onCheck={radioField => onScopeSelected(scopeItem.id)}
+                onCheck={radioField => onScopeSelected && onScopeSelected(scopeItem.id)}
             />
         );
     }
@@ -136,16 +155,53 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
         const { 
             onCountrySelected, 
             onCostElementSelected, 
-            onInputLevelSelected 
+            onInputLevelSelected,
+            onCostElementFilterSelectionChanged,
+            onInputLevelFilterSelectionChanged,
+            onCostElementFilterReseted,
+            onInputLevelFilterReseted,
+            onEditItemsCleared
         } = this.props.tabActions;
 
         return (
             <Container key={costBlockTab.id} title={costBlockTab.name}>
                 <CostBlockComp 
                     {...costBlockTab.costBlock} 
-                    onCountrySelected={countryId => onCountrySelected(countryId, costBlockTab.id)} 
-                    onCostElementSelected={costElementId => onCostElementSelected(costBlockTab.id, costElementId)}
-                    onInputLevelSelected={inputLevelId => onInputLevelSelected(costBlockTab.id, inputLevelId)}
+                    onCountrySelected={
+                        countryId => 
+                            onCountrySelected && onCountrySelected(countryId, costBlockTab.id)
+                    } 
+                    onCostElementSelected={
+                        costElementId => 
+                            onCostElementSelected && onCostElementSelected(costBlockTab.id, costElementId)
+                    }
+                    onInputLevelSelected={
+                        inputLevelId => 
+                            onInputLevelSelected && onInputLevelSelected(costBlockTab.id, inputLevelId)
+                    }
+                    onCostElementFilterSelectionChanged={
+                        (costElementId, filterItemId, isSelected) =>
+                            onCostElementFilterSelectionChanged && 
+                            onCostElementFilterSelectionChanged(costBlockTab.id, costElementId, filterItemId, isSelected)
+                    }
+                    onInputLevelFilterSelectionChanged={
+                        (inputLevelId, filterItemId, isSelected) =>
+                            onInputLevelFilterSelectionChanged && 
+                            onInputLevelFilterSelectionChanged(costBlockTab.id, inputLevelId, filterItemId, isSelected)
+                    }
+                    onCostElementFilterReseted={
+                        costElementId => 
+                            onCostElementFilterReseted && 
+                            onCostElementFilterReseted(costBlockTab.id, costElementId)
+                    }
+                    onInputLevelFilterReseted={
+                        inputLevelId =>
+                            onInputLevelFilterReseted && 
+                            onInputLevelFilterReseted(costBlockTab.id, inputLevelId)
+                    }
+                    onEditItemsCleared={
+                        () => onEditItemsCleared && onEditItemsCleared(costBlockTab.id)
+                    }
                 />
             </Container>
         );
@@ -158,15 +214,21 @@ const costBlockTabListMap = (
     costBlockMeta: CostBlockMeta,
     inputLevel:  Map<string, NamedId> 
 ): CostBlockTab => {
+    const { edit } = costBlockInput;
+
     const costElementInput = 
         costBlockInput.costElement.list.find(
             item => item.costElementId === costBlockInput.costElement.selectedItemId);
 
-    const costElementMeta = 
+    const selectedCostElementMeta = 
         costBlockMeta.costElements.find(
             item => item.id === costBlockInput.costElement.selectedItemId);
 
-    const selectedInputLevel = inputLevel.get(costBlockInput.inputLevel.selectedId);
+    const selectedInputLevelMeta = inputLevel.get(costBlockInput.inputLevel.selectedItemId);
+    const selectedInputLevel = 
+        costBlockInput.inputLevel.list && 
+        costBlockInput.inputLevel.list.find(
+            item => item.inputLevelId === costBlockInput.inputLevel.selectedItemId)
     
     return {
         id: costBlockInput.costBlockId,
@@ -183,25 +245,35 @@ const costBlockTabListMap = (
                         costElement => costBlockInput.visibleCostElementIds.includes(costElement.id))
                 },
                 filter: costElementInput && costElementInput.filter,
-                filterName: costElementMeta && costElementMeta.dependency && costElementMeta.dependency .name,
-                description: costElementMeta && costElementMeta.description,
+                filterName: selectedCostElementMeta && 
+                            selectedCostElementMeta.dependency && 
+                            selectedCostElementMeta.dependency .name,
+                description: selectedCostElementMeta && selectedCostElementMeta.description,
                 isVisibleFilter: costElementInput && costElementInput.filter && costElementInput.filter.length > 0
             },
             inputLevel: {
                 selectList: {
-                    selectedItemId: costBlockInput.inputLevel.selectedId,
+                    selectedItemId: costBlockInput.inputLevel.selectedItemId,
                     list: Array.from(inputLevel.values())
                 },
-                filter: costElementInput && costElementInput.filter,
-                filterName: selectedInputLevel && selectedInputLevel.name,
-                isVisibleFilter: costElementInput && costElementInput.filter && costElementInput.filter.length > 0
+                filter: selectedInputLevel && selectedInputLevel.filter,
+                filterName: selectedInputLevelMeta && selectedInputLevelMeta.name,
+                isVisibleFilter: selectedInputLevel && selectedInputLevel.filter && selectedInputLevel.filter.length > 0
             },
-            editItems: []
+            edit: {
+                nameColumnTitle: selectedInputLevelMeta && selectedInputLevelMeta.name,
+                valueColumnTitle: selectedCostElementMeta && selectedCostElementMeta.name,
+                isVisible: costBlockInput.costElement.selectedItemId != null && 
+                           costBlockInput.inputLevel.selectedItemId !=null,
+                items: edit.originalItems && edit.originalItems.map(originalItem => ({
+                    ...edit.editedItems.find(editedItem => editedItem.id === originalItem.id) || originalItem
+                }))
+            }
         }
     }
 }
 
-export const CostElementsInputContainer = connect<CostElementsProps,CostElementActions,{},PageCommonState>(
+export const CostElementsInputContainer = connect<CostElementsProps,CostElementActions,{},PageCommonState<CostElementInputState>>(
     state => {
         const { 
             applications, 
@@ -214,7 +286,7 @@ export const CostElementsInputContainer = connect<CostElementsProps,CostElementA
             countries: countryMap,
             costBlockMetas,
             inputLevels
-        } = state.page.data as CostElementInputState;
+        } = state.page.data;
 
         const countryArray = countryMap && Array.from(countryMap.values()) || [];
 
@@ -246,13 +318,35 @@ export const CostElementsInputContainer = connect<CostElementsProps,CostElementA
         onScopeSelected: scopeId => dispatch(selectScope(scopeId)),
         onCostBlockSelected: costBlockId => dispatch(selectCostBlock(costBlockId)),
         tabActions: {
-            onCountrySelected: (countryId, costBlockId) => dispatch(selectCountry(countryId, costBlockId)),
-            onCostElementSelected: (costBlockId, costElementId) => dispatch(
-                getFilterItemsByCustomElementSelection(costBlockId, costElementId)
-            ),
-            onInputLevelSelected: (costBlockId, inputLevelId) => dispatch(
-                getFilterItemsByInputLevelSelection(costBlockId, inputLevelId)
-            )
+            onCountrySelected: (countryId, costBlockId) => {
+                dispatch(reloadFilterBySelectedCountry(costBlockId, countryId));
+                dispatch(loadEditItemsByContext());
+            },
+            onCostElementSelected: (costBlockId, costElementId) => {
+                dispatch(getFilterItemsByCustomElementSelection(costBlockId, costElementId));
+                dispatch(loadEditItemsByContext());
+            },
+            onInputLevelSelected: (costBlockId, inputLevelId) => {
+                dispatch(getFilterItemsByInputLevelSelection(costBlockId, inputLevelId));
+                dispatch(loadEditItemsByContext());
+            },
+            onCostElementFilterSelectionChanged: (costBlockId, costElementId, filterItemId, isSelected) => {
+                dispatch(changeSelectionCostElementFilter(costBlockId, costElementId, filterItemId, isSelected));
+                dispatch(loadEditItemsByContext());
+            },
+            onInputLevelFilterSelectionChanged: (costBlockId, inputLevelId, filterItemId, isSelected) => {
+                dispatch(changeSelectionInputLevelFilter(costBlockId, inputLevelId, filterItemId, isSelected));
+                dispatch(loadEditItemsByContext());
+            },
+            onCostElementFilterReseted: (costBlockId, costElementId) => {
+                dispatch(resetCostElementFilter(costBlockId, costElementId));
+                dispatch(loadEditItemsByContext());
+            },
+            onInputLevelFilterReseted: (costBlockId, inputLevelId) => {
+                dispatch(resetInputLevelFilter(costBlockId, inputLevelId))
+                dispatch(loadEditItemsByContext());
+            },
+            onEditItemsCleared: costBlockId => dispatch(clearEditItems(costBlockId))
         }
     })
 )(CostElementsInput);
