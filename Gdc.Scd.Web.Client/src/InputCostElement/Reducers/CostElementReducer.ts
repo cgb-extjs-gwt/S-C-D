@@ -12,7 +12,6 @@ import {
 import { SelectList } from "../../Common/States/SelectList";
 import { NamedId } from "../../Common/States/NamedId";
 import { CostBlockInputState, CostElementInput } from "../States/CostBlock";
-import { costBlockInputReducer } from "./CostBlockInputReducer";
 import { ItemSelectedAction } from "../../Common/Actions/CommonActions";
 
 const createMap = <T extends NamedId>(array: T[]) => {
@@ -48,10 +47,12 @@ export const costElementInputReducer: Reducer<CostElementInputState, Action<stri
             return initSuccess(state, <PageAction<CostElementInputDto>>action);
 
         case COST_ELEMENT_INTPUT_SELECT_APPLICATION:
-            return {
-                ...state,
-                selectedApplicationId: (<ItemSelectedAction>action).selectedItemId
-            }
+            return state.isDataLossWarningDisplayed 
+                ?  {
+                    ...state,
+                    selectedApplicationId: (<ItemSelectedAction>action).selectedItemId
+                }
+                : state;
 
         case COST_ELEMENT_INTPUT_SELECT_SCOPE:
             return {

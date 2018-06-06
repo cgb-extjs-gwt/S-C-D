@@ -35,4 +35,5 @@ export interface CostElementInputState {
     costBlocksInputs: CostBlockInputState[]
     visibleCostBlockIds: string[]
     selectedCostBlockId: string
+    isDataLossWarningDisplayed: boolean
 }

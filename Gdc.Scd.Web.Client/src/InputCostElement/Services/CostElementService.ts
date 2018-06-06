@@ -219,8 +219,24 @@ export const getLevelInputFilterItems = (costBlockId: string, inputLevelId: stri
     return Promise.resolve(filterItems)
 }
 
-export const getEditItems = (context: Context) => {
-    const editItems: EditItem[] = [];
+const createEditItemsStorageKey = ({
+    applicationId,
+    scopeId,
+    countryId,
+    costElementId,
+    costBlockId,
+    inputLevelId
+}: Context) => [
+    'editItems', 
+    applicationId, 
+    scopeId, 
+    costBlockId, 
+    countryId, 
+    costElementId, 
+    inputLevelId
+].join('_')
+
+const createFakeEditItems = (context: Context) => {
     const {
         applicationId,
         scopeId,
@@ -229,6 +245,8 @@ export const getEditItems = (context: Context) => {
         costBlockId,
         inputLevelId
     } = context;
+
+    const editItems: EditItem[] = [];
 
     const editItemCount = 
         applicationId.length + 
@@ -246,5 +264,39 @@ export const getEditItems = (context: Context) => {
         });
     }
 
+    return editItems;
+}
+
+export const getEditItems = (context: Context) => {
+    let editItems: EditItem[];
+    const key = createEditItemsStorageKey(context);
+    const editItemsJson = localStorage.getItem(key);
+
+    if (editItemsJson){
+        const storageItems = JSON.parse(editItemsJson);
+        
+        editItems = createFakeEditItems(context).map(
+            item => storageItems.find(storageItem => storageItem.id === item.id) || item
+        );
+    } else {
+        editItems = createFakeEditItems(context);
+    }
+
     return Promise.resolve(editItems);
+}
+
+export const saveEditItems = (editItems: EditItem[], context: Context) => {
+    const key = createEditItemsStorageKey(context);
+    const storageItemsJson = localStorage.getItem(key);
+    const storageItems: EditItem[] = storageItemsJson && JSON.parse(storageItemsJson) || [];
+    const saveItems = storageItems.filter(
+        storageItem => editItems.findIndex(item => storageItem.id === item.id) === -1
+    ).concat(editItems);
+
+    localStorage.setItem(
+        key, 
+        JSON.stringify(saveItems)
+    );
+
+    return Promise.resolve();
 }

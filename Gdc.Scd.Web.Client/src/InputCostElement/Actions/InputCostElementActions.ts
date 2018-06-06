@@ -24,9 +24,9 @@ export const init = () => asyncAction(
     }
 )
 
-export const selectApplication = (selectedApplicationId: string) => (<ItemSelectedAction>{
+export const selectApplication = (applicationId: string) => (<ItemSelectedAction>{
     type: COST_ELEMENT_INTPUT_SELECT_APPLICATION,
-    selectedItemId: selectedApplicationId
+    selectedItemId: applicationId
 })
 
 export const selectScope = (selectedScopeId: string) => (<ItemSelectedAction>{

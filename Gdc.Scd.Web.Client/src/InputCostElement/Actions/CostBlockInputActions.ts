@@ -1,6 +1,6 @@
 import { Action } from "redux";
 import { asyncAction } from "../../Common/Actions/AsyncAction";
-import { getCostElementFilterItems, getLevelInputFilterItems, getEditItems } from "../Services/CostElementService";
+import * as service from "../Services/CostElementService";
 import { NamedId } from "../../Common/States/NamedId";
 import { CostElementInputState } from "../States/CostElementState";
 import { PageCommonState } from "../../Layout/States/PageStates";
@@ -17,6 +17,8 @@ export const COST_BLOCK_INPUT_LOAD_COST_ELEMENT_FILTER = 'COST_BLOCK_INPUT.LOAD.
 export const COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER = 'COST_BLOCK_INPUT.LOAD.INPUT_LEVEL_FILTER';
 export const COST_BLOCK_INPUT_LOAD_EDIT_ITEMS = 'COST_BLOCK_INPUT.LOAD.EDIT_ITEMS';
 export const COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS = 'COST_BLOCK_INPUT.CLEAR.EDIT_ITEMS';
+export const COST_BLOCK_INPUT_EDIT_ITEM = 'COST_BLOCK_INPUT.EDIT.ITEM';
+export const COST_BLOCK_INPUT_SAVE_EDIT_ITEMS = 'COST_BLOCK_INPUT.SAVE.EDIT_ITEMS';
 
 export interface CostBlockInputAction extends Action<string>  {
     costBlockId: string 
@@ -53,8 +55,12 @@ export interface InputLevelFilterLoadedAction extends InputLevelAction {
     filterItems: NamedId[]
 }
 
-export interface EditItemsLoadedAction extends CostBlockInputAction {
+export interface EditItemsAction extends CostBlockInputAction {
     editItems: EditItem[]
+}
+
+export interface ItemEditedAction extends CostBlockInputAction {
+    item: EditItem
 }
 
 export const selectCountry = (costBlockId: string, countryId: string) => (<CountrySelectedAction>{
@@ -135,7 +141,7 @@ export const loadInputLevelFilter = (
     filterItems
 })
 
-export const loadEditItems = (costBlockId: string, editItems: EditItem[]) => (<EditItemsLoadedAction>{
+export const loadEditItems = (costBlockId: string, editItems: EditItem[]) => (<EditItemsAction>{
     type: COST_BLOCK_INPUT_LOAD_EDIT_ITEMS,
     costBlockId,
     editItems
@@ -143,6 +149,17 @@ export const loadEditItems = (costBlockId: string, editItems: EditItem[]) => (<E
 
 export const clearEditItems = (costBlockId: string) => (<CostBlockInputAction>{
     type: COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS,
+    costBlockId
+})
+
+export const editItem = (costBlockId: string, item: EditItem) => (<ItemEditedAction>{
+    type: COST_BLOCK_INPUT_EDIT_ITEM,
+    costBlockId,
+    item
+})
+
+export const saveEditItems = (costBlockId: string) => (<CostBlockInputAction>{
+    type: COST_BLOCK_INPUT_SAVE_EDIT_ITEMS,
     costBlockId
 })
 
@@ -155,7 +172,7 @@ export const getFilterItemsByCustomElementSelection = (costBlockId: string, cost
             const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
             
             if (!costElement.filter) {
-                getCostElementFilterItems(costBlockId, costElementId).then(
+                service.getCostElementFilterItems(costBlockId, costElementId).then(
                     filterItems => dispatch(loadCostElementFilter(costBlockId, costElementId, filterItems))
                 )
             }
@@ -173,7 +190,7 @@ export const getFilterItemsByInputLevelSelection = (costBlockId: string, inputLe
                 costBlock.inputLevel.list.find(item => item.inputLevelId === inputLevelId);
 
             if (!inputLevel || !inputLevel.filter) {
-                getLevelInputFilterItems(costBlockId, inputLevelId).then(
+                service.getLevelInputFilterItems(costBlockId, inputLevelId).then(
                     filterItems => dispatch(loadInputLevelFilter(costBlockId, inputLevelId, filterItems))
                 )
             }
@@ -191,61 +208,131 @@ export const reloadFilterBySelectedCountry = (costBlockId: string, countryId: st
                 inputLevel: { selectedItemId: inputLevelId }
             } = costBlock;
 
-            getCostElementFilterItems(costBlockId, costElementId).then(
+            service.getCostElementFilterItems(costBlockId, costElementId).then(
                 filterItems => dispatch(loadCostElementFilter(costBlockId, costElementId, filterItems))
             )
 
-            getLevelInputFilterItems(costBlockId, inputLevelId).then(
+            service.getLevelInputFilterItems(costBlockId, inputLevelId).then(
                 filterItems => dispatch(loadInputLevelFilter(costBlockId, inputLevelId, filterItems))
             )
         }
     )
 
+const buildContext = (state: CostElementInputState) => {
+    const { 
+        selectedApplicationId: applicationId,  
+        selectedScopeId: scopeId,
+        selectedCostBlockId: costBlockId,
+        costBlocksInputs
+    } = state;
+
+    const costBlock = costBlocksInputs.find(item => item.costBlockId === costBlockId); 
+
+    const { 
+        selectedCountryId: countryId,
+        costElement,
+        inputLevel                
+    } = costBlock;
+
+    let costElementFilterIds: string[] = null;
+    let inputLevelFilterIds: string[] = null;
+
+    if (costElement.selectedItemId != null && inputLevel.selectedItemId != null) {
+        const selectedCostElement = 
+            costElement.list.find(item => item.costElementId === costElement.selectedItemId);
+
+        costElementFilterIds = selectedCostElement.filter 
+            ? selectedCostElement.filter.map(item => item.id) 
+            : [];
+
+        const selectedInputLevel = 
+            inputLevel.list.find(item => item.inputLevelId === inputLevel.selectedItemId);
+
+        inputLevelFilterIds = selectedInputLevel.filter 
+            ? selectedInputLevel.filter.map(item => item.id)
+            : [];
+    }
+
+    return <service.Context>{
+        applicationId,
+        scopeId,
+        costBlockId,
+        countryId,
+        costElementId: costElement.selectedItemId,
+        inputLevelId: inputLevel.selectedItemId,
+        costElementFilterIds,
+        inputLevelFilterIds
+    }
+}
+
 export const loadEditItemsByContext = () => 
     asyncAction<PageCommonState<CostElementInputState>>(
         (dispatch, { page }) => {
-            const { 
-                selectedApplicationId: applicationId,  
-                selectedScopeId: scopeId,
-                selectedCostBlockId: costBlockId,
-                costBlocksInputs
-            } = page.data;
+            const context = buildContext(page.data);
 
-            const costBlock = costBlocksInputs.find(item => item.costBlockId === costBlockId); 
-
-            const { 
-                selectedCountryId: countryId,
-                costElement,
-                inputLevel                
-            } = costBlock;
-
-            if (costElement.selectedItemId != null && inputLevel.selectedItemId != null) {
-                const selectedCostElement = 
-                    costElement.list.find(item => item.costElementId === costElement.selectedItemId);
-
-                const costElementFilterIds = selectedCostElement.filter 
-                    ? selectedCostElement.filter.map(item => item.id) 
-                    : [];
-
-                const selectedInputLevel = 
-                    inputLevel.list.find(item => item.inputLevelId === inputLevel.selectedItemId);
-
-                const inputLevelFilterIds = selectedInputLevel.filter 
-                    ? selectedInputLevel.filter.map(item => item.id)
-                    : [];
-
-                getEditItems({
-                    applicationId,
-                    scopeId,
-                    costBlockId,
-                    countryId,
-                    costElementId: costElement.selectedItemId,
-                    inputLevelId: inputLevel.selectedItemId,
-                    costElementFilterIds,
-                    inputLevelFilterIds
-                }).then(
-                    editItems => dispatch(loadEditItems(costBlockId, editItems))
+            if (context.costElementId != null && context.inputLevelId != null) {
+                service.getEditItems(context).then(
+                    editItems => dispatch(loadEditItems(context.costBlockId, editItems))
                 )
             }
+
+            // const { 
+            //     selectedApplicationId: applicationId,  
+            //     selectedScopeId: scopeId,
+            //     selectedCostBlockId: costBlockId,
+            //     costBlocksInputs
+            // } = page.data;
+
+            // const costBlock = costBlocksInputs.find(item => item.costBlockId === costBlockId); 
+
+            // const { 
+            //     selectedCountryId: countryId,
+            //     costElement,
+            //     inputLevel                
+            // } = costBlock;
+
+            // if (costElement.selectedItemId != null && inputLevel.selectedItemId != null) {
+            //     const selectedCostElement = 
+            //         costElement.list.find(item => item.costElementId === costElement.selectedItemId);
+
+            //     const costElementFilterIds = selectedCostElement.filter 
+            //         ? selectedCostElement.filter.map(item => item.id) 
+            //         : [];
+
+            //     const selectedInputLevel = 
+            //         inputLevel.list.find(item => item.inputLevelId === inputLevel.selectedItemId);
+
+            //     const inputLevelFilterIds = selectedInputLevel.filter 
+            //         ? selectedInputLevel.filter.map(item => item.id)
+            //         : [];
+
+            //     service.getEditItems({
+            //         applicationId,
+            //         scopeId,
+            //         costBlockId,
+            //         countryId,
+            //         costElementId: costElement.selectedItemId,
+            //         inputLevelId: inputLevel.selectedItemId,
+            //         costElementFilterIds,
+            //         inputLevelFilterIds
+            //     }).then(
+            //         editItems => dispatch(loadEditItems(costBlockId, editItems))
+            //     )
+            // }
+        }
+    )
+
+export const saveEditItemsToServer = (costBlockId: string) => 
+    asyncAction<PageCommonState<CostElementInputState>>(
+        (dispatch, { page }) => {
+            const costBlock = 
+                page.data.costBlocksInputs.find(item => item.costBlockId === costBlockId);
+
+            const context = buildContext(page.data);
+
+            service.saveEditItems(costBlock.edit.editedItems, context)
+                   .then(
+                       () => dispatch(saveEditItems(costBlockId))
+                    )
         }
     )

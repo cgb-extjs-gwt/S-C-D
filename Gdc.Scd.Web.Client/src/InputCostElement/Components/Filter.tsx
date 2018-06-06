@@ -28,7 +28,12 @@ export const Filter: React.StatelessComponent<FilterProps> = ({
     
     const store = Ext.create('Ext.data.Store', {
         //groupField: 'isChecked',
-        data: items
+        data: items && items.slice(),
+        listeners: {
+          update: onSelectionChanged && 
+                  ((store, record, operation, modifiedFieldNames, details) => 
+                    onSelectionChanged(record.data, record.data.isChecked))
+        }
     });
 
     return (
@@ -44,14 +49,19 @@ export const Filter: React.StatelessComponent<FilterProps> = ({
         >
             <CheckColumn 
                 dataIndex="isChecked"
-                onCheckChange={(cell, rowIndex, isChecked: boolean, record) =>{
-                    onSelectionChanged && onSelectionChanged(record.data, isChecked)
-                }}
+                // onCheckChange={(cell, rowIndex, isChecked: boolean, record) =>{
+                //     onSelectionChanged && onSelectionChanged(record.data, isChecked)
+                // }}
             />
             <Column text={valueColumnText || ''}  dataIndex="name" flex={1}/>
 
             <Toolbar docked="bottom">
-                <Button text="Reset" flex={1} handler={() => onReset && onReset()}/>
+                <Button 
+                    text="Reset" 
+                    flex={1} 
+                    handler={() => onReset && onReset()}
+                    disabled={!items || items.findIndex(item => item.isChecked) === -1}
+                />
             </Toolbar>
         </Grid>
     );

@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { Container, ComboBoxField, Panel, FormPanel, RadioField, ContainerField, Grid, Column, Toolbar, Button, Label } from '@extjs/ext-react';
+import { Container, ComboBoxField, Panel, FormPanel, RadioField, ContainerField, Grid, Column, Toolbar, Button, Label, Dialog } from '@extjs/ext-react';
 import { CostBlockInputState, EditItem, CheckItem } from '../States/CostBlock'
 import { NamedId } from '../../Common/States/NamedId';
 import { SelectList, MultiSelectList } from '../../Common/States/SelectList';
 import { Filter } from './Filter';
 
 Ext.require('Ext.grid.plugin.CellEditing');
+Ext.require('Ext.MessageBox');
 
 export interface CostBlockActions {
   onCountrySelected?: (countryId: string) => void
@@ -22,6 +23,8 @@ export interface CostBlockActions {
     isSelected: boolean) => void
   onInputLevelFilterReseted?: (inputLevelId: string) => void
   onEditItemsCleared?: () => void
+  onItemEdited?: (item: EditItem) => void
+  onEditItemsSaving?: () => void
 }
 
 export interface SelectListFilter {
@@ -41,7 +44,9 @@ export interface CostBlockProps {
     nameColumnTitle: string
     valueColumnTitle: string
     items: EditItem[]
-    isVisible: boolean
+    isVisible: boolean,
+    isEnableSave: boolean,
+    isEnableClear: boolean
   }
 }
 
@@ -217,10 +222,21 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
   }
 
   private editGrid(items: EditItem[], nameTitle: string, valueTitle) {
-    const { onEditItemsCleared } = this.props;
+    const { onItemEdited, edit } = this.props;
+    const { isEnableClear, isEnableSave } = edit;
 
     const store = Ext.create('Ext.data.Store', {
-        data: items
+        data: items && items.slice(),
+        listeners: {
+          update: onItemEdited && 
+                  ((store, record, operation, modifiedFieldNames, details) => {
+                    if (modifiedFieldNames[0] === 'name') {
+                      record.reject();
+                    } else {
+                      onItemEdited(record.data)
+                    }
+                  })
+        }
     });
 
     return (
@@ -244,14 +260,59 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
         }}
         
       >
-        <Column text={nameTitle} dataIndex="name" flex={1} extensible={false}/>
+        <Column text={nameTitle} dataIndex="name" flex={1} extensible={false} />
         <Column text={valueTitle} dataIndex="value" flex={1} editable={true}/>
 
         <Toolbar docked="bottom">
-            <Button text="Clear" flex={1} handler={() => onEditItemsCleared && onEditItemsCleared()}/>
-            <Button text="Save" flex={1}/>
+            <Button 
+              text="Clear" 
+              flex={1} 
+              disabled={!isEnableClear}
+              handler={() => this.showClearDialog()}
+            />
+            <Button 
+              text="Save" 
+              flex={1} 
+              disabled={!isEnableSave}
+              handler={() => this.showSaveDialog()}
+            />
         </Toolbar>
       </Grid>
     );
   }   
+
+  private showSaveDialog() {
+    const { onEditItemsSaving } = this.props;
+
+    Ext.Msg.confirm(
+      'Saving changes', 
+      'Do you want to save the changes?',
+      (buttonId: string) => onEditItemsSaving && onEditItemsSaving()
+    );
+  }
+
+  private showClearDialog() {
+    const { onEditItemsCleared } = this.props;
+
+    Ext.Msg.confirm(
+      'Clearing changes', 
+      'Do you want to clear the changes??',
+      (buttonId: string) => onEditItemsCleared && onEditItemsCleared()
+    );
+  }
+
+  // private saveDialog() {
+  //   return (
+  //     <Dialog
+  //       title="Saving changes"
+  //       bodyPadding="20"
+  //       closable
+  //       defaultFocus="#ok"
+  //     >
+  //       Do you want save changes?
+  //       <Button itemId="ok" text="Ok"/>
+  //       <Button text="Cancel"/>
+  //     </Dialog>
+  //   );
+  // }
 }

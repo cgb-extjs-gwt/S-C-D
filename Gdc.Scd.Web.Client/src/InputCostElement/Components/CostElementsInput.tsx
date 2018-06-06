@@ -15,16 +15,17 @@ import { PageCommonState, PageState, PAGE_STATE_KEY } from '../../Layout/States/
 import { CostElementInputState, CostBlockMeta } from '../States/CostElementState';
 import { getCostElementInput } from '../Services/CostElementService';
 import { selectApplication, selectScope, init, selectCostBlock } from '../Actions/InputCostElementActions';
-import data from '../../Test/Home/data';
 import { NamedId } from '../../Common/States/NamedId';
 import { SelectList } from '../../Common/States/SelectList';
-import { CostBlockInputState } from '../States/CostBlock';
+import { CostBlockInputState, EditItem } from '../States/CostBlock';
 import { CostBlock as CostBlockComp, CostBlockProps } from './CostBlocks'
-import { selectCountry, selectCostElement, selectInputLevel, getFilterItemsByCustomElementSelection, getFilterItemsByInputLevelSelection, reloadFilterBySelectedCountry, changeSelectionCostElementFilter, changeSelectionInputLevelFilter, resetCostElementFilter, resetInputLevelFilter, loadEditItemsByContext, clearEditItems } from '../Actions/CostBlockInputActions';
+import { selectCountry, selectCostElement, selectInputLevel, getFilterItemsByCustomElementSelection, getFilterItemsByInputLevelSelection, reloadFilterBySelectedCountry, changeSelectionCostElementFilter, changeSelectionInputLevelFilter, resetCostElementFilter, resetInputLevelFilter, loadEditItemsByContext, clearEditItems, editItem, saveEditItemsToServer } from '../Actions/CostBlockInputActions';
+
+Ext.require('Ext.MessageBox');
 
 export interface CostElementActions {
     onInit?: () => void;
-    onApplicationSelected?: (aplicationId: string) => void;
+    onApplicationSelected?: (applicationId: string) => void;
     onScopeSelected?: (scopeId: string) => void;
     onCostBlockSelected?: (costBlockId: string) => void;
     tabActions: {
@@ -44,6 +45,8 @@ export interface CostElementActions {
         onCostElementFilterReseted?: (costBlockId: string, costElementId: string) => void
         onInputLevelFilterReseted?: (costBlockId: string, inputLevelId: string) => void
         onEditItemsCleared?: (costBlockId: string) => void
+        onItemEdited?: (costBlockId: string, item: EditItem) => void
+        onEditItemsSaving?: (costBlockId: string) => void
     }
 }
 
@@ -55,6 +58,7 @@ export interface CostElementsProps {
     application: SelectList<NamedId>
     scope: SelectList<NamedId>
     costBlocks: SelectList<CostBlockTab>
+    isDataLossWarningDisplayed: boolean
 }
 
 export class CostElementsInput extends React.Component<CostElementsProps & CostElementActions> {
@@ -64,7 +68,11 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
     }
 
     public render() {
-        const { application, scope, costBlocks } = this.props;
+        const { application, scope, costBlocks, isDataLossWarningDisplayed } = this.props;
+
+        if (isDataLossWarningDisplayed) {
+            this.showDataLossWarning();
+        }
 
         return (
             <Container layout="vbox">
@@ -91,7 +99,9 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
                             activeTab={
                                 costBlocks.list.findIndex(costBlock => costBlock.id === costBlocks.selectedItemId)
                             }
-                            onActiveItemChange={this.onActiveTabChange}
+                            onActiveItemChange={
+                                (tabPanel, newValue, oldValue) => this.onActiveTabChange(tabPanel, newValue, oldValue)
+                            }
                         >
                             {costBlocks.list.map(item => this.costBlockTab(item, costBlocks.selectedItemId))}
                         </FixedTabPanel>
@@ -102,16 +112,18 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
     }
 
     private onActiveTabChange = (tabPanel, newValue, oldValue) => {
-        const { onCostBlockSelected } = this.props;
+        if (this.props.costBlocks.list && this.props.costBlocks.list.length > 0) {
+            const { onCostBlockSelected } = this.props;
 
-        const activeTabIndex = tabPanel.getActiveItemIndex();
-        const selectedCostBlockId = this.props.costBlocks.list[activeTabIndex].id;
+            const activeTabIndex = tabPanel.getActiveItemIndex();
+            const selectedCostBlockId = this.props.costBlocks.list[activeTabIndex].id;
 
-        onCostBlockSelected && onCostBlockSelected(selectedCostBlockId);
+            onCostBlockSelected && onCostBlockSelected(selectedCostBlockId);
+        }
     }
 
     private applicationCombobox(application: SelectList<NamedId>) {
-        const { onApplicationSelected } = this.props;
+        const { onApplicationSelected, isDataLossWarningDisplayed } = this.props;
 
         const applicatonStore = Ext.create('Ext.data.Store', {
             data: application && application.list
@@ -160,7 +172,9 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
             onInputLevelFilterSelectionChanged,
             onCostElementFilterReseted,
             onInputLevelFilterReseted,
-            onEditItemsCleared
+            onEditItemsCleared,
+            onItemEdited,
+            onEditItemsSaving
         } = this.props.tabActions;
 
         return (
@@ -202,9 +216,23 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
                     onEditItemsCleared={
                         () => onEditItemsCleared && onEditItemsCleared(costBlockTab.id)
                     }
+                    onItemEdited={
+                        item => onItemEdited && onItemEdited(costBlockTab.id, item)
+                    }
+                    onEditItemsSaving={
+                        () => onEditItemsSaving && onEditItemsSaving(costBlockTab.id)
+                    }
                 />
             </Container>
         );
+    }
+
+    private showDataLossWarning() {
+        Ext.Msg.confirm(
+            'Warning', 
+            'You have unsaved changes. If you continue, you will lose changes. Continue?',
+            //(buttonId: string) => onEditItemsSaving && onEditItemsSaving()
+          );
     }
 }
 
@@ -230,6 +258,8 @@ const costBlockTabListMap = (
         costBlockInput.inputLevel.list.find(
             item => item.inputLevelId === costBlockInput.inputLevel.selectedItemId)
     
+    const isEnableEditButtons = edit.editedItems && edit.editedItems.length > 0;
+
     return {
         id: costBlockInput.costBlockId,
         name: costBlockMeta.name,
@@ -267,7 +297,9 @@ const costBlockTabListMap = (
                            costBlockInput.inputLevel.selectedItemId !=null,
                 items: edit.originalItems && edit.originalItems.map(originalItem => ({
                     ...edit.editedItems.find(editedItem => editedItem.id === originalItem.id) || originalItem
-                }))
+                })),
+                isEnableClear: isEnableEditButtons,
+                isEnableSave: isEnableEditButtons
             }
         }
     }
@@ -285,7 +317,8 @@ export const CostElementsInputContainer = connect<CostElementsProps,CostElementA
             costBlocksInputs,
             countries: countryMap,
             costBlockMetas,
-            inputLevels
+            inputLevels,
+            isDataLossWarningDisplayed
         } = state.page.data;
 
         const countryArray = countryMap && Array.from(countryMap.values()) || [];
@@ -299,6 +332,7 @@ export const CostElementsInputContainer = connect<CostElementsProps,CostElementA
                 selectedItemId: selectedScopeId,
                 list: scopes && Array.from(scopes.values())
             },
+            isDataLossWarningDisplayed,
             costBlocks: {
                 selectedItemId: selectedCostBlockId,
                 list: costBlocksInputs && 
@@ -346,7 +380,9 @@ export const CostElementsInputContainer = connect<CostElementsProps,CostElementA
                 dispatch(resetInputLevelFilter(costBlockId, inputLevelId))
                 dispatch(loadEditItemsByContext());
             },
-            onEditItemsCleared: costBlockId => dispatch(clearEditItems(costBlockId))
+            onEditItemsCleared: costBlockId => dispatch(clearEditItems(costBlockId)),
+            onItemEdited: (costBlockId, item) => dispatch(editItem(costBlockId, item)),
+            onEditItemsSaving: costBlockId => dispatch(saveEditItemsToServer(costBlockId))
         }
     })
 )(CostElementsInput);

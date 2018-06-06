@@ -29,8 +29,11 @@ import {
     InputLevelFilterLoadedAction,
     COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER,
     COST_BLOCK_INPUT_LOAD_EDIT_ITEMS,
-    EditItemsLoadedAction,
-    COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS
+    EditItemsAction,
+    COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS,
+    ItemEditedAction,
+    COST_BLOCK_INPUT_EDIT_ITEM,
+    COST_BLOCK_INPUT_SAVE_EDIT_ITEMS
  } from "../Actions/CostBlockInputActions";
 import { mapIf } from "../../Common/Helpers/CommonHelpers";
 import { changeSelecitonFilterItem, resetFilter, loadFilter } from "./FilterReducer";
@@ -107,21 +110,37 @@ const initSuccess: Reducer<CostElementInputState, PageAction<CostElementInputDto
         : state;
 }
 
+const hasUnsavedChanges = (state: CostElementInputState) => 
+    !state.costBlocksInputs.every(costBlock => !costBlock.edit.editedItems || costBlock.edit.editedItems.length === 0)
+
 const selectApplication: Reducer<CostElementInputState, ItemSelectedAction> = (state, action) => {
-    const visibleCostBlockIds = getVisibleCostBlockIds(
-        Array.from(state.costBlockMetas.values()), 
-        action.selectedItemId);
+    let result: CostElementInputState;
 
-    const selectedCostBlockId = visibleCostBlockIds.includes(state.selectedCostBlockId)
-        ? state.selectedCostBlockId
-        : visibleCostBlockIds[0];
+    if (!state.isDataLossWarningDisplayed) {
+        if (hasUnsavedChanges(state)) {
+            result = {
+                ...state,
+                isDataLossWarningDisplayed: true
+            }
+        } else {
+            const visibleCostBlockIds = getVisibleCostBlockIds(
+                Array.from(state.costBlockMetas.values()), 
+                action.selectedItemId);
 
-    return {
-        ...state,
-        costBlocksInputs: state.costBlocksInputs.map(costBlock => clearCostBlockFilters(costBlock, true)),
-        visibleCostBlockIds,
-        selectedCostBlockId
+            const selectedCostBlockId = visibleCostBlockIds.includes(state.selectedCostBlockId)
+                ? state.selectedCostBlockId
+                : visibleCostBlockIds[0];
+
+            result =  {
+                ...state,
+                costBlocksInputs: state.costBlocksInputs.map(costBlock => clearCostBlockFilters(costBlock, true)),
+                visibleCostBlockIds,
+                selectedCostBlockId,
+            }
+        }
     }
+
+    return result;
 }
 
 const selectScope: Reducer<CostElementInputState, ItemSelectedAction> = (state, action) => {
@@ -260,7 +279,7 @@ const loadLevelInputFilter = buildInputLevelFilterChanger<InputLevelFilterLoaded
     })
 )
 
-const loadEditItems = buildCostBlockChanger<EditItemsLoadedAction>(
+const loadEditItems = buildCostBlockChanger<EditItemsAction>(
     (costBlock, action) => ({
         ...costBlock,
         edit: {
@@ -277,6 +296,36 @@ const clearEditItems = buildCostBlockChanger(
         edit: {
             ...costblock.edit,
             editedItems: []
+        }
+    })
+)
+
+const editItem = buildCostBlockChanger<ItemEditedAction>(
+    (costBlock, action) => {
+        const editedItems = costBlock.edit.editedItems;
+
+        return {
+            ...costBlock,
+            edit: {
+                ...costBlock.edit,
+                editedItems: editedItems.filter(item => item.id !== action.item.id)
+                                        .concat(action.item)
+            }
+        }
+    }
+)
+
+const saveEditItems = buildCostBlockChanger(
+    (costBlock, action) => ({
+        ...costBlock,
+        edit: {
+            ...costBlock.edit,
+            editedItems: [],
+            originalItems: costBlock.edit.originalItems.map(
+                origItem => 
+                    costBlock.edit.editedItems.find(editedItem => editedItem.id === origItem.id) || 
+                    origItem
+            )
         }
     })
 )
@@ -330,6 +379,12 @@ export const costBlockInputReducer: Reducer<CostElementInputState, Action<string
 
         case COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS:
             return clearEditItems(state, action)
+
+        case COST_BLOCK_INPUT_EDIT_ITEM:
+            return editItem(state, action)
+
+        case COST_BLOCK_INPUT_SAVE_EDIT_ITEMS:
+            return saveEditItems(state, action)
 
         default:
             return state;
