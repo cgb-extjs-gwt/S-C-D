@@ -7,12 +7,15 @@ import {
     COST_ELEMENT_INTPUT_PAGE, 
     COST_ELEMENT_INTPUT_SELECT_APPLICATION, 
     COST_ELEMENT_INTPUT_SELECT_SCOPE,
-    COST_ELEMENT_INTPUT_SELECT_COST_BLOCK
+    COST_ELEMENT_INTPUT_SELECT_COST_BLOCK,
+    COST_ELEMENT_INTPUT_HIDE_LOSE_CHANGES_WARNING,
+    COST_ELEMENT_INTPUT_LOSE_CHANGES
 } from "../Actions/InputCostElementActions";
 import { SelectList } from "../../Common/States/SelectList";
 import { NamedId } from "../../Common/States/NamedId";
 import { CostBlockInputState, CostElementInput } from "../States/CostBlock";
 import { ItemSelectedAction } from "../../Common/Actions/CommonActions";
+import * as CostBlockReducers from "./CostBlockInputReducer"
 
 const createMap = <T extends NamedId>(array: T[]) => {
     const map = new Map<string, T>();
@@ -41,23 +44,111 @@ const initSuccess: Reducer<CostElementInputState, PageAction<CostElementInputDto
         : state;
 }
 
-export const costElementInputReducer: Reducer<CostElementInputState, Action<string>> = (state = <CostElementInputState>{}, action) => {
+const hasUnsavedChanges = (state: CostElementInputState) => 
+    !state.costBlocksInputs.every(costBlock => !costBlock.edit.editedItems || costBlock.edit.editedItems.length === 0)
+
+const clearChanges = (costBlocks: CostBlockInputState[]) => 
+    costBlocks.map(costBlock => (<CostBlockInputState>{
+        ...costBlock,
+        edit: {
+            ...costBlock.edit,
+            editedItems: []
+        }
+    }))
+
+export const  buildProtectionData = <TAction extends Action<string>>(
+    fn: (state: CostElementInputState, action: TAction) => CostElementInputState
+) => 
+    (state: CostElementInputState, action: Action<string>): CostElementInputState  => {
+        let result: CostElementInputState;
+
+        const { isWarningDisplayed, isLoseChanges } = state.dataLossInfo;
+
+        if (isWarningDisplayed) {
+            result = state;
+        } else if (isLoseChanges) {
+            result = { 
+                ...fn(state, <TAction>action),
+                costBlocksInputs: clearChanges(state.costBlocksInputs),
+                dataLossInfo: {
+                    ...state.dataLossInfo,
+                    isLoseChanges: false
+                }
+            };
+        } else if(hasUnsavedChanges(state)){
+            result = {
+                ...state,
+                dataLossInfo: {
+                    ...state.dataLossInfo,
+                    isWarningDisplayed: true,
+                    action
+                }
+            }
+        } else {
+            result = fn(state, <TAction>action);
+        }
+
+        return result;
+    }
+        
+
+
+const selectApplication = buildProtectionData<ItemSelectedAction>(
+    (state, action) => ({
+        ...CostBlockReducers.selectApplication(state, action),
+        selectedApplicationId: action.selectedItemId
+    })
+)
+
+const selectScope = buildProtectionData<ItemSelectedAction>(
+    (state, action) => ({
+        ...CostBlockReducers.selectScope(state, action),
+        selectedScopeId: (<ItemSelectedAction>action).selectedItemId
+    })
+)
+
+const defaultState = () => (<CostElementInputState>{
+    dataLossInfo: {
+        isWarningDisplayed: false,
+        action: null,
+        isLoseChanges: false
+    }
+})
+
+export const costElementInputReducer: Reducer<CostElementInputState, Action<string>> = (state = defaultState(), action) => {
     switch(action.type) {
         case PAGE_INIT_SUCCESS:
             return initSuccess(state, <PageAction<CostElementInputDto>>action);
 
         case COST_ELEMENT_INTPUT_SELECT_APPLICATION:
-            return state.isDataLossWarningDisplayed 
-                ?  {
-                    ...state,
-                    selectedApplicationId: (<ItemSelectedAction>action).selectedItemId
-                }
-                : state;
+            return selectApplication(state, action);
 
         case COST_ELEMENT_INTPUT_SELECT_SCOPE:
+            return selectScope(state, action);
+
+        case COST_ELEMENT_INTPUT_SELECT_COST_BLOCK:
             return {
                 ...state,
-                selectedScopeId: (<ItemSelectedAction>action).selectedItemId
+                selectedCostBlockId: (<ItemSelectedAction>action).selectedItemId
+            }
+
+        case COST_ELEMENT_INTPUT_HIDE_LOSE_CHANGES_WARNING:
+            return {
+                ...state,
+                dataLossInfo: {
+                    ...state.dataLossInfo,
+                    isWarningDisplayed: false,
+                    action: null
+                }
+            }
+
+        case COST_ELEMENT_INTPUT_LOSE_CHANGES:
+            return {
+                ...state,
+                dataLossInfo: {
+                    ...state.dataLossInfo,
+                    isLoseChanges: true
+                }
             }
 
         default:

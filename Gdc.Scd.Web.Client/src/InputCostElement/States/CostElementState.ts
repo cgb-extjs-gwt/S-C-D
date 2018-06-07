@@ -1,6 +1,7 @@
 import { SelectList } from "../../Common/States/SelectList";
 import { CostBlockInputState } from "./CostBlock";
 import { NamedId } from "../../Common/States/NamedId";
+import { Action } from "redux";
 
 // export interface InputLevel extends NamedId {
 // }
@@ -35,5 +36,9 @@ export interface CostElementInputState {
     costBlocksInputs: CostBlockInputState[]
     visibleCostBlockIds: string[]
     selectedCostBlockId: string
-    isDataLossWarningDisplayed: boolean
+    dataLossInfo: {
+        isWarningDisplayed: boolean
+        action: Action<string>
+        isLoseChanges: boolean
+    }
 }

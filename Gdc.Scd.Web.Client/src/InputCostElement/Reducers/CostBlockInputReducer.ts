@@ -110,40 +110,24 @@ const initSuccess: Reducer<CostElementInputState, PageAction<CostElementInputDto
         : state;
 }
 
-const hasUnsavedChanges = (state: CostElementInputState) => 
-    !state.costBlocksInputs.every(costBlock => !costBlock.edit.editedItems || costBlock.edit.editedItems.length === 0)
+export const selectApplication: Reducer<CostElementInputState, ItemSelectedAction> = (state, action) => {
+    const visibleCostBlockIds = getVisibleCostBlockIds(
+        Array.from(state.costBlockMetas.values()), 
+        action.selectedItemId);
 
-const selectApplication: Reducer<CostElementInputState, ItemSelectedAction> = (state, action) => {
-    let result: CostElementInputState;
+    const selectedCostBlockId = visibleCostBlockIds.includes(state.selectedCostBlockId)
+        ? state.selectedCostBlockId
+        : visibleCostBlockIds[0];
 
-    if (!state.isDataLossWarningDisplayed) {
-        if (hasUnsavedChanges(state)) {
-            result = {
-                ...state,
-                isDataLossWarningDisplayed: true
-            }
-        } else {
-            const visibleCostBlockIds = getVisibleCostBlockIds(
-                Array.from(state.costBlockMetas.values()), 
-                action.selectedItemId);
-
-            const selectedCostBlockId = visibleCostBlockIds.includes(state.selectedCostBlockId)
-                ? state.selectedCostBlockId
-                : visibleCostBlockIds[0];
-
-            result =  {
-                ...state,
-                costBlocksInputs: state.costBlocksInputs.map(costBlock => clearCostBlockFilters(costBlock, true)),
-                visibleCostBlockIds,
-                selectedCostBlockId,
-            }
-        }
+    return {
+        ...state,
+        costBlocksInputs: state.costBlocksInputs.map(costBlock => clearCostBlockFilters(costBlock, true)),
+        visibleCostBlockIds,
+        selectedCostBlockId,
     }
-
-    return result;
 }
 
-const selectScope: Reducer<CostElementInputState, ItemSelectedAction> = (state, action) => {
+export const selectScope: Reducer<CostElementInputState, ItemSelectedAction> = (state, action) => {
     return {
         ...state,
         costBlocksInputs: state.costBlocksInputs.map(costBlockInput => {
@@ -335,17 +319,17 @@ export const costBlockInputReducer: Reducer<CostElementInputState, Action<string
         case PAGE_INIT_SUCCESS:
             return initSuccess(state, <PageAction<CostElementInputDto>>action)
         
-        case COST_ELEMENT_INTPUT_SELECT_APPLICATION:
-            return selectApplication(state, <ItemSelectedAction>action)
+        // case COST_ELEMENT_INTPUT_SELECT_APPLICATION:
+        //     return selectApplication(state, <ItemSelectedAction>action)
 
-        case COST_ELEMENT_INTPUT_SELECT_SCOPE:
-            return selectScope(state, <ItemSelectedAction>action)
+        // case COST_ELEMENT_INTPUT_SELECT_SCOPE:
+        //     return selectScope(state, <ItemSelectedAction>action)
 
-        case COST_ELEMENT_INTPUT_SELECT_COST_BLOCK:
-            return {
-                ...state,
-                selectedCostBlockId: (<ItemSelectedAction>action).selectedItemId
-            }
+        // case COST_ELEMENT_INTPUT_SELECT_COST_BLOCK:
+        //     return {
+        //         ...state,
+        //         selectedCostBlockId: (<ItemSelectedAction>action).selectedItemId
+        //     }
 
         case COST_BLOCK_INPUT_SELECT_COUNTRY: 
             return selectCountry(state, action)

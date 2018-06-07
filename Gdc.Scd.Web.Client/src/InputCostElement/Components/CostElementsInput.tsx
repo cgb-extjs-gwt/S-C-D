@@ -14,7 +14,7 @@ import { connect } from 'react-redux';
 import { PageCommonState, PageState, PAGE_STATE_KEY } from '../../Layout/States/PageStates';
 import { CostElementInputState, CostBlockMeta } from '../States/CostElementState';
 import { getCostElementInput } from '../Services/CostElementService';
-import { selectApplication, selectScope, init, selectCostBlock } from '../Actions/InputCostElementActions';
+import { selectApplication, selectScope, init, selectCostBlock, loseChanges, hideDataLoseWarning } from '../Actions/InputCostElementActions';
 import { NamedId } from '../../Common/States/NamedId';
 import { SelectList } from '../../Common/States/SelectList';
 import { CostBlockInputState, EditItem } from '../States/CostBlock';
@@ -28,6 +28,8 @@ export interface CostElementActions {
     onApplicationSelected?: (applicationId: string) => void;
     onScopeSelected?: (scopeId: string) => void;
     onCostBlockSelected?: (costBlockId: string) => void;
+    onLoseChanges?: () => void
+    onCancelDataLose?: () => void
     tabActions: {
         onCountrySelected?: (countryId: string, costBlockId: string) => void
         onCostElementSelected?: (costBlockId: string, costElementId: string) => void
@@ -54,38 +56,46 @@ export interface CostBlockTab extends NamedId {
     costBlock: CostBlockProps
 }
 
-export interface CostElementsProps {
+export interface CostElementsProps extends CostElementActions {
     application: SelectList<NamedId>
     scope: SelectList<NamedId>
     costBlocks: SelectList<CostBlockTab>
     isDataLossWarningDisplayed: boolean
 }
 
-export class CostElementsInput extends React.Component<CostElementsProps & CostElementActions> {
-    constructor(props: CostElementsProps & CostElementActions){
+export class CostElementsInput extends React.Component<CostElementsProps> {
+    private isShownDataLossWarning = false;
+
+    constructor(props: CostElementsProps){
         super(props);
         props.onInit && props.onInit();
     }
 
-    public render() {
-        const { application, scope, costBlocks, isDataLossWarningDisplayed } = this.props;
+    public componentDidUpdate() {
+        const { isDataLossWarningDisplayed } = this.props;
 
-        if (isDataLossWarningDisplayed) {
+        if (isDataLossWarningDisplayed && !this.isShownDataLossWarning) {
             this.showDataLossWarning();
+            this.isShownDataLossWarning = true;
         }
+    }
+
+    public render() {
+        const { application, scope, costBlocks } = this.props;
 
         return (
             <Container layout="vbox">
                 <FormPanel defaults={{labelAlign: 'left'}}>
                     {this.applicationCombobox(application)}
+                    {this.scopeCombobox(scope)}
 
-                    <ContainerField label="Scope" layout={{type: 'vbox', align: 'left'}}>
+                    {/* <ContainerField label="Scope" layout={{type: 'vbox', align: 'left'}}>
                         { 
                             scope && 
                             scope.list && 
                             scope.list.map(item => this.scopeRadioFild(item, scope.selectedItemId))
                         }
-                    </ContainerField>
+                    </ContainerField> */}
                 </FormPanel>
 
                 <Container title="Cost Blocks:">
@@ -123,7 +133,7 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
     }
 
     private applicationCombobox(application: SelectList<NamedId>) {
-        const { onApplicationSelected, isDataLossWarningDisplayed } = this.props;
+        const { onApplicationSelected } = this.props;
 
         const applicatonStore = Ext.create('Ext.data.Store', {
             data: application && application.list
@@ -149,16 +159,44 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
         );
     }
 
-    private scopeRadioFild(scopeItem: NamedId, selectedScopeId: string) {
+    // private scopeRadioFild(scopeItem: NamedId, selectedScopeId: string) {
+    //     const { onScopeSelected } = this.props;
+
+    //     return (
+    //         <RadioField 
+    //             key={scopeItem.id} 
+    //             itemId={scopeItem.id}
+    //             boxLabel={scopeItem.name} 
+    //             name="scope" 
+    //             checked={scopeItem.id === selectedScopeId}
+    //             onCheck={() => onScopeSelected && onScopeSelected(scopeItem.id) }
+    //         />
+    //     );
+    // }
+
+    private scopeCombobox(scopes: SelectList<NamedId>) {
         const { onScopeSelected } = this.props;
 
+        const scopeStore = Ext.create('Ext.data.Store', {
+            data: scopes && scopes.list
+        });
+
+        const selectedScope = 
+            scopeStore.getData()
+                      .findBy(item => (item.data as NamedId).id === scopes.selectedItemId);
+
         return (
-            <RadioField 
-                key={scopeItem.id} 
-                boxLabel={scopeItem.name} 
-                name="scope" 
-                checked={scopeItem.id === selectedScopeId}
-                onCheck={radioField => onScopeSelected && onScopeSelected(scopeItem.id)}
+            <ComboBoxField 
+                label="Scope"
+                width="25%"
+                displayField="name"
+                valueField="id"
+                queryMode="local"
+                store={scopeStore}
+                selection={selectedScope}
+                onChange={(combobox, newValue, oldValue) => 
+                    onScopeSelected && onScopeSelected(newValue)
+                }
             />
         );
     }
@@ -228,11 +266,25 @@ export class CostElementsInput extends React.Component<CostElementsProps & CostE
     }
 
     private showDataLossWarning() {
-        Ext.Msg.confirm(
+        const { onLoseChanges, onCancelDataLose } = this.props;
+        const me = this;
+
+        const messageBox = Ext.Msg.confirm(
             'Warning', 
             'You have unsaved changes. If you continue, you will lose changes. Continue?',
-            //(buttonId: string) => onEditItemsSaving && onEditItemsSaving()
-          );
+            (buttonId: string) => {
+                switch(buttonId) {
+                    case 'yes':
+                        onLoseChanges && onLoseChanges();
+                        break;
+                    case 'no':
+                        onCancelDataLose && onCancelDataLose();
+                        break;
+                }
+
+                me.isShownDataLossWarning = false
+            }
+        );
     }
 }
 
@@ -318,7 +370,7 @@ export const CostElementsInputContainer = connect<CostElementsProps,CostElementA
             countries: countryMap,
             costBlockMetas,
             inputLevels,
-            isDataLossWarningDisplayed
+            dataLossInfo,
         } = state.page.data;
 
         const countryArray = countryMap && Array.from(countryMap.values()) || [];
@@ -332,7 +384,7 @@ export const CostElementsInputContainer = connect<CostElementsProps,CostElementA
                 selectedItemId: selectedScopeId,
                 list: scopes && Array.from(scopes.values())
             },
-            isDataLossWarningDisplayed,
+            isDataLossWarningDisplayed: dataLossInfo.isWarningDisplayed,
             costBlocks: {
                 selectedItemId: selectedCostBlockId,
                 list: costBlocksInputs && 
@@ -351,6 +403,8 @@ export const CostElementsInputContainer = connect<CostElementsProps,CostElementA
         onApplicationSelected: applicationId => dispatch(selectApplication(applicationId)),
         onScopeSelected: scopeId => dispatch(selectScope(scopeId)),
         onCostBlockSelected: costBlockId => dispatch(selectCostBlock(costBlockId)),
+        onLoseChanges: () => dispatch(loseChanges()),
+        onCancelDataLose: () => dispatch(hideDataLoseWarning()),
         tabActions: {
             onCountrySelected: (countryId, costBlockId) => {
                 dispatch(reloadFilterBySelectedCountry(costBlockId, countryId));
