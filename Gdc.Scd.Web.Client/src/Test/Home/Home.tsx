@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Grid, Toolbar, Button, Column, SearchField } from '@extjs/ext-react';
 import data from './data';
-import { small, medium } from '../responsiveFormulas';
+import { small, medium } from '../../responsiveFormulas';
 
 declare var Ext:any;
 
