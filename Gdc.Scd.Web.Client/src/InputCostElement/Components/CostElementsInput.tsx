@@ -328,6 +328,7 @@ const costBlockTabListMap = (
             item => item.inputLevelId === costBlockInput.inputLevel.selectedItemId)
     
     const isEnableEditButtons = edit.editedItems && edit.editedItems.length > 0;
+    const isEnableList = !edit.editedItems || edit.editedItems.length == 0;
 
     return {
         id: costBlockInput.costBlockId,
@@ -348,7 +349,8 @@ const costBlockTabListMap = (
                             selectedCostElementMeta.dependency && 
                             selectedCostElementMeta.dependency .name,
                 description: selectedCostElementMeta && selectedCostElementMeta.description,
-                isVisibleFilter: costElementInput && costElementInput.filter && costElementInput.filter.length > 0
+                isVisibleFilter: costElementInput && costElementInput.filter && costElementInput.filter.length > 0,
+                isEnableList: isEnableList
             },
             inputLevel: {
                 selectList: {
@@ -357,7 +359,8 @@ const costBlockTabListMap = (
                 },
                 filter: selectedInputLevel && selectedInputLevel.filter,
                 filterName: selectedInputLevelMeta && selectedInputLevelMeta.name,
-                isVisibleFilter: selectedInputLevel && selectedInputLevel.filter && selectedInputLevel.filter.length > 0
+                isVisibleFilter: selectedInputLevel && selectedInputLevel.filter && selectedInputLevel.filter.length > 0,
+                isEnableList: isEnableList
             },
             edit: {
                 nameColumnTitle: selectedInputLevelMeta && selectedInputLevelMeta.name,

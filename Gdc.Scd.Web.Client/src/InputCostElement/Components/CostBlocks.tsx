@@ -33,6 +33,7 @@ export interface SelectListFilter {
   filter: CheckItem[],
   filterName: string,
   isVisibleFilter: boolean
+  isEnableList: boolean
 }
 
 export interface CostBlockProps {
@@ -78,6 +79,7 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
                   'costelements', 
                   costElement.selectList, 
                   'Cost Elements', 
+                  costElement.isEnableList,
                   costElement => onCostElementSelected && onCostElementSelected(costElement.id)
                 )
               }
@@ -125,6 +127,7 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
                   'inputlevels', 
                   inputLevel.selectList, 
                   'Input Level',
+                  inputLevel.isEnableList,
                   inputLevel => onInputLevelSelected && onInputLevelSelected(inputLevel.id)
                 )
               }
@@ -187,6 +190,7 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
     name: string, 
     item: NamedId, 
     selectedCostElementId: string,
+    isEnabled: boolean,
     onSelected: (item: NamedId) => void
   ) {
     return (
@@ -195,6 +199,7 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
           boxLabel={item.name} 
           name={name} 
           checked={item.id === selectedCostElementId}
+          disabled={!isEnabled}
           onCheck={radioField => onSelected(item)}
       />
     );
@@ -204,6 +209,7 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
     setName: string, 
     selectList: SelectList<NamedId>, 
     label: string, 
+    isEnable: boolean,
     onSelected: (item: NamedId) => void
   ) {    
     return (
@@ -215,6 +221,7 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
               setName, 
               item, 
               selectList.selectedItemId,
+              isEnable,
               onSelected
             )
           )
