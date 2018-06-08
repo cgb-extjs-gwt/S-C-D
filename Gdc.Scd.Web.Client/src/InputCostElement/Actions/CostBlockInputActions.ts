@@ -5,7 +5,7 @@ import { NamedId } from "../../Common/States/NamedId";
 import { CostElementInputState } from "../States/CostElementState";
 import { PageCommonState } from "../../Layout/States/PageStates";
 import { EditItem } from "../States/CostBlock";
-import { losseDataCheckHandlerAction } from "../Helpers/CostElementHelper";
+import { losseDataCheckHandlerAction, losseDataCheckAction } from "../Helpers/CostElementHelper";
 
 export const COST_BLOCK_INPUT_SELECT_COUNTRY = 'COST_BLOCK_INPUT.SELECT.COUNTRY';
 export const COST_BLOCK_INPUT_SELECT_COST_ELEMENT = 'COST_BLOCK_INPUT.SELECT.COST_ELEMENT';
@@ -20,6 +20,7 @@ export const COST_BLOCK_INPUT_LOAD_EDIT_ITEMS = 'COST_BLOCK_INPUT.LOAD.EDIT_ITEM
 export const COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS = 'COST_BLOCK_INPUT.CLEAR.EDIT_ITEMS';
 export const COST_BLOCK_INPUT_EDIT_ITEM = 'COST_BLOCK_INPUT.EDIT.ITEM';
 export const COST_BLOCK_INPUT_SAVE_EDIT_ITEMS = 'COST_BLOCK_INPUT.SAVE.EDIT_ITEMS';
+export const COST_BLOCK_INPUT_APPLY_FILTERS = 'COST_BLOCK_INPUT.APPLY.FILTERS';
 
 export interface CostBlockInputAction extends Action<string>  {
     costBlockId: string 
@@ -164,6 +165,11 @@ export const saveEditItems = (costBlockId: string) => (<CostBlockInputAction>{
     costBlockId
 })
 
+export const applyFilters = (costBlockId: string) => (<CostBlockInputAction>{
+    type: COST_BLOCK_INPUT_APPLY_FILTERS,
+    costBlockId
+})
+
 export const getFilterItemsByCustomElementSelection = (costBlockId: string, costElementId: string) =>
     asyncAction<PageCommonState<CostElementInputState>>(
         (dispatch, { page }) => {
@@ -297,6 +303,13 @@ export const saveEditItemsToServer = (costBlockId: string) =>
 export const selectCountryWithReloading = (costBlockId: string, countryId: string) => losseDataCheckHandlerAction(
     (dispatch, state) => {
         dispatch(reloadFilterBySelectedCountry(costBlockId, countryId));
+        dispatch(loadEditItemsByContext());
+    }
+)
+
+export const applyFiltersWithReloading = (costBlockId: string) => losseDataCheckHandlerAction(
+    (dispatch, state) => {
+        dispatch(applyFilters(costBlockId));
         dispatch(loadEditItemsByContext());
     }
 )

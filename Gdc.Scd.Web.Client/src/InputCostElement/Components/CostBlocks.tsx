@@ -25,6 +25,7 @@ export interface CostBlockActions {
   onEditItemsCleared?: () => void
   onItemEdited?: (item: EditItem) => void
   onEditItemsSaving?: () => void
+  onApplyFilters?: () => void
 }
 
 export interface SelectListFilter {
@@ -44,9 +45,10 @@ export interface CostBlockProps {
     nameColumnTitle: string
     valueColumnTitle: string
     items: EditItem[]
-    isVisible: boolean,
-    isEnableSave: boolean,
+    isVisible: boolean
+    isEnableSave: boolean
     isEnableClear: boolean
+    isEnableApplyFilters: boolean
   }
 }
 
@@ -222,8 +224,8 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
   }
 
   private editGrid(items: EditItem[], nameTitle: string, valueTitle) {
-    const { onItemEdited, edit } = this.props;
-    const { isEnableClear, isEnableSave } = edit;
+    const { onItemEdited, edit, onApplyFilters } = this.props;
+    const { isEnableClear, isEnableSave, isEnableApplyFilters } = edit;
 
     const store = Ext.create('Ext.data.Store', {
         data: items && items.slice(),
@@ -244,7 +246,7 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
         store={store} 
         flex={1} 
         shadow 
-        height={400}
+        height={450}
         columnLines={true}
         // plugins={[
         //   { type: 'cellediting', triggerEvent: 'singletap' },
@@ -260,6 +262,15 @@ export class CostBlock extends React.Component<CostBlockProps & CostBlockActions
         }}
         
       >
+        <Toolbar docked="top">
+            <Button 
+              text="Apply filters" 
+              flex={1} 
+              disabled={!isEnableApplyFilters}
+              handler={onApplyFilters}
+            />
+        </Toolbar>
+      
         <Column text={nameTitle} dataIndex="name" flex={1} extensible={false} />
         <Column text={valueTitle} dataIndex="value" flex={1} editable={true}/>
 

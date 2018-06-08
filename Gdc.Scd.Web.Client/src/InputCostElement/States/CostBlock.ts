@@ -9,14 +9,16 @@ export interface CheckItem extends NamedId {
     isChecked: boolean
 }
 
-export interface CostElementInput {
-    costElementId: string
+export interface Filter {
     filter: CheckItem[]
 }
 
-export interface InputLevelInput {
+export interface CostElementInput extends Filter {
+    costElementId: string
+}
+
+export interface InputLevelInput extends Filter {
     inputLevelId: string
-    filter: CheckItem[]
 }
 
 export interface CostBlockInputState {
@@ -28,5 +30,9 @@ export interface CostBlockInputState {
     edit: {
         originalItems: EditItem[],
         editedItems: EditItem[]
+        appliedFilter: {
+            inputLevelItemIds: Set<string>
+            costElementsItemIds: Set<string>
+        }
     }
 }

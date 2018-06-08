@@ -17,9 +17,9 @@ import { getCostElementInput } from '../Services/CostElementService';
 import { selectApplication, selectScope, init, selectCostBlock, loseChanges, hideDataLoseWarning, selectApplicationLosseDataCheck, selectScopeLosseDataCheck } from '../Actions/InputCostElementActions';
 import { NamedId } from '../../Common/States/NamedId';
 import { SelectList } from '../../Common/States/SelectList';
-import { CostBlockInputState, EditItem } from '../States/CostBlock';
+import { CostBlockInputState, EditItem, CheckItem, Filter } from '../States/CostBlock';
 import { CostBlock as CostBlockComp, CostBlockProps } from './CostBlocks'
-import { selectCountry, selectCostElement, selectInputLevel, getFilterItemsByCustomElementSelection, getFilterItemsByInputLevelSelection, reloadFilterBySelectedCountry, changeSelectionCostElementFilter, changeSelectionInputLevelFilter, resetCostElementFilter, resetInputLevelFilter, loadEditItemsByContext, clearEditItems, editItem, saveEditItemsToServer, selectCountryWithReloading } from '../Actions/CostBlockInputActions';
+import { selectCountry, selectCostElement, selectInputLevel, getFilterItemsByCustomElementSelection, getFilterItemsByInputLevelSelection, reloadFilterBySelectedCountry, changeSelectionCostElementFilter, changeSelectionInputLevelFilter, resetCostElementFilter, resetInputLevelFilter, loadEditItemsByContext, clearEditItems, editItem, saveEditItemsToServer, selectCountryWithReloading, applyFiltersWithReloading } from '../Actions/CostBlockInputActions';
 
 Ext.require('Ext.MessageBox');
 
@@ -49,6 +49,7 @@ export interface CostElementActions {
         onEditItemsCleared?: (costBlockId: string) => void
         onItemEdited?: (costBlockId: string, item: EditItem) => void
         onEditItemsSaving?: (costBlockId: string) => void
+        onApplyFilters?: (costBlockId: string) => void
     }
 }
 
@@ -212,7 +213,8 @@ export class CostElementsInput extends React.Component<CostElementsProps> {
             onInputLevelFilterReseted,
             onEditItemsCleared,
             onItemEdited,
-            onEditItemsSaving
+            onEditItemsSaving,
+            onApplyFilters
         } = this.props.tabActions;
 
         return (
@@ -260,6 +262,9 @@ export class CostElementsInput extends React.Component<CostElementsProps> {
                     onEditItemsSaving={
                         () => onEditItemsSaving && onEditItemsSaving(costBlockTab.id)
                     }
+                    onApplyFilters={
+                        () => onApplyFilters && onApplyFilters(costBlockTab.id)
+                    }
                 />
             </Container>
         );
@@ -286,6 +291,18 @@ export class CostElementsInput extends React.Component<CostElementsProps> {
             }
         );
     }
+}
+
+const isSetContainsAllCheckedItems = (set: Set<string>, filterObj: Filter) => {
+    let result = true;
+
+    if (filterObj && filterObj.filter) {
+        const checkedItems = filterObj.filter.filter(item => item.isChecked);
+
+        result = checkedItems.length == set.size && checkedItems.every(item => set.has(item.id))
+    } 
+
+    return result
 }
 
 const costBlockTabListMap = (
@@ -351,7 +368,9 @@ const costBlockTabListMap = (
                     ...edit.editedItems.find(editedItem => editedItem.id === originalItem.id) || originalItem
                 })),
                 isEnableClear: isEnableEditButtons,
-                isEnableSave: isEnableEditButtons
+                isEnableSave: isEnableEditButtons,
+                isEnableApplyFilters: !isSetContainsAllCheckedItems(edit.appliedFilter.costElementsItemIds, costElementInput) ||
+                                      !isSetContainsAllCheckedItems(edit.appliedFilter.inputLevelItemIds, selectedInputLevel)
             }
         }
     }
@@ -419,11 +438,11 @@ export const CostElementsInputContainer = connect<CostElementsProps,CostElementA
             },
             onCostElementFilterSelectionChanged: (costBlockId, costElementId, filterItemId, isSelected) => {
                 dispatch(changeSelectionCostElementFilter(costBlockId, costElementId, filterItemId, isSelected));
-                dispatch(loadEditItemsByContext());
+                //dispatch(loadEditItemsByContext());
             },
             onInputLevelFilterSelectionChanged: (costBlockId, inputLevelId, filterItemId, isSelected) => {
                 dispatch(changeSelectionInputLevelFilter(costBlockId, inputLevelId, filterItemId, isSelected));
-                dispatch(loadEditItemsByContext());
+                //dispatch(loadEditItemsByContext());
             },
             onCostElementFilterReseted: (costBlockId, costElementId) => {
                 dispatch(resetCostElementFilter(costBlockId, costElementId));
@@ -435,7 +454,8 @@ export const CostElementsInputContainer = connect<CostElementsProps,CostElementA
             },
             onEditItemsCleared: costBlockId => dispatch(clearEditItems(costBlockId)),
             onItemEdited: (costBlockId, item) => dispatch(editItem(costBlockId, item)),
-            onEditItemsSaving: costBlockId => dispatch(saveEditItemsToServer(costBlockId))
+            onEditItemsSaving: costBlockId => dispatch(saveEditItemsToServer(costBlockId)),
+            onApplyFilters: costBlockId => dispatch(applyFiltersWithReloading(costBlockId))
         }
     })
 )(CostElementsInput);
