@@ -7,7 +7,8 @@ export interface AsyncActionHandler<TState> {
 
 export class AsyncAction<TState = any> implements Action<string> {
     type = 'ASYNC_ACTION';
-    handler: AsyncActionHandler<TState>
+    handler: AsyncActionHandler<TState>;
+
     constructor(handler: AsyncActionHandler<TState>){
         this.handler = handler;
     }

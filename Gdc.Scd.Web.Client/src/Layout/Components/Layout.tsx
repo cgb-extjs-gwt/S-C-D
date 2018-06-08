@@ -6,18 +6,14 @@ import { medium, large } from '../../responsiveFormulas';
 import Home from '../../Test/Home/Home';
 import About from '../../Test/About/About';
 import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
-import { CostElementsInputContainer } from '../../InputCostElement/Components/CostElementsInput';
 import { PageCommonState, PageTitle } from '../States/PageStates';
 import { connect } from 'react-redux';
+import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
 
 interface LayoutProps extends PageTitle {
     history: any,
     location: any,
 }
-
-// export interface LayoutPropsMethods {
-//     onMenuItemClick: (pathName: string, history: History) => void
-// }
 
 /**
  * The main application view and routes
@@ -60,7 +56,7 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/" component={Home} exact/>
                         <Route path="/about" component={About}/>
                         <Route path="/pivot" component={ScdPivotGrid}/>
-                        <Route path="/input-cost-elements" component={CostElementsInputContainer}/>
+                        <Route path="/input-cost-elements" component={CostEditorContainer}/>
                     </Switch>
                 </Panel>
             </Container>

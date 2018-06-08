@@ -1,11 +1,11 @@
 import { Action } from "redux";
 import { asyncAction, AsyncAction } from "../../Common/Actions/AsyncAction";
-import * as service from "../Services/CostElementService";
-import { NamedId } from "../../Common/States/NamedId";
-import { CostElementInputState } from "../States/CostElementState";
+import * as service from "../Services/CostEditorServices";
+import { CostEditorState } from "../States/CostEditorStates";
 import { PageCommonState } from "../../Layout/States/PageStates";
-import { EditItem } from "../States/CostBlock";
-import { losseDataCheckHandlerAction, losseDataCheckAction } from "../Helpers/CostElementHelper";
+import { EditItem } from "../States/CostBlockStates";
+import { NamedId } from "../../Common/States/CommonStates";
+import { losseDataCheckHandlerAction } from "../Helpers/CostEditorHelpers";
 
 export const COST_BLOCK_INPUT_SELECT_COUNTRY = 'COST_BLOCK_INPUT.SELECT.COUNTRY';
 export const COST_BLOCK_INPUT_SELECT_COST_ELEMENT = 'COST_BLOCK_INPUT.SELECT.COST_ELEMENT';
@@ -22,19 +22,19 @@ export const COST_BLOCK_INPUT_EDIT_ITEM = 'COST_BLOCK_INPUT.EDIT.ITEM';
 export const COST_BLOCK_INPUT_SAVE_EDIT_ITEMS = 'COST_BLOCK_INPUT.SAVE.EDIT_ITEMS';
 export const COST_BLOCK_INPUT_APPLY_FILTERS = 'COST_BLOCK_INPUT.APPLY.FILTERS';
 
-export interface CostBlockInputAction extends Action<string>  {
+export interface CostBlockAction extends Action<string>  {
     costBlockId: string 
 }
 
-export interface CountrySelectedAction extends CostBlockInputAction {
+export interface CountrySelectedAction extends CostBlockAction {
     countryId: string;
 }
 
-export interface CostElementAction extends CostBlockInputAction {
+export interface CostElementAction extends CostBlockAction {
     costElementId: string
 }
 
-export interface FilterSelectionChangedAction extends CostBlockInputAction {
+export interface FilterSelectionChangedAction extends CostBlockAction {
     filterItemId: string
     isSelected: boolean
 }
@@ -42,7 +42,7 @@ export interface FilterSelectionChangedAction extends CostBlockInputAction {
 export interface CostElementFilterSelectionChangedAction extends FilterSelectionChangedAction, CostElementAction {
 }
 
-export interface InputLevelAction extends CostBlockInputAction {
+export interface InputLevelAction extends CostBlockAction {
     inputLevelId: string
 }
 
@@ -57,11 +57,11 @@ export interface InputLevelFilterLoadedAction extends InputLevelAction {
     filterItems: NamedId[]
 }
 
-export interface EditItemsAction extends CostBlockInputAction {
+export interface EditItemsAction extends CostBlockAction {
     editItems: EditItem[]
 }
 
-export interface ItemEditedAction extends CostBlockInputAction {
+export interface ItemEditedAction extends CostBlockAction {
     item: EditItem
 }
 
@@ -149,7 +149,7 @@ export const loadEditItems = (costBlockId: string, editItems: EditItem[]) => (<E
     editItems
 })
 
-export const clearEditItems = (costBlockId: string) => (<CostBlockInputAction>{
+export const clearEditItems = (costBlockId: string) => (<CostBlockAction>{
     type: COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS,
     costBlockId
 })
@@ -160,22 +160,22 @@ export const editItem = (costBlockId: string, item: EditItem) => (<ItemEditedAct
     item
 })
 
-export const saveEditItems = (costBlockId: string) => (<CostBlockInputAction>{
+export const saveEditItems = (costBlockId: string) => (<CostBlockAction>{
     type: COST_BLOCK_INPUT_SAVE_EDIT_ITEMS,
     costBlockId
 })
 
-export const applyFilters = (costBlockId: string) => (<CostBlockInputAction>{
+export const applyFilters = (costBlockId: string) => (<CostBlockAction>{
     type: COST_BLOCK_INPUT_APPLY_FILTERS,
     costBlockId
 })
 
 export const getFilterItemsByCustomElementSelection = (costBlockId: string, costElementId: string) =>
-    asyncAction<PageCommonState<CostElementInputState>>(
+    asyncAction<PageCommonState<CostEditorState>>(
         (dispatch, { page }) => {
             dispatch(selectCostElement(costBlockId, costElementId));
 
-            const costBlock = page.data.costBlocksInputs.find(item => item.costBlockId === costBlockId);
+            const costBlock = page.data.costBlocks.find(item => item.costBlockId === costBlockId);
             const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
             
             if (!costElement.filter) {
@@ -187,11 +187,11 @@ export const getFilterItemsByCustomElementSelection = (costBlockId: string, cost
     )
 
 export const getFilterItemsByInputLevelSelection = (costBlockId: string, inputLevelId: string) =>
-    asyncAction<PageCommonState<CostElementInputState>>(
+    asyncAction<PageCommonState<CostEditorState>>(
         (dispatch, { page }) => {
             dispatch(selectInputLevel(costBlockId, inputLevelId));
 
-            const costBlock = page.data.costBlocksInputs.find(item => item.costBlockId === costBlockId);
+            const costBlock = page.data.costBlocks.find(item => item.costBlockId === costBlockId);
             const inputLevel = 
                 costBlock.inputLevel.list && 
                 costBlock.inputLevel.list.find(item => item.inputLevelId === inputLevelId);
@@ -205,11 +205,11 @@ export const getFilterItemsByInputLevelSelection = (costBlockId: string, inputLe
     )
 
 export const reloadFilterBySelectedCountry = (costBlockId: string, countryId: string) =>
-    asyncAction<PageCommonState<CostElementInputState>>(
+    asyncAction<PageCommonState<CostEditorState>>(
         (dispatch, { page }) => {
             dispatch(selectCountry(costBlockId, countryId));
 
-            const costBlock = page.data.costBlocksInputs.find(item => item.costBlockId === costBlockId);
+            const costBlock = page.data.costBlocks.find(item => item.costBlockId === costBlockId);
             const {
                 costElement: { selectedItemId: costElementId },
                 inputLevel: { selectedItemId: inputLevelId }
@@ -225,15 +225,15 @@ export const reloadFilterBySelectedCountry = (costBlockId: string, countryId: st
         }
     )
 
-const buildContext = (state: CostElementInputState) => {
+const buildContext = (state: CostEditorState) => {
     const { 
         selectedApplicationId: applicationId,  
         selectedScopeId: scopeId,
         selectedCostBlockId: costBlockId,
-        costBlocksInputs
+        costBlocks
     } = state;
 
-    const costBlock = costBlocksInputs.find(item => item.costBlockId === costBlockId); 
+    const costBlock = costBlocks.find(item => item.costBlockId === costBlockId); 
 
     const { 
         selectedCountryId: countryId,
@@ -273,7 +273,7 @@ const buildContext = (state: CostElementInputState) => {
 }
 
 export const loadEditItemsByContext = () => 
-    asyncAction<PageCommonState<CostElementInputState>>(
+    asyncAction<PageCommonState<CostEditorState>>(
         (dispatch, { page }) => {
             const context = buildContext(page.data);
 
@@ -286,10 +286,10 @@ export const loadEditItemsByContext = () =>
     )
 
 export const saveEditItemsToServer = (costBlockId: string) => 
-    asyncAction<PageCommonState<CostElementInputState>>(
+    asyncAction<PageCommonState<CostEditorState>>(
         (dispatch, { page }) => {
             const costBlock = 
-                page.data.costBlocksInputs.find(item => item.costBlockId === costBlockId);
+                page.data.costBlocks.find(item => item.costBlockId === costBlockId);
 
             const context = buildContext(page.data);
 

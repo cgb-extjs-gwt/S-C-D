@@ -12,18 +12,33 @@ import {
 import FixedTabPanel from '../../Common/Components/FixedTabPanel';
 import { connect } from 'react-redux';
 import { PageCommonState, PageState, PAGE_STATE_KEY } from '../../Layout/States/PageStates';
-import { CostElementInputState, CostBlockMeta } from '../States/CostElementState';
-import { getCostElementInput } from '../Services/CostElementService';
-import { selectApplication, selectScope, init, selectCostBlock, loseChanges, hideDataLoseWarning, selectApplicationLosseDataCheck, selectScopeLosseDataCheck } from '../Actions/InputCostElementActions';
-import { NamedId } from '../../Common/States/NamedId';
-import { SelectList } from '../../Common/States/SelectList';
-import { CostBlockInputState, EditItem, CheckItem, Filter } from '../States/CostBlock';
-import { CostBlock as CostBlockComp, CostBlockProps } from './CostBlocks'
-import { selectCountry, selectCostElement, selectInputLevel, getFilterItemsByCustomElementSelection, getFilterItemsByInputLevelSelection, reloadFilterBySelectedCountry, changeSelectionCostElementFilter, changeSelectionInputLevelFilter, resetCostElementFilter, resetInputLevelFilter, loadEditItemsByContext, clearEditItems, editItem, saveEditItemsToServer, selectCountryWithReloading, applyFiltersWithReloading } from '../Actions/CostBlockInputActions';
+import { CostEditorState, CostBlockMeta } from '../States/CostEditorStates';
+import { getCostEditorDto } from '../Services/CostEditorServices';
+import { CostBlockState, EditItem, CheckItem, Filter } from '../States/CostBlockStates';
+import { selectCountry, 
+    selectCostElement, 
+    selectInputLevel, 
+    getFilterItemsByCustomElementSelection, 
+    getFilterItemsByInputLevelSelection, 
+    reloadFilterBySelectedCountry, 
+    changeSelectionCostElementFilter, 
+    changeSelectionInputLevelFilter, 
+    resetCostElementFilter, 
+    resetInputLevelFilter, 
+    loadEditItemsByContext, 
+    clearEditItems, 
+    editItem, 
+    saveEditItemsToServer, 
+    selectCountryWithReloading, 
+    applyFiltersWithReloading 
+} 
+from '../Actions/CostBlockActions';
+import { NamedId, SelectList } from '../../Common/States/CommonStates';
+import { CostBlockProps, CostBlockView } from './CostBlocksView';
 
 Ext.require('Ext.MessageBox');
 
-export interface CostElementActions {
+export interface CostEditorActions {
     onInit?: () => void;
     onApplicationSelected?: (applicationId: string) => void;
     onScopeSelected?: (scopeId: string) => void;
@@ -57,17 +72,17 @@ export interface CostBlockTab extends NamedId {
     costBlock: CostBlockProps
 }
 
-export interface CostElementsProps extends CostElementActions {
+export interface CostEditorProps extends CostEditorActions {
     application: SelectList<NamedId>
     scope: SelectList<NamedId>
     costBlocks: SelectList<CostBlockTab>
     isDataLossWarningDisplayed: boolean
 }
 
-export class CostElementsInput extends React.Component<CostElementsProps> {
+export class CostEditorView extends React.Component<CostEditorProps> {
     private isShownDataLossWarning = false;
 
-    constructor(props: CostElementsProps){
+    constructor(props: CostEditorProps){
         super(props);
         props.onInit && props.onInit();
     }
@@ -219,7 +234,7 @@ export class CostElementsInput extends React.Component<CostElementsProps> {
 
         return (
             <Container key={costBlockTab.id} title={costBlockTab.name}>
-                <CostBlockComp 
+                <CostBlockView 
                     {...costBlockTab.costBlock} 
                     onCountrySelected={
                         countryId => 
@@ -293,172 +308,3 @@ export class CostElementsInput extends React.Component<CostElementsProps> {
     }
 }
 
-const isSetContainsAllCheckedItems = (set: Set<string>, filterObj: Filter) => {
-    let result = true;
-
-    if (filterObj && filterObj.filter) {
-        const checkedItems = filterObj.filter.filter(item => item.isChecked);
-
-        result = checkedItems.length == set.size && checkedItems.every(item => set.has(item.id))
-    } 
-
-    return result
-}
-
-const costBlockTabListMap = (
-    costBlockInput: CostBlockInputState, 
-    countries: NamedId[], 
-    costBlockMeta: CostBlockMeta,
-    inputLevel:  Map<string, NamedId> 
-): CostBlockTab => {
-    const { edit } = costBlockInput;
-
-    const costElementInput = 
-        costBlockInput.costElement.list.find(
-            item => item.costElementId === costBlockInput.costElement.selectedItemId);
-
-    const selectedCostElementMeta = 
-        costBlockMeta.costElements.find(
-            item => item.id === costBlockInput.costElement.selectedItemId);
-
-    const selectedInputLevelMeta = inputLevel.get(costBlockInput.inputLevel.selectedItemId);
-    const selectedInputLevel = 
-        costBlockInput.inputLevel.list && 
-        costBlockInput.inputLevel.list.find(
-            item => item.inputLevelId === costBlockInput.inputLevel.selectedItemId)
-    
-    const isEnableEditButtons = edit.editedItems && edit.editedItems.length > 0;
-    const isEnableList = !edit.editedItems || edit.editedItems.length == 0;
-
-    return {
-        id: costBlockInput.costBlockId,
-        name: costBlockMeta.name,
-        costBlock: {
-            country: {
-                selectedItemId: costBlockInput.selectedCountryId,
-                list: countries
-            },
-            costElement: {
-                selectList: {
-                    selectedItemId: costBlockInput.costElement.selectedItemId,
-                    list: costBlockMeta.costElements.filter(
-                        costElement => costBlockInput.visibleCostElementIds.includes(costElement.id))
-                },
-                filter: costElementInput && costElementInput.filter,
-                filterName: selectedCostElementMeta && 
-                            selectedCostElementMeta.dependency && 
-                            selectedCostElementMeta.dependency .name,
-                description: selectedCostElementMeta && selectedCostElementMeta.description,
-                isVisibleFilter: costElementInput && costElementInput.filter && costElementInput.filter.length > 0,
-                isEnableList: isEnableList
-            },
-            inputLevel: {
-                selectList: {
-                    selectedItemId: costBlockInput.inputLevel.selectedItemId,
-                    list: Array.from(inputLevel.values())
-                },
-                filter: selectedInputLevel && selectedInputLevel.filter,
-                filterName: selectedInputLevelMeta && selectedInputLevelMeta.name,
-                isVisibleFilter: selectedInputLevel && selectedInputLevel.filter && selectedInputLevel.filter.length > 0,
-                isEnableList: isEnableList
-            },
-            edit: {
-                nameColumnTitle: selectedInputLevelMeta && selectedInputLevelMeta.name,
-                valueColumnTitle: selectedCostElementMeta && selectedCostElementMeta.name,
-                isVisible: costBlockInput.costElement.selectedItemId != null && 
-                           costBlockInput.inputLevel.selectedItemId !=null,
-                items: edit.originalItems && edit.originalItems.map(originalItem => ({
-                    ...edit.editedItems.find(editedItem => editedItem.id === originalItem.id) || originalItem
-                })),
-                isEnableClear: isEnableEditButtons,
-                isEnableSave: isEnableEditButtons,
-                isEnableApplyFilters: !isSetContainsAllCheckedItems(edit.appliedFilter.costElementsItemIds, costElementInput) ||
-                                      !isSetContainsAllCheckedItems(edit.appliedFilter.inputLevelItemIds, selectedInputLevel)
-            }
-        }
-    }
-}
-
-export const CostElementsInputContainer = connect<CostElementsProps,CostElementActions,{},PageCommonState<CostElementInputState>>(
-    state => {
-        const { 
-            applications, 
-            selectedApplicationId,
-            scopes,  
-            selectedScopeId,
-            visibleCostBlockIds,
-            selectedCostBlockId,
-            costBlocksInputs,
-            countries: countryMap,
-            costBlockMetas,
-            inputLevels,
-            dataLossInfo,
-        } = state.page.data;
-
-        const countryArray = countryMap && Array.from(countryMap.values()) || [];
-
-        return {
-            application: {
-                selectedItemId: selectedApplicationId,
-                list: applications && Array.from(applications.values())
-            },
-            scope: {
-                selectedItemId: selectedScopeId,
-                list: scopes && Array.from(scopes.values())
-            },
-            isDataLossWarningDisplayed: dataLossInfo.isWarningDisplayed,
-            costBlocks: {
-                selectedItemId: selectedCostBlockId,
-                list: costBlocksInputs && 
-                      costBlocksInputs.filter(costBlockInput => visibleCostBlockIds.includes(costBlockInput.costBlockId))
-                                      .map(costBlockInput => 
-                                        costBlockTabListMap(
-                                            costBlockInput, 
-                                            countryArray, 
-                                            costBlockMetas.get(costBlockInput.costBlockId), 
-                                            inputLevels))
-            }
-        } as CostElementsProps;
-    },
-    dispatch => ({
-        onInit: () => dispatch(init()),
-        onApplicationSelected: applicationId => dispatch(selectApplicationLosseDataCheck(applicationId)),
-        onScopeSelected: scopeId => dispatch(selectScopeLosseDataCheck(scopeId)),
-        onCostBlockSelected: costBlockId => dispatch(selectCostBlock(costBlockId)),
-        onLoseChanges: () => dispatch(loseChanges()),
-        onCancelDataLose: () => dispatch(hideDataLoseWarning()),
-        tabActions: {
-            onCountrySelected: (countryId, costBlockId) => {
-                dispatch(selectCountryWithReloading(costBlockId, countryId));
-            },
-            onCostElementSelected: (costBlockId, costElementId) => {
-                dispatch(getFilterItemsByCustomElementSelection(costBlockId, costElementId));
-                dispatch(loadEditItemsByContext());
-            },
-            onInputLevelSelected: (costBlockId, inputLevelId) => {
-                dispatch(getFilterItemsByInputLevelSelection(costBlockId, inputLevelId));
-                dispatch(loadEditItemsByContext());
-            },
-            onCostElementFilterSelectionChanged: (costBlockId, costElementId, filterItemId, isSelected) => {
-                dispatch(changeSelectionCostElementFilter(costBlockId, costElementId, filterItemId, isSelected));
-                //dispatch(loadEditItemsByContext());
-            },
-            onInputLevelFilterSelectionChanged: (costBlockId, inputLevelId, filterItemId, isSelected) => {
-                dispatch(changeSelectionInputLevelFilter(costBlockId, inputLevelId, filterItemId, isSelected));
-                //dispatch(loadEditItemsByContext());
-            },
-            onCostElementFilterReseted: (costBlockId, costElementId) => {
-                dispatch(resetCostElementFilter(costBlockId, costElementId));
-                dispatch(loadEditItemsByContext());
-            },
-            onInputLevelFilterReseted: (costBlockId, inputLevelId) => {
-                dispatch(resetInputLevelFilter(costBlockId, inputLevelId))
-                dispatch(loadEditItemsByContext());
-            },
-            onEditItemsCleared: costBlockId => dispatch(clearEditItems(costBlockId)),
-            onItemEdited: (costBlockId, item) => dispatch(editItem(costBlockId, item)),
-            onEditItemsSaving: costBlockId => dispatch(saveEditItemsToServer(costBlockId)),
-            onApplyFilters: costBlockId => dispatch(applyFiltersWithReloading(costBlockId))
-        }
-    })
-)(CostElementsInput);

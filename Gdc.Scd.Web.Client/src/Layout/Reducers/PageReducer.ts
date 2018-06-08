@@ -1,6 +1,5 @@
 import { Reducer } from "redux";
 import { PageState, PageTitle, PageData, PageError } from "../States/PageStates";
-import { CommonAction } from "../../Common/CommonAction";
 import { PAGE_OPEN, PAGE_INIT_SUCCESS, PAGE_INIT_ERROR, PageAction } from "../Actions/PageActions";
 
 const defaultState = () => (<PageState>{

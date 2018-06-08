@@ -1,7 +1,6 @@
 import { Action, Reducer } from "redux";
 import { PageState } from "../../Layout/States/PageStates";
-import { CommonAction } from "../../Common/CommonAction";
-import { CostElementInputState, CostElementInputDto, CostBlockMeta, CostElementMeta } from "../States/CostElementState";
+import { CostEditorState, CostEdirotDto, CostBlockMeta, CostElementMeta } from "../States/CostEditorStates";
 import { PageAction, PAGE_INIT_SUCCESS } from "../../Layout/Actions/PageActions";
 import { 
     COST_ELEMENT_INTPUT_PAGE, 
@@ -12,12 +11,10 @@ import {
     COST_ELEMENT_INTPUT_LOSE_CHANGES,
     COST_ELEMENT_INTPUT_SHOW_LOSE_CHANGES_WARNING,
     ShowDataLoseWarningAction
-} from "../Actions/InputCostElementActions";
-import { SelectList } from "../../Common/States/SelectList";
-import { NamedId } from "../../Common/States/NamedId";
-import { CostBlockInputState, CostElementInput } from "../States/CostBlock";
+} from "../Actions/CostEditorActions";
+import { CostBlockState, CostElementState } from "../States/CostBlockStates";
 import { ItemSelectedAction } from "../../Common/Actions/CommonActions";
-import * as CostBlockReducers from "./CostBlockInputReducer"
+import { NamedId } from "../../Common/States/CommonStates";
 
 const createMap = <T extends NamedId>(array: T[]) => {
     const map = new Map<string, T>();
@@ -27,7 +24,7 @@ const createMap = <T extends NamedId>(array: T[]) => {
     return map;
 }
 
-const initSuccess: Reducer<CostElementInputState, PageAction<CostElementInputDto>> = (state, action) => {
+const initSuccess: Reducer<CostEditorState, PageAction<CostEdirotDto>> = (state, action) => {
     const { applications, scopes, costBlockMetas, countries, inputLevels } = action.data;
     const selectedApplicationId = applications[0].id;
     const selectedScopeId = scopes[0].id;
@@ -46,29 +43,14 @@ const initSuccess: Reducer<CostElementInputState, PageAction<CostElementInputDto
         : state;
 }
 
-// const selectApplication = buildLoseDataChecker<ItemSelectedAction>(
-//     (state, action) => ({
-//         ...CostBlockReducers.selectApplication(state, action),
-//         selectedApplicationId: action.selectedItemId
-//     })
-// )
-
-// const selectScope = buildLoseDataChecker<ItemSelectedAction>(
-//     (state, action) => ({
-//         ...CostBlockReducers.selectScope(state, action),
-//         selectedScopeId: (<ItemSelectedAction>action).selectedItemId
-//     })
-// )
-
-const defaultState = () => (<CostElementInputState>{
+const defaultState = () => (<CostEditorState>{
     dataLossInfo: {
         isWarningDisplayed: false,
         action: null,
-        //isLoseChanges: false
     }
 })
 
-const showDataLoseWarning: Reducer<CostElementInputState, ShowDataLoseWarningAction> = (state, action) => ({
+const showDataLoseWarning: Reducer<CostEditorState, ShowDataLoseWarningAction> = (state, action) => ({
     ...state,
     dataLossInfo: {
         ...state.dataLossInfo,
@@ -77,7 +59,7 @@ const showDataLoseWarning: Reducer<CostElementInputState, ShowDataLoseWarningAct
     }
 })
 
-const hideDataLoseWarning: Reducer<CostElementInputState> = state => ({
+const hideDataLoseWarning: Reducer<CostEditorState> = state => ({
     ...state,
     dataLossInfo: {
         ...state.dataLossInfo,
@@ -86,9 +68,9 @@ const hideDataLoseWarning: Reducer<CostElementInputState> = state => ({
     }
 })
 
-const loseChanges: Reducer<CostElementInputState, Action<string>> = state => ({
+const loseChanges: Reducer<CostEditorState, Action<string>> = state => ({
     ...state,
-    costBlocksInputs: state.costBlocksInputs.map(costBlock => (<CostBlockInputState>{
+    costBlocks: state.costBlocks.map(costBlock => (<CostBlockState>{
         ...costBlock,
         edit: {
             ...costBlock.edit,
@@ -97,18 +79,16 @@ const loseChanges: Reducer<CostElementInputState, Action<string>> = state => ({
     })),
     dataLossInfo: {
         ...state.dataLossInfo,
-        //isLoseChanges: true
     }
 })
 
 
-export const costElementInputReducer: Reducer<CostElementInputState, Action<string>> = (state = defaultState(), action) => {
+export const costEditorReducer: Reducer<CostEditorState, Action<string>> = (state = defaultState(), action) => {
     switch(action.type) {
         case PAGE_INIT_SUCCESS:
-            return initSuccess(state, <PageAction<CostElementInputDto>>action);
+            return initSuccess(state, <PageAction<CostEdirotDto>>action);
 
         case COST_ELEMENT_INTPUT_SELECT_APPLICATION:
-            //return selectApplication(state, action);
             return {
                 ...state,
                 selectedApplicationId: (<ItemSelectedAction>action).selectedItemId

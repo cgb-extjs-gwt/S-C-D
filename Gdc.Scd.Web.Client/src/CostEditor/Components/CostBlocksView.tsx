@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { Container, ComboBoxField, Panel, FormPanel, RadioField, ContainerField, Grid, Column, Toolbar, Button, Label, Dialog } from '@extjs/ext-react';
-import { CostBlockInputState, EditItem, CheckItem } from '../States/CostBlock'
-import { NamedId } from '../../Common/States/NamedId';
-import { SelectList, MultiSelectList } from '../../Common/States/SelectList';
+import { CostBlockState, EditItem, CheckItem } from '../States/CostBlockStates'
 import { Filter } from './Filter';
+import { SelectList, NamedId } from '../../Common/States/CommonStates';
 
 Ext.require('Ext.grid.plugin.CellEditing');
 Ext.require('Ext.MessageBox');
@@ -53,7 +52,7 @@ export interface CostBlockProps {
   }
 }
 
-export class CostBlock extends React.Component<CostBlockProps & CostBlockActions> {
+export class CostBlockView extends React.Component<CostBlockProps & CostBlockActions> {
   public render() {
     const { 
       country, 

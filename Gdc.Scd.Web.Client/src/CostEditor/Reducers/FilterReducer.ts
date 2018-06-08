@@ -1,8 +1,8 @@
-import { CheckItem } from "../States/CostBlock";
+import { CheckItem } from "../States/CostBlockStates";
 import { Reducer } from "redux";
-import { FilterSelectionChangedAction } from "../Actions/CostBlockInputActions";
+import { FilterSelectionChangedAction } from "../Actions/CostBlockActions";
 import { mapIf } from "../../Common/Helpers/CommonHelpers";
-import { NamedId } from "../../Common/States/NamedId";
+import { NamedId } from "../../Common/States/CommonStates";
 
 export const changeSelecitonFilterItem: Reducer<CheckItem[], FilterSelectionChangedAction> = (state, action) => 
     mapIf(

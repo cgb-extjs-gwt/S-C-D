@@ -1,5 +1,5 @@
-import { NamedId } from "../../Common/States/NamedId";
-import { SelectList, MultiSelectList } from "../../Common/States/SelectList";
+import { NamedId, SelectList } from "../../Common/States/CommonStates";
+
 
 export interface EditItem extends NamedId {
     value: number
@@ -13,20 +13,20 @@ export interface Filter {
     filter: CheckItem[]
 }
 
-export interface CostElementInput extends Filter {
+export interface CostElementState extends Filter {
     costElementId: string
 }
 
-export interface InputLevelInput extends Filter {
+export interface InputLevelState extends Filter {
     inputLevelId: string
 }
 
-export interface CostBlockInputState {
+export interface CostBlockState {
     costBlockId: string
     selectedCountryId: string
-    costElement: SelectList<CostElementInput>
+    costElement: SelectList<CostElementState>
     visibleCostElementIds: string[]
-    inputLevel: SelectList<InputLevelInput>
+    inputLevel: SelectList<InputLevelState>
     edit: {
         originalItems: EditItem[],
         editedItems: EditItem[]

@@ -1,10 +1,6 @@
-import { SelectList } from "../../Common/States/SelectList";
-import { CostBlockInputState } from "./CostBlock";
-import { NamedId } from "../../Common/States/NamedId";
+import { CostBlockState } from "./CostBlockStates";
 import { Action } from "redux";
-
-// export interface InputLevel extends NamedId {
-// }
+import { NamedId } from "../../Common/States/CommonStates";
 
 export interface CostElementMeta extends NamedId {
     dependency: NamedId
@@ -17,7 +13,7 @@ export interface CostBlockMeta extends NamedId {
     costElements: CostElementMeta[]
 }
 
-export interface CostElementInputDto {
+export interface CostEdirotDto {
     applications: NamedId[]
     scopes: NamedId[]
     countries: NamedId[]
@@ -25,7 +21,7 @@ export interface CostElementInputDto {
     inputLevels: NamedId[]
 }
 
-export interface CostElementInputState {
+export interface CostEditorState {
     applications: Map<string, NamedId>
     scopes: Map<string, NamedId>
     countries: Map<string, NamedId>
@@ -33,12 +29,11 @@ export interface CostElementInputState {
     inputLevels: Map<string, NamedId> 
     selectedApplicationId: string
     selectedScopeId: string
-    costBlocksInputs: CostBlockInputState[]
+    costBlocks: CostBlockState[]
     visibleCostBlockIds: string[]
     selectedCostBlockId: string
     dataLossInfo: {
         isWarningDisplayed: boolean
         action: Action<string>
-        //isLoseChanges: boolean
     }
 }

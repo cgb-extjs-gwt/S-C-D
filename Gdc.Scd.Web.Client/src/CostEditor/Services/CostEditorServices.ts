@@ -1,6 +1,6 @@
-import { CostElementInputState, CostElementInputDto } from "../States/CostElementState";
-import { CostBlockInputState, EditItem } from "../States/CostBlock";
-import { NamedId } from "../../Common/States/NamedId";
+import { CostEditorState, CostEdirotDto } from "../States/CostEditorStates";
+import { CostBlockState, EditItem } from "../States/CostBlockStates";
+import { NamedId } from "../../Common/States/CommonStates";
 
 export interface Context {
     applicationId: string
@@ -13,7 +13,7 @@ export interface Context {
     inputLevelFilterIds: string[]
 }
 
-export const getCostElementInput = () => Promise.resolve(<CostElementInputDto>{
+export const getCostEditorDto = () => Promise.resolve(<CostEdirotDto>{
     applications: [
         { id: 'hardware', name: 'Hardware' },
         { id: 'software', name: 'Software' }

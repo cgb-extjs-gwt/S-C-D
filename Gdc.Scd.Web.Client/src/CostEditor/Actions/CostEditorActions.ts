@@ -1,13 +1,11 @@
 import { PageActionBuilder } from "../../Layout/Actions/PageActions";
-import { CostElementInputState } from "../States/CostElementState";
-import { NamedId } from "../../Common/States/NamedId";
-import { CommonAction } from "../../Common/CommonAction";
+import { CostEditorState } from "../States/CostEditorStates";
 import { Action, Dispatch } from "redux";
-import { getCostElementInput } from "../Services/CostElementService";
+import { getCostEditorDto } from "../Services/CostEditorServices";
 import { asyncAction } from "../../Common/Actions/AsyncAction";
 import { ItemSelectedAction } from "../../Common/Actions/CommonActions";
 import { PageCommonState } from "../../Layout/States/PageStates";
-import { losseDataCheckHandlerAction, losseDataCheckAction } from "../Helpers/CostElementHelper";
+import { losseDataCheckAction } from "../Helpers/CostEditorHelpers";
 
 export const COST_ELEMENT_INTPUT_PAGE = 'CostElementsInputs';
 export const COST_ELEMENT_INTPUT_SELECT_APPLICATION = 'COST_ELEMENT_INTPUT.SELECT.APPLICATION';
@@ -26,7 +24,7 @@ const actionBuilder = new PageActionBuilder(COST_ELEMENT_INTPUT_PAGE, 'Cost elem
 export const init = () => asyncAction(
     dispatch => {
         dispatch(actionBuilder.openPage());
-        getCostElementInput().then(
+        getCostEditorDto().then(
             costElement => dispatch(actionBuilder.initPageSuccess(costElement)),
             error => dispatch(actionBuilder.initPageError(error))
         );
@@ -57,7 +55,7 @@ export const hideDataLoseWarning = () => (<Action<string>>{
     type: COST_ELEMENT_INTPUT_HIDE_LOSE_CHANGES_WARNING
 })
 
-export const loseChanges = () => asyncAction<PageCommonState<CostElementInputState>>(
+export const loseChanges = () => asyncAction<PageCommonState<CostEditorState>>(
     (dispatch, state) => {
         dispatch(hideDataLoseWarning());
         dispatch(<Action<string>>{
