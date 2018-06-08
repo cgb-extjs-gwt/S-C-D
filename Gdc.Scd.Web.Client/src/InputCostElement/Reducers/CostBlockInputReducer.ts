@@ -110,7 +110,7 @@ const initSuccess: Reducer<CostElementInputState, PageAction<CostElementInputDto
         : state;
 }
 
-export const selectApplication: Reducer<CostElementInputState, ItemSelectedAction> = (state, action) => {
+const selectApplication: Reducer<CostElementInputState, ItemSelectedAction> = (state, action) => {
     const visibleCostBlockIds = getVisibleCostBlockIds(
         Array.from(state.costBlockMetas.values()), 
         action.selectedItemId);
@@ -127,7 +127,7 @@ export const selectApplication: Reducer<CostElementInputState, ItemSelectedActio
     }
 }
 
-export const selectScope: Reducer<CostElementInputState, ItemSelectedAction> = (state, action) => {
+const selectScope: Reducer<CostElementInputState, ItemSelectedAction> = (state, action) => {
     return {
         ...state,
         costBlocksInputs: state.costBlocksInputs.map(costBlockInput => {
@@ -319,11 +319,11 @@ export const costBlockInputReducer: Reducer<CostElementInputState, Action<string
         case PAGE_INIT_SUCCESS:
             return initSuccess(state, <PageAction<CostElementInputDto>>action)
         
-        // case COST_ELEMENT_INTPUT_SELECT_APPLICATION:
-        //     return selectApplication(state, <ItemSelectedAction>action)
+        case COST_ELEMENT_INTPUT_SELECT_APPLICATION:
+            return selectApplication(state, <ItemSelectedAction>action)
 
-        // case COST_ELEMENT_INTPUT_SELECT_SCOPE:
-        //     return selectScope(state, <ItemSelectedAction>action)
+        case COST_ELEMENT_INTPUT_SELECT_SCOPE:
+            return selectScope(state, <ItemSelectedAction>action)
 
         // case COST_ELEMENT_INTPUT_SELECT_COST_BLOCK:
         //     return {

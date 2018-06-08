@@ -9,7 +9,9 @@ import {
     COST_ELEMENT_INTPUT_SELECT_SCOPE,
     COST_ELEMENT_INTPUT_SELECT_COST_BLOCK,
     COST_ELEMENT_INTPUT_HIDE_LOSE_CHANGES_WARNING,
-    COST_ELEMENT_INTPUT_LOSE_CHANGES
+    COST_ELEMENT_INTPUT_LOSE_CHANGES,
+    COST_ELEMENT_INTPUT_SHOW_LOSE_CHANGES_WARNING,
+    ShowDataLoseWarningAction
 } from "../Actions/InputCostElementActions";
 import { SelectList } from "../../Common/States/SelectList";
 import { NamedId } from "../../Common/States/NamedId";
@@ -44,76 +46,61 @@ const initSuccess: Reducer<CostElementInputState, PageAction<CostElementInputDto
         : state;
 }
 
-const hasUnsavedChanges = (state: CostElementInputState) => 
-    !state.costBlocksInputs.every(costBlock => !costBlock.edit.editedItems || costBlock.edit.editedItems.length === 0)
+// const selectApplication = buildLoseDataChecker<ItemSelectedAction>(
+//     (state, action) => ({
+//         ...CostBlockReducers.selectApplication(state, action),
+//         selectedApplicationId: action.selectedItemId
+//     })
+// )
 
-const clearChanges = (costBlocks: CostBlockInputState[]) => 
-    costBlocks.map(costBlock => (<CostBlockInputState>{
-        ...costBlock,
-        edit: {
-            ...costBlock.edit,
-            editedItems: []
-        }
-    }))
-
-export const  buildProtectionData = <TAction extends Action<string>>(
-    fn: (state: CostElementInputState, action: TAction) => CostElementInputState
-) => 
-    (state: CostElementInputState, action: Action<string>): CostElementInputState  => {
-        let result: CostElementInputState;
-
-        const { isWarningDisplayed, isLoseChanges } = state.dataLossInfo;
-
-        if (isWarningDisplayed) {
-            result = state;
-        } else if (isLoseChanges) {
-            result = { 
-                ...fn(state, <TAction>action),
-                costBlocksInputs: clearChanges(state.costBlocksInputs),
-                dataLossInfo: {
-                    ...state.dataLossInfo,
-                    isLoseChanges: false
-                }
-            };
-        } else if(hasUnsavedChanges(state)){
-            result = {
-                ...state,
-                dataLossInfo: {
-                    ...state.dataLossInfo,
-                    isWarningDisplayed: true,
-                    action
-                }
-            }
-        } else {
-            result = fn(state, <TAction>action);
-        }
-
-        return result;
-    }
-        
-
-
-const selectApplication = buildProtectionData<ItemSelectedAction>(
-    (state, action) => ({
-        ...CostBlockReducers.selectApplication(state, action),
-        selectedApplicationId: action.selectedItemId
-    })
-)
-
-const selectScope = buildProtectionData<ItemSelectedAction>(
-    (state, action) => ({
-        ...CostBlockReducers.selectScope(state, action),
-        selectedScopeId: (<ItemSelectedAction>action).selectedItemId
-    })
-)
+// const selectScope = buildLoseDataChecker<ItemSelectedAction>(
+//     (state, action) => ({
+//         ...CostBlockReducers.selectScope(state, action),
+//         selectedScopeId: (<ItemSelectedAction>action).selectedItemId
+//     })
+// )
 
 const defaultState = () => (<CostElementInputState>{
     dataLossInfo: {
         isWarningDisplayed: false,
         action: null,
-        isLoseChanges: false
+        //isLoseChanges: false
     }
 })
+
+const showDataLoseWarning: Reducer<CostElementInputState, ShowDataLoseWarningAction> = (state, action) => ({
+    ...state,
+    dataLossInfo: {
+        ...state.dataLossInfo,
+        isWarningDisplayed: true,
+        action: action.dataLoseAction
+    }
+})
+
+const hideDataLoseWarning: Reducer<CostElementInputState> = state => ({
+    ...state,
+    dataLossInfo: {
+        ...state.dataLossInfo,
+        isWarningDisplayed: false,
+        action: null
+    }
+})
+
+const loseChanges: Reducer<CostElementInputState, Action<string>> = state => ({
+    ...state,
+    costBlocksInputs: state.costBlocksInputs.map(costBlock => (<CostBlockInputState>{
+        ...costBlock,
+        edit: {
+            ...costBlock.edit,
+            editedItems: []
+        }
+    })),
+    dataLossInfo: {
+        ...state.dataLossInfo,
+        //isLoseChanges: true
+    }
+})
+
 
 export const costElementInputReducer: Reducer<CostElementInputState, Action<string>> = (state = defaultState(), action) => {
     switch(action.type) {
@@ -121,10 +108,17 @@ export const costElementInputReducer: Reducer<CostElementInputState, Action<stri
             return initSuccess(state, <PageAction<CostElementInputDto>>action);
 
         case COST_ELEMENT_INTPUT_SELECT_APPLICATION:
-            return selectApplication(state, action);
+            //return selectApplication(state, action);
+            return {
+                ...state,
+                selectedApplicationId: (<ItemSelectedAction>action).selectedItemId
+            }
 
         case COST_ELEMENT_INTPUT_SELECT_SCOPE:
-            return selectScope(state, action);
+        return {
+            ...state,
+            selectedScopeId: (<ItemSelectedAction>action).selectedItemId
+        }
 
         case COST_ELEMENT_INTPUT_SELECT_COST_BLOCK:
             return {
@@ -132,24 +126,14 @@ export const costElementInputReducer: Reducer<CostElementInputState, Action<stri
                 selectedCostBlockId: (<ItemSelectedAction>action).selectedItemId
             }
 
+        case COST_ELEMENT_INTPUT_SHOW_LOSE_CHANGES_WARNING:
+            return showDataLoseWarning(state, <ShowDataLoseWarningAction>action)
+
         case COST_ELEMENT_INTPUT_HIDE_LOSE_CHANGES_WARNING:
-            return {
-                ...state,
-                dataLossInfo: {
-                    ...state.dataLossInfo,
-                    isWarningDisplayed: false,
-                    action: null
-                }
-            }
+            return hideDataLoseWarning(state, action)
 
         case COST_ELEMENT_INTPUT_LOSE_CHANGES:
-            return {
-                ...state,
-                dataLossInfo: {
-                    ...state.dataLossInfo,
-                    isLoseChanges: true
-                }
-            }
+            return loseChanges(state, action)
 
         default:
             return state;

@@ -1,10 +1,11 @@
 import { Action } from "redux";
-import { asyncAction } from "../../Common/Actions/AsyncAction";
+import { asyncAction, AsyncAction } from "../../Common/Actions/AsyncAction";
 import * as service from "../Services/CostElementService";
 import { NamedId } from "../../Common/States/NamedId";
 import { CostElementInputState } from "../States/CostElementState";
 import { PageCommonState } from "../../Layout/States/PageStates";
 import { EditItem } from "../States/CostBlock";
+import { losseDataCheckHandlerAction } from "../Helpers/CostElementHelper";
 
 export const COST_BLOCK_INPUT_SELECT_COUNTRY = 'COST_BLOCK_INPUT.SELECT.COUNTRY';
 export const COST_BLOCK_INPUT_SELECT_COST_ELEMENT = 'COST_BLOCK_INPUT.SELECT.COST_ELEMENT';
@@ -25,7 +26,7 @@ export interface CostBlockInputAction extends Action<string>  {
 }
 
 export interface CountrySelectedAction extends CostBlockInputAction {
-    countryId: string
+    countryId: string;
 }
 
 export interface CostElementAction extends CostBlockInputAction {
@@ -275,50 +276,6 @@ export const loadEditItemsByContext = () =>
                     editItems => dispatch(loadEditItems(context.costBlockId, editItems))
                 )
             }
-
-            // const { 
-            //     selectedApplicationId: applicationId,  
-            //     selectedScopeId: scopeId,
-            //     selectedCostBlockId: costBlockId,
-            //     costBlocksInputs
-            // } = page.data;
-
-            // const costBlock = costBlocksInputs.find(item => item.costBlockId === costBlockId); 
-
-            // const { 
-            //     selectedCountryId: countryId,
-            //     costElement,
-            //     inputLevel                
-            // } = costBlock;
-
-            // if (costElement.selectedItemId != null && inputLevel.selectedItemId != null) {
-            //     const selectedCostElement = 
-            //         costElement.list.find(item => item.costElementId === costElement.selectedItemId);
-
-            //     const costElementFilterIds = selectedCostElement.filter 
-            //         ? selectedCostElement.filter.map(item => item.id) 
-            //         : [];
-
-            //     const selectedInputLevel = 
-            //         inputLevel.list.find(item => item.inputLevelId === inputLevel.selectedItemId);
-
-            //     const inputLevelFilterIds = selectedInputLevel.filter 
-            //         ? selectedInputLevel.filter.map(item => item.id)
-            //         : [];
-
-            //     service.getEditItems({
-            //         applicationId,
-            //         scopeId,
-            //         costBlockId,
-            //         countryId,
-            //         costElementId: costElement.selectedItemId,
-            //         inputLevelId: inputLevel.selectedItemId,
-            //         costElementFilterIds,
-            //         inputLevelFilterIds
-            //     }).then(
-            //         editItems => dispatch(loadEditItems(costBlockId, editItems))
-            //     )
-            // }
         }
     )
 
@@ -336,3 +293,10 @@ export const saveEditItemsToServer = (costBlockId: string) =>
                     )
         }
     )
+
+export const selectCountryWithReloading = (costBlockId: string, countryId: string) => losseDataCheckHandlerAction(
+    (dispatch, state) => {
+        dispatch(reloadFilterBySelectedCountry(costBlockId, countryId));
+        dispatch(loadEditItemsByContext());
+    }
+)

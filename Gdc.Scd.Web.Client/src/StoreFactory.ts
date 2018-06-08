@@ -9,7 +9,7 @@ import { costBlockInputReducer } from "./InputCostElement/Reducers/CostBlockInpu
 
 const asyncActionHandler = store => next => action => {
     if (action instanceof AsyncAction) {
-        (<AsyncAction>action).handler(store.dispatch, store.getState());
+        (<AsyncAction>action).handler(store.dispatch, store.getState(), action);
     } else {
         next(action);
     }

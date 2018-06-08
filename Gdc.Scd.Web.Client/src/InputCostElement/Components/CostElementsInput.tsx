@@ -14,12 +14,12 @@ import { connect } from 'react-redux';
 import { PageCommonState, PageState, PAGE_STATE_KEY } from '../../Layout/States/PageStates';
 import { CostElementInputState, CostBlockMeta } from '../States/CostElementState';
 import { getCostElementInput } from '../Services/CostElementService';
-import { selectApplication, selectScope, init, selectCostBlock, loseChanges, hideDataLoseWarning } from '../Actions/InputCostElementActions';
+import { selectApplication, selectScope, init, selectCostBlock, loseChanges, hideDataLoseWarning, selectApplicationLosseDataCheck, selectScopeLosseDataCheck } from '../Actions/InputCostElementActions';
 import { NamedId } from '../../Common/States/NamedId';
 import { SelectList } from '../../Common/States/SelectList';
 import { CostBlockInputState, EditItem } from '../States/CostBlock';
 import { CostBlock as CostBlockComp, CostBlockProps } from './CostBlocks'
-import { selectCountry, selectCostElement, selectInputLevel, getFilterItemsByCustomElementSelection, getFilterItemsByInputLevelSelection, reloadFilterBySelectedCountry, changeSelectionCostElementFilter, changeSelectionInputLevelFilter, resetCostElementFilter, resetInputLevelFilter, loadEditItemsByContext, clearEditItems, editItem, saveEditItemsToServer } from '../Actions/CostBlockInputActions';
+import { selectCountry, selectCostElement, selectInputLevel, getFilterItemsByCustomElementSelection, getFilterItemsByInputLevelSelection, reloadFilterBySelectedCountry, changeSelectionCostElementFilter, changeSelectionInputLevelFilter, resetCostElementFilter, resetInputLevelFilter, loadEditItemsByContext, clearEditItems, editItem, saveEditItemsToServer, selectCountryWithReloading } from '../Actions/CostBlockInputActions';
 
 Ext.require('Ext.MessageBox');
 
@@ -400,15 +400,14 @@ export const CostElementsInputContainer = connect<CostElementsProps,CostElementA
     },
     dispatch => ({
         onInit: () => dispatch(init()),
-        onApplicationSelected: applicationId => dispatch(selectApplication(applicationId)),
-        onScopeSelected: scopeId => dispatch(selectScope(scopeId)),
+        onApplicationSelected: applicationId => dispatch(selectApplicationLosseDataCheck(applicationId)),
+        onScopeSelected: scopeId => dispatch(selectScopeLosseDataCheck(scopeId)),
         onCostBlockSelected: costBlockId => dispatch(selectCostBlock(costBlockId)),
         onLoseChanges: () => dispatch(loseChanges()),
         onCancelDataLose: () => dispatch(hideDataLoseWarning()),
         tabActions: {
             onCountrySelected: (countryId, costBlockId) => {
-                dispatch(reloadFilterBySelectedCountry(costBlockId, countryId));
-                dispatch(loadEditItemsByContext());
+                dispatch(selectCountryWithReloading(costBlockId, countryId));
             },
             onCostElementSelected: (costBlockId, costElementId) => {
                 dispatch(getFilterItemsByCustomElementSelection(costBlockId, costElementId));

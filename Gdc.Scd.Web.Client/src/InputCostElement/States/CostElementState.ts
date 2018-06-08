@@ -39,6 +39,6 @@ export interface CostElementInputState {
     dataLossInfo: {
         isWarningDisplayed: boolean
         action: Action<string>
-        isLoseChanges: boolean
+        //isLoseChanges: boolean
     }
 }
