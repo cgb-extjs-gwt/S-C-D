@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
+using System.Threading.Tasks;
 using Gdc.Scd.DataAccessLayer.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,12 +17,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.repositorySet = repositorySet;
         }
 
-        public IEnumerable<string> GetValues(string tableName, string columnName, string schemaName = null)
+        public async Task<IEnumerable<string>> GetValues(string tableName, string columnName, string schemaName = null)
         {
             var columnInfo = new ColumnInfo { Name = columnName };
             var sql = this.BuildSql(tableName, new[] { columnInfo }, schemaName);
 
-            return this.ReadFromDb(sql, reader => reader.GetString(0));
+            return await this.ReadFromDb(sql, reader => reader.GetString(0));
         }
 
         private string BuildSql(string tableName, IEnumerable<ColumnInfo> columnInfos, string schemaName = null)
@@ -65,25 +65,26 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return result;
         }
 
-        private IEnumerable<T> ReadFromDb<T>(string sql, Func<IDataReader, T> mapFunc)
+        private async Task<IEnumerable<T>> ReadFromDb<T>(string sql, Func<IDataReader, T> mapFunc)
         {
             var connection = repositorySet.Database.GetDbConnection();
+            var result = new List<T>();
 
             try
             {
-                connection.Open();
+                await connection.OpenAsync();
 
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = sql;
 
-                    var reader = command.ExecuteReader();
+                    var reader = await command.ExecuteReaderAsync();
 
                     if (reader.HasRows)
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
-                            yield return mapFunc(reader);
+                            result.Add(mapFunc(reader));
                         }
                     }
                 }
@@ -92,6 +93,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 connection.Close();
             }
+
+            return result;
         }
     }
 }
