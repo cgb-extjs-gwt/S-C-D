@@ -14,4 +14,8 @@
     <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Entities\" />
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,8 @@
-﻿using Gdc.Scd.Core.Interfaces;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading.Tasks;
+using Gdc.Scd.Core.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
@@ -9,5 +13,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
         void Sync();
 
         ITransaction BeginTransaction();
+
+        Task<IEnumerable<T>> ReadFromDb<T>(string sql, Func<IDataReader, T> mapFunc);
     }
 }

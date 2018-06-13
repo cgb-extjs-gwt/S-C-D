@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading.Tasks;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +45,38 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public void Sync()
         {
             this.SaveChanges();
+        }
+
+        public async Task<IEnumerable<T>> ReadFromDb<T>(string sql, Func<IDataReader, T> mapFunc)
+        {
+            var connection = this.Database.GetDbConnection();
+            var result = new List<T>();
+
+            try
+            {
+                await connection.OpenAsync();
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = sql;
+
+                    var reader = await command.ExecuteReaderAsync();
+
+                    if (reader.HasRows)
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            result.Add(mapFunc(reader));
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return result;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
