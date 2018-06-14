@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
@@ -8,7 +9,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
     public class BaseSqlHelper
     {
-        protected readonly ISqlBuilder sqlBuilder;
+        private readonly ISqlBuilder sqlBuilder;
+
+        protected List<CommandParameterInfo> Parameters { get; set; } = new List<CommandParameterInfo>();
 
         public BaseSqlHelper(ISqlBuilder sqlBuilder)
         {
@@ -23,6 +26,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         public ISqlBuilder ToSqlBuilder()
         {
             return this.sqlBuilder;
+        }
+
+        public IEnumerable<CommandParameterInfo> GetParameters()
+        {
+            return this.Parameters.AsReadOnly();
         }
     }
 }

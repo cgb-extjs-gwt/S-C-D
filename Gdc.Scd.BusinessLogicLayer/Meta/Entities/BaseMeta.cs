@@ -1,6 +1,6 @@
 ﻿namespace Gdc.Scd.BusinessLogicLayer.Meta.Entities
 {
-    public class BaseMeta
+    public abstract class BaseMeta
     {
         public string Id { get; set; }
 

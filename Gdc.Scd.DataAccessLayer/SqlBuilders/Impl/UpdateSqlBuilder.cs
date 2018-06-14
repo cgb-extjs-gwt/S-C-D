@@ -15,7 +15,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 
         public string TableName { get; set; }
 
-        public IEnumerable<ColumnInfo> Columns { get; set; }
+        public IEnumerable<UpdateColumnInfo> Columns { get; set; }
 
         public string Build(SqlBuilderContext context)
         {

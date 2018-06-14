@@ -9,7 +9,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Entities
     {
         public ISqlBuilder Query { get; set; }
 
-        public QueryColumnInfo(ISqlBuilder query, string alias)
+        public QueryColumnInfo(ISqlBuilder query, string alias = null)
             : base(alias)
         {
             this.Query = query;

@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
+using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,7 +51,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.SaveChanges();
         }
 
-        public async Task<IEnumerable<T>> ReadFromDb<T>(string sql, Func<IDataReader, T> mapFunc)
+        public async Task<IEnumerable<T>> ReadFromDb<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
         {
             var connection = this.Database.GetDbConnection();
             var result = new List<T>();
@@ -59,6 +63,22 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = sql;
+                    
+                    if (parameters != null)
+                    {
+                        foreach (var paramInfo in parameters)
+                        {
+                            var commandParameter = command.CreateParameter();
+
+                            commandParameter.ParameterName = paramInfo.Name;
+                            commandParameter.Value = paramInfo.Value;
+
+                            if (paramInfo.Type.HasValue)
+                            {
+                                commandParameter.DbType = paramInfo.Type.Value;
+                            }
+                        }
+                    }
 
                     var reader = await command.ExecuteReaderAsync();
 
@@ -77,6 +97,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
 
             return result;
+        }
+
+        public async Task<IEnumerable<T>> ReadFromDb<T>(BaseSqlHelper query, Func<IDataReader, T> mapFunc)
+        {
+            return await this.ReadFromDb(query.ToSql(), mapFunc, query.GetParameters());
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -34,7 +34,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return Select(true, columns);
         }
 
-        public static WhereSqlHelper Update(string dataBase, string schema, string table, params ColumnInfo[] columns)
+        public static WhereSqlHelper Update(string dataBase, string schema, string table, params UpdateColumnInfo[] columns)
         {
             return new WhereSqlHelper(new UpdateSqlBuilder
             {
@@ -45,12 +45,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             });
         }
 
-        public static WhereSqlHelper Update(string schema, string table, params ColumnInfo[] columns)
+        public static WhereSqlHelper Update(string schema, string table, params UpdateColumnInfo[] columns)
         {
             return Update(null, schema, table, columns);
         }
 
-        public static WhereSqlHelper Update(string table, params ColumnInfo[] columns)
+        public static WhereSqlHelper Update(string table, params UpdateColumnInfo[] columns)
         {
             return Update(null, table, columns);
         }

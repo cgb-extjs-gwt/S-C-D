@@ -17,7 +17,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             return new FromSqlHelper(new FromSqlBuilder
             {
-                SqlBuilder = this.sqlBuilder,
+                SqlBuilder = this.ToSqlBuilder(),
                 From = new TableSqlBuilder
                 {
                     DataBase = dataBaseName,
@@ -31,7 +31,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             return new FromSqlHelper(new FromSqlBuilder
             {
-                SqlBuilder = this.sqlBuilder,
+                SqlBuilder = this.ToSqlBuilder(),
                 From = new BracketsSqlBuilder
                 {
                     SqlBuilder = query

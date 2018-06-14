@@ -23,5 +23,10 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             return this.Where(condition.ToSqlBuilder());
         }
+
+        public BaseSqlHelper Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
+        {
+            return new BaseSqlHelper(this.whereHelper.Where(filter, tableName));
+        }
     }
 }

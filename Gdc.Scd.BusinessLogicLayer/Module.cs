@@ -13,6 +13,8 @@ namespace Gdc.Scd.BusinessLogicLayer
         {
             services.AddScoped(typeof(IDomainService<>), typeof(DomainService<>));
             services.AddSingleton<IDomainMetaSevice, DomainMetaSevice>();
+            services.AddScoped<ICostEditorService, CostEditorService>();
+            services.AddScoped<ICountryService, CountryService>();
         }
     }
 }

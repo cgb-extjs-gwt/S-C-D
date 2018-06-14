@@ -11,5 +11,7 @@ namespace Gdc.Scd.Core.Entities
         public string Name { get; set; }
 
         public double Value { get; set; }
+
+        public int ValueCount { get; set; }
     }
 }

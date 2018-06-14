@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using Gdc.Scd.BusinessLogicLayer.Meta.Constants;
 using Gdc.Scd.BusinessLogicLayer.Meta.Entities;
 using Gdc.Scd.BusinessLogicLayer.Meta.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -53,9 +55,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
             return this.domainMeta;
         }
 
-        private DomainMeta BuilDomainMeta(XElement node)
+        private DomainMeta BuilDomainMeta(XElement configNode)
         {
-            var costBlocks = node.Element(CostBlockListNodeName);
+            var costBlocks = configNode.Element(CostBlockListNodeName);
             if (costBlocks == null)
             {
                 throw new Exception("Cost blocks node not found");
@@ -65,7 +67,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
 
             return new DomainMeta
             {
-                CostBlocks = costBlocks.Elements(CostBlockNodeName).Select(this.BuildCostBlockMeta).ToList()
+                CostBlocks = costBlocks.Elements(CostBlockNodeName).Select(this.BuildCostBlockMeta).ToList(),
+                InputLevels = this.BuildInputLevelMetas(),
+                Applications = this.BuildApplicationsMetas(),
+                Scopes = this.BuildScopeMetas()
             };
         }
 
@@ -169,6 +174,35 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
             }
 
             return description;
+        }
+
+        private IEnumerable<InputLevelMeta> BuildInputLevelMetas()
+        {
+            return new[]
+            {
+                new InputLevelMeta{ Id = InputLevelConstants.CountryLevelId, Name = "Country" },
+                new InputLevelMeta{ Id = "pla", Name = "PLA" },
+                new InputLevelMeta{ Id = "sog", Name = "SOG" },
+                new InputLevelMeta{ Id = "wgr", Name = "WGR" },
+            };
+        }
+
+        private IEnumerable<ApplicationMeta> BuildApplicationsMetas()
+        {
+            return new[]
+            {
+                new ApplicationMeta { Id = "hardware", Name = "Hardware" },
+                new ApplicationMeta { Id = "software", Name = "Software" }
+            };
+        }
+
+        private IEnumerable<ScopeMeta> BuildScopeMetas()
+        {
+            return new[]
+            {
+                new ScopeMeta { Id = "local", Name = "Local" },
+                new ScopeMeta { Id = "central", Name = "Central" }
+            };
         }
     }
 }

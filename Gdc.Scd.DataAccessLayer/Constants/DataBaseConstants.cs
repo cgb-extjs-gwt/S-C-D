@@ -7,5 +7,7 @@ namespace Gdc.Scd.DataAccessLayer.Constants
     public static class DataBaseConstants
     {
         public const string IdFieldName = "Id";
+
+        public const string InputAtomSchemaName = "InputAtoms";
     }
 }
