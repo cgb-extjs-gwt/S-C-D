@@ -99,7 +99,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
                                      .Select(application => application.Trim())
                                      .ToList();
 
-            var costElementListNode = node.Element("CostElementListNodeName");
+            var costElementListNode = node.Element(CostElementListNodeName);
             if (costElementListNode == null)
             {
                 throw new Exception("Cost elements node not found");

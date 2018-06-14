@@ -19,7 +19,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
                 stringBuilder.Append(".");
             }
 
-            stringBuilder.Append(this.Name);
+            stringBuilder.Append(this.GetSqlName(this.Name));
 
             return stringBuilder.ToString();
         }

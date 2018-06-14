@@ -11,7 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
-    [Route("api/[controller]")]
+    //[Route("api/[controller]")]
+    [Produces("application/json")]
     public class CostEditorController : Controller
     {
         private readonly ICostEditorService costEditorService;
@@ -30,7 +31,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             this.countryService = countryService;
         }
 
-        [HttpGet]
+        //[HttpGet]
         public async Task<CostEditorDto> GetCostEditorData()
         {
             return new CostEditorDto

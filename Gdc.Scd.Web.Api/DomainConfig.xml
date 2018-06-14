@@ -1,0 +1,148 @@
+<SCDConfiguration>
+    <Blocks>
+        <Block Name="FieldService" Application="Hardware" >
+			<Elements>
+				<Element Domain="Local" Name="TravelTime" Unit="Hours" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+				<Element Domain="Local" Name="OnsiteHourlyRate" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" >
+					<Dependency Name="RoleCode (Code)" DependencyRelation="Table" Table="tblY_RoleCodes" HasRelationToInputParameter="True"  RelationToInputParameter="WarrantyGroups" RelationToInputParameterTable="tblY_RoleCodes-WGR" />
+				</Element>
+				<Element Domain="Local" Name="LabourFlatFee" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
+					<Dependency Name="ServiceLocation (Code)" DependencyRelation="Table" Table="tblY_ServiceLocation" />
+				</Element>
+				<Element Domain="Local" Name="TravelCost" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+				<Element Domain="Local" Name="PerformanceRatePerReactiontime" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
+					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				</Element>
+				<Element Domain="Local" Name="TimeAndMaterialShare" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+				<Element Domain="Local" Name="CostPerCallShare" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="Calculated" >
+					<Dependency Name="TimeAndMaterialShare" DependencyRelation="Calculation" />
+				</Element>
+                <Element Domain="Central" Name="RepairTime" Unit="Hours" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+				<Element Domain="Central" Name="RoleCode" Unit="textobject" HighestInputLevel="PLAs" DefaultInputLevel="PLAs" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+			</Elements>
+		</Block>
+
+        <Block Name="ServiceSupportCost" Application="Hardware,Software" >
+			<Elements>
+				<Element Domain="Local" Name="1stLevelSupportCostsCountry" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" /> 
+				<Element Domain="Local" Name="2ndLevelSupportCostsPLAnonEMEIA" Unit="Currency" HighestInputLevel="ClusteredPLAs" DefaultInputLevel="ClusteredPLAs" LowestInputLevel="ClusteredPLAs" DataEntry="GUI" />
+                <Element Domain="Central" Name="2ndLevelSupportCostsPLA" Unit="Currency" HighestInputLevel="ClusteredPLAs" DefaultInputLevel="ClusteredPLAs" LowestInputLevel="ClusteredPLAs" DataEntry="GUI" />
+			</Elements>
+		</Block>
+
+        <Block Name="LogisticsCost" Application="Hardware" >
+			<Elements>
+				<Element Domain="Local" Name="StandardHandlingInCountry" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
+					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				</Element>
+				<Element Domain="Local" Name="HighAvailabilityHandlingInCountry" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
+					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				</Element>
+				<Element Domain="Local" Name="StandardDelivery" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
+					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				</Element>
+				<Element Domain="Local" Name="ExpressDelivery" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
+					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				</Element>
+				<Element Domain="Local" Name="Taxi/CourierDelivery" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
+					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				</Element>
+				<Element Domain="Local" Name="ReturnDeliveryToFactory" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+                <Element Domain="Central" Name="TaxAndDuties" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="Batch" />
+			</Elements>
+		</Block>
+
+        <Block Name="AvailabilityFee" Application="Hardware" >
+			<Elements>
+				<Element Domain="Local" Name="TotalLogisticsInfrastructureCost" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" />
+				<Element Domain="Local" Name="StockValueInCountryFJ" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" />
+				<Element Domain="Local" Name="StockValueInCountryMV" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" />
+				<Element Domain="Local" Name="AverageContractDuration" Unit="Units" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" />
+				<Element Domain="Local" Name="JapanBuy" Unit="Currency" HighestInputLevel="SFabs" DefaultInputLevel="SFabs" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+                <Element Domain="Central" Name="CostPerKit" Unit="Currency" HighestInputLevel="SFabs" DefaultInputLevel="SFabs" LowestInputLevel="WarrantyGroups" DataEntry="Batch" />
+				<Element Domain="Central" Name="CostPerKitJapanBuy" Unit="Currency" HighestInputLevel="SFabs" DefaultInputLevel="SFabs" LowestInputLevel="WarrantyGroups" DataEntry="Batch" />
+				<Element Domain="Central" Name="MaxQty" Unit="Units" HighestInputLevel="SFabs" DefaultInputLevel="SFabs" LowestInputLevel="WarrantyGroups" DataEntry="Batch" />
+			</Elements>
+		</Block>
+
+        <Block Name="MaterialCosts" Application="Hardware" >
+			<Elements>
+				<Element Domain="Central" Name="MaterialCostOOW" Unit="Currency" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI">
+					<Dependency Name="Region" DependencyRelation="Table" Table="tblY_Region" />
+				</Element>
+				<Element Domain="Central" Name="MaterialCostBaseWarranty" Unit="Currency" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="Batch" />
+				<Element Domain="Central" Name="HDDMaterialCost" Unit="Currency" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+			</Elements>
+		</Block>
+
+        <Block Name="FailureRates" Application="Hardware" >
+			<Elements>
+				<Element Domain="Central" Name="AFRNonAutomated" Unit="%" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI"> 
+					<Dependency Name="Year" DependencyRelation="Table" Table="tblY_Years" />
+				</Element>
+				<Element Domain="Central" Name="AFRAutomated" Unit="%" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="Batch"> 
+					<Dependency Name="Year" DependencyRelation="Table" Table="tblY_Years" />
+				</Element>
+				<Element Domain="Central" Name="HDDFR" Unit="%" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
+					<Dependency Name="Year" DependencyRelation="Table" Table="tblY_Years" />
+				</Element>
+			</Elements>
+		</Block>
+
+        <Block Name="Reinsurance" Application="Hardware,Software" >
+			<Elements>
+				<Element Domain="Central" Name="ReinsuranceNBDinWarranty" Unit="Currency" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+				<Element Domain="Central" Name="ReinsuranceNBDOOW" Unit="Currency" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+				<Element Domain="Central" Name="Reinsurance7x24inWarranty" Unit="Currency" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+				<Element Domain="Central" Name="Reinsurance7x24OOW" Unit="Currency" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+				<Element Domain="Central" Name="ReinsuranceFlatfee1year" Unit="Currency" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
+					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				</Element>
+				<Element Domain="Central" Name="ReinsuranceFlatfee2years" Unit="Currency" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
+					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				</Element>
+				<Element Domain="Central" Name="ReinsuranceFlatfee3years" Unit="Currency" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
+					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				</Element>
+				<Element Domain="Central" Name="ReinsuranceFlatfee4years" Unit="Currency" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
+					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				</Element>
+				<Element Domain="Central" Name="ReinsuranceFlatfee5years" Unit="Currency" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
+					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				</Element>
+				<Element Domain="Central" Name="ReinsuranceFlatfeeProlongation" Unit="Currency" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
+					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				</Element>
+				<Element Domain="Central" Name="CurrencyReinsurance" Unit="Units" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" />
+				<Element Domain="Central" Name="ShareSW/SPMaintenanceListPrice" Unit="%" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
+					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				</Element>
+			</Elements>
+		</Block>
+
+        <Block Name="OtherCosts" Application="Hardware" >
+			<Elements>
+				<Element Domain="Local" Name="MarkupForOtherCost" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+				<Element Domain="Local" Name="ProlongationMarkupForOtherCost" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+			</Elements>
+		</Block>
+		
+		<Block Name="SW/SPMaintenanceListPrice" Application="Software,Solution" >
+			<Elements>
+				<Element Domain="Central" Name="RecommendedSW/SPMaintenanceListPrice" Unit="Currency" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
+					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				</Element>
+				<Element Domain="Central" Name="MarkupForProductMarginOfSWLicenseListPrice" Unit="%" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
+					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				</Element>
+			</Elements>
+		</Block>
+		
+		<Block Name="Dealer Price" Application="Software, Solution" >
+			<Elements>
+				<Element Domain="Central" Name="DiscountToDealerPrice" Unit="%" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
+				</Element>
+			</Elements>
+		</Block>
+    </Blocks>
+</SCDConfiguration>
