@@ -39,28 +39,10 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
                 this.Parameters.AddRange(parameters);
 
-                ISqlBuilder condition;
-
-                if (inBuilders.Count == 1)
-                {
-                    condition = inBuilders[0];
-                }
-                else
-                {
-                    var conditionHelper = ConditionHelper.And(inBuilders[0], inBuilders[1]);
-
-                    for (var i = 2; i < inBuilders.Count; i++)
-                    {
-                        conditionHelper = conditionHelper.And(inBuilders[i]);
-                    }
-
-                    condition = conditionHelper.ToSqlBuilder();
-                }
-
                 result = new WhereSqlBuilder
                 {
                     SqlBuilder = this.ToSqlBuilder(),
-                    Condition = condition
+                    Condition = ConditionHelper.And(inBuilders).ToSqlBuilder()
                 };
             }
 

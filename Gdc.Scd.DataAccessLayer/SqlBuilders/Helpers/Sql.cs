@@ -8,7 +8,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public static class SqlHelper
+    public static class Sql
     {
         public static SelectSqlHelper Select(params BaseColumnInfo[] columns)
         {
@@ -90,16 +90,25 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     };
                 }
             }
-            else
+            else 
             {
-                builder = new AliasSqlBuilder
+                var bracketsSqlBuilder = new BracketsSqlBuilder
                 {
-                    Alias = baseColumnInfo.Alias,
-                    SqlBuilder = new BracketsSqlBuilder
-                    {
-                        SqlBuilder = queryColumnInfo.Query
-                    }
+                    SqlBuilder = queryColumnInfo.Query
                 };
+
+                if (string.IsNullOrWhiteSpace(baseColumnInfo.Alias))
+                {
+                    builder = bracketsSqlBuilder;
+                }
+                else
+                {
+                    builder = new AliasSqlBuilder
+                    {
+                        Alias = baseColumnInfo.Alias,
+                        SqlBuilder = bracketsSqlBuilder
+                    };
+                }
             }
 
             return builder;

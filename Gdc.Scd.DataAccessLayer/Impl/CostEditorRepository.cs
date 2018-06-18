@@ -25,7 +25,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public async Task<IEnumerable<EditItem>> GetEditItems(EditItemInfo editItemInfo, IDictionary<string, IEnumerable<object>> filter = null)
         {
             var query =
-                SqlHelper.Select(DataBaseConstants.IdFieldName, editItemInfo.NameColumn, editItemInfo.ValueColumn)
+                Sql.Select(DataBaseConstants.IdFieldName, editItemInfo.NameColumn, editItemInfo.ValueColumn)
                          .From(editItemInfo.TableName, editItemInfo.SchemaName)
                          .Where(filter);
 
@@ -43,15 +43,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public async Task<IEnumerable<EditItem>> GetEditItemsByLevel(string levelColumnName, EditItemInfo editItemInfo, IDictionary<string, IEnumerable<object>> filter = null)
         {
             var nameColumn = new ColumnInfo(editItemInfo.NameColumn);
-            var maxValueColumn = new QueryColumnInfo(new MaxSqlBuilder { ColumnName = editItemInfo.ValueColumn });
-            var countDiffValues = new QueryColumnInfo(new CountSqlBuilder { IsDisctinct = true, ColumnName = editItemInfo.ValueColumn });
+            var maxValueColumn = SqlFunctions.Max(editItemInfo.ValueColumn);
+            var countDiffValues = SqlFunctions.Count(editItemInfo.ValueColumn);
             var levelColumn = new ColumnInfo(levelColumnName);
 
             var query =
-                SqlHelper.Select(nameColumn, maxValueColumn, countDiffValues)
-                         .From(editItemInfo.TableName, editItemInfo.SchemaName)
-                         .Where(filter)
-                         .GroupBy(levelColumn);
+                Sql.Select(nameColumn, maxValueColumn, countDiffValues)
+                   .From(editItemInfo.TableName, editItemInfo.SchemaName)
+                   .Where(filter)
+                   .GroupBy(levelColumn);
 
             return await this.repositorySet.ReadFromDb(
                 query,

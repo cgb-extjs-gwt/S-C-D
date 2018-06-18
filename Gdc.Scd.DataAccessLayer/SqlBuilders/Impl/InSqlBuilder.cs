@@ -25,7 +25,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
             var column = columnBuilder.Build(context);
             var values = string.Join(", ", this.Values.Select(builder => builder.Build(context)));
 
-            return $"{column} IN {values}";
+            return $"{column} IN ({values})";
         }
     }
 }

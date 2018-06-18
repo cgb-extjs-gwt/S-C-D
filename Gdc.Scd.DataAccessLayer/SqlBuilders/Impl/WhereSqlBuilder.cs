@@ -16,7 +16,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
         {
             var sql = this.SqlBuilder == null ? string.Empty : this.SqlBuilder.Build(context);
 
-            return $"{this.SqlBuilder.Build(context)} WHERE {this.Condition}";
+            return $"{this.SqlBuilder.Build(context)} WHERE {this.Condition.Build(context)}";
         }
     }
 }

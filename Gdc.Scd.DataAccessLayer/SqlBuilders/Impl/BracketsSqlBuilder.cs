@@ -12,7 +12,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 
         public string Build(SqlBuilderContext context)
         {
-            return $"{this.SqlBuilder.Build(context)}";
+            return $"({this.SqlBuilder.Build(context)})";
         }
     }
 }

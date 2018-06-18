@@ -22,7 +22,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             string schemaName = null, 
             IDictionary<string, IEnumerable<object>> filter = null)
         {
-            var query = SqlHelper.SelectDistinct(columnName).From(tableName, schemaName).Where(filter);
+            var query = Sql.SelectDistinct(columnName).From(tableName, schemaName).Where(filter);
 
             return await this.repositorySet.ReadFromDb(query, reader => reader.GetString(0));
         }
@@ -33,7 +33,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             string schemaName = null,
             IDictionary<string, IEnumerable<object>> filter = null)
         {
-            var query = SqlHelper.Select(columnName).From(tableName, schemaName).Where(filter);
+            var query = Sql.Select(columnName).From(tableName, schemaName).Where(filter);
 
             return await this.repositorySet.ReadFromDb(query, reader => reader.GetString(0));
         }
