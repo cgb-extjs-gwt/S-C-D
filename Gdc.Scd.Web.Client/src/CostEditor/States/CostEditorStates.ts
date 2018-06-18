@@ -14,11 +14,13 @@ export interface CostBlockMeta extends NamedId {
 }
 
 export interface CostEdirotDto {
-    applications: NamedId[]
-    scopes: NamedId[]
     countries: NamedId[]
-    costBlockMetas: CostBlockMeta[]
-    inputLevels: NamedId[]
+    meta: {
+        applications: NamedId[]
+        scopes: NamedId[]
+        costBlocks: CostBlockMeta[]
+        inputLevels: NamedId[]
+    }
 }
 
 export interface CostEditorState {

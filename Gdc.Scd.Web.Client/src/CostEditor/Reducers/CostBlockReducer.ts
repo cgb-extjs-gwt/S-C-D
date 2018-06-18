@@ -77,7 +77,14 @@ const clearCostBlockFilters  = (costBlock: CostBlockState, clearSelected: boolea
 }
 
 const initSuccess: Reducer<CostEditorState, PageAction<CostEdirotDto>> = (state, action) => {
-    const { costBlockMetas, countries, inputLevels } = action.data;
+    const { 
+        countries,
+        meta: {
+            costBlocks: costBlockMetas,
+            inputLevels
+        }
+    } = action.data;
+
     const selectedCountryId = countries[0].id;
     const visibleCostBlockIds = getVisibleCostBlockIds(costBlockMetas, state.selectedApplicationId);
 

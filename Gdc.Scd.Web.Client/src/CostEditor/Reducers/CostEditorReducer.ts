@@ -25,7 +25,8 @@ const createMap = <T extends NamedId>(array: T[]) => {
 }
 
 const initSuccess: Reducer<CostEditorState, PageAction<CostEdirotDto>> = (state, action) => {
-    const { applications, scopes, costBlockMetas, countries, inputLevels } = action.data;
+    const { countries, meta } = action.data;
+    const { applications, scopes, costBlocks: costBlockMetas, inputLevels } = meta;
     const selectedApplicationId = applications[0].id;
     const selectedScopeId = scopes[0].id;
 
