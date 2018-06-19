@@ -5,14 +5,14 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class SelectGroupBySqlHelper : BaseSqlHelper
+    public class SelectGroupBySqlHelper : SqlHelper
     {
         public SelectGroupBySqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
         {
         }
 
-        public BaseSqlHelper Union()
+        public SqlHelper Union()
         {
             throw new NotImplementedException();
         }

@@ -24,7 +24,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var query = Sql.SelectDistinct(columnName).From(tableName, schemaName).Where(filter);
 
-            return await this.repositorySet.ReadFromDb(query, reader => reader.GetString(0));
+            return await this.repositorySet.ReadBySql(query, reader => reader.GetString(0));
         }
 
         public async Task<IEnumerable<string>> GetValues(
@@ -35,7 +35,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var query = Sql.Select(columnName).From(tableName, schemaName).Where(filter);
 
-            return await this.repositorySet.ReadFromDb(query, reader => reader.GetString(0));
+            return await this.repositorySet.ReadBySql(query, reader => reader.GetString(0));
         }
     }
 }

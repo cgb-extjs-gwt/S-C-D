@@ -5,11 +5,25 @@ using System.Linq;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
+using Gdc.Scd.DataAccessLayer.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
     public static class Sql
     {
+        public static SqlHelper Queries(IEnumerable<ISqlBuilder> queries)
+        {
+            return new SqlHelper(new SeveralQuerySqlBuilder { Queries = queries });
+        }
+
+        public static SqlHelper Queries(IEnumerable<SqlHelper> queries)
+        {
+            return new SqlHelper(new SeveralQuerySqlBuilder
+            {
+                Queries = queries.Select(query => query.ToSqlBuilder())
+            });
+        }
+
         public static SelectSqlHelper Select(params BaseColumnInfo[] columns)
         {
             return Select(false, columns);
@@ -34,23 +48,49 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return Select(true, columns);
         }
 
-        public static WhereSqlHelper Update(string dataBase, string schema, string table, params UpdateColumnInfo[] columns)
+        public static UpdateSqlHelper Update(string dataBase, string schema, string table, params BaseUpdateColumnInfo[] columns)
         {
-            return new WhereSqlHelper(new UpdateSqlBuilder
+            var queryColumns = new List<QueryUpdateColumnInfo>();
+
+            foreach (var column in columns)
+            {
+                var queryColumn = column as QueryUpdateColumnInfo;
+                if (queryColumn == null)
+                {
+                    var valueColumn = (ValueUpdateColumnInfo)column;
+
+                    queryColumn = new QueryUpdateColumnInfo(
+                        valueColumn.Name,
+                        new ParameterSqlBuilder
+                        {
+                            ParamInfo = new CommandParameterInfo
+                            {
+                                Name = valueColumn.Name,
+                                Value = valueColumn.Value
+                            }
+                        });
+                }
+
+                queryColumns.Add(queryColumn);
+            }
+
+            var updateBuilder = new UpdateSqlBuilder()
             {
                 DataBaseName = dataBase,
                 SchemaName = schema,
                 TableName = table,
-                Columns = columns
-            });
+                Columns = queryColumns
+            };
+
+            return new UpdateSqlHelper(updateBuilder);
         }
 
-        public static WhereSqlHelper Update(string schema, string table, params UpdateColumnInfo[] columns)
+        public static UpdateSqlHelper Update(string schema, string table, params BaseUpdateColumnInfo[] columns)
         {
             return Update(null, schema, table, columns);
         }
 
-        public static WhereSqlHelper Update(string table, params UpdateColumnInfo[] columns)
+        public static UpdateSqlHelper Update(string table, params BaseUpdateColumnInfo[] columns)
         {
             return Update(null, table, columns);
         }

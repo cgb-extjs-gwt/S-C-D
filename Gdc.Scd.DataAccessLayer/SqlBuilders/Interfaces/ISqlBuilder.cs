@@ -8,5 +8,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces
     public interface ISqlBuilder
     {
         string Build(SqlBuilderContext context);
+
+        IEnumerable<ISqlBuilder> GetChildrenBuilders();
     }
 }

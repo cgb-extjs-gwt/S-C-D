@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
-    //[Route("api/[controller]")]
     [Produces("application/json")]
     public class CostEditorController : Controller
     {
@@ -31,7 +30,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             this.countryService = countryService;
         }
 
-        //[HttpGet]
+        [HttpGet]
         public async Task<CostEditorDto> GetCostEditorData()
         {
             return new CostEditorDto
@@ -46,20 +45,31 @@ namespace Gdc.Scd.Web.Api.Controllers
         {
             var meta = this.domainMetaSevice.Get();
 
-            return await costEditorService.GetCostElementFilterItems(meta, context);
+            return await this.costEditorService.GetCostElementFilterItems(meta, context);
         }
 
         [HttpGet]
         public async Task<IEnumerable<string>> GetInputLevelFilterItems(CostEditorContext context)
         {
-            return await costEditorService.GetInputLevelFilterItems(context);
+            return await this.costEditorService.GetInputLevelFilterItems(context);
         }
 
+        [HttpGet]
         public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context)
         {
             var meta = this.domainMetaSevice.Get();
 
-            return await costEditorService.GetEditItems(meta, context);
+            return await this.costEditorService.GetEditItems(meta, context);
+        }
+
+        [HttpPost]
+        IActionResult UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context)
+        {
+            var meta = this.domainMetaSevice.Get();
+
+            this.costEditorService.UpdateValues(editItems, meta, context);
+
+            return this.Ok();
         }
     }
 }

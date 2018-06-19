@@ -7,13 +7,11 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
-    public class GroupBySqlBuilder : ISqlBuilder
+    public class GroupBySqlBuilder : BaseSqlBuilder
     {
         public IEnumerable<ColumnInfo> Columns { get; set; }
 
-        public ISqlBuilder SqlBuilder { get; set; }
-
-        public string Build(SqlBuilderContext context)
+        public override string Build(SqlBuilderContext context)
         {
             var columns =
                 this.Columns.Select(column => new ColumnSqlBuilder { Name = column.Name, Table = column.TableName })

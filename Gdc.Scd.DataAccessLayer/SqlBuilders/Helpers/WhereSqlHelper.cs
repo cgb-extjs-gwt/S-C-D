@@ -9,14 +9,19 @@ using Gdc.Scd.DataAccessLayer.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class WhereSqlHelper : BaseSqlHelper
+    public class WhereSqlHelper : SqlHelper
     {
         public WhereSqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
         {
         }
 
-        public WhereSqlBuilder Where(ISqlBuilder condition)
+        //public WhereSqlHelper(ISqlBuilder sqlBuilder, IEnumerable<CommandParameterInfo> parameters)
+        //    : base(sqlBuilder, parameters)
+        //{
+        //}
+
+        public ISqlBuilder Where(ISqlBuilder condition)
         {
             return new WhereSqlBuilder
             {
@@ -25,7 +30,16 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             };
         }
 
-        public ISqlBuilder Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
+        public ISqlBuilder Where(ConditionHelper condition)
+        {
+            //return new SqlHelper(
+            //    this.GetWhereSqlBuilder(condition.ToSqlBuilder()),
+            //    condition.GetParameters()); 
+
+            return this.Where(condition.ToSqlBuilder());
+        }
+
+        public ISqlBuilder Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null) 
         {
             ISqlBuilder result;
 
@@ -35,9 +49,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             }
             else
             {
-                var (inBuilders, parameters) = this.HandleFilter(filter, tableName);
-
-                this.Parameters.AddRange(parameters);
+                var inBuilders = this.HandleFilter(filter, tableName);
 
                 result = new WhereSqlBuilder
                 {
@@ -49,10 +61,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return result;
         }
 
-        private (List<InSqlBuilder> inBuilders, List<CommandParameterInfo> parameters) HandleFilter(IDictionary<string, IEnumerable<object>> filter, string tableName)
+        private List<InSqlBuilder> HandleFilter(IDictionary<string, IEnumerable<object>> filter, string tableName)
         {
             var inBuilders = new List<InSqlBuilder>();
-            var parameters = new List<CommandParameterInfo>();
 
             foreach (var filterItem in filter)
             {
@@ -61,17 +72,13 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
                 foreach(var value in filterItem.Value)
                 {
-                    var paramName = $"{value}_{index}";
-
-                    parameters.Add(new CommandParameterInfo
-                    {
-                        Name = paramName,
-                        Value = value
-                    });
-
                     parameterBuilders.Add(new ParameterSqlBuilder
                     {
-                        Name = paramName
+                        ParamInfo = new CommandParameterInfo
+                        {
+                            Name = $"{value}_{index}",
+                            Value = value
+                        }
                     });
                 }
 
@@ -86,7 +93,16 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 }
             }
 
-            return (inBuilders, parameters);
+            return inBuilders;
         }
+
+        //private WhereSqlBuilder GetWhereSqlBuilder(ISqlBuilder condition)
+        //{
+        //    return new WhereSqlBuilder
+        //    {
+        //        Condition = condition,
+        //        SqlBuilder = this.ToSqlBuilder()
+        //    };
+        //}
     }
 }

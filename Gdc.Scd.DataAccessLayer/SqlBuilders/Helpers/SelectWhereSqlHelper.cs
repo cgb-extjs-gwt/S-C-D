@@ -6,19 +6,30 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class SelectWhereSqlHelper : BaseSqlHelper
+    public class SelectWhereSqlHelper : SqlHelper
     {
-        private readonly GroupBySqlHelper groupByHelper;
+        private GroupBySqlHelper groupByHelper;
 
-        public SelectWhereSqlHelper(ISqlBuilder sqlBuilder) 
+        public SelectWhereSqlHelper(ISqlBuilder sqlBuilder)
             : base(sqlBuilder)
         {
-            this.groupByHelper = new GroupBySqlHelper(sqlBuilder);
+            this.Init(sqlBuilder);
+        }
+
+        public SelectWhereSqlHelper(SqlHelper sqlHelper)
+            : base(sqlHelper)
+        {
+            this.Init(sqlHelper.ToSqlBuilder());
         }
 
         public SelectGroupBySqlHelper GroupBy(params ColumnInfo[] columns)
         {
             return this.groupByHelper.GroupBy(columns);
+        }
+
+        private void Init(ISqlBuilder sqlBuilder)
+        {
+            this.groupByHelper = new GroupBySqlHelper(sqlBuilder);
         }
     }
 }

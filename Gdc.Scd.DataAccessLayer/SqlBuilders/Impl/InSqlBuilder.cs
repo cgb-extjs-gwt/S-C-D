@@ -27,5 +27,10 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 
             return $"{column} IN ({values})";
         }
+
+        public IEnumerable<ISqlBuilder> GetChildrenBuilders()
+        {
+            return this.Values;
+        }
     }
 }

@@ -17,6 +17,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
             return $"{this.LeftOperator.Build(context)} {this.GetOperator()} {this.RightOperator.Build(context)}";
         }
 
+        public IEnumerable<ISqlBuilder> GetChildrenBuilders()
+        {
+            yield return this.LeftOperator;
+            yield return this.RightOperator;
+        }
+
         protected abstract string GetOperator();
     }
 }

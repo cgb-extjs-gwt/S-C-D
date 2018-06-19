@@ -21,6 +21,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public CostEditorService(ICostEditorRepository costEditorRepository, ISqlRepository sqlRepository)
         {
             this.costEditorRepository = costEditorRepository;
+            this.sqlRepository = sqlRepository;
         }
 
         public async Task<IEnumerable<string>> GetCostElementFilterItems(DomainMeta meta, CostEditorContext context)
@@ -66,13 +67,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             IEnumerable<EditItem> result;
 
-            var editItemInfo = new EditItemInfo
-            {
-                SchemaName = context.ApplicationId,
-                TableName = context.CostBlockId,
-                NameColumn = context.InputLevelId,
-                ValueColumn = context.CostElementId
-            };
+            var editItemInfo = this.GetEditItemInfo(context);
 
             var lowerInputLevel = meta.InputLevels.Last();
             if (lowerInputLevel.Id == context.InputLevelId)
@@ -87,6 +82,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return result;
         }
 
+        public void UpdateValues(IEnumerable<EditItem> editItems, DomainMeta meta, CostEditorContext context)
+        {
+            var editItemInfo = this.GetEditItemInfo(context);
+                
+            var lowerInputLevel = meta.InputLevels.Last();
+            if (lowerInputLevel.Id == context.InputLevelId)
+            {
+                this.costEditorRepository.UpdateValues(editItems, editItemInfo);
+            }
+            else
+            {
+                this.costEditorRepository.UpdateValuesByLevel(editItems, editItemInfo, context.InputLevelId);
+            }
+        }
+
         private IDictionary<string, IEnumerable<object>> GetCountryFilter(CostEditorContext context)
         {
             var filter = new Dictionary<string, IEnumerable<object>>();
@@ -97,6 +107,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return filter;
+        }
+
+        private EditItemInfo GetEditItemInfo(CostEditorContext context)
+        {
+            return new EditItemInfo
+            {
+                SchemaName = context.ApplicationId,
+                TableName = context.CostBlockId,
+                NameColumn = context.InputLevelId,
+                ValueColumn = context.CostElementId
+            };
         }
     }
 }

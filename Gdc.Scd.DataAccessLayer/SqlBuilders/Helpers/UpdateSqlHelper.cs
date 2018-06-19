@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class UpdateSqlHelper : BaseSqlHelper
+    public class UpdateSqlHelper : SqlHelper
     {
         private readonly WhereSqlHelper whereHelper;
 
@@ -14,19 +15,19 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
         }
 
-        public BaseSqlHelper Where(ISqlBuilder condition)
+        public SqlHelper Where(ISqlBuilder condition)
         {
-            return new BaseSqlHelper(this.whereHelper.Where(condition));
+            return new SqlHelper(this.whereHelper.Where(condition));
         }
 
-        public BaseSqlHelper Where(ConditionHelper condition)
+        public SqlHelper Where(ConditionHelper condition)
         {
             return this.Where(condition.ToSqlBuilder());
         }
 
-        public BaseSqlHelper Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
+        public SqlHelper Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
         {
-            return new BaseSqlHelper(this.whereHelper.Where(filter, tableName));
+            return new SqlHelper(this.whereHelper.Where(filter, tableName));
         }
     }
 }

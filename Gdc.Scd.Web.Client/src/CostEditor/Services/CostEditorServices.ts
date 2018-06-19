@@ -1,7 +1,7 @@
 import { CostEditorState, CostEdirotDto } from "../States/CostEditorStates";
 import { CostBlockState, EditItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
-import { get } from "../../Common/Services/Ajax";
+import { get, post } from "../../Common/Services/Ajax";
 
 const CONTROLLER_NAME = 'CostEditor';
 
@@ -26,6 +26,9 @@ export const getLevelInputFilterItems = (context: Context) =>
 
 export const getEditItems = (context: Context) => 
     get<EditItem[]>(CONTROLLER_NAME, 'GetEditItems', context); 
+
+export const saveEditItems = (editItems: EditItem[], context: Context) =>
+    post(CONTROLLER_NAME, 'UpdateValues', editItems)
 
 // export const getCostEditorDto = () => Promise.resolve(<CostEdirotDto>{
 //     applications: [
@@ -233,22 +236,22 @@ export const getEditItems = (context: Context) =>
 //     return Promise.resolve(filterItems)
 // }
 
-const createEditItemsStorageKey = ({
-    applicationId,
-    scopeId,
-    countryId,
-    costElementId,
-    costBlockId,
-    inputLevelId
-}: Context) => [
-    'editItems', 
-    applicationId, 
-    scopeId, 
-    costBlockId, 
-    countryId, 
-    costElementId, 
-    inputLevelId
-].join('_')
+// const createEditItemsStorageKey = ({
+//     applicationId,
+//     scopeId,
+//     countryId,
+//     costElementId,
+//     costBlockId,
+//     inputLevelId
+// }: Context) => [
+//     'editItems', 
+//     applicationId, 
+//     scopeId, 
+//     costBlockId, 
+//     countryId, 
+//     costElementId, 
+//     inputLevelId
+// ].join('_')
 
 // const createFakeEditItems = (context: Context) => {
 //     const {
@@ -299,18 +302,18 @@ const createEditItemsStorageKey = ({
 //     return Promise.resolve(editItems);
 // }
 
-export const saveEditItems = (editItems: EditItem[], context: Context) => {
-    const key = createEditItemsStorageKey(context);
-    const storageItemsJson = localStorage.getItem(key);
-    const storageItems: EditItem[] = storageItemsJson && JSON.parse(storageItemsJson) || [];
-    const saveItems = storageItems.filter(
-        storageItem => editItems.findIndex(item => storageItem.id === item.id) === -1
-    ).concat(editItems);
+// export const saveEditItems = (editItems: EditItem[], context: Context) => {
+//     const key = createEditItemsStorageKey(context);
+//     const storageItemsJson = localStorage.getItem(key);
+//     const storageItems: EditItem[] = storageItemsJson && JSON.parse(storageItemsJson) || [];
+//     const saveItems = storageItems.filter(
+//         storageItem => editItems.findIndex(item => storageItem.id === item.id) === -1
+//     ).concat(editItems);
 
-    localStorage.setItem(
-        key, 
-        JSON.stringify(saveItems)
-    );
+//     localStorage.setItem(
+//         key, 
+//         JSON.stringify(saveItems)
+//     );
 
-    return Promise.resolve();
-}
+//     return Promise.resolve();
+// }

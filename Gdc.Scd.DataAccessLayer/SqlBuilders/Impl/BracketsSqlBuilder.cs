@@ -6,11 +6,9 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
-    public class BracketsSqlBuilder : ISqlBuilder
+    public class BracketsSqlBuilder : BaseSqlBuilder
     {
-        public ISqlBuilder SqlBuilder { get; set; }
-
-        public string Build(SqlBuilderContext context)
+        public override string Build(SqlBuilderContext context)
         {
             return $"({this.SqlBuilder.Build(context)})";
         }

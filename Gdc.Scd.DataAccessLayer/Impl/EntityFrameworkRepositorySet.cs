@@ -51,7 +51,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.SaveChanges();
         }
 
-        public async Task<IEnumerable<T>> ReadFromDb<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
+        public async Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
         {
             var connection = this.Database.GetDbConnection();
             var result = new List<T>();
@@ -99,9 +99,21 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return result;
         }
 
-        public async Task<IEnumerable<T>> ReadFromDb<T>(BaseSqlHelper query, Func<IDataReader, T> mapFunc)
+        public async Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc)
         {
-            return await this.ReadFromDb(query.ToSql(), mapFunc, query.GetParameters());
+            return await this.ReadBySql(query.ToSql(), mapFunc, query.GetParameters());
+        }
+
+        public async void ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null)
+        {
+            var parameterValues = parameters == null ? Enumerable.Empty<object>() : parameters.Select(x => x.Value);
+
+            await this.Database.ExecuteSqlCommandAsync(sql, parameterValues); 
+        }
+
+        public void ExecuteSql(SqlHelper query)
+        {
+            this.ExecuteSql(query.ToSql(), query.GetParameters());
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

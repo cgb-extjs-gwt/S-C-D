@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using Gdc.Scd.DataAccessLayer.Entities;
+using System.Linq;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
-    public class ParameterSqlBuilder : ISqlBuilder
+    public class SeveralQuerySqlBuilder : ISqlBuilder
     {
-        public CommandParameterInfo ParamInfo { get; set; }
+        public IEnumerable<ISqlBuilder> Queries { get; set; }
 
         public string Build(SqlBuilderContext context)
         {
-            return $"@{this.ParamInfo.Name}";
+            return string.Join($"{Environment.NewLine};", this.Queries.Select(query => query.Build(context)));
         }
 
         public IEnumerable<ISqlBuilder> GetChildrenBuilders()
         {
-            return Enumerable.Empty<ISqlBuilder>();
+            return this.Queries;
         }
     }
 }

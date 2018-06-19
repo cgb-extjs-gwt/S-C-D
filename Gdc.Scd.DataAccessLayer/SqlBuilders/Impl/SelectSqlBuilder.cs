@@ -19,5 +19,10 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 
             return $"SELECT {distinct} {columns}";
         }
+
+        public IEnumerable<ISqlBuilder> GetChildrenBuilders()
+        {
+            return this.Columns;
+        }
     }
 }

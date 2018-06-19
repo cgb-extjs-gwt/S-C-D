@@ -6,16 +6,16 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class SelectSqlHelper : BaseSqlHelper
+    public class SelectSqlHelper : SqlHelper
     {
         public SelectSqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
         {
         }
 
-        public FromSqlHelper From(string tabeName, string schemaName = null, string dataBaseName = null)
+        public SelectFromSqlHelper From(string tabeName, string schemaName = null, string dataBaseName = null)
         {
-            return new FromSqlHelper(new FromSqlBuilder
+            return new SelectFromSqlHelper(new FromSqlBuilder
             {
                 SqlBuilder = this.ToSqlBuilder(),
                 From = new TableSqlBuilder
@@ -27,9 +27,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             });
         }
 
-        public FromSqlHelper FromQuery(ISqlBuilder query)
+        public SelectFromSqlHelper FromQuery(ISqlBuilder query)
         {
-            return new FromSqlHelper(new FromSqlBuilder
+            return new SelectFromSqlHelper(new FromSqlBuilder
             {
                 SqlBuilder = this.ToSqlBuilder(),
                 From = new BracketsSqlBuilder
@@ -39,7 +39,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             });
         }
 
-        public FromSqlHelper FromQuery(BaseSqlHelper sqlHelper)
+        public SelectFromSqlHelper FromQuery(SqlHelper sqlHelper)
         {
             return this.FromQuery(sqlHelper.ToSqlBuilder());
         }

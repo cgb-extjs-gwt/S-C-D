@@ -7,13 +7,13 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class FromSqlHelper : BaseSqlHelper
+    public class SelectFromSqlHelper : SqlHelper
     {
         private readonly WhereSqlHelper whereHelper;
 
         private readonly GroupBySqlHelper groupByHelper;
 
-        public FromSqlHelper(ISqlBuilder sqlBuilder) 
+        public SelectFromSqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
         {
             this.whereHelper = new WhereSqlHelper(sqlBuilder);
@@ -27,7 +27,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public SelectWhereSqlHelper Where(ConditionHelper condition)
         {
-            return this.Where(condition.ToSqlBuilder());
+            return new SelectWhereSqlHelper(this.whereHelper.Where(condition));
         }
 
         public SelectWhereSqlHelper Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
@@ -45,7 +45,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             throw new NotImplementedException();
         }
 
-        public BaseSqlHelper Union()
+        public SqlHelper Union()
         {
             throw new NotImplementedException();
         }

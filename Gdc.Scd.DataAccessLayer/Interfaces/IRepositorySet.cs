@@ -16,8 +16,12 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         ITransaction BeginTransaction();
 
-        Task<IEnumerable<T>> ReadFromDb<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null);
+        Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null);
 
-        Task<IEnumerable<T>> ReadFromDb<T>(BaseSqlHelper query, Func<IDataReader, T> mapFunc);
+        Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc);
+
+        void ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null);
+
+        void ExecuteSql(SqlHelper query);
     }
 }

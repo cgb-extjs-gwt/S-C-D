@@ -29,7 +29,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                          .From(editItemInfo.TableName, editItemInfo.SchemaName)
                          .Where(filter);
 
-            return await this.repositorySet.ReadFromDb(
+            return await this.repositorySet.ReadBySql(
                 query, 
                 reader => new EditItem
                 {
@@ -53,7 +53,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                    .Where(filter)
                    .GroupBy(levelColumn);
 
-            return await this.repositorySet.ReadFromDb(
+            return await this.repositorySet.ReadBySql(
                 query,
                 reader => new EditItem
                 {
@@ -61,6 +61,32 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     Value = reader.GetInt32(1),
                     ValueCount = reader.GetInt32(2)
                 });
+        }
+
+        public void UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo)
+        {
+            var query = Sql.Queries(
+                editItems.Select(editItem => this.BuildUpdateValueQuery(editItem, editItemInfo)));
+
+            this.repositorySet.ExecuteSql(query);
+        }
+
+        public void UpdateValuesByLevel(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo, string levelColumnName)
+        {
+            var query = Sql.Queries(
+                editItems.Select(
+                    (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo)
+                                             .Where(SqlOperators.Equals(levelColumnName, $"param_{index}", editItem.Value))));
+
+            this.repositorySet.ExecuteSql(query);
+        }
+
+        private UpdateSqlHelper BuildUpdateValueQuery(EditItem editItem, EditItemInfo editItemInfo)
+        {
+            return Sql.Update(
+                editItemInfo.SchemaName,
+                editItemInfo.TableName,
+                new ValueUpdateColumnInfo(editItemInfo.ValueColumn, editItem.Value));
         }
     }
 }

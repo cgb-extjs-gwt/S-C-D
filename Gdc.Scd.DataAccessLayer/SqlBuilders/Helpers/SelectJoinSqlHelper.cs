@@ -5,7 +5,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class SelectJoinSqlHelper : BaseSqlHelper
+    public class SelectJoinSqlHelper : SqlHelper
     {
         public SelectJoinSqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
@@ -17,7 +17,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             throw new NotImplementedException();
         }
 
-        public BaseSqlHelper Union()
+        public SqlHelper Union()
         {
             throw new NotImplementedException();
         }
