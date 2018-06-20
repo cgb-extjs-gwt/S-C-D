@@ -66,18 +66,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     
                     if (parameters != null)
                     {
-                        foreach (var paramInfo in parameters)
-                        {
-                            var commandParameter = command.CreateParameter();
-
-                            commandParameter.ParameterName = paramInfo.Name;
-                            commandParameter.Value = paramInfo.Value;
-
-                            if (paramInfo.Type.HasValue)
-                            {
-                                commandParameter.DbType = paramInfo.Type.Value;
-                            }
-                        }
+                        command.Parameters.AddRange(this.GetDbParameters(parameters, command).ToArray());
                     }
 
                     var reader = await command.ExecuteReaderAsync();
@@ -104,16 +93,28 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return await this.ReadBySql(query.ToSql(), mapFunc, query.GetParameters());
         }
 
-        public async void ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null)
+        public async Task<int> ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null)
         {
-            var parameterValues = parameters == null ? Enumerable.Empty<object>() : parameters.Select(x => x.Value);
+            IEnumerable<DbParameter> dbParams;
 
-            await this.Database.ExecuteSqlCommandAsync(sql, parameterValues); 
+            if (parameters == null)
+            {
+                dbParams = Enumerable.Empty<DbParameter>();
+            }
+            else
+            {
+                var connection = this.Database.GetDbConnection();
+                var command = connection.CreateCommand();
+
+                dbParams = this.GetDbParameters(parameters, command);
+            }
+
+            return await this.Database.ExecuteSqlCommandAsync(sql, dbParams); 
         }
 
-        public void ExecuteSql(SqlHelper query)
+        public async Task<int> ExecuteSql(SqlHelper query)
         {
-            this.ExecuteSql(query.ToSql(), query.GetParameters());
+            return await this.ExecuteSql(query.ToSql(), query.GetParameters());
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -126,6 +127,24 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             base.OnConfiguring(optionsBuilder);
 
             optionsBuilder.UseSqlServer(this.configuration.GetSection("ConnectionStrings")["CommonDB"]);
+        }
+
+        private IEnumerable<DbParameter> GetDbParameters(IEnumerable<CommandParameterInfo> parameters, DbCommand command)
+        {
+            foreach (var paramInfo in parameters)
+            {
+                var commandParameter = command.CreateParameter();
+
+                commandParameter.ParameterName = paramInfo.Name;
+                commandParameter.Value = paramInfo.Value;
+
+                if (paramInfo.Type.HasValue)
+                {
+                    commandParameter.DbType = paramInfo.Type.Value;
+                }
+
+                yield return commandParameter;
+            }
         }
     }
 }

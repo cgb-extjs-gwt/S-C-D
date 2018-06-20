@@ -12,10 +12,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
     {
         Task<IEnumerable<string>> GetCostElementFilterItems(DomainMeta meta, CostEditorContext context);
 
-        Task<IEnumerable<string>> GetInputLevelFilterItems(CostEditorContext context);
+        Task<IEnumerable<string>> GetInputLevelFilterItems(DomainMeta meta, CostEditorContext context);
 
         Task<IEnumerable<EditItem>> GetEditItems(DomainMeta meta, CostEditorContext context);
 
-        void UpdateValues(IEnumerable<EditItem> editItems, DomainMeta meta, CostEditorContext context);
+        Task<int> UpdateValues(IEnumerable<EditItem> editItems, DomainMeta meta, CostEditorContext context);
     }
 }

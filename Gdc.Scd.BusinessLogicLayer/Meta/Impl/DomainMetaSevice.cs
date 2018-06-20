@@ -35,6 +35,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
 
         private readonly IConfiguration configuration;
 
+        private readonly string[] forbiddenIdSymbols = new[] { " ", "(", ")" };
+
         private DomainMeta domainMeta;
 
         public DomainMetaSevice(IConfiguration configuration)
@@ -84,7 +86,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
 
             var costBlockMeta = new CostBlockMeta
             {
-                Id = nameAttr.Value,
+                Id = this.BuildId(nameAttr.Value),
                 Name = nameAttr.Value,
             };
 
@@ -123,7 +125,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
 
             var costElementMeta = new CostElementMeta
             {
-                Id = nameAttr.Value,
+                Id = this.BuildId(nameAttr.Value),
                 Name = nameAttr.Value,
             };
 
@@ -155,7 +157,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
 
                 dependency = new Dependency
                 {
-                    Id = nameAttr.Value,
+                    Id = this.BuildId(nameAttr.Value),
                     Name = nameAttr.Value
                 };
             }
@@ -181,9 +183,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
             return new[]
             {
                 new InputLevelMeta{ Id = InputLevelConstants.CountryLevelId, Name = "Country" },
-                new InputLevelMeta{ Id = "pla", Name = "PLA" },
-                new InputLevelMeta{ Id = "sog", Name = "SOG" },
-                new InputLevelMeta{ Id = "wgr", Name = "WGR" },
+                new InputLevelMeta{ Id = "PLA", Name = "PLA" },
+                new InputLevelMeta{ Id = "SOG", Name = "SOG" },
+                new InputLevelMeta{ Id = "WG", Name = "WG" },
             };
         }
 
@@ -191,8 +193,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
         {
             return new[]
             {
-                new ApplicationMeta { Id = "hardware", Name = "Hardware" },
-                new ApplicationMeta { Id = "software", Name = "Software" }
+                new ApplicationMeta { Id = "Hardware", Name = "Hardware" },
+                new ApplicationMeta { Id = "Software", Name = "Software" }
             };
         }
 
@@ -200,9 +202,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
         {
             return new[]
             {
-                new ScopeMeta { Id = "local", Name = "Local" },
-                new ScopeMeta { Id = "central", Name = "Central" }
+                new ScopeMeta { Id = "Local", Name = "Local" },
+                new ScopeMeta { Id = "Central", Name = "Central" }
             };
+        }
+
+        private string BuildId(string name)
+        {
+            foreach(var symbol in this.forbiddenIdSymbols)
+            {
+                name = name.Replace(symbol, string.Empty);
+            }
+
+            return name;
         }
     }
 }

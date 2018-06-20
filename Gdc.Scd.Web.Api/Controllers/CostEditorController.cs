@@ -51,7 +51,9 @@ namespace Gdc.Scd.Web.Api.Controllers
         [HttpGet]
         public async Task<IEnumerable<string>> GetInputLevelFilterItems(CostEditorContext context)
         {
-            return await this.costEditorService.GetInputLevelFilterItems(context);
+            var meta = this.domainMetaSevice.Get();
+
+            return await this.costEditorService.GetInputLevelFilterItems(meta, context);
         }
 
         [HttpGet]
@@ -63,11 +65,11 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
-        IActionResult UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context)
+        public async Task<IActionResult> UpdateValues([FromBody]IEnumerable<EditItem> editItems, [FromQuery]CostEditorContext context)
         {
             var meta = this.domainMetaSevice.Get();
 
-            this.costEditorService.UpdateValues(editItems, meta, context);
+            await this.costEditorService.UpdateValues(editItems, meta, context);
 
             return this.Ok();
         }

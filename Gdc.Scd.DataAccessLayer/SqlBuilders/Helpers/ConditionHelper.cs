@@ -130,7 +130,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 {
                     var operand = operandArray[0];
 
-                    for (var i = 2; i < operandArray.Length; i++)
+                    for (var i = 1; i < operandArray.Length; i++)
                     {
                         operand = SqlOperators.BinaryOperator<T>(operand, operandArray[i]);
                     }

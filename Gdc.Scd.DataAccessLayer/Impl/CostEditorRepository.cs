@@ -58,27 +58,29 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 reader => new EditItem
                 {
                     Name = reader.GetString(0),
-                    Value = reader.GetInt32(1),
+                    Value = reader.GetDouble(1),
                     ValueCount = reader.GetInt32(2)
                 });
         }
 
-        public void UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo)
+        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo)
         {
             var query = Sql.Queries(
-                editItems.Select(editItem => this.BuildUpdateValueQuery(editItem, editItemInfo)));
+                editItems.Select(
+                    (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo)
+                                             .Where(SqlOperators.Equals(DataBaseConstants.IdFieldName, $"id_{index}", editItem.Id))));
 
-            this.repositorySet.ExecuteSql(query);
+            return await this.repositorySet.ExecuteSql(query);
         }
 
-        public void UpdateValuesByLevel(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo, string levelColumnName)
+        public async Task<int> UpdateValuesByLevel(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo, string levelColumnName)
         {
             var query = Sql.Queries(
                 editItems.Select(
                     (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo)
                                              .Where(SqlOperators.Equals(levelColumnName, $"param_{index}", editItem.Value))));
 
-            this.repositorySet.ExecuteSql(query);
+            return await this.repositorySet.ExecuteSql(query);
         }
 
         private UpdateSqlHelper BuildUpdateValueQuery(EditItem editItem, EditItemInfo editItemInfo)

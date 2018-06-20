@@ -23,17 +23,23 @@ export interface CostEdirotDto {
     }
 }
 
+export interface InputLevelMeta extends NamedId {
+    levelNumer: number
+    isFilterLoading: boolean
+}
+
 export interface CostEditorState {
     applications: Map<string, NamedId>
     scopes: Map<string, NamedId>
     countries: Map<string, NamedId>
     costBlockMetas: Map<string, CostBlockMeta>
-    inputLevels: Map<string, NamedId> 
+    inputLevels: Map<string, InputLevelMeta> 
     selectedApplicationId: string
     selectedScopeId: string
     costBlocks: CostBlockState[]
     visibleCostBlockIds: string[]
     selectedCostBlockId: string
+
     dataLossInfo: {
         isWarningDisplayed: boolean
         action: Action<string>

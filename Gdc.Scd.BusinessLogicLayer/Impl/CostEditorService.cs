@@ -37,12 +37,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 filter);
         }
 
-        public async Task<IEnumerable<string>> GetInputLevelFilterItems(CostEditorContext context)
+        public async Task<IEnumerable<string>> GetInputLevelFilterItems(DomainMeta meta, CostEditorContext context)
         {
+            var previousInputLevel = meta.GetPreviousInputLevel(context.InputLevelId);
             var filter = this.GetCountryFilter(context);
 
             return await this.sqlRepository.GetDistinctValues(
-                context.InputLevelId,
+                previousInputLevel.Id,
                 context.CostBlockId,
                 context.ApplicationId,
                 filter);
@@ -62,7 +63,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (context.InputLevelFilterIds != null)
             {
-                filter.Add(context.InputLevelId, context.InputLevelFilterIds);
+                var previousInputLevel = meta.GetPreviousInputLevel(context.InputLevelId);
+
+                filter.Add(previousInputLevel.Id, context.InputLevelFilterIds);
             }
 
             IEnumerable<EditItem> result;
@@ -82,19 +85,23 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return result;
         }
 
-        public void UpdateValues(IEnumerable<EditItem> editItems, DomainMeta meta, CostEditorContext context)
+        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, DomainMeta meta, CostEditorContext context)
         {
+            int result;
+
             var editItemInfo = this.GetEditItemInfo(context);
                 
             var lowerInputLevel = meta.InputLevels.Last();
             if (lowerInputLevel.Id == context.InputLevelId)
             {
-                this.costEditorRepository.UpdateValues(editItems, editItemInfo);
+                result = await this.costEditorRepository.UpdateValues(editItems, editItemInfo);
             }
             else
             {
-                this.costEditorRepository.UpdateValuesByLevel(editItems, editItemInfo, context.InputLevelId);
+                result = await this.costEditorRepository.UpdateValuesByLevel(editItems, editItemInfo, context.InputLevelId);
             }
+
+            return result;
         }
 
         private IDictionary<string, IEnumerable<object>> GetCountryFilter(CostEditorContext context)

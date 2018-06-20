@@ -52,7 +52,7 @@
 			</Elements>
 		</Block>
 
-        <Block Name="AvailabilityFee" Application="Hardware" >
+        <!--<Block Name="AvailabilityFee" Application="Hardware" >
 			<Elements>
 				<Element Domain="Local" Name="TotalLogisticsInfrastructureCost" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" />
 				<Element Domain="Local" Name="StockValueInCountryFJ" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" />
@@ -143,6 +143,6 @@
 				<Element Domain="Central" Name="DiscountToDealerPrice" Unit="%" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
 				</Element>
 			</Elements>
-		</Block>
+		</Block>-->
     </Blocks>
 </SCDConfiguration>

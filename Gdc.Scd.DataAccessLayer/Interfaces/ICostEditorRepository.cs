@@ -12,8 +12,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<IEnumerable<EditItem>> GetEditItemsByLevel(string levelColumn, EditItemInfo editItemInfo, IDictionary<string, IEnumerable<object>> filter = null);
 
-        void UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo);
+        Task<int> UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo);
 
-        void UpdateValuesByLevel(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo, string levelColumnName);
+        Task<int> UpdateValuesByLevel(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo, string levelColumnName);
     }
 }

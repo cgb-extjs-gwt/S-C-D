@@ -16,7 +16,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Entities
         public QueryUpdateColumnInfo(string name, ISqlBuilder query)
             : base(name)
         {
-            this.Name = name;
+            this.Query = query;
         }
     }
 }

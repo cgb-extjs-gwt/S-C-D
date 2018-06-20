@@ -61,7 +61,7 @@ const requestMvc = (
 //     return strings.join('&');
 // }
 
-export const get = <T>(controller: string, action: string, params = null) => {
+export const get = <T=any>(controller: string, action: string, params = null) => {
     return requestMvc(controller, action, Methods.Get, params).then<T>(resp => JSON.parse(resp.responseText));
 }
 

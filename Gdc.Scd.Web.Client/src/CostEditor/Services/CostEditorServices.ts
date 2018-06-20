@@ -16,19 +16,26 @@ export interface Context {
     inputLevelFilterIds: string[]
 }
 
-export const getCostEditorDto = () => get(CONTROLLER_NAME, 'GetCostEditorData');
+export const getCostEditorDto = () => get(CONTROLLER_NAME, 'GetCostEditorData').then(data => <CostEdirotDto>{
+    countries: data.countries.map(country => <NamedId>{ id: country, name: country }),
+    meta: data.meta
+});
 
 export const getCostElementFilterItems = (context: Context) => 
-    get<NamedId[]>(CONTROLLER_NAME, 'GetCostElementFilterItems', context); 
+    get<string[]>(CONTROLLER_NAME, 'GetCostElementFilterItems', context).then(
+        data => data.map(item => <NamedId>{ id: item, name: item })
+    ); 
 
 export const getLevelInputFilterItems = (context: Context) => 
-    get<NamedId[]>(CONTROLLER_NAME, 'GetInputLevelFilterItems', context); 
+    get<string[]>(CONTROLLER_NAME, 'GetInputLevelFilterItems', context).then(
+        data => data.map(item => <NamedId>{ id: item, name: item })
+    );  
 
 export const getEditItems = (context: Context) => 
     get<EditItem[]>(CONTROLLER_NAME, 'GetEditItems', context); 
 
 export const saveEditItems = (editItems: EditItem[], context: Context) =>
-    post(CONTROLLER_NAME, 'UpdateValues', editItems)
+    post(CONTROLLER_NAME, 'UpdateValues', editItems, context)
 
 // export const getCostEditorDto = () => Promise.resolve(<CostEdirotDto>{
 //     applications: [

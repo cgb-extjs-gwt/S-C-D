@@ -13,6 +13,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         public UpdateSqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
         {
+            this.whereHelper = new WhereSqlHelper(sqlBuilder);
         }
 
         public SqlHelper Where(ISqlBuilder condition)
