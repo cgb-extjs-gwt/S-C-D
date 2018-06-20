@@ -78,7 +78,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var query = Sql.Queries(
                 editItems.Select(
                     (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo)
-                                             .Where(SqlOperators.Equals(levelColumnName, $"param_{index}", editItem.Value))));
+                                             .Where(SqlOperators.Equals(levelColumnName, $"param_{index}", editItem.Name))));
 
             return await this.repositorySet.ExecuteSql(query);
         }
