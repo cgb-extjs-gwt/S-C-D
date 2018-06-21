@@ -280,15 +280,8 @@ export const reloadFilterBySelectedCountry = (costBlockId: string, countryId: st
                 inputLevel: { selectedItemId: inputLevelId }
             } = costBlock;
 
-            const context = buildContext(page.data);
-
-            service.getCostElementFilterItems(context).then(
-                filterItems => dispatch(loadCostElementFilter(costBlockId, costElementId, filterItems))
-            )
-
-            service.getLevelInputFilterItems(context).then(
-                filterItems => dispatch(loadInputLevelFilter(costBlockId, inputLevelId, filterItems))
-            )
+            dispatch(getFilterItemsByCustomElementSelection(costBlockId, costElementId));
+            dispatch(getFilterItemsByInputLevelSelection(costBlockId, inputLevelId));
         }
     )
 
