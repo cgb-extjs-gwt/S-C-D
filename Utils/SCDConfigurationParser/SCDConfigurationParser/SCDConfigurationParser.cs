@@ -18,8 +18,6 @@ namespace SCDConfigurationParser
         private string addColumnTemplate_Hardware { get; set; }
         private string createTableTemplate_Software { get; set; }
         private string addColumnTemplate_Software { get; set; }
-        private string createTableTemplate_Solution { get; set; }
-        private string addColumnTemplate_Solution { get; set; }
         private string addCostBlockCofigTemplate { get; set; }
         private string createTableTemplate_CostBlockConfig { get; set; }
         private string addCostElementConfiguration { get; set; }
