@@ -44,7 +44,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var nameColumn = new ColumnInfo(editItemInfo.NameColumn);
             var maxValueColumn = SqlFunctions.Max(editItemInfo.ValueColumn);
-            var countDiffValues = SqlFunctions.Count(editItemInfo.ValueColumn);
+            var countDiffValues = SqlFunctions.Count(editItemInfo.ValueColumn, true);
             var levelColumn = new ColumnInfo(levelColumnName);
 
             var query =
@@ -53,7 +53,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                    .Where(filter)
                    .GroupBy(levelColumn);
 
-            return await this.repositorySet.ReadBySql(
+            var editItems = await this.repositorySet.ReadBySql(
                 query,
                 reader => new EditItem
                 {
@@ -61,6 +61,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     Value = reader.GetDouble(1),
                     ValueCount = reader.GetInt32(2)
                 });
+
+            return editItems.Select((editItem, index) =>
+            {
+                editItem.Id = index;
+
+                return editItem;
+            });
         }
 
         public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo)

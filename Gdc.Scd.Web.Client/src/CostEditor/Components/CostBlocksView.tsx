@@ -4,8 +4,10 @@ import { CostBlockState, EditItem, CheckItem } from '../States/CostBlockStates'
 import { Filter } from './Filter';
 import { SelectList, NamedId } from '../../Common/States/CommonStates';
 
-Ext.require('Ext.grid.plugin.CellEditing');
-Ext.require('Ext.MessageBox');
+Ext.require([
+  'Ext.grid.plugin.CellEditing', 
+  'Ext.MessageBox'
+]);
 
 export interface CostBlockActions {
   onCountrySelected?: (countryId: string) => void
@@ -241,12 +243,15 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
                     if (modifiedFieldNames[0] === 'name') {
                       record.reject();
                     } else {
-                      onItemEdited(record.data)
+                      //HACK: Need for displaying new value.
+                      record.set('valueCount', 1);
+
+                      onItemEdited(record.data);
                     }
                   })
         }
     });
-
+   
     return (
       <Grid 
         store={store} 
@@ -266,7 +271,6 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
           drag: true,
           extensible: 'y'
         }}
-        
       >
         <Toolbar docked="top">
             <Button 
@@ -278,7 +282,16 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
         </Toolbar>
       
         <Column text={nameTitle} dataIndex="name" flex={1} extensible={false} />
-        <Column text={valueTitle} dataIndex="value" flex={1} editable={true}/>
+        <Column 
+          text={valueTitle} 
+          dataIndex="value" 
+          flex={1} 
+          editable={true}
+          renderer={
+            (value, { data }: { data: EditItem }) => 
+              data.valueCount == 1 ? value : `(${data.valueCount} values)` 
+          }
+        />
 
         <Toolbar docked="bottom">
             <Button 
@@ -317,19 +330,4 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
       (buttonId: string) => onEditItemsCleared && onEditItemsCleared()
     );
   }
-
-  // private saveDialog() {
-  //   return (
-  //     <Dialog
-  //       title="Saving changes"
-  //       bodyPadding="20"
-  //       closable
-  //       defaultFocus="#ok"
-  //     >
-  //       Do you want save changes?
-  //       <Button itemId="ok" text="Ok"/>
-  //       <Button text="Cancel"/>
-  //     </Dialog>
-  //   );
-  // }
 }
