@@ -74,7 +74,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var query = Sql.Queries(
                 editItems.Select(
-                    (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo)
+                    (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo, index)
                                              .Where(SqlOperators.Equals(DataBaseConstants.IdFieldName, $"id_{index}", editItem.Id))));
 
             return await this.repositorySet.ExecuteSql(query);
@@ -84,18 +84,21 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var query = Sql.Queries(
                 editItems.Select(
-                    (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo)
+                    (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo, index)
                                              .Where(SqlOperators.Equals(levelColumnName, $"param_{index}", editItem.Name))));
 
             return await this.repositorySet.ExecuteSql(query);
         }
 
-        private UpdateSqlHelper BuildUpdateValueQuery(EditItem editItem, EditItemInfo editItemInfo)
+        private UpdateSqlHelper BuildUpdateValueQuery(EditItem editItem, EditItemInfo editItemInfo, int paramIndex)
         {
             return Sql.Update(
                 editItemInfo.SchemaName,
                 editItemInfo.TableName,
-                new ValueUpdateColumnInfo(editItemInfo.ValueColumn, editItem.Value));
+                new ValueUpdateColumnInfo(
+                    editItemInfo.ValueColumn, 
+                    editItem.Value, 
+                    $"{editItemInfo.ValueColumn}_{paramIndex}"));
         }
     }
 }

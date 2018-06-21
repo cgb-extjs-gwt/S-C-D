@@ -8,14 +8,17 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Entities
     {
         public object Value { get; set; }
 
+        public string ParameterName { get; set; }
+
         public ValueUpdateColumnInfo()
         {
         }
 
-        public ValueUpdateColumnInfo(string name, object value)
+        public ValueUpdateColumnInfo(string name, object value, string parameterName = null)
             : base(name)
         {
             this.Value = value;
+            this.ParameterName = parameterName;
         }
     }
 }

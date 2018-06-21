@@ -65,7 +65,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                         {
                             ParamInfo = new CommandParameterInfo
                             {
-                                Name = valueColumn.Name,
+                                Name = valueColumn.ParameterName ?? valueColumn.Name,
                                 Value = valueColumn.Value
                             }
                         });

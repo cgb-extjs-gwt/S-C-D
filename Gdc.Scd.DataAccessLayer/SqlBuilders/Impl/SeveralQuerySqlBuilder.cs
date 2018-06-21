@@ -13,7 +13,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 
         public string Build(SqlBuilderContext context)
         {
-            return string.Join($"{Environment.NewLine};", this.Queries.Select(query => query.Build(context)));
+            return string.Join($";{Environment.NewLine}", this.Queries.Select(query => query.Build(context)));
         }
 
         public IEnumerable<ISqlBuilder> GetChildrenBuilders()
