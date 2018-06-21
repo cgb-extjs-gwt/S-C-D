@@ -194,7 +194,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
             return new[]
             {
                 new ApplicationMeta { Id = "Hardware", Name = "Hardware" },
-                new ApplicationMeta { Id = "Software", Name = "Software" }
+                new ApplicationMeta { Id = "SoftwareSolution", Name = "Software & Solution" }
             };
         }
 
