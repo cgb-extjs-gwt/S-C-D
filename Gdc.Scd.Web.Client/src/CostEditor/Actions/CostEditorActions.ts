@@ -56,12 +56,15 @@ export const hideDataLoseWarning = () => (<Action<string>>{
 })
 
 export const loseChanges = () => asyncAction<PageCommonState<CostEditorState>>(
-    (dispatch, state) => {
+    (dispatch, getState) => {
         dispatch(hideDataLoseWarning());
         dispatch(<Action<string>>{
             type: COST_ELEMENT_INTPUT_LOSE_CHANGES
         })
-        dispatch(state.page.data.dataLossInfo.action);
+        
+        const { page } = getState();
+
+        dispatch(page.data.dataLossInfo.action);
     }
 )
 

@@ -9,7 +9,7 @@ import { costBlockReducer } from "./CostEditor/Reducers/CostBlockReducer";
 
 const asyncActionHandler = store => next => action => {
     if (action instanceof AsyncAction) {
-        (<AsyncAction>action).handler(store.dispatch, store.getState(), action);
+        (<AsyncAction>action).handler(store.dispatch, store.getState, action);
     } else {
         next(action);
     }

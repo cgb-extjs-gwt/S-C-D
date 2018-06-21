@@ -1,6 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Linq;
+using System.Threading.Tasks;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,6 +51,72 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.SaveChanges();
         }
 
+        public async Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
+        {
+            var connection = this.Database.GetDbConnection();
+            var result = new List<T>();
+
+            try
+            {
+                await connection.OpenAsync();
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = sql;
+                    
+                    if (parameters != null)
+                    {
+                        command.Parameters.AddRange(this.GetDbParameters(parameters, command).ToArray());
+                    }
+
+                    var reader = await command.ExecuteReaderAsync();
+
+                    if (reader.HasRows)
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            result.Add(mapFunc(reader));
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return result;
+        }
+
+        public async Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc)
+        {
+            return await this.ReadBySql(query.ToSql(), mapFunc, query.GetParameters());
+        }
+
+        public async Task<int> ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null)
+        {
+            IEnumerable<DbParameter> dbParams;
+
+            if (parameters == null)
+            {
+                dbParams = Enumerable.Empty<DbParameter>();
+            }
+            else
+            {
+                var connection = this.Database.GetDbConnection();
+                var command = connection.CreateCommand();
+
+                dbParams = this.GetDbParameters(parameters, command);
+            }
+
+            return await this.Database.ExecuteSqlCommandAsync(sql, dbParams); 
+        }
+
+        public async Task<int> ExecuteSql(SqlHelper query)
+        {
+            return await this.ExecuteSql(query.ToSql(), query.GetParameters());
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -54,6 +127,24 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             base.OnConfiguring(optionsBuilder);
 
             optionsBuilder.UseSqlServer(this.configuration.GetSection("ConnectionStrings")["CommonDB"]);
+        }
+
+        private IEnumerable<DbParameter> GetDbParameters(IEnumerable<CommandParameterInfo> parameters, DbCommand command)
+        {
+            foreach (var paramInfo in parameters)
+            {
+                var commandParameter = command.CreateParameter();
+
+                commandParameter.ParameterName = paramInfo.Name;
+                commandParameter.Value = paramInfo.Value;
+
+                if (paramInfo.Type.HasValue)
+                {
+                    commandParameter.DbType = paramInfo.Type.Value;
+                }
+
+                yield return commandParameter;
+            }
         }
     }
 }

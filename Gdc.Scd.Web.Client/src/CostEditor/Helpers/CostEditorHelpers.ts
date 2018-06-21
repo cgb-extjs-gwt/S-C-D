@@ -12,7 +12,9 @@ export const losseDataCheckHandlerAction = (
     handler: (dispatch: Dispatch, state: PageCommonState<CostEditorState>) => void
 ) => 
     asyncAction<PageCommonState<CostEditorState>>(
-        (dispatch, state, asyncAction) => {
+        (dispatch, getState, asyncAction) => {
+            const state = getState();
+
             if (hasUnsavedChanges(state.page.data)) {
                 dispatch(showDataLoseWarning(asyncAction));
             } else {

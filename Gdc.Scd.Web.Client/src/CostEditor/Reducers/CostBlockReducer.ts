@@ -1,5 +1,5 @@
 import { Reducer, Action } from "redux";
-import { CostBlockState, CostElementState, InputLevelState, CheckItem } from "../States/CostBlockStates";
+import { CostBlockState, CostElementState, InputLevelState, CheckItem, EditItem } from "../States/CostBlockStates";
 import { PAGE_INIT_SUCCESS, PageAction } from "../../Layout/Actions/PageActions";
 import { CostEdirotDto, CostElementMeta, CostEditorState, CostBlockMeta } from "../States/CostEditorStates";
 import { 
@@ -77,7 +77,14 @@ const clearCostBlockFilters  = (costBlock: CostBlockState, clearSelected: boolea
 }
 
 const initSuccess: Reducer<CostEditorState, PageAction<CostEdirotDto>> = (state, action) => {
-    const { costBlockMetas, countries, inputLevels } = action.data;
+    const { 
+        countries,
+        meta: {
+            costBlocks: costBlockMetas,
+            inputLevels
+        }
+    } = action.data;
+
     const selectedCountryId = countries[0].id;
     const visibleCostBlockIds = getVisibleCostBlockIds(costBlockMetas, state.selectedApplicationId);
 
@@ -293,13 +300,17 @@ const clearEditItems = buildCostBlockChanger(
 const editItem = buildCostBlockChanger<ItemEditedAction>(
     (costBlock, action) => {
         const editedItems = costBlock.edit.editedItems;
+        const editedItem = <EditItem>{
+            ...action.item,
+            valueCount: 1
+        };
 
         return {
             ...costBlock,
             edit: {
                 ...costBlock.edit,
                 editedItems: editedItems.filter(item => item.id !== action.item.id)
-                                        .concat(action.item)
+                                        .concat(editedItem)
             }
         }
     }

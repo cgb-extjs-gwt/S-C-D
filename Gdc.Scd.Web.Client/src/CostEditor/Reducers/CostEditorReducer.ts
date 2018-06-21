@@ -1,6 +1,6 @@
 import { Action, Reducer } from "redux";
 import { PageState } from "../../Layout/States/PageStates";
-import { CostEditorState, CostEdirotDto, CostBlockMeta, CostElementMeta } from "../States/CostEditorStates";
+import { CostEditorState, CostEdirotDto, CostBlockMeta, CostElementMeta, InputLevelMeta } from "../States/CostEditorStates";
 import { PageAction, PAGE_INIT_SUCCESS } from "../../Layout/Actions/PageActions";
 import { 
     COST_ELEMENT_INTPUT_PAGE, 
@@ -25,9 +25,16 @@ const createMap = <T extends NamedId>(array: T[]) => {
 }
 
 const initSuccess: Reducer<CostEditorState, PageAction<CostEdirotDto>> = (state, action) => {
-    const { applications, scopes, costBlockMetas, countries, inputLevels } = action.data;
+    const { countries, meta } = action.data;
+    const { applications, scopes, costBlocks: costBlockMetas, inputLevels } = meta;
     const selectedApplicationId = applications[0].id;
     const selectedScopeId = scopes[0].id;
+    const inputLevelMetas = inputLevels.map((item, index) => <InputLevelMeta>{ 
+        id: item.id,
+        name: item.name,
+        levelNumer: index,
+        isFilterLoading: index > 1
+    });
 
     return action.pageName === COST_ELEMENT_INTPUT_PAGE 
         ? {
@@ -36,7 +43,7 @@ const initSuccess: Reducer<CostEditorState, PageAction<CostEdirotDto>> = (state,
             scopes: createMap(scopes),
             countries: createMap(countries),
             costBlockMetas: createMap(costBlockMetas),
-            inputLevels: createMap(inputLevels),
+            inputLevels: createMap(inputLevelMetas),
             selectedApplicationId,
             selectedScopeId,
         } 

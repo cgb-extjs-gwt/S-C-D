@@ -11,6 +11,8 @@ namespace Gdc.Scd.DataAccessLayer
         {
             services.AddScoped(typeof(EntityFrameworkRepository<>), typeof(EntityFrameworkRepository<>));
             services.AddScoped<IRepositorySet, EntityFrameworkRepositorySet>();
+            services.AddScoped<ISqlRepository, SqlRepository>();
+            services.AddScoped<ICostEditorRepository, CostEditorRepository>();
         }
     }
 }

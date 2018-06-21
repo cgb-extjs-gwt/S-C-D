@@ -3,6 +3,7 @@ import { NamedId, SelectList } from "../../Common/States/CommonStates";
 
 export interface EditItem extends NamedId {
     value: number
+    valueCount: number
 }
 
 export interface CheckItem extends NamedId {

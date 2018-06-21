@@ -2,7 +2,7 @@ import { Action } from "redux";
 import { Dispatch } from "react-redux";
 
 export interface AsyncActionHandler<TState> {
-    (dispatch: Dispatch, state: TState, action: AsyncAction<TState>): void
+    (dispatch: Dispatch, getState: () => TState, action: AsyncAction<TState>): void
 }
 
 export class AsyncAction<TState = any> implements Action<string> {

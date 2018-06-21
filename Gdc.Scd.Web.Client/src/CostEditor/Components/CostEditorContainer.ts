@@ -1,6 +1,6 @@
-import { Filter, CostBlockState } from "../States/CostBlockStates";
+import { Filter, CostBlockState, InputLevelState, CheckItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
-import { CostBlockMeta, CostEditorState } from "../States/CostEditorStates";
+import { CostBlockMeta, CostEditorState, InputLevelMeta } from "../States/CostEditorStates";
 import { CostBlockTab, CostEditorProps, CostEditorActions, CostEditorView } from "./CostEditorView";
 import { connect } from "react-redux";
 import { PageCommonState } from "../../Layout/States/PageStates";
@@ -26,6 +26,7 @@ import {
     applyFiltersWithReloading 
 } 
 from "../Actions/CostBlockActions";
+import { SelectListFilter } from "./CostBlocksView";
 
 const isSetContainsAllCheckedItems = (set: Set<string>, filterObj: Filter) => {
     let result = true;
@@ -39,11 +40,50 @@ const isSetContainsAllCheckedItems = (set: Set<string>, filterObj: Filter) => {
     return result
 }
 
+const buildInputLevel = (
+    costBlock: CostBlockState, 
+    inputLevelMetaMap:  Map<string, InputLevelMeta>,
+    selectedInputLevel: InputLevelState,
+    selectedInputLevelMeta: InputLevelMeta,
+    isEnableList: boolean
+ ) => {
+    let filter: CheckItem[];
+    let isVisibleFilter: boolean;
+    let filterName: string;
+    
+    const inputLevelMetas = 
+        Array.from(inputLevelMetaMap.values())
+             .sort((item1, item2) => item1.levelNumer - item2.levelNumer);
+
+    if (selectedInputLevel) {
+        isVisibleFilter = selectedInputLevel.filter && selectedInputLevel.filter.length > 0;
+
+        if (isVisibleFilter) {
+            const prevLevelNumber = selectedInputLevelMeta.levelNumer - 1;
+            const prevInputLevelMeta = inputLevelMetas.find(item => item.levelNumer === prevLevelNumber);
+            
+            filterName = prevInputLevelMeta.name
+            filter = selectedInputLevel.filter;
+        }
+    } 
+
+    return <SelectListFilter>{
+        filter,
+        filterName,
+        isVisibleFilter,
+        isEnableList: isEnableList,
+        selectList: {
+            selectedItemId: costBlock.inputLevel.selectedItemId,
+            list: inputLevelMetas
+        }
+    }
+};
+
 const costBlockTabListMap = (
     costBlock: CostBlockState, 
     countries: NamedId[], 
     costBlockMeta: CostBlockMeta,
-    inputLevel:  Map<string, NamedId> 
+    inputLevel:  Map<string, InputLevelMeta> 
 ): CostBlockTab => {
     const { edit } = costBlock;
 
@@ -86,16 +126,7 @@ const costBlockTabListMap = (
                 isVisibleFilter: selectedCostElement && selectedCostElement.filter && selectedCostElement.filter.length > 0,
                 isEnableList: isEnableList
             },
-            inputLevel: {
-                selectList: {
-                    selectedItemId: costBlock.inputLevel.selectedItemId,
-                    list: Array.from(inputLevel.values())
-                },
-                filter: selectedInputLevel && selectedInputLevel.filter,
-                filterName: selectedInputLevelMeta && selectedInputLevelMeta.name,
-                isVisibleFilter: selectedInputLevel && selectedInputLevel.filter && selectedInputLevel.filter.length > 0,
-                isEnableList: isEnableList
-            },
+            inputLevel: buildInputLevel(costBlock, inputLevel, selectedInputLevel, selectedInputLevelMeta, isEnableList),
             edit: {
                 nameColumnTitle: selectedInputLevelMeta && selectedInputLevelMeta.name,
                 valueColumnTitle: selectedCostElementMeta && selectedCostElementMeta.name,

@@ -14,11 +14,18 @@ export interface CostBlockMeta extends NamedId {
 }
 
 export interface CostEdirotDto {
-    applications: NamedId[]
-    scopes: NamedId[]
     countries: NamedId[]
-    costBlockMetas: CostBlockMeta[]
-    inputLevels: NamedId[]
+    meta: {
+        applications: NamedId[]
+        scopes: NamedId[]
+        costBlocks: CostBlockMeta[]
+        inputLevels: NamedId[]
+    }
+}
+
+export interface InputLevelMeta extends NamedId {
+    levelNumer: number
+    isFilterLoading: boolean
 }
 
 export interface CostEditorState {
@@ -26,12 +33,13 @@ export interface CostEditorState {
     scopes: Map<string, NamedId>
     countries: Map<string, NamedId>
     costBlockMetas: Map<string, CostBlockMeta>
-    inputLevels: Map<string, NamedId> 
+    inputLevels: Map<string, InputLevelMeta> 
     selectedApplicationId: string
     selectedScopeId: string
     costBlocks: CostBlockState[]
     visibleCostBlockIds: string[]
     selectedCostBlockId: string
+
     dataLossInfo: {
         isWarningDisplayed: boolean
         action: Action<string>
