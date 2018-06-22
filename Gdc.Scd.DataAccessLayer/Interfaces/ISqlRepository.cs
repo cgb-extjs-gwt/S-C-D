@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Gdc.Scd.Core.Entities;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
@@ -12,9 +12,9 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
             string schemaName = null,
             IDictionary<string, IEnumerable<object>> filter = null);
 
-        Task<IEnumerable<string>> GetValues(
-            string columnName,
-            string tableName,
+        Task<IEnumerable<NamedId>> GetDistinctItems(
+            ColumnInfo idColumn,
+            ColumnInfo nameColumn,
             string schemaName = null,
             IDictionary<string, IEnumerable<object>> filter = null);
     }

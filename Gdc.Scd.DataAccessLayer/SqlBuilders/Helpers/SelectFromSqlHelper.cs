@@ -1,23 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class SelectFromSqlHelper : SqlHelper
+    public class SelectFromSqlHelper : SqlHelper, 
+        IWhereSqlHelper<SelectWhereSqlHelper>, 
+        IGroupBySqlHelper<SelectGroupBySqlHelper>, 
+        IJoinSqlHelper<SelectJoinSqlHelper>
     {
         private readonly WhereSqlHelper whereHelper;
 
         private readonly GroupBySqlHelper groupByHelper;
+
+        private readonly JoinSqlHelper joinSqlHelper;
 
         public SelectFromSqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
         {
             this.whereHelper = new WhereSqlHelper(sqlBuilder);
             this.groupByHelper = new GroupBySqlHelper(sqlBuilder);
+            this.joinSqlHelper = new JoinSqlHelper(sqlBuilder);
         }
 
         public SelectWhereSqlHelper Where(ISqlBuilder condition)
@@ -40,9 +44,24 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return this.groupByHelper.GroupBy(columns);
         }
 
-        public SelectJoinSqlHelper Join()
+        public SelectJoinSqlHelper Join(ISqlBuilder table, ISqlBuilder condition, JoinType type = JoinType.Inner)
         {
-            throw new NotImplementedException();
+            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(table, condition, type));
+        }
+
+        public SelectJoinSqlHelper Join(ISqlBuilder table, ConditionHelper condition, JoinType type = JoinType.Inner)
+        {
+            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(table, condition, type));
+        }
+
+        public SelectJoinSqlHelper Join(string schemaName, string tableName, ConditionHelper condition, JoinType type = JoinType.Inner)
+        {
+            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(schemaName, tableName, condition, type));
+        }
+
+        public SelectJoinSqlHelper Join(string tableName, ConditionHelper condition, JoinType type = JoinType.Inner)
+        {
+            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(tableName, condition, type));
         }
 
         public SqlHelper Union()
