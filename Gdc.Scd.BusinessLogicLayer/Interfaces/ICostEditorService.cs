@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
-using Gdc.Scd.BusinessLogicLayer.Meta.Entities;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {

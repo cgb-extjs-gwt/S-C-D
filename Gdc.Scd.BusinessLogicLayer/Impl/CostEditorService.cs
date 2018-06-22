@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Gdc.Scd.BusinessLogicLayer.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.BusinessLogicLayer.Meta.Constants;
 using System.Threading.Tasks;
-using Gdc.Scd.Core.Entities;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Constants;
+using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Interfaces;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {

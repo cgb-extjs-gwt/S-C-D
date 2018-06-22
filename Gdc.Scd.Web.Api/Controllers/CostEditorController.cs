@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.BusinessLogicLayer.Meta.Interfaces;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Interfaces;
 using Gdc.Scd.Web.Api.Entities;
 using Microsoft.AspNetCore.Mvc;
 

@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using Gdc.Scd.BusinessLogicLayer.Meta.Constants;
-using Gdc.Scd.BusinessLogicLayer.Meta.Entities;
-using Gdc.Scd.BusinessLogicLayer.Meta.Interfaces;
+using Gdc.Scd.Core.Meta.Constants;
+using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.Core.Meta.Interfaces;
 using Microsoft.Extensions.Configuration;
 
-namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
+namespace Gdc.Scd.Core.Meta.Impl
 {
     public class DomainMetaSevice : IDomainMetaSevice
     {

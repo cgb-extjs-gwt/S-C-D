@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.Constants;
@@ -19,7 +17,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<IEnumerable<string>> GetAll()
         {
-            return await this.sqlRepository.GetValues("Country", "Countries", DataBaseConstants.InputAtomSchemaName);
+            return await this.sqlRepository.GetDistinctValues("Country", "Countries", DataBaseConstants.InputAtomSchemaName);
         }
     }
 }
