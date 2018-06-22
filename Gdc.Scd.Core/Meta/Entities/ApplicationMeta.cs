@@ -1,6 +1,6 @@
 ﻿namespace Gdc.Scd.Core.Meta.Entities
 {
-    public class ApplicationMeta : BaseMeta
+    public class ApplicationMeta : BaseDomainMeta
     {
     }
 }

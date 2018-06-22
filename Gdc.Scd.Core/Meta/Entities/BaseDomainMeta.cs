@@ -1,6 +1,6 @@
 ﻿namespace Gdc.Scd.Core.Meta.Entities
 {
-    public abstract class BaseMeta
+    public abstract class BaseDomainMeta
     {
         public string Id { get; set; }
 

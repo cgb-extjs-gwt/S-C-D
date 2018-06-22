@@ -1,8 +1,8 @@
 ﻿namespace Gdc.Scd.Core.Meta.Entities
 {
-    public class CostElementMeta : BaseMeta
+    public class CostElementMeta : BaseDomainMeta
     {
-        public Dependency Dependency { get; set; }
+        public DependencyMeta Dependency { get; set; }
 
         public string Description { get; set; }
 

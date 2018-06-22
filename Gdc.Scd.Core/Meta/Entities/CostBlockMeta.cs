@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
-    public class CostBlockMeta : BaseMeta
+    public class CostBlockMeta : BaseDomainMeta
     {
         public IEnumerable<string> ApplicationIds { get; set; }
 

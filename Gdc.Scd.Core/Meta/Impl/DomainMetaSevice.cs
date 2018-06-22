@@ -142,9 +142,9 @@ namespace Gdc.Scd.Core.Meta.Impl
             return costElementMeta;
         }
 
-        private Dependency BuildCostElementDependency(XElement costElementNode)
+        private DependencyMeta BuildCostElementDependency(XElement costElementNode)
         {
-            Dependency dependency = null;
+            DependencyMeta dependency = null;
 
             var dependencyNode = costElementNode.Element(CostElementDependencyNodeName);
             if (dependencyNode != null)
@@ -155,7 +155,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                     throw new Exception("Dependency name attribute not found");
                 }
 
-                dependency = new Dependency
+                dependency = new DependencyMeta
                 {
                     Id = this.BuildId(nameAttr.Value),
                     Name = nameAttr.Value
