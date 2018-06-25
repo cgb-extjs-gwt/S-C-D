@@ -9,7 +9,7 @@ namespace Gdc.Scd.Core.Meta.Entities
     {
         public string Name { get; private set; }
 
-        public string Namespace { get; set; }
+        public string Namespace { get; private set; }
 
         public string FullName => BuildFullName(this.Name, this.Namespace);
 
@@ -17,9 +17,10 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         string IMetaIdentifialble.Id => this.FullName;
 
-        public EntityMeta(string name)
+        public EntityMeta(string name, string nameSpace = null)
         {
             this.Name = name;
+            this.Namespace = nameSpace;
         }
 
         public static string BuildFullName(string name, string nameSpace = null)

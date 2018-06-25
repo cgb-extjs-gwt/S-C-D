@@ -10,6 +10,7 @@ namespace Gdc.Scd.Core
         public void Init(IServiceCollection services)
         {
             services.AddSingleton<IDomainMetaSevice, DomainMetaSevice>();
+            services.AddSingleton<IDomainEnitiesMetaService, DomainEnitiesMetaService>();
         }
     }
 }

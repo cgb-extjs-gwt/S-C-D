@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.Core.Meta.Interfaces;
 
 namespace Gdc.Scd.Core.Meta.Impl
 {
-    public class DomainEnitiesMetaService
+    public class DomainEnitiesMetaService : IDomainEnitiesMetaService
     {
         public DomainEnitiesMeta Get(DomainMeta domainMeta)
         {
@@ -36,10 +37,7 @@ namespace Gdc.Scd.Core.Meta.Impl
             {
                 foreach (var applicationId in costBlockMeta.ApplicationIds)
                 {
-                    var costBlockEntity = new EntityMeta(costBlockMeta.Id)
-                    {
-                        Namespace = applicationId
-                    };
+                    var costBlockEntity = new EntityMeta(costBlockMeta.Id, applicationId);
 
                     costBlockEntity.Fields.Add(new IdFieldMeta());
 
