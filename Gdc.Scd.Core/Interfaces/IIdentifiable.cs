@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace Gdc.Scd.Core.Interfaces
+﻿namespace Gdc.Scd.Core.Interfaces
 {
     public interface IIdentifiable
     {
-        Guid Id { get; set; }
+        long Id { get; set; }
     }
 }

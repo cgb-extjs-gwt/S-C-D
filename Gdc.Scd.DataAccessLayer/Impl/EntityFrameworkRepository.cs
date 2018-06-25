@@ -15,7 +15,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.dbContext = dbContext;
         }
 
-        public T Get(Guid id)
+        public T Get(long id)
         {
             return this.GetAll().FirstOrDefault(item => item.Id == id);
         }
@@ -30,7 +30,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.SetAddOrUpdateState(item);
         }
 
-        public void Delete(Guid id)
+        public void Delete(long id)
         {
             var item = new T();
 
@@ -43,10 +43,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var entry = this.dbContext.Entry(item);
 
-            if (item.Id == Guid.Empty)
+            if (item.Id == 0)
             {
                 entry.State = EntityState.Added;
-                item.Id = Guid.NewGuid();
             }
             else
             {
