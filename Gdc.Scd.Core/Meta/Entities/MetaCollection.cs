@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 using Gdc.Scd.Core.Meta.Interfaces;
 
 namespace Gdc.Scd.Core.Meta.Entities
@@ -19,7 +17,9 @@ namespace Gdc.Scd.Core.Meta.Entities
         {
             get
             {
-                return this.dictionary[id];
+                this.dictionary.TryGetValue(id, out var meta);
+
+                return meta;
             }
 
             set
@@ -30,6 +30,11 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public void Add(T item)
         {
+            if (item == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             this.dictionary.Add(item.Id, item);
         }
 

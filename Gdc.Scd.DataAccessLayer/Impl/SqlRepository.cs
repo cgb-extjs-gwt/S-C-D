@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
@@ -11,9 +11,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
     {
         private readonly IRepositorySet repositorySet;
 
-        public SqlRepository(IRepositorySet repositorySet)
+        private readonly DomainEnitiesMeta domainEnitiesMeta;
+
+        public SqlRepository(IRepositorySet repositorySet, DomainEnitiesMeta domainEnitiesMeta)
         {
             this.repositorySet = repositorySet;
+            this.domainEnitiesMeta = domainEnitiesMeta;
         }
 
         public async Task<IEnumerable<string>> GetDistinctValues(
@@ -27,19 +30,20 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return await this.repositorySet.ReadBySql(query, reader => reader[0].ToString());
         }
 
-        public async Task<IEnumerable<NamedId>> GetDistinctItems(
-            ColumnInfo idColumn,
-            ColumnInfo nameColumn,
-            string schemaName = null,
-            IDictionary<string, IEnumerable<object>> filter = null)
+        public async Task<IEnumerable<NamedId>> GetDistinctItems(string entityName, string schema, string referenceFieldName, IDictionary<string, IEnumerable<object>> filter = null)
         {
+            var meta = this.domainEnitiesMeta.GetEntityMeta(entityName, schema);
+            var referenceField = (ReferenceFieldMeta)meta.Fields[referenceFieldName];
+            var referenceMeta = this.domainEnitiesMeta[referenceField.RefEnitityFullName];
+
             var query =
-                Sql.SelectDistinct(idColumn, nameColumn)
-                   .From(idColumn.TableName, schemaName)
-                   .Join(schemaName, nameColumn.TableName, SqlOperators.Equals(idColumn, nameColumn));
+                Sql.SelectDistinct(referenceField.Name, referenceField.FaceValueField)
+                   .From(meta.Name, meta.Shema)
+                   .Join(referenceMeta.Shema, referenceMeta.Name, SqlOperators.Equals(referenceField.Name, referenceField.ValueField))
+                   .Where(filter, meta.Name);
 
             return await this.repositorySet.ReadBySql(
-                query, 
+                query,
                 reader => new NamedId
                 {
                     Id = reader.GetInt64(0),

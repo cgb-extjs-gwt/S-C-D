@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
 
@@ -47,7 +45,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                         {
                             RefEnitityFullName = inputLevelMeta.Name,
                             ValueField = IdFieldMeta.DefaultId,
-                            NameField = inputLevelMeta.Name
+                            FaceValueField = inputLevelMeta.Name
                         });
                     }
 
@@ -70,7 +68,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                             {
                                 RefEnitityFullName = costElementMeta.Dependency.Id,
                                 ValueField = dependencyIdField.Name,
-                                NameField = dependencyNameField.Name
+                                FaceValueField = dependencyNameField.Name
                             });
                         }
                     }

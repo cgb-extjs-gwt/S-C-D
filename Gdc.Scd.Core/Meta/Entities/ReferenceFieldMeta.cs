@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Gdc.Scd.Core.Meta.Entities
+﻿namespace Gdc.Scd.Core.Meta.Entities
 {
     public class ReferenceFieldMeta : FieldMeta
     {
@@ -10,7 +6,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public string ValueField { get; set; }
 
-        public string NameField { get; set; }
+        public string FaceValueField { get; set; }
 
         public ReferenceFieldMeta(string id) 
             : base(id)

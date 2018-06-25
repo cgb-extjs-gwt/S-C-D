@@ -37,8 +37,6 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private readonly string[] forbiddenIdSymbols = new[] { " ", "(", ")" };
 
-        private DomainMeta domainMeta;
-
         public DomainMetaSevice(IConfiguration configuration)
         {
             this.configuration = configuration;
@@ -46,15 +44,10 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         public DomainMeta Get()
         {
-            if (this.domainMeta == null)
-            {
-                var fileName = this.configuration[DomainMetaConfigKey];
-                var doc = XDocument.Load(fileName);
+            var fileName = this.configuration[DomainMetaConfigKey];
+            var doc = XDocument.Load(fileName);
 
-                this.domainMeta = this.BuilDomainMeta(doc.Root);
-            }
-
-            return this.domainMeta;
+            return this.BuilDomainMeta(doc.Root);
         }
 
         private DomainMeta BuilDomainMeta(XElement configNode)

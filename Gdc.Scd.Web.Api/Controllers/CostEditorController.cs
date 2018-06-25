@@ -39,35 +39,27 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<string>> GetCostElementFilterItems(CostEditorContext context)
+        public async Task<IEnumerable<NamedId>> GetCostElementFilterItems(CostEditorContext context)
         {
-            var meta = this.domainMetaSevice.Get();
-
-            return await this.costEditorService.GetCostElementFilterItems(meta, context);
+            return await this.costEditorService.GetCostElementFilterItems(context);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<string>> GetInputLevelFilterItems(CostEditorContext context)
+        public async Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context)
         {
-            var meta = this.domainMetaSevice.Get();
-
-            return await this.costEditorService.GetInputLevelFilterItems(meta, context);
+            return await this.costEditorService.GetInputLevelFilterItems(context);
         }
 
         [HttpGet]
         public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context)
         {
-            var meta = this.domainMetaSevice.Get();
-
-            return await this.costEditorService.GetEditItems(meta, context);
+            return await this.costEditorService.GetEditItems(context);
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdateValues([FromBody]IEnumerable<EditItem> editItems, [FromQuery]CostEditorContext context)
         {
-            var meta = this.domainMetaSevice.Get();
-
-            await this.costEditorService.UpdateValues(editItems, meta, context);
+            await this.costEditorService.UpdateValues(editItems, context);
 
             return this.Ok();
         }
