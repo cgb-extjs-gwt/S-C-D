@@ -22,15 +22,15 @@
 			  </Elements>
 		</Block>
 
-        <Block Name="ServiceSupportCost" Application="Hardware,Software" >
+    <Block Name="ServiceSupportCost" Application="Hardware,Software" >
 			<Elements>
 				<Element Domain="Local" Name="1stLevelSupportCostsCountry" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" /> 
 				<Element Domain="Local" Name="2ndLevelSupportCostsPLAnonEMEIA" Unit="Currency" HighestInputLevel="ClusteredPLAs" DefaultInputLevel="ClusteredPLAs" LowestInputLevel="ClusteredPLAs" DataEntry="GUI" />
-                <Element Domain="Central" Name="2ndLevelSupportCostsPLA" Unit="Currency" HighestInputLevel="ClusteredPLAs" DefaultInputLevel="ClusteredPLAs" LowestInputLevel="ClusteredPLAs" DataEntry="GUI" />
+        <Element Domain="Central" Name="2ndLevelSupportCostsPLA" Unit="Currency" HighestInputLevel="ClusteredPLAs" DefaultInputLevel="ClusteredPLAs" LowestInputLevel="ClusteredPLAs" DataEntry="GUI" />
 			</Elements>
 		</Block>
 
-        <Block Name="LogisticsCost" Application="Hardware" >
+    <Block Name="LogisticsCost" Application="Hardware" >
 			<Elements>
 				<Element Domain="Local" Name="StandardHandlingInCountry" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
 					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
@@ -48,9 +48,9 @@
 					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
 				</Element>
 				<Element Domain="Local" Name="ReturnDeliveryToFactory" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-                <Element Domain="Central" Name="TaxAndDuties" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="Batch" />
+        <Element Domain="Central" Name="TaxAndDuties" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="Batch" />
 			</Elements>
-		</Block>
+    </Block>
 
         <!--<Block Name="AvailabilityFee" Application="Hardware" >
 			<Elements>
