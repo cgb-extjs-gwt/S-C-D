@@ -138,11 +138,16 @@ export class CostEditorView extends React.Component<CostEditorProps> {
     }
 
     private onActiveTabChange = (tabPanel, newValue, oldValue) => {
-        if (this.props.costBlocks.list && this.props.costBlocks.list.length > 0) {
-            const { onCostBlockSelected } = this.props;
+        const costBlocks = this.props.costBlocks.list;
 
+        if (costBlocks && costBlocks.length > 0) {
+            const { onCostBlockSelected } = this.props;
+            
             const activeTabIndex = tabPanel.getActiveItemIndex();
-            const selectedCostBlockId = this.props.costBlocks.list[activeTabIndex].id;
+            const selectedCostBlockId = 
+                activeTabIndex < costBlocks.length
+                    ? costBlocks[activeTabIndex].id 
+                    : costBlocks[0].id;
 
             onCostBlockSelected && onCostBlockSelected(selectedCostBlockId);
         }
