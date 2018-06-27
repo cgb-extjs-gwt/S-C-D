@@ -2,7 +2,7 @@
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces
 {
-    public interface IGroupBySqlHelper<TResult>
+    public interface IGroupBySqlHelper<out TResult>
     {
         TResult GroupBy(params ColumnInfo[] columns);
     }

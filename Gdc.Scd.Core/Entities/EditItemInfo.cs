@@ -6,8 +6,8 @@
 
         public string EntityName { get; set; }
 
-        public string NameColumn { get; set; }
+        public string NameField { get; set; }
 
-        public string ValueColumn { get; set; }
+        public string ValueField { get; set; }
     }
 }

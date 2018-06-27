@@ -16,20 +16,13 @@ export interface Context {
     inputLevelFilterIds: string[]
 }
 
-export const getCostEditorDto = () => get(CONTROLLER_NAME, 'GetCostEditorData').then(data => <CostEdirotDto>{
-    countries: data.countries.map(country => <NamedId>{ id: country, name: country }),
-    meta: data.meta
-});
+export const getCostEditorDto = () => get<NamedId[]>(CONTROLLER_NAME, 'GetCostEditorData');
 
 export const getCostElementFilterItems = (context: Context) => 
-    get<string[]>(CONTROLLER_NAME, 'GetCostElementFilterItems', context).then(
-        data => data.map(item => <NamedId>{ id: item, name: item })
-    ); 
+    get<NamedId[]>(CONTROLLER_NAME, 'GetCostElementFilterItems', context); 
 
 export const getLevelInputFilterItems = (context: Context) => 
-    get<string[]>(CONTROLLER_NAME, 'GetInputLevelFilterItems', context).then(
-        data => data.map(item => <NamedId>{ id: item, name: item })
-    );  
+    get<NamedId[]>(CONTROLLER_NAME, 'GetInputLevelFilterItems', context);  
 
 export const getEditItems = (context: Context) => 
     get<EditItem[]>(CONTROLLER_NAME, 'GetEditItems', context); 

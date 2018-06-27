@@ -3,7 +3,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces
 {
-    public interface IWhereSqlHelper<TResult>
+    public interface IWhereSqlHelper<out TResult>
     {
         TResult Where(ISqlBuilder condition);
 

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
@@ -34,12 +35,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var meta = this.domainEnitiesMeta.GetEntityMeta(entityName, schema);
             var referenceField = (ReferenceFieldMeta)meta.Fields[referenceFieldName];
-            var referenceMeta = this.domainEnitiesMeta[referenceField.RefEnitityFullName];
 
             var query =
-                Sql.SelectDistinct(referenceField.Name, referenceField.FaceValueField)
-                   .From(meta.Name, meta.Shema)
-                   .Join(referenceMeta.Shema, referenceMeta.Name, SqlOperators.Equals(referenceField.Name, referenceField.ValueField))
+                Sql.SelectDistinct(
+                    new ColumnInfo(referenceField.ValueField, referenceField.ReferenceMeta.Name),
+                    new ColumnInfo(referenceField.FaceValueField, referenceField.ReferenceMeta.Name))
+                   .From(meta)
+                   .Join(meta, referenceField.Name)
                    .Where(filter, meta.Name);
 
             return await this.repositorySet.ReadBySql(

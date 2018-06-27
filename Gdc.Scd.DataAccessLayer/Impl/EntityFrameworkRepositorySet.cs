@@ -19,6 +19,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         private readonly IServiceProvider serviceProvider;
         private readonly IConfiguration configuration;
 
+        internal static ICollection<Type> RegisteredEntities { get; private set; } = new List<Type>();
+
         public EntityFrameworkRepositorySet(IServiceProvider serviceProvider, IConfiguration configuration)
         {
             this.serviceProvider = serviceProvider;
@@ -120,6 +122,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            foreach (var entityType in RegisteredEntities)
+            {
+                modelBuilder.Entity(entityType);
+            }
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

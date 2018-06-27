@@ -28,8 +28,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public async Task<IEnumerable<NamedId>> GetCostElementFilterItems(CostEditorContext context)
         {
             var filter = this.GetCountryFilter(context);
+            var costElement = this.meta.GetCostBlock(context.CostBlockId).GetCostElement(context.CostElementId);
 
-            return await this.sqlRepository.GetDistinctItems(context.CostBlockId, context.ApplicationId, context.CostElementId, filter);
+            return await this.sqlRepository.GetDistinctItems(context.CostBlockId, context.ApplicationId, costElement.Dependency.Id, filter);
         }
 
         public async Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context)
@@ -61,7 +62,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             var editItemInfo = this.GetEditItemInfo(context);
 
-            return await this.costEditorRepository.GetEditItemsByLevel(context.InputLevelId, editItemInfo, filter);
+            return await this.costEditorRepository.GetEditItems(editItemInfo, filter);
         }
 
         public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context)
@@ -70,7 +71,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 
             var lowerInputLevel = this.meta.InputLevels.Last();
 
-            return await this.costEditorRepository.UpdateValuesByLevel(editItems, editItemInfo, context.InputLevelId);
+            return await this.costEditorRepository.UpdateValues(editItems, editItemInfo);
         }
 
         private IDictionary<string, IEnumerable<object>> GetCountryFilter(CostEditorContext context)
@@ -79,7 +80,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (!string.IsNullOrWhiteSpace(context.CountryId))
             {
-                filter.Add(InputLevelConstants.CountryLevelId, new[] { context.CountryId });
+                filter.Add(MetaConstants.CountryLevelId, new[] { context.CountryId });
             }
 
             return filter;
@@ -91,8 +92,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 Schema = context.ApplicationId,
                 EntityName = context.CostBlockId,
-                NameColumn = context.InputLevelId,
-                ValueColumn = context.CostElementId
+                NameField = context.InputLevelId,
+                ValueField = context.CostElementId
             };
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
 
@@ -6,6 +7,8 @@ namespace Gdc.Scd.Core.Meta.Impl
 {
     public class DomainEnitiesMetaService : IDomainEnitiesMetaService
     {
+        private const string NameField = "Name";
+
         public DomainEnitiesMeta Get(DomainMeta domainMeta)
         {
             var domainEnitiesMeta = new DomainEnitiesMeta();
@@ -20,10 +23,10 @@ namespace Gdc.Scd.Core.Meta.Impl
         {
             foreach (var inputLevelMeta in domainMeta.InputLevels)
             {
-                var inputLevelEntity = new EntityMeta(inputLevelMeta.Id);
+                var inputLevelEntity = new EntityMeta(inputLevelMeta.Id, MetaConstants.InputLevelSchema);
 
                 inputLevelEntity.Fields.Add(new IdFieldMeta());
-                inputLevelEntity.Fields.Add(new SimpleFieldMeta(inputLevelMeta.Id, TypeCode.String));
+                inputLevelEntity.Fields.Add(new SimpleFieldMeta(NameField, TypeCode.String));
 
                 domainEnitiesMeta.InputLevels.Add(inputLevelEntity);
             }
@@ -41,11 +44,10 @@ namespace Gdc.Scd.Core.Meta.Impl
 
                     foreach (var inputLevelMeta in domainEnitiesMeta.InputLevels)
                     {
-                        costBlockEntity.Fields.Add(new ReferenceFieldMeta(inputLevelMeta.Name)
+                        costBlockEntity.Fields.Add(new ReferenceFieldMeta(inputLevelMeta.Name, inputLevelMeta)
                         {
-                            RefEnitityFullName = inputLevelMeta.Name,
                             ValueField = IdFieldMeta.DefaultId,
-                            FaceValueField = inputLevelMeta.Name
+                            FaceValueField = NameField
                         });
                     }
 
@@ -53,20 +55,22 @@ namespace Gdc.Scd.Core.Meta.Impl
                     {
                         costBlockEntity.Fields.Add(new SimpleFieldMeta(costElementMeta.Id, TypeCode.Double));
 
-                        if (costElementMeta.Dependency != null)
+                        if (costElementMeta.Dependency != null && costBlockEntity.Fields[costElementMeta.Dependency.Id] == null)
                         {
-                            var dependencyEntity = new EntityMeta(costElementMeta.Dependency.Id);
                             var dependencyIdField = new IdFieldMeta();
-                            var dependencyNameField = new SimpleFieldMeta(costElementMeta.Dependency.Id, TypeCode.String);
+                            var dependencyNameField = new SimpleFieldMeta(NameField, TypeCode.String);
+                            var dependencyEntity = new EntityMeta(costElementMeta.Dependency.Id, MetaConstants.DependencySchema);
 
-                            dependencyEntity.Fields.Add(dependencyIdField);
-                            dependencyEntity.Fields.Add(dependencyNameField);
-
-                            domainEnitiesMeta.Dependencies.Add(dependencyEntity);
-
-                            costBlockEntity.Fields.Add(new ReferenceFieldMeta(costElementMeta.Dependency.Id)
+                            if (domainEnitiesMeta.Dependencies[dependencyEntity.FullName] == null)
                             {
-                                RefEnitityFullName = costElementMeta.Dependency.Id,
+                                dependencyEntity.Fields.Add(dependencyIdField);
+                                dependencyEntity.Fields.Add(dependencyNameField);
+
+                                domainEnitiesMeta.Dependencies.Add(dependencyEntity);
+                            }
+
+                            costBlockEntity.Fields.Add(new ReferenceFieldMeta(costElementMeta.Dependency.Id, dependencyEntity)
+                            {
                                 ValueField = dependencyIdField.Name,
                                 FaceValueField = dependencyNameField.Name
                             });

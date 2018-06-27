@@ -2,15 +2,16 @@
 {
     public class ReferenceFieldMeta : FieldMeta
     {
-        public string RefEnitityFullName { get; set; }
+        public EntityMeta ReferenceMeta { get; }
 
         public string ValueField { get; set; }
 
         public string FaceValueField { get; set; }
 
-        public ReferenceFieldMeta(string id) 
-            : base(id)
+        public ReferenceFieldMeta(string name, EntityMeta referenceMeta) 
+            : base(name)
         {
+            this.ReferenceMeta = referenceMeta;
         }
     }
 }

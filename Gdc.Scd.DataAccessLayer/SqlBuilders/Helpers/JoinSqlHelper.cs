@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
+﻿using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
@@ -41,6 +42,18 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         public ISqlBuilder Join(string tableName, ConditionHelper condition, JoinType type = JoinType.Inner)
         {
             return this.Join(null, tableName, condition, type);
+        }
+
+        public ISqlBuilder Join(EntityMeta meta, string referenceFieldName)
+        {
+            var referenceField = (ReferenceFieldMeta)meta.Fields[referenceFieldName];
+
+            return this.Join(
+                    referenceField.ReferenceMeta.Shema,
+                    referenceField.ReferenceMeta.Name,
+                    SqlOperators.Equals(
+                        new ColumnInfo(referenceField.Name, meta.Name),
+                        new ColumnInfo(referenceField.ValueField, referenceField.Name)));
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
+﻿using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
@@ -22,6 +23,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     Name = tabeName
                 }
             });
+        }
+
+        public SelectFromSqlHelper From(EntityMeta meta)
+        {
+            return this.From(meta.Name, meta.Shema);
         }
 
         public SelectFromSqlHelper FromQuery(ISqlBuilder query)

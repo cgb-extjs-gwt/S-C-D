@@ -32,9 +32,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public void Delete(long id)
         {
-            var item = new T();
-
-            item.Id = id;
+            var item = new T
+            {
+                Id = id
+            };
 
             this.SetDeleteState(item);
         }

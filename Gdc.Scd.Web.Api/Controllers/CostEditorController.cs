@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
 using Gdc.Scd.Web.Api.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -16,25 +18,29 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         private readonly IDomainMetaSevice domainMetaSevice;
 
-        private readonly ICountryService countryService;
+        private readonly IDomainService<Country> countryService;
+
+        private readonly DomainMeta meta;
 
         public CostEditorController(
             ICostEditorService costEditorService, 
-            IDomainMetaSevice domainMetaSevice, 
-            ICountryService countryService)
+            IDomainMetaSevice domainMetaSevice,
+            IDomainService<Country> countryService,
+            DomainMeta meta)
         {
             this.costEditorService = costEditorService;
             this.domainMetaSevice = domainMetaSevice;
             this.countryService = countryService;
+            this.meta = meta;
         }
 
         [HttpGet]
-        public async Task<CostEditorDto> GetCostEditorData()
+        public CostEditorDto GetCostEditorData()
         {
             return new CostEditorDto
             {
-                Meta = this.domainMetaSevice.Get(),
-                Countries = await this.countryService.GetAll()
+                Meta = this.meta,
+                Countries = this.countryService.GetAll().ToArray()
             };
         }
 

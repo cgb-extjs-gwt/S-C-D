@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
@@ -37,6 +37,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         public SelectJoinSqlHelper Join(string tableName, ConditionHelper condition, JoinType type = JoinType.Inner)
         {
             return new SelectJoinSqlHelper(this.joinSqlHelper.Join(tableName, condition, type));
+        }
+
+        public SelectJoinSqlHelper Join(EntityMeta meta, string referenceFieldName)
+        {
+            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(meta, referenceFieldName));
         }
 
         public SelectWhereSqlHelper Where(ISqlBuilder condition)
