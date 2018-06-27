@@ -1,25 +1,25 @@
 <SCDConfiguration>
     <Blocks>
-        <Block Name="FieldService" Application="Hardware" >
-			<Elements>
-				<Element Domain="Local" Name="TravelTime" Unit="Hours" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-				<Element Domain="Local" Name="OnsiteHourlyRate" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" >
-					<Dependency Name="RoleCode (Code)" DependencyRelation="Table" Table="tblY_RoleCodes" HasRelationToInputParameter="True"  RelationToInputParameter="WarrantyGroups" RelationToInputParameterTable="tblY_RoleCodes-WGR" />
-				</Element>
-				<Element Domain="Local" Name="LabourFlatFee" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
-					<Dependency Name="ServiceLocation (Code)" DependencyRelation="Table" Table="tblY_ServiceLocation" />
-				</Element>
-				<Element Domain="Local" Name="TravelCost" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-				<Element Domain="Local" Name="PerformanceRatePerReactiontime" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
-					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				</Element>
-				<Element Domain="Local" Name="TimeAndMaterialShare" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-				<Element Domain="Local" Name="CostPerCallShare" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="Calculated" >
-					<Dependency Name="TimeAndMaterialShare" DependencyRelation="Calculation" />
-				</Element>
-                <Element Domain="Central" Name="RepairTime" Unit="Hours" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-				<Element Domain="Central" Name="RoleCode" Unit="textobject" HighestInputLevel="PLAs" DefaultInputLevel="PLAs" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-			</Elements>
+      <Block Name="FieldService" Application="Hardware" >
+			  <Elements>
+				  <Element Domain="Local" Name="TravelTime" Unit="Hours" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+				  <Element Domain="Local" Name="OnsiteHourlyRate" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" >
+					  <Dependency Name="RoleCode (Code)" DependencyRelation="Table" Table="tblY_RoleCodes" HasRelationToInputParameter="True"  RelationToInputParameter="WarrantyGroups" RelationToInputParameterTable="tblY_RoleCodes-WGR" />
+				  </Element>
+				  <Element Domain="Local" Name="LabourFlatFee" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
+					  <Dependency Name="ServiceLocation (Code)" DependencyRelation="Table" Table="tblY_ServiceLocation" />
+				  </Element>
+				  <Element Domain="Local" Name="TravelCost" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+				  <Element Domain="Local" Name="PerformanceRatePerReactiontime" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
+					  <Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
+				  </Element>
+				  <Element Domain="Local" Name="TimeAndMaterialShare" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+				  <Element Domain="Local" Name="CostPerCallShare" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="Calculated" >
+					  <!--<Dependency Name="TimeAndMaterialShare" DependencyRelation="Calculation" />-->
+				  </Element>
+          <Element Domain="Central" Name="RepairTime" Unit="Hours" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+				  <Element Domain="Central" Name="RoleCode" Unit="textobject" HighestInputLevel="PLAs" DefaultInputLevel="PLAs" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
+			  </Elements>
 		</Block>
 
         <Block Name="ServiceSupportCost" Application="Hardware,Software" >

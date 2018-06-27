@@ -50,6 +50,7 @@ namespace Gdc.Scd.Web
 
         private void InitModules(IServiceCollection services)
         {
+            this.InitModule<Scd.Core.Module>(services);
             this.InitModule<Scd.DataAccessLayer.Module>(services);
             this.InitModule<Scd.BusinessLogicLayer.Module>(services);
         }

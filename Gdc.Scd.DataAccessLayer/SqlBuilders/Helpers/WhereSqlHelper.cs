@@ -1,25 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
+﻿using System.Collections.Generic;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
-using System.Data.Common;
-using Gdc.Scd.DataAccessLayer.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class WhereSqlHelper : SqlHelper
+    public class WhereSqlHelper : SqlHelper, IWhereSqlHelper<ISqlBuilder>
     {
         public WhereSqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
         {
         }
-
-        //public WhereSqlHelper(ISqlBuilder sqlBuilder, IEnumerable<CommandParameterInfo> parameters)
-        //    : base(sqlBuilder, parameters)
-        //{
-        //}
 
         public ISqlBuilder Where(ISqlBuilder condition)
         {
@@ -32,10 +23,6 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public ISqlBuilder Where(ConditionHelper condition)
         {
-            //return new SqlHelper(
-            //    this.GetWhereSqlBuilder(condition.ToSqlBuilder()),
-            //    condition.GetParameters()); 
-
             return this.Where(condition.ToSqlBuilder());
         }
 
@@ -76,7 +63,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     {
                         ParamInfo = new CommandParameterInfo
                         {
-                            Name = $"{value}_{index}",
+                            Name = $"{filterItem.Key}_{index++}",
                             Value = value
                         }
                     });
@@ -95,14 +82,5 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
             return inBuilders;
         }
-
-        //private WhereSqlBuilder GetWhereSqlBuilder(ISqlBuilder condition)
-        //{
-        //    return new WhereSqlBuilder
-        //    {
-        //        Condition = condition,
-        //        SqlBuilder = this.ToSqlBuilder()
-        //    };
-        //}
     }
 }

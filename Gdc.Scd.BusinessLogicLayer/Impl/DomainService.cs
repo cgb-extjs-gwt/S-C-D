@@ -17,7 +17,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.repository = this.repositorySet.GetRepository<T>();
         }
 
-        public T Get(Guid id)
+        public T Get(long id)
         {
             return this.repository.Get(id);
         }
@@ -47,7 +47,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public void Delete(Guid id)
+        public void Delete(long id)
         {
             using (var transaction = this.repositorySet.BeginTransaction())
             {
@@ -72,7 +72,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.repository.Save(item);
         }
 
-        protected void InnerDelete(Guid id)
+        protected void InnerDelete(long id)
         {
             this.repository.Delete(id);
         }

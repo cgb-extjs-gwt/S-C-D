@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.BusinessLogicLayer.Meta.Interfaces;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.Core.Meta.Interfaces;
 using Gdc.Scd.Web.Api.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,58 +18,54 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         private readonly IDomainMetaSevice domainMetaSevice;
 
-        private readonly ICountryService countryService;
+        private readonly IDomainService<Country> countryService;
+
+        private readonly DomainMeta meta;
 
         public CostEditorController(
             ICostEditorService costEditorService, 
-            IDomainMetaSevice domainMetaSevice, 
-            ICountryService countryService)
+            IDomainMetaSevice domainMetaSevice,
+            IDomainService<Country> countryService,
+            DomainMeta meta)
         {
             this.costEditorService = costEditorService;
             this.domainMetaSevice = domainMetaSevice;
             this.countryService = countryService;
+            this.meta = meta;
         }
 
         [HttpGet]
-        public async Task<CostEditorDto> GetCostEditorData()
+        public CostEditorDto GetCostEditorData()
         {
             return new CostEditorDto
             {
-                Meta = this.domainMetaSevice.Get(),
-                Countries = await this.countryService.GetAll()
+                Meta = this.meta,
+                Countries = this.countryService.GetAll().ToArray()
             };
         }
 
         [HttpGet]
-        public async Task<IEnumerable<string>> GetCostElementFilterItems(CostEditorContext context)
+        public async Task<IEnumerable<NamedId>> GetCostElementFilterItems(CostEditorContext context)
         {
-            var meta = this.domainMetaSevice.Get();
-
-            return await this.costEditorService.GetCostElementFilterItems(meta, context);
+            return await this.costEditorService.GetCostElementFilterItems(context);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<string>> GetInputLevelFilterItems(CostEditorContext context)
+        public async Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context)
         {
-            var meta = this.domainMetaSevice.Get();
-
-            return await this.costEditorService.GetInputLevelFilterItems(meta, context);
+            return await this.costEditorService.GetInputLevelFilterItems(context);
         }
 
         [HttpGet]
         public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context)
         {
-            var meta = this.domainMetaSevice.Get();
-
-            return await this.costEditorService.GetEditItems(meta, context);
+            return await this.costEditorService.GetEditItems(context);
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdateValues([FromBody]IEnumerable<EditItem> editItems, [FromQuery]CostEditorContext context)
         {
-            var meta = this.domainMetaSevice.Get();
-
-            await this.costEditorService.UpdateValues(editItems, meta, context);
+            await this.costEditorService.UpdateValues(editItems, context);
 
             return this.Ok();
         }

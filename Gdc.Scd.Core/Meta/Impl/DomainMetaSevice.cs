@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using Gdc.Scd.BusinessLogicLayer.Meta.Constants;
-using Gdc.Scd.BusinessLogicLayer.Meta.Entities;
-using Gdc.Scd.BusinessLogicLayer.Meta.Interfaces;
+using Gdc.Scd.Core.Meta.Constants;
+using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.Core.Meta.Interfaces;
 using Microsoft.Extensions.Configuration;
 
-namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
+namespace Gdc.Scd.Core.Meta.Impl
 {
     public class DomainMetaSevice : IDomainMetaSevice
     {
@@ -37,8 +37,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
 
         private readonly string[] forbiddenIdSymbols = new[] { " ", "(", ")" };
 
-        private DomainMeta domainMeta;
-
         public DomainMetaSevice(IConfiguration configuration)
         {
             this.configuration = configuration;
@@ -46,15 +44,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
 
         public DomainMeta Get()
         {
-            if (this.domainMeta == null)
-            {
-                var fileName = this.configuration[DomainMetaConfigKey];
-                var doc = XDocument.Load(fileName);
+            var fileName = this.configuration[DomainMetaConfigKey];
+            var doc = XDocument.Load(fileName);
 
-                this.domainMeta = this.BuilDomainMeta(doc.Root);
-            }
-
-            return this.domainMeta;
+            return this.BuilDomainMeta(doc.Root);
         }
 
         private DomainMeta BuilDomainMeta(XElement configNode)
@@ -142,9 +135,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
             return costElementMeta;
         }
 
-        private Dependency BuildCostElementDependency(XElement costElementNode)
+        private DependencyMeta BuildCostElementDependency(XElement costElementNode)
         {
-            Dependency dependency = null;
+            DependencyMeta dependency = null;
 
             var dependencyNode = costElementNode.Element(CostElementDependencyNodeName);
             if (dependencyNode != null)
@@ -155,7 +148,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
                     throw new Exception("Dependency name attribute not found");
                 }
 
-                dependency = new Dependency
+                dependency = new DependencyMeta
                 {
                     Id = this.BuildId(nameAttr.Value),
                     Name = nameAttr.Value
@@ -182,9 +175,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
         {
             return new[]
             {
-                new InputLevelMeta{ Id = InputLevelConstants.CountryLevelId, Name = "Country" },
+                new InputLevelMeta{ Id = MetaConstants.CountryLevelId, Name = "Country" },
                 new InputLevelMeta{ Id = "PLA", Name = "PLA" },
-                new InputLevelMeta{ Id = "SOG", Name = "SOG" },
                 new InputLevelMeta{ Id = "WG", Name = "WG" },
             };
         }
@@ -194,7 +186,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Meta.Impl
             return new[]
             {
                 new ApplicationMeta { Id = "Hardware", Name = "Hardware" },
-                new ApplicationMeta { Id = "SoftwareSolution", Name = "Software & Solution" }
+                new ApplicationMeta { Id = "Software", Name = "Software & Solution" }
             };
         }
 

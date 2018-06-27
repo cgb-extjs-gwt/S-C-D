@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Gdc.Scd.DataAccessLayer.Entities;
+﻿using System.Collections.Generic;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class UpdateSqlHelper : SqlHelper
+    public class UpdateSqlHelper : SqlHelper, IWhereSqlHelper<SqlHelper>
     {
         private readonly WhereSqlHelper whereHelper;
 

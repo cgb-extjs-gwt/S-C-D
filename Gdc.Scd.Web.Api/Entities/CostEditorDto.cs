@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Gdc.Scd.BusinessLogicLayer.Meta.Entities;
+﻿using System.Collections.Generic;
+using Gdc.Scd.BusinessLogicLayer.Entities;
+using Gdc.Scd.Core.Meta.Entities;
 
 namespace Gdc.Scd.Web.Api.Entities
 {
@@ -10,6 +8,6 @@ namespace Gdc.Scd.Web.Api.Entities
     {
         public DomainMeta Meta { get; set; }
 
-        public IEnumerable<string> Countries { get; set; }
+        public IEnumerable<Country> Countries { get; set; }
     }
 }

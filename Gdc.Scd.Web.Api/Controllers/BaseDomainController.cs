@@ -42,7 +42,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             };
         }
 
-        public virtual T Get(Guid id)
+        public virtual T Get(long id)
         {
             return this.domainService.Get(id);
         }
@@ -52,7 +52,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             this.domainService.Save(item);
         }
 
-        public virtual void Delete(Guid id)
+        public virtual void Delete(long id)
         {
             this.domainService.Delete(id);
         }

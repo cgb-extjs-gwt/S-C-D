@@ -1,8 +1,8 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Impl;
+﻿using Gdc.Scd.BusinessLogicLayer.Entities;
+using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.BusinessLogicLayer.Meta.Impl;
-using Gdc.Scd.BusinessLogicLayer.Meta.Interfaces;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gdc.Scd.BusinessLogicLayer
@@ -12,9 +12,8 @@ namespace Gdc.Scd.BusinessLogicLayer
         public void Init(IServiceCollection services)
         {
             services.AddScoped(typeof(IDomainService<>), typeof(DomainService<>));
-            services.AddSingleton<IDomainMetaSevice, DomainMetaSevice>();
             services.AddScoped<ICostEditorService, CostEditorService>();
-            services.AddScoped<ICountryService, CountryService>();
+            services.RegisterEntity<Country>();
         }
     }
 }
