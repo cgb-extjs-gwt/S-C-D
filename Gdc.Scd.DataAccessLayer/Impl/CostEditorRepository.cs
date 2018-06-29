@@ -92,7 +92,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var query = Sql.Queries(editItems.Select(queryFn));
 
 
-            return await this.repositorySet.ExecuteSql(query);
+            return await this.repositorySet.ExecuteSqlAsync(query);
         }
 
         private SqlHelper BuildUpdateValueQuery(EditItem editItem, EditItemInfo editItemInfo, int index, object value)

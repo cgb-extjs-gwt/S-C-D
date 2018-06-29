@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Gdc.Scd.Core.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -25,7 +26,7 @@ namespace Gdc.Scd.Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -46,6 +47,11 @@ namespace Gdc.Scd.Web
                 routes.MapRoute(name: "DefaultApi", template: "api/{controller}/{action}");
                 routes.MapSpaFallbackRoute("spa-fallback", new { controller = "Home", action = "Index" }); // 2
             });
+
+            foreach (var handler in serviceProvider.GetServices<IConfigureApplicationHandler>())
+            {
+                handler.Handle();
+            }
         }
 
         private void InitModules(IServiceCollection services)

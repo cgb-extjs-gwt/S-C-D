@@ -28,8 +28,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             this.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             this.ChangeTracker.AutoDetectChangesEnabled = false;
-
-            this.Database.EnsureCreated();
         }
 
         public ITransaction BeginTransaction()
@@ -95,28 +93,28 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return await this.ReadBySql(query.ToSql(), mapFunc, query.GetParameters());
         }
 
-        public async Task<int> ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null)
+        public async Task<int> ExecuteSqlAsync(string sql, IEnumerable<CommandParameterInfo> parameters = null)
         {
-            IEnumerable<DbParameter> dbParams;
-
-            if (parameters == null)
-            {
-                dbParams = Enumerable.Empty<DbParameter>();
-            }
-            else
-            {
-                var connection = this.Database.GetDbConnection();
-                var command = connection.CreateCommand();
-
-                dbParams = this.GetDbParameters(parameters, command);
-            }
+            var dbParams = this.GetDbParameters(parameters);
 
             return await this.Database.ExecuteSqlCommandAsync(sql, dbParams); 
         }
 
-        public async Task<int> ExecuteSql(SqlHelper query)
+        public int ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null)
         {
-            return await this.ExecuteSql(query.ToSql(), query.GetParameters());
+            var dbParams = this.GetDbParameters(parameters);
+
+            return this.Database.ExecuteSqlCommand(sql, dbParams);
+        }
+
+        public async Task<int> ExecuteSqlAsync(SqlHelper query)
+        {
+            return await this.ExecuteSqlAsync(query.ToSql(), query.GetParameters());
+        }
+
+        public IEnumerable<Type> GetRegisteredEntities()
+        {
+            return RegisteredEntities.ToArray();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -152,6 +150,25 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                 yield return commandParameter;
             }
+        }
+
+        private IEnumerable<DbParameter> GetDbParameters(IEnumerable<CommandParameterInfo> parameters)
+        {
+            IEnumerable<DbParameter> dbParams;
+
+            if (parameters == null)
+            {
+                dbParams = Enumerable.Empty<DbParameter>();
+            }
+            else
+            {
+                var connection = this.Database.GetDbConnection();
+                var command = connection.CreateCommand();
+
+                dbParams = this.GetDbParameters(parameters, command);
+            }
+
+            return dbParams;
         }
     }
 }

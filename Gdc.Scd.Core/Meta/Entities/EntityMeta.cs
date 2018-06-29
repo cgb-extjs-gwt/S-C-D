@@ -6,9 +6,9 @@ namespace Gdc.Scd.Core.Meta.Entities
     {
         public string Name { get; private set; }
 
-        public string Shema { get; private set; }
+        public string Schema { get; private set; }
 
-        public string FullName => BuildFullName(this.Name, this.Shema);
+        public string FullName => BuildFullName(this.Name, this.Schema);
 
         public MetaCollection<FieldMeta> Fields { get; private set; } = new MetaCollection<FieldMeta>();
 
@@ -17,7 +17,7 @@ namespace Gdc.Scd.Core.Meta.Entities
         public EntityMeta(string name, string shema = null)
         {
             this.Name = name;
-            this.Shema = shema;
+            this.Schema = shema;
         }
 
         public static string BuildFullName(string name, string schema = null)

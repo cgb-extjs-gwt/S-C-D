@@ -27,7 +27,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public SelectFromSqlHelper From(EntityMeta meta)
         {
-            return this.From(meta.Name, meta.Shema);
+            return this.From(meta.Name, meta.Schema);
         }
 
         public SelectFromSqlHelper FromQuery(ISqlBuilder query)

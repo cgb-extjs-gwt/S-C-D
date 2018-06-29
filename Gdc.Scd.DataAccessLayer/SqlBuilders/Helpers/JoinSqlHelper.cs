@@ -49,7 +49,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             var referenceField = (ReferenceFieldMeta)meta.Fields[referenceFieldName];
 
             return this.Join(
-                    referenceField.ReferenceMeta.Shema,
+                    referenceField.ReferenceMeta.Schema,
                     referenceField.ReferenceMeta.Name,
                     SqlOperators.Equals(
                         new ColumnInfo(referenceField.Name, meta.Name),
