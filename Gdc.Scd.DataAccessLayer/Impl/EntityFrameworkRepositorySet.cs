@@ -93,18 +93,23 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return await this.ReadBySql(query.ToSql(), mapFunc, query.GetParameters());
         }
 
-        public async Task<int> ExecuteSqlAsync(string sql, IEnumerable<CommandParameterInfo> parameters = null)
-        {
-            var dbParams = this.GetDbParameters(parameters);
-
-            return await this.Database.ExecuteSqlCommandAsync(sql, dbParams); 
-        }
-
         public int ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null)
         {
             var dbParams = this.GetDbParameters(parameters);
 
             return this.Database.ExecuteSqlCommand(sql, dbParams);
+        }
+
+        public int ExecuteSql(SqlHelper query)
+        {
+            return this.ExecuteSql(query.ToSql(), query.GetParameters());
+        }
+
+        public async Task<int> ExecuteSqlAsync(string sql, IEnumerable<CommandParameterInfo> parameters = null)
+        {
+            var dbParams = this.GetDbParameters(parameters);
+
+            return await this.Database.ExecuteSqlCommandAsync(sql, dbParams); 
         }
 
         public async Task<int> ExecuteSqlAsync(SqlHelper query)
@@ -170,5 +175,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             return dbParams;
         }
+
+        
     }
 }

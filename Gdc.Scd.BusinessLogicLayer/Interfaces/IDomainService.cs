@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Gdc.Scd.Core.Interfaces;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
@@ -10,6 +11,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         IQueryable<T> GetAll();
 
         void Save(T item);
+
+        void Save(IEnumerable<T> items);
 
         void Delete(long id);
     }

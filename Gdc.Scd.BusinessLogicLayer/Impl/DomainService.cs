@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Interfaces;
@@ -35,6 +36,29 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
 
                     this.InnerSave(item);
+                    this.repositorySet.Sync();
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+
+                    throw ex;
+                }
+            }
+        }
+
+        public void Save(IEnumerable<T> items)
+        {
+            using (var transaction = this.repositorySet.BeginTransaction())
+            {
+                try
+                {
+                    foreach (var item in items)
+                    {
+                        this.InnerSave(item);
+                    }
+
                     this.repositorySet.Sync();
                     transaction.Commit();
                 }

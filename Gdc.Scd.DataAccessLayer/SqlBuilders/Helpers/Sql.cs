@@ -6,6 +6,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 using Gdc.Scd.DataAccessLayer.Entities;
+using Gdc.Scd.Core.Meta.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
@@ -93,6 +94,26 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         public static UpdateSqlHelper Update(string table, params BaseUpdateColumnInfo[] columns)
         {
             return Update(null, table, columns);
+        }
+
+        public static InsertSqlHelper Insert(string schema, string table, params string[] columns)
+        {
+            return new InsertSqlHelper(new InsertSqlBuilder
+            {
+                Schema = schema,
+                Table = table,
+                Columns = columns
+            });
+        }
+
+        public static InsertSqlHelper Insert(string table, params string[] columns)
+        {
+            return Insert(null, table, columns);
+        }
+
+        public static InsertSqlHelper Insert(EntityMeta entityMeta, params string[] fields)
+        {
+            return Insert(entityMeta.Schema, entityMeta.Name, fields);
         }
 
         private static SelectSqlHelper Select(bool isDistinct, params BaseColumnInfo[] columns)

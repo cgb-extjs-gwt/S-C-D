@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gdc.Scd.Web.Client", "Gdc.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gdc.Scd.Web.Api", "Gdc.Scd.Web.Api\Gdc.Scd.Web.Api.csproj", "{728A99EA-8D8F-454C-B892-091D1A2DEFB9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.DataAccessLayer.TestData", "Gdc.Scd.DataAccessLayer.TestData\Gdc.Scd.DataAccessLayer.TestData.csproj", "{31C5D826-376B-42F6-A9E6-BF415D2EB277}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{728A99EA-8D8F-454C-B892-091D1A2DEFB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{728A99EA-8D8F-454C-B892-091D1A2DEFB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{728A99EA-8D8F-454C-B892-091D1A2DEFB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31C5D826-376B-42F6-A9E6-BF415D2EB277}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31C5D826-376B-42F6-A9E6-BF415D2EB277}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31C5D826-376B-42F6-A9E6-BF415D2EB277}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31C5D826-376B-42F6-A9E6-BF415D2EB277}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

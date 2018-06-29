@@ -22,6 +22,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         int ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null);
 
+        int ExecuteSql(SqlHelper query);
+
         Task<int> ExecuteSqlAsync(string sql, IEnumerable<CommandParameterInfo> parameters = null);
 
         Task<int> ExecuteSqlAsync(SqlHelper query);

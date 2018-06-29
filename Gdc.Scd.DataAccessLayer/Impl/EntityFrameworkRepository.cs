@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -28,6 +29,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public void Save(T item)
         {
             this.SetAddOrUpdateState(item);
+        }
+
+        public void Save(IEnumerable<T> items)
+        {
+            foreach (var item in items)
+            {
+                this.Save(item);
+            }
         }
 
         public void Delete(long id)

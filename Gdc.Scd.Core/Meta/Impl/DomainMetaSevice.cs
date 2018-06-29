@@ -176,8 +176,8 @@ namespace Gdc.Scd.Core.Meta.Impl
             return new[]
             {
                 new InputLevelMeta{ Id = MetaConstants.CountryLevelId, Name = "Country" },
-                new InputLevelMeta{ Id = "PLA", Name = "PLA" },
-                new InputLevelMeta{ Id = "WG", Name = "WG" },
+                new InputLevelMeta{ Id = MetaConstants.PlaLevelId, Name = "PLA" },
+                new InputLevelMeta{ Id = MetaConstants.WgLevelId, Name = "WG" },
             };
         }
 
