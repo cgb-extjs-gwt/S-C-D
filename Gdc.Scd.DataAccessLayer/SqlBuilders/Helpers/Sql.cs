@@ -111,7 +111,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return Insert(null, table, columns);
         }
 
-        public static InsertSqlHelper Insert(EntityMeta entityMeta, params string[] fields)
+        public static InsertSqlHelper Insert(BaseEntityMeta entityMeta, params string[] fields)
         {
             return Insert(entityMeta.Schema, entityMeta.Name, fields);
         }

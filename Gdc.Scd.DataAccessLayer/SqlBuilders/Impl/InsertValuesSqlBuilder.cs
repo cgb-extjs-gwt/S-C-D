@@ -20,7 +20,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
             {
                 var row = new string[columnLenght];
 
-                for (var columnIndex = 0; columnIndex < columnLenght; rowIndex++)
+                for (var columnIndex = 0; columnIndex < columnLenght; columnIndex++)
                 {
                     row[columnIndex] = this.Queries[rowIndex, columnIndex].Build(context);
                 }
@@ -37,7 +37,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
             }
 
 
-            return $"{this.SqlBuilder}{Environment.NewLine}VALUES {string.Join($",{Environment.NewLine}", rows)}";
+            return $"{this.SqlBuilder.Build(context)}{Environment.NewLine}VALUES {string.Join($",{Environment.NewLine}", rows)}";
         }
 
         public override IEnumerable<ISqlBuilder> GetChildrenBuilders()

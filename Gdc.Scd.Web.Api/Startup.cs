@@ -11,9 +11,12 @@ namespace Gdc.Scd.Web
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly IHostingEnvironment env;
+
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
             Configuration = configuration;
+            this.env = env;
         }
 
         public IConfiguration Configuration { get; }
@@ -59,6 +62,12 @@ namespace Gdc.Scd.Web
             this.InitModule<Scd.Core.Module>(services);
             this.InitModule<Scd.DataAccessLayer.Module>(services);
             this.InitModule<Scd.BusinessLogicLayer.Module>(services);
+#if DEBUG
+            if (this.env.IsDevelopment())
+            {
+                this.InitModule<Gdc.Scd.DataAccessLayer.TestData.Module>(services);
+            }
+#endif
         }
 
         private void InitModule<T>(IServiceCollection services) where T : IModule, new()

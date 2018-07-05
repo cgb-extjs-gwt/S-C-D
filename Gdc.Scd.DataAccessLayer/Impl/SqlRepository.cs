@@ -34,7 +34,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public async Task<IEnumerable<NamedId>> GetDistinctItems(string entityName, string schema, string referenceFieldName, IDictionary<string, IEnumerable<object>> filter = null)
         {
             var meta = this.domainEnitiesMeta.GetEntityMeta(entityName, schema);
-            var referenceField = (ReferenceFieldMeta)meta.Fields[referenceFieldName];
+            var referenceField = (ReferenceFieldMeta)meta.GetField(referenceFieldName);
 
             var query =
                 Sql.SelectDistinct(

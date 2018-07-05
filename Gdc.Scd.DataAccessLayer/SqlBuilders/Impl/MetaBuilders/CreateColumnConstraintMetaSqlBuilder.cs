@@ -9,7 +9,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
 {
     public class CreateColumnConstraintMetaSqlBuilder : ISqlBuilder
     {
-        public EntityMeta Meta { get; set; }
+        public BaseEntityMeta Meta { get; set; }
 
         public string Field { get; set; }
 
@@ -17,7 +17,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
         {
             string result = null;
 
-            switch (this.Meta.Fields[this.Field])
+            switch (this.Meta.GetField(this.Field))
             {
                 case IdFieldMeta idField:
                     result = this.BuildPimaryKeyConstraint(idField);
@@ -61,7 +61,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
 
             return
                 $@"
-                    {this.BuildAlterTable()} WITH CHECK ADD  CONSTRAINT {constraintName} FOREIGN KEY([{field.ValueField}]) 
+                    {this.BuildAlterTable()} WITH CHECK ADD  CONSTRAINT {constraintName} FOREIGN KEY([{field.Name}]) 
                     REFERENCES [{field.ReferenceMeta.Schema}].[{field.ReferenceMeta.Name}] ([{field.ValueField}]);
                     {this.BuildAlterTable()} CHECK CONSTRAINT {constraintName};
                 ";

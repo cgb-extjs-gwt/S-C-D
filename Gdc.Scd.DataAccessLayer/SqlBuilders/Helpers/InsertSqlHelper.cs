@@ -48,7 +48,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 }
             }
 
-            return this.Values(values);
+            return this.Values(parameters);
         }
 
         public SqlHelper Values(params object[] values)
@@ -60,13 +60,10 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public SqlHelper Query(ISqlBuilder query)
         {
-            return new SqlHelper(new SeveralQuerySqlBuilder
+            return new SqlHelper(new InsertQuerySqlBuilder
             {
-                Queries = new []
-                {
-                    this.ToSqlBuilder(),
-                    query
-                }
+                Query = query,
+                SqlBuilder = this.ToSqlBuilder()
             });
         }
 

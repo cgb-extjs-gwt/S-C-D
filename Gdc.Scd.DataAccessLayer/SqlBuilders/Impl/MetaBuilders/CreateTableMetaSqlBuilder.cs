@@ -11,7 +11,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
     {
         private readonly IServiceProvider serviceProvider;
 
-        public EntityMeta Meta { get; set; }
+        public BaseEntityMeta Meta { get; set; }
 
         public CreateTableMetaSqlBuilder(IServiceProvider serviceProvider)
         {
@@ -37,7 +37,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
         {
             var columns = new List<string>();
 
-            foreach (var field in this.Meta.Fields)
+            foreach (var field in this.Meta.AllFields)
             {
                 var columnBuilderType = typeof(BaseColumnMetaSqlBuilder<>).MakeGenericType(field.GetType());
                 var columnBuilder = (IColumnMetaSqlBuilder)this.serviceProvider.GetService(columnBuilderType);

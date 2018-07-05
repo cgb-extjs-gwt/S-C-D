@@ -38,7 +38,7 @@ namespace Gdc.Scd.Core.Meta.Impl
 
                     foreach (var inputLevelMeta in domainEnitiesMeta.InputLevels)
                     {
-                        costBlockEntity.AddInputLevelField(new ReferenceFieldMeta(inputLevelMeta.Name, inputLevelMeta)
+                        costBlockEntity.InputLevelFields.Add(new ReferenceFieldMeta(inputLevelMeta.Name, inputLevelMeta)
                         {
                             ValueField = IdFieldMeta.DefaultId,
                             FaceValueField = MetaConstants.NameFieldKey
@@ -47,9 +47,9 @@ namespace Gdc.Scd.Core.Meta.Impl
 
                     foreach (var costElementMeta in costBlockMeta.CostElements)
                     {
-                        costBlockEntity.AddCostElementField(new SimpleFieldMeta(costElementMeta.Id, TypeCode.Double));
+                        costBlockEntity.CostElementsFields.Add(new SimpleFieldMeta(costElementMeta.Id, TypeCode.Double));
 
-                        if (costElementMeta.Dependency != null && costBlockEntity.Fields[costElementMeta.Dependency.Id] == null)
+                        if (costElementMeta.Dependency != null && costBlockEntity.DependencyFields[costElementMeta.Dependency.Id] == null)
                         {
                             var dependencyNameField = new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String);
                             var dependencyEntity = new NamedEntityMeta(costElementMeta.Dependency.Id, dependencyNameField, MetaConstants.DependencySchema);
@@ -59,7 +59,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                                 domainEnitiesMeta.Dependencies.Add(dependencyEntity);
                             }
 
-                            costBlockEntity.AddDependencyField(new ReferenceFieldMeta(costElementMeta.Dependency.Id, dependencyEntity)
+                            costBlockEntity.DependencyFields.Add(new ReferenceFieldMeta(costElementMeta.Dependency.Id, dependencyEntity)
                             {
                                 ValueField = dependencyEntity.IdField.Name,
                                 FaceValueField = dependencyNameField.Name

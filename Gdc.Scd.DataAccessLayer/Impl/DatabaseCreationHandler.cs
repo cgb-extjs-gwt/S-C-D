@@ -4,7 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -36,6 +38,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 foreach (var command in commands)
                 {
                     this.repositorySet.ExecuteSql(command);
+                }
+
+                foreach (var configDatabaseHandler in this.serviceProvider.GetServices<IConfigureDatabaseHandler>())
+                {
+                    configDatabaseHandler.Handle();
                 }
             }
         }
@@ -102,7 +109,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             return
                 this.GetNotRegisteredMetas(registeredEntityInfos)
-                    .SelectMany(meta => meta.Fields.Select(field => new { Meta = meta, Field = field }))
+                    .SelectMany(meta => meta.AllFields.Select(field => new { Meta = meta, Field = field }))
                     .OrderByDescending(fieldInfo => fieldInfo.Field is IdFieldMeta)
                     .Select(fieldInfo => new CreateColumnConstraintMetaSqlBuilder
                     {
@@ -113,7 +120,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     .Where(sql => !string.IsNullOrEmpty(sql));
         }
 
-        private IEnumerable<EntityMeta> GetNotRegisteredMetas(IEnumerable<(string Schema, string Table)> registeredEntityInfos)
+        private IEnumerable<BaseEntityMeta> GetNotRegisteredMetas(IEnumerable<(string Schema, string Table)> registeredEntityInfos)
         {
             return this.meta.AllMetas.Where(
                 entityMeta => registeredEntityInfos.All(

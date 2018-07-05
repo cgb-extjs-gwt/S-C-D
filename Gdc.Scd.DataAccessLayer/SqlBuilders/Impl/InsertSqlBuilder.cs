@@ -25,7 +25,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
                 this.Columns.Select(column => new ColumnSqlBuilder { Name = column })
                             .Select(builder => builder.Build(context));
 
-            return $"INSERT INTO {table} ({string.Join(",", columns)})";
+            return $"INSERT INTO {table} ({string.Join(", ", columns)})";
         }
 
         public IEnumerable<ISqlBuilder> GetChildrenBuilders()

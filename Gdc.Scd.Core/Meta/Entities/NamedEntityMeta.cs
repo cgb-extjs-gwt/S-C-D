@@ -15,7 +15,7 @@ namespace Gdc.Scd.Core.Meta.Entities
                 yield return this.IdField;
                 yield return this.NameField;
 
-                foreach (var field in this.Fields)
+                foreach (var field in base.AllFields)
                 {
                     yield return field;
                 }

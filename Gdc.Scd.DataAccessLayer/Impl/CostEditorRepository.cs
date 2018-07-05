@@ -27,7 +27,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public async Task<IEnumerable<EditItem>> GetEditItems(EditItemInfo editItemInfo, IDictionary<string, IEnumerable<object>> filter = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetEntityMeta(editItemInfo.EntityName, editItemInfo.Schema);
-            var nameField = costBlockMeta.Fields[editItemInfo.NameField];
+            var nameField = costBlockMeta.GetField(editItemInfo.NameField);
 
             var selectColumns = new List<BaseColumnInfo>
             {
@@ -75,7 +75,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetEntityMeta(editItemInfo.EntityName, editItemInfo.Schema);
-            var nameField = costBlockMeta.Fields[editItemInfo.NameField];
+            var nameField = costBlockMeta.GetField(editItemInfo.NameField);
 
             Func<EditItem, int, SqlHelper> queryFn;
 

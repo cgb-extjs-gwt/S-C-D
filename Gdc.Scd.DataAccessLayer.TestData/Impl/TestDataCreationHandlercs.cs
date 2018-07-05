@@ -1,63 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Gdc.Scd.BusinessLogicLayer.Entities;
-using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
-    public class TestDataCreationHandlercs : IConfigureApplicationHandler
+    public class TestDataCreationHandlercs : IConfigureDatabaseHandler
     {
         private readonly IRepositorySet repositorySet;
 
         private readonly DomainEnitiesMeta entityMetas;
 
-        private readonly DomainMeta domainMeta;
-
         public TestDataCreationHandlercs(
-            DomainMeta domainMeta,
             DomainEnitiesMeta entityMetas,
             IRepositorySet repositorySet)
         {
-            this.domainMeta = domainMeta;
             this.entityMetas = entityMetas;
             this.repositorySet = repositorySet;
         }
 
         public void Handle()
         {
-            this.InsertCountries();
+            var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.CountryLevelId, MetaConstants.InputLevelSchema);
+            var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.PlaLevelId, MetaConstants.InputLevelSchema);
+            var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.WgLevelId, MetaConstants.InputLevelSchema);
 
-            var queries = new[]
+            var queries = new List<SqlHelper>
             {
-                this.BuildInsertSql(this.entityMetas.InputLevels[MetaConstants.PlaLevelId], this.GetPlaNames()),
-                this.BuildInsertSql(this.entityMetas.InputLevels[MetaConstants.WgLevelId], this.GetWarrantyGroupNames()),
+                this.BuildInsertSql(countryInputLevelMeta, this.GetCountrieNames()),
+                this.BuildInsertSql(plaInputLevelMeta, this.GetPlaNames()),
+                this.BuildInsertSql(wgInputLevelMeta, this.GetWarrantyGroupNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, "RoleCodeCode", this.GetRoleCodeNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, "ServiceLocationCode", this.GetServiceLocationCodeNames()),
-                this.BuildInsertSql(MetaConstants.DependencySchema, "ReactionTimeCode", this.GetServiceLocationCodeNames())
+                this.BuildInsertSql(MetaConstants.DependencySchema, "ReactionTimeCode", this.GetReactionTimeCodeNames())
             };
+            queries.AddRange(this.BuildInsertCostBlockSql());
 
             foreach (var query in queries)
             {
                 this.repositorySet.ExecuteSql(query);
             }
-        }
-
-        private void InsertCountries()
-        {
-            var countris = this.GetCountrieNames().Select(name => new Country { Name = name });
-            var countryRespository = this.repositorySet.GetRepository<Country>();
-
-            countryRespository.Save(countris);
-
-            this.repositorySet.Sync();
         }
 
         private SqlHelper BuildInsertSql(NamedEntityMeta entityMeta, string[] names)
@@ -81,23 +68,84 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private IEnumerable<SqlHelper> BuildInsertCostBlockSql()
         {
-            foreach (var costBlockMeta in this.domainMeta.CostBlocks)
+            var countries = this.GetCountrieNames();
+            var plas = this.GetPlaNames();
+            var warrantyGroups = this.GetWarrantyGroupNames();
+            var roleCodes = this.GetRoleCodeNames();
+            var serviceLocations = this.GetServiceLocationCodeNames();
+            var reactionTimes = this.GetReactionTimeCodeNames();
+            var map = new Dictionary<string, string[]>
             {
-                foreach (var applicationId in costBlockMeta.ApplicationIds)
+                [MetaConstants.CountryLevelId] = countries,
+                [MetaConstants.PlaLevelId] = plas,
+                [MetaConstants.WgLevelId] = warrantyGroups,
+                ["RoleCodeCode"] = roleCodes,
+                ["ServiceLocationCode"] = serviceLocations,
+                ["ReactionTimeCode"] = reactionTimes
+            };
+
+            var countryLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.CountryLevelId, MetaConstants.InputLevelSchema);
+            var firtsCountryQuery = this.BuildSelectIdByNameQuery(countryLevelMeta, countries[0], "Country_0");
+
+            foreach (var costBlockMeta in this.entityMetas.CostBlocks)
+            {
+                var fieldNames = 
+                    map.Keys.Where(fieldName => costBlockMeta.AllFields.Any(costBlockField => costBlockField.Name == fieldName))
+                            .ToArray();
+
+                var insertValues = new ISqlBuilder[warrantyGroups.Length, fieldNames.Length];
+
+                for (var warrantyGroupIndex = 0; warrantyGroupIndex < warrantyGroups.Length; warrantyGroupIndex++)
                 {
-                    var values = new List<List<long>>();
-                    var columns = new List<string>();
+                    insertValues[warrantyGroupIndex, 0] = firtsCountryQuery;
 
-                    foreach (var inputLevel in this.domainMeta.InputLevels)
+                    for (var fieldIndex = 1; fieldIndex < fieldNames.Length; fieldIndex++)
                     {
+                        var fieldName = fieldNames[fieldIndex];
+                        var refNames = map[fieldName];
+                        var refNameIndex = warrantyGroupIndex - warrantyGroupIndex / refNames.Length * refNames.Length;
+                        var refName = refNames[refNameIndex];
 
+                        var refField = costBlockMeta.InputLevelFields[fieldName] ?? (ReferenceFieldMeta)costBlockMeta.DependencyFields[fieldName];
+
+                        insertValues[warrantyGroupIndex, fieldIndex] = 
+                            this.BuildSelectIdByNameQuery((NamedEntityMeta)refField.ReferenceMeta, refName, $"{fieldName}_{warrantyGroupIndex}");
                     }
-
-                    yield return 
-                        Sql.Insert(applicationId, costBlockMeta.Id)
-                           .Values()
                 }
+
+                yield return Sql.Insert(costBlockMeta, fieldNames).Values(insertValues);
+
+                var columns = new List<ColumnInfo>
+                {
+                    new ColumnInfo(countryLevelMeta.IdField.Name, countryLevelMeta.Name)
+                };
+                columns.AddRange(
+                    fieldNames.Where(field => field != MetaConstants.CountryLevelId)
+                              .Select(fieldName => new ColumnInfo(fieldName, costBlockMeta.Name)));
+
+                yield return
+                    Sql.Insert(costBlockMeta, fieldNames)
+                       .Query(
+                            Sql.Select(columns.ToArray())
+                               .From(countryLevelMeta)
+                               .Join(
+                                    costBlockMeta,
+                                    SqlOperators.Equals(
+                                        new ColumnSqlBuilder(new ColumnInfo(MetaConstants.CountryLevelId, costBlockMeta.Name)),
+                                        firtsCountryQuery))
+                               .Where(SqlOperators.NotEquals(countryLevelMeta.NameField.Name, "firstCountry", countries[0], countryLevelMeta.Name)));
             }
+        }
+
+        private ISqlBuilder BuildSelectIdByNameQuery(NamedEntityMeta meta, string name, string paramName)
+        {
+            return new BracketsSqlBuilder
+            {
+                SqlBuilder = Sql.Select(new ColumnInfo { Name = meta.IdField.Name, TableName = meta.Name })
+                                .From(meta)
+                                .Where(SqlOperators.Equals(meta.NameField.Name, paramName, name, meta.Name))
+                                .ToSqlBuilder()
+            };
         }
 
         private string[] GetCountrieNames()
@@ -141,10 +189,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             return new[]
             {
                 "Desktops",
-               "Mobiles",
-               "Peripherals",
-               "Storage Products",
-               "x86/IA Servers"
+                "Mobiles",
+                "Peripherals",
+                "Storage Products",
+                "x86/IA Servers"
             };
         }
 
@@ -327,11 +375,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             return new string[]
             {
-                ",SEFS05",
-                ",SEFS06",
-                ",SEFS04",
-                ",SEIE07",
-                ",SEIE08"
+                "SEFS05",
+                "SEFS06",
+                "SEFS04",
+                "SEIE07",
+                "SEIE08"
             };
         }
 

@@ -44,9 +44,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return this.Join(null, tableName, condition, type);
         }
 
-        public ISqlBuilder Join(EntityMeta meta, string referenceFieldName)
+        public ISqlBuilder Join(BaseEntityMeta meta, string referenceFieldName)
         {
-            var referenceField = (ReferenceFieldMeta)meta.Fields[referenceFieldName];
+            var referenceField = (ReferenceFieldMeta)meta.GetField(referenceFieldName);
 
             return this.Join(
                     referenceField.ReferenceMeta.Schema,
@@ -54,6 +54,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     SqlOperators.Equals(
                         new ColumnInfo(referenceField.Name, meta.Name),
                         new ColumnInfo(referenceField.ValueField, referenceField.Name)));
+        }
+
+        public ISqlBuilder Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner)
+        {
+            return this.Join(meta.Schema, meta.Name, condition, type);
         }
     }
 }

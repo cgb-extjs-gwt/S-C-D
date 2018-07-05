@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Gdc.Scd.Core.Meta.Interfaces;
 
 namespace Gdc.Scd.Core.Meta.Entities
@@ -26,6 +25,11 @@ namespace Gdc.Scd.Core.Meta.Entities
         public static string BuildFullName(string name, string schema = null)
         {
             return schema == null ? name : $"{schema}_{name}";
+        }
+
+        public FieldMeta GetField(string fieldName)
+        {
+            return this.AllFields.FirstOrDefault(field => field.Name == fieldName);
         }
     }
 }
