@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Gdc.Scd.Core.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,9 +11,12 @@ namespace Gdc.Scd.Web
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly IHostingEnvironment env;
+
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
             Configuration = configuration;
+            this.env = env;
         }
 
         public IConfiguration Configuration { get; }
@@ -25,7 +29,7 @@ namespace Gdc.Scd.Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -46,6 +50,11 @@ namespace Gdc.Scd.Web
                 routes.MapRoute(name: "DefaultApi", template: "api/{controller}/{action}");
                 routes.MapSpaFallbackRoute("spa-fallback", new { controller = "Home", action = "Index" }); // 2
             });
+
+            foreach (var handler in serviceProvider.GetServices<IConfigureApplicationHandler>())
+            {
+                handler.Handle();
+            }
         }
 
         private void InitModules(IServiceCollection services)
@@ -53,6 +62,12 @@ namespace Gdc.Scd.Web
             this.InitModule<Scd.Core.Module>(services);
             this.InitModule<Scd.DataAccessLayer.Module>(services);
             this.InitModule<Scd.BusinessLogicLayer.Module>(services);
+#if DEBUG
+            if (this.env.IsDevelopment())
+            {
+                this.InitModule<Gdc.Scd.DataAccessLayer.TestData.Module>(services);
+            }
+#endif
         }
 
         private void InitModule<T>(IServiceCollection services) where T : IModule, new()

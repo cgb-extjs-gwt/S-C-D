@@ -14,6 +14,8 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces
 
         TResult Join(string tableName, ConditionHelper condition, JoinType type = JoinType.Inner);
 
-        TResult Join(EntityMeta meta, string referenceFieldName);
+        TResult Join(BaseEntityMeta meta, string referenceFieldName);
+
+        TResult Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner);
     }
 }

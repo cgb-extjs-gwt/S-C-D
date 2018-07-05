@@ -39,9 +39,14 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return new SelectJoinSqlHelper(this.joinSqlHelper.Join(tableName, condition, type));
         }
 
-        public SelectJoinSqlHelper Join(EntityMeta meta, string referenceFieldName)
+        public SelectJoinSqlHelper Join(BaseEntityMeta meta, string referenceFieldName)
         {
             return new SelectJoinSqlHelper(this.joinSqlHelper.Join(meta, referenceFieldName));
+        }
+
+        public SelectJoinSqlHelper Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner)
+        {
+            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(meta, condition, type));
         }
 
         public SelectWhereSqlHelper Where(ISqlBuilder condition)

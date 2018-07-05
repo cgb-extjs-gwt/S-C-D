@@ -1,18 +1,26 @@
-﻿namespace Gdc.Scd.Core.Meta.Entities
+﻿using System.Collections.Generic;
+using System.Linq;
+using Gdc.Scd.Core.Meta.Constants;
+
+namespace Gdc.Scd.Core.Meta.Entities
 {
     public class DomainEnitiesMeta
     {
-        public MetaCollection<EntityMeta> CostBlocks { get; private set; } = new MetaCollection<EntityMeta>();
+        public BaseEntityMeta this[string fullName] => (BaseEntityMeta)this.CostBlocks[fullName] ?? this.Dependencies[fullName] ?? this.InputLevels[fullName];
 
-        public MetaCollection<EntityMeta> Dependencies { get; private set; } = new MetaCollection<EntityMeta>();
+        public MetaCollection<CostBlockEntityMeta> CostBlocks { get; } = new MetaCollection<CostBlockEntityMeta>();
 
-        public MetaCollection<EntityMeta> InputLevels { get; private set; } = new MetaCollection<EntityMeta>();
+        public MetaCollection<NamedEntityMeta> Dependencies { get; } = new MetaCollection<NamedEntityMeta>();
 
-        public EntityMeta this[string fullName] => this.CostBlocks[fullName] ?? this.Dependencies[fullName] ?? this.InputLevels[fullName];
+        public MetaCollection<NamedEntityMeta> InputLevels { get; } = new MetaCollection<NamedEntityMeta>();
 
-        public EntityMeta GetEntityMeta(string name, string schema = null)
+        public NamedEntityMeta CountryInputLevel => this.InputLevels[MetaConstants.CountryLevelId];
+
+        public IEnumerable<BaseEntityMeta> AllMetas => this.CostBlocks.Cast<BaseEntityMeta>().Concat(this.Dependencies).Concat(this.InputLevels);
+
+        public BaseEntityMeta GetEntityMeta(string name, string schema = null)
         {
-            var fullName = EntityMeta.BuildFullName(name, schema);
+            var fullName = BaseEntityMeta.BuildFullName(name, schema);
 
             return this[fullName];
         }

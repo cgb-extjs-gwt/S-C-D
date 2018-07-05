@@ -11,23 +11,34 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
         }
 
-        public SelectFromSqlHelper From(string tabeName, string schemaName = null, string dataBaseName = null)
+        public SelectFromSqlHelper From(string tabeName, string schemaName = null, string dataBaseName = null, string alias = null)
         {
+            var tableBuilder = new TableSqlBuilder
+            {
+                DataBase = dataBaseName,
+                Schema = schemaName,
+                Name = tabeName
+            };
+
+            var fromBuilder = 
+                alias == null ? 
+                    (ISqlBuilder)tableBuilder 
+                    : new AliasSqlBuilder
+                    {
+                        Alias = alias,
+                        SqlBuilder = tableBuilder
+                    };
+
             return new SelectFromSqlHelper(new FromSqlBuilder
             {
                 SqlBuilder = this.ToSqlBuilder(),
-                From = new TableSqlBuilder
-                {
-                    DataBase = dataBaseName,
-                    Schema = schemaName,
-                    Name = tabeName
-                }
+                From = fromBuilder
             });
         }
 
-        public SelectFromSqlHelper From(EntityMeta meta)
+        public SelectFromSqlHelper From(BaseEntityMeta meta, string alias = null)
         {
-            return this.From(meta.Name, meta.Shema);
+            return this.From(meta.Name, meta.Schema, alias: alias);
         }
 
         public SelectFromSqlHelper FromQuery(ISqlBuilder query)

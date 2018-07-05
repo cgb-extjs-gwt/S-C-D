@@ -33,6 +33,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj" />
     <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj" />
+    <ProjectReference Include="..\Gdc.Scd.DataAccessLayer.TestData\Gdc.Scd.DataAccessLayer.TestData.csproj" />
   </ItemGroup>
 
 </Project>

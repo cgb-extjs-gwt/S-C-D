@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
+﻿using System.Collections.Generic;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
@@ -19,6 +20,17 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
             var condition = this.Condition.Build(context);
 
             return $"{sql} {type} JOIN {table} ON {condition}";
+        }
+
+        public override IEnumerable<ISqlBuilder> GetChildrenBuilders()
+        {
+            foreach (var builder in base.GetChildrenBuilders())
+            {
+                yield return builder;
+            }
+
+            yield return this.Condition;
+            yield return this.Table;
         }
     }
 }

@@ -20,8 +20,14 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc);
 
-        Task<int> ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null);
+        int ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null);
 
-        Task<int> ExecuteSql(SqlHelper query);
+        int ExecuteSql(SqlHelper query);
+
+        Task<int> ExecuteSqlAsync(string sql, IEnumerable<CommandParameterInfo> parameters = null);
+
+        Task<int> ExecuteSqlAsync(SqlHelper query);
+
+        IEnumerable<Type> GetRegisteredEntities();
     }
 }

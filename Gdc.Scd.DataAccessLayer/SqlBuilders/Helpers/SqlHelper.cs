@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
@@ -32,7 +33,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public IEnumerable<CommandParameterInfo> GetParameters()
         {
-            return this.GetParameters(this.sqlBuilder);
+            return this.GetParameters(this.sqlBuilder).Distinct();
         }
 
         private IEnumerable<CommandParameterInfo> GetParameters(ISqlBuilder sqlBuilder)
