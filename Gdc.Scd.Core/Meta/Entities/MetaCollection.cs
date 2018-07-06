@@ -28,6 +28,15 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
         }
 
+        public MetaCollection()
+        {
+        }
+
+        public MetaCollection(IEnumerable<T> items)
+        {
+            this.AddRange(items);
+        }
+
         public void Add(T item)
         {
             if (item == null)
@@ -36,6 +45,14 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
 
             this.dictionary.Add(item.Id, item);
+        }
+
+        public void AddRange(IEnumerable<T> items)
+        {
+            foreach (var item in items)
+            {
+                this.Add(item);
+            }
         }
 
         public void Clear()

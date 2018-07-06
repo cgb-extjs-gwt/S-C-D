@@ -62,7 +62,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
             return
                 $@"
                     {this.BuildAlterTable()} WITH CHECK ADD  CONSTRAINT {constraintName} FOREIGN KEY([{field.Name}]) 
-                    REFERENCES [{field.ReferenceMeta.Schema}].[{field.ReferenceMeta.Name}] ([{field.ValueField}]);
+                    REFERENCES [{field.ReferenceMeta.Schema}].[{field.ReferenceMeta.Name}] ([{field.ReferenceValueField}]);
                     {this.BuildAlterTable()} CHECK CONSTRAINT {constraintName};
                 ";
         }

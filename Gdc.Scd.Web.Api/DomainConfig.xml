@@ -1,148 +1,380 @@
 <SCDConfiguration>
-    <Blocks>
-      <Block Name="FieldService" Application="Hardware" >
-			  <Elements>
-				  <Element Domain="Local" Name="TravelTime" Unit="Hours" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-				  <Element Domain="Local" Name="OnsiteHourlyRate" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" >
-					  <Dependency Name="RoleCode (Code)" DependencyRelation="Table" Table="tblY_RoleCodes" HasRelationToInputParameter="True"  RelationToInputParameter="WarrantyGroups" RelationToInputParameterTable="tblY_RoleCodes-WGR" />
-				  </Element>
-				  <Element Domain="Local" Name="LabourFlatFee" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
-					  <Dependency Name="ServiceLocation (Code)" DependencyRelation="Table" Table="tblY_ServiceLocation" />
-				  </Element>
-				  <Element Domain="Local" Name="TravelCost" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-				  <Element Domain="Local" Name="PerformanceRatePerReactiontime" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
-					  <Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				  </Element>
-				  <Element Domain="Local" Name="TimeAndMaterialShare" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-				  <Element Domain="Local" Name="CostPerCallShare" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="Calculated" >
-					  <!--<Dependency Name="TimeAndMaterialShare" DependencyRelation="Calculation" />-->
-				  </Element>
-          <Element Domain="Central" Name="RepairTime" Unit="Hours" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-				  <Element Domain="Central" Name="RoleCode" Unit="textobject" HighestInputLevel="PLAs" DefaultInputLevel="PLAs" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-			  </Elements>
-		</Block>
+  <InputLevels>
+    <InputLevel Name="Country"/>
+    <InputLevel Name="ClusterPla" Caption="Cluster Pla"/>
+    <InputLevel Name="Pla" Caption="PLA"/>
+    <InputLevel Name="Sfab" Caption="SFAB"/>
+    <InputLevel Name="Sog" Caption="SOG"/>
+    <InputLevel Name="SwDigit" Caption="SW Level (Digit)"/>
+    <InputLevel Name="SwLicense" Caption="SW License"/>
+    <InputLevel Name="Wg" Caption="WG"/>
+    
+    <Default>
+      <InputLevel>Country</InputLevel>
+      <InputLevel>Pla</InputLevel>
+      <InputLevel>Wg</InputLevel>
+    </Default>
+  </InputLevels>
 
-    <Block Name="ServiceSupportCost" Application="Hardware,Software" >
-			<Elements>
-				<Element Domain="Local" Name="1stLevelSupportCostsCountry" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" /> 
-				<Element Domain="Local" Name="2ndLevelSupportCostsPLAnonEMEIA" Unit="Currency" HighestInputLevel="ClusteredPLAs" DefaultInputLevel="ClusteredPLAs" LowestInputLevel="ClusteredPLAs" DataEntry="GUI" />
-        <Element Domain="Central" Name="2ndLevelSupportCostsPLA" Unit="Currency" HighestInputLevel="ClusteredPLAs" DefaultInputLevel="ClusteredPLAs" LowestInputLevel="ClusteredPLAs" DataEntry="GUI" />
-			</Elements>
-		</Block>
+  <RegionInputs>
+    <RegionInput Name="Country"/>
+    <RegionInput Name="ClusterRegion" Caption="Region"/>
 
-    <Block Name="LogisticsCost" Application="Hardware" >
-			<Elements>
-				<Element Domain="Local" Name="StandardHandlingInCountry" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
-					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				</Element>
-				<Element Domain="Local" Name="HighAvailabilityHandlingInCountry" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
-					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				</Element>
-				<Element Domain="Local" Name="StandardDelivery" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
-					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				</Element>
-				<Element Domain="Local" Name="ExpressDelivery" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
-					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				</Element>
-				<Element Domain="Local" Name="Taxi/CourierDelivery" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
-					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				</Element>
-				<Element Domain="Local" Name="ReturnDeliveryToFactory" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-        <Element Domain="Central" Name="TaxAndDuties" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="Batch" />
-			</Elements>
+    <Default>
+      <RegionInput>Country</RegionInput>
+    </Default>
+  </RegionInputs>
+  
+  <Dependencies>
+    <Dependency Name="Year"/>
+    <Dependency Name="ServiceLocation" Caption="Service location"/>
+    <Dependency Name="Reaction"/>
+    <Dependency Name="ReactionTime" Caption="Reaction Time"/>
+    <Dependency Name="ReactionTimeAvalability" Caption="Reaction"/>
+    <Dependency Name="ServiceLocationProActive " Caption="Service location for ProActive"/>
+    <Dependency Name="Availability" Caption="Availability"/>
+    <Dependency Name="YearAvailability" Caption="Year Availability"/>
+  </Dependencies>
+
+  <Applications>
+    <Application Name="HW" Caption="Hardware"/>
+    <Application Name="SW" Caption="Software &amp; Solution"/>
+  </Applications>
+  
+  <Atoms>
+    <Atom Name="AFR">
+      <Elements>
+        <Element Name="AFR" InputOption="ManualyAutomaticly" RegionInput="" Dependency="Year">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
+      </Elements>
+    </Atom>
+
+    <Atom Name="InstallBase" Caption="Install base">
+      <Elements>
+        <Element Name="InstalledBaseCountry" Caption="Installed base country" InputOption="ManualyAutomaticly"/>
+      </Elements>
+    </Atom>
+
+    <Atom Name="MarkupOtherCosts" Caption="Markup other costs">
+      <Elements>
+        <Element Name="MarkupFactor" Caption="Markup factor for other cost" InputOption="Manualy"/>
+        <Element Name="Markup" Caption="Markup for other cost" InputOption="Manualy"/>
+      </Elements>
+    </Atom>
+
+    <Atom Name="ProlongationMarkup" Caption="Prolongation markup">
+      <Elements>
+        <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost" InputOption="Manualy"/>
+        <Element Name="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manualy"/>
+      </Elements>
+    </Atom>
+
+    <Atom Name="MarkupBaseWaranty" Caption="Markup base waranty">
+      <Elements>
+        <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost" InputOption="Manualy"/>
+        <Element Name="MarkupStandardWarranty" Caption="Markup for base standard local cost" InputOption="Manualy"/>
+      </Elements>
+    </Atom>
+
+    <Atom Name="MaterialCostsWarranty" Caption="Material costs in warranty" >
+      <Elements>
+        <Element Name="MaterialCost" Caption="Material costs in warranty" InputOption="ManualyAutomaticly" RegionInput="ClusterRegion"/>
+      </Elements>
+      <InputLevels>
+        <InputLevel>Wg</InputLevel>
+      </InputLevels>
+    </Atom>
+
+    <Atom Name="MaterialCostsOOW" Caption="Material costs OOW">
+      <Elements>
+        <Element Name="MaterialCost" Caption="Material costs OOW" InputOption="Manualy" RegionInput="ClusterRegion"/>
+      </Elements>
+      <InputLevels>
+        <InputLevel>Wg</InputLevel>
+      </InputLevels>
+    </Atom>
+
+    <Atom Name="TaxAndDuties" Caption="Tax &amp; Duties">
+      <Elements>
+        <Element Name="TaxAndDuties" Caption="Tax and duties" InputOption="ManualyAutomaticly"/>
+      </Elements>
+      <InputLevels>
+        <InputLevel>Pla</InputLevel>
+        <InputLevel>Wg</InputLevel>
+      </InputLevels>
+    </Atom>
+  </Atoms>
+  
+  <Blocks>
+    <Block Name="FieldServiceCost" Caption="Field Service Cost">
+      <Applications>
+        <Application>HW</Application>
+      </Applications>
+      <Elements>
+        <Element Name="RepairTime" Caption="Repair Time (MTTR)" InputOption="Manualy" RegionInput="">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="TravelTime" Caption="Travel Time (MTTT)" InputOption="Manualy" Dependency="ServiceLocation"/>
+        <Element Name="OnsiteHourlyRate" Caption="Onsite hourly rate" InputOption="Reference"/>
+        <Element Name="LabourFlatFee" Caption="Labour flat fee" InputOption="Manualy" Dependency="ServiceLocation"/>
+        <Element Name="TravelCost" Caption="Travel cost" InputOption="Manualy" Dependency="ServiceLocation"/>
+        <Element Name="PerformanceRate" Caption="Performance rate" InputOption="Manualy" Dependency="Reaction"/>
+        <Element Name="TimeAndMaterialShare" Caption="Time and material share" InputOption="Manualy"/>
+        <Element Name="AFR" InputOption="Reference"/>
+      </Elements>
     </Block>
 
-        <!--<Block Name="AvailabilityFee" Application="Hardware" >
-			<Elements>
-				<Element Domain="Local" Name="TotalLogisticsInfrastructureCost" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" />
-				<Element Domain="Local" Name="StockValueInCountryFJ" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" />
-				<Element Domain="Local" Name="StockValueInCountryMV" Unit="Currency" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" />
-				<Element Domain="Local" Name="AverageContractDuration" Unit="Units" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="Countries" DataEntry="GUI" />
-				<Element Domain="Local" Name="JapanBuy" Unit="Currency" HighestInputLevel="SFabs" DefaultInputLevel="SFabs" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-                <Element Domain="Central" Name="CostPerKit" Unit="Currency" HighestInputLevel="SFabs" DefaultInputLevel="SFabs" LowestInputLevel="WarrantyGroups" DataEntry="Batch" />
-				<Element Domain="Central" Name="CostPerKitJapanBuy" Unit="Currency" HighestInputLevel="SFabs" DefaultInputLevel="SFabs" LowestInputLevel="WarrantyGroups" DataEntry="Batch" />
-				<Element Domain="Central" Name="MaxQty" Unit="Units" HighestInputLevel="SFabs" DefaultInputLevel="SFabs" LowestInputLevel="WarrantyGroups" DataEntry="Batch" />
-			</Elements>
-		</Block>
+    <Block Name="ServiceSupportCost" Caption="Service Support Cost">
+      <Applications>
+        <Application>HW</Application>
+      </Applications>
+      <Elements>
+        <Element Name="1stLevelSupportCostsCountry" Caption="1st level support costs country" InputOption="Manualy">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="InstalledBase" Caption="Installed base country" InputOption="Reference"/>
+        <Element Name="2ndLevelSupportCostsClusterRegion" Caption="2nd Level Support costs cluster region" InputOption="Manualy" RegionInput="ClusterRegion">
+          <InputLevels>
+            <InputLevel>ClusterPla</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="2ndLevelSupportCostsLocal" Caption="2nd Level Support costs local" InputOption="Manualy" RegionInput="ClusterRegion">
+          <InputLevels>
+            <InputLevel>ClusterPla</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="InstalledBasePla" Caption="Installed base PLA" InputOption="Reference"/>
+      </Elements>
+    </Block>
 
-        <Block Name="MaterialCosts" Application="Hardware" >
-			<Elements>
-				<Element Domain="Central" Name="MaterialCostOOW" Unit="Currency" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI">
-					<Dependency Name="Region" DependencyRelation="Table" Table="tblY_Region" />
-				</Element>
-				<Element Domain="Central" Name="MaterialCostBaseWarranty" Unit="Currency" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="Batch" />
-				<Element Domain="Central" Name="HDDMaterialCost" Unit="Currency" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-			</Elements>
-		</Block>
+    <Block Name="LogisticsCosts" Caption="Logistics Costs">
+      <Applications>
+        <Application>HW</Application>
+      </Applications>
+      <Elements>
+        <Element Name="StandardHandling" Caption="Standard handling in country" InputOption="Manualy" Dependency="ReactionTime"/>
+        <Element Name="HighAvailabilityHandling" Caption="High availability handling in country" InputOption="Manualy" Dependency="ReactionTime"/>
+        <Element Name="StandardDelivery" Caption="Standard delivery" InputOption="Manualy" Dependency="ReactionTime"/>
+        <Element Name="ExpressDelivery" Caption="Express delivery" InputOption="Manualy" Dependency="ReactionTime"/>
+        <Element Name="TaxiCourierDelivery" Caption="Taxi/courier delivery" InputOption="Manualy" Dependency="ReactionTime"/>
+        <Element Name="ReturnDeliveryFactory" Caption="Return delivery to factory" InputOption="Manualy" Dependency="ReactionTime"/>
+        <Element Name="AFR" InputOption="Reference"/>
+      </Elements>
+    </Block>
 
-        <Block Name="FailureRates" Application="Hardware" >
-			<Elements>
-				<Element Domain="Central" Name="AFRNonAutomated" Unit="%" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI"> 
-					<Dependency Name="Year" DependencyRelation="Table" Table="tblY_Years" />
-				</Element>
-				<Element Domain="Central" Name="AFRAutomated" Unit="%" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="Batch"> 
-					<Dependency Name="Year" DependencyRelation="Table" Table="tblY_Years" />
-				</Element>
-				<Element Domain="Central" Name="HDDFR" Unit="%" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" >
-					<Dependency Name="Year" DependencyRelation="Table" Table="tblY_Years" />
-				</Element>
-			</Elements>
-		</Block>
+    <Block Name="AvailabilityFee" Caption="Availability fee">
+      <Applications>
+        <Application>HW</Application>
+      </Applications>
+      <Elements>
+        <Element Name="Installed base high availability" Caption="Installed base high availability" InputOption="Manualy" Dependency="ReactionTime"/>
+        <Element Name="TotalLogisticsInfrastructureCost" Caption="Total logistics infrastructure cost" InputOption="Manualy">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="StockValueFj" Caption="Stock value in country FJ" InputOption="Manualy">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="StockValueMv" Caption="Stock value in country MV" InputOption="Manualy">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="AverageContractDuration" Caption="Average contract duration" InputOption="Manualy">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="Automatically" RegionInput=""/>
+        <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="Automatically" RegionInput=""/>
+        <Element Name="MaxQty " Caption="MaxQty" InputOption="Automatically" RegionInput=""/>
+        <Element Name="JapanBuy  " Caption="Japan Buy " InputOption="Manualy"/>
+      </Elements>
+    </Block>
 
-        <Block Name="Reinsurance" Application="Hardware,Software" >
-			<Elements>
-				<Element Domain="Central" Name="ReinsuranceNBDinWarranty" Unit="Currency" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-				<Element Domain="Central" Name="ReinsuranceNBDOOW" Unit="Currency" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-				<Element Domain="Central" Name="Reinsurance7x24inWarranty" Unit="Currency" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-				<Element Domain="Central" Name="Reinsurance7x24OOW" Unit="Currency" HighestInputLevel="WarrantyGroups" DefaultInputLevel="WarrantyGroups" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-				<Element Domain="Central" Name="ReinsuranceFlatfee1year" Unit="Currency" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
-					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				</Element>
-				<Element Domain="Central" Name="ReinsuranceFlatfee2years" Unit="Currency" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
-					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				</Element>
-				<Element Domain="Central" Name="ReinsuranceFlatfee3years" Unit="Currency" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
-					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				</Element>
-				<Element Domain="Central" Name="ReinsuranceFlatfee4years" Unit="Currency" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
-					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				</Element>
-				<Element Domain="Central" Name="ReinsuranceFlatfee5years" Unit="Currency" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
-					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				</Element>
-				<Element Domain="Central" Name="ReinsuranceFlatfeeProlongation" Unit="Currency" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
-					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				</Element>
-				<Element Domain="Central" Name="CurrencyReinsurance" Unit="Units" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" />
-				<Element Domain="Central" Name="ShareSW/SPMaintenanceListPrice" Unit="%" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
-					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				</Element>
-			</Elements>
-		</Block>
+    <Block Name="HddRetention" Caption="HDD Retention">
+      <Applications>
+        <Application>HW</Application>
+      </Applications>
+      <Elements>
+        <Element Name="HddFr" Caption="HDD FR" InputOption="Manualy" Dependency="Year" RegionInput="">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="HddFr" Caption="HDD FR" InputOption="Manualy" RegionInput="">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
+      </Elements>
+    </Block>
 
-        <Block Name="OtherCosts" Application="Hardware" >
-			<Elements>
-				<Element Domain="Local" Name="MarkupForOtherCost" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-				<Element Domain="Local" Name="ProlongationMarkupForOtherCost" Unit="%" HighestInputLevel="Countries" DefaultInputLevel="Countries" LowestInputLevel="WarrantyGroups" DataEntry="GUI" />
-			</Elements>
-		</Block>
-		
-		<Block Name="SW/SPMaintenanceListPrice" Application="Software,Solution" >
-			<Elements>
-				<Element Domain="Central" Name="RecommendedSW/SPMaintenanceListPrice" Unit="Currency" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
-					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				</Element>
-				<Element Domain="Central" Name="MarkupForProductMarginOfSWLicenseListPrice" Unit="%" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
-					<Dependency Name="ReactionTime (Code)" DependencyRelation="Table" Table="tblY_ReactionTime" />
-				</Element>
-			</Elements>
-		</Block>
-		
-		<Block Name="Dealer Price" Application="Software, Solution" >
-			<Elements>
-				<Element Domain="Central" Name="DiscountToDealerPrice" Unit="%" HighestInputLevel="SoftwareLicenses" DefaultInputLevel="SoftwareLicenses" LowestInputLevel="SoftwareLicenses" DataEntry="GUI" >
-				</Element>
-			</Elements>
-		</Block>-->
-    </Blocks>
+    <Block Name="Reinsurance">
+      <Applications>
+        <Application>HW</Application>
+      </Applications>
+      <Elements>
+        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manualy" Dependency="Year" RegionInput="">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="ReinsuranceUplift factor" Caption="Reinsurance uplift factor" InputOption="Manualy" Dependency="ReactionTimeAvalability" RegionInput="">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
+      </Elements>
+    </Block>
+
+    <Block Name="TaxDutiesIW" Caption="Tax &amp; Duties iW">
+      <Applications>
+        <Application>HW</Application>
+      </Applications>
+      <Elements>
+        <Element Name="TaxDuties" Caption="Tax &amp; Duties" InputOption="Reference"/>
+        <Element Name="MaterialCostsWarranty" Caption="Material costs in warranty" InputOption="Reference"/>
+      </Elements>
+    </Block>
+
+    <Block Name="TaxDutiesOOW" Caption="Tax &amp; Duties OOW">
+      <Applications>
+        <Application>HW</Application>
+      </Applications>
+      <Elements>
+        <Element Name="TaxDuties" Caption="Tax &amp; Duties" InputOption="Reference"/>
+        <Element Name="MaterialCostsOOW" Caption="Material costs OOW" InputOption="Reference"/>
+      </Elements>
+    </Block>
+
+    <Block Name="MaterialCostOwwPeriod " Caption="Material Cost OOW period">
+      <Applications>
+        <Application>HW</Application>
+      </Applications>
+      <Elements>
+        <Element Name="AFR" InputOption="Reference"/>
+        <Element Name="MaterialCostsOOW" Caption="Material costs OOW" InputOption="Reference"/>
+      </Elements>
+    </Block>
+
+    <Block Name="MaterialCostOwwPeriod " Caption="Material Cost OOW period">
+      <Applications>
+        <Application>HW</Application>
+      </Applications>
+      <Elements>
+        <Element Name="AFR" InputOption="Reference"/>
+        <Element Name="MaterialCostsWarranty" Caption="Material costs in warranty" InputOption="Reference"/>
+      </Elements>
+    </Block>
+
+    <Block Name="ProActive " Caption="ProActive">
+      <Applications>
+        <Application>HW</Application>
+        <Application>SW</Application>
+      </Applications>
+      <Elements>
+        <Element Name="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort" InputOption="Manualy"/>
+        <Element Name="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort" InputOption="Manualy"/>
+        <Element Name="LocalPreparationShcEffort" Caption="Local preparation SHC effort" InputOption="Manualy"/>
+        <Element Name="LocalPreparationShcEffortReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manualy" RegionInput="">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="LocalShcCustomerBriefingEffort" Caption="Local SHC customer briefing effort" InputOption="Manualy" Dependency="ServiceLocationProActive"/>
+        <Element Name="LocalRegularUpdateReadyRepetition" Caption="Local regular update ready for service Repetition" InputOption="Reference"/>
+        <Element Name="LocalPreparationShcRepetition" Caption="Local preparation SHC Repetition" InputOption="Reference"/>
+        <Element Name="CentralExecutionShcReportRepetition " Caption="Central execution SHC &amp; report Repetition" InputOption="Reference"/>
+        <Element Name="LocalShcCustomerBriefingRepetition " Caption="Local SHC customer briefing Repetition" InputOption="Reference"/>
+        <Element Name="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manualy" Dependency="ServiceLocationProActive"/>
+        <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manualy"/>
+      </Elements>
+    </Block>
+  
+    <Block Name="SwSpMaintenance " Caption="SW / SP Maintenance">
+      <Applications>
+        <Application>SW</Application>
+      </Applications>
+      <Elements>
+        <Element Name="2ndLevelSupportCosts" Caption="2nd level support costs" InputOption="Manualy" RegionInput="">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sog</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="2ndLevelSupportCosts" Caption="2nd level support costs" InputOption="Automatically" RegionInput="">
+          <InputLevels>
+            <InputLevel>Sog</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manualy" Dependency="YearAvailability" RegionInput="">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+            <InputLevel>SwLicense</InputLevel>  
+          </InputLevels>
+        </Element>
+        <Element Name="CurrencyReinsurance" Caption="Currency Reinsurance" InputOption="Manualy" RegionInput="">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+            <InputLevel>SwLicense</InputLevel>  
+          </InputLevels>
+        </Element>
+        <Element Name="RecommendedSwSpMaintenanceListPrice" Caption="Recommended SW/SP Maintenance List Price" InputOption="Manualy" Dependency="Availability" RegionInput="">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+            <InputLevel>SwLicense</InputLevel>  
+          </InputLevels>
+        </Element>
+        <Element Name="MarkupForProductMarginSwLicenseListPrice" Caption="Markup for Product Margin of SW License List Price" InputOption="Manualy" Dependency="Availability" RegionInput="">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+            <InputLevel>SwLicense</InputLevel>  
+          </InputLevels>
+        </Element>
+        <Element Name="ShareSwSpMaintenanceListPrice" Caption="Share SW/SP Maintenance List Price" InputOption="Manualy" Dependency="Availability" RegionInput="">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+            <InputLevel>SwLicense</InputLevel>  
+          </InputLevels>
+        </Element>
+        <Element Name="DiscountDealerPrice" Caption="Discount to Dealer price in %" InputOption="Manualy" RegionInput="">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+            <InputLevel>SwLicense</InputLevel>  
+          </InputLevels>
+        </Element>
+      </Elements>
+    </Block>
+  </Blocks>
 </SCDConfiguration>

@@ -13,11 +13,17 @@ namespace Gdc.Scd.Core.Meta.Impl
     {
         private const string NameAttributeName = "Name";
 
+        private const string CostAtomListNodeName = "Atoms";
+
+        private const string CostAtomNodeName = "Atom";
+
         private const string CostBlockListNodeName = "Blocks";
 
         private const string CostBlockNodeName = "Block";
 
-        private const string CostBlockApplicationAttributeName = "Application";
+        private const string CostBlockApplicationListNodeName = "Applications";
+
+        private const string CostBlockApplicationNodeName = "Application";
 
         private const string CostBlockApplicationSeparator = ",";
 
@@ -52,38 +58,55 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private DomainMeta BuilDomainMeta(XElement configNode)
         {
-            var costBlocks = configNode.Element(CostBlockListNodeName);
-            if (costBlocks == null)
+            var costBlocksNode = configNode.Element(CostBlockListNodeName);
+            if (costBlocksNode == null)
             {
                 throw new Exception("Cost blocks node not found");
             }
 
-            costBlocks.Elements(CostBlockNodeName);
+            var costAtoms = costBlocksNode.Elements(CostAtomListNodeName).Select(this.BuildCostItemMeta<CostAtomMeta>);
+            var costBlocks = costBlocksNode.Elements(CostBlockNodeName).Select(this.BuildCostBlockMeta);
 
             return new DomainMeta
             {
-                CostBlocks = costBlocks.Elements(CostBlockNodeName).Select(this.BuildCostBlockMeta).ToList(),
-                InputLevels = this.BuildInputLevelMetas(),
-                Applications = this.BuildApplicationsMetas(),
-                Scopes = this.BuildScopeMetas()
+                CostAtoms = new MetaCollection<CostAtomMeta>(costAtoms),
+                CostBlocks = new MetaCollection<CostBlockMeta>(costBlocks),
+                Applications = new MetaCollection<ApplicationMeta>(this.BuildApplicationsMetas()),
             };
         }
 
-        private CostBlockMeta BuildCostBlockMeta(XElement node)
+        private T BuildCostItemMeta<T>(XElement node) where T : CostAtomMeta, new()
         {
             var nameAttr = node.Attribute(NameAttributeName);
             if (nameAttr == null)
             {
-                throw new Exception("Cost block name attribute not found");
+                throw new Exception("Cost block or cost atom name attribute not found");
             }
 
-            var costBlockMeta = new CostBlockMeta
+            var costItem = new T
             {
                 Id = this.BuildId(nameAttr.Value),
                 Name = nameAttr.Value,
             };
 
-            var applicationAttr = node.Attribute(CostBlockApplicationAttributeName);
+            var costElementListNode = node.Element(CostElementListNodeName);
+            if (costElementListNode == null)
+            {
+                throw new Exception("Cost elements node not found");
+            }
+
+            var costElements = costElementListNode.Elements(CostElementNodeName).Select(this.BuildCostElementMeta);
+
+            costItem.CostElements = new MetaCollection<CostElementMeta>(costElements);
+
+            return costItem;
+        }
+
+        private CostBlockMeta BuildCostBlockMeta(XElement node)
+        {
+            var costBlockMeta = this.BuildCostItemMeta<CostBlockMeta>(node);
+
+            var applicationAttr = node.Attribute(CostBlockApplicationNodeName);
             if (applicationAttr == null)
             {
                 throw new Exception("Cost block application attribute not found");
@@ -93,17 +116,6 @@ namespace Gdc.Scd.Core.Meta.Impl
                 applicationAttr.Value.Split(CostBlockApplicationSeparator)
                                      .Select(application => application.Trim())
                                      .ToList();
-
-            var costElementListNode = node.Element(CostElementListNodeName);
-            if (costElementListNode == null)
-            {
-                throw new Exception("Cost elements node not found");
-            }
-
-            costBlockMeta.CostElements = 
-                costElementListNode.Elements(CostElementNodeName)
-                                   .Select(this.BuildCostElementMeta)
-                                   .ToList();
 
             return costBlockMeta;
         }
@@ -128,7 +140,6 @@ namespace Gdc.Scd.Core.Meta.Impl
                 throw new Exception("Cost element scope attribute not found");
             }
 
-            costElementMeta.ScopeId = scopeAttr.Value;
             costElementMeta.Dependency = this.BuildCostElementDependency(node);
             costElementMeta.Description = this.BuildCostElementDescription(node);
 

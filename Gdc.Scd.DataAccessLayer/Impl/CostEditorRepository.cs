@@ -49,16 +49,16 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
             else
             {
-                var nameColumn = new ColumnInfo(nameRefField.FaceValueField, nameRefField.ReferenceMeta.Name);
+                var nameColumn = new ColumnInfo(nameRefField.ReferenceFaceField, nameRefField.ReferenceMeta.Name);
                 groupByColumns = new[] 
                 {
-                    new ColumnInfo(nameRefField.ValueField, nameRefField.ReferenceMeta.Name),
+                    new ColumnInfo(nameRefField.ReferenceValueField, nameRefField.ReferenceMeta.Name),
                     nameColumn
                 };
                 readEditItemsFn = this.ReadReferenceEditItems;
 
                 selectColumns.Add(nameColumn);
-                selectColumns.Add(new ColumnInfo(nameRefField.ValueField, nameRefField.ReferenceMeta.Name));
+                selectColumns.Add(new ColumnInfo(nameRefField.ReferenceValueField, nameRefField.ReferenceMeta.Name));
             }
 
             var fromQuery = Sql.Select(selectColumns.ToArray()).From(costBlockMeta);

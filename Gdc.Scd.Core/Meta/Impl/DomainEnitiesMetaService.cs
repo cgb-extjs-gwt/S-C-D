@@ -40,8 +40,8 @@ namespace Gdc.Scd.Core.Meta.Impl
                     {
                         costBlockEntity.InputLevelFields.Add(new ReferenceFieldMeta(inputLevelMeta.Name, inputLevelMeta)
                         {
-                            ValueField = IdFieldMeta.DefaultId,
-                            FaceValueField = MetaConstants.NameFieldKey
+                            ReferenceValueField = IdFieldMeta.DefaultId,
+                            ReferenceFaceField = MetaConstants.NameFieldKey
                         });
                     }
 
@@ -61,8 +61,8 @@ namespace Gdc.Scd.Core.Meta.Impl
 
                             costBlockEntity.DependencyFields.Add(new ReferenceFieldMeta(costElementMeta.Dependency.Id, dependencyEntity)
                             {
-                                ValueField = dependencyEntity.IdField.Name,
-                                FaceValueField = dependencyNameField.Name
+                                ReferenceValueField = dependencyEntity.IdField.Name,
+                                ReferenceFaceField = dependencyNameField.Name
                             });
                         }
                     }

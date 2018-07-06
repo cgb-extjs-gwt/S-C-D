@@ -38,8 +38,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             var query =
                 Sql.SelectDistinct(
-                    new ColumnInfo(referenceField.ValueField, referenceField.ReferenceMeta.Name),
-                    new ColumnInfo(referenceField.FaceValueField, referenceField.ReferenceMeta.Name))
+                    new ColumnInfo(referenceField.ReferenceValueField, referenceField.ReferenceMeta.Name),
+                    new ColumnInfo(referenceField.ReferenceFaceField, referenceField.ReferenceMeta.Name))
                    .From(meta)
                    .Join(meta, referenceField.Name)
                    .Where(filter, meta.Name);

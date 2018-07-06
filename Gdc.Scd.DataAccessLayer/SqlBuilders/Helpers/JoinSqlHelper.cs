@@ -53,7 +53,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     referenceField.ReferenceMeta.Name,
                     SqlOperators.Equals(
                         new ColumnInfo(referenceField.Name, meta.Name),
-                        new ColumnInfo(referenceField.ValueField, referenceField.Name)));
+                        new ColumnInfo(referenceField.ReferenceValueField, referenceField.Name)));
         }
 
         public ISqlBuilder Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner)
