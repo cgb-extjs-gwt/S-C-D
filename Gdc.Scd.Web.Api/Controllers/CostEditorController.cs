@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
-using Gdc.Scd.Web.Api.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gdc.Scd.Web.Api.Controllers
@@ -35,13 +33,9 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public CostEditorDto GetCostEditorData()
+        public DomainMeta GetCostEditorData()
         {
-            return new CostEditorDto
-            {
-                Meta = this.meta,
-                Countries = this.countryService.GetAll().ToArray()
-            };
+            return this.meta;
         }
 
         [HttpGet]
@@ -54,6 +48,12 @@ namespace Gdc.Scd.Web.Api.Controllers
         public async Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context)
         {
             return await this.costEditorService.GetInputLevelFilterItems(context);
+        }
+
+        [HttpGet]
+        public async Task<IEnumerable<NamedId>> GetRegions(CostEditorContext context)
+        {
+            return await this.costEditorService.GetRegions(context);
         }
 
         [HttpGet]

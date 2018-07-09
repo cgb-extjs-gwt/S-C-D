@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
@@ -13,8 +12,6 @@ namespace Gdc.Scd.Core.Meta.Entities
         public MetaCollection<NamedEntityMeta> Dependencies { get; } = new MetaCollection<NamedEntityMeta>();
 
         public MetaCollection<NamedEntityMeta> InputLevels { get; } = new MetaCollection<NamedEntityMeta>();
-
-        public NamedEntityMeta CountryInputLevel => this.InputLevels[MetaConstants.CountryLevelId];
 
         public IEnumerable<BaseEntityMeta> AllMetas => this.CostBlocks.Cast<BaseEntityMeta>().Concat(this.Dependencies).Concat(this.InputLevels);
 

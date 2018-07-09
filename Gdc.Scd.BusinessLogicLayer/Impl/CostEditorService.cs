@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
@@ -27,37 +26,50 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<IEnumerable<NamedId>> GetCostElementFilterItems(CostEditorContext context)
         {
-            var filter = this.GetCountryFilter(context);
-            var costElement = this.meta.GetCostBlock(context.CostBlockId).GetCostElement(context.CostElementId);
+            var filter = this.GetRegionFilter(context);
+            var costElement = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId];
 
             return await this.sqlRepository.GetDistinctItems(context.CostBlockId, context.ApplicationId, costElement.Dependency.Id, filter);
         }
 
         public async Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context)
         {
-            var previousInputLevel = this.meta.GetPreviousInputLevel(context.InputLevelId);
-            var filter = this.GetCountryFilter(context);
+            var previousInputLevel = 
+                this.meta.CostBlocks[context.CostBlockId]
+                         .CostElements[context.CostElementId]
+                         .GetPreviousInputLevel(context.InputLevelId);
+
+            var filter = this.GetRegionFilter(context);
 
             return await this.sqlRepository.GetDistinctItems(context.CostBlockId, context.ApplicationId, previousInputLevel.Id, filter);
         }
 
+        public async Task<IEnumerable<NamedId>> GetRegions(CostEditorContext context)
+        {
+            var regionInput = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId].RegionInput;
+
+            return await this.sqlRepository.GetDistinctItems(context.CostBlockId, context.ApplicationId, regionInput.Id);
+        }
+
         public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context)
         {
-            var filter = this.GetCountryFilter(context);
+            var filter = this.GetRegionFilter(context);
 
             if (context.CostElementFilterIds != null)
             {
-                var costBlock = this.meta.GetCostBlock(context.CostBlockId);
-                var costElement = costBlock.GetCostElement(context.CostElementId);
+                var costElement = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId];
+                var filterValues = context.CostElementFilterIds.Cast<object>().ToArray();
 
-                filter.Add(costElement.Dependency.Id, context.CostElementFilterIds);
+                filter.Add(costElement.Dependency.Id, filterValues);
             }
 
             if (context.InputLevelFilterIds != null)
             {
-                var previousInputLevel = this.meta.GetPreviousInputLevel(context.InputLevelId);
+                var costElement = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId];
+                var previousInputLevel = costElement.GetPreviousInputLevel(context.InputLevelId);
+                var filterValues = context.InputLevelFilterIds.Cast<object>().ToArray();
 
-                filter.Add(previousInputLevel.Id, context.InputLevelFilterIds);
+                filter.Add(previousInputLevel.Id, filterValues);
             }
 
             var editItemInfo = this.GetEditItemInfo(context);
@@ -69,18 +81,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var editItemInfo = this.GetEditItemInfo(context);
                 
-            var lowerInputLevel = this.meta.InputLevels.Last();
-
             return await this.costEditorRepository.UpdateValues(editItems, editItemInfo);
         }
 
-        private IDictionary<string, IEnumerable<object>> GetCountryFilter(CostEditorContext context)
+        private IDictionary<string, IEnumerable<object>> GetRegionFilter(CostEditorContext context)
         {
             var filter = new Dictionary<string, IEnumerable<object>>();
 
-            if (!string.IsNullOrWhiteSpace(context.CountryId))
+            if (context.RegionInputId.HasValue)
             {
-                filter.Add(MetaConstants.CountryLevelId, new[] { context.CountryId });
+                var regionInput = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId].RegionInput;
+
+                filter.Add(regionInput.Id, new object[] { context.RegionInputId.Value });
             }
 
             return filter;

@@ -37,84 +37,110 @@
   </Dependencies>
 
   <Applications>
-    <Application Name="HW" Caption="Hardware"/>
-    <Application Name="SW" Caption="Software &amp; Solution"/>
+    <Application Name="Hardware" Caption="Hardware"/>
+    <Application Name="SoftwareSolution" Caption="Software &amp; Solution"/>
+    <Application Name="Atom"/>
   </Applications>
   
-  <Atoms>
-    <Atom Name="AFR">
+  <Blocks>
+    <Block Name="AFR">
+      <Applications>
+        <Application>Atom</Application>
+      </Applications>
       <Elements>
-        <Element Name="AFR" InputOption="ManualyAutomaticly" RegionInput="" Dependency="Year">
+        <Element Name="AFR" InputOption="ManualyAutomaticly" RegionInput="_none_" Dependency="Year">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
         </Element>
       </Elements>
-    </Atom>
+    </Block>
 
-    <Atom Name="InstallBase" Caption="Install base">
+    <Block Name="InstallBase" Caption="Install base">
+      <Applications>
+        <Application>Atom</Application>
+      </Applications>
       <Elements>
         <Element Name="InstalledBaseCountry" Caption="Installed base country" InputOption="ManualyAutomaticly"/>
       </Elements>
-    </Atom>
+    </Block>
 
-    <Atom Name="MarkupOtherCosts" Caption="Markup other costs">
+    <Block Name="MarkupOtherCosts" Caption="Markup other costs">
+      <Applications>
+        <Application>Atom</Application>
+      </Applications>
       <Elements>
         <Element Name="MarkupFactor" Caption="Markup factor for other cost" InputOption="Manualy"/>
         <Element Name="Markup" Caption="Markup for other cost" InputOption="Manualy"/>
       </Elements>
-    </Atom>
+    </Block>
 
-    <Atom Name="ProlongationMarkup" Caption="Prolongation markup">
+    <Block Name="ProlongationMarkup" Caption="Prolongation markup">
+      <Applications>
+        <Application>Atom</Application>
+      </Applications>
       <Elements>
         <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost" InputOption="Manualy"/>
         <Element Name="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manualy"/>
       </Elements>
-    </Atom>
+    </Block>
 
-    <Atom Name="MarkupBaseWaranty" Caption="Markup base waranty">
+    <Block Name="MarkupBaseWaranty" Caption="Markup base waranty">
+      <Applications>
+        <Application>Atom</Application>
+      </Applications>
       <Elements>
         <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost" InputOption="Manualy"/>
         <Element Name="MarkupStandardWarranty" Caption="Markup for base standard local cost" InputOption="Manualy"/>
       </Elements>
-    </Atom>
+    </Block>
 
-    <Atom Name="MaterialCostsWarranty" Caption="Material costs in warranty" >
-      <Elements>
-        <Element Name="MaterialCost" Caption="Material costs in warranty" InputOption="ManualyAutomaticly" RegionInput="ClusterRegion"/>
-      </Elements>
-      <InputLevels>
-        <InputLevel>Wg</InputLevel>
-      </InputLevels>
-    </Atom>
-
-    <Atom Name="MaterialCostsOOW" Caption="Material costs OOW">
-      <Elements>
-        <Element Name="MaterialCost" Caption="Material costs OOW" InputOption="Manualy" RegionInput="ClusterRegion"/>
-      </Elements>
-      <InputLevels>
-        <InputLevel>Wg</InputLevel>
-      </InputLevels>
-    </Atom>
-
-    <Atom Name="TaxAndDuties" Caption="Tax &amp; Duties">
-      <Elements>
-        <Element Name="TaxAndDuties" Caption="Tax and duties" InputOption="ManualyAutomaticly"/>
-      </Elements>
-      <InputLevels>
-        <InputLevel>Pla</InputLevel>
-        <InputLevel>Wg</InputLevel>
-      </InputLevels>
-    </Atom>
-  </Atoms>
-  
-  <Blocks>
-    <Block Name="FieldServiceCost" Caption="Field Service Cost">
+    <Block Name="MaterialCostsWarranty" Caption="Material costs in warranty" >
       <Applications>
-        <Application>HW</Application>
+        <Application>Atom</Application>
       </Applications>
       <Elements>
-        <Element Name="RepairTime" Caption="Repair Time (MTTR)" InputOption="Manualy" RegionInput="">
+        <Element Name="MaterialCost" Caption="Material costs in warranty" InputOption="ManualyAutomaticly" RegionInput="ClusterRegion">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
+      </Elements>
+    </Block>
+
+    <Block Name="MaterialCostsOOW" Caption="Material costs OOW">
+      <Applications>
+        <Application>Atom</Application>
+      </Applications>
+      <Elements>
+        <Element Name="MaterialCost" Caption="Material costs OOW" InputOption="Manualy" RegionInput="ClusterRegion">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
+      </Elements>
+    </Block>
+
+    <Block Name="TaxAndDuties" Caption="Tax &amp; Duties">
+      <Applications>
+        <Application>Atom</Application>
+      </Applications>
+      <Elements>
+        <Element Name="TaxAndDuties" Caption="Tax and duties" InputOption="ManualyAutomaticly">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
+      </Elements>
+    </Block>
+      
+    <Block Name="FieldServiceCost" Caption="Field Service Cost">
+      <Applications>
+        <Application>Hardware</Application>
+      </Applications>
+      <Elements>
+        <Element Name="RepairTime" Caption="Repair Time (MTTR)" InputOption="Manualy" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
@@ -132,7 +158,7 @@
 
     <Block Name="ServiceSupportCost" Caption="Service Support Cost">
       <Applications>
-        <Application>HW</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="1stLevelSupportCostsCountry" Caption="1st level support costs country" InputOption="Manualy">
@@ -157,7 +183,7 @@
 
     <Block Name="LogisticsCosts" Caption="Logistics Costs">
       <Applications>
-        <Application>HW</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="StandardHandling" Caption="Standard handling in country" InputOption="Manualy" Dependency="ReactionTime"/>
@@ -172,7 +198,7 @@
 
     <Block Name="AvailabilityFee" Caption="Availability fee">
       <Applications>
-        <Application>HW</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="Installed base high availability" Caption="Installed base high availability" InputOption="Manualy" Dependency="ReactionTime"/>
@@ -196,24 +222,24 @@
             <InputLevel>Country</InputLevel>
           </InputLevels>
         </Element>
-        <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="Automatically" RegionInput=""/>
-        <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="Automatically" RegionInput=""/>
-        <Element Name="MaxQty " Caption="MaxQty" InputOption="Automatically" RegionInput=""/>
+        <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="Automatically" RegionInput="_none_"/>
+        <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="Automatically" RegionInput="_none_"/>
+        <Element Name="MaxQty " Caption="MaxQty" InputOption="Automatically" RegionInput="_none_"/>
         <Element Name="JapanBuy  " Caption="Japan Buy " InputOption="Manualy"/>
       </Elements>
     </Block>
 
     <Block Name="HddRetention" Caption="HDD Retention">
       <Applications>
-        <Application>HW</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="HddFr" Caption="HDD FR" InputOption="Manualy" Dependency="Year" RegionInput="">
+        <Element Name="HddFr" Caption="HDD FR" InputOption="Manualy" Dependency="Year" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
         </Element>
-        <Element Name="HddFr" Caption="HDD FR" InputOption="Manualy" RegionInput="">
+        <Element Name="HddFr" Caption="HDD FR" InputOption="Manualy" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -223,15 +249,15 @@
 
     <Block Name="Reinsurance">
       <Applications>
-        <Application>HW</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manualy" Dependency="Year" RegionInput="">
+        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manualy" Dependency="Year" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
         </Element>
-        <Element Name="ReinsuranceUplift factor" Caption="Reinsurance uplift factor" InputOption="Manualy" Dependency="ReactionTimeAvalability" RegionInput="">
+        <Element Name="ReinsuranceUplift factor" Caption="Reinsurance uplift factor" InputOption="Manualy" Dependency="ReactionTimeAvalability" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -241,7 +267,7 @@
 
     <Block Name="TaxDutiesIW" Caption="Tax &amp; Duties iW">
       <Applications>
-        <Application>HW</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="TaxDuties" Caption="Tax &amp; Duties" InputOption="Reference"/>
@@ -251,7 +277,7 @@
 
     <Block Name="TaxDutiesOOW" Caption="Tax &amp; Duties OOW">
       <Applications>
-        <Application>HW</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="TaxDuties" Caption="Tax &amp; Duties" InputOption="Reference"/>
@@ -261,7 +287,7 @@
 
     <Block Name="MaterialCostOwwPeriod " Caption="Material Cost OOW period">
       <Applications>
-        <Application>HW</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="AFR" InputOption="Reference"/>
@@ -271,7 +297,7 @@
 
     <Block Name="MaterialCostOwwPeriod " Caption="Material Cost OOW period">
       <Applications>
-        <Application>HW</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="AFR" InputOption="Reference"/>
@@ -281,14 +307,14 @@
 
     <Block Name="ProActive " Caption="ProActive">
       <Applications>
-        <Application>HW</Application>
-        <Application>SW</Application>
+        <Application>Hardware</Application>
+        <Application>SoftwareSolution</Application>
       </Applications>
       <Elements>
         <Element Name="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort" InputOption="Manualy"/>
         <Element Name="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort" InputOption="Manualy"/>
         <Element Name="LocalPreparationShcEffort" Caption="Local preparation SHC effort" InputOption="Manualy"/>
-        <Element Name="LocalPreparationShcEffortReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manualy" RegionInput="">
+        <Element Name="LocalPreparationShcEffortReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manualy" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
@@ -306,30 +332,21 @@
   
     <Block Name="SwSpMaintenance " Caption="SW / SP Maintenance">
       <Applications>
-        <Application>SW</Application>
+        <Application>SoftwareSolution</Application>
       </Applications>
       <Elements>
-        <Element Name="2ndLevelSupportCosts" Caption="2nd level support costs" InputOption="Manualy" RegionInput="">
+        <Element Name="2ndLevelSupportCosts" Caption="2nd level support costs" InputOption="Manualy" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
           </InputLevels>
         </Element>
-        <Element Name="2ndLevelSupportCosts" Caption="2nd level support costs" InputOption="Automatically" RegionInput="">
+        <Element Name="2ndLevelSupportCosts" Caption="2nd level support costs" InputOption="Automatically" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Sog</InputLevel>
           </InputLevels>
         </Element>
-        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manualy" Dependency="YearAvailability" RegionInput="">
-          <InputLevels>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sfab</InputLevel>
-            <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-            <InputLevel>SwLicense</InputLevel>  
-          </InputLevels>
-        </Element>
-        <Element Name="CurrencyReinsurance" Caption="Currency Reinsurance" InputOption="Manualy" RegionInput="">
+        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manualy" Dependency="YearAvailability" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
@@ -338,7 +355,7 @@
             <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
         </Element>
-        <Element Name="RecommendedSwSpMaintenanceListPrice" Caption="Recommended SW/SP Maintenance List Price" InputOption="Manualy" Dependency="Availability" RegionInput="">
+        <Element Name="CurrencyReinsurance" Caption="Currency Reinsurance" InputOption="Manualy" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
@@ -347,7 +364,7 @@
             <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
         </Element>
-        <Element Name="MarkupForProductMarginSwLicenseListPrice" Caption="Markup for Product Margin of SW License List Price" InputOption="Manualy" Dependency="Availability" RegionInput="">
+        <Element Name="RecommendedSwSpMaintenanceListPrice" Caption="Recommended SW/SP Maintenance List Price" InputOption="Manualy" Dependency="Availability" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
@@ -356,7 +373,7 @@
             <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
         </Element>
-        <Element Name="ShareSwSpMaintenanceListPrice" Caption="Share SW/SP Maintenance List Price" InputOption="Manualy" Dependency="Availability" RegionInput="">
+        <Element Name="MarkupForProductMarginSwLicenseListPrice" Caption="Markup for Product Margin of SW License List Price" InputOption="Manualy" Dependency="Availability" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
@@ -365,7 +382,16 @@
             <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
         </Element>
-        <Element Name="DiscountDealerPrice" Caption="Discount to Dealer price in %" InputOption="Manualy" RegionInput="">
+        <Element Name="ShareSwSpMaintenanceListPrice" Caption="Share SW/SP Maintenance List Price" InputOption="Manualy" Dependency="Availability" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+            <InputLevel>SwLicense</InputLevel>  
+          </InputLevels>
+        </Element>
+        <Element Name="DiscountDealerPrice" Caption="Discount to Dealer price in %" InputOption="Manualy" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>

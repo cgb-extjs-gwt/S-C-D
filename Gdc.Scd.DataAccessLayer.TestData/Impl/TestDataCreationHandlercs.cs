@@ -12,6 +12,12 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
     public class TestDataCreationHandlercs : IConfigureDatabaseHandler
     {
+        public const string CountryLevelId = "Country";
+
+        public const string PlaLevelId = "PLA";
+
+        public const string WgLevelId = "WG";
+
         private readonly IRepositorySet repositorySet;
 
         private readonly DomainEnitiesMeta entityMetas;
@@ -26,9 +32,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         public void Handle()
         {
-            var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.CountryLevelId, MetaConstants.InputLevelSchema);
-            var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.PlaLevelId, MetaConstants.InputLevelSchema);
-            var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.WgLevelId, MetaConstants.InputLevelSchema);
+            var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
+            var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
+            var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
 
             var queries = new List<SqlHelper>
             {
@@ -76,15 +82,15 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var reactionTimes = this.GetReactionTimeCodeNames();
             var map = new Dictionary<string, string[]>
             {
-                [MetaConstants.CountryLevelId] = countries,
-                [MetaConstants.PlaLevelId] = plas,
-                [MetaConstants.WgLevelId] = warrantyGroups,
+                [CountryLevelId] = countries,
+                [PlaLevelId] = plas,
+                [WgLevelId] = warrantyGroups,
                 ["RoleCodeCode"] = roleCodes,
                 ["ServiceLocationCode"] = serviceLocations,
                 ["ReactionTimeCode"] = reactionTimes
             };
 
-            var countryLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.CountryLevelId, MetaConstants.InputLevelSchema);
+            var countryLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
             var firtsCountryQuery = this.BuildSelectIdByNameQuery(countryLevelMeta, countries[0], "Country_0");
 
             foreach (var costBlockMeta in this.entityMetas.CostBlocks)
@@ -120,7 +126,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     new ColumnInfo(countryLevelMeta.IdField.Name, countryLevelMeta.Name)
                 };
                 columns.AddRange(
-                    fieldNames.Where(field => field != MetaConstants.CountryLevelId)
+                    fieldNames.Where(field => field != CountryLevelId)
                               .Select(fieldName => new ColumnInfo(fieldName, costBlockMeta.Name)));
 
                 yield return
@@ -131,7 +137,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                                .Join(
                                     costBlockMeta,
                                     SqlOperators.Equals(
-                                        new ColumnSqlBuilder(new ColumnInfo(MetaConstants.CountryLevelId, costBlockMeta.Name)),
+                                        new ColumnSqlBuilder(new ColumnInfo(CountryLevelId, costBlockMeta.Name)),
                                         firtsCountryQuery))
                                .Where(SqlOperators.NotEquals(countryLevelMeta.NameField.Name, "firstCountry", countries[0], countryLevelMeta.Name)));
             }

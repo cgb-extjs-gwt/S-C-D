@@ -11,6 +11,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context);
 
+        Task<IEnumerable<NamedId>> GetRegions(CostEditorContext context);
+
         Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context);
 
         Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context);
