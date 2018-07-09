@@ -25,11 +25,11 @@ namespace Gdc.Scd.Core.Meta.Impl
                         {
                             this.BuildByDependency(costElementMeta, costBlockEntity, domainEnitiesMeta);
                         }
+                    }
 
-                        foreach (var inputLevelMeta in costElementMeta.InputLevels)
-                        {
-                            this.BuildByInputLevel(inputLevelMeta, costBlockEntity, domainEnitiesMeta);
-                        }
+                    foreach (var inputLevelMeta in costBlockMeta.GetInputLevels())
+                    {
+                        this.BuildByInputLevel(inputLevelMeta, costBlockEntity, domainEnitiesMeta);
                     }
 
                     domainEnitiesMeta.CostBlocks.Add(costBlockEntity);
