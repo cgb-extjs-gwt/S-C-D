@@ -173,7 +173,6 @@ export const applyFilters = (costBlockId: string) => (<CostBlockAction>{
 const buildContext = (state: CostEditorState) => {
     const { 
         selectedApplicationId: applicationId,  
-        selectedScopeId: scopeId,
         selectedCostBlockId: costBlockId,
         costBlocks
     } = state;

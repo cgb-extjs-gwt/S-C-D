@@ -5,6 +5,8 @@ import { NamedId } from "../../Common/States/CommonStates";
 export interface CostElementMeta extends NamedId {
     dependency: NamedId
     description: string
+    inputLevels: NamedId[]
+    regionInput: NamedId
 }
 
 export interface CostBlockMeta extends NamedId {
@@ -13,12 +15,8 @@ export interface CostBlockMeta extends NamedId {
 }
 
 export interface CostEdirotDto {
-    countries: NamedId[]
-    meta: {
-        applications: NamedId[]
-        costBlocks: CostBlockMeta[]
-        inputLevels: NamedId[]
-    }
+    applications: NamedId[]
+    costBlocks: CostBlockMeta[]
 }
 
 export interface InputLevelMeta extends NamedId {
@@ -32,11 +30,9 @@ export interface CostEditorState {
     costBlockMetas: Map<string, CostBlockMeta>
     inputLevels: Map<string, InputLevelMeta> 
     selectedApplicationId: string
-    selectedScopeId: string
     costBlocks: CostBlockState[]
     visibleCostBlockIds: string[]
     selectedCostBlockId: string
-
     dataLossInfo: {
         isWarningDisplayed: boolean
         action: Action<string>

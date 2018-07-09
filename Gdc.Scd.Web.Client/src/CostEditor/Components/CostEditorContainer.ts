@@ -148,7 +148,6 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
         const { 
             applications, 
             selectedApplicationId,
-            selectedScopeId,
             visibleCostBlockIds,
             selectedCostBlockId,
             costBlocks,
