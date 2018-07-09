@@ -5,7 +5,6 @@ import { PageAction, PAGE_INIT_SUCCESS } from "../../Layout/Actions/PageActions"
 import { 
     COST_ELEMENT_INTPUT_PAGE, 
     COST_ELEMENT_INTPUT_SELECT_APPLICATION, 
-    COST_ELEMENT_INTPUT_SELECT_SCOPE,
     COST_ELEMENT_INTPUT_SELECT_COST_BLOCK,
     COST_ELEMENT_INTPUT_HIDE_LOSE_CHANGES_WARNING,
     COST_ELEMENT_INTPUT_LOSE_CHANGES,
@@ -26,9 +25,8 @@ const createMap = <T extends NamedId>(array: T[]) => {
 
 const initSuccess: Reducer<CostEditorState, PageAction<CostEdirotDto>> = (state, action) => {
     const { countries, meta } = action.data;
-    const { applications, scopes, costBlocks: costBlockMetas, inputLevels } = meta;
+    const { applications, costBlocks: costBlockMetas, inputLevels } = meta;
     const selectedApplicationId = applications[0].id;
-    const selectedScopeId = scopes[0].id;
     const inputLevelMetas = inputLevels.map((item, index) => <InputLevelMeta>{ 
         id: item.id,
         name: item.name,
@@ -40,12 +38,10 @@ const initSuccess: Reducer<CostEditorState, PageAction<CostEdirotDto>> = (state,
         ? {
             ...state,
             applications: createMap(applications),
-            scopes: createMap(scopes),
             countries: createMap(countries),
             costBlockMetas: createMap(costBlockMetas),
             inputLevels: createMap(inputLevelMetas),
             selectedApplicationId,
-            selectedScopeId,
         } 
         : state;
 }
@@ -100,12 +96,6 @@ export const costEditorReducer: Reducer<CostEditorState, Action<string>> = (stat
                 ...state,
                 selectedApplicationId: (<ItemSelectedAction>action).selectedItemId
             }
-
-        case COST_ELEMENT_INTPUT_SELECT_SCOPE:
-        return {
-            ...state,
-            selectedScopeId: (<ItemSelectedAction>action).selectedItemId
-        }
 
         case COST_ELEMENT_INTPUT_SELECT_COST_BLOCK:
             return {

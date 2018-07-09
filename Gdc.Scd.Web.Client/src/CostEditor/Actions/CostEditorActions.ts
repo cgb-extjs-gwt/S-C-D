@@ -9,7 +9,6 @@ import { losseDataCheckAction } from "../Helpers/CostEditorHelpers";
 
 export const COST_ELEMENT_INTPUT_PAGE = 'CostElementsInputs';
 export const COST_ELEMENT_INTPUT_SELECT_APPLICATION = 'COST_ELEMENT_INTPUT.SELECT.APPLICATION';
-export const COST_ELEMENT_INTPUT_SELECT_SCOPE = 'COST_ELEMENT_INTPUT.SELECT.SCOPE';
 export const COST_ELEMENT_INTPUT_SELECT_COST_BLOCK = 'COST_ELEMENT_INTPUT.SELECT.COST_BLOCK';
 export const COST_ELEMENT_INTPUT_HIDE_LOSE_CHANGES_WARNING = 'COST_ELEMENT_INTPUT.HIDE.LOSE_CHANGES_WARNING';
 export const COST_ELEMENT_INTPUT_SHOW_LOSE_CHANGES_WARNING = 'COST_ELEMENT_INTPUT.SHOW.LOSE_CHANGES_WARNING';
@@ -34,11 +33,6 @@ export const init = () => asyncAction(
 export const selectApplication = (applicationId: string) => (<ItemSelectedAction>{
     type: COST_ELEMENT_INTPUT_SELECT_APPLICATION,
     selectedItemId: applicationId
-})
-
-export const selectScope = (selectedScopeId: string) => (<ItemSelectedAction>{
-    type: COST_ELEMENT_INTPUT_SELECT_SCOPE,
-    selectedItemId: selectedScopeId
 })
 
 export const selectCostBlock = (selectedCostBlockId: string) => (<ItemSelectedAction>{
@@ -70,8 +64,4 @@ export const loseChanges = () => asyncAction<PageCommonState<CostEditorState>>(
 
 export const selectApplicationLosseDataCheck = (applicationId: string) => losseDataCheckAction(
     selectApplication(applicationId)
-)
-
-export const selectScopeLosseDataCheck = (selectedScopeId: string) => losseDataCheckAction(
-    selectScope(selectedScopeId)
 )

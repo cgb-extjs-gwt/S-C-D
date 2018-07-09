@@ -6,7 +6,6 @@ import { connect } from "react-redux";
 import { PageCommonState } from "../../Layout/States/PageStates";
 import { init, 
     selectApplicationLosseDataCheck, 
-    selectScopeLosseDataCheck, 
     selectCostBlock, 
     loseChanges, 
     hideDataLoseWarning 
@@ -149,7 +148,6 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
         const { 
             applications, 
             selectedApplicationId,
-            scopes,  
             selectedScopeId,
             visibleCostBlockIds,
             selectedCostBlockId,
@@ -166,10 +164,6 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
             application: {
                 selectedItemId: selectedApplicationId,
                 list: applications && Array.from(applications.values())
-            },
-            scope: {
-                selectedItemId: selectedScopeId,
-                list: scopes && Array.from(scopes.values())
             },
             isDataLossWarningDisplayed: dataLossInfo.isWarningDisplayed,
             costBlocks: {
@@ -188,7 +182,6 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
     dispatch => ({
         onInit: () => dispatch(init()),
         onApplicationSelected: applicationId => dispatch(selectApplicationLosseDataCheck(applicationId)),
-        onScopeSelected: scopeId => dispatch(selectScopeLosseDataCheck(scopeId)),
         onCostBlockSelected: costBlockId => dispatch(selectCostBlock(costBlockId)),
         onLoseChanges: () => dispatch(loseChanges()),
         onCancelDataLose: () => dispatch(hideDataLoseWarning()),

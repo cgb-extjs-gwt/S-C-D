@@ -5,7 +5,6 @@ import { CostEdirotDto, CostElementMeta, CostEditorState, CostBlockMeta } from "
 import { 
     COST_ELEMENT_INTPUT_PAGE, 
     COST_ELEMENT_INTPUT_SELECT_APPLICATION, 
-    COST_ELEMENT_INTPUT_SELECT_SCOPE, 
     COST_ELEMENT_INTPUT_SELECT_COST_BLOCK 
 } from "../Actions/CostEditorActions";
 import { ItemSelectedAction } from "../../Common/Actions/CommonActions";
@@ -42,11 +41,6 @@ import { changeSelecitonFilterItem, resetFilter, loadFilter } from "./FilterRedu
 const getVisibleCostBlockIds = (costBlockMetas: CostBlockMeta[], selectedApplicationId: string) => {
     return costBlockMetas.filter(costBlockMeta => costBlockMeta.applicationIds.includes(selectedApplicationId))
                          .map(costBlockMeta => costBlockMeta.id);
-}
-
-const getVisibleCostElementIds = (costElementMetas: CostElementMeta[], selectedScopeId: string) => {
-    return costElementMetas.filter(costElementMeta => costElementMeta.scopeId === selectedScopeId)
-                           .map(costElementMeta => costElementMeta.id);
 }
 
 const clearCostBlockFilters  = (costBlock: CostBlockState, clearSelected: boolean = false) => {
@@ -100,7 +94,7 @@ const initSuccess: Reducer<CostEditorState, PageAction<CostEdirotDto>> = (state,
                         costElementId: costElementMeta.id
                     }))
                 },
-                visibleCostElementIds: getVisibleCostElementIds(costBlockMeta.costElements, state.selectedScopeId),
+                visibleCostElementIds: costBlockMeta.costElements.map(costElement => costElement.id),
                 inputLevel: {
                     selectedItemId: null,
                     list: inputLevels.map(inputLevel => (<InputLevelState>{
@@ -137,23 +131,6 @@ const selectApplication: Reducer<CostEditorState, ItemSelectedAction> = (state, 
         costBlocks: state.costBlocks.map(costBlock => clearCostBlockFilters(costBlock, true)),
         visibleCostBlockIds,
         selectedCostBlockId,
-    }
-}
-
-const selectScope: Reducer<CostEditorState, ItemSelectedAction> = (state, action) => {
-    return {
-        ...state,
-        costBlocks: state.costBlocks.map(costBlock => {
-            const costBlockMeta = state.costBlockMetas.get(costBlock.costBlockId);
-            const visibleCostElementIds = getVisibleCostElementIds(
-                costBlockMeta.costElements, 
-                action.selectedItemId);
-
-            return {
-                ...clearCostBlockFilters(costBlock, true),
-                visibleCostElementIds
-            };
-        })
     }
 }
 
@@ -368,9 +345,6 @@ export const costBlockReducer: Reducer<CostEditorState, Action<string>> = (state
         
         case COST_ELEMENT_INTPUT_SELECT_APPLICATION:
             return selectApplication(state, <ItemSelectedAction>action)
-
-        case COST_ELEMENT_INTPUT_SELECT_SCOPE:
-            return selectScope(state, <ItemSelectedAction>action)
 
         case COST_BLOCK_INPUT_SELECT_COUNTRY: 
             return selectCountry(state, action)

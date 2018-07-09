@@ -5,7 +5,6 @@ import { NamedId } from "../../Common/States/CommonStates";
 export interface CostElementMeta extends NamedId {
     dependency: NamedId
     description: string
-    scopeId: string
 }
 
 export interface CostBlockMeta extends NamedId {
@@ -17,7 +16,6 @@ export interface CostEdirotDto {
     countries: NamedId[]
     meta: {
         applications: NamedId[]
-        scopes: NamedId[]
         costBlocks: CostBlockMeta[]
         inputLevels: NamedId[]
     }
@@ -30,7 +28,6 @@ export interface InputLevelMeta extends NamedId {
 
 export interface CostEditorState {
     applications: Map<string, NamedId>
-    scopes: Map<string, NamedId>
     countries: Map<string, NamedId>
     costBlockMetas: Map<string, CostBlockMeta>
     inputLevels: Map<string, InputLevelMeta> 

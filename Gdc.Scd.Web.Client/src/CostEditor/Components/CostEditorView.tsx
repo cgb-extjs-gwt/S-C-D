@@ -41,7 +41,6 @@ Ext.require('Ext.MessageBox');
 export interface CostEditorActions {
     onInit?: () => void;
     onApplicationSelected?: (applicationId: string) => void;
-    onScopeSelected?: (scopeId: string) => void;
     onCostBlockSelected?: (costBlockId: string) => void;
     onLoseChanges?: () => void
     onCancelDataLose?: () => void
@@ -74,7 +73,6 @@ export interface CostBlockTab extends NamedId {
 
 export interface CostEditorProps extends CostEditorActions {
     application: SelectList<NamedId>
-    scope: SelectList<NamedId>
     costBlocks: SelectList<CostBlockTab>
     isDataLossWarningDisplayed: boolean
 }
@@ -97,21 +95,12 @@ export class CostEditorView extends React.Component<CostEditorProps> {
     }
 
     public render() {
-        const { application, scope, costBlocks } = this.props;
+        const { application, costBlocks } = this.props;
 
         return (
             <Container layout="vbox">
                 <FormPanel defaults={{labelAlign: 'left'}}>
                     {this.applicationCombobox(application)}
-                    {this.scopeCombobox(scope)}
-
-                    {/* <ContainerField label="Scope" layout={{type: 'vbox', align: 'left'}}>
-                        { 
-                            scope && 
-                            scope.list && 
-                            scope.list.map(item => this.scopeRadioFild(item, scope.selectedItemId))
-                        }
-                    </ContainerField> */}
                 </FormPanel>
 
                 <Container title="Cost Blocks:">
@@ -175,48 +164,6 @@ export class CostEditorView extends React.Component<CostEditorProps> {
                 selection={selectedApplication}
                 onChange={(combobox, newValue, oldValue) => 
                     onApplicationSelected && onApplicationSelected(newValue)
-                }
-            />
-        );
-    }
-
-    // private scopeRadioFild(scopeItem: NamedId, selectedScopeId: string) {
-    //     const { onScopeSelected } = this.props;
-
-    //     return (
-    //         <RadioField 
-    //             key={scopeItem.id} 
-    //             itemId={scopeItem.id}
-    //             boxLabel={scopeItem.name} 
-    //             name="scope" 
-    //             checked={scopeItem.id === selectedScopeId}
-    //             onCheck={() => onScopeSelected && onScopeSelected(scopeItem.id) }
-    //         />
-    //     );
-    // }
-
-    private scopeCombobox(scopes: SelectList<NamedId>) {
-        const { onScopeSelected } = this.props;
-
-        const scopeStore = Ext.create('Ext.data.Store', {
-            data: scopes && scopes.list
-        });
-
-        const selectedScope = 
-            scopeStore.getData()
-                      .findBy(item => (item.data as NamedId).id === scopes.selectedItemId);
-
-        return (
-            <ComboBoxField 
-                label="Scope"
-                width="25%"
-                displayField="name"
-                valueField="id"
-                queryMode="local"
-                store={scopeStore}
-                selection={selectedScope}
-                onChange={(combobox, newValue, oldValue) => 
-                    onScopeSelected && onScopeSelected(newValue)
                 }
             />
         );
