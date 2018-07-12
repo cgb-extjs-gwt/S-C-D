@@ -13,4 +13,9 @@
     <None Remove="node_modules\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="src\CapabilityMatrix\Actions\" />
+    <Folder Include="src\CapabilityMatrix\Reducers\" />
+  </ItemGroup>
+
 </Project>
