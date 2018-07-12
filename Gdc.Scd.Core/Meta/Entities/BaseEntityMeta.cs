@@ -4,13 +4,15 @@ using Gdc.Scd.Core.Meta.Interfaces;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
-    public abstract class BaseEntityMeta : IMetaIdentifialble
+    public abstract class BaseEntityMeta : IMetaIdentifialble, IStoreTyped
     {
         public string Name { get; private set; }
 
         public string Schema { get; private set; }
 
         public string FullName => BuildFullName(this.Name, this.Schema);
+
+        public StoreType Type { get; set; }
 
         public abstract IEnumerable<FieldMeta> AllFields { get; }
 

@@ -88,11 +88,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var filter = new Dictionary<string, IEnumerable<object>>();
 
-            if (context.RegionInputId.HasValue)
+            if (context.RegionInputId != null)
             {
                 var regionInput = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId].RegionInput;
 
-                filter.Add(regionInput.Id, new object[] { context.RegionInputId.Value });
+                filter.Add(regionInput.Id, new object[] { context.RegionInputId });
             }
 
             return filter;

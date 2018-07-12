@@ -15,12 +15,12 @@ import { PageCommonState, PageState, PAGE_STATE_KEY } from '../../Layout/States/
 import { CostEditorState, CostBlockMeta } from '../States/CostEditorStates';
 import { getCostEditorDto } from '../Services/CostEditorServices';
 import { CostBlockState, EditItem, CheckItem, Filter } from '../States/CostBlockStates';
-import { selectCountry, 
+import { selectRegion, 
     selectCostElement, 
     selectInputLevel, 
-    getFilterItemsByCustomElementSelection, 
+    getDataByCustomElementSelection, 
     getFilterItemsByInputLevelSelection, 
-    reloadFilterBySelectedCountry, 
+    reloadFilterBySelectedRegion, 
     changeSelectionCostElementFilter, 
     changeSelectionInputLevelFilter, 
     resetCostElementFilter, 
@@ -29,7 +29,7 @@ import { selectCountry,
     clearEditItems, 
     editItem, 
     saveEditItemsToServer, 
-    selectCountryWithReloading, 
+    selectRegionWithReloading, 
     applyFiltersWithReloading 
 } 
 from '../Actions/CostBlockActions';
@@ -45,9 +45,9 @@ export interface CostEditorActions {
     onLoseChanges?: () => void
     onCancelDataLose?: () => void
     tabActions: {
-        onCountrySelected?: (countryId: string, costBlockId: string) => void
+        onRegionSelected?: (regionId: string, costBlockId: string) => void
         onCostElementSelected?: (costBlockId: string, costElementId: string) => void
-        onInputLevelSelected?: (costBlockId: string, inputLevelId: string) => void
+        onInputLevelSelected?: (costBlockId: string, costElementId: string, inputLevelId: string) => void
         onCostElementFilterSelectionChanged?: (
             costBlockId: string,
             costElementId: string, 
@@ -55,6 +55,7 @@ export interface CostEditorActions {
             isSelected: boolean) => void
         onInputLevelFilterSelectionChanged?: (
             costBlockId: string,
+            costElementId: string, 
             inputLevelId: string, 
             filterItemId: string,
             isSelected: boolean) => void
@@ -171,7 +172,7 @@ export class CostEditorView extends React.Component<CostEditorProps> {
 
     private costBlockTab(costBlockTab: CostBlockTab, selectedCostBlockId: string) {
         const { 
-            onCountrySelected, 
+            onRegionSelected, 
             onCostElementSelected, 
             onInputLevelSelected,
             onCostElementFilterSelectionChanged,
@@ -188,17 +189,17 @@ export class CostEditorView extends React.Component<CostEditorProps> {
             <Container key={costBlockTab.id} title={costBlockTab.name}>
                 <CostBlockView 
                     {...costBlockTab.costBlock} 
-                    onCountrySelected={
-                        countryId => 
-                            onCountrySelected && onCountrySelected(countryId, costBlockTab.id)
+                    onRegionSelected={
+                        regionId => 
+                            onRegionSelected && onRegionSelected(regionId, costBlockTab.id)
                     } 
                     onCostElementSelected={
                         costElementId => 
                             onCostElementSelected && onCostElementSelected(costBlockTab.id, costElementId)
                     }
                     onInputLevelSelected={
-                        inputLevelId => 
-                            onInputLevelSelected && onInputLevelSelected(costBlockTab.id, inputLevelId)
+                        (costElementId, inputLevelId) => 
+                            onInputLevelSelected && onInputLevelSelected(costBlockTab.id, costElementId, inputLevelId)
                     }
                     onCostElementFilterSelectionChanged={
                         (costElementId, filterItemId, isSelected) =>
@@ -206,9 +207,9 @@ export class CostEditorView extends React.Component<CostEditorProps> {
                             onCostElementFilterSelectionChanged(costBlockTab.id, costElementId, filterItemId, isSelected)
                     }
                     onInputLevelFilterSelectionChanged={
-                        (inputLevelId, filterItemId, isSelected) =>
+                        (costElementId, inputLevelId, filterItemId, isSelected) =>
                             onInputLevelFilterSelectionChanged && 
-                            onInputLevelFilterSelectionChanged(costBlockTab.id, inputLevelId, filterItemId, isSelected)
+                            onInputLevelFilterSelectionChanged(costElementId, costBlockTab.id, inputLevelId, filterItemId, isSelected)
                     }
                     onCostElementFilterReseted={
                         costElementId => 

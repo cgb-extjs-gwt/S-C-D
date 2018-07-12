@@ -7,7 +7,8 @@ import { EditItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { losseDataCheckHandlerAction } from "../Helpers/CostEditorHelpers";
 
-export const COST_BLOCK_INPUT_SELECT_COUNTRY = 'COST_BLOCK_INPUT.SELECT.COUNTRY';
+export const COST_BLOCK_INPUT_LOAD_REGIONS = 'COST_BLOCK_INPUT.LOAD.REGIONS';
+export const COST_BLOCK_INPUT_SELECT_REGIONS = 'COST_BLOCK_INPUT.SELECT.REGIONS';
 export const COST_BLOCK_INPUT_SELECT_COST_ELEMENT = 'COST_BLOCK_INPUT.SELECT.COST_ELEMENT';
 export const COST_BLOCK_INPUT_SELECTION_CHANGE_COST_ELEMENT_FILTER = 'COST_BLOCK_INPUT.SELECTION_CHANGE.COST_ELEMENT_FILTER'
 export const COST_BLOCK_INPUT_RESET_COST_ELEMENT_FILTER = 'COST_BLOCK_INPUT_RESET_COST_ELEMENT_FILTER'
@@ -26,8 +27,8 @@ export interface CostBlockAction extends Action<string>  {
     costBlockId: string 
 }
 
-export interface CountrySelectedAction extends CostBlockAction {
-    countryId: string;
+export interface RegionSelectedAction extends CostBlockAction {
+    regionId: string;
 }
 
 export interface CostElementAction extends CostBlockAction {
@@ -42,11 +43,15 @@ export interface FilterSelectionChangedAction extends CostBlockAction {
 export interface CostElementFilterSelectionChangedAction extends FilterSelectionChangedAction, CostElementAction {
 }
 
-export interface InputLevelAction extends CostBlockAction {
+export interface InputLevelAction extends CostElementAction {
     inputLevelId: string
 }
 
 export interface InputLevelFilterSelectionChangedAction extends FilterSelectionChangedAction, InputLevelAction {
+}
+
+export interface RegionLoadedAction extends CostElementAction {
+    regions: NamedId[]
 }
 
 export interface CostlElementsFilterLoadedAction extends CostElementAction {
@@ -65,10 +70,10 @@ export interface ItemEditedAction extends CostBlockAction {
     item: EditItem
 }
 
-export const selectCountry = (costBlockId: string, countryId: string) => (<CountrySelectedAction>{
-    type:  COST_BLOCK_INPUT_SELECT_COUNTRY,
+export const selectRegion = (costBlockId: string, regionId: string) => (<RegionSelectedAction>{
+    type:  COST_BLOCK_INPUT_SELECT_REGIONS,
     costBlockId,
-    countryId
+    regionId
 })
 
 export const selectCostElement = (costBlockId: string, costElementId: string) => (<CostElementAction>{
@@ -96,20 +101,23 @@ export const resetCostElementFilter = (costBlockId: string, costElementId: strin
     costElementId
 })
 
-export const selectInputLevel = (costBlockId: string, inputLevelId: string) => (<InputLevelAction>{
+export const selectInputLevel = (costBlockId: string, costElementId: string,  inputLevelId: string) => (<InputLevelAction>{
     type: COST_BLOCK_INPUT_SELECT_INPUT_LEVEL,
     costBlockId,
+    costElementId,
     inputLevelId
 })
 
 export const changeSelectionInputLevelFilter = (
     costBlockId: string, 
+    costElementId: string,
     inputLevelId: string, 
     filterItemId: string,
     isSelected: boolean
 ) => (<InputLevelFilterSelectionChangedAction>{
     type: COST_BLOCK_INPUT_SELECTION_CHANGE_INPUT_LEVEL_FILTER,
     costBlockId,
+    costElementId,
     inputLevelId,
     filterItemId,
     isSelected
@@ -120,6 +128,13 @@ export const resetInputLevelFilter = (costBlockId: string, inputLevelId: string)
     costBlockId,
     inputLevelId
 }) 
+
+export const loadRegions = (costBlockId: string, costElementId: string, regions: NamedId[]) => (<RegionLoadedAction>{
+    type: COST_BLOCK_INPUT_LOAD_REGIONS,
+    costBlockId,
+    costElementId,
+    regions
+})
 
 export const loadCostElementFilter = (
     costBlockId: string, 
@@ -134,11 +149,13 @@ export const loadCostElementFilter = (
 
 export const loadInputLevelFilter = (
     costBlockId: string, 
+    costElementId: string,
     inputLevelId: string, 
     filterItems: NamedId[]
 ) => (<InputLevelFilterLoadedAction>{
     type: COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER,
     costBlockId,
+    costElementId,
     inputLevelId,
     filterItems
 })
@@ -180,43 +197,49 @@ const buildContext = (state: CostEditorState) => {
     const costBlock = costBlocks.find(item => item.costBlockId === costBlockId); 
 
     const { 
-        selectedCountryId: countryId,
         costElement,
-        inputLevel                
     } = costBlock;
 
     let costElementFilterIds: string[] = null;
     let inputLevelFilterIds: string[] = null;
+    let inputLevelId: string = null;
+    let regionInputId: string = null;
 
-    if (costElement.selectedItemId != null && inputLevel.selectedItemId != null) {
+    if (costElement.selectedItemId != null) {
         const selectedCostElement = 
             costElement.list.find(item => item.costElementId === costElement.selectedItemId);
 
-        costElementFilterIds = selectedCostElement.filter 
-            ? selectedCostElement.filter.filter(item => item.isChecked).map(item => item.id) 
-            : [];
+        regionInputId = selectedCostElement.region && selectedCostElement.region.selectedItemId;
 
-        const selectedInputLevel = 
-            inputLevel.list.find(item => item.inputLevelId === inputLevel.selectedItemId);
+        if (selectedCostElement.inputLevel.selectedItemId != null)
+        {
+            inputLevelId = selectedCostElement.inputLevel.selectedItemId;
 
-        inputLevelFilterIds = selectedInputLevel.filter 
-            ? selectedInputLevel.filter.filter(item => item.isChecked).map(item => item.id)
-            : [];
+            const selectedInputLevel = 
+                selectedCostElement.inputLevel.list.find(item => item.inputLevelId === selectedCostElement.inputLevel.selectedItemId);
+
+            costElementFilterIds = selectedCostElement.filter 
+                ? selectedCostElement.filter.filter(item => item.isChecked).map(item => item.id) 
+                : [];
+
+            inputLevelFilterIds = selectedInputLevel.filter 
+                ? selectedInputLevel.filter.filter(item => item.isChecked).map(item => item.id)
+                : [];
+        }
     }
 
     return <service.Context>{
         applicationId,
-        scopeId,
         costBlockId,
-        countryId,
+        regionInputId,
         costElementId: costElement.selectedItemId,
-        inputLevelId: inputLevel.selectedItemId,
+        inputLevelId,
         costElementFilterIds,
         inputLevelFilterIds
     }
 }
 
-export const getFilterItemsByCustomElementSelection = (costBlockId: string, costElementId: string) =>
+export const getDataByCustomElementSelection = (costBlockId: string, costElementId: string) =>
     asyncAction<PageCommonState<CostEditorState>>(
         (dispatch, getState) => {
             dispatch(selectCostElement(costBlockId, costElementId));
@@ -224,67 +247,68 @@ export const getFilterItemsByCustomElementSelection = (costBlockId: string, cost
             const { page } = getState();
             const { data: state } = page;
             const costElementMeta = state.costBlockMetas.get(costBlockId).costElements.find(item => item.id === costElementId);
+            const context = buildContext(state);
+            const costBlock = state.costBlocks.find(item => item.costBlockId === costBlockId);
+            const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
 
-            if (costElementMeta.dependency) {
-                const costBlock = state.costBlocks.find(item => item.costBlockId === costBlockId);
-                const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
-                
-                if (!costElement.filter) {
-                    const context = buildContext(state);
+            if (costElementMeta.dependency && !costElement.filter) {
+                service.getCostElementFilterItems(context).then(
+                    filterItems => dispatch(loadCostElementFilter(costBlockId, costElementId, filterItems))
+                )
+            }
 
-                    service.getCostElementFilterItems(context).then(
-                        filterItems => dispatch(loadCostElementFilter(costBlockId, costElementId, filterItems))
-                    )
-                }
+            if (costElementMeta.regionInput && !costElement.region) {
+                service.getRegions(context).then(regions => dispatch(loadRegions(costBlockId, costElementId, regions)));
             }
         }
     )
 
-export const getFilterItemsByInputLevelSelection = (costBlockId: string, inputLevelId: string) =>
+export const getFilterItemsByInputLevelSelection = (costBlockId: string, costElementId: string, inputLevelId: string) =>
     asyncAction<PageCommonState<CostEditorState>>(
         (dispatch, getState) => {
-            dispatch(selectInputLevel(costBlockId, inputLevelId));
+            dispatch(selectInputLevel(costBlockId, costElementId, inputLevelId));
 
             const { page } = getState();
             const { data: state } = page;
 
-            const inputLelvelMeta = state.inputLevels.get(inputLevelId);
+            const costBlockMeta = state.costBlockMetas.get(costBlockId);
+            const costElementMeta = costBlockMeta.costElements.find(item => item.id === costElementId);
+            const inputLevelMeta = costElementMeta.inputLevels.find(item => item.id === inputLevelId);
 
-            if (inputLelvelMeta.isFilterLoading) {
+            if (inputLevelMeta.isFilterLoading) {
                 const costBlock = state.costBlocks.find(item => item.costBlockId === costBlockId);
-                const inputLevel = 
-                    costBlock.inputLevel.list && 
-                    costBlock.inputLevel.list.find(item => item.inputLevelId === inputLevelId);
-
-                if (!inputLevel || !inputLevel.filter) {
+                const costElement = costBlock.costElement.list.find(item => item.costElementId === costBlock.costElement.selectedItemId);
+                const inputLevel = costElement.inputLevel.list.find(item => item.inputLevelId === inputLevelId);
+                
+                if (!inputLevel || !inputLevel.filter)
+                {
                     const context = buildContext(state);
 
                     service.getLevelInputFilterItems(context).then(
-                        filterItems => dispatch(loadInputLevelFilter(costBlockId, inputLevelId, filterItems))
+                        filterItems => dispatch(loadInputLevelFilter(costBlockId, costElementId, inputLevelId, filterItems))
                     )
                 }
             }
         }
     )
 
-export const reloadFilterBySelectedCountry = (costBlockId: string, countryId: string) =>
+export const reloadFilterBySelectedRegion = (costBlockId: string, regionId: string) =>
     asyncAction<PageCommonState<CostEditorState>>(
         (dispatch, getState) => {
-            dispatch(selectCountry(costBlockId, countryId));
+            dispatch(selectRegion(costBlockId, regionId));
 
             const { page } = getState();
             const costBlock = page.data.costBlocks.find(item => item.costBlockId === costBlockId);
             const {
                 costElement: { selectedItemId: costElementId },
-                inputLevel: { selectedItemId: inputLevelId }
             } = costBlock;
 
-            dispatch(getFilterItemsByCustomElementSelection(costBlockId, costElementId));
-            dispatch(getFilterItemsByInputLevelSelection(costBlockId, inputLevelId));
+            const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
+
+            dispatch(getDataByCustomElementSelection(costBlockId, costElementId));
+            dispatch(getFilterItemsByInputLevelSelection(costBlockId, costElementId, costElement.inputLevel.selectedItemId));
         }
     )
-
-
 
 export const loadEditItemsByContext = () => 
     asyncAction<PageCommonState<CostEditorState>>(
@@ -316,9 +340,9 @@ export const saveEditItemsToServer = (costBlockId: string) =>
         }
     )
 
-export const selectCountryWithReloading = (costBlockId: string, countryId: string) => losseDataCheckHandlerAction(
+export const selectRegionWithReloading = (costBlockId: string, RegionId: string) => losseDataCheckHandlerAction(
     (dispatch, state) => {
-        dispatch(reloadFilterBySelectedCountry(costBlockId, countryId));
+        dispatch(reloadFilterBySelectedRegion(costBlockId, RegionId));
         dispatch(loadEditItemsByContext());
     }
 )

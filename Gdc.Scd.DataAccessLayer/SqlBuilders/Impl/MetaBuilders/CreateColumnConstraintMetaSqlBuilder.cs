@@ -17,19 +17,22 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
         {
             string result = null;
 
-            switch (this.Meta.GetField(this.Field))
+            if (this.Meta.Type == StoreType.Table)
             {
-                case IdFieldMeta idField:
-                    result = this.BuildPimaryKeyConstraint(idField);
-                    break;
+                switch (this.Meta.GetField(this.Field))
+                {
+                    case IdFieldMeta idField:
+                        result = this.BuildPimaryKeyConstraint(idField);
+                        break;
 
-                case SimpleFieldMeta simpleField when simpleField.Type == TypeCode.Double:
-                    result = this.BuildDefaultZeroValue(simpleField);
-                    break;
+                    case SimpleFieldMeta simpleField when simpleField.Type == TypeCode.Double:
+                        result = this.BuildDefaultZeroValue(simpleField);
+                        break;
 
-                case ReferenceFieldMeta referenceField:
-                    result = this.BuildForeignConstraint(referenceField);
-                    break;
+                    case ReferenceFieldMeta referenceField:
+                        result = this.BuildForeignConstraint(referenceField);
+                        break;
+                }
             }
 
             return result;
@@ -57,14 +60,21 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
 
         private string BuildForeignConstraint(ReferenceFieldMeta field)
         {
-            var constraintName = $"[FK_{this.Meta.Schema}{this.Meta.Name}_{field.ReferenceMeta.Schema}{field.ReferenceMeta.Name}]";
+            string result = null;
 
-            return
-                $@"
-                    {this.BuildAlterTable()} WITH CHECK ADD  CONSTRAINT {constraintName} FOREIGN KEY([{field.Name}]) 
-                    REFERENCES [{field.ReferenceMeta.Schema}].[{field.ReferenceMeta.Name}] ([{field.ReferenceValueField}]);
-                    {this.BuildAlterTable()} CHECK CONSTRAINT {constraintName};
-                ";
+            if (field.ReferenceMeta.Type == StoreType.Table)
+            {
+                var constraintName = $"[FK_{this.Meta.Schema}{this.Meta.Name}_{field.ReferenceMeta.Schema}{field.ReferenceMeta.Name}]";
+
+                result =
+                    $@"
+                        {this.BuildAlterTable()} WITH CHECK ADD  CONSTRAINT {constraintName} FOREIGN KEY([{field.Name}]) 
+                        REFERENCES [{field.ReferenceMeta.Schema}].[{field.ReferenceMeta.Name}] ([{field.ReferenceValueField}]);
+                        {this.BuildAlterTable()} CHECK CONSTRAINT {constraintName};
+                    ";
+            }
+
+            return result;
         }
     }
 }

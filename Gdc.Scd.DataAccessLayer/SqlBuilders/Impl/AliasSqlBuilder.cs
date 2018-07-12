@@ -12,7 +12,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 
         public override string Build(SqlBuilderContext context)
         {
-            return $"{this.SqlBuilder.Build(context)} AS {this.Alias}";
+            return $"{this.SqlBuilder.Build(context)} AS [{this.Alias}]";
         }
     }
 }

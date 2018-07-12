@@ -72,36 +72,50 @@ namespace Gdc.Scd.Core.Meta.Impl
             if (costElementMeta.Dependency != null && costBlockEntity.DependencyFields[costElementMeta.Dependency.Id] == null)
             {
                 var dependencyNameField = new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String);
-                var dependencyEntity = new NamedEntityMeta(costElementMeta.Dependency.Id, dependencyNameField, MetaConstants.DependencySchema);
+                var dependencyEntity = new NamedEntityMeta(costElementMeta.Dependency.Id, dependencyNameField, MetaConstants.DependencySchema)
+                {
+                    Type = costElementMeta.Dependency.Type
+                };
 
                 if (domainEnitiesMeta.Dependencies[dependencyEntity.FullName] == null)
                 {
                     domainEnitiesMeta.Dependencies.Add(dependencyEntity);
                 }
 
-                costBlockEntity.DependencyFields.Add(new ReferenceFieldMeta(costElementMeta.Dependency.Id, dependencyEntity)
-                {
-                    ReferenceValueField = dependencyEntity.IdField.Name,
-                    ReferenceFaceField = dependencyNameField.Name
-                });
+                //costBlockEntity.DependencyFields.Add(new ReferenceFieldMeta(costElementMeta.Dependency.Id, dependencyEntity)
+                //{
+                //    ReferenceValueField = dependencyEntity.IdField.Name,
+                //    ReferenceFaceField = dependencyNameField.Name,
+                //    HasConstraint = costElementMeta.Dependency.Type == StoreType.Table
+                //});
+
+                costBlockEntity.DependencyFields.Add(
+                    ReferenceFieldMeta.Build(costElementMeta.Dependency.Id, dependencyEntity));
             }
         }
 
         private void BuildByInputLevel(InputLevelMeta inputLevelMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta)
         {
             var inputLevelNameField = new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String);
-            var inputLevelEntity = new NamedEntityMeta(inputLevelMeta.Id, inputLevelNameField, MetaConstants.InputLevelSchema);
+            var inputLevelEntity = new NamedEntityMeta(inputLevelMeta.Id, inputLevelNameField, MetaConstants.InputLevelSchema)
+            {
+                Type = inputLevelMeta.Type
+            };
 
             if (domainEnitiesMeta.InputLevels[inputLevelEntity.FullName] == null)
             {
                 domainEnitiesMeta.InputLevels.Add(inputLevelEntity);
             }
 
-            costBlockEntity.InputLevelFields.Add(new ReferenceFieldMeta(inputLevelMeta.Id, inputLevelEntity)
-            {
-                ReferenceValueField = inputLevelEntity.IdField.Name,
-                ReferenceFaceField = inputLevelNameField.Name
-            });
+            //costBlockEntity.InputLevelFields.Add(new ReferenceFieldMeta(inputLevelMeta.Id, inputLevelEntity)
+            //{
+            //    ReferenceValueField = inputLevelEntity.IdField.Name,
+            //    ReferenceFaceField = inputLevelNameField.Name,
+            //    HasConstraint = inputLevelMeta.Type == StoreType.Table
+            //});
+
+            costBlockEntity.InputLevelFields.Add(
+                ReferenceFieldMeta.Build(inputLevelMeta.Id, inputLevelEntity));
         }
     }
 }

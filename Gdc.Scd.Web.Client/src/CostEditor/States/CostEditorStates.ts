@@ -5,8 +5,9 @@ import { NamedId } from "../../Common/States/CommonStates";
 export interface CostElementMeta extends NamedId {
     dependency: NamedId
     description: string
-    inputLevels: NamedId[]
+    inputLevels: InputLevelMeta[]
     regionInput: NamedId
+    inputType: InputType
 }
 
 export interface CostBlockMeta extends NamedId {
@@ -14,7 +15,7 @@ export interface CostBlockMeta extends NamedId {
     costElements: CostElementMeta[]
 }
 
-export interface CostEdirotDto {
+export interface CostEditortDto {
     applications: NamedId[]
     costBlocks: CostBlockMeta[]
 }
@@ -24,11 +25,16 @@ export interface InputLevelMeta extends NamedId {
     isFilterLoading: boolean
 }
 
+export enum InputType {
+    Manually,
+    Automatically,
+    ManualyAutomaticly,
+    Reference
+}
+
 export interface CostEditorState {
     applications: Map<string, NamedId>
-    countries: Map<string, NamedId>
     costBlockMetas: Map<string, CostBlockMeta>
-    inputLevels: Map<string, InputLevelMeta> 
     selectedApplicationId: string
     costBlocks: CostBlockState[]
     visibleCostBlockIds: string[]

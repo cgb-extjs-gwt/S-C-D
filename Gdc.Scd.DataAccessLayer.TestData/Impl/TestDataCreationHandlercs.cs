@@ -2,6 +2,7 @@
 using System.Linq;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
@@ -12,11 +13,19 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
     public class TestDataCreationHandlercs : IConfigureDatabaseHandler
     {
-        public const string CountryLevelId = "Country";
+        private const string CountryLevelId = "Country";
 
-        public const string PlaLevelId = "PLA";
+        private const string PlaLevelId = "Pla";
 
-        public const string WgLevelId = "WG";
+        private const string WgLevelId = "Wg";
+
+        private const string RoleCodeKey = "RoleCodeCode";
+
+        private const string ServiceLocationKey = "ServiceLocation";
+
+        private const string ReactionTimeKey = "ReactionTime";
+
+        private const string ReactionTypeKey = "ReactionType";
 
         private readonly IRepositorySet repositorySet;
 
@@ -41,9 +50,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql(countryInputLevelMeta, this.GetCountrieNames()),
                 this.BuildInsertSql(plaInputLevelMeta, this.GetPlaNames()),
                 this.BuildInsertSql(wgInputLevelMeta, this.GetWarrantyGroupNames()),
-                this.BuildInsertSql(MetaConstants.DependencySchema, "RoleCodeCode", this.GetRoleCodeNames()),
-                this.BuildInsertSql(MetaConstants.DependencySchema, "ServiceLocationCode", this.GetServiceLocationCodeNames()),
-                this.BuildInsertSql(MetaConstants.DependencySchema, "ReactionTimeCode", this.GetReactionTimeCodeNames())
+                //this.BuildInsertSql(MetaConstants.DependencySchema, RoleCodeKey, this.GetRoleCodeNames()),
+                this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
+                this.BuildInsertSql(new NamedEntityMeta(ReactionTimeKey, MetaConstants.DependencySchema), this.GetReactionTimeCodeNames()),
+                this.BuildInsertSql(new NamedEntityMeta(ReactionTypeKey, MetaConstants.DependencySchema), this.GetReactionTypeNames()),
+                this.BuildInsertReactionSql()
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
 
@@ -77,7 +88,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var countries = this.GetCountrieNames();
             var plas = this.GetPlaNames();
             var warrantyGroups = this.GetWarrantyGroupNames();
-            var roleCodes = this.GetRoleCodeNames();
+            //var roleCodes = this.GetRoleCodeNames();
             var serviceLocations = this.GetServiceLocationCodeNames();
             var reactionTimes = this.GetReactionTimeCodeNames();
             var map = new Dictionary<string, string[]>
@@ -85,15 +96,20 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 [CountryLevelId] = countries,
                 [PlaLevelId] = plas,
                 [WgLevelId] = warrantyGroups,
-                ["RoleCodeCode"] = roleCodes,
-                ["ServiceLocationCode"] = serviceLocations,
-                ["ReactionTimeCode"] = reactionTimes
+                //[RoleCodeKey] = roleCodes,
+                [ServiceLocationKey] = serviceLocations,
+                [ReactionTimeKey] = reactionTimes
             };
 
             var countryLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
             var firtsCountryQuery = this.BuildSelectIdByNameQuery(countryLevelMeta, countries[0], "Country_0");
 
-            foreach (var costBlockMeta in this.entityMetas.CostBlocks)
+            var inputLevels = new HashSet<string> { CountryLevelId, PlaLevelId, WgLevelId };
+            var costBlocks = 
+                this.entityMetas.CostBlocks.Where(
+                    costBlock => costBlock.InputLevelFields.All(field => inputLevels.Contains(field.Name)));
+
+            foreach (var costBlockMeta in costBlocks)
             {
                 var fieldNames = 
                     map.Keys.Where(fieldName => costBlockMeta.AllFields.Any(costBlockField => costBlockField.Name == fieldName))
@@ -152,6 +168,57 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                                 .Where(SqlOperators.Equals(meta.NameField.Name, paramName, name, meta.Name))
                                 .ToSqlBuilder()
             };
+        }
+
+        private SqlHelper BuildInsertReactionSql()
+        {
+            const string ReactionTimeKey = "ReactionTime";
+            const string ReactionTypeKey = "ReactionType";
+
+            //2nd Business Day response
+            //NBD response
+            //4h response
+            //NBD recovery
+            //24h recovery
+            //8h recovery
+            //4h recovey
+
+            var twoBdQuery = BuildSelectIdByNameQuery(ReactionTimeKey, "2nd Business Day");
+            var nbdQuery = BuildSelectIdByNameQuery(ReactionTimeKey, "NBD");
+            var fourHourQuery = BuildSelectIdByNameQuery(ReactionTimeKey, "4h");
+            var twentyFourHourQuery = BuildSelectIdByNameQuery(ReactionTimeKey, "24h");
+            var eightHourQuery = BuildSelectIdByNameQuery(ReactionTimeKey, "8h");
+
+            var responseQuery = BuildSelectIdByNameQuery(ReactionTypeKey, "response");
+            var recoveryQuery = BuildSelectIdByNameQuery(ReactionTypeKey, "recovery");
+
+            return
+                Sql.Insert(MetaConstants.DependencySchema, $"{ReactionTimeKey}_{ReactionTypeKey}", ReactionTimeKey, ReactionTypeKey)
+                   .Values(new ISqlBuilder[,]
+                   {
+                       { twoBdQuery, responseQuery },
+                       { nbdQuery, responseQuery },
+                       { fourHourQuery, responseQuery },
+                       { nbdQuery, recoveryQuery },
+                       { twentyFourHourQuery, recoveryQuery },
+                       { eightHourQuery, recoveryQuery },
+                       { fourHourQuery, recoveryQuery },
+                   });
+
+            ISqlBuilder BuildSelectIdByNameQuery(string table, string name)
+            {
+                var paramName = name.Replace(" ", string.Empty);
+
+                return
+                    new BracketsSqlBuilder
+                    {
+                        SqlBuilder =
+                            Sql.Select(IdFieldMeta.DefaultId)
+                               .From(table, MetaConstants.DependencySchema)
+                               .Where(SqlOperators.Equals(MetaConstants.NameFieldKey, paramName, name))
+                               .ToSqlBuilder()
+                    };
+            }
         }
 
         private string[] GetCountrieNames()
@@ -377,17 +444,17 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private string[] GetRoleCodeNames()
-        {
-            return new string[]
-            {
-                "SEFS05",
-                "SEFS06",
-                "SEFS04",
-                "SEIE07",
-                "SEIE08"
-            };
-        }
+        //private string[] GetRoleCodeNames()
+        //{
+        //    return new string[]
+        //    {
+        //        "SEFS05",
+        //        "SEFS06",
+        //        "SEFS04",
+        //        "SEIE07",
+        //        "SEIE08"
+        //    };
+        //}
 
         private string[] GetServiceLocationCodeNames()
         {
@@ -409,14 +476,20 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             return new string[]
             {
-                "best effort",
-                "SBD response",
-                "NBD response",
-                "4h response",
-                "NBD recovery",
-                "8h recovery",
-                "4h recovery",
-                "24h recovery"
+                "2nd Business Day",
+                "NBD",
+                "24h",
+                "8h",
+                "4h"
+            };
+        }
+
+        private string[] GetReactionTypeNames()
+        {
+            return new[]
+            {
+                "response",
+                "recovery"
             };
         }
     }

@@ -16,6 +16,8 @@ export interface Filter {
 
 export interface CostElementState extends Filter {
     costElementId: string
+    inputLevel: SelectList<InputLevelState>
+    region: SelectList<NamedId>
 }
 
 export interface InputLevelState extends Filter {
@@ -24,10 +26,8 @@ export interface InputLevelState extends Filter {
 
 export interface CostBlockState {
     costBlockId: string
-    selectedCountryId: string
     costElement: SelectList<CostElementState>
     visibleCostElementIds: string[]
-    inputLevel: SelectList<InputLevelState>
     edit: {
         originalItems: EditItem[],
         editedItems: EditItem[]

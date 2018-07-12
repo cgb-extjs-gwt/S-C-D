@@ -10,15 +10,16 @@ Ext.require([
 ]);
 
 export interface CostBlockActions {
-  onCountrySelected?: (countryId: string) => void
+  onRegionSelected?: (regionId: string) => void
   onCostElementSelected?: (costElementId: string) => void
   onCostElementFilterSelectionChanged?: (
     costElementId: string, 
     filterItemId: string,
     isSelected: boolean) => void
   onCostElementFilterReseted?: (costElementId: string) => void
-  onInputLevelSelected?: (inputLevelId: string) => void
+  onInputLevelSelected?: (costElementId: string, inputLevelId: string) => void
   onInputLevelFilterSelectionChanged?: (
+    costElementId: string,
     inputLevelId: string, 
     filterItemId: string,
     isSelected: boolean) => void
@@ -31,33 +32,40 @@ export interface CostBlockActions {
 
 export interface SelectListFilter {
   selectList: SelectList<NamedId>
-  filter: CheckItem[],
-  filterName: string,
+  filter?: CheckItem[],
+  filterName?: string,
   isVisibleFilter: boolean
   isEnableList: boolean
 }
 
+export interface CostElementProps extends SelectListFilter {
+  description?: string
+}
+
+export interface RegionProps {
+  selectedList: SelectList<NamedId>
+  name: string
+}
+
+export interface EditProps {
+  nameColumnTitle: string
+  valueColumnTitle: string
+  items: EditItem[]
+  isEnableSave: boolean
+  isEnableClear: boolean
+  isEnableApplyFilters: boolean
+}
+
 export interface CostBlockProps {
-  country: SelectList<NamedId>,
-  costElement: SelectListFilter & {
-    description: string
-  }
+  region: RegionProps
+  costElement: CostElementProps
   inputLevel: SelectListFilter
-  edit: {
-    nameColumnTitle: string
-    valueColumnTitle: string
-    items: EditItem[]
-    isVisible: boolean
-    isEnableSave: boolean
-    isEnableClear: boolean
-    isEnableApplyFilters: boolean
-  }
+  edit: EditProps
 }
 
 export class CostBlockView extends React.Component<CostBlockProps & CostBlockActions> {
   public render() {
     const { 
-      country, 
       costElement, 
       inputLevel,
       onCostElementSelected,
@@ -74,7 +82,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
         <Container flex={1} layout="vbox" shadow>
           <Container layout="hbox">
             <FormPanel flex={1}>
-              {this.countryCombobox(country)}
+              {this.regionCombobox()}
               {
                 this.radioFieldSet(
                   'costelements', 
@@ -121,42 +129,47 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
         </Container>
 
         <Container flex={1} layout="vbox" padding="0px 0px 0px 5px">
-          <Container layout="hbox">
-            <FormPanel flex={1}>
-              {
-                this.radioFieldSet(
-                  'inputlevels', 
-                  inputLevel.selectList, 
-                  'Input Level',
-                  inputLevel.isEnableList,
-                  inputLevel => onInputLevelSelected && onInputLevelSelected(inputLevel.id)
-                )
-              }
-            </FormPanel>
-            
-            {
-              inputLevel.isVisibleFilter &&
-              <Filter 
-                valueColumnText={inputLevel.filterName}
-                items={inputLevel.filter} 
-                height="350"
-                flex={1}
-                onSelectionChanged={
-                  (item: NamedId, isSelected: boolean) =>
-                    onInputLevelFilterSelectionChanged &&
-                    onInputLevelFilterSelectionChanged(
-                      inputLevel.selectList.selectedItemId,
-                      item.id,
-                      isSelected
-                    )
+          {
+            inputLevel &&
+            <Container layout="hbox">
+              <FormPanel flex={1}>
+                {
+                  this.radioFieldSet(
+                    'inputlevels', 
+                    inputLevel.selectList, 
+                    'Input Level',
+                    inputLevel.isEnableList,
+                    inputLevel => onInputLevelSelected && onInputLevelSelected(costElement.selectList.selectedItemId, inputLevel.id)
+                  )
                 }
-                onReset={() => onInputLevelFilterReseted && onInputLevelFilterReseted(inputLevel.selectList.selectedItemId)}
-              />
-            }
-          </Container>
+              </FormPanel>
+              
+              {
+                inputLevel.isVisibleFilter &&
+                <Filter 
+                  valueColumnText={inputLevel.filterName}
+                  items={inputLevel.filter} 
+                  height="350"
+                  flex={1}
+                  onSelectionChanged={
+                    (item: NamedId, isSelected: boolean) =>
+                      onInputLevelFilterSelectionChanged &&
+                      onInputLevelFilterSelectionChanged(
+                        costElement.selectList.selectedItemId,
+                        inputLevel.selectList.selectedItemId,
+                        item.id,
+                        isSelected
+                      )
+                  }
+                  onReset={() => onInputLevelFilterReseted && onInputLevelFilterReseted(inputLevel.selectList.selectedItemId)}
+                />
+              }
+            </Container>
+          }
+          
 
           {
-            edit.isVisible && 
+            edit && 
             this.editGrid(edit.items, edit.nameColumnTitle, edit.valueColumnTitle)
           }
         </Container>
@@ -164,27 +177,35 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
     );
   }
 
-  private countryCombobox(country: SelectList<NamedId>) {
-    const countryStore = Ext.create('Ext.data.Store', {
-        data: country.list
-    });
+  private regionCombobox() {
+    let result;
 
-    const selectedCountry = 
-        countryStore.getData()
-                    .findBy(item => (item.data as NamedId).id === country.selectedItemId);
+    const { region } = this.props;
 
-    return (
-        <ComboBoxField 
-            label="Select a Country:"
-            //width="50%"
-            displayField="name"
-            valueField="id"
-            queryMode="local"
-            store={countryStore}
-            selection={selectedCountry}
-            onChange={(combobox, newValue, oldValue) => this.props.onCountrySelected(newValue)}
-        />
-    );
+    if (region) {
+      const regionStore = Ext.create('Ext.data.Store', {
+          data: region.selectedList ? region.selectedList.list : []
+      });
+
+      const selectedRegion = 
+          regionStore.getData()
+                      .findBy(item => (item.data as NamedId).id === region.selectedList.selectedItemId);
+
+      result = (
+          <ComboBoxField 
+              label={region.name}
+              //width="50%"
+              displayField="name"
+              valueField="id"
+              queryMode="local"
+              store={regionStore}
+              selection={selectedRegion}
+              onChange={(combobox, newValue, oldValue) => this.props.onRegionSelected(newValue)}
+          />
+      );
+    }
+
+    return result
   }
 
   private radioField(
@@ -201,7 +222,16 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
           name={name} 
           checked={item.id === selectedCostElementId}
           disabled={!isEnabled}
-          onCheck={radioField => onSelected(item)}
+          onCheck={
+            radioField => {
+              //HACK: onCheck event fired twice.
+              if ((radioField as any).hasFocus) {
+                onSelected(item);
+              }
+
+              return false;
+            }
+          }
       />
     );
   }
@@ -217,6 +247,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
       <ContainerField label={label} layout={{type: 'vbox', align: 'left'}}>
         {
           selectList && 
+          selectList.list &&
           selectList.list.map(item => 
             this.radioField(
               setName, 

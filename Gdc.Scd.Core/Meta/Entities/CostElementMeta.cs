@@ -8,7 +8,9 @@
 
         public MetaCollection<InputLevelMeta> InputLevels { get; set; }
 
-        public RegionInputMeta RegionInput { get; set; }
+        public InputLevelMeta RegionInput { get; set; }
+
+        public InputType InputType { get; set; }
 
         public InputLevelMeta GetPreviousInputLevel(string inputLevelId)
         {

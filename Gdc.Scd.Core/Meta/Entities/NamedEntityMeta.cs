@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
@@ -26,6 +28,11 @@ namespace Gdc.Scd.Core.Meta.Entities
             : base(name, shema)
         {
             this.NameField = nameField;
+        }
+
+        public NamedEntityMeta(string name, string shema = null)
+            : this(name, new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String), shema)
+        {
         }
     }
 }

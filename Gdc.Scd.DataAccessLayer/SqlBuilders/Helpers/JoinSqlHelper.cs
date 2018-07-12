@@ -52,7 +52,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     referenceField.ReferenceMeta.Schema,
                     referenceField.ReferenceMeta.Name,
                     SqlOperators.Equals(
-                        new ColumnInfo(referenceField.Name, meta.Name),
+                        new ColumnInfo(referenceField.ForeignField.Name, meta.Name),
                         new ColumnInfo(referenceField.ReferenceValueField, referenceField.Name)));
         }
 

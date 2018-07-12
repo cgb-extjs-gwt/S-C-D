@@ -24,7 +24,7 @@ export const init = () => asyncAction(
     dispatch => {
         dispatch(actionBuilder.openPage());
         getCostEditorDto().then(
-            costElement => dispatch(actionBuilder.initPageSuccess(costElement)),
+            costEditorDto => dispatch(actionBuilder.initPageSuccess(costEditorDto)),
             error => dispatch(actionBuilder.initPageError(error))
         );
     }
