@@ -93,12 +93,6 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private CostBlockMeta BuildCostBlockMeta(XElement node, DomainDefination defination)
         {
-            var nameAttr = node.Attribute(NameAttributeName);
-            if (nameAttr == null)
-            {
-                throw new Exception("Cost block or cost atom name attribute not found");
-            }
-
             var costBlockMeta = this.BuildMeta<CostBlockMeta>(node);
             var costElementListNode = node.Element(CostElementListNodeName);
             if (costElementListNode == null)
@@ -209,15 +203,12 @@ namespace Gdc.Scd.Core.Meta.Impl
                 throw new Exception("Name attribute not found");
             }
 
-            var meta = new T { Id = nameAttr.Value };
-
             var captionAttr = node.Attribute(CaptionAttributeName);
-            if (captionAttr != null)
+            var meta = new T
             {
-                meta.Name = captionAttr.Value;
-            }
-
-            
+                Id = nameAttr.Value,
+                Name = captionAttr == null ? nameAttr.Value : captionAttr.Value
+            };
 
             return meta;
         }

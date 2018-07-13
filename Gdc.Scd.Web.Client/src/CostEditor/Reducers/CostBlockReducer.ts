@@ -196,11 +196,11 @@ const selectRegion = buildCostBlockChanger<RegionSelectedAction>(
     })
 )
 
-const loadRegion = buildCostElementListItemChanger<RegionLoadedAction>(
+const loadRegions = buildCostElementListItemChanger<RegionLoadedAction>(
     (costElement, action) => ({
         ...costElement,
         region: {
-            list: action.regions,
+            list: action.regions.sort((region1, region2) => region1.name.localeCompare(region2.name)),
             selectedItemId: action.regions.length > 0 ? action.regions[0].id : null
         }
     })
@@ -362,7 +362,7 @@ export const costBlockReducer: Reducer<CostEditorState, Action<string>> = (state
             return selectApplication(state, <ItemSelectedAction>action)
 
         case COST_BLOCK_INPUT_LOAD_REGIONS: 
-            return selectRegion(state, action)
+            return loadRegions(state, action)
 
         case COST_BLOCK_INPUT_SELECT_REGIONS: 
             return selectRegion(state, action)

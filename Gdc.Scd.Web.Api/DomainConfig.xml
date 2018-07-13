@@ -56,7 +56,7 @@
       </Elements>
     </Block>
 
-    <Block Name="InstallBase" Caption="Install base">
+    <Block Name="InstallBase" Caption="Installed base">
       <Applications>
         <Application>Atom</Application>
       </Applications>
@@ -85,22 +85,22 @@
       </Elements>
     </Block>
 
-    <Block Name="MarkupBaseWaranty" Caption="Markup base waranty">
+    <Block Name="MarkupStandardWaranty" Caption="Markup standard waranty">
       <Applications>
         <Application>Atom</Application>
       </Applications>
       <Elements>
         <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost" InputOption="Manually"/>
-        <Element Name="MarkupStandardWarranty" Caption="Markup for base standard local cost" InputOption="Manually"/>
+        <Element Name="MarkupStandardWarranty" Caption="Markup for standard warranty local cost" InputOption="Manually"/>
       </Elements>
     </Block>
 
-    <Block Name="MaterialCostsWarranty" Caption="Material costs in warranty" >
+    <Block Name="MaterialCostWarranty" Caption="Material cost iW" >
       <Applications>
         <Application>Atom</Application>
       </Applications>
       <Elements>
-        <Element Name="MaterialCost" Caption="Material costs in warranty" InputOption="ManualyAutomaticly" RegionInput="ClusterRegion">
+        <Element Name="MaterialCostWarranty" Caption="Material cost iW" InputOption="ManualyAutomaticly" RegionInput="ClusterRegion">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -108,12 +108,12 @@
       </Elements>
     </Block>
 
-    <Block Name="MaterialCostsOOW" Caption="Material costs OOW">
+    <Block Name="MaterialCostOow" Caption="Material cost OOW">
       <Applications>
         <Application>Atom</Application>
       </Applications>
       <Elements>
-        <Element Name="MaterialCost" Caption="Material costs OOW" InputOption="Manually" RegionInput="ClusterRegion">
+        <Element Name="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="ClusterRegion">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -121,12 +121,12 @@
       </Elements>
     </Block>
 
-    <Block Name="TaxAndDuties" Caption="Tax &amp; Duties">
+    <Block Name="TaxAndDuties" Caption="Tax &amp; duties">
       <Applications>
         <Application>Atom</Application>
       </Applications>
       <Elements>
-        <Element Name="TaxAndDuties" Caption="Tax and duties" InputOption="ManualyAutomaticly">
+        <Element Name="TaxAndDuties" Caption="Tax &amp; duties" InputOption="ManualyAutomaticly">
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
@@ -148,7 +148,7 @@
         </Element>
         <Element Name="TravelTime" Caption="Travel Time (MTTT)" InputOption="Manually" Dependency="ServiceLocation"/>
         <!--<Element Name="OnsiteHourlyRate" Caption="Onsite hourly rate" InputOption="Reference"/>-->
-        <Element Name="LabourFlatFee" Caption="Labour flat fee" InputOption="Manually" Dependency="ServiceLocation"/>
+        <Element Name="LabourCost" Caption="Labour cost" InputOption="Manually" Dependency="ServiceLocation"/>
         <Element Name="TravelCost" Caption="Travel cost" InputOption="Manually" Dependency="ServiceLocation"/>
         <Element Name="PerformanceRate" Caption="Performance rate" InputOption="Manually" Dependency="Reaction"/>
         <Element Name="TimeAndMaterialShare" Caption="Time and material share" InputOption="Manually"/>
@@ -271,7 +271,7 @@
       </Applications>
       <Elements>
         <Element Name="TaxDuties" Caption="Tax &amp; Duties" InputOption="Reference"/>
-        <Element Name="MaterialCostsWarranty" Caption="Material costs in warranty" InputOption="Reference"/>
+        <Element Name="MaterialCostWarranty" Caption="Material cost iW" InputOption="Reference"/>
       </Elements>
     </Block>
 
@@ -291,7 +291,7 @@
       </Applications>
       <Elements>
         <Element Name="AFR" InputOption="Reference"/>
-        <Element Name="MaterialCostsOOW" Caption="Material costs OOW" InputOption="Reference"/>
+        <Element Name="MaterialCostWarranty" Caption="Material cost iW" InputOption="Reference"/>
       </Elements>
     </Block>
 
@@ -320,12 +320,12 @@
             <InputLevel>Wg</InputLevel>
           </InputLevels>
         </Element>
-        <Element Name="LocalShcCustomerBriefingEffort" Caption="Local SHC customer briefing effort" InputOption="Manually" Dependency="ServiceLocationProActive"/>
+        <!--<Element Name="LocalShcCustomerBriefingEffort" Caption="Local SHC customer briefing effort" InputOption="Manually" Dependency="ServiceLocationProActive"/>-->
         <!--<Element Name="LocalRegularUpdateReadyRepetition" Caption="Local regular update ready for service Repetition" InputOption="Reference"/>
         <Element Name="LocalPreparationShcRepetition" Caption="Local preparation SHC Repetition" InputOption="Reference"/>
         <Element Name="CentralExecutionShcReportRepetition " Caption="Central execution SHC &amp; report Repetition" InputOption="Reference"/>
         <Element Name="LocalShcCustomerBriefingRepetition " Caption="Local SHC customer briefing Repetition" InputOption="Reference"/>-->
-        <Element Name="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually" Dependency="ServiceLocationProActive"/>
+        <!--<Element Name="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually" Dependency="ServiceLocationProActive"/>-->
         <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually"/>
       </Elements>
     </Block>

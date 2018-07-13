@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -59,7 +58,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         new QueryColumnInfo(
                             new RawSqlBuilder
                             {
-                                RawSql = $"([{ReactionTimeKey}].[{NameField}] + [{ReactionTypeKey}].[{NameField}])"
+                                RawSql = $"([{ReactionTimeKey}].[{NameField}] + ' ' + [{ReactionTypeKey}].[{NameField}])"
                             }, 
                             NameField))
                        .From(reactionTimeTypeEntity)

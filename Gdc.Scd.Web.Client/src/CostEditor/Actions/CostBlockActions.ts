@@ -295,18 +295,25 @@ export const getFilterItemsByInputLevelSelection = (costBlockId: string, costEle
 export const reloadFilterBySelectedRegion = (costBlockId: string, regionId: string) =>
     asyncAction<PageCommonState<CostEditorState>>(
         (dispatch, getState) => {
-            dispatch(selectRegion(costBlockId, regionId));
+            if (regionId) {
+                const { page } = getState();
+                const costBlock = page.data.costBlocks.find(item => item.costBlockId === costBlockId);
 
-            const { page } = getState();
-            const costBlock = page.data.costBlocks.find(item => item.costBlockId === costBlockId);
-            const {
-                costElement: { selectedItemId: costElementId },
-            } = costBlock;
+                const {
+                    costElement: { selectedItemId: costElementId },
+                } = costBlock;
 
-            const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
+                const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
 
-            dispatch(getDataByCustomElementSelection(costBlockId, costElementId));
-            dispatch(getFilterItemsByInputLevelSelection(costBlockId, costElementId, costElement.inputLevel.selectedItemId));
+                if (costElement.region.selectedItemId !== regionId) {
+                    dispatch(selectRegion(costBlockId, regionId));
+                    dispatch(getDataByCustomElementSelection(costBlockId, costElementId));
+                    
+                    if (costElement.inputLevel.selectedItemId) {
+                        dispatch(getFilterItemsByInputLevelSelection(costBlockId, costElementId, costElement.inputLevel.selectedItemId));
+                    }
+                }
+            }
         }
     )
 
@@ -340,9 +347,9 @@ export const saveEditItemsToServer = (costBlockId: string) =>
         }
     )
 
-export const selectRegionWithReloading = (costBlockId: string, RegionId: string) => losseDataCheckHandlerAction(
+export const selectRegionWithReloading = (costBlockId: string, regionId: string) => losseDataCheckHandlerAction(
     (dispatch, state) => {
-        dispatch(reloadFilterBySelectedRegion(costBlockId, RegionId));
+        dispatch(reloadFilterBySelectedRegion(costBlockId, regionId));
         dispatch(loadEditItemsByContext());
     }
 )

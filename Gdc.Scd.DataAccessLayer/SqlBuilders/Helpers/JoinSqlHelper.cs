@@ -25,7 +25,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public ISqlBuilder Join(ISqlBuilder table, ConditionHelper condition, JoinType type = JoinType.Inner)
         {
-            return this.Join(table, condition.ToSqlBuilder(), type);
+            return this.Join(table, condition?.ToSqlBuilder(), type);
         }
 
         public ISqlBuilder Join(string schemaName, string tableName, ConditionHelper condition, JoinType type = JoinType.Inner)

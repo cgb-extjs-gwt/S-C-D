@@ -14,12 +14,26 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 
         public override string Build(SqlBuilderContext context)
         {
+            string result;
+
             var sql = this.SqlBuilder.Build(context);
             var type = this.Type.ToString().ToUpper();
             var table = this.Table.Build(context);
-            var condition = this.Condition.Build(context);
 
-            return $"{sql} {type} JOIN {table} ON {condition}";
+            switch (this.Type)
+            {
+                case JoinType.Cross:
+                    result = $"{sql} CROSS JOIN {table}";
+                    break;
+
+                default:
+                    var condition = this.Condition.Build(context);
+
+                    result = $"{sql} {type} JOIN {table} ON {condition}";
+                    break;
+            }
+
+            return result;
         }
 
         public override IEnumerable<ISqlBuilder> GetChildrenBuilders()
@@ -29,7 +43,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
                 yield return builder;
             }
 
-            yield return this.Condition;
+            if (this.Condition != null)
+            {
+                yield return this.Condition;
+            }
+
             yield return this.Table;
         }
     }
