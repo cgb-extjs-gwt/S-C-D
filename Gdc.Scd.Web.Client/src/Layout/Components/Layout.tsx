@@ -10,6 +10,7 @@ import { PageCommonState, PageTitle } from '../States/PageStates';
 import { connect } from 'react-redux';
 import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
 import CapabilityMatrixContainer from '../../CapabilityMatrix/Components/CapabilityMatrixContainer';
+import { CapabilityMatrixEditView } from '../../CapabilityMatrix/Components/CapabilityMatrixEditView';
 
 interface LayoutProps extends PageTitle {
     history: any,
@@ -58,7 +59,7 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/about" component={About}/>
                         <Route path="/pivot" component={ScdPivotGrid}/>
                         <Route path="/input-cost-elements" component={CostEditorContainer} />
-                        <Route path="/capability-matrix" component={CapabilityMatrixContainer} />
+                        <Route path="/capability-matrix" component={CapabilityMatrixEditView} />
                     </Switch>
                 </Panel>
             </Container>

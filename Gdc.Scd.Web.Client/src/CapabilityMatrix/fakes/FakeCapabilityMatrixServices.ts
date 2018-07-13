@@ -1,25 +1,29 @@
-import { CapabilityMatrixDto } from "../States/CapabilityMatrixStates";
+import { CapabilityMatrixDto, CapabilityMatrixItem } from "../States/CapabilityMatrixStates";
 
-export const allowItem = (row: CapabilityMatrixDto) => {
-    return saveItem(row);
+export const allowItem = (row: CapabilityMatrixItem) => {
+    return saveItem(row, true);
 }
 
-export const denyItem = (row: CapabilityMatrixDto) => {
-    return saveItem(row);
+export const denyItem = (row: CapabilityMatrixItem) => {
+    return saveItem(row, false);
 }
 
-export const saveItem = (editItems: CapabilityMatrixDto) => {
-    //const key = createEditItemsStorageKey(context);
-    //const storageItemsJson = localStorage.getItem(key);
-    //const storageItems: EditItem[] = storageItemsJson && JSON.parse(storageItemsJson) || [];
-    //const saveItems = storageItems.filter(
-    //    storageItem => editItems.findIndex(item => storageItem.id === item.id) === -1
-    //).concat(editItems);
+export const saveItem = (row: CapabilityMatrixItem, allow: boolean) => {
+    const key = 'DENY_MATRIX';
 
-    //localStorage.setItem(
-    //    key,
-    //    JSON.stringify(saveItems)
-    //);
+    let json = localStorage.getItem(key);
+    let allDeny: any = json ? JSON.parse(json) : {};
+
+    let hash = row.hash();
+    if (allow) {
+        allDeny[hash] = row;
+    }
+    else {
+        allDeny[hash] = null;
+        delete allDeny[hash];
+    }
+
+    localStorage.setItem(key, JSON.stringify(allDeny));
 
     return Promise.resolve();
 }
