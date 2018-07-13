@@ -37,7 +37,7 @@
   </Dependencies>
 
   <Applications>
-    <Application Name="Hardware" Caption="Hardware"/>
+    <Application Name="Hardware"/>
     <Application Name="SoftwareSolution" Caption="Software &amp; Solution"/>
     <Application Name="Atom"/>
   </Applications>

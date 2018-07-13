@@ -48,23 +48,26 @@ const buildInputLevel = (
  ) => {
     let filter: CheckItem[];
     let filterName: string;
+    let selectedInputLevelId: string = null;
     
-    const isVisibleFilter = selectedInputLevel.filter && selectedInputLevel.filter.length > 0;
+    const isVisibleFilter = selectedInputLevel && selectedInputLevel.filter && selectedInputLevel.filter.length > 0;
     if (isVisibleFilter) {
         const prevLevelNumber = selectedInputLevelMeta.levelNumer - 1;
         const prevInputLevelMeta = inputLevelMetas.find(item => item.levelNumer === prevLevelNumber);
         
-        filterName = prevInputLevelMeta.name
+        filterName = prevInputLevelMeta.name;
         filter = selectedInputLevel.filter;
+        selectedInputLevelId = selectedInputLevel.inputLevelId;
     }
 
     return <SelectListFilter>{
+        id: `${costBlock.costBlockId}_${costBlock.costElement.selectedItemId}`,
         filter,
         filterName,
         isVisibleFilter,
         isEnableList: isEnableList,
         selectList: {
-            selectedItemId: selectedInputLevel.inputLevelId,
+            selectedItemId: selectedInputLevelId,
             list: inputLevelMetas
         }
     }
@@ -79,11 +82,14 @@ const costBlockTabMap = (
     let regionProps: RegionProps;
     let inputLevel: SelectListFilter;
     let editProps: EditProps;
+    let selectedInputLevelMeta: InputLevelMeta;
+    let selectedInputLevel: InputLevelState;
     
     const isEnableEditButtons = edit.editedItems && edit.editedItems.length > 0;
     const isEnableList = !edit.editedItems || edit.editedItems.length == 0;
 
     const costElementProps = <CostElementProps>{
+        id: costBlock.costBlockId,
         selectList: {
             selectedItemId: costBlock.costElement.selectedItemId,
             list: costBlockMeta.costElements.filter(
@@ -103,18 +109,11 @@ const costBlockTabMap = (
                 item => item.id === costBlock.costElement.selectedItemId);
 
         if (selectedCostElement.inputLevel.selectedItemId != null) {
-            const selectedInputLevelMeta = 
+            selectedInputLevelMeta = 
                 selectedCostElementMeta.inputLevels.find(inputLevel => inputLevel.id === selectedCostElement.inputLevel.selectedItemId);
 
-            const selectedInputLevel = 
+            selectedInputLevel = 
                 selectedCostElement.inputLevel.list.find(item => item.inputLevelId === selectedCostElement.inputLevel.selectedItemId);
-
-            inputLevel = buildInputLevel(
-                costBlock, 
-                selectedInputLevel, 
-                selectedInputLevelMeta, 
-                selectedCostElementMeta.inputLevels, 
-                isEnableList);
 
             editProps = {
                 nameColumnTitle: selectedInputLevelMeta.name,
@@ -128,6 +127,13 @@ const costBlockTabMap = (
                                       !isSetContainsAllCheckedItems(edit.appliedFilter.inputLevelItemIds, selectedInputLevel) 
             }
         }
+
+        inputLevel = buildInputLevel(
+            costBlock, 
+            selectedInputLevel, 
+            selectedInputLevelMeta, 
+            selectedCostElementMeta.inputLevels, 
+            isEnableList);
 
         if (selectedCostElementMeta.regionInput){
             regionProps = {

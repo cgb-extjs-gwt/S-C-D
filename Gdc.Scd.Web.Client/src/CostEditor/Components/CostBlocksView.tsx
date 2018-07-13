@@ -31,6 +31,7 @@ export interface CostBlockActions {
 }
 
 export interface SelectListFilter {
+  id: string
   selectList: SelectList<NamedId>
   filter?: CheckItem[],
   filterName?: string,
@@ -85,7 +86,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
               {this.regionCombobox()}
               {
                 this.radioFieldSet(
-                  'costelements', 
+                  `${costElement.id}_costelements`, 
                   costElement.selectList, 
                   'Cost Elements', 
                   costElement.isEnableList,
@@ -135,7 +136,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
               <FormPanel flex={1}>
                 {
                   this.radioFieldSet(
-                    'inputlevels', 
+                    `${inputLevel.id}_inputlevels`, 
                     inputLevel.selectList, 
                     'Input Level',
                     inputLevel.isEnableList,
@@ -217,7 +218,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
   ) {
     return (
       <RadioField 
-          key={item.id} 
+          key={`${name}_${item.id}`} 
           boxLabel={item.name} 
           name={name} 
           checked={item.id === selectedCostElementId}

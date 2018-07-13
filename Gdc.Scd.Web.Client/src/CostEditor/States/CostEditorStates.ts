@@ -26,10 +26,10 @@ export interface InputLevelMeta extends NamedId {
 }
 
 export enum InputType {
-    Manually,
-    Automatically,
-    ManualyAutomaticly,
-    Reference
+    Manually = 0,
+    Automatically = 1,
+    Reference = 2,
+    ManuallyAutomaticly = 3
 }
 
 export interface CostEditorState {

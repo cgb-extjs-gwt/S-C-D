@@ -76,7 +76,7 @@ const getVisibleCostElementIds = (costBlock: CostBlockMeta) => {
     var costElements = costBlock.costElements.filter(
         costElement => 
             costElement.inputType === InputType.Manually || 
-            costElement.inputType === InputType.ManualyAutomaticly
+            costElement.inputType === InputType.ManuallyAutomaticly
     )
 
     return costElements.map(costElement => costElement.id);
