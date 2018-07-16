@@ -12,7 +12,7 @@ import { init,
 } from "../Actions/CostEditorActions";
 import { 
     selectRegionWithReloading, 
-    getDataByCustomElementSelection, 
+    getDataByCostElementSelection, 
     loadEditItemsByContext, 
     getFilterItemsByInputLevelSelection, 
     changeSelectionCostElementFilter, 
@@ -200,7 +200,7 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
                 dispatch(selectRegionWithReloading(costBlockId, regionId));
             },
             onCostElementSelected: (costBlockId, costElementId) => {
-                dispatch(getDataByCustomElementSelection(costBlockId, costElementId));
+                dispatch(getDataByCostElementSelection(costBlockId, costElementId));
                 dispatch(loadEditItemsByContext());
             },
             onInputLevelSelected: (costBlockId, costElementId, inputLevelId) => {

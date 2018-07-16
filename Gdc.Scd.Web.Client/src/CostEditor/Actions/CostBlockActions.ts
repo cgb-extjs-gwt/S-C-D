@@ -27,10 +27,6 @@ export interface CostBlockAction extends Action<string>  {
     costBlockId: string 
 }
 
-export interface RegionSelectedAction extends CostBlockAction {
-    regionId: string;
-}
-
 export interface CostElementAction extends CostBlockAction {
     costElementId: string
 }
@@ -38,6 +34,10 @@ export interface CostElementAction extends CostBlockAction {
 export interface FilterSelectionChangedAction extends CostBlockAction {
     filterItemId: string
     isSelected: boolean
+}
+
+export interface RegionSelectedAction extends CostElementAction {
+    regionId: string;
 }
 
 export interface CostElementFilterSelectionChangedAction extends FilterSelectionChangedAction, CostElementAction {
@@ -70,10 +70,11 @@ export interface ItemEditedAction extends CostBlockAction {
     item: EditItem
 }
 
-export const selectRegion = (costBlockId: string, regionId: string) => (<RegionSelectedAction>{
+export const selectRegion = (costBlockId: string, costElementId: string, regionId: string) => (<RegionSelectedAction>{
     type:  COST_BLOCK_INPUT_SELECT_REGIONS,
     costBlockId,
-    regionId
+    regionId,
+    costElementId
 })
 
 export const selectCostElement = (costBlockId: string, costElementId: string) => (<CostElementAction>{
@@ -239,7 +240,7 @@ const buildContext = (state: CostEditorState) => {
     }
 }
 
-export const getDataByCustomElementSelection = (costBlockId: string, costElementId: string) =>
+export const getDataByCostElementSelection = (costBlockId: string, costElementId: string) =>
     asyncAction<PageCommonState<CostEditorState>>(
         (dispatch, getState) => {
             dispatch(selectCostElement(costBlockId, costElementId));
@@ -305,9 +306,9 @@ export const reloadFilterBySelectedRegion = (costBlockId: string, regionId: stri
 
                 const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
 
-                if (costElement.region.selectedItemId !== regionId) {
-                    dispatch(selectRegion(costBlockId, regionId));
-                    dispatch(getDataByCustomElementSelection(costBlockId, costElementId));
+                if (costElement.region && costElement.region.selectedItemId !== regionId) {
+                    dispatch(selectRegion(costBlockId, costElementId, regionId));
+                    dispatch(getDataByCostElementSelection(costBlockId, costElementId));
                     
                     if (costElement.inputLevel.selectedItemId) {
                         dispatch(getFilterItemsByInputLevelSelection(costBlockId, costElementId, costElement.inputLevel.selectedItemId));

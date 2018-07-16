@@ -15,10 +15,9 @@ import { PageCommonState, PageState, PAGE_STATE_KEY } from '../../Layout/States/
 import { CostEditorState, CostBlockMeta } from '../States/CostEditorStates';
 import { getCostEditorDto } from '../Services/CostEditorServices';
 import { CostBlockState, EditItem, CheckItem, Filter } from '../States/CostBlockStates';
-import { selectRegion, 
+import { 
     selectCostElement, 
     selectInputLevel, 
-    getDataByCustomElementSelection, 
     getFilterItemsByInputLevelSelection, 
     reloadFilterBySelectedRegion, 
     changeSelectionCostElementFilter, 

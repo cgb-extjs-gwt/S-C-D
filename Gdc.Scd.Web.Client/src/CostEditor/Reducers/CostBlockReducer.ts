@@ -192,7 +192,21 @@ const buildInputLevelFilterChanger = <TAction extends InputLevelAction>(
 const selectRegion = buildCostBlockChanger<RegionSelectedAction>(
     (costBlock, action) => ({
         ...clearCostBlockFilters(costBlock), 
-        selectedRegionId: action.regionId,
+        costElement: {
+            ...costBlock.costElement,
+            list: costBlock.costElement.list.map(
+                costElement => 
+                    costElement.costElementId === action.costElementId 
+                        ? {
+                            ...costElement,
+                            region: {
+                                ...costElement.region,
+                                selectedItemId: action.regionId
+                            }
+                        }
+                        : costElement
+            )
+        }
     })
 )
 
