@@ -56,8 +56,6 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private readonly IConfiguration configuration;
 
-        //private readonly string[] forbiddenIdSymbols = new[] { " ", "(", ")" };
-
         public DomainMetaSevice(IConfiguration configuration)
         {
             this.configuration = configuration;
@@ -130,8 +128,6 @@ namespace Gdc.Scd.Core.Meta.Impl
 
             costElementMeta.RegionInput = this.BuildItemByDomainInfo(node, RegionInputNodeName, defination.RegionInputs);
             costElementMeta.Dependency = this.BuildItemByDomainInfo(node, DependencyNodeName, defination.Dependencies);
-
-            
 
             var inputTypeAttribute = node.Attribute(InputTypeAttributeName);
             if (inputTypeAttribute != null)
@@ -212,16 +208,6 @@ namespace Gdc.Scd.Core.Meta.Impl
 
             return meta;
         }
-
-        //private string BuildId(string name)
-        //{
-        //    foreach(var symbol in this.forbiddenIdSymbols)
-        //    {
-        //        name = name.Replace(symbol, string.Empty);
-        //    }
-
-        //    return name;
-        //}
 
         private DomainDefination BuildDomainDefination(XElement node)
         {

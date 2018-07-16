@@ -5,7 +5,6 @@ namespace Gdc.Scd.Core.Meta.Entities
 {
     public class CostBlockEntityMeta : BaseEntityMeta
     {
-
         public IdFieldMeta IdField { get; } = new IdFieldMeta();
 
         public MetaCollection<ReferenceFieldMeta> InputLevelFields { get; } = new MetaCollection<ReferenceFieldMeta>();

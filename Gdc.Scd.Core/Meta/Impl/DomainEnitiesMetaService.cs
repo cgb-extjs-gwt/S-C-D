@@ -17,6 +17,11 @@ namespace Gdc.Scd.Core.Meta.Impl
                 {
                     var costBlockEntity = new CostBlockEntityMeta(costBlockMeta.Id, applicationId);
 
+                    foreach (var inputLevelMeta in costBlockMeta.GetInputLevels())
+                    {
+                        this.BuildByInputLevel(inputLevelMeta, costBlockEntity, domainEnitiesMeta);
+                    }
+
                     foreach (var costElementMeta in costBlockMeta.CostElements)
                     {
                         costBlockEntity.CostElementsFields.Add(new SimpleFieldMeta(costElementMeta.Id, TypeCode.Double));
@@ -25,11 +30,11 @@ namespace Gdc.Scd.Core.Meta.Impl
                         {
                             this.BuildByDependency(costElementMeta, costBlockEntity, domainEnitiesMeta);
                         }
-                    }
 
-                    foreach (var inputLevelMeta in costBlockMeta.GetInputLevels())
-                    {
-                        this.BuildByInputLevel(inputLevelMeta, costBlockEntity, domainEnitiesMeta);
+                        if (costElementMeta.RegionInput != null && costBlockEntity.InputLevelFields[costElementMeta.RegionInput.Id] == null)
+                        {
+                            this.BuildByInputLevel(costElementMeta.RegionInput, costBlockEntity, domainEnitiesMeta);
+                        }
                     }
 
                     domainEnitiesMeta.CostBlocks.Add(costBlockEntity);
@@ -51,10 +56,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                     {
                         costBlockEntity.CostElementsFields.Add(new SimpleFieldMeta(costElementMeta.Id, TypeCode.Double));
 
-                        if (costElementMeta.Dependency != null && costBlockEntity.DependencyFields[costElementMeta.Dependency.Id] == null)
-                        {
-                            this.BuildByDependency(costElementMeta, costBlockEntity, domainEnitiesMeta);
-                        }
+                        this.BuildByDependency(costElementMeta, costBlockEntity, domainEnitiesMeta);
 
                         foreach (var inputLevelMeta in costElementMeta.InputLevels)
                         {
@@ -82,13 +84,6 @@ namespace Gdc.Scd.Core.Meta.Impl
                     domainEnitiesMeta.Dependencies.Add(dependencyEntity);
                 }
 
-                //costBlockEntity.DependencyFields.Add(new ReferenceFieldMeta(costElementMeta.Dependency.Id, dependencyEntity)
-                //{
-                //    ReferenceValueField = dependencyEntity.IdField.Name,
-                //    ReferenceFaceField = dependencyNameField.Name,
-                //    HasConstraint = costElementMeta.Dependency.Type == StoreType.Table
-                //});
-
                 costBlockEntity.DependencyFields.Add(
                     ReferenceFieldMeta.Build(costElementMeta.Dependency.Id, dependencyEntity));
             }
@@ -106,13 +101,6 @@ namespace Gdc.Scd.Core.Meta.Impl
             {
                 domainEnitiesMeta.InputLevels.Add(inputLevelEntity);
             }
-
-            //costBlockEntity.InputLevelFields.Add(new ReferenceFieldMeta(inputLevelMeta.Id, inputLevelEntity)
-            //{
-            //    ReferenceValueField = inputLevelEntity.IdField.Name,
-            //    ReferenceFaceField = inputLevelNameField.Name,
-            //    HasConstraint = inputLevelMeta.Type == StoreType.Table
-            //});
 
             costBlockEntity.InputLevelFields.Add(
                 ReferenceFieldMeta.Build(inputLevelMeta.Id, inputLevelEntity));
