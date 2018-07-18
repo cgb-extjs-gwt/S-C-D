@@ -1,8 +1,9 @@
 ﻿import * as React from "react";
 import { Container, Button, CheckBoxField, SelectField, List, Label, ComboBoxField } from "@extjs/ext-react";
 import { CapabilityMatrixMultiSelect } from "./CapabilityMatrixMultiSelect";
+import { ExtMsgHelper } from '../../Common/Helpers/ExtMsgHelper'
 
-export class CapabilityMatrixEditView extends React.Component<{}> {
+export class CapabilityMatrixEditView extends React.Component<any> {
 
     store = Ext.create('Ext.data.Store', {
         data: [
@@ -19,13 +20,19 @@ export class CapabilityMatrixEditView extends React.Component<{}> {
         { "name": "Arizona", "abbrev": "AZ" }
     ];
 
-    onCountryChange() {
-        console.log('onCountryChange()', new Date().getTime());
+    constructor(props: any) {
+        super(props);
+
+        this.state = { isPortfolio: true };
+
+        this.onCountryChange = this.onCountryChange.bind(this);
+        this.onAllow = this.onAllow.bind(this);
+        this.onDeny = this.onDeny.bind(this);
     }
 
     public render() {
 
-        let isPortfolio = true;
+        let isPortfolio = this.state.isPortfolio;
 
         return (
             <Container layout="vbox" padding="10px">
@@ -37,13 +44,11 @@ export class CapabilityMatrixEditView extends React.Component<{}> {
                     labelWidth="80px"
                     options={this.countries}
                     displayField="name"
-                    valueField="code"
+                    valueField="abbrev"
                     queryMode="local"
-                    typeAhead
                     clearable="true"
 
                     onChange={this.onCountryChange}
-
                 />
 
                 <Container layout="hbox">
@@ -55,18 +60,42 @@ export class CapabilityMatrixEditView extends React.Component<{}> {
                     <CapabilityMatrixMultiSelect title="Service location" itemTpl="{title}" store={this.store} />
                 </Container>
 
-                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: isPortfolio }}>
+                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !isPortfolio }}>
                     <CheckBoxField boxLabel="Fujitsu Global Portfolio" />
                     <CheckBoxField boxLabel="Master Portfolio" />
                     <CheckBoxField boxLabel="Core Portfolio" />
                 </Container>
 
                 <Container>
-                    <Button text="Deny combinations" ui="decline" padding="0 10px 0 0" />
-                    <Button text="Allow combinations" />
+                    <Button text="Deny combinations" ui="decline" padding="0 10px 0 0" handler={this.onDeny} />
+                    <Button text="Allow combinations" handler={this.onAllow} />
                 </Container>
 
             </Container>
         );
+    }
+
+    private onCountryChange(combo, newVal, oldVal) {
+        this.setState({ isPortfolio: !newVal });
+    }
+
+    private onAllow() {
+        this.showSaveDialog(true);
+    }
+
+    private onDeny() {
+        this.showSaveDialog(false);
+    }
+
+    private showSaveDialog(allow: boolean) {
+        ExtMsgHelper.confirm(
+            allow ? 'Allow combinations' : 'Deny combinations',
+            'Do you want to save the changes?',
+            () => this.save(allow)
+        );
+    }
+
+    private save(allow: boolean) {
+        console.log('save()', allow);
     }
 }
