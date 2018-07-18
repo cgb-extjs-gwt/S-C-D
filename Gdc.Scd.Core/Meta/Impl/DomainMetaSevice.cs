@@ -54,6 +54,8 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string InputTypeAttributeName = "InputOption";
 
+        private const string TypeOptionNodeName = "TypeOption";
+
         private readonly IConfiguration configuration;
 
         public DomainMetaSevice(IConfiguration configuration)
@@ -133,6 +135,14 @@ namespace Gdc.Scd.Core.Meta.Impl
             if (inputTypeAttribute != null)
             {
                 costElementMeta.InputType = Enum.Parse<InputType>(inputTypeAttribute.Value);
+            }
+
+            var typeNode = node.Element(TypeOptionNodeName);
+            if (typeNode != null)
+            {
+                costElementMeta.TypeOptions = 
+                    typeNode.Attributes()
+                            .ToDictionary(attr => attr.Name.ToString(), attr => attr.Value.ToString());
             }
 
             return costElementMeta;
@@ -241,7 +251,7 @@ namespace Gdc.Scd.Core.Meta.Impl
             var typeAttr = node.Attribute(TypeAttributeName);
             if (typeAttr != null)
             {
-                meta.Type = StoreType.View;
+                meta.StoreType = StoreType.View;
             }
 
             return meta;

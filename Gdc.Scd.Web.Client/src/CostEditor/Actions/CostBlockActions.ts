@@ -3,11 +3,10 @@ import { asyncAction, AsyncAction } from "../../Common/Actions/AsyncAction";
 import * as service from "../Services/CostEditorServices";
 import { CostEditorState } from "../States/CostEditorStates";
 import { PageCommonState } from "../../Layout/States/PageStates";
-import { EditItem } from "../States/CostBlockStates";
+import { EditItem, CostElementData, DataLoadingState } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { losseDataCheckHandlerAction } from "../Helpers/CostEditorHelpers";
 
-export const COST_BLOCK_INPUT_LOAD_REGIONS = 'COST_BLOCK_INPUT.LOAD.REGIONS';
 export const COST_BLOCK_INPUT_SELECT_REGIONS = 'COST_BLOCK_INPUT.SELECT.REGIONS';
 export const COST_BLOCK_INPUT_SELECT_COST_ELEMENT = 'COST_BLOCK_INPUT.SELECT.COST_ELEMENT';
 export const COST_BLOCK_INPUT_SELECTION_CHANGE_COST_ELEMENT_FILTER = 'COST_BLOCK_INPUT.SELECTION_CHANGE.COST_ELEMENT_FILTER'
@@ -15,7 +14,7 @@ export const COST_BLOCK_INPUT_RESET_COST_ELEMENT_FILTER = 'COST_BLOCK_INPUT_RESE
 export const COST_BLOCK_INPUT_SELECT_INPUT_LEVEL = 'COST_BLOCK_INPUT.SELECT.INPUT_LEVEL';
 export const COST_BLOCK_INPUT_SELECTION_CHANGE_INPUT_LEVEL_FILTER = 'COST_BLOCK_INPUT.SELECTION_CHANGE.INPUT_LEVEL_FILTER'
 export const COST_BLOCK_INPUT_RESET_INPUT_LEVEL_FILTER = 'COST_BLOCK_INPUT.RESET.INPUT_LEVEL_FILTER'
-export const COST_BLOCK_INPUT_LOAD_COST_ELEMENT_FILTER = 'COST_BLOCK_INPUT.LOAD.COST_ELEMENT_FILTER';
+export const COST_BLOCK_INPUT_LOAD_COST_ELEMENT_DATA = 'COST_BLOCK_INPUT.LOAD.COST_ELEMENT_DATA';
 export const COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER = 'COST_BLOCK_INPUT.LOAD.INPUT_LEVEL_FILTER';
 export const COST_BLOCK_INPUT_LOAD_EDIT_ITEMS = 'COST_BLOCK_INPUT.LOAD.EDIT_ITEMS';
 export const COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS = 'COST_BLOCK_INPUT.CLEAR.EDIT_ITEMS';
@@ -50,12 +49,8 @@ export interface InputLevelAction extends CostElementAction {
 export interface InputLevelFilterSelectionChangedAction extends FilterSelectionChangedAction, InputLevelAction {
 }
 
-export interface RegionLoadedAction extends CostElementAction {
-    regions: NamedId[]
-}
-
-export interface CostlElementsFilterLoadedAction extends CostElementAction {
-    filterItems: NamedId[]
+export interface CostElementDataLoadedAction extends CostElementAction {
+    costElementData: CostElementData
 }
 
 export interface InputLevelFilterLoadedAction extends InputLevelAction {
@@ -130,22 +125,15 @@ export const resetInputLevelFilter = (costBlockId: string, inputLevelId: string)
     inputLevelId
 }) 
 
-export const loadRegions = (costBlockId: string, costElementId: string, regions: NamedId[]) => (<RegionLoadedAction>{
-    type: COST_BLOCK_INPUT_LOAD_REGIONS,
-    costBlockId,
-    costElementId,
-    regions
-})
-
-export const loadCostElementFilter = (
+export const loadCostElementData = (
     costBlockId: string, 
     costElementId: string, 
-    filterItems: NamedId[]
-) => (<CostlElementsFilterLoadedAction>{
-    type: COST_BLOCK_INPUT_LOAD_COST_ELEMENT_FILTER,
-    costBlockId,
+    costElementData: CostElementData
+) => (<CostElementDataLoadedAction>{
+    type: COST_BLOCK_INPUT_LOAD_COST_ELEMENT_DATA,
+    costBlockId, 
     costElementId,
-    filterItems
+    costElementData
 })
 
 export const loadInputLevelFilter = (
@@ -247,19 +235,14 @@ export const getDataByCostElementSelection = (costBlockId: string, costElementId
 
             const { page } = getState();
             const { data: state } = page;
-            const costElementMeta = state.costBlockMetas.get(costBlockId).costElements.find(item => item.id === costElementId);
             const context = buildContext(state);
             const costBlock = state.costBlocks.find(item => item.costBlockId === costBlockId);
             const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
 
-            if (costElementMeta.dependency && !costElement.filter) {
-                service.getCostElementFilterItems(context).then(
-                    filterItems => dispatch(loadCostElementFilter(costBlockId, costElementId, filterItems))
-                )
-            }
-
-            if (costElementMeta.regionInput && !costElement.region) {
-                service.getRegions(context).then(regions => dispatch(loadRegions(costBlockId, costElementId, regions)));
+            if (costElement.dataLoadingState === DataLoadingState.Wait) {
+                service.getCostElementData(context).then(
+                    data => dispatch(loadCostElementData(costBlockId, costElementId, data))
+                );
             }
         }
     )

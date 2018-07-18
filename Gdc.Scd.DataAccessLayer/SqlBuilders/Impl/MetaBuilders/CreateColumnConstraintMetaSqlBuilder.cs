@@ -17,7 +17,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
         {
             string result = null;
 
-            if (this.Meta.Type == StoreType.Table)
+            if (this.Meta.StoreType == StoreType.Table)
             {
                 switch (this.Meta.GetField(this.Field))
                 {
@@ -62,7 +62,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
         {
             string result = null;
 
-            if (field.ReferenceMeta.Type == StoreType.Table)
+            if (field.ReferenceMeta.StoreType == StoreType.Table)
             {
                 var constraintName = $"[FK_{this.Meta.Schema}{this.Meta.Name}_{field.ReferenceMeta.Schema}{field.ReferenceMeta.Name}]";
 

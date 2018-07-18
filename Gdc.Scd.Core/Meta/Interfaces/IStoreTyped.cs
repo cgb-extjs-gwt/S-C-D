@@ -4,6 +4,6 @@ namespace Gdc.Scd.Core.Meta.Interfaces
 {
     public interface IStoreTyped
     {
-        StoreType Type { get; set; }
+        StoreType StoreType { get; set; }
     }
 }

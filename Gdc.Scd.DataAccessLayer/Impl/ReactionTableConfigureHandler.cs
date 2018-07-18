@@ -15,13 +15,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
     {
         private const string ReactionKey = "Reaction";
 
-        private const string NameField = "Name";
-
         private const string ReactionTimeKey = "ReactionTime";
 
         private const string ReactionTypeKey = "ReactionType";
 
+        private const string AvailabilityKey = "Availability";
+
+        private const string ReactionAvailabilityKey = "ReactionTimeAvalability";
+
         private readonly IServiceProvider serviceProvider;
+
+        private bool isReactionTimeCreated;
 
         public ReactionTableConfigureHandler(IServiceProvider serviceProvider)
         {
@@ -30,40 +34,65 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public bool CanHandle(BaseEntityMeta entityMeta)
         {
-            return entityMeta.Name == ReactionKey && entityMeta.Schema == MetaConstants.DependencySchema;
+            return
+                entityMeta.Schema == MetaConstants.DependencySchema && 
+                (entityMeta.Name == ReactionKey || entityMeta.Name == AvailabilityKey);
         }
 
         public IEnumerable<ISqlBuilder> GetSqlBuilders(BaseEntityMeta entityMeta)
         {
-            var reactionTimeEntity = new NamedEntityMeta(ReactionTimeKey, new SimpleFieldMeta(NameField, TypeCode.String), MetaConstants.DependencySchema);
-            var reactionTypeEntity = new NamedEntityMeta(ReactionTypeKey, new SimpleFieldMeta(NameField, TypeCode.String), MetaConstants.DependencySchema);
-            var reactionTimeTypeTable = $"{ReactionTimeKey}_{ReactionTypeKey}";
-            var reactionTimeTypeEntity = new EntityMeta(reactionTimeTypeTable, MetaConstants.DependencySchema);
+            var reactionTimeEntity = new NamedEntityMeta(ReactionTimeKey, MetaConstants.DependencySchema);
+            var sqlBuilders = new List<ISqlBuilder>();
 
-            reactionTimeTypeEntity.Fields.Add(new IdFieldMeta());
-            reactionTimeTypeEntity.Fields.Add(ReferenceFieldMeta.Build(ReactionTimeKey, reactionTimeEntity));
-            reactionTimeTypeEntity.Fields.Add(ReferenceFieldMeta.Build(ReactionTypeKey, reactionTypeEntity));
+            if (!this.isReactionTimeCreated)
+            {
+                sqlBuilders.Add(new CreateTableMetaSqlBuilder(this.serviceProvider) { Meta = reactionTimeEntity });
 
-            yield return new CreateTableMetaSqlBuilder(this.serviceProvider) { Meta = reactionTimeEntity };
-            yield return new CreateTableMetaSqlBuilder(this.serviceProvider) { Meta = reactionTypeEntity };
-            yield return new CreateTableMetaSqlBuilder(this.serviceProvider) { Meta = reactionTimeTypeEntity };
+                this.isReactionTimeCreated = true;
+            }
+
+            if (entityMeta.Name == ReactionKey)
+            {
+                var reactionTypeEntity = new NamedEntityMeta(ReactionTypeKey, MetaConstants.DependencySchema);
+
+                sqlBuilders.Add(new CreateTableMetaSqlBuilder(this.serviceProvider) { Meta = reactionTypeEntity });
+                sqlBuilders.AddRange(this.BuildCombinedView(reactionTimeEntity, reactionTypeEntity, ReactionKey));
+            }
+            else if (entityMeta.Name == AvailabilityKey)
+            {
+                sqlBuilders.Add(new CreateTableMetaSqlBuilder(this.serviceProvider) { Meta = entityMeta });
+                sqlBuilders.AddRange(this.BuildCombinedView(reactionTimeEntity, (NamedEntityMeta)entityMeta, ReactionAvailabilityKey));
+            }
+
+            return sqlBuilders;
+        }
+
+        private IEnumerable<ISqlBuilder> BuildCombinedView(NamedEntityMeta meta1, NamedEntityMeta meta2, string viewName)
+        {
+            var combineEntity = new EntityMeta($"{meta1.Name}_{meta2.Name}", MetaConstants.DependencySchema);
+
+            combineEntity.Fields.Add(new IdFieldMeta());
+            combineEntity.Fields.Add(ReferenceFieldMeta.Build(meta1.Name, meta1));
+            combineEntity.Fields.Add(ReferenceFieldMeta.Build(meta2.Name, meta2));
+
+            yield return new CreateTableMetaSqlBuilder(this.serviceProvider) { Meta = combineEntity };
 
             yield return new CreateViewSqlBuilder
             {
                 Shema = MetaConstants.DependencySchema,
-                Name = ReactionKey,
+                Name = viewName,
                 Query =
                     Sql.Select(
-                        new ColumnInfo(IdFieldMeta.DefaultId, reactionTimeTypeEntity.Name, IdFieldMeta.DefaultId),
+                        new ColumnInfo(IdFieldMeta.DefaultId, combineEntity.Name, IdFieldMeta.DefaultId),
                         new QueryColumnInfo(
                             new RawSqlBuilder
                             {
-                                RawSql = $"([{ReactionTimeKey}].[{NameField}] + ' ' + [{ReactionTypeKey}].[{NameField}])"
-                            }, 
-                            NameField))
-                       .From(reactionTimeTypeEntity)
-                       .Join(reactionTimeTypeEntity, ReactionTimeKey)
-                       .Join(reactionTimeTypeEntity, ReactionTypeKey)
+                                RawSql = $"([{meta1.Name}].[{meta1.NameField.Name}] + ' ' + [{meta2.Name}].[{meta2.NameField.Name}])"
+                            },
+                            MetaConstants.NameFieldKey))
+                       .From(combineEntity)
+                       .Join(combineEntity, meta1.Name)
+                       .Join(combineEntity, meta2.Name)
                        .ToSqlBuilder()
             };
         }

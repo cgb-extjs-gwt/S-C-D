@@ -86,7 +86,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     }
                 }
 
-                if (!isHandled)
+                if (!isHandled && entityMeta.StoreType == StoreType.Table)
                 {
                     var tableBuilder = new CreateTableMetaSqlBuilder(this.serviceProvider)
                     {

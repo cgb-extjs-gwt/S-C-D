@@ -125,10 +125,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private EditItem BuildSimpleEditItem(IDataReader reader)
         {
+            var valueCount = reader.GetInt32(1);
+
             return new EditItem
             {
-                Value = reader.GetDouble(0),
-                ValueCount = reader.GetInt32(1),
+                Value = valueCount == 1 ? reader.GetValue(0) : null,
+                ValueCount = valueCount,
                 Name = reader[2].ToString(),
             };
         }

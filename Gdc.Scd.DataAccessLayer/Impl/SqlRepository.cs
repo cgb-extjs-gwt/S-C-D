@@ -52,5 +52,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     Name = reader.GetString(1)
                 });
         }
+
+        public async Task<IEnumerable<NamedId>> GetNameIdItems(BaseEntityMeta entityMeta, string idField, string nameField)
+        {
+            var query = Sql.Select(idField, nameField).From(entityMeta);
+
+            return await this.repositorySet.ReadBySql(
+                query,
+                reader => new NamedId
+                {
+                    Id = reader.GetInt64(0),
+                    Name = reader.GetString(1)
+                });
+        }
     }
 }

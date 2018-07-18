@@ -8,6 +8,9 @@ export interface CostElementMeta extends NamedId {
     inputLevels: InputLevelMeta[]
     regionInput: NamedId
     inputType: InputType
+    typeOptions: {
+        Type: FieldType
+    }
 }
 
 export interface CostBlockMeta extends NamedId {
@@ -30,6 +33,11 @@ export enum InputType {
     Automatically = 1,
     Reference = 2,
     ManuallyAutomaticly = 3
+}
+
+export enum FieldType {
+    Reference = "Reference",
+    Double = "Double"
 }
 
 export interface CostEditorState {

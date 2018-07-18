@@ -38,22 +38,15 @@ namespace Gdc.Scd.Web.Api.Controllers
             return this.meta;
         }
 
-        [HttpGet]
-        public async Task<IEnumerable<NamedId>> GetCostElementFilterItems(CostEditorContext context)
+        public async Task<CostElementData> GetCostElementData(CostEditorContext context)
         {
-            return await this.costEditorService.GetCostElementFilterItems(context);
+            return await this.costEditorService.GetCostElementData(context);
         }
 
         [HttpGet]
         public async Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context)
         {
             return await this.costEditorService.GetInputLevelFilterItems(context);
-        }
-
-        [HttpGet]
-        public async Task<IEnumerable<NamedId>> GetRegions(CostEditorContext context)
-        {
-            return await this.costEditorService.GetRegions(context);
         }
 
         [HttpGet]

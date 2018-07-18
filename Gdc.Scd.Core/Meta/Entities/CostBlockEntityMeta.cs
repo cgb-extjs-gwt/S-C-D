@@ -11,7 +11,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public MetaCollection<FieldMeta> DependencyFields { get; } = new MetaCollection<FieldMeta>();
 
-        public MetaCollection<SimpleFieldMeta> CostElementsFields { get; } = new MetaCollection<SimpleFieldMeta>();
+        public MetaCollection<FieldMeta> CostElementsFields { get; } = new MetaCollection<FieldMeta>();
 
         public override IEnumerable<FieldMeta> AllFields
         {

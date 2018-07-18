@@ -3,10 +3,11 @@ import { Container, ComboBoxField, Panel, FormPanel, RadioField, ContainerField,
 import { CostBlockState, EditItem, CheckItem } from '../States/CostBlockStates'
 import { Filter } from './Filter';
 import { SelectList, NamedId } from '../../Common/States/CommonStates';
+import { FieldType } from '../States/CostEditorStates';
+import { EditProps, EditGrid, EditActions } from './EditGrid';
 
 Ext.require([
   'Ext.grid.plugin.CellEditing', 
-  'Ext.MessageBox'
 ]);
 
 export interface CostBlockActions {
@@ -48,15 +49,6 @@ export interface RegionProps {
   name: string
 }
 
-export interface EditProps {
-  nameColumnTitle: string
-  valueColumnTitle: string
-  items: EditItem[]
-  isEnableSave: boolean
-  isEnableClear: boolean
-  isEnableApplyFilters: boolean
-}
-
 export interface CostBlockProps {
   region: RegionProps
   costElement: CostElementProps
@@ -77,6 +69,13 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
       onInputLevelFilterReseted,
       edit
     } = this.props;
+
+    const editActions: EditActions = {
+      onApplyFilters: this.props.onApplyFilters,
+      onCleared: this.props.onEditItemsCleared,
+      onItemEdited: this.props.onItemEdited,
+      onSaving: this.props.onEditItemsSaving
+    }
 
     return (
       <Container layout={{ type: 'hbox', align: 'stretch '}}>
@@ -171,7 +170,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
 
           {
             edit && 
-            this.editGrid(edit.items, edit.nameColumnTitle, edit.valueColumnTitle)
+            <EditGrid {...edit} {...editActions}/>
           }
         </Container>
       </Container>
@@ -260,106 +259,6 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
           )
         }
       </ContainerField>
-    );
-  }
-
-  private editGrid(items: EditItem[], nameTitle: string, valueTitle) {
-    const { onItemEdited, edit, onApplyFilters } = this.props;
-    const { isEnableClear, isEnableSave, isEnableApplyFilters } = edit;
-
-    const store = Ext.create('Ext.data.Store', {
-        data: items && items.slice(),
-        listeners: {
-          update: onItemEdited && 
-                  ((store, record, operation, modifiedFieldNames, details) => {
-                    if (modifiedFieldNames[0] === 'name') {
-                      record.reject();
-                    } else {
-                      //HACK: Need for displaying new value.
-                      record.set('valueCount', 1);
-
-                      onItemEdited(record.data);
-                    }
-                  })
-        }
-    });
-   
-    return (
-      <Grid 
-        store={store} 
-        flex={1} 
-        shadow 
-        height={450}
-        columnLines={true}
-        // plugins={[
-        //   { type: 'cellediting', triggerEvent: 'singletap' },
-        //   'selectionreplicator'
-        // ]}
-        plugins={['cellediting', 'selectionreplicator']}
-        selectable={{
-          rows: true,
-          cells: true,
-          columns: true,
-          drag: true,
-          extensible: 'y'
-        }}
-      >
-        <Toolbar docked="top">
-            <Button 
-              text="Apply filters" 
-              flex={1} 
-              disabled={!isEnableApplyFilters}
-              handler={onApplyFilters}
-            />
-        </Toolbar>
-      
-        <Column text={nameTitle} dataIndex="name" flex={1} extensible={false} />
-        <Column 
-          text={valueTitle} 
-          dataIndex="value" 
-          flex={1} 
-          editable={true}
-          renderer={
-            (value, { data }: { data: EditItem }) => 
-              data.valueCount == 1 ? value : `(${data.valueCount} values)` 
-          }
-        />
-
-        <Toolbar docked="bottom">
-            <Button 
-              text="Clear" 
-              flex={1} 
-              disabled={!isEnableClear}
-              handler={() => this.showClearDialog()}
-            />
-            <Button 
-              text="Save" 
-              flex={1} 
-              disabled={!isEnableSave}
-              handler={() => this.showSaveDialog()}
-            />
-        </Toolbar>
-      </Grid>
-    );
-  }   
-
-  private showSaveDialog() {
-    const { onEditItemsSaving } = this.props;
-
-    Ext.Msg.confirm(
-      'Saving changes', 
-      'Do you want to save the changes?',
-      (buttonId: string) => onEditItemsSaving && onEditItemsSaving()
-    );
-  }
-
-  private showClearDialog() {
-    const { onEditItemsCleared } = this.props;
-
-    Ext.Msg.confirm(
-      'Clearing changes', 
-      'Do you want to clear the changes??',
-      (buttonId: string) => onEditItemsCleared && onEditItemsCleared()
     );
   }
 }

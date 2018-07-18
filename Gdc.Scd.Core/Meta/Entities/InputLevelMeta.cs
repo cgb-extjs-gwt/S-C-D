@@ -4,6 +4,6 @@ namespace Gdc.Scd.Core.Meta.Entities
 {
     public class InputLevelMeta : BaseDomainMeta, IStoreTyped
     {
-        public StoreType Type { get; set; }
+        public StoreType StoreType { get; set; }
     }
 }

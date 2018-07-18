@@ -13,6 +13,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<IEnumerable<NamedId>> GetRegions(CostEditorContext context);
 
+        Task<IEnumerable<NamedId>> GetCostElementReferenceValues(CostEditorContext context);
+
+        Task<CostElementData> GetCostElementData(CostEditorContext context);
+
         Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context);
 
         Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context);

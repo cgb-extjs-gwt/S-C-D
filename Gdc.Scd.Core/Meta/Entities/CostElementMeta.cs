@@ -1,4 +1,6 @@
-﻿namespace Gdc.Scd.Core.Meta.Entities
+﻿using System.Collections.Generic;
+
+namespace Gdc.Scd.Core.Meta.Entities
 {
     public class CostElementMeta : BaseDomainMeta
     {
@@ -11,6 +13,8 @@
         public InputLevelMeta RegionInput { get; set; }
 
         public InputType InputType { get; set; }
+
+        public IDictionary<string, string> TypeOptions { get; set; }
 
         public InputLevelMeta GetPreviousInputLevel(string inputLevelId)
         {

@@ -18,10 +18,25 @@ export interface CostElementState extends Filter {
     costElementId: string
     inputLevel: SelectList<InputLevelState>
     region: SelectList<NamedId>
+    dataLoadingState: DataLoadingState
+    referenceValues: NamedId<number>[]
+}
+
+export enum DataLoadingState {
+    None,
+    WithoutLoading,
+    Wait,
+    Loaded
 }
 
 export interface InputLevelState extends Filter {
     inputLevelId: string
+}
+
+export interface CostElementData {
+    regions: NamedId[] 
+    filters: NamedId[] 
+    referenceValues: NamedId<number>[] 
 }
 
 export interface CostBlockState {

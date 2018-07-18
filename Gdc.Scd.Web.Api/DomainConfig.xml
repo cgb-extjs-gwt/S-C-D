@@ -30,7 +30,7 @@
     <Dependency Name="Year"/>
     <Dependency Name="ServiceLocation" Caption="Service location"/>
     <Dependency Name="Reaction" Type="View"/>
-    <Dependency Name="ReactionTimeAvalability" Caption="Reaction"/>
+    <Dependency Name="ReactionTimeAvalability" Caption="Reaction" Type="View"/>
     <Dependency Name="ServiceLocationProActive " Caption="Service location for ProActive"/>
     <Dependency Name="Availability" Caption="Availability"/>
     <Dependency Name="YearAvailability" Caption="Year Availability"/>
@@ -252,6 +252,12 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
+        <Element Name="CurrencyReinsurance" Caption="Currency Reinsurance" InputOption="Manually" Dependency="Year" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+          <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
+        </Element>
         <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" Dependency="Year" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>

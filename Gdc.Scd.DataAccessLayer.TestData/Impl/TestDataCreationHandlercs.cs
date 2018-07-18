@@ -2,7 +2,6 @@
 using System.Linq;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
@@ -28,6 +27,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         private const string ReactionTimeKey = "ReactionTime";
 
         private const string ReactionTypeKey = "ReactionType";
+
+        private const string AvailabilityKey = "Availability";
 
         private readonly IRepositorySet repositorySet;
 
@@ -57,7 +58,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql(new NamedEntityMeta(ReactionTimeKey, MetaConstants.DependencySchema), this.GetReactionTimeCodeNames()),
                 this.BuildInsertSql(new NamedEntityMeta(ReactionTypeKey, MetaConstants.DependencySchema), this.GetReactionTypeNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, YearKey, this.GetYearNames()),
-                this.BuildInsertReactionSql()
+                this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
+                this.BuildInsertSql(MetaConstants.DependencySchema, AvailabilityKey, this.GetAvailabilityNames()),
+                this.BuildInsertReactionTimeTypeSql(),
+                this.BuildInsertReactionTimeAvailabilitySql()
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
 
@@ -197,11 +201,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             }
         }
 
-        private SqlHelper BuildInsertReactionSql()
+        private SqlHelper BuildInsertReactionTimeTypeSql()
         {
-            const string ReactionTimeKey = "ReactionTime";
-            const string ReactionTypeKey = "ReactionType";
-
             //2nd Business Day response
             //NBD response
             //4h response
@@ -210,14 +211,14 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             //8h recovery
             //4h recovey
 
-            var twoBdQuery = BuildSelectIdByNameQuery(ReactionTimeKey, "2nd Business Day");
-            var nbdQuery = BuildSelectIdByNameQuery(ReactionTimeKey, "NBD");
-            var fourHourQuery = BuildSelectIdByNameQuery(ReactionTimeKey, "4h");
-            var twentyFourHourQuery = BuildSelectIdByNameQuery(ReactionTimeKey, "24h");
-            var eightHourQuery = BuildSelectIdByNameQuery(ReactionTimeKey, "8h");
+            var twoBdQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "2nd Business Day");
+            var nbdQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "NBD");
+            var fourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "4h");
+            var twentyFourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "24h");
+            var eightHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "8h");
 
-            var responseQuery = BuildSelectIdByNameQuery(ReactionTypeKey, "response");
-            var recoveryQuery = BuildSelectIdByNameQuery(ReactionTypeKey, "recovery");
+            var responseQuery = this.BuildSelectIdByNameQuery(ReactionTypeKey, "response");
+            var recoveryQuery = this.BuildSelectIdByNameQuery(ReactionTypeKey, "recovery");
 
             return
                 Sql.Insert(MetaConstants.DependencySchema, $"{ReactionTimeKey}_{ReactionTypeKey}", ReactionTimeKey, ReactionTypeKey)
@@ -231,21 +232,43 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                        { eightHourQuery, recoveryQuery },
                        { fourHourQuery, recoveryQuery },
                    });
+        }
 
-            ISqlBuilder BuildSelectIdByNameQuery(string table, string name)
-            {
-                var paramName = name.Replace(" ", string.Empty);
+        private SqlHelper BuildInsertReactionTimeAvailabilitySql()
+        {
+            //NBD 9x5
+            //4h 9x5
+            //4h 24x7
 
-                return
-                    new BracketsSqlBuilder
-                    {
-                        SqlBuilder =
-                            Sql.Select(IdFieldMeta.DefaultId)
-                               .From(table, MetaConstants.DependencySchema)
-                               .Where(SqlOperators.Equals(MetaConstants.NameFieldKey, paramName, name))
-                               .ToSqlBuilder()
-                    };
-            }
+            var nbdQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "NBD");
+            var fourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "4h");
+
+            var nineByFive = this.BuildSelectIdByNameQuery(AvailabilityKey, "9x5");
+            var twentyFourBySeven = this.BuildSelectIdByNameQuery(AvailabilityKey, "24x7"); 
+
+            return
+               Sql.Insert(MetaConstants.DependencySchema, $"{ReactionTimeKey}_{AvailabilityKey}", ReactionTimeKey, AvailabilityKey)
+                  .Values(new ISqlBuilder[,]
+                  {
+                       { nbdQuery, nineByFive },
+                       { fourHourQuery, nineByFive },
+                       { fourHourQuery, twentyFourBySeven },
+                  });
+        }
+
+        private ISqlBuilder BuildSelectIdByNameQuery(string table, string name)
+        {
+            var paramName = name.Replace(" ", string.Empty);
+
+            return
+                new BracketsSqlBuilder
+                {
+                    SqlBuilder =
+                        Sql.Select(IdFieldMeta.DefaultId)
+                           .From(table, MetaConstants.DependencySchema)
+                           .Where(SqlOperators.Equals(MetaConstants.NameFieldKey, paramName, name))
+                           .ToSqlBuilder()
+                };
         }
 
         private string[] GetCountrieNames()
@@ -530,6 +553,24 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "4th year",
                 "5th year",
                 "1 year prolongation"
+            };
+        }
+
+        private string[] GetCurrenciesNames()
+        {
+            return new[]
+            {
+                "EUR",
+                "USD"
+            };
+        }
+
+        private string[] GetAvailabilityNames()
+        {
+            return new string[]
+            {
+                "9x5",
+                "24x7"
             };
         }
     }

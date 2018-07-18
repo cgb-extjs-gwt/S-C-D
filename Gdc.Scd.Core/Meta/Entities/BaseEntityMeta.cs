@@ -12,7 +12,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public string FullName => BuildFullName(this.Name, this.Schema);
 
-        public StoreType Type { get; set; }
+        public StoreType StoreType { get; set; }
 
         public abstract IEnumerable<FieldMeta> AllFields { get; }
 

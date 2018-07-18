@@ -1,5 +1,5 @@
 import { CostEditorState, CostEditortDto } from "../States/CostEditorStates";
-import { CostBlockState, EditItem } from "../States/CostBlockStates";
+import { CostBlockState, EditItem, CostElementData } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { get, post } from "../../Common/Services/Ajax";
 
@@ -18,10 +18,7 @@ export interface Context {
 
 export const getCostEditorDto = () => get<CostEditortDto>(CONTROLLER_NAME, 'GetCostEditorData');
 
-export const getRegions = (context: Context) => get<NamedId[]>(CONTROLLER_NAME, 'GetRegions', context);
-
-export const getCostElementFilterItems = (context: Context) => 
-    get<NamedId[]>(CONTROLLER_NAME, 'GetCostElementFilterItems', context); 
+export const getCostElementData = (context: Context) => get<CostElementData>(CONTROLLER_NAME, "GetCostElementData", context);
 
 export const getLevelInputFilterItems = (context: Context) => 
     get<NamedId[]>(CONTROLLER_NAME, 'GetInputLevelFilterItems', context);  

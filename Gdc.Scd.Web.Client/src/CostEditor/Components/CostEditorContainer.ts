@@ -1,6 +1,6 @@
 import { Filter, CostBlockState, InputLevelState, CheckItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
-import { CostBlockMeta, CostEditorState, InputLevelMeta } from "../States/CostEditorStates";
+import { CostBlockMeta, CostEditorState, InputLevelMeta, FieldType } from "../States/CostEditorStates";
 import { CostBlockTab, CostEditorProps, CostEditorActions, CostEditorView } from "./CostEditorView";
 import { connect } from "react-redux";
 import { PageCommonState } from "../../Layout/States/PageStates";
@@ -25,7 +25,8 @@ import {
     applyFiltersWithReloading 
 } 
 from "../Actions/CostBlockActions";
-import { SelectListFilter, RegionProps, CostElementProps, EditProps } from "./CostBlocksView";
+import { SelectListFilter, RegionProps, CostElementProps } from "./CostBlocksView";
+import { EditProps } from "./EditGrid";
 
 const isSetContainsAllCheckedItems = (set: Set<string>, filterObj: Filter) => {
     let result = true;
@@ -49,14 +50,18 @@ const buildInputLevel = (
     let filter: CheckItem[];
     let filterName: string;
     let selectedInputLevelId: string = null;
+    let isVisibleFilter: boolean;
     
-    const isVisibleFilter = selectedInputLevel && selectedInputLevel.filter && selectedInputLevel.filter.length > 0;
-    if (isVisibleFilter) {
-        const prevLevelNumber = selectedInputLevelMeta.levelNumer - 1;
-        const prevInputLevelMeta = inputLevelMetas.find(item => item.levelNumer === prevLevelNumber);
-        
-        filterName = prevInputLevelMeta.name;
-        filter = selectedInputLevel.filter;
+    if (selectedInputLevel) {
+        isVisibleFilter = selectedInputLevel.filter && selectedInputLevel.filter.length > 0;
+        if (isVisibleFilter) {
+            const prevLevelNumber = selectedInputLevelMeta.levelNumer - 1;
+            const prevInputLevelMeta = inputLevelMetas.find(item => item.levelNumer === prevLevelNumber);
+            
+            filterName = prevInputLevelMeta.name;
+            filter = selectedInputLevel.filter;
+        }
+
         selectedInputLevelId = selectedInputLevel.inputLevelId;
     }
 
@@ -117,7 +122,11 @@ const costBlockTabMap = (
 
             editProps = {
                 nameColumnTitle: selectedInputLevelMeta.name,
-                valueColumnTitle: selectedCostElementMeta.name,
+                valueColumn: {
+                    title: selectedCostElementMeta.name,
+                    type: selectedCostElementMeta.typeOptions ? selectedCostElementMeta.typeOptions.Type : FieldType.Double,
+                    selectedItems: selectedCostElement.referenceValues
+                },
                 items: edit.originalItems && edit.originalItems.map(originalItem => ({
                     ...edit.editedItems.find(editedItem => editedItem.id === originalItem.id) || originalItem
                 })),
