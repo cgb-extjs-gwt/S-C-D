@@ -1,7 +1,20 @@
 ﻿import * as React from "react";
 import { Container, Label, List } from "@extjs/ext-react";
 
-export class CapabilityMatrixMultiSelect extends React.Component<any> {
+export interface CapabilityMatrixMultiSelectProps {
+
+    width?: string;
+
+    maxWidth?: string;
+
+    title: string;
+
+    itemTpl: string;
+
+    store: any;
+}
+
+export class CapabilityMatrixMultiSelect extends React.Component<CapabilityMatrixMultiSelectProps> {
 
     public render() {
 

@@ -1,29 +1,37 @@
 ﻿import * as React from "react";
-import { Container, Button, CheckBoxField, SelectField, List, Label, ComboBoxField } from "@extjs/ext-react";
+import { Container, Button, CheckBoxField, ComboBoxField } from "@extjs/ext-react";
 import { CapabilityMatrixMultiSelect } from "./CapabilityMatrixMultiSelect";
-import { ExtMsgHelper } from '../../Common/Helpers/ExtMsgHelper'
+import { NamedId } from "../../Common/States/CommonStates";
 
-export class CapabilityMatrixEditView extends React.Component<any> {
+export interface CapabilityMatrixEditViewProps {
 
-    store = Ext.create('Ext.data.Store', {
-        data: [
-            { title: 'Item 1' },
-            { title: 'Item 2' },
-            { title: 'Item 3' },
-            { title: 'Item 4' }
-        ]
-    });
+    isPortfolio: boolean;
 
-    countries = [
-        { "name": "Alabama", "abbrev": "AL" },
-        { "name": "Alaska", "abbrev": "AK" },
-        { "name": "Arizona", "abbrev": "AZ" }
-    ];
+    countries: NamedId[];
 
-    constructor(props: any) {
+    warrantyGroups: NamedId[];
+
+    availabilityTypes: NamedId[];
+
+    durationTypes: NamedId[];
+
+    reactTypes: NamedId[];
+
+    reactionTimeTypes: NamedId[];
+
+    serviceLocationTypes: NamedId[];
+
+    onCountryChange(newVal: string, oldVal: string);
+
+    onAllow();
+
+    onDeny();
+}
+
+export class CapabilityMatrixEditView extends React.Component<CapabilityMatrixEditViewProps> {
+
+    constructor(props: CapabilityMatrixEditViewProps) {
         super(props);
-
-        this.state = { isPortfolio: true };
 
         this.onCountryChange = this.onCountryChange.bind(this);
         this.onAllow = this.onAllow.bind(this);
@@ -31,9 +39,6 @@ export class CapabilityMatrixEditView extends React.Component<any> {
     }
 
     public render() {
-
-        let isPortfolio = this.state.isPortfolio;
-
         return (
             <Container layout="vbox" padding="10px">
 
@@ -42,25 +47,24 @@ export class CapabilityMatrixEditView extends React.Component<any> {
                     label="Country:"
                     labelAlign="left"
                     labelWidth="80px"
-                    options={this.countries}
+                    options={this.props.countries}
                     displayField="name"
-                    valueField="abbrev"
+                    valueField="id"
                     queryMode="local"
                     clearable="true"
-
                     onChange={this.onCountryChange}
                 />
 
                 <Container layout="hbox">
-                    <CapabilityMatrixMultiSelect title="Asset(WG)" itemTpl="{title}" store={this.store} />
-                    <CapabilityMatrixMultiSelect title="Availability" itemTpl="{title}" store={this.store} />
-                    <CapabilityMatrixMultiSelect title="Duration" itemTpl="{title}" store={this.store} />
-                    <CapabilityMatrixMultiSelect title="React type" itemTpl="{title}" store={this.store} />
-                    <CapabilityMatrixMultiSelect title="Reaction time" itemTpl="{title}" store={this.store} />
-                    <CapabilityMatrixMultiSelect title="Service location" itemTpl="{title}" store={this.store} />
+                    <CapabilityMatrixMultiSelect title="Asset(WG)" itemTpl="{name}" store={this.props.warrantyGroups} />
+                    <CapabilityMatrixMultiSelect title="Availability" itemTpl="{name}" store={this.props.availabilityTypes} />
+                    <CapabilityMatrixMultiSelect title="Duration" itemTpl="{name}" store={this.props.durationTypes} />
+                    <CapabilityMatrixMultiSelect title="React type" itemTpl="{name}" store={this.props.reactTypes} />
+                    <CapabilityMatrixMultiSelect title="Reaction time" itemTpl="{name}" store={this.props.reactionTimeTypes} />
+                    <CapabilityMatrixMultiSelect title="Service location" itemTpl="{name}" store={this.props.serviceLocationTypes} />
                 </Container>
 
-                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !isPortfolio }}>
+                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.props.isPortfolio }}>
                     <CheckBoxField boxLabel="Fujitsu Global Portfolio" />
                     <CheckBoxField boxLabel="Master Portfolio" />
                     <CheckBoxField boxLabel="Core Portfolio" />
@@ -76,26 +80,14 @@ export class CapabilityMatrixEditView extends React.Component<any> {
     }
 
     private onCountryChange(combo, newVal, oldVal) {
-        this.setState({ isPortfolio: !newVal });
+        this.props.onCountryChange(newVal, oldVal);
     }
 
     private onAllow() {
-        this.showSaveDialog(true);
+        this.props.onAllow();
     }
 
     private onDeny() {
-        this.showSaveDialog(false);
-    }
-
-    private showSaveDialog(allow: boolean) {
-        ExtMsgHelper.confirm(
-            allow ? 'Allow combinations' : 'Deny combinations',
-            'Do you want to save the changes?',
-            () => this.save(allow)
-        );
-    }
-
-    private save(allow: boolean) {
-        console.log('save()', allow);
+        this.props.onDeny();
     }
 }
