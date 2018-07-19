@@ -119,9 +119,10 @@ export const changeSelectionInputLevelFilter = (
     isSelected
 })
 
-export const resetInputLevelFilter = (costBlockId: string, inputLevelId: string) => (<InputLevelAction>{
+export const resetInputLevelFilter = (costBlockId: string, costElementId: string, inputLevelId: string) => (<InputLevelAction>{
     type: COST_BLOCK_INPUT_RESET_INPUT_LEVEL_FILTER,
     costBlockId,
+    costElementId,
     inputLevelId
 }) 
 
@@ -199,22 +200,7 @@ const buildContext = (state: CostEditorState) => {
             costElement.list.find(item => item.costElementId === costElement.selectedItemId);
 
         regionInputId = selectedCostElement.region && selectedCostElement.region.selectedItemId;
-
-        if (selectedCostElement.inputLevel.selectedItemId != null)
-        {
-            inputLevelId = selectedCostElement.inputLevel.selectedItemId;
-
-            const selectedInputLevel = 
-                selectedCostElement.inputLevel.list.find(item => item.inputLevelId === selectedCostElement.inputLevel.selectedItemId);
-
-            costElementFilterIds = selectedCostElement.filter 
-                ? selectedCostElement.filter.filter(item => item.isChecked).map(item => item.id) 
-                : [];
-
-            inputLevelFilterIds = selectedInputLevel.filter 
-                ? selectedInputLevel.filter.filter(item => item.isChecked).map(item => item.id)
-                : [];
-        }
+        inputLevelId = selectedCostElement.inputLevel.selectedItemId;
     }
 
     return <service.Context>{
@@ -223,8 +209,8 @@ const buildContext = (state: CostEditorState) => {
         regionInputId,
         costElementId: costElement.selectedItemId,
         inputLevelId,
-        costElementFilterIds,
-        inputLevelFilterIds
+        costElementFilterIds: Array.from(costBlock.edit.appliedFilter.costElementsItemIds),
+        inputLevelFilterIds: Array.from(costBlock.edit.appliedFilter.inputLevelItemIds)
     }
 }
 

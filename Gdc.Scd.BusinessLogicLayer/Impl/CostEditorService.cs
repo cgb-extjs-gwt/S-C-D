@@ -59,25 +59,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context)
         {
-            var filter = this.GetRegionFilter(context);
-
-            if (context.CostElementFilterIds != null)
-            {
-                var costElement = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId];
-                var filterValues = context.CostElementFilterIds.Cast<object>().ToArray();
-
-                filter.Add(costElement.Dependency.Id, filterValues);
-            }
-
-            if (context.InputLevelFilterIds != null)
-            {
-                var costElement = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId];
-                var previousInputLevel = costElement.GetPreviousInputLevel(context.InputLevelId);
-                var filterValues = context.InputLevelFilterIds.Cast<object>().ToArray();
-
-                filter.Add(previousInputLevel.Id, filterValues);
-            }
-
+            var filter = this.GetFilter(context);
             var editItemInfo = this.GetEditItemInfo(context);
 
             return await this.costEditorRepository.GetEditItems(editItemInfo, filter);
@@ -112,8 +94,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context)
         {
             var editItemInfo = this.GetEditItemInfo(context);
+            var filter = this.GetFilter(context);
                 
-            return await this.costEditorRepository.UpdateValues(editItems, editItemInfo);
+            return await this.costEditorRepository.UpdateValues(editItems, editItemInfo, filter);
         }
 
         private IDictionary<string, IEnumerable<object>> GetRegionFilter(CostEditorContext context)
@@ -122,9 +105,33 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (context.RegionInputId != null)
             {
-                var regionInput = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId].RegionInput;
+                var costElement = this.GetCostElementMeta(context);
 
-                filter.Add(regionInput.Id, new object[] { context.RegionInputId });
+                filter.Add(costElement.RegionInput.Id, new object[] { context.RegionInputId });
+            }
+
+            return filter;
+        }
+
+        private IDictionary<string, IEnumerable<object>> GetFilter(CostEditorContext context)
+        {
+            var filter = this.GetRegionFilter(context);
+
+            if (context.CostElementFilterIds != null)
+            {
+                var costElement = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId];
+                var filterValues = context.CostElementFilterIds.Cast<object>().ToArray();
+
+                filter.Add(costElement.Dependency.Id, filterValues);
+            }
+
+            if (context.InputLevelFilterIds != null)
+            {
+                var costElement = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId];
+                var previousInputLevel = costElement.GetPreviousInputLevel(context.InputLevelId);
+                var filterValues = context.InputLevelFilterIds.Cast<object>().ToArray();
+
+                filter.Add(previousInputLevel.Id, filterValues);
             }
 
             return filter;

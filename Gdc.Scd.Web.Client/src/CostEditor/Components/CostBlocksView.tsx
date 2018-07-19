@@ -24,7 +24,7 @@ export interface CostBlockActions {
     inputLevelId: string, 
     filterItemId: string,
     isSelected: boolean) => void
-  onInputLevelFilterReseted?: (inputLevelId: string) => void
+  onInputLevelFilterReseted?: (costElementId: string, inputLevelId: string) => void
   onEditItemsCleared?: () => void
   onItemEdited?: (item: EditItem) => void
   onEditItemsSaving?: () => void
@@ -161,7 +161,12 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
                         isSelected
                       )
                   }
-                  onReset={() => onInputLevelFilterReseted && onInputLevelFilterReseted(inputLevel.selectList.selectedItemId)}
+                  onReset={
+                    () => onInputLevelFilterReseted && 
+                          onInputLevelFilterReseted(
+                            costElement.selectList.selectedItemId, 
+                            inputLevel.selectList.selectedItemId)
+                  }
                 />
               }
             </Container>

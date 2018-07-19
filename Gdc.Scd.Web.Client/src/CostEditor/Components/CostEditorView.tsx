@@ -59,7 +59,7 @@ export interface CostEditorActions {
             filterItemId: string,
             isSelected: boolean) => void
         onCostElementFilterReseted?: (costBlockId: string, costElementId: string) => void
-        onInputLevelFilterReseted?: (costBlockId: string, inputLevelId: string) => void
+        onInputLevelFilterReseted?: (costBlockId: string, costElementId: string, inputLevelId: string) => void
         onEditItemsCleared?: (costBlockId: string) => void
         onItemEdited?: (costBlockId: string, item: EditItem) => void
         onEditItemsSaving?: (costBlockId: string) => void
@@ -216,9 +216,9 @@ export class CostEditorView extends React.Component<CostEditorProps> {
                             onCostElementFilterReseted(costBlockTab.id, costElementId)
                     }
                     onInputLevelFilterReseted={
-                        inputLevelId =>
+                        (costElementId, inputLevelId) =>
                             onInputLevelFilterReseted && 
-                            onInputLevelFilterReseted(costBlockTab.id, inputLevelId)
+                            onInputLevelFilterReseted(costBlockTab.id, costElementId, inputLevelId)
                     }
                     onEditItemsCleared={
                         () => onEditItemsCleared && onEditItemsCleared(costBlockTab.id)

@@ -224,11 +224,9 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
             },
             onCostElementFilterReseted: (costBlockId, costElementId) => {
                 dispatch(resetCostElementFilter(costBlockId, costElementId));
-                dispatch(loadEditItemsByContext());
             },
-            onInputLevelFilterReseted: (costBlockId, inputLevelId) => {
-                dispatch(resetInputLevelFilter(costBlockId, inputLevelId))
-                dispatch(loadEditItemsByContext());
+            onInputLevelFilterReseted: (costBlockId, costElementId, inputLevelId) => {
+                dispatch(resetInputLevelFilter(costBlockId, costElementId, inputLevelId))
             },
             onEditItemsCleared: costBlockId => dispatch(clearEditItems(costBlockId)),
             onItemEdited: (costBlockId, item) => dispatch(editItem(costBlockId, item)),
