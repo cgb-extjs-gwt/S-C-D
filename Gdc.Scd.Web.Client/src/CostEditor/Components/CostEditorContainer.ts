@@ -199,39 +199,39 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
         } as CostEditorProps;
     },
     dispatch => ({
-        //onInit: () => dispatch(init()),
-        //onApplicationSelected: applicationId => dispatch(selectApplicationLosseDataCheck(applicationId)),
-        //onCostBlockSelected: costBlockId => dispatch(selectCostBlock(costBlockId)),
-        //onLoseChanges: () => dispatch(loseChanges()),
-        //onCancelDataLose: () => dispatch(hideDataLoseWarning()),
-        //tabActions: {
-        //    onRegionSelected: (regionId, costBlockId) => {
-        //        dispatch(selectRegionWithReloading(costBlockId, regionId));
-        //    },
-        //    onCostElementSelected: (costBlockId, costElementId) => {
-        //        dispatch(getDataByCostElementSelection(costBlockId, costElementId));
-        //        dispatch(loadEditItemsByContext());
-        //    },
-        //    onInputLevelSelected: (costBlockId, costElementId, inputLevelId) => {
-        //        dispatch(getFilterItemsByInputLevelSelection(costBlockId, costElementId, inputLevelId));
-        //        dispatch(loadEditItemsByContext());
-        //    },
-        //    onCostElementFilterSelectionChanged: (costBlockId, costElementId, filterItemId, isSelected) => {
-        //        dispatch(changeSelectionCostElementFilter(costBlockId, costElementId, filterItemId, isSelected));
-        //    },
-        //    onInputLevelFilterSelectionChanged: (costBlockId, costElementId, inputLevelId, filterItemId, isSelected) => {
-        //        dispatch(changeSelectionInputLevelFilter(costBlockId, costElementId, inputLevelId, filterItemId, isSelected));
-        //    },
-        //    onCostElementFilterReseted: (costBlockId, costElementId) => {
-        //        dispatch(resetCostElementFilter(costBlockId, costElementId));
-        //    },
-        //    onInputLevelFilterReseted: (costBlockId, costElementId, inputLevelId) => {
-        //        dispatch(resetInputLevelFilter(costBlockId, costElementId, inputLevelId))
-        //    },
-        //    onEditItemsCleared: costBlockId => dispatch(clearEditItems(costBlockId)),
-        //    onItemEdited: (costBlockId, item) => dispatch(editItem(costBlockId, item)),
-        //    onEditItemsSaving: costBlockId => dispatch(saveEditItemsToServer(costBlockId)),
-        //    onApplyFilters: costBlockId => dispatch(applyFiltersWithReloading(costBlockId))
-        //}
+        onInit: () => dispatch(init()),
+        onApplicationSelected: applicationId => dispatch(selectApplicationLosseDataCheck(applicationId)),
+        onCostBlockSelected: costBlockId => dispatch(selectCostBlock(costBlockId)),
+        onLoseChanges: () => dispatch(loseChanges()),
+        onCancelDataLose: () => dispatch(hideDataLoseWarning()),
+        tabActions: {
+            onRegionSelected: (regionId, costBlockId) => {
+                dispatch(selectRegionWithReloading(costBlockId, regionId));
+            },
+            onCostElementSelected: (costBlockId, costElementId) => {
+                dispatch(getDataByCostElementSelection(costBlockId, costElementId));
+                dispatch(loadEditItemsByContext());
+            },
+            onInputLevelSelected: (costBlockId, costElementId, inputLevelId) => {
+                dispatch(getFilterItemsByInputLevelSelection(costBlockId, costElementId, inputLevelId));
+                dispatch(loadEditItemsByContext());
+            },
+            onCostElementFilterSelectionChanged: (costBlockId, costElementId, filterItemId, isSelected) => {
+                dispatch(changeSelectionCostElementFilter(costBlockId, costElementId, filterItemId, isSelected));
+            },
+            onInputLevelFilterSelectionChanged: (costBlockId, costElementId, inputLevelId, filterItemId, isSelected) => {
+                dispatch(changeSelectionInputLevelFilter(costBlockId, costElementId, inputLevelId, filterItemId, isSelected));
+            },
+            onCostElementFilterReseted: (costBlockId, costElementId) => {
+                dispatch(resetCostElementFilter(costBlockId, costElementId));
+            },
+            onInputLevelFilterReseted: (costBlockId, costElementId, inputLevelId) => {
+                dispatch(resetInputLevelFilter(costBlockId, costElementId, inputLevelId))
+            },
+            onEditItemsCleared: costBlockId => dispatch(clearEditItems(costBlockId)),
+            onItemEdited: (costBlockId, item) => dispatch(editItem(costBlockId, item)),
+            onEditItemsSaving: costBlockId => dispatch(saveEditItemsToServer(costBlockId)),
+            onApplyFilters: costBlockId => dispatch(applyFiltersWithReloading(costBlockId))
+        }
     })
 )(CostEditorView);
