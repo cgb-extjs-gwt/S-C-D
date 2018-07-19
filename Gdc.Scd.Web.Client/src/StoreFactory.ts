@@ -6,6 +6,7 @@ import { AsyncAction } from "./Common/Actions/AsyncAction";
 import { CostEditorState } from "./CostEditor/States/CostEditorStates";
 import { costEditorReducer } from "./CostEditor/Reducers/CostEditorReducer";
 import { costBlockReducer } from "./CostEditor/Reducers/CostBlockReducer";
+import { capabilityMatrixEditReducer } from "./CapabilityMatrix/Reducers/Edit";
 
 const asyncActionHandler = store => next => action => {
     if (action instanceof AsyncAction) {
@@ -24,20 +25,43 @@ const pageDataReducer = (state: PageState<CostEditorState>, action: PageAction) 
     return data;
 }
 
-export const storeFactory = () => {
-    const reducer = combineReducers({ 
-        [PAGE_STATE_KEY]: (state: PageState, action: PageAction) => {
-            const newState = pageReducer(state, action);
+const costEditorMainReducer = (state: CostEditorState = <CostEditorState>{}, action: PageAction) => {
 
-            return <PageState>{
-                ...newState,
-                data: pageDataReducer(newState, action)
-            }
-        }
-    });  
+    state = costEditorReducer(state, action);
+    state = costBlockReducer(state, action);
 
-    return createStore(
-        reducer,
-        applyMiddleware(asyncActionHandler)
-    );
+    return state;
 }
+
+export const storeFactory = () => {
+
+    const reducer = combineReducers({
+
+        app: pageReducer,
+
+        costEditor: costEditorMainReducer,
+
+        matrix: capabilityMatrixEditReducer
+
+    });
+
+    return createStore(reducer, applyMiddleware(asyncActionHandler));
+}
+
+//export const storeFactory = () => {
+//    const reducer = combineReducers({ 
+//        [PAGE_STATE_KEY]: (state: PageState, action: PageAction) => {
+//            const newState = pageReducer(state, action);
+
+//            return <PageState>{
+//                ...newState,
+//                data: pageDataReducer(newState, action)
+//            }
+//        }
+//    });  
+
+//    return createStore(
+//        reducer,
+//        applyMiddleware(asyncActionHandler)
+//    );
+//}

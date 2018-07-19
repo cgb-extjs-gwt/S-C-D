@@ -1,6 +1,6 @@
 ﻿import * as actionTypes from "../Actions/ActionTypes"
 
-export function editReducer(state: any, action: string) {
+export function capabilityMatrixEditReducer(state: any = {}, action: string) {
 
     switch (action) {
 
@@ -16,5 +16,8 @@ export function editReducer(state: any, action: string) {
         default:
             return state;
     }
+
+    return state;
+
 
 }

@@ -9,6 +9,15 @@ declare var Ext:any;
 // Enable responsiveConfig app-wide. You can remove this if you don't plan to build a responsive UI.
 Ext.require('Ext.plugin.Responsive');
 
+
+setInterval(function () {
+
+    console.log('!');
+
+   // console.log(store.getState());
+
+}, 2000);
+
 const store = storeFactory();
 
 /**
