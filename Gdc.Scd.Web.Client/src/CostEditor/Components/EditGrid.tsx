@@ -21,6 +21,7 @@ export interface EditProps {
     isEnableSave: boolean
     isEnableClear: boolean
     isEnableApplyFilters: boolean
+    flex?: number
 }
 
 export interface EditActions {
@@ -57,14 +58,9 @@ export class EditGrid extends React.Component<EditProps & EditActions>  {
         return (
             <Grid 
             store={store} 
-            flex={1} 
+            flex={props.flex} 
             shadow 
-            height={450}
             columnLines={true}
-            // plugins={[
-            //   { type: 'cellediting', triggerEvent: 'singletap' },
-            //   'selectionreplicator'
-            // ]}
             plugins={['cellediting', 'selectionreplicator']}
             selectable={{
                 rows: true,
