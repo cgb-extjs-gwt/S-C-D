@@ -61,7 +61,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 {
                     parameterBuilders.Add(new ParameterSqlBuilder
                     {
-                        ParamInfo = new CommandParameterInfo
+                        ParamInfo = value as CommandParameterInfo ?? new CommandParameterInfo
                         {
                             Name = $"{filterItem.Key}_{index++}",
                             Value = value

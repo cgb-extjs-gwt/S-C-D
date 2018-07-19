@@ -67,15 +67,34 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         private IEnumerable<string> GetCreateTableCommands(IEnumerable<(string Schema, string Table)> registeredEntityInfos)
         {
             var entityMetas = this.GetNotRegisteredMetas(registeredEntityInfos);
+            var customHandlers = this.serviceProvider.GetServices<ICustomConfigureTableHandler>();
 
             foreach (var entityMeta in entityMetas)
             {
-                var tableBuilder = new CreateTableMetaSqlBuilder(this.serviceProvider)
-                {
-                    Meta = entityMeta
-                };
+                var isHandled = false;
 
-                yield return tableBuilder.Build(null);
+                foreach (var customHandler in customHandlers)
+                {
+                    if (customHandler.CanHandle(entityMeta))
+                    {
+                        foreach (var sqlBuilder in customHandler.GetSqlBuilders(entityMeta))
+                        {
+                            yield return sqlBuilder.Build(null);
+                        }
+
+                        isHandled = true;
+                    }
+                }
+
+                if (!isHandled && entityMeta.StoreType == StoreType.Table)
+                {
+                    var tableBuilder = new CreateTableMetaSqlBuilder(this.serviceProvider)
+                    {
+                        Meta = entityMeta
+                    };
+
+                    yield return tableBuilder.Build(null);
+                }
             }
         }
 

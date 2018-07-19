@@ -7,11 +7,11 @@ namespace Gdc.Scd.Core.Meta.Entities
     {
         public IEnumerable<string> ApplicationIds { get; set; }
 
-        public IEnumerable<CostElementMeta> CostElements { get; set; }
+        public MetaCollection<CostElementMeta> CostElements { get; set; }
 
-        public CostElementMeta GetCostElement(string id)
+        public IEnumerable<InputLevelMeta> GetInputLevels()
         {
-            return this.CostElements.FirstOrDefault(costElement => costElement.Id == id);
+            return this.CostElements.SelectMany(costElement => costElement.InputLevels).Distinct();
         }
     }
 }

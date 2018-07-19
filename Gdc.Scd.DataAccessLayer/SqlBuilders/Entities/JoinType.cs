@@ -5,6 +5,7 @@
         Inner,
         Left,
         Right,
-        Full
+        Full,
+        Cross
     }
 }

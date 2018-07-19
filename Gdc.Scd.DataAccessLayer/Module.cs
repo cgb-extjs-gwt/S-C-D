@@ -23,6 +23,7 @@ namespace Gdc.Scd.DataAccessLayer
             services.AddTransient<CreateTableMetaSqlBuilder>();
             services.AddTransient<DatabaseMetaSqlBuilder>();
             services.AddTransient<IConfigureApplicationHandler, DatabaseCreationHandler>();
+            services.AddTransient<ICustomConfigureTableHandler, ReactionTableConfigureHandler>();
         }
     }
 }

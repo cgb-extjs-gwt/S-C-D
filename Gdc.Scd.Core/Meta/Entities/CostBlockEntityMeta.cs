@@ -5,14 +5,13 @@ namespace Gdc.Scd.Core.Meta.Entities
 {
     public class CostBlockEntityMeta : BaseEntityMeta
     {
-
         public IdFieldMeta IdField { get; } = new IdFieldMeta();
 
         public MetaCollection<ReferenceFieldMeta> InputLevelFields { get; } = new MetaCollection<ReferenceFieldMeta>();
 
         public MetaCollection<FieldMeta> DependencyFields { get; } = new MetaCollection<FieldMeta>();
 
-        public MetaCollection<SimpleFieldMeta> CostElementsFields { get; } = new MetaCollection<SimpleFieldMeta>();
+        public MetaCollection<FieldMeta> CostElementsFields { get; } = new MetaCollection<FieldMeta>();
 
         public override IEnumerable<FieldMeta> AllFields
         {
