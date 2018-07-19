@@ -12,6 +12,24 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
     public class TestDataCreationHandlercs : IConfigureDatabaseHandler
     {
+        private const string CountryLevelId = "Country";
+
+        private const string PlaLevelId = "Pla";
+
+        private const string WgLevelId = "Wg";
+
+        private const string RoleCodeKey = "RoleCodeCode";
+
+        private const string ServiceLocationKey = "ServiceLocation";
+
+        private const string YearKey = "Year";
+
+        private const string ReactionTimeKey = "ReactionTime";
+
+        private const string ReactionTypeKey = "ReactionType";
+
+        private const string AvailabilityKey = "Availability";
+
         private readonly IRepositorySet repositorySet;
 
         private readonly DomainEnitiesMeta entityMetas;
@@ -26,18 +44,24 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         public void Handle()
         {
-            var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.CountryLevelId, MetaConstants.InputLevelSchema);
-            var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.PlaLevelId, MetaConstants.InputLevelSchema);
-            var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.WgLevelId, MetaConstants.InputLevelSchema);
+            var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
+            var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
+            var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
 
             var queries = new List<SqlHelper>
             {
                 this.BuildInsertSql(countryInputLevelMeta, this.GetCountrieNames()),
                 this.BuildInsertSql(plaInputLevelMeta, this.GetPlaNames()),
                 this.BuildInsertSql(wgInputLevelMeta, this.GetWarrantyGroupNames()),
-                this.BuildInsertSql(MetaConstants.DependencySchema, "RoleCodeCode", this.GetRoleCodeNames()),
-                this.BuildInsertSql(MetaConstants.DependencySchema, "ServiceLocationCode", this.GetServiceLocationCodeNames()),
-                this.BuildInsertSql(MetaConstants.DependencySchema, "ReactionTimeCode", this.GetReactionTimeCodeNames())
+                //this.BuildInsertSql(MetaConstants.DependencySchema, RoleCodeKey, this.GetRoleCodeNames()),
+                this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
+                this.BuildInsertSql(new NamedEntityMeta(ReactionTimeKey, MetaConstants.DependencySchema), this.GetReactionTimeCodeNames()),
+                this.BuildInsertSql(new NamedEntityMeta(ReactionTypeKey, MetaConstants.DependencySchema), this.GetReactionTypeNames()),
+                this.BuildInsertSql(MetaConstants.DependencySchema, YearKey, this.GetYearNames()),
+                this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
+                this.BuildInsertSql(MetaConstants.DependencySchema, AvailabilityKey, this.GetAvailabilityNames()),
+                this.BuildInsertReactionTimeTypeSql(),
+                this.BuildInsertReactionTimeAvailabilitySql()
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
 
@@ -66,86 +90,185 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             return this.BuildInsertSql(entityMeta, names);
         }
 
+        //private IEnumerable<SqlHelper> BuildInsertCostBlockSql()
+        //{
+        //    var countries = this.GetCountrieNames();
+        //    var plas = this.GetPlaNames();
+        //    var warrantyGroups = this.GetWarrantyGroupNames();
+        //    //var roleCodes = this.GetRoleCodeNames();
+        //    var serviceLocations = this.GetServiceLocationCodeNames();
+        //    var reactionTimes = this.GetReactionTimeCodeNames();
+        //    var map = new Dictionary<string, string[]>
+        //    {
+        //        [CountryLevelId] = countries,
+        //        [PlaLevelId] = plas,
+        //        [WgLevelId] = warrantyGroups,
+        //        //[RoleCodeKey] = roleCodes,
+        //        [ServiceLocationKey] = serviceLocations,
+        //        [ReactionTimeKey] = reactionTimes
+        //    };
+
+        //    var countryLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
+        //    var firtsCountryQuery = this.BuildSelectIdByNameQuery(countryLevelMeta, countries[0], "Country_0");
+
+        //    var inputLevels = new HashSet<string> { CountryLevelId, PlaLevelId, WgLevelId };
+        //    var costBlocks = 
+        //        this.entityMetas.CostBlocks.Where(
+        //            costBlock => costBlock.InputLevelFields.All(field => inputLevels.Contains(field.Name)));
+
+        //    foreach (var costBlockMeta in costBlocks)
+        //    {
+        //        var fieldNames = 
+        //            map.Keys.Where(fieldName => costBlockMeta.AllFields.Any(costBlockField => costBlockField.Name == fieldName))
+        //                    .ToArray();
+
+        //        var insertValues = new ISqlBuilder[warrantyGroups.Length, fieldNames.Length];
+
+        //        for (var warrantyGroupIndex = 0; warrantyGroupIndex < warrantyGroups.Length; warrantyGroupIndex++)
+        //        {
+        //            insertValues[warrantyGroupIndex, 0] = firtsCountryQuery;
+
+        //            for (var fieldIndex = 1; fieldIndex < fieldNames.Length; fieldIndex++)
+        //            {
+        //                var fieldName = fieldNames[fieldIndex];
+        //                var refNames = map[fieldName];
+        //                var refNameIndex = warrantyGroupIndex - warrantyGroupIndex / refNames.Length * refNames.Length;
+        //                var refName = refNames[refNameIndex];
+
+        //                var refField = costBlockMeta.InputLevelFields[fieldName] ?? (ReferenceFieldMeta)costBlockMeta.DependencyFields[fieldName];
+
+        //                insertValues[warrantyGroupIndex, fieldIndex] = 
+        //                    this.BuildSelectIdByNameQuery((NamedEntityMeta)refField.ReferenceMeta, refName, $"{fieldName}_{warrantyGroupIndex}");
+        //            }
+        //        }
+
+        //        yield return Sql.Insert(costBlockMeta, fieldNames).Values(insertValues);
+
+        //        var columns = new List<ColumnInfo>
+        //        {
+        //            new ColumnInfo(countryLevelMeta.IdField.Name, countryLevelMeta.Name)
+        //        };
+        //        columns.AddRange(
+        //            fieldNames.Where(field => field != CountryLevelId)
+        //                      .Select(fieldName => new ColumnInfo(fieldName, costBlockMeta.Name)));
+
+        //        yield return
+        //            Sql.Insert(costBlockMeta, fieldNames)
+        //               .Query(
+        //                    Sql.Select(columns.ToArray())
+        //                       .From(countryLevelMeta)
+        //                       .Join(
+        //                            costBlockMeta,
+        //                            SqlOperators.Equals(
+        //                                new ColumnSqlBuilder(new ColumnInfo(CountryLevelId, costBlockMeta.Name)),
+        //                                firtsCountryQuery))
+        //                       .Where(SqlOperators.NotEquals(countryLevelMeta.NameField.Name, "firstCountry", countries[0], countryLevelMeta.Name)));
+        //    }
+        //}
+
+        //private ISqlBuilder BuildSelectIdByNameQuery(NamedEntityMeta meta, string name, string paramName)
+        //{
+        //    return new BracketsSqlBuilder
+        //    {
+        //        SqlBuilder = Sql.Select(new ColumnInfo { Name = meta.IdField.Name, TableName = meta.Name })
+        //                        .From(meta)
+        //                        .Where(SqlOperators.Equals(meta.NameField.Name, paramName, name, meta.Name))
+        //                        .ToSqlBuilder()
+        //    };
+        //}
+
         private IEnumerable<SqlHelper> BuildInsertCostBlockSql()
         {
-            var countries = this.GetCountrieNames();
-            var plas = this.GetPlaNames();
-            var warrantyGroups = this.GetWarrantyGroupNames();
-            var roleCodes = this.GetRoleCodeNames();
-            var serviceLocations = this.GetServiceLocationCodeNames();
-            var reactionTimes = this.GetReactionTimeCodeNames();
-            var map = new Dictionary<string, string[]>
-            {
-                [MetaConstants.CountryLevelId] = countries,
-                [MetaConstants.PlaLevelId] = plas,
-                [MetaConstants.WgLevelId] = warrantyGroups,
-                ["RoleCodeCode"] = roleCodes,
-                ["ServiceLocationCode"] = serviceLocations,
-                ["ReactionTimeCode"] = reactionTimes
-            };
-
-            var countryLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.CountryLevelId, MetaConstants.InputLevelSchema);
-            var firtsCountryQuery = this.BuildSelectIdByNameQuery(countryLevelMeta, countries[0], "Country_0");
-
             foreach (var costBlockMeta in this.entityMetas.CostBlocks)
             {
-                var fieldNames = 
-                    map.Keys.Where(fieldName => costBlockMeta.AllFields.Any(costBlockField => costBlockField.Name == fieldName))
-                            .ToArray();
+                var referenceFields = costBlockMeta.AllFields.OfType<ReferenceFieldMeta>().ToArray();
+                var selectColumns =
+                    referenceFields.Select(field => new ColumnInfo(field.ReferenceValueField, field.ReferenceMeta.Name, field.Name))
+                                   .ToArray();
 
-                var insertValues = new ISqlBuilder[warrantyGroups.Length, fieldNames.Length];
+                IJoinSqlHelper<SelectJoinSqlHelper> selectQuery = Sql.Select(selectColumns).From(referenceFields[0].ReferenceMeta);
 
-                for (var warrantyGroupIndex = 0; warrantyGroupIndex < warrantyGroups.Length; warrantyGroupIndex++)
+                for (var i = 1; i < referenceFields.Length; i++)
                 {
-                    insertValues[warrantyGroupIndex, 0] = firtsCountryQuery;
+                    var referenceMeta = referenceFields[i].ReferenceMeta;
 
-                    for (var fieldIndex = 1; fieldIndex < fieldNames.Length; fieldIndex++)
-                    {
-                        var fieldName = fieldNames[fieldIndex];
-                        var refNames = map[fieldName];
-                        var refNameIndex = warrantyGroupIndex - warrantyGroupIndex / refNames.Length * refNames.Length;
-                        var refName = refNames[refNameIndex];
-
-                        var refField = costBlockMeta.InputLevelFields[fieldName] ?? (ReferenceFieldMeta)costBlockMeta.DependencyFields[fieldName];
-
-                        insertValues[warrantyGroupIndex, fieldIndex] = 
-                            this.BuildSelectIdByNameQuery((NamedEntityMeta)refField.ReferenceMeta, refName, $"{fieldName}_{warrantyGroupIndex}");
-                    }
+                    selectQuery = selectQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
                 }
 
-                yield return Sql.Insert(costBlockMeta, fieldNames).Values(insertValues);
+                var insertFields = referenceFields.Select(field => field.Name).ToArray();
 
-                var columns = new List<ColumnInfo>
-                {
-                    new ColumnInfo(countryLevelMeta.IdField.Name, countryLevelMeta.Name)
-                };
-                columns.AddRange(
-                    fieldNames.Where(field => field != MetaConstants.CountryLevelId)
-                              .Select(fieldName => new ColumnInfo(fieldName, costBlockMeta.Name)));
-
-                yield return
-                    Sql.Insert(costBlockMeta, fieldNames)
-                       .Query(
-                            Sql.Select(columns.ToArray())
-                               .From(countryLevelMeta)
-                               .Join(
-                                    costBlockMeta,
-                                    SqlOperators.Equals(
-                                        new ColumnSqlBuilder(new ColumnInfo(MetaConstants.CountryLevelId, costBlockMeta.Name)),
-                                        firtsCountryQuery))
-                               .Where(SqlOperators.NotEquals(countryLevelMeta.NameField.Name, "firstCountry", countries[0], countryLevelMeta.Name)));
+                yield return Sql.Insert(costBlockMeta, insertFields).Query((SqlHelper)selectQuery);
             }
         }
 
-        private ISqlBuilder BuildSelectIdByNameQuery(NamedEntityMeta meta, string name, string paramName)
+        private SqlHelper BuildInsertReactionTimeTypeSql()
         {
-            return new BracketsSqlBuilder
-            {
-                SqlBuilder = Sql.Select(new ColumnInfo { Name = meta.IdField.Name, TableName = meta.Name })
-                                .From(meta)
-                                .Where(SqlOperators.Equals(meta.NameField.Name, paramName, name, meta.Name))
-                                .ToSqlBuilder()
-            };
+            //2nd Business Day response
+            //NBD response
+            //4h response
+            //NBD recovery
+            //24h recovery
+            //8h recovery
+            //4h recovey
+
+            var twoBdQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "2nd Business Day");
+            var nbdQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "NBD");
+            var fourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "4h");
+            var twentyFourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "24h");
+            var eightHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "8h");
+
+            var responseQuery = this.BuildSelectIdByNameQuery(ReactionTypeKey, "response");
+            var recoveryQuery = this.BuildSelectIdByNameQuery(ReactionTypeKey, "recovery");
+
+            return
+                Sql.Insert(MetaConstants.DependencySchema, $"{ReactionTimeKey}_{ReactionTypeKey}", ReactionTimeKey, ReactionTypeKey)
+                   .Values(new ISqlBuilder[,]
+                   {
+                       { twoBdQuery, responseQuery },
+                       { nbdQuery, responseQuery },
+                       { fourHourQuery, responseQuery },
+                       { nbdQuery, recoveryQuery },
+                       { twentyFourHourQuery, recoveryQuery },
+                       { eightHourQuery, recoveryQuery },
+                       { fourHourQuery, recoveryQuery },
+                   });
+        }
+
+        private SqlHelper BuildInsertReactionTimeAvailabilitySql()
+        {
+            //NBD 9x5
+            //4h 9x5
+            //4h 24x7
+
+            var nbdQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "NBD");
+            var fourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "4h");
+
+            var nineByFive = this.BuildSelectIdByNameQuery(AvailabilityKey, "9x5");
+            var twentyFourBySeven = this.BuildSelectIdByNameQuery(AvailabilityKey, "24x7"); 
+
+            return
+               Sql.Insert(MetaConstants.DependencySchema, $"{ReactionTimeKey}_{AvailabilityKey}", ReactionTimeKey, AvailabilityKey)
+                  .Values(new ISqlBuilder[,]
+                  {
+                       { nbdQuery, nineByFive },
+                       { fourHourQuery, nineByFive },
+                       { fourHourQuery, twentyFourBySeven },
+                  });
+        }
+
+        private ISqlBuilder BuildSelectIdByNameQuery(string table, string name)
+        {
+            var paramName = name.Replace(" ", string.Empty);
+
+            return
+                new BracketsSqlBuilder
+                {
+                    SqlBuilder =
+                        Sql.Select(IdFieldMeta.DefaultId)
+                           .From(table, MetaConstants.DependencySchema)
+                           .Where(SqlOperators.Equals(MetaConstants.NameFieldKey, paramName, name))
+                           .ToSqlBuilder()
+                };
         }
 
         private string[] GetCountrieNames()
@@ -371,17 +494,17 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private string[] GetRoleCodeNames()
-        {
-            return new string[]
-            {
-                "SEFS05",
-                "SEFS06",
-                "SEFS04",
-                "SEIE07",
-                "SEIE08"
-            };
-        }
+        //private string[] GetRoleCodeNames()
+        //{
+        //    return new string[]
+        //    {
+        //        "SEFS05",
+        //        "SEFS06",
+        //        "SEFS04",
+        //        "SEIE07",
+        //        "SEIE08"
+        //    };
+        //}
 
         private string[] GetServiceLocationCodeNames()
         {
@@ -403,14 +526,51 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             return new string[]
             {
-                "best effort",
-                "SBD response",
-                "NBD response",
-                "4h response",
-                "NBD recovery",
-                "8h recovery",
-                "4h recovery",
-                "24h recovery"
+                "2nd Business Day",
+                "NBD",
+                "24h",
+                "8h",
+                "4h"
+            };
+        }
+
+        private string[] GetReactionTypeNames()
+        {
+            return new[]
+            {
+                "response",
+                "recovery"
+            };
+        }
+
+        private string[] GetYearNames()
+        {
+            return new[]
+            {
+                "1st year",
+                "2nd year",
+                "3rd year",
+                "4th year",
+                "5th year",
+                "1 year prolongation"
+            };
+        }
+
+        private string[] GetCurrenciesNames()
+        {
+            return new[]
+            {
+                "EUR",
+                "USD"
+            };
+        }
+
+        private string[] GetAvailabilityNames()
+        {
+            return new string[]
+            {
+                "9x5",
+                "24x7"
             };
         }
     }

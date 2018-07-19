@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
@@ -49,16 +50,16 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
             else
             {
-                var nameColumn = new ColumnInfo(nameRefField.FaceValueField, nameRefField.ReferenceMeta.Name);
+                var nameColumn = new ColumnInfo(nameRefField.ReferenceFaceField, nameRefField.ReferenceMeta.Name);
                 groupByColumns = new[] 
                 {
-                    new ColumnInfo(nameRefField.ValueField, nameRefField.ReferenceMeta.Name),
+                    new ColumnInfo(nameRefField.ReferenceValueField, nameRefField.ReferenceMeta.Name),
                     nameColumn
                 };
                 readEditItemsFn = this.ReadReferenceEditItems;
 
                 selectColumns.Add(nameColumn);
-                selectColumns.Add(new ColumnInfo(nameRefField.ValueField, nameRefField.ReferenceMeta.Name));
+                selectColumns.Add(new ColumnInfo(nameRefField.ReferenceValueField, nameRefField.ReferenceMeta.Name));
             }
 
             var fromQuery = Sql.Select(selectColumns.ToArray()).From(costBlockMeta);
@@ -72,7 +73,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return await readEditItemsFn(resultQuery);
         }
 
-        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo)
+        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo, IDictionary<string, IEnumerable<object>> filter = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetEntityMeta(editItemInfo.EntityName, editItemInfo.Schema);
             var nameField = costBlockMeta.GetField(editItemInfo.NameField);
@@ -82,11 +83,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var nameRefField = nameField as ReferenceFieldMeta;
             if (nameRefField == null)
             {
-                queryFn = (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo, index, editItem.Name);
+                queryFn = (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo, index, editItem.Name, filter);
             }
             else
             {
-                queryFn = (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo, index, editItem.Id);
+                queryFn = (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo, index, editItem.Id, filter);
             }
 
             var query = Sql.Queries(editItems.Select(queryFn));
@@ -95,15 +96,32 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return await this.repositorySet.ExecuteSqlAsync(query);
         }
 
-        private SqlHelper BuildUpdateValueQuery(EditItem editItem, EditItemInfo editItemInfo, int index, object value)
+        private SqlHelper BuildUpdateValueQuery(
+            EditItem editItem,
+            EditItemInfo editItemInfo, 
+            int index, 
+            object value, 
+            IDictionary<string, IEnumerable<object>> filter = null)
         {
             var updateColumn = new ValueUpdateColumnInfo(
                 editItemInfo.ValueField,
                 editItem.Value,
                 $"{editItemInfo.ValueField}_{index}");
 
+            filter = new Dictionary<string, IEnumerable<object>>(filter ?? Enumerable.Empty<KeyValuePair<string, IEnumerable<object>>>())
+            {
+                [editItemInfo.NameField] = new object [] 
+                {
+                    new CommandParameterInfo
+                    {
+                        Name = $"{editItemInfo.NameField}_{index}",
+                        Value = value
+                    }
+                }
+            };
+
             return Sql.Update(editItemInfo.Schema, editItemInfo.EntityName, updateColumn)
-                      .Where(SqlOperators.Equals(editItemInfo.NameField, $"param_{index}", value));
+                      .Where(filter);
         }
 
         private async Task<IEnumerable<EditItem>> ReadSimpleEditItems(SqlHelper query)
@@ -125,10 +143,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private EditItem BuildSimpleEditItem(IDataReader reader)
         {
+            var valueCount = reader.GetInt32(1);
+
             return new EditItem
             {
-                Value = reader.GetDouble(0),
-                ValueCount = reader.GetInt32(1),
+                Value = valueCount == 1 ? reader.GetValue(0) : null,
+                ValueCount = valueCount,
                 Name = reader[2].ToString(),
             };
         }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -11,31 +10,53 @@ namespace Gdc.Scd.Core.Meta.Impl
 {
     public class DomainMetaSevice : IDomainMetaSevice
     {
+        private const string NoneValue = "_none_";
+
         private const string NameAttributeName = "Name";
+
+        private const string CaptionAttributeName = "Caption";
+
+        private const string TypeAttributeName = "Type";
+
+        private const string DefaultNodeName = "Default";
+
+        private const string CostAtomListNodeName = "Atoms";
+
+        private const string CostAtomNodeName = "Atom";
 
         private const string CostBlockListNodeName = "Blocks";
 
         private const string CostBlockNodeName = "Block";
 
-        private const string CostBlockApplicationAttributeName = "Application";
+        private const string ApplicationListNodeName = "Applications";
 
-        private const string CostBlockApplicationSeparator = ",";
+        private const string ApplicationNodeName = "Application";
 
         private const string CostElementListNodeName = "Elements";
 
         private const string CostElementNodeName = "Element";
 
-        private const string CostElementScopeAttributeName = "Domain";
-
-        private const string CostElementDependencyNodeName = "Dependency";
-
         private const string CostElementDescriptionNodeName = "Description";
 
         private const string DomainMetaConfigKey = "DomainMetaFile";
 
-        private readonly IConfiguration configuration;
+        private const string InputLevelListNodeName = "InputLevels";
 
-        private readonly string[] forbiddenIdSymbols = new[] { " ", "(", ")" };
+        private const string InputLevelNodeName = "InputLevel";
+
+        private const string RegionInputListNodeName = "RegionInputs";
+
+        private const string RegionInputNodeName = "RegionInput";
+
+        private const string DependencyListNodeName = "Dependencies";
+
+        private const string DependencyNodeName = "Dependency";
+
+        private const string InputTypeAttributeName = "InputOption";
+
+        private const string TypeOptionNodeName = "TypeOption";
+
+        private readonly IConfiguration configuration;
 
         public DomainMetaSevice(IConfiguration configuration)
         {
@@ -52,63 +73,47 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private DomainMeta BuilDomainMeta(XElement configNode)
         {
-            var costBlocks = configNode.Element(CostBlockListNodeName);
-            if (costBlocks == null)
+            var costBlocksNode = configNode.Element(CostBlockListNodeName);
+            if (costBlocksNode == null)
             {
                 throw new Exception("Cost blocks node not found");
             }
 
-            costBlocks.Elements(CostBlockNodeName);
+            var domainDefination = this.BuildDomainDefination(configNode);
+            var costBlocks =
+                costBlocksNode.Elements(CostBlockNodeName)
+                              .Select(costBlockNode => this.BuildCostBlockMeta(costBlockNode, domainDefination));
 
             return new DomainMeta
             {
-                CostBlocks = costBlocks.Elements(CostBlockNodeName).Select(this.BuildCostBlockMeta).ToList(),
-                InputLevels = this.BuildInputLevelMetas(),
-                Applications = this.BuildApplicationsMetas(),
-                Scopes = this.BuildScopeMetas()
+                CostBlocks = new MetaCollection<CostBlockMeta>(costBlocks),
+                Applications = new MetaCollection<ApplicationMeta>(domainDefination.Applications.Items),
             };
         }
 
-        private CostBlockMeta BuildCostBlockMeta(XElement node)
+        private CostBlockMeta BuildCostBlockMeta(XElement node, DomainDefination defination)
         {
-            var nameAttr = node.Attribute(NameAttributeName);
-            if (nameAttr == null)
-            {
-                throw new Exception("Cost block name attribute not found");
-            }
-
-            var costBlockMeta = new CostBlockMeta
-            {
-                Id = this.BuildId(nameAttr.Value),
-                Name = nameAttr.Value,
-            };
-
-            var applicationAttr = node.Attribute(CostBlockApplicationAttributeName);
-            if (applicationAttr == null)
-            {
-                throw new Exception("Cost block application attribute not found");
-            }
-
-            costBlockMeta.ApplicationIds = 
-                applicationAttr.Value.Split(CostBlockApplicationSeparator)
-                                     .Select(application => application.Trim())
-                                     .ToList();
-
+            var costBlockMeta = this.BuildMeta<CostBlockMeta>(node);
             var costElementListNode = node.Element(CostElementListNodeName);
             if (costElementListNode == null)
             {
                 throw new Exception("Cost elements node not found");
             }
 
-            costBlockMeta.CostElements = 
+            var costElements =
                 costElementListNode.Elements(CostElementNodeName)
-                                   .Select(this.BuildCostElementMeta)
-                                   .ToList();
+                                   .Select(costElement => this.BuildCostElementMeta(costElement, defination));
+
+            costBlockMeta.CostElements = new MetaCollection<CostElementMeta>(costElements);
+
+            costBlockMeta.ApplicationIds =
+                this.BuildItemCollectionByDomainInfo(node.Element(ApplicationListNodeName), ApplicationNodeName, defination.Applications)
+                    .Select(application => application.Id);
 
             return costBlockMeta;
         }
 
-        private CostElementMeta BuildCostElementMeta(XElement node)
+        private CostElementMeta BuildCostElementMeta(XElement node, DomainDefination defination)
         {
             var nameAttr = node.Attribute(NameAttributeName);
             if (nameAttr == null)
@@ -116,46 +121,71 @@ namespace Gdc.Scd.Core.Meta.Impl
                 throw new Exception("Cost element name attribute not found");
             }
 
-            var costElementMeta = new CostElementMeta
-            {
-                Id = this.BuildId(nameAttr.Value),
-                Name = nameAttr.Value,
-            };
+            var costElementMeta = this.BuildMeta<CostElementMeta>(node);
 
-            var scopeAttr = node.Attribute(CostElementScopeAttributeName);
-            if (scopeAttr == null)
+            costElementMeta.Description = this.BuildCostElementDescription(node);
+
+            costElementMeta.InputLevels =
+                this.BuildItemCollectionByDomainInfo(node.Element(InputLevelListNodeName), InputLevelNodeName, defination.InputLevels);
+
+            costElementMeta.RegionInput = this.BuildItemByDomainInfo(node, RegionInputNodeName, defination.RegionInputs);
+            costElementMeta.Dependency = this.BuildItemByDomainInfo(node, DependencyNodeName, defination.Dependencies);
+
+            var inputTypeAttribute = node.Attribute(InputTypeAttributeName);
+            if (inputTypeAttribute != null)
             {
-                throw new Exception("Cost element scope attribute not found");
+                costElementMeta.InputType = Enum.Parse<InputType>(inputTypeAttribute.Value);
             }
 
-            costElementMeta.ScopeId = scopeAttr.Value;
-            costElementMeta.Dependency = this.BuildCostElementDependency(node);
-            costElementMeta.Description = this.BuildCostElementDescription(node);
+            var typeNode = node.Element(TypeOptionNodeName);
+            if (typeNode != null)
+            {
+                costElementMeta.TypeOptions = 
+                    typeNode.Attributes()
+                            .ToDictionary(attr => attr.Name.ToString(), attr => attr.Value.ToString());
+            }
 
             return costElementMeta;
         }
 
-        private DependencyMeta BuildCostElementDependency(XElement costElementNode)
+        private MetaCollection<T> BuildItemCollectionByDomainInfo<T>(XElement node, string nodeItemName, DomainInfo<T> domainInfo) where T : BaseDomainMeta
         {
-            DependencyMeta dependency = null;
+            List<T> items = null;
 
-            var dependencyNode = costElementNode.Element(CostElementDependencyNodeName);
-            if (dependencyNode != null)
+            if (node != null)
             {
-                var nameAttr = dependencyNode.Attribute(NameAttributeName);
-                if (nameAttr == null)
-                {
-                    throw new Exception("Dependency name attribute not found");
-                }
-
-                dependency = new DependencyMeta
-                {
-                    Id = this.BuildId(nameAttr.Value),
-                    Name = nameAttr.Value
-                };
+                items =
+                    node.Elements(nodeItemName)
+                        .Select(inpuLevelNode => domainInfo.Items[inpuLevelNode.Value])
+                        .ToList();
             }
 
-            return dependency;
+            return
+                items == null || items.Count == 0
+                    ? new MetaCollection<T>(domainInfo.DefaultItems)
+                    : new MetaCollection<T>(items);
+        }
+
+        private T BuildItemByDomainInfo<T>(XElement node, string attributeName, DomainInfo<T> domainInfo) where T : BaseDomainMeta
+        {
+            T result = null;
+
+            var idAttribute = node.Attribute(attributeName);
+            if (idAttribute == null)
+            {
+                result = domainInfo.DefaultItems.FirstOrDefault();
+            }
+            else
+            {
+                var id = idAttribute.Value;
+
+                result =
+                    id == NoneValue
+                        ? null
+                        : domainInfo.Items[id];
+            }
+
+            return result;
         }
 
         private string BuildCostElementDescription(XElement costElementNode)
@@ -171,42 +201,111 @@ namespace Gdc.Scd.Core.Meta.Impl
             return description;
         }
 
-        private IEnumerable<InputLevelMeta> BuildInputLevelMetas()
+        private T BuildMeta<T>(XElement node) where T : BaseDomainMeta, new()
         {
-            return new[]
+            var nameAttr = node.Attribute(NameAttributeName);
+            if (nameAttr == null)
             {
-                new InputLevelMeta{ Id = MetaConstants.CountryLevelId, Name = "Country" },
-                new InputLevelMeta{ Id = MetaConstants.PlaLevelId, Name = "PLA" },
-                new InputLevelMeta{ Id = MetaConstants.WgLevelId, Name = "WG" },
-            };
-        }
-
-        private IEnumerable<ApplicationMeta> BuildApplicationsMetas()
-        {
-            return new[]
-            {
-                new ApplicationMeta { Id = "Hardware", Name = "Hardware" },
-                new ApplicationMeta { Id = "Software", Name = "Software & Solution" }
-            };
-        }
-
-        private IEnumerable<ScopeMeta> BuildScopeMetas()
-        {
-            return new[]
-            {
-                new ScopeMeta { Id = "Local", Name = "Local" },
-                new ScopeMeta { Id = "Central", Name = "Central" }
-            };
-        }
-
-        private string BuildId(string name)
-        {
-            foreach(var symbol in this.forbiddenIdSymbols)
-            {
-                name = name.Replace(symbol, string.Empty);
+                throw new Exception("Name attribute not found");
             }
 
-            return name;
+            var captionAttr = node.Attribute(CaptionAttributeName);
+            var meta = new T
+            {
+                Id = nameAttr.Value,
+                Name = captionAttr == null ? nameAttr.Value : captionAttr.Value
+            };
+
+            return meta;
+        }
+
+        private DomainDefination BuildDomainDefination(XElement node)
+        {
+            var inputLevels = this.BuildStoreTypedDomainInfo<InputLevelMeta>(node.Element(InputLevelListNodeName), InputLevelNodeName);
+
+            return new DomainDefination
+            {
+                InputLevels = inputLevels,
+                RegionInputs = this.BuildDomainInfo<InputLevelMeta>(node.Element(RegionInputListNodeName), InputLevelNodeName, inputLevels.Items),
+                Dependencies = this.BuildStoreTypedDomainInfo<DependencyMeta>(node.Element(DependencyListNodeName), DependencyNodeName),
+                Applications = this.BuildDomainInfo<ApplicationMeta>(node.Element(ApplicationListNodeName), ApplicationNodeName)
+            };
+        }
+
+        private T BuildMetaItem<T>(XElement node) where T : BaseDomainMeta, new()
+        {
+            var nameAttribute = node.Attribute(NameAttributeName);
+            var captionAttribute = node.Attribute(CaptionAttributeName);
+
+            return new T
+            {
+                Id = nameAttribute.Value,
+                Name = captionAttribute == null ? nameAttribute.Value : captionAttribute.Value
+            };
+        }
+
+        private T BuildStoreTypedMeta<T>(XElement node) where T : BaseDomainMeta, IStoreTyped, new()
+        {
+            var meta = this.BuildMeta<T>(node);
+
+            var typeAttr = node.Attribute(TypeAttributeName);
+            if (typeAttr != null)
+            {
+                meta.StoreType = StoreType.View;
+            }
+
+            return meta;
+        }
+
+        private DomainInfo<T> BuildDomainInfo<T>(XElement listNode, string itemNodeName, IEnumerable<T> items) where T : BaseDomainMeta, new()
+        {
+            var domainInfo = new DomainInfo<T>();
+
+            domainInfo.Items.AddRange(items);
+
+            var defaultNode = listNode.Element(DefaultNodeName);
+            if (defaultNode != null)
+            {
+                var defaultItems =
+                    defaultNode.Elements(itemNodeName)
+                               .Select(node => domainInfo.Items[node.Value]);
+
+                domainInfo.DefaultItems.AddRange(defaultItems);
+            }
+
+            return domainInfo;
+        }
+
+        private DomainInfo<T> BuildDomainInfo<T>(XElement listNode, string itemNodeName) where T : BaseDomainMeta, new()
+        {
+            var items = listNode.Elements(itemNodeName).Select(this.BuildMetaItem<T>);
+
+            return this.BuildDomainInfo(listNode, itemNodeName, items);
+        }
+
+        private DomainInfo<T> BuildStoreTypedDomainInfo<T>(XElement listNode, string itemNodeName) where T : BaseDomainMeta, IStoreTyped, new()
+        {
+            var items = listNode.Elements(itemNodeName).Select(this.BuildStoreTypedMeta<T>);
+
+            return this.BuildDomainInfo(listNode, itemNodeName, items);
+        }
+
+        private class DomainInfo<T> where T : IMetaIdentifialble
+        {
+            public MetaCollection<T> Items { get; } = new MetaCollection<T>();
+
+            public MetaCollection<T> DefaultItems { get; } = new MetaCollection<T>();
+        }
+
+        private class DomainDefination
+        {
+            public DomainInfo<InputLevelMeta> InputLevels { get; set; }
+
+            public DomainInfo<InputLevelMeta> RegionInputs { get; set; }
+
+            public DomainInfo<DependencyMeta> Dependencies { get; set; }
+
+            public DomainInfo<ApplicationMeta> Applications { get; set; }
         }
     }
 }

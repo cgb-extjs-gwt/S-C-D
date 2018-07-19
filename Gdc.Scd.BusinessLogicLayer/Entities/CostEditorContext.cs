@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Gdc.Scd.BusinessLogicLayer.Entities
+﻿namespace Gdc.Scd.BusinessLogicLayer.Entities
 {
     public class CostEditorContext
     {
         public string ApplicationId { get; set; }
 
-        public string ScopeId { get; set; }
-
-        public string CountryId { get; set; }
+        public string RegionInputId { get; set; }
 
         public string CostBlockId { get; set; }
 
@@ -18,8 +12,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Entities
 
         public string InputLevelId { get; set; }
 
-        public string[] CostElementFilterIds { get; set; }
+        public long[] CostElementFilterIds { get; set; }
 
-        public string[] InputLevelFilterIds { get; set; }
+        public long[] InputLevelFilterIds { get; set; }
     }
 }
