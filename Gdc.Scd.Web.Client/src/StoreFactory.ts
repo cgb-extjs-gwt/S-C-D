@@ -25,52 +25,22 @@ const pageDataReducer = (state: PageState<CostEditorState>, action: PageAction) 
     return data;
 }
 
-const costEditorMainReducer = (state: CostEditorState = <CostEditorState>{
-    applications: {},
-        costBlockMetas: {},
-    selectedApplicationId: '',
-    costBlocks: [],
-    visibleCostBlockIds: [],
-    selectedCostBlockId: '',
-    dataLossInfo: {}
-
-}, action: PageAction) => {
-
-    state = costEditorReducer(state, action);
-    state = costBlockReducer(state, action);
-
-    return state;
-}
-
 export const storeFactory = () => {
-
     const reducer = combineReducers({
+        [PAGE_STATE_KEY]: (state: PageState, action: PageAction) => {
+            const newState = pageReducer(state, action);
 
-        app: pageReducer,
-
-        costEditor: costEditorMainReducer,
+            return <PageState>{
+                ...newState,
+                data: pageDataReducer(newState, action)
+            }
+        },
 
         matrix: capabilityMatrixEditReducer
-
     });
 
-    return createStore(reducer, applyMiddleware(asyncActionHandler));
+    return createStore(
+        reducer,
+        applyMiddleware(asyncActionHandler)
+    );
 }
-
-//export const storeFactory = () => {
-//    const reducer = combineReducers({ 
-//        [PAGE_STATE_KEY]: (state: PageState, action: PageAction) => {
-//            const newState = pageReducer(state, action);
-
-//            return <PageState>{
-//                ...newState,
-//                data: pageDataReducer(newState, action)
-//            }
-//        }
-//    });  
-
-//    return createStore(
-//        reducer,
-//        applyMiddleware(asyncActionHandler)
-//    );
-//}
