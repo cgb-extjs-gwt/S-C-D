@@ -98,30 +98,28 @@ export class CostEditorView extends React.Component<CostEditorProps> {
         const { application, costBlocks } = this.props;
 
         return (
-            <Container layout="vbox">
+            <Container layout="vbox" >
                 <FormPanel defaults={{labelAlign: 'left'}}>
                     {this.applicationCombobox(application)}
                 </FormPanel>
-
-                <Container title="Cost Blocks:">
-                    {
-                        costBlocks && 
-                        costBlocks.list &&
-                        <FixedTabPanel 
-                            tabBar={{
-                                layout: { pack: 'left' }
-                            }}
-                            activeTab={
-                                costBlocks.list.findIndex(costBlock => costBlock.id === costBlocks.selectedItemId)
-                            }
-                            onActiveItemChange={
-                                (tabPanel, newValue, oldValue) => this.onActiveTabChange(tabPanel, newValue, oldValue)
-                            }
-                        >
-                            {costBlocks.list.map(item => this.costBlockTab(item, costBlocks.selectedItemId))}
-                        </FixedTabPanel>
-                    }
-                </Container>
+                {
+                    costBlocks && 
+                    costBlocks.list &&  
+                    <TabPanel 
+                        flex={1}
+                        tabBar={{
+                            layout: { pack: 'left' }
+                        }}
+                        activeTab={
+                            costBlocks.list.findIndex(costBlock => costBlock.id === costBlocks.selectedItemId)
+                        }
+                        onActiveItemChange={
+                            (tabPanel, newValue, oldValue) => this.onActiveTabChange(tabPanel, newValue, oldValue)
+                        }
+                    >
+                        {costBlocks.list.map(item => this.costBlockTab(item, costBlocks.selectedItemId))}
+                    </TabPanel>
+                }
             </Container>
         );
     }
@@ -156,7 +154,7 @@ export class CostEditorView extends React.Component<CostEditorProps> {
         return (
             <ComboBoxField 
                 label="Application"
-                width="25%"
+                width="300"
                 displayField="name"
                 valueField="id"
                 queryMode="local"
@@ -185,7 +183,7 @@ export class CostEditorView extends React.Component<CostEditorProps> {
         } = this.props.tabActions;
 
         return (
-            <Container key={costBlockTab.id} title={costBlockTab.name}>
+            <Container key={costBlockTab.id} title={costBlockTab.name} layout="fit">
                 <CostBlockView 
                     {...costBlockTab.costBlock} 
                     onRegionSelected={

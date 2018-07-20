@@ -80,7 +80,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
     return (
       <Container layout={{ type: 'hbox', align: 'stretch '}}>
         <Container flex={1} layout="vbox" shadow>
-          <Container layout="hbox">
+          <Container layout="hbox" flex={3}>
             <FormPanel flex={1}>
               {this.regionCombobox()}
               {
@@ -100,7 +100,6 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
                 title="Dependent from:" 
                 valueColumnText={costElement.filterName}
                 items={costElement.filter} 
-                height="500"
                 flex={1}
                 onSelectionChanged={
                   (item: NamedId, isSelected: boolean) =>
@@ -120,7 +119,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
             }
           </Container>
 
-          <Panel title="Description" padding="10">
+          <Panel title="Description" padding="10" scrollable flex={1}>
             {
               costElement.description != null &&
               <Label html={costElement.description}/>
@@ -128,10 +127,10 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
           </Panel>
         </Container>
 
-        <Container flex={1} layout="vbox" padding="0px 0px 0px 5px">
+        <Container flex={1} layout="vbox">
           {
             inputLevel &&
-            <Container layout="hbox">
+            <Container layout="hbox" flex={1}>
               <FormPanel flex={1}>
                 {
                   this.radioFieldSet(
@@ -149,7 +148,6 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
                 <Filter 
                   valueColumnText={inputLevel.filterName}
                   items={inputLevel.filter} 
-                  height="350"
                   flex={1}
                   onSelectionChanged={
                     (item: NamedId, isSelected: boolean) =>
@@ -171,11 +169,10 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
               }
             </Container>
           }
-          
 
           {
             edit && 
-            <EditGrid {...edit} {...editActions}/>
+            <EditGrid {...edit} {...editActions} flex={2}/>
           }
         </Container>
       </Container>
@@ -199,7 +196,6 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
       result = (
           <ComboBoxField 
               label={region.name}
-              //width="50%"
               displayField="name"
               valueField="id"
               queryMode="local"
@@ -249,7 +245,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
     onSelected: (item: NamedId) => void
   ) {    
     return (
-      <ContainerField label={label} layout={{type: 'vbox', align: 'left'}}>
+      <ContainerField label={label} layout={{type: 'vbox', align: 'left'}} scrollable maxHeight="500px">
         {
           selectList && 
           selectList.list &&

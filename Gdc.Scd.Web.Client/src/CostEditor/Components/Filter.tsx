@@ -42,11 +42,10 @@ export const Filter: React.StatelessComponent<FilterProps> = ({
             flex={flex} 
             shadow
             cls="filter-grid"
-            minHeight="300"
             height={height}
             columnLines={true}
         >
-            <CheckColumn dataIndex="isChecked"/>
+            <CheckColumn width="70" dataIndex="isChecked"/>
             <Column text={valueColumnText || ''}  dataIndex="name" flex={1}/>
 
             <Toolbar docked="bottom">
