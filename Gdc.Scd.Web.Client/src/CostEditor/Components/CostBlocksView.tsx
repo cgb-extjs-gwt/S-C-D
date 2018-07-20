@@ -127,7 +127,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
           </Panel>
         </Container>
 
-        <Container flex={1} layout="vbox">
+        <Container flex={1} layout="vbox" padding="0px 0px 0px 5px">
           {
             inputLevel &&
             <Container layout="hbox" flex={1}>
