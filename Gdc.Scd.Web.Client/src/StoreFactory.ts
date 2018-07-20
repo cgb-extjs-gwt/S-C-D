@@ -25,7 +25,16 @@ const pageDataReducer = (state: PageState<CostEditorState>, action: PageAction) 
     return data;
 }
 
-const costEditorMainReducer = (state: CostEditorState = <CostEditorState>{}, action: PageAction) => {
+const costEditorMainReducer = (state: CostEditorState = <CostEditorState>{
+    applications: {},
+        costBlockMetas: {},
+    selectedApplicationId: '',
+    costBlocks: [],
+    visibleCostBlockIds: [],
+    selectedCostBlockId: '',
+    dataLossInfo: {}
+
+}, action: PageAction) => {
 
     state = costEditorReducer(state, action);
     state = costBlockReducer(state, action);
