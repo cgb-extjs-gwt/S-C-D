@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
@@ -26,13 +29,24 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         public void Handle()
         {
-            var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.CountryLevelId, MetaConstants.InputLevelSchema);
+            var countryRepository = repositorySet.GetRepository<Country>();
+
+            var countries = this.GetCountrieNames().Select(c => new Country
+            {
+                Name = c,
+                CanOverrideListAndDealerPrices = GenerateRandomBool(),
+                CanOverrideTransferCostAndPrice = GenerateRandomBool(),
+                ShowDealerPrice = GenerateRandomBool()
+            });
+
+            countryRepository.Save(countries);
+            repositorySet.Sync();
+
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.WgLevelId, MetaConstants.InputLevelSchema);
 
             var queries = new List<SqlHelper>
             {
-                this.BuildInsertSql(countryInputLevelMeta, this.GetCountrieNames()),
                 this.BuildInsertSql(plaInputLevelMeta, this.GetPlaNames()),
                 this.BuildInsertSql(wgInputLevelMeta, this.GetWarrantyGroupNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, "RoleCodeCode", this.GetRoleCodeNames()),
@@ -167,6 +181,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "Hungary",
                 "India",
                 "Italy",
+                "Japan",
                 "Luxembourg",
                 "Middle East",
                 "Morocco",
@@ -412,6 +427,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "4h recovery",
                 "24h recovery"
             };
+        }
+
+        private bool GenerateRandomBool()
+        {
+            Random gen = new Random();
+            int prob = gen.Next(100);
+            return prob <= 70;
         }
     }
 }
