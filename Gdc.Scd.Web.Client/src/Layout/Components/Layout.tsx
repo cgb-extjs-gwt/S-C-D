@@ -6,12 +6,13 @@ import { medium, large } from '../../responsiveFormulas';
 import Home from '../../Test/Home/Home';
 import About from '../../Test/About/About';
 import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
-import { PageCommonState, PageTitle } from '../States/PageStates';
 import { connect } from 'react-redux';
 import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
 import { CapabilityMatrixEditContainer } from '../../CapabilityMatrix/Containers/CapabilityMatrixEditContainer';
+import { CommonState } from '../States/AppStates';
 
-interface LayoutProps extends PageTitle {
+interface LayoutProps {
+    title: string
     history: any,
     location: any,
 }
@@ -66,8 +67,10 @@ export class Layout extends React.Component<LayoutProps> {
     }
 }
 
-const containerFactory = connect<{},{},{}, PageCommonState>(
-    state => state.page
+const containerFactory = connect<LayoutProps,{},{}, CommonState>(
+    state => ({
+        title: state.app.currentPage && state.app.currentPage.title
+    } as LayoutProps)
 );
 
 export const LayoutContainer = withRouter(containerFactory(Layout));

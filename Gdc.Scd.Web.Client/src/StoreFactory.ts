@@ -1,11 +1,11 @@
-import { createStore, combineReducers, applyMiddleware } from "redux";
-import { PageState, PAGE_STATE_KEY } from "./Layout/States/PageStates";
-import { pageReducer } from "./Layout/Reducers/PageReducer";
-import { PageAction } from "./Layout/Actions/PageActions";
+import { createStore, combineReducers, applyMiddleware, Action } from "redux";
 import { AsyncAction } from "./Common/Actions/AsyncAction";
 import { CostEditorState } from "./CostEditor/States/CostEditorStates";
 import { costEditorReducer } from "./CostEditor/Reducers/CostEditorReducer";
 import { costBlockReducer } from "./CostEditor/Reducers/CostBlockReducer";
+import { appReducer } from "./Layout/Reducers/AppReducer";
+import { CommonState, AppState } from "./Layout/States/AppStates";
+import { COST_EDITOR_PAGE } from "./CostEditor/Actions/CostEditorActions";
 import { capabilityMatrixEditReducer } from "./CapabilityMatrix/Reducers/Edit";
 
 const asyncActionHandler = store => next => action => {
@@ -16,27 +16,18 @@ const asyncActionHandler = store => next => action => {
     }
 }
 
-const pageDataReducer = (state: PageState<CostEditorState>, action: PageAction) => {
-    let data = state.data;
-
-    data = costEditorReducer(data, action);
-    data = costBlockReducer(data, action);
-
-    return data;
-}
-
 export const storeFactory = () => {
     const reducer = combineReducers({
-        [PAGE_STATE_KEY]: (state: PageState, action: PageAction) => {
-            const newState = pageReducer(state, action);
-
-            return <PageState>{
-                ...newState,
-                data: pageDataReducer(newState, action)
-            }
-        },
-
-        matrix: capabilityMatrixEditReducer
+        app: (state: AppState, action: Action<string>) => appReducer(state, action),
+        pages: combineReducers({
+            [COST_EDITOR_PAGE]: (state: CostEditorState, action: Action<string>) => {
+                state = costEditorReducer(state, action);
+                state = costBlockReducer(state, action);
+            
+                return state;
+            },
+            matrix: capabilityMatrixEditReducer
+        })
     });
 
     return createStore(

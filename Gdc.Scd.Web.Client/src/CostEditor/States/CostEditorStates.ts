@@ -18,7 +18,7 @@ export interface CostBlockMeta extends NamedId {
     costElements: CostElementMeta[]
 }
 
-export interface CostEditortDto {
+export interface CostEditortData {
     applications: NamedId[]
     costBlocks: CostBlockMeta[]
 }
