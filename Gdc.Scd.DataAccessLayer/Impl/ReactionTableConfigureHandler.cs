@@ -44,18 +44,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var reactionTimeEntity = new NamedEntityMeta(ReactionTimeKey, MetaConstants.DependencySchema);
             var sqlBuilders = new List<ISqlBuilder>();
 
-            if (!this.isReactionTimeCreated)
-            {
-                sqlBuilders.Add(new CreateTableMetaSqlBuilder(this.serviceProvider) { Meta = reactionTimeEntity });
+            //if (!this.isReactionTimeCreated)
+            //{
+            //    sqlBuilders.Add(new CreateTableMetaSqlBuilder(this.serviceProvider) { Meta = reactionTimeEntity });
 
-                this.isReactionTimeCreated = true;
-            }
+            //    this.isReactionTimeCreated = true;
+            //}
 
             if (entityMeta.Name == ReactionKey)
             {
                 var reactionTypeEntity = new NamedEntityMeta(ReactionTypeKey, MetaConstants.DependencySchema);
 
-                sqlBuilders.Add(new CreateTableMetaSqlBuilder(this.serviceProvider) { Meta = reactionTypeEntity });
+                //sqlBuilders.Add(new CreateTableMetaSqlBuilder(this.serviceProvider) { Meta = reactionTypeEntity });
                 sqlBuilders.AddRange(this.BuildCombinedView(reactionTimeEntity, reactionTypeEntity, ReactionKey));
             }
             else if (entityMeta.Name == AvailabilityKey)

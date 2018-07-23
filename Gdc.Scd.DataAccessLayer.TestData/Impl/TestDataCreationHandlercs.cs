@@ -30,6 +30,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string AvailabilityKey = "Availability";
 
+        private const string DurationKey = "Duration";
+
         private readonly IRepositorySet repositorySet;
 
         private readonly DomainEnitiesMeta entityMetas;
@@ -60,8 +62,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql(MetaConstants.DependencySchema, YearKey, this.GetYearNames()),
                 this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, AvailabilityKey, this.GetAvailabilityNames()),
-                this.BuildInsertReactionTimeTypeSql(),
-                this.BuildInsertReactionTimeAvailabilitySql()
+                this.BuildInsertSql(new NamedEntityMeta(DurationKey, MetaConstants.DependencySchema), this.GetDurationNames()),
+                //this.BuildInsertReactionTimeTypeSql(),
+                //this.BuildInsertReactionTimeAvailabilitySql()
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
 
@@ -571,6 +574,19 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 "9x5",
                 "24x7"
+            };
+        }
+
+        private string[] GetDurationNames()
+        {
+            return new string[]
+            {
+                "1h",
+                "2h",
+                "8h",
+                "1d",
+                "1d 3h",
+                "7d"
             };
         }
     }
