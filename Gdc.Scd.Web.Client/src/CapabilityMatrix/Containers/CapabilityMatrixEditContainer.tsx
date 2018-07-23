@@ -7,6 +7,10 @@ import { allowCombination, denyCombination, countryChange } from "../Actions/Cap
 import { ExtMsgHelper } from "../../Common/Helpers/ExtMsgHelper";
 
 function mapStateToProps(state: any): CapabilityMatrixEditViewProps {
+    return mapMatrixStateToProps(state.matrix);
+}
+
+function mapMatrixStateToProps(state: any): CapabilityMatrixEditViewProps {
 
     let store = [
         { name: 'Item 1' },
@@ -21,11 +25,11 @@ function mapStateToProps(state: any): CapabilityMatrixEditViewProps {
         { "name": "Arizona", "id": "AZ" }
     ] as NamedId[];
 
-    return {
+    let props = {
 
         countries: countries,
 
-        isPortfolio: false,
+        isPortfolio: state.isPortfolio === undefined ? true : !!state.isPortfolio,
 
         availabilityTypes: store,
 
@@ -40,12 +44,14 @@ function mapStateToProps(state: any): CapabilityMatrixEditViewProps {
         warrantyGroups: store
 
     } as CapabilityMatrixEditViewProps;
+
+    return props;
 }
 
 function mapDispatchToProps(dispatch: Dispatch) {
     return {
         onCountryChange(newVal: string, oldVal: string) {
-            dispatch(countryChange());
+            dispatch(countryChange(newVal));
         },
 
         onAllow() {

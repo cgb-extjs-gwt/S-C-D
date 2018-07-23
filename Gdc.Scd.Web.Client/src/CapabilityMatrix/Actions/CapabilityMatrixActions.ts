@@ -12,9 +12,10 @@ export const denyCombination = () => {
     };
 }
 
-export const countryChange = () => {
+export const countryChange = (id) => {
     return {
-        type: actionTypes.MATRIX_EDIT_COUNTRY_CHANGE
+        type: actionTypes.MATRIX_EDIT_COUNTRY_CHANGE,
+        country: id
     };
 }
 

@@ -1,23 +1,25 @@
 ﻿import * as actionTypes from "../Actions/ActionTypes"
+import { Action } from "redux";
 
-export function capabilityMatrixEditReducer(state: any = {}, action: string) {
+export interface countryChangeAction extends Action<string> {
+    country: string
+}
 
-    switch (action) {
+export function capabilityMatrixEditReducer(state: any = {}, action: countryChangeAction) {
+
+    switch (action.type) {
 
         case actionTypes.MATRIX_EDIT_ALLOW_COMBINATION:
-            break;
+            return state;
 
         case actionTypes.MATRIX_EDIT_DENY_COMBINATION:
-            break;
+            return state;
 
         case actionTypes.MATRIX_EDIT_COUNTRY_CHANGE:
-            break;
+            return { ...state, isPortfolio: !action.country };
 
         default:
             return state;
     }
-
-    return state;
-
 
 }
