@@ -1,16 +1,12 @@
-﻿using Gdc.Scd.Core.Entities;
+﻿using Gdc.Scd.Core.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.BusinessLogicLayer.Entities
 {
-    public abstract class CapabilityMatrix : NamedId
+    public abstract class CapabilityMatrix : IIdentifiable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public override long Id
-        {
-            get => base.Id;
-            set => base.Id = value;
-        }
+        public long Id { get; set; }
 
         public Country Country { get; set; }
 
