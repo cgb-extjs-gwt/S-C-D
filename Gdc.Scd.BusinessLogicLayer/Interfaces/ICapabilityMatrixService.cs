@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using Gdc.Scd.BusinessLogicLayer.Entities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
@@ -8,8 +10,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task DenyCombination();
 
-        Task<object> GetAllowedCombinations();
+        Task<IEnumerable<CapabilityMatrixAllow>> GetAllowedCombinations();
 
-        Task<object> GetDenyedCombinations();
+        Task<IEnumerable<CapabilityMatrixDeny>> GetDenyedCombinations();
     }
 }

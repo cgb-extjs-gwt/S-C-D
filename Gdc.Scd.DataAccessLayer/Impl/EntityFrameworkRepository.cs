@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Gdc.Scd.Core.Interfaces;
+﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -24,6 +24,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public IQueryable<T> GetAll()
         {
             return this.dbContext.Set<T>();
+        }
+
+        public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await this.dbContext.Set<T>().ToArrayAsync();
         }
 
         public void Save(T item)

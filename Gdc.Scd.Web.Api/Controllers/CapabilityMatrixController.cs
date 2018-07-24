@@ -1,5 +1,8 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
+﻿using Gdc.Scd.BusinessLogicLayer.Entities;
+using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Gdc.Scd.Web.Api.Controllers
@@ -17,15 +20,17 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public Task Allowed()
+        public async Task<IEnumerable<CapabilityMatrix>> Allowed()
         {
-            return capabilityMatrixService.GetAllowedCombinations();
+            var allowed = await capabilityMatrixService.GetAllowedCombinations();
+            return allowed.Cast<CapabilityMatrix>();
         }
 
         [HttpGet]
-        public Task Denyed()
+        public async Task<IEnumerable<CapabilityMatrix>> Denyed()
         {
-            return capabilityMatrixService.GetDenyedCombinations();
+            var denyed = await capabilityMatrixService.GetDenyedCombinations();
+            return denyed.Cast<CapabilityMatrix>();
         }
 
         [HttpPost]
