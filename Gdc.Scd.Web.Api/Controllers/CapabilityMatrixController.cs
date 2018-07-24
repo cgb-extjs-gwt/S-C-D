@@ -1,54 +1,43 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Entities;
-using Gdc.Scd.BusinessLogicLayer.Interfaces;
+﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
     [Produces("application/json")]
     public class CapabilityMatrixController : Controller
     {
-        private readonly IDomainService<Country> countryService;
+        private readonly ICapabilityMatrixService capabilityMatrixService;
 
-        private readonly IDomainService<Wg> wgService;
-
-        private readonly IDomainService<Availability> availabilityService;
-
-        private readonly IDomainService<Duration> durationService;
-
-        private readonly IDomainService<ReactionType> reactionTypeService;
-
-        private readonly IDomainService<ReactionTime> reactionTimeService;
-
-        private readonly IDomainService<ServiceLocation> serviceLocationService;
-
-        public CapabilityMatrixController()
+        public CapabilityMatrixController(
+                ICapabilityMatrixService capabilityMatrixService
+            )
         {
-
+            this.capabilityMatrixService = capabilityMatrixService;
         }
 
         [HttpGet]
-        public ActionResult Allowed()
+        public Task Allowed()
         {
-            return Ok();
+            return capabilityMatrixService.GetAllowedCombinations();
         }
 
         [HttpGet]
-        public ActionResult Denyed()
+        public Task Denyed()
         {
-            return Ok();
+            return capabilityMatrixService.GetDenyedCombinations();
         }
 
         [HttpPost]
-        public void Allow()
+        public Task Allow()
         {
-
+            return capabilityMatrixService.AllowCombination();
         }
 
         [HttpPost]
-        public void Deny()
+        public Task Deny()
         {
-
+            return capabilityMatrixService.DenyCombination();
         }
-
     }
 }

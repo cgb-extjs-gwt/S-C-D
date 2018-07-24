@@ -13,6 +13,7 @@ namespace Gdc.Scd.BusinessLogicLayer
         {
             services.AddScoped(typeof(IDomainService<>), typeof(DomainService<>));
             services.AddScoped<ICostEditorService, CostEditorService>();
+            services.AddScoped<ICapabilityMatrixService, CapabilityMatrixService>();
             services.RegisterEntity<Country>();
             services.RegisterEntity<Wg>();
             services.RegisterEntity<Availability>();
