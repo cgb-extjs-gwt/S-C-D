@@ -8,7 +8,7 @@ import About from '../../Test/About/About';
 import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
 import { connect } from 'react-redux';
 import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
-import { CapabilityMatrixEditContainer } from '../../CapabilityMatrix/Containers/CapabilityMatrixEditContainer';
+import { CapabilityMatrixEditView } from '../../CapabilityMatrix/CapabilityMatrixEditView';
 import { CommonState } from '../States/AppStates';
 
 interface LayoutProps {
@@ -59,7 +59,7 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/about" component={About}/>
                         <Route path="/pivot" component={ScdPivotGrid}/>
                         <Route path="/input-cost-elements" component={CostEditorContainer} />
-                        <Route path="/capability-matrix" component={CapabilityMatrixEditContainer} />
+                        <Route path="/capability-matrix" component={CapabilityMatrixEditView} />
                     </Switch>
                 </Panel>
             </Container>

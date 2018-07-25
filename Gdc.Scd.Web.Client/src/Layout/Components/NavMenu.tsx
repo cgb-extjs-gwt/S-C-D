@@ -32,7 +32,7 @@ const NavMenu: React.SFC<NavMenuProps & any> = ({
                     { id: '/about', text: 'About', iconCls: 'x-fa fa-info', leaf: true },
                     { id: '/pivot', text: 'Pivot grid', iconCls: 'x-fa fa-info', leaf: true },
                     { id: '/input-cost-elements', text: 'Input Cost Elements', iconCls: 'x-fa fa-info', leaf: true },
-                    { id: '/capability-matrix', text: 'Capability matrix', iconCls: 'x-fa fa-info', leaf: true }
+                    { id: '/capability-matrix', text: 'Portfolio', iconCls: 'x-fa fa-info', leaf: true }
                 ]
             }
         }}

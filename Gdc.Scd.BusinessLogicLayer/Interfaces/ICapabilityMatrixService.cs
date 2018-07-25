@@ -12,6 +12,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<IEnumerable<CapabilityMatrixAllow>> GetAllowedCombinations();
 
-        Task<IEnumerable<CapabilityMatrixDeny>> GetDenyedCombinations();
+        Task<IEnumerable<CapabilityMatrixDeny>> GetDeniedCombinations();
     }
 }

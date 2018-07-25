@@ -1,4 +1,6 @@
 import { CapabilityMatrixDto, CapabilityMatrixItem } from "../States/CapabilityMatrixStates";
+import { error } from "../../Layout/Actions/AppActions";
+import { NamedId } from "../../Common/States/CommonStates";
 
 export const allowItem = (row: CapabilityMatrixItem) => {
     return saveItem(row, true);
@@ -26,6 +28,48 @@ export const saveItem = (row: CapabilityMatrixItem, allow: boolean) => {
     localStorage.setItem(key, JSON.stringify(allDeny));
 
     return Promise.resolve();
+}
+
+export function getCountries(): Promise<NamedId[]> {
+    return fromResult([
+        { id: 'Algeria', name: 'Algeria' },
+        { id: 'Austria', name: 'Austria' },
+        { id: 'Balkans', name: 'Balkans' },
+        { id: 'Belgium', name: 'Belgium' },
+        { id: 'CIS & Russia', name: 'CIS & Russia' },
+        { id: 'Czech Republic', name: 'Czech Republic' },
+        { id: 'Denmark', name: 'Denmark' },
+        { id: 'Egypt', name: 'Egypt' },
+        { id: 'Finland', name: 'Finland' },
+        { id: 'France', name: 'France' },
+        { id: 'Germany', name: 'Germany' },
+        { id: 'Greece', name: 'Greece' },
+        { id: 'Hungary', name: 'Hungary' },
+        { id: 'India', name: 'India' },
+        { id: 'Italy', name: 'Italy' },
+        { id: 'Luxembourg', name: 'Luxembourg' },
+        { id: 'Middle East', name: 'Middle East' },
+        { id: 'Morocco', name: 'Morocco' },
+        { id: 'Netherlands', name: 'Netherlands' },
+        { id: 'Norway', name: 'Norway' },
+        { id: 'Poland', name: 'Poland' },
+        { id: 'Portugal', name: 'Portugal' },
+        { id: 'South Africa', name: 'South Africa' },
+        { id: 'Spain', name: 'Spain' },
+        { id: 'Sweden', name: 'Sweden' },
+        { id: 'Switzerland', name: 'Switzerland' },
+        { id: 'Tunisia', name: 'Tunisia' },
+        { id: 'Turkey', name: 'Turkey' },
+        { id: 'UK & Ireland', name: 'UK & Ireland' }
+    ]);
+}
+
+function fromResult<T>(value: T): Promise<T> {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(value);
+        }, 1);
+    });
 }
 
 export const getCapabilityMatrixItems = () => Promise.resolve(<CapabilityMatrixDto>{

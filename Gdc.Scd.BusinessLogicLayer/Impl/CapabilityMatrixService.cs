@@ -34,7 +34,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return AllowRepo().GetAllAsync();
         }
 
-        public Task<IEnumerable<CapabilityMatrixDeny>> GetDenyedCombinations()
+        public Task<IEnumerable<CapabilityMatrixDeny>> GetDeniedCombinations()
         {
             return DenyRepo().GetAllAsync();
         }

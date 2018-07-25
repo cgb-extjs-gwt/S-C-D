@@ -27,9 +27,9 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CapabilityMatrix>> Denyed()
+        public async Task<IEnumerable<CapabilityMatrix>> Denied()
         {
-            var denyed = await capabilityMatrixService.GetDenyedCombinations();
+            var denyed = await capabilityMatrixService.GetDeniedCombinations();
             return denyed.Cast<CapabilityMatrix>();
         }
 
