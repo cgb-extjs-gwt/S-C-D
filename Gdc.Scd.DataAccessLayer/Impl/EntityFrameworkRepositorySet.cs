@@ -28,6 +28,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             this.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             this.ChangeTracker.AutoDetectChangesEnabled = false;
+            this.Database.SetCommandTimeout(600);
         }
 
         public ITransaction BeginTransaction()

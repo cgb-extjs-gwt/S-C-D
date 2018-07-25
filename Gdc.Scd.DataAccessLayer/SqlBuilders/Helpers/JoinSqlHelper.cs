@@ -25,7 +25,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public ISqlBuilder Join(ISqlBuilder table, ConditionHelper condition, JoinType type = JoinType.Inner)
         {
-            return this.Join(table, condition.ToSqlBuilder(), type);
+            return this.Join(table, condition?.ToSqlBuilder(), type);
         }
 
         public ISqlBuilder Join(string schemaName, string tableName, ConditionHelper condition, JoinType type = JoinType.Inner)
@@ -52,8 +52,8 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     referenceField.ReferenceMeta.Schema,
                     referenceField.ReferenceMeta.Name,
                     SqlOperators.Equals(
-                        new ColumnInfo(referenceField.Name, meta.Name),
-                        new ColumnInfo(referenceField.ValueField, referenceField.Name)));
+                        new ColumnInfo(referenceField.ForeignField.Name, meta.Name),
+                        new ColumnInfo(referenceField.ReferenceValueField, referenceField.Name)));
         }
 
         public ISqlBuilder Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner)

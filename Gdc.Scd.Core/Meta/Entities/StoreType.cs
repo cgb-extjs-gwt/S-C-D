@@ -1,6 +1,8 @@
 ﻿namespace Gdc.Scd.Core.Meta.Entities
 {
-    public class ScopeMeta : BaseDomainMeta
+    public enum StoreType
     {
+        Table,
+        View
     }
 }

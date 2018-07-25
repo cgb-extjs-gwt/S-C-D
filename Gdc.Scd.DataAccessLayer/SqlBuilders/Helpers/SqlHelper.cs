@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
@@ -33,7 +33,24 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public IEnumerable<CommandParameterInfo> GetParameters()
         {
-            return this.GetParameters(this.sqlBuilder).Distinct();
+            var paramDictionary = new Dictionary<string, CommandParameterInfo>();
+
+            foreach (var param in this.GetParameters(this.sqlBuilder))
+            {
+                if (paramDictionary.TryGetValue(param.Name, out var paramDict))
+                {
+                    if (!object.Equals(param.Value, paramDict.Value))
+                    {
+                        throw new Exception("There are two parameters that have the same name, but different values.");
+                    }
+                }
+                else
+                {
+                    paramDictionary.Add(param.Name, param);
+                }
+            }
+
+            return paramDictionary.Values;
         }
 
         private IEnumerable<CommandParameterInfo> GetParameters(ISqlBuilder sqlBuilder)

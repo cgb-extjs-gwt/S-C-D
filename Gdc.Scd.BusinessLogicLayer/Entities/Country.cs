@@ -4,7 +4,7 @@ using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.BusinessLogicLayer.Entities
 {
-    [Table(MetaConstants.CountryLevelId, Schema = MetaConstants.InputLevelSchema)]
+    [Table("Country", Schema = MetaConstants.InputLevelSchema)]
     public class Country : NamedId
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
-    public class CountryManageController : BaseDomainController<Country>
+    public class CountryManagementController : BaseDomainController<Country>
     {
-        public CountryManageController(IDomainService<Country> countryService) : 
+        public CountryManagementController(IDomainService<Country> countryService) : 
             base(countryService)
         {
 

@@ -1,5 +1,5 @@
-export interface NamedId {
-    id: string;
+export interface NamedId<TId = string> {
+    id: TId;
     name: string;
 }
 

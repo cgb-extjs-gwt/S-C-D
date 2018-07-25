@@ -9,18 +9,15 @@ import {
     Panel,
     TabPanel
 } from '@extjs/ext-react';
-import FixedTabPanel from '../../Common/Components/FixedTabPanel';
 import { connect } from 'react-redux';
-import { PageCommonState, PageState, PAGE_STATE_KEY } from '../../Layout/States/PageStates';
 import { CostEditorState, CostBlockMeta } from '../States/CostEditorStates';
-import { getCostEditorDto } from '../Services/CostEditorServices';
+import { getCostEditorData } from '../Services/CostEditorServices';
 import { CostBlockState, EditItem, CheckItem, Filter } from '../States/CostBlockStates';
-import { selectCountry, 
+import { 
     selectCostElement, 
     selectInputLevel, 
-    getFilterItemsByCustomElementSelection, 
     getFilterItemsByInputLevelSelection, 
-    reloadFilterBySelectedCountry, 
+    reloadFilterBySelectedRegion, 
     changeSelectionCostElementFilter, 
     changeSelectionInputLevelFilter, 
     resetCostElementFilter, 
@@ -29,7 +26,7 @@ import { selectCountry,
     clearEditItems, 
     editItem, 
     saveEditItemsToServer, 
-    selectCountryWithReloading, 
+    selectRegionWithReloading, 
     applyFiltersWithReloading 
 } 
 from '../Actions/CostBlockActions';
@@ -41,14 +38,13 @@ Ext.require('Ext.MessageBox');
 export interface CostEditorActions {
     onInit?: () => void;
     onApplicationSelected?: (applicationId: string) => void;
-    onScopeSelected?: (scopeId: string) => void;
     onCostBlockSelected?: (costBlockId: string) => void;
     onLoseChanges?: () => void
     onCancelDataLose?: () => void
     tabActions: {
-        onCountrySelected?: (countryId: string, costBlockId: string) => void
+        onRegionSelected?: (regionId: string, costBlockId: string) => void
         onCostElementSelected?: (costBlockId: string, costElementId: string) => void
-        onInputLevelSelected?: (costBlockId: string, inputLevelId: string) => void
+        onInputLevelSelected?: (costBlockId: string, costElementId: string, inputLevelId: string) => void
         onCostElementFilterSelectionChanged?: (
             costBlockId: string,
             costElementId: string, 
@@ -56,11 +52,12 @@ export interface CostEditorActions {
             isSelected: boolean) => void
         onInputLevelFilterSelectionChanged?: (
             costBlockId: string,
+            costElementId: string, 
             inputLevelId: string, 
             filterItemId: string,
             isSelected: boolean) => void
         onCostElementFilterReseted?: (costBlockId: string, costElementId: string) => void
-        onInputLevelFilterReseted?: (costBlockId: string, inputLevelId: string) => void
+        onInputLevelFilterReseted?: (costBlockId: string, costElementId: string, inputLevelId: string) => void
         onEditItemsCleared?: (costBlockId: string) => void
         onItemEdited?: (costBlockId: string, item: EditItem) => void
         onEditItemsSaving?: (costBlockId: string) => void
@@ -74,7 +71,6 @@ export interface CostBlockTab extends NamedId {
 
 export interface CostEditorProps extends CostEditorActions {
     application: SelectList<NamedId>
-    scope: SelectList<NamedId>
     costBlocks: SelectList<CostBlockTab>
     isDataLossWarningDisplayed: boolean
 }
@@ -97,42 +93,31 @@ export class CostEditorView extends React.Component<CostEditorProps> {
     }
 
     public render() {
-        const { application, scope, costBlocks } = this.props;
+        const { application, costBlocks } = this.props;
 
         return (
-            <Container layout="vbox">
+            <Container layout="vbox" >
                 <FormPanel defaults={{labelAlign: 'left'}}>
                     {this.applicationCombobox(application)}
-                    {this.scopeCombobox(scope)}
-
-                    {/* <ContainerField label="Scope" layout={{type: 'vbox', align: 'left'}}>
-                        { 
-                            scope && 
-                            scope.list && 
-                            scope.list.map(item => this.scopeRadioFild(item, scope.selectedItemId))
-                        }
-                    </ContainerField> */}
                 </FormPanel>
-
-                <Container title="Cost Blocks:">
-                    {
-                        costBlocks && 
-                        costBlocks.list &&
-                        <FixedTabPanel 
-                            tabBar={{
-                                layout: { pack: 'left' }
-                            }}
-                            activeTab={
-                                costBlocks.list.findIndex(costBlock => costBlock.id === costBlocks.selectedItemId)
-                            }
-                            onActiveItemChange={
-                                (tabPanel, newValue, oldValue) => this.onActiveTabChange(tabPanel, newValue, oldValue)
-                            }
-                        >
-                            {costBlocks.list.map(item => this.costBlockTab(item, costBlocks.selectedItemId))}
-                        </FixedTabPanel>
-                    }
-                </Container>
+                {
+                    costBlocks && 
+                    costBlocks.list &&  
+                    <TabPanel 
+                        flex={1}
+                        tabBar={{
+                            layout: { pack: 'left' }
+                        }}
+                        activeTab={
+                            costBlocks.list.findIndex(costBlock => costBlock.id === costBlocks.selectedItemId)
+                        }
+                        onActiveItemChange={
+                            (tabPanel, newValue, oldValue) => this.onActiveTabChange(tabPanel, newValue, oldValue)
+                        }
+                    >
+                        {costBlocks.list.map(item => this.costBlockTab(item, costBlocks.selectedItemId))}
+                    </TabPanel>
+                }
             </Container>
         );
     }
@@ -167,7 +152,7 @@ export class CostEditorView extends React.Component<CostEditorProps> {
         return (
             <ComboBoxField 
                 label="Application"
-                width="25%"
+                width="300"
                 displayField="name"
                 valueField="id"
                 queryMode="local"
@@ -180,51 +165,9 @@ export class CostEditorView extends React.Component<CostEditorProps> {
         );
     }
 
-    // private scopeRadioFild(scopeItem: NamedId, selectedScopeId: string) {
-    //     const { onScopeSelected } = this.props;
-
-    //     return (
-    //         <RadioField 
-    //             key={scopeItem.id} 
-    //             itemId={scopeItem.id}
-    //             boxLabel={scopeItem.name} 
-    //             name="scope" 
-    //             checked={scopeItem.id === selectedScopeId}
-    //             onCheck={() => onScopeSelected && onScopeSelected(scopeItem.id) }
-    //         />
-    //     );
-    // }
-
-    private scopeCombobox(scopes: SelectList<NamedId>) {
-        const { onScopeSelected } = this.props;
-
-        const scopeStore = Ext.create('Ext.data.Store', {
-            data: scopes && scopes.list
-        });
-
-        const selectedScope = 
-            scopeStore.getData()
-                      .findBy(item => (item.data as NamedId).id === scopes.selectedItemId);
-
-        return (
-            <ComboBoxField 
-                label="Scope"
-                width="25%"
-                displayField="name"
-                valueField="id"
-                queryMode="local"
-                store={scopeStore}
-                selection={selectedScope}
-                onChange={(combobox, newValue, oldValue) => 
-                    onScopeSelected && onScopeSelected(newValue)
-                }
-            />
-        );
-    }
-
     private costBlockTab(costBlockTab: CostBlockTab, selectedCostBlockId: string) {
         const { 
-            onCountrySelected, 
+            onRegionSelected, 
             onCostElementSelected, 
             onInputLevelSelected,
             onCostElementFilterSelectionChanged,
@@ -238,20 +181,20 @@ export class CostEditorView extends React.Component<CostEditorProps> {
         } = this.props.tabActions;
 
         return (
-            <Container key={costBlockTab.id} title={costBlockTab.name}>
+            <Container key={costBlockTab.id} title={costBlockTab.name} layout="fit">
                 <CostBlockView 
                     {...costBlockTab.costBlock} 
-                    onCountrySelected={
-                        countryId => 
-                            onCountrySelected && onCountrySelected(countryId, costBlockTab.id)
+                    onRegionSelected={
+                        regionId => 
+                            onRegionSelected && onRegionSelected(regionId, costBlockTab.id)
                     } 
                     onCostElementSelected={
                         costElementId => 
                             onCostElementSelected && onCostElementSelected(costBlockTab.id, costElementId)
                     }
                     onInputLevelSelected={
-                        inputLevelId => 
-                            onInputLevelSelected && onInputLevelSelected(costBlockTab.id, inputLevelId)
+                        (costElementId, inputLevelId) => 
+                            onInputLevelSelected && onInputLevelSelected(costBlockTab.id, costElementId, inputLevelId)
                     }
                     onCostElementFilterSelectionChanged={
                         (costElementId, filterItemId, isSelected) =>
@@ -259,9 +202,9 @@ export class CostEditorView extends React.Component<CostEditorProps> {
                             onCostElementFilterSelectionChanged(costBlockTab.id, costElementId, filterItemId, isSelected)
                     }
                     onInputLevelFilterSelectionChanged={
-                        (inputLevelId, filterItemId, isSelected) =>
+                        (costElementId, inputLevelId, filterItemId, isSelected) =>
                             onInputLevelFilterSelectionChanged && 
-                            onInputLevelFilterSelectionChanged(costBlockTab.id, inputLevelId, filterItemId, isSelected)
+                            onInputLevelFilterSelectionChanged(costElementId, costBlockTab.id, inputLevelId, filterItemId, isSelected)
                     }
                     onCostElementFilterReseted={
                         costElementId => 
@@ -269,9 +212,9 @@ export class CostEditorView extends React.Component<CostEditorProps> {
                             onCostElementFilterReseted(costBlockTab.id, costElementId)
                     }
                     onInputLevelFilterReseted={
-                        inputLevelId =>
+                        (costElementId, inputLevelId) =>
                             onInputLevelFilterReseted && 
-                            onInputLevelFilterReseted(costBlockTab.id, inputLevelId)
+                            onInputLevelFilterReseted(costBlockTab.id, costElementId, inputLevelId)
                     }
                     onEditItemsCleared={
                         () => onEditItemsCleared && onEditItemsCleared(costBlockTab.id)

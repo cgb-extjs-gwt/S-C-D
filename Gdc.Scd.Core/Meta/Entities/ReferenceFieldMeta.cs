@@ -1,17 +1,36 @@
-﻿namespace Gdc.Scd.Core.Meta.Entities
+﻿using System;
+
+namespace Gdc.Scd.Core.Meta.Entities
 {
     public class ReferenceFieldMeta : FieldMeta
     {
-        public EntityMeta ReferenceMeta { get; }
+        public BaseEntityMeta ReferenceMeta { get; }
 
-        public string ValueField { get; set; }
+        public string ReferenceValueField { get; set; }
 
-        public string FaceValueField { get; set; }
+        public string ReferenceFaceField { get; set; }
 
-        public ReferenceFieldMeta(string name, EntityMeta referenceMeta) 
+        public SimpleFieldMeta ForeignField { get; }
+
+        public ReferenceFieldMeta(string name, BaseEntityMeta referenceMeta, SimpleFieldMeta foreignField) 
             : base(name)
         {
             this.ReferenceMeta = referenceMeta;
+            this.ForeignField = foreignField;
+        }
+
+        public ReferenceFieldMeta(string name, BaseEntityMeta referenceMeta)
+            : this(name, referenceMeta, new SimpleFieldMeta(name, TypeCode.Int64))
+        {
+        }
+
+        public static ReferenceFieldMeta Build(string name,  NamedEntityMeta referenceMeta)
+        {
+            return new ReferenceFieldMeta(name, referenceMeta)
+            {
+                ReferenceValueField = referenceMeta.IdField.Name,
+                ReferenceFaceField = referenceMeta.NameField.Name,
+            };
         }
     }
 }

@@ -8,6 +8,6 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
     {
         Task<IEnumerable<EditItem>> GetEditItems(EditItemInfo editItemInfo, IDictionary<string, IEnumerable<object>> filter = null);
 
-        Task<int> UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo);
+        Task<int> UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo, IDictionary<string, IEnumerable<object>> filter = null);
     }
 }

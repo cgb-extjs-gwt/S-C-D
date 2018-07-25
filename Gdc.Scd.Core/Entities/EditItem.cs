@@ -2,7 +2,7 @@
 {
     public class EditItem : NamedId
     {
-        public double Value { get; set; }
+        public object Value { get; set; }
 
         public int ValueCount { get; set; }
     }

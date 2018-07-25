@@ -1,20 +1,18 @@
 import { Action, Reducer } from "redux";
-import { PageState } from "../../Layout/States/PageStates";
-import { CostEditorState, CostEdirotDto, CostBlockMeta, CostElementMeta, InputLevelMeta } from "../States/CostEditorStates";
-import { PageAction, PAGE_INIT_SUCCESS } from "../../Layout/Actions/PageActions";
+import { CostEditorState, CostEditortData, CostBlockMeta, CostElementMeta, InputLevelMeta } from "../States/CostEditorStates";
 import { 
-    COST_ELEMENT_INTPUT_PAGE, 
-    COST_ELEMENT_INTPUT_SELECT_APPLICATION, 
-    COST_ELEMENT_INTPUT_SELECT_SCOPE,
-    COST_ELEMENT_INTPUT_SELECT_COST_BLOCK,
-    COST_ELEMENT_INTPUT_HIDE_LOSE_CHANGES_WARNING,
-    COST_ELEMENT_INTPUT_LOSE_CHANGES,
-    COST_ELEMENT_INTPUT_SHOW_LOSE_CHANGES_WARNING,
+    COST_EDITOR_PAGE, 
+    COST_EDITOR_SELECT_APPLICATION, 
+    COST_EDITOR_SELECT_COST_BLOCK,
+    COST_EDITOR_HIDE_LOSE_CHANGES_WARNING,
+    COST_EDITOR_LOSE_CHANGES,
+    COST_EDITOR_SHOW_LOSE_CHANGES_WARNING,
     ShowDataLoseWarningAction
 } from "../Actions/CostEditorActions";
 import { CostBlockState, CostElementState } from "../States/CostBlockStates";
 import { ItemSelectedAction } from "../../Common/Actions/CommonActions";
 import { NamedId } from "../../Common/States/CommonStates";
+import { APP_PAGE_INIT, PageInitAction } from "../../Layout/Actions/AppActions";
 
 const createMap = <T extends NamedId>(array: T[]) => {
     const map = new Map<string, T>();
@@ -24,28 +22,28 @@ const createMap = <T extends NamedId>(array: T[]) => {
     return map;
 }
 
-const initSuccess: Reducer<CostEditorState, PageAction<CostEdirotDto>> = (state, action) => {
-    const { countries, meta } = action.data;
-    const { applications, scopes, costBlocks: costBlockMetas, inputLevels } = meta;
+const initSuccess: Reducer<CostEditorState, PageInitAction<CostEditortData>> = (state, action) => {
+    const { applications, costBlocks } = action.data;
     const selectedApplicationId = applications[0].id;
-    const selectedScopeId = scopes[0].id;
-    const inputLevelMetas = inputLevels.map((item, index) => <InputLevelMeta>{ 
-        id: item.id,
-        name: item.name,
-        levelNumer: index,
-        isFilterLoading: index > 1
-    });
+    const costBlockMetas = costBlocks.map(costBlock => ({
+        ...costBlock,
+        costElements: costBlock.costElements.map(costElement => ({
+            ...costElement,
+            inputLevels: costElement.inputLevels.map((inputLevel, index) => ({
+                ...inputLevel,
+                levelNumer: index,
+                isFilterLoading: index > 1
+            }))
+        }))
+    }))
 
-    return action.pageName === COST_ELEMENT_INTPUT_PAGE 
+    return action.pageId === COST_EDITOR_PAGE 
         ? {
             ...state,
             applications: createMap(applications),
-            scopes: createMap(scopes),
-            countries: createMap(countries),
+            regions: createMap([]),
             costBlockMetas: createMap(costBlockMetas),
-            inputLevels: createMap(inputLevelMetas),
-            selectedApplicationId,
-            selectedScopeId,
+            selectedApplicationId
         } 
         : state;
 }
@@ -92,34 +90,28 @@ const loseChanges: Reducer<CostEditorState, Action<string>> = state => ({
 
 export const costEditorReducer: Reducer<CostEditorState, Action<string>> = (state = defaultState(), action) => {
     switch(action.type) {
-        case PAGE_INIT_SUCCESS:
-            return initSuccess(state, <PageAction<CostEdirotDto>>action);
+        case APP_PAGE_INIT:
+            return initSuccess(state, <PageInitAction<CostEditortData>>action);
 
-        case COST_ELEMENT_INTPUT_SELECT_APPLICATION:
+        case COST_EDITOR_SELECT_APPLICATION:
             return {
                 ...state,
                 selectedApplicationId: (<ItemSelectedAction>action).selectedItemId
             }
 
-        case COST_ELEMENT_INTPUT_SELECT_SCOPE:
-        return {
-            ...state,
-            selectedScopeId: (<ItemSelectedAction>action).selectedItemId
-        }
-
-        case COST_ELEMENT_INTPUT_SELECT_COST_BLOCK:
+        case COST_EDITOR_SELECT_COST_BLOCK:
             return {
                 ...state,
                 selectedCostBlockId: (<ItemSelectedAction>action).selectedItemId
             }
 
-        case COST_ELEMENT_INTPUT_SHOW_LOSE_CHANGES_WARNING:
+        case COST_EDITOR_SHOW_LOSE_CHANGES_WARNING:
             return showDataLoseWarning(state, <ShowDataLoseWarningAction>action)
 
-        case COST_ELEMENT_INTPUT_HIDE_LOSE_CHANGES_WARNING:
+        case COST_EDITOR_HIDE_LOSE_CHANGES_WARNING:
             return hideDataLoseWarning(state, action)
 
-        case COST_ELEMENT_INTPUT_LOSE_CHANGES:
+        case COST_EDITOR_LOSE_CHANGES:
             return loseChanges(state, action)
 
         default:
