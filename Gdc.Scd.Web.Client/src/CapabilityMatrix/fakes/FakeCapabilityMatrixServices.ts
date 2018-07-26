@@ -1,6 +1,15 @@
-import { CapabilityMatrixDto, CapabilityMatrixItem } from "../States/CapabilityMatrixStates";
-import { error } from "../../Layout/Actions/AppActions";
 import { NamedId } from "../../Common/States/CommonStates";
+import { CapabilityMatrixListModel } from "../Model/CapabilityMatrixListModel";
+import { CapabilityMatrixItem } from "../Model/CapabilityMatrixItem";
+import { fakeAllowed } from "./FakeAllowed";
+import { fakeCountries } from "./FakeCountries";
+import { fakeWG } from "./FakeWG";
+import { fakeAvailability } from "./FakeAvailability";
+import { fakeDuration } from "./FakeDuration";
+import { fakeReactTypes } from "./FakeReactTypes";
+import { fakeReactTimeTypes } from "./FakeReactTimeTypes";
+import { fakeServiceLocationTypes } from "./FakeServiceLocationTypes";
+import { fakeDenied } from "./FakeDenied";
 
 export const allowItem = (row: CapabilityMatrixItem) => {
     return saveItem(row, true);
@@ -31,103 +40,39 @@ export const saveItem = (row: CapabilityMatrixItem, allow: boolean) => {
 }
 
 export function getCountries(): Promise<NamedId[]> {
-    return fromResult([
-        { id: 'Algeria', name: 'Algeria' },
-        { id: 'Austria', name: 'Austria' },
-        { id: 'Balkans', name: 'Balkans' },
-        { id: 'Belgium', name: 'Belgium' },
-        { id: 'CIS & Russia', name: 'CIS & Russia' },
-        { id: 'Czech Republic', name: 'Czech Republic' },
-        { id: 'Denmark', name: 'Denmark' },
-        { id: 'Egypt', name: 'Egypt' },
-        { id: 'Finland', name: 'Finland' },
-        { id: 'France', name: 'France' },
-        { id: 'Germany', name: 'Germany' },
-        { id: 'Greece', name: 'Greece' },
-        { id: 'Hungary', name: 'Hungary' },
-        { id: 'India', name: 'India' },
-        { id: 'Italy', name: 'Italy' },
-        { id: 'Luxembourg', name: 'Luxembourg' },
-        { id: 'Middle East', name: 'Middle East' },
-        { id: 'Morocco', name: 'Morocco' },
-        { id: 'Netherlands', name: 'Netherlands' },
-        { id: 'Norway', name: 'Norway' },
-        { id: 'Poland', name: 'Poland' },
-        { id: 'Portugal', name: 'Portugal' },
-        { id: 'South Africa', name: 'South Africa' },
-        { id: 'Spain', name: 'Spain' },
-        { id: 'Sweden', name: 'Sweden' },
-        { id: 'Switzerland', name: 'Switzerland' },
-        { id: 'Tunisia', name: 'Tunisia' },
-        { id: 'Turkey', name: 'Turkey' },
-        { id: 'UK & Ireland', name: 'UK & Ireland' }
-    ]);
+    return fromResult(fakeCountries);
 }
 
 export function getWG(): Promise<NamedId[]> {
-    return fromResult([
-        { id: 'WG0', name: 'WG0' },
-        { id: 'WG1', name: 'WG1' },
-        { id: 'WG2', name: 'WG2' },
-        { id: 'WG3', name: 'WG3' },
-        { id: 'WG4', name: 'WG4' },
-        { id: 'WG4', name: 'WG4' },
-        { id: 'WG5', name: 'WG5' },
-        { id: 'WG6', name: 'WG6' },
-        { id: 'WG7', name: 'WG7' },
-        { id: 'WG8', name: 'WG8' }
-    ]);
+    return fromResult(fakeWG);
 }
 
 export function getAvailabilityTypes(): Promise<NamedId[]> {
-    return fromResult([
-        { id: '1000', name: '24x7' },
-        { id: '1001', name: '8x5' },
-        { id: '1002', name: '3x2' },
-        { id: '1003', name: '365 days in year' },
-        { id: '1004', name: 'any time' },
-        { id: '1005', name: 'None' }
-    ]);
+    return fromResult(fakeAvailability);
 }
 
 export function getDurationTypes(): Promise<NamedId[]> {
-    return fromResult([
-        { id: '1000', name: '2h' },
-        { id: '1001', name: '3h' },
-        { id: '1002', name: '8h' },
-        { id: '1003', name: '12h' },
-        { id: '1004', name: '24h' },
-        { id: '1005', name: '48h' }
-    ]);
+    return fromResult(fakeDuration);
 }
 
 export function getReactTypes(): Promise<NamedId[]> {
-    return fromResult([
-        { id: '1000', name: 'recover' },
-        { id: '1001', name: 'response' },
-        { id: '1002', name: 'none' }
-    ]);
+    return fromResult(fakeReactTypes);
 }
 
 export function getReactionTimeTypes(): Promise<NamedId[]> {
-    return fromResult([
-        { id: '1000', name: '2h' },
-        { id: '1001', name: '3h' },
-        { id: '1002', name: '4h' },
-        { id: '1003', name: '5h' },
-        { id: '1004', name: '6h' },
-        { id: '1005', name: '7h' }
-    ]);
+    return fromResult(fakeReactTimeTypes);
 }
 
 export function getServiceLocationTypes(): Promise<NamedId[]> {
-    return fromResult([
-        { id: '1000', name: 'on side' },
-        { id: '1001', name: 'off side' },
-        { id: '1002', name: 'exit' },
-        { id: '1003', name: 'none' },
-        { id: '1004', name: 'any' }
-    ]);
+    return fromResult(fakeServiceLocationTypes);
+}
+
+export function getAllowed(): Promise<CapabilityMatrixListModel[]> {
+    return fromResult(fakeAllowed);
+}
+
+export function getDenied(): Promise<CapabilityMatrixListModel[]> {
+    return fromResult(fakeDenied);
 }
 
 function fromResult<T>(value: T): Promise<T> {

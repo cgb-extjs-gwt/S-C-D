@@ -6,7 +6,6 @@ import { costBlockReducer } from "./CostEditor/Reducers/CostBlockReducer";
 import { appReducer } from "./Layout/Reducers/AppReducer";
 import { CommonState, AppState } from "./Layout/States/AppStates";
 import { COST_EDITOR_PAGE } from "./CostEditor/Actions/CostEditorActions";
-import { capabilityMatrixEditReducer } from "./CapabilityMatrix/Reducers/Edit";
 
 const asyncActionHandler = store => next => action => {
     if (action instanceof AsyncAction) {
@@ -25,8 +24,7 @@ export const storeFactory = () => {
                 state = costBlockReducer(state, action);
             
                 return state;
-            },
-            matrix: capabilityMatrixEditReducer
+            }
         })
     });
 

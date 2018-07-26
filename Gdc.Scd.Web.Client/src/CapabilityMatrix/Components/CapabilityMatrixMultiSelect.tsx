@@ -1,6 +1,5 @@
 ﻿import * as React from "react";
 import { Container, Label, List } from "@extjs/ext-react";
-import { NamedId } from "../../Common/States/CommonStates";
 
 export interface CapabilityMatrixMultiSelectProps {
 
@@ -46,12 +45,12 @@ export class CapabilityMatrixMultiSelect extends React.Component<CapabilityMatri
         this.lst = this.refs['lst'] as List;
     }
 
-    public getSelected(): NamedId[] {
+    public getSelected<T>(): T[] {
         let selected: any[] = this.lst.getSelections();
-        let result: NamedId[] = [];
+        let result: T[] = [];
 
         for (let i = 0, len = selected.length; i < len; i++) {
-            result[i] = selected[i].data as NamedId;
+            result[i] = selected[i].data as T;
         }
 
         return result;

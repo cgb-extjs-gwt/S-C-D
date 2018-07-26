@@ -29,7 +29,7 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
 
     private corePort: CheckBoxField;
 
-    constructor(props: any) {
+    public constructor(props: any) {
         super(props);
         this.init();
     }
