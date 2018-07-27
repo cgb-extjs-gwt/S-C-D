@@ -4,8 +4,8 @@ import { MultiSelect } from "./Components/MultiSelect";
 import { CapabilityMatrixEditModel } from "./Model/CapabilityMatrixEditModel";
 import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService"
 import { MatrixFactory } from "./Services/MatrixFactory";
-import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { ArrayHelper } from "../Common/Helpers/ArrayHelper";
+import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 
 const selectMaxH: string = '260px';
 
@@ -61,7 +61,7 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
                     <MultiSelect ref="wg" maxHeight={selectMaxH} title="Asset(WG)" itemTpl="{name}" store={this.state.warrantyGroups} />
                     <MultiSelect ref="availability" maxHeight={selectMaxH} title="Availability" itemTpl="{name}" store={this.state.availabilityTypes} />
                     <MultiSelect ref="duration" maxHeight={selectMaxH} title="Duration" itemTpl="{name}" store={this.state.durationTypes} />
-                    <MultiSelect ref="reactType" maxHeight={selectMaxH} title="React type" itemTpl="{name}" store={this.state.reactTypes} />
+                    <MultiSelect ref="reactType" maxHeight={selectMaxH} title="Reaction type" itemTpl="{name}" store={this.state.reactTypes} />
                     <MultiSelect ref="reactTime" maxHeight={selectMaxH} title="Reaction time" itemTpl="{name}" store={this.state.reactionTimeTypes} />
                     <MultiSelect ref="srvLoc" maxHeight={selectMaxH} title="Service location" itemTpl="{name}" store={this.state.serviceLocationTypes} />
                 </Container>
