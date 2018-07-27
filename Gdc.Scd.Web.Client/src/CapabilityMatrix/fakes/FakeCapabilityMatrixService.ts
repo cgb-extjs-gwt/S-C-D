@@ -1,6 +1,7 @@
 import { NamedId } from "../../Common/States/CommonStates";
 import { CapabilityMatrixEditModel } from "../Model/CapabilityMatrixEditModel";
 import { CapabilityMatrixListModel } from "../Model/CapabilityMatrixListModel";
+import { ICapabilityMatrixService } from "../Services/ICapabilityMatrixService";
 import { fakeAllowed } from "./FakeAllowed";
 import { fakeCountries } from "./FakeCountries";
 import { fakeWG } from "./FakeWG";
@@ -10,7 +11,6 @@ import { fakeReactTypes } from "./FakeReactTypes";
 import { fakeReactTimeTypes } from "./FakeReactTimeTypes";
 import { fakeServiceLocationTypes } from "./FakeServiceLocationTypes";
 import { fakeDenied } from "./FakeDenied";
-import { ICapabilityMatrixService } from "../Services/ICapabilityMatrixService";
 
 export class FakeCapabilityMatrixService implements ICapabilityMatrixService {
 
