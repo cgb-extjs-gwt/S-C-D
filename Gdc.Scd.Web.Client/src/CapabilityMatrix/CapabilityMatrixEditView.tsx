@@ -7,7 +7,8 @@ import { MatrixFactory } from "./Services/MatrixFactory";
 import { ArrayHelper } from "../Common/Helpers/ArrayHelper";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 
-const selectMaxH: string = '260px';
+const SELECT_MAX_H: string = '260px';
+const ID_PROP = 'id';
 
 export class CapabilityMatrixEditView extends React.Component<any, any> {
 
@@ -58,12 +59,12 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
                 />
 
                 <Container layout="hbox">
-                    <MultiSelect ref="wg" maxHeight={selectMaxH} title="Asset(WG)" itemTpl="{name}" store={this.state.warrantyGroups} />
-                    <MultiSelect ref="availability" maxHeight={selectMaxH} title="Availability" itemTpl="{name}" store={this.state.availabilityTypes} />
-                    <MultiSelect ref="duration" maxHeight={selectMaxH} title="Duration" itemTpl="{name}" store={this.state.durationTypes} />
-                    <MultiSelect ref="reactType" maxHeight={selectMaxH} title="Reaction type" itemTpl="{name}" store={this.state.reactTypes} />
-                    <MultiSelect ref="reactTime" maxHeight={selectMaxH} title="Reaction time" itemTpl="{name}" store={this.state.reactionTimeTypes} />
-                    <MultiSelect ref="srvLoc" maxHeight={selectMaxH} title="Service location" itemTpl="{name}" store={this.state.serviceLocationTypes} />
+                    <MultiSelect ref="wg" maxHeight={SELECT_MAX_H} title="Asset(WG)" itemTpl="{name}" store={this.state.warrantyGroups} />
+                    <MultiSelect ref="availability" maxHeight={SELECT_MAX_H} title="Availability" itemTpl="{name}" store={this.state.availabilityTypes} />
+                    <MultiSelect ref="duration" maxHeight={SELECT_MAX_H} title="Duration" itemTpl="{name}" store={this.state.durationTypes} />
+                    <MultiSelect ref="reactType" maxHeight={SELECT_MAX_H} title="Reaction type" itemTpl="{name}" store={this.state.reactTypes} />
+                    <MultiSelect ref="reactTime" maxHeight={SELECT_MAX_H} title="Reaction time" itemTpl="{name}" store={this.state.reactionTimeTypes} />
+                    <MultiSelect ref="srvLoc" maxHeight={SELECT_MAX_H} title="Service location" itemTpl="{name}" store={this.state.serviceLocationTypes} />
                 </Container>
 
                 <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio }}>
@@ -181,27 +182,27 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
     }
 
     private getWg(): string {
-        return ArrayHelper.firstOrDefault(this.wg.getSelectedKeys('id'));
+        return ArrayHelper.firstOrDefault(this.wg.getSelectedKeys(ID_PROP));
     }
 
     private getAvailability(): string {
-        return ArrayHelper.firstOrDefault(this.avail.getSelectedKeys('id'));
+        return ArrayHelper.firstOrDefault(this.avail.getSelectedKeys(ID_PROP));
     }
 
     private getDuration(): string {
-        return ArrayHelper.firstOrDefault(this.dur.getSelectedKeys('id'));
+        return ArrayHelper.firstOrDefault(this.dur.getSelectedKeys(ID_PROP));
     }
 
     private getReactType(): string {
-        return ArrayHelper.firstOrDefault(this.reacttype.getSelectedKeys('id'));
+        return ArrayHelper.firstOrDefault(this.reacttype.getSelectedKeys(ID_PROP));
     }
 
     private getReactTime(): string {
-        return ArrayHelper.firstOrDefault(this.reacttime.getSelectedKeys('id'));
+        return ArrayHelper.firstOrDefault(this.reacttime.getSelectedKeys(ID_PROP));
     }
 
     private getServiceLocation(): string {
-        return ArrayHelper.firstOrDefault(this.srvloc.getSelectedKeys('id'));
+        return ArrayHelper.firstOrDefault(this.srvloc.getSelectedKeys(ID_PROP));
     }
 
     private getCountry(): string {
