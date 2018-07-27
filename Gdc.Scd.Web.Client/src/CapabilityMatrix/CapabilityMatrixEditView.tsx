@@ -66,9 +66,9 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
                 </Container>
 
                 <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio }}>
-                    <CheckBoxField ref="globPort" boxLabel="Fujitsu Global Portfolio" />
-                    <CheckBoxField ref="masterPort" boxLabel="Master Portfolio" />
-                    <CheckBoxField ref="corePort" boxLabel="Core Portfolio" />
+                    <CheckBoxField ref="globPort" boxLabel="Fujitsu global portfolio" />
+                    <CheckBoxField ref="masterPort" boxLabel="Master portfolio" />
+                    <CheckBoxField ref="corePort" boxLabel="Core portfolio" />
                 </Container>
 
                 <Container>

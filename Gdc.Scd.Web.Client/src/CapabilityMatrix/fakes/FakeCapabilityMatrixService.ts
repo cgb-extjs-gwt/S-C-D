@@ -18,6 +18,10 @@ export class FakeCapabilityMatrixService implements ICapabilityMatrixService {
         return this.saveItem(row, true);
     }
 
+    public allowItems(ids: string[]): Promise<any> {
+        return this.fromResult({});
+    }
+
     public denyItem(row: CapabilityMatrixItem) {
         return this.saveItem(row, false);
     }

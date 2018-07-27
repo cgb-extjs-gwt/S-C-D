@@ -5,6 +5,8 @@ import { CapabilityMatrixListModel } from "../Model/CapabilityMatrixListModel";
 export interface ICapabilityMatrixService {
     allowItem(row: CapabilityMatrixItem);
 
+    allowItems(ids: string[]): Promise<any>;
+
     denyItem(row: CapabilityMatrixItem);
 
     getCountries(): Promise<NamedId[]>;

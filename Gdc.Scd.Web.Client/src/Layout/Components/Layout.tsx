@@ -37,7 +37,7 @@ export class Layout extends React.Component<LayoutProps> {
         return (
             <Container fullscreen layout="fit">
                 <Panel scrollable docked="left" shadow zIndex={2}>
-                    <TitleBar title="SCD 2.0" docked="top"/>
+                    <TitleBar title="SCD 2.0" docked="top" />
                     <NavMenu
                         {...navMenuDefaults}
                         responsiveConfig={{
@@ -55,11 +55,11 @@ export class Layout extends React.Component<LayoutProps> {
 
                 <Panel title={title} layout="fit">
                     <Switch>
-                        <Route path="/" component={Home} exact/>
-                        <Route path="/about" component={About}/>
-                        <Route path="/pivot" component={ScdPivotGrid}/>
+                        <Route path="/" component={Home} exact />
+                        <Route path="/about" component={About} />
+                        <Route path="/pivot" component={ScdPivotGrid} />
                         <Route path="/input-cost-elements" component={CostEditorContainer} />
-                        <Route path="/capability-matrix" component={CapabilityMatrixView} />
+                        <Route path="/capability-matrix" exact component={CapabilityMatrixView} />
                         <Route path="/capability-matrix/edit" component={CapabilityMatrixEditView} />
                     </Switch>
                 </Panel>
@@ -68,7 +68,7 @@ export class Layout extends React.Component<LayoutProps> {
     }
 }
 
-const containerFactory = connect<LayoutProps,{},{}, CommonState>(
+const containerFactory = connect<LayoutProps, {}, {}, CommonState>(
     state => ({
         title: state.app.currentPage && state.app.currentPage.title
     } as LayoutProps)

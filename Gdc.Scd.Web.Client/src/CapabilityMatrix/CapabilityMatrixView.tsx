@@ -25,7 +25,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
             <Container layout="vbox">
 
                 <Toolbar docked="top">
-                    <Button iconCls="x-fa fa-edit" text="Edit" handler={this.onEditMatrix} />
+                    <Button iconCls="x-fa fa-edit" text="Edit" handler={this.onEdit} />
                     <Button iconCls="x-fa fa-undo" text="Allow combinations" ui="confirm" handler={this.onAllow} />
                 </Toolbar>
 
@@ -60,15 +60,8 @@ export class CapabilityMatrixView extends React.Component<any, any> {
     }
 
     public componentDidMount() {
-        Promise.all([
-            this.srv.getAllowed(),
-            this.srv.getDenied()
-        ]).then(x => {
-            this.setState({
-                allowed: x[0],
-                denied: x[1]
-            });
-        });
+        this.reloadAllowed();
+        this.reloadDenied();
         //
         this.allowed = this.refs['allowed'] as Grid;
         this.denied = this.refs['denied'] as Grid;
@@ -76,7 +69,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
 
     private init() {
         this.srv = MatrixFactory.getMatrixService();
-        this.onEditMatrix = this.onEditMatrix.bind(this);
+        this.onEdit = this.onEdit.bind(this);
         this.onAllow = this.onAllow.bind(this);
         //
         this.state = {
@@ -85,9 +78,8 @@ export class CapabilityMatrixView extends React.Component<any, any> {
         };
     }
 
-    private onEditMatrix() {
-        console.log('openEditPage()');
-        //this.props.history.push('/capability-matrix/edit');
+    private onEdit() {
+       this.props.history.push('/capability-matrix/edit');
     }
 
     private onAllow() {
@@ -102,10 +94,18 @@ export class CapabilityMatrixView extends React.Component<any, any> {
     }
 
     private allowCombination(ids: string[]) {
-        console.log('allowCombination()', ids);
+        this.srv.allowItems(ids).then(x => this.reloadDenied);
     }
 
-    public getDenySelected(): string[] {
+    private getDenySelected(): string[] {
         return ExtDataviewHelper.getGridSelected(this.denied, 'id');
+    }
+
+    private reloadAllowed() {
+        this.srv.getAllowed().then(x => this.setState({ allowed: x }));
+    }
+
+    private reloadDenied() {
+        this.srv.getDenied().then(x => this.setState({ denied: x }));
     }
 }
