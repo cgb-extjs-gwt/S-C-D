@@ -17,6 +17,8 @@ export interface MultiSelectProps {
     itemTpl: string;
 
     store: any;
+
+    selectable?: string;
 }
 
 export class MultiSelect extends React.Component<MultiSelectProps> {
@@ -25,7 +27,7 @@ export class MultiSelect extends React.Component<MultiSelectProps> {
 
     public render() {
 
-        let { width, maxWidth, height, maxHeight, title, itemTpl, store } = this.props;
+        let { width, maxWidth, height, maxHeight, title, itemTpl, store, selectable } = this.props;
 
         title = '<h4>' + title + '</h4>';
 
@@ -34,10 +36,12 @@ export class MultiSelect extends React.Component<MultiSelectProps> {
 
         height = height || '100%';
 
+        selectable = selectable || 'multi';
+
         return (
             <Container width={width} maxWidth={maxWidth}>
                 <Label html={title} padding="7px" />
-                <List ref="lst" itemTpl={itemTpl} store={store} height={height} maxHeight={maxHeight} selectable="multi" scrollable="true" />
+                <List ref="lst" itemTpl={itemTpl} store={store} height={height} maxHeight={maxHeight} selectable={selectable} scrollable="true" />
             </Container>
         );
     }
@@ -47,7 +51,10 @@ export class MultiSelect extends React.Component<MultiSelectProps> {
     }
 
     public getSelected<T>(): T[] {
-        return ExtDataviewHelper.getListSelected(this);
+        return ExtDataviewHelper.getListSelected(this.lst);
     }
 
+    public getSelectedKeys<T>(field: string): T[] {
+        return ExtDataviewHelper.getListSelected(this.lst, field);
+    }
 }

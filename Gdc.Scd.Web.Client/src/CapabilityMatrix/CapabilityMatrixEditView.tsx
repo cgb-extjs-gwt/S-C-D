@@ -1,10 +1,11 @@
 ﻿import * as React from "react";
-import { Container, Button, CheckBoxField, ComboBoxField, Checkbox } from "@extjs/ext-react";
+import { Container, Button, CheckBoxField, ComboBoxField } from "@extjs/ext-react";
 import { MultiSelect } from "./Components/MultiSelect";
-import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
-import { NamedId } from "../Common/States/CommonStates";
+import { CapabilityMatrixEditModel } from "./Model/CapabilityMatrixEditModel";
 import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService"
 import { MatrixFactory } from "./Services/MatrixFactory";
+import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
+import { ArrayHelper } from "../Common/Helpers/ArrayHelper";
 
 const selectMaxH: string = '260px';
 
@@ -162,53 +163,52 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
         this.setState({ isPortfolio: val });
     }
 
-    private getModel() {
-
+    private getModel(): CapabilityMatrixEditModel {
         return {
-            country: this.getCountry(),
-
             isGlobalPortfolio: this.isGlobalPortfolio(),
             isMasterPortfolio: this.isMasterPortfolio(),
             isCorePortfolio: this.isCorePortfolio(),
 
-            wg: this.getWg(),
-            avail: this.getAvailability(),
-            dur: this.getDuration(),
-            reactType: this.getReactType(),
-            reactTime: this.getReactTime(),
-            srvLoc: this.getServiceLocation()
+            countryId: this.getCountry(),
+
+            wgId: this.getWg(),
+            availabilityId: this.getAvailability(),
+            durationId: this.getDuration(),
+            reactTypeId: this.getReactType(),
+            reactionTimeId: this.getReactTime(),
+            serviceLocationId: this.getServiceLocation()
         }
     }
 
-    private getWg(): NamedId[] {
-        return this.wg.getSelected();
+    private getWg(): string {
+        return ArrayHelper.firstOrDefault(this.wg.getSelectedKeys('id'));
     }
 
-    private getAvailability(): NamedId[] {
-        return this.avail.getSelected();
+    private getAvailability(): string {
+        return ArrayHelper.firstOrDefault(this.avail.getSelectedKeys('id'));
     }
 
-    private getDuration(): NamedId[] {
-        return this.dur.getSelected();
+    private getDuration(): string {
+        return ArrayHelper.firstOrDefault(this.dur.getSelectedKeys('id'));
     }
 
-    private getReactType(): NamedId[] {
-        return this.reacttype.getSelected();
+    private getReactType(): string {
+        return ArrayHelper.firstOrDefault(this.reacttype.getSelectedKeys('id'));
     }
 
-    private getReactTime(): NamedId[] {
-        return this.reacttime.getSelected();
+    private getReactTime(): string {
+        return ArrayHelper.firstOrDefault(this.reacttime.getSelectedKeys('id'));
     }
 
-    private getServiceLocation(): NamedId[] {
-        return this.srvloc.getSelected();
+    private getServiceLocation(): string {
+        return ArrayHelper.firstOrDefault(this.srvloc.getSelectedKeys('id'));
     }
 
-    private getCountry(): NamedId {
-        let result: NamedId = null;
+    private getCountry(): string {
+        let result: string = null;
         let selected = this.country.getSelection();
         if (selected) {
-            result = selected.data;
+            result = selected.data.id;
         }
         return result;
     }
