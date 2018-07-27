@@ -10,7 +10,7 @@
         "serviceLocation": "off side",
         "isGlobalPortfolio": true,
         "isMasterPortfolio": false,
-        "isCorePortfolio": true
+        "isCorePortfolio": false
     },
     {
         "id": "2",
@@ -36,7 +36,7 @@
         "serviceLocation": "off side",
         "isGlobalPortfolio": true,
         "isMasterPortfolio": false,
-        "isCorePortfolio": true
+        "isCorePortfolio": false
     },
     {
         "id": "4",

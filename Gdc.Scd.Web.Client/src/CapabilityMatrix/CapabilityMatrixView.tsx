@@ -1,8 +1,12 @@
 ﻿import * as React from "react";
-import { Container, Label, Button, Grid, Column, Toolbar } from "@extjs/ext-react";
-import * as srv from "./fakes/FakeCapabilityMatrixServices";
+import { Container, Label, Button, Grid, Column, Toolbar, CheckColumn, BooleanColumn } from "@extjs/ext-react";
+import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService";
+import { MatrixFactory } from "./Services/MatrixFactory";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
+
+const TRUE_SIGN: string = "YES"
+const FALSE_SIGN: string = "NO";
 
 export class CapabilityMatrixView extends React.Component<any, any> {
 
@@ -10,12 +14,15 @@ export class CapabilityMatrixView extends React.Component<any, any> {
 
     private denied: Grid;
 
+    private srv: ICapabilityMatrixService;
+
     public constructor(props: any) {
         super(props);
         this.init();
     }
 
     public render() {
+
         return (
             <Container layout="vbox">
 
@@ -32,12 +39,12 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     <Column flex="1" text="Reaction type" dataIndex="reactType" />
                     <Column flex="1" text="Reaction time" dataIndex="reactionTime" />
                     <Column flex="1" text="Service location" dataIndex="serviceLocation" />
-                    <Column flex="1" text="Fujitsu Global Portfolio" dataIndex="isGlobalPortfolio" />
-                    <Column flex="1" text="Master Portfolio" dataIndex="isMasterPortfolio" />
-                    <Column flex="1" text="Core Portfolio" dataIndex="isCorePortfolio" />
+                    <CheckColumn flex="1" disabled={true} headerCheckbox={false} text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
+                    <CheckColumn flex="1" disabled={true} headerCheckbox={false} text="Master portfolio" dataIndex="isMasterPortfolio" />
+                    <CheckColumn flex="1" disabled={true} headerCheckbox={false} text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
 
-                <Grid ref="allowed" store={this.state.allowed} width="100%" minHeight="45%" title="Allowed combinations">
+                <Grid ref="allowed" store={this.state.allowed} width="100%" minHeight="45%" title="Allowed combinations" selectable={false}>
                     <Column flex="1" text="Country" dataIndex="country" />
                     <Column flex="1" text="WG(Asset)" dataIndex="WG" />
                     <Column flex="1" text="Availability" dataIndex="availability" />
@@ -45,9 +52,9 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     <Column flex="1" text="Reaction type" dataIndex="reactType" />
                     <Column flex="1" text="Reaction time" dataIndex="reactionTime" />
                     <Column flex="1" text="Service location" dataIndex="serviceLocation" />
-                    <Column flex="1" text="Fujitsu Global Portfolio" dataIndex="isGlobalPortfolio" />
-                    <Column flex="1" text="Master Portfolio" dataIndex="isMasterPortfolio" />
-                    <Column flex="1" text="Core Portfolio" dataIndex="isCorePortfolio" />
+                    <CheckColumn flex="1" disabled={true} headerCheckbox={false} text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
+                    <CheckColumn flex="1" disabled={true} headerCheckbox={false} text="Master portfolio" dataIndex="isMasterPortfolio" />
+                    <CheckColumn flex="1" disabled={true} headerCheckbox={false} text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
 
             </Container>
@@ -56,8 +63,8 @@ export class CapabilityMatrixView extends React.Component<any, any> {
 
     public componentDidMount() {
         Promise.all([
-            srv.getAllowed(),
-            srv.getDenied()
+            this.srv.getAllowed(),
+            this.srv.getDenied()
         ]).then(x => {
             this.setState({
                 allowed: x[0],
@@ -70,6 +77,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
     }
 
     private init() {
+        this.srv = MatrixFactory.getMatrixService();
         this.onEditMatrix = this.onEditMatrix.bind(this);
         this.onAllow = this.onAllow.bind(this);
         //
@@ -89,7 +97,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
         if (selected.length > 0) {
             ExtMsgHelper.confirm(
                 'Allow combinations',
-                'Do you want to remove denied combination?',
+                'Do you want to remove denied combination(s)?',
                 () => this.allowCombination(selected)
             );
         }

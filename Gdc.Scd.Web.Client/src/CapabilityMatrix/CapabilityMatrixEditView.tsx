@@ -3,7 +3,8 @@ import { Container, Button, CheckBoxField, ComboBoxField, Checkbox } from "@extj
 import { CapabilityMatrixMultiSelect } from "./Components/CapabilityMatrixMultiSelect";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { NamedId } from "../Common/States/CommonStates";
-import * as srv from "./fakes/FakeCapabilityMatrixServices";
+import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService"
+import { MatrixFactory } from "./Services/MatrixFactory";
 
 const selectMaxH: string = '260px';
 
@@ -28,6 +29,8 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
     private masterPort: CheckBoxField;
 
     private corePort: CheckBoxField;
+
+    private srv: ICapabilityMatrixService;
 
     public constructor(props: any) {
         super(props);
@@ -79,13 +82,13 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
 
     public componentDidMount() {
         Promise.all([
-            srv.getCountries(),
-            srv.getWG(),
-            srv.getAvailabilityTypes(),
-            srv.getDurationTypes(),
-            srv.getReactTypes(),
-            srv.getReactionTimeTypes(),
-            srv.getServiceLocationTypes()
+            this.srv.getCountries(),
+            this.srv.getWG(),
+            this.srv.getAvailabilityTypes(),
+            this.srv.getDurationTypes(),
+            this.srv.getReactTypes(),
+            this.srv.getReactionTimeTypes(),
+            this.srv.getServiceLocationTypes()
         ]).then(x => {
             this.setState({
                 countries: x[0],
@@ -111,6 +114,8 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
     }
 
     private init() {
+        this.srv = MatrixFactory.getMatrixService();
+        //
         this.onCountryChange = this.onCountryChange.bind(this);
         this.onAllow = this.onAllow.bind(this);
         this.onDeny = this.onDeny.bind(this);
