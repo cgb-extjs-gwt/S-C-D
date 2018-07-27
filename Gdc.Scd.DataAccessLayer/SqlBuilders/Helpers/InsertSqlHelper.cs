@@ -1,4 +1,6 @@
-﻿using Gdc.Scd.DataAccessLayer.Entities;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
@@ -56,6 +58,24 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             var rows = this.ConvertToTable(values);
 
             return this.Values(rows);
+        }
+
+        public SqlHelper Values(IEnumerable<object[]> rows)
+        {
+            var rowArray = rows.ToArray();
+            var valueArray = new object[rowArray.Length, rows.Max(arr => arr.Length)];
+
+            for (var rowIndex = 0; rowIndex < rowArray.Length; rowIndex++)
+            {
+                var row = rowArray[rowIndex];
+
+                for (var columnIndex = 0; columnIndex < row.Length; columnIndex++)
+                {
+                    valueArray[rowIndex, columnIndex] = row[columnIndex];
+                }
+            }
+
+            return this.Values(valueArray);
         }
 
         public SqlHelper Query(ISqlBuilder query)

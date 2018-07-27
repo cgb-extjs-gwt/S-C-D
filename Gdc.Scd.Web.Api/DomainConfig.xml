@@ -311,7 +311,7 @@
       </Elements>
     </Block>-->
 
-    <Block Name="ProActive " Caption="ProActive">
+    <Block Name="ProActive" Caption="ProActive">
       <Applications>
         <Application>Hardware</Application>
         <Application>SoftwareSolution</Application>

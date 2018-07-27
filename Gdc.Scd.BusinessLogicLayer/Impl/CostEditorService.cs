@@ -19,14 +19,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly DomainEnitiesMeta domainEnitiesMeta;
 
+        private readonly ICostBlockHistoryService historySevice;
+
         public CostEditorService(
             ICostEditorRepository costEditorRepository,
-            ISqlRepository sqlRepository, 
+            ISqlRepository sqlRepository,
+            ICostBlockHistoryService historySevice,
             DomainMeta meta,
             DomainEnitiesMeta domainEnitiesMeta)
         {
             this.costEditorRepository = costEditorRepository;
             this.sqlRepository = sqlRepository;
+            this.historySevice = historySevice;
             this.meta = meta;
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
@@ -70,8 +74,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             IEnumerable<NamedId> referenceValues = null;
 
             var costBlock = (CostBlockEntityMeta)this.domainEnitiesMeta.GetEntityMeta(context.CostBlockId, context.ApplicationId);
-            var field = costBlock.CostElementsFields[context.CostElementId] as ReferenceFieldMeta;
-            if (field != null)
+            if (costBlock.CostElementsFields[context.CostElementId] is ReferenceFieldMeta field)
             {
                 referenceValues = await this.sqlRepository.GetNameIdItems(field.ReferenceMeta, field.ReferenceValueField, field.ReferenceFaceField);
             }
@@ -95,8 +98,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var editItemInfo = this.GetEditItemInfo(context);
             var filter = this.GetFilter(context);
-                
-            return await this.costEditorRepository.UpdateValues(editItems, editItemInfo, filter);
+
+            var result = await this.costEditorRepository.UpdateValues(editItems, editItemInfo, filter);
+
+            await this.historySevice.Save(context, editItems);
+
+            return result;
         }
 
         private IDictionary<string, IEnumerable<object>> GetRegionFilter(CostEditorContext context)

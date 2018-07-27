@@ -27,71 +27,57 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<IEnumerable<EditItem>> GetEditItems(EditItemInfo editItemInfo, IDictionary<string, IEnumerable<object>> filter = null)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetEntityMeta(editItemInfo.EntityName, editItemInfo.Schema);
-            var nameField = costBlockMeta.GetField(editItemInfo.NameField);
+            var costBlockMeta = (CostBlockEntityMeta)this.domainEnitiesMeta.GetEntityMeta(editItemInfo.EntityName, editItemInfo.Schema);
+            var nameField = costBlockMeta.InputLevelFields[editItemInfo.NameField];
 
-            var selectColumns = new List<BaseColumnInfo>
+            var nameColumn = new ColumnInfo(nameField.ReferenceFaceField, nameField.ReferenceMeta.Name);
+            var nameIdColumn = new ColumnInfo(nameField.ReferenceValueField, nameField.ReferenceMeta.Name);
+            var maxValueColumn = SqlFunctions.Max(editItemInfo.ValueField, costBlockMeta.Name);
+            var countColumn = SqlFunctions.Count(editItemInfo.ValueField, true, costBlockMeta.Name);
+
+            var query = 
+                Sql.Select(nameIdColumn, nameColumn, maxValueColumn, countColumn)
+                   .From(costBlockMeta)
+                   .Join(costBlockMeta, nameField.Name)
+                   .Where(filter, costBlockMeta.Name)
+                   .GroupBy(nameColumn, nameIdColumn);
+
+
+            return await this.repositorySet.ReadBySql(query, reader => 
             {
-                SqlFunctions.Max(editItemInfo.ValueField, costBlockMeta.Name),
-                SqlFunctions.Count(editItemInfo.ValueField, true, costBlockMeta.Name)
-            };
+                var valueCount = reader.GetInt32(3);
 
-            ColumnInfo[] groupByColumns;
-            Func<SqlHelper, Task<IEnumerable<EditItem>>> readEditItemsFn;
-
-            var nameRefField = nameField as ReferenceFieldMeta;
-            if (nameRefField == null)
-            {
-                var nameColumn = new ColumnInfo(editItemInfo.NameField, costBlockMeta.Name);
-                groupByColumns = new[] { nameColumn };
-                readEditItemsFn = this.ReadSimpleEditItems;
-
-                selectColumns.Add(nameColumn);
-            }
-            else
-            {
-                var nameColumn = new ColumnInfo(nameRefField.ReferenceFaceField, nameRefField.ReferenceMeta.Name);
-                groupByColumns = new[] 
+                return new EditItem
                 {
-                    new ColumnInfo(nameRefField.ReferenceValueField, nameRefField.ReferenceMeta.Name),
-                    nameColumn
+                    Id = reader.GetInt64(0),
+                    Name = reader.GetString(1),
+                    Value = valueCount == 1 ? reader.GetValue(2) : null,
+                    ValueCount = valueCount,
                 };
-                readEditItemsFn = this.ReadReferenceEditItems;
-
-                selectColumns.Add(nameColumn);
-                selectColumns.Add(new ColumnInfo(nameRefField.ReferenceValueField, nameRefField.ReferenceMeta.Name));
-            }
-
-            var fromQuery = Sql.Select(selectColumns.ToArray()).From(costBlockMeta);
-
-            var query = nameRefField == null 
-                    ? (IWhereSqlHelper<IGroupBySqlHelper<SqlHelper>>)fromQuery 
-                    : fromQuery.Join(costBlockMeta, nameRefField.Name);
-
-            var resultQuery = query.Where(filter, costBlockMeta.Name).GroupBy(groupByColumns);
-
-            return await readEditItemsFn(resultQuery);
+            });
         }
 
         public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo, IDictionary<string, IEnumerable<object>> filter = null)
         {
-            var costBlockMeta = this.domainEnitiesMeta.GetEntityMeta(editItemInfo.EntityName, editItemInfo.Schema);
-            var nameField = costBlockMeta.GetField(editItemInfo.NameField);
+            var costBlockMeta = (CostBlockEntityMeta)this.domainEnitiesMeta.GetEntityMeta(editItemInfo.EntityName, editItemInfo.Schema);
+            var nameField = costBlockMeta.InputLevelFields[editItemInfo.NameField];
 
-            Func<EditItem, int, SqlHelper> queryFn;
+            //Func<EditItem, int, SqlHelper> queryFn;
 
-            var nameRefField = nameField as ReferenceFieldMeta;
-            if (nameRefField == null)
-            {
-                queryFn = (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo, index, editItem.Name, filter);
-            }
-            else
-            {
-                queryFn = (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo, index, editItem.Id, filter);
-            }
+            //var nameRefField = nameField as ReferenceFieldMeta;
+            //if (nameRefField == null)
+            //{
+            //    queryFn = (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo, index, editItem.Name, filter);
+            //}
+            //else
+            //{
+            //    queryFn = (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo, index, editItem.Id, filter);
+            //}
 
-            var query = Sql.Queries(editItems.Select(queryFn));
-
+            var query = 
+                Sql.Queries(
+                    editItems.Select(
+                        (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo, index, filter)));
 
             return await this.repositorySet.ExecuteSqlAsync(query);
         }
@@ -100,7 +86,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             EditItem editItem,
             EditItemInfo editItemInfo, 
             int index, 
-            object value, 
             IDictionary<string, IEnumerable<object>> filter = null)
         {
             var updateColumn = new ValueUpdateColumnInfo(
@@ -115,7 +100,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     new CommandParameterInfo
                     {
                         Name = $"{editItemInfo.NameField}_{index}",
-                        Value = value
+                        Value = editItem.Id
                     }
                 }
             };
@@ -124,41 +109,46 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                       .Where(filter);
         }
 
-        private async Task<IEnumerable<EditItem>> ReadSimpleEditItems(SqlHelper query)
-        {
-            var editItems = await this.repositorySet.ReadBySql(query, this.BuildSimpleEditItem);
+        //private async Task<IEnumerable<EditItem>> ReadSimpleEditItems(SqlHelper query)
+        //{
+        //    var editItems = await this.repositorySet.ReadBySql(query, this.BuildSimpleEditItem);
 
-            return editItems.Select((editItem, index) =>
-            {
-                editItem.Id = index;
+        //    return editItems.Select((editItem, index) =>
+        //    {
+        //        editItem.Id = index;
 
-                return editItem;
-            });
-        }
+        //        return editItem;
+        //    });
+        //}
 
-        private async Task<IEnumerable<EditItem>> ReadReferenceEditItems(SqlHelper query)
-        {
-            return await this.repositorySet.ReadBySql(query, this.BuildReferenceEditItem);
-        }
+        //private async Task<IEnumerable<EditItem>> ReadReferenceEditItems(SqlHelper query)
+        //{
+        //    return await this.repositorySet.ReadBySql(query, this.BuildReferenceEditItem);
+        //}
 
-        private EditItem BuildSimpleEditItem(IDataReader reader)
-        {
-            var valueCount = reader.GetInt32(1);
+        //private EditItem BuildSimpleEditItem(IDataReader reader)
+        //{
+        //    var valueCount = reader.GetInt32(1);
 
-            return new EditItem
-            {
-                Value = valueCount == 1 ? reader.GetValue(0) : null,
-                ValueCount = valueCount,
-                Name = reader[2].ToString(),
-            };
-        }
+        //    return new EditItem
+        //    {
+        //        Value = valueCount == 1 ? reader.GetValue(0) : null,
+        //        ValueCount = valueCount,
+        //        Name = reader[2].ToString(),
+        //    };
+        //}
 
-        private EditItem BuildReferenceEditItem(IDataReader reader)
-        {
-            var editItem = this.BuildSimpleEditItem(reader);
-            editItem.Id = reader.GetInt64(3);
+        //private EditItem BuildReferenceEditItem(IDataReader reader)
+        //{
+        //    var valueCount = reader.GetInt32(3);
 
-            return editItem;
-        }
+        //    return new EditItem
+        //    {
+        //        Id = reader.GetInt64(0),
+        //        Name = reader.GetString(1),
+        //        Value = valueCount == 1 ? reader.GetValue(3) : null,
+        //        ValueCount = valueCount,
+        //    };
+        //}
     }
 }

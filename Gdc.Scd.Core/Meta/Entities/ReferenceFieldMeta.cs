@@ -6,30 +6,41 @@ namespace Gdc.Scd.Core.Meta.Entities
     {
         public BaseEntityMeta ReferenceMeta { get; }
 
-        public string ReferenceValueField { get; set; }
+        public string ReferenceValueField { get; private set; }
 
         public string ReferenceFaceField { get; set; }
 
-        public SimpleFieldMeta ForeignField { get; }
+        public bool IsNullOption { get; set; }
 
-        public ReferenceFieldMeta(string name, BaseEntityMeta referenceMeta, SimpleFieldMeta foreignField) 
+        //public SimpleFieldMeta ForeignField { get; }
+
+        //public ReferenceFieldMeta(string name, BaseEntityMeta referenceMeta, SimpleFieldMeta foreignField) 
+        //    : base(name)
+        //{
+        //    this.ReferenceMeta = referenceMeta;
+        //    this.ForeignField = foreignField;
+        //}
+
+        public ReferenceFieldMeta(string name, BaseEntityMeta referenceMeta, string referenceValueField)
             : base(name)
         {
             this.ReferenceMeta = referenceMeta;
-            this.ForeignField = foreignField;
-        }
-
-        public ReferenceFieldMeta(string name, BaseEntityMeta referenceMeta)
-            : this(name, referenceMeta, new SimpleFieldMeta(name, TypeCode.Int64))
-        {
+            this.ReferenceValueField = referenceValueField;
         }
 
         public static ReferenceFieldMeta Build(string name,  NamedEntityMeta referenceMeta)
         {
-            return new ReferenceFieldMeta(name, referenceMeta)
+            return new ReferenceFieldMeta(name, referenceMeta, referenceMeta.IdField.Name)
             {
-                ReferenceValueField = referenceMeta.IdField.Name,
                 ReferenceFaceField = referenceMeta.NameField.Name,
+            };
+        }
+
+        public override object Clone()
+        {
+            return new ReferenceFieldMeta(this.Name, this.ReferenceMeta, this.ReferenceValueField)
+            {
+                ReferenceFaceField = this.ReferenceFaceField,
             };
         }
     }

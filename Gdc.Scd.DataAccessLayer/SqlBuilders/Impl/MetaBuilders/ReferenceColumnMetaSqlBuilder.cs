@@ -11,7 +11,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
 
         protected override bool IsNullOption()
         {
-            return false;
+            return this.Field.IsNullOption;
         }
     }
 }

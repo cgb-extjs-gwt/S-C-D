@@ -5,7 +5,7 @@ using Gdc.Scd.Core.Meta.Interfaces;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
-    public class FieldMeta : IMetaIdentifialble
+    public abstract class FieldMeta : IMetaIdentifialble, ICloneable
     {
         public string Name { get; private set; }
 
@@ -15,5 +15,7 @@ namespace Gdc.Scd.Core.Meta.Entities
         {
             this.Name = name;
         }
+
+        public abstract object Clone();
     }
 }
