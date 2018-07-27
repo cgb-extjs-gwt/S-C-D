@@ -24,7 +24,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public void Dispose()
         {
-            this.transaction.Rollback();
+            this.transaction.Dispose();
         }
     }
 }
