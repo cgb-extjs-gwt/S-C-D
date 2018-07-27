@@ -1,5 +1,6 @@
 ﻿import * as React from "react";
 import { Container, Label, List } from "@extjs/ext-react";
+import { ExtDataviewHelper } from "../../Common/Helpers/ExtDataviewHelper";
 
 export interface CapabilityMatrixMultiSelectProps {
 
@@ -46,14 +47,7 @@ export class CapabilityMatrixMultiSelect extends React.Component<CapabilityMatri
     }
 
     public getSelected<T>(): T[] {
-        let selected: any[] = this.lst.getSelections();
-        let result: T[] = [];
-
-        for (let i = 0, len = selected.length; i < len; i++) {
-            result[i] = selected[i].data as T;
-        }
-
-        return result;
+        return ExtDataviewHelper.getListSelected(this);
     }
 
 }
