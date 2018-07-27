@@ -1,42 +1,42 @@
-﻿using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.DataAccessLayer.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
     public class EntityFrameworkRepository<T> : IRepository<T> where T : class, IIdentifiable, new()
     {
-        protected DbContext dbContext;
+        protected readonly EntityFrameworkRepositorySet repositorySet;
 
-        public void SetDbContext(DbContext dbContext)
+        public EntityFrameworkRepository(EntityFrameworkRepositorySet repositorySet)
         {
-            this.dbContext = dbContext;
+            this.repositorySet = repositorySet;
         }
 
-        public T Get(long id)
+        public virtual T Get(long id)
         {
             return this.GetAll().FirstOrDefault(item => item.Id == id);
         }
 
-        public IQueryable<T> GetAll()
+        public virtual IQueryable<T> GetAll()
         {
-            return this.dbContext.Set<T>();
+            return this.repositorySet.Set<T>();
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return await this.dbContext.Set<T>().ToArrayAsync();
+            return await this.repositorySet.Set<T>().ToArrayAsync();
         }
 
-        public void Save(T item)
+        public virtual void Save(T item)
         {
-            this.SetAddOrUpdateState(item);
+            this.AddOrUpdate(item);
         }
 
-        public void Save(IEnumerable<T> items)
+        public virtual void Save(IEnumerable<T> items)
         {
             foreach (var item in items)
             {
@@ -44,7 +44,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
         }
 
-        public void Delete(long id)
+        public virtual void Delete(long id)
         {
             var item = new T
             {
@@ -56,9 +56,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         protected void SetAddOrUpdateState<TItem>(TItem item) where TItem : class, IIdentifiable
         {
-            var entry = this.dbContext.Entry(item);
+            var entry = this.repositorySet.Entry(item);
 
-            if (item.Id == 0)
+            if (this.IsNewItem(item))
             {
                 entry.State = EntityState.Added;
             }
@@ -68,11 +68,38 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
         }
 
+        protected void SetAddOrUpdateStateCollection<TItem>(IEnumerable<TItem> items) where TItem : class, IIdentifiable
+        {
+            foreach (var item in items)
+            {
+                this.SetAddOrUpdateState(item);
+            }
+        }
+
         protected void SetDeleteState<TItem>(TItem item) where TItem : class, IIdentifiable
         {
-            var entry = this.dbContext.Entry(item);
+            var entry = this.repositorySet.Entry(item);
 
             entry.State = EntityState.Deleted;
+        }
+
+        protected bool IsNewItem<TItem>(TItem item) where TItem : class, IIdentifiable
+        {
+            return item.Id == default(long);
+        }
+
+        protected void AddOrUpdate<TItem>(TItem item) where TItem : class, IIdentifiable
+        {
+            var set = this.repositorySet.Set<TItem>();
+
+            if (this.IsNewItem(item))
+            {
+                set.Add(item);
+            }
+            else
+            {
+                set.Update(item);
+            }
         }
     }
 }
