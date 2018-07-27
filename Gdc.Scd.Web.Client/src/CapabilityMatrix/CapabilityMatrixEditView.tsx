@@ -1,6 +1,6 @@
 ﻿import * as React from "react";
 import { Container, Button, CheckBoxField, ComboBoxField, Checkbox } from "@extjs/ext-react";
-import { CapabilityMatrixMultiSelect } from "./Components/CapabilityMatrixMultiSelect";
+import { MultiSelect } from "./Components/MultiSelect";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { NamedId } from "../Common/States/CommonStates";
 import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService"
@@ -12,17 +12,17 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
 
     private country: ComboBoxField;
 
-    private wg: CapabilityMatrixMultiSelect;
+    private wg: MultiSelect;
 
-    private avail: CapabilityMatrixMultiSelect;
+    private avail: MultiSelect;
 
-    private dur: CapabilityMatrixMultiSelect;
+    private dur: MultiSelect;
 
-    private reacttype: CapabilityMatrixMultiSelect;
+    private reacttype: MultiSelect;
 
-    private reacttime: CapabilityMatrixMultiSelect;
+    private reacttime: MultiSelect;
 
-    private srvloc: CapabilityMatrixMultiSelect;
+    private srvloc: MultiSelect;
 
     private globPort: CheckBoxField;
 
@@ -57,12 +57,12 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
                 />
 
                 <Container layout="hbox">
-                    <CapabilityMatrixMultiSelect ref="wg" maxHeight={selectMaxH} title="Asset(WG)" itemTpl="{name}" store={this.state.warrantyGroups} />
-                    <CapabilityMatrixMultiSelect ref="availability" maxHeight={selectMaxH} title="Availability" itemTpl="{name}" store={this.state.availabilityTypes} />
-                    <CapabilityMatrixMultiSelect ref="duration" maxHeight={selectMaxH} title="Duration" itemTpl="{name}" store={this.state.durationTypes} />
-                    <CapabilityMatrixMultiSelect ref="reactType" maxHeight={selectMaxH} title="React type" itemTpl="{name}" store={this.state.reactTypes} />
-                    <CapabilityMatrixMultiSelect ref="reactTime" maxHeight={selectMaxH} title="Reaction time" itemTpl="{name}" store={this.state.reactionTimeTypes} />
-                    <CapabilityMatrixMultiSelect ref="srvLoc" maxHeight={selectMaxH} title="Service location" itemTpl="{name}" store={this.state.serviceLocationTypes} />
+                    <MultiSelect ref="wg" maxHeight={selectMaxH} title="Asset(WG)" itemTpl="{name}" store={this.state.warrantyGroups} />
+                    <MultiSelect ref="availability" maxHeight={selectMaxH} title="Availability" itemTpl="{name}" store={this.state.availabilityTypes} />
+                    <MultiSelect ref="duration" maxHeight={selectMaxH} title="Duration" itemTpl="{name}" store={this.state.durationTypes} />
+                    <MultiSelect ref="reactType" maxHeight={selectMaxH} title="React type" itemTpl="{name}" store={this.state.reactTypes} />
+                    <MultiSelect ref="reactTime" maxHeight={selectMaxH} title="Reaction time" itemTpl="{name}" store={this.state.reactionTimeTypes} />
+                    <MultiSelect ref="srvLoc" maxHeight={selectMaxH} title="Service location" itemTpl="{name}" store={this.state.serviceLocationTypes} />
                 </Container>
 
                 <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio }}>
@@ -102,12 +102,12 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
         });
         //
         this.country = this.refs['country'] as ComboBoxField;
-        this.wg = this.refs['wg'] as CapabilityMatrixMultiSelect;
-        this.avail = this.refs['availability'] as CapabilityMatrixMultiSelect;
-        this.dur = this.refs['duration'] as CapabilityMatrixMultiSelect;
-        this.reacttype = this.refs['reactType'] as CapabilityMatrixMultiSelect;
-        this.reacttime = this.refs['reactTime'] as CapabilityMatrixMultiSelect;
-        this.srvloc = this.refs['srvLoc'] as CapabilityMatrixMultiSelect;
+        this.wg = this.refs['wg'] as MultiSelect;
+        this.avail = this.refs['availability'] as MultiSelect;
+        this.dur = this.refs['duration'] as MultiSelect;
+        this.reacttype = this.refs['reactType'] as MultiSelect;
+        this.reacttime = this.refs['reactTime'] as MultiSelect;
+        this.srvloc = this.refs['srvLoc'] as MultiSelect;
         this.globPort = this.refs['globPort'] as CheckBoxField;
         this.masterPort = this.refs['masterPort'] as CheckBoxField;
         this.corePort = this.refs['corePort'] as CheckBoxField;

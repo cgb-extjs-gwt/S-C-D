@@ -1,12 +1,10 @@
 ﻿import * as React from "react";
-import { Container, Label, Button, Grid, Column, Toolbar, CheckColumn, BooleanColumn } from "@extjs/ext-react";
+import { Container, Button, Grid, Column, Toolbar } from "@extjs/ext-react";
 import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService";
 import { MatrixFactory } from "./Services/MatrixFactory";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
-
-const TRUE_SIGN: string = "YES"
-const FALSE_SIGN: string = "NO";
+import { ReadonlyCheckColumn } from "./Components/ReadonlyCheckColumn";
 
 export class CapabilityMatrixView extends React.Component<any, any> {
 
@@ -39,9 +37,9 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     <Column flex="1" text="Reaction type" dataIndex="reactType" />
                     <Column flex="1" text="Reaction time" dataIndex="reactionTime" />
                     <Column flex="1" text="Service location" dataIndex="serviceLocation" />
-                    <CheckColumn flex="1" disabled={true} headerCheckbox={false} text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
-                    <CheckColumn flex="1" disabled={true} headerCheckbox={false} text="Master portfolio" dataIndex="isMasterPortfolio" />
-                    <CheckColumn flex="1" disabled={true} headerCheckbox={false} text="Core portfolio" dataIndex="isCorePortfolio" />
+                    <ReadonlyCheckColumn flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
+                    <ReadonlyCheckColumn flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
+                    <ReadonlyCheckColumn flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
 
                 <Grid ref="allowed" store={this.state.allowed} width="100%" minHeight="45%" title="Allowed combinations" selectable={false}>
@@ -52,9 +50,9 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     <Column flex="1" text="Reaction type" dataIndex="reactType" />
                     <Column flex="1" text="Reaction time" dataIndex="reactionTime" />
                     <Column flex="1" text="Service location" dataIndex="serviceLocation" />
-                    <CheckColumn flex="1" disabled={true} headerCheckbox={false} text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
-                    <CheckColumn flex="1" disabled={true} headerCheckbox={false} text="Master portfolio" dataIndex="isMasterPortfolio" />
-                    <CheckColumn flex="1" disabled={true} headerCheckbox={false} text="Core portfolio" dataIndex="isCorePortfolio" />
+                    <ReadonlyCheckColumn flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
+                    <ReadonlyCheckColumn flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
+                    <ReadonlyCheckColumn flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
 
             </Container>

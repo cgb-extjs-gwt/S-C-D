@@ -2,7 +2,7 @@
 import { Container, Label, List } from "@extjs/ext-react";
 import { ExtDataviewHelper } from "../../Common/Helpers/ExtDataviewHelper";
 
-export interface CapabilityMatrixMultiSelectProps {
+export interface MultiSelectProps {
 
     width?: string;
 
@@ -19,7 +19,7 @@ export interface CapabilityMatrixMultiSelectProps {
     store: any;
 }
 
-export class CapabilityMatrixMultiSelect extends React.Component<CapabilityMatrixMultiSelectProps> {
+export class MultiSelect extends React.Component<MultiSelectProps> {
 
     private lst: List;
 
