@@ -1,5 +1,7 @@
-﻿using Gdc.Scd.Core.Interfaces;
+﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders;
@@ -16,6 +18,7 @@ namespace Gdc.Scd.DataAccessLayer
             services.AddScoped<IRepositorySet>(serviceProvider => serviceProvider.GetService<EntityFrameworkRepositorySet>());
             services.AddScoped<ISqlRepository, SqlRepository>();
             services.AddScoped<ICostEditorRepository, CostEditorRepository>();
+            services.AddScoped<ICostBlockValueHistoryRepository, CostBlockValueHistoryRepository>();
 
             services.AddTransient<BaseColumnMetaSqlBuilder<IdFieldMeta>, IdColumnMetaSqlBuilder>();
             services.AddTransient<BaseColumnMetaSqlBuilder<SimpleFieldMeta>, SimpleColumnMetaSqlBuilder>();
@@ -24,6 +27,8 @@ namespace Gdc.Scd.DataAccessLayer
             services.AddTransient<DatabaseMetaSqlBuilder>();
             services.AddTransient<IConfigureApplicationHandler, DatabaseCreationHandler>();
             services.AddTransient<ICustomConfigureTableHandler, ReactionTableConfigureHandler>();
+
+            services.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(HistoryContext), nameof(CostBlockHistory.Context)));
         }
     }
 }

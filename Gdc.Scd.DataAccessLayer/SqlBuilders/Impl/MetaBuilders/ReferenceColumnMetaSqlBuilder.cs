@@ -8,10 +8,5 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
         {
             return "[bigint]";
         }
-
-        protected override bool IsNullOption()
-        {
-            return this.Field.IsNullOption;
-        }
     }
 }

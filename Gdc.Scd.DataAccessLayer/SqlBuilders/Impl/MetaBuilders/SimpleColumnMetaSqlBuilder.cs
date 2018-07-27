@@ -29,10 +29,5 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
 
             return result;
         }
-
-        protected override bool IsNullOption()
-        {
-            return true;
-        }
     }
 }

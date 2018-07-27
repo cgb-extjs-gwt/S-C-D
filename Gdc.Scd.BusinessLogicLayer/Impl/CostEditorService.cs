@@ -21,10 +21,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly ICostBlockHistoryService historySevice;
 
+        private readonly IRepositorySet repositorySet;
+
         public CostEditorService(
             ICostEditorRepository costEditorRepository,
             ISqlRepository sqlRepository,
             ICostBlockHistoryService historySevice,
+            IRepositorySet repositorySet,
             DomainMeta meta,
             DomainEnitiesMeta domainEnitiesMeta)
         {
@@ -33,6 +36,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.historySevice = historySevice;
             this.meta = meta;
             this.domainEnitiesMeta = domainEnitiesMeta;
+            this.repositorySet = repositorySet;
         }
 
         public async Task<IEnumerable<NamedId>> GetCostElementFilterItems(CostEditorContext context)
@@ -99,11 +103,25 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var editItemInfo = this.GetEditItemInfo(context);
             var filter = this.GetFilter(context);
 
-            var result = await this.costEditorRepository.UpdateValues(editItems, editItemInfo, filter);
+            using (var transaction = this.repositorySet.GetTransaction())
+            {
+                try
+                {
+                    var result = await this.costEditorRepository.UpdateValues(editItems, editItemInfo, filter);
 
-            await this.historySevice.Save(context, editItems);
+                    await this.historySevice.Save(context, editItems);
 
-            return result;
+                    transaction.Commit();
+
+                    return result;
+                }
+                catch
+                {
+                    transaction.Rollback();
+
+                    throw;
+                }
+            }
         }
 
         private IDictionary<string, IEnumerable<object>> GetRegionFilter(CostEditorContext context)

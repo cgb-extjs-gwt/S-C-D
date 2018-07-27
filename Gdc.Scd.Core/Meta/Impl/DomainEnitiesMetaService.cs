@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Gdc.Scd.Core.Meta.Constants;
@@ -133,7 +132,10 @@ namespace Gdc.Scd.Core.Meta.Impl
 
             if (field == null)
             {
-                field = new SimpleFieldMeta(costElementMeta.Id, TypeCode.Double);
+                field = new SimpleFieldMeta(costElementMeta.Id, TypeCode.Double)
+                {
+                    IsNullOption = true
+                };
             }
 
             costBlockEntity.CostElementsFields.Add(field);
@@ -149,20 +151,18 @@ namespace Gdc.Scd.Core.Meta.Impl
                     IdFieldMeta.DefaultId)
             };
 
-            var costElementsFields = costBlock.CostElementsFields.Select(field => field.Clone()).Cast<FieldMeta>();
-            costBlock.HistoryMeta.CostElementsFields.AddRange(costElementsFields);
+            this.CopyFields(costBlock.InputLevelFields, costBlock.HistoryMeta.InputLevelFields);
+            this.CopyFields(costBlock.DependencyFields, costBlock.HistoryMeta.DependencyFields);
+            this.CopyFields(costBlock.CostElementsFields, costBlock.HistoryMeta.CostElementsFields);
 
-            //costBlock.HistoryMeta.RelatedInputLevelMetas.AddRange(
-            //    this.BuildRelatedItemsHistoryEntityMetas(costBlock.InputLevelFields, domainEnitiesMeta.CostBlockHistory));
+            var fields =
+                costBlock.HistoryMeta.InputLevelFields.Concat(costBlock.HistoryMeta.DependencyFields)
+                                                      .Concat(costBlock.HistoryMeta.CostElementsFields);
 
-            //costBlock.HistoryMeta.RelatedDependencyMetas.AddRange(
-            //    this.BuildRelatedItemsHistoryEntityMetas(costBlock.DependencyFields, domainEnitiesMeta.CostBlockHistory));
-
-            //costBlock.HistoryMeta.RelatedMetas.AddRange(
-            //    this.BuildRelatedItemsHistoryEntityMetas(costBlock.InputLevelFields, domainEnitiesMeta.CostBlockHistory));
-
-            //costBlock.HistoryMeta.RelatedMetas.AddRange(
-            //    this.BuildRelatedItemsHistoryEntityMetas(costBlock.DependencyFields, domainEnitiesMeta.CostBlockHistory));
+            foreach (var referenceField in fields)
+            {
+                referenceField.IsNullOption = true;
+            }
 
             foreach (var field in costBlock.InputLevelFields.Concat(costBlock.DependencyFields))
             {
@@ -188,16 +188,11 @@ namespace Gdc.Scd.Core.Meta.Impl
             }
         }
 
-        //private IEnumerable<RelatedItemsHistoryEntityMeta> BuildRelatedItemsHistoryEntityMetas(IEnumerable<ReferenceFieldMeta> fields, BaseEntityMeta costBlockHistory)
-        //{
-        //    return fields.Select(field => new RelatedItemsHistoryEntityMeta(field.Name, MetaConstants.HistoryRelatedItemsSchema)
-        //    {
-        //        CostBlockHistoryField = new ReferenceFieldMeta(MetaConstants.CostBlockHistoryTableName, costBlockHistory),
-        //        RelatedItemField = new ReferenceFieldMeta(field.Name, field.ReferenceMeta)
-        //        {
-        //            IsNullOption = true
-        //        }
-        //    });
-        //}
+        private void CopyFields<T>(IEnumerable<T> fromCollection, MetaCollection<T> toCollection) where T : FieldMeta
+        {
+            var fields = fromCollection.Select(field => field.Clone()).Cast<T>();
+
+            toCollection.AddRange(fields);
+        }
     }
 }

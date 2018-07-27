@@ -32,9 +32,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.Database.SetCommandTimeout(600);
         }
 
-        public ITransaction BeginTransaction()
+        public ITransaction GetTransaction()
         {
-            var transaction = this.Database.BeginTransaction();
+            var transaction = this.Database.CurrentTransaction ?? this.Database.BeginTransaction();
 
             return new EntityFrameworkTransaction(transaction);
         }
@@ -151,7 +151,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 var commandParameter = command.CreateParameter();
 
                 commandParameter.ParameterName = paramInfo.Name;
-                commandParameter.Value = paramInfo.Value;
+                commandParameter.Value = paramInfo.Value ?? DBNull.Value;
 
                 if (paramInfo.Type.HasValue)
                 {

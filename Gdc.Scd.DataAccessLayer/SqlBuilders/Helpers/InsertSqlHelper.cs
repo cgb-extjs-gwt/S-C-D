@@ -29,8 +29,13 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return this.Values(rows);
         }
 
-        public SqlHelper Values(object[,] values)
+        public SqlHelper Values(object[,] values, string paramPrefix = null)
         {
+            if (string.IsNullOrEmpty(paramPrefix))
+            {
+                paramPrefix = "param";
+            }
+
             var rowLength = values.GetLength(0);
             var columnLength = values.GetLength(1);
             var parameters = new ParameterSqlBuilder[rowLength, columnLength];
@@ -43,7 +48,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     {
                         ParamInfo = new CommandParameterInfo
                         {
-                            Name = $"param_{rowIndex}_{columnIndex}",
+                            Name = $"{paramPrefix}_{rowIndex}_{columnIndex}",
                             Value = values[rowIndex, columnIndex]
                         }
                     };
@@ -60,7 +65,14 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return this.Values(rows);
         }
 
-        public SqlHelper Values(IEnumerable<object[]> rows)
+        public SqlHelper Values(string paramPrefix, params object[] values)
+        {
+            var rows = this.ConvertToTable(values);
+
+            return this.Values(rows, paramPrefix);
+        }
+
+        public SqlHelper Values(IEnumerable<object[]> rows, string paramPrefix = null)
         {
             var rowArray = rows.ToArray();
             var valueArray = new object[rowArray.Length, rows.Max(arr => arr.Length)];
@@ -75,7 +87,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 }
             }
 
-            return this.Values(valueArray);
+            return this.Values(valueArray, paramPrefix);
         }
 
         public SqlHelper Query(ISqlBuilder query)

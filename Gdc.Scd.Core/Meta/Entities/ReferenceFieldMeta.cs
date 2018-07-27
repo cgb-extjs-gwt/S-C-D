@@ -10,17 +10,6 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public string ReferenceFaceField { get; set; }
 
-        public bool IsNullOption { get; set; }
-
-        //public SimpleFieldMeta ForeignField { get; }
-
-        //public ReferenceFieldMeta(string name, BaseEntityMeta referenceMeta, SimpleFieldMeta foreignField) 
-        //    : base(name)
-        //{
-        //    this.ReferenceMeta = referenceMeta;
-        //    this.ForeignField = foreignField;
-        //}
-
         public ReferenceFieldMeta(string name, BaseEntityMeta referenceMeta, string referenceValueField)
             : base(name)
         {

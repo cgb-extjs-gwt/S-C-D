@@ -18,7 +18,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
 
         public virtual string Build(SqlBuilderContext context)
         {
-            var nullOption = this.IsNullOption() ? "NULL" : "NOT NULL";
+            var nullOption = this.Field.IsNullOption ? "NULL" : "NOT NULL";
 
             return $"[{this.Field.Name}] {this.BuildType()} {nullOption}";
         }
@@ -29,7 +29,5 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
         }
 
         protected abstract string BuildType();
-
-        protected abstract bool IsNullOption();
     }
 }

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
@@ -21,15 +19,19 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.repositorySet = repositorySet;
         }
 
-        public Task Save(CostBlockHistory history, IEnumerable<EditItem> editItems, IDictionary<string, long[]> relatedItems)
+        public async Task Save(CostBlockHistory history, IEnumerable<EditItem> editItems, IDictionary<string, long[]> relatedItems)
         {
             var costBlockMeta = (CostBlockEntityMeta)this.domainEnitiesMeta.GetEntityMeta(history.Context.CostBlockId, history.Context.ApplicationId);
 
-            var values = editItems.Select(editItem => new object[] { editItem.Id, editItem.Value });
+            var values = editItems.Select(editItem => new object[] { history.Id, editItem.Id, editItem.Value });
 
             var insertValueQuery =
-                Sql.Insert(costBlockMeta.HistoryMeta, history.Context.InputLevelId, history.Context.CostElementId)
-                   .Values(values);
+                Sql.Insert(
+                    costBlockMeta.HistoryMeta, 
+                    costBlockMeta.HistoryMeta.CostBlockHistoryField.Name, 
+                    history.Context.InputLevelId, 
+                    history.Context.CostElementId)
+                   .Values(values, "history");
 
             var insertRelatedItemsQueries = new List<SqlHelper>();
 
@@ -45,11 +47,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 {
                     var relatedItemsInsertValues = relatedItemIds.Select(relatedItemId => new[] { history.Id, relatedItemId });
 
-                    insertRelatedItemsQueries.Add(insertQuery.Values(relatedItemsInsertValues));
+                    insertRelatedItemsQueries.Add(insertQuery.Values(relatedMeta.Name, relatedItemsInsertValues));
                 }
                 else
                 {
-                    insertRelatedItemsQueries.Add(insertQuery.Values(history.Id, null));
+                    insertRelatedItemsQueries.Add(insertQuery.Values(relatedMeta.Name, history.Id, null));
                 }
             }
 
@@ -58,7 +60,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 insertValueQuery
             };
 
-            return this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
+            await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
         }
     }
 }

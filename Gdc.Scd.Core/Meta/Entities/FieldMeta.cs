@@ -16,6 +16,8 @@ namespace Gdc.Scd.Core.Meta.Entities
             this.Name = name;
         }
 
+        public bool IsNullOption { get; set; }
+
         public abstract object Clone();
     }
 }
