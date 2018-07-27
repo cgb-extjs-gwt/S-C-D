@@ -9,7 +9,7 @@ import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 
 const selectMaxH: string = '260px';
 
-export class CapabilityMatrixEditView extends React.Component<any, any> {
+export class CapabilityMatrixEditView extends React.Component {
 
     private country: ComboBoxField;
 

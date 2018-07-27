@@ -3,42 +3,70 @@ import { CapabilityMatrixEditModel } from "../Model/CapabilityMatrixEditModel";
 import { CapabilityMatrixListModel } from "../Model/CapabilityMatrixListModel";
 import { ICapabilityMatrixService } from "../Services/ICapabilityMatrixService";
 
+import { AvailabilityService } from "../../Dict/Services/AvailabilityService";
+import { CountryService } from "../../Dict/Services/CountryService";
+import { DurationService } from "../../Dict/Services/DurationService";
+import { ReactionTimeService } from "../../Dict/Services/ReactionTimeService";
+import { ReactionTypeService } from "../../Dict/Services/ReactionTypeService";
+import { ServiceLocationService } from "../../Dict/Services/ServiceLocationService";
+import { WgService } from "../../Dict/Services/WgService";
+
+import { get } from "../../Common/Services/Ajax";
+
 export class CapabilityMatrixService implements ICapabilityMatrixService {
-    allowItem(row: any) {
+
+    private controllerName: string;
+
+    public constructor() {
+        this.controllerName = 'capabilitymatrix';
+    }
+
+    public allowItem(row: CapabilityMatrixEditModel) {
         throw new Error("Method not implemented.");
     }
-    allowItems(ids: string[]): Promise<any> {
+
+    public allowItems(ids: string[]): Promise<any> {
         throw new Error("Method not implemented.");
     }
-    denyItem(row: any) {
+
+    public denyItem(row: CapabilityMatrixEditModel) {
         throw new Error("Method not implemented.");
     }
-    getCountries(): Promise<NamedId<string>[]> {
-        throw new Error("Method not implemented.");
+
+    public getCountries(): Promise<NamedId<string>[]> {
+        return new CountryService().getAll();
     }
-    getWG(): Promise<NamedId<string>[]> {
-        throw new Error("Method not implemented.");
+
+    public getWG(): Promise<NamedId<string>[]> {
+        return new WgService().getAll();
     }
-    getAvailabilityTypes(): Promise<NamedId<string>[]> {
-        throw new Error("Method not implemented.");
+
+    public getAvailabilityTypes(): Promise<NamedId<string>[]> {
+        return new AvailabilityService().getAll();
     }
-    getDurationTypes(): Promise<NamedId<string>[]> {
-        throw new Error("Method not implemented.");
+
+    public getDurationTypes(): Promise<NamedId<string>[]> {
+        return new DurationService().getAll();
     }
-    getReactTypes(): Promise<NamedId<string>[]> {
-        throw new Error("Method not implemented.");
+
+    public getReactTypes(): Promise<NamedId<string>[]> {
+        return new ReactionTypeService().getAll();
     }
-    getReactionTimeTypes(): Promise<NamedId<string>[]> {
-        throw new Error("Method not implemented.");
+
+    public getReactionTimeTypes(): Promise<NamedId<string>[]> {
+        return new ReactionTimeService().getAll();
     }
-    getServiceLocationTypes(): Promise<NamedId<string>[]> {
-        throw new Error("Method not implemented.");
+
+    public getServiceLocationTypes(): Promise<NamedId<string>[]> {
+        return new ServiceLocationService().getAll();
     }
-    getAllowed(): Promise<CapabilityMatrixListModel[]> {
-        throw new Error("Method not implemented.");
+
+    public getAllowed(): Promise<CapabilityMatrixListModel[]> {
+        return get<CapabilityMatrixListModel[]>(this.controllerName, 'allowed');
     }
-    getDenied(): Promise<CapabilityMatrixListModel[]> {
-        throw new Error("Method not implemented.");
+
+    public getDenied(): Promise<CapabilityMatrixListModel[]> {
+        return get<CapabilityMatrixListModel[]>(this.controllerName, 'denied');
     }
 }
 
