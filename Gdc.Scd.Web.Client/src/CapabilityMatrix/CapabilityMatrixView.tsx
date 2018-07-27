@@ -6,7 +6,7 @@ import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { ReadonlyCheckColumn } from "./Components/ReadonlyCheckColumn";
 
-export class CapabilityMatrixView extends React.Component {
+export class CapabilityMatrixView extends React.Component<any, any> {
 
     private allowed: Grid;
 

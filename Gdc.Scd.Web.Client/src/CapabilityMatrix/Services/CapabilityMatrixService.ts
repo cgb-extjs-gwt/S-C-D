@@ -11,7 +11,7 @@ import { ReactionTypeService } from "../../Dict/Services/ReactionTypeService";
 import { ServiceLocationService } from "../../Dict/Services/ServiceLocationService";
 import { WgService } from "../../Dict/Services/WgService";
 
-import { get } from "../../Common/Services/Ajax";
+import { get, post } from "../../Common/Services/Ajax";
 
 export class CapabilityMatrixService implements ICapabilityMatrixService {
 
@@ -21,16 +21,16 @@ export class CapabilityMatrixService implements ICapabilityMatrixService {
         this.controllerName = 'capabilitymatrix';
     }
 
-    public allowItem(row: CapabilityMatrixEditModel) {
-        throw new Error("Method not implemented.");
+    public allowItem(row: CapabilityMatrixEditModel) : Promise<any> {
+        return post(this.controllerName, 'allow', row);
     }
 
     public allowItems(ids: string[]): Promise<any> {
-        throw new Error("Method not implemented.");
+        return post(this.controllerName, 'allow', ids);
     }
 
     public denyItem(row: CapabilityMatrixEditModel) {
-        throw new Error("Method not implemented.");
+        return post(this.controllerName, 'deny', row);
     }
 
     public getCountries(): Promise<NamedId<string>[]> {

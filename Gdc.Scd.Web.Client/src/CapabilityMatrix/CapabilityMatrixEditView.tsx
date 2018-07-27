@@ -9,7 +9,7 @@ import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 
 const selectMaxH: string = '260px';
 
-export class CapabilityMatrixEditView extends React.Component {
+export class CapabilityMatrixEditView extends React.Component<any, any> {
 
     private country: ComboBoxField;
 
@@ -152,11 +152,11 @@ export class CapabilityMatrixEditView extends React.Component {
     }
 
     private allowCombination() {
-        console.log('allowCombination()', this.getModel());
+        this.srv.allowItem(this.getModel());
     }
 
     private denyCombination() {
-        console.log('denyCombination()', this.getModel());
+        this.srv.denyItem(this.getModel());
     }
 
     private setPortfolio(val: boolean) {

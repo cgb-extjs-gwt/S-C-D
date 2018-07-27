@@ -3,11 +3,11 @@ import { CapabilityMatrixListModel } from "../Model/CapabilityMatrixListModel";
 import { NamedId } from "../../Common/States/CommonStates";
 
 export interface ICapabilityMatrixService {
-    allowItem(row: CapabilityMatrixEditModel);
+    allowItem(row: CapabilityMatrixEditModel): Promise<any>;
 
     allowItems(ids: string[]): Promise<any>;
 
-    denyItem(row: CapabilityMatrixEditModel);
+    denyItem(row: CapabilityMatrixEditModel): Promise<any>;
 
     getCountries(): Promise<NamedId[]>;
 

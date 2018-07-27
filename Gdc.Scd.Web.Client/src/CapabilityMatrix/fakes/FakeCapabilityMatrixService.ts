@@ -14,7 +14,7 @@ import { fakeDenied } from "./FakeDenied";
 
 export class FakeCapabilityMatrixService implements ICapabilityMatrixService {
 
-    public allowItem(row: CapabilityMatrixEditModel) {
+    public allowItem(row: CapabilityMatrixEditModel): Promise<any> {
         return this.saveItem(row, true);
     }
 
@@ -22,7 +22,7 @@ export class FakeCapabilityMatrixService implements ICapabilityMatrixService {
         return this.fromResult({});
     }
 
-    public denyItem(row: CapabilityMatrixEditModel) {
+    public denyItem(row: CapabilityMatrixEditModel): Promise<any> {
         return this.saveItem(row, false);
     }
 
@@ -62,7 +62,7 @@ export class FakeCapabilityMatrixService implements ICapabilityMatrixService {
         return this.fromResult(fakeDenied);
     }
 
-    private saveItem(row: CapabilityMatrixEditModel, allow: boolean) {
+    private saveItem(row: CapabilityMatrixEditModel, allow: boolean): Promise<any> {
         throw new Error("Method not implemented.");
     }
 
