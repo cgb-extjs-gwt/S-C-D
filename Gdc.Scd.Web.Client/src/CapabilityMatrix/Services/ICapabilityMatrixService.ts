@@ -1,13 +1,13 @@
-﻿import { CapabilityMatrixItem } from "../Model/CapabilityMatrixItem";
-import { NamedId } from "../../Common/States/CommonStates";
+﻿import { CapabilityMatrixEditModel } from "../Model/CapabilityMatrixEditModel";
 import { CapabilityMatrixListModel } from "../Model/CapabilityMatrixListModel";
+import { NamedId } from "../../Common/States/CommonStates";
 
 export interface ICapabilityMatrixService {
-    allowItem(row: CapabilityMatrixItem);
+    allowItem(row: CapabilityMatrixEditModel);
 
     allowItems(ids: string[]): Promise<any>;
 
-    denyItem(row: CapabilityMatrixItem);
+    denyItem(row: CapabilityMatrixEditModel);
 
     getCountries(): Promise<NamedId[]>;
 

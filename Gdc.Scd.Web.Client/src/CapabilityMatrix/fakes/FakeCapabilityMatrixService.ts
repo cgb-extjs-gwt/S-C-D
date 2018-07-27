@@ -1,6 +1,6 @@
 import { NamedId } from "../../Common/States/CommonStates";
+import { CapabilityMatrixEditModel } from "../Model/CapabilityMatrixEditModel";
 import { CapabilityMatrixListModel } from "../Model/CapabilityMatrixListModel";
-import { CapabilityMatrixItem } from "../Model/CapabilityMatrixItem";
 import { fakeAllowed } from "./FakeAllowed";
 import { fakeCountries } from "./FakeCountries";
 import { fakeWG } from "./FakeWG";
@@ -14,7 +14,7 @@ import { ICapabilityMatrixService } from "../Services/ICapabilityMatrixService";
 
 export class FakeCapabilityMatrixService implements ICapabilityMatrixService {
 
-    public allowItem(row: CapabilityMatrixItem) {
+    public allowItem(row: CapabilityMatrixEditModel) {
         return this.saveItem(row, true);
     }
 
@@ -22,7 +22,7 @@ export class FakeCapabilityMatrixService implements ICapabilityMatrixService {
         return this.fromResult({});
     }
 
-    public denyItem(row: CapabilityMatrixItem) {
+    public denyItem(row: CapabilityMatrixEditModel) {
         return this.saveItem(row, false);
     }
 
@@ -62,24 +62,8 @@ export class FakeCapabilityMatrixService implements ICapabilityMatrixService {
         return this.fromResult(fakeDenied);
     }
 
-    private saveItem(row: CapabilityMatrixItem, allow: boolean) {
-        const key = 'DENY_MATRIX';
-
-        let json = localStorage.getItem(key);
-        let allDeny: any = json ? JSON.parse(json) : {};
-
-        let hash = row.hash();
-        if (allow) {
-            allDeny[hash] = row;
-        }
-        else {
-            allDeny[hash] = null;
-            delete allDeny[hash];
-        }
-
-        localStorage.setItem(key, JSON.stringify(allDeny));
-
-        return Promise.resolve();
+    private saveItem(row: CapabilityMatrixEditModel, allow: boolean) {
+        throw new Error("Method not implemented.");
     }
 
     private fromResult<T>(value: T): Promise<T> {
