@@ -1,9 +1,10 @@
 ﻿import * as React from "react";
-import { Container, Button, Grid, Column, Toolbar } from "@extjs/ext-react";
+import { Container, Button, Grid, Toolbar } from "@extjs/ext-react";
 import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService";
 import { MatrixFactory } from "./Services/MatrixFactory";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
+import { NullStringColumn } from "./Components/NullStringColumn";
 import { ReadonlyCheckColumn } from "./Components/ReadonlyCheckColumn";
 
 export class CapabilityMatrixView extends React.Component<any, any> {
@@ -30,26 +31,26 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                 </Toolbar>
 
                 <Grid ref="denied" store={this.state.denied} width="100%" minHeight="45%" title="Denied combinations" selectable="multi">
-                    <Column flex="1" text="Country" dataIndex="country" />
-                    <Column flex="1" text="WG(Asset)" dataIndex="WG" />
-                    <Column flex="1" text="Availability" dataIndex="availability" />
-                    <Column flex="1" text="Duration" dataIndex="duration" />
-                    <Column flex="1" text="Reaction type" dataIndex="reactionType" />
-                    <Column flex="1" text="Reaction time" dataIndex="reactionTime" />
-                    <Column flex="1" text="Service location" dataIndex="serviceLocation" />
+                    <NullStringColumn flex="1" text="Country" dataIndex="country" />
+                    <NullStringColumn flex="1" text="WG(Asset)" dataIndex="wg" />
+                    <NullStringColumn flex="1" text="Availability" dataIndex="availability" />
+                    <NullStringColumn flex="1" text="Duration" dataIndex="duration" />
+                    <NullStringColumn flex="1" text="Reaction type" dataIndex="reactionType" />
+                    <NullStringColumn flex="1" text="Reaction time" dataIndex="reactionTime" />
+                    <NullStringColumn flex="1" text="Service location" dataIndex="serviceLocation" />
                     <ReadonlyCheckColumn flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
                     <ReadonlyCheckColumn flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
                     <ReadonlyCheckColumn flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
 
                 <Grid ref="allowed" store={this.state.allowed} width="100%" minHeight="45%" title="Allowed combinations" selectable={false}>
-                    <Column flex="1" text="Country" dataIndex="country" />
-                    <Column flex="1" text="WG(Asset)" dataIndex="WG" />
-                    <Column flex="1" text="Availability" dataIndex="availability" />
-                    <Column flex="1" text="Duration" dataIndex="duration" />
-                    <Column flex="1" text="Reaction type" dataIndex="reactionType" />
-                    <Column flex="1" text="Reaction time" dataIndex="reactionTime" />
-                    <Column flex="1" text="Service location" dataIndex="serviceLocation" />
+                    <NullStringColumn flex="1" text="Country" dataIndex="country" />
+                    <NullStringColumn flex="1" text="WG(Asset)" dataIndex="wg" />
+                    <NullStringColumn flex="1" text="Availability" dataIndex="availability" />
+                    <NullStringColumn flex="1" text="Duration" dataIndex="duration" />
+                    <NullStringColumn flex="1" text="Reaction type" dataIndex="reactionType" />
+                    <NullStringColumn flex="1" text="Reaction time" dataIndex="reactionTime" />
+                    <NullStringColumn flex="1" text="Service location" dataIndex="serviceLocation" />
                     <ReadonlyCheckColumn flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
                     <ReadonlyCheckColumn flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
                     <ReadonlyCheckColumn flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
@@ -79,7 +80,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
     }
 
     private onEdit() {
-       this.props.history.push('/capability-matrix/edit');
+        this.props.history.push('/capability-matrix/edit');
     }
 
     private onAllow() {

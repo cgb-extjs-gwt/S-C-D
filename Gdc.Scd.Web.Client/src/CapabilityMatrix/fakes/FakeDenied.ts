@@ -2,7 +2,7 @@
     {
         "id": "1",
         "country": "Russia",
-        "WG": "WG0",
+        "wg": "WG0",
         "availability": "24x7",
         "duration": "3h",
         "reactionType": "recover",
@@ -15,7 +15,7 @@
     {
         "id": "2",
         "country": "Russia",
-        "WG": "WG0",
+        "wg": "WG0",
         "availability": "24x7",
         "duration": "3h",
         "reactionType": "recover",
@@ -28,7 +28,7 @@
     {
         "id": "3",
         "country": "Russia",
-        "WG": "WG0",
+        "wg": "WG0",
         "availability": "24x7",
         "duration": "3h",
         "reactionType": "recover",
@@ -41,7 +41,7 @@
     {
         "id": "4",
         "country": "Russia",
-        "WG": "WG0",
+        "wg": "WG0",
         "availability": "24x7",
         "duration": "3h",
         "reactionType": "recover",
@@ -54,7 +54,7 @@
     {
         "id": "5",
         "country": "Russia",
-        "WG": "WG0",
+        "wg": "WG0",
         "availability": "24x7",
         "duration": "3h",
         "reactionType": "recover",
@@ -67,7 +67,7 @@
     {
         "id": "6",
         "country": "Russia",
-        "WG": "WG0",
+        "wg": "WG0",
         "availability": "24x7",
         "duration": "3h",
         "reactionType": "recover",
@@ -80,7 +80,7 @@
     {
         "id": "7",
         "country": "Russia",
-        "WG": "WG0",
+        "wg": "WG0",
         "availability": "24x7",
         "duration": "3h",
         "reactionType": "recover",
@@ -93,7 +93,7 @@
     {
         "id": "8",
         "country": "Russia",
-        "WG": "WG0",
+        "wg": "WG0",
         "availability": "24x7",
         "duration": "3h",
         "reactionType": "recover",
@@ -106,7 +106,7 @@
     {
         "id": "9",
         "country": "Russia",
-        "WG": "WG0",
+        "wg": "WG0",
         "availability": "24x7",
         "duration": "3h",
         "reactionType": "recover",
@@ -119,7 +119,7 @@
     {
         "id": "10",
         "country": "Russia",
-        "WG": "WG0",
+        "wg": "WG0",
         "availability": "24x7",
         "duration": "3h",
         "reactionType": "recover",

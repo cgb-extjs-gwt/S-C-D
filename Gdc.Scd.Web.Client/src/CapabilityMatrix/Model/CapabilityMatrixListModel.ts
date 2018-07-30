@@ -3,7 +3,7 @@
 
     public country: string;
 
-    public WG: string;
+    public wg: string;
 
     public availability: string;
 
