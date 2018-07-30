@@ -26,6 +26,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return Task.FromResult(0);
         }
 
+        public void AllowCombinations(long[] items)
+        {
+            var repo = DenyRepo();
+
+            for (var i = 0; i < items.Length; i++)
+            {
+                repo.Delete(items[i]);
+            }
+
+            repositorySet.Sync();
+        }
+
         public Task DenyCombination(CapabilityMatrixEditDto m)
         {
             return Task.FromResult(0);

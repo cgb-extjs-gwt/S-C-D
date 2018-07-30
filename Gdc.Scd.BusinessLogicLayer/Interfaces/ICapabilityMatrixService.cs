@@ -8,6 +8,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
     {
         Task AllowCombination(CapabilityMatrixEditDto m);
 
+        void AllowCombinations(long[] items);
+
         Task DenyCombination(CapabilityMatrixEditDto m);
 
         IEnumerable<CapabilityMatrixDto> GetAllowedCombinations();

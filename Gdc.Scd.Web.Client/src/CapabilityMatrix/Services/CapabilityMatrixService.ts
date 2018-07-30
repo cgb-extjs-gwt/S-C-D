@@ -26,7 +26,7 @@ export class CapabilityMatrixService implements ICapabilityMatrixService {
     }
 
     public allowItems(ids: string[]): Promise<any> {
-        return post(this.controllerName, 'allow', ids);
+        return post(this.controllerName, 'allowbyid', ids);
     }
 
     public denyItem(row: CapabilityMatrixEditModel) {

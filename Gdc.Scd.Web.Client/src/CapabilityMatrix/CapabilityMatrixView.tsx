@@ -95,7 +95,10 @@ export class CapabilityMatrixView extends React.Component<any, any> {
     }
 
     private allowCombination(ids: string[]) {
-        this.srv.allowItems(ids).then(x => this.reloadDenied);
+        this.srv.allowItems(ids).then(x => {
+            this.reloadDenied();
+            this.reloadAllowed();
+        });
     }
 
     private getDenySelected(): string[] {

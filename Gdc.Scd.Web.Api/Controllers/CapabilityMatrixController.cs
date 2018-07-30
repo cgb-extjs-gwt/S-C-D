@@ -37,6 +37,12 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
+        public void AllowById([FromBody]long[] ids)
+        {
+            capabilityMatrixService.AllowCombinations(ids);
+        }
+
+        [HttpPost]
         public Task Deny([FromBody]CapabilityMatrixEditDto m)
         {
             return capabilityMatrixService.DenyCombination(m);
