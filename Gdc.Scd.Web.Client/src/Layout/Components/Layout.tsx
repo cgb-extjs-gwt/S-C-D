@@ -9,7 +9,7 @@ import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
 import { connect } from 'react-redux';
 import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
 import { CommonState } from '../States/AppStates';
-import CountryManagement  from '../../Admin/Country/containers/CountryManagement';
+import CountryGrid  from '../../Admin/Country/containers/CountryGrid';
 
 interface LayoutProps {
     title: string
@@ -59,7 +59,7 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/about" component={About}/>
                         <Route path="/pivot" component={ScdPivotGrid}/>
                         <Route path="/input-cost-elements" component={CostEditorContainer}/>
-                        <Route path="/admin/country-management" component={ CountryManagement }/>
+                        <Route path="/admin/country-management" component={ CountryGrid }/>
                     </Switch>
                 </Panel>
             </Container>
