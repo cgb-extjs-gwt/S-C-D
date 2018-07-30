@@ -96,7 +96,7 @@ export class CostEditorView extends React.Component<CostEditorProps> {
         const { application, costBlocks } = this.props;
 
         return (
-            <Container layout="vbox" >
+            <Container layout="vbox">
                 <FormPanel defaults={{labelAlign: 'left'}}>
                     {this.applicationCombobox(application)}
                 </FormPanel>
@@ -104,6 +104,7 @@ export class CostEditorView extends React.Component<CostEditorProps> {
                     costBlocks && 
                     costBlocks.list &&  
                     <TabPanel 
+                        key={application.selectedItemId}
                         flex={1}
                         tabBar={{
                             layout: { pack: 'left' }
