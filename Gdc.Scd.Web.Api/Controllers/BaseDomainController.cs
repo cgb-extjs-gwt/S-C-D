@@ -47,9 +47,16 @@ namespace Gdc.Scd.Web.Api.Controllers
             return this.domainService.Get(id);
         }
 
+        [HttpPost]
         public virtual void Save(T item)
         {
             this.domainService.Save(item);
+        }
+
+        [HttpPost]
+        public virtual void SaveAll([FromBody]IEnumerable<T> items)
+        {
+            this.domainService.Save(items);
         }
 
         public virtual void Delete(long id)

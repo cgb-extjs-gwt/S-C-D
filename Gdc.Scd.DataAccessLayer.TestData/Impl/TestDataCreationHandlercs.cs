@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
@@ -48,14 +50,29 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreatePlas();
 
             var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
+            var countryRepository = repositorySet.GetRepository<Country>();
+
+            var countries = this.GetCountrieNames().Select(c => new Country
+            {
+                Name = c,
+                CanOverrideListAndDealerPrices = GenerateRandomBool(),
+                CanOverrideTransferCostAndPrice = GenerateRandomBool(),
+                ShowDealerPrice = GenerateRandomBool()
+            });
+
+            countryRepository.Save(countries);
+            repositorySet.Sync();
+
+
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
 
+
             var queries = new List<SqlHelper>
             {
-                this.BuildInsertSql(countryInputLevelMeta, this.GetCountrieNames()),
                 //this.BuildInsertSql(plaInputLevelMeta, this.GetPlaNames()),
                 //this.BuildInsertSql(wgInputLevelMeta, this.GetWarrantyGroupNames()),
+
                 //this.BuildInsertSql(MetaConstants.DependencySchema, RoleCodeKey, this.GetRoleCodeNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
                 this.BuildInsertSql(new NamedEntityMeta(ReactionTimeKey, MetaConstants.DependencySchema), this.GetReactionTimeCodeNames()),
@@ -1025,6 +1042,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "Hungary",
                 "India",
                 "Italy",
+                "Japan",
                 "Luxembourg",
                 "Middle East",
                 "Morocco",
@@ -1307,6 +1325,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "9x5",
                 "24x7"
             };
+        }
+
+        private bool GenerateRandomBool()
+        {
+            Random gen = new Random();
+            int prob = gen.Next(100);
+            return prob <= 70;
         }
     }
 }
