@@ -1,4 +1,4 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Entities;
+﻿using Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System.Collections.Generic;

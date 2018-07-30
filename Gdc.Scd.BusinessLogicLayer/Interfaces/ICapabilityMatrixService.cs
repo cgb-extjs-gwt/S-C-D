@@ -1,4 +1,4 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Entities;
+﻿using Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

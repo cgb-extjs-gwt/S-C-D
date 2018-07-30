@@ -1,7 +1,7 @@
 ﻿using Gdc.Scd.Core.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Gdc.Scd.BusinessLogicLayer.Entities
+namespace Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix
 {
     public abstract class CapabilityMatrix : IIdentifiable
     {
