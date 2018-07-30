@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix;
+﻿using Gdc.Scd.BusinessLogicLayer.Dto.CapabilityMatrix;
+using Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System.Collections.Generic;
@@ -19,12 +20,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.repositorySet = repositorySet;
         }
 
-        public Task AllowCombination()
+        public Task AllowCombination(CapabilityMatrixEditDto m)
         {
             return Task.FromResult(0);
         }
 
-        public Task DenyCombination()
+        public Task DenyCombination(CapabilityMatrixEditDto m)
         {
             return Task.FromResult(0);
         }

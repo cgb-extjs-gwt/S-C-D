@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix;
+﻿using Gdc.Scd.BusinessLogicLayer.Dto.CapabilityMatrix;
+using Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Helpers;
 using Microsoft.AspNetCore.Mvc;
@@ -21,34 +22,34 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CapabilityMatrixListModel>> Allowed()
+        public async Task<IEnumerable<CapabilityMatrixListDto>> Allowed()
         {
             var allowed = await capabilityMatrixService.GetAllowedCombinations();
             return AsListModel(allowed);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CapabilityMatrixListModel>> Denied()
+        public async Task<IEnumerable<CapabilityMatrixListDto>> Denied()
         {
             var denyed = await capabilityMatrixService.GetDeniedCombinations();
             return AsListModel(denyed);
         }
 
         [HttpPost]
-        public Task Allow([FromBody]CapabilityMatrixEditModel m)
+        public Task Allow([FromBody]CapabilityMatrixEditDto m)
         {
-            return capabilityMatrixService.AllowCombination();
+            return capabilityMatrixService.AllowCombination(m);
         }
 
         [HttpPost]
-        public Task Deny([FromBody]CapabilityMatrixEditModel m)
+        public Task Deny([FromBody]CapabilityMatrixEditDto m)
         {
-            return capabilityMatrixService.DenyCombination();
+            return capabilityMatrixService.DenyCombination(m);
         }
 
-        private IEnumerable<CapabilityMatrixListModel> AsListModel(IEnumerable<CapabilityMatrix> items)
+        private IEnumerable<CapabilityMatrixListDto> AsListModel(IEnumerable<CapabilityMatrix> items)
         {
-            return items.Select(x => new CapabilityMatrixListModel
+            return items.Select(x => new CapabilityMatrixListDto
             {
                 Id = x.Id,
 
@@ -68,7 +69,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
     }
 
-    public class CapabilityMatrixListModel
+    public class CapabilityMatrixListDto
     {
         public long Id { get; set; }
 
@@ -80,22 +81,6 @@ namespace Gdc.Scd.Web.Api.Controllers
         public string ReactionType { get; set; }
         public string ReactionTime { get; set; }
         public string ServiceLocation { get; set; }
-
-        public bool IsGlobalPortfolio { get; set; }
-        public bool IsMasterPortfolio { get; set; }
-        public bool IsCorePortfolio { get; set; }
-    }
-
-    public class CapabilityMatrixEditModel
-    {
-        public long? CountryId { get; set; }
-
-        public long[] Wgs { get; set; }
-        public long[] Availabilities { get; set; }
-        public long[] Durations { get; set; }
-        public long[] ReactionTypes { get; set; }
-        public long[] ReactionTimes { get; set; }
-        public long[] ServiceLocations { get; set; }
 
         public bool IsGlobalPortfolio { get; set; }
         public bool IsMasterPortfolio { get; set; }
