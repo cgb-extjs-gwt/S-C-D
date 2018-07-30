@@ -1,12 +1,10 @@
 ﻿using Gdc.Scd.Core.Interfaces;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix
 {
     public abstract class CapabilityMatrix : IIdentifiable
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
+        public virtual long Id { get; set; }
 
         public Country Country { get; set; }
 
