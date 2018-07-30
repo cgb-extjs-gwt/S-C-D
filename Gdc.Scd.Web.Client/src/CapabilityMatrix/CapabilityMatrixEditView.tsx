@@ -39,7 +39,6 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
     }
 
     public render() {
-
         return (
             <Container layout="vbox" padding="10px">
 
