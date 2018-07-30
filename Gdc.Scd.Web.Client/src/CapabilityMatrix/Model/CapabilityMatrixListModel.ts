@@ -9,7 +9,7 @@
 
     public duration: string;
 
-    public reactType: string;
+    public reactionType: string;
 
     public reactionTime: string;
 

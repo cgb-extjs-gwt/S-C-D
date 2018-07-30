@@ -34,7 +34,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     <Column flex="1" text="WG(Asset)" dataIndex="WG" />
                     <Column flex="1" text="Availability" dataIndex="availability" />
                     <Column flex="1" text="Duration" dataIndex="duration" />
-                    <Column flex="1" text="Reaction type" dataIndex="reactType" />
+                    <Column flex="1" text="Reaction type" dataIndex="reactionType" />
                     <Column flex="1" text="Reaction time" dataIndex="reactionTime" />
                     <Column flex="1" text="Service location" dataIndex="serviceLocation" />
                     <ReadonlyCheckColumn flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
@@ -47,7 +47,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     <Column flex="1" text="WG(Asset)" dataIndex="WG" />
                     <Column flex="1" text="Availability" dataIndex="availability" />
                     <Column flex="1" text="Duration" dataIndex="duration" />
-                    <Column flex="1" text="Reaction type" dataIndex="reactType" />
+                    <Column flex="1" text="Reaction type" dataIndex="reactionType" />
                     <Column flex="1" text="Reaction time" dataIndex="reactionTime" />
                     <Column flex="1" text="Service location" dataIndex="serviceLocation" />
                     <ReadonlyCheckColumn flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />

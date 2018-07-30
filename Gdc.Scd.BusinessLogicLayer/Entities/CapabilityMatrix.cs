@@ -26,6 +26,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Entities
 
         public bool MasterPortfolio { get; set; }
 
+        public bool CorePortfolio { get; set; }
+
         public string Hash { get; set; }
     }
 }

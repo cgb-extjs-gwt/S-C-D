@@ -1,21 +1,21 @@
 export class CapabilityMatrixEditModel {
-    countryId: string;
+    public countryId: string;
 
-    wgId: string;
+    public wgs: string[];
 
-    availabilityId: string;
+    public availabilities: string[];
 
-    durationId: string;
+    public durations: string[];
 
-    reactTypeId: string;
+    public reactionTypes: string[];
 
-    reactionTimeId: string;
+    public reactionTimes: string[];
 
-    serviceLocationId: string;
+    public serviceLocations: string[];
 
-    isGlobalPortfolio: boolean;
+    public isGlobalPortfolio: boolean;
 
-    isMasterPortfolio: boolean;
+    public isMasterPortfolio: boolean;
 
-    isCorePortfolio: boolean;
+    public isCorePortfolio: boolean;
 }
