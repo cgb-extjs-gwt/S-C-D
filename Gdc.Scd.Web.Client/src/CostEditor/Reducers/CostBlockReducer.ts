@@ -1,11 +1,10 @@
 import { Reducer, Action } from "redux";
 import { CostBlockState, CostElementState, InputLevelState, CheckItem, EditItem, DataLoadingState } from "../States/CostBlockStates";
-import { PAGE_INIT_SUCCESS, PageAction } from "../../Layout/Actions/PageActions";
-import { CostEditortDto, CostElementMeta, CostEditorState, CostBlockMeta, InputType, FieldType } from "../States/CostEditorStates";
+import { CostEditortData, CostElementMeta, CostEditorState, CostBlockMeta, InputType, FieldType } from "../States/CostEditorStates";
 import { 
-    COST_ELEMENT_INTPUT_PAGE, 
-    COST_ELEMENT_INTPUT_SELECT_APPLICATION, 
-    COST_ELEMENT_INTPUT_SELECT_COST_BLOCK 
+    COST_EDITOR_PAGE, 
+    COST_EDITOR_SELECT_APPLICATION, 
+    COST_EDITOR_SELECT_COST_BLOCK 
 } from "../Actions/CostEditorActions";
 import { ItemSelectedAction } from "../../Common/Actions/CommonActions";
 import { 
@@ -37,6 +36,7 @@ import {
  } from "../Actions/CostBlockActions";
 import { mapIf } from "../../Common/Helpers/CommonHelpers";
 import { changeSelecitonFilterItem, resetFilter, loadFilter } from "./FilterReducer";
+import { PageInitAction, APP_PAGE_INIT } from "../../Layout/Actions/AppActions";
 
 const getVisibleCostBlockIds = (costBlockMetas: CostBlockMeta[], selectedApplicationId: string) => {
     return costBlockMetas.filter(costBlockMeta => costBlockMeta.applicationIds.includes(selectedApplicationId))
@@ -80,12 +80,12 @@ const getVisibleCostElementIds = (costBlock: CostBlockMeta) => {
     return costElements.map(costElement => costElement.id);
 }
 
-const initSuccess: Reducer<CostEditorState, PageAction<CostEditortDto>> = (state, action) => {
+const initSuccess: Reducer<CostEditorState, PageInitAction<CostEditortData>> = (state, action) => {
     const { costBlocks: costBlockMetas } = action.data;
 
     const visibleCostBlockIds = getVisibleCostBlockIds(costBlockMetas, state.selectedApplicationId);
 
-    return action.pageName === COST_ELEMENT_INTPUT_PAGE 
+    return action.pageId === COST_EDITOR_PAGE 
         ? {
             ...state,
             costBlocks: costBlockMetas.map(costBlockMeta => (<CostBlockState>{
@@ -382,10 +382,10 @@ const applyFilters = buildCostBlockChanger(
 
 export const costBlockReducer: Reducer<CostEditorState, Action<string>> = (state, action) => {
     switch(action.type) {
-        case PAGE_INIT_SUCCESS:
-            return initSuccess(state, <PageAction<CostEditortDto>>action)
+        case APP_PAGE_INIT:
+            return initSuccess(state, <PageInitAction<CostEditortData>>action)
         
-        case COST_ELEMENT_INTPUT_SELECT_APPLICATION:
+        case COST_EDITOR_SELECT_APPLICATION:
             return selectApplication(state, <ItemSelectedAction>action)
 
         case COST_BLOCK_INPUT_LOAD_COST_ELEMENT_DATA:

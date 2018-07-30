@@ -3,8 +3,8 @@ import { NamedId } from "../../Common/States/CommonStates";
 import { CostBlockMeta, CostEditorState, InputLevelMeta, FieldType } from "../States/CostEditorStates";
 import { CostBlockTab, CostEditorProps, CostEditorActions, CostEditorView } from "./CostEditorView";
 import { connect } from "react-redux";
-import { PageCommonState } from "../../Layout/States/PageStates";
-import { init, 
+import { 
+    init, 
     selectApplicationLosseDataCheck, 
     selectCostBlock, 
     loseChanges, 
@@ -27,6 +27,7 @@ import {
 from "../Actions/CostBlockActions";
 import { SelectListFilter, RegionProps, CostElementProps } from "./CostBlocksView";
 import { EditProps } from "./EditGrid";
+import { CommonState } from "../../Layout/States/AppStates";
 
 const isSetContainsAllCheckedItems = (set: Set<string>, filterObj: Filter) => {
     let result = true;
@@ -169,7 +170,7 @@ const costBlockTabMap = (
     }
 }
 
-export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},PageCommonState<CostEditorState>>(
+export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},CommonState>(
     state => {
         const { 
             applications, 
@@ -179,7 +180,7 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
             costBlocks,
             costBlockMetas,
             dataLossInfo,
-        } = state.page.data;
+        } = state.pages.costEditor;
 
         return {
             application: {

@@ -2,10 +2,10 @@ import { Action } from "redux";
 import { asyncAction, AsyncAction } from "../../Common/Actions/AsyncAction";
 import * as service from "../Services/CostEditorServices";
 import { CostEditorState } from "../States/CostEditorStates";
-import { PageCommonState } from "../../Layout/States/PageStates";
 import { EditItem, CostElementData, DataLoadingState } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { losseDataCheckHandlerAction } from "../Helpers/CostEditorHelpers";
+import { CommonState } from "../../Layout/States/AppStates";
 
 export const COST_BLOCK_INPUT_SELECT_REGIONS = 'COST_BLOCK_INPUT.SELECT.REGIONS';
 export const COST_BLOCK_INPUT_SELECT_COST_ELEMENT = 'COST_BLOCK_INPUT.SELECT.COST_ELEMENT';
@@ -215,12 +215,11 @@ const buildContext = (state: CostEditorState) => {
 }
 
 export const getDataByCostElementSelection = (costBlockId: string, costElementId: string) =>
-    asyncAction<PageCommonState<CostEditorState>>(
+    asyncAction<CommonState>(
         (dispatch, getState) => {
             dispatch(selectCostElement(costBlockId, costElementId));
 
-            const { page } = getState();
-            const { data: state } = page;
+            const state = getState().pages.costEditor
             const context = buildContext(state);
             const costBlock = state.costBlocks.find(item => item.costBlockId === costBlockId);
             const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
@@ -234,13 +233,11 @@ export const getDataByCostElementSelection = (costBlockId: string, costElementId
     )
 
 export const getFilterItemsByInputLevelSelection = (costBlockId: string, costElementId: string, inputLevelId: string) =>
-    asyncAction<PageCommonState<CostEditorState>>(
+    asyncAction<CommonState>(
         (dispatch, getState) => {
             dispatch(selectInputLevel(costBlockId, costElementId, inputLevelId));
 
-            const { page } = getState();
-            const { data: state } = page;
-
+            const state = getState().pages.costEditor
             const costBlockMeta = state.costBlockMetas.get(costBlockId);
             const costElementMeta = costBlockMeta.costElements.find(item => item.id === costElementId);
             const inputLevelMeta = costElementMeta.inputLevels.find(item => item.id === inputLevelId);
@@ -263,11 +260,11 @@ export const getFilterItemsByInputLevelSelection = (costBlockId: string, costEle
     )
 
 export const reloadFilterBySelectedRegion = (costBlockId: string, regionId: string) =>
-    asyncAction<PageCommonState<CostEditorState>>(
+    asyncAction<CommonState>(
         (dispatch, getState) => {
             if (regionId) {
-                const { page } = getState();
-                const costBlock = page.data.costBlocks.find(item => item.costBlockId === costBlockId);
+                const state = getState().pages.costEditor
+                const costBlock = state.costBlocks.find(item => item.costBlockId === costBlockId);
 
                 const {
                     costElement: { selectedItemId: costElementId },
@@ -288,10 +285,10 @@ export const reloadFilterBySelectedRegion = (costBlockId: string, regionId: stri
     )
 
 export const loadEditItemsByContext = () => 
-    asyncAction<PageCommonState<CostEditorState>>(
+    asyncAction<CommonState>(
         (dispatch, getState) => {
-            const { page } = getState();
-            const context = buildContext(page.data);
+            const state = getState().pages.costEditor
+            const context = buildContext(state);
 
             if (context.costElementId != null && context.inputLevelId != null) {
                 service.getEditItems(context).then(
@@ -302,13 +299,13 @@ export const loadEditItemsByContext = () =>
     )
 
 export const saveEditItemsToServer = (costBlockId: string) => 
-    asyncAction<PageCommonState<CostEditorState>>(
+    asyncAction<CommonState>(
         (dispatch, getState) => {
-            const { page } = getState();
+            const state = getState().pages.costEditor
             const costBlock = 
-                page.data.costBlocks.find(item => item.costBlockId === costBlockId);
+                state.costBlocks.find(item => item.costBlockId === costBlockId);
 
-            const context = buildContext(page.data);
+            const context = buildContext(state);
 
             service.saveEditItems(costBlock.edit.editedItems, context)
                    .then(

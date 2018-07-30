@@ -1,64 +1,64 @@
-import { PageActionBuilder } from "../../Layout/Actions/PageActions";
 import { CostEditorState } from "../States/CostEditorStates";
 import { Action, Dispatch } from "redux";
-import { getCostEditorDto } from "../Services/CostEditorServices";
+import { getCostEditorData } from "../Services/CostEditorServices";
 import { asyncAction } from "../../Common/Actions/AsyncAction";
 import { ItemSelectedAction } from "../../Common/Actions/CommonActions";
-import { PageCommonState } from "../../Layout/States/PageStates";
 import { losseDataCheckAction } from "../Helpers/CostEditorHelpers";
+import { openPage, pageInit, error } from "../../Layout/Actions/AppActions";
+import { CommonState } from "../../Layout/States/AppStates";
 
-export const COST_ELEMENT_INTPUT_PAGE = 'CostElementsInputs';
-export const COST_ELEMENT_INTPUT_SELECT_APPLICATION = 'COST_ELEMENT_INTPUT.SELECT.APPLICATION';
-export const COST_ELEMENT_INTPUT_SELECT_COST_BLOCK = 'COST_ELEMENT_INTPUT.SELECT.COST_BLOCK';
-export const COST_ELEMENT_INTPUT_HIDE_LOSE_CHANGES_WARNING = 'COST_ELEMENT_INTPUT.HIDE.LOSE_CHANGES_WARNING';
-export const COST_ELEMENT_INTPUT_SHOW_LOSE_CHANGES_WARNING = 'COST_ELEMENT_INTPUT.SHOW.LOSE_CHANGES_WARNING';
-export const COST_ELEMENT_INTPUT_LOSE_CHANGES = 'COST_ELEMENT_INTPUT.LOSE.CHANGES';
+export const COST_EDITOR_PAGE = 'costEditor';
+export const COST_EDITOR_SELECT_APPLICATION = 'COST_EDITOR.SELECT.APPLICATION';
+export const COST_EDITOR_SELECT_COST_BLOCK = 'COST_EDITOR.SELECT.COST_BLOCK';
+export const COST_EDITOR_HIDE_LOSE_CHANGES_WARNING = 'COST_EDITOR.HIDE.LOSE_CHANGES_WARNING';
+export const COST_EDITOR_SHOW_LOSE_CHANGES_WARNING = 'COST_EDITOR.SHOW.LOSE_CHANGES_WARNING';
+export const COST_EDITOR_LOSE_CHANGES = 'COST_EDITOR.LOSE.CHANGES';
 
 export interface ShowDataLoseWarningAction extends Action<string> {
     dataLoseAction: Action<string>
 }
 
-const actionBuilder = new PageActionBuilder(COST_ELEMENT_INTPUT_PAGE, 'Cost elements inputs');
+//const actionBuilder = new PageActionBuilder(COST_ELEMENT_INTPUT_PAGE, 'Cost elements inputs');
 
 export const init = () => asyncAction(
     dispatch => {
-        dispatch(actionBuilder.openPage());
-        getCostEditorDto().then(
-            costEditorDto => dispatch(actionBuilder.initPageSuccess(costEditorDto)),
-            error => dispatch(actionBuilder.initPageError(error))
+        dispatch(openPage(COST_EDITOR_PAGE, 'Cost Editor'));
+        getCostEditorData().then(
+            costEditorData => dispatch(pageInit(COST_EDITOR_PAGE, costEditorData)),
         );
+        err => dispatch(error(err))
     }
 )
 
 export const selectApplication = (applicationId: string) => (<ItemSelectedAction>{
-    type: COST_ELEMENT_INTPUT_SELECT_APPLICATION,
+    type: COST_EDITOR_SELECT_APPLICATION,
     selectedItemId: applicationId
 })
 
 export const selectCostBlock = (selectedCostBlockId: string) => (<ItemSelectedAction>{
-    type: COST_ELEMENT_INTPUT_SELECT_COST_BLOCK,
+    type: COST_EDITOR_SELECT_COST_BLOCK,
     selectedItemId: selectedCostBlockId
 });
 
 export const showDataLoseWarning = dataLoseAction => (<ShowDataLoseWarningAction>{
-    type: COST_ELEMENT_INTPUT_SHOW_LOSE_CHANGES_WARNING,
+    type: COST_EDITOR_SHOW_LOSE_CHANGES_WARNING,
     dataLoseAction
 })
 
 export const hideDataLoseWarning = () => (<Action<string>>{
-    type: COST_ELEMENT_INTPUT_HIDE_LOSE_CHANGES_WARNING
+    type: COST_EDITOR_HIDE_LOSE_CHANGES_WARNING
 })
 
-export const loseChanges = () => asyncAction<PageCommonState<CostEditorState>>(
+export const loseChanges = () => asyncAction<CommonState>(
     (dispatch, getState) => {
         dispatch(hideDataLoseWarning());
         dispatch(<Action<string>>{
-            type: COST_ELEMENT_INTPUT_LOSE_CHANGES
+            type: COST_EDITOR_LOSE_CHANGES
         })
         
-        const { page } = getState();
+        const state = getState();
 
-        dispatch(page.data.dataLossInfo.action);
+        dispatch(state.pages.costEditor.dataLossInfo.action);
     }
 )
 
