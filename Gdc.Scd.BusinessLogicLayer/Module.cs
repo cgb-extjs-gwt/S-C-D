@@ -18,6 +18,8 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.AddScoped<ICostBlockHistoryService, CostBlockHistoryService>();
 
             services.RegisterEntity<Country>();
+            services.RegisterEntity<Pla>();
+            services.RegisterEntity<Wg>();
         }
     }
 }

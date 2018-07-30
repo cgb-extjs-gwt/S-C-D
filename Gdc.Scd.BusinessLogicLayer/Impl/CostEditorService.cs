@@ -154,9 +154,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 var costElement = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId];
                 var previousInputLevel = costElement.GetPreviousInputLevel(context.InputLevelId);
-                var filterValues = context.InputLevelFilterIds.Cast<object>().ToArray();
 
-                filter.Add(previousInputLevel.Id, filterValues);
+                if (previousInputLevel != null && 
+                    (costElement.RegionInput == null || costElement.RegionInput.Id != previousInputLevel.Id))
+                {
+                    var filterValues = context.InputLevelFilterIds.Cast<object>().ToArray();
+
+                    filter.Add(previousInputLevel.Id, filterValues);
+                }
             }
 
             return filter;
