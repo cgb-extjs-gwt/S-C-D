@@ -13,8 +13,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     {
         private const string CAPABILITY_MATRIX_DENY_TBL = "CapabilityMatrixDeny";
 
-        private const string ID_COL = "Id";
-
         private readonly IRepositorySet repositorySet;
 
         private IRepository<CapabilityMatrixAllow> allowRepo;
