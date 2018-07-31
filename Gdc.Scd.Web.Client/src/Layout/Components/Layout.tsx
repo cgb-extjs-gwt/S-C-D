@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
 import { CapabilityMatrixView, CapabilityMatrixEditView } from '../../CapabilityMatrix';
 import { CommonState } from '../States/AppStates';
+import CountryGrid  from '../../Admin/Country/containers/CountryGrid';
 
 interface LayoutProps {
     title: string
@@ -55,10 +56,11 @@ export class Layout extends React.Component<LayoutProps> {
 
                 <Panel title={title} layout="fit">
                     <Switch>
-                        <Route path="/" component={Home} exact />
-                        <Route path="/about" component={About} />
-                        <Route path="/pivot" component={ScdPivotGrid} />
-                        <Route path="/input-cost-elements" component={CostEditorContainer} />
+                        <Route path="/" component={Home} exact/>
+                        <Route path="/about" component={About}/>
+                        <Route path="/pivot" component={ScdPivotGrid}/>
+                        <Route path="/input-cost-elements" component={CostEditorContainer}/>
+                        <Route path="/admin/country-management" component={ CountryGrid }/>
                         <Route path="/capability-matrix" exact component={CapabilityMatrixView} />
                         <Route path="/capability-matrix/edit" component={CapabilityMatrixEditView} />
                     </Switch>

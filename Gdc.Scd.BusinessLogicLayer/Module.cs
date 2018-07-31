@@ -16,6 +16,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.AddScoped<ICostEditorService, CostEditorService>();
             services.AddScoped<ICapabilityMatrixService, CapabilityMatrixService>();
             services.RegisterEntity<Country>();
+            services.RegisterEntity<Pla>();
             services.RegisterEntity<Wg>();
             services.RegisterEntity<Availability>();
             services.RegisterEntity<Duration>();

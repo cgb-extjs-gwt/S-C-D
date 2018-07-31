@@ -1,23 +1,27 @@
-import { get, post } from "../../Common/Services/Ajax";
-import { CountryManagementState } from "../States/CountryStates";
+import {get, post} from "../../Common/Services/Ajax";
+import * as CountryManagementState from "../States/CountryStates";
 
-const CONTROLLER_NAME = 'CountryController'
+const CONTROLLER_NAME = 'CountryManagement'
 
-let countries: CountryManagementState[] = null;
+let countries: CountryManagementState.CountryManagementState[] = null;
 
-export function getCountries(): Promise<CountryManagementState[]> {
-    return getCountrySettings();
+export const getCountrySettings = () => {
+    return get<CountryManagementState.CountryManagementState[]>(CONTROLLER_NAME, 'GetAll');
 }
 
-export function getCountrySettings(): Promise<CountryManagementState[]> {
-
+export const getCountries = () => {
     if (countries)
-        return Promise.resolve(countries);
-
-    return get<CountryManagementState[]>(CONTROLLER_NAME, 'GetAll').then(
-        data => {
-            countries = data;
-            return countries;
-        });
+            return Promise.resolve(countries);
+        
+    return getCountrySettings().then(
+            data => {
+                countries = data;
+                return countries;
+            });
 }
 
+export const saveCountries = (postCountries: CountryManagementState.CountryManagementState[]) => {
+    if (postCountries && postCountries.length > 0){
+        return post<CountryManagementState.CountryManagementState[]>(CONTROLLER_NAME, 'SaveAll', postCountries);
+    }
+}
