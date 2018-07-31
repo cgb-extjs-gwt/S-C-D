@@ -1,8 +1,10 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.CapabilityMatrix;
 using Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix;
+using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -45,11 +47,27 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             )*/
 
-            var filter = new Dictionary<string, IEnumerable<object>>();
+            var sql = new SqlStringBuilder()
+                        .Append("DELETE FROM CapabilityMatrixDeny WHERE Id IN ( ")
+                        .Append("  SELECT Id FROM CapabilityMatrixAllow ")
+                        .Append("   WHERE CountryId ").AppendEqualsOrNull(m.CountryId)
 
-            var cmd = Sql.Delete(null, CAPABILITY_MATRIX_DENY_TBL).Where(filter);
+                        .Append("         AND FujitsuGlobalPortfolio ").AppendEquals(m.IsGlobalPortfolio)
+                        .Append("         AND MasterPortfolio ").AppendEquals(m.IsMasterPortfolio)
+                        .Append("         AND CorePortfolio ").AppendEquals(m.IsCorePortfolio)
 
-            return repositorySet.ExecuteSqlAsync(cmd);
+                        .Append("         AND WgId ").AppendInOrNull(m.Wgs)
+                        .Append("         AND AvailabilityId ").AppendInOrNull(m.Availabilities)
+                        .Append("         AND DurationId ").AppendInOrNull(m.Durations)
+                        .Append("         AND ReactionTypeId ").AppendInOrNull(m.ReactionTypes)
+                        .Append("         AND ReactionTimeId ").AppendInOrNull(m.ReactionTimes)
+                        .Append("         AND ServiceLocationId ").AppendInOrNull(m.ServiceLocations)
+
+                        .Append(")")
+
+                        .AsSql();
+
+            return repositorySet.ExecuteSqlAsync(new SqlHelper(new RawSqlBuilder { RawSql = sql }));
         }
 
         public Task AllowCombinations(long[] items)
@@ -102,70 +120,72 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 )*/
 
 
-            return Task.FromResult(0);
+            var sql = new SqlStringBuilder()
+                .Append(@"INSERT INTO CapabilityMatrixDeny(
+                            Id,CountryId,WgId,AvailabilityId,DurationId,
+                            ReactionTypeId,ReactionTimeId,ServiceLocationId,
+                            FujitsuGlobalPortfolio,MasterPortfolio,CorePortfolio)( ")
+
+                .Append(@" SELECT Id,CountryId,WgId,AvailabilityId,DurationId,
+                                  ReactionTypeId,ReactionTimeId,ServiceLocationId,
+                                  FujitsuGlobalPortfolio,MasterPortfolio,CorePortfolio")
+                .Append("    FROM CapabilityMatrixAllow ")
+                .Append("      WHERE Id NOT IN (SELECT Id FROM CapabilityMatrixDeny)")
+
+                .Append("            AND CountryId ").AppendEqualsOrNull(m.CountryId)
+
+                .Append("            AND FujitsuGlobalPortfolio ").AppendEquals(m.IsGlobalPortfolio)
+                .Append("            AND MasterPortfolio ").AppendEquals(m.IsMasterPortfolio)
+                .Append("            AND CorePortfolio ").AppendEquals(m.IsCorePortfolio)
+
+                .Append("            AND WgId ").AppendInOrNull(m.Wgs)
+                .Append("            AND AvailabilityId ").AppendInOrNull(m.Availabilities)
+                .Append("            AND DurationId ").AppendInOrNull(m.Durations)
+                .Append("            AND ReactionTypeId ").AppendInOrNull(m.ReactionTypes)
+                .Append("            AND ReactionTimeId ").AppendInOrNull(m.ReactionTimes)
+                .Append("            AND ServiceLocationId ").AppendInOrNull(m.ServiceLocations)
+
+                .Append(")")
+
+                .AsSql();
+
+            return repositorySet.ExecuteSqlAsync(new SqlHelper(new RawSqlBuilder { RawSql = sql }));
         }
 
         public IEnumerable<CapabilityMatrixDto> GetAllowedCombinations()
         {
-            return AllowRepo()
-                .GetAll()
-                .Where(x => !DenyRepo().GetAll().Any(y => y.Id == x.Id))
-                .Select(x => new CapabilityMatrixDto
-                {
-                    Id = x.Id,
+            var query = AllowRepo()
+                        .GetAll()
+                        .Where(x => !DenyRepo().GetAll().Any(y => y.Id == x.Id));
 
-                    Country = x.Country == null ? null : x.Country.Name,
-                    Wg = x.Wg == null ? null : x.Wg.Name,
-                    Availability = x.Availability == null ? null : x.Availability.Name,
-                    Duration = x.Duration == null ? null : x.Duration.Name,
-                    ReactionType = x.ReactionType == null ? null : x.ReactionType.Name,
-                    ReactionTime = x.ReactionTime == null ? null : x.ReactionTime.Name,
-                    ServiceLocation = x.ServiceLocation == null ? null : x.ServiceLocation.Name,
-
-                    IsGlobalPortfolio = x.FujitsuGlobalPortfolio,
-                    IsMasterPortfolio = x.MasterPortfolio,
-                    IsCorePortfolio = x.CorePortfolio
-                })
-                .ToList();
+            return GetCombinations(query);
         }
 
         public IEnumerable<CapabilityMatrixDto> GetDeniedCombinations()
         {
-            return DenyRepo()
-                .GetAll()
-                .Select(x => new CapabilityMatrixAllow
-                {
-                    Id = x.Id,
+            var query = DenyRepo().GetAll();
+            return GetCombinations(query);
+        }
 
-                    Country = x.CapabilityMatrixAllow.Country,
-                    Wg = x.CapabilityMatrixAllow.Wg,
-                    Availability = x.CapabilityMatrixAllow.Availability,
-                    Duration = x.CapabilityMatrixAllow.Duration,
-                    ReactionType = x.CapabilityMatrixAllow.ReactionType,
-                    ReactionTime = x.CapabilityMatrixAllow.ReactionTime,
-                    ServiceLocation = x.CapabilityMatrixAllow.ServiceLocation,
+        public IEnumerable<CapabilityMatrixDto> GetCombinations(IQueryable<CapabilityMatrix> query)
+        {
+            return query.Select(x => new CapabilityMatrixDto
+            {
+                Id = x.Id,
 
-                    FujitsuGlobalPortfolio = x.CapabilityMatrixAllow.FujitsuGlobalPortfolio,
-                    MasterPortfolio = x.CapabilityMatrixAllow.MasterPortfolio,
-                    CorePortfolio = x.CapabilityMatrixAllow.CorePortfolio
-                })
-                .Select(x => new CapabilityMatrixDto
-                {
-                    Id = x.Id,
+                Country = x.Country == null ? null : x.Country.Name,
+                Wg = x.Wg == null ? null : x.Wg.Name,
+                Availability = x.Availability == null ? null : x.Availability.Name,
+                Duration = x.Duration == null ? null : x.Duration.Name,
+                ReactionType = x.ReactionType == null ? null : x.ReactionType.Name,
+                ReactionTime = x.ReactionTime == null ? null : x.ReactionTime.Name,
+                ServiceLocation = x.ServiceLocation == null ? null : x.ServiceLocation.Name,
 
-                    Country = x.Country == null ? null : x.Country.Name,
-                    Wg = x.Wg == null ? null : x.Wg.Name,
-                    Availability = x.Availability == null ? null : x.Availability.Name,
-                    Duration = x.Duration == null ? null : x.Duration.Name,
-                    ReactionType = x.ReactionType == null ? null : x.ReactionType.Name,
-                    ReactionTime = x.ReactionTime == null ? null : x.ReactionTime.Name,
-                    ServiceLocation = x.ServiceLocation == null ? null : x.ServiceLocation.Name,
-
-                    IsGlobalPortfolio = x.FujitsuGlobalPortfolio,
-                    IsMasterPortfolio = x.MasterPortfolio,
-                    IsCorePortfolio = x.CorePortfolio
-                })
-                .ToList();
+                IsGlobalPortfolio = x.FujitsuGlobalPortfolio,
+                IsMasterPortfolio = x.MasterPortfolio,
+                IsCorePortfolio = x.CorePortfolio
+            })
+            .ToList();
         }
 
         protected virtual IRepository<CapabilityMatrixAllow> AllowRepo()
@@ -185,38 +205,5 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
             return denyRepo;
         }
-
-        private SqlHelper BuildDeleteValueQuery()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        //private SqlHelper BuildDeleteValueQuery(
-        //    EditItem editItem,
-        //    EditItemInfo editItemInfo,
-        //    int index,
-        //    object value,
-        //    IDictionary<string, IEnumerable<object>> filter = null)
-        //{
-        //    var updateColumn = new ValueUpdateColumnInfo(
-        //        editItemInfo.ValueField,
-        //        editItem.Value,
-        //        $"{editItemInfo.ValueField}_{index}");
-
-        //    filter = new Dictionary<string, IEnumerable<object>>(filter ?? Enumerable.Empty<KeyValuePair<string, IEnumerable<object>>>())
-        //    {
-        //        [editItemInfo.NameField] = new object[]
-        //        {
-        //            new CommandParameterInfo
-        //            {
-        //                Name = $"{editItemInfo.NameField}_{index}",
-        //                Value = value
-        //            }
-        //        }
-        //    };
-
-        //    return Sql.Update(editItemInfo.Schema, editItemInfo.EntityName, updateColumn)
-        //              .Where(filter);
-        //}
     }
 }
