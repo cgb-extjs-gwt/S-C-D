@@ -18,7 +18,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string WgLevelId = "Wg";
 
-        private const string RoleCodeKey = "RoleCodeCode";
+        private const string RoleCodeKey = "RoleCode";
 
         private const string ServiceLocationKey = "ServiceLocation";
 
@@ -53,7 +53,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql(countryInputLevelMeta, this.GetCountrieNames()),
                 this.BuildInsertSql(plaInputLevelMeta, this.GetPlaNames()),
                 this.BuildInsertSql(wgInputLevelMeta, this.GetWarrantyGroupNames()),
-                //this.BuildInsertSql(MetaConstants.DependencySchema, RoleCodeKey, this.GetRoleCodeNames()),
+                this.BuildInsertSql(MetaConstants.DependencySchema, RoleCodeKey, this.GetRoleCodeNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
                 this.BuildInsertSql(new NamedEntityMeta(ReactionTimeKey, MetaConstants.DependencySchema), this.GetReactionTimeCodeNames()),
                 this.BuildInsertSql(new NamedEntityMeta(ReactionTypeKey, MetaConstants.DependencySchema), this.GetReactionTypeNames()),
@@ -494,17 +494,17 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        //private string[] GetRoleCodeNames()
-        //{
-        //    return new string[]
-        //    {
-        //        "SEFS05",
-        //        "SEFS06",
-        //        "SEFS04",
-        //        "SEIE07",
-        //        "SEIE08"
-        //    };
-        //}
+        private string[] GetRoleCodeNames()
+        {
+            return new string[]
+            {
+                "SEFS05",
+                "SEFS06",
+                "SEFS04",
+                "SEIE07",
+                "SEIE08"
+            };
+        }
 
         private string[] GetServiceLocationCodeNames()
         {
