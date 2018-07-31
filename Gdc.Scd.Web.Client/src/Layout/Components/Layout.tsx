@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
 import RoleCodesGrid from '../../Admin/RoleCodesGrid';
 import { CommonState } from '../States/AppStates';
+import CountryGrid  from '../../Admin/Country/containers/CountryGrid';
 
 interface LayoutProps {
     title: string
@@ -58,8 +59,9 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/" component={Home} exact/>
                         <Route path="/about" component={About}/>
                         <Route path="/pivot" component={ScdPivotGrid}/>
-                        <Route path="/input-cost-elements" component={CostEditorContainer} />
-                        <Route path="/Administration/RoleCodes" component={RoleCodesGrid} />
+                        <Route path="/input-cost-elements" component={CostEditorContainer}/>
+                        <Route path="/admin/country-management" component={CountryGrid} />
+                        <Route path="/admin/RoleCodes" component={RoleCodesGrid} />
                     </Switch>
                 </Panel>
             </Container>

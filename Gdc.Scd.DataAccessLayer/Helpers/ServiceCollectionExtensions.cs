@@ -1,5 +1,7 @@
-﻿using Gdc.Scd.Core.Interfaces;
+﻿using System;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Impl;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gdc.Scd.DataAccessLayer.Helpers
@@ -13,9 +15,9 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             services.AddSingleton<EntityFrameworkRepository<TEntity>, TRepository>();
         }
 
-        public static void RegisterEntity<T>(this IServiceCollection services) where T : class, IIdentifiable
+        public static void RegisterEntity<T>(this IServiceCollection services, Action<EntityTypeBuilder> entityTypeBuilder = null) where T : class, IIdentifiable
         {
-            EntityFrameworkRepositorySet.RegisteredEntities.Add(typeof(T));
+            EntityFrameworkRepositorySet.RegisteredEntities.Add(typeof(T), entityTypeBuilder);
         }
     }
 }

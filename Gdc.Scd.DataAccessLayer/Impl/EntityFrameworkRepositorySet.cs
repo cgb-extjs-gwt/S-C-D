@@ -9,6 +9,7 @@ using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,7 +20,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         private readonly IServiceProvider serviceProvider;
         private readonly IConfiguration configuration;
 
-        internal static ICollection<Type> RegisteredEntities { get; private set; } = new List<Type>();
+        internal static IDictionary<Type, Action<EntityTypeBuilder>> RegisteredEntities { get; private set; } = new Dictionary<Type, Action<EntityTypeBuilder>>();
 
         public EntityFrameworkRepositorySet(IServiceProvider serviceProvider, IConfiguration configuration)
         {
@@ -40,11 +41,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public IRepository<T> GetRepository<T>() where T : class, IIdentifiable, new()
         {
-            var repository = this.serviceProvider.GetService<EntityFrameworkRepository<T>>();
-
-            repository.SetDbContext(this);
-
-            return repository;
+            return this.serviceProvider.GetService<IRepository<T>>();
         }
 
         public void Sync()
@@ -120,7 +117,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public IEnumerable<Type> GetRegisteredEntities()
         {
-            return RegisteredEntities.ToArray();
+            return RegisteredEntities.Keys.ToArray();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -129,7 +126,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             foreach (var entityType in RegisteredEntities)
             {
-                modelBuilder.Entity(entityType);
+                if (entityType.Value == null)
+                {
+                    modelBuilder.Entity(entityType.Key);
+                }
+                else
+                {
+                    modelBuilder.Entity(entityType.Key, entityType.Value);
+                }
             }
         }
 

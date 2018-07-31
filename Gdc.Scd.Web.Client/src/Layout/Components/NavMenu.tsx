@@ -33,8 +33,15 @@ const NavMenu: React.SFC<NavMenuProps & any> = ({
                     { id: '/pivot', text: 'Pivot grid', iconCls: 'x-fa fa-info', leaf: true },
                     { id: '/input-cost-elements', text: 'Input Cost Elements', iconCls: 'x-fa fa-info', leaf: true },
                     {
-                        id: '/Administration', text: 'Administration', iconCls: 'x-fa fa-info', children: [
-                            { id: '/Administration/RoleCodes', text: 'Role codes', iconCls: 'x-fa fa-info', leaf: true }]},
+                        id: '/admin', text: 'Admin', iconCls: 'x-fa fa-info', disabled: true, children: [{
+                            id: '/admin/country-management',
+                            text: 'Country Management', iconCls: 'x-fa fa-globe', leaf: true
+                        },
+                            {
+                                id: '/admin/RoleCodes',
+                                text: 'Role codes', iconCls: 'x-fa fa-info', leaf: true
+                            }]
+                    }
                 ]
             }
         }}

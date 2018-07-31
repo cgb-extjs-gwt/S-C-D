@@ -14,6 +14,8 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.AddScoped(typeof(IDomainService<>), typeof(DomainService<>));
             services.AddScoped<ICostEditorService, CostEditorService>();
             services.RegisterEntity<Country>();
+            services.RegisterEntity<Pla>();
+            services.RegisterEntity<Wg>();
             services.RegisterEntity<RoleCode>();
             services.RegisterEntity<WarrantyGroup>();
         }
