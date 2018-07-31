@@ -17,7 +17,6 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<Pla>();
             services.RegisterEntity<Wg>();
             services.RegisterEntity<RoleCode>();
-            services.RegisterEntity<WarrantyGroup>();
         }
     }
 }

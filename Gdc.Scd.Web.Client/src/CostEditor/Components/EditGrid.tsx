@@ -33,6 +33,8 @@ export interface EditActions {
   
 export class EditGrid extends React.Component<EditProps & EditActions>  {
 
+
+
     public render() {
         const props = this.props;
 
@@ -56,7 +58,7 @@ export class EditGrid extends React.Component<EditProps & EditActions>  {
         });
 
         return (
-            <Grid 
+            <Grid              
             store={store} 
             flex={props.flex} 
             shadow 

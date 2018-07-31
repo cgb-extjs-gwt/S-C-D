@@ -9,41 +9,120 @@ Ext.require([
     'Ext.grid.plugin.CellEditing',
 ]);
 
+Ext.define('RoleCode', {
+    extend: 'Ext.data.Model',
+    fields: [
+        { name: 'id', type: 'int' },
+        { name: 'name', type: 'string' }
+    ]
+});
+
 export default class RoleCodesGrid extends React.Component {
+    state = {
+        disableSaveButton: true,
+        disableDeleteButton: true,
+        selectedRecord: null
+    };
+
 
     store = Ext.create('Ext.data.Store', {
-        fields: ['id', 'name'],
+        model: 'RoleCode',
         autoLoad: true,
         //autoSync: true,
         pageSize: 0,
         proxy: {
             type: 'ajax',
-            //url: '/api/rolecode/getall'
             writer: {
                 type: 'json',        
                 writeAllFields: true,             
-                idProperty: "id",
-                allowSingle: false
+                allowSingle: false,
+                idProperty: "id"
             },
             reader: {
                 type: 'json',        
                 idProperty: "id"
+            },          
+            listeners: {
+                exception: function (proxy, response, operation) {
+                    //TODO: show error
+                    console.log(operation.getError());
+                }
             },
-            api: {
+            api: {             
+                create: '/api/rolecode/SaveAll',
                 read: '/api/rolecode/GetAll',
-                update: '/api/rolecode/SaveAll'
+                update: '/api/rolecode/SaveAll',
+                destroy: '/api/rolecode/DeleteAll'
+            }
+        },
+        listeners: {
+            update: (store, record, operation, modifiedFieldNames, details, eOpts) => {
+                const modifiedRecords = this.store.getModifiedRecords();
+                
+                if (modifiedRecords.length > 0) {
+                    this.setState({ disableSaveButton: false });
+                }
+                else {
+                    this.setState({ disableSaveButton: true });
+                }
+                console.log(this.state);
             }
         }
     });
+
+    saveRecords = () => {
+        this.store.sync({
+            callback: function (batch, options) {
+                console.log('this is callback');
+            },
+
+            success: function (batch, options) {
+                //TODO: show successfull message box
+                console.log('this is success');
+            },
+
+            failure: (batch, options) => {
+                //TODO: show error
+                this.store.rejectChanges();
+                console.log('this is failure');
+            }
+
+        });
+    }
+
+    newRecord = () => {
+        this.store.add(Ext.create('RoleCode', { id: -1, name: 'new' }));
+    }
+
+    deleteRecord = () => {
+        this.store.remove(this.state.selectedRecord);
+        console.log(this.state.selectedRecord);
+    }
+
+    selectRowHandler = (dataView, records) => {
+        if (records[0]) {
+            this.setState({
+                selectedRecord: records[0],
+                disableDeleteButton: false
+            });
+        }
+        else {
+            this.setState({ disableDeleteButton: true });
+        }          
+        console.log(this.state);
+    }
 
     render() {
         const props = this.props;
         const store = this.store;
         return (
             <Grid
-                title='Role codes'
+                title={'Role codes'}
+                store={this.store}
+                cls="filter-grid"
+                columnLines={true}
                 shadow
-                store={store}
+                onSelect={(dataView, records) => this.selectRowHandler(dataView, records)}
                 platformConfig={{
                     desktop: {
                         plugins: {
@@ -55,65 +134,42 @@ export default class RoleCodesGrid extends React.Component {
                             grideditable: true
                         }
                     }
-                }}
+                }
+                }
             >
                 <Column
                     text="ID"
-                    width="150"
+                    flex={1}
                     dataIndex="id"                   
                 />
                 <Column
                     text="Role code"
-                    width="150"
+                    flex={1}
                     dataIndex="name"
                     editable
                 />       
-                <Toolbar docked="bottom">
+                <Toolbar docked="bottom">   
                     <Button
-                        text="Cancel"
+                        text="New"
                         flex={1}
-                        //disabled={!props.isEnableClear}
-                        handler={() => this.store.rejectChanges()}
+                        iconCls="x-fa fa-plus"
+                        handler={ this.newRecord }
+                    />
+                    <Button
+                        text="Delete"
+                        flex={1}
+                        iconCls="x-fa fa-trash"
+                        handler={ this.deleteRecord }
                     />
                     <Button
                         text="Save"
                         flex={1}
-                        //disabled={!props.isEnableSave}
-                        handler={() => console.log(store.sync({
-                            callback: function () {
-                                console.log('callback', arguments);
-                            },
-                            success: function () {
-                                console.log('success', arguments);
-                            },
-                            failure: function () {
-                                this.store.rejectChanges();
-                                console.log('failure', arguments);
-                            }
-                        }))}
+                        iconCls="x-fa fa-save"
+                        disabled= { this.store.disableSaveButton }
+                        handler= { this.saveRecords }
                     />
                 </Toolbar>
             </Grid>
         )
     }
-
-    //private showSaveDialog() {
-    //    const { onSaving } = this.props;
-
-    //    Ext.Msg.confirm(
-    //        'Saving changes',
-    //        'Do you want to save the changes?',
-    //        (buttonId: string) => onSaving && onSaving()
-    //    );
-    //}
-
-    //private showClearDialog() {
-    //    const { onCleared } = this.props;
-
-    //    Ext.Msg.confirm(
-    //        'Clearing changes',
-    //        'Do you want to clear the changes??',
-    //        (buttonId: string) => onCleared && onCleared()
-    //    );
-    //}
 }

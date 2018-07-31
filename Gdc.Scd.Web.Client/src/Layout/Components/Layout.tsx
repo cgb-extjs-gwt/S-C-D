@@ -61,7 +61,7 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/pivot" component={ScdPivotGrid}/>
                         <Route path="/input-cost-elements" component={CostEditorContainer}/>
                         <Route path="/admin/country-management" component={CountryGrid} />
-                        <Route path="/admin/RoleCodes" component={RoleCodesGrid} />
+                        <Route path="/admin/role-code-management" component={RoleCodesGrid} />
                     </Switch>
                 </Panel>
             </Container>
