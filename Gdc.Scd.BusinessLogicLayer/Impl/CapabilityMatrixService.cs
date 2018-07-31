@@ -2,6 +2,7 @@
 using Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,6 +11,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
     public class CapabilityMatrixService : ICapabilityMatrixService
     {
+        private const string CAPABILITY_MATRIX_DENY_TBL = "CapabilityMatrixDeny";
+
+        private const string ID_COL = "Id";
+
         private readonly IRepositorySet repositorySet;
 
         private IRepository<CapabilityMatrixAllow> allowRepo;
@@ -23,23 +28,82 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public Task AllowCombination(CapabilityMatrixEditDto m)
         {
-            return Task.FromResult(0);
+            /*
+            DELETE FROM CapabilityMatrixDeny WHERE Id IN (
+
+                SELECT Id FROM CapabilityMatrixAllow
+                    WHERE CountryId = @country
+
+                      AND FujitsuGlobalPortfolio = @globalPortfolio
+                      AND MasterPortfolio =        @masterPortfolio
+                      AND CorePortfolio =          @corePortfolio
+
+                      AND WgId               IN (@wg[]...)
+                      AND AvailabilityId     IN (@availability[]...)
+                      AND DurationId         IN (@duration[]...)
+                      AND ReactionTypeId     IN (@reactionType[]...)
+                      AND ReactionTimeId     IN (@reactionTime[]...)
+                      AND ServiceLocationId  IN (@serviceLocation[]...)
+
+            )*/
+
+            var filter = new Dictionary<string, IEnumerable<object>>();
+
+            var cmd = Sql.Delete(null, CAPABILITY_MATRIX_DENY_TBL).Where(filter);
+
+            return repositorySet.ExecuteSqlAsync(cmd);
         }
 
-        public void AllowCombinations(long[] items)
+        public Task AllowCombinations(long[] items)
         {
-            var repo = DenyRepo();
+            //DELETE FROM CapabilityMatrixDeny WHERE Id IN (@items[]...)
 
-            for (var i = 0; i < items.Length; i++)
-            {
-                repo.Delete(items[i]);
-            }
-
-            repositorySet.Sync();
+            var cmd = Sql.Delete(CAPABILITY_MATRIX_DENY_TBL).WhereId(items);
+            return repositorySet.ExecuteSqlAsync(cmd);
         }
 
         public Task DenyCombination(CapabilityMatrixEditDto m)
         {
+            /*INSERT INTO CapabilityMatrixDeny (
+                            Id, 
+                            CountryId, 
+                            WgId, 
+                            AvailabilityId, 
+                            DurationId, 
+                            ReactionTypeId, 
+                            ReactionTimeId, 
+                            ServiceLocationId, 
+                            FujitsuGlobalPortfolio,
+                            MasterPortfolio, 
+                            CorePortfolio) (
+                    SELECT Id, 
+                           CountryId, 
+                           WgId, 
+                           AvailabilityId, 
+                           DurationId, 
+                           ReactionTypeId, 
+                           ReactionTimeId, 
+                           ServiceLocationId, 
+                           FujitsuGlobalPortfolio, 
+                           MasterPortfolio, 
+                           CorePortfolio FROM CapabilityMatrixAllow
+                        WHERE Id NOT IN (SELECT Id FROM CapabilityMatrixDeny)
+
+                              AND CountryId = @country
+                 
+                              AND FujitsuGlobalPortfolio = @globalPortfolio
+                              AND MasterPortfolio =        @masterPortfolio
+                              AND CorePortfolio =          @corePortfolio
+                 
+                              AND WgId               IN (@wg[]...)
+                              AND AvailabilityId     IN (@availability[]...)
+                              AND DurationId         IN (@duration[]...)
+                              AND ReactionTypeId     IN (@reactionType[]...)
+                              AND ReactionTimeId     IN (@reactionTime[]...)
+                              AND ServiceLocationId  IN (@serviceLocation[]...)
+                )*/
+
+
             return Task.FromResult(0);
         }
 
@@ -71,20 +135,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             return DenyRepo()
                 .GetAll()
-                .Select(x => new CapabilityMatrixAllow {
+                .Select(x => new CapabilityMatrixAllow
+                {
                     Id = x.Id,
 
-                    Country =x.CapabilityMatrixAllow.Country,
+                    Country = x.CapabilityMatrixAllow.Country,
                     Wg = x.CapabilityMatrixAllow.Wg,
                     Availability = x.CapabilityMatrixAllow.Availability,
                     Duration = x.CapabilityMatrixAllow.Duration,
-                    ReactionType=x.CapabilityMatrixAllow.ReactionType,
+                    ReactionType = x.CapabilityMatrixAllow.ReactionType,
                     ReactionTime = x.CapabilityMatrixAllow.ReactionTime,
                     ServiceLocation = x.CapabilityMatrixAllow.ServiceLocation,
 
                     FujitsuGlobalPortfolio = x.CapabilityMatrixAllow.FujitsuGlobalPortfolio,
                     MasterPortfolio = x.CapabilityMatrixAllow.MasterPortfolio,
-                    CorePortfolio =x.CapabilityMatrixAllow.CorePortfolio
+                    CorePortfolio = x.CapabilityMatrixAllow.CorePortfolio
                 })
                 .Select(x => new CapabilityMatrixDto
                 {
@@ -122,5 +187,38 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
             return denyRepo;
         }
+
+        private SqlHelper BuildDeleteValueQuery()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        //private SqlHelper BuildDeleteValueQuery(
+        //    EditItem editItem,
+        //    EditItemInfo editItemInfo,
+        //    int index,
+        //    object value,
+        //    IDictionary<string, IEnumerable<object>> filter = null)
+        //{
+        //    var updateColumn = new ValueUpdateColumnInfo(
+        //        editItemInfo.ValueField,
+        //        editItem.Value,
+        //        $"{editItemInfo.ValueField}_{index}");
+
+        //    filter = new Dictionary<string, IEnumerable<object>>(filter ?? Enumerable.Empty<KeyValuePair<string, IEnumerable<object>>>())
+        //    {
+        //        [editItemInfo.NameField] = new object[]
+        //        {
+        //            new CommandParameterInfo
+        //            {
+        //                Name = $"{editItemInfo.NameField}_{index}",
+        //                Value = value
+        //            }
+        //        }
+        //    };
+
+        //    return Sql.Update(editItemInfo.Schema, editItemInfo.EntityName, updateColumn)
+        //              .Where(filter);
+        //}
     }
 }
