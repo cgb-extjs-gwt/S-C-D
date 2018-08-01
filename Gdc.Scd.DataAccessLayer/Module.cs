@@ -23,6 +23,7 @@ namespace Gdc.Scd.DataAccessLayer
             services.AddTransient<BaseColumnMetaSqlBuilder<IdFieldMeta>, IdColumnMetaSqlBuilder>();
             services.AddTransient<BaseColumnMetaSqlBuilder<SimpleFieldMeta>, SimpleColumnMetaSqlBuilder>();
             services.AddTransient<BaseColumnMetaSqlBuilder<ReferenceFieldMeta>, ReferenceColumnMetaSqlBuilder>();
+            services.AddTransient<BaseColumnMetaSqlBuilder<CreatedDateTimeFieldMeta>, CreatedDateTimeColumnMetaSqlBuilder>();
             services.AddTransient<CreateTableMetaSqlBuilder>();
             services.AddTransient<DatabaseMetaSqlBuilder>();
             services.AddTransient<IConfigureApplicationHandler, DatabaseCreationHandler>();

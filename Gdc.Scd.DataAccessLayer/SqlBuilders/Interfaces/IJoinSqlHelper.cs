@@ -10,12 +10,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces
 
         TResult Join(ISqlBuilder table, ConditionHelper condition, JoinType type = JoinType.Inner);
 
-        TResult Join(string schemaName, string tableName, ConditionHelper condition, JoinType type = JoinType.Inner);
+        TResult Join(string schemaName, string tableName, ConditionHelper condition, JoinType type = JoinType.Inner, string alias = null);
 
-        TResult Join(string tableName, ConditionHelper condition, JoinType type = JoinType.Inner);
+        TResult Join(string tableName, ConditionHelper condition, JoinType type = JoinType.Inner, string alias = null);
 
-        TResult Join(BaseEntityMeta meta, string referenceFieldName);
+        TResult Join(BaseEntityMeta meta, string referenceFieldName, string aliasMetaTable = null);
 
-        TResult Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner);
+        TResult Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner, string aliasMetaTable = null);
     }
 }
