@@ -6,6 +6,7 @@ import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { NullStringColumn } from "./Components/NullStringColumn";
 import { ReadonlyCheckColumn } from "./Components/ReadonlyCheckColumn";
+import { FilterPanel } from "./Components/FilterPanel";
 
 export class CapabilityMatrixView extends React.Component<any, any> {
 
@@ -23,7 +24,9 @@ export class CapabilityMatrixView extends React.Component<any, any> {
     public render() {
 
         return (
-            <Container layout="vbox">
+            <Container scrollable={true}>
+
+                <FilterPanel docked="right" />
 
                 <Toolbar docked="top">
                     <Button iconCls="x-fa fa-edit" text="Edit" handler={this.onEdit} />
