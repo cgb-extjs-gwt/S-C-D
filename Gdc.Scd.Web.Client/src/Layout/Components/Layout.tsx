@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
 import { CommonState } from '../States/AppStates';
 import CountryGrid  from '../../Admin/Country/containers/CountryGrid';
+import ApprovalCostElements from '../../CostApproval/Components/ApprovalCostElements';
 
 interface LayoutProps {
     title: string
@@ -60,6 +61,7 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/pivot" component={ScdPivotGrid}/>
                         <Route path="/input-cost-elements" component={CostEditorContainer}/>
                         <Route path="/admin/country-management" component={ CountryGrid }/>
+                        <Route path="/cost-approval" component={ ApprovalCostElements} />
                     </Switch>
                 </Panel>
             </Container>
