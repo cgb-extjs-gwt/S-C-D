@@ -2,7 +2,6 @@
 
 namespace Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix
 {
-    [Table("CapabilityMatrixAllow")]
     public class CapabilityMatrixAllow : CapabilityMatrix
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

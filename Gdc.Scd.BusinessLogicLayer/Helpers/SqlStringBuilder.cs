@@ -4,7 +4,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 {
     public class SqlStringBuilder
     {
-        StringBuilder sb;
+        private StringBuilder sb;
 
         public SqlStringBuilder()
         {

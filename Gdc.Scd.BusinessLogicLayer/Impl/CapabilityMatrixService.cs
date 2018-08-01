@@ -4,7 +4,6 @@ using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,9 +20,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private IRepository<CapabilityMatrixDeny> denyRepo;
 
-        public CapabilityMatrixService(IRepositorySet repositorySet)
+        public CapabilityMatrixService(
+                IRepositorySet repositorySet,
+                IRepository<CapabilityMatrixAllow> allowRepo,
+                IRepository<CapabilityMatrixDeny> denyRepo
+            )
         {
             this.repositorySet = repositorySet;
+            this.allowRepo = allowRepo;
+            this.denyRepo = denyRepo;
         }
 
         public Task AllowCombination(CapabilityMatrixEditDto m)
@@ -67,11 +72,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                         .AsSql();
 
-            return repositorySet.ExecuteSqlAsync(new SqlHelper(new RawSqlBuilder { RawSql = sql }));
+            return repositorySet.ExecuteSqlAsync(sql);
         }
 
         public Task AllowCombinations(long[] items)
         {
+            if(items.Length == 0)
+            {
+                throw new System.ArgumentException("Invalid items list");
+            }
+
             //DELETE FROM CapabilityMatrixDeny WHERE Id IN (@items[]...)
 
             var cmd = Sql.Delete(CAPABILITY_MATRIX_DENY_TBL).WhereId(items);
@@ -149,21 +159,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 .AsSql();
 
-            return repositorySet.ExecuteSqlAsync(new SqlHelper(new RawSqlBuilder { RawSql = sql }));
+            return repositorySet.ExecuteSqlAsync(sql);
         }
 
         public IEnumerable<CapabilityMatrixDto> GetAllowedCombinations()
         {
-            var query = AllowRepo()
+            var query = allowRepo
                         .GetAll()
-                        .Where(x => !DenyRepo().GetAll().Any(y => y.Id == x.Id));
+                        .Where(x => !denyRepo.GetAll().Any(y => y.Id == x.Id));
 
             return GetCombinations(query);
         }
 
         public IEnumerable<CapabilityMatrixDto> GetDeniedCombinations()
         {
-            var query = DenyRepo().GetAll();
+            var query = denyRepo.GetAll();
             return GetCombinations(query);
         }
 
@@ -186,24 +196,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IsCorePortfolio = x.CorePortfolio
             })
             .ToList();
-        }
-
-        protected virtual IRepository<CapabilityMatrixAllow> AllowRepo()
-        {
-            if (allowRepo == null)
-            {
-                allowRepo = repositorySet.GetRepository<CapabilityMatrixAllow>();
-            }
-            return allowRepo;
-        }
-
-        protected virtual IRepository<CapabilityMatrixDeny> DenyRepo()
-        {
-            if (denyRepo == null)
-            {
-                denyRepo = repositorySet.GetRepository<CapabilityMatrixDeny>();
-            }
-            return denyRepo;
         }
     }
 }
