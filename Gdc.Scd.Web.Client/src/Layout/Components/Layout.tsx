@@ -8,7 +8,9 @@ import About from '../../Test/About/About';
 import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
 import { connect } from 'react-redux';
 import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
+import { CapabilityMatrixView, CapabilityMatrixEditView } from '../../CapabilityMatrix';
 import { CommonState } from '../States/AppStates';
+import CountryGrid  from '../../Admin/Country/containers/CountryGrid';
 
 interface LayoutProps {
     title: string
@@ -36,7 +38,7 @@ export class Layout extends React.Component<LayoutProps> {
         return (
             <Container fullscreen layout="fit">
                 <Panel scrollable docked="left" shadow zIndex={2}>
-                    <TitleBar title="SCD 2.0" docked="top"/>
+                    <TitleBar title="SCD 2.0" docked="top" />
                     <NavMenu
                         {...navMenuDefaults}
                         responsiveConfig={{
@@ -58,6 +60,9 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/about" component={About}/>
                         <Route path="/pivot" component={ScdPivotGrid}/>
                         <Route path="/input-cost-elements" component={CostEditorContainer}/>
+                        <Route path="/admin/country-management" component={ CountryGrid }/>
+                        <Route path="/capability-matrix" exact component={CapabilityMatrixView} />
+                        <Route path="/capability-matrix/edit" component={CapabilityMatrixEditView} />
                     </Switch>
                 </Panel>
             </Container>
@@ -65,7 +70,7 @@ export class Layout extends React.Component<LayoutProps> {
     }
 }
 
-const containerFactory = connect<LayoutProps,{},{}, CommonState>(
+const containerFactory = connect<LayoutProps, {}, {}, CommonState>(
     state => ({
         title: state.app.currentPage && state.app.currentPage.title
     } as LayoutProps)

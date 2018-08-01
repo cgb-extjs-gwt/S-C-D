@@ -150,7 +150,7 @@
         <!--<Element Name="OnsiteHourlyRate" Caption="Onsite hourly rate" InputOption="Reference"/>-->
         <Element Name="LabourCost" Caption="Labour cost" InputOption="Manually" Dependency="ServiceLocation"/>
         <Element Name="TravelCost" Caption="Travel cost" InputOption="Manually" Dependency="ServiceLocation"/>
-        <Element Name="PerformanceRate" Caption="Performance rate" InputOption="Manually" Dependency="Reaction"/>
+        <!--<Element Name="PerformanceRate" Caption="Performance rate" InputOption="Manually" Dependency="Reaction"/>-->
         <Element Name="TimeAndMaterialShare" Caption="Time and material share" InputOption="Manually"/>
         <!--<Element Name="AFR" InputOption="Reference"/>-->
       </Elements>
@@ -181,7 +181,7 @@
       </Elements>
     </Block>
 
-    <Block Name="LogisticsCosts" Caption="Logistics Costs">
+    <!--<Block Name="LogisticsCosts" Caption="Logistics Costs">
       <Applications>
         <Application>Hardware</Application>
       </Applications>
@@ -192,9 +192,9 @@
         <Element Name="ExpressDelivery" Caption="Express delivery" InputOption="Manually" Dependency="Reaction"/>
         <Element Name="TaxiCourierDelivery" Caption="Taxi/courier delivery" InputOption="Manually" Dependency="Reaction"/>
         <Element Name="ReturnDeliveryFactory" Caption="Return delivery to factory" InputOption="Manually" Dependency="Reaction"/>
-        <!--<Element Name="AFR" InputOption="Reference"/>-->
+        --><!--<Element Name="AFR" InputOption="Reference"/>--><!--
       </Elements>
-    </Block>
+    </Block>-->
 
     <Block Name="AvailabilityFee" Caption="Availability fee">
       <Applications>
@@ -263,11 +263,11 @@
             <InputLevel>Wg</InputLevel>
           </InputLevels>
         </Element>
-        <Element Name="ReinsuranceUplift factor" Caption="Reinsurance uplift factor" InputOption="Manually" Dependency="ReactionTimeAvalability" RegionInput="_none_">
+        <!--<Element Name="ReinsuranceUplift factor" Caption="Reinsurance uplift factor" InputOption="Manually" Dependency="ReactionTimeAvalability" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
-        </Element>
+        </Element>-->
       </Elements>
     </Block>
 

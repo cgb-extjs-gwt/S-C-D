@@ -13,5 +13,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Entities
             get => base.Id;
             set => base.Id = value;
         }
+
+        public bool CanOverrideListAndDealerPrices { get; set; }
+
+        public bool ShowDealerPrice { get; set; }
+
+        public bool CanOverrideTransferCostAndPrice { get; set; }
+
     }
 }

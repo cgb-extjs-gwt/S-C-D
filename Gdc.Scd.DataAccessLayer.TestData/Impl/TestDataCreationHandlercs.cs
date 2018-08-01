@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Gdc.Scd.BusinessLogicLayer.Entities;
+﻿using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -8,6 +6,9 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -31,6 +32,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string AvailabilityKey = "Availability";
 
+        private const string DurationKey = "Duration";
+
         private readonly IRepositorySet repositorySet;
 
         private readonly DomainEnitiesMeta entityMetas;
@@ -48,14 +51,29 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreatePlas();
 
             var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
+            var countryRepository = repositorySet.GetRepository<Country>();
+
+            var countries = this.GetCountrieNames().Select(c => new Country
+            {
+                Name = c,
+                CanOverrideListAndDealerPrices = GenerateRandomBool(),
+                CanOverrideTransferCostAndPrice = GenerateRandomBool(),
+                ShowDealerPrice = GenerateRandomBool()
+            });
+
+            countryRepository.Save(countries);
+            repositorySet.Sync();
+
+
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
 
+
             var queries = new List<SqlHelper>
             {
-                this.BuildInsertSql(countryInputLevelMeta, this.GetCountrieNames()),
                 //this.BuildInsertSql(plaInputLevelMeta, this.GetPlaNames()),
                 //this.BuildInsertSql(wgInputLevelMeta, this.GetWarrantyGroupNames()),
+
                 //this.BuildInsertSql(MetaConstants.DependencySchema, RoleCodeKey, this.GetRoleCodeNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
                 this.BuildInsertSql(new NamedEntityMeta(ReactionTimeKey, MetaConstants.DependencySchema), this.GetReactionTimeCodeNames()),
@@ -63,6 +81,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql(MetaConstants.DependencySchema, YearKey, this.GetYearNames()),
                 this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, AvailabilityKey, this.GetAvailabilityNames()),
+                this.BuildInsertSql(new NamedEntityMeta(DurationKey, MetaConstants.DependencySchema), this.GetDurationNames()),
                 this.BuildInsertReactionTimeTypeSql(),
                 this.BuildInsertReactionTimeAvailabilitySql()
             };
@@ -1025,6 +1044,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "Hungary",
                 "India",
                 "Italy",
+                "Japan",
                 "Luxembourg",
                 "Middle East",
                 "Morocco",
@@ -1307,6 +1327,26 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "9x5",
                 "24x7"
             };
+        }
+
+        private string[] GetDurationNames()
+        {
+            return new string[]
+            {
+                "1h",
+                "2h",
+                "8h",
+                "1d",
+                "1d 3h",
+                "7d"
+            };
+        }
+
+        private bool GenerateRandomBool()
+        {
+            Random gen = new Random();
+            int prob = gen.Next(100);
+            return prob <= 70;
         }
     }
 }

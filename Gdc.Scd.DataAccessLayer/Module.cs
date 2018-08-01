@@ -27,7 +27,7 @@ namespace Gdc.Scd.DataAccessLayer
             services.AddTransient<CreateTableMetaSqlBuilder>();
             services.AddTransient<DatabaseMetaSqlBuilder>();
             services.AddTransient<IConfigureApplicationHandler, DatabaseCreationHandler>();
-            services.AddTransient<ICustomConfigureTableHandler, ReactionTableConfigureHandler>();
+            //services.AddTransient<ICustomConfigureTableHandler, ReactionTableConfigureHandler>();
 
             services.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(HistoryContext), nameof(CostBlockHistory.Context)));
         }
