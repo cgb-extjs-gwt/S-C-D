@@ -2,6 +2,7 @@
 using Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix;
 using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using System.Collections.Generic;
@@ -77,7 +78,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public Task AllowCombinations(long[] items)
         {
-            if(items.Length == 0)
+            if (items.Length == 0)
             {
                 throw new System.ArgumentException("Invalid items list");
             }
@@ -164,35 +165,49 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public IEnumerable<CapabilityMatrixDto> GetAllowedCombinations()
         {
-            var query = allowRepo
-                        .GetAll()
-                        .Where(x => !denyRepo.GetAll().Any(y => y.Id == x.Id));
-
-            return GetCombinations(query);
+            return GetAllowedCombinations(null);
         }
 
         public IEnumerable<CapabilityMatrixDto> GetAllowedCombinations(CapabilityMatrixFilterDto filter)
         {
-            if (filter == null)
-            {
-                return GetAllowedCombinations();
-            }
-            throw new System.NotImplementedException();
+            var query = allowRepo
+                        .GetAll()
+                        .Where(x => !denyRepo.GetAll().Any(y => y.Id == x.Id));
+
+            return GetCombinations(query, filter);
         }
 
         public IEnumerable<CapabilityMatrixDto> GetDeniedCombinations()
         {
-            var query = denyRepo.GetAll();
-            return GetCombinations(query);
+            return GetDeniedCombinations(null);
         }
 
         public IEnumerable<CapabilityMatrixDto> GetDeniedCombinations(CapabilityMatrixFilterDto filter)
         {
-            if(filter == null)
+            var query = denyRepo.GetAll();
+            return GetCombinations(query, filter);
+        }
+
+        public IEnumerable<CapabilityMatrixDto> GetCombinations(
+                IQueryable<CapabilityMatrix> query,
+                CapabilityMatrixFilterDto filter
+            )
+        {
+            if (filter != null)
             {
-                return GetDeniedCombinations();
+                query = query.WhereIf(filter.Country.HasValue, x => x.Country.Id == filter.Country.Value)
+                             .WhereIf(filter.Wg.HasValue, x => x.Wg.Id == filter.Wg.Value)
+                             .WhereIf(filter.Availability.HasValue, x => x.Availability.Id == filter.Availability.Value)
+                             .WhereIf(filter.Duration.HasValue, x => x.Duration.Id == filter.Duration.Value)
+                             .WhereIf(filter.ReactionType.HasValue, x => x.ReactionType.Id == filter.ReactionType.Value)
+                             .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTime.Id == filter.ReactionTime.Value)
+                             .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocation.Id == filter.ServiceLocation.Value)
+                             .WhereIf(filter.IsGlobalPortfolio.HasValue && filter.IsGlobalPortfolio.Value, x => x.FujitsuGlobalPortfolio)
+                             .WhereIf(filter.IsMasterPortfolio.HasValue && filter.IsMasterPortfolio.Value, x => x.MasterPortfolio)
+                             .WhereIf(filter.IsCorePortfolio.HasValue && filter.IsCorePortfolio.Value, x => x.CorePortfolio);
             }
-            throw new System.NotImplementedException();
+
+            return GetCombinations(query);
         }
 
         public IEnumerable<CapabilityMatrixDto> GetCombinations(IQueryable<CapabilityMatrix> query)
