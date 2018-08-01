@@ -7,12 +7,15 @@ import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { NullStringColumn } from "./Components/NullStringColumn";
 import { ReadonlyCheckColumn } from "./Components/ReadonlyCheckColumn";
 import { FilterPanel } from "./Components/FilterPanel";
+import { CapabilityMatrixFilterModel } from "./Model/CapabilityMatrixFilterModel";
 
 export class CapabilityMatrixView extends React.Component<any, any> {
 
     private allowed: Grid;
 
     private denied: Grid;
+
+    private filter: FilterPanel;
 
     private srv: ICapabilityMatrixService;
 
@@ -26,7 +29,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
         return (
             <Container scrollable={true}>
 
-                <FilterPanel docked="right" />
+                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} />
 
                 <Toolbar docked="top">
                     <Button iconCls="x-fa fa-edit" text="Edit" handler={this.onEdit} />
@@ -64,17 +67,18 @@ export class CapabilityMatrixView extends React.Component<any, any> {
     }
 
     public componentDidMount() {
-        this.reloadAllowed();
-        this.reloadDenied();
+        this.allowed = this.refs.allowed as Grid;
+        this.denied = this.refs.denied as Grid;
+        this.filter = this.refs.filter as FilterPanel;
         //
-        this.allowed = this.refs['allowed'] as Grid;
-        this.denied = this.refs['denied'] as Grid;
+        this.reload();
     }
 
     private init() {
         this.srv = MatrixFactory.getMatrixService();
         this.onEdit = this.onEdit.bind(this);
         this.onAllow = this.onAllow.bind(this);
+        this.onSearch = this.onSearch.bind(this);
         //
         this.state = {
             allowed: [],
@@ -97,22 +101,22 @@ export class CapabilityMatrixView extends React.Component<any, any> {
         }
     }
 
+    private onSearch(filter: CapabilityMatrixFilterModel) {
+        this.reload();
+    }
+
     private allowCombination(ids: string[]) {
-        this.srv.allowItems(ids).then(x => {
-            this.reloadDenied();
-            this.reloadAllowed();
-        });
+        this.srv.allowItems(ids).then(x => this.reload());
     }
 
     private getDenySelected(): string[] {
         return ExtDataviewHelper.getGridSelected(this.denied, 'id');
     }
 
-    private reloadAllowed() {
-        this.srv.getAllowed().then(x => this.setState({ allowed: x }));
-    }
+    private reload() {
+        let filter = this.filter.getModel();
 
-    private reloadDenied() {
-        this.srv.getDenied().then(x => this.setState({ denied: x }));
+        this.srv.getAllowed(filter).then(x => this.setState({ allowed: x }));
+        this.srv.getDenied(filter).then(x => this.setState({ denied: x }));
     }
 }

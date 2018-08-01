@@ -2,8 +2,13 @@
 import { ComboBoxField, CheckBoxField, Container, Button, Panel, PanelProps } from "@extjs/ext-react";
 import { ICapabilityMatrixService } from "../Services/ICapabilityMatrixService";
 import { MatrixFactory } from "../Services/MatrixFactory";
+import { CapabilityMatrixFilterModel } from "../Model/CapabilityMatrixFilterModel";
 
-export class FilterPanel extends React.Component<PanelProps, any> {
+export interface FilterPanelProps extends PanelProps {
+    onSearch(filter: CapabilityMatrixFilterModel): void;
+}
+
+export class FilterPanel extends React.Component<FilterPanelProps, any> {
 
     private country: ComboBoxField;
 
@@ -36,35 +41,31 @@ export class FilterPanel extends React.Component<PanelProps, any> {
         return (
             <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
 
-                <Container layout="vbox">
-
-                    <Container layout="vbox"
-                        defaults={{
-                            maxWidth: '200px',
-                            valueField: 'id',
-                            displayField: 'name',
-                            queryMode: 'local',
-                            clearable: 'true'
-                        }}
-                    >
-                        <ComboBoxField ref="country" label="Country:" options={this.state.countries} onChange={this.onCountryChange} />
-                        <ComboBoxField ref="wg" label="Asset(WG):" options={this.state.warrantyGroups} />
-                        <ComboBoxField ref="availability" label="Availability:" options={this.state.availabilityTypes} />
-                        <ComboBoxField ref="duration" label="Duration:" options={this.state.durationTypes} />
-                        <ComboBoxField ref="reactType" label="Reaction type:" options={this.state.reactTypes} />
-                        <ComboBoxField ref="reactTime" label="Reaction time:" options={this.state.reactionTimeTypes} />
-                        <ComboBoxField ref="srvLoc" label="Service location:" options={this.state.serviceLocationTypes} />
-                    </Container>
-
-                    <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio, padding: '3px 10px 3px 0' }}>
-                        <CheckBoxField ref="globPort" boxLabel="Fujitsu global portfolio" />
-                        <CheckBoxField ref="masterPort" boxLabel="Master portfolio" />
-                        <CheckBoxField ref="corePort" boxLabel="Core portfolio" />
-                    </Container>
-
-                    <Button text="Search" ui="action" width="85px" handler={this.onSearch} margin="20px 0" />
-
+                <Container margin="10px 0"
+                    defaults={{
+                        maxWidth: '200px',
+                        valueField: 'id',
+                        displayField: 'name',
+                        queryMode: 'local',
+                        clearable: 'true'
+                    }}
+                >
+                    <ComboBoxField ref="country" label="Country:" options={this.state.countries} onChange={this.onCountryChange} />
+                    <ComboBoxField ref="wg" label="Asset(WG):" options={this.state.warrantyGroups} />
+                    <ComboBoxField ref="availability" label="Availability:" options={this.state.availabilityTypes} />
+                    <ComboBoxField ref="duration" label="Duration:" options={this.state.durationTypes} />
+                    <ComboBoxField ref="reactType" label="Reaction type:" options={this.state.reactTypes} />
+                    <ComboBoxField ref="reactTime" label="Reaction time:" options={this.state.reactionTimeTypes} />
+                    <ComboBoxField ref="srvLoc" label="Service location:" options={this.state.serviceLocationTypes} />
                 </Container>
+
+                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio, padding: '3px 0' }}>
+                    <CheckBoxField ref="globPort" boxLabel="Fujitsu global portfolio" />
+                    <CheckBoxField ref="masterPort" boxLabel="Master portfolio" />
+                    <CheckBoxField ref="corePort" boxLabel="Core portfolio" />
+                </Container>
+
+                <Button text="Search" ui="action" width="85px" handler={this.onSearch} margin="20px auto" />
 
             </Panel>
         );
@@ -103,6 +104,22 @@ export class FilterPanel extends React.Component<PanelProps, any> {
         this.corePort = this.refs.corePort as CheckBoxField;
     }
 
+    public getModel(): CapabilityMatrixFilterModel {
+        return {
+            country: this.getSelected(this.country),
+            wg: this.getSelected(this.wg),
+            availability: this.getSelected(this.avail),
+            duration: this.getSelected(this.dur),
+            reactionType: this.getSelected(this.reacttype),
+            reactionTime: this.getSelected(this.reacttime),
+            serviceLocation: this.getSelected(this.srvloc),
+
+            isGlobalPortfolio: this.getChecked(this.globPort),
+            isMasterPortfolio: this.getChecked(this.masterPort),
+            isCorePortfolio: this.getChecked(this.corePort)
+        };
+    }
+
     private init() {
         this.srv = MatrixFactory.getMatrixService();
         //
@@ -126,10 +143,26 @@ export class FilterPanel extends React.Component<PanelProps, any> {
     }
 
     private onSearch() {
-        console.log('onSearch()');
+        let handler = this.props.onSearch;
+        if (handler) {
+            handler(this.getModel());
+        }
     }
 
     private setPortfolio(val: boolean) {
         this.setState({ isPortfolio: val });
+    }
+
+    private getSelected(cb: ComboBoxField): string {
+        let result: string = null;
+        let selected = cb.getSelection();
+        if (selected) {
+            result = selected.data.id;
+        }
+        return result;
+    }
+
+    private getChecked(cb: CheckBoxField): boolean {
+        return this.state.isPortfolio ? cb.getChecked() : false;
     }
 }

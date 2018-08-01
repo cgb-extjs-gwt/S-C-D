@@ -171,10 +171,28 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return GetCombinations(query);
         }
 
+        public IEnumerable<CapabilityMatrixDto> GetAllowedCombinations(CapabilityMatrixFilterDto filter)
+        {
+            if (filter == null)
+            {
+                return GetAllowedCombinations();
+            }
+            throw new System.NotImplementedException();
+        }
+
         public IEnumerable<CapabilityMatrixDto> GetDeniedCombinations()
         {
             var query = denyRepo.GetAll();
             return GetCombinations(query);
+        }
+
+        public IEnumerable<CapabilityMatrixDto> GetDeniedCombinations(CapabilityMatrixFilterDto filter)
+        {
+            if(filter == null)
+            {
+                return GetDeniedCombinations();
+            }
+            throw new System.NotImplementedException();
         }
 
         public IEnumerable<CapabilityMatrixDto> GetCombinations(IQueryable<CapabilityMatrix> query)
