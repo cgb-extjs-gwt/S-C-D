@@ -2,6 +2,7 @@ import { NamedId } from "../../Common/States/CommonStates";
 import { CapabilityMatrixEditModel } from "../Model/CapabilityMatrixEditModel";
 import { CapabilityMatrixListModel } from "../Model/CapabilityMatrixListModel";
 import { ICapabilityMatrixService } from "../Services/ICapabilityMatrixService";
+import { CapabilityMatrixFilterModel } from "../Model/CapabilityMatrixFilterModel";
 
 import { AvailabilityService } from "../../Dict/Services/AvailabilityService";
 import { CountryService } from "../../Dict/Services/CountryService";
@@ -61,12 +62,12 @@ export class CapabilityMatrixService implements ICapabilityMatrixService {
         return new ServiceLocationService().getAll();
     }
 
-    public getAllowed(): Promise<CapabilityMatrixListModel[]> {
-        return get<CapabilityMatrixListModel[]>(this.controllerName, 'allowed');
+    public getAllowed(filter: CapabilityMatrixFilterModel): Promise<CapabilityMatrixListModel[]> {
+        return get<CapabilityMatrixListModel[]>(this.controllerName, 'allowed', filter);
     }
 
-    public getDenied(): Promise<CapabilityMatrixListModel[]> {
-        return get<CapabilityMatrixListModel[]>(this.controllerName, 'denied');
+    public getDenied(filter: CapabilityMatrixFilterModel): Promise<CapabilityMatrixListModel[]> {
+        return get<CapabilityMatrixListModel[]>(this.controllerName, 'denied', filter);
     }
 }
 

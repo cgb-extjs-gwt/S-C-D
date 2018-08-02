@@ -14,6 +14,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         IEnumerable<CapabilityMatrixDto> GetAllowedCombinations();
 
+        IEnumerable<CapabilityMatrixDto> GetAllowedCombinations(CapabilityMatrixFilterDto filter);
+
         IEnumerable<CapabilityMatrixDto> GetDeniedCombinations();
+
+        IEnumerable<CapabilityMatrixDto> GetDeniedCombinations(CapabilityMatrixFilterDto filter);
     }
 }

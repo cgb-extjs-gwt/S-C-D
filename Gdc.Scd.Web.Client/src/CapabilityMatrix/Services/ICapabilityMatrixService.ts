@@ -1,6 +1,7 @@
 ﻿import { CapabilityMatrixEditModel } from "../Model/CapabilityMatrixEditModel";
 import { CapabilityMatrixListModel } from "../Model/CapabilityMatrixListModel";
 import { NamedId } from "../../Common/States/CommonStates";
+import { CapabilityMatrixFilterModel } from "../Model/CapabilityMatrixFilterModel";
 
 export interface ICapabilityMatrixService {
     allowItem(row: CapabilityMatrixEditModel): Promise<any>;
@@ -23,7 +24,7 @@ export interface ICapabilityMatrixService {
 
     getServiceLocationTypes(): Promise<NamedId[]>;
 
-    getAllowed(): Promise<CapabilityMatrixListModel[]>;
+    getAllowed(filter: CapabilityMatrixFilterModel): Promise<CapabilityMatrixListModel[]>;
 
-    getDenied(): Promise<CapabilityMatrixListModel[]>;
+    getDenied(filter: CapabilityMatrixFilterModel): Promise<CapabilityMatrixListModel[]>;
 }
