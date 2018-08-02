@@ -155,7 +155,7 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
 
     private getSelected(cb: ComboBoxField): string {
         let result: string = null;
-        let selected = cb.getSelection();
+        let selected = (cb as any).getSelection();
         if (selected) {
             result = selected.data.id;
         }
@@ -163,6 +163,6 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
     }
 
     private getChecked(cb: CheckBoxField): boolean {
-        return this.state.isPortfolio ? cb.getChecked() : false;
+        return this.state.isPortfolio ? (cb as any).getChecked() : false;
     }
 }
