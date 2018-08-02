@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Gdc.Scd.BusinessLogicLayer.Entities;
+﻿using System.Linq;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -17,10 +14,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public User GetCurrentUser()
         {
-            return new User
-            {
-                Name = "Test User"
-            };
+            //TODO: Fake behaviour
+            return this.GetAll().FirstOrDefault();
         }
     }
 }

@@ -19,6 +19,7 @@ namespace Gdc.Scd.DataAccessLayer
             services.AddScoped<ISqlRepository, SqlRepository>();
             services.AddScoped<ICostEditorRepository, CostEditorRepository>();
             services.AddScoped<ICostBlockValueHistoryRepository, CostBlockValueHistoryRepository>();
+            services.AddScoped<IRepository<CostBlockHistory>, CostBlockHistoryRepository>();
 
             services.AddTransient<BaseColumnMetaSqlBuilder<IdFieldMeta>, IdColumnMetaSqlBuilder>();
             services.AddTransient<BaseColumnMetaSqlBuilder<SimpleFieldMeta>, SimpleColumnMetaSqlBuilder>();
