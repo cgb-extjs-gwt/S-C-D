@@ -21,6 +21,7 @@ export default class RoleCodesGrid extends React.Component {
     state = {
         disableSaveButton: true,
         disableDeleteButton: true,
+        disableNewButton: false,
         selectedRecord: null
     };
 
@@ -57,21 +58,28 @@ export default class RoleCodesGrid extends React.Component {
         },
         listeners: {
             update: (store, record, operation, modifiedFieldNames, details, eOpts) => {
-                const modifiedRecords = this.store.getModifiedRecords();
-                
-                if (modifiedRecords.length > 0) {
-                    this.setState({ disableSaveButton: false });
-                }
-                else {
-                    this.setState({ disableSaveButton: true });
-                }
-                console.log(this.state);
+                const modifiedRecordsCount = this.store.getUpdatedRecords().length;
+                this.saveButtonHandler(modifiedRecordsCount);              
+            },
+            datachanged: (store) => {
+                const modifiedRecordsCount = this.store.getModifiedRecords().length + this.store.getRemovedRecords().length;
+                this.saveButtonHandler(modifiedRecordsCount);
             }
         }
     });
 
+    saveButtonHandler = (modifiedRecordsCount) => {
+        if (modifiedRecordsCount > 0) {
+            this.setState({ disableSaveButton: false });
+        }
+        else {
+            this.setState({ disableSaveButton: true });
+        }
+    }
+
     saveRecords = () => {
         this.store.sync({
+            scope:this,
             callback: function (batch, options) {
                 console.log('this is callback');
             },
@@ -79,6 +87,12 @@ export default class RoleCodesGrid extends React.Component {
             success: function (batch, options) {
                 //TODO: show successfull message box
                 console.log('this is success');
+                this.setState({
+                    disableSaveButton: true,
+                    disableDeleteButton: true,
+                    disableNewButton: false
+                });
+                this.store.load();
             },
 
             failure: (batch, options) => {
@@ -90,16 +104,21 @@ export default class RoleCodesGrid extends React.Component {
         });
     }
 
+    reloadStore = () => {
+        this.store.load();
+    }
+
     newRecord = () => {
-        this.store.add(Ext.create('RoleCode', { id: -1, name: 'new' }));
+        this.store.add(Ext.create('RoleCode', { id: 0, name: 'new' }));
+        this.setState({ disableNewButton: true });
     }
 
     deleteRecord = () => {
         this.store.remove(this.state.selectedRecord);
-        console.log(this.state.selectedRecord);
+        this.setState({ disableDeleteButton: true });
     }
 
-    selectRowHandler = (dataView, records) => {
+    selectRowHandler = (dataView, records, selected, selection) => {
         if (records[0]) {
             this.setState({
                 selectedRecord: records[0],
@@ -109,7 +128,6 @@ export default class RoleCodesGrid extends React.Component {
         else {
             this.setState({ disableDeleteButton: true });
         }          
-        console.log(this.state);
     }
 
     render() {
@@ -122,7 +140,7 @@ export default class RoleCodesGrid extends React.Component {
                 cls="filter-grid"
                 columnLines={true}
                 shadow
-                onSelect={(dataView, records) => this.selectRowHandler(dataView, records)}
+                onSelectionChange={(dataView, records, selected, selection) => this.selectRowHandler(dataView, records, selected, selection)}
                 platformConfig={{
                     desktop: {
                         plugins: {
@@ -138,9 +156,9 @@ export default class RoleCodesGrid extends React.Component {
                 }
             >
                 <Column
-                    text="ID"
-                    flex={1}
-                    dataIndex="id"                   
+                    text="ID"                 
+                    dataIndex="id"
+                    width="80"
                 />
                 <Column
                     text="Role code"
@@ -153,20 +171,22 @@ export default class RoleCodesGrid extends React.Component {
                         text="New"
                         flex={1}
                         iconCls="x-fa fa-plus"
-                        handler={ this.newRecord }
+                        handler={this.newRecord}
+                        disabled={this.state.disableNewButton}
                     />
                     <Button
                         text="Delete"
                         flex={1}
                         iconCls="x-fa fa-trash"
-                        handler={ this.deleteRecord }
+                        handler={this.deleteRecord}
+                        disabled={this.state.disableDeleteButton}
                     />
                     <Button
                         text="Save"
                         flex={1}
-                        iconCls="x-fa fa-save"
-                        disabled= { this.store.disableSaveButton }
-                        handler= { this.saveRecords }
+                        iconCls="x-fa fa-save"                    
+                        handler={this.saveRecords}
+                        disabled={this.state.disableSaveButton}
                     />
                 </Toolbar>
             </Grid>
