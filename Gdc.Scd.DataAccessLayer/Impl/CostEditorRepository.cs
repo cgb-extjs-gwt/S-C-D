@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
@@ -9,7 +7,6 @@ using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -39,7 +36,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 Sql.Select(nameIdColumn, nameColumn, maxValueColumn, countColumn)
                    .From(costBlockMeta)
                    .Join(costBlockMeta, nameField.Name)
-                   .Where(filter, costBlockMeta.Name)
+                   .Where(this.BuildCostEditorWhereCondition(costBlockMeta, filter, costBlockMeta.Name))
                    .GroupBy(nameColumn, nameIdColumn);
 
 
@@ -62,27 +59,16 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var costBlockMeta = (CostBlockEntityMeta)this.domainEnitiesMeta.GetEntityMeta(editItemInfo.EntityName, editItemInfo.Schema);
             var nameField = costBlockMeta.InputLevelFields[editItemInfo.NameField];
 
-            //Func<EditItem, int, SqlHelper> queryFn;
-
-            //var nameRefField = nameField as ReferenceFieldMeta;
-            //if (nameRefField == null)
-            //{
-            //    queryFn = (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo, index, editItem.Name, filter);
-            //}
-            //else
-            //{
-            //    queryFn = (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo, index, editItem.Id, filter);
-            //}
-
             var query = 
                 Sql.Queries(
                     editItems.Select(
-                        (editItem, index) => this.BuildUpdateValueQuery(editItem, editItemInfo, index, filter)));
+                        (editItem, index) => this.BuildUpdateValueQuery(costBlockMeta, editItem, editItemInfo, index, filter)));
 
             return await this.repositorySet.ExecuteSqlAsync(query);
         }
 
         private SqlHelper BuildUpdateValueQuery(
+            CostBlockEntityMeta meta,
             EditItem editItem,
             EditItemInfo editItemInfo, 
             int index, 
@@ -106,49 +92,25 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             };
 
             return Sql.Update(editItemInfo.Schema, editItemInfo.EntityName, updateColumn)
-                      .Where(filter);
+                      .Where(this.BuildCostEditorWhereCondition(meta, filter));
         }
 
-        //private async Task<IEnumerable<EditItem>> ReadSimpleEditItems(SqlHelper query)
-        //{
-        //    var editItems = await this.repositorySet.ReadBySql(query, this.BuildSimpleEditItem);
+        private ConditionHelper BuildCostEditorWhereCondition(CostBlockEntityMeta meta, IDictionary<string, IEnumerable<object>> filter, string tableName = null)
+        {
+            ConditionHelper result;
 
-        //    return editItems.Select((editItem, index) =>
-        //    {
-        //        editItem.Id = index;
+            var notDeletedCondition = SqlOperators.IsNull(meta.DeletedDateField.Name, tableName);
 
-        //        return editItem;
-        //    });
-        //}
+            if (filter != null && filter.Count > 0)
+            {
+                result = ConditionHelper.AndStatic(filter, tableName).And(notDeletedCondition);
+            }
+            else
+            {
+                result = notDeletedCondition;
+            }
 
-        //private async Task<IEnumerable<EditItem>> ReadReferenceEditItems(SqlHelper query)
-        //{
-        //    return await this.repositorySet.ReadBySql(query, this.BuildReferenceEditItem);
-        //}
-
-        //private EditItem BuildSimpleEditItem(IDataReader reader)
-        //{
-        //    var valueCount = reader.GetInt32(1);
-
-        //    return new EditItem
-        //    {
-        //        Value = valueCount == 1 ? reader.GetValue(0) : null,
-        //        ValueCount = valueCount,
-        //        Name = reader[2].ToString(),
-        //    };
-        //}
-
-        //private EditItem BuildReferenceEditItem(IDataReader reader)
-        //{
-        //    var valueCount = reader.GetInt32(3);
-
-        //    return new EditItem
-        //    {
-        //        Id = reader.GetInt64(0),
-        //        Name = reader.GetString(1),
-        //        Value = valueCount == 1 ? reader.GetValue(3) : null,
-        //        ValueCount = valueCount,
-        //    };
-        //}
+            return result;
+        }
     }
 }

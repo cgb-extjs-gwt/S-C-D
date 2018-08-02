@@ -7,6 +7,8 @@ using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -46,9 +48,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                 if (relatedItems.TryGetValue(relatedMeta.Name, out var relatedItemIds) && relatedItemIds.Length > 0)
                 {
-                    var relatedItemsInsertValues = relatedItemIds.Select(relatedItemId => new[] { history.Id, relatedItemId });
+                    var relatedItemsInsertValues = relatedItemIds.Select(relatedItemId => new object[] { history.Id, relatedItemId });
 
-                    insertRelatedItemsQueries.Add(insertQuery.Values(relatedMeta.Name, relatedItemsInsertValues));
+                    insertRelatedItemsQueries.Add(insertQuery.Values(relatedItemsInsertValues, relatedMeta.Name));
                 }
                 else
                 {
@@ -88,39 +90,75 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                    .From(costBlockMeta.HistoryMeta)
                    .Join(costBlockMeta.HistoryMeta, history.Context.InputLevelId, inputLevelAlias);
 
+            var query = this.BuildJoinHistoryQuery<SelectJoinSqlHelper, SelectJoinSqlHelper>(history, costBlockMeta, selectQuery);
+
+            return await this.repositorySet.ReadBySql(query, this.CostBlockValueHistoryMap);
+        }
+
+        public async Task<int> Approve(CostBlockHistory history)
+        {
+            var costBlockMeta = this.GetCostBlockEntityMeta(history);
+            var costElementField = costBlockMeta.CostElementsFields[history.Context.CostElementId];
+            var historyValueColumn = new ColumnSqlBuilder
+            {
+                Table = costBlockMeta.HistoryMeta.Name,
+                Name = costElementField.Name
+            };
+
+            var costElementColumn = new QueryUpdateColumnInfo(costElementField.Name, historyValueColumn, costBlockMeta.Name);
+            var costElementApprovedField = costBlockMeta.CostElementsApprovedFields[costElementField];
+            var costElementApprovedColumn = new QueryUpdateColumnInfo(costElementApprovedField.Name, historyValueColumn, costBlockMeta.Name);
+
+            var updateQuery =
+                Sql.Update(costBlockMeta, costElementColumn, costElementApprovedColumn)
+                   .From(costBlockMeta.HistoryMeta);
+
+            var query = this.BuildJoinHistoryQuery<UpdateFromSqlHelper, UpdateJoinSqlHelper>(history, costBlockMeta, updateQuery);
+
+            return await this.repositorySet.ExecuteSqlAsync(query);
+        }
+
+        private SqlHelper BuildJoinHistoryQuery<TQuery, TJoin>(CostBlockHistory history, CostBlockEntityMeta costBlockMeta, TQuery query)
+            where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TJoin>
+            where TJoin : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TJoin>
+        {
             var costBlockJoinCondition = SqlOperators.Equals(
                     new ColumnInfo(history.Context.InputLevelId, costBlockMeta.HistoryMeta.Name),
                     new ColumnInfo(history.Context.InputLevelId, costBlockMeta.Name));
 
+            TJoin joinQuery = null;
+
             foreach (var relatedMeta in costBlockMeta.HistoryMeta.RelatedMetas)
             {
-                selectQuery = selectQuery.Join(
-                    relatedMeta, 
-                    SqlOperators.Equals(
-                        new ColumnInfo(costBlockMeta.HistoryMeta.CostBlockHistoryField.Name, costBlockMeta.HistoryMeta.Name), 
-                        new ColumnInfo(relatedMeta.CostBlockHistoryField.Name, relatedMeta.Name)));
+                var joinCondition = SqlOperators.Equals(
+                    new ColumnInfo(costBlockMeta.HistoryMeta.CostBlockHistoryField.Name, costBlockMeta.HistoryMeta.Name),
+                    new ColumnInfo(relatedMeta.CostBlockHistoryField.Name, relatedMeta.Name));
+
+                joinQuery = joinQuery == null 
+                    ? query.Join(relatedMeta, joinCondition) 
+                    : joinQuery.Join(relatedMeta, joinCondition);
 
                 var isNullCondition = SqlOperators.IsNull(relatedMeta.RelatedItemField.Name, relatedMeta.Name);
                 var equalCondition = SqlOperators.Equals(
-                    new ColumnInfo(relatedMeta.RelatedItemField.Name, relatedMeta.Name), 
+                    new ColumnInfo(relatedMeta.RelatedItemField.Name, relatedMeta.Name),
                     new ColumnInfo(relatedMeta.RelatedItemField.Name, costBlockMeta.Name));
 
                 costBlockJoinCondition = costBlockJoinCondition.And(
                     ConditionHelper.OrBrackets(isNullCondition, equalCondition));
             }
 
-            selectQuery = selectQuery.Join(costBlockMeta, costBlockJoinCondition);
+            joinQuery = joinQuery.Join(costBlockMeta, costBlockJoinCondition);
 
             foreach (var dependecyField in costBlockMeta.DependencyFields)
             {
-                selectQuery = selectQuery.Join(costBlockMeta, dependecyField.Name, this.GetAlias(dependecyField.ReferenceMeta));
+                joinQuery = joinQuery.Join(costBlockMeta, dependecyField.Name, this.GetAlias(dependecyField.ReferenceMeta));
             }
 
-            var historyIdCondition = 
+            var historyIdCondition =
                 SqlOperators.Equals(
-                    costBlockMeta.HistoryMeta.CostBlockHistoryField.Name, 
-                    "costBlockHistoryId", 
-                    history.Id, 
+                    costBlockMeta.HistoryMeta.CostBlockHistoryField.Name,
+                    "costBlockHistoryId",
+                    history.Id,
                     costBlockMeta.HistoryMeta.Name);
 
             var createdDateCondition = SqlOperators.LessOrEqual(costBlockMeta.CreatedDateField.Name, "editDate", history.EditDate, costBlockMeta.Name);
@@ -128,10 +166,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 SqlOperators.IsNull(costBlockMeta.DeletedDateField.Name, costBlockMeta.Name),
                 SqlOperators.GreaterOrEqual(costBlockMeta.DeletedDateField.Name, "editDate", history.EditDate, costBlockMeta.Name));
 
-            var query =
-                selectQuery.Where(ConditionHelper.And(createdDateCondition, deletedDateCondition).And(historyIdCondition));
-
-            return await this.repositorySet.ReadBySql(query, this.CostBlockValueHistoryMap);
+            return
+                joinQuery.Where(ConditionHelper.And(createdDateCondition, deletedDateCondition).And(historyIdCondition));
         }
 
         private string GetAlias(BaseEntityMeta meta)

@@ -9,5 +9,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
         Task Save(CostBlockHistory history, IEnumerable<EditItem> editItems, IDictionary<string, long[]> relatedItems);
 
         Task<IEnumerable<CostBlockValueHistory>> GetByCostBlockHistory(CostBlockHistory history);
+
+        Task<int> Approve(CostBlockHistory history);
     }
 }

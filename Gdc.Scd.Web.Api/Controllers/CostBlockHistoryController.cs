@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
@@ -16,6 +15,11 @@ namespace Gdc.Scd.Web.Api.Controllers
         public CostBlockHistoryController(ICostBlockHistoryService costBlockHistoryService)
         {
             this.costBlockHistoryService = costBlockHistoryService;
+        }
+
+        public IEnumerable<CostBlockHistory> GetHistoriesForApproval(CostBlockHistoryFilter filter)
+        {
+            return this.costBlockHistoryService.GetHistoriesForApproval(filter);
         }
 
         public async Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues([FromQuery]long costBlockHistoryId)
@@ -44,6 +48,20 @@ namespace Gdc.Scd.Web.Api.Controllers
 
                 return dictionary;
             });
+        }
+
+        public async Task<IActionResult> Approve([FromQuery]long historyId)
+        {
+            await this.costBlockHistoryService.Approve(historyId);
+
+            return this.Ok();
+        }
+
+        public IActionResult Reject([FromQuery]long historyId)
+        {
+            this.costBlockHistoryService.Reject(historyId);
+
+            return this.Ok();
         }
     }
 }

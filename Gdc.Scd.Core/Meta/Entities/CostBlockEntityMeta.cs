@@ -8,17 +8,17 @@ namespace Gdc.Scd.Core.Meta.Entities
     {
         public CostBlockValueHistoryEntityMeta HistoryMeta { get; set; }
 
-        public MetaCollection<FieldMeta> CostElementsApprovedFields { get; } = new MetaCollection<FieldMeta>();
+        public IDictionary<FieldMeta, FieldMeta> CostElementsApprovedFields { get; } = new Dictionary<FieldMeta, FieldMeta>();
 
         public CreatedDateTimeFieldMeta CreatedDateField { get; set; } = new CreatedDateTimeFieldMeta();
 
-        public SimpleFieldMeta DeletedDateField { get; set; } = new SimpleFieldMeta("DeletedDate", TypeCode.DateTime) { IsNullOption = true };
+        public SimpleFieldMeta DeletedDateField { get; set; } = new SimpleFieldMeta("DeletedDateTime", TypeCode.DateTime) { IsNullOption = true };
 
         public override IEnumerable<FieldMeta> AllFields
         {
             get
             {
-                var fields = base.AllFields.Concat(this.CostElementsApprovedFields);
+                var fields = base.AllFields.Concat(this.CostElementsApprovedFields.Values);
 
                 foreach (var field in fields)
                 {

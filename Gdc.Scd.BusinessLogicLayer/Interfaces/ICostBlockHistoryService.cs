@@ -10,10 +10,20 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
     {
         IQueryable<CostBlockHistory> GetHistories();
 
-        Task Save(CostEditorContext context, IEnumerable<EditItem> editItems);
+        IQueryable<CostBlockHistory> GetHistories(CostBlockHistoryFilter filter);
+
+        IQueryable<CostBlockHistory> GetHistoriesForApproval();
+
+        IQueryable<CostBlockHistory> GetHistoriesForApproval(CostBlockHistoryFilter filter);
+
+        Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, bool isApproved);
 
         Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(CostBlockHistory history);
 
         Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(long costBlockHistoryId);
+
+        Task Approve(long historyId);
+
+        void Reject(long historyId);
     }
 }

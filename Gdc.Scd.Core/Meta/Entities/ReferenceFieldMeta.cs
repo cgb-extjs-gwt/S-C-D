@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Gdc.Scd.Core.Meta.Entities
+﻿namespace Gdc.Scd.Core.Meta.Entities
 {
     public class ReferenceFieldMeta : FieldMeta
     {
@@ -22,14 +20,6 @@ namespace Gdc.Scd.Core.Meta.Entities
             return new ReferenceFieldMeta(name, referenceMeta, referenceMeta.IdField.Name)
             {
                 ReferenceFaceField = referenceMeta.NameField.Name,
-            };
-        }
-
-        public override object Clone()
-        {
-            return new ReferenceFieldMeta(this.Name, this.ReferenceMeta, this.ReferenceValueField)
-            {
-                ReferenceFaceField = this.ReferenceFaceField,
             };
         }
     }

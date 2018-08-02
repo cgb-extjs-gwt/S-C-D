@@ -231,7 +231,7 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
             },
             onEditItemsCleared: costBlockId => dispatch(clearEditItems(costBlockId)),
             onItemEdited: (costBlockId, item) => dispatch(editItem(costBlockId, item)),
-            onEditItemsSaving: costBlockId => dispatch(saveEditItemsToServer(costBlockId)),
+            onEditItemsSaving: (costBlockId, forApproval) => dispatch(saveEditItemsToServer(costBlockId)),
             onApplyFilters: costBlockId => dispatch(applyFiltersWithReloading(costBlockId))
         }
     })

@@ -19,6 +19,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context);
 
-        Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context);
+        Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, bool isApproved);
     }
 }

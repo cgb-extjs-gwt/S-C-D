@@ -98,7 +98,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             };
         }
 
-        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context)
+        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, bool forApproval)
         {
             var editItemInfo = this.GetEditItemInfo(context);
             var filter = this.GetFilter(context);
@@ -109,7 +109,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     var result = await this.costEditorRepository.UpdateValues(editItems, editItemInfo, filter);
 
-                    await this.historySevice.Save(context, editItems);
+                    await this.historySevice.Save(context, editItems, forApproval);
 
                     transaction.Commit();
 

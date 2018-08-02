@@ -55,7 +55,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
 
             if (field.ReferenceMeta.StoreType == StoreType.Table)
             {
-                var constraintName = $"[FK_{this.Meta.Schema}{this.Meta.Name}_{field.ReferenceMeta.Schema}{field.ReferenceMeta.Name}]";
+                var constraintName = $"[FK_{this.Meta.Schema}{this.Meta.Name}{field.Name}_{field.ReferenceMeta.Schema}{field.ReferenceMeta.Name}]";
 
                 result =
                     $@"

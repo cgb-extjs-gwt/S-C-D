@@ -44,7 +44,7 @@ namespace Gdc.Scd.Core.Meta.Impl
 
                     foreach (var costElementMeta in costBlockMeta.CostElements)
                     {
-                        this.BuildCostElementTypes(costElementMeta, costBlockEntity, domainEnitiesMeta);
+                        this.BuildCostElement(costElementMeta, costBlockEntity, domainEnitiesMeta);
 
                         if (costElementMeta.Dependency != null && costBlockEntity.DependencyFields[costElementMeta.Dependency.Id] == null)
                         {
@@ -103,7 +103,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                 ReferenceFieldMeta.Build(inputLevelMeta.Id, inputLevelEntity));
         }
 
-        private void BuildCostElementTypes(CostElementMeta costElementMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta)
+        private void BuildCostElement(CostElementMeta costElementMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta)
         {
             FieldMeta field = null;
 
@@ -124,7 +124,8 @@ namespace Gdc.Scd.Core.Meta.Impl
 
                         field = new ReferenceFieldMeta(costElementMeta.Id, referenceMeta, costElementMeta.TypeOptions[IdFieldNameKey])
                         {
-                            ReferenceFaceField = costElementMeta.TypeOptions[FaceFieldNameKey]
+                            ReferenceFaceField = costElementMeta.TypeOptions[FaceFieldNameKey],
+                            IsNullOption = true
                         };
                         break;
                 }
@@ -139,6 +140,12 @@ namespace Gdc.Scd.Core.Meta.Impl
             }
 
             costBlockEntity.CostElementsFields.Add(field);
+
+            var approvedField = (FieldMeta)field.Clone();
+            approvedField.Name = $"{field.Name}_Approved";
+            approvedField.IsNullOption = true;
+
+            costBlockEntity.CostElementsApprovedFields.Add(field, approvedField);
         }
 
         private void BuildCostBlockHistory(CostBlockEntityMeta costBlock, DomainEnitiesMeta domainEnitiesMeta)

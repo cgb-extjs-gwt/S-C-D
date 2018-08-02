@@ -82,8 +82,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, AvailabilityKey, this.GetAvailabilityNames()),
                 this.BuildInsertSql(new NamedEntityMeta(DurationKey, MetaConstants.DependencySchema), this.GetDurationNames()),
-                this.BuildInsertReactionTimeTypeSql(),
-                this.BuildInsertReactionTimeAvailabilitySql()
+                //this.BuildInsertReactionTimeTypeSql(),
+                //this.BuildInsertReactionTimeAvailabilitySql()
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
 
@@ -203,7 +203,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             foreach (var costBlockMeta in this.entityMetas.CostBlocks)
             {
-                var referenceFields = costBlockMeta.AllFields.OfType<ReferenceFieldMeta>().ToList();
+                var referenceFields = costBlockMeta.InputLevelFields.Concat(costBlockMeta.DependencyFields).ToList();
                 var selectColumns =
                     referenceFields.Select(field => new ColumnInfo(field.ReferenceValueField, field.ReferenceMeta.Name, field.Name))
                                    .ToList();

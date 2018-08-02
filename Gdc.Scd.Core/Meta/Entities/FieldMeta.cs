@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Gdc.Scd.Core.Meta.Interfaces;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
     public abstract class FieldMeta : IMetaIdentifialble, ICloneable
     {
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         string IMetaIdentifialble.Id => this.Name;
 
@@ -18,6 +16,9 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public bool IsNullOption { get; set; }
 
-        public abstract object Clone();
+        public virtual object Clone()
+        {
+            return this.MemberwiseClone();
+        }
     }
 }
