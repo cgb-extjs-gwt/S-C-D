@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Meta.Entities
@@ -22,10 +19,6 @@ namespace Gdc.Scd.Core.Meta.Entities
         }
 
         public ReferenceFieldMeta CostBlockHistoryField { get; set; }
-
-        //public MetaCollection<RelatedItemsHistoryEntityMeta> RelatedInputLevelMetas { get; } = new MetaCollection<RelatedItemsHistoryEntityMeta>();
-
-        //public MetaCollection<RelatedItemsHistoryEntityMeta> RelatedDependencyMetas { get; } = new MetaCollection<RelatedItemsHistoryEntityMeta>();
 
         public MetaCollection<RelatedItemsHistoryEntityMeta> RelatedMetas { get; } = new MetaCollection<RelatedItemsHistoryEntityMeta>();
 
