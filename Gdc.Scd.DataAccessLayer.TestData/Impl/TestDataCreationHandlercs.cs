@@ -48,6 +48,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         public void Handle()
         {
             this.CreatePlas();
+            //this.CreateRolecodes();
 
             var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
             var countryRepository = repositorySet.GetRepository<Country>();
@@ -73,7 +74,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 //this.BuildInsertSql(plaInputLevelMeta, this.GetPlaNames()),
                 //this.BuildInsertSql(wgInputLevelMeta, this.GetWarrantyGroupNames()),
 
-                //this.BuildInsertSql(MetaConstants.DependencySchema, RoleCodeKey, this.GetRoleCodeNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, RoleCodeKey, this.GetRoleCodeNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
                 this.BuildInsertSql(new NamedEntityMeta(ReactionTimeKey, MetaConstants.DependencySchema), this.GetReactionTimeCodeNames()),
@@ -1021,6 +1021,103 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var repository = this.repositorySet.GetRepository<Pla>();
 
             repository.Save(plas);
+            this.repositorySet.Sync();
+        }
+
+        private RoleCode[] GetRoleCodes()
+        {
+            var plaRepository = this.repositorySet.GetRepository<Pla>();
+
+            return new RoleCode[]
+            {
+                new RoleCode
+                {
+                    Name = "SEFS05",
+                    WarrantyGroups = new List<Wg>
+                    {
+                        new Wg
+                        {
+                            Name = "TC4"
+                        },
+                        new Wg
+                        {
+                            Name = "TC5"
+                        },
+                        new Wg
+                        {
+                            Name = "TC6"
+                        },
+                        new Wg
+                        {
+                            Name = "TC8"
+                        },
+                        new Wg
+                        {
+                            Name = "TC7"
+                        },
+                        new Wg
+                        {
+                            Name = "U05"
+                        },
+                        new Wg
+                        {
+                            Name = "U11"
+                        },
+                        new Wg
+                        {
+                            Name = "U13"
+                        },
+                        new Wg
+                        {
+                            Name = "WSJ"
+                        },
+                        new Wg
+                        {
+                            Name = "WSN"
+                        },
+                        new Wg
+                        {
+                            Name = "WSS"
+                        },
+                        new Wg
+                        {
+                            Name = "WSW"
+                        },
+                        new Wg
+                        {
+                            Name = "U02"
+                        },
+                        new Wg
+                        {
+                            Name = "U06"
+                        },
+                        new Wg
+                        {
+                            Name = "U07"
+                        },
+                        new Wg
+                        {
+                            Name = "U12"
+                        },
+                        new Wg
+                        {
+                            Name = "U14"
+                        },
+                        new Wg
+                        {
+                            Name = "WRC"
+                        },
+                    }
+                }
+            };
+        }
+
+        private void CreateRolecodes()
+        {
+            var roleCodes = this.GetRoleCodes();
+            var repository = this.repositorySet.GetRepository<RoleCode>();
+
+            repository.Save(roleCodes);
             this.repositorySet.Sync();
         }
 

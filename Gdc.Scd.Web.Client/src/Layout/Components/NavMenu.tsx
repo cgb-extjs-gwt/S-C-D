@@ -41,6 +41,10 @@ const NavMenu: React.SFC<NavMenuProps & any> = ({
                             {
                                 id: '/admin/role-code-management',
                                 text: 'Role codes', iconCls: 'x-fa fa-users', leaf: true
+                            },
+                            {
+                                id: '/admin/warranty-group-management',
+                                text: 'Warranty groups', iconCls: 'x-fa fa-industry', leaf: true
                             }]
                     }
                 ]

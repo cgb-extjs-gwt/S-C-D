@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
 import { FieldType } from "../CostEditor/States/CostEditorStates";
 import { EditItem } from "../CostEditor/States/CostBlockStates";
-import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField } from '@extjs/ext-react';
+import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, SelectionColumn } from '@extjs/ext-react';
 import { NamedId } from '../Common/States/CommonStates';
 
 Ext.require([
@@ -9,13 +9,15 @@ Ext.require([
     'Ext.grid.plugin.CellEditing',
 ]);
 
-Ext.define('RoleCode', {
+Ext.define('WarrantyGroup', {
     extend: 'Ext.data.Model',
     fields: [
         { name: 'id', type: 'int' },
         { name: 'name', type: 'string' }
     ],
-    belongsTo: 'WarrantyGroup'
+
+    hasOne: {model:'RoleCode', name:'roleCode'}
+
 });
 
 export default class RoleCodesGrid extends React.Component {
@@ -28,39 +30,42 @@ export default class RoleCodesGrid extends React.Component {
 
 
     store = Ext.create('Ext.data.Store', {
-        model: 'RoleCode',
+        //model: 'WarrantyGroup',
+        field: ['id','name', 
+            {
+                name: 'roleCode',
+                mapping: 'roleCode'
+        }],
+
         autoLoad: true,
-        //autoSync: true,
         pageSize: 0,
         proxy: {
             type: 'ajax',
             writer: {
-                type: 'json',        
-                writeAllFields: true,             
+                type: 'json',
+                writeAllFields: true,
                 allowSingle: false,
                 idProperty: "id"
             },
             reader: {
-                type: 'json',        
+                type: 'json',
                 idProperty: "id"
-            },          
+            },
             listeners: {
                 exception: function (proxy, response, operation) {
                     //TODO: show error
                     console.log(operation.getError());
                 }
             },
-            api: {             
-                create: '/api/rolecode/SaveAll',
-                read: '/api/rolecode/GetAll',
-                update: '/api/rolecode/SaveAll',
-                destroy: '/api/rolecode/DeleteAll'
+            api: {
+                read: '/api/WarrantyGroup/GetAll',
+                update: '/api/WarrantyGroup/SaveAll'
             }
         },
         listeners: {
             update: (store, record, operation, modifiedFieldNames, details, eOpts) => {
                 const modifiedRecordsCount = this.store.getUpdatedRecords().length;
-                this.saveButtonHandler(modifiedRecordsCount);              
+                this.saveButtonHandler(modifiedRecordsCount);
             },
             datachanged: (store) => {
                 const modifiedRecordsCount = this.store.getModifiedRecords().length + this.store.getRemovedRecords().length;
@@ -68,6 +73,25 @@ export default class RoleCodesGrid extends React.Component {
             }
         }
     });
+
+    storeRG = Ext.create('Ext.data.Store', {
+        fields:['id','name'],
+        autoLoad: true,
+        pageSize: 0,
+        sorters: [ {
+            property: 'name',
+            direction: 'ASC'
+        }],
+        proxy: {
+            type: 'ajax',
+            reader: {
+                type: 'json'
+            },
+            api: {
+                read: '/api/RoleCode/GetAll'
+            }
+        }}
+    );
 
     saveButtonHandler = (modifiedRecordsCount) => {
         if (modifiedRecordsCount > 0) {
@@ -80,7 +104,7 @@ export default class RoleCodesGrid extends React.Component {
 
     saveRecords = () => {
         this.store.sync({
-            scope:this,
+            scope: this,
             callback: function (batch, options) {
                 console.log('this is callback');
             },
@@ -112,6 +136,7 @@ export default class RoleCodesGrid extends React.Component {
     newRecord = () => {
         this.store.add(Ext.create('RoleCode', { id: 0, name: 'new' }));
         this.setState({ disableNewButton: true });
+        console.log(this.store);
     }
 
     deleteRecord = () => {
@@ -128,7 +153,45 @@ export default class RoleCodesGrid extends React.Component {
         }
         else {
             this.setState({ disableDeleteButton: true });
-        }          
+        }
+    }
+
+    private getValueColumn() {
+        let columnOptions;
+        let renderer: (value, data: { data }) => string;
+        var options = this.storeRG.data.items.map(item => ({ text: item.data.name, value: item.data })).slice();
+        if(options.length)
+        columnOptions = (
+            <SelectField
+                options={options}
+                valueField="value"
+                queryMode="local"
+            />
+        );
+        console.log(this.store);
+        renderer = (value, { data }) => {
+        let result: string;
+
+        if (data.roleCode) {
+            const selectedItem = this.storeRG.data.items.find(item => item.data.id == data.roleCode.id);
+
+            result = selectedItem.data.name;
+        } 
+
+        return result;
+    }
+
+        return (
+            <Column
+                text="Role code"
+                dataIndex="roleCode"
+                flex={1}
+                editable={true}
+                renderer={renderer.bind(this)}
+            >
+                {columnOptions}
+            </Column>
+        )
     }
 
     render() {
@@ -136,7 +199,7 @@ export default class RoleCodesGrid extends React.Component {
         const store = this.store;
         return (
             <Grid
-                title={'Role codes'}
+                title={'Warranty groups'}
                 store={this.store}
                 cls="filter-grid"
                 columnLines={true}
@@ -157,17 +220,15 @@ export default class RoleCodesGrid extends React.Component {
                 }
             >
                 <Column
-                    text="ID"                 
-                    dataIndex="id"
-                    width="80"
-                />
-                <Column
-                    text="Role code"
-                    flex={1}
+                    text="WG"
                     dataIndex="name"
-                    editable
-                />       
-                <Toolbar docked="bottom">   
+                    flex={1}
+                />
+                {this.getValueColumn()}
+                
+
+
+                <Toolbar docked="bottom">
                     <Button
                         text="New"
                         flex={1}
@@ -185,7 +246,7 @@ export default class RoleCodesGrid extends React.Component {
                     <Button
                         text="Save"
                         flex={1}
-                        iconCls="x-fa fa-save"                    
+                        iconCls="x-fa fa-save"
                         handler={this.saveRecords}
                         disabled={this.state.disableSaveButton}
                     />

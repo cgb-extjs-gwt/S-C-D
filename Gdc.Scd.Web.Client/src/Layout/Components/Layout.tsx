@@ -10,7 +10,8 @@ import { connect } from 'react-redux';
 import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
 import RoleCodesGrid from '../../Admin/RoleCodesGrid';
 import { CommonState } from '../States/AppStates';
-import CountryGrid  from '../../Admin/Country/containers/CountryGrid';
+import CountryGrid from '../../Admin/Country/containers/CountryGrid';
+import WarrantyGroupGrid from '../../Admin/WarrantyGroupGrid';
 
 interface LayoutProps {
     title: string
@@ -62,6 +63,7 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/input-cost-elements" component={CostEditorContainer}/>
                         <Route path="/admin/country-management" component={CountryGrid} />
                         <Route path="/admin/role-code-management" component={RoleCodesGrid} />
+                        <Route path="/admin/warranty-group-management" component={WarrantyGroupGrid} />
                     </Switch>
                 </Panel>
             </Container>

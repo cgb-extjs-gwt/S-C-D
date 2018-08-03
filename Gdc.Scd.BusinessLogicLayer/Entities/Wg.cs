@@ -13,5 +13,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Entities
             get => base.Id;
             set => base.Id = value;
         }
+
+        public RoleCode RoleCode { get; set; }
     }
 }
