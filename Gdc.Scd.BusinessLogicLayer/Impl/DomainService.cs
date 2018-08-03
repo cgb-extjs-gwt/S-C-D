@@ -30,7 +30,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public void Save(T item)
         {
-            using (var transaction = this.repositorySet.BeginTransaction())
+            using (var transaction = this.repositorySet.GetTransaction())
             {
                 try
                 {
@@ -50,7 +50,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public void Save(IEnumerable<T> items)
         {
-            using (var transaction = this.repositorySet.BeginTransaction())
+            using (var transaction = this.repositorySet.GetTransaction())
             {
                 try
                 {
@@ -73,7 +73,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public void Delete(long id)
         {
-            using (var transaction = this.repositorySet.BeginTransaction())
+            using (var transaction = this.repositorySet.GetTransaction())
             {
                 try
                 {

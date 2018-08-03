@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Entities
+﻿namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Entities
 {
     public class SqlBuilderContext
     {
-        //public bool IsInnerQuery { get; set; }
+        private int parameterIndex;
+
+        public string GetNewParameterName()
+        {
+            return $"parameter_{parameterIndex++}";
+        }
     }
 }

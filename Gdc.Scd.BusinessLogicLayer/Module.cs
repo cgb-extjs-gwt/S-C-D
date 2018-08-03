@@ -15,6 +15,10 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.AddScoped(typeof(IDomainService<>), typeof(DomainService<>));
             services.AddScoped<ICostEditorService, CostEditorService>();
             services.AddScoped<ICapabilityMatrixService, CapabilityMatrixService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ICostBlockHistoryService, CostBlockHistoryService>();
+            services.AddScoped<IEmailService, EmailService>();
+
             services.RegisterEntity<Country>();
             services.RegisterEntity<Pla>();
             services.RegisterEntity<Wg>();

@@ -19,16 +19,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly DomainEnitiesMeta domainEnitiesMeta;
 
+        private readonly ICostBlockHistoryService historySevice;
+
+        private readonly IRepositorySet repositorySet;
+
         public CostEditorService(
             ICostEditorRepository costEditorRepository,
-            ISqlRepository sqlRepository, 
+            ISqlRepository sqlRepository,
+            ICostBlockHistoryService historySevice,
+            IRepositorySet repositorySet,
             DomainMeta meta,
             DomainEnitiesMeta domainEnitiesMeta)
         {
             this.costEditorRepository = costEditorRepository;
             this.sqlRepository = sqlRepository;
+            this.historySevice = historySevice;
             this.meta = meta;
             this.domainEnitiesMeta = domainEnitiesMeta;
+            this.repositorySet = repositorySet;
         }
 
         public async Task<IEnumerable<NamedId>> GetCostElementFilterItems(CostEditorContext context)
@@ -70,8 +78,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             IEnumerable<NamedId> referenceValues = null;
 
             var costBlock = (CostBlockEntityMeta)this.domainEnitiesMeta.GetEntityMeta(context.CostBlockId, context.ApplicationId);
-            var field = costBlock.CostElementsFields[context.CostElementId] as ReferenceFieldMeta;
-            if (field != null)
+            if (costBlock.CostElementsFields[context.CostElementId] is ReferenceFieldMeta field)
             {
                 referenceValues = await this.sqlRepository.GetNameIdItems(field.ReferenceMeta, field.ReferenceValueField, field.ReferenceFaceField);
             }
@@ -91,12 +98,30 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             };
         }
 
-        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context)
+        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, bool forApproval)
         {
             var editItemInfo = this.GetEditItemInfo(context);
             var filter = this.GetFilter(context);
-                
-            return await this.costEditorRepository.UpdateValues(editItems, editItemInfo, filter);
+
+            using (var transaction = this.repositorySet.GetTransaction())
+            {
+                try
+                {
+                    var result = await this.costEditorRepository.UpdateValues(editItems, editItemInfo, filter);
+
+                    await this.historySevice.Save(context, editItems, forApproval);
+
+                    transaction.Commit();
+
+                    return result;
+                }
+                catch
+                {
+                    transaction.Rollback();
+
+                    throw;
+                }
+            }
         }
 
         private IDictionary<string, IEnumerable<object>> GetRegionFilter(CostEditorContext context)

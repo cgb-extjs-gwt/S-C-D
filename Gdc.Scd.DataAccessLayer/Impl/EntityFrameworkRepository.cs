@@ -56,15 +56,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         protected void SetAddOrUpdateState<TItem>(TItem item) where TItem : class, IIdentifiable
         {
-            var entry = this.repositorySet.Entry(item);
+            if (item != null)
+            {
+                var entry = this.repositorySet.Entry(item);
 
-            if (this.IsNewItem(item))
-            {
-                entry.State = EntityState.Added;
-            }
-            else
-            {
-                entry.State = EntityState.Modified;
+                if (this.IsNewItem(item))
+                {
+                    entry.State = EntityState.Added;
+                }
+                else
+                {
+                    entry.State = EntityState.Modified;
+                }
             }
         }
 
@@ -78,9 +81,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         protected void SetDeleteState<TItem>(TItem item) where TItem : class, IIdentifiable
         {
-            var entry = this.repositorySet.Entry(item);
+            if (item != null)
+            {
+                var entry = this.repositorySet.Entry(item);
 
-            entry.State = EntityState.Deleted;
+                entry.State = EntityState.Deleted;
+            }
         }
 
         protected bool IsNewItem<TItem>(TItem item) where TItem : class, IIdentifiable
@@ -90,15 +96,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         protected void AddOrUpdate<TItem>(TItem item) where TItem : class, IIdentifiable
         {
-            var set = this.repositorySet.Set<TItem>();
+            if (item != null)
+            {
+                var set = this.repositorySet.Set<TItem>();
 
-            if (this.IsNewItem(item))
-            {
-                set.Add(item);
-            }
-            else
-            {
-                set.Update(item);
+                if (this.IsNewItem(item))
+                {
+                    set.Add(item);
+                }
+                else
+                {
+                    set.Update(item);
+                }
             }
         }
     }

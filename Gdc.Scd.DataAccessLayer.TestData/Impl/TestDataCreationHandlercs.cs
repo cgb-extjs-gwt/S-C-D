@@ -9,6 +9,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -49,6 +50,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         public void Handle()
         {
             this.CreatePlas();
+            this.CreateUsers();
 
             var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
             var countryRepository = repositorySet.GetRepository<Country>();
@@ -64,10 +66,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             countryRepository.Save(countries);
             repositorySet.Sync();
 
-
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
-
 
             var queries = new List<SqlHelper>
             {
@@ -82,8 +82,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, AvailabilityKey, this.GetAvailabilityNames()),
                 this.BuildInsertSql(new NamedEntityMeta(DurationKey, MetaConstants.DependencySchema), this.GetDurationNames()),
-                this.BuildInsertReactionTimeTypeSql(),
-                this.BuildInsertReactionTimeAvailabilitySql()
+                //this.BuildInsertReactionTimeTypeSql(),
+                //this.BuildInsertReactionTimeAvailabilitySql()
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
 
@@ -91,6 +91,15 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 this.repositorySet.ExecuteSql(query);
             }
+        }
+
+        private void CreateUsers()
+        {
+            var repository = this.repositorySet.GetRepository<User>();
+            var user = new User { Name = "Test user" };
+
+            repository.Save(user);
+            this.repositorySet.Sync();
         }
 
         private SqlHelper BuildInsertSql(NamedEntityMeta entityMeta, string[] names)
@@ -203,7 +212,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             foreach (var costBlockMeta in this.entityMetas.CostBlocks)
             {
-                var referenceFields = costBlockMeta.AllFields.OfType<ReferenceFieldMeta>().ToList();
+                var referenceFields = costBlockMeta.InputLevelFields.Concat(costBlockMeta.DependencyFields).ToList();
                 var selectColumns =
                     referenceFields.Select(field => new ColumnInfo(field.ReferenceValueField, field.ReferenceMeta.Name, field.Name))
                                    .ToList();

@@ -27,7 +27,7 @@ export interface CostBlockActions {
   onInputLevelFilterReseted?: (costElementId: string, inputLevelId: string) => void
   onEditItemsCleared?: () => void
   onItemEdited?: (item: EditItem) => void
-  onEditItemsSaving?: () => void
+  onEditItemsSaving?: (forApproval: boolean) => void
   onApplyFilters?: () => void
 }
 
