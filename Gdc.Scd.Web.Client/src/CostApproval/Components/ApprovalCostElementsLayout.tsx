@@ -1,6 +1,6 @@
 import * as React from 'react';
 import ApprovalBundles from './ApprovalBundles';
-import FilterBundles from './FilterBundles';
+import { FilterBundleContainer } from './FilterBundlesContainer';
 import { Container } from '@extjs/ext-react';
 
 
@@ -13,7 +13,7 @@ class ApprovalCostElements extends React.Component{
                     pack: "space-between"
                 }}>
                 <ApprovalBundles />
-                <FilterBundles />
+                <FilterBundleContainer />
             </Container>
         );
     }

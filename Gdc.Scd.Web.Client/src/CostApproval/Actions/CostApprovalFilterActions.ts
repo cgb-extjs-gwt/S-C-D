@@ -1,10 +1,6 @@
 import { Action } from 'redux';
 import { asyncAction, AsyncAction } from "../../Common/Actions/AsyncAction";
-import * as service from "../../CostEditor/Services/CostEditorServices";
-import { CostEditorState } from "../../CostEditor/States/CostEditorStates";
-import { EditItem, CostElementData, DataLoadingState } from "../../CostEditor/States/CostBlockStates";
-import { NamedId } from "../../Common/States/CommonStates";
-import { CommonState } from "../../Layout/States/AppStates";
+import * as service from "../Services/CostApprovalService";
 import { ItemSelectedAction, ItemsSelectedAction } from "../../Common/Actions/CommonActions";
 import { openPage, pageInit } from '../../Layout/Actions/AppActions';
 
@@ -43,8 +39,9 @@ export const selectTimePeriod = (startDate: string, endDate: string) => <SelectP
 export const init = () => asyncAction(
     dispatch => {
         dispatch(openPage(COST_APPROVAL_PAGE, 'Cost Elements Approval'));
-        service.getCostEditorData().then(
+        service.getCostApprovalFilterData().then(
             data => {
+                //TODO: remove
                 console.log(data);
                 dispatch(pageInit(COST_APPROVAL_PAGE, data));
             } 

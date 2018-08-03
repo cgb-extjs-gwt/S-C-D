@@ -6,6 +6,8 @@ import { costBlockReducer } from "./CostEditor/Reducers/CostBlockReducer";
 import { appReducer } from "./Layout/Reducers/AppReducer";
 import { CommonState, AppState } from "./Layout/States/AppStates";
 import { COST_EDITOR_PAGE } from "./CostEditor/Actions/CostEditorActions";
+import { COST_APPROVAL_PAGE } from "./CostApproval/Actions/CostApprovalFilterActions";
+import { bundleFilterReducer } from "./CostApproval/Reducers/BundleFilterReducer";
 
 const asyncActionHandler = store => next => action => {
     if (action instanceof AsyncAction) {
@@ -24,7 +26,8 @@ export const storeFactory = () => {
                 state = costBlockReducer(state, action);
             
                 return state;
-            }
+            },
+            [COST_APPROVAL_PAGE]: bundleFilterReducer
         })
     });
 

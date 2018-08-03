@@ -1,7 +1,17 @@
 import * as React from 'react';
 import { FormPanel, RadioField } from '@extjs/ext-react';
+import { SelectList, NamedId } from '../../Common/States/CommonStates';
 
-const filter = (props) => {
+export interface ApprovalFilterActions{
+    onInit?()
+    onApplicationSelect?(applicationId: string)
+}
+
+export interface FilterApprovalProps extends ApprovalFilterActions{
+    application: SelectList<NamedId>
+}
+
+const filter = (props: FilterApprovalProps) => {
     const radioProps = {
         name: 'application',
         items: [{id: 1, value: "Hardware", checked: true}, 
