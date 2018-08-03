@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Gdc.Scd.BusinessLogicLayer.Entities;
+﻿using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -32,6 +31,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         private const string ReactionTypeKey = "ReactionType";
 
         private const string AvailabilityKey = "Availability";
+
+        private const string DurationKey = "Duration";
 
         private readonly IRepositorySet repositorySet;
 
@@ -80,6 +81,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql(MetaConstants.DependencySchema, YearKey, this.GetYearNames()),
                 this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, AvailabilityKey, this.GetAvailabilityNames()),
+                this.BuildInsertSql(new NamedEntityMeta(DurationKey, MetaConstants.DependencySchema), this.GetDurationNames()),
                 this.BuildInsertReactionTimeTypeSql(),
                 this.BuildInsertReactionTimeAvailabilitySql()
             };
@@ -1324,6 +1326,19 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 "9x5",
                 "24x7"
+            };
+        }
+
+        private string[] GetDurationNames()
+        {
+            return new string[]
+            {
+                "1h",
+                "2h",
+                "8h",
+                "1d",
+                "1d 3h",
+                "7d"
             };
         }
 
