@@ -23,8 +23,8 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<ReactionType>();
             services.RegisterEntity<ReactionTime>();
             services.RegisterEntity<ServiceLocation>();
-            services.RegisterEntity<CapabilityMatrixAllow>();
-            services.RegisterEntity<CapabilityMatrixDeny>();
+            services.RegisterEntity<CapabilityMatrix>();
+            services.RegisterEntity<CapabilityMatrixRule>();
         }
     }
 }

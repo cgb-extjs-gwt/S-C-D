@@ -22,12 +22,13 @@ export class CapabilityMatrixService implements ICapabilityMatrixService {
         this.controllerName = 'capabilitymatrix';
     }
 
-    public allowItem(row: CapabilityMatrixEditModel) : Promise<any> {
-        return post(this.controllerName, 'allow', row);
+    public allowItem(row: CapabilityMatrixEditModel): Promise<any> {
+        throw new Error('not implemented');
+        //return post(this.controllerName, 'allow', row);
     }
 
     public allowItems(ids: string[]): Promise<any> {
-        return post(this.controllerName, 'allowbyid', ids);
+        return post(this.controllerName, 'allow', ids);
     }
 
     public denyItem(row: CapabilityMatrixEditModel) {

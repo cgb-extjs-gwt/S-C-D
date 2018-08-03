@@ -21,29 +21,24 @@ namespace Gdc.Scd.Web.Api.Controllers
         [HttpGet]
         public IEnumerable<CapabilityMatrixDto> Allowed(CapabilityMatrixFilterDto filter)
         {
-            return capabilityMatrixService.GetAllowedCombinations(filter);
+            return new CapabilityMatrixDto[0];
+            //return capabilityMatrixService.GetAllowedCombinations(filter);
         }
 
         [HttpGet]
-        public IEnumerable<CapabilityMatrixDto> Denied(CapabilityMatrixFilterDto filter)
+        public IEnumerable<CapabilityMatrixRuleDto> Denied(CapabilityMatrixFilterDto filter)
         {
             return capabilityMatrixService.GetDeniedCombinations(filter);
         }
 
         [HttpPost]
-        public Task Allow([FromBody]CapabilityMatrixEditDto m)
-        {
-            return capabilityMatrixService.AllowCombination(m);
-        }
-
-        [HttpPost]
-        public Task AllowById([FromBody]long[] ids)
+        public Task Allow([FromBody]long[] ids)
         {
             return capabilityMatrixService.AllowCombinations(ids);
         }
 
         [HttpPost]
-        public Task Deny([FromBody]CapabilityMatrixEditDto m)
+        public Task Deny([FromBody]CapabilityMatrixRuleSetDto m)
         {
             return capabilityMatrixService.DenyCombination(m);
         }

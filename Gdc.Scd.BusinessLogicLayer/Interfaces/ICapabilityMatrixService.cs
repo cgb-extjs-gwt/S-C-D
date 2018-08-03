@@ -6,18 +6,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface ICapabilityMatrixService
     {
-        Task AllowCombination(CapabilityMatrixEditDto m);
-
         Task AllowCombinations(long[] items);
 
-        Task DenyCombination(CapabilityMatrixEditDto m);
+        Task DenyCombination(CapabilityMatrixRuleSetDto m);
 
         IEnumerable<CapabilityMatrixDto> GetAllowedCombinations();
 
         IEnumerable<CapabilityMatrixDto> GetAllowedCombinations(CapabilityMatrixFilterDto filter);
 
-        IEnumerable<CapabilityMatrixDto> GetDeniedCombinations();
+        IEnumerable<CapabilityMatrixRuleDto> GetDeniedCombinations();
 
-        IEnumerable<CapabilityMatrixDto> GetDeniedCombinations(CapabilityMatrixFilterDto filter);
+        IEnumerable<CapabilityMatrixRuleDto> GetDeniedCombinations(CapabilityMatrixFilterDto filter);
     }
 }
