@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
+using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
@@ -15,6 +16,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         IQueryable<CostBlockHistory> GetHistoriesForApproval();
 
         IQueryable<CostBlockHistory> GetHistoriesForApproval(CostBlockHistoryFilter filter);
+
+        Task<IEnumerable<CostBlockHistoryApprovalDto>> GetDtoHistoriesForApproval(CostBlockHistoryFilter filter);
 
         Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, bool isApproved);
 

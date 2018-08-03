@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,9 +18,9 @@ namespace Gdc.Scd.Web.Api.Controllers
             this.costBlockHistoryService = costBlockHistoryService;
         }
 
-        public IEnumerable<CostBlockHistory> GetHistoriesForApproval(CostBlockHistoryFilter filter)
+        public async Task<IEnumerable<CostBlockHistoryApprovalDto>> GetDtoHistoriesForApproval(CostBlockHistoryFilter filter)
         {
-            return this.costBlockHistoryService.GetHistoriesForApproval(filter);
+            return await this.costBlockHistoryService.GetDtoHistoriesForApproval(filter);
         }
 
         public async Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues([FromQuery]long costBlockHistoryId)

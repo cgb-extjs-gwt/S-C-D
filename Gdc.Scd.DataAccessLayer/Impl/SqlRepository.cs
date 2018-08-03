@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
@@ -53,9 +54,25 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 });
         }
 
-        public async Task<IEnumerable<NamedId>> GetNameIdItems(BaseEntityMeta entityMeta, string idField, string nameField)
+        public async Task<IEnumerable<NamedId>> GetNameIdItems(BaseEntityMeta entityMeta, string idField, string nameField, IEnumerable<long> ids = null)
         {
-            var query = Sql.Select(idField, nameField).From(entityMeta);
+            SqlHelper query;
+
+            var selectQuery = Sql.Select(idField, nameField).From(entityMeta);
+
+            if (ids == null)
+            {
+                query = selectQuery;
+            }
+            else
+            {
+                var filter = new Dictionary<string, IEnumerable<object>>
+                {
+                    [idField] = ids.Cast<object>().ToArray()
+                };
+
+                query = selectQuery.Where(filter);
+            }
 
             return await this.repositorySet.ReadBySql(
                 query,

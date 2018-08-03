@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
@@ -24,8 +25,6 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public MetaCollection<NamedEntityMeta> InputLevels { get; } = new MetaCollection<NamedEntityMeta>();
 
-        //public MetaCollection<CostBlockValueHistoryEntityMeta> CostBlockValueHistories { get; } = new MetaCollection<CostBlockValueHistoryEntityMeta>();
-
         public EntityMeta CostBlockHistory { get; set; }
 
         public MetaCollection<BaseEntityMeta> OtherMetas { get; } = new MetaCollection<BaseEntityMeta>();
@@ -43,10 +42,6 @@ namespace Gdc.Scd.Core.Meta.Entities
                                    .Concat(this.Dependencies)
                                    .Concat(this.InputLevels)
                                    .Concat(this.OtherMetas);
-                                   //.Concat(this.CostBlockValueHistories)
-                                   //.Concat(this.CostBlockValueHistories.SelectMany(history => history.RelatedMetas));
-                                   //.Concat(this.CostBlockValueHistories.SelectMany(history => history.RelatedDependencyMetas))
-                                   //.Concat(this.CostBlockValueHistories.SelectMany(history => history.RelatedInputLevelMetas));
             }
         }
 
@@ -55,6 +50,11 @@ namespace Gdc.Scd.Core.Meta.Entities
             var fullName = BaseEntityMeta.BuildFullName(name, schema);
 
             return this[fullName];
+        }
+
+        public NamedEntityMeta GetInputLevel(string name)
+        {
+            return (NamedEntityMeta)this.GetEntityMeta(name, MetaConstants.InputLevelSchema);
         }
     }
 }

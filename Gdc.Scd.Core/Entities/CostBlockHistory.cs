@@ -21,5 +21,9 @@ namespace Gdc.Scd.Core.Entities
         public CostBlockHistoryState State { get; set; }
 
         public HistoryContext Context { get; set; }
+
+        public int EditItemCount { get; set; }
+
+        public bool IsDifferentValues { get; set; }
     }
 }
