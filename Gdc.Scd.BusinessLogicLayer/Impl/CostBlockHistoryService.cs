@@ -25,11 +25,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly ISqlRepository sqlRepository;
 
+        private readonly IEmailService emailService;
+
         public CostBlockHistoryService(
             IRepositorySet repositorySet,
             IUserService userService,
             ICostBlockValueHistoryRepository costBlockValueHistoryRepository,
             ISqlRepository sqlRepository,
+            IEmailService emailService,
             DomainMeta domainMeta,
             DomainEnitiesMeta domainEnitiesMeta)
         {
@@ -39,6 +42,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.domainMeta = domainMeta;
             this.domainEnitiesMeta = domainEnitiesMeta;
             this.sqlRepository = sqlRepository;
+            this.emailService = emailService;
         }
 
         public IQueryable<CostBlockHistory> GetHistories()
@@ -149,7 +153,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public void Reject(long historyId)
+        public void Reject(long historyId, string message = null)
         {
             var historyRepository = this.repositorySet.GetRepository<CostBlockHistory>();
             var history = historyRepository.Get(historyId);
@@ -159,6 +163,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             historyRepository.Save(history);
 
             this.repositorySet.Sync();
+
+            if (message != null)
+            {
+                this.emailService.SendEmail(history.EditUser, "SCD 2.0", message);
+            }
         }
 
         public async Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(CostBlockHistory history)

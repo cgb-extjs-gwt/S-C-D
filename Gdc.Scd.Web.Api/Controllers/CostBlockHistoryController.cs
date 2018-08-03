@@ -18,7 +18,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             this.costBlockHistoryService = costBlockHistoryService;
         }
 
-        public async Task<IEnumerable<CostBlockHistoryApprovalDto>> GetDtoHistoriesForApproval(CostBlockHistoryFilter filter)
+        public async Task<IEnumerable<CostBlockHistoryApprovalDto>> GetDtoHistoriesForApproval([FromQuery]CostBlockHistoryFilter filter)
         {
             return await this.costBlockHistoryService.GetDtoHistoriesForApproval(filter);
         }
@@ -58,7 +58,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             return this.Ok();
         }
 
-        public IActionResult Reject([FromQuery]long historyId)
+        public IActionResult Reject([FromQuery]long historyId, [FromQuery]string message)
         {
             this.costBlockHistoryService.Reject(historyId);
 

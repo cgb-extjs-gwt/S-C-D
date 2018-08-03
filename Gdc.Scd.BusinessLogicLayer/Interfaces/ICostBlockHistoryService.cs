@@ -27,6 +27,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task Approve(long historyId);
 
-        void Reject(long historyId);
+        void Reject(long historyId, string message = null);
     }
 }
