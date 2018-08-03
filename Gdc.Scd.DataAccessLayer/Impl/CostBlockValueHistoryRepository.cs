@@ -72,12 +72,27 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var inputLevelField = costBlockMeta.InputLevelFields[history.Context.InputLevelId];
             var inputLevelMeta = (NamedEntityMeta)inputLevelField.ReferenceMeta;
 
-            var costElementColumn = new ColumnInfo(history.Context.CostElementId, costBlockMeta.HistoryMeta.Name);
+            ColumnInfo costElementColumn;
+
+            var costElementField = costBlockMeta.CostElementsFields[history.Context.CostElementId];
+            var referenceCostElementField = costElementField as ReferenceFieldMeta;
+            if (referenceCostElementField == null)
+            {
+                costElementColumn = new ColumnInfo(costElementField.Name, costBlockMeta.HistoryMeta.Name);
+            }
+            else
+            {
+                costElementColumn = new ColumnInfo(referenceCostElementField.ReferenceFaceField, referenceCostElementField.ReferenceMeta.Name);
+            }
+
+
             var inputLevelIdColumn = new ColumnInfo(inputLevelMeta.IdField.Name, costBlockMeta.HistoryMeta.Name, "InputLevelId");
             var inputLevelAlias = this.GetAlias(costBlockMeta.HistoryMeta);
             var inputLevelNameColumn = new ColumnInfo(inputLevelMeta.NameField.Name, inputLevelAlias, "InputLevelName");
 
             var selectColumns = new List<ColumnInfo> { costElementColumn, inputLevelIdColumn, inputLevelNameColumn };
+
+           
 
             foreach (var dependecyField in costBlockMeta.DependencyFields)
             {
@@ -89,6 +104,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 Sql.SelectDistinct(selectColumns.ToArray())
                    .From(costBlockMeta.HistoryMeta)
                    .Join(costBlockMeta.HistoryMeta, history.Context.InputLevelId, inputLevelAlias);
+
+            if (referenceCostElementField != null)
+            {
+                selectQuery = selectQuery.Join(costBlockMeta.HistoryMeta, referenceCostElementField.Name);
+            }
 
             var query = this.BuildJoinHistoryQuery<SelectJoinSqlHelper, SelectJoinSqlHelper>(history, costBlockMeta, selectQuery);
 

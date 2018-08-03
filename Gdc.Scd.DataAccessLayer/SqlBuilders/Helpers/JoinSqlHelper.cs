@@ -68,7 +68,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     referenceField.ReferenceMeta.Name,
                     SqlOperators.Equals(
                         new ColumnInfo(referenceField.Name, meta.Name),
-                        new ColumnInfo(referenceField.ReferenceValueField, aliasMetaTable ?? referenceField.Name)),
+                        new ColumnInfo(referenceField.ReferenceValueField, aliasMetaTable ?? referenceField.ReferenceMeta.Name)),
                     alias: aliasMetaTable);
         }
 
