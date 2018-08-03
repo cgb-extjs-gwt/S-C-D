@@ -14,7 +14,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         void Sync();
 
-        ITransaction BeginTransaction();
+        ITransaction GetTransaction();
 
         Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null);
 

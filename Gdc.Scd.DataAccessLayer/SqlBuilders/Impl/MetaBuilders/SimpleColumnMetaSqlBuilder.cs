@@ -22,17 +22,16 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
                 case TypeCode.Int64:
                     result = "[bigint]";
                     break;
+
+                case TypeCode.DateTime:
+                    result = "[DATETIME]";
+                    break;
                 
                 default:
                     throw new NotImplementedException();
             }
 
             return result;
-        }
-
-        protected override bool IsNullOption()
-        {
-            return true;
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Gdc.Scd.DataAccessLayer.Entities;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
@@ -27,8 +29,13 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return this.Values(rows);
         }
 
-        public SqlHelper Values(object[,] values)
+        public SqlHelper Values(object[,] values, string paramPrefix = null)
         {
+            if (string.IsNullOrEmpty(paramPrefix))
+            {
+                paramPrefix = "param";
+            }
+
             var rowLength = values.GetLength(0);
             var columnLength = values.GetLength(1);
             var parameters = new ParameterSqlBuilder[rowLength, columnLength];
@@ -41,7 +48,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     {
                         ParamInfo = new CommandParameterInfo
                         {
-                            Name = $"param_{rowIndex}_{columnIndex}",
+                            Name = $"{paramPrefix}_{rowIndex}_{columnIndex}",
                             Value = values[rowIndex, columnIndex]
                         }
                     };
@@ -56,6 +63,31 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             var rows = this.ConvertToTable(values);
 
             return this.Values(rows);
+        }
+
+        public SqlHelper Values(string paramPrefix, params object[] values)
+        {
+            var rows = this.ConvertToTable(values);
+
+            return this.Values(rows, paramPrefix);
+        }
+
+        public SqlHelper Values(IEnumerable<object[]> rows, string paramPrefix = null)
+        {
+            var rowArray = rows.ToArray();
+            var valueArray = new object[rowArray.Length, rows.Max(arr => arr.Length)];
+
+            for (var rowIndex = 0; rowIndex < rowArray.Length; rowIndex++)
+            {
+                var row = rowArray[rowIndex];
+
+                for (var columnIndex = 0; columnIndex < row.Length; columnIndex++)
+                {
+                    valueArray[rowIndex, columnIndex] = row[columnIndex];
+                }
+            }
+
+            return this.Values(valueArray, paramPrefix);
         }
 
         public SqlHelper Query(ISqlBuilder query)

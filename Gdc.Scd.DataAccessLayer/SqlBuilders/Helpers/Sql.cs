@@ -96,6 +96,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return Update(null, table, columns);
         }
 
+        public static UpdateSqlHelper Update(BaseEntityMeta meta, params BaseUpdateColumnInfo[] columns)
+        {
+            return Update(null, meta.Schema, meta.Name, columns);
+        }
+
         public static InsertSqlHelper Insert(string schema, string table, params string[] columns)
         {
             return new InsertSqlHelper(new InsertSqlBuilder

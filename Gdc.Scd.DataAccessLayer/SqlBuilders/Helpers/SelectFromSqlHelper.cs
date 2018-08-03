@@ -55,24 +55,24 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return new SelectJoinSqlHelper(this.joinSqlHelper.Join(table, condition, type));
         }
 
-        public SelectJoinSqlHelper Join(string schemaName, string tableName, ConditionHelper condition, JoinType type = JoinType.Inner)
+        public SelectJoinSqlHelper Join(string schemaName, string tableName, ConditionHelper condition, JoinType type = JoinType.Inner, string alias = null)
         {
-            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(schemaName, tableName, condition, type));
+            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(schemaName, tableName, condition, type, alias));
         }
 
-        public SelectJoinSqlHelper Join(string tableName, ConditionHelper condition, JoinType type = JoinType.Inner)
+        public SelectJoinSqlHelper Join(string tableName, ConditionHelper condition, JoinType type = JoinType.Inner, string alias = null)
         {
-            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(tableName, condition, type));
+            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(tableName, condition, type, alias));
         }
 
-        public SelectJoinSqlHelper Join(BaseEntityMeta meta, string referenceFieldName)
+        public SelectJoinSqlHelper Join(BaseEntityMeta meta, string referenceFieldName, string aliasMetaTable = null)
         {
-            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(meta, referenceFieldName));
+            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(meta, referenceFieldName, aliasMetaTable));
         }
 
-        public SelectJoinSqlHelper Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner)
+        public SelectJoinSqlHelper Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner, string aliasMetaTable = null)
         {
-            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(meta, condition, type));
+            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(meta, condition, type, aliasMetaTable));
         }
 
         public SqlHelper Union()

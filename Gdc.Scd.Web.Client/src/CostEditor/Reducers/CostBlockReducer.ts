@@ -280,7 +280,7 @@ const loadCostElementData = buildCostElementListItemChanger<CostElementDataLoade
         dataLoadingState: DataLoadingState.Loaded,
         region: {
             ...costElement.region,
-            list: costElementData.regions.sort((region1, region2) => region1.name.localeCompare(region2.name)),
+            list: costElementData.regions && costElementData.regions.sort((region1, region2) => region1.name.localeCompare(region2.name)),
             selectedItemId: costElementData.regions && costElementData.regions[0].id
         },
         filter: loadFilter(costElementData.filters),

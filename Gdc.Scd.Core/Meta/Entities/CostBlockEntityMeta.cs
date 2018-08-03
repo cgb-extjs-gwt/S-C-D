@@ -1,30 +1,32 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
-    public class CostBlockEntityMeta : BaseEntityMeta
+    public class CostBlockEntityMeta : BaseCostBlockEntityMeta
     {
-        public IdFieldMeta IdField { get; } = new IdFieldMeta();
+        public CostBlockValueHistoryEntityMeta HistoryMeta { get; set; }
 
-        public MetaCollection<ReferenceFieldMeta> InputLevelFields { get; } = new MetaCollection<ReferenceFieldMeta>();
+        public IDictionary<FieldMeta, FieldMeta> CostElementsApprovedFields { get; } = new Dictionary<FieldMeta, FieldMeta>();
 
-        public MetaCollection<FieldMeta> DependencyFields { get; } = new MetaCollection<FieldMeta>();
+        public CreatedDateTimeFieldMeta CreatedDateField { get; set; } = new CreatedDateTimeFieldMeta();
 
-        public MetaCollection<FieldMeta> CostElementsFields { get; } = new MetaCollection<FieldMeta>();
+        public SimpleFieldMeta DeletedDateField { get; set; } = new SimpleFieldMeta("DeletedDateTime", TypeCode.DateTime) { IsNullOption = true };
 
         public override IEnumerable<FieldMeta> AllFields
         {
             get
             {
-                yield return this.IdField;
-
-                var fields = this.InputLevelFields.Concat(this.DependencyFields).Concat(this.CostElementsFields);
+                var fields = base.AllFields.Concat(this.CostElementsApprovedFields.Values);
 
                 foreach (var field in fields)
                 {
                     yield return field;
                 }
+
+                yield return this.CreatedDateField;
+                yield return this.DeletedDateField;
             }
         }
 
