@@ -19,15 +19,15 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<CapabilityMatrixDto> Allowed()
+        public IEnumerable<CapabilityMatrixDto> Allowed(CapabilityMatrixFilterDto filter)
         {
-            return capabilityMatrixService.GetAllowedCombinations();
+            return capabilityMatrixService.GetAllowedCombinations(filter);
         }
 
         [HttpGet]
-        public IEnumerable<CapabilityMatrixDto> Denied()
+        public IEnumerable<CapabilityMatrixDto> Denied(CapabilityMatrixFilterDto filter)
         {
-            return capabilityMatrixService.GetDeniedCombinations();
+            return capabilityMatrixService.GetDeniedCombinations(filter);
         }
 
         [HttpPost]

@@ -2,6 +2,7 @@ import { NamedId } from "../../Common/States/CommonStates";
 import { CapabilityMatrixEditModel } from "../Model/CapabilityMatrixEditModel";
 import { CapabilityMatrixListModel } from "../Model/CapabilityMatrixListModel";
 import { ICapabilityMatrixService } from "../Services/ICapabilityMatrixService";
+import { CapabilityMatrixFilterModel } from "../Model/CapabilityMatrixFilterModel";
 import { fakeAllowed } from "./FakeAllowed";
 import { fakeCountries } from "./FakeCountries";
 import { fakeWG } from "./FakeWG";
@@ -54,11 +55,11 @@ export class FakeCapabilityMatrixService implements ICapabilityMatrixService {
         return this.fromResult(fakeServiceLocationTypes);
     }
 
-    public getAllowed(): Promise<CapabilityMatrixListModel[]> {
+    public getAllowed(filter: CapabilityMatrixFilterModel): Promise<CapabilityMatrixListModel[]> {
         return this.fromResult(fakeAllowed);
     }
 
-    public getDenied(): Promise<CapabilityMatrixListModel[]> {
+    public getDenied(filter: CapabilityMatrixFilterModel): Promise<CapabilityMatrixListModel[]> {
         return this.fromResult(fakeDenied);
     }
 

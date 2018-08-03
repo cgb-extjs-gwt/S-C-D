@@ -11,7 +11,7 @@ const ID_PROP = 'id';
 
 export class CapabilityMatrixEditView extends React.Component<any, any> {
 
-    private country: ComboBoxField;
+    private country: ComboBoxField & any;
 
     private wg: MultiSelect;
 
@@ -225,6 +225,6 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
     }
 
     private isPortfolio(cb: CheckBoxField): boolean {
-        return this.state.isPortfolio ? cb.getChecked() : false;
+        return this.state.isPortfolio ? (cb as any).getChecked() : false;
     }
 }
