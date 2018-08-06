@@ -1032,82 +1032,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 new RoleCode
                 {
-                    Name = "SEFS05",
-                    WarrantyGroups = new List<Wg>
-                    {
-                        new Wg
-                        {
-                            Name = "TC4"
-                        },
-                        new Wg
-                        {
-                            Name = "TC5"
-                        },
-                        new Wg
-                        {
-                            Name = "TC6"
-                        },
-                        new Wg
-                        {
-                            Name = "TC8"
-                        },
-                        new Wg
-                        {
-                            Name = "TC7"
-                        },
-                        new Wg
-                        {
-                            Name = "U05"
-                        },
-                        new Wg
-                        {
-                            Name = "U11"
-                        },
-                        new Wg
-                        {
-                            Name = "U13"
-                        },
-                        new Wg
-                        {
-                            Name = "WSJ"
-                        },
-                        new Wg
-                        {
-                            Name = "WSN"
-                        },
-                        new Wg
-                        {
-                            Name = "WSS"
-                        },
-                        new Wg
-                        {
-                            Name = "WSW"
-                        },
-                        new Wg
-                        {
-                            Name = "U02"
-                        },
-                        new Wg
-                        {
-                            Name = "U06"
-                        },
-                        new Wg
-                        {
-                            Name = "U07"
-                        },
-                        new Wg
-                        {
-                            Name = "U12"
-                        },
-                        new Wg
-                        {
-                            Name = "U14"
-                        },
-                        new Wg
-                        {
-                            Name = "WRC"
-                        },
-                    }
+                    Name = "SEFS05"
+                    
                 }
             };
         }

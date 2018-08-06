@@ -333,6 +333,7 @@
         <Element Name="CentralExecutionShcReportRepetition " Caption="Central execution SHC &amp; report Repetition" InputOption="Reference"/>
         <Element Name="LocalShcCustomerBriefingRepetition " Caption="Local SHC customer briefing Repetition" InputOption="Reference"/>-->
         <!--<Element Name="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually" Dependency="ServiceLocationProActive"/>-->
+        <!--TODO: Check Dependency="RoleCode"-->
         <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually" Dependency="RoleCode"/>
       </Elements>
     </Block>
