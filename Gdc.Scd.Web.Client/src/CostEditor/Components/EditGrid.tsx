@@ -28,7 +28,7 @@ export interface EditActions {
     onItemEdited?(item: EditItem)
     onApplyFilters?()
     onCleared?()
-    onSaving?()
+    onSaving?(forApproval: boolean)
 }
   
 export class EditGrid extends React.Component<EditProps & EditActions>  {
@@ -93,20 +93,26 @@ export class EditGrid extends React.Component<EditProps & EditActions>  {
                     text="Save" 
                     flex={1} 
                     disabled={!props.isEnableSave}
-                    handler={() => this.showSaveDialog()}
+                    handler={() => this.showSaveDialog(false)}
+                />
+                <Button 
+                    text="Save and send for approval" 
+                    flex={1} 
+                    disabled={!props.isEnableSave}
+                    handler={() => this.showSaveDialog(true)}
                 />
             </Toolbar>
             </Grid>
         );
     }
 
-    private showSaveDialog() {
+    private showSaveDialog(forApproval: boolean) {
         const { onSaving } = this.props;
     
         Ext.Msg.confirm(
           'Saving changes', 
           'Do you want to save the changes?',
-          (buttonId: string) => onSaving && onSaving()
+          (buttonId: string) => onSaving && onSaving(forApproval)
         );
       }
     

@@ -56,9 +56,9 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateValues([FromBody]IEnumerable<EditItem> editItems, [FromQuery]CostEditorContext context)
+        public async Task<IActionResult> UpdateValues([FromBody]IEnumerable<EditItem> editItems, [FromQuery]CostEditorContext context, [FromQuery]bool forApproval)
         {
-            await this.costEditorService.UpdateValues(editItems, context);
+            await this.costEditorService.UpdateValues(editItems, context, forApproval);
 
             return this.Ok();
         }

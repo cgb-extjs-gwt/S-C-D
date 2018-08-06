@@ -4,7 +4,7 @@
     {
         public string ApplicationId { get; set; }
 
-        public string RegionInputId { get; set; }
+        public long? RegionInputId { get; set; }
 
         public string CostBlockId { get; set; }
 

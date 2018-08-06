@@ -18,7 +18,7 @@ export interface Context {
 
 export const getCostEditorData = () => get<CostEditortData>(CONTROLLER_NAME, 'GetCostEditorData');
 
-export const getCostElementData = (context: Context) => get<CostElementData>(CONTROLLER_NAME, "GetCostElementData", context);
+export const getCostElementData = (context: Context) => get<CostElementData>(CONTROLLER_NAME, 'GetCostElementData', context);
 
 export const getLevelInputFilterItems = (context: Context) => 
     get<NamedId[]>(CONTROLLER_NAME, 'GetInputLevelFilterItems', context);  
@@ -26,5 +26,5 @@ export const getLevelInputFilterItems = (context: Context) =>
 export const getEditItems = (context: Context) => 
     get<EditItem[]>(CONTROLLER_NAME, 'GetEditItems', context); 
 
-export const saveEditItems = (editItems: EditItem[], context: Context) =>
-    post(CONTROLLER_NAME, 'UpdateValues', editItems, context);
+export const saveEditItems = (editItems: EditItem[], context: Context, forApproval: boolean) =>
+    post(CONTROLLER_NAME, 'UpdateValues', editItems, { ...context, forApproval });
