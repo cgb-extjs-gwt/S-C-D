@@ -1,4 +1,4 @@
-import { NamedId } from "../../Common/States/CommonStates";
+import { NamedId, DataInfo } from "../../Common/States/CommonStates";
 import { CapabilityMatrixEditModel } from "../Model/CapabilityMatrixEditModel";
 import { CapabilityMatrixListModel } from "../Model/CapabilityMatrixListModel";
 import { ICapabilityMatrixService } from "../Services/ICapabilityMatrixService";
@@ -55,12 +55,12 @@ export class FakeCapabilityMatrixService implements ICapabilityMatrixService {
         return this.fromResult(fakeServiceLocationTypes);
     }
 
-    public getAllowed(filter: CapabilityMatrixFilterModel): Promise<CapabilityMatrixListModel[]> {
-        return this.fromResult(fakeAllowed);
+    public getAllowed(filter: CapabilityMatrixFilterModel): Promise<DataInfo<CapabilityMatrixListModel>> {
+        return this.fromResult({ items: fakeAllowed, total: fakeAllowed.length * 5 });
     }
 
-    public getDenied(filter: CapabilityMatrixFilterModel): Promise<CapabilityMatrixListModel[]> {
-        return this.fromResult(fakeDenied);
+    public getDenied(filter: CapabilityMatrixFilterModel): Promise<DataInfo<CapabilityMatrixListModel>> {
+        return this.fromResult({ items: fakeDenied, total: fakeDenied.length * 5 });
     }
 
     private saveItem(row: CapabilityMatrixEditModel, allow: boolean): Promise<any> {

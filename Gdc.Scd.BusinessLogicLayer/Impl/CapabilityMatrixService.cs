@@ -5,7 +5,6 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,13 +16,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<CapabilityMatrixRule> ruleRepo;
 
+        private readonly IRepository<CapabilityMatrixAllowView> allowRepo;
+
+        private readonly IRepository<CapabilityMatrixCountryAllowView> countryAllowRepo;
+
         public CapabilityMatrixService(
                 IRepositorySet repositorySet,
-                IRepository<CapabilityMatrixRule> ruleRepo
+                IRepository<CapabilityMatrixRule> ruleRepo,
+                IRepository<CapabilityMatrixAllowView> allowRepo,
+                IRepository<CapabilityMatrixCountryAllowView> countryAllowRepo
             )
         {
             this.repositorySet = repositorySet;
             this.ruleRepo = ruleRepo;
+            this.allowRepo = allowRepo;
+            this.countryAllowRepo = countryAllowRepo;
         }
 
         public Task AllowCombinations(long[] items)
@@ -81,29 +88,107 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return repositorySet.ExecuteSqlAsync(sql);
         }
 
-        public IEnumerable<CapabilityMatrixDto> GetAllowedCombinations()
+        public IEnumerable<CapabilityMatrixDto> GetAllowedCombinations(int start, int limit, out int count)
         {
-            return GetAllowedCombinations(null);
+            return GetAllowedCombinations(null, start, limit, out count);
         }
 
-        public IEnumerable<CapabilityMatrixDto> GetAllowedCombinations(CapabilityMatrixFilterDto filter)
+        public IEnumerable<CapabilityMatrixDto> GetAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit, out int count)
         {
-            return repositorySet.ReadBySql("select top(100) ID, WG_NAME, AVAIL_NAME, DUR_NAME, REACT_TYPE_NAME, REACT_TIME_NAME, GLOBAL_PORTFOLIO, MASTER_PORTFOLIO, CORE_PORTFOLIO from MatrixAllowView", Read).Result;
-        }
+            if (filter != null && filter.Country.HasValue)
+            {
+                return GetCountryAllowedCombinations(filter, start, limit, out count);
+            }
 
-        public IEnumerable<CapabilityMatrixRuleDto> GetDeniedCombinations()
-        {
-            return GetDeniedCombinations(null);
-        }
-
-        public IEnumerable<CapabilityMatrixRuleDto> GetDeniedCombinations(CapabilityMatrixFilterDto filter)
-        {
-            var query = ruleRepo.GetAll();
+            var query = allowRepo.GetAll();
 
             if (filter != null)
             {
-                query = query.WhereIf(filter.Country.HasValue, x => x.Country.Id == filter.Country.Value)
-                             .WhereIf(filter.Wg.HasValue, x => x.Wg.Id == filter.Wg.Value)
+                query = query.WhereIf(filter.Wg.HasValue, x => x.WgId == filter.Wg.Value)
+                             .WhereIf(filter.Availability.HasValue, x => x.AvailabilityId == filter.Availability.Value)
+                             .WhereIf(filter.Duration.HasValue, x => x.DurationId == filter.Duration.Value)
+                             .WhereIf(filter.ReactionType.HasValue, x => x.ReactionTypeId == filter.ReactionType.Value)
+                             .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTimeId == filter.ReactionTime.Value)
+                             .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocationId == filter.ServiceLocation.Value)
+                             .WhereIf(filter.IsGlobalPortfolio.HasValue && filter.IsGlobalPortfolio.Value, x => x.FujitsuGlobalPortfolio)
+                             .WhereIf(filter.IsMasterPortfolio.HasValue && filter.IsMasterPortfolio.Value, x => x.MasterPortfolio)
+                             .WhereIf(filter.IsCorePortfolio.HasValue && filter.IsCorePortfolio.Value, x => x.CorePortfolio);
+            }
+
+            var result = query.Select(x => new CapabilityMatrixDto
+            {
+                Id = x.Id,
+
+                Wg = x.Wg,
+                Availability = x.Availability,
+                Duration = x.Duration,
+                ReactionType = x.ReactionType,
+                ReactionTime = x.ReactionTime,
+                ServiceLocation = x.ServiceLocation,
+
+                IsGlobalPortfolio = x.FujitsuGlobalPortfolio,
+                IsMasterPortfolio = x.MasterPortfolio,
+                IsCorePortfolio = x.CorePortfolio
+            });
+
+            return Paging(result, start, limit, out count);
+        }
+
+        public IEnumerable<CapabilityMatrixDto> GetCountryAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit, out int count)
+        {
+            var query = countryAllowRepo.GetAll();
+
+            if (filter != null)
+            {
+                query = query.WhereIf(filter.Country.HasValue, x => x.CountryId == filter.Country.Value)
+                             .WhereIf(filter.Wg.HasValue, x => x.WgId == filter.Wg.Value)
+                             .WhereIf(filter.Availability.HasValue, x => x.AvailabilityId == filter.Availability.Value)
+                             .WhereIf(filter.Duration.HasValue, x => x.DurationId == filter.Duration.Value)
+                             .WhereIf(filter.ReactionType.HasValue, x => x.ReactionTypeId == filter.ReactionType.Value)
+                             .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTimeId == filter.ReactionTime.Value)
+                             .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocationId == filter.ServiceLocation.Value);
+            }
+
+            query = query.OrderBy(x => x.Country);
+
+            var result = query.Select(x => new CapabilityMatrixDto
+            {
+                Id = x.Id,
+
+                Country = x.Country,
+                Wg = x.Wg,
+                Availability = x.Availability,
+                Duration = x.Duration,
+                ReactionType = x.ReactionType,
+                ReactionTime = x.ReactionTime,
+                ServiceLocation = x.ServiceLocation,
+            });
+
+            return Paging(result, start, limit, out count);
+        }
+
+        public IEnumerable<CapabilityMatrixRuleDto> GetDeniedCombinations(int start, int limit, out int count)
+        {
+            return GetDeniedCombinations(null, start, limit, out count);
+        }
+
+        public IEnumerable<CapabilityMatrixRuleDto> GetDeniedCombinations(CapabilityMatrixFilterDto filter, int start, int limit, out int count)
+        {
+            var query = ruleRepo.GetAll();
+
+            if (filter != null && filter.Country.HasValue)
+            {
+                query = query.Where(x => x.Country.Id == filter.Country.Value);
+                query = query.OrderBy(x => x.Country.Name);
+            }
+            else
+            {
+                query = query.Where(x => x.Country == null);
+            }
+
+            if (filter != null)
+            {
+                query = query.WhereIf(filter.Wg.HasValue, x => x.Wg.Id == filter.Wg.Value)
                              .WhereIf(filter.Availability.HasValue, x => x.Availability.Id == filter.Availability.Value)
                              .WhereIf(filter.Duration.HasValue, x => x.Duration.Id == filter.Duration.Value)
                              .WhereIf(filter.ReactionType.HasValue, x => x.ReactionType.Id == filter.ReactionType.Value)
@@ -114,12 +199,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                              .WhereIf(filter.IsCorePortfolio.HasValue && filter.IsCorePortfolio.Value, x => x.CorePortfolio);
             }
 
-            if (!filter.Country.HasValue)
-            {
-                query = query.OrderBy(x => x.Country.Name);
-            }
-
-            return query.Select(x => new CapabilityMatrixRuleDto
+            var result = query.Select(x => new CapabilityMatrixRuleDto
             {
                 Id = x.Id,
 
@@ -134,29 +214,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IsGlobalPortfolio = x.FujitsuGlobalPortfolio,
                 IsMasterPortfolio = x.MasterPortfolio,
                 IsCorePortfolio = x.CorePortfolio
-            })
-            .ToList();
-        }
+            });
 
-        public IEnumerable<CapabilityMatrixDto> GetCombinations(IQueryable<CapabilityMatrix> query)
-        {
-            return query.Select(x => new CapabilityMatrixDto
-            {
-                Id = x.Id,
-
-                Country = x.Country == null ? null : x.Country.Name,
-                Wg = x.Wg == null ? null : x.Wg.Name,
-                Availability = x.Availability == null ? null : x.Availability.Name,
-                Duration = x.Duration == null ? null : x.Duration.Name,
-                ReactionType = x.ReactionType == null ? null : x.ReactionType.Name,
-                ReactionTime = x.ReactionTime == null ? null : x.ReactionTime.Name,
-                ServiceLocation = x.ServiceLocation == null ? null : x.ServiceLocation.Name,
-
-                IsGlobalPortfolio = x.FujitsuGlobalPortfolio,
-                IsMasterPortfolio = x.MasterPortfolio,
-                IsCorePortfolio = x.CorePortfolio
-            })
-            .ToList();
+            return Paging(result, start, limit, out count);
         }
 
         private string CrossJoin(CapabilityMatrixRuleSetDto m)
@@ -193,25 +253,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 .AsSql();
         }
 
-        private CapabilityMatrixDto Read(IDataReader reader)
+        private IEnumerable<T> Paging<T>(IQueryable<T> query, int start, int limit, out int count)
         {
-            int ID = 0,
-                WG_NAME = 1,
-                AVAIL_NAME = 2,
-                DUR_NAME = 3,
-                REACT_TYPE_NAME = 4,
-                REACT_TIME_NAME = 5,
-                GLOBAL_PORTFOLIO = 6,
-                MASTER_PORTFOLIO = 7,
-                CORE_PORTFOLIO = 8;
-
-            var result =  new CapabilityMatrixDto();
-
-            result.Id = reader.GetInt64(ID);
-            result.Wg = reader.GetString(WG_NAME);
-            result.Availability = reader.GetString(AVAIL_NAME);
-
-            return result;
+            count = query.Count();
+            return query.Skip(start).Take(limit).ToList();
         }
     }
 }

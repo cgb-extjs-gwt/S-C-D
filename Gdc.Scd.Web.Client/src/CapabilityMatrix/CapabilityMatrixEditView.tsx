@@ -65,7 +65,7 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
                     <MultiSelect ref="srvLoc" maxHeight={SELECT_MAX_HEIGHT} title="Service location" itemTpl="{name}" store={this.state.serviceLocationTypes} />
                 </Container>
 
-                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio }}>
+                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio }} margin="15px 0">
                     <CheckBoxField ref="globPort" boxLabel="Fujitsu global portfolio" />
                     <CheckBoxField ref="masterPort" boxLabel="Master portfolio" />
                     <CheckBoxField ref="corePort" boxLabel="Core portfolio" />

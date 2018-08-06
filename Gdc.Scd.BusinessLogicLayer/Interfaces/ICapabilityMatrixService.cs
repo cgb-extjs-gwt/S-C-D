@@ -10,12 +10,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task DenyCombination(CapabilityMatrixRuleSetDto m);
 
-        IEnumerable<CapabilityMatrixDto> GetAllowedCombinations();
+        IEnumerable<CapabilityMatrixDto> GetAllowedCombinations(int start, int limit, out int count);
 
-        IEnumerable<CapabilityMatrixDto> GetAllowedCombinations(CapabilityMatrixFilterDto filter);
+        IEnumerable<CapabilityMatrixDto> GetAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit, out int count);
 
-        IEnumerable<CapabilityMatrixRuleDto> GetDeniedCombinations();
+        IEnumerable<CapabilityMatrixRuleDto> GetDeniedCombinations(int start, int limit, out int count);
 
-        IEnumerable<CapabilityMatrixRuleDto> GetDeniedCombinations(CapabilityMatrixFilterDto filter);
+        IEnumerable<CapabilityMatrixRuleDto> GetDeniedCombinations(CapabilityMatrixFilterDto filter, int start, int limit, out int count);
     }
 }

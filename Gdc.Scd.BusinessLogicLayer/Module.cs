@@ -29,6 +29,8 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<ServiceLocation>();
             services.RegisterEntity<CapabilityMatrix>();
             services.RegisterEntity<CapabilityMatrixRule>();
+            services.RegisterEntity<CapabilityMatrixAllowView>();
+            services.RegisterEntity<CapabilityMatrixCountryAllowView>();
         }
     }
 }
