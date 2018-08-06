@@ -116,12 +116,17 @@ export class CapabilityMatrixView extends React.Component<any, any> {
     private reload() {
         let filter = this.filter.getModel();
 
-        this.srv.getAllowed(filter).then(x => this.setState({ allowed: x.items }));
+        this.srv.getAllowed(filter).then(x => this.setState({
+            allowed: {
+                data: x.items,
+                pageSize: 2
+            }
+        }));
         this.srv.getDenied(filter).then(x => this.setState(
             {
                 denied: {
                     data: x.items,
-                    pageSize: 10
+                    pageSize: 2
                 }
             }));
     }
