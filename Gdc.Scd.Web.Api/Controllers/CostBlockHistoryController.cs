@@ -18,16 +18,19 @@ namespace Gdc.Scd.Web.Api.Controllers
             this.costBlockHistoryService = costBlockHistoryService;
         }
 
+        [HttpGet]
         public async Task<IEnumerable<CostBlockHistoryApprovalDto>> GetDtoHistoriesForApproval([FromQuery]CostBlockHistoryFilter filter)
         {
             return await this.costBlockHistoryService.GetDtoHistoriesForApproval(filter);
         }
 
+        [HttpGet]
         public async Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues([FromQuery]long costBlockHistoryId)
         {
            return await this.costBlockHistoryService.GetHistoryValues(costBlockHistoryId);
         }
 
+        [HttpGet]
         public async Task<IEnumerable<Dictionary<string, object>>> GetHistoryValueTable([FromQuery]long costBlockHistoryId)
         {
             var historyValues = await this.costBlockHistoryService.GetHistoryValues(costBlockHistoryId);
@@ -51,6 +54,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             });
         }
 
+        [HttpPost]
         public async Task<IActionResult> Approve([FromQuery]long historyId)
         {
             await this.costBlockHistoryService.Approve(historyId);
@@ -58,9 +62,10 @@ namespace Gdc.Scd.Web.Api.Controllers
             return this.Ok();
         }
 
+        [HttpPost]
         public IActionResult Reject([FromQuery]long historyId, [FromQuery]string message)
         {
-            this.costBlockHistoryService.Reject(historyId);
+            this.costBlockHistoryService.Reject(historyId, message);
 
             return this.Ok();
         }

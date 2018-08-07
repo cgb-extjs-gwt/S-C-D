@@ -2,7 +2,7 @@ import { CommonState } from "../../Layout/States/AppStates";
 import { connect } from "react-redux";
 import FilterBundlesView, { FilterApprovalProps, ApprovalFilterActions } from "./FilterBundlesView";
 import { SelectList, NamedId, ElementWithParent } from "../../Common/States/CommonStates";
-import { ItemSelectedAction, ItemWithParentSelectedAction } from '../../Common/Actions/CommonActions';
+import { ItemSelectedAction, ItemWithParentSelectedAction, CommonAction } from '../../Common/Actions/CommonActions';
 import * as approvalActions from '../../CostApproval/Actions/CostApprovalFilterActions';
 
 
@@ -11,7 +11,7 @@ export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilter
     state => {
 
         const applicationsMeta: NamedId[] = state.app.appMetaData ? state.app.appMetaData.applications : [];
-        const selectedApplicationId = state.pages.costApproval.selectedApplicationId;
+        const selectedApplicationId = state.pages.costApproval.filter.selectedApplicationId;
 
         const applications = {
             selectedItemId: selectedApplicationId,
@@ -27,7 +27,7 @@ export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilter
         const costBlock: NamedId[] = costBlocksMeta.map(costBlock => <NamedId>{id: costBlock.id, name: costBlock.name });
 
         //getting selected cost blocks
-        const selectedCostBlocks = state.pages.costApproval.selectedCostBlockIds;
+        const selectedCostBlocks = state.pages.costApproval.filter.selectedCostBlockIds;
 
         const costBlocks = {
             selectedItemIds: selectedCostBlocks,
@@ -57,7 +57,7 @@ export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilter
                                     )
                                 }, []);                         
                                 
-        const selectedCostElements = state.pages.costApproval.selectedCostElementIds.map(item => item.element);
+        const selectedCostElements = state.pages.costApproval.filter.selectedCostElementIds.map(item => item.element);
 
         const costElements = {
             selectedItemIds: selectedCostElements,
@@ -68,8 +68,8 @@ export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilter
             application: applications,
             costBlocks: costBlocks,
             costElements: costElements,
-            startDate: state.pages.costApproval.startDate ?  state.pages.costApproval.startDate : new Date(),
-            endDate: state.pages.costApproval.endDate ? state.pages.costApproval.endDate : new Date()
+            startDate: state.pages.costApproval.filter.startDate ?  state.pages.costApproval.filter.startDate : new Date(),
+            endDate: state.pages.costApproval.filter.endDate ? state.pages.costApproval.filter.endDate : new Date()
         }
     },
     dispatch => (<ApprovalFilterActions>{
@@ -84,6 +84,26 @@ export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilter
         onCostBlockUncheck: (selectedCostBlock) => dispatch(<ItemSelectedAction>{
             type: approvalActions.COST_APPROVAL_UNCHECK_COST_BLOCK,
             selectedItemId: selectedCostBlock
+        }),
+        onCostElementCheck: (selectedCostElement, parentElementId) => dispatch(<ItemWithParentSelectedAction>{
+            type: approvalActions.COST_APPROVAL_CHECK_COST_ELEMENT,
+            selectedItemId: selectedCostElement,
+            selectedItemParentId: parentElementId
+        }),
+        onCostElementUncheck: (selectCostElement) => dispatch(<ItemSelectedAction>{
+            type: approvalActions.COST_APPROVAL_UNCHECK_COST_ELEMENT,
+            selectedItemId: selectCostElement
+        }),
+        onStartDateChange: (selectedDate) => dispatch(<CommonAction<Date>>{
+            type: approvalActions.COST_APPROVAL_SELECT_START_DATE,
+            data: selectedDate
+        }),
+        onEndDateChange: (selectedDate) => dispatch(<CommonAction<Date>>{
+            type: approvalActions.COST_APPROVAL_SELECT_END_DATE,
+            data: selectedDate
+        }),
+        onApplyFilter: () => dispatch({
+            type: approvalActions.COST_APPROVAL_APPLY_FILTER
         })
     })
     

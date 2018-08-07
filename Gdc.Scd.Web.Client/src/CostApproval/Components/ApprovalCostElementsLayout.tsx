@@ -1,10 +1,9 @@
 import * as React from 'react';
-import ApprovalBundles from './ApprovalBundles';
 import { FilterBundleContainer } from './FilterBundlesContainer';
 import { Container } from '@extjs/ext-react';
+import { ApprovalBundleListContainerComponent } from './ApprovalBundleListContainerComponent';
 
-
-class ApprovalCostElements extends React.Component{
+export class ApprovalCostElementsLayout extends React.Component{
     render(){
         return (
             <Container
@@ -12,11 +11,11 @@ class ApprovalCostElements extends React.Component{
                     type: "hbox",
                     pack: "space-between"
                 }}>
-                <ApprovalBundles />
-                <FilterBundleContainer />
+                <ApprovalBundleListContainerComponent flex={2}/>
+                <FilterBundleContainer  />
             </Container>
         );
     }
 }
 
-export default ApprovalCostElements;
+export default ApprovalCostElementsLayout;

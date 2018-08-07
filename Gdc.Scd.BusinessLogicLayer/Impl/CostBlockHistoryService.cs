@@ -160,6 +160,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             this.SetHistoryState(history, CostBlockHistoryState.Rejected);
 
+            history.RejectMessage = message;
+
             historyRepository.Save(history);
 
             this.repositorySet.Sync();

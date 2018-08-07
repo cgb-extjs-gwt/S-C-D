@@ -12,10 +12,11 @@ export interface ApprovalFilterActions{
     onCostElementUncheck?(selectedItemId: string)
     onStartDateChange?(data: Date)
     onEndDateChange?(data: Date)
+    onApplyFilter?()
 }
 
 export interface FilterApprovalProps extends ApprovalFilterActions{
-    application: SelectList<NamedId>,
+    application?: SelectList<NamedId>
     costBlocks: MultiSelectList<NamedId>,
     costElements: MultiSelectList<ElementWithParent>,
     startDate: Date,
@@ -51,6 +52,8 @@ const filter = (props: FilterApprovalProps) => {
                               boxLabel = {item.element.name}
                               value = {item.element.id}
                               checked = {props.costElements.selectedItemIds.indexOf(item.element.id) > -1}
+                              onCheck = {() => props.onCostElementCheck(item.element.id, item.parentId)}
+                              onUnCheck = {() => props.onCostElementUncheck(item.element.id)}
                               />
     }) : null;
 
@@ -91,7 +94,9 @@ const filter = (props: FilterApprovalProps) => {
                                          label = "From"
                                          picker = {{
                                              yearFrom: 2018
-                                         }} />
+                                         }} 
+                                         onChange = {(el, newDate: Date) => props.onStartDateChange(newDate)}
+                                         />
                     </Panel >
                     <Panel margin='0 20px'>
                     <DatePickerField value={props.endDate}
@@ -100,13 +105,16 @@ const filter = (props: FilterApprovalProps) => {
                                          dateFormat = "d.m.Y"
                                          picker = {{
                                              yearFrom: 2018
-                                         }} />
+                                         }} 
+                                         onChange = {(el, newDate: Date) => props.onEndDateChange(newDate)}/>
                     </Panel>
                </Container>
                <Container margin="20px 0 0 0" layout={{type: 'hbox', align: 'center'}}>
                                <Button disabled = { costElementsCheckBoxes ? false : true} 
                                iconCls="x-fa fa-filter" 
-                               text="Filter" ui = "action raised" />         
+                               text="Filter" ui = "action raised" 
+                               handler = { props.onApplyFilter }
+                               />         
                </Container>
         </FormPanel>
     );
