@@ -2,39 +2,18 @@ import { Action } from 'redux';
 import { asyncAction, AsyncAction } from "../../Common/Actions/AsyncAction";
 import * as service from "../Services/CostApprovalService";
 import { ItemSelectedAction, ItemsSelectedAction } from "../../Common/Actions/CommonActions";
-import { openPage, pageInit } from '../../Layout/Actions/AppActions';
+import { openPage, loadMetaData } from '../../Layout/Actions/AppActions';
 
 export const COST_APPROVAL_PAGE = "costApproval";
 export const COST_APPROVAL_SELECT_APPLICATION = "COST_APPROVAL_SELECT_APPLICATIONS";
-export const COST_APPROVAL_SELECT_COST_BLOCKS = "COST_APPROVAL_SELECT_COST_BLOCKS";
-export const COST_APPROVAL_SELECT_COST_ELEMENTS = "COST_APPROVAL_SELECT_COST_ELEMENTS";
-export const COST_APPROVAL_SELECT_PERIOD = "COST_APPROVAL_SELECT_PERIOD";
+export const COST_APPROVAL_CHECK_COST_BLOCK = "COST_APPROVAL_CHECK_COST_BLOCK";
+export const COST_APPROVAL_CHECK_COST_ELEMENT = "COST_APPROVAL_CHECK_COST_ELEMENT";
+export const COST_APPROVAL_UNCHECK_COST_BLOCK = "COST_APPROVAL_UNCHECK_COST_BLOCK";
+export const COST_APPROVAL_UNCHECK_COST_ELEMENT = "COST_APPROVAL_UNCHECK_COST_ELEMENT";
+export const COST_APPROVAL_SELECT_START_DATE = "COST_APPROVAL_SELECT_START_DATE";
+export const COST_APPROVAL_SELECT_END_DATE = "COST_APPROVAL_SELECT_END_DATE";
 
-export interface SelectPeriodAction extends Action<string>{
-    startDate: string;
-    endDate: string;
-}
 
-export const selectApplication = (applicationId: string) => <ItemSelectedAction>{
-    type: COST_APPROVAL_SELECT_APPLICATION,
-    selectedItemId: applicationId
-}
-
-export const selectCostBlocks = (selectedCostBlockIds: string[]) => <ItemsSelectedAction>{
-    type: COST_APPROVAL_SELECT_COST_BLOCKS,
-    selectedItemIds: selectedCostBlockIds
-}
-
-export const selectCostElements = (selectedCostElementIds: string[]) => <ItemsSelectedAction>{
-    type: COST_APPROVAL_SELECT_COST_ELEMENTS,
-    selectedItemIds: selectedCostElementIds
-}
-
-export const selectTimePeriod = (startDate: string, endDate: string) => <SelectPeriodAction>{
-    type: COST_APPROVAL_SELECT_PERIOD,
-    startDate: startDate,
-    endDate: endDate
-}
 
 export const init = () => asyncAction(
     dispatch => {
@@ -43,7 +22,7 @@ export const init = () => asyncAction(
             data => {
                 //TODO: remove
                 console.log(data);
-                dispatch(pageInit(COST_APPROVAL_PAGE, data));
+                dispatch(loadMetaData(data));
             } 
         );
         error => dispatch(error(error))
