@@ -82,6 +82,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             return this;
         }
 
+        public SqlStringBuilder AppendAndIfNotNull(string col, long[] items)
+        {
+            if (items != null && items.Length == 0)
+            {
+                sb.Append(" AND ").Append(col).Append(" ");
+                AppendInOrNull(items);
+            }
+            return this;
+        }
+
         public SqlStringBuilder AppendValues(long[] items)
         {
             if (items == null || items.Length == 0)
