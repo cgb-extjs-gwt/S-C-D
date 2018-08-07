@@ -1,4 +1,4 @@
-import { createStore, combineReducers, applyMiddleware, Action } from "redux";
+import { createStore, combineReducers, applyMiddleware, Action, compose } from "redux";
 import { AsyncAction } from "./Common/Actions/AsyncAction";
 import { CostEditorState } from "./CostEditor/States/CostEditorStates";
 import { costEditorReducer } from "./CostEditor/Reducers/CostEditorReducer";
@@ -17,6 +17,8 @@ const asyncActionHandler = store => next => action => {
     }
 }
 
+const composeEnhancers = (<any>window).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
 export const storeFactory = () => {
     const reducer = combineReducers({
         app: (state: AppState, action: Action<string>) => appReducer(state, action),
@@ -33,6 +35,6 @@ export const storeFactory = () => {
 
     return createStore(
         reducer,
-        applyMiddleware(asyncActionHandler)
+        composeEnhancers(applyMiddleware(asyncActionHandler))
     );
 }

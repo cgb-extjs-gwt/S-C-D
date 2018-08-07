@@ -2,7 +2,7 @@ import { Action } from 'redux';
 import { asyncAction, AsyncAction } from "../../Common/Actions/AsyncAction";
 import * as service from "../Services/CostApprovalService";
 import { ItemSelectedAction, ItemsSelectedAction } from "../../Common/Actions/CommonActions";
-import { openPage, pageInit } from '../../Layout/Actions/AppActions';
+import { openPage, pageInit, loadMetaData } from '../../Layout/Actions/AppActions';
 
 export const COST_APPROVAL_PAGE = "costApproval";
 export const COST_APPROVAL_SELECT_APPLICATION = "COST_APPROVAL_SELECT_APPLICATIONS";
@@ -44,6 +44,7 @@ export const init = () => asyncAction(
                 //TODO: remove
                 console.log(data);
                 dispatch(pageInit(COST_APPROVAL_PAGE, data));
+                dispatch(loadMetaData(data));
             } 
         );
         error => dispatch(error(error))

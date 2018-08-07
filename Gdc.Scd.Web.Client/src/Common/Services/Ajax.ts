@@ -1,4 +1,4 @@
-const PREFIX = '/api/';
+export const API_URL = '/api/';
 
 export enum Methods {
     Get = 'GET',
@@ -30,7 +30,7 @@ const requestMvc = (
     params = null, 
     options = {}
 ) => {
-    const url = `${PREFIX}${controller}/${action}`;
+    const url = `${API_URL}${controller}/${action}`;
 
     return request(url, method, params, options);
 }

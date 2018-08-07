@@ -11,7 +11,7 @@ import { CostEditorContainer } from '../../CostEditor/Components/CostEditorConta
 import { CapabilityMatrixView, CapabilityMatrixEditView } from '../../CapabilityMatrix';
 import { CommonState } from '../States/AppStates';
 import CountryGrid  from '../../Admin/Country/containers/CountryGrid';
-import ApprovalCostElements from '../../CostApproval/Components/ApprovalCostElementsLayout';
+import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCostElementsLayout';
 import { init } from '../../CostApproval/Actions/CostApprovalFilterActions';
 
 interface LayoutProps {
@@ -69,7 +69,7 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/pivot" component={ScdPivotGrid}/>
                         <Route path="/input-cost-elements" component={CostEditorContainer}/>
                         <Route path="/admin/country-management" component={ CountryGrid }/>
-                        <Route path="/cost-approval" component={ ApprovalCostElements} />
+                        <Route path="/cost-approval" component={ ApprovalCostElementsLayout} />
                         <Route path="/capability-matrix" exact component={CapabilityMatrixView} />
                         <Route path="/capability-matrix/edit" component={CapabilityMatrixEditView} />
                     </Switch>

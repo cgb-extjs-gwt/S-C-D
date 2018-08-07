@@ -8,7 +8,7 @@ export interface ApprovalFilterActions{
 }
 
 export interface FilterApprovalProps extends ApprovalFilterActions{
-    application: SelectList<NamedId>
+    application?: SelectList<NamedId>
 }
 
 const filter = (props: FilterApprovalProps) => {
