@@ -65,7 +65,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         [HttpPost]
         public IActionResult Reject([FromQuery]long historyId, [FromQuery]string message)
         {
-            this.costBlockHistoryService.Reject(historyId);
+            this.costBlockHistoryService.Reject(historyId, message);
 
             return this.Ok();
         }

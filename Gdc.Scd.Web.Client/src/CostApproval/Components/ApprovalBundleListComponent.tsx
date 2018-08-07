@@ -25,62 +25,30 @@ export class ApprovalBundleListComponent extends React.Component<ApprovalBundleL
         };
     }
 
-    // shouldComponentUpdate(newProps: ApprovalBundleListProps) {
-    //     let result = false;
-
-    //     const stateFilter = this.state.filter;
-    //     const propsFilter = newProps.filter;
-
-    //     if (stateFilter.dateTimeFrom !== propsFilter.dateTimeFrom ||
-    //         stateFilter.dateTimeTo !== propsFilter.dateTimeTo ||
-    //         !this.equalsArray(stateFilter.applicationIds, propsFilter.applicationIds) ||
-    //         !this.equalsArray(stateFilter.costBlockIds, propsFilter.costBlockIds) ||
-    //         !this.equalsArray(stateFilter.costElementIds, propsFilter.costElementIds) ||
-    //         !this.equalsArray(stateFilter.userIds, propsFilter.userIds)) {
-    //         result = true;
-    //     } else {
-    //         this.setState({ filter: propsFilter });
-    //         this.reloadBundles();
-    //     }
-
-    //     return result;
-    // }
-
     componentDidMount() {
         this.reloadBundles();
     }
 
     render() {
         const { flex } = this.props;
+        const { bundles } = this.state;
 
         return (
             <Container layout="vbox" flex={flex} scrollable>
                 {
-                    this.state.bundles.map(bundle => (
-                        <ApprovalBundleItemComponent key={bundle.id} bundle={bundle} onHandled={this.reloadBundles}/>
-                    ))
+                    bundles.length > 0
+                        ? bundles.map(bundle => (
+                            <ApprovalBundleItemComponent key={bundle.id} bundle={bundle} onHandled={this.reloadBundles}/>
+                        ))
+                        : <Container layout="center" padding="20">
+                            <h3>No items</h3>
+                          </Container>
                 }
             </Container>
         );
     }
 
-    // private equalsArray<T>(array1: T[], array2: T[]) {
-    //     let result: boolean;
-
-    //     if (array1 === array2) {
-    //         result = true;
-    //     } else {
-    //         if (array1.length !== array2.length) {
-    //             result = false;
-    //         } else {
-    //             result = array1.every((value, index) => array1[index] === array2[index]);
-    //         }
-    //     }
-
-    //     return result;
-    // }
-
-    private reloadBundles() {
+    private reloadBundles = () => {
         this.setState({ bundles: [] });
 
         approvalService.getBundles(this.state.filter)

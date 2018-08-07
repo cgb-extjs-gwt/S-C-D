@@ -18,6 +18,8 @@ namespace Gdc.Scd.Core.Entities
 
         public User ApproveRejectUser { get; set; }
 
+        public string RejectMessage { get; set; }
+
         public CostBlockHistoryState State { get; set; }
 
         public HistoryContext Context { get; set; }
