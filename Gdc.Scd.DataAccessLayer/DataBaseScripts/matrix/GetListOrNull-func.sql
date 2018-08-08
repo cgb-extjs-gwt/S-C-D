@@ -18,7 +18,7 @@ GO
 -- Create date: <Create Date,,>
 -- Description:	<Description,,>
 -- =============================================
-alter FUNCTION GetListOrNull(@list ListID readonly)
+CREATE FUNCTION GetListOrNull(@list ListID readonly)
 RETURNS @tbl table(id bigint)
 AS
 BEGIN

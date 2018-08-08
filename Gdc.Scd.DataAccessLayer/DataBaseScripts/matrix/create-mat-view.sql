@@ -4,7 +4,7 @@ IF OBJECT_ID('dbo.MatrixAllowView', 'V') IS NOT NULL
   DROP VIEW dbo.MatrixAllowView;
 GO
 
-CREATE VIEW dbo.MatrixAllowView WITH SCHEMABINDING as
+CREATE VIEW [dbo].[MatrixAllowView] WITH SCHEMABINDING as
    select m.Id as ID, 
 		  wg.Id as 'WgId', wg.Name as 'Wg', 
 		  av.Id as 'AvailabilityId', av.Name as 'Availability', 

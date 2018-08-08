@@ -18,7 +18,7 @@ GO
 -- Create date: <Create Date,,>
 -- Description:	<Description,,>
 -- =============================================
-alter PROCEDURE DenyMatrixRows
+create PROCEDURE DenyMatrixRows
 	@cnt bigint,
 	@wg ListID readonly,
 	@av ListID readonly,
