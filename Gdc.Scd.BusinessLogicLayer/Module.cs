@@ -29,6 +29,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<ServiceLocation>();
             services.RegisterEntity<CapabilityMatrixAllow>();
             services.RegisterEntity<CapabilityMatrixDeny>();
+            services.RegisterEntity<AdminAvailabilityFee>();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using System;
 using System.Collections.Generic;
@@ -8,14 +9,10 @@ using System.Text;
 namespace Gdc.Scd.BusinessLogicLayer.Entities
 {
     [Table("AvailabilityFee", Schema = MetaConstants.AdminSchema)]
-    public class AdminAvailabilityFee : NamedId
+    public class AdminAvailabilityFee : IIdentifiable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public override long Id
-        {
-            get => base.Id;
-            set => base.Id = value;
-        }
+        public long Id {get;set;}
 
         public Country Country { get; set; }
 
