@@ -22,7 +22,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         public DataInfo<CapabilityMatrixDto> Allowed(CapabilityMatrixFilterDto filter)
         {
             int total;
-            var items = capabilityMatrixService.GetAllowedCombinations(filter, 0, 25, out total);
+            var items = capabilityMatrixService.GetAllowedCombinations(filter, 0, 25, out total);  //TODO: remove hard coded values
 
             return new DataInfo<CapabilityMatrixDto> { Items = items, Total = total };
         }
@@ -31,7 +31,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         public DataInfo<CapabilityMatrixRuleDto> Denied(CapabilityMatrixFilterDto filter)
         {
             int total;
-            var items= capabilityMatrixService.GetDeniedCombinations(filter, 0, 25, out total);
+            var items = capabilityMatrixService.GetDeniedCombinations(filter, 0, 25, out total); //TODO: remove hard coded values
 
             return new DataInfo<CapabilityMatrixRuleDto> { Items = items, Total = total };
         }
