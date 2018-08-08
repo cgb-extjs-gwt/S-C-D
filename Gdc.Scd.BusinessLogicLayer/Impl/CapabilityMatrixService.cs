@@ -1,7 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.CapabilityMatrix;
 using Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix;
-using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.BusinessLogicLayer.Procedures;
 using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System.Collections.Generic;
@@ -35,29 +35,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public Task AllowCombinations(long[] items)
         {
-            if (items.Length == 0)
-            {
-                throw new System.ArgumentException("Invalid items list");
-            }
-
-            //DELETE FROM MatrixRule WHERE Id IN (@items[]...)
-
-            var sql = new SqlStringBuilder()
-                         .Append("DELETE FROM MatrixRule WHERE Id ")
-                         .AppendInOrNull(items)
-
-                         .AsSql();
-
-            return repositorySet.ExecuteSqlAsync(sql);
+            return new DelMatrixRules(repositorySet).ExecuteAsync(items);
         }
 
-        public async Task DenyCombination(CapabilityMatrixRuleSetDto m)
+        public Task DenyCombination(CapabilityMatrixRuleSetDto m)
         {
-            //Add deny combinations to MatrixRule
-            await AddMatrixRules(m);
-
-            //Update Matrix, set rows denied where match to rule
-            await DenyMatrixRows(m);
+            return new AddMatrixRules(repositorySet).ExecuteAsync(m);
         }
 
         public IEnumerable<CapabilityMatrixDto> GetAllowedCombinations(int start, int limit, out int count)
@@ -189,137 +172,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             });
 
             return Paging(result, start, limit, out count);
-        }
-
-        private Task AddMatrixRules(CapabilityMatrixRuleSetDto m)
-        {
-            //Add all posible combinations from user multi array input
-            //except those which exists in db
-
-            /*INSERT INTO MatrixRule(
-                    CountryId, WgId, AvailabilityId, DurationId, ReactionTypeId, ReactionTimeId, ServiceLocationId, FujitsuGlobalPortfolio,MasterPortfolio, CorePortfolio) 
-
-            SELECT @country, wg, av, dur, rtype, rtime, loc, @globalPortfolio, @masterPortfolio, @corePortfolio
-            FROM (VALUES @wg[]...) a(wg)
-            CROSS JOIN (VALUES @availability[]...) b(av)
-            CROSS JOIN (VALUES @duration[]...) c(dur)
-            CROSS JOIN (VALUES @reactionType[]...) d(rtype)
-            CROSS JOIN (VALUES @reactionTime[]...) e(rtime)
-            CROSS JOIN (VALUES @serviceLocation[]...) f(loc)
-
-            EXCEPT
-
-            SELECT CountryId, WgId, AvailabilityId, DurationId, ReactionTypeId, ReactionTimeId, ServiceLocationId, FujitsuGlobalPortfolio, MasterPortfolio, CorePortfolio
-            FROM MatrixRule  */
-
-            var sql = new SqlStringBuilder()
-                .Append(@"INSERT INTO MatrixRule(
-                            CountryId, WgId, AvailabilityId, DurationId, ReactionTypeId, ReactionTimeId, ServiceLocationId, FujitsuGlobalPortfolio,MasterPortfolio, CorePortfolio) ")
-
-                .Append(CrossJoin(m))
-
-                .Append(@"EXCEPT
-
-                        SELECT CountryId, WgId, AvailabilityId, DurationId, ReactionTypeId, ReactionTimeId, ServiceLocationId, FujitsuGlobalPortfolio, MasterPortfolio, CorePortfolio
-                        FROM MatrixRule")
-
-                .AsSql();
-
-            return repositorySet.ExecuteSqlAsync(sql);
-        }
-
-        private Task DenyMatrixRows(CapabilityMatrixRuleSetDto m)
-        {
-            /*UPDATE Matrix SET Denied = 1
-                WHERE CountryId = @country
-
-                      AND FujitsuGlobalPortfolio = @globport
-                      AND MasterPortfolio = @masterPort
-                      AND CorePortfolio = @corePort
-
-                      AND WgId in (@wg[]...)
-                      AND AvailabilityId in (@availability[]...)
-                      AND DurationId in (@duration[]...)
-                      AND ReactionTimeId in (@reactTime[]...)
-                      AND ReactionTypeId in (@reactType[]...)
-                      AND ServiceLocationId in (@serviceLoc[]...)*/
-
-            var sql = new SqlStringBuilder();
-
-            sql.Append("UPDATE Matrix SET Denied = 1 WHERE CountryId ").AppendEqualsOrNull(m.CountryId);
-
-            if(!m.CountryId.HasValue)
-            {
-                sql.Append(" AND FujitsuGlobalPortfolio ").AppendEquals(m.IsGlobalPortfolio)
-                   .Append(" AND MasterPortfolio ").AppendEquals(m.IsMasterPortfolio)
-                   .Append(" AND CorePortfolio ").AppendEquals(m.IsCorePortfolio);
-            }
-
-            if (m.Wgs.Any())
-            {
-                sql.Append(" AND WgId ").AppendInOrNull(m.Wgs);
-            }
-
-            if (m.Availabilities.Any())
-            {
-                sql.Append(" AND AvailabilityId ").AppendInOrNull(m.Availabilities);
-            }
-
-            if (m.Durations.Any())
-            {
-                sql.Append(" AND DurationId ").AppendInOrNull(m.Durations);
-            }
-
-            if (m.ReactionTimes.Any())
-            {
-                sql.Append(" AND ReactionTimeId ").AppendInOrNull(m.ReactionTimes);
-            }
-
-            if (m.ReactionTypes.Any())
-            {
-                sql.Append( "AND ReactionTypeId ").AppendInOrNull(m.ReactionTypes);
-            }
-
-            if (m.ServiceLocations.Any())
-            {
-                sql.Append(" AND ServiceLocationId ").AppendInOrNull(m.ServiceLocations);
-            }
-
-            return repositorySet.ExecuteSqlAsync(sql.AsSql());
-        }
-
-        private string CrossJoin(CapabilityMatrixRuleSetDto m)
-        {
-            /*SELECT @country, wg, av, dur, rtype, rtime, loc, @globalPortfolio, @masterPortfolio, @corePortfolio
-            FROM (VALUES @wg[]...) a(wg)
-            CROSS JOIN (VALUES @availability[]...) b(av)
-            CROSS JOIN (VALUES @duration[]...) c(dur)
-            CROSS JOIN (VALUES @reactionType[]...) d(rtype)
-            CROSS JOIN (VALUES @reactionTime[]...) e(rtime)
-            CROSS JOIN (VALUES @serviceLocation[]...) f(loc)*/
-
-            return new SqlStringBuilder()
-
-                .Append("SELECT ")
-                            .AppendValue(m.CountryId)
-                            .Append(", wg")
-                            .Append(", av")
-                            .Append(", dur")
-                            .Append(", rtype")
-                            .Append(", rtime")
-                            .Append(", loc")
-                            .Append(", ").AppendValue(m.IsGlobalPortfolio)
-                            .Append(", ").AppendValue(m.IsMasterPortfolio)
-                            .Append(", ").AppendValue(m.IsCorePortfolio)
-
-                .Append("FROM ").AppendValues(m.Wgs).Append(" a(wg)")
-                .Append("CROSS JOIN ").AppendValues(m.Availabilities).Append(" b(av)")
-                .Append("CROSS JOIN ").AppendValues(m.Durations).Append(" c(dur)")
-                .Append("CROSS JOIN ").AppendValues(m.ReactionTypes).Append(" d(rtype)")
-                .Append("CROSS JOIN ").AppendValues(m.ReactionTimes).Append(" e(rtime)")
-                .Append("CROSS JOIN ").AppendValues(m.ServiceLocations).Append(" f(loc)")
-
-                .AsSql();
         }
 
         private IEnumerable<T> Paging<T>(IQueryable<T> query, int start, int limit, out int count)
