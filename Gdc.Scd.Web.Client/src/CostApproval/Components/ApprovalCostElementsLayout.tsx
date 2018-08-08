@@ -11,7 +11,7 @@ export class ApprovalCostElementsLayout extends React.Component{
                     type: "hbox",
                     pack: "space-between"
                 }}>
-                <ApprovalBundleListContainerComponent flex={4}/>
+                <ApprovalBundleListContainerComponent flex={2}/>
                 <FilterBundleContainer  />
             </Container>
         );
