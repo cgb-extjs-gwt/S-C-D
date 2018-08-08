@@ -13,5 +13,7 @@
         public const string NameFieldKey = "Name";
 
         public const string CostBlockHistoryTableName = "CostBlockHistory";
+
+        public const string AdminSchema = "Admin";
     }
 }
