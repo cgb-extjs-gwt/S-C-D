@@ -17,9 +17,8 @@ import filter from "../Components/FilterBundlesView";
 
 const now = new Date();
 
-const initialBundleFilterState : BudleFilter = {
-    filter: 
-    {
+const initialBundleFilterState = () => {
+    const filter: BundleFilterStates = {
         selectedApplicationId: "Hardware",
         selectedCostBlockIds: ["FieldServiceCost"],
         selectedCostElementIds: [{
@@ -27,8 +26,12 @@ const initialBundleFilterState : BudleFilter = {
             parentId: "FieldServiceCost"}],
         startDate: new Date(now.setMonth(now.getMonth() - 2)),
         endDate: new Date()
-    },
-    applyFilter: <BundleFilterStates>{}
+    }
+
+    return <BudleFilter>{
+        filter,
+        applyFilter: filter
+    }
 };
 
 const selectApplication: Reducer<BudleFilter, ItemSelectedAction> = (state, action) => {
@@ -120,7 +123,7 @@ const applyFilter: Reducer<BudleFilter, Action<string>> = (state, action) =>{
 }
 
 
-export const bundleFilterReducer: Reducer<BudleFilter, Action<string>> = (state = initialBundleFilterState, action) => {
+export const bundleFilterReducer: Reducer<BudleFilter, Action<string>> = (state = initialBundleFilterState(), action) => {
     switch(action.type){
         case COST_APPROVAL_SELECT_APPLICATION:
             return selectApplication(state, <ItemSelectedAction>action);

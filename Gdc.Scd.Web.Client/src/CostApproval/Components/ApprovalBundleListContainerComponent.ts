@@ -1,16 +1,24 @@
 import { connect } from "react-redux";
 import { ApprovalBundleListProps, ApprovalBundleListComponent } from "./ApprovalBundleListComponent";
 import { CommonState } from "../../Layout/States/AppStates";
+import { BundleFilter } from "../States/BundleFilter";
 
 export const ApprovalBundleListContainerComponent = connect<ApprovalBundleListProps, {}, any, CommonState>(
-    state => ({
-        filter: {
-            dateTimeFrom: state.pages.costApproval.filter.startDate,
-            dateTimeTo: state.pages.costApproval.filter.endDate,
-            applicationIds: [state.pages.costApproval.filter.selectedApplicationId],
-            costBlockIds: state.pages.costApproval.filter.selectedCostBlockIds,
-            costElementIds: state.pages.costApproval.filter.selectedCostElementIds.map(el => el.element)
-        },
-        flex: 2
-    })
+    state => {
+        let filter: BundleFilter = null;
+
+        const applyFilter = state.pages.costApproval.applyFilter;
+
+        if (applyFilter) {
+            filter = {
+                dateTimeFrom: applyFilter.startDate || null,
+                dateTimeTo: applyFilter.endDate || null,
+                applicationIds: applyFilter && applyFilter.selectedApplicationId ? [ applyFilter.selectedApplicationId ] : null,
+                costBlockIds: applyFilter.selectedCostBlockIds || null,
+                costElementIds: applyFilter.selectedCostElementIds ? applyFilter.selectedCostElementIds.map(el => el.element) : null
+            }
+        }
+
+        return { filter }
+    }
 )(ApprovalBundleListComponent)

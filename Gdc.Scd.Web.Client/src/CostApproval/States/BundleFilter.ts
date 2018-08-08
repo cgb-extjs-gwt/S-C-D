@@ -1,4 +1,4 @@
-export interface BuldleFilter {
+export interface BundleFilter {
     dateTimeFrom?: Date
     dateTimeTo?: Date
     applicationIds?: string[]

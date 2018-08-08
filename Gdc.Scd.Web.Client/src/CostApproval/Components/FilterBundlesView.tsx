@@ -17,10 +17,10 @@ export interface ApprovalFilterActions{
 
 export interface FilterApprovalProps extends ApprovalFilterActions{
     application?: SelectList<NamedId>
-    costBlocks: MultiSelectList<NamedId>,
-    costElements: MultiSelectList<ElementWithParent>,
-    startDate: Date,
-    endDate: Date
+    costBlocks?: MultiSelectList<NamedId>,
+    costElements?: MultiSelectList<ElementWithParent>,
+    startDate?: Date,
+    endDate?: Date
 }
 
 const filter = (props: FilterApprovalProps) => {

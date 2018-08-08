@@ -12,7 +12,7 @@ export class ApprovalCostElementsLayout extends React.Component{
                     pack: "space-between"
                 }}>
                 <ApprovalBundleListContainerComponent flex={2}/>
-                <FilterBundleContainer  />
+                <FilterBundleContainer/>
             </Container>
         );
     }
