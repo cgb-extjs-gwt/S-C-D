@@ -10,8 +10,17 @@ export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilter
 (
     state => {
 
-        const applicationsMeta: NamedId[] = state.app.appMetaData ? state.app.appMetaData.applications : [];
-        const selectedApplicationId = state.pages.costApproval.filter.selectedApplicationId;
+        //app meta data is not loaded yet
+        if (!state.app.appMetaData)
+        {
+            return <FilterApprovalProps>{ }
+        }
+        
+        const applicationsMeta: NamedId[] = state.app.appMetaData.applications;
+
+        const selectedApplicationId = state.pages.costApproval.filter.selectedApplicationId ?  
+                                                    state.pages.costApproval.filter.selectedApplicationId : 
+                                                    applicationsMeta[0].id;
 
         const applications = {
             selectedItemId: selectedApplicationId,
@@ -19,15 +28,19 @@ export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilter
         }
 
         //getting selected cost blocks from our state
-        const costBlocksMeta = state.app.appMetaData ? state.app.appMetaData.costBlocks.filter(costBlock => {
+        const costBlocksMeta = state.app.appMetaData.costBlocks.filter(costBlock => {
             return costBlock.applicationIds.indexOf(selectedApplicationId) > -1
-        }) : [];
+        });
 
         //mapping selected costBlocks to our state
+        const defaultCostBlock = costBlocksMeta[0];
+
         const costBlock: NamedId[] = costBlocksMeta.map(costBlock => <NamedId>{id: costBlock.id, name: costBlock.name });
 
         //getting selected cost blocks
-        const selectedCostBlocks = state.pages.costApproval.filter.selectedCostBlockIds;
+        const selectedCostBlocks = state.pages.costApproval.filter.selectedCostBlockIds.length === 0 && !state.pages.costApproval.initialized ? 
+                                    [defaultCostBlock.id] : 
+                                    state.pages.costApproval.filter.selectedCostBlockIds;
 
         const costBlocks = {
             selectedItemIds: selectedCostBlocks,
@@ -36,7 +49,7 @@ export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilter
 
         //getting selected cost elements from our state
         //using map/reduce as select many
-        const costElementsMeta = costBlocksMeta.filter(costBlock => selectedCostBlocks.indexOf(costBlock.id) > -1)
+        const costElementsMeta: ElementWithParent[] = costBlocksMeta.filter(costBlock => selectedCostBlocks.indexOf(costBlock.id) > -1)
                                 .map(costBlock => ({
                                     cbId: costBlock.id,
                                     cbElems: costBlock.costElements
@@ -57,7 +70,12 @@ export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilter
                                     )
                                 }, []);                         
                                 
-        const selectedCostElements = state.pages.costApproval.filter.selectedCostElementIds.map(item => item.element);
+        const selectedCostElements = state.pages.costApproval.filter.selectedCostElementIds.length === 0 &&
+                                     !state.pages.costApproval.initialized ? 
+                                    [defaultCostBlock.costElements[0].id] :
+                                    state.pages.costApproval.filter.selectedCostElementIds.map(item => item.element);
+                                   
+
 
         const costElements = {
             selectedItemIds: selectedCostElements,
@@ -69,7 +87,8 @@ export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilter
             costBlocks: costBlocks,
             costElements: costElements,
             startDate: state.pages.costApproval.filter.startDate ?  state.pages.costApproval.filter.startDate : new Date(),
-            endDate: state.pages.costApproval.filter.endDate ? state.pages.costApproval.filter.endDate : new Date()
+            endDate: state.pages.costApproval.filter.endDate ? state.pages.costApproval.filter.endDate : new Date(),
+            initialized: state.pages.costApproval.initialized
         }
     },
     dispatch => (<ApprovalFilterActions>{
@@ -104,6 +123,13 @@ export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilter
         }),
         onApplyFilter: () => dispatch({
             type: approvalActions.COST_APPROVAL_APPLY_FILTER
+        }),
+        onInit: (defaultAppId: string, defaultCostBlockId: string[], 
+            defaultCostElementId: ElementWithParent<string, string>[]) => dispatch(<approvalActions.InitcostApprovalAction>{
+            type: approvalActions.COST_APPROVAL_ON_INIT,
+            defaultAppId: defaultAppId,
+            defaultCostBlockId: defaultCostBlockId,
+            defaultCostElementId: defaultCostElementId
         })
     })
     

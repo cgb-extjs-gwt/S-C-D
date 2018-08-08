@@ -103,6 +103,8 @@ export class ApprovalBundleListComponent extends React.Component<ApprovalBundleL
         if (array1 === array2) {
             result = true;
         } else {
+            if ((!array1 && !array2) || (!array1 && array2))
+                return false;
             if (array1.length !== array2.length) {
                 result = false;
             } else {

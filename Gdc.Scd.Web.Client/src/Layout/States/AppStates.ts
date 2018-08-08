@@ -14,6 +14,7 @@ export interface AppState {
 }
 
 export interface BudleFilter{
+    initialized: boolean,
     filter: BundleFilterStates,
     applyFilter: BundleFilterStates
 }
