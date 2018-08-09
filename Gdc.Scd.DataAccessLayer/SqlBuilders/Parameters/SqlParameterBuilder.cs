@@ -54,7 +54,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters
             return new SqlParameter(pname, value);
         }
 
-        public static DbParameter Create(DbType type, string pname, DataTable value)
+        public static DbParameter Create(DbType type, string pname, object value)
         {
             return new SqlParameter(pname, value) { DbType = type };
         }
