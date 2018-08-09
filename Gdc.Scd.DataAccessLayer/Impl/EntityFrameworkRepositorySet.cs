@@ -117,56 +117,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public int ExecuteProc(string procName, params DbParameter[] parameters)
         {
-            //TODO: remove direct connection management
-            DbConnection connection = this.Database.GetDbConnection();
-            DbCommand command = null;
-            try
-            {
-                connection.Open();
-                command = connection.CreateCommand();
-                command.CommandText = procName;
-                command.CommandType = CommandType.StoredProcedure;
-
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-
-                return command.ExecuteNonQuery();
-            }
-            finally
-            {
-                command?.Dispose();
-                connection.Close();
-            }
+            string sql = CreateSpCommand(procName, parameters);
+            return Database.ExecuteSqlCommand(sql, parameters);
         }
 
-        public async Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters)
+        public Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters)
         {
-            //TODO: remove direct connection management
-            DbConnection connection = this.Database.GetDbConnection();
-            DbCommand command = null;
-
-            try
-            {
-                await connection.OpenAsync();
-
-                command = connection.CreateCommand();
-                command.CommandText = procName;
-                command.CommandType = CommandType.StoredProcedure;
-
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-
-                return await command.ExecuteNonQueryAsync();
-            }
-            finally
-            {
-                command?.Dispose();
-                connection.Close();
-            }
+            string sql = CreateSpCommand(procName, parameters);
+            return Database.ExecuteSqlCommandAsync(sql, parameters);
         }
 
         public IEnumerable<Type> GetRegisteredEntities()
@@ -235,6 +193,24 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return dbParams;
         }
 
-
+        private static string CreateSpCommand(string procName, DbParameter[] parameters)
+        {
+            var sb = new System.Text.StringBuilder("EXEC ", 30).Append(procName);
+            if (parameters != null && parameters.Length > 0)
+            {
+                sb.Append(" ");
+                bool flag = false;
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    if (flag)
+                    {
+                        sb.Append(", ");
+                    }
+                    flag = true;
+                    sb.Append(parameters[i].ParameterName);
+                }
+            }
+            return sb.ToString();
+        }
     }
 }
