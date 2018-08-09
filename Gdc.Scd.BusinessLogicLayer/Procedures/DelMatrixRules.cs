@@ -28,7 +28,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
         private DbParameter Prepare(long[] items)
         {
-            return SqlParameterBuilder.CreateListID("@rules", items);
+            return new SqlParameterBuilder().WithName("@rules").WithListIdValue(items).Build();
         }
     }
 }
