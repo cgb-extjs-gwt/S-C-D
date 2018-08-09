@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
@@ -52,6 +53,11 @@ namespace Gdc.Scd.Web.Api.Controllers
 
                 return dictionary;
             });
+        }
+
+        public async Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(CostEditorContext context, long editItemId)
+        {
+            return await this.costBlockHistoryService.GetCostBlockHistoryValueDto(context, editItemId);
         }
 
         [HttpPost]

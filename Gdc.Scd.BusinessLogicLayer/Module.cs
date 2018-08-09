@@ -18,6 +18,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICostBlockHistoryService, CostBlockHistoryService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<ICostBlockFilterBuilder, CostBlockFilterBuilder>();
 
             services.RegisterEntity<Country>();
             services.RegisterEntity<Pla>();

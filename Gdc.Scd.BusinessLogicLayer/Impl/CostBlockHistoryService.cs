@@ -27,12 +27,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IEmailService emailService;
 
+        private readonly ICostBlockFilterBuilder costBlockFilterBuilder;
+
         public CostBlockHistoryService(
             IRepositorySet repositorySet,
             IUserService userService,
             ICostBlockValueHistoryRepository costBlockValueHistoryRepository,
             ISqlRepository sqlRepository,
             IEmailService emailService,
+            ICostBlockFilterBuilder costBlockFilterBuilder,
             DomainMeta domainMeta,
             DomainEnitiesMeta domainEnitiesMeta)
         {
@@ -43,6 +46,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.domainEnitiesMeta = domainEnitiesMeta;
             this.sqlRepository = sqlRepository;
             this.emailService = emailService;
+            this.costBlockFilterBuilder = costBlockFilterBuilder;
         }
 
         public IQueryable<CostBlockHistory> GetHistories()
@@ -125,6 +129,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return historyDtos;
         }
 
+        public async Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(CostEditorContext context, long editItemId)
+        {
+            var historyContext = this.BuildHistoryContext(context);
+            var filter = this.costBlockFilterBuilder.BuildFilter(context);
+
+            filter.Add(context.InputLevelId, new object[] { editItemId });
+
+            return await this.costBlockValueHistoryRepository.GetCostBlockHistoryValueDto(historyContext, filter);
+        }
+
         public async Task Approve(long historyId)
         {
             var historyRepository = this.repositorySet.GetRepository<CostBlockHistory>();
@@ -199,14 +213,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 EditDate = DateTime.UtcNow,
                 EditUser = this.userService.GetCurrentUser(),
                 State = forApproval ? CostBlockHistoryState.Pending : CostBlockHistoryState.None,
-                Context = new HistoryContext
-                {
-                    ApplicationId = context.ApplicationId,
-                    RegionInputId = context.RegionInputId,
-                    CostBlockId = context.CostBlockId,
-                    CostElementId = context.CostElementId,
-                    InputLevelId = context.InputLevelId,
-                },
+                Context = this.BuildHistoryContext(context),
                 EditItemCount = editItemArray.Length,
                 IsDifferentValues = isDifferentValues
             };
@@ -288,6 +295,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return query;
+        }
+
+        private HistoryContext BuildHistoryContext(CostEditorContext context)
+        {
+            return new HistoryContext
+            {
+                ApplicationId = context.ApplicationId,
+                RegionInputId = context.RegionInputId,
+                CostBlockId = context.CostBlockId,
+                CostElementId = context.CostElementId,
+                InputLevelId = context.InputLevelId,
+            };
         }
     }
 }

@@ -3,7 +3,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class SelectSqlHelper : SqlHelper, IFromSqlHelper<SelectFromSqlHelper>
+    public class SelectSqlHelper : SqlHelper, IFromSqlHelper<SelectCommonSqlHelper>
     {
         private readonly FromSqlHepler fromSqlHelper;
 
@@ -13,24 +13,24 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             this.fromSqlHelper = new FromSqlHepler(sqlBuilder);
         }
 
-        public SelectFromSqlHelper From(string tabeName, string schemaName = null, string dataBaseName = null, string alias = null)
+        public SelectCommonSqlHelper From(string tabeName, string schemaName = null, string dataBaseName = null, string alias = null)
         {
-            return new SelectFromSqlHelper(this.fromSqlHelper.From(tabeName, schemaName, dataBaseName, alias));
+            return new SelectCommonSqlHelper(this.fromSqlHelper.From(tabeName, schemaName, dataBaseName, alias));
         }
 
-        public SelectFromSqlHelper From(BaseEntityMeta meta, string alias = null)
+        public SelectCommonSqlHelper From(BaseEntityMeta meta, string alias = null)
         {
-            return new SelectFromSqlHelper(this.fromSqlHelper.From(meta, alias));
+            return new SelectCommonSqlHelper(this.fromSqlHelper.From(meta, alias));
         }
 
-        public SelectFromSqlHelper FromQuery(ISqlBuilder query)
+        public SelectCommonSqlHelper FromQuery(ISqlBuilder query)
         {
-            return new SelectFromSqlHelper(this.fromSqlHelper.FromQuery(query));
+            return new SelectCommonSqlHelper(this.fromSqlHelper.FromQuery(query));
         }
 
-        public SelectFromSqlHelper FromQuery(SqlHelper sqlHelper)
+        public SelectCommonSqlHelper FromQuery(SqlHelper sqlHelper)
         {
-            return new SelectFromSqlHelper(this.fromSqlHelper.FromQuery(sqlHelper));
+            return new SelectCommonSqlHelper(this.fromSqlHelper.FromQuery(sqlHelper));
         }
     }
 }

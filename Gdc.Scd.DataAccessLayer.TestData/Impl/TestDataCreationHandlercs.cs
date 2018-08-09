@@ -234,7 +234,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     referenceFields.Remove(plaField);
                 }
                 
-                IJoinSqlHelper<SelectJoinSqlHelper> selectQuery = Sql.Select(selectColumns.ToArray()).From(referenceFields[0].ReferenceMeta);
+                var selectQuery = Sql.Select(selectColumns.ToArray()).From(referenceFields[0].ReferenceMeta);
 
                 for (var i = 1; i < referenceFields.Count; i++)
                 {
@@ -243,7 +243,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     selectQuery = selectQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
                 }
 
-                yield return Sql.Insert(costBlockMeta, insertFields.ToArray()).Query((SqlHelper)selectQuery);
+                yield return Sql.Insert(costBlockMeta, insertFields.ToArray()).Query(selectQuery);
             }
         }
 

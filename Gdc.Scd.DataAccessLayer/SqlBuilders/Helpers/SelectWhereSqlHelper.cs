@@ -3,30 +3,32 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class SelectWhereSqlHelper : SqlHelper, IGroupBySqlHelper<SelectGroupBySqlHelper>
+    public class SelectWhereSqlHelper : SqlHelper, IGroupBySqlHelper<SelectGroupBySqlHelper>, IOrderBySqlHelper<SqlHelper>
     {
-        private GroupBySqlHelper groupByHelper;
+        private readonly GroupBySqlHelper groupByHelper;
+
+        private readonly OrderBySqlHelper orderBySqlHelper;
 
         public SelectWhereSqlHelper(ISqlBuilder sqlBuilder)
             : base(sqlBuilder)
         {
-            this.Init(sqlBuilder);
+            this.groupByHelper = new GroupBySqlHelper(sqlBuilder);
+            this.orderBySqlHelper = new OrderBySqlHelper(sqlBuilder);
         }
 
-        public SelectWhereSqlHelper(SqlHelper sqlHelper)
-            : base(sqlHelper)
+        public SqlHelper OrderBy(params OrderByInfo[] infos)
         {
-            this.Init(sqlHelper.ToSqlBuilder());
+            return this.orderBySqlHelper.OrderBy(infos);
+        }
+
+        public SqlHelper OrderBy(OrderByDirection direction, params ColumnInfo[] columns)
+        {
+            return this.orderBySqlHelper.OrderBy(direction, columns);
         }
 
         public SelectGroupBySqlHelper GroupBy(params ColumnInfo[] columns)
         {
             return this.groupByHelper.GroupBy(columns);
-        }
-
-        private void Init(ISqlBuilder sqlBuilder)
-        {
-            this.groupByHelper = new GroupBySqlHelper(sqlBuilder);
         }
     }
 }
