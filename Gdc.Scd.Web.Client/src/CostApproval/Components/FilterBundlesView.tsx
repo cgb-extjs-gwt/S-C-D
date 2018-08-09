@@ -5,8 +5,6 @@ import { FormPanel, RadioField, CheckBoxField,
 import { SelectList, NamedId, MultiSelectList, ElementWithParent } from '../../Common/States/CommonStates';
 
 export interface ApprovalFilterActions{
-    onInit?(defaultAppId: string, defaultCostBlockId: string[], 
-                                  defaultCostElementId: ElementWithParent<string, string>[])
     onApplicationSelect?(selectedItemId: string)
     onCostBlockCheck?(selectedItemId: string)
     onCostBlockUncheck?(selectedItemId: string)
@@ -23,24 +21,10 @@ export interface FilterApprovalProps extends ApprovalFilterActions{
     costElements?: MultiSelectList<ElementWithParent>,
     startDate?: Date,
     endDate?: Date,
-    initialized: boolean
 }
 
 
 class Filter extends React.Component<FilterApprovalProps>{
-
-    componentDidUpdate(){
-        if (!this.props.initialized && this.props.application){
-            const selectedElems = this.props.costElements.selectedItemIds;
-            const selectedElemsState: ElementWithParent<string, string>[] = this.props.costElements.list
-                        .filter(el => selectedElems.indexOf(el.element.id) > -1)
-                        .map(el => {
-                            return {parentId: el.parentId, element: el.element.id}
-                        });  
-           this.props.onInit(this.props.application.selectedItemId, 
-                    this.props.costBlocks.selectedItemIds, selectedElemsState);
-        }
-    }
 
     render(){
         if(this.props.application)

@@ -1,6 +1,6 @@
 import { CostEditorState } from "../../CostEditor/States/CostEditorStates";
 import { CostBlockMeta, CostMetaData } from "../../Common/States/CostMetaStates";
-import { BundleFilterStates } from "../../CostApproval/States/BundleFilterStates";
+import { BundleFilterStates, BudleFilter } from "../../CostApproval/States/BundleFilterStates";
 import { applyFilters } from "../../CostEditor/Actions/CostBlockActions";
 
 export interface AppState {
@@ -11,12 +11,6 @@ export interface AppState {
         title: string
     }
     appMetaData: CostMetaData
-}
-
-export interface BudleFilter{
-    initialized: boolean,
-    filter: BundleFilterStates,
-    applyFilter: BundleFilterStates
 }
 
 export interface CommonState {

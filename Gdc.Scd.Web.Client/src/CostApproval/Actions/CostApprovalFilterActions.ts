@@ -29,15 +29,3 @@ export const init = () => asyncAction(
         error => dispatch(error(error))
     }
 )
-
-
-export interface InitcostApprovalAction extends Action<string>{
-    defaultAppId: string,
-    defaultCostBlockId: string[],
-    defaultCostElementId: ElementWithParent<string, string>[]
-}
-
-
-
-
-

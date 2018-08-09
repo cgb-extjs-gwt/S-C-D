@@ -8,23 +8,21 @@ import { COST_APPROVAL_PAGE,
          COST_APPROVAL_SELECT_START_DATE,
          COST_APPROVAL_SELECT_END_DATE, 
          COST_APPROVAL_APPLY_FILTER,
-         COST_APPROVAL_ON_INIT,
-         InitcostApprovalAction} from '../Actions/CostApprovalFilterActions';
-import { BundleFilterStates } from '../States/BundleFilterStates'
-import { PageInitAction, APP_PAGE_INIT } from "../../Layout/Actions/AppActions";
+         COST_APPROVAL_ON_INIT} from '../Actions/CostApprovalFilterActions';
+import { BundleFilterStates, BudleFilter } from '../States/BundleFilterStates'
+import { PageInitAction, APP_PAGE_INIT, APP_LOAD_META, LoadingMetaDataAction } from "../../Layout/Actions/AppActions";
 import { ItemSelectedAction, ItemWithParentSelectedAction, CommonAction } from "../../Common/Actions/CommonActions";
 import { ElementWithParent } from '../../Common/States/CommonStates';
-import { BudleFilter } from '../../Layout/States/AppStates';
 import filter from "../Components/FilterBundlesView";
 import { ActionSheet } from "../../../node_modules/@extjs/ext-react";
 
-const startDateNow = new Date();
-startDateNow.setHours(0,0,0,0);
-
-const endDateNow = new Date();
-endDateNow.setHours(23,59,59,999);
-
 const initialBundleFilterState = () => {
+    const startDateNow = new Date();
+    startDateNow.setHours(0,0,0,0);
+
+    const endDateNow = new Date();
+    endDateNow.setHours(23,59,59,999);
+
     const filter: BundleFilterStates = {
         selectedApplicationId: null,
         selectedCostBlockIds: [],
@@ -127,27 +125,26 @@ const applyFilter: Reducer<BudleFilter, Action<string>> = (state, action) =>{
     }
 }
 
-const init: Reducer<BudleFilter, InitcostApprovalAction> = (state, action) => {
-    console.log(state.filter.endDate);
-    console.log(state.filter.startDate);
-    return{
+const init: Reducer<BudleFilter, LoadingMetaDataAction> = (state, { data }) => {
+    const applicationId = data.applications[0].id;
+    const costBlock = data.costBlocks.find(item => item.applicationIds.includes(applicationId));
+
+    const filter: BundleFilterStates = {
+        ...state.filter,
+        selectedApplicationId: applicationId,
+        selectedCostBlockIds: [costBlock.id],
+        selectedCostElementIds: [{
+            element: costBlock.costElements[0].id,
+            parentId: costBlock.id
+        }]
+    }
+
+    return <BudleFilter>{
         ...state,
-        initialized: true,
-        filter: {
-            ...state.filter,
-            selectedApplicationId: action.defaultAppId,
-            selectedCostBlockIds: action.defaultCostBlockId,
-            selectedCostElementIds: action.defaultCostElementId
-        },
-        applyFilter: {
-            ...state.applyFilter,
-            selectedApplicationId: action.defaultAppId,
-            selectedCostBlockIds: action.defaultCostBlockId,
-            selectedCostElementIds: action.defaultCostElementId
-        }
+        filter,
+        applyFilter: filter
     }
 }
-
 
 export const bundleFilterReducer: Reducer<BudleFilter, Action<string>> = (state = initialBundleFilterState(), action) => {
     switch(action.type){
@@ -167,8 +164,8 @@ export const bundleFilterReducer: Reducer<BudleFilter, Action<string>> = (state 
             return selectEndDate(state, <CommonAction<Date>>action);
         case COST_APPROVAL_APPLY_FILTER:
             return applyFilter(state, <Action<string>>action);
-        case COST_APPROVAL_ON_INIT:
-            return init(state, <InitcostApprovalAction>action);
+        case APP_LOAD_META:
+            return init(state, <LoadingMetaDataAction>action);
         default:
             return state;
     }
