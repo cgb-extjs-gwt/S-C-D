@@ -5,6 +5,7 @@ namespace Gdc.Scd.Web.Api.Controllers.Dict
 {
     public class CountryController : BaseDomainController<Country>
     {
-        public CountryController(IDomainService<Country> domainService) : base(domainService) { }
+        public CountryController(IDomainService<Country> domainService) : 
+            base(domainService) { }
     }
 }

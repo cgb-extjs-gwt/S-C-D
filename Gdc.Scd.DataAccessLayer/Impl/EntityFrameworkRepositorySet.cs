@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Gdc.Scd.DataAccessLayer.Helpers;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -125,6 +126,23 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             string sql = CreateSpCommand(procName, parameters);
             return Database.ExecuteSqlCommandAsync(sql, parameters);
+        }
+
+        public async Task<List<T>> ExecuteProcAsync<T>(string procName, params DbParameter[] parameters) 
+            where T : new()
+        {
+            DbCommand dbCommand = Database.GetDbConnection().CreateCommand();
+            dbCommand.CommandText = procName;
+            dbCommand.CommandType = CommandType.StoredProcedure;
+            foreach (var param in parameters)
+                dbCommand.Parameters.Add(param);
+            List<T> entities;
+            using (var reader = await dbCommand.ExecuteReaderAsync())
+            {
+                entities = reader.MapToList<T>();
+            }
+
+            return entities.ToList();
         }
 
         public IEnumerable<Type> GetRegisteredEntities()

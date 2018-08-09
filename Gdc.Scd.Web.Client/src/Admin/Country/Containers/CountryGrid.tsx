@@ -15,8 +15,8 @@ class CountryGrid extends React.Component{
         proxy: {
             type: 'ajax',
             api: {
-                read: '/api/CountryManagement/GetAll',
-                update: '/api/CountryManagement/SaveAll'
+                read: '/api/Country/GetAll',
+                update: '/api/Country/SaveAll'
             },
             reader: {
                 type: 'json',

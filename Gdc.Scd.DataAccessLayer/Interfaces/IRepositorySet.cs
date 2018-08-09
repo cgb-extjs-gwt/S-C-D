@@ -33,6 +33,9 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters);
 
+        Task<List<T>> ExecuteProcAsync<T>(string procName, params DbParameter[] parameters)
+            where T : new();
+
         IEnumerable<Type> GetRegisteredEntities();
     }
 }
