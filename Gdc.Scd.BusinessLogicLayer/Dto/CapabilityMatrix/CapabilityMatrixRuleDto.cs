@@ -1,6 +1,6 @@
 ﻿namespace Gdc.Scd.BusinessLogicLayer.Dto.CapabilityMatrix
 {
-    public class CapabilityMatrixDto
+    public class CapabilityMatrixRuleDto
     {
         public long Id { get; set; }
 

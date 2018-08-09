@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Entities;
@@ -27,6 +28,10 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
         Task<int> ExecuteSqlAsync(string sql, IEnumerable<CommandParameterInfo> parameters = null);
 
         Task<int> ExecuteSqlAsync(SqlHelper query);
+
+        int ExecuteProc(string procName, params DbParameter[] parameters);
+
+        Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters);
 
         IEnumerable<Type> GetRegisteredEntities();
     }

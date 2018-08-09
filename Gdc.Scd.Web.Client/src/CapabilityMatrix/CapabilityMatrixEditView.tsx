@@ -65,7 +65,7 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
                     <MultiSelect ref="srvLoc" maxHeight={SELECT_MAX_HEIGHT} title="Service location" itemTpl="{name}" store={this.state.serviceLocationTypes} />
                 </Container>
 
-                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio }}>
+                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio }} margin="15px 0">
                     <CheckBoxField ref="globPort" boxLabel="Fujitsu global portfolio" />
                     <CheckBoxField ref="masterPort" boxLabel="Master portfolio" />
                     <CheckBoxField ref="corePort" boxLabel="Core portfolio" />
@@ -73,7 +73,6 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
 
                 <Container>
                     <Button text="Deny combinations" ui="decline" padding="0 10px 0 0" handler={this.onDeny} />
-                    <Button text="Allow combinations" handler={this.onAllow} />
                 </Container>
 
             </Container>
@@ -117,9 +116,7 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
         this.srv = MatrixFactory.getMatrixService();
         //
         this.onCountryChange = this.onCountryChange.bind(this);
-        this.onAllow = this.onAllow.bind(this);
         this.onDeny = this.onDeny.bind(this);
-        this.allowCombination = this.allowCombination.bind(this);
         this.denyCombination = this.denyCombination.bind(this);
         //
         this.state = {
@@ -138,20 +135,8 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
         this.setPortfolio(!newVal);
     }
 
-    private onAllow() {
-        this.showSaveDialog('Allow combinations', this.allowCombination);
-    }
-
     private onDeny() {
-        this.showSaveDialog('Deny combinations', this.denyCombination);
-    }
-
-    private showSaveDialog(title: string, ok: Function) {
-        ExtMsgHelper.confirm(title, 'Do you want to save the changes?', ok);
-    }
-
-    private allowCombination() {
-        this.srv.allowItem(this.getModel());
+        ExtMsgHelper.confirm('Deny combinations', 'Do you want to save the changes?', this.denyCombination);
     }
 
     private denyCombination() {

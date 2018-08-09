@@ -36,7 +36,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     <Button iconCls="x-fa fa-undo" text="Allow combinations" ui="confirm" handler={this.onAllow} />
                 </Toolbar>
 
-                <Grid ref="denied" store={this.state.denied} width="100%" minHeight="45%" title="Denied combinations" selectable="multi">
+                <Grid ref="denied" store={this.state.denied} width="100%" minHeight="45%" title="Denied combinations" selectable="multi" plugins={['pagingtoolbar']}>
                     <NullStringColumn flex="1" text="Country" dataIndex="country" />
                     <NullStringColumn flex="1" text="WG(Asset)" dataIndex="wg" />
                     <NullStringColumn flex="1" text="Availability" dataIndex="availability" />
@@ -49,7 +49,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     <ReadonlyCheckColumn flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
 
-                <Grid ref="allowed" store={this.state.allowed} width="100%" minHeight="45%" title="Allowed combinations" selectable={false}>
+                <Grid ref="allowed" store={this.state.allowed} width="100%" minHeight="45%" title="Allowed combinations" selectable={false} plugins={['pagingtoolbar']}>
                     <NullStringColumn flex="1" text="Country" dataIndex="country" />
                     <NullStringColumn flex="1" text="WG(Asset)" dataIndex="wg" />
                     <NullStringColumn flex="1" text="Availability" dataIndex="availability" />
@@ -116,7 +116,18 @@ export class CapabilityMatrixView extends React.Component<any, any> {
     private reload() {
         let filter = this.filter.getModel();
 
-        this.srv.getAllowed(filter).then(x => this.setState({ allowed: x }));
-        this.srv.getDenied(filter).then(x => this.setState({ denied: x }));
+        this.srv.getAllowed(filter).then(x => this.setState({
+            allowed: {
+                data: x.items,
+                pageSize: 2
+            }
+        }));
+        this.srv.getDenied(filter).then(x => this.setState(
+            {
+                denied: {
+                    data: x.items,
+                    pageSize: 2
+                }
+            }));
     }
 }
