@@ -9,7 +9,7 @@ class CountryGrid extends React.Component{
         disableSaveButton: true
     };
 
-    store = new Ext.data.Store({
+    store = Ext.create('Ext.data.Store', {
         fields: ['id', 'name', 'canOverrideListAndDealerPrices', 'showDealerPrice', 'canOverrideTransferCostAndPrice'],
         autoLoad: true,
         proxy: {
