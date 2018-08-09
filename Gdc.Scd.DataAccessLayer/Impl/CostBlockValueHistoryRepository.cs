@@ -91,7 +91,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 Meta = costBlockMeta,
                 ReferenceFieldName = field.Name,
-                Alias = this.GetAlias(costBlockMeta)
+                Alias = this.GetAlias(field.ReferenceMeta)
             }).ToList();
 
             joinInfos.Add(new JoinInfo
