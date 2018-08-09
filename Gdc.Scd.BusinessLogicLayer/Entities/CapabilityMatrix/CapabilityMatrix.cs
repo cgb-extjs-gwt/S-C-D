@@ -1,23 +1,32 @@
 ﻿using Gdc.Scd.Core.Interfaces;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix
 {
-    public abstract class CapabilityMatrix : IIdentifiable
+    [Table("Matrix")]
+    public class CapabilityMatrix : IIdentifiable
     {
-        public virtual long Id { get; set; }
+        public long Id { get; set; }
 
         public Country Country { get; set; }
 
+        [Required]
         public Wg Wg { get; set; }
 
+        [Required]
         public Availability Availability { get; set; }
 
+        [Required]
         public Duration Duration { get; set; }
 
+        [Required]
         public ReactionType ReactionType { get; set; }
 
+        [Required]
         public ReactionTime ReactionTime { get; set; }
 
+        [Required]
         public ServiceLocation ServiceLocation { get; set; }
 
         public bool FujitsuGlobalPortfolio { get; set; }
@@ -26,6 +35,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix
 
         public bool CorePortfolio { get; set; }
 
-        public string Hash { get; set; }
+        public bool Denied { get; set; }
     }
 }

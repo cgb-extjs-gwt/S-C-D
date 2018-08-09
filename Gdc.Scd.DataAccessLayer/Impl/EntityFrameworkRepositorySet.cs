@@ -27,7 +27,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.serviceProvider = serviceProvider;
             this.configuration = configuration;
 
-            this.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             this.ChangeTracker.AutoDetectChangesEnabled = false;
             this.Database.SetCommandTimeout(600);
         }
@@ -51,6 +50,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
         {
+            //TODO: remove direct connection management
             var connection = this.Database.GetDbConnection();
             var result = new List<T>();
 
@@ -61,7 +61,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = sql;
-                    
+
                     if (parameters != null)
                     {
                         command.Parameters.AddRange(this.GetDbParameters(parameters, command).ToArray());
@@ -107,12 +107,66 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var dbParams = this.GetDbParameters(parameters);
 
-            return await this.Database.ExecuteSqlCommandAsync(sql, dbParams); 
+            return await this.Database.ExecuteSqlCommandAsync(sql, dbParams);
         }
 
         public async Task<int> ExecuteSqlAsync(SqlHelper query)
         {
             return await this.ExecuteSqlAsync(query.ToSql(), query.GetParameters());
+        }
+
+        public int ExecuteProc(string procName, params DbParameter[] parameters)
+        {
+            //TODO: remove direct connection management
+            DbConnection connection = this.Database.GetDbConnection();
+            DbCommand command = null;
+            try
+            {
+                connection.Open();
+                command = connection.CreateCommand();
+                command.CommandText = procName;
+                command.CommandType = CommandType.StoredProcedure;
+
+                if (parameters != null)
+                {
+                    command.Parameters.AddRange(parameters);
+                }
+
+                return command.ExecuteNonQuery();
+            }
+            finally
+            {
+                command?.Dispose();
+                connection.Close();
+            }
+        }
+
+        public async Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters)
+        {
+            //TODO: remove direct connection management
+            DbConnection connection = this.Database.GetDbConnection();
+            DbCommand command = null;
+
+            try
+            {
+                await connection.OpenAsync();
+
+                command = connection.CreateCommand();
+                command.CommandText = procName;
+                command.CommandType = CommandType.StoredProcedure;
+
+                if (parameters != null)
+                {
+                    command.Parameters.AddRange(parameters);
+                }
+
+                return await command.ExecuteNonQueryAsync();
+            }
+            finally
+            {
+                command?.Dispose();
+                connection.Close();
+            }
         }
 
         public IEnumerable<Type> GetRegisteredEntities()
@@ -181,6 +235,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return dbParams;
         }
 
-        
+
     }
 }
