@@ -50,6 +50,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
         {
+            //TODO: remove direct connection management
             var connection = this.Database.GetDbConnection();
             var result = new List<T>();
 
@@ -60,7 +61,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = sql;
-                    
+
                     if (parameters != null)
                     {
                         command.Parameters.AddRange(this.GetDbParameters(parameters, command).ToArray());
@@ -106,12 +107,24 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var dbParams = this.GetDbParameters(parameters);
 
-            return await this.Database.ExecuteSqlCommandAsync(sql, dbParams); 
+            return await this.Database.ExecuteSqlCommandAsync(sql, dbParams);
         }
 
         public async Task<int> ExecuteSqlAsync(SqlHelper query)
         {
             return await this.ExecuteSqlAsync(query.ToSql(), query.GetParameters());
+        }
+
+        public int ExecuteProc(string procName, params DbParameter[] parameters)
+        {
+            string sql = CreateSpCommand(procName, parameters);
+            return Database.ExecuteSqlCommand(sql, parameters);
+        }
+
+        public Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters)
+        {
+            string sql = CreateSpCommand(procName, parameters);
+            return Database.ExecuteSqlCommandAsync(sql, parameters);
         }
 
         public IEnumerable<Type> GetRegisteredEntities()
@@ -180,6 +193,24 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return dbParams;
         }
 
-        
+        private static string CreateSpCommand(string procName, DbParameter[] parameters)
+        {
+            var sb = new System.Text.StringBuilder("EXEC ", 30).Append(procName);
+            if (parameters != null && parameters.Length > 0)
+            {
+                sb.Append(" ");
+                bool flag = false;
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    if (flag)
+                    {
+                        sb.Append(", ");
+                    }
+                    flag = true;
+                    sb.Append(parameters[i].ParameterName);
+                }
+            }
+            return sb.ToString();
+        }
     }
 }
