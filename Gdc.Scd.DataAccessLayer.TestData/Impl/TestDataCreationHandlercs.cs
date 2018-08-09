@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gdc.Scd.Core.Entities;
+using System.IO;
+using System.Reflection;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -84,8 +86,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql(new NamedEntityMeta(DurationKey, MetaConstants.DependencySchema), this.GetDurationNames()),
                 //this.BuildInsertReactionTimeTypeSql(),
                 //this.BuildInsertReactionTimeAvailabilitySql()
+                
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
+            queries.AddRange(this.BuildFromFile(@"Scripts\matrix.sql"));
 
             foreach (var query in queries)
             {
@@ -224,16 +228,16 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
                 if (plaField != null && wgField != null)
                 {
-                    selectColumns = 
+                    selectColumns =
                         selectColumns.Select(
-                            field => field.TableName == plaField.Name 
+                            field => field.TableName == plaField.Name
                                 ? new ColumnInfo("PlaId", WgLevelId, plaField.Name)
                                 : field)
                                     .ToList();
 
                     referenceFields.Remove(plaField);
                 }
-                
+
                 IJoinSqlHelper<SelectJoinSqlHelper> selectQuery = Sql.Select(selectColumns.ToArray()).From(referenceFields[0].ReferenceMeta);
 
                 for (var i = 1; i < referenceFields.Count; i++)
@@ -290,7 +294,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var fourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "4h");
 
             var nineByFive = this.BuildSelectIdByNameQuery(AvailabilityKey, "9x5");
-            var twentyFourBySeven = this.BuildSelectIdByNameQuery(AvailabilityKey, "24x7"); 
+            var twentyFourBySeven = this.BuildSelectIdByNameQuery(AvailabilityKey, "24x7");
 
             return
                Sql.Insert(MetaConstants.DependencySchema, $"{ReactionTimeKey}_{AvailabilityKey}", ReactionTimeKey, AvailabilityKey)
@@ -315,6 +319,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                            .Where(SqlOperators.Equals(MetaConstants.NameFieldKey, paramName, name))
                            .ToSqlBuilder()
                 };
+        }
+
+        private IEnumerable<SqlHelper> BuildFromFile(string fn)
+        {
+            return ReadText(fn).Split("go")
+                               .Where(x => !string.IsNullOrWhiteSpace(x))
+                               .Select(x => new SqlHelper(new RawSqlBuilder() { RawSql = x }));
         }
 
         private Pla[] GetPlas()
@@ -1356,6 +1367,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             Random gen = new Random();
             int prob = gen.Next(100);
             return prob <= 70;
+        }
+
+        private string ReadText(string fn)
+        {
+            string root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            fn = Path.Combine(root, fn);
+            return File.ReadAllText(fn);
         }
     }
 }
