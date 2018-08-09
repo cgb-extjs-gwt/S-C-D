@@ -27,7 +27,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.serviceProvider = serviceProvider;
             this.configuration = configuration;
 
-            this.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             this.ChangeTracker.AutoDetectChangesEnabled = false;
             this.Database.SetCommandTimeout(600);
         }

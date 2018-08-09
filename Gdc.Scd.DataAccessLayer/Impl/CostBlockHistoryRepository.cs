@@ -18,10 +18,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public override void Save(CostBlockHistory item)
         {
-            base.Save(item);
+            this.SetAddOrUpdateState(item.EditUser);
+            this.SetAddOrUpdateState(item.ApproveRejectUser);
 
-            this.AddOrUpdate(item.EditUser);
-            this.AddOrUpdate(item.ApproveRejectUser);
+            base.Save(item);
         }
     }
 }
