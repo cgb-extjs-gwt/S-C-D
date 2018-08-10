@@ -38,6 +38,9 @@ const NavMenu: React.SFC<NavMenuProps & any> = ({
                         id: '/admin', text: 'Admin', iconCls: 'x-fa fa-info', disabled: true, children: [{
                             id: '/admin/country-management',
                             text: 'Country Management', iconCls: 'x-fa fa-globe', leaf: true
+                        }, {
+                            id: '/admin/availability-fee',
+                            text: 'Availability Fee', iconCls: 'x-fa fa-cog', leaf: true
                         }]
                     }
                 ]

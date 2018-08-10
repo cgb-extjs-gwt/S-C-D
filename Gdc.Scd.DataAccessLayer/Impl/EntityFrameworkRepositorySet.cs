@@ -128,21 +128,53 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return Database.ExecuteSqlCommandAsync(sql, parameters);
         }
 
-        public async Task<List<T>> ExecuteProcAsync<T>(string procName, params DbParameter[] parameters) 
+        public List<T> ExecuteProc<T>(string procName, 
+            params DbParameter[] parameters) 
             where T : new()
         {
-            DbCommand dbCommand = Database.GetDbConnection().CreateCommand();
-            dbCommand.CommandText = procName;
-            dbCommand.CommandType = CommandType.StoredProcedure;
-            foreach (var param in parameters)
-                dbCommand.Parameters.Add(param);
-            List<T> entities;
-            using (var reader = await dbCommand.ExecuteReaderAsync())
+            using (var connection = Database.GetDbConnection())
             {
-                entities = reader.MapToList<T>();
-            }
+                connection.Open();
+                DbCommand dbCommand = connection.CreateCommand();
+                dbCommand.CommandText = procName;
+                dbCommand.CommandType = CommandType.StoredProcedure;
+                foreach (var param in parameters)
+                    dbCommand.Parameters.Add(param);
+                List<T> entities;
+                using (var reader = dbCommand.ExecuteReader())
+                {
+                    entities = reader.MapToList<T>();
+                }
 
-            return entities.ToList();
+                return entities.ToList();
+            }
+        }
+
+        public List<T> ExecuteProc<T, V>(string procName, DbParameter outParam, 
+            out V returnVal,
+            params DbParameter[] parameters)
+            where T : new()
+        {
+            using (var connection = Database.GetDbConnection())
+            {
+                connection.Open();
+                DbCommand dbCommand = connection.CreateCommand();
+                dbCommand.CommandText = procName;
+                dbCommand.CommandType = CommandType.StoredProcedure;
+                foreach (var param in parameters)
+                    dbCommand.Parameters.Add(param);
+                dbCommand.Parameters.Add(outParam);
+
+                List<T> entities;
+                using (var reader = dbCommand.ExecuteReader())
+                {
+                    entities = reader.MapToList<T>();
+                }
+
+                returnVal = outParam.Value == null ? default(V) : (V)outParam.Value;
+
+                return entities;
+            }
         }
 
         public IEnumerable<Type> GetRegisteredEntities()

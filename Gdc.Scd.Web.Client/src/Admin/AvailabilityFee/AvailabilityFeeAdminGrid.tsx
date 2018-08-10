@@ -2,29 +2,32 @@ import * as React from 'react';
 import { Grid, Column, CheckColumn, Toolbar, Button } from '@extjs/ext-react';
 
 
-class CountryGrid extends React.Component{
+class AvailabilityFeeAdminGrid extends React.Component{
 
     state = {
         disableSaveButton: true
     };
 
     store = Ext.create('Ext.data.Store', {
-        fields: ['id', 'name', 'canOverrideListAndDealerPrices', 'showDealerPrice', 'canOverrideTransferCostAndPrice'],
+        pageSize: 50,
+        fields: ['countryName', 'countryId', 'reactionTimeName', 
+                 'reactionTimeId', 'reactionTypeName', 'reactionTypeId',
+                'serviceLocatorName', 'serviceLocatorId', 'isApplicable', 'innerId'],
         autoLoad: true,
         proxy: {
             type: 'ajax',
             api: {
-                read: '/api/Country/GetAll',
-                update: '/api/Country/SaveAll'
+                read: '/api/AvailabilityFeeAdmin/GetAll',
+                update: '/api/AvailabilityFeeAdmin/SaveAll'
             },
             reader: {
                 type: 'json',
-                idProperty: 'id'
+                rootProperty: 'combinations',
+                totalProperty: 'totalCount'
             },
             writer: {
                 type: 'json',
                 writeAllFields: true,
-                idProperty: 'id',
                 allowSingle: false
             },
             listeners: {
@@ -68,13 +71,14 @@ class CountryGrid extends React.Component{
         });
     }
 
-    
     render(){
-        return ( <Grid title={ 'Country Settings' } store={ this.store } cls="filter-grid" columnLines= {true} >
-                    <Column text="Country Name" dataIndex="name" flex={1} />
-                    <CheckColumn text="Can Override List and Dealer Price" dataIndex="canOverrideListAndDealerPrices" flex={1} />
-                    <CheckColumn text="Show Dealer Price" dataIndex="showDealerPrice" flex={1} />
-                    <CheckColumn text="Can Override TC and TP" dataIndex="canOverrideTransferCostAndPrice" flex={1} />
+        console.log(this.store);
+        return ( <Grid title={ 'Availability Fee Settings' } store={ this.store } cls="filter-grid" columnLines= {true} plugins={['pagingtoolbar']} >
+                    <Column text="Country" dataIndex="countryName" flex={1} />
+                    <Column text="Reaction Time" dataIndex="reactionTimeName" flex={1} />
+                    <Column text="Reaction Type" dataIndex="reactionTypeName" flex={1} />
+                    <Column text="Service Locator" dataIndex="serviceLocatorName" flex={1} />
+                    <CheckColumn text="Is Applicable" dataIndex="isApplicable" flex={1} />
 
                     <Toolbar docked="bottom">
                         <Button 
@@ -89,4 +93,4 @@ class CountryGrid extends React.Component{
     }
 }
 
-export default CountryGrid;
+export default AvailabilityFeeAdminGrid;

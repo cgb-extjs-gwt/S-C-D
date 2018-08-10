@@ -13,6 +13,7 @@ import { CommonState } from '../States/AppStates';
 import CountryGrid  from '../../Admin/Country/containers/CountryGrid';
 import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCostElementsLayout';
 import { init } from '../../CostApproval/Actions/CostApprovalFilterActions';
+import AvailabilityFeeAdminGrid from '../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid';
 
 interface LayoutProps {
     title: string
@@ -72,6 +73,7 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/cost-approval" component={ ApprovalCostElementsLayout} />
                         <Route path="/capability-matrix" exact component={CapabilityMatrixView} />
                         <Route path="/capability-matrix/edit" component={CapabilityMatrixEditView} />
+                        <Route path="/admin/availability-fee" component={AvailabilityFeeAdminGrid} />
                     </Switch>
                 </Panel>
             </Container>
