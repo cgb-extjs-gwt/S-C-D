@@ -50,3 +50,15 @@ export const put = <T>(controller: string, action: string, data: T, params = nul
 export const deleteItem = (controller: string, action: string, params = null) => {
     return requestMvc(controller, action, Methods.Delete, params);
 }
+
+export const buildMvcUrl = (controller: string, action: string, params?: { [key: string]: any }) => {
+    let url = `${API_URL}${controller}/${action}`;
+
+    if (params) {
+        const urlParams = Ext.urlEncode(params, true);
+
+        url = Ext.urlAppend(url, urlParams);
+    }
+
+    return url;
+}   

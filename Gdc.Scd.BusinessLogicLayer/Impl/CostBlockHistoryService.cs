@@ -129,14 +129,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return historyDtos;
         }
 
-        public async Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(CostEditorContext context, long editItemId)
+        public async Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(CostEditorContext context, long editItemId, QueryInfo queryInfo = null)
         {
             var historyContext = this.BuildHistoryContext(context);
             var filter = this.costBlockFilterBuilder.BuildFilter(context);
 
             filter.Add(context.InputLevelId, new object[] { editItemId });
 
-            return await this.costBlockValueHistoryRepository.GetCostBlockHistoryValueDto(historyContext, filter);
+            return await this.costBlockValueHistoryRepository.GetCostBlockHistoryValueDto(historyContext, filter, queryInfo);
         }
 
         public async Task Approve(long historyId)

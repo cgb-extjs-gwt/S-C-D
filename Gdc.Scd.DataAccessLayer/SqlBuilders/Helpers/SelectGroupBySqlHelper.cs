@@ -1,32 +1,30 @@
-﻿using System;
+﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class SelectGroupBySqlHelper : SqlHelper, IOrderBySqlHelper<SqlHelper>
+    public class SelectGroupBySqlHelper : OrderBySqlHelper, /*IOrderBySqlHelper<OffsetFetchSqlHelper>,*/ IOffsetFetchSqlHelper<SqlHelper>, IQueryInfoSqlHelper
     {
-        private readonly OrderBySqlHelper orderBySqlHelper;
+        private readonly QueryInfoSqlHelper queryInfoSqlHelper;
+
+        private readonly GroupBySqlHelper groupByHelper;
 
         public SelectGroupBySqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
         {
-            this.orderBySqlHelper = new OrderBySqlHelper(sqlBuilder);
+            this.queryInfoSqlHelper = new QueryInfoSqlHelper(sqlBuilder);
+            this.groupByHelper = new GroupBySqlHelper(sqlBuilder);
         }
 
-        public SqlHelper OrderBy(params OrderByInfo[] infos)
+        public SelectGroupBySqlHelper GroupBy(params ColumnInfo[] columns)
         {
-            return this.orderBySqlHelper.OrderBy(infos);
+            return this.groupByHelper.GroupBy(columns);
         }
 
-        public SqlHelper OrderBy(OrderByDirection direction, params ColumnInfo[] columns)
+        public SqlHelper ByQueryInfo(QueryInfo queryInfo)
         {
-            return this.orderBySqlHelper.OrderBy(direction, columns);
-        }
-
-        public SqlHelper Union()
-        {
-            throw new NotImplementedException();
+            return this.queryInfoSqlHelper.ByQueryInfo(queryInfo);
         }
     }
 }

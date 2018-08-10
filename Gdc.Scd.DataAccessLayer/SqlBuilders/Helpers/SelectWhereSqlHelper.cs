@@ -1,34 +1,31 @@
-﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
+﻿using System.Collections.Generic;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class SelectWhereSqlHelper : SqlHelper, IGroupBySqlHelper<SelectGroupBySqlHelper>, IOrderBySqlHelper<SqlHelper>
+    public class SelectWhereSqlHelper : SelectGroupBySqlHelper, IWhereSqlHelper<SelectGroupBySqlHelper>
     {
-        private readonly GroupBySqlHelper groupByHelper;
-
-        private readonly OrderBySqlHelper orderBySqlHelper;
+        private readonly WhereSqlHelper whereHelper;
 
         public SelectWhereSqlHelper(ISqlBuilder sqlBuilder)
             : base(sqlBuilder)
         {
-            this.groupByHelper = new GroupBySqlHelper(sqlBuilder);
-            this.orderBySqlHelper = new OrderBySqlHelper(sqlBuilder);
+            this.whereHelper = new WhereSqlHelper(sqlBuilder);
         }
 
-        public SqlHelper OrderBy(params OrderByInfo[] infos)
+        public SelectGroupBySqlHelper Where(ISqlBuilder condition)
         {
-            return this.orderBySqlHelper.OrderBy(infos);
+            return new SelectGroupBySqlHelper(this.whereHelper.Where(condition));
         }
 
-        public SqlHelper OrderBy(OrderByDirection direction, params ColumnInfo[] columns)
+        public SelectGroupBySqlHelper Where(ConditionHelper condition)
         {
-            return this.orderBySqlHelper.OrderBy(direction, columns);
+            return new SelectGroupBySqlHelper(this.whereHelper.Where(condition));
         }
 
-        public SelectGroupBySqlHelper GroupBy(params ColumnInfo[] columns)
+        public SelectGroupBySqlHelper Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
         {
-            return this.groupByHelper.GroupBy(columns);
+            return new SelectGroupBySqlHelper(this.whereHelper.Where(filter, tableName));
         }
     }
 }

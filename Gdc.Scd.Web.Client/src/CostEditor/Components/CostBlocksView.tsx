@@ -4,7 +4,7 @@ import { CostBlockState, EditItem, CheckItem } from '../States/CostBlockStates'
 import { Filter } from './Filter';
 import { SelectList, NamedId } from '../../Common/States/CommonStates';
 import { FieldType } from '../States/CostEditorStates';
-import { EditProps, EditGrid, EditActions } from './EditGrid';
+import { EditGridProps, EditGrid, EditGridActions } from './EditGrid';
 
 Ext.require([
   'Ext.grid.plugin.CellEditing', 
@@ -53,7 +53,7 @@ export interface CostBlockProps {
   region: RegionProps
   costElement: CostElementProps
   inputLevel: SelectListFilter
-  edit: EditProps
+  edit: EditGridProps
 }
 
 export class CostBlockView extends React.Component<CostBlockProps & CostBlockActions> {
@@ -70,7 +70,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
       edit
     } = this.props;
 
-    const editActions: EditActions = {
+    const editActions: EditGridActions = {
       onApplyFilters: this.props.onApplyFilters,
       onCleared: this.props.onEditItemsCleared,
       onItemEdited: this.props.onItemEdited,

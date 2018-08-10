@@ -26,7 +26,7 @@ import {
 } 
 from "../Actions/CostBlockActions";
 import { SelectListFilter, RegionProps, CostElementProps } from "./CostBlocksView";
-import { EditProps } from "./EditGrid";
+import { EditGridProps } from "./EditGrid";
 import { CommonState } from "../../Layout/States/AppStates";
 
 const isSetContainsAllCheckedItems = (set: Set<string>, filterObj: Filter) => {
@@ -87,7 +87,7 @@ const costBlockTabMap = (
 
     let regionProps: RegionProps;
     let inputLevel: SelectListFilter;
-    let editProps: EditProps;
+    let editProps: EditGridProps;
     let selectedInputLevelMeta: InputLevelMeta;
     let selectedInputLevel: InputLevelState;
     

@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
+﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces
 {
@@ -6,6 +7,6 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces
     {
         TResult OrderBy(params OrderByInfo[] infos);
 
-        TResult OrderBy(OrderByDirection direction, params ColumnInfo[] columns);
+        TResult OrderBy(SortDirection direction, params ColumnInfo[] columns);
     }
 }

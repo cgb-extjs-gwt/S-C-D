@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
+﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Entities
 {
@@ -6,6 +7,6 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Entities
     {
         public ISqlBuilder SqlBuilder { get; set; }
 
-        public OrderByDirection Direction { get; set; }
+        public SortDirection Direction { get; set; }
     }
 }

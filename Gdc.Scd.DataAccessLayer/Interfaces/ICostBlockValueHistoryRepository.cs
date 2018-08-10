@@ -11,7 +11,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<IEnumerable<CostBlockValueHistory>> GetByCostBlockHistory(CostBlockHistory history);
 
-        Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(HistoryContext historyContext, IDictionary<string, IEnumerable<object>> filter);
+        Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(HistoryContext historyContext, IDictionary<string, IEnumerable<object>> filter, QueryInfo queryInfo = null);
 
         Task<int> Approve(CostBlockHistory history);
     }

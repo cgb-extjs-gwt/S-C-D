@@ -1,27 +1,28 @@
 ﻿using System.Linq;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class OrderBySqlHelper : SqlHelper, IOrderBySqlHelper<SqlHelper>
+    public class OrderBySqlHelper : SqlHelper, IOrderBySqlHelper<OffsetFetchSqlHelper>//, IOffsetFetchSqlHelper<SqlHelper>
     {
         public OrderBySqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
         {
         }
 
-        public SqlHelper OrderBy(params OrderByInfo[] infos)
+        public OffsetFetchSqlHelper OrderBy(params OrderByInfo[] infos)
         {
-            return new SqlHelper(new OrderBySqlBuilder
+            return new OffsetFetchSqlHelper(new OrderBySqlBuilder
             {
                 SqlBuilder = this.ToSqlBuilder(),
                 OrderByInfos = infos
             });
         }
 
-        public SqlHelper OrderBy(OrderByDirection direction, params ColumnInfo[] columns)
+        public OffsetFetchSqlHelper OrderBy(SortDirection direction, params ColumnInfo[] columns)
         {
             var orderByInfos = columns.Select(column => new OrderByInfo
             {
