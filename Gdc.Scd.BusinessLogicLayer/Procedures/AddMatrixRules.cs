@@ -30,16 +30,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         private DbParameter[] Prepare(CapabilityMatrixRuleSetDto dto)
         {
             return new DbParameter[] {
-                 SqlParameterBuilder.Create("@cnt", dto.CountryId),
-                 SqlParameterBuilder.CreateListID("@wg", dto.Wgs),
-                 SqlParameterBuilder.CreateListID("@av", dto.Availabilities),
-                 SqlParameterBuilder.CreateListID("@dur", dto.Durations),
-                 SqlParameterBuilder.CreateListID("@rtype", dto.ReactionTypes),
-                 SqlParameterBuilder.CreateListID("@rtime", dto.ReactionTimes),
-                 SqlParameterBuilder.CreateListID("@loc", dto.ServiceLocations),
-                 SqlParameterBuilder.Create("@globalPortfolio", dto.IsGlobalPortfolio),
-                 SqlParameterBuilder.Create("@masterPortfolio", dto.IsMasterPortfolio),
-                 SqlParameterBuilder.Create("@corePortfolio", dto.IsCorePortfolio)
+                new SqlParameterBuilder().WithName("@cnt").WithValue(dto.CountryId).Build(),
+                new SqlParameterBuilder().WithName("@wg").WithListIdValue(dto.Wgs).Build(),
+                new SqlParameterBuilder().WithName("@av").WithListIdValue(dto.Availabilities).Build(),
+                new SqlParameterBuilder().WithName("@dur").WithListIdValue(dto.Durations).Build(),
+                new SqlParameterBuilder().WithName("@rtype").WithListIdValue(dto.ReactionTypes).Build(),
+                new SqlParameterBuilder().WithName("@rtime").WithListIdValue(dto.ReactionTimes).Build(),
+                new SqlParameterBuilder().WithName("@loc").WithListIdValue(dto.ServiceLocations).Build(),
+                new SqlParameterBuilder().WithName("@globalPortfolio").WithValue(dto.IsGlobalPortfolio).Build(),
+                new SqlParameterBuilder().WithName("@masterPortfolio").WithValue(dto.IsMasterPortfolio).Build(),
+                new SqlParameterBuilder().WithName("@corePortfolio").WithValue(dto.IsCorePortfolio).Build()
             };
         }
     }
