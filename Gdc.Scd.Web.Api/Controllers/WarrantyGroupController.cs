@@ -14,16 +14,17 @@ namespace Gdc.Scd.Web.Api.Controllers
         {
         }
 
-        //public override IEnumerable<Wg> GetAll()
-        //{
-        //    var a = this.domainService.GetAll().ToList(); ;
+        public override IEnumerable<Wg> GetAll()
+        {
+            var a = this.domainService.GetAll().ToList(); ;
 
-        //    return this.domainService.GetAll().Select(t=>new Wg
-        //    {
-        //        Id=t.Id,
-        //        Name=t.Name,
-        //        RoleCode=t.RoleCode
-        //    }).ToList();
-        //}
+            return this.domainService.GetAll().Select(t => new Wg
+            {
+                Id = t.Id,
+                Name = t.Name,
+                RoleCode = t.RoleCode,
+                RoleCodeId = t.RoleCode == null ? 0 : t.RoleCode.Id
+            }).ToList();
+        }
     }
 }

@@ -20,7 +20,7 @@ export default class RoleCodesGrid extends React.Component {
 
 
     store = Ext.create('Ext.data.Store', {
-        fields: ['id','name', 'roleCodeId'],
+        fields: ['id','name', 'roleCodeId','roleCode'],
 
         autoLoad: true,
         pageSize: 0,
@@ -51,7 +51,7 @@ export default class RoleCodesGrid extends React.Component {
 
     storeRC = Ext.create('Ext.data.Store', {
         fields:['id','name'],
-        autoLoad: true,
+        autoLoad: false,
         pageSize: 0,
         sorters: [ {
             property: 'name',
@@ -108,10 +108,6 @@ export default class RoleCodesGrid extends React.Component {
         });
     }
 
-    reloadStore = () => {
-        this.store.load();
-    }
-
     ManageRoleCodes = () => {
         window.location.href = "/admin/role-code-management";
     }
@@ -119,6 +115,7 @@ export default class RoleCodesGrid extends React.Component {
     cancelChanges = () => {
         this.store.rejectChanges();
         this.setState({ disableCancelButton: true });
+        this.store.load();
     }
 
     selectRowHandler = (dataView, records, selected, selection) => {
@@ -135,18 +132,18 @@ export default class RoleCodesGrid extends React.Component {
 
     filterOnChange = (chkBox, newValue, oldValue) => {
         if (newValue)
-            this.store.filter('roleCodeId', null);
+            this.store.filter('roleCode', 'null');       
         else
-            this.store.clearFilter(true);
+            this.store.clearFilter();
     }
 
     
 
     private getValueColumn() {
-        let columnOptions;
+        let selectField;
         let renderer: (value, data: { data }) => string;
 
-        columnOptions = (
+        selectField = (
             <SelectField             
                 store={this.storeRC}
                 valueField="id"
@@ -158,14 +155,15 @@ export default class RoleCodesGrid extends React.Component {
         renderer = (value, { data }) => {
             let result: string;
             if (this.state.render) {
-                if (data.roleCodeId) {
-                    const selectedItem = this.storeRC.data.items.find(item => item.data.id == data.roleCodeId);
-
+                if (data.roleCodeId > 0) {
+                    const selectedItem = this.storeRC.data.items.find(item => item.data.id === data.roleCodeId);
                     result = selectedItem.data.name;
-                } 
+                    console.log('this is callback');
+                } else
+                    result = "";
             }           
             return result;
-    }
+        }
 
         return (
             <Column
@@ -173,14 +171,18 @@ export default class RoleCodesGrid extends React.Component {
                 dataIndex="roleCodeId"
                 flex={1}
                 editable={true}
-                renderer={renderer}
+                renderer={renderer.bind(this)}
             >
-                {columnOptions}
+                {selectField}
             </Column>
         )
     }
 
     render() {
+        if (!this.state.render) {
+            this.storeRC.load();
+            return null;
+        }
         return (
             <Grid
                 title={'Warranty groups'}
@@ -211,7 +213,7 @@ export default class RoleCodesGrid extends React.Component {
 
                 {this.getValueColumn()}
                 <Toolbar docked="top">
-                    <CheckBoxField boxLabel="Show only WGs with no Role code" onChange={(chkBox, newValue, oldValue) => this.filterOnChange(chkBox, newValue, oldValue)}/>
+                    <CheckBoxField boxLabel="Show only WGs with no Role code" onChange={(chkBox, newValue, oldValue) => this.filterOnChange(chkBox, newValue, oldValue)} />
                 </Toolbar>
                 <Toolbar docked="bottom">
                     <Button
