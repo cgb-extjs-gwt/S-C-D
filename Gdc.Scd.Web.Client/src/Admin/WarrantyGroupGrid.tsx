@@ -85,13 +85,9 @@ export default class RoleCodesGrid extends React.Component {
     saveRecords = () => {
         this.store.sync({
             scope: this,
-            callback: function (batch, options) {
-                console.log('this is callback');
-            },
 
             success: function (batch, options) {
                 //TODO: show successfull message box
-                console.log('this is success');
                 this.setState({
                     disableSaveButton: true,
                     disableCancelButton: true
@@ -102,9 +98,7 @@ export default class RoleCodesGrid extends React.Component {
             failure: (batch, options) => {
                 //TODO: show error
                 this.store.rejectChanges();
-                console.log('this is failure');
             }
-
         });
     }
 
@@ -158,7 +152,6 @@ export default class RoleCodesGrid extends React.Component {
                 if (data.roleCodeId > 0) {
                     const selectedItem = this.storeRC.data.items.find(item => item.data.id === data.roleCodeId);
                     result = selectedItem.data.name;
-                    console.log('this is callback');
                 } else
                     result = "";
             }           

@@ -47,7 +47,6 @@ export default class RoleCodesGrid extends React.Component {
             listeners: {
                 exception: function (proxy, response, operation) {
                     //TODO: show error
-                    console.log(operation.getError());
                 }
             },
             api: {             
@@ -81,13 +80,8 @@ export default class RoleCodesGrid extends React.Component {
     saveRecords = () => {
         this.store.sync({
             scope:this,
-            callback: function (batch, options) {
-                console.log('this is callback');
-            },
 
             success: function (batch, options) {
-                //TODO: show successfull message box
-                console.log('this is success');
                 this.setState({
                     disableSaveButton: true,
                     disableDeleteButton: true,
@@ -99,9 +93,7 @@ export default class RoleCodesGrid extends React.Component {
             failure: (batch, options) => {
                 //TODO: show error
                 this.store.rejectChanges();
-                console.log('this is failure');
-            }
-
+            }      
         });
     }
 

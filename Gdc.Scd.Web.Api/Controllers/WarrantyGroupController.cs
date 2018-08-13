@@ -16,8 +16,6 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         public override IEnumerable<Wg> GetAll()
         {
-            var a = this.domainService.GetAll().ToList(); ;
-
             return this.domainService.GetAll().Select(t => new Wg
             {
                 Id = t.Id,
