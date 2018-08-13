@@ -14,12 +14,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Entities
             set => base.Id = value;
         }
 
-        private long? roleCodeId;
-        public long? RoleCodeId
-        {
-            get=> roleCodeId == null ? 0 : roleCodeId;
-            set=> roleCodeId=value;
-        }
+        public long? RoleCodeId { get; set; }
         public RoleCode RoleCode { get; set; }
 
     }
