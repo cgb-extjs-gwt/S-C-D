@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.Core.Interfaces;
+﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Impl;
 using Gdc.Scd.Core.Meta.Interfaces;
@@ -20,6 +21,7 @@ namespace Gdc.Scd.Core
 
                 return domainEnitiesMetaService.Get(domainMeta);
             });
+            
         }
     }
 }

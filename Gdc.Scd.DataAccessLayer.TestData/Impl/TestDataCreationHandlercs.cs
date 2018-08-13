@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Gdc.Scd.BusinessLogicLayer.Entities;
+﻿using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Gdc.Scd.Core.Entities;
+using System.IO;
+using System.Reflection;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -33,6 +35,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string AvailabilityKey = "Availability";
 
+        private const string DurationKey = "Duration";
+
         private readonly IRepositorySet repositorySet;
 
         private readonly DomainEnitiesMeta entityMetas;
@@ -48,6 +52,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         public void Handle()
         {
             this.CreatePlas();
+            this.CreateUsers();
             //this.CreateRolecodes();
 
             var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
@@ -64,10 +69,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             countryRepository.Save(countries);
             repositorySet.Sync();
 
-
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
-
 
             var queries = new List<SqlHelper>
             {
@@ -81,15 +84,27 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql(MetaConstants.DependencySchema, YearKey, this.GetYearNames()),
                 this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, AvailabilityKey, this.GetAvailabilityNames()),
-                this.BuildInsertReactionTimeTypeSql(),
-                this.BuildInsertReactionTimeAvailabilitySql()
+                this.BuildInsertSql(new NamedEntityMeta(DurationKey, MetaConstants.DependencySchema), this.GetDurationNames()),
+                //this.BuildInsertReactionTimeTypeSql(),
+                //this.BuildInsertReactionTimeAvailabilitySql()
+                
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
+            queries.AddRange(this.BuildFromFile(@"Scripts\matrix.sql"));
 
             foreach (var query in queries)
             {
                 this.repositorySet.ExecuteSql(query);
             }
+        }
+
+        private void CreateUsers()
+        {
+            var repository = this.repositorySet.GetRepository<User>();
+            var user = new User { Name = "Test user" };
+
+            repository.Save(user);
+            this.repositorySet.Sync();
         }
 
         private SqlHelper BuildInsertSql(NamedEntityMeta entityMeta, string[] names)
@@ -202,7 +217,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             foreach (var costBlockMeta in this.entityMetas.CostBlocks)
             {
-                var referenceFields = costBlockMeta.AllFields.OfType<ReferenceFieldMeta>().ToList();
+                var referenceFields = costBlockMeta.InputLevelFields.Concat(costBlockMeta.DependencyFields).ToList();
                 var selectColumns =
                     referenceFields.Select(field => new ColumnInfo(field.ReferenceValueField, field.ReferenceMeta.Name, field.Name))
                                    .ToList();
@@ -214,16 +229,16 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
                 if (plaField != null && wgField != null)
                 {
-                    selectColumns = 
+                    selectColumns =
                         selectColumns.Select(
-                            field => field.TableName == plaField.Name 
+                            field => field.TableName == plaField.Name
                                 ? new ColumnInfo("PlaId", WgLevelId, plaField.Name)
                                 : field)
                                     .ToList();
 
                     referenceFields.Remove(plaField);
                 }
-                
+
                 IJoinSqlHelper<SelectJoinSqlHelper> selectQuery = Sql.Select(selectColumns.ToArray()).From(referenceFields[0].ReferenceMeta);
 
                 for (var i = 1; i < referenceFields.Count; i++)
@@ -280,7 +295,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var fourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "4h");
 
             var nineByFive = this.BuildSelectIdByNameQuery(AvailabilityKey, "9x5");
-            var twentyFourBySeven = this.BuildSelectIdByNameQuery(AvailabilityKey, "24x7"); 
+            var twentyFourBySeven = this.BuildSelectIdByNameQuery(AvailabilityKey, "24x7");
 
             return
                Sql.Insert(MetaConstants.DependencySchema, $"{ReactionTimeKey}_{AvailabilityKey}", ReactionTimeKey, AvailabilityKey)
@@ -305,6 +320,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                            .Where(SqlOperators.Equals(MetaConstants.NameFieldKey, paramName, name))
                            .ToSqlBuilder()
                 };
+        }
+
+        private IEnumerable<SqlHelper> BuildFromFile(string fn)
+        {
+            return ReadText(fn).Split("go")
+                               .Where(x => !string.IsNullOrWhiteSpace(x))
+                               .Select(x => new SqlHelper(new RawSqlBuilder() { RawSql = x }));
         }
 
         private Pla[] GetPlas()
@@ -1351,11 +1373,31 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
+        private string[] GetDurationNames()
+        {
+            return new string[]
+            {
+                "1h",
+                "2h",
+                "8h",
+                "1d",
+                "1d 3h",
+                "7d"
+            };
+        }
+
         private bool GenerateRandomBool()
         {
             Random gen = new Random();
             int prob = gen.Next(100);
             return prob <= 70;
+        }
+
+        private string ReadText(string fn)
+        {
+            string root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            fn = Path.Combine(root, fn);
+            return File.ReadAllText(fn);
         }
     }
 }

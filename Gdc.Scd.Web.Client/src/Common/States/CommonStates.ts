@@ -3,6 +3,12 @@ export interface NamedId<TId = string> {
     name: string;
 }
 
+export interface DataInfo<T>
+{
+    items: T[];
+    total: number;
+}
+
 export interface SelectList<T> {
     selectedItemId: string;
     list: T[]
@@ -11,4 +17,9 @@ export interface SelectList<T> {
 export interface MultiSelectList<T> {
     selectedItemIds: string[];
     list: T[] 
+}
+
+export interface ElementWithParent<T=NamedId, U=string>{
+    element : T,
+    parentId : U
 }

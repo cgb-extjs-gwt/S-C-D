@@ -298,7 +298,7 @@ export const loadEditItemsByContext = () =>
         }
     )
 
-export const saveEditItemsToServer = (costBlockId: string) => 
+export const saveEditItemsToServer = (costBlockId: string, forApproval: boolean) => 
     asyncAction<CommonState>(
         (dispatch, getState) => {
             const state = getState().pages.costEditor
@@ -307,7 +307,7 @@ export const saveEditItemsToServer = (costBlockId: string) =>
 
             const context = buildContext(state);
 
-            service.saveEditItems(costBlock.edit.editedItems, context)
+            service.saveEditItems(costBlock.edit.editedItems, context, forApproval)
                    .then(
                        () => dispatch(saveEditItems(costBlockId))
                     )

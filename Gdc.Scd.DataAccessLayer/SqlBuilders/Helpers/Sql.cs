@@ -96,6 +96,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return Update(null, table, columns);
         }
 
+        public static UpdateSqlHelper Update(BaseEntityMeta meta, params BaseUpdateColumnInfo[] columns)
+        {
+            return Update(null, meta.Schema, meta.Name, columns);
+        }
+
         public static InsertSqlHelper Insert(string schema, string table, params string[] columns)
         {
             return new InsertSqlHelper(new InsertSqlBuilder
@@ -114,6 +119,27 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         public static InsertSqlHelper Insert(BaseEntityMeta entityMeta, params string[] fields)
         {
             return Insert(entityMeta.Schema, entityMeta.Name, fields);
+        }
+
+        public static DeleteSqlHelper Delete(string dataBase, string schema, string table)
+        {
+            var delBuilder = new FromSqlBuilder
+            {
+                SqlBuilder = new DeleteSqlBuilder(),
+                From = new TableSqlBuilder { DataBase = dataBase, Schema =schema, Name = table }
+            };
+
+            return new DeleteSqlHelper(delBuilder);
+        }
+
+        public static DeleteSqlHelper Delete(string schema, string table)
+        {
+            return Delete(null, schema, table);
+        }
+
+        public static DeleteSqlHelper Delete(string table)
+        {
+            return Delete(null, null, table);
         }
 
         private static SelectSqlHelper Select(bool isDistinct, params BaseColumnInfo[] columns)

@@ -1,10 +1,12 @@
 import { CommonAction } from "../../Common/Actions/CommonActions";
 import { Action } from "redux";
+import { CostMetaData } from "../../Common/States/CostMetaStates";
 
 export const APP_PAGE_OPEN = 'APP.PAGE.OPEN';
 export const APP_LOADING = 'APP.LOADING';
 export const APP_ERROR = 'APP.ERROR';
 export const APP_PAGE_INIT = 'APP.PAGE.INIT';
+export const APP_LOAD_META = "APP.LOAD.META";
 
 export interface OpenPageAction extends Action<string> {
     id: string
@@ -22,6 +24,10 @@ export interface PageInitAction<T = any> extends Action<string> {
 
 export interface LoadingAction extends Action<string> {
     isLoading: boolean
+}
+
+export interface LoadingMetaDataAction extends Action<string>{
+    data: CostMetaData
 }
 
 export const openPage = (id: string, title: string) => (<OpenPageAction>{
@@ -43,5 +49,10 @@ export const error = error => (<ErrorAction>{
 export const pageInit = (pageId: string, data) => (<PageInitAction>{
     type: APP_PAGE_INIT,
     pageId, 
+    data
+})
+
+export const loadMetaData = (data: CostMetaData) => (<LoadingMetaDataAction>{
+    type: APP_LOAD_META,
     data
 })

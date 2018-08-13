@@ -10,4 +10,10 @@
     <ProjectReference Include="..\Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Scripts\matrix.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

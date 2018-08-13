@@ -27,11 +27,18 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
             };
             var table = tableNameBuilder.Build(context);
 
-            var columns = string.Join(
-                ", ", 
-                this.Columns.Select(columnInfo => $"[{columnInfo.Name}] = {columnInfo.Query.Build(context)}"));
+            var columnSqls = this.Columns.Select(column =>
+            {
+                var columnBuilder = new ColumnSqlBuilder
+                {
+                    Table = column.TableName,
+                    Name = column.Name
+                };
 
-            return $"UPDATE {table} SET {columns}";
+                return $"{columnBuilder.Build(context)} = {column.Query.Build(context)}";
+            });
+
+            return $"UPDATE {table} SET {string.Join(", ", columnSqls)}";
         }
 
         public IEnumerable<ISqlBuilder> GetChildrenBuilders()

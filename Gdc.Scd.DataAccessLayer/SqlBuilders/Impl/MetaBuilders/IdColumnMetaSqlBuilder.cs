@@ -8,10 +8,5 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
         {
             return "[bigint] IDENTITY(1,1)";
         }
-
-        protected override bool IsNullOption()
-        {
-            return false;
-        }
     }
 }

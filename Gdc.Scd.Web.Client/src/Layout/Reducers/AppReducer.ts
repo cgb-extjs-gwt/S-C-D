@@ -5,7 +5,9 @@ import {
     APP_PAGE_OPEN,
     APP_LOADING, 
     APP_ERROR, 
-    LoadingAction
+    LoadingAction,
+    LoadingMetaDataAction,
+    APP_LOAD_META
 } from "../Actions/AppActions";
 import { AppState } from "../States/AppStates";
 
@@ -31,17 +33,24 @@ const loading: Reducer<AppState, LoadingAction> = (state, action) => ({
     isLoading: action.isLoading
 })
 
+const loadMetaData: Reducer<AppState, LoadingMetaDataAction> = (state, action) => ({
+    ...state,
+    appMetaData: action.data
+})
+
 export const appReducer: Reducer<AppState, Action<string>> = (state = defaultState(), action) => {
     switch (action.type) {
         case APP_PAGE_OPEN:
             return openPage(state, <OpenPageAction>action);
 
         case APP_LOADING:
-            return loading(state, <LoadingAction>action)
+            return loading(state, <LoadingAction>action);
 
         case APP_ERROR:
-            return error(state, <ErrorAction>action)
-
+            return error(state, <ErrorAction>action);
+        
+        case APP_LOAD_META:
+            return loadMetaData(state, <LoadingMetaDataAction>action);
         default:
             return state;
     }

@@ -25,10 +25,6 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
                         result = this.BuildPimaryKeyConstraint(idField);
                         break;
 
-                    case SimpleFieldMeta simpleField when simpleField.Type == TypeCode.Double:
-                        result = this.BuildDefaultZeroValue(simpleField);
-                        break;
-
                     case ReferenceFieldMeta referenceField:
                         result = this.BuildForeignConstraint(referenceField);
                         break;
@@ -53,18 +49,13 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
             return $"{this.BuildAlterTable()} ADD CONSTRAINT [PK_{this.Meta.Schema}_{this.Meta.Name}_{idField.Name}] PRIMARY KEY CLUSTERED ({idField.Name}); ";
         }
 
-        private string BuildDefaultZeroValue(SimpleFieldMeta field)
-        {
-            return $"{this.BuildAlterTable()} ADD  CONSTRAINT [DF_{this.Meta.Schema}_{this.Meta.Name}_{field.Name}]  DEFAULT ((0)) FOR [{field.Name}];";
-        }
-
         private string BuildForeignConstraint(ReferenceFieldMeta field)
         {
             string result = null;
 
             if (field.ReferenceMeta.StoreType == StoreType.Table)
             {
-                var constraintName = $"[FK_{this.Meta.Schema}{this.Meta.Name}_{field.ReferenceMeta.Schema}{field.ReferenceMeta.Name}]";
+                var constraintName = $"[FK_{this.Meta.Schema}{this.Meta.Name}{field.Name}_{field.ReferenceMeta.Schema}{field.ReferenceMeta.Name}]";
 
                 result =
                     $@"

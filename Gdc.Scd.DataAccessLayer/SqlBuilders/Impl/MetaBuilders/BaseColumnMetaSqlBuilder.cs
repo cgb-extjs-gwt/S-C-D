@@ -18,9 +18,13 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
 
         public virtual string Build(SqlBuilderContext context)
         {
-            var nullOption = this.IsNullOption() ? "NULL" : "NOT NULL";
+            var nullOption = this.Field.IsNullOption ? "NULL" : "NOT NULL";
 
-            return $"[{this.Field.Name}] {this.BuildType()} {nullOption}";
+            var defaultExpression = this.GetDefaultExpresstion();
+            var defaultOption = defaultExpression == null ? string.Empty : $"DEFAULT ({defaultExpression})";
+
+
+            return $"[{this.Field.Name}] {this.BuildType()} {nullOption} {defaultOption}";
         }
 
         public virtual IEnumerable<ISqlBuilder> GetChildrenBuilders()
@@ -30,6 +34,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
 
         protected abstract string BuildType();
 
-        protected abstract bool IsNullOption();
+        protected virtual string GetDefaultExpresstion()
+        {
+            return null;
+        }
     }
 }
