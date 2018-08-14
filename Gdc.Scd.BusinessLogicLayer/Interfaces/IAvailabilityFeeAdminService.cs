@@ -1,5 +1,5 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Dto.AvailabilityFee;
-using Gdc.Scd.BusinessLogicLayer.Entities;
+﻿using Gdc.Scd.BusinessLogicLayer.Entities;
+using Gdc.Scd.Core.Dto.AvailabilityFee;
 using Gdc.Scd.Core.Entities;
 using System;
 using System.Collections.Generic;
@@ -15,5 +15,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         void ApplyAvailabilityFeeForSelectedCombination(AdminAvailabilityFee model);
 
         void RemoveCombination(long id);
+
+        void SaveCombinations(IEnumerable<AdminAvailabilityFeeViewDto> records);
     }
 }

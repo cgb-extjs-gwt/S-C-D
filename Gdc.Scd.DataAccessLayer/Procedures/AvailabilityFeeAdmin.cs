@@ -1,12 +1,10 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Dto.AvailabilityFee;
+﻿using Gdc.Scd.Core.Dto.AvailabilityFee;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
-using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Text;
 
-namespace Gdc.Scd.BusinessLogicLayer.Procedures
+namespace Gdc.Scd.DataAccessLayer.Procedures
 {
     public class AvailabilityFeeAdmin
     {

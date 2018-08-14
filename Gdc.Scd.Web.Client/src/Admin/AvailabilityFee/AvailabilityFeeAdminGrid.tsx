@@ -22,8 +22,8 @@ class AvailabilityFeeAdminGrid extends React.Component{
             },
             reader: {
                 type: 'json',
-                rootProperty: 'combinations',
-                totalProperty: 'totalCount'
+                rootProperty: 'items',
+                totalProperty: 'total'
             },
             writer: {
                 type: 'json',
@@ -33,7 +33,6 @@ class AvailabilityFeeAdminGrid extends React.Component{
             listeners: {
                 exception: function(proxy, response, operation){
                     //TODO: show error
-                    console.log(operation.getError());
                 }
             }
         },
@@ -54,18 +53,15 @@ class AvailabilityFeeAdminGrid extends React.Component{
 
         this.store.sync({
             callback: function(batch, options){
-                console.log('this is callback');
             },
 
             success: function(batch, options){
                 //TODO: show successfull message box
-                console.log('this is success');
             },
 
             failure: (batch, options) =>
             {
                 //TODO: show error
-                console.log('this is failure');
             }
             
         });

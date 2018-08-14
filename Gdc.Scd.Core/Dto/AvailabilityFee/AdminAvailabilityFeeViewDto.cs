@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Gdc.Scd.BusinessLogicLayer.Dto.AvailabilityFee
+namespace Gdc.Scd.Core.Dto.AvailabilityFee
 {
-    public class AdminAvailabilityFeeDto
+    public class AdminAvailabilityFeeViewDto
     {
-        public long? Id { get; set; }
+        public bool IsApplicable { get; set; }
+
+        public long InnerId { get; set; }
 
         public string CountryName { get; set; }
         public long CountryId { get; set; }

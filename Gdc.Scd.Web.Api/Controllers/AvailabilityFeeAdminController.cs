@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Gdc.Scd.BusinessLogicLayer.Dto.AvailabilityFee;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Web.Api.Entities;
+using Gdc.Scd.Core.Dto.AvailabilityFee;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
@@ -21,7 +22,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public AdminAvailabilityFeeFilterDto GetAll(int page = 1, int start = 0, int limit = 25)
+        public DataInfo<AdminAvailabilityFeeViewDto> GetAll(int page = 1, int start = 0, int limit = 25)
         {
             int totalCount;
             var allAvailabilityFeeCombinations = availabilityFeeAdminService.GetAllCombinations(page, limit, out totalCount);
@@ -39,10 +40,10 @@ namespace Gdc.Scd.Web.Api.Controllers
                 InnerId = af.Id ?? 0
             }).ToList();
 
-            var model = new AdminAvailabilityFeeFilterDto()
+            var model = new DataInfo<AdminAvailabilityFeeViewDto>()
             {
-                Combinations = mappedCombinations,
-                TotalCount = totalCount
+                Items = mappedCombinations,
+                Total = totalCount
             };
 
             return model;
@@ -51,29 +52,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         [HttpPost]
         public void SaveAll([FromBody]IEnumerable<AdminAvailabilityFeeViewDto> records)
         {
-            foreach (var record in records)
-            {
-                if (record.IsApplicable)
-                {
-                    if (record.InnerId == 0)
-                    {
-                        var newObj = new AdminAvailabilityFee()
-                        {
-                            CountryId =  record.CountryId,
-                            ReactionTimeId = record.ReactionTimeId,
-                            ReactionTypeId = record.ReactionTypeId,
-                            ServiceLocationId = record.ServiceLocatorId
-                        };
-
-                        availabilityFeeAdminService.ApplyAvailabilityFeeForSelectedCombination(newObj);
-                    }
-                }
-                else
-                {
-                    if (record.InnerId > 0)
-                        availabilityFeeAdminService.RemoveCombination(record.InnerId);
-                }
-            }
+            availabilityFeeAdminService.SaveCombinations(records);
         }
     }
 }
