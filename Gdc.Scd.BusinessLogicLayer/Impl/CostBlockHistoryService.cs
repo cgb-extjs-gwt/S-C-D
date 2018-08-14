@@ -133,8 +133,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var historyContext = this.BuildHistoryContext(context);
             var filter = this.costBlockFilterBuilder.BuildFilter(context);
+            var region = this.domainMeta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId].RegionInput;
 
-            filter.Add(context.InputLevelId, new object[] { editItemId });
+            if (region == null || region.Id != context.InputLevelId)
+            {
+                filter.Add(context.InputLevelId, new object[] { editItemId });
+            }
 
             return await this.costBlockValueHistoryRepository.GetCostBlockHistoryValueDto(historyContext, filter, queryInfo);
         }
@@ -223,12 +227,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             costBlockHistoryRepository.Save(history);
             this.repositorySet.Sync();
 
-            var relatedItems = new Dictionary<string, long[]>();
+            var relatedItems = new Dictionary<string, long[]>
+            {
+                [context.InputLevelId] = editItems.Select(item => item.Id).ToArray()
+            };
 
             var costBlockMeta = this.domainMeta.CostBlocks[context.CostBlockId];
             var costElementMeta = costBlockMeta.CostElements[context.CostElementId];
 
             if (costElementMeta.RegionInput != null &&
+                costElementMeta.RegionInput.Id != context.InputLevelId &&
                 context.RegionInputId != null)
             {
                 relatedItems.Add(costElementMeta.RegionInput.Id, new[] { context.RegionInputId.Value });

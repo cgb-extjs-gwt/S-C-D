@@ -118,6 +118,27 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return IsNull(column);
         }
 
+        public static ConditionHelper IsNotNull(ISqlBuilder operand)
+        {
+            var isNotNull = new IsNotNullSqlBuilder
+            {
+                SqlBuilder = operand
+            };
+
+            return new ConditionHelper(isNotNull);
+        }
+
+        public static ConditionHelper IsNotNull(string columnName, string tableName = null)
+        {
+            var column = new ColumnSqlBuilder
+            {
+                Table = tableName,
+                Name = columnName
+            };
+
+            return IsNotNull(column);
+        }
+
         public static T BinaryOperator<T>(ISqlBuilder leftOperand, ISqlBuilder rightOperand)
             where T : BinaryOperatorSqlBuilder, new()
         {

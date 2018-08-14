@@ -6,7 +6,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class OrderBySqlHelper : SqlHelper, IOrderBySqlHelper<OffsetFetchSqlHelper>//, IOffsetFetchSqlHelper<SqlHelper>
+    public class OrderBySqlHelper : SqlHelper, IOrderBySqlHelper<OffsetFetchSqlHelper>, IQueryInfoSqlHelper//, IOffsetFetchSqlHelper<SqlHelper>
     {
         public OrderBySqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
@@ -35,6 +35,21 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             }).ToArray();
 
             return this.OrderBy(orderByInfos);
+        }
+
+        public SqlHelper ByQueryInfo(QueryInfo queryInfo)
+        {
+            SqlHelper result = this;
+
+            if (queryInfo != null)
+            {
+                var orderByQuery = this.OrderBy(queryInfo.Sort.Direction, new ColumnInfo(queryInfo.Sort.Property));
+                result = queryInfo.Skip.HasValue || queryInfo.Take.HasValue
+                    ? orderByQuery.OffsetFetch(queryInfo.Skip ?? 0, queryInfo.Take)
+                    : orderByQuery;
+            }
+
+            return result;
         }
     }
 }

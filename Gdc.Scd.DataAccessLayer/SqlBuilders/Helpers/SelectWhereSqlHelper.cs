@@ -3,7 +3,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class SelectWhereSqlHelper : SelectGroupBySqlHelper, IWhereSqlHelper<SelectGroupBySqlHelper>
+    public class SelectWhereSqlHelper : GroupBySqlHelper, IWhereSqlHelper<GroupBySqlHelper>
     {
         private readonly WhereSqlHelper whereHelper;
 
@@ -13,19 +13,19 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             this.whereHelper = new WhereSqlHelper(sqlBuilder);
         }
 
-        public SelectGroupBySqlHelper Where(ISqlBuilder condition)
+        public GroupBySqlHelper Where(ISqlBuilder condition)
         {
-            return new SelectGroupBySqlHelper(this.whereHelper.Where(condition));
+            return new GroupBySqlHelper(this.whereHelper.Where(condition));
         }
 
-        public SelectGroupBySqlHelper Where(ConditionHelper condition)
+        public GroupBySqlHelper Where(ConditionHelper condition)
         {
-            return new SelectGroupBySqlHelper(this.whereHelper.Where(condition));
+            return new GroupBySqlHelper(this.whereHelper.Where(condition));
         }
 
-        public SelectGroupBySqlHelper Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
+        public GroupBySqlHelper Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
         {
-            return new SelectGroupBySqlHelper(this.whereHelper.Where(filter, tableName));
+            return new GroupBySqlHelper(this.whereHelper.Where(filter, tableName));
         }
     }
 }
