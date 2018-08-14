@@ -262,12 +262,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 SqlOperators.GreaterOrEqual(new ColumnInfo(costBlockMeta.DeletedDateField.Name, costBlockMeta.Name),
                     new ColumnInfo(nameof(CostBlockHistory.EditDate), MetaConstants.CostBlockHistoryTableName)));
 
-            //var inputLevelCondition = ConditionHelper.OrBrackets(
-            //    SqlOperators.IsNull(historyContext.InputLevelId, costBlockMeta.HistoryMeta.Name),
-            //    SqlOperators.Equals(
-            //        new ColumnInfo(historyContext.InputLevelId, costBlockMeta.HistoryMeta.Name),
-            //        new ColumnInfo(historyContext.InputLevelId, costBlockMeta.Name)));
-
             var costBlockJoinCondition = ConditionHelper.And(createdDateCondition, deletedDateCondition); //.And(inputLevelCondition);
 
             if (historyContext.RegionInputId.HasValue)
@@ -306,53 +300,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 }
             }
 
-            //var relatedMetaConditions =
-            //    costBlockMeta.HistoryMeta.RelatedMetas.Where(relatedMeta => relatedMeta.Name != historyContext.InputLevelId)
-            //                                          .Select(relatedMeta => new
-            //                                          {
-            //                                              IsNull = SqlOperators.IsNull(relatedMeta.RelatedItemField.Name, relatedMeta.Name),
-            //                                              Equal = SqlOperators.Equals(
-            //                                                  new ColumnInfo(relatedMeta.RelatedItemField.Name, relatedMeta.Name),
-            //                                                  new ColumnInfo(relatedMeta.RelatedItemField.Name, costBlockMeta.Name))
-            //                                          })
-            //                                          .Select(condition => ConditionHelper.OrBrackets(condition.IsNull, condition.Equal).ToSqlBuilder())
-            //                                          .ToList();
-
-            //var inputLevelCondition = ConditionHelper.OrBrackets(
-            //    SqlOperators.IsNull(historyContext.InputLevelId, costBlockMeta.HistoryMeta.Name),
-            //    SqlOperators.Equals(
-            //        new ColumnInfo(historyContext.InputLevelId, costBlockMeta.HistoryMeta.Name),
-            //        new ColumnInfo(historyContext.InputLevelId, costBlockMeta.Name)));
-
-            //var costBlockJoinCondition = ConditionHelper.And(relatedMetaConditions).And(inputLevelCondition);
-
-            //var costBlockJoinCondition = ConditionHelper.And(costBlockMeta.HistoryMeta.RelatedMetas.Where(relatedMeta => relatedMeta.Name != historyContext.InputLevelId).Select(relatedMeta =>
-            //{
-            //    var isNullCondition = SqlOperators.IsNull(relatedMeta.RelatedItemField.Name, relatedMeta.Name);
-            //    var equalCondition = SqlOperators.Equals(
-            //        new ColumnInfo(relatedMeta.RelatedItemField.Name, relatedMeta.Name),
-            //        new ColumnInfo(relatedMeta.RelatedItemField.Name, costBlockMeta.Name));
-
-            //    return ConditionHelper.OrBrackets(isNullCondition, equalCondition).ToSqlBuilder();
-            //}));
-
-            //var createdDateCondition = 
-            //    SqlOperators.LessOrEqual(
-            //        new ColumnInfo(costBlockMeta.CreatedDateField.Name, costBlockMeta.Name), 
-            //        new ColumnInfo(nameof(CostBlockHistory.EditDate), MetaConstants.CostBlockHistoryTableName));
-
-            //var deletedDateCondition = ConditionHelper.OrBrackets(
-            //    SqlOperators.IsNull(costBlockMeta.DeletedDateField.Name, costBlockMeta.Name),
-            //    SqlOperators.GreaterOrEqual(new ColumnInfo(costBlockMeta.DeletedDateField.Name, costBlockMeta.Name),
-            //        new ColumnInfo(nameof(CostBlockHistory.EditDate), MetaConstants.CostBlockHistoryTableName)));
-
-            //costBlockJoinCondition = costBlockJoinCondition.And(createdDateCondition).And(deletedDateCondition);
-
-            //if (costBlockJoinAdditionalCondition != null)
-            //{
-            //    costBlockJoinCondition = costBlockJoinCondition.And(costBlockJoinAdditionalCondition);
-            //}
-
             return
                 query.Join(costBlockMeta.HistoryMeta, costBlockMeta.HistoryMeta.CostBlockHistoryField.Name)
                      .Join(costBlockMeta, costBlockJoinCondition);
@@ -362,10 +309,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>
         {
             var costBlockMeta = this.GetCostBlockEntityMeta(history.Context);
-            //var costBlockJoinCondition = SqlOperators.Equals(
-            //       new ColumnInfo(history.Context.InputLevelId, costBlockMeta.HistoryMeta.Name),
-            //       new ColumnInfo(history.Context.InputLevelId, costBlockMeta.Name));
-
             var costBlockJoinCondition = this.GetHistoryInputLevelJoinCondition(history.Context);
 
             query = this.BuildJoinHistoryValueQuery(history.Context, query, costBlockJoinCondition.ToSqlBuilder());
