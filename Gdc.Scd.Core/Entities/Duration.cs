@@ -2,10 +2,10 @@
 using Gdc.Scd.Core.Meta.Constants;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Gdc.Scd.BusinessLogicLayer.Entities
+namespace Gdc.Scd.Core.Entities
 {
-    [Table("ReactionType", Schema = MetaConstants.DependencySchema)]
-    public class ReactionType : NamedId
+    [Table("Duration", Schema = MetaConstants.DependencySchema)]
+    public class Duration : NamedId
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id
