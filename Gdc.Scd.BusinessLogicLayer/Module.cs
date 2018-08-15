@@ -5,6 +5,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Microsoft.Extensions.DependencyInjection;
+using Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer
 {
@@ -17,6 +18,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.AddScoped<ICapabilityMatrixService, CapabilityMatrixService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICostBlockHistoryService, CostBlockHistoryService>();
+            services.AddScoped<IAvailabilityFeeAdminService, AvailabilityFeeAdminService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ICostBlockFilterBuilder, CostBlockFilterBuilder>();
 
@@ -31,6 +33,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<CapabilityMatrix>();
             services.RegisterEntity<CapabilityMatrixRule>();
             services.RegisterEntity<CapabilityMatrixAllowView>();
+            services.RegisterEntity<AdminAvailabilityFee>();
             services.RegisterEntity<CapabilityMatrixCountryAllowView>();
         }
     }

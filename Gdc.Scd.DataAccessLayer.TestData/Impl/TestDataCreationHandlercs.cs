@@ -90,6 +90,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts\matrix.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts\availabilityFee.sql"));
 
             foreach (var query in queries)
             {

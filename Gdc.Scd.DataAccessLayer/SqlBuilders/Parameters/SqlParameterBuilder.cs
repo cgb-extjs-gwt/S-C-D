@@ -10,61 +10,73 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters
     /// </summary>
     public class SqlParameterBuilder
     {
-        public static DbParameter Create(string pname, int pvalue)
+        private SqlParameter p;
+
+        public SqlParameterBuilder()
         {
-            return new SqlParameter(pname, pvalue);
+            p = new SqlParameter();
         }
 
-        public static DbParameter Create(string pname, int? pvalue)
+        public DbParameter Build() { return p; }
+
+        public SqlParameterBuilder WithName(string name)
         {
-            if (pvalue.HasValue)
+            p.ParameterName = name;
+            return this;
+        }
+
+        public SqlParameterBuilder WithType(DbType type)
+        {
+            p.DbType = type;
+            return this;
+        }
+
+        public SqlParameterBuilder WithTypeName(string typeName)
+        {
+            p.TypeName = typeName;
+            return this;
+        }
+
+        public SqlParameterBuilder WithValue(object value)
+        {
+            return WithPValue(value);
+        }
+
+        public SqlParameterBuilder WithValue(long? value)
+        {
+            return value.HasValue ? WithPValue(value.Value) : WithNull();
+        }
+
+        public SqlParameterBuilder WithValue(long value)
+        {
+            return WithPValue(value);
+        }
+
+        public static DbParameter CreateOutputParam(string pname, SqlDbType type)
+        {
+            var param = new SqlParameter(pname, type)
             {
-                return Create(pname, pvalue.Value);
-            }
-            else
-            {
-                return Create(pname);
-            }
+                Direction = ParameterDirection.Output
+            };
+            return param;
         }
 
-        public static DbParameter Create(string pname, long pvalue)
+        public SqlParameterBuilder WithValue(int? value)
         {
-            return new SqlParameter(pname, pvalue);
+            return value.HasValue ? WithPValue(value.Value) : WithNull();
         }
 
-        public static DbParameter Create(string pname, long? pvalue)
+        public SqlParameterBuilder WithValue(int value)
         {
-            if (pvalue.HasValue)
-            {
-                return Create(pname, pvalue.Value);
-            }
-            else
-            {
-                return Create(pname);
-            }
+            return WithPValue(value);
         }
 
-        public static DbParameter Create(string pname)
+        public SqlParameterBuilder WithValue(DataTable value)
         {
-            return new SqlParameter(pname, DBNull.Value);
+            return WithPValue(value);
         }
 
-        public static DbParameter Create(string pname, object value)
-        {
-            return new SqlParameter(pname, value);
-        }
-
-        public static DbParameter Create(DbType type, string pname, DataTable value)
-        {
-            return new SqlParameter(pname, value) { DbType = type };
-        }
-
-        public static DbParameter Create(string typeName, string pname, DataTable value)
-        {
-            return new SqlParameter(pname, value) { TypeName = typeName };
-        }
-
-        public static DbParameter CreateListID(string pname, long[] values)
+        public SqlParameterBuilder WithListIdValue(long[] values)
         {
             var tbl = new DataTable();
             tbl.Columns.Add("id", typeof(long));
@@ -78,7 +90,63 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters
                 }
             }
 
-            return Create("ListID", pname, tbl);
+            return WithTypeName("ListID").WithPValue(tbl);
+        }
+
+        public SqlParameterBuilder WithNull()
+        {
+            return WithPValue(DBNull.Value);
+        }
+
+        private SqlParameterBuilder WithPValue(object v)
+        {
+            p.Value = v;
+            return this;
+        }
+
+        public static DbParameter Create(string pname, int pvalue)
+        {
+            return new SqlParameterBuilder().WithName(pname).WithValue(pvalue).Build();
+        }
+
+        public static DbParameter Create(string pname, int? pvalue)
+        {
+            return new SqlParameterBuilder().WithName(pname).WithValue(pvalue).Build();
+        }
+
+        public static DbParameter Create(string pname, long pvalue)
+        {
+            return new SqlParameterBuilder().WithName(pname).WithValue(pvalue).Build();
+        }
+
+        public static DbParameter Create(string pname, long? pvalue)
+        {
+            return new SqlParameterBuilder().WithName(pname).WithValue(pvalue).Build();
+        }
+
+        public static DbParameter Create(string pname)
+        {
+            return new SqlParameterBuilder().WithName(pname).WithNull().Build();
+        }
+
+        public static DbParameter Create(string pname, object value)
+        {
+            return new SqlParameterBuilder().WithName(pname).WithValue(value).Build();
+        }
+
+        public static DbParameter Create(DbType type, string pname, object value)
+        {
+            return new SqlParameterBuilder().WithName(pname).WithValue(value).WithType(type).Build();
+        }
+
+        public static DbParameter Create(string typeName, string pname, DataTable value)
+        {
+            return new SqlParameterBuilder().WithName(pname).WithValue(value).WithTypeName(typeName).Build();
+        }
+
+        public static DbParameter CreateListID(string pname, long[] values)
+        {
+            return new SqlParameterBuilder().WithName(pname).WithListIdValue(values).Build();
         }
     }
 }
