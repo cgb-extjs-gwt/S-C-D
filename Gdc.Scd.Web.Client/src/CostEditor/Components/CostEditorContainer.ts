@@ -26,7 +26,7 @@ import {
 } 
 from "../Actions/CostBlockActions";
 import { SelectListFilter, RegionProps, CostElementProps } from "./CostBlocksView";
-import { EditGridProps } from "./EditGrid";
+import { EditGridToolProps } from "./EditGridTool";
 import { CommonState } from "../../Layout/States/AppStates";
 
 const isSetContainsAllCheckedItems = (set: Set<string>, filterObj: Filter) => {
@@ -87,7 +87,7 @@ const costBlockTabMap = (
 
     let regionProps: RegionProps;
     let inputLevel: SelectListFilter;
-    let editProps: EditGridProps;
+    let editProps: EditGridToolProps;
     let selectedInputLevelMeta: InputLevelMeta;
     let selectedInputLevel: InputLevelState;
     
@@ -122,15 +122,17 @@ const costBlockTabMap = (
                 selectedCostElement.inputLevel.list.find(item => item.inputLevelId === selectedCostElement.inputLevel.selectedItemId);
 
             editProps = {
-                nameColumnTitle: selectedInputLevelMeta.name,
-                valueColumn: {
-                    title: selectedCostElementMeta.name,
-                    type: selectedCostElementMeta.typeOptions ? selectedCostElementMeta.typeOptions.Type : FieldType.Double,
-                    selectedItems: selectedCostElement.referenceValues
+                editGrid: {
+                    nameColumnTitle: selectedInputLevelMeta.name,
+                    valueColumn: {
+                        title: selectedCostElementMeta.name,
+                        type: selectedCostElementMeta.typeOptions ? selectedCostElementMeta.typeOptions.Type : FieldType.Double,
+                        selectedItems: selectedCostElement.referenceValues
+                    },
+                    items: edit.originalItems && edit.originalItems.map(originalItem => ({
+                        ...edit.editedItems.find(editedItem => editedItem.id === originalItem.id) || originalItem
+                    }))
                 },
-                items: edit.originalItems && edit.originalItems.map(originalItem => ({
-                    ...edit.editedItems.find(editedItem => editedItem.id === originalItem.id) || originalItem
-                })),
                 isEnableClear: isEnableEditButtons,
                 isEnableSave: isEnableEditButtons,
                 isEnableApplyFilters: !isSetContainsAllCheckedItems(edit.appliedFilter.costElementsItemIds, selectedCostElement) ||

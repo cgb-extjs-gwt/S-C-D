@@ -1,14 +1,9 @@
-import * as React from 'react';
+import * as React from "react";
+import { Grid, SelectField, Column, Container } from "@extjs/ext-react";
 import { FieldType } from "../States/CostEditorStates";
 import { EditItem } from "../States/CostBlockStates";
-import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, Dialog} from '@extjs/ext-react';
-import { NamedId } from '../../Common/States/CommonStates';
-import { HistoryValuesGridContainer } from './HistoryValuesGridContainer';
-
-Ext.require([
-    'Ext.grid.plugin.CellEditing', 
-    'Ext.panel.Resizer'
-]);
+import { NamedId } from "../../Common/States/CommonStates";
+import { large, small } from "../../responsiveFormulas";
 
 export interface ValueColumnProps {
     title: string
@@ -18,137 +13,89 @@ export interface ValueColumnProps {
 
 export interface EditGridActions {
     onItemEdited?(item: EditItem)
-    onApplyFilters?()
-    onCleared?()
-    onSaving?(forApproval: boolean)
+    onSelected?(items: EditItem[])
 }
 
 export interface EditGridProps extends EditGridActions {
     nameColumnTitle: string
     valueColumn: ValueColumnProps
     items: EditItem[]
-    isEnableSave: boolean
-    isEnableClear: boolean
-    isEnableApplyFilters: boolean
-    flex?: number
 }
 
-export interface EditGridState {
-    selectedEditItem: EditItem
-    isVisibleHistoryWindow: boolean
-}
+export class EditGrid extends React.Component<EditGridProps> {
+    private itemsMap = new Map<string, EditItem>();
+        
+    public shouldComponentUpdate(nextProps: EditGridProps) {
+        let result = false;
 
-export class EditGrid extends React.Component<EditGridProps, EditGridState> {
-    constructor(props: EditGridProps) {
-        super(props);
+        const { items } = nextProps;
 
-        this.state = {
-            selectedEditItem: null,
-            isVisibleHistoryWindow: false
+        if (!items || items.length != this.itemsMap.size) {
+            result = true;
+        } else {
+            result = !items.every(item => { 
+                const mapItem = this.itemsMap.get(item.id);
+
+                return (
+                    mapItem.name == item.name && 
+                    mapItem.value == item.value && 
+                    mapItem.valueCount == item.valueCount
+                );
+            });
         }
+
+        if (result && nextProps.items) {
+            this.itemsMap.clear();
+            
+            for (const item of nextProps.items) {
+                this.itemsMap.set(item.id, { ...item });
+            }
+        }
+
+        return result;
     }
 
     public render() {
-        const props = this.props;
-
-        const store = Ext.create('Ext.data.Store', {
-            data: props.items && props.items.map(item => ({
-                ...item, 
-                value: item.valueCount == 1 ? item.value : 0
-            })),
-            listeners: props.onItemEdited && {
-                update: ((store, record, operation, modifiedFieldNames, details) => {
-                    if (modifiedFieldNames[0] === 'name') {
-                        record.reject();
-                    } else {
-                        //HACK: Need for displaying new value.
-                        record.set('valueCount', 1);
-    
-                        props.onItemEdited(record.data);
-                    }
-                })
-            }
-        });
+        const { nameColumnTitle, valueColumn } = this.props;
+        const store = this.buildStore();
 
         return (
             <Grid 
+                flex={1}
                 store={store} 
-                flex={props.flex} 
                 shadow 
                 columnLines={true}
                 plugins={['cellediting', 'selectionreplicator']}
-                // selectable={{
-                //     rows: true,
-                //     cells: true,
-                //     columns: true,
-                //     drag: true,
-                //     extensible: 'y'
-                // }}
-                onSelect={this.onSelectGrid}
+                selectable={{
+                    rows: true,
+                    cells: true,
+                    columns: true,
+                    drag: true,
+                    extensible: 'y',
+                }}
+                onSelectionchange={this.onSelected}
             >
-                <Toolbar docked="top">
-                    <Button 
-                        text="Apply filters" 
-                        flex={1} 
-                        disabled={!props.isEnableApplyFilters}
-                        handler={props.onApplyFilters}
-                    />
-
-                    <Button 
-                        text="History" 
-                        flex={1} 
-                        disabled={!this.state.selectedEditItem}
-                        handler={this.showHistoryWindow}
-                    />
-                </Toolbar>
-                
-                <Column text={props.nameColumnTitle} dataIndex="name" flex={1} extensible={false} />
-                {this.getValueColumn(props.valueColumn)}
-        
-                <Toolbar docked="bottom">
-                    <Button 
-                        text="Clear" 
-                        flex={1} 
-                        disabled={!props.isEnableClear}
-                        handler={() => this.showClearDialog()}
-                    />
-                    <Button 
-                        text="Save" 
-                        flex={1} 
-                        disabled={!props.isEnableSave}
-                        handler={() => this.showSaveDialog(false)}
-                    />
-                    <Button 
-                        text="Save and send for approval" 
-                        flex={1} 
-                        disabled={!props.isEnableSave}
-                        handler={() => this.showSaveDialog(true)}
-                    />
-                </Toolbar>
-
-                { this.getHistoryWindow() }
+                <Column text={nameColumnTitle} dataIndex="name" flex={1} extensible={false} />
+                {this.getValueColumn(valueColumn)}
             </Grid>
         );
     }
 
-    private showSaveDialog(forApproval: boolean) {
-        const { onSaving } = this.props;
-    
-        Ext.Msg.confirm(
-          'Saving changes', 
-          'Do you want to save the changes?',
-          (buttonId: string) => onSaving && onSaving(forApproval)
-        );
-    }
-    
-    private showClearDialog() {
-        const { onCleared } = this.props;
+    private buildStore() {
+        const { items, onItemEdited } = this.props;
 
-        Ext.Msg.confirm(
-            'Clearing changes', 
-            'Do you want to clear the changes??',
-            (buttonId: string) => onCleared && onCleared()
-        );
+        return Ext.create('Ext.data.Store', {
+            data: Array.from(this.itemsMap.values()),
+            listeners: onItemEdited && {
+                update: (store, record, operation, modifiedFieldNames, details) => {
+                    if (modifiedFieldNames[0] === 'name') {
+                        record.reject();
+                    } else {
+                        onItemEdited(record.data);
+                    }
+                }
+            }
+        }); 
     }
 
     private getValueColumn(columProps: ValueColumnProps) {
@@ -200,48 +147,13 @@ export class EditGrid extends React.Component<EditGridProps, EditGridState> {
         return `(${editItem.valueCount} values)`
     }
 
-    private getHistoryWindow() {
-        const { isVisibleHistoryWindow, selectedEditItem} = this.state;
+    private onSelected = (grid, records: { data: EditItem }[]) => {
+        const { onSelected } = this.props;
 
-        return (
-            isVisibleHistoryWindow && selectedEditItem &&
-            <Dialog 
-                displayed={isVisibleHistoryWindow} 
-                title="History" 
-                closable 
-                maximizable
-                resizable={{
-                    dynamic: true,
-                    edges: 'all'
-                }}
-                minHeight="500"
-                minWidth="400"
-                onHide={this.hideHistoryWindow}
-            >
-                <HistoryValuesGridContainer editItemId={selectedEditItem.id} />
-            </Dialog>
-        );
+        if (onSelected) {
+            const editItems = records.map(record => record.data);
+
+            onSelected(editItems);
+        }
     }
-
-    private showHistoryWindow = () => {
-        this.setState({
-            isVisibleHistoryWindow: true
-        });
-    }
-
-    private hideHistoryWindow = () => {
-        this.setState({ 
-            isVisibleHistoryWindow: false 
-        });
-    }
-
-    private onSelectGrid = (grid, records: { data: EditItem }[]) => {
-        const editItem = records.length > 0 
-            ? records[0].data 
-            : null;
-
-        this.setState({
-            selectedEditItem: editItem
-        });
-    }
-}
+} 
