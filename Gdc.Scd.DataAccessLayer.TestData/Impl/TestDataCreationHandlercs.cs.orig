@@ -90,7 +90,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts\matrix.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts\availabilityFee.sql"));
 
             foreach (var query in queries)
             {
@@ -238,8 +237,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
                     referenceFields.Remove(plaField);
                 }
-
+<<<<<<< HEAD
+                
                 var selectQuery = Sql.Select(selectColumns.ToArray()).From(referenceFields[0].ReferenceMeta);
+=======
+
+                IJoinSqlHelper<SelectJoinSqlHelper> selectQuery = Sql.Select(selectColumns.ToArray()).From(referenceFields[0].ReferenceMeta);
+>>>>>>> master
 
                 for (var i = 1; i < referenceFields.Count; i++)
                 {

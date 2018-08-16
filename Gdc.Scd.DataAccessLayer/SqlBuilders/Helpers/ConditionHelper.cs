@@ -90,12 +90,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public ConditionHelper AndBrackets(ISqlBuilder rightOperand)
         {
-            return CreateConditionHelperBrackets<AndSqlBuilder>(this.ToSqlBuilder(), rightOperand);
+            return this.CreateConditionHelperBrackets<AndSqlBuilder>(rightOperand);
         }
 
         public ConditionHelper AndBrackets(SqlHelper rightOperand)
         {
-            return CreateConditionHelperBrackets<AndSqlBuilder>(this.ToSqlBuilder(), rightOperand.ToSqlBuilder());
+            return this.CreateConditionHelperBrackets<AndSqlBuilder>(rightOperand.ToSqlBuilder());
         }
 
         public ConditionHelper Or(ISqlBuilder rightOperand)
@@ -115,12 +115,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public ConditionHelper OrBrackets(ISqlBuilder rightOperand)
         {
-            return CreateConditionHelper<OrSqlBuilder>(this.ToSqlBuilder(), rightOperand);
+            return this.CreateConditionHelperBrackets<OrSqlBuilder>(rightOperand);
         }
 
         public ConditionHelper OrBrackets(SqlHelper rightOperand)
         {
-            return CreateConditionHelper<OrSqlBuilder>(this.ToSqlBuilder(), rightOperand.ToSqlBuilder());
+            return this.CreateConditionHelperBrackets<OrSqlBuilder>(rightOperand.ToSqlBuilder());
         }
 
         private static ConditionHelper CreateConditionHelper<T>(ISqlBuilder leftOperand, ISqlBuilder rightOperand)
@@ -206,6 +206,19 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             }
 
             return CreateConditionHelper<T>(inBuilders);
+        }
+
+        private ConditionHelper CreateConditionHelperBrackets<T>(ISqlBuilder rightOperand)
+            where T : BinaryOperatorSqlBuilder, new()
+        {
+            rightOperand = new BracketsSqlBuilder
+            {
+                SqlBuilder = rightOperand
+            };
+
+            var binOperator = SqlOperators.BinaryOperator<T>(this.ToSqlBuilder(), rightOperand);
+
+            return new ConditionHelper(binOperator);
         }
     }
 }
