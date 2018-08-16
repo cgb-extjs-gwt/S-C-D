@@ -25,6 +25,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<Pla>();
             services.RegisterEntity<Wg>();
             services.RegisterEntity<Availability>();
+            services.RegisterEntity<Year>();
             services.RegisterEntity<Duration>();
             services.RegisterEntity<ReactionType>();
             services.RegisterEntity<ReactionTime>();

@@ -1,2 +1,2 @@
-insert into [Hardware].[ServiceCost] (MatrixId)
+insert into [Hardware].[ServiceCostCalculation] (MatrixId)
 select Id from Matrix where CountryId is not null;

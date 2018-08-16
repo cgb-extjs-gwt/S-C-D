@@ -74,6 +74,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             durationRepository.Save(durations);
             repositorySet.Sync();
 
+            //Insert Years
+            var yearRepository = repositorySet.GetRepository<Year>();
+            var years = GetYearNames();
+            yearRepository.Save(years);
+            repositorySet.Sync();
+
+
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
 
@@ -86,7 +93,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
                 this.BuildInsertSql(new NamedEntityMeta(ReactionTimeKey, MetaConstants.DependencySchema), this.GetReactionTimeCodeNames()),
                 this.BuildInsertSql(new NamedEntityMeta(ReactionTypeKey, MetaConstants.DependencySchema), this.GetReactionTypeNames()),
-                this.BuildInsertSql(MetaConstants.DependencySchema, YearKey, this.GetYearNames()),
+                //this.BuildInsertSql(MetaConstants.DependencySchema, YearKey, this.GetYearNames()),
                 this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, AvailabilityKey, this.GetAvailabilityNames()),
                 //this.BuildInsertSql(new NamedEntityMeta(DurationKey, MetaConstants.DependencySchema), this.GetDurationNames()),
@@ -1326,16 +1333,16 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private string[] GetYearNames()
+        private List<Year> GetYearNames()
         {
-            return new[]
+            return new List<Year>
             {
-                "1st year",
-                "2nd year",
-                "3rd year",
-                "4th year",
-                "5th year",
-                "1 year prolongation"
+                new Year { Name = "1st year", Value = 1 },
+                new Year { Name = "2nd year", Value = 2 },
+                new Year { Name = "3rd year", Value = 3 },
+                new Year { Name = "4th year", Value = 4 },
+                new Year { Name = "5th year", Value = 5 },
+                new Year { Name = "1 year prolongation", Value = 1 }
             };
         }
 
