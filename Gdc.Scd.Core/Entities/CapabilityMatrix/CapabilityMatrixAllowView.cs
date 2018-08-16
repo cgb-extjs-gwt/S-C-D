@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix
+namespace Gdc.Scd.Core.Entities.CapabilityMatrix
 {
     [Table("MatrixAllowView")] //materialized view
     public class CapabilityMatrixAllowView : CapabilityMatrixView

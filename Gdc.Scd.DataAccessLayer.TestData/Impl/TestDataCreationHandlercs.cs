@@ -68,6 +68,12 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             countryRepository.Save(countries);
             repositorySet.Sync();
 
+            //Insert Durations
+            var durationRepository = repositorySet.GetRepository<Duration>();
+            var durations = GetDurationNames();
+            durationRepository.Save(durations);
+            repositorySet.Sync();
+
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
 
@@ -83,7 +89,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql(MetaConstants.DependencySchema, YearKey, this.GetYearNames()),
                 this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, AvailabilityKey, this.GetAvailabilityNames()),
-                this.BuildInsertSql(new NamedEntityMeta(DurationKey, MetaConstants.DependencySchema), this.GetDurationNames()),
+                //this.BuildInsertSql(new NamedEntityMeta(DurationKey, MetaConstants.DependencySchema), this.GetDurationNames()),
                 //this.BuildInsertReactionTimeTypeSql(),
                 //this.BuildInsertReactionTimeAvailabilitySql()
                 
@@ -91,6 +97,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts\matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts\availabilityFee.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts\calculation.sql"));
 
             foreach (var query in queries)
             {
@@ -1350,16 +1357,16 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private string[] GetDurationNames()
+        private List<Duration> GetDurationNames()
         {
-            return new string[]
+            return new List<Duration>
             {
-                "1h",
-                "2h",
-                "8h",
-                "1d",
-                "1d 3h",
-                "7d"
+                new Duration { Name = "1 Year", Value = 1 },
+                new Duration { Name = "2 Years", Value = 2 },
+                new Duration { Name = "3 Years", Value = 3 },
+                new Duration { Name = "4 Years", Value = 4 },
+                new Duration { Name = "5 Years", Value = 5 },
+                new Duration { Name = "Prolongation", Value = 1 }
             };
         }
 

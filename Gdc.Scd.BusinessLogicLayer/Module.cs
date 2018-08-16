@@ -1,11 +1,11 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Entities;
-using Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix;
 using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.CapabilityMatrix;
 
 namespace Gdc.Scd.BusinessLogicLayer
 {
@@ -34,6 +34,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<CapabilityMatrixAllowView>();
             services.RegisterEntity<AdminAvailabilityFee>();
             services.RegisterEntity<CapabilityMatrixCountryAllowView>();
+            services.RegisterEntity<HardwareCalculationResult>();
         }
     }
 }

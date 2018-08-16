@@ -15,5 +15,9 @@
         public const string CostBlockHistoryTableName = "CostBlockHistory";
 
         public const string AdminSchema = "Admin";
+
+        public const string CalculationTable = "ServiceCostCalculation";
+
+        public const string HardwareScheme = "Hardware";
     }
 }
