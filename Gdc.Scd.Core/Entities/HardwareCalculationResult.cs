@@ -1,10 +1,6 @@
 ﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace Gdc.Scd.Core.Entities
 {
@@ -27,7 +23,11 @@ namespace Gdc.Scd.Core.Entities
 
         public double? HddRetention { get; set; }
 
-        public double? TaxAndDuties { get; set; }
+        public double? TaxAndDutiesW { get; set; }
+
+        public double? TaxAndDutiesOow { get; set; }
+
+        public double? MaterialW { get; set; }
 
         public double? MaterialOow { get; set; }
 

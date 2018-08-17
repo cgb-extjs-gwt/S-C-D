@@ -1,117 +1,316 @@
+IF OBJECT_ID('dbo.GetAfr') IS NOT NULL
+  DROP FUNCTION dbo.GetAfr;
+go 
+
+IF OBJECT_ID('dbo.CalcField[Hardware].[ServiceCostCalculation]') IS NOT NULL
+  DROP FUNCTION dbo.CalcField[Hardware].[ServiceCostCalculation];
+go 
+
+IF OBJECT_ID('dbo.CalcHddRetention') IS NOT NULL
+  DROP FUNCTION dbo.CalcHddRetention;
+go 
+
+IF OBJECT_ID('dbo.CalcMaterialCostWar') IS NOT NULL
+  DROP FUNCTION dbo.CalcMaterialCostWar;
+go 
+
+IF OBJECT_ID('dbo.CalcSrvSupportCost') IS NOT NULL
+  DROP FUNCTION dbo.CalcSrvSupportCost;
+go 
+
+IF OBJECT_ID('dbo.CalcTaxAndDutiesWar') IS NOT NULL
+  DROP FUNCTION dbo.CalcTaxAndDutiesWar;
+go 
+
 IF TYPE_ID('dbo.execError') IS NOT NULL
   DROP Type dbo.execError;
 go
 
-IF OBJECT_ID('dbo.SrvSupportCost') IS NOT NULL
-    DROP PROCEDURE dbo.SrvSupportCost
+IF OBJECT_ID('dbo.UpdateField[Hardware].[ServiceCostCalculation]') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateField[Hardware].[ServiceCostCalculation]
 go
 
-IF OBJECT_ID('dbo.SrvSupportCostAll') IS NOT NULL
-    DROP PROCEDURE dbo.SrvSupportCostAll
+IF OBJECT_ID('dbo.UpdateHddRetention') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateHddRetention
 go
 
-IF OBJECT_ID('dbo.HddRetentionCost') IS NOT NULL
-    DROP PROCEDURE dbo.HddRetentionCost
+IF OBJECT_ID('dbo.UpdateMaterialOow') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateMaterialOow
 go
 
-CREATE TYPE execError
-FROM varchar(200) NULL
+IF OBJECT_ID('dbo.UpdateMaterialW') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateMaterialW
 go
 
-CREATE PROCEDURE [dbo].[SrvSupportCost]
+IF OBJECT_ID('dbo.UpdateSrvSupportCost') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateSrvSupportCost
+go
+
+IF OBJECT_ID('dbo.UpdateTaxAndDutiesOow') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateTaxAndDutiesOow
+go
+
+IF OBJECT_ID('dbo.UpdateTaxAndDutiesW') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateTaxAndDutiesW
+go
+
+IF OBJECT_ID('dbo.AfrByDurationView', 'V') IS NOT NULL
+  DROP VIEW dbo.AfrByDurationView;
+go
+
+IF OBJECT_ID('dbo.HddFrByDurationView', 'V') IS NOT NULL
+  DROP VIEW dbo.HddFrByDurationView;
+go
+
+IF OBJECT_ID('dbo.HddRetByDurationView', 'V') IS NOT NULL
+  DROP VIEW dbo.HddRetByDurationView;
+go
+
+IF OBJECT_ID('dbo.InstallBaseByCountryView', 'V') IS NOT NULL
+  DROP VIEW dbo.InstallBaseByCountryView;
+go
+
+CREATE function [dbo].[CalcField[Hardware].[ServiceCostCalculation]] (
+    @timeAndMaterialShare float,
+    @travelCost float,
+    @labourCost float,
+    @performanceRate float,
+    @travelTime float,
+    @repairTime float,
+    @onsiteHourlyRate float,
+    @afr float
+)
+RETURNS float
+AS
+BEGIN
+    return @afr * (
+                   (1 - @timeAndMaterialShare) * (@travelCost + @labourCost + @performanceRate) + 
+                   @timeAndMaterialShare * ((@travelTime + @repairTime) * @onsiteHourlyRate) + 
+                   @performanceRate
+                  );
+END
+GO
+
+CREATE FUNCTION [dbo].[CalcHddRetention](@cost float, @fr float)
+RETURNS float
+AS
+BEGIN
+    RETURN @cost * @fr;
+END
+GO
+
+CREATE FUNCTION [dbo].[CalcMaterialCostWar](@cost float, @afr float)
+RETURNS float
+AS
+BEGIN
+    RETURN @cost * @afr;
+END
+GO
+
+CREATE function [dbo].[CalcSrvSupportCost] (
     @firstLevelSupport float,
-	@secondLevelSupportPla float,
-	@ibCountry float,
-	@ibPla float,
-	@result float = null out,
-	@msg execError = null out
+    @secondLevelSupport float,
+    @ibCountry float,
+    @ibPla float
+)
+returns float
 as
 BEGIN
-    SET NOCOUNT ON; 
-
-	if @ibCountry = 0 or @ibPla = 0
-	begin
-	   set @result = null;
-	   set @msg = 'Divide by zero';
-	   return;
-	end
-
-	set @result = @firstLevelSupport / @ibCountry + @secondLevelSupportPla / @ibPla;
-
-	if @result < 0
-	begin
-	   set @result = null;
-	   set @msg = 'Negative value'
-	end
-
+    return @firstLevelSupport / @ibCountry + @secondLevelSupport / @ibPla;
 END
+GO
+
+CREATE FUNCTION [dbo].[CalcTaxAndDutiesWar](@cost float, @tax float)
+RETURNS float
+AS
+BEGIN
+    RETURN @cost * @tax;
+END
+GO
+
+create view [dbo].[AfrByDurationView] as 
+    select wg.Id as WgID,
+           d.Id as DurID, 
+           (select sum(a.AFR) 
+            from Atom.AFR a
+            JOIN Dependencies.Year y on y.Id = a.Year
+            where a.Wg = wg.Id
+                  and y.IsProlongation = d.IsProlongation
+                  and y.Value <= d.Value) as TotalAFR
+    from Dependencies.Duration d,
+         InputAtoms.Wg wg
+GO
+
+CREATE view [dbo].[HddFrByDurationView] as 
+     select wg.Id as WgID,
+            d.Id as DurID, 
+            (select sum(h.HddFr) 
+                from Hardware.HddRetention h
+                JOIN Dependencies.Year y on y.Id = h.Year
+                where h.Wg = wg.Id
+                       and y.IsProlongation = d.IsProlongation
+                       and y.Value <= d.Value) as TotalFr
+        from Dependencies.Duration d,
+             InputAtoms.Wg wg
+GO
+
+CREATE view [dbo].[HddRetByDurationView] as 
+     select wg.Id as WgID,
+            d.Id as DurID, 
+            (select sum(dbo.CalcHddRetention(h.HddMaterialCost, h.HddFr))
+                from Hardware.HddRetention h
+                JOIN Dependencies.Year y on y.Id = h.Year
+                where h.Wg = wg.Id
+                       and y.IsProlongation = d.IsProlongation
+                       and y.Value <= d.Value) as HddRet
+        from Dependencies.Duration d,
+             InputAtoms.Wg wg
 go
 
+create view [dbo].[InstallBaseByCountryView] as
 
-CREATE PROCEDURE [dbo].[SrvSupportCostAll] 
+    with InstallBasePlaCte (Pla, Country, totalIB)
+    as
+    (
+        select Country, Pla, sum(InstalledBaseCountry) as totalIB
+        from Atom.InstallBase 
+        where InstalledBaseCountry is not null
+        group by Country, Pla
+    )
+    select ib.Wg,
+            ib.Country,
+            ib.InstalledBaseCountry as ibCnt,
+            ibp.totalIB as ib_Cnt_PLA
+    from Atom.InstallBase ib
+    left join InstallBasePlaCte ibp on ibp.Pla = ib.Pla and ibp.Country = ib.Country
+GO
+
+CREATE FUNCTION [dbo].[GetAfr](@wg bigint, @dur bigint)
+RETURNS float
 AS
 BEGIN
 
-	SET NOCOUNT ON;
+    DECLARE @result float;
 
-	declare @pla bigint;
-	declare @wg bigint;
-	declare @cnt bigint;
-	declare @ibCnt float;
-	declare @ibCntPLA float;
-	declare @firstLevelSupportCostsCountry float;
-	declare @secondLevelSupportCostsClusterRegion float;
-	declare @secondLevelSupportCostsLocal float;
+    SELECT @result = TotalAFR from AfrByDurationView where WgID = @wg and DurID = @dur
 
-	declare cur cursor for 
-		select ib.Pla,
-			   ib.Wg,
-			   ib.Country,
-			   ib.InstalledBaseCountry as ibCnt,
-			   (select sum(InstalledBaseCountry) 
-				   from Atom.InstallBase 
-				   where Country = ib.Country 
-						 and Pla = ib.Pla 
-						 and InstalledBaseCountry is not null) as ib_Cnt_PLA,
-			   ssc.[1stLevelSupportCostsCountry],
-			   ssc.[2ndLevelSupportCostsClusterRegion],
-			   ssc.[2ndLevelSupportCostsLocal]
-		from Atom.InstallBase ib
-		left join Hardware.ServiceSupportCost ssc on ib.Country = ssc.Country;
-
-	open cur
-	fetch next from cur into @pla, @wg, @cnt, @ibCnt, @ibCntPLA, @firstLevelSupportCostsCountry, @secondLevelSupportCostsClusterRegion, @secondLevelSupportCostsLocal;
-
-	WHILE @@FETCH_STATUS = 0  
-	BEGIN  
-		PRINT 'row here.... ' ;-- + @pla;
-
-		fetch next from cur into @pla, @wg, @cnt, @ibCnt, @ibCntPLA, @firstLevelSupportCostsCountry, @secondLevelSupportCostsClusterRegion, @secondLevelSupportCostsLocal;
-	end
-
-	close cur;
-	deallocate cur;
+    RETURN @result;
 
 END
-go
+GO
 
-
-CREATE PROCEDURE HddRetentionCost 
-	@hddFR float, 
-	@hddMaterialCost float,
-	@result float = null out,
-	@msg execError = null out
+CREATE PROCEDURE [dbo].[UpdateFieldServiceCost]
 AS
 BEGIN
-	SET NOCOUNT ON;
 
-	SET @result = @hddFR * @hddMaterialCost
+    SET NOCOUNT ON;
 
-	IF (@result < 0)
-		BEGIN
-			SET @result = NULL
-			SET @msg = 'Negative value'
-		END
+    UPDATE [Hardware].[ServiceCostCalculation] 
+           SET FieldServiceCost = dbo.CalcFieldServiceCost(fsc.TimeAndMaterialShare, fsc.TravelCost, fsc.LabourCost, 1, fsc.TravelTime, fsc.RepairTime, 1, afr.TotalAFR)
+    FROM ServiceCost sc
+    INNER JOIN Matrix m ON sc.MatrixId = m.Id
+    LEFT JOIN AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
+    LEFT JOIN Hardware.FieldServiceCost fsc ON fsc.Wg = m.WgId and fsc.Country = m.CountryId and fsc.ServiceLocation = m.ServiceLocationId
+
 END
-go
+GO
 
+CREATE PROCEDURE [dbo].[UpdateHddRetention]
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    UPDATE [Hardware].[ServiceCostCalculation] SET HddRetention = hr.HddRet
+    FROM [Hardware].[ServiceCostCalculation] sc
+    INNER JOIN Matrix m ON sc.MatrixId = m.Id
+    LEFT JOIN HddRetByDurationView hr on hr.WgID = m.WgId and hr.DurID = m.DurationId
+
+END
+GO
+
+CREATE PROCEDURE [dbo].[UpdateMaterialOow]
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    UPDATE [Hardware].[ServiceCostCalculation] 
+           SET MaterialOow = dbo.CalcMaterialCostWar(mco.MaterialCostOow, afr.TotalAFR)
+    FROM [Hardware].[ServiceCostCalculation] sc
+    INNER JOIN Matrix m ON sc.MatrixId = m.Id
+    INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
+    LEFT JOIN Atom.MaterialCostOow mco on mco.Wg = m.WgId and mco.ClusterRegion = c.ClusterRegionId
+    LEFT JOIN AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
+
+END
+GO
+
+CREATE PROCEDURE [dbo].[UpdateMaterialW]
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    UPDATE [Hardware].[ServiceCostCalculation] 
+           SET MaterialW = dbo.CalcMaterialCostWar(mcw.MaterialCostWarranty, afr.TotalAFR)
+    FROM [Hardware].[ServiceCostCalculation] sc
+    INNER JOIN Matrix m ON sc.MatrixId = m.Id
+    INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
+    LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId and mcw.ClusterRegion = c.ClusterRegionId
+    LEFT JOIN AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
+
+END
+GO
+
+CREATE PROCEDURE [dbo].[UpdateSrvSupportCost] 
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    UPDATE [Hardware].[ServiceCostCalculation] 
+       SET ServiceSupport = dbo.CalcSrvSupportCost(ssc.[1stLevelSupportCostsCountry], ssc.[2ndLevelSupportCostsClusterRegion], ib.ibCnt, ib.ib_Cnt_PLA) * dur.Value, 
+           ServiceSupportEmeia = dbo.CalcSrvSupportCost(ssc.[1stLevelSupportCostsCountry], ssc.[2ndLevelSupportCostsLocal], ib.ibCnt, ib.ib_Cnt_PLA) * dur.Value
+    FROM [Hardware].[ServiceCostCalculation] sc
+    INNER JOIN Matrix m on sc.MatrixId = m.Id
+    INNER JOIN Dependencies.Duration dur on dur.Id = m.DurationId
+    LEFT JOIN InstallBaseByCountryView ib on ib.Wg = m.WgId and ib.Country = m.CountryId
+    LEFT JOIN Hardware.ServiceSupportCost ssc on ib.Country = m.CountryId
+
+END
+GO
+
+CREATE PROCEDURE [dbo].[UpdateTaxAndDutiesOow]
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    UPDATE [Hardware].[ServiceCostCalculation] 
+           SET TaxAndDutiesOow = dbo.CalcTaxAndDutiesWar(mco.MaterialCostOow, tax.TaxAndDuties)
+    FROM [Hardware].[ServiceCostCalculation] sc
+    INNER JOIN Matrix m ON sc.MatrixId = m.Id
+    INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
+    LEFT JOIN Atom.TaxAndDuties tax on tax.Wg = m.WgId and tax.Country = m.CountryId
+    LEFT JOIN Atom.MaterialCostOow mco on mco.Wg = m.WgId and mco.ClusterRegion = c.ClusterRegionId
+
+END
+GO
+
+CREATE PROCEDURE [dbo].[UpdateTaxAndDutiesW]
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+        UPDATE [Hardware].[ServiceCostCalculation] 
+               SET TaxAndDutiesW = dbo.CalcTaxAndDutiesWar(mcw.MaterialCostWarranty, tax.TaxAndDuties)
+        FROM [Hardware].[ServiceCostCalculation] sc
+        INNER JOIN Matrix m ON sc.MatrixId = m.Id
+        INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
+        LEFT JOIN Atom.TaxAndDuties tax on tax.Wg = m.WgId and tax.Country = m.CountryId
+        LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId and mcw.ClusterRegion = c.ClusterRegionId
+
+END
+GO

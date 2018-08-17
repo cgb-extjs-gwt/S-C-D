@@ -1,4 +1,4 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Entities;
+﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -8,10 +8,10 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Gdc.Scd.Core.Entities;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -347,7 +347,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private IEnumerable<SqlHelper> BuildFromFile(string fn)
         {
-            return ReadText(fn).Split("go")
+            return Regex.Split(ReadText(fn), "go", RegexOptions.IgnoreCase)
                                .Where(x => !string.IsNullOrWhiteSpace(x))
                                .Select(x => new SqlHelper(new RawSqlBuilder() { RawSql = x }));
         }
@@ -1387,8 +1387,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             return new List<Duration>
             {
-                new Duration { Name = "1 Year", Value = 1, IsProlongation = false },
-                new Duration { Name = "2 Years", Value = 2, IsProlongation = false },
                 new Duration { Name = "3 Years", Value = 3, IsProlongation = false },
                 new Duration { Name = "4 Years", Value = 4, IsProlongation = false },
                 new Duration { Name = "5 Years", Value = 5, IsProlongation = false },
