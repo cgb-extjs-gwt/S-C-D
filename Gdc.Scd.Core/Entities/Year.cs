@@ -17,5 +17,6 @@ namespace Gdc.Scd.Core.Entities
         }
 
         public int Value { get; set; }
+        public bool IsProlongation { get; set; }
     }
 }

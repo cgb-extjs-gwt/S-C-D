@@ -20,5 +20,9 @@ namespace Gdc.Scd.Core.Entities
 
         public bool CanOverrideTransferCostAndPrice { get; set; }
 
+        public ClusterRegion ClusterRegion { get; set; }
+
+        public long ClusterRegionId { get; set; }
+
     }
 }

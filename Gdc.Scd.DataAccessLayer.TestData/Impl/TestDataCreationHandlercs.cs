@@ -55,6 +55,14 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateUsers();
 
             var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
+
+            //Insert Cluster Regions
+            var clusterRegionsRepository = repositorySet.GetRepository<ClusterRegion>();
+            var regions = GetClusterRegions();
+            clusterRegionsRepository.Save(regions);
+            repositorySet.Sync();
+
+            //Insert Countries
             var countryRepository = repositorySet.GetRepository<Country>();
 
             var countries = this.GetCountrieNames().Select(c => new Country
@@ -62,7 +70,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 Name = c,
                 CanOverrideListAndDealerPrices = GenerateRandomBool(),
                 CanOverrideTransferCostAndPrice = GenerateRandomBool(),
-                ShowDealerPrice = GenerateRandomBool()
+                ShowDealerPrice = GenerateRandomBool(),
+                ClusterRegionId = 1
             });
 
             countryRepository.Save(countries);
@@ -1337,12 +1346,22 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             return new List<Year>
             {
-                new Year { Name = "1st year", Value = 1 },
-                new Year { Name = "2nd year", Value = 2 },
-                new Year { Name = "3rd year", Value = 3 },
-                new Year { Name = "4th year", Value = 4 },
-                new Year { Name = "5th year", Value = 5 },
-                new Year { Name = "1 year prolongation", Value = 1 }
+                new Year { Name = "1st year", Value = 1, IsProlongation = false },
+                new Year { Name = "2nd year", Value = 2, IsProlongation = false },
+                new Year { Name = "3rd year", Value = 3, IsProlongation = false },
+                new Year { Name = "4th year", Value = 4, IsProlongation = false },
+                new Year { Name = "5th year", Value = 5, IsProlongation = false },
+                new Year { Name = "1 year prolongation", Value = 1, IsProlongation = true }
+            };
+        }
+
+        private List<ClusterRegion> GetClusterRegions()
+        {
+            return new List<ClusterRegion>
+            {
+                new ClusterRegion { Name = "EMEIA"},
+                new ClusterRegion { Name = "Japan"},
+                new ClusterRegion { Name = "APAC"}
             };
         }
 
@@ -1368,12 +1387,12 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             return new List<Duration>
             {
-                new Duration { Name = "1 Year", Value = 1 },
-                new Duration { Name = "2 Years", Value = 2 },
-                new Duration { Name = "3 Years", Value = 3 },
-                new Duration { Name = "4 Years", Value = 4 },
-                new Duration { Name = "5 Years", Value = 5 },
-                new Duration { Name = "Prolongation", Value = 1 }
+                new Duration { Name = "1 Year", Value = 1, IsProlongation = false },
+                new Duration { Name = "2 Years", Value = 2, IsProlongation = false },
+                new Duration { Name = "3 Years", Value = 3, IsProlongation = false },
+                new Duration { Name = "4 Years", Value = 4, IsProlongation = false },
+                new Duration { Name = "5 Years", Value = 5, IsProlongation = false },
+                new Duration { Name = "Prolongation", Value = 1, IsProlongation = true }
             };
         }
 

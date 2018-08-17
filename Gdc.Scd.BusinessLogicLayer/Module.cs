@@ -21,6 +21,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.AddScoped<IAvailabilityFeeAdminService, AvailabilityFeeAdminService>();
             services.AddScoped<IEmailService, EmailService>();
 
+            services.RegisterEntity<ClusterRegion>();
             services.RegisterEntity<Country>();
             services.RegisterEntity<Pla>();
             services.RegisterEntity<Wg>();
