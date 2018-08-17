@@ -56,6 +56,12 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string TypeOptionNodeName = "TypeOption";
 
+        private const string QualityGateNodeName = "QualityGate";
+
+        private const string CountryGroupCoeffNodeName = "CountryGroupCoeff";
+
+        private const string PeriodCoeffNodeName = "PeriodCoeff";
+
         private readonly IConfiguration configuration;
 
         public DomainMetaSevice(IConfiguration configuration)
@@ -109,6 +115,12 @@ namespace Gdc.Scd.Core.Meta.Impl
             costBlockMeta.ApplicationIds =
                 this.BuildItemCollectionByDomainInfo(node.Element(ApplicationListNodeName), ApplicationNodeName, defination.Applications)
                     .Select(application => application.Id);
+
+            var qualityGateNode = node.Element(QualityGateNodeName);
+
+            costBlockMeta.QualityGate = qualityGateNode == null 
+                ? defination.QualityGate 
+                : this.BuildQualityGate(qualityGateNode);
 
             return costBlockMeta;
         }
@@ -223,12 +235,19 @@ namespace Gdc.Scd.Core.Meta.Impl
         {
             var inputLevels = this.BuildStoreTypedDomainInfo<InputLevelMeta>(node.Element(InputLevelListNodeName), InputLevelNodeName);
 
+            var qualityGateNode = node.Element(QualityGateNodeName);
+            if (qualityGateNode != null)
+            {
+                qualityGateNode = qualityGateNode.Element(DefaultNodeName);
+            }
+
             return new DomainDefination
             {
                 InputLevels = inputLevels,
                 RegionInputs = this.BuildDomainInfo<InputLevelMeta>(node.Element(RegionInputListNodeName), InputLevelNodeName, inputLevels.Items),
                 Dependencies = this.BuildStoreTypedDomainInfo<DependencyMeta>(node.Element(DependencyListNodeName), DependencyNodeName),
-                Applications = this.BuildDomainInfo<ApplicationMeta>(node.Element(ApplicationListNodeName), ApplicationNodeName)
+                Applications = this.BuildDomainInfo<ApplicationMeta>(node.Element(ApplicationListNodeName), ApplicationNodeName),
+                QualityGate = this.BuildQualityGate(qualityGateNode)
             };
         }
 
@@ -290,6 +309,30 @@ namespace Gdc.Scd.Core.Meta.Impl
             return this.BuildDomainInfo(listNode, itemNodeName, items);
         }
 
+        private QualityGate BuildQualityGate(XElement node)
+        {
+            var qualityGate = new QualityGate();
+
+            if (node != null)
+            {
+                var regionCoeffNode = node.Element(CountryGroupCoeffNodeName);
+                if (regionCoeffNode != null &&
+                    double.TryParse(regionCoeffNode.Value, out var regionCoeff))
+                {
+                    qualityGate.CountryGroupCoeff = regionCoeff;
+                }
+
+                var periodCoeffNode = node.Element(PeriodCoeffNodeName);
+                if (regionCoeffNode != null &&
+                    double.TryParse(regionCoeffNode.Value, out var periodCoeff))
+                {
+                    qualityGate.PeriodCoeff = periodCoeff;
+                }
+            }
+
+            return qualityGate;
+        }
+
         private class DomainInfo<T> where T : IMetaIdentifialble
         {
             public MetaCollection<T> Items { get; } = new MetaCollection<T>();
@@ -306,6 +349,8 @@ namespace Gdc.Scd.Core.Meta.Impl
             public DomainInfo<DependencyMeta> Dependencies { get; set; }
 
             public DomainInfo<ApplicationMeta> Applications { get; set; }
+
+            public QualityGate QualityGate { get; set; }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.Core.Meta.Entities;
+﻿using System.Collections.Generic;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
@@ -42,6 +43,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         public SelectJoinSqlHelper Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner, string aliasMetaTable = null)
         {
             return new SelectJoinSqlHelper(this.joinSqlHelper.Join(meta, condition, type, aliasMetaTable));
+        }
+
+        public SelectJoinSqlHelper Join(IEnumerable<JoinInfo> joinInfos)
+        {
+            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(joinInfos));
         }
     }
 }

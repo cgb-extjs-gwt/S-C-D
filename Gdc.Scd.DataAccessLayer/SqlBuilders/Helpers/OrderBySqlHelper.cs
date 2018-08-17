@@ -6,23 +6,23 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class OrderBySqlHelper : SqlHelper, IOrderBySqlHelper<OffsetFetchSqlHelper>, IQueryInfoSqlHelper//, IOffsetFetchSqlHelper<SqlHelper>
+    public class OrderBySqlHelper : SqlHelper, IOrderBySqlHelper<UnionSqlHelper>, IQueryInfoSqlHelper
     {
         public OrderBySqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
         {
         }
 
-        public OffsetFetchSqlHelper OrderBy(params OrderByInfo[] infos)
+        public UnionSqlHelper OrderBy(params OrderByInfo[] infos)
         {
-            return new OffsetFetchSqlHelper(new OrderBySqlBuilder
+            return new UnionSqlHelper(new OrderBySqlBuilder
             {
                 SqlBuilder = this.ToSqlBuilder(),
                 OrderByInfos = infos
             });
         }
 
-        public OffsetFetchSqlHelper OrderBy(SortDirection direction, params ColumnInfo[] columns)
+        public UnionSqlHelper OrderBy(SortDirection direction, params ColumnInfo[] columns)
         {
             var orderByInfos = columns.Select(column => new OrderByInfo
             {

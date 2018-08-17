@@ -62,5 +62,10 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             return new UpdateCommonSqlHelper(this.joinSqlHelper.Join(meta, condition, type, aliasMetaTable));
         }
+
+        public UpdateCommonSqlHelper Join(IEnumerable<JoinInfo> joinInfos)
+        {
+            return new UpdateCommonSqlHelper(this.joinSqlHelper.Join(joinInfos));
+        }
     }
 }

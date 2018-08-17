@@ -12,6 +12,44 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
     public static class Sql
     {
+        public static SqlHelper With(ISqlBuilder query, params WithQuery[] withQueries)
+        {
+            return new SqlHelper(new WithSqlBuilder
+            {
+                SqlBuilder = query,
+                Queries = withQueries
+            });
+        }
+
+        public static SqlHelper With(SqlHelper query, params WithQuery[] withQueries)
+        {
+            return With(query.ToSqlBuilder(), withQueries);
+        }
+
+        public static SqlHelper Union(IEnumerable<ISqlBuilder> queries, bool all = false)
+        {
+            var queriesArray = queries.ToArray();
+
+            if (queriesArray.Length == 0)
+            {
+                throw new ArgumentException($"{nameof(queries)} don't have items", nameof(queries));
+            }
+
+            var query = queriesArray[0];
+
+            for (var index = 1; index < queriesArray.Length; index++)
+            {
+                query = new UnionSqlBuilder
+                {
+                    All = all,
+                    Query1 = query,
+                    Query2 = queriesArray[index]
+                };
+            }
+
+            return new SqlHelper(query);
+        }
+
         public static SqlHelper Queries(IEnumerable<ISqlBuilder> queries)
         {
             return new SqlHelper(new SeveralQuerySqlBuilder { Queries = queries });

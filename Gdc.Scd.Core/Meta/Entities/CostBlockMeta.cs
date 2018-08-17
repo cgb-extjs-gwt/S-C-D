@@ -9,6 +9,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public MetaCollection<CostElementMeta> CostElements { get; set; }
 
+        public QualityGate QualityGate { get; set; }
+
         public IEnumerable<InputLevelMeta> GetInputLevels()
         {
             return this.CostElements.SelectMany(costElement => costElement.InputLevels).Distinct();

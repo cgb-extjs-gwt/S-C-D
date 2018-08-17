@@ -9,8 +9,8 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces
 
         TResult From(BaseEntityMeta meta, string alias = null);
 
-        TResult FromQuery(ISqlBuilder query);
+        TResult FromQuery(ISqlBuilder query, string alias = null);
 
-        TResult FromQuery(SqlHelper sqlHelper);
+        TResult FromQuery(SqlHelper sqlHelper, string alias = null);
     }
 }

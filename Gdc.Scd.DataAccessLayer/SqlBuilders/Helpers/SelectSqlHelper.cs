@@ -23,14 +23,14 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return new SelectJoinSqlHelper(this.fromSqlHelper.From(meta, alias));
         }
 
-        public SelectJoinSqlHelper FromQuery(ISqlBuilder query)
+        public SelectJoinSqlHelper FromQuery(ISqlBuilder query, string alias = null)
         {
-            return new SelectJoinSqlHelper(this.fromSqlHelper.FromQuery(query));
+            return new SelectJoinSqlHelper(this.fromSqlHelper.FromQuery(query, alias));
         }
 
-        public SelectJoinSqlHelper FromQuery(SqlHelper sqlHelper)
+        public SelectJoinSqlHelper FromQuery(SqlHelper sqlHelper, string alias = null)
         {
-            return new SelectJoinSqlHelper(this.fromSqlHelper.FromQuery(sqlHelper));
+            return new SelectJoinSqlHelper(this.fromSqlHelper.FromQuery(sqlHelper, alias));
         }
     }
 }

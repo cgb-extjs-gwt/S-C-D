@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table(MetaConstants.WgInputLevelName, Schema = MetaConstants.InputLevelSchema)]
-    public class Wg : NamedId
+    [Table("CountryGroup", Schema = MetaConstants.InputLevelSchema)]
+    public class CountryGroup : NamedId
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id
@@ -12,5 +13,7 @@ namespace Gdc.Scd.Core.Entities
             get => base.Id;
             set => base.Id = value;
         }
+
+        public List<Country> Countries { get; set; }
     }
 }

@@ -41,21 +41,32 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return this.From(meta.Name, meta.Schema, alias: alias);
         }
 
-        public ISqlBuilder FromQuery(ISqlBuilder query)
+        public ISqlBuilder FromQuery(ISqlBuilder query, string alias = null)
         {
+            query = new BracketsSqlBuilder
+            {
+                SqlBuilder = query
+            };
+
+            if (alias != null)
+            {
+                query = new AliasSqlBuilder
+                {
+                    Alias = alias,
+                    SqlBuilder = query
+                };
+            }
+
             return new FromSqlBuilder
             {
                 SqlBuilder = this.ToSqlBuilder(),
-                From = new BracketsSqlBuilder
-                {
-                    SqlBuilder = query
-                }
+                From = query
             };
         }
 
-        public ISqlBuilder FromQuery(SqlHelper sqlHelper)
+        public ISqlBuilder FromQuery(SqlHelper sqlHelper, string alias = null)
         {
-            return this.FromQuery(sqlHelper.ToSqlBuilder());
+            return this.FromQuery(sqlHelper.ToSqlBuilder(), alias);
         }
     }
 }

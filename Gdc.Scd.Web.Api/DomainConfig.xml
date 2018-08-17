@@ -1,7 +1,7 @@
 <SCDConfiguration>
   <InputLevels>
     <InputLevel Name="Country"/>
-    <InputLevel Name="ClusterRegion" Caption="Region"/>
+    <InputLevel Name="CountryGroup" Caption="Region"/>
     <InputLevel Name="ClusterPla" Caption="Cluster Pla"/>
     <InputLevel Name="Pla" Caption="PLA"/>
     <InputLevel Name="Sfab" Caption="SFAB"/>
@@ -25,6 +25,13 @@
       <InputLevel>Country</InputLevel>
     </Default>
   </RegionInputs>
+
+  <QualityGate>
+    <Default>
+      <CountryGroupCoeff>0.1</CountryGroupCoeff>
+      <PeriodCoeff>0.1</PeriodCoeff>
+    </Default>
+  </QualityGate>
   
   <Dependencies>
     <Dependency Name="Year"/>
@@ -100,7 +107,7 @@
         <Application>Atom</Application>
       </Applications>
       <Elements>
-        <Element Name="MaterialCostWarranty" Caption="Material cost iW" InputOption="ManualyAutomaticly" RegionInput="ClusterRegion">
+        <Element Name="MaterialCostWarranty" Caption="Material cost iW" InputOption="ManualyAutomaticly" RegionInput="CountryGroup">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -113,7 +120,7 @@
         <Application>Atom</Application>
       </Applications>
       <Elements>
-        <Element Name="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="ClusterRegion">
+        <Element Name="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="CountryGroup">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -154,6 +161,10 @@
         <Element Name="TimeAndMaterialShare" Caption="Time and material share" InputOption="Manually"/>
         <!--<Element Name="AFR" InputOption="Reference"/>-->
       </Elements>
+      <QualityGate>
+        <CountryGroupCoeff>0.15</CountryGroupCoeff>
+        <PeriodCoeff>0.15</PeriodCoeff>
+      </QualityGate>
     </Block>
 
     <Block Name="ServiceSupportCost" Caption="Service Support Cost">
@@ -167,12 +178,12 @@
           </InputLevels>
         </Element>
         <!--<Element Name="InstalledBase" Caption="Installed base country" InputOption="Reference"/>-->
-        <Element Name="2ndLevelSupportCostsClusterRegion" Caption="2nd Level Support costs cluster region" InputOption="Manually" RegionInput="ClusterRegion">
+        <Element Name="2ndLevelSupportCostsCountryGroup" Caption="2nd Level Support costs cluster region" InputOption="Manually" RegionInput="CountryGroup">
           <InputLevels>
             <InputLevel>ClusterPla</InputLevel>
           </InputLevels>
         </Element>
-        <Element Name="2ndLevelSupportCostsLocal" Caption="2nd Level Support costs local" InputOption="Manually" RegionInput="ClusterRegion">
+        <Element Name="2ndLevelSupportCostsLocal" Caption="2nd Level Support costs local" InputOption="Manually" RegionInput="CountryGroup">
           <InputLevels>
             <InputLevel>ClusterPla</InputLevel>
           </InputLevels>
