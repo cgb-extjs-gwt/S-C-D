@@ -4,6 +4,18 @@ IF OBJECT_ID('dbo.MatrixAllowView', 'V') IS NOT NULL
   DROP VIEW dbo.MatrixAllowView;
 GO
 
+IF OBJECT_ID('dbo.MatrixAllowCountryView', 'V') IS NOT NULL
+  DROP VIEW dbo.MatrixAllowCountryView;
+GO
+
+IF OBJECT_ID('dbo.MatrixDenyView', 'V') IS NOT NULL
+  DROP VIEW dbo.MatrixDenyView;
+GO
+
+IF OBJECT_ID('dbo.MatrixDenyCountryView', 'V') IS NOT NULL
+  DROP VIEW dbo.MatrixDenyCountryView;
+GO
+
 CREATE VIEW [dbo].[MatrixAllowView] WITH SCHEMABINDING as
    select m.Id as ID, 
 		  wg.Id as 'WgId', wg.Name as 'Wg', 
@@ -28,13 +40,6 @@ GO
 --Create an index on the view.
 CREATE UNIQUE CLUSTERED INDEX ix_MatrixAllowView
     ON MatrixAllowView(id)
-GO
-
---*****************************************************************
-
-IF OBJECT_ID('dbo.MatrixAllowCountryView', 'V') IS NOT NULL
-  DROP VIEW dbo.MatrixAllowCountryView;
-
 GO
 
 CREATE VIEW dbo.MatrixAllowCountryView WITH SCHEMABINDING as
@@ -62,12 +67,6 @@ CREATE UNIQUE CLUSTERED INDEX ix_MatrixAllowCountryView
     ON MatrixAllowCountryView(id)
 GO
 
---****************************************************************************
-
-IF OBJECT_ID('dbo.MatrixDenyView', 'V') IS NOT NULL
-  DROP VIEW dbo.MatrixDenyView;
-GO
-
 CREATE VIEW dbo.MatrixDenyView WITH SCHEMABINDING as
    select m.Id as ID, 
 		  wg.Id as WG_ID, wg.Name as WG_NAME, 
@@ -92,13 +91,6 @@ GO
 --Create an index on the view.
 CREATE UNIQUE CLUSTERED INDEX ix_MatrixDenyView
     ON MatrixDenyView(id)
-GO
-
---*********************************************************************************
-
-IF OBJECT_ID('dbo.MatrixDenyCountryView', 'V') IS NOT NULL
-  DROP VIEW dbo.MatrixDenyCountryView;
-
 GO
 
 CREATE VIEW dbo.MatrixDenyCountryView WITH SCHEMABINDING as

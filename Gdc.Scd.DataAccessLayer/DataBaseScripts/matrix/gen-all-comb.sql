@@ -1,5 +1,6 @@
 use Scd_2;
 
+DELETE FROM Hardware.ServiceCostCalculation;
 DELETE FROM Matrix;
 
 -- Disable all table constraints

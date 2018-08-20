@@ -207,7 +207,7 @@ BEGIN
 
     UPDATE [Hardware].[ServiceCostCalculation] 
            SET FieldServiceCost = dbo.CalcFieldServiceCost(fsc.TimeAndMaterialShare, fsc.TravelCost, fsc.LabourCost, 1, fsc.TravelTime, fsc.RepairTime, 1, afr.TotalAFR)
-    FROM ServiceCost sc
+    FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     LEFT JOIN AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
     LEFT JOIN Hardware.FieldServiceCost fsc ON fsc.Wg = m.WgId and fsc.Country = m.CountryId and fsc.ServiceLocation = m.ServiceLocationId
