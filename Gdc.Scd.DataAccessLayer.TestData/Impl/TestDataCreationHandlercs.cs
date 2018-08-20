@@ -90,13 +90,14 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             yearRepository.Save(years);
             repositorySet.Sync();
 
+            CreateCurrenciesAndExchangeRates();
+
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
 
             var queries = new List<SqlHelper>
             {
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
-                this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts\matrix.sql"));
@@ -211,60 +212,22 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.repositorySet.Sync();
         }
 
-        //private SqlHelper BuildInsertReactionTimeTypeSql()
-        //{
-        //    //2nd Business Day response
-        //    //NBD response
-        //    //4h response
-        //    //NBD recovery
-        //    //24h recovery
-        //    //8h recovery
-        //    //4h recovey
+        private void CreateCurrenciesAndExchangeRates()
+        {
+            var curs = GetCurrencies();
 
-        //    var twoBdQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "2nd Business Day");
-        //    var nbdQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "NBD");
-        //    var fourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "4h");
-        //    var twentyFourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "24h");
-        //    var eightHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "8h");
+            var curRepo = repositorySet.GetRepository<Currency>();
+            curRepo.Save(curs);
+            repositorySet.Sync();
 
-        //    var responseQuery = this.BuildSelectIdByNameQuery(ReactionTypeKey, "response");
-        //    var recoveryQuery = this.BuildSelectIdByNameQuery(ReactionTypeKey, "recovery");
+            var eur = Array.Find(curs, x => string.Equals(x.Name, "EUR", StringComparison.InvariantCultureIgnoreCase));
+            var usd = Array.Find(curs, x => string.Equals(x.Name, "USD", StringComparison.InvariantCultureIgnoreCase));
 
-        //    return
-        //        Sql.Insert(MetaConstants.DependencySchema, "ReactionTimeType", ReactionTimeKey, ReactionTypeKey)
-        //           .Values(new ISqlBuilder[,]
-        //           {
-        //               { twoBdQuery, responseQuery },
-        //               { nbdQuery, responseQuery },
-        //               { fourHourQuery, responseQuery },
-        //               { nbdQuery, recoveryQuery },
-        //               { twentyFourHourQuery, recoveryQuery },
-        //               { eightHourQuery, recoveryQuery },
-        //               { fourHourQuery, recoveryQuery },
-        //           });
-        //}
+            var exRepo = repositorySet.GetRepository<ExchangeRate>();
 
-        //private SqlHelper BuildInsertReactionTimeAvailabilitySql()
-        //{
-        //    //NBD 9x5
-        //    //4h 9x5
-        //    //4h 24x7
-
-        //    var nbdQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "NBD");
-        //    var fourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "4h");
-
-        //    var nineByFive = this.BuildSelectIdByNameQuery(AvailabilityKey, "9x5");
-        //    var twentyFourBySeven = this.BuildSelectIdByNameQuery(AvailabilityKey, "24x7");
-
-        //    return
-        //       Sql.Insert(MetaConstants.DependencySchema, "ReactionTimeAvalability", ReactionTimeKey, AvailabilityKey)
-        //          .Values(new ISqlBuilder[,]
-        //          {
-        //               { nbdQuery, nineByFive },
-        //               { fourHourQuery, nineByFive },
-        //               { fourHourQuery, twentyFourBySeven },
-        //          });
-        //}
+            exRepo.Save(new ExchangeRate { Currency1 = eur, Currency2 = eur, Value = 1 });
+            exRepo.Save(new ExchangeRate { Currency1 = eur, Currency2 = usd, Value = 1.2 });
+        }
 
         private ISqlBuilder BuildSelectIdByNameQuery(string table, string name)
         {
@@ -1079,9 +1042,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private List<Year> GetYearNames()
+        private Year[] GetYearNames()
         {
-            return new List<Year>
+            return new Year[]
             {
                 new Year { Name = "1st year", Value = 1, IsProlongation = false },
                 new Year { Name = "2nd year", Value = 2, IsProlongation = false },
@@ -1092,9 +1055,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private List<ClusterRegion> GetClusterRegions()
+        private ClusterRegion[] GetClusterRegions()
         {
-            return new List<ClusterRegion>
+            return new ClusterRegion[]
             {
                 new ClusterRegion { Name = "EMEIA"},
                 new ClusterRegion { Name = "Japan"},
@@ -1102,12 +1065,12 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private string[] GetCurrenciesNames()
+        private Currency[] GetCurrencies()
         {
-            return new[]
+            return new Currency[]
             {
-                "EUR",
-                "USD"
+                new Currency { Name =  "EUR" },
+                new Currency { Name =  "USD" }
             };
         }
 
@@ -1120,9 +1083,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private List<Duration> GetDurationNames()
+        private Duration[] GetDurationNames()
         {
-            return new List<Duration>
+            return new Duration[]
             {
                 new Duration { Name = "3 Years", Value = 3, IsProlongation = false },
                 new Duration { Name = "4 Years", Value = 4, IsProlongation = false },

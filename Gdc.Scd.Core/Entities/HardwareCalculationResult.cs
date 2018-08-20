@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table(MetaConstants.CalculationTable, Schema = MetaConstants.HardwareScheme)]
+    [Table(MetaConstants.CalculationTable, Schema = MetaConstants.HardwareSchema)]
     public class HardwareCalculationResult : IIdentifiable
     {
         [ForeignKey("Matrix")]

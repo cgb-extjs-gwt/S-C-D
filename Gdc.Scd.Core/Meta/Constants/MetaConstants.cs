@@ -20,6 +20,8 @@
 
         public const string CalculationTable = "ServiceCostCalculation";
 
-        public const string HardwareScheme = "Hardware";
+        public const string HardwareSchema = "Hardware";
+
+        public const string ReferencesSchema = "References";
     }
 }

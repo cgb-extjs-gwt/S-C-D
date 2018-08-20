@@ -54,6 +54,10 @@ IF OBJECT_ID('dbo.UpdateTaxAndDutiesW') IS NOT NULL
     DROP PROCEDURE dbo.UpdateTaxAndDutiesW;
 go
 
+IF OBJECT_ID('dbo.UpdateReinsurance') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateReinsurance;
+go
+
 IF OBJECT_ID('dbo.AfrByDurationView', 'V') IS NOT NULL
   DROP VIEW dbo.AfrByDurationView;
 go
@@ -69,6 +73,29 @@ go
 IF OBJECT_ID('dbo.InstallBaseByCountryView', 'V') IS NOT NULL
   DROP VIEW dbo.InstallBaseByCountryView;
 go
+
+IF OBJECT_ID('dbo.DurationToYearView', 'V') IS NOT NULL
+  DROP VIEW dbo.DurationToYearView;
+go
+
+IF OBJECT_ID('dbo.ReinsuranceByDuration', 'V') IS NOT NULL
+  DROP VIEW dbo.ReinsuranceByDuration;
+go
+
+IF OBJECT_ID('dbo.CalcReinsuranceCost') IS NOT NULL
+  DROP FUNCTION dbo.CalcReinsuranceCost;
+go 
+
+CREATE VIEW [dbo].[DurationToYearView] as 
+    select dur.Id as DurID,
+           dur.Name as DurName,
+           y.Id as YearID,
+           y.Name as YearName,
+           dur.Value,
+           dur.IsProlongation
+    from Dependencies.Duration dur
+    join Dependencies.Year y on dur.Value = y.Value and dur.IsProlongation = y.IsProlongation
+GO
 
 CREATE function [dbo].[CalcFieldServiceCost] (
     @timeAndMaterialShare float,
@@ -182,7 +209,7 @@ create view [dbo].[InstallBaseByCountryView] as
             ib.InstalledBaseCountry as ibCnt,
             ibp.totalIB as ib_Cnt_PLA
     from Atom.InstallBase ib
-    left join InstallBasePlaCte ibp on ibp.Pla = ib.Pla and ibp.Country = ib.Country
+    LEFT JOIN InstallBasePlaCte ibp on ibp.Pla = ib.Pla and ibp.Country = ib.Country
 GO
 
 CREATE FUNCTION [dbo].[GetAfr](@wg bigint, @dur bigint)
@@ -195,6 +222,53 @@ BEGIN
     SELECT @result = TotalAFR from AfrByDurationView where WgID = @wg and DurID = @dur
 
     RETURN @result;
+
+END
+GO
+
+CREATE FUNCTION [dbo].[CalcReinsuranceCost](@fee float, @upliftFactor float, @exchangeRate float)
+RETURNS float
+AS
+BEGIN
+    RETURN @fee * @upliftFactor * @exchangeRate
+END
+GO
+
+CREATE VIEW [dbo].[ReinsuranceByDuration] as
+    with ExchangeRateCte(Currency, ExchangeRate) as 
+    (
+       select er.Currency2Id, er.Value
+       from [References].ExchangeRate er,
+            [References].Currency c
+       where er.Currency1Id = c.Id
+             AND upper(c.Name) = 'EUR'
+    )
+    SELECT r.Wg, 
+           dur.DurID as  Duration,
+           rta.AvailabilityId, 
+           rta.ReactionTimeId,
+           dbo.CalcReinsuranceCost(r.ReinsuranceFlatfee, r.[ReinsuranceUplift factor], er.ExchangeRate) as Cost
+    FROM Hardware.Reinsurance r
+    JOIN Dependencies.ReactionTime_Avalability rta on rta.Id = r.ReactionTimeAvailability
+    JOIN Dependencies.Year y on y.Id = r.Year
+    JOIN DurationToYearView dur on dur.YearID = y.Id
+    LEFT JOIN ExchangeRateCte er on er.Currency = r.CurrencyReinsurance
+GO
+
+CREATE PROCEDURE [dbo].[UpdateReinsurance]
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    UPDATE [Hardware].[ServiceCostCalculation] 
+           SET Reinsurance = rd.Cost
+    FROM [Hardware].[ServiceCostCalculation] sc
+    INNER JOIN Matrix m ON sc.MatrixId = m.Id
+    LEFT JOIN ReinsuranceByDuration rd on rd.Wg = m.WgId 
+              AND rd.Duration = m.DurationId 
+              AND rd.AvailabilityId = m.AvailabilityId 
+              AND rd.ReactionTimeId = m.ReactionTimeId
 
 END
 GO
