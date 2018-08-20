@@ -83,6 +83,7 @@ export class EditGrid extends React.Component<EditGridProps> {
 
     private buildStore() {
         const { items, onItemEdited } = this.props;
+        const me = this;
 
         return Ext.create('Ext.data.Store', {
             data: Array.from(this.itemsMap.values()),
@@ -91,6 +92,12 @@ export class EditGrid extends React.Component<EditGridProps> {
                     if (modifiedFieldNames[0] === 'name') {
                         record.reject();
                     } else {
+                        const item = record.data as EditItem;
+
+                        me.itemsMap.set(item.id, item);
+                        
+                        record.set('valueCount', 1);
+
                         onItemEdited(record.data);
                     }
                 }
