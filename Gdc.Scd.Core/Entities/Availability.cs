@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 
-namespace Gdc.Scd.BusinessLogicLayer.Entities
+namespace Gdc.Scd.Core.Entities
 {
-    [Table("Wg", Schema = MetaConstants.InputLevelSchema)]
-    public class Wg : NamedId
+    [Table("Availability", Schema = MetaConstants.DependencySchema)]
+    public class Availability : NamedId
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id
@@ -13,9 +12,5 @@ namespace Gdc.Scd.BusinessLogicLayer.Entities
             get => base.Id;
             set => base.Id = value;
         }
-
-        public long? RoleCodeId { get; set; }
-        public RoleCode RoleCode { get; set; }
-
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Xml.Linq;
 using Gdc.Scd.Core.Meta.Entities;
@@ -134,7 +135,9 @@ namespace Gdc.Scd.Core.Meta.Impl
             var inputTypeAttribute = node.Attribute(InputTypeAttributeName);
             if (inputTypeAttribute != null)
             {
-                costElementMeta.InputType = Enum.Parse<InputType>(inputTypeAttribute.Value);
+                InputType type;
+                Enum.TryParse<InputType>(inputTypeAttribute.Value, out type);
+                costElementMeta.InputType = type;
             }
 
             var typeNode = node.Element(TypeOptionNodeName);

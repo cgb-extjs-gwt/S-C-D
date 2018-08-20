@@ -53,7 +53,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             this.CreatePlas();
             this.CreateUsers();
-            //this.CreateRolecodes();
+            this.CreateReactionTimeTypeAvalability();
 
             var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
             var countryRepository = repositorySet.GetRepository<Country>();
@@ -74,23 +74,15 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             var queries = new List<SqlHelper>
             {
-                //this.BuildInsertSql(plaInputLevelMeta, this.GetPlaNames()),
-                //this.BuildInsertSql(wgInputLevelMeta, this.GetWarrantyGroupNames()),
-
-                this.BuildInsertSql(MetaConstants.DependencySchema, RoleCodeKey, this.GetRoleCodeNames()),
+                this.BuildInsertSql(MetaConstants.InputLevelSchema, RoleCodeKey, this.GetRoleCodeNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
-                this.BuildInsertSql(new NamedEntityMeta(ReactionTimeKey, MetaConstants.DependencySchema), this.GetReactionTimeCodeNames()),
-                this.BuildInsertSql(new NamedEntityMeta(ReactionTypeKey, MetaConstants.DependencySchema), this.GetReactionTypeNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, YearKey, this.GetYearNames()),
                 this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
-                this.BuildInsertSql(MetaConstants.DependencySchema, AvailabilityKey, this.GetAvailabilityNames()),
                 this.BuildInsertSql(new NamedEntityMeta(DurationKey, MetaConstants.DependencySchema), this.GetDurationNames()),
-                //this.BuildInsertReactionTimeTypeSql(),
-                //this.BuildInsertReactionTimeAvailabilitySql()
-                
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts\matrix.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts\availabilityFee.sql"));
 
             foreach (var query in queries)
             {
@@ -126,93 +118,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             return this.BuildInsertSql(entityMeta, names);
         }
 
-        //private IEnumerable<SqlHelper> BuildInsertCostBlockSql()
-        //{
-        //    var countries = this.GetCountrieNames();
-        //    var plas = this.GetPlaNames();
-        //    var warrantyGroups = this.GetWarrantyGroupNames();
-        //    //var roleCodes = this.GetRoleCodeNames();
-        //    var serviceLocations = this.GetServiceLocationCodeNames();
-        //    var reactionTimes = this.GetReactionTimeCodeNames();
-        //    var map = new Dictionary<string, string[]>
-        //    {
-        //        [CountryLevelId] = countries,
-        //        [PlaLevelId] = plas,
-        //        [WgLevelId] = warrantyGroups,
-        //        //[RoleCodeKey] = roleCodes,
-        //        [ServiceLocationKey] = serviceLocations,
-        //        [ReactionTimeKey] = reactionTimes
-        //    };
-
-        //    var countryLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
-        //    var firtsCountryQuery = this.BuildSelectIdByNameQuery(countryLevelMeta, countries[0], "Country_0");
-
-        //    var inputLevels = new HashSet<string> { CountryLevelId, PlaLevelId, WgLevelId };
-        //    var costBlocks = 
-        //        this.entityMetas.CostBlocks.Where(
-        //            costBlock => costBlock.InputLevelFields.All(field => inputLevels.Contains(field.Name)));
-
-        //    foreach (var costBlockMeta in costBlocks)
-        //    {
-        //        var fieldNames = 
-        //            map.Keys.Where(fieldName => costBlockMeta.AllFields.Any(costBlockField => costBlockField.Name == fieldName))
-        //                    .ToArray();
-
-        //        var insertValues = new ISqlBuilder[warrantyGroups.Length, fieldNames.Length];
-
-        //        for (var warrantyGroupIndex = 0; warrantyGroupIndex < warrantyGroups.Length; warrantyGroupIndex++)
-        //        {
-        //            insertValues[warrantyGroupIndex, 0] = firtsCountryQuery;
-
-        //            for (var fieldIndex = 1; fieldIndex < fieldNames.Length; fieldIndex++)
-        //            {
-        //                var fieldName = fieldNames[fieldIndex];
-        //                var refNames = map[fieldName];
-        //                var refNameIndex = warrantyGroupIndex - warrantyGroupIndex / refNames.Length * refNames.Length;
-        //                var refName = refNames[refNameIndex];
-
-        //                var refField = costBlockMeta.InputLevelFields[fieldName] ?? (ReferenceFieldMeta)costBlockMeta.DependencyFields[fieldName];
-
-        //                insertValues[warrantyGroupIndex, fieldIndex] = 
-        //                    this.BuildSelectIdByNameQuery((NamedEntityMeta)refField.ReferenceMeta, refName, $"{fieldName}_{warrantyGroupIndex}");
-        //            }
-        //        }
-
-        //        yield return Sql.Insert(costBlockMeta, fieldNames).Values(insertValues);
-
-        //        var columns = new List<ColumnInfo>
-        //        {
-        //            new ColumnInfo(countryLevelMeta.IdField.Name, countryLevelMeta.Name)
-        //        };
-        //        columns.AddRange(
-        //            fieldNames.Where(field => field != CountryLevelId)
-        //                      .Select(fieldName => new ColumnInfo(fieldName, costBlockMeta.Name)));
-
-        //        yield return
-        //            Sql.Insert(costBlockMeta, fieldNames)
-        //               .Query(
-        //                    Sql.Select(columns.ToArray())
-        //                       .From(countryLevelMeta)
-        //                       .Join(
-        //                            costBlockMeta,
-        //                            SqlOperators.Equals(
-        //                                new ColumnSqlBuilder(new ColumnInfo(CountryLevelId, costBlockMeta.Name)),
-        //                                firtsCountryQuery))
-        //                       .Where(SqlOperators.NotEquals(countryLevelMeta.NameField.Name, "firstCountry", countries[0], countryLevelMeta.Name)));
-        //    }
-        //}
-
-        //private ISqlBuilder BuildSelectIdByNameQuery(NamedEntityMeta meta, string name, string paramName)
-        //{
-        //    return new BracketsSqlBuilder
-        //    {
-        //        SqlBuilder = Sql.Select(new ColumnInfo { Name = meta.IdField.Name, TableName = meta.Name })
-        //                        .From(meta)
-        //                        .Where(SqlOperators.Equals(meta.NameField.Name, paramName, name, meta.Name))
-        //                        .ToSqlBuilder()
-        //    };
-        //}
-
         private IEnumerable<SqlHelper> BuildInsertCostBlockSql()
         {
             foreach (var costBlockMeta in this.entityMetas.CostBlocks)
@@ -239,7 +144,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     referenceFields.Remove(plaField);
                 }
 
-                IJoinSqlHelper<SelectJoinSqlHelper> selectQuery = Sql.Select(selectColumns.ToArray()).From(referenceFields[0].ReferenceMeta);
+                var selectQuery = Sql.Select(selectColumns.ToArray()).From(referenceFields[0].ReferenceMeta);
 
                 for (var i = 1; i < referenceFields.Count; i++)
                 {
@@ -248,63 +153,43 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     selectQuery = selectQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
                 }
 
-                yield return Sql.Insert(costBlockMeta, insertFields.ToArray()).Query((SqlHelper)selectQuery);
+                yield return Sql.Insert(costBlockMeta, insertFields.ToArray()).Query(selectQuery);
             }
         }
 
-        private SqlHelper BuildInsertReactionTimeTypeSql()
+        private void CreateReactionTimeTypeAvalability()
         {
-            //2nd Business Day response
-            //NBD response
-            //4h response
-            //NBD recovery
-            //24h recovery
-            //8h recovery
-            //4h recovey
+            var twoBusinessDay = new ReactionTime { Name = "2nd Business Day" };
+            var nbd = new ReactionTime { Name = "NBD" };
+            var fourHour = new ReactionTime { Name = "4h" };
+            var twentyFourHour = new ReactionTime { Name = "24h" };
+            var eightHour = new ReactionTime { Name = "8h" };
 
-            var twoBdQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "2nd Business Day");
-            var nbdQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "NBD");
-            var fourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "4h");
-            var twentyFourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "24h");
-            var eightHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "8h");
+            var response = new ReactionType { Name = "response" };
+            var recovery = new ReactionType { Name = "recovery" };
 
-            var responseQuery = this.BuildSelectIdByNameQuery(ReactionTypeKey, "response");
-            var recoveryQuery = this.BuildSelectIdByNameQuery(ReactionTypeKey, "recovery");
+            this.repositorySet.GetRepository<ReactionTimeType>().Save(new List<ReactionTimeType>
+            {
+                new ReactionTimeType { ReactionTime = twoBusinessDay, ReactionType = response },
+                new ReactionTimeType { ReactionTime = nbd, ReactionType = response },
+                new ReactionTimeType { ReactionTime = fourHour, ReactionType = response },
+                new ReactionTimeType { ReactionTime = nbd, ReactionType = recovery },
+                new ReactionTimeType { ReactionTime = twentyFourHour, ReactionType = recovery },
+                new ReactionTimeType { ReactionTime = eightHour, ReactionType = recovery },
+                new ReactionTimeType { ReactionTime = fourHour, ReactionType = recovery },
+            });
 
-            return
-                Sql.Insert(MetaConstants.DependencySchema, $"{ReactionTimeKey}_{ReactionTypeKey}", ReactionTimeKey, ReactionTypeKey)
-                   .Values(new ISqlBuilder[,]
-                   {
-                       { twoBdQuery, responseQuery },
-                       { nbdQuery, responseQuery },
-                       { fourHourQuery, responseQuery },
-                       { nbdQuery, recoveryQuery },
-                       { twentyFourHourQuery, recoveryQuery },
-                       { eightHourQuery, recoveryQuery },
-                       { fourHourQuery, recoveryQuery },
-                   });
-        }
+            var nineByFive = new Availability { Name = "9x5" };
+            var twentyFourBySeven = new Availability { Name = "24x7" };
 
-        private SqlHelper BuildInsertReactionTimeAvailabilitySql()
-        {
-            //NBD 9x5
-            //4h 9x5
-            //4h 24x7
+            this.repositorySet.GetRepository<ReactionTimeAvalability>().Save(new List<ReactionTimeAvalability>
+            {
+                new ReactionTimeAvalability { ReactionTime = nbd, Availability = nineByFive },
+                new ReactionTimeAvalability { ReactionTime = fourHour, Availability = nineByFive },
+                new ReactionTimeAvalability { ReactionTime = fourHour, Availability = twentyFourBySeven },
+            });
 
-            var nbdQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "NBD");
-            var fourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "4h");
-
-            var nineByFive = this.BuildSelectIdByNameQuery(AvailabilityKey, "9x5");
-            var twentyFourBySeven = this.BuildSelectIdByNameQuery(AvailabilityKey, "24x7");
-
-            return
-               Sql.Insert(MetaConstants.DependencySchema, $"{ReactionTimeKey}_{AvailabilityKey}", ReactionTimeKey, AvailabilityKey)
-                  .Values(new ISqlBuilder[,]
-                  {
-                       { nbdQuery, nineByFive },
-                       { fourHourQuery, nineByFive },
-                       { fourHourQuery, twentyFourBySeven },
-                  });
+            this.repositorySet.Sync();
         }
 
         private ISqlBuilder BuildSelectIdByNameQuery(string table, string name)
@@ -324,7 +209,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private IEnumerable<SqlHelper> BuildFromFile(string fn)
         {
-            return ReadText(fn).Split("go")
+            return ReadText(fn).Split(new[] { "go" }, StringSplitOptions.None)
                                .Where(x => !string.IsNullOrWhiteSpace(x))
                                .Select(x => new SqlHelper(new RawSqlBuilder() { RawSql = x }));
         }
@@ -1321,27 +1206,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private string[] GetReactionTimeCodeNames()
-        {
-            return new string[]
-            {
-                "2nd Business Day",
-                "NBD",
-                "24h",
-                "8h",
-                "4h"
-            };
-        }
-
-        private string[] GetReactionTypeNames()
-        {
-            return new[]
-            {
-                "response",
-                "recovery"
-            };
-        }
-
         private string[] GetYearNames()
         {
             return new[]
@@ -1364,15 +1228,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private string[] GetAvailabilityNames()
-        {
-            return new string[]
-            {
-                "9x5",
-                "24x7"
-            };
-        }
-
         private string[] GetDurationNames()
         {
             return new string[]
@@ -1383,6 +1238,18 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "1d",
                 "1d 3h",
                 "7d"
+            };
+        }
+
+        private string[] GetRoleCodeNames()
+        {
+            return new string[]
+            {
+                "SEFS05",
+                "SEFS06",
+                "SEFS04",
+                "SEIE07",
+                "SEIE08",
             };
         }
 

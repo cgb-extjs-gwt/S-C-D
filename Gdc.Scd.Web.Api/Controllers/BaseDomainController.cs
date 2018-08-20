@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Web.Api.Entities;

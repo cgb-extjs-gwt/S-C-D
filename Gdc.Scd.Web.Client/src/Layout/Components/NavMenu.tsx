@@ -35,10 +35,12 @@ const NavMenu: React.SFC<NavMenuProps & any> = ({
                     { id: '/cost-approval', text: 'Approve cost elements', iconCls: 'x-fa fa-check-square-o', leaf: true},
                     { id: '/capability-matrix', text: 'Portfolio', iconCls: 'x-fa fa-suitcase', leaf: true },
                     {
-                        id: '/admin', text: 'Admin', iconCls: 'x-fa fa-cogs', disabled: true, children: [
-                            {
-                                id: '/admin/country-management',
-                                text: 'Country Management', iconCls: 'x-fa fa-globe', leaf: true
+                        id: '/admin', text: 'Admin', iconCls: 'x-fa fa-info', disabled: true, children: [{
+                            id: '/admin/country-management',
+                            text: 'Country Management', iconCls: 'x-fa fa-globe', leaf: true
+                        }, {
+                            id: '/admin/availability-fee',
+                            text: 'Availability Fee', iconCls: 'x-fa fa-cog', leaf: true
                             },
                             {
                                 id: '/admin/role-code-management',

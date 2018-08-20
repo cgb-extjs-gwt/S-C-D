@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
@@ -12,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Gdc.Scd.DataAccessLayer.Helpers;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -127,6 +129,55 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return Database.ExecuteSqlCommandAsync(sql, parameters);
         }
 
+        public List<T> ExecuteProc<T>(string procName, 
+            params DbParameter[] parameters) 
+            where T : new()
+        {
+            using (var connection = Database.GetDbConnection())
+            {
+                connection.Open();
+                DbCommand dbCommand = connection.CreateCommand();
+                dbCommand.CommandText = procName;
+                dbCommand.CommandType = CommandType.StoredProcedure;
+                foreach (var param in parameters)
+                    dbCommand.Parameters.Add(param);
+                List<T> entities;
+                using (var reader = dbCommand.ExecuteReader())
+                {
+                    entities = reader.MapToList<T>();
+                }
+
+                return entities.ToList();
+            }
+        }
+
+        public List<T> ExecuteProc<T, V>(string procName, DbParameter outParam, 
+            out V returnVal,
+            params DbParameter[] parameters)
+            where T : new()
+        {
+            using (var connection = Database.GetDbConnection())
+            {
+                connection.Open();
+                DbCommand dbCommand = connection.CreateCommand();
+                dbCommand.CommandText = procName;
+                dbCommand.CommandType = CommandType.StoredProcedure;
+                foreach (var param in parameters)
+                    dbCommand.Parameters.Add(param);
+                dbCommand.Parameters.Add(outParam);
+
+                List<T> entities;
+                using (var reader = dbCommand.ExecuteReader())
+                {
+                    entities = reader.MapToList<T>();
+                }
+
+                returnVal = outParam.Value == null ? default(V) : (V)outParam.Value;
+
+                return entities;
+            }
+        }
+
         public IEnumerable<Type> GetRegisteredEntities()
         {
             return RegisteredEntities.Keys.ToArray();
@@ -152,7 +203,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-
             optionsBuilder.UseSqlServer(this.configuration.GetSection("ConnectionStrings")["CommonDB"]);
         }
 

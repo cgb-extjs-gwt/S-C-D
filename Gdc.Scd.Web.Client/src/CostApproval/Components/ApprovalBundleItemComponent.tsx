@@ -43,7 +43,7 @@ export class ApprovalBundleItemComponent extends React.Component<ApprovalBundleI
             >
                 {
                     this.state.isFirstExpand &&
-                    <ApprovalValuesContainerComponent bandleId={id} costBlockId={costBlock.id} onHandled={onHandled}/>
+                    <ApprovalValuesContainerComponent bundleId={id} costBlockId={costBlock.id} onHandled={onHandled}/>
                 }
             </Panel>
         );

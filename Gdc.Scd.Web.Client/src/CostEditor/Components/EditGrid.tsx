@@ -1,12 +1,9 @@
-import * as React from 'react';
+import * as React from "react";
+import { Grid, SelectField, Column, Container } from "@extjs/ext-react";
 import { FieldType } from "../States/CostEditorStates";
 import { EditItem } from "../States/CostBlockStates";
-import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField} from '@extjs/ext-react';
-import { NamedId } from '../../Common/States/CommonStates';
-
-Ext.require([
-    'Ext.grid.plugin.CellEditing', 
-]);
+import { NamedId } from "../../Common/States/CommonStates";
+import { large, small } from "../../responsiveFormulas";
 
 export interface ValueColumnProps {
     title: string
@@ -14,116 +11,98 @@ export interface ValueColumnProps {
     selectedItems: NamedId<number>[]
 }
 
-export interface EditProps {
+export interface EditGridActions {
+    onItemEdited?(item: EditItem)
+    onSelected?(items: EditItem[])
+}
+
+export interface EditGridProps extends EditGridActions {
     nameColumnTitle: string
     valueColumn: ValueColumnProps
     items: EditItem[]
-    isEnableSave: boolean
-    isEnableClear: boolean
-    isEnableApplyFilters: boolean
-    flex?: number
 }
 
-export interface EditActions {
-    onItemEdited?(item: EditItem)
-    onApplyFilters?()
-    onCleared?()
-    onSaving?(forApproval: boolean)
-}
-  
-export class EditGrid extends React.Component<EditProps & EditActions>  {
+export class EditGrid extends React.Component<EditGridProps> {
+    private itemsMap = new Map<string, EditItem>();
+        
+    public shouldComponentUpdate(nextProps: EditGridProps) {
+        let result = false;
+
+        const { items } = nextProps;
+
+        if (!items || items.length != this.itemsMap.size) {
+            result = true;
+        } else {
+            result = !items.every(item => { 
+                const mapItem = this.itemsMap.get(item.id);
+
+                return (
+                    mapItem.name == item.name && 
+                    mapItem.value == item.value && 
+                    mapItem.valueCount == item.valueCount
+                );
+            });
+        }
+
+        if (result && nextProps.items) {
+            this.itemsMap.clear();
+            
+            for (const item of nextProps.items) {
+                this.itemsMap.set(item.id, { ...item });
+            }
+        }
+
+        return result;
+    }
 
     public render() {
-        const props = this.props;
-
-        const store = Ext.create('Ext.data.Store', {
-            data: props.items && props.items.map(item => ({
-                ...item, 
-                value: item.valueCount == 1 ? item.value : 0
-            })),
-            listeners: props.onItemEdited && {
-                update: ((store, record, operation, modifiedFieldNames, details) => {
-                    if (modifiedFieldNames[0] === 'name') {
-                        record.reject();
-                    } else {
-                        //HACK: Need for displaying new value.
-                        record.set('valueCount', 1);
-    
-                        props.onItemEdited(record.data);
-                    }
-                })
-            }
-        });
+        const { nameColumnTitle, valueColumn } = this.props;
+        const store = this.buildStore();
 
         return (
             <Grid 
-            store={store} 
-            flex={props.flex} 
-            shadow 
-            columnLines={true}
-            plugins={['cellediting', 'selectionreplicator']}
-            selectable={{
-                rows: true,
-                cells: true,
-                columns: true,
-                drag: true,
-                extensible: 'y'
-            }}
+                flex={1}
+                store={store} 
+                shadow 
+                columnLines={true}
+                plugins={['cellediting', 'selectionreplicator']}
+                selectable={{
+                    rows: true,
+                    cells: true,
+                    columns: true,
+                    drag: true,
+                    extensible: 'y',
+                }}
+                onSelectionchange={this.onSelected}
             >
-            <Toolbar docked="top">
-                <Button 
-                    text="Apply filters" 
-                    flex={1} 
-                    disabled={!props.isEnableApplyFilters}
-                    handler={props.onApplyFilters}
-                />
-            </Toolbar>
-            
-            <Column text={props.nameColumnTitle} dataIndex="name" flex={1} extensible={false} />
-            {this.getValueColumn(props.valueColumn)}
-    
-            <Toolbar docked="bottom">
-                <Button 
-                    text="Clear" 
-                    flex={1} 
-                    disabled={!props.isEnableClear}
-                    handler={() => this.showClearDialog()}
-                />
-                <Button 
-                    text="Save" 
-                    flex={1} 
-                    disabled={!props.isEnableSave}
-                    handler={() => this.showSaveDialog(false)}
-                />
-                <Button 
-                    text="Save and send for approval" 
-                    flex={1} 
-                    disabled={!props.isEnableSave}
-                    handler={() => this.showSaveDialog(true)}
-                />
-            </Toolbar>
+                <Column text={nameColumnTitle} dataIndex="name" flex={1} extensible={false} />
+                {this.getValueColumn(valueColumn)}
             </Grid>
         );
     }
 
-    private showSaveDialog(forApproval: boolean) {
-        const { onSaving } = this.props;
-    
-        Ext.Msg.confirm(
-          'Saving changes', 
-          'Do you want to save the changes?',
-          (buttonId: string) => onSaving && onSaving(forApproval)
-        );
-      }
-    
-    private showClearDialog() {
-        const { onCleared } = this.props;
+    private buildStore() {
+        const { items, onItemEdited } = this.props;
+        const me = this;
 
-        Ext.Msg.confirm(
-            'Clearing changes', 
-            'Do you want to clear the changes??',
-            (buttonId: string) => onCleared && onCleared()
-        );
+        return Ext.create('Ext.data.Store', {
+            data: Array.from(this.itemsMap.values()),
+            listeners: onItemEdited && {
+                update: (store, record, operation, modifiedFieldNames, details) => {
+                    if (modifiedFieldNames[0] === 'name') {
+                        record.reject();
+                    } else {
+                        const item = record.data as EditItem;
+
+                        me.itemsMap.set(item.id, item);
+                        
+                        record.set('valueCount', 1);
+
+                        onItemEdited(record.data);
+                    }
+                }
+            }
+        }); 
     }
 
     private getValueColumn(columProps: ValueColumnProps) {
@@ -174,4 +153,14 @@ export class EditGrid extends React.Component<EditProps & EditActions>  {
     private getValueCountMessage(editItem: EditItem) {
         return `(${editItem.valueCount} values)`
     }
-}
+
+    private onSelected = (grid, records: { data: EditItem }[]) => {
+        const { onSelected } = this.props;
+
+        if (onSelected) {
+            const editItems = records.map(record => record.data);
+
+            onSelected(editItems);
+        }
+    }
+} 

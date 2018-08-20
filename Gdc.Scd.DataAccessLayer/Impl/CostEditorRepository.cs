@@ -48,7 +48,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 {
                     Id = reader.GetInt64(0),
                     Name = reader.GetString(1),
-                    Value = valueCount == 1 ? reader.GetValue(2) : null,
+                    Value = valueCount == 1 ? reader.GetValue(2) : 0,
                     ValueCount = valueCount,
                 };
             });
@@ -79,9 +79,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 editItem.Value,
                 $"{editItemInfo.ValueField}_{index}");
 
-            filter = new Dictionary<string, IEnumerable<object>>(filter ?? Enumerable.Empty<KeyValuePair<string, IEnumerable<object>>>())
+            //filter = new Dictionary<string, IEnumerable<object>>(filter ?? Enumerable.Empty<KeyValuePair<string, IEnumerable<object>>>())
+            filter = new Dictionary<string, IEnumerable<object>>(filter ?? new Dictionary<string, IEnumerable<object>>())       
             {
-                [editItemInfo.NameField] = new object [] 
+                [editItemInfo.NameField] = new object []
                 {
                     new CommandParameterInfo
                     {

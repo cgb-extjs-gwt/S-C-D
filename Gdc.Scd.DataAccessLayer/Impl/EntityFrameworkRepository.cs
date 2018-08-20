@@ -60,13 +60,16 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 var entry = this.repositorySet.Entry(item);
 
-                if (this.IsNewItem(item))
+                if (entry.State == EntityState.Detached)
                 {
-                    entry.State = EntityState.Added;
-                }
-                else
-                {
-                    entry.State = EntityState.Modified;
+                    if (this.IsNewItem(item))
+                    {
+                        entry.State = EntityState.Added;
+                    }
+                    else
+                    {
+                        entry.State = EntityState.Modified;
+                    }
                 }
             }
         }
