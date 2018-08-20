@@ -27,12 +27,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IEmailService emailService;
 
+        private readonly ICostBlockFilterBuilder costBlockFilterBuilder;
+
         public CostBlockHistoryService(
             IRepositorySet repositorySet,
             IUserService userService,
             ICostBlockValueHistoryRepository costBlockValueHistoryRepository,
             ISqlRepository sqlRepository,
             IEmailService emailService,
+            ICostBlockFilterBuilder costBlockFilterBuilder,
             DomainMeta domainMeta,
             DomainEnitiesMeta domainEnitiesMeta)
         {
@@ -43,6 +46,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.domainEnitiesMeta = domainEnitiesMeta;
             this.sqlRepository = sqlRepository;
             this.emailService = emailService;
+            this.costBlockFilterBuilder = costBlockFilterBuilder;
         }
 
         public IQueryable<CostBlockHistory> GetHistories()
@@ -125,6 +129,20 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return historyDtos;
         }
 
+        public async Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(CostEditorContext context, long editItemId, QueryInfo queryInfo = null)
+        {
+            var historyContext = this.BuildHistoryContext(context);
+            var filter = this.costBlockFilterBuilder.BuildFilter(context);
+            var region = this.domainMeta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId].RegionInput;
+
+            if (region == null || region.Id != context.InputLevelId)
+            {
+                filter.Add(context.InputLevelId, new object[] { editItemId });
+            }
+
+            return await this.costBlockValueHistoryRepository.GetCostBlockHistoryValueDto(historyContext, filter, queryInfo);
+        }
+
         public async Task Approve(long historyId)
         {
             var historyRepository = this.repositorySet.GetRepository<CostBlockHistory>();
@@ -199,14 +217,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 EditDate = DateTime.UtcNow,
                 EditUser = this.userService.GetCurrentUser(),
                 State = forApproval ? CostBlockHistoryState.Pending : CostBlockHistoryState.None,
-                Context = new HistoryContext
-                {
-                    ApplicationId = context.ApplicationId,
-                    RegionInputId = context.RegionInputId,
-                    CostBlockId = context.CostBlockId,
-                    CostElementId = context.CostElementId,
-                    InputLevelId = context.InputLevelId,
-                },
+                Context = this.BuildHistoryContext(context),
                 EditItemCount = editItemArray.Length,
                 IsDifferentValues = isDifferentValues
             };
@@ -216,12 +227,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             costBlockHistoryRepository.Save(history);
             this.repositorySet.Sync();
 
-            var relatedItems = new Dictionary<string, long[]>();
+            var relatedItems = new Dictionary<string, long[]>
+            {
+                [context.InputLevelId] = editItems.Select(item => item.Id).ToArray()
+            };
 
             var costBlockMeta = this.domainMeta.CostBlocks[context.CostBlockId];
             var costElementMeta = costBlockMeta.CostElements[context.CostElementId];
 
             if (costElementMeta.RegionInput != null &&
+                costElementMeta.RegionInput.Id != context.InputLevelId &&
                 context.RegionInputId != null)
             {
                 relatedItems.Add(costElementMeta.RegionInput.Id, new[] { context.RegionInputId.Value });
@@ -288,6 +303,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return query;
+        }
+
+        private HistoryContext BuildHistoryContext(CostEditorContext context)
+        {
+            return new HistoryContext
+            {
+                ApplicationId = context.ApplicationId,
+                RegionInputId = context.RegionInputId,
+                CostBlockId = context.CostBlockId,
+                CostElementId = context.CostElementId,
+                InputLevelId = context.InputLevelId,
+            };
         }
     }
 }

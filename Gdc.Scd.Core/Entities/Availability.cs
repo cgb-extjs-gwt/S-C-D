@@ -1,8 +1,7 @@
-﻿using Gdc.Scd.Core.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using Gdc.Scd.Core.Meta.Constants;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Gdc.Scd.BusinessLogicLayer.Entities
+namespace Gdc.Scd.Core.Entities
 {
     [Table("Availability", Schema = MetaConstants.DependencySchema)]
     public class Availability : NamedId

@@ -2,28 +2,26 @@ import { connect } from "react-redux";
 import { ApprovalValuesProps, ColumnInfo, ApprovalValuesActions, ApprovalValuesViewComponent } from "./ApprovalValuesViewComponent";
 import { CommonState } from "../../Layout/States/AppStates";
 import * as CostApprovalService from "../Services/CostApprovalService"
-import { CONTROLLER_NAME } from "../Services/CostApprovalService"
-import { API_URL } from "../../Common/Services/Ajax";
+import { API_URL, buildMvcUrl } from "../../Common/Services/Ajax";
 import { NamedId } from "../../Common/States/CommonStates";
+import { buildGetHistoryValueTableUrl } from "../Services/CostApprovalService";
 
 export interface ApprovalValuesContainerProps {
-    bandleId: number
+    bundleId: number
     costBlockId: string
     onHandled?()
 }
 
 export const ApprovalValuesContainerComponent = 
     connect<ApprovalValuesProps, ApprovalValuesActions, ApprovalValuesContainerProps, CommonState>(
-        (state, { bandleId, costBlockId }) => {
+        (state, { bundleId, costBlockId }) => {
             const meta = state.app.appMetaData;
 
             let columns: ColumnInfo[];
             let dataLoadUrl: string;
             
             if (meta) {
-                dataLoadUrl = Ext.urlAppend(
-                    `${API_URL}${CONTROLLER_NAME}/GetHistoryValueTable`, 
-                    Ext.urlEncode({ costBlockHistoryId: bandleId }, true));
+                dataLoadUrl = buildGetHistoryValueTableUrl(bundleId);
 
                 const costBlock = meta.costBlocks.find(item => item.id === costBlockId);
                 const dependencyColumnsMap = new Map<string, ColumnInfo>();
@@ -51,16 +49,16 @@ export const ApprovalValuesContainerComponent =
             return <ApprovalValuesProps>{
                 dataLoadUrl,
                 columns,
-                id: bandleId.toString()
+                id: bundleId.toString()
             }
         },
-        (dispatch, { bandleId, costBlockId, onHandled }) => ({
+        (dispatch, { bundleId, costBlockId, onHandled }) => ({
             onApprove: () => {
-                CostApprovalService.approve(bandleId)
+                CostApprovalService.approve(bundleId)
                 onHandled && onHandled();
             },
             onSendBackToRequestor: message => {
-                CostApprovalService.reject(bandleId, message);
+                CostApprovalService.reject(bundleId, message);
                 onHandled && onHandled();
             }
         })

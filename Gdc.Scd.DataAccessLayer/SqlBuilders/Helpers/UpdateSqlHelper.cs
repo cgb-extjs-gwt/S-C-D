@@ -4,7 +4,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class UpdateSqlHelper : SqlHelper, IWhereSqlHelper<SqlHelper>, IFromSqlHelper<UpdateFromSqlHelper>
+    public class UpdateSqlHelper : SqlHelper, IWhereSqlHelper<SqlHelper>, IFromSqlHelper<UpdateCommonSqlHelper>
     {
         private readonly WhereSqlHelper whereHelper;
 
@@ -17,24 +17,24 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             this.fromSqlHelper = new FromSqlHepler(sqlBuilder);
         }
 
-        public UpdateFromSqlHelper From(string tabeName, string schemaName = null, string dataBaseName = null, string alias = null)
+        public UpdateCommonSqlHelper From(string tabeName, string schemaName = null, string dataBaseName = null, string alias = null)
         {
-            return new UpdateFromSqlHelper(this.fromSqlHelper.From(tabeName, schemaName, dataBaseName, alias));
+            return new UpdateCommonSqlHelper(this.fromSqlHelper.From(tabeName, schemaName, dataBaseName, alias));
         }
 
-        public UpdateFromSqlHelper From(BaseEntityMeta meta, string alias = null)
+        public UpdateCommonSqlHelper From(BaseEntityMeta meta, string alias = null)
         {
-            return new UpdateFromSqlHelper(this.fromSqlHelper.From(meta, alias));
+            return new UpdateCommonSqlHelper(this.fromSqlHelper.From(meta, alias));
         }
 
-        public UpdateFromSqlHelper FromQuery(ISqlBuilder query)
+        public UpdateCommonSqlHelper FromQuery(ISqlBuilder query)
         {
-            return new UpdateFromSqlHelper(this.fromSqlHelper.FromQuery(query));
+            return new UpdateCommonSqlHelper(this.fromSqlHelper.FromQuery(query));
         }
 
-        public UpdateFromSqlHelper FromQuery(SqlHelper sqlHelper)
+        public UpdateCommonSqlHelper FromQuery(SqlHelper sqlHelper)
         {
-            return new UpdateFromSqlHelper(this.fromSqlHelper.FromQuery(sqlHelper));
+            return new UpdateCommonSqlHelper(this.fromSqlHelper.FromQuery(sqlHelper));
         }
 
         public SqlHelper Where(ISqlBuilder condition)

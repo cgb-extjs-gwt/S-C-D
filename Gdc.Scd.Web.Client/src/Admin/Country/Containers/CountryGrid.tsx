@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Grid, Column, CheckColumn, Toolbar, Button } from '@extjs/ext-react';
-import * as CountryManagementState from '../../../Dict/States/CountryStates';
 
 
 class CountryGrid extends React.Component{
@@ -15,8 +14,8 @@ class CountryGrid extends React.Component{
         proxy: {
             type: 'ajax',
             api: {
-                read: '/api/CountryManagement/GetAll',
-                update: '/api/CountryManagement/SaveAll'
+                read: '/api/Country/GetAll',
+                update: '/api/Country/SaveAll'
             },
             reader: {
                 type: 'json',
@@ -63,7 +62,6 @@ class CountryGrid extends React.Component{
             failure: (batch, options) =>
             {
                 //TODO: show error
-                this.store.rejectChanges();
                 console.log('this is failure');
             }
             

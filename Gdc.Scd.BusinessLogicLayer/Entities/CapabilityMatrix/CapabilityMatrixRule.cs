@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.Core.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
+using Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix
 {
