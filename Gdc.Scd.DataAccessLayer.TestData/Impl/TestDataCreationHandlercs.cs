@@ -90,17 +90,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             yearRepository.Save(years);
             repositorySet.Sync();
 
-
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
 
             var queries = new List<SqlHelper>
             {
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
-                this.BuildInsertSql(MetaConstants.DependencySchema, YearKey, this.GetYearNames()),
                 this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
-                this.BuildInsertSql(new NamedEntityMeta(DurationKey, MetaConstants.DependencySchema), this.GetDurationNames()),
-                
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts\matrix.sql"));
@@ -1124,7 +1120,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private string[] GetDurationNames()
+        private List<Duration> GetDurationNames()
         {
             return new List<Duration>
             {
