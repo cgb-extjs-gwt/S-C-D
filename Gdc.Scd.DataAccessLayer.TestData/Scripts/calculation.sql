@@ -2,8 +2,8 @@ IF OBJECT_ID('dbo.GetAfr') IS NOT NULL
   DROP FUNCTION dbo.GetAfr;
 go 
 
-IF OBJECT_ID('dbo.CalcField[Hardware].[ServiceCostCalculation]') IS NOT NULL
-  DROP FUNCTION dbo.CalcField[Hardware].[ServiceCostCalculation];
+IF OBJECT_ID('dbo.CalcFieldServiceCost') IS NOT NULL
+  DROP FUNCTION dbo.CalcFieldServiceCost;
 go 
 
 IF OBJECT_ID('dbo.CalcHddRetention') IS NOT NULL
@@ -26,32 +26,32 @@ IF TYPE_ID('dbo.execError') IS NOT NULL
   DROP Type dbo.execError;
 go
 
-IF OBJECT_ID('dbo.UpdateField[Hardware].[ServiceCostCalculation]') IS NOT NULL
-    DROP PROCEDURE dbo.UpdateField[Hardware].[ServiceCostCalculation]
+IF OBJECT_ID('dbo.UpdateFieldServiceCost') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateFieldServiceCost;
 go
 
 IF OBJECT_ID('dbo.UpdateHddRetention') IS NOT NULL
-    DROP PROCEDURE dbo.UpdateHddRetention
+    DROP PROCEDURE dbo.UpdateHddRetention;
 go
 
 IF OBJECT_ID('dbo.UpdateMaterialOow') IS NOT NULL
-    DROP PROCEDURE dbo.UpdateMaterialOow
+    DROP PROCEDURE dbo.UpdateMaterialOow;
 go
 
 IF OBJECT_ID('dbo.UpdateMaterialW') IS NOT NULL
-    DROP PROCEDURE dbo.UpdateMaterialW
+    DROP PROCEDURE dbo.UpdateMaterialW;
 go
 
 IF OBJECT_ID('dbo.UpdateSrvSupportCost') IS NOT NULL
-    DROP PROCEDURE dbo.UpdateSrvSupportCost
+    DROP PROCEDURE dbo.UpdateSrvSupportCost;
 go
 
 IF OBJECT_ID('dbo.UpdateTaxAndDutiesOow') IS NOT NULL
-    DROP PROCEDURE dbo.UpdateTaxAndDutiesOow
+    DROP PROCEDURE dbo.UpdateTaxAndDutiesOow;
 go
 
 IF OBJECT_ID('dbo.UpdateTaxAndDutiesW') IS NOT NULL
-    DROP PROCEDURE dbo.UpdateTaxAndDutiesW
+    DROP PROCEDURE dbo.UpdateTaxAndDutiesW;
 go
 
 IF OBJECT_ID('dbo.AfrByDurationView', 'V') IS NOT NULL
@@ -70,7 +70,7 @@ IF OBJECT_ID('dbo.InstallBaseByCountryView', 'V') IS NOT NULL
   DROP VIEW dbo.InstallBaseByCountryView;
 go
 
-CREATE function [dbo].[CalcField[Hardware].[ServiceCostCalculation]] (
+CREATE function [dbo].[CalcFieldServiceCost] (
     @timeAndMaterialShare float,
     @travelCost float,
     @labourCost float,
