@@ -29,6 +29,8 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<Duration>();
             services.RegisterEntity<ReactionType>();
             services.RegisterEntity<ReactionTime>();
+            services.RegisterEntity<ReactionTimeType>();
+            services.RegisterEntity<ReactionTimeAvalability>();
             services.RegisterEntity<ServiceLocation>();
             services.RegisterEntity<CapabilityMatrix>();
             services.RegisterEntity<CapabilityMatrixRule>();
