@@ -1,28 +1,37 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="wwwroot\**" />
-    <Content Remove="wwwroot\**" />
-    <EmbeddedResource Remove="wwwroot\**" />
-    <None Remove="wwwroot\**" />
+    <Compile Remove="Program.cs" />
+    <Compile Remove="Startup.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="DomainConfig.xml" />
+    <None Remove="Global.asax" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="DomainConfig.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
+    <Content Include="Global.asax" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.6" />
+    <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.6" />
+    <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.0" />
   </ItemGroup>
 
@@ -31,9 +40,49 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\bundle.js" />
+    <None Include="wwwroot\bundle.js.map" />
+    <None Include="wwwroot\ext-react\css-vars.js" />
+    <None Include="wwwroot\ext-react\ext.js" />
+    <None Include="wwwroot\ext-react\ext.scss" />
+    <None Include="wwwroot\ext-react\jsdom-environment.js" />
+    <None Include="wwwroot\ext-react\manifest.js" />
+    <None Include="wwwroot\ext-react\resources\exporter\Readme.md" />
+    <None Include="wwwroot\ext-react\resources\ext\ext-watermark\demo-files\demo.js" />
+    <None Include="wwwroot\ext-react\resources\ext\ext-watermark\fonts\ext-watermark.svg" />
+    <None Include="wwwroot\ext-react\resources\font-awesome\fonts\fontawesome-webfont.svg" />
+    <None Include="wwwroot\ext-react\resources\font-awesome\fonts\fontawesome-webfont.woff2" />
+    <None Include="wwwroot\ext-react\resources\font-ext\fonts\ExtJS.svg" />
+    <None Include="wwwroot\ext-react\resources\images\pictos\pictos-web.svg" />
+    <None Include="wwwroot\ext-react\resources\pivot\fonts\ext-watermark.svg" />
+    <None Include="wwwroot\ext-react\resources\pivot\Readme.md" />
+    <None Include="wwwroot\ext-react\resources\Readme.md" />
+    <None Include="wwwroot\ext-react\temp\App-master-bundle.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj" />
     <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj" />
     <ProjectReference Include="..\Gdc.Scd.DataAccessLayer.TestData\Gdc.Scd.DataAccessLayer.TestData.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Update="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
   </ItemGroup>
 
 </Project>

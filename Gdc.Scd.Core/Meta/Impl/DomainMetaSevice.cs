@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Xml.Linq;
 using Gdc.Scd.Core.Meta.Entities;
@@ -56,16 +57,13 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string TypeOptionNodeName = "TypeOption";
 
-        private readonly IConfiguration configuration;
-
-        public DomainMetaSevice(IConfiguration configuration)
+        public DomainMetaSevice()
         {
-            this.configuration = configuration;
         }
 
         public DomainMeta Get()
         {
-            var fileName = this.configuration[DomainMetaConfigKey];
+            var fileName = ConfigurationManager.AppSettings[DomainMetaConfigKey];
             var doc = XDocument.Load(fileName);
 
             return this.BuilDomainMeta(doc.Root);
@@ -134,7 +132,9 @@ namespace Gdc.Scd.Core.Meta.Impl
             var inputTypeAttribute = node.Attribute(InputTypeAttributeName);
             if (inputTypeAttribute != null)
             {
-                costElementMeta.InputType = Enum.Parse<InputType>(inputTypeAttribute.Value);
+                InputType type;
+                Enum.TryParse<InputType>(inputTypeAttribute.Value, out type);
+                costElementMeta.InputType = type;
             }
 
             var typeNode = node.Element(TypeOptionNodeName);

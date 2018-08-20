@@ -79,17 +79,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 editItem.Value,
                 $"{editItemInfo.ValueField}_{index}");
 
-            filter = new Dictionary<string, IEnumerable<object>>(filter ?? Enumerable.Empty<KeyValuePair<string, IEnumerable<object>>>())
-            {
-                [editItemInfo.NameField] = new object [] 
-                {
-                    new CommandParameterInfo
-                    {
-                        Name = $"{editItemInfo.NameField}_{index}",
-                        Value = editItem.Id
-                    }
-                }
-            };
+            //filter = new Dictionary<string, IEnumerable<object>>(filter ?? Enumerable.Empty<KeyValuePair<string, IEnumerable<object>>>())
+            //{
+            //    [editItemInfo.NameField] = new object [] 
+            //    {
+            //        new CommandParameterInfo
+            //        {
+            //            Name = $"{editItemInfo.NameField}_{index}",
+            //            Value = editItem.Id
+            //        }
+            //    }
+            //};
 
             return Sql.Update(editItemInfo.Schema, editItemInfo.EntityName, updateColumn)
                       .Where(this.BuildCostEditorWhereCondition(meta, filter));

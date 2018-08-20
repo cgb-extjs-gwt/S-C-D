@@ -323,7 +323,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private IEnumerable<SqlHelper> BuildFromFile(string fn)
         {
-            return ReadText(fn).Split("go")
+            return ReadText(fn).Split(new[] { "go" }, StringSplitOptions.None)
                                .Where(x => !string.IsNullOrWhiteSpace(x))
                                .Select(x => new SqlHelper(new RawSqlBuilder() { RawSql = x }));
         }
