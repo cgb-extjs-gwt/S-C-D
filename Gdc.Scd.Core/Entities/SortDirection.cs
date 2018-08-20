@@ -1,4 +1,4 @@
-﻿namespace Gdc.Scd.Web.Api.Entities
+﻿namespace Gdc.Scd.Core.Entities
 {
     public enum SortDirection
     {

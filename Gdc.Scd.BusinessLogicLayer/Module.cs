@@ -20,6 +20,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.AddScoped<ICostBlockHistoryService, CostBlockHistoryService>();
             services.AddScoped<IAvailabilityFeeAdminService, AvailabilityFeeAdminService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<ICostBlockFilterBuilder, CostBlockFilterBuilder>();
 
             services.RegisterEntity<ClusterRegion>();
             services.RegisterEntity<Country>();
@@ -30,6 +31,8 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<Duration>();
             services.RegisterEntity<ReactionType>();
             services.RegisterEntity<ReactionTime>();
+            services.RegisterEntity<ReactionTimeType>();
+            services.RegisterEntity<ReactionTimeAvalability>();
             services.RegisterEntity<ServiceLocation>();
             services.RegisterEntity<CapabilityMatrix>();
             services.RegisterEntity<CapabilityMatrixRule>();

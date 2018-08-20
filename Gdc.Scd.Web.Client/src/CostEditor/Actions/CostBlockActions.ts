@@ -4,7 +4,7 @@ import * as service from "../Services/CostEditorServices";
 import { CostEditorState } from "../States/CostEditorStates";
 import { EditItem, CostElementData, DataLoadingState } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
-import { losseDataCheckHandlerAction } from "../Helpers/CostEditorHelpers";
+import { losseDataCheckHandlerAction, buildCostEditorContext } from "../Helpers/CostEditorHelpers";
 import { CommonState } from "../../Layout/States/AppStates";
 
 export const COST_BLOCK_INPUT_SELECT_REGIONS = 'COST_BLOCK_INPUT.SELECT.REGIONS';
@@ -177,50 +177,13 @@ export const applyFilters = (costBlockId: string) => (<CostBlockAction>{
     costBlockId
 })
 
-const buildContext = (state: CostEditorState) => {
-    const { 
-        selectedApplicationId: applicationId,  
-        selectedCostBlockId: costBlockId,
-        costBlocks
-    } = state;
-
-    const costBlock = costBlocks.find(item => item.costBlockId === costBlockId); 
-
-    const { 
-        costElement,
-    } = costBlock;
-
-    let costElementFilterIds: string[] = null;
-    let inputLevelFilterIds: string[] = null;
-    let inputLevelId: string = null;
-    let regionInputId: string = null;
-
-    if (costElement.selectedItemId != null) {
-        const selectedCostElement = 
-            costElement.list.find(item => item.costElementId === costElement.selectedItemId);
-
-        regionInputId = selectedCostElement.region && selectedCostElement.region.selectedItemId;
-        inputLevelId = selectedCostElement.inputLevel.selectedItemId;
-    }
-
-    return <service.Context>{
-        applicationId,
-        costBlockId,
-        regionInputId,
-        costElementId: costElement.selectedItemId,
-        inputLevelId,
-        costElementFilterIds: Array.from(costBlock.edit.appliedFilter.costElementsItemIds),
-        inputLevelFilterIds: Array.from(costBlock.edit.appliedFilter.inputLevelItemIds)
-    }
-}
-
 export const getDataByCostElementSelection = (costBlockId: string, costElementId: string) =>
     asyncAction<CommonState>(
         (dispatch, getState) => {
             dispatch(selectCostElement(costBlockId, costElementId));
 
             const state = getState().pages.costEditor
-            const context = buildContext(state);
+            const context = buildCostEditorContext(state);
             const costBlock = state.costBlocks.find(item => item.costBlockId === costBlockId);
             const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
 
@@ -249,7 +212,7 @@ export const getFilterItemsByInputLevelSelection = (costBlockId: string, costEle
                 
                 if (!inputLevel || !inputLevel.filter)
                 {
-                    const context = buildContext(state);
+                    const context = buildCostEditorContext(state);
 
                     service.getLevelInputFilterItems(context).then(
                         filterItems => dispatch(loadInputLevelFilter(costBlockId, costElementId, inputLevelId, filterItems))
@@ -288,7 +251,7 @@ export const loadEditItemsByContext = () =>
     asyncAction<CommonState>(
         (dispatch, getState) => {
             const state = getState().pages.costEditor
-            const context = buildContext(state);
+            const context = buildCostEditorContext(state);
 
             if (context.costElementId != null && context.inputLevelId != null) {
                 service.getEditItems(context).then(
@@ -305,7 +268,7 @@ export const saveEditItemsToServer = (costBlockId: string, forApproval: boolean)
             const costBlock = 
                 state.costBlocks.find(item => item.costBlockId === costBlockId);
 
-            const context = buildContext(state);
+            const context = buildCostEditorContext(state);
 
             service.saveEditItems(costBlock.edit.editedItems, context, forApproval)
                    .then(

@@ -6,8 +6,6 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
     public interface ICustomConfigureTableHandler
     {
-        bool CanHandle(BaseEntityMeta entityMeta);
-
         IEnumerable<ISqlBuilder> GetSqlBuilders(BaseEntityMeta entityMeta);
     }
 }
