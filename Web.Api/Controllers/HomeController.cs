@@ -10,9 +10,7 @@ namespace Web.Api.Controllers
     {
         public ActionResult Index()
         {
-            ViewBag.Title = "Home Page";
-
-            return View();
+            return File("~/wwwroot/index.html", "text/html");
         }
     }
 }

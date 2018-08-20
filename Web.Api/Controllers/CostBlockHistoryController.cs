@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
-using System.Web.Mvc;
 using System.Net;
+using System.Web.Http;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
-    public class CostBlockHistoryController : Controller
+    public class CostBlockHistoryController : ApiController
     {
         private readonly ICostBlockHistoryService costBlockHistoryService;
 
@@ -55,18 +55,18 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Approve(long historyId)
+        public async Task<IHttpActionResult> Approve(long historyId)
         {
             await this.costBlockHistoryService.Approve(historyId);
 
-            return new HttpStatusCodeResult(HttpStatusCode.OK);
+            return Ok();
         }
 
         [HttpPost]
-        public ActionResult Reject([System.Web.Http.FromBody]long historyId, string message)
+        public IHttpActionResult Reject([System.Web.Http.FromBody]long historyId, string message)
         {
             this.costBlockHistoryService.Reject(historyId, message);
-            return new HttpStatusCodeResult(HttpStatusCode.OK);
+            return Ok();
         }
     }
 }

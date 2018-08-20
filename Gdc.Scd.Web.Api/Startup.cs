@@ -1,18 +1,19 @@
 ﻿using System;
 using System.IO;
-using System.Web.Hosting;
 using Gdc.Scd.Core.Interfaces;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Owin;
 
 namespace Gdc.Scd.Web
 {
     public class Startup
     {
-        private readonly HostingEnvironment env;
+        private readonly IHostingEnvironment env;
 
-        public Startup(IConfiguration configuration, HostingEnvironment env)
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
             Configuration = configuration;
             this.env = env;
@@ -28,7 +29,7 @@ namespace Gdc.Scd.Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IAppBuilder app, HostingEnvironment env, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {

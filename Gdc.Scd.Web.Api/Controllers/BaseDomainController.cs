@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Web.Http;
-using System.Web.Mvc;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Web.Api.Entities;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace Gdc.Scd.Web.Api.Controllers
@@ -31,7 +30,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             var allItems = this.domainService.GetAll();
             var query = allItems.Skip(start).Take(limit);
             var sortInfos = sort == null ? null : JsonConvert.DeserializeObject<SortInfo[]>(sort);
-            var filterInfos = filter == null ? null : JsonConvert.DeserializeObject<Entities.FilterInfo[]>(sort);
+            var filterInfos = filter == null ? null : JsonConvert.DeserializeObject<FilterInfo[]>(sort);
 
             query = this.OrderBy(query, sortInfos);
             query = this.Filter(query, filterInfos);
@@ -48,13 +47,13 @@ namespace Gdc.Scd.Web.Api.Controllers
             return this.domainService.Get(id);
         }
 
-        [System.Web.Mvc.HttpPost]
+        [HttpPost]
         public virtual void Save(T item)
         {
             this.domainService.Save(item);
         }
 
-        [System.Web.Mvc.HttpPost]
+        [HttpPost]
         public virtual void SaveAll([FromBody]IEnumerable<T> items)
         {
             this.domainService.Save(items);
@@ -78,7 +77,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             return query;
         }
 
-        protected virtual IQueryable<T> Filter(IQueryable<T> query, Entities.FilterInfo[] filterInfos)
+        protected virtual IQueryable<T> Filter(IQueryable<T> query, FilterInfo[] filterInfos)
         {
             if (filterInfos != null && filterInfos.Length > 0)
             {
@@ -95,7 +94,7 @@ namespace Gdc.Scd.Web.Api.Controllers
 
             return query;
 
-            BinaryExpression GetEqualExpression(Entities.FilterInfo filterInfo, Expression param)
+            BinaryExpression GetEqualExpression(FilterInfo filterInfo, Expression param)
             {
                 return Expression.Equal(
                     Expression.Property(param, filterInfo.Property),
@@ -103,7 +102,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             }
         }
 
-        protected virtual object ConvertToValue(Entities.FilterInfo filterInfo)
+        protected virtual object ConvertToValue(FilterInfo filterInfo)
         {
             var type = typeof(T);
             var property = type.GetProperty(filterInfo.Property);

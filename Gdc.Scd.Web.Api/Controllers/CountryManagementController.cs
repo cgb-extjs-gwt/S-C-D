@@ -4,8 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using System.Web.Http;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {

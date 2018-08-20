@@ -5,11 +5,11 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
-using System.Web.Mvc;
-using System.Net;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
+    [Produces("application/json")]
     public class CostEditorController : Controller
     {
         private readonly ICostEditorService costEditorService;
@@ -56,11 +56,11 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> UpdateValues([System.Web.Http.FromBody]IEnumerable<EditItem> editItems, CostEditorContext context, bool forApproval)
+        public async Task<IActionResult> UpdateValues([FromBody]IEnumerable<EditItem> editItems, [FromQuery]CostEditorContext context, [FromQuery]bool forApproval)
         {
             await this.costEditorService.UpdateValues(editItems, context, forApproval);
 
-            return new HttpStatusCodeResult(HttpStatusCode.OK);
+            return this.Ok();
         }
     }
 }

@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
-using System.Web.Mvc;
-using System.Net;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
+    [Produces("application/json")]
     public class CostBlockHistoryController : Controller
     {
         private readonly ICostBlockHistoryService costBlockHistoryService;
@@ -19,19 +19,19 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CostBlockHistoryApprovalDto>> GetDtoHistoriesForApproval(CostBlockHistoryFilter filter)
+        public async Task<IEnumerable<CostBlockHistoryApprovalDto>> GetDtoHistoriesForApproval([FromQuery]CostBlockHistoryFilter filter)
         {
             return await this.costBlockHistoryService.GetDtoHistoriesForApproval(filter);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(long costBlockHistoryId)
+        public async Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues([FromQuery]long costBlockHistoryId)
         {
            return await this.costBlockHistoryService.GetHistoryValues(costBlockHistoryId);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Dictionary<string, object>>> GetHistoryValueTable(long costBlockHistoryId)
+        public async Task<IEnumerable<Dictionary<string, object>>> GetHistoryValueTable([FromQuery]long costBlockHistoryId)
         {
             var historyValues = await this.costBlockHistoryService.GetHistoryValues(costBlockHistoryId);
 
@@ -55,18 +55,19 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Approve(long historyId)
+        public async Task<IActionResult> Approve([FromQuery]long historyId)
         {
             await this.costBlockHistoryService.Approve(historyId);
 
-            return new HttpStatusCodeResult(HttpStatusCode.OK);
+            return this.Ok();
         }
 
         [HttpPost]
-        public ActionResult Reject([System.Web.Http.FromBody]long historyId, string message)
+        public IActionResult Reject([FromQuery]long historyId, [FromQuery]string message)
         {
             this.costBlockHistoryService.Reject(historyId, message);
-            return new HttpStatusCodeResult(HttpStatusCode.OK);
+
+            return this.Ok();
         }
     }
 }

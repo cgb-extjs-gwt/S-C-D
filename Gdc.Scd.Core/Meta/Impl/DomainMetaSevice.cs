@@ -57,13 +57,16 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string TypeOptionNodeName = "TypeOption";
 
-        public DomainMetaSevice()
+        private readonly IConfiguration configuration;
+
+        public DomainMetaSevice(IConfiguration configuration)
         {
+            this.configuration = configuration;
         }
 
         public DomainMeta Get()
         {
-            var fileName = ConfigurationManager.AppSettings[DomainMetaConfigKey];
+            var fileName = this.configuration[DomainMetaConfigKey];
             var doc = XDocument.Load(fileName);
 
             return this.BuilDomainMeta(doc.Root);

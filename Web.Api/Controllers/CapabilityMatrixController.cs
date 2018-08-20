@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
-    public class CapabilityMatrixController : Controller
+    public class CapabilityMatrixController : ApiController
     {
         private readonly ICapabilityMatrixService capabilityMatrixService;
 

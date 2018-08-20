@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
@@ -17,7 +17,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         // GET api/values/5
-        [HttpGet]
+        [HttpGet("{id}")]
         public string Get(int id)
         {
             return "value";
@@ -25,18 +25,18 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([System.Web.Http.FromBody]string value)
+        public void Post([FromBody]string value)
         {
         }
 
         // PUT api/values/5
-        [HttpPut]
-        public void Put(int id, [System.Web.Http.FromBody]string value)
+        [HttpPut("{id}")]
+        public void Put(int id, [FromBody]string value)
         {
         }
 
         // DELETE api/values/5
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public void Delete(int id)
         {
         }

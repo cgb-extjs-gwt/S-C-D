@@ -1,11 +1,10 @@
-﻿using System.Web.Http;
-using System.Web.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Gdc.Scd.Web.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index()
+        public IActionResult Index()
         {
             return File("~/index.html", "text/html");
         }
