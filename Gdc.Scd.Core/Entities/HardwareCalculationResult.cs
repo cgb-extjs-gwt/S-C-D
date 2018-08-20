@@ -31,6 +31,8 @@ namespace Gdc.Scd.Core.Entities
 
         public double? MaterialOow { get; set; }
 
+        public double? Reinsurance { get; set; }
+
         public double? ProActive { get; set; }
 
         public double? ServiceTC { get; set; }
