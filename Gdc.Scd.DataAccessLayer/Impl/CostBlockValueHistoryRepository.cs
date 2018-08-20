@@ -270,10 +270,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     CountryGroupCheckColumn, 
                     qualityGate.CountryGroupCoeff, 
                     CountryGroupCoeffParam);
+
+                qualityGateColumns.Add(countryGroupCheckColumn);
             }
 
             var qualityGateQuery =
-                Sql.Select()
+                Sql.Select(qualityGateColumns.ToArray())
+                   .FromQuery(BuildRawQualityGateQuery(), "t");
 
             SqlHelper BuildNewValuesQuery(IEnumerable<EditItem> items, string idColumnAlias)
             {
@@ -393,10 +396,25 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 double coeff,
                 string coeffParamName)
             {
+                //var oldValueColumn = new ColumnInfo(oldValueColumnName, table);
+                //var newValueColumn = new ColumnInfo(newValueColumnName, table);
+
+                //var query = SqlOperators.Greater(
+                //    new AbsSqlBuilder
+                //    {
+                //        SqlBuilder = SqlOperators.Subtract(newValueColumn, oldValueColumn).ToSqlBuilder()
+                //    },
+                //    new AbsSqlBuilder
+                //    {
+                //        SqlBuilder = SqlOperators.Multiply(oldValueColumnName, coeffParamName, coeff, table).ToSqlBuilder()
+                //    });
+
+                //return new QueryColumnInfo(query.ToSqlBuilder(), alias);
+
                 var oldValueColumn = new ColumnInfo(oldValueColumnName, table);
                 var newValueColumn = new ColumnInfo(newValueColumnName, table);
 
-                var query = SqlOperators.Greater(
+                var when = SqlOperators.Greater(
                     new AbsSqlBuilder
                     {
                         SqlBuilder = SqlOperators.Subtract(newValueColumn, oldValueColumn).ToSqlBuilder()
@@ -406,7 +424,23 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         SqlBuilder = SqlOperators.Multiply(oldValueColumnName, coeffParamName, coeff, table).ToSqlBuilder()
                     });
 
-                return new QueryColumnInfo(query.ToSqlBuilder(), alias);
+                return new QueryColumnInfo
+                {
+                    Alias = alias,
+                    Query = new CaseSqlBuilder
+                    {
+                        Input = new ColumnSqlBuilder(oldValueColumn),
+                        Cases = new List<CaseItem>
+                        {
+                            new CaseItem
+                            {
+                                When = when.ToSqlBuilder(),
+                                Then = new RawSqlBuilder("0")
+                            }
+                        },
+                        Else = new RawSqlBuilder("1")
+                    }
+                };
             }
         }
 
