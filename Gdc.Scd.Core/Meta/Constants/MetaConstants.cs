@@ -17,6 +17,8 @@
         public const string AdminSchema = "Admin";
 
         public const string CountryInputLevelName = "Country";
+        
+        public const string DefaultSchema = "dbo";
 
         public const string WgInputLevelName = "Wg";
     }
