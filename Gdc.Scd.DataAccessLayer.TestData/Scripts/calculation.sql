@@ -169,7 +169,7 @@ go
 
 create view [dbo].[InstallBaseByCountryView] as
 
-    with InstallBasePlaCte (Pla, Country, totalIB)
+    with InstallBasePlaCte (Country, Pla, totalIB)
     as
     (
         select Country, Pla, sum(InstalledBaseCountry) as totalIB
