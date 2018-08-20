@@ -9,6 +9,7 @@
     <InputLevel Name="SwDigit" Caption="SW Level (Digit)"/>
     <InputLevel Name="SwLicense" Caption="SW License"/>
     <InputLevel Name="Wg" Caption="WG"/>
+    <InputLevel Name="RoleCode" Caption="Role Code"/>
     
     <Default>
       <InputLevel>Country</InputLevel>
@@ -130,6 +131,19 @@
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
+      </Elements>
+    </Block>
+
+    <Block Name="RoleCodeHourlyRates" Caption="Role Code Hourly Rates">
+      <Applications>
+        <Application>Atom</Application>
+      </Applications>
+      <Elements>
+        <Element Name="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManualyAutomaticly" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>RoleCode</InputLevel>
           </InputLevels>
         </Element>
       </Elements>

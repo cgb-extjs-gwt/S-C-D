@@ -23,7 +23,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string WgLevelId = "Wg";
 
-        private const string RoleCodeKey = "RoleCodeCode";
+        private const string RoleCodeKey = "RoleCode";
 
         private const string ServiceLocationKey = "ServiceLocation";
 
@@ -74,11 +74,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             var queries = new List<SqlHelper>
             {
+                this.BuildInsertSql(MetaConstants.InputLevelSchema, RoleCodeKey, this.GetRoleCodeNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, YearKey, this.GetYearNames()),
                 this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
                 this.BuildInsertSql(new NamedEntityMeta(DurationKey, MetaConstants.DependencySchema), this.GetDurationNames()),
-                
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts\matrix.sql"));
@@ -191,61 +191,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             this.repositorySet.Sync();
         }
-
-        //private SqlHelper BuildInsertReactionTimeTypeSql()
-        //{
-        //    //2nd Business Day response
-        //    //NBD response
-        //    //4h response
-        //    //NBD recovery
-        //    //24h recovery
-        //    //8h recovery
-        //    //4h recovey
-
-        //    var twoBdQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "2nd Business Day");
-        //    var nbdQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "NBD");
-        //    var fourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "4h");
-        //    var twentyFourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "24h");
-        //    var eightHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "8h");
-
-        //    var responseQuery = this.BuildSelectIdByNameQuery(ReactionTypeKey, "response");
-        //    var recoveryQuery = this.BuildSelectIdByNameQuery(ReactionTypeKey, "recovery");
-
-        //    return
-        //        Sql.Insert(MetaConstants.DependencySchema, "ReactionTimeType", ReactionTimeKey, ReactionTypeKey)
-        //           .Values(new ISqlBuilder[,]
-        //           {
-        //               { twoBdQuery, responseQuery },
-        //               { nbdQuery, responseQuery },
-        //               { fourHourQuery, responseQuery },
-        //               { nbdQuery, recoveryQuery },
-        //               { twentyFourHourQuery, recoveryQuery },
-        //               { eightHourQuery, recoveryQuery },
-        //               { fourHourQuery, recoveryQuery },
-        //           });
-        //}
-
-        //private SqlHelper BuildInsertReactionTimeAvailabilitySql()
-        //{
-        //    //NBD 9x5
-        //    //4h 9x5
-        //    //4h 24x7
-
-        //    var nbdQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "NBD");
-        //    var fourHourQuery = this.BuildSelectIdByNameQuery(ReactionTimeKey, "4h");
-
-        //    var nineByFive = this.BuildSelectIdByNameQuery(AvailabilityKey, "9x5");
-        //    var twentyFourBySeven = this.BuildSelectIdByNameQuery(AvailabilityKey, "24x7");
-
-        //    return
-        //       Sql.Insert(MetaConstants.DependencySchema, "ReactionTimeAvalability", ReactionTimeKey, AvailabilityKey)
-        //          .Values(new ISqlBuilder[,]
-        //          {
-        //               { nbdQuery, nineByFive },
-        //               { fourHourQuery, nineByFive },
-        //               { fourHourQuery, twentyFourBySeven },
-        //          });
-        //}
 
         private ISqlBuilder BuildSelectIdByNameQuery(string table, string name)
         {
@@ -1071,6 +1016,18 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "1d",
                 "1d 3h",
                 "7d"
+            };
+        }
+
+        private string[] GetRoleCodeNames()
+        {
+            return new string[]
+            {
+                "SEFS05",
+                "SEFS06",
+                "SEFS04",
+                "SEIE07",
+                "SEIE08",
             };
         }
 
