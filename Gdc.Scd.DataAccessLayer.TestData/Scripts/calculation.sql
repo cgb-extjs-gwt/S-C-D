@@ -58,6 +58,10 @@ IF OBJECT_ID('dbo.UpdateReinsurance') IS NOT NULL
     DROP PROCEDURE dbo.UpdateReinsurance;
 go
 
+IF OBJECT_ID('dbo.UpdateLogisticCost') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateLogisticCost;
+go
+
 IF OBJECT_ID('dbo.AfrByDurationView', 'V') IS NOT NULL
   DROP VIEW dbo.AfrByDurationView;
 go
@@ -78,12 +82,20 @@ IF OBJECT_ID('dbo.DurationToYearView', 'V') IS NOT NULL
   DROP VIEW dbo.DurationToYearView;
 go
 
+IF OBJECT_ID('dbo.LogisticsCostView', 'V') IS NOT NULL
+  DROP VIEW dbo.LogisticsCostView;
+go
+
 IF OBJECT_ID('dbo.ReinsuranceByDuration', 'V') IS NOT NULL
   DROP VIEW dbo.ReinsuranceByDuration;
 go
 
 IF OBJECT_ID('dbo.CalcReinsuranceCost') IS NOT NULL
   DROP FUNCTION dbo.CalcReinsuranceCost;
+go 
+
+IF OBJECT_ID('dbo.CalcLogisticCost') IS NOT NULL
+  DROP FUNCTION dbo.CalcLogisticCost;
 go 
 
 CREATE VIEW [dbo].[DurationToYearView] as 
@@ -95,6 +107,29 @@ CREATE VIEW [dbo].[DurationToYearView] as
            dur.IsProlongation
     from Dependencies.Duration dur
     join Dependencies.Year y on dur.Value = y.Value and dur.IsProlongation = y.IsProlongation
+GO
+
+CREATE FUNCTION [dbo].[CalcLogisticCost](
+	@standardHandling float,
+    @highAvailabilityHandling float,
+    @standardDelivery float,
+    @expressDelivery float,
+    @taxiCourierDelivery float,
+    @returnDelivery float,
+    @afr float
+)
+RETURNS float
+AS
+BEGIN
+	RETURN @afr * (
+	            @standardHandling +
+                @highAvailabilityHandling +
+                @standardDelivery +
+                @expressDelivery +
+                @taxiCourierDelivery +
+                @returnDelivery
+           );
+END
 GO
 
 CREATE function [dbo].[CalcFieldServiceCost] (
@@ -210,6 +245,21 @@ create view [dbo].[InstallBaseByCountryView] as
             ibp.totalIB as ib_Cnt_PLA
     from Atom.InstallBase ib
     LEFT JOIN InstallBasePlaCte ibp on ibp.Pla = ib.Pla and ibp.Country = ib.Country
+GO
+
+CREATE VIEW [dbo].[LogisticsCostView] AS
+    SELECT lc.Country, 
+           lc.Wg, 
+           rt.ReactionTypeId as ReactionType, 
+           rt.ReactionTimeId as ReactionTime,
+           lc.StandardHandling,
+           lc.HighAvailabilityHandling,
+           lc.StandardDelivery,
+           lc.ExpressDelivery,
+           lc.TaxiCourierDelivery,
+           lc.ReturnDeliveryFactory
+    FROM Hardware.LogisticsCosts lc
+    JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = lc.ReactionTimeType
 GO
 
 CREATE FUNCTION [dbo].[GetAfr](@wg bigint, @dur bigint)
@@ -385,6 +435,32 @@ BEGIN
         INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
         LEFT JOIN Atom.TaxAndDuties tax on tax.Wg = m.WgId and tax.Country = m.CountryId
         LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId and mcw.ClusterRegion = c.ClusterRegionId
+
+END
+GO
+
+CREATE PROCEDURE [dbo].[UpdateLogisticCost]
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    UPDATE [Hardware].[ServiceCostCalculation] 
+            SET Logistic = dbo.CalcLogisticCost(
+                               lc.StandardHandling,
+                               lc.HighAvailabilityHandling,
+                               lc.StandardDelivery,
+                               lc.ExpressDelivery,
+                               lc.TaxiCourierDelivery,
+                               lc.ReturnDeliveryFactory,
+                               afr.TotalAFR)
+    FROM [Hardware].[ServiceCostCalculation] sc
+    INNER JOIN Matrix m ON sc.MatrixId = m.Id
+    LEFT JOIN AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
+    LEFT JOIN LogisticsCostView lc on lc.Country = m.CountryId 
+                                      and lc.Wg = m.WgId
+                                      and lc.ReactionTime = m.ReactionTimeId
+                                      and lc.ReactionType = m.ReactionTypeId
 
 END
 GO
