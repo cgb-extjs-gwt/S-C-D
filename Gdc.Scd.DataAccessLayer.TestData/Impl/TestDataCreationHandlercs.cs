@@ -227,6 +227,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             exRepo.Save(new ExchangeRate { Currency1 = eur, Currency2 = eur, Value = 1 });
             exRepo.Save(new ExchangeRate { Currency1 = eur, Currency2 = usd, Value = 1.2 });
+            repositorySet.Sync();
         }
 
         private ISqlBuilder BuildSelectIdByNameQuery(string table, string name)

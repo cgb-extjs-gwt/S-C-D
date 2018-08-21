@@ -40,6 +40,8 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<AdminAvailabilityFee>();
             services.RegisterEntity<CapabilityMatrixCountryAllowView>();
             services.RegisterEntity<HardwareCalculationResult>();
+            services.RegisterEntity<Currency>();
+            services.RegisterEntity<ExchangeRate>();
         }
     }
 }
