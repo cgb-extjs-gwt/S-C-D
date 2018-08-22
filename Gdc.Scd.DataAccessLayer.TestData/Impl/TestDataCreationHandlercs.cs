@@ -1,4 +1,4 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Entities;
+﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -1238,18 +1238,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "1d",
                 "1d 3h",
                 "7d"
-            };
-        }
-
-        private string[] GetRoleCodeNames()
-        {
-            return new string[]
-            {
-                "SEFS05",
-                "SEFS06",
-                "SEFS04",
-                "SEIE07",
-                "SEIE08",
             };
         }
 
