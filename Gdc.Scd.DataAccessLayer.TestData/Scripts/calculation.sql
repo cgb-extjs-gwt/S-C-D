@@ -22,6 +22,10 @@ IF OBJECT_ID('dbo.CalcTaxAndDutiesWar') IS NOT NULL
   DROP FUNCTION dbo.CalcTaxAndDutiesWar;
 go 
 
+IF OBJECT_ID('dbo.CalcLocSrvStandardWarranty') IS NOT NULL
+  DROP FUNCTION dbo.CalcLocSrvStandardWarranty;
+go 
+
 IF TYPE_ID('dbo.execError') IS NOT NULL
   DROP Type dbo.execError;
 go
@@ -66,6 +70,10 @@ IF OBJECT_ID('dbo.UpdateOtherDirectCost') IS NOT NULL
     DROP PROCEDURE dbo.UpdateOtherDirectCost;
 go
 
+IF OBJECT_ID('dbo.UpdateLocalServiceStandardWarranty') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateLocalServiceStandardWarranty;
+go
+
 IF OBJECT_ID('dbo.AfrByDurationView', 'V') IS NOT NULL
   DROP VIEW dbo.AfrByDurationView;
 go
@@ -98,6 +106,10 @@ IF OBJECT_ID('dbo.ReinsuranceView', 'V') IS NOT NULL
   DROP VIEW dbo.ReinsuranceView;
 go
 
+IF OBJECT_ID('dbo.FieldServiceCostView', 'V') IS NOT NULL
+  DROP VIEW dbo.FieldServiceCostView;
+go
+
 IF OBJECT_ID('dbo.CalcReinsuranceCost') IS NOT NULL
   DROP FUNCTION dbo.CalcReinsuranceCost;
 go 
@@ -119,6 +131,22 @@ CREATE VIEW [dbo].[DurationToYearView] as
            dur.IsProlongation
     from Dependencies.Duration dur
     join Dependencies.Year y on dur.Value = y.Value and dur.IsProlongation = y.IsProlongation
+GO
+
+CREATE VIEW [dbo].[FieldServiceCostView] AS
+    SELECT fsc.Wg,
+           fsc.Country,
+           fsc.ServiceLocation,
+           rt.ReactionTypeId,
+           rt.ReactionTimeId,
+           fsc.RepairTime,
+           fsc.TravelTime,
+           fsc.LabourCost,
+           fsc.TravelCost,
+           fsc.PerformanceRate,
+           fsc.TimeAndMaterialShare
+    FROM Hardware.FieldServiceCost fsc
+    JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = fsc.ReactionTimeType
 GO
 
 CREATE FUNCTION [dbo].[CalcLogisticCost](
@@ -199,6 +227,38 @@ RETURNS float
 AS
 BEGIN
     RETURN @cost * @tax;
+END
+GO
+
+CREATE FUNCTION [dbo].[CalcLocSrvStandardWarranty](
+    @labourCost float,
+    @travelCost float,
+    @srvSupportCost float,
+    @logisticCost float,
+    @taxAndDutiesW float,
+    @afr float,
+    @availabilityFee float,
+    @markupFactor float,
+    @markup float
+)
+RETURNS float
+AS
+BEGIN
+
+	DECLARE @result float;
+
+    if @markupFactor is not null
+        begin
+            set @result = @afr * ((@labourCost + @travelCost + @srvSupportCost + @logisticCost) * @markupFactor + @taxAndDutiesW) +
+                          @availabilityFee * @markupFactor;
+        end
+    else
+        begin
+            set @result = @afr * (@labourCost + @travelCost + @srvSupportCost + @logisticCost + @markup + @taxAndDutiesW) + 
+                          @availabilityFee + @markup;
+        end
+
+	RETURN @result;
 END
 GO
 
@@ -395,8 +455,11 @@ BEGIN
     FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     LEFT JOIN AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
-    LEFT JOIN Hardware.FieldServiceCost fsc ON fsc.Wg = m.WgId and fsc.Country = m.CountryId and fsc.ServiceLocation = m.ServiceLocationId
-
+    LEFT JOIN FieldServiceCostView fsc ON fsc.Wg = m.WgId 
+                                          and fsc.Country = m.CountryId 
+                                          and fsc.ServiceLocation = m.ServiceLocationId
+                                          and fsc.ReactionTypeId = m.ReactionTypeId
+                                          and fsc.ReactionTimeId = m.ReactionTimeId
 END
 GO
 
@@ -552,3 +615,32 @@ BEGIN
 
 END
 GO
+
+CREATE PROCEDURE [dbo].[UpdateLocalServiceStandardWarranty]
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    UPDATE [Hardware].[ServiceCostCalculation] 
+            SET LocalServiceStandardWarranty = dbo.CalcLocSrvStandardWarranty(
+                                                    fsc.LabourCost,
+                                                    fsc.TravelCost,
+                                                    sc.ServiceSupport,
+                                                    sc.Logistic,
+                                                    sc.TaxAndDutiesW,
+                                                    afr.TotalAFR,
+                                                    sc.AvailabilityFee,
+                                                    moc.MarkupFactor, 
+                                                    moc.Markup)
+    FROM [Hardware].[ServiceCostCalculation] sc
+    INNER JOIN Matrix m ON sc.MatrixId = m.Id
+    LEFT JOIN AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
+    LEFT JOIN Atom.MarkupOtherCosts moc on moc.Wg = m.WgId and moc.Country = m.CountryId
+    LEFT JOIN FieldServiceCostView fsc ON fsc.Wg = m.WgId 
+                                          and fsc.Country = m.CountryId 
+                                          and fsc.ServiceLocation = m.ServiceLocationId
+                                          and fsc.ReactionTypeId = m.ReactionTypeId
+                                          and fsc.ReactionTimeId = m.ReactionTimeId
+
+END
