@@ -78,6 +78,10 @@ IF OBJECT_ID('dbo.UpdateCredits') IS NOT NULL
     DROP PROCEDURE dbo.UpdateCredits;
 go
 
+IF OBJECT_ID('dbo.UpdateServiceTP') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateServiceTP;
+go
+
 IF OBJECT_ID('dbo.AfrByDurationView', 'V') IS NOT NULL
   DROP VIEW dbo.AfrByDurationView;
 go
@@ -129,6 +133,37 @@ go
 IF OBJECT_ID('dbo.CalcCredit') IS NOT NULL
   DROP FUNCTION dbo.CalcCredit;
 go 
+
+IF OBJECT_ID('dbo.CalcServiceTP') IS NOT NULL
+  DROP FUNCTION dbo.CalcServiceTP;
+go 
+
+IF OBJECT_ID('dbo.AddMarkup') IS NOT NULL
+  DROP FUNCTION dbo.AddMarkup;
+go 
+
+CREATE FUNCTION [dbo].[AddMarkup](
+    @value float,
+    @markupFactor float,
+    @markup float
+)
+RETURNS float
+AS
+BEGIN
+
+    if @markupFactor is null
+        begin
+            set @value = @value + @markup;
+        end
+    else
+        begin
+            set @value = @value * @markupFactor;
+        end
+
+    RETURN @value;
+
+END
+GO
 
 CREATE VIEW [dbo].[DurationToYearView] as 
     select dur.Id as DurID,
@@ -252,21 +287,10 @@ CREATE FUNCTION [dbo].[CalcLocSrvStandardWarranty](
 RETURNS float
 AS
 BEGIN
+    declare @totalCost float = dbo.AddMarkup(@labourCost + @travelCost + @srvSupportCost + @logisticCost, @markupFactor, @markup);
+    declare @fee float = dbo.AddMarkup(@availabilityFee, @markupFactor, @markup);
 
-	DECLARE @result float;
-
-    if @markupFactor is not null
-        begin
-            set @result = @afr * ((@labourCost + @travelCost + @srvSupportCost + @logisticCost) * @markupFactor + @taxAndDutiesW) +
-                          @availabilityFee * @markupFactor;
-        end
-    else
-        begin
-            set @result = @afr * (@labourCost + @travelCost + @srvSupportCost + @logisticCost + @markup + @taxAndDutiesW) + 
-                          @availabilityFee + @markup;
-        end
-
-	RETURN @result;
+    return @afr * (@totalCost + @taxAndDutiesW) + @fee;
 END
 GO
 
@@ -282,20 +306,19 @@ CREATE FUNCTION [dbo].[CalcOtherDirectCost](
 RETURNS float
 AS
 BEGIN
+    return dbo.AddMarkup(@fieldSrvCost + @srvSupportCost + @materialCost + @logisticCost + @reinsurance, @markupFactor, @markup);
+END
+GO
 
-    declare @result float = @fieldSrvCost + @srvSupportCost + @materialCost + @logisticCost + @reinsurance;
-
-    if @markupFactor is not null
-        begin
-    	    set @result = @markupFactor * @result;
-        end
-    else 
-        begin
-            set @result = @markup + @result;
-        end
-
-    return @result;
-
+CREATE FUNCTION [dbo].[CalcServiceTP](
+    @serviceTC float,
+    @markupFactor float,
+    @markup float
+)
+RETURNS float
+AS
+BEGIN
+	RETURN dbo.AddMarkup(@serviceTC, @markupFactor, @markup);
 END
 GO
 
@@ -674,3 +697,16 @@ BEGIN
 END
 GO
 
+CREATE PROCEDURE [dbo].[UpdateServiceTP]
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    UPDATE [Hardware].[ServiceCostCalculation] 
+            SET ServiceTP = dbo.CalcServiceTP(sc.ServiceTC, moc.MarkupFactor, moc.Markup)
+    FROM [Hardware].[ServiceCostCalculation] sc
+    INNER JOIN Matrix m ON sc.MatrixId = m.Id
+    LEFT JOIN Atom.MarkupOtherCosts moc on moc.Wg = m.WgId and moc.Country = m.CountryId
+END
+GO
