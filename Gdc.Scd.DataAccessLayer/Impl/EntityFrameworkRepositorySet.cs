@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
@@ -202,7 +203,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-
             optionsBuilder.UseSqlServer(this.configuration.GetSection("ConnectionStrings")["CommonDB"]);
         }
 
