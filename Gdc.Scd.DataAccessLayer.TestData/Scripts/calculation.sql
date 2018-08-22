@@ -74,6 +74,10 @@ IF OBJECT_ID('dbo.UpdateLocalServiceStandardWarranty') IS NOT NULL
     DROP PROCEDURE dbo.UpdateLocalServiceStandardWarranty;
 go
 
+IF OBJECT_ID('dbo.UpdateCredits') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateCredits;
+go
+
 IF OBJECT_ID('dbo.AfrByDurationView', 'V') IS NOT NULL
   DROP VIEW dbo.AfrByDurationView;
 go
@@ -120,6 +124,10 @@ go
 
 IF OBJECT_ID('dbo.CalcOtherDirectCost') IS NOT NULL
   DROP FUNCTION dbo.CalcOtherDirectCost;
+go 
+
+IF OBJECT_ID('dbo.CalcCredit') IS NOT NULL
+  DROP FUNCTION dbo.CalcCredit;
 go 
 
 CREATE VIEW [dbo].[DurationToYearView] as 
@@ -413,6 +421,14 @@ BEGIN
 END
 GO
 
+CREATE FUNCTION [dbo].[CalcCredit](@materialCost float, @warrantyCost float)
+RETURNS float
+AS
+BEGIN
+	RETURN @materialCost + @warrantyCost;
+END
+GO
+
 CREATE VIEW [dbo].[ReinsuranceView] as
     SELECT r.Wg, 
            dur.DurID as  Duration,
@@ -644,3 +660,17 @@ BEGIN
                                           and fsc.ReactionTimeId = m.ReactionTimeId
 
 END
+GO
+
+CREATE PROCEDURE [dbo].[UpdateCredits]
+AS
+BEGIN
+
+	SET NOCOUNT ON;
+
+    UPDATE [Hardware].[ServiceCostCalculation] 
+           SET Credits = MaterialW + LocalServiceStandardWarranty;
+
+END
+GO
+
