@@ -62,6 +62,10 @@ IF OBJECT_ID('dbo.UpdateLogisticCost') IS NOT NULL
     DROP PROCEDURE dbo.UpdateLogisticCost;
 go
 
+IF OBJECT_ID('dbo.UpdateOtherDirectCost') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateOtherDirectCost;
+go
+
 IF OBJECT_ID('dbo.AfrByDurationView', 'V') IS NOT NULL
   DROP VIEW dbo.AfrByDurationView;
 go
@@ -90,8 +94,8 @@ IF OBJECT_ID('dbo.CountryClusterRegionView', 'V') IS NOT NULL
   DROP VIEW dbo.CountryClusterRegionView;
 go
 
-IF OBJECT_ID('dbo.ReinsuranceByDuration', 'V') IS NOT NULL
-  DROP VIEW dbo.ReinsuranceByDuration;
+IF OBJECT_ID('dbo.ReinsuranceByDurationView', 'V') IS NOT NULL
+  DROP VIEW dbo.ReinsuranceByDurationView;
 go
 
 IF OBJECT_ID('dbo.CalcReinsuranceCost') IS NOT NULL
@@ -100,6 +104,10 @@ go
 
 IF OBJECT_ID('dbo.CalcLogisticCost') IS NOT NULL
   DROP FUNCTION dbo.CalcLogisticCost;
+go 
+
+IF OBJECT_ID('dbo.CalcOtherDirectCost') IS NOT NULL
+  DROP FUNCTION dbo.CalcOtherDirectCost;
 go 
 
 CREATE VIEW [dbo].[DurationToYearView] as 
@@ -191,6 +199,35 @@ RETURNS float
 AS
 BEGIN
     RETURN @cost * @tax;
+END
+GO
+
+CREATE FUNCTION [dbo].[CalcOtherDirectCost](
+    @fieldSrvCost float,
+    @srvSupportCost float,
+    @materialCost float,
+    @logisticCost float,
+    @reinsurance float,
+    @markupFactor float,
+    @markup float
+)
+RETURNS float
+AS
+BEGIN
+
+    declare @result float = @fieldSrvCost + @srvSupportCost + @materialCost + @logisticCost + @reinsurance;
+
+    if @markupFactor is not null
+        begin
+    	    set @result = @markupFactor * @result;
+        end
+    else 
+        begin
+            set @result = @markup + @result;
+        end
+
+    return @result;
+
 END
 GO
 
@@ -316,25 +353,17 @@ BEGIN
 END
 GO
 
-CREATE VIEW [dbo].[ReinsuranceByDuration] as
-    with ExchangeRateCte(Currency, ExchangeRate) as 
-    (
-       select er.Currency2Id, er.Value
-       from [References].ExchangeRate er,
-            [References].Currency c
-       where er.Currency1Id = c.Id
-             AND upper(c.Name) = 'EUR'
-    )
+CREATE VIEW [dbo].[ReinsuranceByDurationView] as
     SELECT r.Wg, 
            dur.DurID as  Duration,
            rta.AvailabilityId, 
            rta.ReactionTimeId,
-           dbo.CalcReinsuranceCost(r.ReinsuranceFlatfee, r.[ReinsuranceUplift factor], er.ExchangeRate) as Cost
+           dbo.CalcReinsuranceCost(r.ReinsuranceFlatfee, r.[ReinsuranceUplift factor], er.Value) as Cost
     FROM Hardware.Reinsurance r
     JOIN Dependencies.ReactionTime_Avalability rta on rta.Id = r.ReactionTimeAvailability
     JOIN Dependencies.Year y on y.Id = r.Year
     JOIN DurationToYearView dur on dur.YearID = y.Id
-    LEFT JOIN ExchangeRateCte er on er.Currency = r.CurrencyReinsurance
+    JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance
 GO
 
 CREATE PROCEDURE [dbo].[UpdateReinsurance]
@@ -347,7 +376,7 @@ BEGIN
            SET Reinsurance = rd.Cost
     FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN ReinsuranceByDuration rd on rd.Wg = m.WgId 
+    LEFT JOIN ReinsuranceByDurationView rd on rd.Wg = m.WgId 
               AND rd.Duration = m.DurationId 
               AND rd.AvailabilityId = m.AvailabilityId 
               AND rd.ReactionTimeId = m.ReactionTimeId
@@ -497,6 +526,29 @@ BEGIN
                                       and lc.Wg = m.WgId
                                       and lc.ReactionTime = m.ReactionTimeId
                                       and lc.ReactionType = m.ReactionTypeId
+
+END
+GO
+
+CREATE PROCEDURE [dbo].[UpdateOtherDirectCost]
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    UPDATE [Hardware].[ServiceCostCalculation] 
+            SET OtherDirect = dbo.CalcOtherDirectCost(
+                                    sc.FieldServiceCost, 
+                                    sc.ServiceSupport, 
+                                    1, 
+                                    sc.Logistic, 
+                                    sc.Reinsurance, 
+                                    moc.MarkupFactor, 
+                                    moc.Markup
+                                )
+    FROM [Hardware].[ServiceCostCalculation] sc
+    INNER JOIN Matrix m ON sc.MatrixId = m.Id
+    LEFT JOIN Atom.MarkupOtherCosts moc on moc.Wg = m.WgId and moc.Country = m.CountryId
 
 END
 GO

@@ -225,8 +225,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             var exRepo = repositorySet.GetRepository<ExchangeRate>();
 
-            exRepo.Save(new ExchangeRate { Currency1 = eur, Currency2 = eur, Value = 1 });
-            exRepo.Save(new ExchangeRate { Currency1 = eur, Currency2 = usd, Value = 1.2 });
+            exRepo.Save(new ExchangeRate { Currency = eur, Value = 1 });
+            exRepo.Save(new ExchangeRate { Currency = usd, Value = 1.2 });
             repositorySet.Sync();
         }
 

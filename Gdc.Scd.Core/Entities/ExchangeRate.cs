@@ -7,11 +7,11 @@ namespace Gdc.Scd.Core.Entities
     [Table("ExchangeRate", Schema = MetaConstants.ReferencesSchema)]
     public class ExchangeRate : IIdentifiable
     {
+        [ForeignKey("Currency")]
+        [Column("CurrencyId")]
         public long Id { get; set; }
 
-        public Currency Currency1 { get; set; }
-
-        public Currency Currency2 { get; set; }
+        public Currency Currency { get; set; }
 
         public double Value { get; set; }
     }
