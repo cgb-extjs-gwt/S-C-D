@@ -86,6 +86,10 @@ IF OBJECT_ID('dbo.LogisticsCostView', 'V') IS NOT NULL
   DROP VIEW dbo.LogisticsCostView;
 go
 
+IF OBJECT_ID('dbo.CountryClusterRegionView', 'V') IS NOT NULL
+  DROP VIEW dbo.CountryClusterRegionView;
+go
+
 IF OBJECT_ID('dbo.ReinsuranceByDuration', 'V') IS NOT NULL
   DROP VIEW dbo.ReinsuranceByDuration;
 go
@@ -262,6 +266,34 @@ CREATE VIEW [dbo].[LogisticsCostView] AS
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = lc.ReactionTimeType
 GO
 
+CREATE VIEW [dbo].[CountryClusterRegionView] as
+    WITH cte (id, IsImeia, IsJapan, IsApac) as (
+      SELECT cr.Id, 
+             (case UPPER(cr.Name)
+                when 'EMEIA' then 1
+                else 0
+              end),
+         
+             (case UPPER(cr.Name)
+                when 'JAPAN' then 1
+                else 0
+              end),
+         
+             (case UPPER(cr.Name)
+                when 'APAC' then 1
+                else 0
+              end)
+        FROM InputAtoms.ClusterRegion cr
+    )
+    SELECT c.Id, 
+           c.Name,
+           cr.IsImeia,
+           cr.IsJapan,
+           cr.IsApac
+    FROM InputAtoms.Country c
+    JOIN cte cr on cr.Id = c.ClusterRegionId
+GO
+
 CREATE FUNCTION [dbo].[GetAfr](@wg bigint, @dur bigint)
 RETURNS float
 AS
@@ -394,11 +426,15 @@ BEGIN
     SET NOCOUNT ON;
 
     UPDATE [Hardware].[ServiceCostCalculation] 
-       SET ServiceSupport = dbo.CalcSrvSupportCost(ssc.[1stLevelSupportCostsCountry], ssc.[2ndLevelSupportCostsClusterRegion], ib.ibCnt, ib.ib_Cnt_PLA) * dur.Value, 
-           ServiceSupportEmeia = dbo.CalcSrvSupportCost(ssc.[1stLevelSupportCostsCountry], ssc.[2ndLevelSupportCostsLocal], ib.ibCnt, ib.ib_Cnt_PLA) * dur.Value
+        SET ServiceSupport = (case c.IsImeia
+                                   when 1 then dbo.CalcSrvSupportCost(ssc.[1stLevelSupportCostsCountry], ssc.[2ndLevelSupportCostsClusterRegion], ib.ibCnt, ib.ib_Cnt_PLA) * dur.Value
+                                   else dbo.CalcSrvSupportCost(ssc.[1stLevelSupportCostsCountry], ssc.[2ndLevelSupportCostsLocal], ib.ibCnt, ib.ib_Cnt_PLA) * dur.Value
+                              end
+                             )
     FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m on sc.MatrixId = m.Id
     INNER JOIN Dependencies.Duration dur on dur.Id = m.DurationId
+    INNER JOIN CountryClusterRegionView c on c.Id = m.CountryId
     LEFT JOIN InstallBaseByCountryView ib on ib.Wg = m.WgId and ib.Country = m.CountryId
     LEFT JOIN Hardware.ServiceSupportCost ssc on ib.Country = m.CountryId
 

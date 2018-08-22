@@ -15,8 +15,6 @@ namespace Gdc.Scd.Core.Entities
 
         public double? ServiceSupport { get; set; }
 
-        public double? ServiceSupportEmeia { get; set; }
-
         public double? Logistic { get; set; }
 
         public double? AvailabilityFee { get; set; }
