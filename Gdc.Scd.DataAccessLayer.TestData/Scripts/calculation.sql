@@ -94,8 +94,8 @@ IF OBJECT_ID('dbo.CountryClusterRegionView', 'V') IS NOT NULL
   DROP VIEW dbo.CountryClusterRegionView;
 go
 
-IF OBJECT_ID('dbo.ReinsuranceByDurationView', 'V') IS NOT NULL
-  DROP VIEW dbo.ReinsuranceByDurationView;
+IF OBJECT_ID('dbo.ReinsuranceView', 'V') IS NOT NULL
+  DROP VIEW dbo.ReinsuranceView;
 go
 
 IF OBJECT_ID('dbo.CalcReinsuranceCost') IS NOT NULL
@@ -353,7 +353,7 @@ BEGIN
 END
 GO
 
-CREATE VIEW [dbo].[ReinsuranceByDurationView] as
+CREATE VIEW [dbo].[ReinsuranceView] as
     SELECT r.Wg, 
            dur.DurID as  Duration,
            rta.AvailabilityId, 
@@ -376,7 +376,7 @@ BEGIN
            SET Reinsurance = rd.Cost
     FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN ReinsuranceByDurationView rd on rd.Wg = m.WgId 
+    LEFT JOIN ReinsuranceView rd on rd.Wg = m.WgId 
               AND rd.Duration = m.DurationId 
               AND rd.AvailabilityId = m.AvailabilityId 
               AND rd.ReactionTimeId = m.ReactionTimeId
