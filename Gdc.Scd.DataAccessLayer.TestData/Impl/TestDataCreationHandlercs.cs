@@ -54,43 +54,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreatePlas();
             this.CreateUsers();
             this.CreateReactionTimeTypeAvalability();
-
-            var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
-
-            //Insert Cluster Regions
-            var clusterRegionsRepository = repositorySet.GetRepository<ClusterRegion>();
-            var regions = GetClusterRegions();
-            clusterRegionsRepository.Save(regions);
-            repositorySet.Sync();
-
-            //Insert Countries
-            var countryRepository = repositorySet.GetRepository<Country>();
-
-            var countries = this.GetCountrieNames().Select(c => new Country
-            {
-                Name = c,
-                CanOverrideListAndDealerPrices = GenerateRandomBool(),
-                CanOverrideTransferCostAndPrice = GenerateRandomBool(),
-                ShowDealerPrice = GenerateRandomBool(),
-                ClusterRegionId = 1
-            });
-
-            countryRepository.Save(countries);
-            repositorySet.Sync();
-
-            //Insert Durations
-            var durationRepository = repositorySet.GetRepository<Duration>();
-            var durations = GetDurationNames();
-            durationRepository.Save(durations);
-            repositorySet.Sync();
-
-            //Insert Years
-            var yearRepository = repositorySet.GetRepository<Year>();
-            var years = GetYearNames();
-            yearRepository.Save(years);
-            repositorySet.Sync();
-
-            CreateCurrenciesAndExchangeRates();
+            this.CreateClusterRegions();
+            this.CreateCountries();
+            this.CreateDurations();
+            this.CreateYears();
+            this.CreateCurrenciesAndExchangeRates();
 
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
@@ -109,6 +77,38 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 this.repositorySet.ExecuteSql(query);
             }
+        }
+
+        private void CreateYears()
+        {
+            //Insert Years
+            var yearRepository = repositorySet.GetRepository<Year>();
+            yearRepository.Save(GetYears());
+            repositorySet.Sync();
+        }
+
+        private void CreateDurations()
+        {
+            //Insert Durations
+            var durationRepository = repositorySet.GetRepository<Duration>();
+            durationRepository.Save(GetDurations());
+            repositorySet.Sync();
+        }
+
+        private void CreateCountries()
+        {
+            //Insert Countries
+            var countryRepository = repositorySet.GetRepository<Country>();
+            countryRepository.Save(this.GetCountries());
+            repositorySet.Sync();
+        }
+
+        private void CreateClusterRegions()
+        {
+            //Insert Cluster Regions
+            var clusterRegionsRepository = repositorySet.GetRepository<ClusterRegion>();
+            clusterRegionsRepository.Save(GetClusterRegions());
+            repositorySet.Sync();
         }
 
         private void CreateUsers()
@@ -970,9 +970,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.repositorySet.Sync();
         }
 
-        private string[] GetCountrieNames()
+        private Country[] GetCountries()
         {
-            return new[]
+            var names = new[]
             {
                 "Algeria",
                 "Austria",
@@ -1005,6 +1005,23 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "Turkey",
                 "UK & Ireland"
             };
+
+            var len = names.Length;
+            var result = new Country[len];
+
+            for (var i = 0; i < len; i++)
+            {
+                result[i] = new Country
+                {
+                    Name = names[i],
+                    CanOverrideListAndDealerPrices = GenerateRandomBool(),
+                    CanOverrideTransferCostAndPrice = GenerateRandomBool(),
+                    ShowDealerPrice = GenerateRandomBool(),
+                    ClusterRegionId = 1
+                };
+            }
+
+            return result;
         }
 
         private string[] GetServiceLocationCodeNames()
@@ -1044,7 +1061,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private Year[] GetYearNames()
+        private Year[] GetYears()
         {
             return new Year[]
             {
@@ -1085,7 +1102,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private Duration[] GetDurationNames()
+        private Duration[] GetDurations()
         {
             return new Duration[]
             {
