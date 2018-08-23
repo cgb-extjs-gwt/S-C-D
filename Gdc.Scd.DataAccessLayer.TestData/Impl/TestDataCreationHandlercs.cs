@@ -182,12 +182,32 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var nineByFive = new Availability { Name = "9x5" };
             var twentyFourBySeven = new Availability { Name = "24x7" };
 
-            this.repositorySet.GetRepository<ReactionTimeAvalability>().Save(new List<ReactionTimeAvalability>
+            var reactionTimeAvalabilities = new List<ReactionTimeAvalability>
             {
                 new ReactionTimeAvalability { ReactionTime = nbd, Availability = nineByFive },
                 new ReactionTimeAvalability { ReactionTime = fourHour, Availability = nineByFive },
                 new ReactionTimeAvalability { ReactionTime = fourHour, Availability = twentyFourBySeven },
-            });
+            };
+
+            this.repositorySet.GetRepository<ReactionTimeAvalability>().Save(reactionTimeAvalabilities);
+
+            var reactionTypes = new List<ReactionType> { response, recovery };
+            var reactionTimeTypeAvalabilities = new List<ReactionTimeTypeAvalability>();
+
+            foreach (var reactionType in reactionTypes)
+            {
+                foreach (var reactionTimeAvalability in reactionTimeAvalabilities)
+                {
+                    reactionTimeTypeAvalabilities.Add(new ReactionTimeTypeAvalability
+                    {
+                        ReactionType = reactionType,
+                        ReactionTime = reactionTimeAvalability.ReactionTime,
+                        Availability = reactionTimeAvalability.Availability
+                    });
+                }
+            }
+
+            this.repositorySet.GetRepository<ReactionTimeTypeAvalability>().Save(reactionTimeTypeAvalabilities);
 
             this.repositorySet.Sync();
         }
