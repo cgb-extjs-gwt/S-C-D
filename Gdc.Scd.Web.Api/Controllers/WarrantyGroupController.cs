@@ -13,16 +13,5 @@ namespace Gdc.Scd.Web.Api.Controllers
         public WarrantyGroupController(IDomainService<Wg> domainService) : base(domainService)
         {
         }
-
-        public override IEnumerable<Wg> GetAll()
-        {
-            return this.domainService.GetAll().Select(t => new Wg
-            {
-                Id = t.Id,
-                Name = t.Name,
-                RoleCode = t.RoleCode,
-                RoleCodeId = t.RoleCode == null ? 0 : t.RoleCode.Id
-            }).ToList();
-        }
     }
 }

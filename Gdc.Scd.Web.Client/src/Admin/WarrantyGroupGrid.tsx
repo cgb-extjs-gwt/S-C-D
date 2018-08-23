@@ -20,7 +20,23 @@ export default class RoleCodesGrid extends React.Component {
 
 
     store = Ext.create('Ext.data.Store', {
-        fields: ['id','name', 'roleCodeId','roleCode'],
+        fields: ['id', 'name',
+            {
+                name: 'roleCodeId', type: 'int',
+                convert: function (val, row) {
+                    if (!val)
+                        return '';                  
+                    return val;
+                }
+            },
+            {
+                name: 'roleCodeEmpty', type: 'bool',
+                convert: function (val, row) {
+                    if (row.data.roleCodeId==0)
+                        return false;
+                    return true;
+                }
+            }],
 
         autoLoad: true,
         pageSize: 0,
@@ -50,7 +66,7 @@ export default class RoleCodesGrid extends React.Component {
     });
 
     storeRC = Ext.create('Ext.data.Store', {
-        fields:['id','name'],
+        fields: ['id','name'],
         autoLoad: false,
         pageSize: 0,
         sorters: [ {
@@ -126,7 +142,7 @@ export default class RoleCodesGrid extends React.Component {
 
     filterOnChange = (chkBox, newValue, oldValue) => {
         if (newValue)
-            this.store.filter('roleCode', 'null');       
+            this.store.filter('roleCodeEmpty', 'false');       
         else
             this.store.clearFilter();
     }
@@ -138,7 +154,7 @@ export default class RoleCodesGrid extends React.Component {
         let renderer: (value, data: { data }) => string;
 
         selectField = (
-            <SelectField             
+            <ComboBoxField              
                 store={this.storeRC}
                 valueField="id"
                 displayField="name"            
