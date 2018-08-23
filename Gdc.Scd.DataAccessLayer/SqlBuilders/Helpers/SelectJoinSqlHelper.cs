@@ -35,9 +35,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return new SelectJoinSqlHelper(this.joinSqlHelper.Join(tableName, condition, type, alias));
         }
 
-        public SelectJoinSqlHelper Join(BaseEntityMeta meta, string referenceFieldName, string aliasMetaTable = null)
+        public SelectJoinSqlHelper Join(BaseEntityMeta meta, string referenceFieldName, string joinedTableAlias = null, string metaTableAlias = null)
         {
-            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(meta, referenceFieldName, aliasMetaTable));
+            return new SelectJoinSqlHelper(this.joinSqlHelper.Join(meta, referenceFieldName, joinedTableAlias, metaTableAlias));
         }
 
         public SelectJoinSqlHelper Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner, string aliasMetaTable = null)

@@ -1,4 +1,4 @@
-﻿namespace Gdc.Scd.BusinessLogicLayer.Entities
+﻿namespace Gdc.Scd.Core.Entities
 {
     public class CostEditorContext
     {

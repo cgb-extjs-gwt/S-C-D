@@ -131,7 +131,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(CostEditorContext context, long editItemId, QueryInfo queryInfo = null)
         {
-            var historyContext = this.BuildHistoryContext(context);
+            var historyContext = HistoryContext.Build(context);
             var filter = this.costBlockFilterBuilder.BuildFilter(context);
             var region = this.domainMeta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId].RegionInput;
 
@@ -217,7 +217,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 EditDate = DateTime.UtcNow,
                 EditUser = this.userService.GetCurrentUser(),
                 State = forApproval ? CostBlockHistoryState.Pending : CostBlockHistoryState.None,
-                Context = this.BuildHistoryContext(context),
+                Context = HistoryContext.Build(context),
                 EditItemCount = editItemArray.Length,
                 IsDifferentValues = isDifferentValues
             };
@@ -303,18 +303,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return query;
-        }
-
-        private HistoryContext BuildHistoryContext(CostEditorContext context)
-        {
-            return new HistoryContext
-            {
-                ApplicationId = context.ApplicationId,
-                RegionInputId = context.RegionInputId,
-                CostBlockId = context.CostBlockId,
-                CostElementId = context.CostElementId,
-                InputLevelId = context.InputLevelId,
-            };
         }
     }
 }

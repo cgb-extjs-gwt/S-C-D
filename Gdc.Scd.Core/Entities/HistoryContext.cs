@@ -11,5 +11,17 @@
         public string CostElementId { get; set; }
 
         public string InputLevelId { get; set; }
+
+        public static HistoryContext Build(CostEditorContext context)
+        {
+            return new HistoryContext
+            {
+                ApplicationId = context.ApplicationId,
+                RegionInputId = context.RegionInputId,
+                CostBlockId = context.CostBlockId,
+                CostElementId = context.CostElementId,
+                InputLevelId = context.InputLevelId,
+            };
+        }
     }
 }

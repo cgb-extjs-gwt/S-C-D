@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Gdc.Scd.Core.Meta.Entities;
+﻿using Gdc.Scd.Core.Meta.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Entities
 {
@@ -11,6 +8,20 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Entities
 
         public string ReferenceFieldName { get; set; }
 
-        public string Alias { get; set; }
+        public string JoinedTableAlias { get; set; }
+
+        public string MetaTableAlias { get; set; }
+
+        public JoinInfo()
+        {
+        }
+
+        public JoinInfo(BaseEntityMeta meta, string referenceFieldName, string alias = null, string metaTableAlias = null)
+        {
+            this.Meta = meta;
+            this.ReferenceFieldName = referenceFieldName;
+            this.JoinedTableAlias = alias;
+            this.MetaTableAlias = metaTableAlias;
+        }
     }
 }

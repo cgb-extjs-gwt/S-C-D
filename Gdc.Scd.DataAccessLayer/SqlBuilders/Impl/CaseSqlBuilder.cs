@@ -16,7 +16,8 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 
         public string Build(SqlBuilderContext context)
         {
-            var input = this.Input.Build(context);
+            var input = this.Input == null ? string.Empty : this.Input.Build(context);
+
             var cases = string.Join(
                 Environment.NewLine, 
                 this.Cases.Select(caseItem => this.BuildCaseItem(caseItem, context)));
@@ -40,10 +41,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 
         private string BuildCaseItem(CaseItem caseItem, SqlBuilderContext context)
         {
-            var when = caseItem.When.Build(context);
-            var then = caseItem.Then.Build(context);
+            var whenSql = caseItem.When.Build(context);
+            var thenSql = caseItem.Then.Build(context);
+            var elseSql = this.Else == null ? string.Empty : $" ELSE {this.Else.Build(context)}";
 
-            return $"WHEN {when} THEN {then}";
+            return $"WHEN {whenSql} THEN {thenSql}{elseSql}";
         }
     }
 }

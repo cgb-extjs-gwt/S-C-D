@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
@@ -17,8 +16,10 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
         public string Build(SqlBuilderContext context)
         {
             var allOption = this.All ? " ALL" : string.Empty;
+            var leftQuery = $"{this.Query1.Build(context)}{Environment.NewLine}";
+            var rightQuery = $" {Environment.NewLine}{this.Query2.Build(context)}";
 
-            return $"{this.Query1.Build(context)}{Environment.NewLine}UNION{allOption}{Environment.NewLine}{this.Query2.Build(context)}";
+            return $"{leftQuery}UNION{allOption}{rightQuery}";
         }
 
         public IEnumerable<ISqlBuilder> GetChildrenBuilders()

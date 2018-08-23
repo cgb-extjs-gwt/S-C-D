@@ -60,7 +60,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return this.Join(null, tableName, condition, type, alias);
         }
 
-        public ISqlBuilder Join(BaseEntityMeta meta, string referenceFieldName, string aliasMetaTable = null)
+        public ISqlBuilder Join(BaseEntityMeta meta, string referenceFieldName, string joinedTableAlias = null, string metaTableAlias = null)
         {
             var referenceField = (ReferenceFieldMeta)meta.GetField(referenceFieldName);
 
@@ -68,9 +68,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     referenceField.ReferenceMeta.Schema,
                     referenceField.ReferenceMeta.Name,
                     SqlOperators.Equals(
-                        new ColumnInfo(referenceField.Name, meta.Name),
-                        new ColumnInfo(referenceField.ReferenceValueField, aliasMetaTable ?? referenceField.ReferenceMeta.Name)),
-                    alias: aliasMetaTable);
+                        new ColumnInfo(referenceField.Name, metaTableAlias ?? meta.Name),
+                        new ColumnInfo(referenceField.ReferenceValueField, joinedTableAlias ?? referenceField.ReferenceMeta.Name)),
+                    alias: joinedTableAlias);
         }
 
         public ISqlBuilder Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner, string aliasMetaTable = null)
@@ -86,9 +86,10 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             {
                 foreach (var joinInfo in joinInfos)
                 {
-                    var sqlBuilder = joinHelper.Join(joinInfo.Meta, joinInfo.ReferenceFieldName, joinInfo.Alias);
+                    var sqlBuilder = joinHelper.Join(joinInfo.Meta, joinInfo.ReferenceFieldName, joinInfo.JoinedTableAlias);
 
-                    joinHelper = new JoinSqlHelper(joinHelper.Join(joinInfo.Meta, joinInfo.ReferenceFieldName, joinInfo.Alias));
+                    joinHelper = new JoinSqlHelper(
+                        joinHelper.Join(joinInfo.Meta, joinInfo.ReferenceFieldName, joinInfo.JoinedTableAlias, joinInfo.MetaTableAlias));
                 }
             }
 

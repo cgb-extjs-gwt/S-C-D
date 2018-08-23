@@ -14,5 +14,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
         Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(HistoryContext historyContext, IDictionary<string, IEnumerable<object>> filter, QueryInfo queryInfo = null);
 
         Task<int> Approve(CostBlockHistory history);
+
+        Task<IEnumerable<QualityGateError>> QualityGateCheck(HistoryContext historyContext, IEnumerable<EditItem> editItems, IDictionary<string, IEnumerable<object>> costBlockFilter);
     }
 }

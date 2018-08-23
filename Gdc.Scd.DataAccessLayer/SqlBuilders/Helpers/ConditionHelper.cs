@@ -126,7 +126,19 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         private static ConditionHelper CreateConditionHelper<T>(ISqlBuilder leftOperand, ISqlBuilder rightOperand)
             where T : BinaryOperatorSqlBuilder, new()
         {
-            return new ConditionHelper(SqlOperators.BinaryOperator<T>(leftOperand, rightOperand));
+            ConditionHelper result;
+
+            var rawSqlBuilder = leftOperand as RawSqlBuilder;
+            if (rawSqlBuilder == null || !string.IsNullOrWhiteSpace(rawSqlBuilder.RawSql))
+            {
+                result = new ConditionHelper(SqlOperators.BinaryOperator<T>(leftOperand, rightOperand));
+            }
+            else
+            {
+                result = new ConditionHelper(rightOperand);
+            }
+
+            return result;
         }
 
         private static ConditionHelper CreateConditionHelper<T>(IEnumerable<ISqlBuilder> operands)
@@ -216,9 +228,8 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 SqlBuilder = rightOperand
             };
 
-            var binOperator = SqlOperators.BinaryOperator<T>(this.ToSqlBuilder(), rightOperand);
 
-            return new ConditionHelper(binOperator);
+            return CreateConditionHelper<T>(this.ToSqlBuilder(), rightOperand);
         }
     }
 }
