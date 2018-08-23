@@ -1,8 +1,8 @@
 ﻿import * as React from 'react';
-import { FieldType } from "../CostEditor/States/CostEditorStates";
-import { EditItem } from "../CostEditor/States/CostBlockStates";
+import { FieldType } from "../../CostEditor/States/CostEditorStates";
+import { EditItem } from "../../CostEditor/States/CostBlockStates";
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, SelectionColumn, CheckBoxField } from '@extjs/ext-react';
-import { NamedId } from '../Common/States/CommonStates';
+import { NamedId } from '../../Common/States/CommonStates';
 
 Ext.require([
     'Ext.grid.plugin.Editable',
