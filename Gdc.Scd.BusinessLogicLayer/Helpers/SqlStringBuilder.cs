@@ -77,7 +77,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             }
             else
             {
-                sb.Append("IN (").AppendJoin(',', items).Append(")");
+                sb.Append("IN (");
+                sb.Append(items[0]);
+                for (var i = 1; i < items.Length; i++)
+                {
+                    sb.Append(',').Append(items[i]);
+                }
+                sb.Append(")");
             }
             return this;
         }
