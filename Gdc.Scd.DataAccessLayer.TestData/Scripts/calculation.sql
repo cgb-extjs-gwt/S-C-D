@@ -230,9 +230,9 @@ AS
 BEGIN
     return @afr * (
                    (1 - @timeAndMaterialShare) * (@travelCost + @labourCost + @performanceRate) + 
-                   @timeAndMaterialShare * ((@travelTime + @repairTime) * @onsiteHourlyRate) + 
+                   @timeAndMaterialShare * (@travelTime + @repairTime) * @onsiteHourlyRate + 
                    @performanceRate
-                  );
+                );
 END
 GO
 
@@ -508,7 +508,16 @@ BEGIN
     SET NOCOUNT ON;
 
     UPDATE [Hardware].[ServiceCostCalculation] 
-           SET FieldServiceCost = dbo.CalcFieldServiceCost(fsc.TimeAndMaterialShare, fsc.TravelCost, fsc.LabourCost, 1, fsc.TravelTime, fsc.RepairTime, 1, afr.TotalAFR)
+           SET FieldServiceCost = dbo.CalcFieldServiceCost(
+                                     fsc.TimeAndMaterialShare, 
+                                     fsc.TravelCost, 
+                                     fsc.LabourCost, 
+                                     fsc.PerformanceRate, 
+                                     fsc.TravelTime, 
+                                     fsc.RepairTime, 
+                                     1, 
+                                     afr.TotalAFR
+                                  )
     FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
