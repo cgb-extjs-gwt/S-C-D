@@ -398,33 +398,33 @@ CREATE VIEW [dbo].[CountryClusterRegionView] as
     with cte (id, IsImeia, IsJapan, IsAsia, IsLatinAmerica, IsOceania, IsUnitedStates) as (
         select cr.Id, 
                 (case UPPER(cr.Name)
-                when 'EMEIA' then 1
-                else 0
+                    when 'EMEIA' then 1
+                    else 0
                 end),
          
                 (case UPPER(cr.Name)
-                when 'JAPAN' then 1
-                else 0
+                    when 'JAPAN' then 1
+                    else 0
                 end),
          
                 (case UPPER(cr.Name)
-                when 'ASIA' then 1
-                else 0
+                    when 'ASIA' then 1
+                    else 0
+                end),
+         
+                    (case UPPER(cr.Name)
+                    when 'LATIN AMERICA' then 1
+                    else 0
                 end),
          
                 (case UPPER(cr.Name)
-                when 'LATIN AMERICA' then 1
-                else 0
+                    when 'OCEANIA' then 1
+                    else 0
                 end),
          
                 (case UPPER(cr.Name)
-                when 'OCEANIA' then 1
-                else 0
-                end),
-         
-                (case UPPER(cr.Name)
-                when 'UNITED STATES' then 1
-                else 0
+                    when 'UNITED STATES' then 1
+                    else 0
                 end)
         from InputAtoms.ClusterRegion cr
     )
