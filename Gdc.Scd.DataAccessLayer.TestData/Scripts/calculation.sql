@@ -82,40 +82,40 @@ IF OBJECT_ID('dbo.UpdateServiceTP') IS NOT NULL
     DROP PROCEDURE dbo.UpdateServiceTP;
 go
 
-IF OBJECT_ID('dbo.AfrByDurationView', 'V') IS NOT NULL
-  DROP VIEW dbo.AfrByDurationView;
+IF OBJECT_ID('Atom.AfrByDurationView', 'V') IS NOT NULL
+  DROP VIEW Atom.AfrByDurationView;
 go
 
-IF OBJECT_ID('dbo.HddFrByDurationView', 'V') IS NOT NULL
-  DROP VIEW dbo.HddFrByDurationView;
+IF OBJECT_ID('Hardware.HddFrByDurationView', 'V') IS NOT NULL
+  DROP VIEW Hardware.HddFrByDurationView;
 go
 
-IF OBJECT_ID('dbo.HddRetByDurationView', 'V') IS NOT NULL
-  DROP VIEW dbo.HddRetByDurationView;
+IF OBJECT_ID('Hardware.HddRetByDurationView', 'V') IS NOT NULL
+  DROP VIEW Hardware.HddRetByDurationView;
 go
 
-IF OBJECT_ID('dbo.InstallBaseByCountryView', 'V') IS NOT NULL
-  DROP VIEW dbo.InstallBaseByCountryView;
+IF OBJECT_ID('Atom.InstallBaseByCountryView', 'V') IS NOT NULL
+  DROP VIEW Atom.InstallBaseByCountryView;
 go
 
-IF OBJECT_ID('dbo.DurationToYearView', 'V') IS NOT NULL
-  DROP VIEW dbo.DurationToYearView;
+IF OBJECT_ID('Dependencies.DurationToYearView', 'V') IS NOT NULL
+  DROP VIEW Dependencies.DurationToYearView;
 go
 
-IF OBJECT_ID('dbo.LogisticsCostView', 'V') IS NOT NULL
-  DROP VIEW dbo.LogisticsCostView;
+IF OBJECT_ID('Hardware.LogisticsCostView', 'V') IS NOT NULL
+  DROP VIEW Hardware.LogisticsCostView;
 go
 
-IF OBJECT_ID('dbo.CountryClusterRegionView', 'V') IS NOT NULL
-  DROP VIEW dbo.CountryClusterRegionView;
+IF OBJECT_ID('InputAtoms.CountryClusterRegionView', 'V') IS NOT NULL
+  DROP VIEW InputAtoms.CountryClusterRegionView;
 go
 
-IF OBJECT_ID('dbo.ReinsuranceView', 'V') IS NOT NULL
-  DROP VIEW dbo.ReinsuranceView;
+IF OBJECT_ID('Hardware.ReinsuranceView', 'V') IS NOT NULL
+  DROP VIEW Hardware.ReinsuranceView;
 go
 
-IF OBJECT_ID('dbo.FieldServiceCostView', 'V') IS NOT NULL
-  DROP VIEW dbo.FieldServiceCostView;
+IF OBJECT_ID('Hardware.FieldServiceCostView', 'V') IS NOT NULL
+  DROP VIEW Hardware.FieldServiceCostView;
 go
 
 IF OBJECT_ID('dbo.CalcReinsuranceCost') IS NOT NULL
@@ -165,7 +165,7 @@ BEGIN
 END
 GO
 
-CREATE VIEW [dbo].[DurationToYearView] as 
+CREATE VIEW [Dependencies].[DurationToYearView] as 
     select dur.Id as DurID,
            dur.Name as DurName,
            y.Id as YearID,
@@ -176,7 +176,7 @@ CREATE VIEW [dbo].[DurationToYearView] as
     join Dependencies.Year y on dur.Value = y.Value and dur.IsProlongation = y.IsProlongation
 GO
 
-CREATE VIEW [dbo].[FieldServiceCostView] AS
+CREATE VIEW [Hardware].[FieldServiceCostView] AS
     SELECT fsc.Wg,
            fsc.Country,
            fsc.ServiceLocation,
@@ -322,7 +322,7 @@ BEGIN
 END
 GO
 
-create view [dbo].[AfrByDurationView] as 
+create view [Atom].[AfrByDurationView] as 
     select wg.Id as WgID,
            d.Id as DurID, 
            (select sum(a.AFR) 
@@ -335,7 +335,7 @@ create view [dbo].[AfrByDurationView] as
          InputAtoms.Wg wg
 GO
 
-CREATE view [dbo].[HddFrByDurationView] as 
+CREATE view [Hardware].[HddFrByDurationView] as 
      select wg.Id as WgID,
             d.Id as DurID, 
             (select sum(h.HddFr) 
@@ -348,7 +348,7 @@ CREATE view [dbo].[HddFrByDurationView] as
              InputAtoms.Wg wg
 GO
 
-CREATE view [dbo].[HddRetByDurationView] as 
+CREATE view [Hardware].[HddRetByDurationView] as 
      select wg.Id as WgID,
             d.Id as DurID, 
             (select sum(dbo.CalcHddRetention(h.HddMaterialCost, h.HddFr))
@@ -361,7 +361,7 @@ CREATE view [dbo].[HddRetByDurationView] as
              InputAtoms.Wg wg
 go
 
-create view [dbo].[InstallBaseByCountryView] as
+create view [Atom].[InstallBaseByCountryView] as
 
     with InstallBasePlaCte (Country, Pla, totalIB)
     as
@@ -379,7 +379,7 @@ create view [dbo].[InstallBaseByCountryView] as
     LEFT JOIN InstallBasePlaCte ibp on ibp.Pla = ib.Pla and ibp.Country = ib.Country
 GO
 
-CREATE VIEW [dbo].[LogisticsCostView] AS
+CREATE VIEW [Hardware].[LogisticsCostView] AS
     SELECT lc.Country, 
            lc.Wg, 
            rt.ReactionTypeId as ReactionType, 
@@ -394,7 +394,7 @@ CREATE VIEW [dbo].[LogisticsCostView] AS
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = lc.ReactionTimeType
 GO
 
-CREATE VIEW [dbo].[CountryClusterRegionView] as
+CREATE VIEW [InputAtoms].[CountryClusterRegionView] as
     with cte (id, IsImeia, IsJapan, IsAsia, IsLatinAmerica, IsOceania, IsUnitedStates) as (
         select cr.Id, 
                 (case UPPER(cr.Name)
@@ -447,7 +447,7 @@ BEGIN
 
     DECLARE @result float;
 
-    SELECT @result = TotalAFR from AfrByDurationView where WgID = @wg and DurID = @dur
+    SELECT @result = TotalAFR from Atom.AfrByDurationView where WgID = @wg and DurID = @dur
 
     RETURN @result;
 
@@ -470,7 +470,7 @@ BEGIN
 END
 GO
 
-CREATE VIEW [dbo].[ReinsuranceView] as
+CREATE VIEW [Hardware].[ReinsuranceView] as
     SELECT r.Wg, 
            dur.DurID as  Duration,
            rta.AvailabilityId, 
@@ -479,7 +479,7 @@ CREATE VIEW [dbo].[ReinsuranceView] as
     FROM Hardware.Reinsurance r
     JOIN Dependencies.ReactionTime_Avalability rta on rta.Id = r.ReactionTimeAvailability
     JOIN Dependencies.Year y on y.Id = r.Year
-    JOIN DurationToYearView dur on dur.YearID = y.Id
+    JOIN Dependencies.DurationToYearView dur on dur.YearID = y.Id
     JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance
 GO
 
@@ -493,7 +493,7 @@ BEGIN
            SET Reinsurance = rd.Cost
     FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN ReinsuranceView rd on rd.Wg = m.WgId 
+    LEFT JOIN Hardware.ReinsuranceView rd on rd.Wg = m.WgId 
               AND rd.Duration = m.DurationId 
               AND rd.AvailabilityId = m.AvailabilityId 
               AND rd.ReactionTimeId = m.ReactionTimeId
@@ -511,8 +511,8 @@ BEGIN
            SET FieldServiceCost = dbo.CalcFieldServiceCost(fsc.TimeAndMaterialShare, fsc.TravelCost, fsc.LabourCost, 1, fsc.TravelTime, fsc.RepairTime, 1, afr.TotalAFR)
     FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
-    LEFT JOIN FieldServiceCostView fsc ON fsc.Wg = m.WgId 
+    LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
+    LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId 
                                           and fsc.Country = m.CountryId 
                                           and fsc.ServiceLocation = m.ServiceLocationId
                                           and fsc.ReactionTypeId = m.ReactionTypeId
@@ -529,7 +529,7 @@ BEGIN
     UPDATE [Hardware].[ServiceCostCalculation] SET HddRetention = hr.HddRet
     FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN HddRetByDurationView hr on hr.WgID = m.WgId and hr.DurID = m.DurationId
+    LEFT JOIN Hardware.HddRetByDurationView hr on hr.WgID = m.WgId and hr.DurID = m.DurationId
 
 END
 GO
@@ -546,7 +546,7 @@ BEGIN
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
     LEFT JOIN Atom.MaterialCostOow mco on mco.Wg = m.WgId and mco.ClusterRegion = c.ClusterRegionId
-    LEFT JOIN AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
+    LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
 
 END
 GO
@@ -563,7 +563,7 @@ BEGIN
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
     LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId and mcw.ClusterRegion = c.ClusterRegionId
-    LEFT JOIN AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
+    LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
 
 END
 GO
@@ -583,8 +583,8 @@ BEGIN
     FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m on sc.MatrixId = m.Id
     INNER JOIN Dependencies.Duration dur on dur.Id = m.DurationId
-    INNER JOIN CountryClusterRegionView c on c.Id = m.CountryId
-    LEFT JOIN InstallBaseByCountryView ib on ib.Wg = m.WgId and ib.Country = m.CountryId
+    INNER JOIN InputAtoms.CountryClusterRegionView c on c.Id = m.CountryId
+    LEFT JOIN Atom.InstallBaseByCountryView ib on ib.Wg = m.WgId and ib.Country = m.CountryId
     LEFT JOIN Hardware.ServiceSupportCost ssc on ib.Country = m.CountryId
 
 END
@@ -641,8 +641,8 @@ BEGIN
                                afr.TotalAFR)
     FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
-    LEFT JOIN LogisticsCostView lc on lc.Country = m.CountryId 
+    LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
+    LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = m.CountryId 
                                       and lc.Wg = m.WgId
                                       and lc.ReactionTime = m.ReactionTimeId
                                       and lc.ReactionType = m.ReactionTypeId
@@ -688,13 +688,13 @@ BEGIN
                                                     sc.TaxAndDutiesW,
                                                     afr.TotalAFR,
                                                     sc.AvailabilityFee,
-                                                    moc.MarkupFactor, 
-                                                    moc.Markup)
+                                                    msw.MarkupFactorStandardWarranty, 
+                                                    msw.MarkupStandardWarranty)
     FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
-    LEFT JOIN Atom.MarkupOtherCosts moc on moc.Wg = m.WgId and moc.Country = m.CountryId
-    LEFT JOIN FieldServiceCostView fsc ON fsc.Wg = m.WgId 
+    LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
+    LEFT JOIN Atom.MarkupStandardWaranty msw on msw.Wg = m.WgId and msw.Country = m.CountryId
+    LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId 
                                           and fsc.Country = m.CountryId 
                                           and fsc.ServiceLocation = m.ServiceLocationId
                                           and fsc.ReactionTypeId = m.ReactionTypeId
