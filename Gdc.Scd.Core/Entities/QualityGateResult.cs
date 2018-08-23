@@ -14,5 +14,9 @@ namespace Gdc.Scd.Core.Entities
                 return this.Errors != null && this.Errors.Any();
             }
         }
+
+        public CostEditorContext Context { get; set; }
+
+        public IEnumerable<EditItem> EditItems { get; set; }
     }
 }

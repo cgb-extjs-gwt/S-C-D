@@ -202,8 +202,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return await this.GetHistoryValues(history);
         }
 
-        public async Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, bool forApproval)
+        public async Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption)
         {
+            if (approvalOption.HasQualityGateErrors && string.IsNullOrWhiteSpace(approvalOption.QualityGateErrorExplanation))
+            {
+                throw new Exception("QualityGateErrorExplanation must be");
+            }
+
             var editItemArray = editItems.ToArray();
             var isDifferentValues = false;
 
@@ -216,10 +221,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 EditDate = DateTime.UtcNow,
                 EditUser = this.userService.GetCurrentUser(),
-                State = forApproval ? CostBlockHistoryState.Pending : CostBlockHistoryState.None,
+                State = approvalOption.IsApproving ? CostBlockHistoryState.Pending : CostBlockHistoryState.None,
                 Context = HistoryContext.Build(context),
                 EditItemCount = editItemArray.Length,
-                IsDifferentValues = isDifferentValues
+                IsDifferentValues = isDifferentValues, 
+                HasQualityGateErrors = approvalOption.HasQualityGateErrors,
+                QualityGateErrorExplanation = approvalOption.QualityGateErrorExplanation
             };
 
             var costBlockHistoryRepository = this.repositorySet.GetRepository<CostBlockHistory>();

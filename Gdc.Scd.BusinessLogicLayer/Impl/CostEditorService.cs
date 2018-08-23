@@ -105,11 +105,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             };
         }
 
-        public async Task<QualityGateResult> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, bool forApproval)
+        public async Task<QualityGateResult> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, ApprovalOption approvalOption)
         {
             QualityGateResult checkResult;
 
-            if (forApproval)
+            if (approvalOption.IsApproving)
             {
                 checkResult = await this.qualityGateSevice.Check(editItems, context);
             }
@@ -129,7 +129,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     {
                         var result = await this.costEditorRepository.UpdateValues(editItems, editItemInfo, filter);
 
-                        await this.historySevice.Save(context, editItems, forApproval);
+                        await this.historySevice.Save(context, editItems, approvalOption);
 
                         transaction.Commit();
                     }

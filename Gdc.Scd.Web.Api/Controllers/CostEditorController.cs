@@ -16,19 +16,15 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         private readonly IDomainMetaSevice domainMetaSevice;
 
-        private readonly IDomainService<Country> countryService;
-
         private readonly DomainMeta meta;
 
         public CostEditorController(
             ICostEditorService costEditorService, 
             IDomainMetaSevice domainMetaSevice,
-            IDomainService<Country> countryService,
             DomainMeta meta)
         {
             this.costEditorService = costEditorService;
             this.domainMetaSevice = domainMetaSevice;
-            this.countryService = countryService;
             this.meta = meta;
         }
 
@@ -56,9 +52,9 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<QualityGateResult> UpdateValues([FromBody]IEnumerable<EditItem> editItems, [FromQuery]CostEditorContext context, [FromQuery]bool forApproval)
+        public async Task<QualityGateResult> UpdateValues([FromBody]IEnumerable<EditItem> editItems, [FromQuery]CostEditorContext context, [FromQuery]ApprovalOption approvalOption)
         {
-            return await this.costEditorService.UpdateValues(editItems, context, forApproval);
+            return await this.costEditorService.UpdateValues(editItems, context, approvalOption);
         }
     }
 }
