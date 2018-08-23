@@ -79,9 +79,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 editItem.Value,
                 $"{editItemInfo.ValueField}_{index}");
 
-            filter = new Dictionary<string, IEnumerable<object>>(filter ?? Enumerable.Empty<KeyValuePair<string, IEnumerable<object>>>())
+            //filter = new Dictionary<string, IEnumerable<object>>(filter ?? Enumerable.Empty<KeyValuePair<string, IEnumerable<object>>>())
+            filter = new Dictionary<string, IEnumerable<object>>(filter ?? new Dictionary<string, IEnumerable<object>>())       
             {
-                [editItemInfo.NameField] = new object [] 
+                [editItemInfo.NameField] = new object []
                 {
                     new CommandParameterInfo
                     {

@@ -23,7 +23,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string WgLevelId = "Wg";
 
-        private const string RoleCodeKey = "RoleCodeCode";
+        private const string RoleCodeKey = "RoleCode";
 
         private const string ServiceLocationKey = "ServiceLocation";
 
@@ -97,6 +97,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             var queries = new List<SqlHelper>
             {
+                this.BuildInsertSql(MetaConstants.InputLevelSchema, RoleCodeKey, this.GetRoleCodeNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
@@ -1092,6 +1093,18 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Duration { Name = "4 Years", Value = 4, IsProlongation = false },
                 new Duration { Name = "5 Years", Value = 5, IsProlongation = false },
                 new Duration { Name = "Prolongation", Value = 1, IsProlongation = true }
+            };
+        }
+
+        private string[] GetRoleCodeNames()
+        {
+            return new string[]
+            {
+                "SEFS05",
+                "SEFS06",
+                "SEFS04",
+                "SEIE07",
+                "SEIE08",
             };
         }
 
