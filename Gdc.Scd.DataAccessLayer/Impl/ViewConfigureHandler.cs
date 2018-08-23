@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -16,94 +16,118 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 {
     public class ViewConfigureHandler : IConfigureDatabaseHandler, ICustomConfigureTableHandler
     {
-        private const string ReactionTimeTypeKey = "ReactionTimeType";
-
-        private const string ReactionTimeAvailabilityKey = "ReactionTimeAvailability";
-
         private readonly IRepositorySet repositorySet;
+
+        private readonly CombinedViewInfo[] combinedViewInfos;
 
         public ViewConfigureHandler(IRepositorySet repositorySet)
         {
             this.repositorySet = repositorySet;
+
+            this.combinedViewInfos = new CombinedViewInfo[]
+            {
+                CombinedViewInfo.Build<ReactionTimeType>(
+                    "ReactionTimeType",
+                    ReferenceInfo.Build<ReactionTime>(nameof(ReactionTimeType.ReactionTime)),
+                    ReferenceInfo.Build<ReactionType>(nameof(ReactionTimeType.ReactionType))),
+
+                CombinedViewInfo.Build<ReactionTimeAvalability>(
+                    "ReactionTimeAvailability",
+                    ReferenceInfo.Build<ReactionTime>(nameof(ReactionTimeAvalability.ReactionTime)),
+                    ReferenceInfo.Build<Availability>(nameof(ReactionTimeAvalability.Availability))),
+
+                CombinedViewInfo.Build<ReactionTimeTypeAvalability>(
+                    "ReactionTimeTypeAvailability",
+                    ReferenceInfo.Build<ReactionTime>(nameof(ReactionTimeTypeAvalability.ReactionTime)),
+                    ReferenceInfo.Build<Availability>(nameof(ReactionTimeTypeAvalability.Availability)),
+                    ReferenceInfo.Build<ReactionType>(nameof(ReactionTimeTypeAvalability.ReactionType))),
+            };
         }
 
         void IConfigureDatabaseHandler.Handle()
         {
-            this.CreateCombinedView<ReactionTime, ReactionType, ReactionTimeType>(
-                ReactionTimeTypeKey, 
-                $"{nameof(ReactionTimeType.ReactionTime)}Id", 
-                $"{nameof(ReactionTimeType.ReactionType)}Id");
-
-            this.CreateCombinedView<ReactionTime, Availability, ReactionTimeAvalability>(
-                ReactionTimeAvailabilityKey,
-                $"{nameof(ReactionTimeAvalability.ReactionTime)}Id",
-                $"{nameof(ReactionTimeAvalability.Availability)}Id");
+            foreach (var viewInfo in this.combinedViewInfos)
+            {
+                this.CreateCombinedView(viewInfo);
+            }
         }
 
         IEnumerable<ISqlBuilder> ICustomConfigureTableHandler.GetSqlBuilders(BaseEntityMeta entityMeta)
         {
             if (entityMeta is CostBlockEntityMeta)
             {
-                if (entityMeta.GetField(ReactionTimeTypeKey) != null)
+                foreach (var viewInfo in this.combinedViewInfos)
                 {
-                    yield return this.BuildConstraint<ReactionTimeType>(entityMeta, ReactionTimeTypeKey);
-                }
-
-                if (entityMeta.GetField(ReactionTimeAvailabilityKey) != null)
-                {
-                    yield return this.BuildConstraint<ReactionTimeAvalability>(entityMeta, ReactionTimeAvailabilityKey);
+                    if (entityMeta.GetField(viewInfo.ViewName) != null)
+                    {
+                        yield return this.BuildConstraint(viewInfo.CombinedType, entityMeta, viewInfo.ViewName);
+                    }
                 }
             }
         }
 
-        private void CreateCombinedView<T1, T2, TCombined>(string viewName, string foreignColumn1, string foreignColumn2) 
-            where T1 : NamedId
-            where T2 : NamedId
+        private void CreateCombinedView(CombinedViewInfo viewInfo)
         {
-            var meta1 = this.BuildNamedMeta<T1>();
-            var meta2 = this.BuildNamedMeta<T2>();
-            var combinedEntityInfo = this.GetEntityInfo<TCombined>();
+            var combinedEntityInfo = this.GetEntityInfo(viewInfo.CombinedType);
             var combineEntity = new EntityMeta(combinedEntityInfo.Table, combinedEntityInfo.Schema);
 
             combineEntity.Fields.Add(new IdFieldMeta());
-            combineEntity.Fields.Add(ReferenceFieldMeta.Build(foreignColumn1, meta1));
-            combineEntity.Fields.Add(ReferenceFieldMeta.Build(foreignColumn2, meta2));
 
-            var query = new CreateViewSqlBuilder
+            var nameColumns = new List<string>();
+
+            foreach (var referenceInfo in viewInfo.ReferenceInfos)
+            {
+                var meta = this.BuildNamedMeta(referenceInfo.Type);
+
+                combineEntity.Fields.Add(ReferenceFieldMeta.Build(referenceInfo.ForeignColumn, meta));
+
+                var columnSqlBuilder = new ColumnSqlBuilder
+                {
+                    Name = meta.NameField.Name,
+                    Table = meta.Name
+                };
+
+                nameColumns.Add(columnSqlBuilder.Build(null));
+            }
+
+            var query =
+                Sql.Select(
+                    new ColumnInfo(IdFieldMeta.DefaultId, combineEntity.Name, IdFieldMeta.DefaultId),
+                    new QueryColumnInfo(
+                        new RawSqlBuilder
+                        {
+                            RawSql = $"({string.Join(" + ' ' + ", nameColumns)})"
+                        },
+                        MetaConstants.NameFieldKey))
+                    .From(combineEntity);
+
+            foreach (var referenceInfo in viewInfo.ReferenceInfos)
+            {
+                query = query.Join(combineEntity, referenceInfo.ForeignColumn);
+            }
+
+            var createViewQuery = new CreateViewSqlBuilder
             {
                 Shema = MetaConstants.DependencySchema,
-                Name = viewName,
-                Query =
-                    Sql.Select(
-                        new ColumnInfo(IdFieldMeta.DefaultId, combineEntity.Name, IdFieldMeta.DefaultId),
-                        new QueryColumnInfo(
-                            new RawSqlBuilder
-                            {
-                                RawSql = $"([{meta1.Name}].[{meta1.NameField.Name}] + ' ' + [{meta2.Name}].[{meta2.NameField.Name}])"
-                            },
-                            MetaConstants.NameFieldKey))
-                       .From(combineEntity)
-                       .Join(combineEntity, foreignColumn1)
-                       .Join(combineEntity, foreignColumn2)
-                       .ToSqlBuilder()
+                Name = viewInfo.ViewName,
+                Query = query.ToSqlBuilder()
             };
 
-            this.repositorySet.ExecuteSql(new SqlHelper(query));
+            this.repositorySet.ExecuteSql(new SqlHelper(createViewQuery));
         }
 
-        private NamedEntityMeta BuildNamedMeta<T>() where T : NamedId
+        private NamedEntityMeta BuildNamedMeta(Type type)
         {
-            var info = this.GetEntityInfo<T>();
+            var info = this.GetEntityInfo(type);
 
             return new NamedEntityMeta(info.Table, info.Schema);
         }
 
-        private (string Table, string Schema) GetEntityInfo<T>()
+        private (string Table, string Schema) GetEntityInfo(Type type)
         {
             string table;
             string schema;
 
-            var type = typeof(T);
             var tableAttr = type.GetCustomAttributes(false).OfType<TableAttribute>().FirstOrDefault();
             if (tableAttr == null)
             {
@@ -119,9 +143,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return (Table: table, Schema: schema);
         }
 
-        private ISqlBuilder BuildConstraint<T>(BaseEntityMeta entityMeta, string foreignField) where T : IIdentifiable
+        private ISqlBuilder BuildConstraint(Type type, BaseEntityMeta entityMeta, string foreignField)
         {
-            var entityInfo = this.GetEntityInfo<T>();
+            var entityInfo = this.GetEntityInfo(type);
             var refMeta = new EntityMeta(entityInfo.Table, entityInfo.Schema);
             refMeta.Fields.Add(new IdFieldMeta());
 
@@ -133,6 +157,41 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 Meta = constraintMeta,
                 Field = foreignField
             };
+        }
+
+        private class ReferenceInfo
+        {
+            public Type Type { get; private set; }
+
+            public string ForeignColumn { get; private set; }
+
+            public static ReferenceInfo Build<T>(string property) where T : NamedId
+            {
+                return new ReferenceInfo
+                {
+                    Type = typeof(T),
+                    ForeignColumn = $"{property}Id"
+                };
+            }
+        }
+
+        private class CombinedViewInfo
+        {
+            public Type CombinedType { get; private set; }
+
+            public ReferenceInfo[] ReferenceInfos { get; private set; }
+
+            public string ViewName { get; private set; }
+
+            public static CombinedViewInfo Build<TCombined>(string viewName, params ReferenceInfo[] referenceInfos)
+            {
+                return new CombinedViewInfo
+                {
+                    CombinedType = typeof(TCombined),
+                    ViewName = viewName,
+                    ReferenceInfos = referenceInfos
+                };
+            }
         }
     }
 }
