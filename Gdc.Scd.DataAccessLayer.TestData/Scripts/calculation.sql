@@ -395,31 +395,49 @@ CREATE VIEW [dbo].[LogisticsCostView] AS
 GO
 
 CREATE VIEW [dbo].[CountryClusterRegionView] as
-    WITH cte (id, IsImeia, IsJapan, IsApac) as (
-      SELECT cr.Id, 
-             (case UPPER(cr.Name)
+    with cte (id, IsImeia, IsJapan, IsAsia, IsLatinAmerica, IsOceania, IsUnitedStates) as (
+        select cr.Id, 
+                (case UPPER(cr.Name)
                 when 'EMEIA' then 1
                 else 0
-              end),
+                end),
          
-             (case UPPER(cr.Name)
+                (case UPPER(cr.Name)
                 when 'JAPAN' then 1
                 else 0
-              end),
+                end),
          
-             (case UPPER(cr.Name)
-                when 'APAC' then 1
+                (case UPPER(cr.Name)
+                when 'ASIA' then 1
                 else 0
-              end)
-        FROM InputAtoms.ClusterRegion cr
+                end),
+         
+                (case UPPER(cr.Name)
+                when 'LATIN AMERICA' then 1
+                else 0
+                end),
+         
+                (case UPPER(cr.Name)
+                when 'OCEANIA' then 1
+                else 0
+                end),
+         
+                (case UPPER(cr.Name)
+                when 'UNITED STATES' then 1
+                else 0
+                end)
+        from InputAtoms.ClusterRegion cr
     )
-    SELECT c.Id, 
-           c.Name,
-           cr.IsImeia,
-           cr.IsJapan,
-           cr.IsApac
-    FROM InputAtoms.Country c
-    JOIN cte cr on cr.Id = c.ClusterRegionId
+    select c.Id, 
+            c.Name,
+            cr.IsAsia,
+            cr.IsImeia,
+            cr.IsJapan,
+            cr.IsLatinAmerica,
+            cr.IsOceania,
+            cr.IsUnitedStates
+    from InputAtoms.Country c
+    join cte cr on cr.Id = c.ClusterRegionId
 GO
 
 CREATE FUNCTION [dbo].[GetAfr](@wg bigint, @dur bigint)

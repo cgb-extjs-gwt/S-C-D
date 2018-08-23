@@ -1017,7 +1017,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     CanOverrideListAndDealerPrices = GenerateRandomBool(),
                     CanOverrideTransferCostAndPrice = GenerateRandomBool(),
                     ShowDealerPrice = GenerateRandomBool(),
-                    ClusterRegionId = 1
+                    ClusterRegionId = 2
                 };
             }
 
@@ -1078,9 +1078,12 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             return new ClusterRegion[]
             {
-                new ClusterRegion { Name = "EMEIA"},
-                new ClusterRegion { Name = "Japan"},
-                new ClusterRegion { Name = "APAC"}
+                new ClusterRegion { Name = "Asia" },
+                new ClusterRegion { Name = "EMEIA" },
+                new ClusterRegion { Name = "Japan" },
+                new ClusterRegion { Name = "Latin America" },
+                new ClusterRegion { Name = "Oceania" },
+                new ClusterRegion { Name = "United States" }
             };
         }
 
