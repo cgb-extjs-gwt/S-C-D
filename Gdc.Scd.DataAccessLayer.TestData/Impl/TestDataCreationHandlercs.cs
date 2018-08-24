@@ -219,7 +219,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             return
                 new BracketsSqlBuilder
                 {
-                    SqlBuilder =
+                    Query =
                         Sql.Select(IdFieldMeta.DefaultId)
                            .From(table, MetaConstants.DependencySchema)
                            .Where(SqlOperators.Equals(MetaConstants.NameFieldKey, paramName, name))

@@ -125,7 +125,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             var delBuilder = new FromSqlBuilder
             {
-                SqlBuilder = new DeleteSqlBuilder(),
+                Query = new DeleteSqlBuilder(),
                 From = new TableSqlBuilder { DataBase = dataBase, Schema =schema, Name = table }
             };
 
@@ -172,7 +172,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 {
                     builder = new AliasSqlBuilder
                     {
-                        SqlBuilder = builder,
+                        Query = builder,
                         Alias = baseColumnInfo.Alias
                     };
                 }
@@ -181,7 +181,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             {
                 var bracketsSqlBuilder = new BracketsSqlBuilder
                 {
-                    SqlBuilder = queryColumnInfo.Query
+                    Query = queryColumnInfo.Query
                 };
 
                 if (string.IsNullOrWhiteSpace(baseColumnInfo.Alias))
@@ -193,7 +193,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     builder = new AliasSqlBuilder
                     {
                         Alias = baseColumnInfo.Alias,
-                        SqlBuilder = bracketsSqlBuilder
+                        Query = bracketsSqlBuilder
                     };
                 }
             }

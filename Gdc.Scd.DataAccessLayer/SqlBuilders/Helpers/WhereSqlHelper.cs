@@ -16,7 +16,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return new WhereSqlBuilder
             {
                 Condition = condition,
-                SqlBuilder = this.ToSqlBuilder()
+                Query = this.ToSqlBuilder()
             };
         }
 
@@ -37,7 +37,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             {
                 result = new WhereSqlBuilder
                 {
-                    SqlBuilder = this.ToSqlBuilder(),
+                    Query = this.ToSqlBuilder(),
                     Condition = ConditionHelper.AndStatic(filter, tableName).ToSqlBuilder()
                 };
             }

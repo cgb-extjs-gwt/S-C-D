@@ -2,11 +2,11 @@
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
-    public class IsNotNullSqlBuilder : BaseSqlBuilder
+    public class IsNotNullSqlBuilder : BaseQuerySqlBuilder
     {
         public override string Build(SqlBuilderContext context)
         {
-            return $"{this.SqlBuilder.Build(context)} IS NOT NULL";
+            return $"{this.Query.Build(context)} IS NOT NULL";
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             return new JoinSqlBuilder
             {
-                SqlBuilder = this.ToSqlBuilder(),
+                Query = this.ToSqlBuilder(),
                 Table = table,
                 Condition = condition,
                 Type = type
@@ -47,7 +47,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 sqlBuilder = new AliasSqlBuilder
                 {
                     Alias = alias,
-                    SqlBuilder = table
+                    Query = table
                 };
             }
 
