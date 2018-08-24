@@ -32,6 +32,7 @@
     <Dependency Name="ServiceLocation" Caption="Service location"/>
     <Dependency Name="ReactionTimeType" Caption="Reaction" Type="View"/>
     <Dependency Name="ReactionTimeAvailability" Caption="Reaction" Type="View"/>
+    <Dependency Name="RoleCode" Caption="Role code"/>
     <Dependency Name="ReactionTimeTypeAvailability" Caption="Reaction" Type="View"/>
     <Dependency Name="ServiceLocationProActive " Caption="Service location for ProActive"/>
     <Dependency Name="Availability" Caption="Availability"/>
@@ -347,7 +348,8 @@
         <Element Name="CentralExecutionShcReportRepetition " Caption="Central execution SHC &amp; report Repetition" InputOption="Reference"/>
         <Element Name="LocalShcCustomerBriefingRepetition " Caption="Local SHC customer briefing Repetition" InputOption="Reference"/>-->
         <!--<Element Name="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually" Dependency="ServiceLocationProActive"/>-->
-        <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually"/>
+        <!--TODO: Check Dependency="RoleCode"-->
+        <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually" Dependency="RoleCode"/>
       </Elements>
     </Block>
   

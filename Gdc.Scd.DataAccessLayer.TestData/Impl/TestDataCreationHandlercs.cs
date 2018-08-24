@@ -1,4 +1,4 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Entities;
+﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -951,6 +951,29 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.repositorySet.Sync();
         }
 
+        private RoleCode[] GetRoleCodes()
+        {
+            var plaRepository = this.repositorySet.GetRepository<Pla>();
+
+            return new RoleCode[]
+            {
+                new RoleCode
+                {
+                    Name = "SEFS05"
+                    
+                }
+            };
+        }
+
+        private void CreateRolecodes()
+        {
+            var roleCodes = this.GetRoleCodes();
+            var repository = this.repositorySet.GetRepository<RoleCode>();
+
+            repository.Save(roleCodes);
+            this.repositorySet.Sync();
+        }
+
         private string[] GetCountrieNames()
         {
             return new[]
@@ -985,6 +1008,205 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "Tunisia",
                 "Turkey",
                 "UK & Ireland"
+            };
+        }
+
+        //private string[] GetPlaNames()
+        //{
+        //    return new[]
+        //    {
+        //        "Desktops",
+        //        "Mobiles",
+        //        "Peripherals",
+        //        "Storage Products",
+        //        "x86/IA Servers"
+        //    };
+        //}
+
+        //private string[] GetWarrantyGroupNames()
+        //{
+        //    return new string[]
+        //    {
+        //        "TC4",
+        //        "TC5",
+        //        "TC6",
+        //        "TC8",
+        //        "TC7",
+        //        "TCL",
+        //        "U05",
+        //        "U11",
+        //        "U13",
+        //        "WSJ",
+        //        "WSN",
+        //        "WSS",
+        //        "WSW",
+        //        "U02",
+        //        "U06",
+        //        "U07",
+        //        "U12",
+        //        "U14",
+        //        "WRC",
+        //        "HMD",
+        //        "NB6",
+        //        "NB1",
+        //        "NB2",
+        //        "NB5",
+        //        "ND3",
+        //        "NC1",
+        //        "NC3",
+        //        "NC9",
+        //        "TR7",
+        //        "DPE",
+        //        "DPH",
+        //        "DPM",
+        //        "DPX",
+        //        "IOA",
+        //        "IOB",
+        //        "IOC",
+        //        "MD1",
+        //        "PSN",
+        //        "SB2",
+        //        "SB3",
+        //        "CD1",
+        //        "CD2",
+        //        "CE1",
+        //        "CE2",
+        //        "CD4",
+        //        "CD5",
+        //        "CD6",
+        //        "CD7",
+        //        "CDD",
+        //        "CD8",
+        //        "CD9",
+        //        "C70",
+        //        "CS8",
+        //        "C74",
+        //        "C75",
+        //        "CS7",
+        //        "CS1",
+        //        "CS2",
+        //        "CS3",
+        //        "C16",
+        //        "C18",
+        //        "C33",
+        //        "CS5",
+        //        "CS4",
+        //        "CS6",
+        //        "CS9",
+        //        "C96",
+        //        "C97",
+        //        "C98",
+        //        "C71",
+        //        "C73",
+        //        "C80",
+        //        "C84",
+        //        "F58",
+        //        "F40",
+        //        "F48",
+        //        "F53",
+        //        "F54",
+        //        "F57",
+        //        "F41",
+        //        "F49",
+        //        "F42",
+        //        "F43",
+        //        "F44",
+        //        "F45",
+        //        "F50",
+        //        "F51",
+        //        "F52",
+        //        "F36",
+        //        "F46",
+        //        "F47",
+        //        "F56",
+        //        "F28",
+        //        "F29",
+        //        "F35",
+        //        "F55",
+        //        "S14",
+        //        "S17",
+        //        "S15",
+        //        "S16",
+        //        "S50",
+        //        "S51",
+        //        "S18",
+        //        "S35",
+        //        "S36",
+        //        "S37",
+        //        "S39",
+        //        "S40",
+        //        "S55",
+        //        "VSH",
+        //        "MN1",
+        //        "MN4",
+        //        "PQ8",
+        //        "Y01",
+        //        "Y15",
+        //        "PX1",
+        //        "PY1",
+        //        "PY4",
+        //        "Y09",
+        //        "Y12",
+        //        "MN2",
+        //        "MN3",
+        //        "PX2",
+        //        "PX3",
+        //        "PXS",
+        //        "PY2",
+        //        "PY3",
+        //        "SD2",
+        //        "Y03",
+        //        "Y17",
+        //        "Y21",
+        //        "Y32",
+        //        "Y06",
+        //        "Y13",
+        //        "Y28",
+        //        "Y30",
+        //        "Y31",
+        //        "Y37",
+        //        "Y38",
+        //        "Y39",
+        //        "Y40",
+        //        "PX6",
+        //        "PX8",
+        //        "PRC",
+        //        "RTE",
+        //        "Y07",
+        //        "Y16",
+        //        "Y18",
+        //        "Y25",
+        //        "Y26",
+        //        "Y27",
+        //        "Y33",
+        //        "Y36",
+        //        "S41",
+        //        "S42",
+        //        "S43",
+        //        "S44",
+        //        "S45",
+        //        "S46",
+        //        "S47",
+        //        "S48",
+        //        "S49",
+        //        "S52",
+        //        "S53",
+        //        "S54",
+        //        "PQ0",
+        //        "PQ5",
+        //        "PQ9"
+        //    };
+        //}
+
+        private string[] GetRoleCodeNames()
+        {
+            return new string[]
+            {
+                "SEFS05",
+                "SEFS06",
+                "SEFS04",
+                "SEIE07",
+                "SEIE08"
             };
         }
 
@@ -1036,18 +1258,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "1d",
                 "1d 3h",
                 "7d"
-            };
-        }
-
-        private string[] GetRoleCodeNames()
-        {
-            return new string[]
-            {
-                "SEFS05",
-                "SEFS06",
-                "SEFS04",
-                "SEIE07",
-                "SEIE08",
             };
         }
 
