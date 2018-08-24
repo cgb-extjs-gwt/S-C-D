@@ -5,6 +5,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
+using Gdc.Scd.Web.Api.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gdc.Scd.Web.Api.Controllers
@@ -52,9 +53,40 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<QualityGateResult> UpdateValues([FromBody]IEnumerable<EditItem> editItems, [FromQuery]CostEditorContext context, [FromQuery]ApprovalOption approvalOption)
+        public async Task<QualityGateResultDto> UpdateValues([FromBody]IEnumerable<EditItem> editItems, [FromQuery]CostEditorContext context, [FromQuery]ApprovalOption approvalOption)
         {
-            return await this.costEditorService.UpdateValues(editItems, context, approvalOption);
+            var qualityGateResult = await this.costEditorService.UpdateValues(editItems, context, approvalOption);
+            var errors = new List<IDictionary<string, object>>();
+
+            if (qualityGateResult.Errors != null)
+            {
+                foreach (var error in qualityGateResult.Errors)
+                {
+                    var errorDictionary = new Dictionary<string, object>
+                    {
+                        ["WarrantyGroupId"] = error.WarrantyGroup.Id,
+                        ["WarrantyGroupName"] = error.WarrantyGroup.Name,
+                        [nameof(error.IsPeriodError)] = error.IsPeriodError,
+                        [nameof(error.IsRegionError)] = error.IsRegionError
+                    };
+
+                    foreach (var dependency in error.Dependencies)
+                    {
+                        errorDictionary.Add($"{dependency.Key}Id", dependency.Value.Id);
+                        errorDictionary.Add($"{dependency.Key}Name", dependency.Value.Name);
+                    }
+
+                    errors.Add(errorDictionary);
+                }
+            }
+
+            return new QualityGateResultDto
+            {
+                Context = context,
+                EditItems = editItems,
+                HasErrors = qualityGateResult.HasErrors,
+                Errors = errors
+            };
         }
     }
 }

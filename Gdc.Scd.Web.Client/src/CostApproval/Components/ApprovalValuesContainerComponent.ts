@@ -1,10 +1,12 @@
 import { connect } from "react-redux";
-import { ApprovalValuesProps, ColumnInfo, ApprovalValuesActions, ApprovalValuesViewComponent } from "./ApprovalValuesViewComponent";
+import { ApprovalValuesProps, ApprovalValuesActions, ApprovalValuesViewComponent } from "./ApprovalValuesViewComponent";
 import { CommonState } from "../../Layout/States/AppStates";
 import * as CostApprovalService from "../Services/CostApprovalService"
 import { API_URL, buildMvcUrl } from "../../Common/Services/Ajax";
 import { NamedId } from "../../Common/States/CommonStates";
 import { buildGetHistoryValueTableUrl } from "../Services/CostApprovalService";
+import { ColumnInfo } from "../../Common/States/ColumnInfo";
+import { getDependecyColumnsFromMeta } from "../../Common/Helpers/ColumnInfoHelper";
 
 export interface ApprovalValuesContainerProps {
     bundleId: number
@@ -23,23 +25,9 @@ export const ApprovalValuesContainerComponent =
             if (meta) {
                 dataLoadUrl = buildGetHistoryValueTableUrl(bundleId);
 
-                const costBlock = meta.costBlocks.find(item => item.id === costBlockId);
-                const dependencyColumnsMap = new Map<string, ColumnInfo>();
-                
-                for (const costElement of costBlock.costElements) {
-                    if (costElement.dependency && !dependencyColumnsMap.has(costElement.dependency.name)) {
-                        dependencyColumnsMap.set(
-                            costElement.dependency.name, 
-                            <ColumnInfo>{
-                                title: costElement.dependency.name,
-                                dataIndex: `${costElement.dependency.id}Name`
-                            });
-                    }
-                }
-
                 columns = [
                     { title: 'InputLevel', dataIndex: 'InputLevelName' },
-                    ...Array.from(dependencyColumnsMap.values()),
+                    ...getDependecyColumnsFromMeta(meta, costBlockId),
                     { title: 'Value', dataIndex: 'Value' }
                 ]
             } else {

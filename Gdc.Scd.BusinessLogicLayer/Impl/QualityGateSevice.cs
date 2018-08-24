@@ -29,11 +29,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<QualityGateResult> Check(IEnumerable<EditItem> editItems, CostEditorContext context)
         {
-            var result = new QualityGateResult
-            {
-                Context = context,
-                EditItems = editItems
-            };
+            var result = new QualityGateResult();
 
             var costBlockMeta = (CostBlockEntityMeta)this.domainEnitiesMeta.GetEntityMeta(context.CostBlockId, context.ApplicationId);
             if (costBlockMeta.InputLevelFields[MetaConstants.WgInputLevelName] == null ||

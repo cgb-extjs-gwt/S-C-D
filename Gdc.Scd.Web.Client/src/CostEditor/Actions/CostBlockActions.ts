@@ -6,6 +6,7 @@ import { EditItem, CostElementData, DataLoadingState } from "../States/CostBlock
 import { NamedId } from "../../Common/States/CommonStates";
 import { losseDataCheckHandlerAction, buildCostEditorContext } from "../Helpers/CostEditorHelpers";
 import { CommonState } from "../../Layout/States/AppStates";
+import { ApprovalOption } from "../Services/CostEditorServices";
 
 export const COST_BLOCK_INPUT_SELECT_REGIONS = 'COST_BLOCK_INPUT.SELECT.REGIONS';
 export const COST_BLOCK_INPUT_SELECT_COST_ELEMENT = 'COST_BLOCK_INPUT.SELECT.COST_ELEMENT';
@@ -261,7 +262,7 @@ export const loadEditItemsByContext = () =>
         }
     )
 
-export const saveEditItemsToServer = (costBlockId: string, forApproval: boolean) => 
+export const saveEditItemsToServer = (costBlockId: string, approvalOption: ApprovalOption, editItems: EditItem[] = null) => 
     asyncAction<CommonState>(
         (dispatch, getState) => {
             const state = getState().pages.costEditor
@@ -270,7 +271,7 @@ export const saveEditItemsToServer = (costBlockId: string, forApproval: boolean)
 
             const context = buildCostEditorContext(state);
 
-            service.saveEditItems(costBlock.edit.editedItems, context, forApproval)
+            service.saveEditItems(editItems || costBlock.edit.editedItems, context, approvalOption)
                    .then(
                        () => dispatch(saveEditItems(costBlockId))
                     )

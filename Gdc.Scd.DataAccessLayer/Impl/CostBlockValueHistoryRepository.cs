@@ -438,8 +438,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 var index = 0;
                 var result = new QualityGateError
                 {
-                    Id = reader.GetInt64(index++),
-                    Name = reader.GetString(index++),
+                    WarrantyGroup = new NamedId
+                    {
+                        Id = reader.GetInt64(index++),
+                        Name = reader.GetString(index++),
+                    },
                     Dependencies = new Dictionary<string, NamedId>()
                 };
 
