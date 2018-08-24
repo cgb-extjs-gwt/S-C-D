@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Grid, SelectField, Column, Container } from "@extjs/ext-react";
+import { Grid, SelectField, Column, Container, CheckBoxField, CheckColumn } from "@extjs/ext-react";
 import { FieldType } from "../States/CostEditorStates";
 import { EditItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
@@ -106,18 +106,21 @@ export class EditGrid extends React.Component<EditGridProps> {
     }
 
     private getValueColumn(columProps: ValueColumnProps) {
-        let columnOptions;
-        let renderer: (value, data: { data: EditItem }) => string;
+        let column;
+
+        const columnOptions = {
+            text: columProps.title,
+            dataIndex: "value",
+            flex: 1,
+            editable: true,
+            renderer: (value, { data }: { data: EditItem }) => {
+                return data.valueCount == 1 ? value : this.getValueCountMessage(data);
+            }
+        };
     
         switch (columProps.type) {
             case FieldType.Reference:
-                var options = columProps.selectedItems.map(item => ({text: item.name, value: item.id}));
-    
-                columnOptions = (
-                    <SelectField options={options}/>
-                );
-
-                renderer = (value, { data }) => {
+                columnOptions.renderer = (value, { data }) => {
                     let result: string;
 
                     if (data.valueCount == 1) {
@@ -130,24 +133,50 @@ export class EditGrid extends React.Component<EditGridProps> {
 
                     return result;
                 }
+
+                column = (
+                    <Column {...columnOptions}>
+                        <SelectField 
+                            options={
+                                columProps.selectedItems.map(item => ({text: item.name, value: item.id}))
+                        }/>
+                    </Column>
+                );
                 break;
 
             case FieldType.Double:
-                renderer = (value, { data }) => data.valueCount == 1 ? value : this.getValueCountMessage(data);
+                column = (
+                    <Column {...columnOptions}/>
+                );
+                break;
+
+            case FieldType.Flag:
+                columnOptions.renderer = (value, { data }) => {
+                    let result: string;
+
+                    if (data.valueCount == 1) {
+                        result =  value ? 'true' : 'false';
+                    } else {
+                        result = this.getValueCountMessage(data);
+                    }
+
+                    return result;
+                }
+
+                column = (
+                    <Column {...columnOptions}>
+                        <SelectField 
+                            options={[
+                                { text: 'true', value: 1 }, 
+                                { text: 'false', value: 0 }
+                            ]}
+                        />
+                    </Column>
+                );
                 break;
         }
     
-        return (
-            <Column 
-                text={columProps.title} 
-                dataIndex="value" 
-                flex={1} 
-                editable={true}
-                renderer={renderer}
-            >
-                {columnOptions}
-            </Column>
-        )
+        return column;
     }
 
     private getValueCountMessage(editItem: EditItem) {
@@ -158,7 +187,7 @@ export class EditGrid extends React.Component<EditGridProps> {
         const { onSelected } = this.props;
 
         if (onSelected) {
-            const editItems = records.map(record => record.data);
+            const editItems = records ? records.map(record => record.data) : [];
 
             onSelected(editItems);
         }

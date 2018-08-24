@@ -45,7 +45,8 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             query = new BracketsSqlBuilder
             {
-                Query = query
+<<<<<<< HEAD
+                SqlBuilder = query
             };
 
             if (alias != null)
@@ -53,14 +54,21 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 query = new AliasSqlBuilder
                 {
                     Alias = alias,
-                    Query = query
+                    SqlBuilder = query
                 };
             }
 
             return new FromSqlBuilder
             {
-                Query = this.ToSqlBuilder(),
+                SqlBuilder = this.ToSqlBuilder(),
                 From = query
+=======
+                Query = this.ToSqlBuilder(),
+                From = new BracketsSqlBuilder
+                {
+                    Query = query
+                }
+>>>>>>> master
             };
         }
 

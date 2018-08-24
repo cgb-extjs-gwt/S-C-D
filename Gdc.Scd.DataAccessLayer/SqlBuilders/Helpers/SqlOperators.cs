@@ -131,7 +131,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             var isNull = new IsNullSqlBuilder
             {
-                SqlBuilder = operand
+                Query = operand
             };
 
             return new ConditionHelper(isNull);
@@ -152,7 +152,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             var isNotNull = new IsNotNullSqlBuilder
             {
-                SqlBuilder = operand
+                Query = operand
             };
 
             return new ConditionHelper(isNotNull);

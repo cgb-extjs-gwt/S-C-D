@@ -16,7 +16,7 @@ const store = storeFactory();
  */
 const App = () => {
     return (
-        <Provider store={store}>
+        <Provider store={store}> 
             <Router>
                 <LayoutContainer/>
             </Router>

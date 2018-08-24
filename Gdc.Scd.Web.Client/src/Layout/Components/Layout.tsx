@@ -9,8 +9,10 @@ import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
 import { connect } from 'react-redux';
 import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
 import { CapabilityMatrixView, CapabilityMatrixEditView } from '../../CapabilityMatrix';
+import RoleCodesGrid from '../../Admin/RoleCode/RoleCodesGrid';
 import { CommonState } from '../States/AppStates';
-import CountryGrid  from '../../Admin/Country/containers/CountryGrid';
+import CountryGrid from '../../Admin/Country/containers/CountryGrid';
+import WarrantyGroupGrid from '../../Admin/WarrantyGroup/WarrantyGroupGrid';
 import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCostElementsLayout';
 import { init } from '../../CostApproval/Actions/CostApprovalFilterActions';
 import AvailabilityFeeAdminGrid from '../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid';
@@ -74,6 +76,8 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/capability-matrix" exact component={CapabilityMatrixView} />
                         <Route path="/capability-matrix/edit" component={CapabilityMatrixEditView} />
                         <Route path="/admin/availability-fee" component={AvailabilityFeeAdminGrid} />
+                        <Route path="/admin/role-code-management" component={RoleCodesGrid} />
+                        <Route path="/admin/warranty-group-management" component={WarrantyGroupGrid} />
                     </Switch>
                 </Panel>
             </Container>

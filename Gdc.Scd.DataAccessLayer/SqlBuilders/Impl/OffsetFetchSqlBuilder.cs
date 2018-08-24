@@ -2,7 +2,7 @@
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
-    public class OffsetFetchSqlBuilder : BaseSqlBuilder
+    public class OffsetFetchSqlBuilder : BaseQuerySqlBuilder
     {
         public int Offset { get; set; }
 
@@ -14,7 +14,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
                 ? $" FETCH NEXT {this.Fetch} ROWS ONLY"
                 : string.Empty;
 
-            return $"{this.SqlBuilder.Build(context)} OFFSET {this.Offset} ROWS{fetchSql}";
+            return $"{this.Query.Build(context)} OFFSET {this.Offset} ROWS{fetchSql}";
         }
     }
 }

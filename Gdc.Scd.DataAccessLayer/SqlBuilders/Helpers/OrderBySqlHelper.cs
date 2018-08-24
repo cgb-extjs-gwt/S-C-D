@@ -17,7 +17,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             return new UnionSqlHelper(new OrderBySqlBuilder
             {
-                SqlBuilder = this.ToSqlBuilder(),
+                Query = this.ToSqlBuilder(),
                 OrderByInfos = infos
             });
         }

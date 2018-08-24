@@ -269,7 +269,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                 var averageColumn = new QueryColumnInfo(new AverageSqlBuilder
                 {
-                    SqlBuilder = new ColumnSqlBuilder(historyContext.CostElementId, costBlockMeta.HistoryMeta.Name)
+                    Query = new ColumnSqlBuilder(historyContext.CostElementId, costBlockMeta.HistoryMeta.Name)
                 });
 
                 var query = 
@@ -408,11 +408,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 var when = SqlOperators.Greater(
                     new AbsSqlBuilder
                     {
-                        SqlBuilder = SqlOperators.Subtract(newValueColumn, oldValueColumn).ToSqlBuilder()
+                        Query = SqlOperators.Subtract(newValueColumn, oldValueColumn).ToSqlBuilder()
                     },
                     new AbsSqlBuilder
                     {
-                        SqlBuilder = SqlOperators.Multiply(oldValueColumnName, coeffParamName, coeff, table).ToSqlBuilder()
+                        Query = SqlOperators.Multiply(oldValueColumnName, coeffParamName, coeff, table).ToSqlBuilder()
                     });
 
                 return new QueryColumnInfo

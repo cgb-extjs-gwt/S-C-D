@@ -5,16 +5,16 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
-    public class InsertQuerySqlBuilder : BaseSqlBuilder
+    public class InsertQuerySqlBuilder : BaseQuerySqlBuilder
     {
-        public ISqlBuilder Query { get; set; }
+        public ISqlBuilder InsertQuery { get; set; }
 
         public override string Build(SqlBuilderContext context)
         {
             return string.Concat(
-                this.SqlBuilder.Build(context),
+                this.Query.Build(context),
                 Environment.NewLine,
-                this.Query.Build(context));
+                this.InsertQuery.Build(context));
         }
 
         public override IEnumerable<ISqlBuilder> GetChildrenBuilders()
@@ -24,7 +24,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
                 yield return builder;
             }
 
-            yield return this.Query;
+            yield return this.InsertQuery;
         }
     }
 }

@@ -12,5 +12,9 @@ namespace Gdc.Scd.Core.Entities
             get => base.Id;
             set => base.Id = value;
         }
+
+        public long? RoleCodeId { get; set; }
+        public RoleCode RoleCode { get; set; }
+
     }
 }

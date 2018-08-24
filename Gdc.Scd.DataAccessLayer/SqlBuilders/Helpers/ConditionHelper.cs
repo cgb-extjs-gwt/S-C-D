@@ -180,7 +180,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
             return new ConditionHelper(new BracketsSqlBuilder
             {
-                SqlBuilder = binOperator
+                Query = binOperator
             });
         }
 
@@ -225,7 +225,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             rightOperand = new BracketsSqlBuilder
             {
-                SqlBuilder = rightOperand
+                Query = rightOperand
             };
 
 

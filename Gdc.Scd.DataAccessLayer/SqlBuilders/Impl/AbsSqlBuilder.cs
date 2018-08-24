@@ -2,11 +2,11 @@
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
-    public class AbsSqlBuilder : BaseSqlBuilder
+    public class AbsSqlBuilder : BaseQuerySqlBuilder
     {
         public override string Build(SqlBuilderContext context)
         {
-            return $"ABS({this.SqlBuilder.Build(context)})";
+            return $"ABS({this.Query.Build(context)})";
         }
     }
 }

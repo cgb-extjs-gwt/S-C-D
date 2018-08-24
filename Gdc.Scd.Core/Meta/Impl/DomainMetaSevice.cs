@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
@@ -64,6 +64,8 @@ namespace Gdc.Scd.Core.Meta.Impl
         private const string PeriodCoeffNodeName = "PeriodCoeff";
 
         private readonly IConfiguration configuration;
+
+        private readonly Regex idRegex = new Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled);
 
         public DomainMetaSevice(IConfiguration configuration)
         {
@@ -259,9 +261,16 @@ namespace Gdc.Scd.Core.Meta.Impl
             var nameAttribute = node.Attribute(NameAttributeName);
             var captionAttribute = node.Attribute(CaptionAttributeName);
 
+            var id = nameAttribute.Value;
+
+            if (!this.idRegex.IsMatch(id))
+            {
+                throw new Exception("Invalid BaseDomainMeta id");
+            }
+
             return new T
             {
-                Id = nameAttribute.Value,
+                Id = id,
                 Name = captionAttribute == null ? nameAttribute.Value : captionAttribute.Value
             };
         }

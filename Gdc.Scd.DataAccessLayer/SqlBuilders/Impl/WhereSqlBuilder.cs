@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
-    public class WhereSqlBuilder : BaseSqlBuilder
+    public class WhereSqlBuilder : BaseQuerySqlBuilder
     {
         public ISqlBuilder Condition { get; set; }
 
         public override string Build(SqlBuilderContext context)
         {
-            var sql = this.SqlBuilder == null ? string.Empty : this.SqlBuilder.Build(context);
+            var sql = this.Query == null ? string.Empty : this.Query.Build(context);
 
             return $"{sql} WHERE {this.Condition.Build(context)}";
         }
