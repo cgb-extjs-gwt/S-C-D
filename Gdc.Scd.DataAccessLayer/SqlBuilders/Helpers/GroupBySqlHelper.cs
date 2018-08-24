@@ -15,7 +15,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             return new OrderBySqlHelper(new GroupBySqlBuilder
             {
-                SqlBuilder = this.ToSqlBuilder(),
+                Query = this.ToSqlBuilder(),
                 Columns = columns
             });
         }

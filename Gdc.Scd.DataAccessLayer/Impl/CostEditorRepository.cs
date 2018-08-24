@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
@@ -7,6 +8,7 @@ using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -29,8 +31,24 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             var nameColumn = new ColumnInfo(nameField.ReferenceFaceField, nameField.ReferenceMeta.Name);
             var nameIdColumn = new ColumnInfo(nameField.ReferenceValueField, nameField.ReferenceMeta.Name);
-            var maxValueColumn = SqlFunctions.Max(editItemInfo.ValueField, costBlockMeta.Name);
             var countColumn = SqlFunctions.Count(editItemInfo.ValueField, true, costBlockMeta.Name);
+
+            QueryColumnInfo maxValueColumn;
+
+            var valueField = costBlockMeta.AllFields.First(field => field.Name == editItemInfo.ValueField);
+            var simpleValueField = valueField as SimpleFieldMeta;
+            if (simpleValueField != null && simpleValueField.Type == TypeCode.Boolean)
+            {
+                var valueColumn = new ColumnSqlBuilder { Name = simpleValueField.Name };
+
+                maxValueColumn = SqlFunctions.Max(
+                    SqlFunctions.Convert(valueColumn, TypeCode.Int32), 
+                    costBlockMeta.Name);
+            }
+            else
+            {
+                maxValueColumn = SqlFunctions.Max(editItemInfo.ValueField, costBlockMeta.Name);
+            }
 
             var query = 
                 Sql.Select(nameIdColumn, nameColumn, maxValueColumn, countColumn)

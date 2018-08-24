@@ -1,29 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
+﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
-    public class MaxSqlBuilder : ISqlBuilder
+    public class MaxSqlBuilder : BaseQuerySqlBuilder
     {
-        public string ColumnName { get; set; }
-
-        public string TableName { get; set; }
-
-        public string Build(SqlBuilderContext context)
+        public override string Build(SqlBuilderContext context)
         {
-            var columnBuilder = new ColumnSqlBuilder { Table = this.TableName, Name = this.ColumnName };
-            var column = columnBuilder.Build(context);
+            var query = this.Query.Build(context);
 
-            return $"MAX({column})";
-        }
-
-        public IEnumerable<ISqlBuilder> GetChildrenBuilders()
-        {
-            return Enumerable.Empty<ISqlBuilder>();
+            return $"MAX({query})";
         }
     }
 }

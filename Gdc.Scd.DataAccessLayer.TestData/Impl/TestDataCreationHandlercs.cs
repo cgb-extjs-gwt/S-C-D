@@ -203,12 +203,32 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var nineByFive = new Availability { Name = "9x5" };
             var twentyFourBySeven = new Availability { Name = "24x7" };
 
-            this.repositorySet.GetRepository<ReactionTimeAvalability>().Save(new List<ReactionTimeAvalability>
+            var reactionTimeAvalabilities = new List<ReactionTimeAvalability>
             {
                 new ReactionTimeAvalability { ReactionTime = nbd, Availability = nineByFive },
                 new ReactionTimeAvalability { ReactionTime = fourHour, Availability = nineByFive },
                 new ReactionTimeAvalability { ReactionTime = fourHour, Availability = twentyFourBySeven },
-            });
+            };
+
+            this.repositorySet.GetRepository<ReactionTimeAvalability>().Save(reactionTimeAvalabilities);
+
+            var reactionTypes = new List<ReactionType> { response, recovery };
+            var reactionTimeTypeAvalabilities = new List<ReactionTimeTypeAvalability>();
+
+            foreach (var reactionType in reactionTypes)
+            {
+                foreach (var reactionTimeAvalability in reactionTimeAvalabilities)
+                {
+                    reactionTimeTypeAvalabilities.Add(new ReactionTimeTypeAvalability
+                    {
+                        ReactionType = reactionType,
+                        ReactionTime = reactionTimeAvalability.ReactionTime,
+                        Availability = reactionTimeAvalability.Availability
+                    });
+                }
+            }
+
+            this.repositorySet.GetRepository<ReactionTimeTypeAvalability>().Save(reactionTimeTypeAvalabilities);
 
             this.repositorySet.Sync();
         }
@@ -238,7 +258,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             return
                 new BracketsSqlBuilder
                 {
-                    SqlBuilder =
+                    Query =
                         Sql.Select(IdFieldMeta.DefaultId)
                            .From(table, MetaConstants.DependencySchema)
                            .Where(SqlOperators.Equals(MetaConstants.NameFieldKey, paramName, name))
@@ -970,6 +990,27 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.repositorySet.Sync();
         }
 
+        private RoleCode[] GetRoleCodes()
+        {
+            return new RoleCode[]
+            {
+                new RoleCode
+                {
+                    Name = "SEFS05"
+                    
+                }
+            };
+        }
+
+        private void CreateRolecodes()
+        {
+            var roleCodes = this.GetRoleCodes();
+            var repository = this.repositorySet.GetRepository<RoleCode>();
+
+            repository.Save(roleCodes);
+            this.repositorySet.Sync();
+        }
+
         private Country[] GetCountries()
         {
             var names = new[]
@@ -1113,18 +1154,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Duration { Name = "4 Years", Value = 4, IsProlongation = false },
                 new Duration { Name = "5 Years", Value = 5, IsProlongation = false },
                 new Duration { Name = "Prolongation", Value = 1, IsProlongation = true }
-            };
-        }
-
-        private string[] GetRoleCodeNames()
-        {
-            return new string[]
-            {
-                "SEFS05",
-                "SEFS06",
-                "SEFS04",
-                "SEIE07",
-                "SEIE08",
             };
         }
 

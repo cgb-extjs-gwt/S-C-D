@@ -32,6 +32,8 @@
     <Dependency Name="ServiceLocation" Caption="Service location"/>
     <Dependency Name="ReactionTimeType" Caption="Reaction" Type="View"/>
     <Dependency Name="ReactionTimeAvailability" Caption="Reaction" Type="View"/>
+    <Dependency Name="RoleCode" Caption="Role code"/>
+    <Dependency Name="ReactionTimeTypeAvailability" Caption="Reaction" Type="View"/>
     <Dependency Name="ServiceLocationProActive " Caption="Service location for ProActive"/>
     <Dependency Name="Availability" Caption="Availability"/>
     <Dependency Name="YearAvailability" Caption="Year Availability"/>
@@ -71,8 +73,8 @@
         <Application>Atom</Application>
       </Applications>
       <Elements>
-        <Element Name="MarkupFactor" Caption="Markup factor for other cost" InputOption="Manually"/>
-        <Element Name="Markup" Caption="Markup for other cost" InputOption="Manually"/>
+        <Element Name="MarkupFactor" Caption="Markup factor for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability"/>
+        <Element Name="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability"/>
       </Elements>
     </Block>
 
@@ -81,8 +83,8 @@
         <Application>Atom</Application>
       </Applications>
       <Elements>
-        <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost" InputOption="Manually"/>
-        <Element Name="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manually"/>
+        <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability"/>
+        <Element Name="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability"/>
       </Elements>
     </Block>
 
@@ -91,8 +93,8 @@
         <Application>Atom</Application>
       </Applications>
       <Elements>
-        <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost" InputOption="Manually"/>
-        <Element Name="MarkupStandardWarranty" Caption="Markup for standard warranty local cost" InputOption="Manually"/>
+        <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability"/>
+        <Element Name="MarkupStandardWarranty" Caption="Markup for standard warranty local cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability"/>
       </Elements>
     </Block>
 
@@ -215,7 +217,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="Installed base high availability" Caption="Installed base high availability" InputOption="Manually"/>
+        <Element Name="InstalledBaseGighAvailability" Caption="Installed base high availability" InputOption="Manually"/>
         <Element Name="TotalLogisticsInfrastructureCost" Caption="Total logistics infrastructure cost" InputOption="Manually">
           <InputLevels>
             <InputLevel>Country</InputLevel>
@@ -239,7 +241,9 @@
         <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="Automatically" RegionInput="_none_"/>
         <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="Automatically" RegionInput="_none_"/>
         <Element Name="MaxQty" Caption="MaxQty" InputOption="Automatically" RegionInput="_none_"/>
-        <Element Name="JapanBuy" Caption="Japan Buy " InputOption="Manually"/>
+        <Element Name="JapanBuy" Caption="Japan Buy" InputOption="Manually">
+          <TypeOption Type="Flag"/>
+        </Element>
       </Elements>
     </Block>
 
@@ -272,12 +276,12 @@
           </InputLevels>
           <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
         </Element>
-        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" Dependency="Year" RegionInput="_none_">
+        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" RegionInput="_none_" Dependency="ReactionTimeTypeAvailability">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
         </Element>
-        <Element Name="ReinsuranceUplift factor" Caption="Reinsurance uplift factor" InputOption="Manually" Dependency="ReactionTimeAvailability" RegionInput="_none_">
+        <Element Name="ReinsuranceUpliftFactor" Caption="Reinsurance uplift factor" InputOption="Manually" Dependency="ReactionTimeAvailability" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -346,7 +350,8 @@
         <Element Name="CentralExecutionShcReportRepetition " Caption="Central execution SHC &amp; report Repetition" InputOption="Reference"/>
         <Element Name="LocalShcCustomerBriefingRepetition " Caption="Local SHC customer briefing Repetition" InputOption="Reference"/>-->
         <!--<Element Name="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually" Dependency="ServiceLocationProActive"/>-->
-        <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually"/>
+        <!--TODO: Check Dependency="RoleCode"-->
+        <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually" Dependency="RoleCode"/>
       </Elements>
     </Block>
   

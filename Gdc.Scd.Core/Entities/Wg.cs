@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
@@ -13,6 +12,10 @@ namespace Gdc.Scd.Core.Entities
             get => base.Id;
             set => base.Id = value;
         }
+
+        public long? RoleCodeId { get; set; }
+
+        public RoleCode RoleCode { get; set; }
 
         public bool IsMultiVendor { get; set; }
     }

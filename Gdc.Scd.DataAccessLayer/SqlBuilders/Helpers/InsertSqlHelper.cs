@@ -18,7 +18,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return new SqlHelper(new InsertValuesSqlBuilder
             {
                 Queries = queries,
-                SqlBuilder = this.ToSqlBuilder()
+                Query = this.ToSqlBuilder()
             });
         }
 
@@ -94,8 +94,8 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             return new SqlHelper(new InsertQuerySqlBuilder
             {
-                Query = query,
-                SqlBuilder = this.ToSqlBuilder()
+                InsertQuery = query,
+                Query = this.ToSqlBuilder()
             });
         }
 

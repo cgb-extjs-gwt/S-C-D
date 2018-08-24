@@ -13,6 +13,8 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string ReferenceTypeKey = "Reference";
 
+        private const string FlagTypeKey = "Flag";
+
         private const string SchemaKey = "Schema";
 
         private const string NameKey = "Name";
@@ -125,6 +127,13 @@ namespace Gdc.Scd.Core.Meta.Impl
                         field = new ReferenceFieldMeta(costElementMeta.Id, referenceMeta, costElementMeta.TypeOptions[IdFieldNameKey])
                         {
                             ReferenceFaceField = costElementMeta.TypeOptions[FaceFieldNameKey],
+                            IsNullOption = true
+                        };
+                        break;
+
+                    case FlagTypeKey:
+                        field = new SimpleFieldMeta(costElementMeta.Id, TypeCode.Boolean)
+                        {
                             IsNullOption = true
                         };
                         break;

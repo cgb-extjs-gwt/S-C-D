@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
-    public class FromSqlBuilder : BaseSqlBuilder
+    public class FromSqlBuilder : BaseQuerySqlBuilder
     {
         public ISqlBuilder From { get; set; }
 
         public override string Build(SqlBuilderContext context)
         {
-            return $"{this.SqlBuilder.Build(context)} FROM {this.From.Build(context)}";
+            return $"{this.Query.Build(context)} FROM {this.From.Build(context)}";
         }
 
         public override IEnumerable<ISqlBuilder> GetChildrenBuilders()

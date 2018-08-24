@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
-    public class GroupBySqlBuilder : BaseSqlBuilder
+    public class GroupBySqlBuilder : BaseQuerySqlBuilder
     {
         public IEnumerable<ColumnInfo> Columns { get; set; }
 
@@ -18,7 +15,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
                             .Select(builder => builder.Build(context));
 
             var columnsStr = string.Join(", ", columns);
-            var sql = this.SqlBuilder == null ? string.Empty : this.SqlBuilder.Build(context);
+            var sql = this.Query == null ? string.Empty : this.Query.Build(context);
 
             return $"{sql} GROUP BY {columnsStr}";
         }

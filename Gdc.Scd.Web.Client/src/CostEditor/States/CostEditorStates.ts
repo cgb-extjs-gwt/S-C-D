@@ -37,7 +37,8 @@ export enum InputType {
 
 export enum FieldType {
     Reference = "Reference",
-    Double = "Double"
+    Double = "Double",
+    Flag = "Flag"
 }
 
 export interface CostEditorState {
