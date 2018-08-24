@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.Core.Meta.Entities;
+﻿using System;
+using Gdc.Scd.Core.Meta.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
 {
@@ -6,7 +7,14 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
     {
         protected override string BuildType()
         {
-            return "[bigint] IDENTITY(1,1)";
+            var typeBuilder = new TypeSqlBuilder
+            {
+                Type = TypeCode.Int64
+            };
+
+            var sqlType = typeBuilder.Build(null);
+
+            return $"{sqlType} IDENTITY(1,1)";
         }
     }
 }

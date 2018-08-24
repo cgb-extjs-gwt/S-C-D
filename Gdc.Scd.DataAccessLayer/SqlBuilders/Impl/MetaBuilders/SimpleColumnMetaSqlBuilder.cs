@@ -7,31 +7,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
     {
         protected override string BuildType()
         {
-            string result;
-
-            switch (this.Field.Type)
+            var typeBuilder = new TypeSqlBuilder
             {
-                case TypeCode.Double:
-                    result = "[float]";
-                    break;
+                Type = this.Field.Type
+            };
 
-                case TypeCode.String:
-                    result = "[nvarchar](30)";
-                    break;
-
-                case TypeCode.Int64:
-                    result = "[bigint]";
-                    break;
-
-                case TypeCode.DateTime:
-                    result = "[DATETIME]";
-                    break;
-                
-                default:
-                    throw new NotImplementedException();
-            }
-
-            return result;
+            return typeBuilder.Build(null);
         }
     }
 }

@@ -26,12 +26,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     : new AliasSqlBuilder
                     {
                         Alias = alias,
-                        SqlBuilder = tableBuilder
+                        Query = tableBuilder
                     };
 
             return new FromSqlBuilder
             {
-                SqlBuilder = this.ToSqlBuilder(),
+                Query = this.ToSqlBuilder(),
                 From = fromBuilder
             };
         }
@@ -45,10 +45,10 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             return new FromSqlBuilder
             {
-                SqlBuilder = this.ToSqlBuilder(),
+                Query = this.ToSqlBuilder(),
                 From = new BracketsSqlBuilder
                 {
-                    SqlBuilder = query
+                    Query = query
                 }
             };
         }

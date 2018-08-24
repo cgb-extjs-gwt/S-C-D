@@ -6,7 +6,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
-    public class InsertValuesSqlBuilder : BaseSqlBuilder
+    public class InsertValuesSqlBuilder : BaseQuerySqlBuilder
     {
         public ISqlBuilder[,] Queries { get; set; }
 
@@ -27,7 +27,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 
                 var bracketBuildr = new BracketsSqlBuilder
                 {
-                    SqlBuilder = new RawSqlBuilder
+                    Query = new RawSqlBuilder
                     {
                         RawSql = string.Join(",", row)
                     }
@@ -37,7 +37,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
             }
 
 
-            return $"{this.SqlBuilder.Build(context)}{Environment.NewLine}VALUES {string.Join($",{Environment.NewLine}", rows)}";
+            return $"{this.Query.Build(context)}{Environment.NewLine}VALUES {string.Join($",{Environment.NewLine}", rows)}";
         }
 
         public override IEnumerable<ISqlBuilder> GetChildrenBuilders()

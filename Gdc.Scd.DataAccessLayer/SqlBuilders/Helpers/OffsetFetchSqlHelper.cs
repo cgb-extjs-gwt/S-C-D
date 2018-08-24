@@ -16,7 +16,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             {
                 Offset = offset,
                 Fetch = fetch,
-                SqlBuilder = this.ToSqlBuilder()
+                Query = this.ToSqlBuilder()
             });
         }
     }
