@@ -1081,27 +1081,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private string[] GetReactionTimeCodeNames()
-        {
-            return new string[]
-            {
-                "2nd Business Day",
-                "NBD",
-                "24h",
-                "8h",
-                "4h"
-            };
-        }
-
-        private string[] GetReactionTypeNames()
-        {
-            return new[]
-            {
-                "response",
-                "recovery"
-            };
-        }
-
         private Year[] GetYears()
         {
             return new Year[]
@@ -1137,15 +1116,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private string[] GetAvailabilityNames()
-        {
-            return new string[]
-            {
-                "9x5",
-                "24x7"
-            };
-        }
-
         private Duration[] GetDurations()
         {
             return new Duration[]
@@ -1154,6 +1124,18 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Duration { Name = "4 Years", Value = 4, IsProlongation = false },
                 new Duration { Name = "5 Years", Value = 5, IsProlongation = false },
                 new Duration { Name = "Prolongation", Value = 1, IsProlongation = true }
+            };
+        }
+
+        private string[] GetRoleCodeNames()
+        {
+            return new string[]
+            {
+                "SEFS05",
+                "SEFS06",
+                "SEFS04",
+                "SEIE07",
+                "SEIE08",
             };
         }
 
