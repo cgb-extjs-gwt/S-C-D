@@ -13,5 +13,7 @@ namespace Gdc.Scd.Core.Entities
             get => base.Id;
             set => base.Id = value;
         }
+
+        public bool IsMultiVendor { get; set; }
     }
 }

@@ -238,8 +238,8 @@
         </Element>
         <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="Automatically" RegionInput="_none_"/>
         <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="Automatically" RegionInput="_none_"/>
-        <Element Name="MaxQty " Caption="MaxQty" InputOption="Automatically" RegionInput="_none_"/>
-        <Element Name="JapanBuy  " Caption="Japan Buy " InputOption="Manually"/>
+        <Element Name="MaxQty" Caption="MaxQty" InputOption="Automatically" RegionInput="_none_"/>
+        <Element Name="JapanBuy" Caption="Japan Buy " InputOption="Manually"/>
       </Elements>
     </Block>
 
