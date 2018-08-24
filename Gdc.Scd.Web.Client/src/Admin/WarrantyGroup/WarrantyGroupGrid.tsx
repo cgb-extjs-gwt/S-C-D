@@ -65,7 +65,7 @@ export default class RoleCodesGrid extends React.Component {
         }
     });
 
-    storeRC = Ext.create('Ext.data.Store', {
+    storeRoleCode = Ext.create('Ext.data.Store', {
         fields: ['id','name'],
         autoLoad: false,
         pageSize: 0,
@@ -149,13 +149,13 @@ export default class RoleCodesGrid extends React.Component {
 
     
 
-    private getValueColumn() {
+    private getRoleCodeColumn() {
         let selectField;
         let renderer: (value, data: { data }) => string;
 
         selectField = (
             <ComboBoxField              
-                store={this.storeRC}
+                store={this.storeRoleCode}
                 valueField="id"
                 displayField="name"            
                 label="Select role code"
@@ -166,7 +166,7 @@ export default class RoleCodesGrid extends React.Component {
             let result: string;
             if (this.state.render) {
                 if (data.roleCodeId > 0) {
-                    const selectedItem = this.storeRC.data.items.find(item => item.data.id === data.roleCodeId);
+                    const selectedItem = this.storeRoleCode.data.items.find(item => item.data.id === data.roleCodeId);
                     result = selectedItem.data.name;
                 } else
                     result = "";
@@ -189,7 +189,7 @@ export default class RoleCodesGrid extends React.Component {
 
     render() {
         if (!this.state.render) {
-            this.storeRC.load();
+            this.storeRoleCode.load();
             return null;
         }
         return (
@@ -220,7 +220,7 @@ export default class RoleCodesGrid extends React.Component {
                     flex={1}
                 />
 
-                {this.getValueColumn()}
+                {this.getRoleCodeColumn()}
                 <Toolbar docked="top">
                     <CheckBoxField boxLabel="Show only WGs with no Role code" onChange={(chkBox, newValue, oldValue) => this.filterOnChange(chkBox, newValue, oldValue)} />
                 </Toolbar>

@@ -53,6 +53,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             this.CreatePlas();
             this.CreateUsers();
+            this.CreateRoles();
             this.CreateReactionTimeTypeAvalability();
 
             var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
@@ -96,6 +97,20 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var user = new User { Name = "Test user" };
 
             repository.Save(user);
+            this.repositorySet.Sync();
+        }
+
+        private void CreateRoles()
+        {
+            var repository = this.repositorySet.GetRepository<Role>();
+            var role = new List<Role> {
+                new Role {Name = "Test Role 1" },
+                new Role {Name = "Test Role 2" },
+                new Role {Name = "Test Role 3" },
+                new Role {Name = "Test Role 4" },
+                new Role {Name = "Test Role 5" }
+            };       
+            repository.Save(role);
             this.repositorySet.Sync();
         }
 

@@ -32,7 +32,6 @@
     <Dependency Name="ServiceLocation" Caption="Service location"/>
     <Dependency Name="ReactionTimeType" Caption="Reaction" Type="View"/>
     <Dependency Name="ReactionTimeAvailability" Caption="Reaction" Type="View"/>
-    <Dependency Name="RoleCode" Caption="Role code"/>
     <Dependency Name="ReactionTimeTypeAvailability" Caption="Reaction" Type="View"/>
     <Dependency Name="ServiceLocationProActive " Caption="Service location for ProActive"/>
     <Dependency Name="Availability" Caption="Availability"/>

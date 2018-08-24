@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
 import { CapabilityMatrixView, CapabilityMatrixEditView } from '../../CapabilityMatrix';
 import RoleCodesGrid from '../../Admin/RoleCode/RoleCodesGrid';
+import UserRoleGrid from '../../Admin/UserRole/UserRoleGrid';
 import { CommonState } from '../States/AppStates';
 import CountryGrid from '../../Admin/Country/containers/CountryGrid';
 import WarrantyGroupGrid from '../../Admin/WarrantyGroup/WarrantyGroupGrid';
@@ -78,6 +79,7 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/admin/availability-fee" component={AvailabilityFeeAdminGrid} />
                         <Route path="/admin/role-code-management" component={RoleCodesGrid} />
                         <Route path="/admin/warranty-group-management" component={WarrantyGroupGrid} />
+                        <Route path="/admin/user-role" component={UserRoleGrid} />                   
                     </Switch>
                 </Panel>
             </Container>

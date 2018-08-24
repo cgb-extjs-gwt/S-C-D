@@ -38,6 +38,8 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<AdminAvailabilityFee>();
             services.RegisterEntity<CapabilityMatrixCountryAllowView>();
             services.RegisterEntity<RoleCode>();
+            services.RegisterEntity<Role>();
+            services.RegisterEntity<UserRole>();
         }
     }
 }
