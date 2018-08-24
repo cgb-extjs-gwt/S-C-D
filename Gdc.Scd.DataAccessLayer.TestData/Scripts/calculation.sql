@@ -78,8 +78,24 @@ IF OBJECT_ID('dbo.UpdateCredits') IS NOT NULL
     DROP PROCEDURE dbo.UpdateCredits;
 go
 
+IF OBJECT_ID('dbo.UpdateAvailabilityFee') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateAvailabilityFee;
+go
+
+IF OBJECT_ID('dbo.UpdateServiceTC') IS NOT NULL
+    DROP PROCEDURE dbo.UpdateServiceTC;
+go
+
 IF OBJECT_ID('dbo.UpdateServiceTP') IS NOT NULL
     DROP PROCEDURE dbo.UpdateServiceTP;
+go
+
+IF OBJECT_ID('Hardware.AvailabilityFeeCalcView', 'V') IS NOT NULL
+  DROP VIEW Hardware.AvailabilityFeeCalcView;
+go
+
+IF OBJECT_ID('Hardware.AvailabilityFeeView', 'V') IS NOT NULL
+  DROP VIEW Hardware.AvailabilityFeeView;
 go
 
 IF OBJECT_ID('Atom.AfrByDurationView', 'V') IS NOT NULL
@@ -134,6 +150,10 @@ IF OBJECT_ID('dbo.CalcCredit') IS NOT NULL
   DROP FUNCTION dbo.CalcCredit;
 go 
 
+IF OBJECT_ID('dbo.CalcServiceTC') IS NOT NULL
+  DROP FUNCTION dbo.CalcServiceTC;
+go 
+
 IF OBJECT_ID('dbo.CalcServiceTP') IS NOT NULL
   DROP FUNCTION dbo.CalcServiceTP;
 go 
@@ -141,6 +161,52 @@ go
 IF OBJECT_ID('dbo.AddMarkup') IS NOT NULL
   DROP FUNCTION dbo.AddMarkup;
 go 
+
+IF OBJECT_ID('dbo.CalcAvailabilityFee') IS NOT NULL
+  DROP FUNCTION dbo.CalcAvailabilityFee;
+go 
+
+IF OBJECT_ID('dbo.CalcTISC') IS NOT NULL
+  DROP FUNCTION dbo.CalcTISC;
+go 
+
+IF OBJECT_ID('dbo.CalcYI') IS NOT NULL
+  DROP FUNCTION dbo.CalcYI;
+go 
+
+CREATE FUNCTION [dbo].[CalcYI](@grValue float, @deprMo float)
+RETURNS float
+AS
+BEGIN
+	RETURN @grValue / @deprMo * 12;
+END
+GO
+
+CREATE FUNCTION [dbo].[CalcTISC](
+    @tisc float,
+    @totalIB float,
+    @totalIB_VENDOR float
+)
+RETURNS float
+AS
+BEGIN
+	RETURN @tisc / @totalIB * @totalIB_VENDOR;
+END
+GO
+
+CREATE FUNCTION [dbo].[CalcAvailabilityFee](
+	@kc float,
+    @mq float,
+    @tisc float,
+    @yi float,
+    @totalIB float
+)
+RETURNS float
+AS
+BEGIN
+	RETURN @kc/@mq * (@tisc + @yi) / @totalIB;
+END
+GO
 
 CREATE FUNCTION [dbo].[AddMarkup](
     @value float,
@@ -163,6 +229,67 @@ BEGIN
     RETURN @value;
 
 END
+GO
+
+CREATE view [Hardware].[AvailabilityFeeView] as 
+    select fee.Country,
+           fee.Wg,
+           wg.IsMultiVendor, 
+           fee.[Installed base high availability] as IB,
+           fee.TotalLogisticsInfrastructureCost,
+
+           iif(wg.IsMultiVendor = 1, fee.StockValueMv, fee.StockValueFj) as StockValue,
+       
+           fee.AverageContractDuration,
+       
+           iif(fee.JapanBuy = 1, fee.CostPerKitJapanBuy, fee.CostPerKit) as CostPerKit,
+       
+            fee.MaxQty
+    from Hardware.AvailabilityFee fee
+    join InputAtoms.Wg wg on wg.Id = fee.Wg
+GO
+
+CREATE view [Hardware].[AvailabilityFeeCalcView] as 
+    with InstallByCountryCte as (
+        SELECT T.Country as CountryID, 
+               T.Total_IB, 
+               T.Total_IB - coalesce(T.Total_IB_MVS, 0) as Total_IB_FTS, 
+               T.Total_IB_MVS,
+               T.Total_KC_MQ_IB_FTS,
+               T.Total_KC_MQ_IB_MVS
+         FROM (
+            select fee.Country, 
+                   sum(fee.IB) as Total_IB, 
+                   sum(fee.IsMultiVendor * fee.IB) as Total_IB_MVS,
+                   sum(fee.IsMultiVendor * fee.CostPerKit / fee.MaxQty * fee.IB) as Total_KC_MQ_IB_MVS,
+                   sum((1 - fee.IsMultiVendor) * fee.CostPerKit / fee.MaxQty * fee.IB) as Total_KC_MQ_IB_FTS
+            from Hardware.AvailabilityFeeView fee
+            group by fee.Country 
+        ) T
+    )
+    , AvFeeCte as (
+        select fee.*,
+               ib.Total_IB,
+
+               iif(fee.IsMultiVendor = 1, ib.Total_IB_MVS, ib.Total_IB_FTS) as Total_IB_VENDOR,               
+
+               iif(fee.IsMultiVendor = 1, ib.Total_KC_MQ_IB_MVS, ib.Total_KC_MQ_IB_FTS) as Total_KC_MQ_IB_VENDOR
+
+        from Hardware.AvailabilityFeeView fee
+        join InstallByCountryCte ib on ib.CountryID = fee.Country
+    )
+    , AvFeeCte2 as (
+        select fee.*,
+
+               dbo.CalcYI(fee.StockValue, fee.AverageContractDuration) as YI,
+          
+               dbo.CalcTISC(fee.TotalLogisticsInfrastructureCost, fee.Total_IB, fee.Total_IB_VENDOR) as TISC
+
+        from AvFeeCte fee
+    )
+    select fee.*, 
+           dbo.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) as Fee
+    from AvFeeCte2 fee
 GO
 
 CREATE VIEW [Dependencies].[DurationToYearView] as 
@@ -307,6 +434,30 @@ RETURNS float
 AS
 BEGIN
     return dbo.AddMarkup(@fieldSrvCost + @srvSupportCost + @materialCost + @logisticCost + @reinsurance, @markupFactor, @markup);
+END
+GO
+
+CREATE FUNCTION [dbo].[CalcServiceTC](
+    @fieldSrvCost float,
+    @srvSupprtCost float,
+    @materialCost float,
+    @logisticCost float,
+    @taxAndDuties float,
+    @reinsurance float,
+    @fee float,
+    @credits float
+)
+RETURNS float
+AS
+BEGIN
+	RETURN @fieldSrvCost +
+           @srvSupprtCost +
+           @materialCost +
+           @logisticCost +
+           @taxAndDuties +
+           @reinsurance +
+           @fee -
+           @credits;
 END
 GO
 
@@ -720,6 +871,46 @@ BEGIN
 
     UPDATE [Hardware].[ServiceCostCalculation] 
            SET Credits = MaterialW + LocalServiceStandardWarranty;
+
+END
+GO
+
+CREATE PROCEDURE [dbo].[UpdateAvailabilityFee]
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    UPDATE [Hardware].[ServiceCostCalculation] 
+            SET AvailabilityFee = iif(afEx.id is null, af.Fee, 0)
+    FROM [Hardware].[ServiceCostCalculation] sc
+    INNER JOIN Matrix m ON sc.MatrixId = m.Id
+    LEFT JOIN Hardware.AvailabilityFeeCalcView af on af.Country = m.CountryId and af.Wg = m.WgId
+    LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId
+                                            and afEx.ReactionTimeId = m.ReactionTimeId
+                                            and afEx.ReactionTypeId = m.ReactionTypeId
+                                            and afEx.ServiceLocationId = m.ServiceLocationId
+
+END
+GO
+
+CREATE PROCEDURE [dbo].[UpdateServiceTC]
+AS
+BEGIN
+
+	SET NOCOUNT ON;
+
+    UPDATE [Hardware].[ServiceCostCalculation] 
+            SET ServiceTC = dbo.CalcServiceTC(
+                                FieldServiceCost,
+                                ServiceSupport,
+                                MaterialW,
+                                Logistic,
+                                TaxAndDutiesW,
+                                Reinsurance,
+                                AvailabilityFee,
+                                Credits
+                           );
 
 END
 GO
