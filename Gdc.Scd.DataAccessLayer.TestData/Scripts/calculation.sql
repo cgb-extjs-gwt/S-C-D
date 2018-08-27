@@ -235,7 +235,7 @@ CREATE view [Hardware].[AvailabilityFeeView] as
     select fee.Country,
            fee.Wg,
            wg.IsMultiVendor, 
-           fee.[Installed base high availability] as IB,
+           fee.InstalledBaseHighAvailability as IB,
            fee.TotalLogisticsInfrastructureCost,
 
            iif(wg.IsMultiVendor = 1, fee.StockValueMv, fee.StockValueFj) as StockValue,

@@ -217,7 +217,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="InstalledBaseGighAvailability" Caption="Installed base high availability" InputOption="Manually"/>
+        <Element Name="InstalledBaseHighAvailability" Caption="Installed base high availability" InputOption="Manually"/>
         <Element Name="TotalLogisticsInfrastructureCost" Caption="Total logistics infrastructure cost" InputOption="Manually">
           <InputLevels>
             <InputLevel>Country</InputLevel>
