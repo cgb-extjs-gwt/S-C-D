@@ -312,18 +312,21 @@ CREATE VIEW [Dependencies].[DurationToYearView] as
 GO
 
 CREATE VIEW [Hardware].[FieldServiceCostView] AS
-    SELECT fsc.Wg,
-           fsc.Country,
-           fsc.ServiceLocation,
-           rt.ReactionTypeId,
-           rt.ReactionTimeId,
-           fsc.RepairTime,
-           fsc.TravelTime,
-           fsc.LabourCost,
-           fsc.TravelCost,
-           fsc.PerformanceRate,
-           fsc.TimeAndMaterialShare
+    SELECT  fsc.Country,
+            fsc.Wg,
+            wg.IsMultiVendor,
+            wg.RoleCodeId,
+            fsc.ServiceLocation,
+            rt.ReactionTypeId,
+            rt.ReactionTimeId,
+            fsc.RepairTime,
+            fsc.TravelTime,
+            fsc.LabourCost,
+            fsc.TravelCost,
+            fsc.PerformanceRate,
+            fsc.TimeAndMaterialShare
     FROM Hardware.FieldServiceCost fsc
+    JOIN InputAtoms.Wg on wg.Id = fsc.Wg
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = fsc.ReactionTimeType
 GO
 
@@ -691,24 +694,25 @@ BEGIN
     SET NOCOUNT ON;
 
     UPDATE [Hardware].[ServiceCostCalculation] 
-           SET FieldServiceCost = dbo.CalcFieldServiceCost(
-                                     fsc.TimeAndMaterialShare, 
-                                     fsc.TravelCost, 
-                                     fsc.LabourCost, 
-                                     fsc.PerformanceRate, 
-                                     fsc.TravelTime, 
-                                     fsc.RepairTime, 
-                                     1, 
-                                     afr.TotalAFR
-                                  )
+            SET FieldServiceCost = dbo.CalcFieldServiceCost(
+                                        fsc.TimeAndMaterialShare, 
+                                        fsc.TravelCost, 
+                                        fsc.LabourCost, 
+                                        fsc.PerformanceRate, 
+                                        fsc.TravelTime, 
+                                        fsc.RepairTime, 
+                                        hr.OnsiteHourlyRates, 
+                                        afr.TotalAFR
+                                    )
     FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
     LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId 
-                                          and fsc.Country = m.CountryId 
-                                          and fsc.ServiceLocation = m.ServiceLocationId
-                                          and fsc.ReactionTypeId = m.ReactionTypeId
-                                          and fsc.ReactionTimeId = m.ReactionTimeId
+                                            and fsc.Country = m.CountryId 
+                                            and fsc.ServiceLocation = m.ServiceLocationId
+                                            and fsc.ReactionTypeId = m.ReactionTypeId
+                                            and fsc.ReactionTimeId = m.ReactionTimeId
+    LEFT JOIN Atom.RoleCodeHourlyRates hr on hr.RoleCode = fsc.RoleCodeId
 END
 GO
 
