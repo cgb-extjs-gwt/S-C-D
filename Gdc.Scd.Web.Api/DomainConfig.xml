@@ -1,7 +1,7 @@
 <SCDConfiguration>
   <InputLevels>
     <InputLevel Name="Country"/>
-    <InputLevel Name="CountryGroup" Caption="Region"/>
+    <InputLevel Name="ClusterRegion" Caption="Region"/>
     <InputLevel Name="ClusterPla" Caption="Cluster Pla"/>
     <InputLevel Name="Pla" Caption="PLA"/>
     <InputLevel Name="Sfab" Caption="SFAB"/>
@@ -110,7 +110,7 @@
         <Application>Atom</Application>
       </Applications>
       <Elements>
-        <Element Name="MaterialCostWarranty" Caption="Material cost iW" InputOption="ManualyAutomaticly" RegionInput="CountryGroup">
+        <Element Name="MaterialCostWarranty" Caption="Material cost iW" InputOption="ManualyAutomaticly" RegionInput="ClusterRegion">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -123,7 +123,7 @@
         <Application>Atom</Application>
       </Applications>
       <Elements>
-        <Element Name="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="CountryGroup">
+        <Element Name="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="ClusterRegion">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -194,12 +194,12 @@
           </InputLevels>
         </Element>
         <!--<Element Name="InstalledBase" Caption="Installed base country" InputOption="Reference"/>-->
-        <Element Name="2ndLevelSupportCostsCountryGroup" Caption="2nd Level Support costs cluster region" InputOption="Manually" RegionInput="CountryGroup">
+        <Element Name="2ndLevelSupportCostsCountryGroup" Caption="2nd Level Support costs cluster region" InputOption="Manually" RegionInput="ClusterRegion">
           <InputLevels>
             <InputLevel>ClusterPla</InputLevel>
           </InputLevels>
         </Element>
-        <Element Name="2ndLevelSupportCostsLocal" Caption="2nd Level Support costs local" InputOption="Manually" RegionInput="CountryGroup">
+        <Element Name="2ndLevelSupportCostsLocal" Caption="2nd Level Support costs local" InputOption="Manually" RegionInput="ClusterRegion">
           <InputLevels>
             <InputLevel>ClusterPla</InputLevel>
           </InputLevels>
