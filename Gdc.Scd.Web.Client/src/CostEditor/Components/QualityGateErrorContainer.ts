@@ -1,9 +1,9 @@
 import { connect } from "react-redux";
-import { QualityGateErrorProps, QualityGateErrorActions } from "./QualityGateErrorView";
+import { QualityGateErrorProps, QualityGateErrorActions, QualityGateErrorView } from "./QualityGateErrorView";
 import { CommonState } from "../../Layout/States/AppStates";
 import { getDependecyColumnsFromMeta } from "../../Common/Helpers/ColumnInfoHelper";
-import { ColumnInfo } from "../../Common/States/ColumnInfo";
-import { saveEditItemsToServer } from "../Actions/CostBlockActions";
+import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
+import { saveEditItemsToServer, resetErrors } from "../Actions/CostBlockActions";
 
 export interface QualityGateErrorContainerProps {
     costBlockId: string
@@ -18,8 +18,10 @@ export const QualityGateErrorContainer =
 
             if (meta) {
                 columns = [
-                    { title: 'Wg', dataIndex: `WarrantyGroupName` },
+                    { title: 'Wg', dataIndex: `WarrantyGroupName`, type: ColumnType.Simple },
                     ...getDependecyColumnsFromMeta(meta, costBlockId),
+                    { title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.Checkbox },
+                    { title: 'Country group error', dataIndex: `IsRegionError`, type: ColumnType.Checkbox },
                 ];
             }
 
@@ -29,6 +31,13 @@ export const QualityGateErrorContainer =
             };
         },
         (dispatch, { costBlockId }) => ({
-            //onSave: (explanationMessage) => dispatch(saveEditItemsToServer(costBlockId))
+            onSave: (explanationMessage) => dispatch(
+                saveEditItemsToServer(costBlockId, { 
+                    qualityGateErrorExplanation: explanationMessage,
+                    isApproving: true,
+                    hasQualityGateErrors: true
+                })
+            ),
+            onCancel: () => dispatch(resetErrors(costBlockId))
         })
-    )
+    )(QualityGateErrorView)

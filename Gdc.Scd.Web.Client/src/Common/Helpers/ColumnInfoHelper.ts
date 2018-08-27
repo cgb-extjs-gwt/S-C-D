@@ -1,5 +1,5 @@
 import { CostBlockMeta, CostMetaData } from "../States/CostMetaStates";
-import { ColumnInfo } from "../States/ColumnInfo";
+import { ColumnInfo, ColumnType } from "../States/ColumnInfo";
 
 
 export const getDependecyColumns = (costBlock: CostBlockMeta) => {
@@ -11,7 +11,8 @@ export const getDependecyColumns = (costBlock: CostBlockMeta) => {
                 costElement.dependency.name, 
                 <ColumnInfo>{
                     title: costElement.dependency.name,
-                    dataIndex: `${costElement.dependency.id}Name`
+                    dataIndex: `${costElement.dependency.id}Name`,
+                    type: ColumnType.Simple
                 });
         }
     }

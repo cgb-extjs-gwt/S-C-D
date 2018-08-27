@@ -39,16 +39,19 @@ export interface CostElementData {
     referenceValues: NamedId<number>[] 
 }
 
+export interface CostBlockEditState {
+    originalItems: EditItem[],
+    editedItems: EditItem[]
+    appliedFilter: {
+        inputLevelItemIds: Set<string>
+        costElementsItemIds: Set<string>
+    }
+    saveErrors: { [key: string]: any }[]
+}
+
 export interface CostBlockState {
     costBlockId: string
     costElement: SelectList<CostElementState>
     visibleCostElementIds: string[]
-    edit: {
-        originalItems: EditItem[],
-        editedItems: EditItem[]
-        appliedFilter: {
-            inputLevelItemIds: Set<string>
-            costElementsItemIds: Set<string>
-        }
-    }
+    edit: CostBlockEditState
 }

@@ -5,7 +5,7 @@ import * as CostApprovalService from "../Services/CostApprovalService"
 import { API_URL, buildMvcUrl } from "../../Common/Services/Ajax";
 import { NamedId } from "../../Common/States/CommonStates";
 import { buildGetHistoryValueTableUrl } from "../Services/CostApprovalService";
-import { ColumnInfo } from "../../Common/States/ColumnInfo";
+import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
 import { getDependecyColumnsFromMeta } from "../../Common/Helpers/ColumnInfoHelper";
 
 export interface ApprovalValuesContainerProps {
@@ -26,9 +26,9 @@ export const ApprovalValuesContainerComponent =
                 dataLoadUrl = buildGetHistoryValueTableUrl(bundleId);
 
                 columns = [
-                    { title: 'InputLevel', dataIndex: 'InputLevelName' },
+                    { title: 'InputLevel', dataIndex: 'InputLevelName', type: ColumnType.Simple },
                     ...getDependecyColumnsFromMeta(meta, costBlockId),
-                    { title: 'Value', dataIndex: 'Value' }
+                    { title: 'Value', dataIndex: 'Value', type: ColumnType.Simple }
                 ]
             } else {
                 columns = [];

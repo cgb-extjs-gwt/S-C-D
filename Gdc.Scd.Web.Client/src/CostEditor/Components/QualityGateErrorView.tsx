@@ -9,7 +9,7 @@ export interface QualityGateErrorActions {
 }
 
 export interface QualityGateErrorProps extends QualityGateErrorActions {
-    columns: ColumnInfo[]
+    columns?: ColumnInfo[]
     errors: {[key: string]: any}[]
 }
 

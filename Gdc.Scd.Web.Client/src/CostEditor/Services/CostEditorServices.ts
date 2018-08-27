@@ -27,8 +27,6 @@ export interface ApprovalOption {
 export interface QualityGateResult {
     errors: {[key: string]: any}[]
     hasErrors: boolean
-    context: Context
-    editItems: EditItem[]
 }
 
 export const getCostEditorData = () => get<CostEditortData>(COST_EDITOR_CONTROLLER_NAME, 'GetCostEditorData');

@@ -82,8 +82,6 @@ namespace Gdc.Scd.Web.Api.Controllers
 
             return new QualityGateResultDto
             {
-                Context = context,
-                EditItems = editItems,
                 HasErrors = qualityGateResult.HasErrors,
                 Errors = errors
             };

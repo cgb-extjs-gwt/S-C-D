@@ -6,7 +6,8 @@ import { EditItem, CostElementData, DataLoadingState } from "../States/CostBlock
 import { NamedId } from "../../Common/States/CommonStates";
 import { losseDataCheckHandlerAction, buildCostEditorContext } from "../Helpers/CostEditorHelpers";
 import { CommonState } from "../../Layout/States/AppStates";
-import { ApprovalOption } from "../Services/CostEditorServices";
+import { ApprovalOption, QualityGateResult } from "../Services/CostEditorServices";
+import { handleRequest } from "../../Common/Helpers/RequestHelper";
 
 export const COST_BLOCK_INPUT_SELECT_REGIONS = 'COST_BLOCK_INPUT.SELECT.REGIONS';
 export const COST_BLOCK_INPUT_SELECT_COST_ELEMENT = 'COST_BLOCK_INPUT.SELECT.COST_ELEMENT';
@@ -22,6 +23,7 @@ export const COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS = 'COST_BLOCK_INPUT.CLEAR.EDIT_IT
 export const COST_BLOCK_INPUT_EDIT_ITEM = 'COST_BLOCK_INPUT.EDIT.ITEM';
 export const COST_BLOCK_INPUT_SAVE_EDIT_ITEMS = 'COST_BLOCK_INPUT.SAVE.EDIT_ITEMS';
 export const COST_BLOCK_INPUT_APPLY_FILTERS = 'COST_BLOCK_INPUT.APPLY.FILTERS';
+export const COST_BLOCK_INPUT_RESET_ERRORS = 'COST_BLOCK_INPUT.RESET.ERRORS';
 
 export interface CostBlockAction extends Action<string>  {
     costBlockId: string 
@@ -64,6 +66,10 @@ export interface EditItemsAction extends CostBlockAction {
 
 export interface ItemEditedAction extends CostBlockAction {
     item: EditItem
+}
+
+export interface SaveEditItemsAction extends CostBlockAction {
+    qualityGateResult: QualityGateResult
 }
 
 export const selectRegion = (costBlockId: string, costElementId: string, regionId: string) => (<RegionSelectedAction>{
@@ -168,13 +174,19 @@ export const editItem = (costBlockId: string, item: EditItem) => (<ItemEditedAct
     item
 })
 
-export const saveEditItems = (costBlockId: string) => (<CostBlockAction>{
+export const saveEditItems = (costBlockId: string, qualityGateResult: QualityGateResult) => (<SaveEditItemsAction>{
     type: COST_BLOCK_INPUT_SAVE_EDIT_ITEMS,
-    costBlockId
+    costBlockId,
+    qualityGateResult
 })
 
 export const applyFilters = (costBlockId: string) => (<CostBlockAction>{
     type: COST_BLOCK_INPUT_APPLY_FILTERS,
+    costBlockId
+})
+
+export const resetErrors = (costBlockId: string) => (<CostBlockAction>{
+    type: COST_BLOCK_INPUT_RESET_ERRORS,
     costBlockId
 })
 
@@ -189,9 +201,11 @@ export const getDataByCostElementSelection = (costBlockId: string, costElementId
             const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
 
             if (costElement.dataLoadingState === DataLoadingState.Wait) {
-                service.getCostElementData(context).then(
-                    data => dispatch(loadCostElementData(costBlockId, costElementId, data))
-                );
+                handleRequest(
+                    service.getCostElementData(context).then(
+                        data => dispatch(loadCostElementData(costBlockId, costElementId, data))
+                    )
+                )
             }
         }
     )
@@ -214,9 +228,11 @@ export const getFilterItemsByInputLevelSelection = (costBlockId: string, costEle
                 if (!inputLevel || !inputLevel.filter)
                 {
                     const context = buildCostEditorContext(state);
-
-                    service.getLevelInputFilterItems(context).then(
-                        filterItems => dispatch(loadInputLevelFilter(costBlockId, costElementId, inputLevelId, filterItems))
+                    
+                    handleRequest(
+                        service.getLevelInputFilterItems(context).then(
+                            filterItems => dispatch(loadInputLevelFilter(costBlockId, costElementId, inputLevelId, filterItems))
+                        )
                     )
                 }
             }
@@ -255,14 +271,16 @@ export const loadEditItemsByContext = () =>
             const context = buildCostEditorContext(state);
 
             if (context.costElementId != null && context.inputLevelId != null) {
-                service.getEditItems(context).then(
-                    editItems => dispatch(loadEditItems(context.costBlockId, editItems))
+                handleRequest(
+                    service.getEditItems(context).then(
+                        editItems => dispatch(loadEditItems(context.costBlockId, editItems))
+                    )
                 )
             }
         }
     )
 
-export const saveEditItemsToServer = (costBlockId: string, approvalOption: ApprovalOption, editItems: EditItem[] = null) => 
+export const saveEditItemsToServer = (costBlockId: string, approvalOption: ApprovalOption) => 
     asyncAction<CommonState>(
         (dispatch, getState) => {
             const state = getState().pages.costEditor
@@ -271,10 +289,12 @@ export const saveEditItemsToServer = (costBlockId: string, approvalOption: Appro
 
             const context = buildCostEditorContext(state);
 
-            service.saveEditItems(editItems || costBlock.edit.editedItems, context, approvalOption)
-                   .then(
-                       () => dispatch(saveEditItems(costBlockId))
-                    )
+            handleRequest(
+                service.saveEditItems(costBlock.edit.editedItems, context, approvalOption)
+                       .then(
+                            qualityGateResult => dispatch(saveEditItems(costBlockId, qualityGateResult))
+                       )
+            )
         }
     )
 

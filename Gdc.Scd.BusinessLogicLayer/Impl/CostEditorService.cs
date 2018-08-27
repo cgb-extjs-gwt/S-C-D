@@ -109,7 +109,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             QualityGateResult checkResult;
 
-            if (approvalOption.IsApproving)
+            if (approvalOption.IsApproving && !approvalOption.HasQualityGateErrors)
             {
                 checkResult = await this.qualityGateSevice.Check(editItems, context);
             }
