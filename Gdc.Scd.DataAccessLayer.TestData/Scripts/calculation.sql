@@ -134,6 +134,14 @@ IF OBJECT_ID('Hardware.FieldServiceCostView', 'V') IS NOT NULL
   DROP VIEW Hardware.FieldServiceCostView;
 go
 
+IF OBJECT_ID('Atom.MarkupOtherCostsView', 'V') IS NOT NULL
+  DROP VIEW Atom.MarkupOtherCostsView;
+go
+
+IF OBJECT_ID('Atom.MarkupStandardWarantyView', 'V') IS NOT NULL
+  DROP VIEW Atom.MarkupStandardWarantyView;
+go
+
 IF OBJECT_ID('dbo.CalcReinsuranceCost') IS NOT NULL
   DROP FUNCTION dbo.CalcReinsuranceCost;
 go 
@@ -545,6 +553,30 @@ CREATE VIEW [Hardware].[LogisticsCostView] AS
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = lc.ReactionTimeType
 GO
 
+CREATE VIEW [Atom].[MarkupOtherCostsView] as 
+    select m.Country,
+           m.Wg,
+           tta.ReactionTimeId,
+           tta.ReactionTypeId,
+           tta.AvailabilityId,
+           m.Markup,
+           m.MarkupFactor
+    from Atom.MarkupOtherCosts m
+    join Dependencies.ReactionTime_ReactionType_Avalability tta on tta.id = m.ReactionTimeTypeAvailability
+GO
+
+CREATE VIEW [Atom].[MarkupStandardWarantyView] as 
+    select m.Country,
+           m.Wg,
+           tta.ReactionTimeId,
+           tta.ReactionTypeId,
+           tta.AvailabilityId,
+           m.MarkupFactorStandardWarranty,
+           m.MarkupStandardWarranty
+    from Atom.MarkupStandardWaranty m
+    join Dependencies.ReactionTime_ReactionType_Avalability tta on tta.id = m.ReactionTimeTypeAvailability
+GO
+
 CREATE VIEW [InputAtoms].[CountryClusterRegionView] as
     with cte (id, IsImeia, IsJapan, IsAsia, IsLatinAmerica, IsOceania, IsUnitedStates) as (
         select cr.Id, 
@@ -626,7 +658,7 @@ CREATE VIEW [Hardware].[ReinsuranceView] as
            dur.DurID as  Duration,
            rta.AvailabilityId, 
            rta.ReactionTimeId,
-           dbo.CalcReinsuranceCost(r.ReinsuranceFlatfee, r.[ReinsuranceUplift factor], er.Value) as Cost
+           dbo.CalcReinsuranceCost(r.ReinsuranceFlatfee, r.ReinsuranceUpliftFactor, er.Value) as Cost
     FROM Hardware.Reinsurance r
     JOIN Dependencies.ReactionTime_Avalability rta on rta.Id = r.ReactionTimeAvailability
     JOIN Dependencies.Year y on y.Id = r.Year
@@ -828,8 +860,11 @@ BEGIN
                                 )
     FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN Atom.MarkupOtherCosts moc on moc.Wg = m.WgId and moc.Country = m.CountryId
-
+    LEFT JOIN Atom.MarkupOtherCostsView moc on moc.Wg = m.WgId 
+                                               and moc.Country = m.CountryId
+                                               and moc.ReactionTimeId = m.ReactionTimeId
+                                               and moc.ReactionTypeId = m.ReactionTypeId
+                                               and moc.AvailabilityId = m.AvailabilityId
 END
 GO
 
@@ -853,12 +888,16 @@ BEGIN
     FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
-    LEFT JOIN Atom.MarkupStandardWaranty msw on msw.Wg = m.WgId and msw.Country = m.CountryId
+    LEFT JOIN Atom.MarkupStandardWarantyView msw on msw.Wg = m.WgId 
+                                                    and msw.Country = m.CountryId
+                                                    and msw.ReactionTimeId = m.ReactionTimeId
+                                                    and msw.ReactionTypeId = m.ReactionTypeId
+                                                    and msw.AvailabilityId = m.AvailabilityId
     LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId 
-                                          and fsc.Country = m.CountryId 
-                                          and fsc.ServiceLocation = m.ServiceLocationId
-                                          and fsc.ReactionTypeId = m.ReactionTypeId
-                                          and fsc.ReactionTimeId = m.ReactionTimeId
+                                            and fsc.Country = m.CountryId 
+                                            and fsc.ServiceLocation = m.ServiceLocationId
+                                            and fsc.ReactionTypeId = m.ReactionTypeId
+                                            and fsc.ReactionTimeId = m.ReactionTimeId
 
 END
 GO
