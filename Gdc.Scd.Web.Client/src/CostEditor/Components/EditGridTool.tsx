@@ -61,7 +61,6 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                         text="History" 
                         flex={1} 
                         disabled={this.state.selectedItems.length != 1}
-                        //ref={button => this.historyButton = button}
                         handler={this.showHistoryWindow}
                     />
                 </Toolbar>
@@ -151,7 +150,6 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
             <Dialog 
                 displayed={qualityGateErrors && qualityGateErrors.length > 0} 
                 title="Quality gate errors" 
-                closable 
                 maximizable
                 resizable={{
                     dynamic: true,

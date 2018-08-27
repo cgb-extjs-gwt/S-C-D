@@ -455,8 +455,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     });
                 }
 
-                result.IsPeriodError = reader.GetInt32(index++) == 1;
-                result.IsRegionError = reader.GetInt32(index++) == 1;
+                result.IsPeriodError = reader.GetInt32(index++) == 0;
+                result.IsRegionError = reader.GetInt32(index++) == 0;
 
                 return result;
             }

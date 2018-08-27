@@ -54,21 +54,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreatePlas();
             this.CreateUsers();
             this.CreateReactionTimeTypeAvalability();
-
-            var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
-            var countryRepository = repositorySet.GetRepository<Country>();
-
-            var countries = this.GetCountrieNames().Select(c => new Country
-            {
-                Name = c,
-                CanOverrideListAndDealerPrices = GenerateRandomBool(),
-                CanOverrideTransferCostAndPrice = GenerateRandomBool(),
-                ShowDealerPrice = GenerateRandomBool()
-            });
-
-            countryRepository.Save(countries);
-            repositorySet.Sync();
-
+            this.CreateCountry();
+            
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
 
@@ -88,6 +75,38 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 this.repositorySet.ExecuteSql(query);
             }
+        }
+
+        private void CreateCountry()
+        {
+            var countryGroups = new List<CountryGroup>();
+
+            CountryGroup countryGroup = null;
+
+            foreach (var countryName in this.GetCountrieNames())
+            {
+                if (countryGroup == null || countryGroup.Countries.Count % 5 == 0)
+                {
+                    countryGroup = new CountryGroup
+                    {
+                        Name = $"CountryGroup_{countryGroups.Count}",
+                        Countries = new List<Country>()
+                    };
+
+                    countryGroups.Add(countryGroup);
+                }
+
+                countryGroup.Countries.Add(new Country
+                {
+                    Name = countryName,
+                    CanOverrideListAndDealerPrices = GenerateRandomBool(),
+                    CanOverrideTransferCostAndPrice = GenerateRandomBool(),
+                    ShowDealerPrice = GenerateRandomBool()
+                });
+            }
+
+            this.repositorySet.GetRepository<CountryGroup>().Save(countryGroups);
+            this.repositorySet.Sync();
         }
 
         private void CreateUsers()
