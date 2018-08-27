@@ -41,7 +41,7 @@
     <Dependency Name="ReactionTimeAvailability" Caption="Reaction" Type="View"/>
     <Dependency Name="RoleCode" Caption="Role code"/>
     <Dependency Name="ReactionTimeTypeAvailability" Caption="Reaction" Type="View"/>
-    <Dependency Name="ServiceLocationProActive " Caption="Service location for ProActive"/>
+    <Dependency Name="ServiceLocationProActive" Caption="Service location for ProActive"/>
     <Dependency Name="Availability" Caption="Availability"/>
     <Dependency Name="YearAvailability" Caption="Year Availability"/>
   </Dependencies>
@@ -194,7 +194,7 @@
           </InputLevels>
         </Element>
         <!--<Element Name="InstalledBase" Caption="Installed base country" InputOption="Reference"/>-->
-        <Element Name="2ndLevelSupportCostsCountryGroup" Caption="2nd Level Support costs cluster region" InputOption="Manually" RegionInput="ClusterRegion">
+        <Element Name="2ndLevelSupportCostsClusterRegion" Caption="2nd Level Support costs cluster region" InputOption="Manually" RegionInput="ClusterRegion">
           <InputLevels>
             <InputLevel>ClusterPla</InputLevel>
           </InputLevels>
@@ -228,7 +228,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="InstalledBaseGighAvailability" Caption="Installed base high availability" InputOption="Manually"/>
+        <Element Name="InstalledBaseHighAvailability" Caption="Installed base high availability" InputOption="Manually"/>
         <Element Name="TotalLogisticsInfrastructureCost" Caption="Total logistics infrastructure cost" InputOption="Manually">
           <InputLevels>
             <InputLevel>Country</InputLevel>
@@ -287,7 +287,7 @@
           </InputLevels>
           <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
         </Element>
-        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" RegionInput="_none_" Dependency="ReactionTimeTypeAvailability">
+        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" RegionInput="_none_" Dependency="Year">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -366,7 +366,7 @@
       </Elements>
     </Block>
   
-    <Block Name="SwSpMaintenance " Caption="SW / SP Maintenance">
+    <Block Name="SwSpMaintenance" Caption="SW / SP Maintenance">
       <Applications>
         <Application>SoftwareSolution</Application>
       </Applications>

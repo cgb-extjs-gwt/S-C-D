@@ -1,11 +1,13 @@
-﻿using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Meta.Constants;
+﻿using Gdc.Scd.Core.Meta.Constants;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("Duration", Schema = MetaConstants.DependencySchema)]
-    public class Duration : NamedId
+    [Table("Year", Schema = MetaConstants.DependencySchema)]
+    public class Year : NamedId
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id
@@ -15,7 +17,6 @@ namespace Gdc.Scd.Core.Entities
         }
 
         public int Value { get; set; }
-
         public bool IsProlongation { get; set; }
     }
 }

@@ -318,14 +318,7 @@ namespace Gdc.Scd.Core.Meta.Impl
             return this.BuildDomainInfo(listNode, itemNodeName, items);
         }
 
-        private void CheckId(string id)
-        {
-            if (string.IsNullOrWhiteSpace(id) || !this.idRegex.IsMatch(id))
-            {
-                throw new Exception($"Invalid BaseDomainMeta id '{id}'");
-            }
-        }
-
+<<<<<<< HEAD
         private QualityGate BuildQualityGate(XElement node)
         {
             var qualityGate = new QualityGate();
@@ -348,6 +341,14 @@ namespace Gdc.Scd.Core.Meta.Impl
             }
 
             return qualityGate;
+=======
+        private void CheckId(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id) || !this.idRegex.IsMatch(id))
+            {
+                throw new Exception($"Invalid BaseDomainMeta id '{id}'");
+            }
+>>>>>>> origin/master
         }
 
         private class DomainInfo<T> where T : IMetaIdentifialble

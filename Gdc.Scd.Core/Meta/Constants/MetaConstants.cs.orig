@@ -22,12 +22,14 @@
         
         public const string DefaultSchema = "dbo";
 
+<<<<<<< HEAD
         public const string WgInputLevelName = "Wg";
-        
+=======
         public const string CalculationTable = "ServiceCostCalculation";
 
         public const string HardwareSchema = "Hardware";
 
         public const string ReferencesSchema = "References";
+>>>>>>> origin/master
     }
 }
