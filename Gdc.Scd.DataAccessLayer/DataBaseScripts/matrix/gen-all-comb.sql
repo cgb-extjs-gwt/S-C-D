@@ -65,4 +65,7 @@ INSERT INTO Matrix (
 -- Enable all table constraints
 ALTER TABLE Matrix CHECK CONSTRAINT ALL
 
+INSERT INTO [Hardware].[ServiceCostCalculation] (MatrixId) 
+  SELECT Id FROM Matrix WHERE CountryId IS NOT NULL;
+
 
