@@ -34,7 +34,7 @@
     <Dependency Name="ReactionTimeAvailability" Caption="Reaction" Type="View"/>
     <Dependency Name="RoleCode" Caption="Role code"/>
     <Dependency Name="ReactionTimeTypeAvailability" Caption="Reaction" Type="View"/>
-    <Dependency Name="ServiceLocationProActive " Caption="Service location for ProActive"/>
+    <Dependency Name="ServiceLocationProActive" Caption="Service location for ProActive"/>
     <Dependency Name="Availability" Caption="Availability"/>
     <Dependency Name="YearAvailability" Caption="Year Availability"/>
   </Dependencies>
@@ -355,7 +355,7 @@
       </Elements>
     </Block>
   
-    <Block Name="SwSpMaintenance " Caption="SW / SP Maintenance">
+    <Block Name="SwSpMaintenance" Caption="SW / SP Maintenance">
       <Applications>
         <Application>SoftwareSolution</Application>
       </Applications>

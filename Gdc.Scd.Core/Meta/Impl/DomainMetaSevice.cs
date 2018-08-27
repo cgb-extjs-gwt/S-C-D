@@ -214,6 +214,8 @@ namespace Gdc.Scd.Core.Meta.Impl
                 throw new Exception("Name attribute not found");
             }
 
+            this.CheckId(nameAttr.Value);
+
             var captionAttr = node.Attribute(CaptionAttributeName);
             var meta = new T
             {
@@ -242,16 +244,11 @@ namespace Gdc.Scd.Core.Meta.Impl
             var nameAttribute = node.Attribute(NameAttributeName);
             var captionAttribute = node.Attribute(CaptionAttributeName);
 
-            var id = nameAttribute.Value;
-
-            if (!this.idRegex.IsMatch(id))
-            {
-                throw new Exception("Invalid BaseDomainMeta id");
-            }
+            this.CheckId(nameAttribute.Value);
 
             return new T
             {
-                Id = id,
+                Id = nameAttribute.Value,
                 Name = captionAttribute == null ? nameAttribute.Value : captionAttribute.Value
             };
         }
@@ -300,6 +297,14 @@ namespace Gdc.Scd.Core.Meta.Impl
             var items = listNode.Elements(itemNodeName).Select(this.BuildStoreTypedMeta<T>);
 
             return this.BuildDomainInfo(listNode, itemNodeName, items);
+        }
+
+        private void CheckId(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id) || !this.idRegex.IsMatch(id))
+            {
+                throw new Exception($"Invalid BaseDomainMeta id '{id}'");
+            }
         }
 
         private class DomainInfo<T> where T : IMetaIdentifialble
