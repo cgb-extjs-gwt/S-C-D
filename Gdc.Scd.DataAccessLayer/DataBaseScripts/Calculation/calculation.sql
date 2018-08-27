@@ -675,9 +675,9 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE [Hardware].[ServiceCostCalculation] 
+    UPDATE Hardware.ServiceCostCalculation 
            SET Reinsurance = rd.Cost
-    FROM [Hardware].[ServiceCostCalculation] sc
+    FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     LEFT JOIN Hardware.ReinsuranceView rd on rd.Wg = m.WgId 
               AND rd.Duration = m.DurationId 
@@ -693,7 +693,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE [Hardware].[ServiceCostCalculation] 
+    UPDATE Hardware.ServiceCostCalculation 
             SET FieldServiceCost = dbo.CalcFieldServiceCost(
                                         fsc.TimeAndMaterialShare, 
                                         fsc.TravelCost, 
@@ -704,7 +704,7 @@ BEGIN
                                         hr.OnsiteHourlyRates, 
                                         afr.TotalAFR
                                     )
-    FROM [Hardware].[ServiceCostCalculation] sc
+    FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
     LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId 
@@ -722,8 +722,8 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE [Hardware].[ServiceCostCalculation] SET HddRetention = hr.HddRet
-    FROM [Hardware].[ServiceCostCalculation] sc
+    UPDATE Hardware.ServiceCostCalculation SET HddRetention = hr.HddRet
+    FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     LEFT JOIN Hardware.HddRetByDurationView hr on hr.WgID = m.WgId and hr.DurID = m.DurationId
 
@@ -736,9 +736,9 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE [Hardware].[ServiceCostCalculation] 
+    UPDATE Hardware.ServiceCostCalculation 
            SET MaterialOow = dbo.CalcMaterialCostWar(mco.MaterialCostOow, afr.TotalAFR)
-    FROM [Hardware].[ServiceCostCalculation] sc
+    FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
     LEFT JOIN Atom.MaterialCostOow mco on mco.Wg = m.WgId and mco.ClusterRegion = c.ClusterRegionId
@@ -753,9 +753,9 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE [Hardware].[ServiceCostCalculation] 
+    UPDATE Hardware.ServiceCostCalculation 
            SET MaterialW = dbo.CalcMaterialCostWar(mcw.MaterialCostWarranty, afr.TotalAFR)
-    FROM [Hardware].[ServiceCostCalculation] sc
+    FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
     LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId and mcw.ClusterRegion = c.ClusterRegionId
@@ -770,13 +770,14 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE [Hardware].[ServiceCostCalculation] 
-        SET ServiceSupport = (case c.IsImeia
-                                   when 1 then dbo.CalcSrvSupportCost(ssc.[1stLevelSupportCostsCountry], ssc.[2ndLevelSupportCostsClusterRegion], ib.ibCnt, ib.ib_Cnt_PLA) * dur.Value
-                                   else dbo.CalcSrvSupportCost(ssc.[1stLevelSupportCostsCountry], ssc.[2ndLevelSupportCostsLocal], ib.ibCnt, ib.ib_Cnt_PLA) * dur.Value
-                              end
-                             )
-    FROM [Hardware].[ServiceCostCalculation] sc
+    UPDATE Hardware.ServiceCostCalculation 
+        SET ServiceSupport = dur.Value * dbo.CalcSrvSupportCost(
+                                ssc.[1stLevelSupportCostsCountry], 
+                                iif(c.IsImeia = 1, ssc.[2ndLevelSupportCostsClusterRegion], ssc.[2ndLevelSupportCostsLocal]), 
+                                ib.ibCnt, 
+                                ib.ib_Cnt_PLA
+                            )
+    FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m on sc.MatrixId = m.Id
     INNER JOIN Dependencies.Duration dur on dur.Id = m.DurationId
     INNER JOIN InputAtoms.CountryClusterRegionView c on c.Id = m.CountryId
@@ -792,9 +793,9 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE [Hardware].[ServiceCostCalculation] 
+    UPDATE Hardware.ServiceCostCalculation 
            SET TaxAndDutiesOow = dbo.CalcTaxAndDutiesWar(mco.MaterialCostOow, tax.TaxAndDuties)
-    FROM [Hardware].[ServiceCostCalculation] sc
+    FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
     LEFT JOIN Atom.TaxAndDuties tax on tax.Wg = m.WgId and tax.Country = m.CountryId
@@ -809,9 +810,9 @@ BEGIN
 
     SET NOCOUNT ON;
 
-        UPDATE [Hardware].[ServiceCostCalculation] 
+        UPDATE Hardware.ServiceCostCalculation 
                SET TaxAndDutiesW = dbo.CalcTaxAndDutiesWar(mcw.MaterialCostWarranty, tax.TaxAndDuties)
-        FROM [Hardware].[ServiceCostCalculation] sc
+        FROM Hardware.ServiceCostCalculation sc
         INNER JOIN Matrix m ON sc.MatrixId = m.Id
         INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
         LEFT JOIN Atom.TaxAndDuties tax on tax.Wg = m.WgId and tax.Country = m.CountryId
@@ -826,7 +827,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE [Hardware].[ServiceCostCalculation] 
+    UPDATE Hardware.ServiceCostCalculation 
             SET Logistic = dbo.CalcLogisticCost(
                                lc.StandardHandling,
                                lc.HighAvailabilityHandling,
@@ -835,7 +836,7 @@ BEGIN
                                lc.TaxiCourierDelivery,
                                lc.ReturnDeliveryFactory,
                                afr.TotalAFR)
-    FROM [Hardware].[ServiceCostCalculation] sc
+    FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
     LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = m.CountryId 
@@ -852,7 +853,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE [Hardware].[ServiceCostCalculation] 
+    UPDATE Hardware.ServiceCostCalculation 
             SET OtherDirect = dbo.CalcOtherDirectCost(
                                     sc.FieldServiceCost, 
                                     sc.ServiceSupport, 
@@ -862,7 +863,7 @@ BEGIN
                                     moc.MarkupFactor, 
                                     moc.Markup
                                 )
-    FROM [Hardware].[ServiceCostCalculation] sc
+    FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     LEFT JOIN Atom.MarkupOtherCostsView moc on moc.Wg = m.WgId 
                                                and moc.Country = m.CountryId
@@ -878,7 +879,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE [Hardware].[ServiceCostCalculation] 
+    UPDATE Hardware.ServiceCostCalculation 
             SET LocalServiceStandardWarranty = dbo.CalcLocSrvStandardWarranty(
                                                     fsc.LabourCost,
                                                     fsc.TravelCost,
@@ -889,7 +890,7 @@ BEGIN
                                                     sc.AvailabilityFee,
                                                     msw.MarkupFactorStandardWarranty, 
                                                     msw.MarkupStandardWarranty)
-    FROM [Hardware].[ServiceCostCalculation] sc
+    FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
     LEFT JOIN Atom.MarkupStandardWarantyView msw on msw.Wg = m.WgId 
@@ -912,7 +913,7 @@ BEGIN
 
 	SET NOCOUNT ON;
 
-    UPDATE [Hardware].[ServiceCostCalculation] 
+    UPDATE Hardware.ServiceCostCalculation 
            SET Credits = MaterialW + LocalServiceStandardWarranty;
 
 END
@@ -924,9 +925,9 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE [Hardware].[ServiceCostCalculation] 
+    UPDATE Hardware.ServiceCostCalculation 
             SET AvailabilityFee = iif(afEx.id is null, af.Fee, 0)
-    FROM [Hardware].[ServiceCostCalculation] sc
+    FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     LEFT JOIN Hardware.AvailabilityFeeCalcView af on af.Country = m.CountryId and af.Wg = m.WgId
     LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId
@@ -943,7 +944,7 @@ BEGIN
 
 	SET NOCOUNT ON;
 
-    UPDATE [Hardware].[ServiceCostCalculation] 
+    UPDATE Hardware.ServiceCostCalculation 
             SET ServiceTC = dbo.CalcServiceTC(
                                 FieldServiceCost,
                                 ServiceSupport,
@@ -964,9 +965,9 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE [Hardware].[ServiceCostCalculation] 
+    UPDATE Hardware.ServiceCostCalculation 
             SET ServiceTP = dbo.CalcServiceTP(sc.ServiceTC, moc.MarkupFactor, moc.Markup)
-    FROM [Hardware].[ServiceCostCalculation] sc
+    FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     LEFT JOIN Atom.MarkupOtherCosts moc on moc.Wg = m.WgId and moc.Country = m.CountryId
 END
