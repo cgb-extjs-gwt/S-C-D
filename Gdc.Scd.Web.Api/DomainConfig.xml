@@ -217,7 +217,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="InstalledBaseGighAvailability" Caption="Installed base high availability" InputOption="Manually"/>
+        <Element Name="InstalledBaseHighAvailability" Caption="Installed base high availability" InputOption="Manually"/>
         <Element Name="TotalLogisticsInfrastructureCost" Caption="Total logistics infrastructure cost" InputOption="Manually">
           <InputLevels>
             <InputLevel>Country</InputLevel>
@@ -276,7 +276,7 @@
           </InputLevels>
           <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
         </Element>
-        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" RegionInput="_none_" Dependency="ReactionTimeTypeAvailability">
+        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" RegionInput="_none_" Dependency="Year">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
