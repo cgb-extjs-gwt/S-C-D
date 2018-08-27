@@ -214,8 +214,6 @@ namespace Gdc.Scd.Core.Meta.Impl
                 throw new Exception("Name attribute not found");
             }
 
-            this.CheckId(nameAttr.Value);
-
             var captionAttr = node.Attribute(CaptionAttributeName);
             var meta = new T
             {
@@ -244,11 +242,16 @@ namespace Gdc.Scd.Core.Meta.Impl
             var nameAttribute = node.Attribute(NameAttributeName);
             var captionAttribute = node.Attribute(CaptionAttributeName);
 
-            this.CheckId(nameAttribute.Value);
+            var id = nameAttribute.Value;
+
+            if (!this.idRegex.IsMatch(id))
+            {
+                throw new Exception("Invalid BaseDomainMeta id");
+            }
 
             return new T
             {
-                Id = nameAttribute.Value,
+                Id = id,
                 Name = captionAttribute == null ? nameAttribute.Value : captionAttribute.Value
             };
         }
@@ -299,41 +302,6 @@ namespace Gdc.Scd.Core.Meta.Impl
             return this.BuildDomainInfo(listNode, itemNodeName, items);
         }
 
-<<<<<<< Updated upstream
-=======
-        private QualityGate BuildQualityGate(XElement node)
-        {
-            var qualityGate = new QualityGate();
-
-            if (node != null)
-            {
-                var regionCoeffNode = node.Element(CountryGroupCoeffNodeName);
-                if (regionCoeffNode != null &&
-                    double.TryParse(regionCoeffNode.Value, out var regionCoeff))
-                {
-                    qualityGate.CountryGroupCoeff = regionCoeff;
-                }
-
-                var periodCoeffNode = node.Element(PeriodCoeffNodeName);
-                if (regionCoeffNode != null &&
-                    double.TryParse(regionCoeffNode.Value, out var periodCoeff))
-                {
-                    qualityGate.PeriodCoeff = periodCoeff;
-                }
-            }
-
-            return qualityGate;
-        }
-
-        private void CheckId(string id)
-        {
-            if (string.IsNullOrWhiteSpace(id) || !this.idRegex.IsMatch(id))
-            {
-                throw new Exception("Invalid BaseDomainMeta id");
-            }
-        }
-
->>>>>>> Stashed changes
         private class DomainInfo<T> where T : IMetaIdentifialble
         {
             public MetaCollection<T> Items { get; } = new MetaCollection<T>();
