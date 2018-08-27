@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix
+namespace Gdc.Scd.Core.Entities.CapabilityMatrix
 {
     [Table("MatrixAllowCountryView")] //materialized view
     public class CapabilityMatrixCountryAllowView : CapabilityMatrixView

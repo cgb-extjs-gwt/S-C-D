@@ -8,10 +8,10 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Gdc.Scd.Core.Entities;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -54,20 +54,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreatePlas();
             this.CreateUsers();
             this.CreateReactionTimeTypeAvalability();
-
-            var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
-            var countryRepository = repositorySet.GetRepository<Country>();
-
-            var countries = this.GetCountrieNames().Select(c => new Country
-            {
-                Name = c,
-                CanOverrideListAndDealerPrices = GenerateRandomBool(),
-                CanOverrideTransferCostAndPrice = GenerateRandomBool(),
-                ShowDealerPrice = GenerateRandomBool()
-            });
-
-            countryRepository.Save(countries);
-            repositorySet.Sync();
+            this.CreateClusterRegions();
+            this.CreateCountries();
+            this.CreateDurations();
+            this.CreateYears();
+            this.CreateCurrenciesAndExchangeRates();
 
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
@@ -76,18 +67,48 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 this.BuildInsertSql(MetaConstants.InputLevelSchema, RoleCodeKey, this.GetRoleCodeNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
-                this.BuildInsertSql(MetaConstants.DependencySchema, YearKey, this.GetYearNames()),
-                this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
-                this.BuildInsertSql(new NamedEntityMeta(DurationKey, MetaConstants.DependencySchema), this.GetDurationNames()),
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts\matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts\availabilityFee.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts\calculation.sql"));
 
             foreach (var query in queries)
             {
                 this.repositorySet.ExecuteSql(query);
             }
+        }
+
+        private void CreateYears()
+        {
+            //Insert Years
+            var yearRepository = repositorySet.GetRepository<Year>();
+            yearRepository.Save(GetYears());
+            repositorySet.Sync();
+        }
+
+        private void CreateDurations()
+        {
+            //Insert Durations
+            var durationRepository = repositorySet.GetRepository<Duration>();
+            durationRepository.Save(GetDurations());
+            repositorySet.Sync();
+        }
+
+        private void CreateCountries()
+        {
+            //Insert Countries
+            var countryRepository = repositorySet.GetRepository<Country>();
+            countryRepository.Save(this.GetCountries());
+            repositorySet.Sync();
+        }
+
+        private void CreateClusterRegions()
+        {
+            //Insert Cluster Regions
+            var clusterRegionsRepository = repositorySet.GetRepository<ClusterRegion>();
+            clusterRegionsRepository.Save(GetClusterRegions());
+            repositorySet.Sync();
         }
 
         private void CreateUsers()
@@ -212,6 +233,24 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.repositorySet.Sync();
         }
 
+        private void CreateCurrenciesAndExchangeRates()
+        {
+            var curs = GetCurrencies();
+
+            var curRepo = repositorySet.GetRepository<Currency>();
+            curRepo.Save(curs);
+            repositorySet.Sync();
+
+            var eur = Array.Find(curs, x => string.Equals(x.Name, "EUR", StringComparison.InvariantCultureIgnoreCase));
+            var usd = Array.Find(curs, x => string.Equals(x.Name, "USD", StringComparison.InvariantCultureIgnoreCase));
+
+            var exRepo = repositorySet.GetRepository<ExchangeRate>();
+
+            exRepo.Save(new ExchangeRate { Currency = eur, Value = 1 });
+            exRepo.Save(new ExchangeRate { Currency = usd, Value = 1.2 });
+            repositorySet.Sync();
+        }
+
         private ISqlBuilder BuildSelectIdByNameQuery(string table, string name)
         {
             var paramName = name.Replace(" ", string.Empty);
@@ -229,7 +268,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private IEnumerable<SqlHelper> BuildFromFile(string fn)
         {
-            return ReadText(fn).Split(new[] { "go" }, StringSplitOptions.None)
+            return Regex.Split(ReadText(fn), "go", RegexOptions.IgnoreCase)
                                .Where(x => !string.IsNullOrWhiteSpace(x))
                                .Select(x => new SqlHelper(new RawSqlBuilder() { RawSql = x }));
         }
@@ -953,8 +992,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private RoleCode[] GetRoleCodes()
         {
-            var plaRepository = this.repositorySet.GetRepository<Pla>();
-
             return new RoleCode[]
             {
                 new RoleCode
@@ -974,9 +1011,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.repositorySet.Sync();
         }
 
-        private string[] GetCountrieNames()
+        private Country[] GetCountries()
         {
-            return new[]
+            var names = new[]
             {
                 "Algeria",
                 "Austria",
@@ -1009,205 +1046,23 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "Turkey",
                 "UK & Ireland"
             };
-        }
 
-        //private string[] GetPlaNames()
-        //{
-        //    return new[]
-        //    {
-        //        "Desktops",
-        //        "Mobiles",
-        //        "Peripherals",
-        //        "Storage Products",
-        //        "x86/IA Servers"
-        //    };
-        //}
+            var len = names.Length;
+            var result = new Country[len];
 
-        //private string[] GetWarrantyGroupNames()
-        //{
-        //    return new string[]
-        //    {
-        //        "TC4",
-        //        "TC5",
-        //        "TC6",
-        //        "TC8",
-        //        "TC7",
-        //        "TCL",
-        //        "U05",
-        //        "U11",
-        //        "U13",
-        //        "WSJ",
-        //        "WSN",
-        //        "WSS",
-        //        "WSW",
-        //        "U02",
-        //        "U06",
-        //        "U07",
-        //        "U12",
-        //        "U14",
-        //        "WRC",
-        //        "HMD",
-        //        "NB6",
-        //        "NB1",
-        //        "NB2",
-        //        "NB5",
-        //        "ND3",
-        //        "NC1",
-        //        "NC3",
-        //        "NC9",
-        //        "TR7",
-        //        "DPE",
-        //        "DPH",
-        //        "DPM",
-        //        "DPX",
-        //        "IOA",
-        //        "IOB",
-        //        "IOC",
-        //        "MD1",
-        //        "PSN",
-        //        "SB2",
-        //        "SB3",
-        //        "CD1",
-        //        "CD2",
-        //        "CE1",
-        //        "CE2",
-        //        "CD4",
-        //        "CD5",
-        //        "CD6",
-        //        "CD7",
-        //        "CDD",
-        //        "CD8",
-        //        "CD9",
-        //        "C70",
-        //        "CS8",
-        //        "C74",
-        //        "C75",
-        //        "CS7",
-        //        "CS1",
-        //        "CS2",
-        //        "CS3",
-        //        "C16",
-        //        "C18",
-        //        "C33",
-        //        "CS5",
-        //        "CS4",
-        //        "CS6",
-        //        "CS9",
-        //        "C96",
-        //        "C97",
-        //        "C98",
-        //        "C71",
-        //        "C73",
-        //        "C80",
-        //        "C84",
-        //        "F58",
-        //        "F40",
-        //        "F48",
-        //        "F53",
-        //        "F54",
-        //        "F57",
-        //        "F41",
-        //        "F49",
-        //        "F42",
-        //        "F43",
-        //        "F44",
-        //        "F45",
-        //        "F50",
-        //        "F51",
-        //        "F52",
-        //        "F36",
-        //        "F46",
-        //        "F47",
-        //        "F56",
-        //        "F28",
-        //        "F29",
-        //        "F35",
-        //        "F55",
-        //        "S14",
-        //        "S17",
-        //        "S15",
-        //        "S16",
-        //        "S50",
-        //        "S51",
-        //        "S18",
-        //        "S35",
-        //        "S36",
-        //        "S37",
-        //        "S39",
-        //        "S40",
-        //        "S55",
-        //        "VSH",
-        //        "MN1",
-        //        "MN4",
-        //        "PQ8",
-        //        "Y01",
-        //        "Y15",
-        //        "PX1",
-        //        "PY1",
-        //        "PY4",
-        //        "Y09",
-        //        "Y12",
-        //        "MN2",
-        //        "MN3",
-        //        "PX2",
-        //        "PX3",
-        //        "PXS",
-        //        "PY2",
-        //        "PY3",
-        //        "SD2",
-        //        "Y03",
-        //        "Y17",
-        //        "Y21",
-        //        "Y32",
-        //        "Y06",
-        //        "Y13",
-        //        "Y28",
-        //        "Y30",
-        //        "Y31",
-        //        "Y37",
-        //        "Y38",
-        //        "Y39",
-        //        "Y40",
-        //        "PX6",
-        //        "PX8",
-        //        "PRC",
-        //        "RTE",
-        //        "Y07",
-        //        "Y16",
-        //        "Y18",
-        //        "Y25",
-        //        "Y26",
-        //        "Y27",
-        //        "Y33",
-        //        "Y36",
-        //        "S41",
-        //        "S42",
-        //        "S43",
-        //        "S44",
-        //        "S45",
-        //        "S46",
-        //        "S47",
-        //        "S48",
-        //        "S49",
-        //        "S52",
-        //        "S53",
-        //        "S54",
-        //        "PQ0",
-        //        "PQ5",
-        //        "PQ9"
-        //    };
-        //}
-
-        private string[] GetRoleCodeNames()
-        {
-            return new string[]
+            for (var i = 0; i < len; i++)
             {
-                "SEFS05",
-                "SEFS06",
-                "SEFS04",
-                "SEIE07",
-                "SEIE08"
-            };
+                result[i] = new Country
+                {
+                    Name = names[i],
+                    CanOverrideListAndDealerPrices = GenerateRandomBool(),
+                    CanOverrideTransferCostAndPrice = GenerateRandomBool(),
+                    ShowDealerPrice = GenerateRandomBool(),
+                    ClusterRegionId = 2
+                };
+            }
+
+            return result;
         }
 
         private string[] GetServiceLocationCodeNames()
@@ -1226,38 +1081,61 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private string[] GetYearNames()
+        private Year[] GetYears()
         {
-            return new[]
+            return new Year[]
             {
-                "1st year",
-                "2nd year",
-                "3rd year",
-                "4th year",
-                "5th year",
-                "1 year prolongation"
+                new Year { Name = "1st year", Value = 1, IsProlongation = false },
+                new Year { Name = "2nd year", Value = 2, IsProlongation = false },
+                new Year { Name = "3rd year", Value = 3, IsProlongation = false },
+                new Year { Name = "4th year", Value = 4, IsProlongation = false },
+                new Year { Name = "5th year", Value = 5, IsProlongation = false },
+                new Year { Name = "1 year prolongation", Value = 1, IsProlongation = true }
             };
         }
 
-        private string[] GetCurrenciesNames()
+        private ClusterRegion[] GetClusterRegions()
         {
-            return new[]
+            return new ClusterRegion[]
             {
-                "EUR",
-                "USD"
+                new ClusterRegion { Name = "Asia" },
+                new ClusterRegion { Name = "EMEIA" },
+                new ClusterRegion { Name = "Japan" },
+                new ClusterRegion { Name = "Latin America" },
+                new ClusterRegion { Name = "Oceania" },
+                new ClusterRegion { Name = "United States" }
             };
         }
 
-        private string[] GetDurationNames()
+        private Currency[] GetCurrencies()
+        {
+            return new Currency[]
+            {
+                new Currency { Name =  "EUR" },
+                new Currency { Name =  "USD" }
+            };
+        }
+
+        private Duration[] GetDurations()
+        {
+            return new Duration[]
+            {
+                new Duration { Name = "3 Years", Value = 3, IsProlongation = false },
+                new Duration { Name = "4 Years", Value = 4, IsProlongation = false },
+                new Duration { Name = "5 Years", Value = 5, IsProlongation = false },
+                new Duration { Name = "Prolongation", Value = 1, IsProlongation = true }
+            };
+        }
+
+        private string[] GetRoleCodeNames()
         {
             return new string[]
             {
-                "1h",
-                "2h",
-                "8h",
-                "1d",
-                "1d 3h",
-                "7d"
+                "SEFS05",
+                "SEFS06",
+                "SEFS04",
+                "SEIE07",
+                "SEIE08",
             };
         }
 

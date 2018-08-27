@@ -17,5 +17,11 @@
         public const string AdminSchema = "Admin";
 
         public const string DefaultSchema = "dbo";
+
+        public const string CalculationTable = "ServiceCostCalculation";
+
+        public const string HardwareSchema = "Hardware";
+
+        public const string ReferencesSchema = "References";
     }
 }

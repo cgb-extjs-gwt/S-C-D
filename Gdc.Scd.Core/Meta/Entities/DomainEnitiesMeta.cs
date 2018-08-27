@@ -11,6 +11,7 @@ namespace Gdc.Scd.Core.Meta.Entities
             get
             {
                 return
+                    
                     this.CostBlocks[fullName] ??
                     this.Dependencies[fullName] ??
                     this.InputLevels[fullName] ??
@@ -30,6 +31,7 @@ namespace Gdc.Scd.Core.Meta.Entities
         public MetaCollection<BaseEntityMeta> OtherMetas { get; } = new MetaCollection<BaseEntityMeta>();
 
         public MetaCollection<RelatedItemsHistoryEntityMeta> RelatedItemsHistories { get; } = new MetaCollection<RelatedItemsHistoryEntityMeta>();
+
 
         public IEnumerable<BaseEntityMeta> AllMetas
         {

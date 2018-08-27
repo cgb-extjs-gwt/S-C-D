@@ -14,7 +14,9 @@ namespace Gdc.Scd.Core.Entities
         }
 
         public long? RoleCodeId { get; set; }
+
         public RoleCode RoleCode { get; set; }
 
+        public bool IsMultiVendor { get; set; }
     }
 }
