@@ -11,18 +11,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
     public class QualityGateSevice : IQualityGateSevice
     {
-        private readonly ICostBlockValueHistoryRepository costBlockValueHistoryRepository;
+        private readonly IQualityGateRepository qualityGateRepository;
 
         private readonly ICostBlockFilterBuilder costBlockFilterBuilder;
 
         private readonly DomainEnitiesMeta domainEnitiesMeta;
 
         public QualityGateSevice(
-            ICostBlockValueHistoryRepository costBlockValueHistoryRepository, 
+            IQualityGateRepository qualityGateRepository, 
             ICostBlockFilterBuilder costBlockFilterBuilder,
             DomainEnitiesMeta domainEnitiesMeta)
         {
-            this.costBlockValueHistoryRepository = costBlockValueHistoryRepository;
+            this.qualityGateRepository = qualityGateRepository;
             this.costBlockFilterBuilder = costBlockFilterBuilder;
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
@@ -42,7 +42,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 var historyContext = HistoryContext.Build(context);
                 var filter = this.costBlockFilterBuilder.BuildFilter(context);
 
-                result.Errors = await this.costBlockValueHistoryRepository.QualityGateCheck(historyContext, editItems, filter);
+                result.Errors = await this.qualityGateRepository.Check(historyContext, editItems, filter);
             }
 
             return result;
