@@ -17,6 +17,8 @@ import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCo
 import { init } from '../../CostApproval/Actions/CostApprovalFilterActions';
 import AvailabilityFeeAdminGrid from '../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid';
 
+export const ROOT_LAYOUT_ID = "root-layout";
+
 interface LayoutProps {
     title: string
     history: any,
@@ -47,7 +49,7 @@ export class Layout extends React.Component<LayoutProps> {
         }
 
         return (
-            <Container fullscreen layout="fit">
+            <Container id={ROOT_LAYOUT_ID} fullscreen layout="fit">
                 <Panel scrollable docked="left" shadow zIndex={2}>
                     <TitleBar title="SCD 2.0" docked="top" />
                     <NavMenu

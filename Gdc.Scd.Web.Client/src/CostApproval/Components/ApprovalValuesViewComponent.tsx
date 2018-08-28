@@ -1,14 +1,11 @@
 import * as React from "react";
 import { Grid, Column, Container, TextField, FormPanel, Toolbar, Button } from "@extjs/ext-react";
+import { ColumnInfo } from "../../Common/States/ColumnInfo";
+import { DynamicGrid } from "../../Common/Components/DynamicGrid";
 
 export interface ApprovalValuesActions {
     onApprove?();
     onSendBackToRequestor?(message: string)
-}
-
-export interface ColumnInfo {
-    dataIndex: string
-    title: string
 }
 
 export interface ApprovalValuesProps extends ApprovalValuesActions {
@@ -44,18 +41,7 @@ export class ApprovalValuesViewComponent extends React.Component<ApprovalValuesP
 
         return (
             <Container layout="vbox">
-                <Grid store={this.store} columnLines={true} height={400}>
-                    {
-                        columns.map(column => (
-                            <Column 
-                                key={`${id}_${column.dataIndex}`} 
-                                text={column.title} 
-                                dataIndex={column.dataIndex} 
-                                flex={1}
-                            />
-                        ))
-                    }
-
+                <DynamicGrid store={this.store} columns={columns} height={400}>
                     {
                         !isVisibleRejectForm &&
                         <Toolbar docked="bottom">
@@ -63,7 +49,7 @@ export class ApprovalValuesViewComponent extends React.Component<ApprovalValuesP
                             <Button text="Reject" handler={this.onReject} flex={1}/>
                         </Toolbar>
                     }
-                </Grid>
+                </DynamicGrid>
                 
                 {
                     isVisibleRejectForm &&

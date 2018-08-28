@@ -11,10 +11,15 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
         {
         }
 
-        public ColumnSqlBuilder(ColumnInfo columnInfo)
+        public ColumnSqlBuilder(string column, string table = null)
         {
-            this.Name = columnInfo.Name;
-            this.Table = columnInfo.TableName;
+            this.Name = column;
+            this.Table = table;
+        }
+
+        public ColumnSqlBuilder(ColumnInfo columnInfo)
+            : this(columnInfo.Name, columnInfo.TableName)
+        {
         }
 
         public override string Build(SqlBuilderContext context)

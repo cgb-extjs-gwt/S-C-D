@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("Country", Schema = MetaConstants.InputLevelSchema)]
+    [Table(MetaConstants.CountryInputLevelName, Schema = MetaConstants.InputLevelSchema)]
     public class Country : NamedId
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -22,6 +22,5 @@ namespace Gdc.Scd.Core.Entities
         public ClusterRegion ClusterRegion { get; set; }
 
         public long ClusterRegionId { get; set; }
-
     }
 }

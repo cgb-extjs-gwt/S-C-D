@@ -133,6 +133,8 @@ const costBlockTabMap = (
                         ...edit.editedItems.find(editedItem => editedItem.id === originalItem.id) || originalItem
                     }))
                 },
+                costBlockId: costBlock.costBlockId,
+                qualityGateErrors: costBlock.edit.saveErrors,
                 isEnableClear: isEnableEditButtons,
                 isEnableSave: isEnableEditButtons,
                 isEnableApplyFilters: !isSetContainsAllCheckedItems(edit.appliedFilter.costElementsItemIds, selectedCostElement) ||
@@ -233,7 +235,7 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
             },
             onEditItemsCleared: costBlockId => dispatch(clearEditItems(costBlockId)),
             onItemEdited: (costBlockId, item) => dispatch(editItem(costBlockId, item)),
-            onEditItemsSaving: (costBlockId, forApproval) => dispatch(saveEditItemsToServer(costBlockId, forApproval)),
+            onEditItemsSaving: (costBlockId, forApproval) => dispatch(saveEditItemsToServer(costBlockId, { isApproving: forApproval })),
             onApplyFilters: costBlockId => dispatch(applyFiltersWithReloading(costBlockId))
         }
     })

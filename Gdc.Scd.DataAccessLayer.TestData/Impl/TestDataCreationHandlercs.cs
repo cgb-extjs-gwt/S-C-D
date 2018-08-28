@@ -59,7 +59,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateDurations();
             this.CreateYears();
             this.CreateCurrenciesAndExchangeRates();
-
+            
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
 
@@ -79,6 +79,32 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             }
         }
 
+        private void CreateCountries()
+        {
+            var countryGroups = new List<CountryGroup>();
+
+            CountryGroup countryGroup = null;
+
+            foreach (var country in this.GetCountries())
+            {
+                if (countryGroup == null || countryGroup.Countries.Count % 5 == 0)
+                {
+                    countryGroup = new CountryGroup
+                    {
+                        Name = $"CountryGroup_{countryGroups.Count}",
+                        Countries = new List<Country>()
+                    };
+
+                    countryGroups.Add(countryGroup);
+                }
+
+                countryGroup.Countries.Add(country);
+            }
+
+            this.repositorySet.GetRepository<CountryGroup>().Save(countryGroups);
+            this.repositorySet.Sync();
+        }
+
         private void CreateYears()
         {
             //Insert Years
@@ -95,13 +121,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             repositorySet.Sync();
         }
 
-        private void CreateCountries()
-        {
-            //Insert Countries
-            var countryRepository = repositorySet.GetRepository<Country>();
-            countryRepository.Save(this.GetCountries());
-            repositorySet.Sync();
-        }
 
         private void CreateClusterRegions()
         {

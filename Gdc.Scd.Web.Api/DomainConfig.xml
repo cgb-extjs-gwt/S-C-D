@@ -26,6 +26,13 @@
       <InputLevel>Country</InputLevel>
     </Default>
   </RegionInputs>
+
+  <QualityGate>
+    <Default>
+      <CountryGroupCoeff>0.1</CountryGroupCoeff>
+      <PeriodCoeff>0.1</PeriodCoeff>
+    </Default>
+  </QualityGate>
   
   <Dependencies>
     <Dependency Name="Year"/>
@@ -170,6 +177,10 @@
         <Element Name="TimeAndMaterialShare" Caption="Time and material share" InputOption="Manually"/>
         <!--<Element Name="AFR" InputOption="Reference"/>-->
       </Elements>
+      <QualityGate>
+        <CountryGroupCoeff>0.15</CountryGroupCoeff>
+        <PeriodCoeff>0.15</PeriodCoeff>
+      </QualityGate>
     </Block>
 
     <Block Name="ServiceSupportCost" Caption="Service Support Cost">

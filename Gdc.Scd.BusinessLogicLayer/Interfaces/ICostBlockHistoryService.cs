@@ -21,7 +21,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(CostEditorContext context, long editItemId, QueryInfo queryInfo = null);
 
-        Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, bool isApproved);
+        Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption);
 
         Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(CostBlockHistory history);
 

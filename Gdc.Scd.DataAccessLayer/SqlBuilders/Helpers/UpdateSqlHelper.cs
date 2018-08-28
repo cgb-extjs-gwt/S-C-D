@@ -27,14 +27,14 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return new UpdateCommonSqlHelper(this.fromSqlHelper.From(meta, alias));
         }
 
-        public UpdateCommonSqlHelper FromQuery(ISqlBuilder query)
+        public UpdateCommonSqlHelper FromQuery(ISqlBuilder query, string alias = null)
         {
-            return new UpdateCommonSqlHelper(this.fromSqlHelper.FromQuery(query));
+            return new UpdateCommonSqlHelper(this.fromSqlHelper.FromQuery(query, alias));
         }
 
-        public UpdateCommonSqlHelper FromQuery(SqlHelper sqlHelper)
+        public UpdateCommonSqlHelper FromQuery(SqlHelper sqlHelper, string alias = null)
         {
-            return new UpdateCommonSqlHelper(this.fromSqlHelper.FromQuery(sqlHelper));
+            return new UpdateCommonSqlHelper(this.fromSqlHelper.FromQuery(sqlHelper, alias));
         }
 
         public SqlHelper Where(ISqlBuilder condition)

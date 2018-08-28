@@ -3,7 +3,7 @@ using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("Wg", Schema = MetaConstants.InputLevelSchema)]
+    [Table(MetaConstants.WgInputLevelName, Schema = MetaConstants.InputLevelSchema)]
     public class Wg : NamedId
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
