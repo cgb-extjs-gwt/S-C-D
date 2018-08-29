@@ -399,6 +399,7 @@
             <InputLevel>SwDigit</InputLevel>
             <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
+          <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
         </Element>
         <Element Name="RecommendedSwSpMaintenanceListPrice" Caption="Recommended SW/SP Maintenance List Price" InputOption="Manually" Dependency="Availability" RegionInput="_none_">
           <InputLevels>
