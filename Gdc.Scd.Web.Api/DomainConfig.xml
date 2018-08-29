@@ -43,7 +43,7 @@
     <Dependency Name="ReactionTimeTypeAvailability" Caption="Reaction" Type="View"/>
     <Dependency Name="ServiceLocationProActive" Caption="Service location for ProActive"/>
     <Dependency Name="Availability" Caption="Availability"/>
-    <Dependency Name="YearAvailability" Caption="Year Availability"/>
+    <Dependency Name="YearAvailability" Caption="Year Availability" Type="View"/>
   </Dependencies>
 
   <Applications>
