@@ -178,7 +178,7 @@ BEGIN
     SET NOCOUNT ON;
 
     UPDATE SoftwareSolution.SwSpCostCalculation
-           set ServiceSupport = SoftwareSolution.CalcTransferPrice(Reinsurance, ServiceSupport)
+           set TransferPrice = SoftwareSolution.CalcTransferPrice(Reinsurance, ServiceSupport)
 
 END
 GO
