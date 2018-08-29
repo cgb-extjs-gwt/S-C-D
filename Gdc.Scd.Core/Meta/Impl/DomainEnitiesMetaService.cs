@@ -120,9 +120,9 @@ namespace Gdc.Scd.Core.Meta.Impl
                         if (referenceMeta == null)
                         {
                             referenceMeta = new NamedEntityMeta(entityName, schemaName);
-                        }
 
-                        domainEnitiesMeta.OtherMetas.Add(referenceMeta);
+                            domainEnitiesMeta.OtherMetas.Add(referenceMeta);
+                        }
 
                         field = new ReferenceFieldMeta(costElementMeta.Id, referenceMeta, costElementMeta.TypeOptions[IdFieldNameKey])
                         {
