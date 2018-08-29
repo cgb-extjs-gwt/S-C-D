@@ -142,6 +142,10 @@ IF OBJECT_ID('Atom.MarkupStandardWarantyView', 'V') IS NOT NULL
   DROP VIEW Atom.MarkupStandardWarantyView;
 go
 
+IF OBJECT_ID('Atom.TaxAndDutiesView', 'V') IS NOT NULL
+  DROP VIEW Atom.TaxAndDutiesView;
+go
+
 IF OBJECT_ID('dbo.CalcReinsuranceCost') IS NOT NULL
   DROP FUNCTION dbo.CalcReinsuranceCost;
 go 
@@ -324,10 +328,17 @@ CREATE VIEW [Hardware].[FieldServiceCostView] AS
             fsc.LabourCost,
             fsc.TravelCost,
             fsc.PerformanceRate,
-            fsc.TimeAndMaterialShare
+            (fsc.TimeAndMaterialShare / 100) as TimeAndMaterialShare
     FROM Hardware.FieldServiceCost fsc
     JOIN InputAtoms.Wg on wg.Id = fsc.Wg
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = fsc.ReactionTimeType
+GO
+
+CREATE VIEW Atom.TaxAndDutiesView as
+    select Wg,
+           Country,
+           (TaxAndDuties / 100) as TaxAndDuties 
+    from Atom.TaxAndDuties
 GO
 
 CREATE FUNCTION [dbo].[CalcLogisticCost](
@@ -487,7 +498,7 @@ GO
 create view [Atom].[AfrByDurationView] as 
     select wg.Id as WgID,
            d.Id as DurID, 
-           (select sum(a.AFR) 
+           (select sum(a.AFR / 100) 
             from Atom.AFR a
             JOIN Dependencies.Year y on y.Id = a.Year
             where a.Wg = wg.Id
@@ -500,7 +511,7 @@ GO
 CREATE view [Hardware].[HddFrByDurationView] as 
      select wg.Id as WgID,
             d.Id as DurID, 
-            (select sum(h.HddFr) 
+            (select sum(h.HddFr / 100) 
                 from Hardware.HddRetention h
                 JOIN Dependencies.Year y on y.Id = h.Year
                 where h.Wg = wg.Id
@@ -513,7 +524,7 @@ GO
 CREATE view [Hardware].[HddRetByDurationView] as 
      select wg.Id as WgID,
             d.Id as DurID, 
-            (select sum(dbo.CalcHddRetention(h.HddMaterialCost, h.HddFr))
+            (select sum(dbo.CalcHddRetention(h.HddMaterialCost, h.HddFr / 100))
                 from Hardware.HddRetention h
                 JOIN Dependencies.Year y on y.Id = h.Year
                 where h.Wg = wg.Id
@@ -563,7 +574,7 @@ CREATE VIEW [Atom].[MarkupOtherCostsView] as
            tta.ReactionTypeId,
            tta.AvailabilityId,
            m.Markup,
-           m.MarkupFactor
+           (m.MarkupFactor / 100) as MarkupFactor
     from Atom.MarkupOtherCosts m
     join Dependencies.ReactionTime_ReactionType_Avalability tta on tta.id = m.ReactionTimeTypeAvailability
 GO
@@ -574,7 +585,7 @@ CREATE VIEW [Atom].[MarkupStandardWarantyView] as
            tta.ReactionTimeId,
            tta.ReactionTypeId,
            tta.AvailabilityId,
-           m.MarkupFactorStandardWarranty,
+           (m.MarkupFactorStandardWarranty / 100) as MarkupFactorStandardWarranty,
            m.MarkupStandardWarranty
     from Atom.MarkupStandardWaranty m
     join Dependencies.ReactionTime_ReactionType_Avalability tta on tta.id = m.ReactionTimeTypeAvailability
@@ -661,7 +672,7 @@ CREATE VIEW [Hardware].[ReinsuranceView] as
            dur.DurID as  Duration,
            rta.AvailabilityId, 
            rta.ReactionTimeId,
-           dbo.CalcReinsuranceCost(r.ReinsuranceFlatfee, r.ReinsuranceUpliftFactor, er.Value) as Cost
+           dbo.CalcReinsuranceCost(r.ReinsuranceFlatfee, r.ReinsuranceUpliftFactor / 100, er.Value) as Cost
     FROM Hardware.Reinsurance r
     JOIN Dependencies.ReactionTime_Avalability rta on rta.Id = r.ReactionTimeAvailability
     JOIN Dependencies.Year y on y.Id = r.Year
@@ -675,14 +686,13 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE Hardware.ServiceCostCalculation 
-           SET Reinsurance = rd.Cost
+    UPDATE sc SET Reinsurance = r.Cost
     FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN Hardware.ReinsuranceView rd on rd.Wg = m.WgId 
-              AND rd.Duration = m.DurationId 
-              AND rd.AvailabilityId = m.AvailabilityId 
-              AND rd.ReactionTimeId = m.ReactionTimeId
+    LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId 
+              AND r.Duration = m.DurationId 
+              AND r.AvailabilityId = m.AvailabilityId 
+              AND r.ReactionTimeId = m.ReactionTimeId
 
 END
 GO
@@ -782,8 +792,7 @@ BEGIN
     INNER JOIN Dependencies.Duration dur on dur.Id = m.DurationId
     INNER JOIN InputAtoms.CountryClusterRegionView c on c.Id = m.CountryId
     LEFT JOIN Atom.InstallBaseByCountryView ib on ib.Wg = m.WgId and ib.Country = m.CountryId
-    LEFT JOIN Hardware.ServiceSupportCost ssc on ib.Country = m.CountryId
-
+    LEFT JOIN Hardware.ServiceSupportCost ssc on ssc.Country = m.CountryId
 END
 GO
 
@@ -793,12 +802,12 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE Hardware.ServiceCostCalculation 
+    UPDATE [Hardware].[ServiceCostCalculation] 
            SET TaxAndDutiesOow = dbo.CalcTaxAndDutiesWar(mco.MaterialCostOow, tax.TaxAndDuties)
-    FROM Hardware.ServiceCostCalculation sc
+    FROM [Hardware].[ServiceCostCalculation] sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
-    LEFT JOIN Atom.TaxAndDuties tax on tax.Wg = m.WgId and tax.Country = m.CountryId
+    LEFT JOIN Atom.TaxAndDutiesView tax on tax.Wg = m.WgId and tax.Country = m.CountryId
     LEFT JOIN Atom.MaterialCostOow mco on mco.Wg = m.WgId and mco.ClusterRegion = c.ClusterRegionId
 
 END
@@ -810,13 +819,13 @@ BEGIN
 
     SET NOCOUNT ON;
 
-        UPDATE Hardware.ServiceCostCalculation 
-               SET TaxAndDutiesW = dbo.CalcTaxAndDutiesWar(mcw.MaterialCostWarranty, tax.TaxAndDuties)
-        FROM Hardware.ServiceCostCalculation sc
-        INNER JOIN Matrix m ON sc.MatrixId = m.Id
-        INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
-        LEFT JOIN Atom.TaxAndDuties tax on tax.Wg = m.WgId and tax.Country = m.CountryId
-        LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId and mcw.ClusterRegion = c.ClusterRegionId
+    UPDATE [Hardware].[ServiceCostCalculation] 
+            SET TaxAndDutiesW = dbo.CalcTaxAndDutiesWar(mcw.MaterialCostWarranty, tax.TaxAndDuties)
+    FROM [Hardware].[ServiceCostCalculation] sc
+    INNER JOIN Matrix m ON sc.MatrixId = m.Id
+    INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
+    LEFT JOIN Atom.TaxAndDutiesView tax on tax.Wg = m.WgId and tax.Country = m.CountryId
+    LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId and mcw.ClusterRegion = c.ClusterRegionId
 
 END
 GO
@@ -965,10 +974,10 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE Hardware.ServiceCostCalculation 
-            SET ServiceTP = dbo.CalcServiceTP(sc.ServiceTC, moc.MarkupFactor, moc.Markup)
+    UPDATE sc
+           SET ServiceTP = dbo.CalcServiceTP(sc.ServiceTC, moc.MarkupFactor, moc.Markup)
     FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN Atom.MarkupOtherCosts moc on moc.Wg = m.WgId and moc.Country = m.CountryId
+    LEFT JOIN Atom.MarkupOtherCostsView moc on moc.Wg = m.WgId and moc.Country = m.CountryId
 END
 GO
