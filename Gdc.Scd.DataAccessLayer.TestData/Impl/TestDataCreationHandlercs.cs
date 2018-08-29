@@ -57,7 +57,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateClusterRegions();
             this.CreateCountries();
             this.CreateDurations();
-            this.CreateYears();
+            this.CreateYearAvailability();
             this.CreateCurrenciesAndExchangeRates();
             
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
@@ -105,11 +105,24 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.repositorySet.Sync();
         }
 
-        private void CreateYears()
+        private void CreateYearAvailability()
         {
-            //Insert Years
-            var yearRepository = repositorySet.GetRepository<Year>();
-            yearRepository.Save(GetYears());
+            var years = this.GetYears();
+            var availabilities = this.repositorySet.GetRepository<Availability>().GetAll().ToArray();
+            var yearAvailabilityRepository = this.repositorySet.GetRepository<YearAvailability>();
+
+            foreach (var availability in availabilities)
+            {
+                foreach (var year in years)
+                {
+                    yearAvailabilityRepository.Save(new YearAvailability
+                    {
+                        Availability = availability,
+                        Year = year
+                    });
+                }
+            }
+
             repositorySet.Sync();
         }
 

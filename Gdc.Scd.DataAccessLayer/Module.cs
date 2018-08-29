@@ -24,6 +24,7 @@ namespace Gdc.Scd.DataAccessLayer
             services.AddScoped<IRepository<ReactionTimeAvalability>, ReactionTimeAvalabilityRepository>();
             services.AddScoped<IRepository<ReactionTimeTypeAvalability>, ReactionTimeTypeAvalabilityRepository>();
             services.AddScoped<ICostBlockValueHistoryQueryBuilder, CostBlockValueHistoryQueryBuilder>();
+            services.AddScoped<IRepository<YearAvailability>, YearAvailabilityRepository>();
             services.AddScoped<IQualityGateRepository, QualityGateRepository>();
 
             services.AddTransient<BaseColumnMetaSqlBuilder<IdFieldMeta>, IdColumnMetaSqlBuilder>();

@@ -43,7 +43,7 @@
     <Dependency Name="ReactionTimeTypeAvailability" Caption="Reaction" Type="View"/>
     <Dependency Name="ServiceLocationProActive" Caption="Service location for ProActive"/>
     <Dependency Name="Availability" Caption="Availability"/>
-    <Dependency Name="YearAvailability" Caption="Year Availability"/>
+    <Dependency Name="YearAvailability" Caption="Year Availability" Type="View"/>
   </Dependencies>
 
   <Applications>
@@ -399,6 +399,7 @@
             <InputLevel>SwDigit</InputLevel>
             <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
+          <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
         </Element>
         <Element Name="RecommendedSwSpMaintenanceListPrice" Caption="Recommended SW/SP Maintenance List Price" InputOption="Manually" Dependency="Availability" RegionInput="_none_">
           <InputLevels>
