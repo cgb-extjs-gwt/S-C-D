@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("Wg", Schema = MetaConstants.InputLevelSchema)]
+    [Table(MetaConstants.WgInputLevelName, Schema = MetaConstants.InputLevelSchema)]
     public class Wg : NamedId
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -13,5 +12,11 @@ namespace Gdc.Scd.Core.Entities
             get => base.Id;
             set => base.Id = value;
         }
+
+        public long? RoleCodeId { get; set; }
+
+        public RoleCode RoleCode { get; set; }
+
+        public bool IsMultiVendor { get; set; }
     }
 }

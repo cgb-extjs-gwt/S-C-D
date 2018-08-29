@@ -5,6 +5,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
+using Gdc.Scd.Web.Api.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gdc.Scd.Web.Api.Controllers
@@ -16,19 +17,15 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         private readonly IDomainMetaSevice domainMetaSevice;
 
-        private readonly IDomainService<Country> countryService;
-
         private readonly DomainMeta meta;
 
         public CostEditorController(
             ICostEditorService costEditorService, 
             IDomainMetaSevice domainMetaSevice,
-            IDomainService<Country> countryService,
             DomainMeta meta)
         {
             this.costEditorService = costEditorService;
             this.domainMetaSevice = domainMetaSevice;
-            this.countryService = countryService;
             this.meta = meta;
         }
 
@@ -56,11 +53,38 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateValues([FromBody]IEnumerable<EditItem> editItems, [FromQuery]CostEditorContext context, [FromQuery]bool forApproval)
+        public async Task<QualityGateResultDto> UpdateValues([FromBody]IEnumerable<EditItem> editItems, [FromQuery]CostEditorContext context, [FromQuery]ApprovalOption approvalOption)
         {
-            await this.costEditorService.UpdateValues(editItems, context, forApproval);
+            var qualityGateResult = await this.costEditorService.UpdateValues(editItems, context, approvalOption);
+            var errors = new List<IDictionary<string, object>>();
 
-            return this.Ok();
+            if (qualityGateResult.Errors != null)
+            {
+                foreach (var error in qualityGateResult.Errors)
+                {
+                    var errorDictionary = new Dictionary<string, object>
+                    {
+                        ["WarrantyGroupId"] = error.WarrantyGroup.Id,
+                        ["WarrantyGroupName"] = error.WarrantyGroup.Name,
+                        [nameof(error.IsPeriodError)] = error.IsPeriodError,
+                        [nameof(error.IsRegionError)] = error.IsRegionError
+                    };
+
+                    foreach (var dependency in error.Dependencies)
+                    {
+                        errorDictionary.Add($"{dependency.Key}Id", dependency.Value.Id);
+                        errorDictionary.Add($"{dependency.Key}Name", dependency.Value.Name);
+                    }
+
+                    errors.Add(errorDictionary);
+                }
+            }
+
+            return new QualityGateResultDto
+            {
+                HasErrors = qualityGateResult.HasErrors,
+                Errors = errors
+            };
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Entities;
+﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -8,10 +8,10 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Gdc.Scd.Core.Entities;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -54,21 +54,12 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreatePlas();
             this.CreateUsers();
             this.CreateReactionTimeTypeAvalability();
-
-            var countryInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(CountryLevelId, MetaConstants.InputLevelSchema);
-            var countryRepository = repositorySet.GetRepository<Country>();
-
-            var countries = this.GetCountrieNames().Select(c => new Country
-            {
-                Name = c,
-                CanOverrideListAndDealerPrices = GenerateRandomBool(),
-                CanOverrideTransferCostAndPrice = GenerateRandomBool(),
-                ShowDealerPrice = GenerateRandomBool()
-            });
-
-            countryRepository.Save(countries);
-            repositorySet.Sync();
-
+            this.CreateClusterRegions();
+            this.CreateCountries();
+            this.CreateDurations();
+            this.CreateYears();
+            this.CreateCurrenciesAndExchangeRates();
+            
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
 
@@ -76,18 +67,67 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 this.BuildInsertSql(MetaConstants.InputLevelSchema, RoleCodeKey, this.GetRoleCodeNames()),
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
-                this.BuildInsertSql(MetaConstants.DependencySchema, YearKey, this.GetYearNames()),
-                this.BuildInsertSql("References", "Currency", this.GetCurrenciesNames()),
-                this.BuildInsertSql(new NamedEntityMeta(DurationKey, MetaConstants.DependencySchema), this.GetDurationNames()),
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts\matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts\availabilityFee.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts\calculation.sql"));
 
             foreach (var query in queries)
             {
                 this.repositorySet.ExecuteSql(query);
             }
+        }
+
+        private void CreateCountries()
+        {
+            var countryGroups = new List<CountryGroup>();
+
+            CountryGroup countryGroup = null;
+
+            foreach (var country in this.GetCountries())
+            {
+                if (countryGroup == null || countryGroup.Countries.Count % 5 == 0)
+                {
+                    countryGroup = new CountryGroup
+                    {
+                        Name = $"CountryGroup_{countryGroups.Count}",
+                        Countries = new List<Country>()
+                    };
+
+                    countryGroups.Add(countryGroup);
+                }
+
+                countryGroup.Countries.Add(country);
+            }
+
+            this.repositorySet.GetRepository<CountryGroup>().Save(countryGroups);
+            this.repositorySet.Sync();
+        }
+
+        private void CreateYears()
+        {
+            //Insert Years
+            var yearRepository = repositorySet.GetRepository<Year>();
+            yearRepository.Save(GetYears());
+            repositorySet.Sync();
+        }
+
+        private void CreateDurations()
+        {
+            //Insert Durations
+            var durationRepository = repositorySet.GetRepository<Duration>();
+            durationRepository.Save(GetDurations());
+            repositorySet.Sync();
+        }
+
+
+        private void CreateClusterRegions()
+        {
+            //Insert Cluster Regions
+            var clusterRegionsRepository = repositorySet.GetRepository<ClusterRegion>();
+            clusterRegionsRepository.Save(GetClusterRegions());
+            repositorySet.Sync();
         }
 
         private void CreateUsers()
@@ -212,6 +252,24 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.repositorySet.Sync();
         }
 
+        private void CreateCurrenciesAndExchangeRates()
+        {
+            var curs = GetCurrencies();
+
+            var curRepo = repositorySet.GetRepository<Currency>();
+            curRepo.Save(curs);
+            repositorySet.Sync();
+
+            var eur = Array.Find(curs, x => string.Equals(x.Name, "EUR", StringComparison.InvariantCultureIgnoreCase));
+            var usd = Array.Find(curs, x => string.Equals(x.Name, "USD", StringComparison.InvariantCultureIgnoreCase));
+
+            var exRepo = repositorySet.GetRepository<ExchangeRate>();
+
+            exRepo.Save(new ExchangeRate { Currency = eur, Value = 1 });
+            exRepo.Save(new ExchangeRate { Currency = usd, Value = 1.2 });
+            repositorySet.Sync();
+        }
+
         private ISqlBuilder BuildSelectIdByNameQuery(string table, string name)
         {
             var paramName = name.Replace(" ", string.Empty);
@@ -229,7 +287,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private IEnumerable<SqlHelper> BuildFromFile(string fn)
         {
-            return ReadText(fn).Split(new[] { "go" }, StringSplitOptions.None)
+            return Regex.Split(ReadText(fn), "go", RegexOptions.IgnoreCase)
                                .Where(x => !string.IsNullOrWhiteSpace(x))
                                .Select(x => new SqlHelper(new RawSqlBuilder() { RawSql = x }));
         }
@@ -951,9 +1009,30 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.repositorySet.Sync();
         }
 
-        private string[] GetCountrieNames()
+        private RoleCode[] GetRoleCodes()
         {
-            return new[]
+            return new RoleCode[]
+            {
+                new RoleCode
+                {
+                    Name = "SEFS05"
+                    
+                }
+            };
+        }
+
+        private void CreateRolecodes()
+        {
+            var roleCodes = this.GetRoleCodes();
+            var repository = this.repositorySet.GetRepository<RoleCode>();
+
+            repository.Save(roleCodes);
+            this.repositorySet.Sync();
+        }
+
+        private Country[] GetCountries()
+        {
+            var names = new[]
             {
                 "Algeria",
                 "Austria",
@@ -986,6 +1065,23 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "Turkey",
                 "UK & Ireland"
             };
+
+            var len = names.Length;
+            var result = new Country[len];
+
+            for (var i = 0; i < len; i++)
+            {
+                result[i] = new Country
+                {
+                    Name = names[i],
+                    CanOverrideListAndDealerPrices = GenerateRandomBool(),
+                    CanOverrideTransferCostAndPrice = GenerateRandomBool(),
+                    ShowDealerPrice = GenerateRandomBool(),
+                    ClusterRegionId = 2
+                };
+            }
+
+            return result;
         }
 
         private string[] GetServiceLocationCodeNames()
@@ -1004,38 +1100,49 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private string[] GetYearNames()
+        private Year[] GetYears()
         {
-            return new[]
+            return new Year[]
             {
-                "1st year",
-                "2nd year",
-                "3rd year",
-                "4th year",
-                "5th year",
-                "1 year prolongation"
+                new Year { Name = "1st year", Value = 1, IsProlongation = false },
+                new Year { Name = "2nd year", Value = 2, IsProlongation = false },
+                new Year { Name = "3rd year", Value = 3, IsProlongation = false },
+                new Year { Name = "4th year", Value = 4, IsProlongation = false },
+                new Year { Name = "5th year", Value = 5, IsProlongation = false },
+                new Year { Name = "1 year prolongation", Value = 1, IsProlongation = true }
             };
         }
 
-        private string[] GetCurrenciesNames()
+        private ClusterRegion[] GetClusterRegions()
         {
-            return new[]
+            return new ClusterRegion[]
             {
-                "EUR",
-                "USD"
+                new ClusterRegion { Name = "Asia" },
+                new ClusterRegion { Name = "EMEIA" },
+                new ClusterRegion { Name = "Japan" },
+                new ClusterRegion { Name = "Latin America" },
+                new ClusterRegion { Name = "Oceania" },
+                new ClusterRegion { Name = "United States" }
             };
         }
 
-        private string[] GetDurationNames()
+        private Currency[] GetCurrencies()
         {
-            return new string[]
+            return new Currency[]
             {
-                "1h",
-                "2h",
-                "8h",
-                "1d",
-                "1d 3h",
-                "7d"
+                new Currency { Name =  "EUR" },
+                new Currency { Name =  "USD" }
+            };
+        }
+
+        private Duration[] GetDurations()
+        {
+            return new Duration[]
+            {
+                new Duration { Name = "3 Years", Value = 3, IsProlongation = false },
+                new Duration { Name = "4 Years", Value = 4, IsProlongation = false },
+                new Duration { Name = "5 Years", Value = 5, IsProlongation = false },
+                new Duration { Name = "Prolongation", Value = 1, IsProlongation = true }
             };
         }
 

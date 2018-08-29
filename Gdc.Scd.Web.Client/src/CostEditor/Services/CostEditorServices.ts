@@ -18,6 +18,17 @@ export interface Context {
     inputLevelFilterIds: string[]
 }
 
+export interface ApprovalOption {
+    isApproving?: boolean
+    hasQualityGateErrors?: boolean
+    qualityGateErrorExplanation?: string
+}
+
+export interface QualityGateResult {
+    errors: {[key: string]: any}[]
+    hasErrors: boolean
+}
+
 export const getCostEditorData = () => get<CostEditortData>(COST_EDITOR_CONTROLLER_NAME, 'GetCostEditorData');
 
 export const getCostElementData = (context: Context) => get<CostElementData>(COST_EDITOR_CONTROLLER_NAME, 'GetCostElementData', context);
@@ -28,8 +39,8 @@ export const getLevelInputFilterItems = (context: Context) =>
 export const getEditItems = (context: Context) => 
     get<EditItem[]>(COST_EDITOR_CONTROLLER_NAME, 'GetEditItems', context); 
 
-export const saveEditItems = (editItems: EditItem[], context: Context, forApproval: boolean) =>
-    post(COST_EDITOR_CONTROLLER_NAME, 'UpdateValues', editItems, { ...context, forApproval });
+export const saveEditItems = (editItems: EditItem[], context: Context, approvalOption: ApprovalOption) =>
+    post<any, QualityGateResult>(COST_EDITOR_CONTROLLER_NAME, 'UpdateValues', editItems, { ...context, ...approvalOption });
 
 export const buildGetCostBlockHistoryValueDtoUrl = (context: Context, editItemId: string) => 
     buildMvcUrl(COST_BLOCK_HISTORY_CONTROLLER_NAME, 'GetCostBlockHistoryValueDto', { ...context, editItemId });

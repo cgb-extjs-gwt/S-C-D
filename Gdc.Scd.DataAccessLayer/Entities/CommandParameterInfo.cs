@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Text;
+﻿using System.Data;
 
 namespace Gdc.Scd.DataAccessLayer.Entities
 {
@@ -12,5 +9,15 @@ namespace Gdc.Scd.DataAccessLayer.Entities
         public object Value { get; set; }
 
         public DbType? Type { get; set; }
+
+        public CommandParameterInfo()
+        {
+        }
+
+        public CommandParameterInfo(string name, object value)
+        {
+            this.Name = name;
+            this.Value = value;
+        }
     }
 }

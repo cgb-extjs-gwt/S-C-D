@@ -1,17 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
+using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
-using Gdc.Scd.DataAccessLayer.Entities;
-using Gdc.Scd.Core.Meta.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
     public static class Sql
     {
+        public static SqlHelper With(ISqlBuilder query, params WithQuery[] withQueries)
+        {
+            return new SqlHelper(new WithSqlBuilder
+            {
+                Query = query,
+                WithQueries = withQueries
+            });
+        }
+
+        public static SqlHelper With(SqlHelper query, params WithQuery[] withQueries)
+        {
+            return With(query.ToSqlBuilder(), withQueries);
+        }
+
+        public static SqlHelper Union(IEnumerable<ISqlBuilder> queries, bool all = false)
+        {
+            var queriesArray = queries.ToArray();
+
+            if (queriesArray.Length == 0)
+            {
+                throw new ArgumentException($"{nameof(queries)} don't have items", nameof(queries));
+            }
+
+            var query = queriesArray[0];
+
+            for (var index = 1; index < queriesArray.Length; index++)
+            {
+                query = new UnionSqlBuilder
+                {
+                    All = all,
+                    Query1 = query,
+                    Query2 = queriesArray[index]
+                };
+            }
+
+            return new SqlHelper(query);
+        }
+
         public static SqlHelper Queries(IEnumerable<ISqlBuilder> queries)
         {
             return new SqlHelper(new SeveralQuerySqlBuilder { Queries = queries });

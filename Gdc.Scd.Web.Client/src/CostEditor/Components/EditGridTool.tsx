@@ -5,6 +5,7 @@ import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, Dialog, Cont
 import { NamedId } from '../../Common/States/CommonStates';
 import { HistoryValuesGridContainer } from './HistoryValuesGridContainer';
 import { ValueColumnProps, EditGrid, EditGridProps } from './EditGrid';
+import { QualityGateErrorContainer } from './QualityGateErrorContainer';
 
 Ext.require([
     'Ext.grid.plugin.CellEditing', 
@@ -24,6 +25,8 @@ export interface EditGridToolProps extends EditGridToolActions {
     isEnableApplyFilters: boolean
     flex?: number
     editGrid: EditGridProps
+    qualityGateErrors: {[key: string]: any}[]
+    costBlockId: string
 }
 
 export interface EditGridToolState {
@@ -58,7 +61,6 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                         text="History" 
                         flex={1} 
                         disabled={this.state.selectedItems.length != 1}
-                        //ref={button => this.historyButton = button}
                         handler={this.showHistoryWindow}
                     />
                 </Toolbar>
@@ -91,6 +93,7 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                 </Toolbar>
 
                 { this.getHistoryWindow() }
+                { this.getQualityGateErrorWindow() }
             </Container>
         );
     }
@@ -136,6 +139,27 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                 layout="fit"
             >
                 <HistoryValuesGridContainer editItemId={editItemId} />
+            </Dialog>
+        );
+    }
+
+    private getQualityGateErrorWindow() {
+        const { qualityGateErrors, costBlockId } = this.props;
+
+        return (
+            <Dialog 
+                displayed={qualityGateErrors && qualityGateErrors.length > 0} 
+                title="Quality gate errors" 
+                maximizable
+                resizable={{
+                    dynamic: true,
+                    edges: 'all'
+                }}
+                minHeight="600"
+                minWidth="700"
+                layout="fit"
+            >
+                <QualityGateErrorContainer costBlockId={costBlockId} errors={qualityGateErrors} />
             </Dialog>
         );
     }

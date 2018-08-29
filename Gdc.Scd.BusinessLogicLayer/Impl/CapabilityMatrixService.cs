@@ -1,7 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.CapabilityMatrix;
-using Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
+using Gdc.Scd.Core.Entities.CapabilityMatrix;
 using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System.Collections.Generic;

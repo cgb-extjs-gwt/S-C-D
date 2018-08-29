@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Gdc.Scd.BusinessLogicLayer.Entities;
+using Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {

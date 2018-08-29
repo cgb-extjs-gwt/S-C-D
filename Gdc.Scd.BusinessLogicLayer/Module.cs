@@ -1,7 +1,7 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix;
-using Gdc.Scd.BusinessLogicLayer.Impl;
+﻿using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.CapabilityMatrix;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,11 +20,15 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.AddScoped<IAvailabilityFeeAdminService, AvailabilityFeeAdminService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ICostBlockFilterBuilder, CostBlockFilterBuilder>();
+            services.AddScoped<IQualityGateSevice, QualityGateSevice>();
 
+            services.RegisterEntity<ClusterRegion>();
             services.RegisterEntity<Country>();
+            services.RegisterEntity<CountryGroup>();
             services.RegisterEntity<Pla>();
             services.RegisterEntity<Wg>();
             services.RegisterEntity<Availability>();
+            services.RegisterEntity<Year>();
             services.RegisterEntity<Duration>();
             services.RegisterEntity<ReactionType>();
             services.RegisterEntity<ReactionTime>();
@@ -38,6 +42,9 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<AdminAvailabilityFee>();
             services.RegisterEntity<CapabilityMatrixCountryAllowView>();
             services.RegisterEntity<RoleCode>();
+            services.RegisterEntity<HardwareCalculationResult>();
+            services.RegisterEntity<Currency>();
+            services.RegisterEntity<ExchangeRate>();
         }
     }
 }
