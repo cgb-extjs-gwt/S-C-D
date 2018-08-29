@@ -4,7 +4,7 @@ import { CommonState } from "../../Layout/States/AppStates";
 import { CostEditorState } from "../States/CostEditorStates";
 import { buildCostEditorContext } from "../Helpers/CostEditorHelpers";
 import { buildMvcUrl } from "../../Common/Services/Ajax";
-import { COST_EDITOR_CONTROLLER_NAME, buildGetCostBlockHistoryValueDtoUrl } from "../Services/CostEditorServices";
+import { COST_EDITOR_CONTROLLER_NAME, buildGetHistoryUrl } from "../Services/CostEditorServices";
 
 export interface HistoryValuesGridContainerProps {
     editItemId: string
@@ -15,7 +15,7 @@ export const HistoryValuesGridContainer =
         (state, { editItemId }) => {
             const costEditorState = state.pages.costEditor;
             const context = buildCostEditorContext(costEditorState);
-            const dataLoadUrl = buildGetCostBlockHistoryValueDtoUrl(context, editItemId);
+            const dataLoadUrl = buildGetHistoryUrl(context, editItemId);
 
             return {
                 dataLoadUrl: dataLoadUrl

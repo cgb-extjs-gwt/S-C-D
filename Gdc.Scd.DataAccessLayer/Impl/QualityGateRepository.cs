@@ -131,8 +131,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 Sql.Select(averageColumn)
                    .From(costBlockMeta.HistoryMeta);
 
+            var options = new JoinHistoryValueQueryOptions
+            {
+                InputLevelJoinType = InputLevelJoinType.All
+            };
+
             query =
-                historyQueryBuilder.BuildJoinHistoryValueQuery(historyContext, query)
+                historyQueryBuilder.BuildJoinHistoryValueQuery(historyContext, query, options)
                                    .Join(costBlockMeta, MetaConstants.CountryInputLevelName, QualityGateCountryTable);
 
             var filter = new Dictionary<string, IEnumerable<object>>(costBlockFilter);
@@ -193,7 +198,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return query.Where(costBlockFilter, InnerQualityGateCostBlockTable);
         }
 
-        SqlHelper BuildResutlQualityGateQuery(HistoryContext historyContext,
+        private SqlHelper BuildResutlQualityGateQuery(HistoryContext historyContext,
             CostBlockEntityMeta costBlockMeta,
             IEnumerable<EditItem> editItems,
             IDictionary<string, IEnumerable<object>> costBlockFilter)
@@ -259,7 +264,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return query.Where(whereCondition);
         }
 
-        QueryColumnInfo BuildCheckResultColumn(
+         QueryColumnInfo BuildCheckResultColumn(
             string table,
             string oldValueColumnName,
             string newValueColumnName,

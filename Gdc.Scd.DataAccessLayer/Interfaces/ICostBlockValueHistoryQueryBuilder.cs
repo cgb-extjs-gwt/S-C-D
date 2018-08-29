@@ -10,15 +10,27 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
     public interface ICostBlockValueHistoryQueryBuilder
     {
-        SelectJoinSqlHelper BuildSelectHistoryValueQuery(HistoryContext historyContext, IEnumerable<BaseColumnInfo> addingSelectColumns);
+        SelectJoinSqlHelper BuildSelectHistoryValueQuery(HistoryContext historyContext, IEnumerable<BaseColumnInfo> addingSelectColumns = null);
 
-        TQuery BuildJoinHistoryValueQuery<TQuery>(HistoryContext historyContext, TQuery query, JoinHistoryValueQueryOptions options = null)
+        TQuery BuildJoinHistoryValueQuery<TQuery>(
+            HistoryContext historyContext, 
+            TQuery query, 
+            JoinHistoryValueQueryOptions options = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>;
 
-        SqlHelper BuildJoinHistoryValueQuery<TQuery>(CostBlockHistory history, TQuery query, JoinHistoryValueQueryOptions options = null)
+        SqlHelper BuildJoinHistoryValueQuery<TQuery>(
+            CostBlockHistory history, 
+            TQuery query, 
+            JoinHistoryValueQueryOptions options = null, 
+            IDictionary<string, IEnumerable<object>> filter = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>;
 
-        SqlHelper BuildJoinApproveHistoryValueQuery<TQuery>(CostBlockHistory history, TQuery query, IEnumerable<JoinInfo> joinInfos = null)
+        SqlHelper BuildJoinApproveHistoryValueQuery<TQuery>(
+            CostBlockHistory history, 
+            TQuery query, 
+            InputLevelJoinType inputLevelJoinType = InputLevelJoinType.HistoryContext, 
+            IEnumerable<JoinInfo> joinInfos = null,
+            IDictionary<string, IEnumerable<object>> filter = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>;
 
         CostBlockEntityMeta GetCostBlockEntityMeta(HistoryContext historyContext);

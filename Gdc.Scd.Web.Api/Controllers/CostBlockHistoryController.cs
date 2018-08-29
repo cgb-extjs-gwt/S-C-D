@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
@@ -21,43 +20,25 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CostBlockHistoryApprovalDto>> GetDtoHistoriesForApproval([FromQuery]CostBlockHistoryFilter filter)
+        public async Task<IEnumerable<CostBlockHistoryApprovalDto>> GetApprovalBundles([FromQuery]CostBlockHistoryFilter filter)
         {
             return await this.costBlockHistoryService.GetDtoHistoriesForApproval(filter);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues([FromQuery]long costBlockHistoryId)
+        public async Task<IEnumerable<Dictionary<string, object>>> GetApproveBundleDetail([FromQuery]long costBlockHistoryId)
         {
-           return await this.costBlockHistoryService.GetHistoryValues(costBlockHistoryId);
+            return await this.GetApproveBundleDetail(costBlockHistoryId, null);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Dictionary<string, object>>> GetHistoryValueTable([FromQuery]long costBlockHistoryId)
+        public async Task<IEnumerable<Dictionary<string, object>>> GetChildApproveBundleDetail([FromQuery]long costBlockHistoryId, CostBlockValueHistory valueHistory)
         {
-            var historyValues = await this.costBlockHistoryService.GetHistoryValues(costBlockHistoryId);
-
-            return historyValues.Select(historyValue =>
-            {
-                var dictionary = new Dictionary<string, object>
-                {
-                    ["InputLevelId"] = historyValue.InputLevel.Id,
-                    ["InputLevelName"] = historyValue.InputLevel.Name,
-                    [nameof(CostBlockValueHistory.Value)] = historyValue.Value,
-                };
-
-                foreach (var dependency in historyValue.Dependencies)
-                {
-                    dictionary.Add($"{dependency.Key}Id", dependency.Value.Id);
-                    dictionary.Add($"{dependency.Key}Name", dependency.Value.Name);
-                }
-
-                return dictionary;
-            });
+            return await this.GetApproveBundleDetail(costBlockHistoryId, valueHistory);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(
+        public async Task<IEnumerable<CostBlockHistoryValueDto>> GetHistory(
             CostEditorContext context, 
             long editItemId, 
             int? start, 
@@ -97,6 +78,29 @@ namespace Gdc.Scd.Web.Api.Controllers
             this.costBlockHistoryService.Reject(historyId, message);
 
             return this.Ok();
+        }
+
+        private async Task<IEnumerable<Dictionary<string, object>>> GetApproveBundleDetail(long costBlockHistoryId, CostBlockValueHistory valueHistory)
+        {
+            var historyValues = await this.costBlockHistoryService.GetHistoryValues(costBlockHistoryId, valueHistory);
+
+            return historyValues.Select(historyValue =>
+            {
+                var dictionary = new Dictionary<string, object>
+                {
+                    ["InputLevelId"] = historyValue.InputLevel.Id,
+                    ["InputLevelName"] = historyValue.InputLevel.Name,
+                    [nameof(CostBlockValueHistory.Value)] = historyValue.Value,
+                };
+
+                foreach (var dependency in historyValue.Dependencies)
+                {
+                    dictionary.Add($"{dependency.Key}Id", dependency.Value.Id);
+                    dictionary.Add($"{dependency.Key}Name", dependency.Value.Name);
+                }
+
+                return dictionary;
+            });
         }
     }
 }

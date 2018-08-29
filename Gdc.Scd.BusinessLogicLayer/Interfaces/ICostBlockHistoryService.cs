@@ -23,9 +23,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption);
 
-        Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(CostBlockHistory history);
+        Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(CostBlockHistory history, CostBlockValueHistory valueHistory = null);
 
-        Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(long costBlockHistoryId);
+        Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(long costBlockHistoryId, CostBlockValueHistory valueHistory = null);
 
         Task Approve(long historyId);
 

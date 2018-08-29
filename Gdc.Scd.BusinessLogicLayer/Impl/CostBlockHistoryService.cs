@@ -190,16 +190,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(CostBlockHistory history)
+        public async Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(CostBlockHistory history, CostBlockValueHistory valueHistory = null)
         {
-            return await this.costBlockValueHistoryRepository.GetByCostBlockHistory(history);
+            return await this.costBlockValueHistoryRepository.GetByCostBlockHistory(history, valueHistory);
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(long costBlockHistoryId)
+        public async Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(long costBlockHistoryId, CostBlockValueHistory valueHistory = null)
         {
             var history = this.repositorySet.GetRepository<CostBlockHistory>().Get(costBlockHistoryId);
 
-            return await this.GetHistoryValues(history);
+            return await this.GetHistoryValues(history, valueHistory);
         }
 
         public async Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption)

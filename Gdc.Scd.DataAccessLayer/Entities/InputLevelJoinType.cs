@@ -2,8 +2,7 @@
 {
     public enum InputLevelJoinType
     {
-        None,
         All,
-        HisotoryContext
+        HistoryContext
     }
 }

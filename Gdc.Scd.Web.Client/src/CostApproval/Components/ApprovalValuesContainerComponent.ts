@@ -4,7 +4,7 @@ import { CommonState } from "../../Layout/States/AppStates";
 import * as CostApprovalService from "../Services/CostApprovalService"
 import { API_URL, buildMvcUrl } from "../../Common/Services/Ajax";
 import { NamedId } from "../../Common/States/CommonStates";
-import { buildGetHistoryValueTableUrl } from "../Services/CostApprovalService";
+import { buildGetApproveBundleDetailUrl } from "../Services/CostApprovalService";
 import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
 import { getDependecyColumnsFromMeta } from "../../Common/Helpers/ColumnInfoHelper";
 
@@ -23,7 +23,7 @@ export const ApprovalValuesContainerComponent =
             let dataLoadUrl: string;
             
             if (meta) {
-                dataLoadUrl = buildGetHistoryValueTableUrl(bundleId);
+                dataLoadUrl = buildGetApproveBundleDetailUrl(bundleId);
 
                 columns = [
                     { title: 'InputLevel', dataIndex: 'InputLevelName', type: ColumnType.Simple },

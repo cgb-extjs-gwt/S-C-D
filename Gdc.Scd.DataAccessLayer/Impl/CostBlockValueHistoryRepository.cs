@@ -74,32 +74,36 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> GetByCostBlockHistory(CostBlockHistory history)
+        public async Task<IEnumerable<CostBlockValueHistory>> GetByCostBlockHistory(CostBlockHistory history, CostBlockValueHistory valueHistory = null)
         {
-            var costBlockMeta = historyQueryBuilder.GetCostBlockEntityMeta(history.Context);
-            var inputLevelField = costBlockMeta.InputLevelFields[history.Context.InputLevelId];
-            var inputLevelMeta = (NamedEntityMeta)inputLevelField.ReferenceMeta;
+            string inputLevelId;
+            InputLevelJoinType inputLevelJoinType;
+            IDictionary<string, IEnumerable<object>> filter = null;
 
-            var inputLevelIdColumn = new ColumnInfo(inputLevelMeta.IdField.Name, costBlockMeta.HistoryMeta.Name, "InputLevelId");
-            var inputLevelAlias = historyQueryBuilder.GetAlias(costBlockMeta.HistoryMeta);
-            var inputLevelNameColumn = new ColumnInfo(inputLevelMeta.NameField.Name, inputLevelAlias, "InputLevelName");
-
-            var selectColumns = new List<ColumnInfo> { inputLevelIdColumn, inputLevelNameColumn };
-            selectColumns.AddRange(this.GetDependencyColumns(costBlockMeta));
-
-            var selectQuery = historyQueryBuilder.BuildSelectHistoryValueQuery(history.Context, selectColumns);
-            var joinInfos = this.GetDependencyJoinInfos(costBlockMeta).ToList();
-
-            joinInfos.Add(new JoinInfo
+            if (valueHistory == null)
             {
-                Meta = costBlockMeta.HistoryMeta,
-                ReferenceFieldName = history.Context.InputLevelId,
-                JoinedTableAlias = inputLevelAlias
-            });
+                inputLevelId = history.Context.InputLevelId;
+                inputLevelJoinType = InputLevelJoinType.HistoryContext;
+            }
+            else
+            {
+                var costElement = this.domainMeta.CostBlocks[history.Context.CostBlockId].CostElements[history.Context.CostElementId];
+                var inputLevel = costElement.InputLevels.Last();
 
-            var query = historyQueryBuilder.BuildJoinApproveHistoryValueQuery(history, selectQuery, joinInfos);
+                inputLevelId = inputLevel.Id;
+                inputLevelJoinType = InputLevelJoinType.All;
+                filter = new Dictionary<string, IEnumerable<object>>
+                {
+                    [history.Context.InputLevelId] = new object[] { valueHistory.InputLevel.Id }
+                };
 
-            return await this.repositorySet.ReadBySql(query, this.CostBlockValueHistoryMap);
+                foreach (var dependency in valueHistory.Dependencies)
+                {
+                    filter.Add(dependency.Key, new object[] { dependency.Value.Id });
+                }
+            }
+
+            return await this.GetByCostBlockHistory(history, inputLevelId, inputLevelJoinType, filter);
         }
 
         public async Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(
@@ -196,6 +200,38 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var query = historyQueryBuilder.BuildJoinApproveHistoryValueQuery(history, updateQuery);
 
             return await this.repositorySet.ExecuteSqlAsync(query);
+        }
+
+        private async Task<IEnumerable<CostBlockValueHistory>> GetByCostBlockHistory(
+            CostBlockHistory history, 
+            string inputLevelId,
+            InputLevelJoinType inputLevelJoinType,
+            IDictionary<string, IEnumerable<object>> filter = null)
+        {
+            var costBlockMeta = historyQueryBuilder.GetCostBlockEntityMeta(history.Context);
+            var inputLevelField = costBlockMeta.InputLevelFields[inputLevelId];
+            var inputLevelMeta = (NamedEntityMeta)inputLevelField.ReferenceMeta;
+
+            var inputLevelIdColumn = new ColumnInfo(inputLevelMeta.IdField.Name, costBlockMeta.HistoryMeta.Name, "InputLevelId");
+            var inputLevelAlias = historyQueryBuilder.GetAlias(costBlockMeta.HistoryMeta);
+            var inputLevelNameColumn = new ColumnInfo(inputLevelMeta.NameField.Name, inputLevelAlias, "InputLevelName");
+
+            var selectColumns = new List<ColumnInfo> { inputLevelIdColumn, inputLevelNameColumn };
+            selectColumns.AddRange(this.GetDependencyColumns(costBlockMeta));
+
+            var selectQuery = historyQueryBuilder.BuildSelectHistoryValueQuery(history.Context, selectColumns);
+            var joinInfos = this.GetDependencyJoinInfos(costBlockMeta).ToList();
+
+            joinInfos.Add(new JoinInfo
+            {
+                Meta = costBlockMeta.HistoryMeta,
+                ReferenceFieldName = inputLevelField.Name,
+                JoinedTableAlias = inputLevelAlias
+            });
+
+            var query = historyQueryBuilder.BuildJoinApproveHistoryValueQuery(history, selectQuery, inputLevelJoinType, joinInfos);
+
+            return await this.repositorySet.ReadBySql(query, this.CostBlockValueHistoryMap);
         }
 
         private IEnumerable<ColumnInfo> GetDependencyColumns(CostBlockEntityMeta costBlockMeta)

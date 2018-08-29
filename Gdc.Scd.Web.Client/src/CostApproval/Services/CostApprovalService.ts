@@ -13,9 +13,10 @@ export const approve = (historyId: number) => post(CONTROLLER_NAME, 'Approve', n
 
 export const reject = (historyId: number, message: string) => post(CONTROLLER_NAME, 'Reject', null, { historyId, message });
 
-export const getBundles = (filter: BundleFilter) => get<ApprovalBundle[]>(CONTROLLER_NAME, 'GetDtoHistoriesForApproval', filter);
+export const getBundles = (filter: BundleFilter) => get<ApprovalBundle[]>(CONTROLLER_NAME, 'GetApprovalBundles', filter);
 
-export const buildGetHistoryValueTableUrl = (bundleId: number) => buildMvcUrl(CONTROLLER_NAME, 'GetHistoryValueTable', { costBlockHistoryId: bundleId });
+export const buildGetApproveBundleDetailUrl = (bundleId: number) => 
+    buildMvcUrl(CONTROLLER_NAME, 'GetApproveBundleDetail', { costBlockHistoryId: bundleId });
 
 
 

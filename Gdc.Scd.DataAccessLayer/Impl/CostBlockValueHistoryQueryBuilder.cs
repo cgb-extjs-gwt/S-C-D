@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
@@ -25,7 +24,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.domainMeta = domainMeta;
         }
 
-        public SelectJoinSqlHelper BuildSelectHistoryValueQuery(HistoryContext historyContext, IEnumerable<BaseColumnInfo> addingSelectColumns)
+        public SelectJoinSqlHelper BuildSelectHistoryValueQuery(HistoryContext historyContext, IEnumerable<BaseColumnInfo> addingSelectColumns = null)
         {
             var costBlockMeta = this.GetCostBlockEntityMeta(historyContext);
             var inputLevelAlias = this.GetAlias(costBlockMeta.HistoryMeta);
@@ -43,9 +42,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 costElementColumn = new ColumnInfo(referenceCostElementField.ReferenceFaceField, referenceCostElementField.ReferenceMeta.Name, ValueColumnName);
             }
 
-            var selectQuery =
-                Sql.SelectDistinct(new[] { costElementColumn }.Concat(addingSelectColumns).ToArray())
-                   .From(costBlockMeta.HistoryMeta);
+            var columns = new List<BaseColumnInfo>
+            {
+                costElementColumn
+            };
+
+            if (addingSelectColumns != null)
+            {
+                columns.AddRange(addingSelectColumns);
+            }
+
+            var selectQuery = Sql.SelectDistinct(columns.ToArray()).From(costBlockMeta.HistoryMeta);
 
             if (referenceCostElementField != null)
             {
@@ -109,33 +116,47 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return query;
         }
 
-        public SqlHelper BuildJoinHistoryValueQuery<TQuery>(CostBlockHistory history, TQuery query, JoinHistoryValueQueryOptions options = null)
+        public SqlHelper BuildJoinHistoryValueQuery<TQuery>(
+            CostBlockHistory history, 
+            TQuery query, 
+            JoinHistoryValueQueryOptions options = null, 
+            IDictionary<string, IEnumerable<object>> filter = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>
         {
             query = this.BuildJoinHistoryValueQuery(history.Context, query, options);
 
             var costBlockMeta = this.GetCostBlockEntityMeta(history.Context);
-            var historyIdCondition =
+            var whereCondition =
                 SqlOperators.Equals(
                     costBlockMeta.HistoryMeta.CostBlockHistoryField.Name,
                     "costBlockHistoryId",
                     history.Id,
                     costBlockMeta.HistoryMeta.Name);
 
-            return query.Where(historyIdCondition);
+            if (filter != null)
+            {
+                whereCondition = whereCondition.And(filter, costBlockMeta.Name);
+            }
+
+            return query.Where(whereCondition);
         }
 
-        public SqlHelper BuildJoinApproveHistoryValueQuery<TQuery>(CostBlockHistory history, TQuery query, IEnumerable<JoinInfo> joinInfos = null)
+        public SqlHelper BuildJoinApproveHistoryValueQuery<TQuery>(
+            CostBlockHistory history, 
+            TQuery query, 
+            InputLevelJoinType inputLevelJoinType = InputLevelJoinType.HistoryContext, 
+            IEnumerable<JoinInfo> joinInfos = null,
+            IDictionary<string, IEnumerable<object>> filter = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>
         {
             var options = new JoinHistoryValueQueryOptions
             {
                 IsUseRegionCondition = true,
-                InputLevelJoinType = InputLevelJoinType.HisotoryContext,
+                InputLevelJoinType = inputLevelJoinType,
                 JoinInfos = joinInfos
             };
 
-            return this.BuildJoinHistoryValueQuery(history, query);
+            return this.BuildJoinHistoryValueQuery(history, query, options, filter);
         }
 
         public CostBlockEntityMeta GetCostBlockEntityMeta(HistoryContext historyContext)
@@ -165,7 +186,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             switch (options.InputLevelJoinType)
             {
-                case InputLevelJoinType.HisotoryContext:
+                case InputLevelJoinType.HistoryContext:
                     var inputLevelCondition = SqlOperators.Equals(
                         new ColumnInfo(historyContext.InputLevelId, costBlockMeta.HistoryMeta.Name),
                         new ColumnInfo(historyContext.InputLevelId, costBlockMeta.Name));
