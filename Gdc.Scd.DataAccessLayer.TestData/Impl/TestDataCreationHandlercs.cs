@@ -94,23 +94,27 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         private void CreateUsers()
         {
             var repository = this.repositorySet.GetRepository<User>();
-            var user = new User { Name = "Test user" };
+            var users = new List<User> {
+                new User { Name = "Test user 1", Login="g02\testUser1", Email="testuser1@fujitsu.com" },
+                new User { Name = "Test user 2", Login="g03\testUser2", Email="testuser2@fujitsu.com" },
+                new User { Name = "Test user 3", Login="g04\testUser3", Email="testuser3@fujitsu.com" }
+            };
 
-            repository.Save(user);
+            repository.Save(users);
             this.repositorySet.Sync();
         }
 
         private void CreateRoles()
         {
             var repository = this.repositorySet.GetRepository<Role>();
-            var role = new List<Role> {
-                new Role {Name = "Test Role 1" },
-                new Role {Name = "Test Role 2" },
-                new Role {Name = "Test Role 3" },
-                new Role {Name = "Test Role 4" },
-                new Role {Name = "Test Role 5" }
+            var roles = new List<Role> {
+                new Role {Name = "Test Role 1", IsGlobal=true},
+                new Role {Name = "Test Role 2", IsGlobal=true },
+                new Role {Name = "Test Role 3", IsGlobal=false },
+                new Role {Name = "Test Role 4", IsGlobal=false },
+                new Role {Name = "Test Role 5", IsGlobal=false }
             };       
-            repository.Save(role);
+            repository.Save(roles);
             this.repositorySet.Sync();
         }
 

@@ -8,58 +8,25 @@ interface UserRoleDialogProps {
     storeRole
 
     selectedRecord
-    isValidForm
     isVisibleForm
     onHideDialog?()
+    saveRecords?()
 }
 
-interface UserRoleDialogState {
-    selectedRecord
-    isValidForm
-    isVisibleForm
-}
-
-export class UserRoleDialog extends React.Component<UserRoleDialogProps, UserRoleDialogState> {
-    constructor(props) {
-        super(props);
-
-        this. state = {
-            selectedRecord: this.props.selectedRecord,
-            isValidForm: this.props.isValidForm,
-            isVisibleForm: this.props.isVisibleForm
-        }; 
-    }
+export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
 
     private userRoleForm: Dialog & any;
     private userComboBox: ComboBoxField & any;
     private countryComboBox: ComboBoxField & any;
     private roleComboBox: ComboBoxField & any;
 
-   
-
-    saveRecords = () => {
-        const { store } = this.props;
-        store.sync({
-            scope: this,
-
-            success: function(batch, options) {
-                this.setState({
-                    disableSaveButton: true,
-                    disableDeleteButton: true,
-                    disableNewButton: false
-                });
-                this.store.load();
-            },
-
-            failure: (batch, options) => {
-                //TODO: show error
-                store.rejectChanges();
-            }
-        });
+    state = {
+        countryFieldHidden: true,
+        isValid: this.isValidInput
     }
 
     render() {
-        const { isValidForm, isVisibleForm, selectedRecord } = this.props;
+        const { isVisibleForm, selectedRecord } = this.props;
         const { store, storeUser, storeCountry, storeRole } = this.props;
 
         return (                      
@@ -84,15 +51,9 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, UserRol
                             label="User"
                             queryMode="local"
                             value={selectedRecord && selectedRecord.data.userId}
-                        />
-                        <ComboBoxField
-                            store={storeCountry}
-                            valueField="id"
-                            displayField="name"
-                            label="Country"
-                            queryMode="local"
-                            value={selectedRecord && selectedRecord.data.countryId}
-                            ref={combobox => this.countryComboBox = combobox}
+                            editable={false}
+                            required={true}
+                            onChange={this.isValidInput.bind(this)}
                         />
                         <ComboBoxField
                             store={storeRole}
@@ -102,12 +63,29 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, UserRol
                             queryMode="local"
                             value={selectedRecord && selectedRecord.data.roleId}
                             ref={combobox => this.roleComboBox = combobox}
+                            editable={false}
+                            required={true}
+                            onChange={this.onRoleChange}
                         />
+                        <ComboBoxField
+                            ref={combobox => this.countryComboBox = combobox}
+                            store={storeCountry}
+                            valueField="id"
+                            displayField="name"
+                            label="Country"
+                            queryMode="local"
+                            value={selectedRecord && selectedRecord.data.countryId}
+                            editable={false}
+                            required={true}
+                            hidden={this.state.countryFieldHidden}
+                            onChange={this.isValidInput.bind(this)}
+                        />                  
                         <Toolbar docked="bottom">
                             <Button
                                 text="Save"
                                 handler={this.onFormSave.bind(this)}
                                 flex={1}
+                                disabled={!this.state.isValid}
                             />
                             <Button text="Cancel" handler={this.onFormCancel} flex={1} />
                         </Toolbar>
@@ -116,7 +94,7 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, UserRol
     }
 
     private onFormSave = () => {
-        const { store, onHideDialog, selectedRecord } = this.props;
+        const { store, onHideDialog, selectedRecord, saveRecords } = this.props;
 
         if (selectedRecord) {
             selectedRecord.set({
@@ -134,13 +112,41 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, UserRol
             store.add(newItem);
             newItem.set({ id: 0 });
         };
-        this.saveRecords();
+        saveRecords();
         onHideDialog();
 
     }
 
     private onFormCancel = () => {
-        const { store, onHideDialog } = this.props;
+        const { onHideDialog } = this.props;
         onHideDialog();
+    }
+
+    private onRoleChange = (combobox) => {
+        const { storeRole } = this.props;
+        const roleId = combobox.getValue();
+        if (roleId && roleId > 0) {
+            const selectedRole = storeRole.data.items.find(item => item.data.id === roleId);
+            if (selectedRole.data.isGlobal) {
+                this.countryComboBox.setValue(null);
+            }
+            this.setState({ countryFieldHidden: selectedRole.data.isGlobal });
+        }
+        else {
+            this.setState({ countryFieldHidden: true });
+        }
+        this.isValidInput();
+    }
+
+    private isValidInput = () => {
+        if (this.userComboBox && this.userComboBox.getValue() > 0 &&
+            this.roleComboBox && this.roleComboBox.getValue() > 0 &&
+            ((!this.state.countryFieldHidden && this.countryComboBox && this.countryComboBox.getValue() > 0) || this.state.countryFieldHidden)) {
+
+            this.setState({ isValid: true })
+        }
+        else {
+            this.setState({ isValid: false })
+        }
     }
 }

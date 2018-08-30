@@ -7,5 +7,6 @@ namespace Gdc.Scd.Core.Entities
 {
     public class Role : NamedId
     {
+        public bool IsGlobal { get; set; }
     }
 }
