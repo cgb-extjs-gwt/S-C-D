@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Gdc.Scd.Core.Interfaces;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
-    public abstract class BaseCostBlockEntityMeta : BaseEntityMeta
+    public abstract class BaseCostBlockEntityMeta : BaseEntityMeta, ICostBlockIdentifier
     {
         public IdFieldMeta IdField { get; } = new IdFieldMeta();
 
@@ -29,6 +28,10 @@ namespace Gdc.Scd.Core.Meta.Entities
                 }
             }
         }
+
+        string ICostBlockIdentifier.ApplicationId => this.Schema;
+
+        string ICostBlockIdentifier.CostBlockId => this.Name;
 
         public BaseCostBlockEntityMeta(string name, string shema = null)
             : base(name, shema)

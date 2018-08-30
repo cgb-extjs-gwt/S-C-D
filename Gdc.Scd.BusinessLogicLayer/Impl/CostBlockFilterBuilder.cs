@@ -21,7 +21,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (context.RegionInputId != null)
             {
-                var costElement = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId];
+                var costElement = this.meta.GetCostElement(context);
 
                 filter.Add(costElement.RegionInput.Id, new object[] { context.RegionInputId });
             }

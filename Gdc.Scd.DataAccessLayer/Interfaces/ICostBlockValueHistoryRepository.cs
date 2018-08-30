@@ -9,9 +9,9 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
     {
         Task Save(CostBlockHistory history, IEnumerable<EditItem> editItems, IDictionary<string, long[]> relatedItems);
 
-        Task<IEnumerable<CostBlockValueHistory>> GetByCostBlockHistory(CostBlockHistory history, CostBlockValueHistory valueHistory = null);
+        Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(CostBlockHistory history, long? historyValueId = null);
 
-        Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(HistoryContext historyContext, IDictionary<string, IEnumerable<object>> filter, QueryInfo queryInfo = null);
+        Task<IEnumerable<HistoryItem>> GetHistory(HistoryContext historyContext, IDictionary<string, IEnumerable<object>> filter, QueryInfo queryInfo = null);
 
         Task<int> Approve(CostBlockHistory history);
     }

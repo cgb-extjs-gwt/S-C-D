@@ -26,6 +26,8 @@ namespace Gdc.Scd.DataAccessLayer
             services.AddScoped<ICostBlockValueHistoryQueryBuilder, CostBlockValueHistoryQueryBuilder>();
             services.AddScoped<IRepository<YearAvailability>, YearAvailabilityRepository>();
             services.AddScoped<IQualityGateRepository, QualityGateRepository>();
+            services.AddScoped<IQualityGateQueryBuilder, QualityGateQueryBuilder>();
+            services.AddScoped<ICostBlockValueHistoryMapper, CostBlockValueHistoryMapper>();
 
             services.AddTransient<BaseColumnMetaSqlBuilder<IdFieldMeta>, IdColumnMetaSqlBuilder>();
             services.AddTransient<BaseColumnMetaSqlBuilder<SimpleFieldMeta>, SimpleColumnMetaSqlBuilder>();

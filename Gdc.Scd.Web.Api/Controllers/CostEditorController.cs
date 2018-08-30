@@ -64,8 +64,8 @@ namespace Gdc.Scd.Web.Api.Controllers
                 {
                     var errorDictionary = new Dictionary<string, object>
                     {
-                        ["WarrantyGroupId"] = error.WarrantyGroup.Id,
-                        ["WarrantyGroupName"] = error.WarrantyGroup.Name,
+                        ["WarrantyGroupId"] = error.InputLevel.Id,
+                        ["WarrantyGroupName"] = error.InputLevel.Name,
                         [nameof(error.IsPeriodError)] = error.IsPeriodError,
                         [nameof(error.IsRegionError)] = error.IsRegionError
                     };

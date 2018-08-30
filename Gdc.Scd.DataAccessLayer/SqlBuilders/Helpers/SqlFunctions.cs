@@ -9,25 +9,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
     {
         public static QueryColumnInfo Max(ISqlBuilder query, string alias = null)
         {
-            return new QueryColumnInfo
-            {
-                Alias = alias,
-                Query = new MaxSqlBuilder
-                {
-                    Query = query
-                }
-            };
+            return CreateQueryColumnInfo<MaxSqlBuilder>(query, alias);
         }
 
         public static QueryColumnInfo Max(string columnName, string tableName = null, string alias = null)
         {
-            var column = new ColumnSqlBuilder
-            {
-                Table = tableName,
-                Name = columnName
-            };
-
-            return Max(column, alias);
+            return CreateQueryColumnInfo<MaxSqlBuilder>(columnName, tableName, alias);
         }
 
         public static QueryColumnInfo Count(string columnName, bool isDisctinct = false, string tableName = null, string alias = null)
@@ -42,6 +29,16 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 },
                 Alias = alias
             };
+        }
+
+        public static QueryColumnInfo Average(ISqlBuilder query, string alias = null)
+        {
+            return CreateQueryColumnInfo<AverageSqlBuilder>(query, alias);
+        }
+
+        public static QueryColumnInfo Average(string columnName, string tableName = null, string alias = null)
+        {
+            return CreateQueryColumnInfo<AverageSqlBuilder>(columnName, tableName, alias);
         }
 
         public static ConvertSqlBuilder Convert(ISqlBuilder query, TypeCode type)
@@ -66,6 +63,31 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 Alias = alias,
                 Query = Convert(column, type)
             };
+        }
+
+        private static QueryColumnInfo CreateQueryColumnInfo<T>(ISqlBuilder query, string alias = null) 
+            where T : BaseQuerySqlBuilder, new()
+        {
+            return new QueryColumnInfo
+            {
+                Alias = alias,
+                Query = new T
+                {
+                    Query = query
+                }
+            };
+        }
+
+        private static QueryColumnInfo CreateQueryColumnInfo<T>(string columnName, string tableName = null, string alias = null)
+            where T : BaseQuerySqlBuilder, new()
+        {
+            var column = new ColumnSqlBuilder
+            {
+                Table = tableName,
+                Name = columnName
+            };
+
+            return CreateQueryColumnInfo<T>(column, alias);
         }
     }
 }

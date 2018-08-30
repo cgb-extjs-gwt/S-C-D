@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
@@ -10,7 +9,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
     public interface ICostBlockValueHistoryQueryBuilder
     {
-        SelectJoinSqlHelper BuildSelectHistoryValueQuery(HistoryContext historyContext, IEnumerable<BaseColumnInfo> addingSelectColumns = null);
+        SelectJoinSqlHelper BuildSelectHistoryValueQuery(HistoryContext historyContext, IEnumerable<BaseColumnInfo> addingSelectColumns = null, string valueColumnName = null);
 
         TQuery BuildJoinHistoryValueQuery<TQuery>(
             HistoryContext historyContext, 
@@ -21,8 +20,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
         SqlHelper BuildJoinHistoryValueQuery<TQuery>(
             CostBlockHistory history, 
             TQuery query, 
-            JoinHistoryValueQueryOptions options = null, 
-            IDictionary<string, IEnumerable<object>> filter = null)
+            JoinHistoryValueQueryOptions options = null,
+            long? historyValueId = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>;
 
         SqlHelper BuildJoinApproveHistoryValueQuery<TQuery>(
@@ -30,11 +29,14 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
             TQuery query, 
             InputLevelJoinType inputLevelJoinType = InputLevelJoinType.HistoryContext, 
             IEnumerable<JoinInfo> joinInfos = null,
-            IDictionary<string, IEnumerable<object>> filter = null)
+            long? historyValueId = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>;
 
-        CostBlockEntityMeta GetCostBlockEntityMeta(HistoryContext historyContext);
-
-        string GetAlias(BaseEntityMeta meta);
+        SqlHelper BuildSelectJoinHistoryValueQuery(
+            CostBlockHistory history,
+            string inputLevelId,
+            InputLevelJoinType inputLevelJoinType,
+            long? historyValueId = null,
+            string valueColumnName = null);
     }
 }

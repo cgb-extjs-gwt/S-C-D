@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
@@ -31,18 +32,34 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var result = new QualityGateResult();
 
-            var costBlockMeta = (CostBlockEntityMeta)this.domainEnitiesMeta.GetEntityMeta(context.CostBlockId, context.ApplicationId);
-            if (costBlockMeta.InputLevelFields[MetaConstants.WgInputLevelName] == null ||
-                costBlockMeta.InputLevelFields[MetaConstants.CountryInputLevelName] == null)
-            {
-                result.Errors = Enumerable.Empty<QualityGateError>();
-            }
-            else
+            if (this.IsUseCheck(context))
             {
                 var historyContext = HistoryContext.Build(context);
                 var filter = this.costBlockFilterBuilder.BuildFilter(context);
 
                 result.Errors = await this.qualityGateRepository.Check(historyContext, editItems, filter);
+            }
+            else
+            {
+                result.Errors = Enumerable.Empty<CostBlockValueHistory>();
+            }
+
+            return result;
+        }
+
+        private bool IsUseCheck(CostEditorContext context)
+        {
+            var result = false;
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
+
+            if (costBlockMeta.InputLevelFields[MetaConstants.WgInputLevelName] != null &&
+                costBlockMeta.InputLevelFields[MetaConstants.CountryInputLevelName] != null)
+            {
+                var costElement = costBlockMeta.CostElementsFields[context.CostElementId] as SimpleFieldMeta;
+                if (costElement != null && costElement.Type == TypeCode.Double)
+                {
+                    result = true;
+                }
             }
 
             return result;

@@ -6,6 +6,11 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
     public interface IQualityGateRepository
     {
-        Task<IEnumerable<QualityGateError>> Check(HistoryContext historyContext, IEnumerable<EditItem> editItems, IDictionary<string, IEnumerable<object>> costBlockFilter);
+        Task<IEnumerable<CostBlockValueHistory>> Check(
+            HistoryContext historyContext, 
+            IEnumerable<EditItem> editItems, 
+            IDictionary<string, IEnumerable<object>> costBlockFilter);
+
+        Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetailQualityGate(CostBlockHistory history, long historyValueId);
     }
 }

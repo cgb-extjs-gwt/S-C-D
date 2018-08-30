@@ -3,7 +3,7 @@ using Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.Core.Dto
 {
-    public class CostBlockHistoryApprovalDto
+    public class ApprovalBundle
     {
         public long Id { get; set; }
 

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Dto;
@@ -17,23 +16,31 @@ namespace Gdc.Scd.DataAccessLayer.Impl
     {
         private readonly DomainMeta domainMeta;
 
+        private readonly DomainEnitiesMeta domainEnitiesMeta;
+
         private readonly IRepositorySet repositorySet;
 
         private readonly ICostBlockValueHistoryQueryBuilder historyQueryBuilder;
 
+        private readonly ICostBlockValueHistoryMapper costBlockValueHistoryMapper;
+
         public CostBlockValueHistoryRepository(
-            DomainMeta domainMeta, 
+            DomainMeta domainMeta,
+            DomainEnitiesMeta domainEnitiesMeta,
             IRepositorySet repositorySet, 
-            ICostBlockValueHistoryQueryBuilder costBlockValueHistoryQueryBuilder)
+            ICostBlockValueHistoryQueryBuilder costBlockValueHistoryQueryBuilder,
+            ICostBlockValueHistoryMapper costBlockValueHistoryMapper)
         {
             this.repositorySet = repositorySet;
             this.domainMeta = domainMeta;
+            this.domainEnitiesMeta = domainEnitiesMeta;
             this.historyQueryBuilder = costBlockValueHistoryQueryBuilder;
+            this.costBlockValueHistoryMapper = costBlockValueHistoryMapper;
         }
 
         public async Task Save(CostBlockHistory history, IEnumerable<EditItem> editItems, IDictionary<string, long[]> relatedItems)
         {
-            var costBlockMeta = historyQueryBuilder.GetCostBlockEntityMeta(history.Context);
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
             var values = editItems.Select(editItem => new object[] { history.Id, editItem.Id, editItem.Value });
 
             var insertValueQuery =
@@ -74,59 +81,54 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> GetByCostBlockHistory(CostBlockHistory history, CostBlockValueHistory valueHistory = null)
+        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(CostBlockHistory history, long? historyValueId = null)
         {
             string inputLevelId;
             InputLevelJoinType inputLevelJoinType;
-            IDictionary<string, IEnumerable<object>> filter = null;
 
-            if (valueHistory == null)
+            if (historyValueId.HasValue)
             {
-                inputLevelId = history.Context.InputLevelId;
-                inputLevelJoinType = InputLevelJoinType.HistoryContext;
-            }
-            else
-            {
-                var costElement = this.domainMeta.CostBlocks[history.Context.CostBlockId].CostElements[history.Context.CostElementId];
+                var costElement = this.domainMeta.GetCostElement(history.Context);
                 var inputLevel = costElement.InputLevels.Last();
 
                 inputLevelId = inputLevel.Id;
                 inputLevelJoinType = InputLevelJoinType.All;
-                filter = new Dictionary<string, IEnumerable<object>>
-                {
-                    [history.Context.InputLevelId] = new object[] { valueHistory.InputLevel.Id }
-                };
-
-                foreach (var dependency in valueHistory.Dependencies)
-                {
-                    filter.Add(dependency.Key, new object[] { dependency.Value.Id });
-                }
+            }
+            else
+            {
+                inputLevelId = history.Context.InputLevelId;
+                inputLevelJoinType = InputLevelJoinType.HistoryContext;
             }
 
-            return await this.GetByCostBlockHistory(history, inputLevelId, inputLevelJoinType, filter);
+            var query = this.historyQueryBuilder.BuildSelectJoinHistoryValueQuery(history, inputLevelId, inputLevelJoinType, historyValueId);
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+
+            return await this.repositorySet.ReadBySql(
+                query, 
+                reader => this.costBlockValueHistoryMapper.MapWithHistoryId(costBlockMeta, reader));
         }
 
-        public async Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(
+        public async Task<IEnumerable<HistoryItem>> GetHistory(
             HistoryContext historyContext, 
             IDictionary<string, IEnumerable<object>> filter,
             QueryInfo queryInfo = null)
         {
-            var costBlockMeta = historyQueryBuilder.GetCostBlockEntityMeta(historyContext);
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
 
             var historyEditUserIdColumnName = $"{nameof(CostBlockHistory.EditUser)}{nameof(User.Id)}";
-            var historyEditUserIdColumnAlias = this.ToLowerFirstLetter(nameof(CostBlockHistoryValueDto.EditUserId));
+            var historyEditUserIdColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItem.EditUserId));
             var histroryEditUserIdColumn = new ColumnInfo(
                 historyEditUserIdColumnName, 
                 costBlockMeta.HistoryMeta.CostBlockHistoryField.ReferenceMeta.Name, 
                 historyEditUserIdColumnAlias);
 
-            var editDateColumnAlias = this.ToLowerFirstLetter(nameof(CostBlockHistoryValueDto.EditDate));
+            var editDateColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItem.EditDate));
             var editDateColumn = new ColumnInfo(
                 nameof(CostBlockHistory.EditDate), 
                 costBlockMeta.HistoryMeta.CostBlockHistoryField.ReferenceMeta.Name, 
                 editDateColumnAlias);
 
-            var userNameColumnAlias = this.ToLowerFirstLetter(nameof(CostBlockHistoryValueDto.EditUserName));
+            var userNameColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItem.EditUserName));
             var userNameColumn = new ColumnInfo(nameof(User.Name), nameof(User), userNameColumnAlias);
 
             var selectColumns = new List<ColumnInfo>
@@ -136,7 +138,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 userNameColumn
             };
             
-            var selectQuery = historyQueryBuilder.BuildSelectHistoryValueQuery(historyContext, selectColumns);
+            var selectQuery = this.historyQueryBuilder.BuildSelectHistoryValueQuery(historyContext, selectColumns);
 
             if (queryInfo == null)
             {
@@ -152,7 +154,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 };
             }
 
-            var costElement = this.domainMeta.CostBlocks[historyContext.CostBlockId].CostElements[historyContext.CostElementId];
+            var costElement = this.domainMeta.GetCostElement(historyContext);
             var whereCondition =
                 ConditionHelper.AndStatic(filter, costBlockMeta.Name)
                                .And(SqlOperators.IsNotNull(costElement.Id, costBlockMeta.HistoryMeta.Name));
@@ -165,12 +167,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             };
 
             var query =
-                historyQueryBuilder.BuildJoinHistoryValueQuery(historyContext, selectQuery, options)
-                                   .Join(nameof(User), SqlOperators.Equals(histroryEditUserIdColumn, userIdColumn))
-                                   .Where(whereCondition)
-                                   .ByQueryInfo(queryInfo);
+                this.historyQueryBuilder.BuildJoinHistoryValueQuery(historyContext, selectQuery, options)
+                                        .Join(nameof(User), SqlOperators.Equals(histroryEditUserIdColumn, userIdColumn))
+                                        .Where(whereCondition)
+                                        .ByQueryInfo(queryInfo);
 
-            return await this.repositorySet.ReadBySql(query, reader => new CostBlockHistoryValueDto
+            return await this.repositorySet.ReadBySql(query, reader => new HistoryItem
             {
                 Value = reader.GetValue(0),
                 EditDate = reader.GetDateTime(1),
@@ -181,7 +183,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<int> Approve(CostBlockHistory history)
         {
-            var costBlockMeta = historyQueryBuilder.GetCostBlockEntityMeta(history.Context);
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
             var costElementField = costBlockMeta.CostElementsFields[history.Context.CostElementId];
             var historyValueColumn = new ColumnSqlBuilder
             {
@@ -197,95 +199,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 Sql.Update(costBlockMeta, costElementColumn, costElementApprovedColumn)
                    .From(costBlockMeta.HistoryMeta);
 
-            var query = historyQueryBuilder.BuildJoinApproveHistoryValueQuery(history, updateQuery);
+            var query = this.historyQueryBuilder.BuildJoinApproveHistoryValueQuery(history, updateQuery);
 
             return await this.repositorySet.ExecuteSqlAsync(query);
-        }
-
-        private async Task<IEnumerable<CostBlockValueHistory>> GetByCostBlockHistory(
-            CostBlockHistory history, 
-            string inputLevelId,
-            InputLevelJoinType inputLevelJoinType,
-            IDictionary<string, IEnumerable<object>> filter = null)
-        {
-            var costBlockMeta = historyQueryBuilder.GetCostBlockEntityMeta(history.Context);
-            var inputLevelField = costBlockMeta.InputLevelFields[inputLevelId];
-            var inputLevelMeta = (NamedEntityMeta)inputLevelField.ReferenceMeta;
-
-            var inputLevelIdColumn = new ColumnInfo(inputLevelMeta.IdField.Name, costBlockMeta.HistoryMeta.Name, "InputLevelId");
-            var inputLevelAlias = historyQueryBuilder.GetAlias(costBlockMeta.HistoryMeta);
-            var inputLevelNameColumn = new ColumnInfo(inputLevelMeta.NameField.Name, inputLevelAlias, "InputLevelName");
-
-            var selectColumns = new List<ColumnInfo> { inputLevelIdColumn, inputLevelNameColumn };
-            selectColumns.AddRange(this.GetDependencyColumns(costBlockMeta));
-
-            var selectQuery = historyQueryBuilder.BuildSelectHistoryValueQuery(history.Context, selectColumns);
-            var joinInfos = this.GetDependencyJoinInfos(costBlockMeta).ToList();
-
-            joinInfos.Add(new JoinInfo
-            {
-                Meta = costBlockMeta.HistoryMeta,
-                ReferenceFieldName = inputLevelField.Name,
-                JoinedTableAlias = inputLevelAlias
-            });
-
-            var query = historyQueryBuilder.BuildJoinApproveHistoryValueQuery(history, selectQuery, inputLevelJoinType, joinInfos);
-
-            return await this.repositorySet.ReadBySql(query, this.CostBlockValueHistoryMap);
-        }
-
-        private IEnumerable<ColumnInfo> GetDependencyColumns(CostBlockEntityMeta costBlockMeta)
-        {
-            foreach (var dependecyField in costBlockMeta.DependencyFields)
-            {
-                yield return new ColumnInfo(dependecyField.Name, costBlockMeta.Name);
-                yield return new ColumnInfo(
-                    dependecyField.ReferenceFaceField, 
-                    historyQueryBuilder.GetAlias(dependecyField.ReferenceMeta), 
-                    $"{dependecyField.Name}_Name");
-            }
-        }
-
-        private IEnumerable<JoinInfo> GetDependencyJoinInfos(CostBlockEntityMeta costBlockMeta)
-        {
-            return costBlockMeta.DependencyFields.Select(field => new JoinInfo
-            {
-                Meta = costBlockMeta,
-                ReferenceFieldName = field.Name,
-                JoinedTableAlias = historyQueryBuilder.GetAlias(field.ReferenceMeta)
-            });
-        }
-
-        private string GetHistoryRegionColumnName()
-        {
-            return $"{nameof(CostBlockHistory.Context)}_{nameof(HistoryContext.RegionInputId)}";
-        }
-
-        private CostBlockValueHistory CostBlockValueHistoryMap(IDataReader reader)
-        {
-            var dependencies = new Dictionary<string, NamedId>();
-
-            for (var i = 3; i < reader.FieldCount; i = i + 2)
-            {
-                var dependency = new NamedId
-                {
-                    Id = reader.GetInt64(i),
-                    Name = reader.GetString(i + 1)
-                };
-
-                dependencies.Add(reader.GetName(i), dependency);
-            }
-
-            return new CostBlockValueHistory
-            {
-                Value = reader.GetValue(0),
-                InputLevel = new NamedId
-                {
-                    Id = reader.GetInt64(1),
-                    Name = reader.GetString(2)
-                },
-                Dependencies = dependencies
-            };
         }
 
         private string ToLowerFirstLetter(string value)

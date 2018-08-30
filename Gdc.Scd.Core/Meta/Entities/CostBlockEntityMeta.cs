@@ -34,5 +34,14 @@ namespace Gdc.Scd.Core.Meta.Entities
             : base(name, shema)
         {
         }
+
+        public FieldMeta GetApprovedCostElement(string costElementId)
+        {
+            var costElementField = this.CostElementsFields[costElementId];
+
+            this.CostElementsApprovedFields.TryGetValue(costElementField, out var approvedCostElement);
+
+            return approvedCostElement;
+        }
     }
 }
