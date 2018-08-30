@@ -1,34 +1,30 @@
-IF OBJECT_ID('dbo.GetAfr') IS NOT NULL
-  DROP FUNCTION dbo.GetAfr;
+IF OBJECT_ID('Hardware.GetAfr') IS NOT NULL
+  DROP FUNCTION Hardware.GetAfr;
 go 
 
-IF OBJECT_ID('dbo.CalcFieldServiceCost') IS NOT NULL
-  DROP FUNCTION dbo.CalcFieldServiceCost;
+IF OBJECT_ID('Hardware.CalcFieldServiceCost') IS NOT NULL
+  DROP FUNCTION Hardware.CalcFieldServiceCost;
 go 
 
-IF OBJECT_ID('dbo.CalcHddRetention') IS NOT NULL
-  DROP FUNCTION dbo.CalcHddRetention;
+IF OBJECT_ID('Hardware.CalcHddRetention') IS NOT NULL
+  DROP FUNCTION Hardware.CalcHddRetention;
 go 
 
-IF OBJECT_ID('dbo.CalcMaterialCostWar') IS NOT NULL
-  DROP FUNCTION dbo.CalcMaterialCostWar;
+IF OBJECT_ID('Hardware.CalcMaterialCostWar') IS NOT NULL
+  DROP FUNCTION Hardware.CalcMaterialCostWar;
 go 
 
-IF OBJECT_ID('dbo.CalcSrvSupportCost') IS NOT NULL
-  DROP FUNCTION dbo.CalcSrvSupportCost;
+IF OBJECT_ID('Hardware.CalcSrvSupportCost') IS NOT NULL
+  DROP FUNCTION Hardware.CalcSrvSupportCost;
 go 
 
-IF OBJECT_ID('dbo.CalcTaxAndDutiesWar') IS NOT NULL
-  DROP FUNCTION dbo.CalcTaxAndDutiesWar;
+IF OBJECT_ID('Hardware.CalcTaxAndDutiesWar') IS NOT NULL
+  DROP FUNCTION Hardware.CalcTaxAndDutiesWar;
 go 
 
-IF OBJECT_ID('dbo.CalcLocSrvStandardWarranty') IS NOT NULL
-  DROP FUNCTION dbo.CalcLocSrvStandardWarranty;
+IF OBJECT_ID('Hardware.CalcLocSrvStandardWarranty') IS NOT NULL
+  DROP FUNCTION Hardware.CalcLocSrvStandardWarranty;
 go 
-
-IF TYPE_ID('dbo.execError') IS NOT NULL
-  DROP Type dbo.execError;
-go
 
 IF OBJECT_ID('Hardware.UpdateFieldServiceCost') IS NOT NULL
     DROP PROCEDURE Hardware.UpdateFieldServiceCost;
@@ -146,47 +142,47 @@ IF OBJECT_ID('Atom.TaxAndDutiesView', 'V') IS NOT NULL
   DROP VIEW Atom.TaxAndDutiesView;
 go
 
-IF OBJECT_ID('dbo.CalcReinsuranceCost') IS NOT NULL
-  DROP FUNCTION dbo.CalcReinsuranceCost;
+IF OBJECT_ID('Hardware.CalcReinsuranceCost') IS NOT NULL
+  DROP FUNCTION Hardware.CalcReinsuranceCost;
 go 
 
-IF OBJECT_ID('dbo.CalcLogisticCost') IS NOT NULL
-  DROP FUNCTION dbo.CalcLogisticCost;
+IF OBJECT_ID('Hardware.CalcLogisticCost') IS NOT NULL
+  DROP FUNCTION Hardware.CalcLogisticCost;
 go 
 
-IF OBJECT_ID('dbo.CalcOtherDirectCost') IS NOT NULL
-  DROP FUNCTION dbo.CalcOtherDirectCost;
+IF OBJECT_ID('Hardware.CalcOtherDirectCost') IS NOT NULL
+  DROP FUNCTION Hardware.CalcOtherDirectCost;
 go 
 
-IF OBJECT_ID('dbo.CalcCredit') IS NOT NULL
-  DROP FUNCTION dbo.CalcCredit;
+IF OBJECT_ID('Hardware.CalcCredit') IS NOT NULL
+  DROP FUNCTION Hardware.CalcCredit;
 go 
 
-IF OBJECT_ID('dbo.CalcServiceTC') IS NOT NULL
-  DROP FUNCTION dbo.CalcServiceTC;
+IF OBJECT_ID('Hardware.CalcServiceTC') IS NOT NULL
+  DROP FUNCTION Hardware.CalcServiceTC;
 go 
 
-IF OBJECT_ID('dbo.CalcServiceTP') IS NOT NULL
-  DROP FUNCTION dbo.CalcServiceTP;
+IF OBJECT_ID('Hardware.CalcServiceTP') IS NOT NULL
+  DROP FUNCTION Hardware.CalcServiceTP;
 go 
 
-IF OBJECT_ID('dbo.AddMarkup') IS NOT NULL
-  DROP FUNCTION dbo.AddMarkup;
+IF OBJECT_ID('Hardware.AddMarkup') IS NOT NULL
+  DROP FUNCTION Hardware.AddMarkup;
 go 
 
-IF OBJECT_ID('dbo.CalcAvailabilityFee') IS NOT NULL
-  DROP FUNCTION dbo.CalcAvailabilityFee;
+IF OBJECT_ID('Hardware.CalcAvailabilityFee') IS NOT NULL
+  DROP FUNCTION Hardware.CalcAvailabilityFee;
 go 
 
-IF OBJECT_ID('dbo.CalcTISC') IS NOT NULL
-  DROP FUNCTION dbo.CalcTISC;
+IF OBJECT_ID('Hardware.CalcTISC') IS NOT NULL
+  DROP FUNCTION Hardware.CalcTISC;
 go 
 
-IF OBJECT_ID('dbo.CalcYI') IS NOT NULL
-  DROP FUNCTION dbo.CalcYI;
+IF OBJECT_ID('Hardware.CalcYI') IS NOT NULL
+  DROP FUNCTION Hardware.CalcYI;
 go 
 
-CREATE FUNCTION [dbo].[CalcYI](@grValue float, @deprMo float)
+CREATE FUNCTION [Hardware].[CalcYI](@grValue float, @deprMo float)
 RETURNS float
 AS
 BEGIN
@@ -198,7 +194,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION [dbo].[CalcTISC](
+CREATE FUNCTION [Hardware].[CalcTISC](
     @tisc float,
     @totalIB float,
     @totalIB_VENDOR float
@@ -214,7 +210,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION [dbo].[CalcAvailabilityFee](
+CREATE FUNCTION [Hardware].[CalcAvailabilityFee](
 	@kc float,
     @mq float,
     @tisc float,
@@ -233,7 +229,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION [dbo].[AddMarkup](
+CREATE FUNCTION [Hardware].[AddMarkup](
     @value float,
     @markupFactor float,
     @markup float
@@ -306,14 +302,14 @@ CREATE view [Hardware].[AvailabilityFeeCalcView] as
     , AvFeeCte2 as (
         select fee.*,
 
-               dbo.CalcYI(fee.StockValue, fee.AverageContractDuration) as YI,
+               Hardware.CalcYI(fee.StockValue, fee.AverageContractDuration) as YI,
           
-               dbo.CalcTISC(fee.TotalLogisticsInfrastructureCost, fee.Total_IB, fee.Total_IB_VENDOR) as TISC
+               Hardware.CalcTISC(fee.TotalLogisticsInfrastructureCost, fee.Total_IB, fee.Total_IB_VENDOR) as TISC
 
         from AvFeeCte fee
     )
     select fee.*, 
-           dbo.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) as Fee
+           Hardware.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) as Fee
     from AvFeeCte2 fee
 GO
 
@@ -354,7 +350,7 @@ CREATE VIEW Atom.TaxAndDutiesView as
     from Atom.TaxAndDuties
 GO
 
-CREATE FUNCTION [dbo].[CalcLogisticCost](
+CREATE FUNCTION [Hardware].[CalcLogisticCost](
 	@standardHandling float,
     @highAvailabilityHandling float,
     @standardDelivery float,
@@ -377,7 +373,7 @@ BEGIN
 END
 GO
 
-CREATE function [dbo].[CalcFieldServiceCost] (
+CREATE function [Hardware].[CalcFieldServiceCost] (
     @timeAndMaterialShare float,
     @travelCost float,
     @labourCost float,
@@ -398,7 +394,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION [dbo].[CalcHddRetention](@cost float, @fr float)
+CREATE FUNCTION [Hardware].[CalcHddRetention](@cost float, @fr float)
 RETURNS float
 AS
 BEGIN
@@ -406,7 +402,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION [dbo].[CalcMaterialCostWar](@cost float, @afr float)
+CREATE FUNCTION [Hardware].[CalcMaterialCostWar](@cost float, @afr float)
 RETURNS float
 AS
 BEGIN
@@ -414,7 +410,7 @@ BEGIN
 END
 GO
 
-CREATE function [dbo].[CalcSrvSupportCost] (
+CREATE function [Hardware].[CalcSrvSupportCost] (
     @firstLevelSupport float,
     @secondLevelSupport float,
     @ibCountry float,
@@ -431,7 +427,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION [dbo].[CalcTaxAndDutiesWar](@cost float, @tax float)
+CREATE FUNCTION [Hardware].[CalcTaxAndDutiesWar](@cost float, @tax float)
 RETURNS float
 AS
 BEGIN
@@ -439,7 +435,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION [dbo].[CalcLocSrvStandardWarranty](
+CREATE FUNCTION [Hardware].[CalcLocSrvStandardWarranty](
     @labourCost float,
     @travelCost float,
     @srvSupportCost float,
@@ -453,14 +449,14 @@ CREATE FUNCTION [dbo].[CalcLocSrvStandardWarranty](
 RETURNS float
 AS
 BEGIN
-    declare @totalCost float = dbo.AddMarkup(@labourCost + @travelCost + @srvSupportCost + @logisticCost, @markupFactor, @markup);
-    declare @fee float = dbo.AddMarkup(@availabilityFee, @markupFactor, @markup);
+    declare @totalCost float = Hardware.AddMarkup(@labourCost + @travelCost + @srvSupportCost + @logisticCost, @markupFactor, @markup);
+    declare @fee float = Hardware.AddMarkup(@availabilityFee, @markupFactor, @markup);
 
     return @afr * (@totalCost + @taxAndDutiesW) + @fee;
 END
 GO
 
-CREATE FUNCTION [dbo].[CalcOtherDirectCost](
+CREATE FUNCTION [Hardware].[CalcOtherDirectCost](
     @fieldSrvCost float,
     @srvSupportCost float,
     @materialCost float,
@@ -472,11 +468,11 @@ CREATE FUNCTION [dbo].[CalcOtherDirectCost](
 RETURNS float
 AS
 BEGIN
-    return dbo.AddMarkup(@fieldSrvCost + @srvSupportCost + @materialCost + @logisticCost + @reinsurance, @markupFactor, @markup);
+    return Hardware.AddMarkup(@fieldSrvCost + @srvSupportCost + @materialCost + @logisticCost + @reinsurance, @markupFactor, @markup);
 END
 GO
 
-CREATE FUNCTION [dbo].[CalcServiceTC](
+CREATE FUNCTION [Hardware].[CalcServiceTC](
     @fieldSrvCost float,
     @srvSupprtCost float,
     @materialCost float,
@@ -500,7 +496,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION [dbo].[CalcServiceTP](
+CREATE FUNCTION [Hardware].[CalcServiceTP](
     @serviceTC float,
     @markupFactor float,
     @markup float
@@ -508,7 +504,7 @@ CREATE FUNCTION [dbo].[CalcServiceTP](
 RETURNS float
 AS
 BEGIN
-	RETURN dbo.AddMarkup(@serviceTC, @markupFactor, @markup);
+	RETURN Hardware.AddMarkup(@serviceTC, @markupFactor, @markup);
 END
 GO
 
@@ -541,7 +537,7 @@ GO
 CREATE view [Hardware].[HddRetByDurationView] as 
      select wg.Id as WgID,
             d.Id as DurID, 
-            (select sum(dbo.CalcHddRetention(h.HddMaterialCost, h.HddFr / 100))
+            (select sum(Hardware.CalcHddRetention(h.HddMaterialCost, h.HddFr / 100))
                 from Hardware.HddRetention h
                 JOIN Dependencies.Year y on y.Id = h.Year
                 where h.Wg = wg.Id
@@ -654,7 +650,7 @@ CREATE VIEW [InputAtoms].[CountryClusterRegionView] as
     join cte cr on cr.Id = c.ClusterRegionId
 GO
 
-CREATE FUNCTION [dbo].[GetAfr](@wg bigint, @dur bigint)
+CREATE FUNCTION [Hardware].[GetAfr](@wg bigint, @dur bigint)
 RETURNS float
 AS
 BEGIN
@@ -668,7 +664,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION [dbo].[CalcReinsuranceCost](@fee float, @upliftFactor float, @exchangeRate float)
+CREATE FUNCTION [Hardware].[CalcReinsuranceCost](@fee float, @upliftFactor float, @exchangeRate float)
 RETURNS float
 AS
 BEGIN
@@ -676,7 +672,7 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION [dbo].[CalcCredit](@materialCost float, @warrantyCost float)
+CREATE FUNCTION [Hardware].[CalcCredit](@materialCost float, @warrantyCost float)
 RETURNS float
 AS
 BEGIN
@@ -689,7 +685,7 @@ CREATE VIEW [Hardware].[ReinsuranceView] as
            dur.DurID as  Duration,
            rta.AvailabilityId, 
            rta.ReactionTimeId,
-           dbo.CalcReinsuranceCost(r.ReinsuranceFlatfee, r.ReinsuranceUpliftFactor / 100, er.Value) as Cost
+           Hardware.CalcReinsuranceCost(r.ReinsuranceFlatfee, r.ReinsuranceUpliftFactor / 100, er.Value) as Cost
     FROM Hardware.Reinsurance r
     JOIN Dependencies.ReactionTime_Avalability rta on rta.Id = r.ReactionTimeAvailability
     JOIN Dependencies.Year y on y.Id = r.Year
@@ -720,7 +716,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE sc SET FieldServiceCost = dbo.CalcFieldServiceCost(
+    UPDATE sc SET FieldServiceCost = Hardware.CalcFieldServiceCost(
                                         fsc.TimeAndMaterialShare, 
                                         fsc.TravelCost, 
                                         fsc.LabourCost, 
@@ -762,7 +758,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE sc SET MaterialOow = dbo.CalcMaterialCostWar(mco.MaterialCostOow, afr.TotalAFR)
+    UPDATE sc SET MaterialOow = Hardware.CalcMaterialCostWar(mco.MaterialCostOow, afr.TotalAFR)
     FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
@@ -778,7 +774,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE sc SET MaterialW = dbo.CalcMaterialCostWar(mcw.MaterialCostWarranty, afr.TotalAFR)
+    UPDATE sc SET MaterialW = Hardware.CalcMaterialCostWar(mcw.MaterialCostWarranty, afr.TotalAFR)
     FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
@@ -794,7 +790,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE sc SET ServiceSupport = dur.Value * dbo.CalcSrvSupportCost(
+    UPDATE sc SET ServiceSupport = dur.Value * Hardware.CalcSrvSupportCost(
                                 ssc.[1stLevelSupportCostsCountry], 
                                 iif(c.IsImeia = 1, ssc.[2ndLevelSupportCostsClusterRegion], ssc.[2ndLevelSupportCostsLocal]), 
                                 ib.ibCnt, 
@@ -815,7 +811,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE sc SET TaxAndDutiesOow = dbo.CalcTaxAndDutiesWar(mco.MaterialCostOow, tax.TaxAndDuties)
+    UPDATE sc SET TaxAndDutiesOow = Hardware.CalcTaxAndDutiesWar(mco.MaterialCostOow, tax.TaxAndDuties)
     FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
@@ -831,7 +827,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
-        UPDATE sc SET TaxAndDutiesW = dbo.CalcTaxAndDutiesWar(mcw.MaterialCostWarranty, tax.TaxAndDuties)
+        UPDATE sc SET TaxAndDutiesW = Hardware.CalcTaxAndDutiesWar(mcw.MaterialCostWarranty, tax.TaxAndDuties)
         FROM Hardware.ServiceCostCalculation sc
         INNER JOIN Matrix m ON sc.MatrixId = m.Id
         INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
@@ -847,7 +843,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE sc SET Logistic = dbo.CalcLogisticCost(
+    UPDATE sc SET Logistic = Hardware.CalcLogisticCost(
                                lc.StandardHandling,
                                lc.HighAvailabilityHandling,
                                lc.StandardDelivery,
@@ -872,7 +868,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE sc SET OtherDirect = dbo.CalcOtherDirectCost(
+    UPDATE sc SET OtherDirect = Hardware.CalcOtherDirectCost(
                                     sc.FieldServiceCost, 
                                     sc.ServiceSupport, 
                                     1, 
@@ -897,7 +893,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE sc SET LocalServiceStandardWarranty = dbo.CalcLocSrvStandardWarranty(
+    UPDATE sc SET LocalServiceStandardWarranty = Hardware.CalcLocSrvStandardWarranty(
                                                     fsc.LabourCost,
                                                     fsc.TravelCost,
                                                     sc.ServiceSupport,
@@ -961,7 +957,7 @@ BEGIN
 	SET NOCOUNT ON;
 
     UPDATE Hardware.ServiceCostCalculation 
-            SET ServiceTC = dbo.CalcServiceTC(
+            SET ServiceTC = Hardware.CalcServiceTC(
                                 FieldServiceCost,
                                 ServiceSupport,
                                 MaterialW,
@@ -981,7 +977,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
-    UPDATE sc SET ServiceTP = dbo.CalcServiceTP(sc.ServiceTC, moc.MarkupFactor, moc.Markup)
+    UPDATE sc SET ServiceTP = Hardware.CalcServiceTP(sc.ServiceTC, moc.MarkupFactor, moc.Markup)
     FROM Hardware.ServiceCostCalculation sc
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     LEFT JOIN Atom.MarkupOtherCosts moc on moc.Wg = m.WgId and moc.Country = m.CountryId
