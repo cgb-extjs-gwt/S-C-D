@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="DataBaseScripts\Calculation\calculation.sql">
+    <None Update="DataBaseScripts\Calculation\calculation-hw.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
