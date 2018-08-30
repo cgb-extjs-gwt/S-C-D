@@ -294,30 +294,66 @@ select fee.Country,
 GO
 
 CREATE view [Hardware].[AvailabilityFeeCalcView] as 
-    with InstallByCountryCte as (
+     with InstallByCountryCte as (
         SELECT T.Country as CountryID, 
                T.Total_IB, 
+               T.Total_IB_Approved, 
+
                T.Total_IB - coalesce(T.Total_IB_MVS, 0) as Total_IB_FTS, 
+               T.Total_IB_Approved - coalesce(T.Total_IB_MVS_Approved, 0) as Total_IB_FTS_Approved, 
+
                T.Total_IB_MVS,
+               T.Total_IB_MVS_Approved,
+
                T.Total_KC_MQ_IB_FTS,
-               T.Total_KC_MQ_IB_MVS
+               T.Total_KC_MQ_IB_FTS_Approved,
+
+               T.Total_KC_MQ_IB_MVS,
+               T.Total_KC_MQ_IB_MVS_Approved
+
          FROM (
             select fee.Country, 
                    sum(fee.IB) as Total_IB, 
+                   sum(fee.IB_Approved) as Total_IB_Approved,
+                    
                    sum(fee.IsMultiVendor * fee.IB) as Total_IB_MVS,
+                   sum(fee.IsMultiVendor * fee.IB_Approved) as Total_IB_MVS_Approved,
+
                    sum(fee.IsMultiVendor * fee.CostPerKit / fee.MaxQty * fee.IB) as Total_KC_MQ_IB_MVS,
-                   sum((1 - fee.IsMultiVendor) * fee.CostPerKit / fee.MaxQty * fee.IB) as Total_KC_MQ_IB_FTS
+                   sum(fee.IsMultiVendor * fee.CostPerKit_Approved / fee.MaxQty_Approved * fee.IB_Approved) as Total_KC_MQ_IB_MVS_Approved,
+
+                   sum((1 - fee.IsMultiVendor) * fee.CostPerKit / fee.MaxQty * fee.IB) as Total_KC_MQ_IB_FTS,
+                   sum((1 - fee.IsMultiVendor) * fee.CostPerKit_Approved / fee.MaxQty_Approved * fee.IB_Approved) as Total_KC_MQ_IB_FTS_Approved
+
             from Hardware.AvailabilityFeeView fee
             group by fee.Country 
         ) T
     )
     , AvFeeCte as (
         select fee.*,
+
                ib.Total_IB,
+               ib.Total_IB_Approved,
 
-               iif(fee.IsMultiVendor = 1, ib.Total_IB_MVS, ib.Total_IB_FTS) as Total_IB_VENDOR,               
+               (case fee.IsMultiVendor 
+                    when 1 then ib.Total_IB_MVS
+                    else ib.Total_IB_FTS
+                end) as Total_IB_VENDOR,               
 
-               iif(fee.IsMultiVendor = 1, ib.Total_KC_MQ_IB_MVS, ib.Total_KC_MQ_IB_FTS) as Total_KC_MQ_IB_VENDOR
+               (case fee.IsMultiVendor 
+                    when 1 then ib.Total_IB_MVS_Approved
+                    else ib.Total_IB_FTS_Approved
+                end) as Total_IB_VENDOR_Approved,               
+
+               (case fee.IsMultiVendor
+                    when 1 then ib.Total_KC_MQ_IB_MVS
+                    else ib.Total_KC_MQ_IB_FTS
+                end) as Total_KC_MQ_IB_VENDOR,
+
+               (case fee.IsMultiVendor
+                    when 1 then ib.Total_KC_MQ_IB_MVS_Approved
+                    else ib.Total_KC_MQ_IB_FTS_Approved
+                end) as Total_KC_MQ_IB_VENDOR_Approved
 
         from Hardware.AvailabilityFeeView fee
         join InstallByCountryCte ib on ib.CountryID = fee.Country
@@ -326,13 +362,16 @@ CREATE view [Hardware].[AvailabilityFeeCalcView] as
         select fee.*,
 
                Hardware.CalcYI(fee.StockValue, fee.AverageContractDuration) as YI,
+               Hardware.CalcYI(fee.StockValue_Approved, fee.AverageContractDuration_Approved) as YI_Approved,
           
-               Hardware.CalcTISC(fee.TotalLogisticsInfrastructureCost, fee.Total_IB, fee.Total_IB_VENDOR) as TISC
+               Hardware.CalcTISC(fee.TotalLogisticsInfrastructureCost, fee.Total_IB, fee.Total_IB_VENDOR) as TISC,
+               Hardware.CalcTISC(fee.TotalLogisticsInfrastructureCost_Approved, fee.Total_IB_Approved, fee.Total_IB_VENDOR_Approved) as TISC_Approved
 
         from AvFeeCte fee
     )
     select fee.*, 
-           Hardware.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) as Fee
+           Hardware.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) as Fee,
+           Hardware.CalcAvailabilityFee(fee.CostPerKit_Approved, fee.MaxQty_Approved, fee.TISC_Approved, fee.YI_Approved, fee.Total_KC_MQ_IB_VENDOR_Approved) as Fee_Approved
     from AvFeeCte2 fee
 GO
 
