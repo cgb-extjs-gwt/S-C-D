@@ -355,12 +355,25 @@ CREATE VIEW [Hardware].[FieldServiceCostView] AS
             fsc.ServiceLocation,
             rt.ReactionTypeId,
             rt.ReactionTimeId,
+
             fsc.RepairTime,
+            fsc.RepairTime_Approved,
+            
             fsc.TravelTime,
+            fsc.TravelTime_Approved,
+
             fsc.LabourCost,
+            fsc.LabourCost_Approved,
+
             fsc.TravelCost,
+            fsc.TravelCost_Approved,
+
             fsc.PerformanceRate,
-            (fsc.TimeAndMaterialShare / 100) as TimeAndMaterialShare
+            fsc.PerformanceRate_Approved,
+
+            (fsc.TimeAndMaterialShare / 100) as TimeAndMaterialShare,
+            (fsc.TimeAndMaterialShare_Approved / 100) as TimeAndMaterialShare_Approved
+
     FROM Hardware.FieldServiceCost fsc
     JOIN InputAtoms.Wg on wg.Id = fsc.Wg
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = fsc.ReactionTimeType
@@ -554,30 +567,48 @@ create view [Atom].[AfrByDurationView] WITH SCHEMABINDING as
          InputAtoms.Wg wg
 GO
 
-CREATE view [Hardware].[HddFrByDurationView] as 
+CREATE view  [Hardware].[HddFrByDurationView] WITH SCHEMABINDING as 
      select wg.Id as WgID,
             d.Id as DurID, 
+
             (select sum(h.HddFr / 100) 
                 from Hardware.HddRetention h
                 JOIN Dependencies.Year y on y.Id = h.Year
                 where h.Wg = wg.Id
                        and y.IsProlongation = d.IsProlongation
-                       and y.Value <= d.Value) as TotalFr
-        from Dependencies.Duration d,
-             InputAtoms.Wg wg
-GO
+                       and y.Value <= d.Value) as TotalFr, 
 
-CREATE view [Hardware].[HddRetByDurationView] as 
-     select wg.Id as WgID,
-            d.Id as DurID, 
-            (select sum(Hardware.CalcHddRetention(h.HddMaterialCost, h.HddFr / 100))
+            (select sum(h.HddFr_Approved / 100) 
                 from Hardware.HddRetention h
                 JOIN Dependencies.Year y on y.Id = h.Year
                 where h.Wg = wg.Id
                        and y.IsProlongation = d.IsProlongation
-                       and y.Value <= d.Value) as HddRet
+                       and y.Value <= d.Value) as TotalFr_Approved
+
         from Dependencies.Duration d,
              InputAtoms.Wg wg
+GO
+
+CREATE view [Hardware].[HddRetByDurationView] WITH SCHEMABINDING as 
+     select wg.Id as WgID,
+            d.Id as DurID, 
+
+            (select sum(h.HddMaterialCost * h.HddFr / 100)
+                from Hardware.HddRetention h
+                JOIN Dependencies.Year y on y.Id = h.Year
+                where h.Wg = wg.Id
+                       and y.IsProlongation = d.IsProlongation
+                       and y.Value <= d.Value) as HddRet,
+
+            (select sum(h.HddMaterialCost_Approved * h.HddFr_Approved / 100)
+                from Hardware.HddRetention h
+                JOIN Dependencies.Year y on y.Id = h.Year
+                where h.Wg = wg.Id
+                       and y.IsProlongation = d.IsProlongation
+                       and y.Value <= d.Value) as HddRet_Approved
+
+     from Dependencies.Duration d,
+          InputAtoms.Wg wg
 go
 
 create  view [Atom].[InstallBaseByCountryView] WITH SCHEMABINDING as
@@ -613,12 +644,25 @@ CREATE VIEW [Hardware].[LogisticsCostView] AS
            lc.Wg, 
            rt.ReactionTypeId as ReactionType, 
            rt.ReactionTimeId as ReactionTime,
+           
            lc.StandardHandling,
+           lc.StandardHandling_Approved,
+
            lc.HighAvailabilityHandling,
+           lc.HighAvailabilityHandling_Approved,
+
            lc.StandardDelivery,
+           lc.StandardDelivery_Approved,
+
            lc.ExpressDelivery,
+           lc.ExpressDelivery_Approved,
+
            lc.TaxiCourierDelivery,
-           lc.ReturnDeliveryFactory
+           lc.TaxiCourierDelivery_Approved,
+
+           lc.ReturnDeliveryFactory,
+           lc.ReturnDeliveryFactory_Approved
+
     FROM Hardware.LogisticsCosts lc
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = lc.ReactionTimeType
 GO
@@ -729,15 +773,20 @@ GO
 
 CREATE VIEW [Hardware].[ReinsuranceView] as
     SELECT r.Wg, 
-           dur.DurID as  Duration,
+           dur.DurID as Duration,
            rta.AvailabilityId, 
            rta.ReactionTimeId,
-           Hardware.CalcReinsuranceCost(r.ReinsuranceFlatfee, r.ReinsuranceUpliftFactor / 100, er.Value) as Cost
+
+           Hardware.CalcReinsuranceCost(r.ReinsuranceFlatfee, r.ReinsuranceUpliftFactor / 100, er.Value) as Cost,
+           
+           Hardware.CalcReinsuranceCost(r.ReinsuranceFlatfee_Approved, r.ReinsuranceUpliftFactor_Approved / 100, er2.Value) as Cost_Approved
+
     FROM Hardware.Reinsurance r
     JOIN Dependencies.ReactionTime_Avalability rta on rta.Id = r.ReactionTimeAvailability
     JOIN Dependencies.Year y on y.Id = r.Year
     JOIN Dependencies.DurationToYearView dur on dur.YearID = y.Id
     JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance
+    JOIN [References].ExchangeRate er2 on er2.CurrencyId = r.CurrencyReinsurance_Approved
 GO
 
 CREATE PROCEDURE [Hardware].[UpdateReinsurance]

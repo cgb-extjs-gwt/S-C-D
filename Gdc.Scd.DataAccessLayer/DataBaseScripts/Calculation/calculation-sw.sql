@@ -90,21 +90,39 @@ CREATE VIEW [SoftwareSolution].[SwSpMaintenanceView] as
            ssm.SwLicense,
            ya.YearId as Year,
            ya.AvailabilityId as Availability,
-           ssm.[2ndLevelSupportCosts],
-           ssm.InstalledBaseSog,
            
-           iif(ssm.ReinsuranceFlatfee is null, 
-               ssm.ShareSwSpMaintenanceListPrice / 100 * ssm.RecommendedSwSpMaintenanceListPrice, 
-               ssm.ReinsuranceFlatfee * er.Value) as Reinsurance,
+           ssm.[2ndLevelSupportCosts],
+           ssm.[2ndLevelSupportCosts_Approved],
+
+           ssm.InstalledBaseSog,
+           ssm.InstalledBaseSog_Approved,
+           
+           (case ssm.ReinsuranceFlatfee 
+               when null then ssm.ShareSwSpMaintenanceListPrice / 100 * ssm.RecommendedSwSpMaintenanceListPrice 
+               else ssm.ReinsuranceFlatfee * er.Value
+            end) as Reinsurance,
+           
+           (case ssm.ReinsuranceFlatfee_Approved 
+               when null then ssm.ShareSwSpMaintenanceListPrice_Approved / 100 * ssm.RecommendedSwSpMaintenanceListPrice_Approved 
+               else ssm.ReinsuranceFlatfee_Approved * er2.Value
+            end) as Reinsurance_Approved,
           
            (ssm.ShareSwSpMaintenanceListPrice / 100) as ShareSwSpMaintenance,
+           (ssm.ShareSwSpMaintenanceListPrice_Approved / 100) as ShareSwSpMaintenance_Approved,
+
            ssm.RecommendedSwSpMaintenanceListPrice as MaintenanceListPrice,
+           ssm.RecommendedSwSpMaintenanceListPrice_Approved as MaintenanceListPrice_Approved,
+
            (ssm.MarkupForProductMarginSwLicenseListPrice / 100)  as MarkupForProductMargin,
-           (ssm.DiscountDealerPrice / 100) as DiscountDealerPrice
+           (ssm.MarkupForProductMarginSwLicenseListPrice_Approved / 100)  as MarkupForProductMargin_Approved,
+
+           (ssm.DiscountDealerPrice / 100) as DiscountDealerPrice,
+           (ssm.DiscountDealerPrice_Approved / 100) as DiscountDealerPrice_Approved
 
     FROM SoftwareSolution.SwSpMaintenance ssm
     JOIN Dependencies.Year_Availability ya on ya.Id = ssm.YearAvailability
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = ssm.CurrencyReinsurance
+    LEFT JOIN [References].ExchangeRate er2 on er2.CurrencyId = ssm.CurrencyReinsurance_Approved
 GO
 
 CREATE PROCEDURE [SoftwareSolution].[UpdateMaintenanceListPrice]
