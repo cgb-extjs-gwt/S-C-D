@@ -253,19 +253,42 @@ END
 GO
 
 CREATE view [Hardware].[AvailabilityFeeView] as 
-    select fee.Country,
+select fee.Country,
            fee.Wg,
            wg.IsMultiVendor, 
+           
            fee.InstalledBaseHighAvailability as IB,
+           fee.InstalledBaseHighAvailability_Approved as IB_Approved,
+           
            fee.TotalLogisticsInfrastructureCost,
+           fee.TotalLogisticsInfrastructureCost_Approved,
 
-           iif(wg.IsMultiVendor = 1, fee.StockValueMv, fee.StockValueFj) as StockValue,
+           (case wg.IsMultiVendor 
+                when 1 then fee.StockValueMv 
+                else fee.StockValueFj 
+            end) as StockValue,
+
+           (case wg.IsMultiVendor 
+                when 1 then fee.StockValueMv_Approved 
+                else fee.StockValueFj_Approved 
+            end) as StockValue_Approved,
        
            fee.AverageContractDuration,
+           fee.AverageContractDuration_Approved,
        
-           iif(fee.JapanBuy = 1, fee.CostPerKitJapanBuy, fee.CostPerKit) as CostPerKit,
+           (case fee.JapanBuy 
+                when 1 then fee.CostPerKitJapanBuy
+                else fee.CostPerKit
+            end) as CostPerKit,
        
-            fee.MaxQty
+           (case fee.JapanBuy 
+                when 1 then fee.CostPerKitJapanBuy_Approved
+                else fee.CostPerKit_Approved
+            end) as CostPerKit_Approved,
+       
+            fee.MaxQty,
+            fee.MaxQty_Approved
+
     from Hardware.AvailabilityFee fee
     join InputAtoms.Wg wg on wg.Id = fee.Wg
 GO
@@ -313,7 +336,7 @@ CREATE view [Hardware].[AvailabilityFeeCalcView] as
     from AvFeeCte2 fee
 GO
 
-CREATE VIEW [Dependencies].[DurationToYearView] as 
+CREATE VIEW [Dependencies].[DurationToYearView] WITH SCHEMABINDING as 
     select dur.Id as DurID,
            dur.Name as DurName,
            y.Id as YearID,
@@ -346,7 +369,8 @@ GO
 CREATE VIEW Atom.TaxAndDutiesView as
     select Wg,
            Country,
-           (TaxAndDuties / 100) as TaxAndDuties 
+           (TaxAndDuties / 100) as TaxAndDuties, 
+           (TaxAndDuties_Approved / 100) as TaxAndDuties_Approved 
     from Atom.TaxAndDuties
 GO
 
@@ -508,15 +532,24 @@ BEGIN
 END
 GO
 
-create view [Atom].[AfrByDurationView] as 
+create view [Atom].[AfrByDurationView] WITH SCHEMABINDING as 
     select wg.Id as WgID,
            d.Id as DurID, 
+
            (select sum(a.AFR / 100) 
             from Atom.AFR a
             JOIN Dependencies.Year y on y.Id = a.Year
             where a.Wg = wg.Id
                   and y.IsProlongation = d.IsProlongation
-                  and y.Value <= d.Value) as TotalAFR
+                  and y.Value <= d.Value) as TotalAFR,
+
+           (select sum(a.AFR_Approved / 100) 
+            from Atom.AFR a
+            JOIN Dependencies.Year y on y.Id = a.Year
+            where a.Wg = wg.Id
+                  and y.IsProlongation = d.IsProlongation
+                  and y.Value <= d.Value) as TotalAFR_Approved
+
     from Dependencies.Duration d,
          InputAtoms.Wg wg
 GO
@@ -547,7 +580,7 @@ CREATE view [Hardware].[HddRetByDurationView] as
              InputAtoms.Wg wg
 go
 
-create view [Atom].[InstallBaseByCountryView] as
+create  view [Atom].[InstallBaseByCountryView] WITH SCHEMABINDING as
 
     with InstallBasePlaCte (Country, Pla, totalIB)
     as
@@ -557,12 +590,22 @@ create view [Atom].[InstallBaseByCountryView] as
         where InstalledBaseCountry is not null
         group by Country, Pla
     )
+    , InstallBasePla_Approved_Cte (Country, Pla, totalIB)
+    as
+    (
+        select Country, Pla, sum(InstalledBaseCountry_Approved) as totalIB
+        from Atom.InstallBase 
+        where InstalledBaseCountry_Approved is not null
+        group by Country, Pla
+    )
     select ib.Wg,
             ib.Country,
             ib.InstalledBaseCountry as ibCnt,
-            ibp.totalIB as ib_Cnt_PLA
+            ibp.totalIB as ib_Cnt_PLA,
+            ibp2.totalIB as ib_Cnt_PLA_Approved
     from Atom.InstallBase ib
     LEFT JOIN InstallBasePlaCte ibp on ibp.Pla = ib.Pla and ibp.Country = ib.Country
+    LEFT JOIN InstallBasePla_Approved_Cte ibp2 on ibp2.Pla = ib.Pla and ibp2.Country = ib.Country
 GO
 
 CREATE VIEW [Hardware].[LogisticsCostView] AS
@@ -581,13 +624,15 @@ CREATE VIEW [Hardware].[LogisticsCostView] AS
 GO
 
 CREATE VIEW [Atom].[MarkupOtherCostsView] as 
-    select m.Country,
-           m.Wg,
-           tta.ReactionTimeId,
-           tta.ReactionTypeId,
-           tta.AvailabilityId,
-           m.Markup,
-           (m.MarkupFactor / 100) as MarkupFactor
+    select   m.Country
+           , m.Wg
+           , tta.ReactionTimeId
+           , tta.ReactionTypeId
+           , tta.AvailabilityId
+           , m.Markup
+           , m.Markup_Approved
+           , (m.MarkupFactor / 100) as MarkupFactor
+           , (m.MarkupFactor_Approved / 100) as MarkupFactor_Approved
     from Atom.MarkupOtherCosts m
     join Dependencies.ReactionTime_ReactionType_Avalability tta on tta.id = m.ReactionTimeTypeAvailability
 GO
@@ -599,7 +644,9 @@ CREATE VIEW [Atom].[MarkupStandardWarantyView] as
            tta.ReactionTypeId,
            tta.AvailabilityId,
            (m.MarkupFactorStandardWarranty / 100) as MarkupFactorStandardWarranty,
-           m.MarkupStandardWarranty
+           (m.MarkupFactorStandardWarranty_Approved / 100) as MarkupFactorStandardWarranty_Approved,
+           m.MarkupStandardWarranty,
+           m.MarkupStandardWarranty_Approved
     from Atom.MarkupStandardWaranty m
     join Dependencies.ReactionTime_ReactionType_Avalability tta on tta.id = m.ReactionTimeTypeAvailability
 GO

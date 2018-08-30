@@ -103,7 +103,7 @@ CREATE VIEW [SoftwareSolution].[SwSpMaintenanceView] as
            (ssm.DiscountDealerPrice / 100) as DiscountDealerPrice
 
     FROM SoftwareSolution.SwSpMaintenance ssm
-    JOIN Dependencies.YearAvailability ya on ya.Id = ssm.YearAvailability
+    JOIN Dependencies.Year_Availability ya on ya.Id = ssm.YearAvailability
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = ssm.CurrencyReinsurance
 GO
 

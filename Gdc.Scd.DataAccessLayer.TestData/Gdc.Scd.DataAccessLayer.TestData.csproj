@@ -5,6 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Calculation\calculation-hw.sql" Link="Scripts\calculation-hw.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Calculation\calculation-sw.sql" Link="Scripts\calculation-sw.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj" />
     <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj" />
     <ProjectReference Include="..\Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj" />
@@ -12,12 +21,6 @@
 
   <ItemGroup>
     <None Update="Scripts\availabilityFee.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Scripts\calculation-hw.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Scripts\calculation-sw.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Scripts\matrix.sql">
