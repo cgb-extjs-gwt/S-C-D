@@ -97,18 +97,15 @@ export default class RoleCodesGrid extends React.Component {
         });
     }
 
-    reloadStore = () => {
-        this.store.load();
-    }
-
     newRecord = () => {
         this.store.add(Ext.create('RoleCode', { id: 0, name: 'new' }));
+        this.saveRecords();
         this.setState({ disableNewButton: true });
     }
 
     deleteRecord = () => {
         this.store.remove(this.state.selectedRecord);
-        this.setState({ disableDeleteButton: true });
+        this.setState({ disableDeleteButton: true, disableNewButton: false });
     }
 
     selectRowHandler = (dataView, records, selected, selection) => {

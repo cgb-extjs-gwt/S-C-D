@@ -10,7 +10,7 @@ Ext.require([
 Ext.define('UserRole', {
     extend: 'Ext.data.Model',
     fields: [
-       'id', 'userId', 'countryId', 'roleId'
+        'id', 'userId', 'countryId', 'roleId'
     ]
 });
 
@@ -25,7 +25,7 @@ export default class RoleCodesGrid extends React.Component {
         disableDeleteButton: true,
         disableNewButton: false,
         selectedRecord: null,
-        
+
         storeUserReady: false,
         storeCountryReady: false,
         storeRoleReady: false,
@@ -42,16 +42,16 @@ export default class RoleCodesGrid extends React.Component {
         proxy: {
             type: 'ajax',
             writer: {
-                type: 'json',        
-                writeAllFields: true,             
+                type: 'json',
+                writeAllFields: true,
                 allowSingle: false,
                 idProperty: "id"
             },
             reader: {
-                type: 'json',        
+                type: 'json',
                 idProperty: "id"
-            },          
-            api: {             
+            },
+            api: {
                 create: '/api/userrole/SaveAll',
                 read: '/api/userrole/GetAll',
                 update: '/api/userrole/SaveAll',
@@ -61,7 +61,7 @@ export default class RoleCodesGrid extends React.Component {
         listeners: {
             update: (store, record, operation, modifiedFieldNames, details, eOpts) => {
                 const modifiedRecordsCount = this.store.getUpdatedRecords().length;
-                this.saveButtonHandler(modifiedRecordsCount);              
+                this.saveButtonHandler(modifiedRecordsCount);
             },
             datachanged: (store) => {
                 const modifiedRecordsCount = this.store.getModifiedRecords().length + this.store.getRemovedRecords().length;
@@ -81,7 +81,7 @@ export default class RoleCodesGrid extends React.Component {
 
     saveRecords = () => {
         this.store.sync({
-            scope:this,
+            scope: this,
 
             success: function (batch, options) {
                 this.setState({
@@ -95,7 +95,7 @@ export default class RoleCodesGrid extends React.Component {
             failure: (batch, options) => {
                 //TODO: show error
                 this.store.rejectChanges();
-            }      
+            }
         });
     }
 
@@ -107,8 +107,8 @@ export default class RoleCodesGrid extends React.Component {
         this.setState({ isVisibleForm: true, selectedRecord: info.record });
     }
 
-    onDeleteButtonClick = (grid, info)  => {
-        Ext.Msg.confirm("Confirmation", "Are you sure you want to do that?", ()=>this.deleteRecord(info.record))
+    onDeleteButtonClick = (grid, info) => {
+        Ext.Msg.confirm("Confirmation", "Are you sure you want to do that?", () => this.deleteRecord(info.record))
     }
 
     deleteRecord = (record) => {
@@ -286,48 +286,48 @@ export default class RoleCodesGrid extends React.Component {
             this.storeRole.load();
             return null;
         }
-       
+
         return (
-            <Container layout="fit">            
-            <Grid
-                title={'User roles'}
-                store={this.store}
-                cls="filter-grid"
-                columnLines={true}
-                shadow             
-            >
-                {this.getUserColumn()} 
-                {this.getCountryColumn()} 
-                {this.getRoleColumn()}  
-                <Column
-                    text="Actions"
-                    flex={1}                  
+            <Container layout="fit">
+                <Grid
+                    title={'User roles'}
+                    store={this.store}
+                    cls="filter-grid"
+                    columnLines={true}
+                    shadow
                 >
-                    <GridCell
-                        tools={{
-                            gear: {
-                                tooltip: "Edit",
-                                handler: this.onEditButtonClick
-                            },
-                            close: {
-                                tooltip: "Delete",
-                                handler: this.onDeleteButtonClick
-                            }
-                            }}
-                        value=""
-                        />
-                 </Column>
-                <Toolbar docked="top">   
-                    <Button
-                        text="New"
+                    {this.getUserColumn()}
+                    {this.getCountryColumn()}
+                    {this.getRoleColumn()}
+                    <Column
+                        text="Actions"
                         flex={1}
-                        iconCls="x-fa fa-plus"
-                        handler={this.onNewButtonClick}
-                        disabled={this.state.disableNewButton}                          
-                    />                 
-                </Toolbar>
-            </Grid>
-            {isVisibleForm &&
+                    >
+                        <GridCell
+                            tools={{
+                                gear: {
+                                    tooltip: "Edit",
+                                    handler: this.onEditButtonClick
+                                },
+                                close: {
+                                    tooltip: "Delete",
+                                    handler: this.onDeleteButtonClick
+                                }
+                            }}
+                            value=""
+                        />
+                    </Column>
+                    <Toolbar docked="top">
+                        <Button
+                            text="New"
+                            flex={1}
+                            iconCls="x-fa fa-plus"
+                            handler={this.onNewButtonClick}
+                            disabled={this.state.disableNewButton}
+                        />
+                    </Toolbar>
+                </Grid>
+                {isVisibleForm &&
                     <UserRoleDialog
                         store={this.store}
                         storeUser={this.storeUser}
@@ -338,9 +338,9 @@ export default class RoleCodesGrid extends React.Component {
                         isVisibleForm={isVisibleForm}
                         onHideDialog={this.onHideDialog}
                     />
-             }                  
+                }
             </Container>
-        )      
+        )
     }
 
 }
