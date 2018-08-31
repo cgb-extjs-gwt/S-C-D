@@ -734,7 +734,7 @@ CREATE VIEW [Atom].[MarkupStandardWarantyView] as
     join Dependencies.ReactionTime_ReactionType_Avalability tta on tta.id = m.ReactionTimeTypeAvailability
 GO
 
-CREATE VIEW [InputAtoms].[CountryClusterRegionView] as
+CREATE VIEW [InputAtoms].[CountryClusterRegionView] WITH SCHEMABINDING as
     with cte (id, IsImeia, IsJapan, IsAsia, IsLatinAmerica, IsOceania, IsUnitedStates) as (
         select cr.Id, 
                 (case UPPER(cr.Name)
@@ -768,14 +768,15 @@ CREATE VIEW [InputAtoms].[CountryClusterRegionView] as
                 end)
         from InputAtoms.ClusterRegion cr
     )
-    select c.Id, 
-            c.Name,
-            cr.IsAsia,
-            cr.IsImeia,
-            cr.IsJapan,
-            cr.IsLatinAmerica,
-            cr.IsOceania,
-            cr.IsUnitedStates
+    select c.Id,
+           c.Name,
+           c.ClusterRegionId,
+           cr.IsAsia,
+           cr.IsImeia,
+           cr.IsJapan,
+           cr.IsLatinAmerica,
+           cr.IsOceania,
+           cr.IsUnitedStates
     from InputAtoms.Country c
     join cte cr on cr.Id = c.ClusterRegionId
 GO
