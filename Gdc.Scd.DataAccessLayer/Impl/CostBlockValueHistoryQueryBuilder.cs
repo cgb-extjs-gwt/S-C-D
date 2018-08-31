@@ -64,18 +64,34 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return selectQuery;
         }
 
-        public SqlHelper BuildSelectJoinHistoryValueQuery(
-            CostBlockHistory history,
-            string inputLevelId,
-            InputLevelJoinType inputLevelJoinType,
-            long? historyValueId = null,
-            string valueColumnName = null)
+        public SqlHelper BuildSelectJoinApproveHistoryValueQuery(
+            CostBlockHistory history, 
+            long? historyValueId = null, 
+            string valueColumnName = null, 
+            string inputLevelIdAlias = "InputLevelId")
         {
+            string inputLevelId;
+            InputLevelJoinType inputLevelJoinType;
+
+            if (historyValueId.HasValue)
+            {
+                var costElement = this.domainMeta.GetCostElement(history.Context);
+                var inputLevel = costElement.InputLevels.Last();
+
+                inputLevelId = inputLevel.Id;
+                inputLevelJoinType = InputLevelJoinType.All;
+            }
+            else
+            {
+                inputLevelId = history.Context.InputLevelId;
+                inputLevelJoinType = InputLevelJoinType.HistoryContext;
+            }
+
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
             var inputLevelField = costBlockMeta.InputLevelFields[inputLevelId];
             var inputLevelMeta = (NamedEntityMeta)inputLevelField.ReferenceMeta;
 
-            var inputLevelIdColumn = new ColumnInfo(inputLevelMeta.IdField.Name, costBlockMeta.HistoryMeta.Name, "InputLevelId");
+            var inputLevelIdColumn = new ColumnInfo(inputLevelMeta.IdField.Name, costBlockMeta.HistoryMeta.Name, inputLevelIdAlias);
             var inputLevelAlias = this.GetAlias(costBlockMeta.HistoryMeta);
             var inputLevelNameColumn = new ColumnInfo(inputLevelMeta.NameField.Name, inputLevelAlias, "InputLevelName");
 
@@ -106,12 +122,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     new ColumnInfo(costBlockMeta.CreatedDateField.Name, costBlockMeta.Name),
                     new ColumnInfo(nameof(CostBlockHistory.EditDate), MetaConstants.CostBlockHistoryTableName));
 
-            var deletedDateCondition = ConditionHelper.OrBrackets(
-                SqlOperators.IsNull(costBlockMeta.DeletedDateField.Name, costBlockMeta.Name),
-                SqlOperators.GreaterOrEqual(new ColumnInfo(costBlockMeta.DeletedDateField.Name, costBlockMeta.Name),
-                    new ColumnInfo(nameof(CostBlockHistory.EditDate), MetaConstants.CostBlockHistoryTableName)));
-
-            var costBlockJoinCondition = ConditionHelper.And(createdDateCondition, deletedDateCondition);
+            var deletedDateCondition = SqlOperators.IsNull(costBlockMeta.DeletedDateField.Name, costBlockMeta.Name);
+            var costBlockJoinCondition = createdDateCondition.And(deletedDateCondition);
 
             if (options != null)
             {
@@ -155,7 +167,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             CostBlockHistory history, 
             TQuery query, 
             JoinHistoryValueQueryOptions options = null, 
-            long? historyValueId = null)
+            long? historyValueId = null,
+            ConditionHelper additionalWhere = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>
         {
             query = this.BuildJoinHistoryValueQuery(history.Context, query, options);
@@ -177,6 +190,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     costBlockMeta.HistoryMeta.Name));
             }
 
+            if (additionalWhere != null)
+            {
+                whereCondition = whereCondition.AndBrackets(additionalWhere);
+            }
+
             return query.Where(whereCondition);
         }
 
@@ -185,7 +203,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             TQuery query, 
             InputLevelJoinType inputLevelJoinType = InputLevelJoinType.HistoryContext, 
             IEnumerable<JoinInfo> joinInfos = null,
-            long? historyValueId = null)
+            long? historyValueId = null,
+            ConditionHelper additionalWhere = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>
         {
             var options = new JoinHistoryValueQueryOptions
@@ -195,7 +214,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 JoinInfos = joinInfos
             };
 
-            return this.BuildJoinHistoryValueQuery(history, query, options, historyValueId);
+            return this.BuildJoinHistoryValueQuery(history, query, options, historyValueId, additionalWhere);
         }
 
         private string GetAlias(BaseEntityMeta meta)

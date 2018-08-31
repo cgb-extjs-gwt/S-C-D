@@ -196,18 +196,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(CostBlockHistory history, long? historyValueId = null)
         {
-            IEnumerable<CostBlockValueHistory> result;
-
-            if (history.HasQualityGateErrors && historyValueId.HasValue)
-            {
-                result = await this.qualityGateRepository.GetApproveBundleDetailQualityGate(history, historyValueId.Value);
-            }
-            else
-            {
-                result = await this.costBlockValueHistoryRepository.GetApproveBundleDetail(history, historyValueId);
-            }
-
-            return result;
+            return await this.qualityGateRepository.GetApproveBundleDetailQualityGate(history, historyValueId);
         }
 
         public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(long costBlockHistoryId, long? historyValueId = null)

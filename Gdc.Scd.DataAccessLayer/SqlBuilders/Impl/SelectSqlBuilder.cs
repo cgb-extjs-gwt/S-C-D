@@ -15,7 +15,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
         {
             var distinct = this.IsDistinct ? "DISTINCT" : string.Empty;
 
-            var columns = string.Join(", ", this.Columns.Select(builder => builder.Build(context)));
+            var columns = this.Columns == null || !this.Columns.Any()
+                ? "*" 
+                : string.Join(", ", this.Columns.Select(builder => builder.Build(context)));
 
             return $"SELECT {distinct} {columns}";
         }

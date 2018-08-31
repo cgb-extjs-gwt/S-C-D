@@ -41,7 +41,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 reader => this.costBlockValueHistoryMapper.MapWithQualityGate(costBlockMeta, reader));
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetailQualityGate(CostBlockHistory history, long historyValueId)
+        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetailQualityGate(CostBlockHistory history, long? historyValueId = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
             var query = this.qualityGateQueryBuilder.BuildQulityGateHistoryQuery(history, historyValueId);

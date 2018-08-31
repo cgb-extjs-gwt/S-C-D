@@ -9,7 +9,10 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
     public interface ICostBlockValueHistoryQueryBuilder
     {
-        SelectJoinSqlHelper BuildSelectHistoryValueQuery(HistoryContext historyContext, IEnumerable<BaseColumnInfo> addingSelectColumns = null, string valueColumnName = null);
+        SelectJoinSqlHelper BuildSelectHistoryValueQuery(
+            HistoryContext historyContext, 
+            IEnumerable<BaseColumnInfo> addingSelectColumns = null, 
+            string valueColumnName = null);
 
         TQuery BuildJoinHistoryValueQuery<TQuery>(
             HistoryContext historyContext, 
@@ -21,7 +24,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
             CostBlockHistory history, 
             TQuery query, 
             JoinHistoryValueQueryOptions options = null,
-            long? historyValueId = null)
+            long? historyValueId = null,
+            ConditionHelper additionalWhere = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>;
 
         SqlHelper BuildJoinApproveHistoryValueQuery<TQuery>(
@@ -29,14 +33,14 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
             TQuery query, 
             InputLevelJoinType inputLevelJoinType = InputLevelJoinType.HistoryContext, 
             IEnumerable<JoinInfo> joinInfos = null,
-            long? historyValueId = null)
+            long? historyValueId = null,
+            ConditionHelper additionalWhere = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>;
 
-        SqlHelper BuildSelectJoinHistoryValueQuery(
-            CostBlockHistory history,
-            string inputLevelId,
-            InputLevelJoinType inputLevelJoinType,
-            long? historyValueId = null,
-            string valueColumnName = null);
+        SqlHelper BuildSelectJoinApproveHistoryValueQuery(
+            CostBlockHistory history, 
+            long? historyValueId = null, 
+            string valueColumnName = null, 
+            string inputLevelIdAlias = null);
     }
 }

@@ -83,24 +83,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(CostBlockHistory history, long? historyValueId = null)
         {
-            string inputLevelId;
-            InputLevelJoinType inputLevelJoinType;
-
-            if (historyValueId.HasValue)
-            {
-                var costElement = this.domainMeta.GetCostElement(history.Context);
-                var inputLevel = costElement.InputLevels.Last();
-
-                inputLevelId = inputLevel.Id;
-                inputLevelJoinType = InputLevelJoinType.All;
-            }
-            else
-            {
-                inputLevelId = history.Context.InputLevelId;
-                inputLevelJoinType = InputLevelJoinType.HistoryContext;
-            }
-
-            var query = this.historyQueryBuilder.BuildSelectJoinHistoryValueQuery(history, inputLevelId, inputLevelJoinType, historyValueId);
+            var query = this.historyQueryBuilder.BuildSelectJoinApproveHistoryValueQuery(history, historyValueId);
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
 
             return await this.repositorySet.ReadBySql(

@@ -37,6 +37,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private const string PeriodCoeffParam = "periodCoeff";
 
+        private const string CountryGroupAverageTable = "CountryGroupAverageTable";
+
+        private const string CountryGroupAverageColumn = "CountryGroupAverageColumn";
+
+        private const string CountryTable = "CountryTable";
+
+        private readonly string countryGroupIdColumnName = $"{nameof(CountryGroup)}{nameof(CountryGroup.Id)}";
+
         private readonly DomainMeta domainMeta;
 
         private readonly DomainEnitiesMeta domainEnitiesMeta;
@@ -55,31 +63,186 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             IEnumerable<EditItem> editItems,
             IDictionary<string, IEnumerable<object>> costBlockFilter)
         {
-            var newValuesQuery = this.BuildNewValuesQuery(editItems, historyContext.InputLevelId);
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
+            var costBlockJoinCondition =
+                SqlOperators.Equals(
+                    new ColumnInfo(historyContext.InputLevelId, NewValuesTable),
+                    new ColumnInfo(historyContext.InputLevelId, InnerQualityGateCostBlockTable))
+                            .And(SqlOperators.IsNull(costBlockMeta.DeletedDateField.Name, InnerQualityGateCostBlockTable));
 
-            return this.BuildQualityGateQuery(historyContext, costBlockFilter, newValuesQuery);
+            var innerQualityGateQuery =
+                this.BuildSelectInnerQualityGateQuery(historyContext)
+                    .FromQuery(this.BuildNewValuesQuery(editItems, historyContext.InputLevelId), NewValuesTable)
+                    .Join(costBlockMeta, costBlockJoinCondition, aliasMetaTable: InnerQualityGateCostBlockTable);
+
+            innerQualityGateQuery = this.BuildJoinCountryInnerQualityGateQuery(costBlockMeta, innerQualityGateQuery);
+
+            var selectCountryGroupAverageTableQuery = this.BuildSelectCountryGroupAverageTableQuery(historyContext);
+            var joinHistoryValueQueryOptions = new JoinHistoryValueQueryOptions
+            {
+                InputLevelJoinType = InputLevelJoinType.All,
+                JoinInfos = this.BuildCountryGroupAverageTableJoinInfos(costBlockMeta)
+            };
+            var countryGroupAverageTableQuery = 
+                this.historyQueryBuilder.BuildJoinHistoryValueQuery(historyContext, selectCountryGroupAverageTableQuery, joinHistoryValueQueryOptions)
+                                        .Where(this.BuildWhereCountryGroupAverageTableQuery(costBlockMeta, costBlockFilter));
+
+            var options = new QualityGateQueryOptions
+            {
+                InnerQualityGateQuery = innerQualityGateQuery.Where(costBlockFilter, InnerQualityGateCostBlockTable),
+                CountryGroupAverageTableQuery = this.BuildGroupByCountryGroupAverageTableQuery(historyContext, countryGroupAverageTableQuery)
+            };
+
+            return this.BuildQualityGateQuery(historyContext, options);
         }
 
         public SqlHelper BuildQulityGateHistoryQuery(
             CostBlockHistory history, 
-            long historyValueId,
+            long? historyValueId = null,
             IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
-            var newValuesQuery =
-                this.historyQueryBuilder.BuildSelectJoinHistoryValueQuery(
-                    history,
-                    MetaConstants.WgInputLevelName,
-                    InputLevelJoinType.HistoryContext,
-                    historyValueId,
-                    NewValueColumn);
+            const string GroupedByInputLevelTable = "GroupedByInputLevelTable";
+            const string ApproveHistoryValueTable = "ApproveHistoryValueTable";
 
-            return this.BuildQualityGateQuery(history.Context, costBlockFilter, newValuesQuery);
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+            var innerQualityGateQuery =
+                this.BuildSelectInnerQualityGateQuery(history.Context)
+                    .From(costBlockMeta);
+
+            innerQualityGateQuery = this.BuildJoinCountryInnerQualityGateQuery(costBlockMeta, innerQualityGateQuery);
+
+            var countryGroupAverageTableQuery = (GroupBySqlHelper)this.historyQueryBuilder.BuildJoinApproveHistoryValueQuery(
+                history,
+                this.BuildSelectCountryGroupAverageTableQuery(history.Context),
+                InputLevelJoinType.All,
+                this.BuildCountryGroupAverageTableJoinInfos(costBlockMeta),
+                historyValueId);
+
+            var options = new QualityGateQueryOptions
+            {
+                InnerQualityGateQuery = this.historyQueryBuilder.BuildJoinApproveHistoryValueQuery(
+                    history,
+                    innerQualityGateQuery,
+                    InputLevelJoinType.All,
+                    historyValueId: historyValueId),
+
+                CountryGroupAverageTableQuery = this.BuildGroupByCountryGroupAverageTableQuery(history.Context, countryGroupAverageTableQuery)
+            };
+
+            if (!historyValueId.HasValue)
+            {
+                options.ResultQualityGateTableAlias = "t";
+
+                var inputLevelColumn = new ColumnInfo(history.Context.InputLevelId, options.ResultQualityGateTableAlias, history.Context.InputLevelId);
+                var checkColumns = this.BuildQualityGateQueryCheckColumns(history.Context);
+                var innerColumns = new BaseColumnInfo[]
+                {
+                    SqlFunctions.Min(PeriodCheckColumn, options.ResultQualityGateTableAlias, PeriodCheckColumn),
+                    SqlFunctions.Min(CountryGroupCheckColumn, options.ResultQualityGateTableAlias, CountryGroupCheckColumn),
+                    inputLevelColumn
+                };
+                var columns = this.BuildQualityGateQueryColumns(history.Context, checkColumns).Concat(innerColumns);
+
+                options.ResultQuery =
+                    Sql.Select(columns.Select(column => column.Alias).ToArray())
+                       .FromQuery(
+                            Sql.Select(innerColumns)
+                               .From(options.ResultQualityGateTableAlias)
+                               .GroupBy(
+                                    inputLevelColumn,
+                                    new ColumnInfo(PeriodCheckColumn, options.ResultQualityGateTableAlias),
+                                    new ColumnInfo(CountryGroupCheckColumn, options.ResultQualityGateTableAlias)),
+                            GroupedByInputLevelTable)
+                       .Join(
+                            new AliasSqlBuilder
+                            {
+                                Alias = ApproveHistoryValueTable,
+                                Query = new BracketsSqlBuilder
+                                {
+                                    Query = this.historyQueryBuilder.BuildSelectJoinApproveHistoryValueQuery(history, inputLevelIdAlias: inputLevelColumn.Name)
+                                                                    .ToSqlBuilder()
+                                }
+                            },
+                            SqlOperators.Equals(
+                                new ColumnInfo(inputLevelColumn.Name, ApproveHistoryValueTable), 
+                                new ColumnInfo(inputLevelColumn.Name, GroupedByInputLevelTable)),
+                            JoinType.Left);
+            }
+
+            return this.BuildQualityGateQuery(history.Context, options);
         }
 
-        private SqlHelper BuildQualityGateQuery(
-            HistoryContext historyContext,
-            IDictionary<string, IEnumerable<object>> costBlockFilter,
-            SqlHelper newValuesQuery)
+        private string BuildAlias(string column, string table)
+        {
+            return $"{table}_{column}";
+        }
+
+        private SqlHelper BuildQualityGateQuery(HistoryContext historyContext, QualityGateQueryOptions options)
+        {
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
+            var checkColumns = this.BuildQualityGateQueryCheckColumns(historyContext);
+
+            var columns = this.BuildQualityGateQueryColumns(historyContext, checkColumns);
+
+            var innerColumns =
+                costBlockMeta.DependencyFields.Select(field => new ColumnInfo(field.Name, InnerQualityGateTable))
+                                              .Concat(checkColumns.Cast<BaseColumnInfo>())
+                                              .ToList();
+
+            innerColumns.Add(new ColumnInfo(MetaConstants.WgInputLevelName, InnerQualityGateTable));
+            innerColumns.Add(new ColumnInfo(NewValueColumn, InnerQualityGateTable));
+            innerColumns.Add(new ColumnInfo(historyContext.InputLevelId, InnerQualityGateTable));
+
+            var falseValue = new RawSqlBuilder("0");
+            var whereCondition = SqlOperators.Equals(new ColumnSqlBuilder(PeriodCheckColumn, ResultQualityGateTable), falseValue)
+                                             .Or(SqlOperators.Equals(
+                                                 new ColumnSqlBuilder(CountryGroupCheckColumn, ResultQualityGateTable),
+                                                 falseValue));
+
+            var wgField = costBlockMeta.InputLevelFields[MetaConstants.WgInputLevelName];
+
+            var qualityQateResultQuery =
+                Sql.Select(columns.ToArray())
+                   .FromQuery(
+                       Sql.Select(innerColumns.ToArray())
+                           .FromQuery(options.InnerQualityGateQuery, InnerQualityGateTable),
+                       ResultQualityGateTable)
+                   .Join(costBlockMeta, wgField.Name, metaTableAlias: ResultQualityGateTable)
+                   .Join(costBlockMeta.DependencyFields.Select(field => new JoinInfo(costBlockMeta, field.Name, metaTableAlias: ResultQualityGateTable)))
+                   .Where(whereCondition)
+                   .ToSqlBuilder();
+
+            var withCountryGroupAverageTable = new WithQuery
+            {
+                Name = CountryGroupAverageTable,
+                ColumnNames = this.BuildCountryGroupAverageColumns(historyContext).Select(column => column.Alias),
+                Query = options.CountryGroupAverageTableQuery.ToSqlBuilder()
+            };
+
+            SqlHelper query;
+
+            if (options.ResultQuery == null)
+            {
+                query = Sql.With(qualityQateResultQuery, withCountryGroupAverageTable);
+            }
+            else
+            {
+                query = Sql.With(
+                    options.ResultQuery,
+                    withCountryGroupAverageTable,
+                    new WithQuery
+                    {
+                        Name = options.ResultQualityGateTableAlias,
+                        ColumnNames = columns.Select(column => column.Alias).ToArray(),
+                        Query = qualityQateResultQuery
+                    });
+            }
+
+
+            return query;
+        }
+
+        private QueryColumnInfo[] BuildQualityGateQueryCheckColumns(HistoryContext historyContext)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
             var qualityGate = this.domainMeta.CostBlocks[historyContext.CostBlockId].QualityGate;
@@ -99,50 +262,44 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     qualityGate.CountryGroupCoeff,
                     CountryGroupCoeffParam);
 
-            var checkColumns = new List<BaseColumnInfo> { periodCheckColumn, countryGroupCheckColumn };
+           return new [] { periodCheckColumn, countryGroupCheckColumn };
+        }
 
-            var falseValue = new RawSqlBuilder("0");
-            var whereCondition = SqlOperators.Equals(new ColumnSqlBuilder(PeriodCheckColumn, ResultQualityGateTable), falseValue)
-                                             .Or(SqlOperators.Equals(
-                                                 new ColumnSqlBuilder(CountryGroupCheckColumn, ResultQualityGateTable),
-                                                 falseValue));
-
+        private List<ColumnInfo> BuildQualityGateQueryColumns(HistoryContext historyContext, IEnumerable<BaseColumnInfo> checkColumns)
+        {
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
+            
+            
             var wgField = costBlockMeta.InputLevelFields[MetaConstants.WgInputLevelName];
             var columns = new List<ColumnInfo>
             {
-                new ColumnInfo(NewValueColumn, ResultQualityGateTable),
-                new ColumnInfo(MetaConstants.IdFieldKey, wgField.ReferenceMeta.Name),
-                new ColumnInfo(MetaConstants.NameFieldKey, wgField.ReferenceMeta.Name)
+                new ColumnInfo(NewValueColumn, ResultQualityGateTable, this.BuildAlias(NewValueColumn, ResultQualityGateTable)),
+                new ColumnInfo(MetaConstants.IdFieldKey, wgField.ReferenceMeta.Name, this.BuildAlias(MetaConstants.IdFieldKey, wgField.ReferenceMeta.Name)),
+                new ColumnInfo(MetaConstants.NameFieldKey, wgField.ReferenceMeta.Name, this.BuildAlias(MetaConstants.NameFieldKey, wgField.ReferenceMeta.Name))
             };
 
             columns.AddRange(costBlockMeta.DependencyFields.SelectMany(field => new[]
             {
-                new ColumnInfo(MetaConstants.IdFieldKey, field.ReferenceMeta.Name),
-                new ColumnInfo(MetaConstants.NameFieldKey, field.ReferenceMeta.Name)
+                new ColumnInfo(MetaConstants.IdFieldKey, field.ReferenceMeta.Name, this.BuildAlias(MetaConstants.IdFieldKey, wgField.ReferenceMeta.Name)),
+                new ColumnInfo(MetaConstants.NameFieldKey, field.ReferenceMeta.Name, this.BuildAlias(MetaConstants.NameFieldKey, wgField.ReferenceMeta.Name))
             }));
 
-            columns.AddRange(checkColumns.Select(column => new ColumnInfo(column.Alias, ResultQualityGateTable)));
+            columns.AddRange(checkColumns.Select(column => new ColumnInfo(column.Alias, ResultQualityGateTable, this.BuildAlias(column.Alias, ResultQualityGateTable))));
+            columns.Add(new ColumnInfo(historyContext.InputLevelId, ResultQualityGateTable, this.BuildAlias(historyContext.InputLevelId, ResultQualityGateTable)));
 
-            var innerColumns =
-                costBlockMeta.DependencyFields.Select(field => new ColumnInfo(field.Name, InnerQualityGateTable))
-                                              .Concat(checkColumns)
-                                              .ToList();
+            return columns;
+        }
 
-            innerColumns.Add(new ColumnInfo(MetaConstants.WgInputLevelName, InnerQualityGateTable));
-            innerColumns.Add(new ColumnInfo(NewValueColumn, InnerQualityGateTable));
+        private BaseColumnInfo[] BuildCountryGroupAverageColumns(HistoryContext historyContext)
+        {
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
 
-            var query =
-                Sql.Select(columns.ToArray())
-                   .FromQuery(
-                        Sql.Select(innerColumns.ToArray())
-                           .FromQuery(
-                                this.BuildInnerQualityGateQuery(historyContext, costBlockFilter, newValuesQuery),
-                                InnerQualityGateTable),
-                        ResultQualityGateTable)
-                   .Join(costBlockMeta, wgField.Name, metaTableAlias: ResultQualityGateTable)
-                   .Join(costBlockMeta.DependencyFields.Select(field => new JoinInfo(costBlockMeta, field.Name, metaTableAlias: ResultQualityGateTable)));
-
-            return query.Where(whereCondition);
+            return new BaseColumnInfo[]
+            {
+                new ColumnInfo(this.countryGroupIdColumnName, CountryTable, this.countryGroupIdColumnName),
+                new ColumnInfo(MetaConstants.WgInputLevelName, costBlockMeta.Name, MetaConstants.WgInputLevelName),
+                SqlFunctions.Average(historyContext.CostElementId, costBlockMeta.HistoryMeta.Name, CountryGroupAverageColumn)
+            };
         }
 
         private SqlHelper BuildNewValuesQuery(IEnumerable<EditItem> items, string idColumnAlias)
@@ -171,53 +328,53 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 editItemColumns.Select(columns => Sql.Select(columns.Id, columns.Value).ToSqlBuilder()));
         }
 
-        private SqlHelper BuildCountryGroupQualityGateQuery(
-            ColumnInfo wgColumn,
-            HistoryContext historyContext,
-            IDictionary<string, IEnumerable<object>> costBlockFilter)
+        private IEnumerable<JoinInfo> BuildCountryGroupAverageTableJoinInfos(CostBlockEntityMeta costBlockMeta)
         {
-            const string QualityGateCountryTable = "QualityGateCountryTable";
-
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
-            var query =
-                Sql.Select(SqlFunctions.Average(historyContext.CostElementId, costBlockMeta.HistoryMeta.Name))
-                   .From(costBlockMeta.HistoryMeta);
-
-            var options = new JoinHistoryValueQueryOptions
+            return new[]
             {
-                InputLevelJoinType = InputLevelJoinType.All
+                new JoinInfo
+                {
+                    Meta = costBlockMeta,
+                    ReferenceFieldName = MetaConstants.CountryInputLevelName,
+                    JoinedTableAlias = CountryTable
+                }
             };
-
-            query =
-                this.historyQueryBuilder.BuildJoinHistoryValueQuery(historyContext, query, options)
-                                        .Join(costBlockMeta, MetaConstants.CountryInputLevelName, QualityGateCountryTable);
-
-            var filter = new Dictionary<string, IEnumerable<object>>(costBlockFilter);
-            filter.Remove(MetaConstants.CountryInputLevelName);
-
-            var countryGroupIdColumnName = $"{nameof(CountryGroup)}{nameof(CountryGroup.Id)}";
-
-            var whereCondition =
-                ConditionHelper.AndStatic(filter, costBlockMeta.Name)
-                               .And(SqlOperators.Equals(
-                                   new ColumnInfo(countryGroupIdColumnName, QualityGateCountryTable),
-                                   new ColumnInfo(countryGroupIdColumnName, InnerQualityGateCountryTable)))
-                               .And(SqlOperators.Equals(
-                                   wgColumn,
-                                   new ColumnInfo(MetaConstants.WgInputLevelName, costBlockMeta.Name)))
-                               .And(SqlOperators.Equals(
-                                   nameof(CostBlockHistory.State), 
-                                   "costBlockHistoryState", 
-                                   (int)CostBlockHistoryState.Approved, 
-                                   MetaConstants.CostBlockHistoryTableName));
-
-            return query.Where(whereCondition);
         }
 
-        private SqlHelper BuildInnerQualityGateQuery(
+        private SelectJoinSqlHelper BuildSelectCountryGroupAverageTableQuery(HistoryContext historyContext)
+        {
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
+
+            return Sql.Select(this.BuildCountryGroupAverageColumns(historyContext))
+                      .From(costBlockMeta.HistoryMeta);
+        }
+
+        private ConditionHelper BuildWhereCountryGroupAverageTableQuery(CostBlockEntityMeta costBlockMeta, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
+        {
+            var whereCondition = SqlOperators.Equals(
+                nameof(CostBlockHistory.State),
+                "costBlockHistoryState",
+                (int)CostBlockHistoryState.Approved,
+                MetaConstants.CostBlockHistoryTableName);
+
+            if (costBlockFilter != null && costBlockFilter.Count > 0)
+            {
+                whereCondition = whereCondition.And(costBlockFilter, costBlockMeta.Name);
+            }
+
+            return whereCondition;
+        }
+
+        private SqlHelper BuildGroupByCountryGroupAverageTableQuery(
             HistoryContext historyContext,
-            IDictionary<string, IEnumerable<object>> costBlockFilter,
-            SqlHelper newValueQuery)
+            GroupBySqlHelper query)
+        {
+            var columns = this.BuildCountryGroupAverageColumns(historyContext);
+
+            return query.GroupBy(columns.OfType<ColumnInfo>().ToArray());
+        }
+
+        private SelectSqlHelper BuildSelectInnerQualityGateQuery(HistoryContext historyContext)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
             var coordinateColumns =
@@ -238,22 +395,26 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             columns.Add(new QueryColumnInfo
             {
                 Alias = CountryGroupAvgColumn,
-                Query = this.BuildCountryGroupQualityGateQuery(wgColumn, historyContext, costBlockFilter).ToSqlBuilder()
+                Query =
+                    Sql.Select(CountryGroupAverageColumn)
+                       .From(CountryGroupAverageTable)
+                       .Where(ConditionHelper.And(
+                           SqlOperators.Equals(
+                               new ColumnInfo(this.countryGroupIdColumnName, CountryGroupAverageTable),
+                               new ColumnInfo(this.countryGroupIdColumnName, InnerQualityGateCountryTable)),
+                           SqlOperators.Equals(
+                               wgColumn,
+                               new ColumnInfo(MetaConstants.WgInputLevelName, CountryGroupAverageTable))))
+                       .ToSqlBuilder()
             });
 
-            var costBlockJoinCondition =
-                SqlOperators.Equals(
-                    new ColumnInfo(historyContext.InputLevelId, NewValuesTable),
-                    new ColumnInfo(historyContext.InputLevelId, InnerQualityGateCostBlockTable))
-                            .And(SqlOperators.IsNull(costBlockMeta.DeletedDateField.Name, InnerQualityGateCostBlockTable));
+            return
+                 Sql.Select(columns.ToArray());
+        }
 
-            var query =
-                Sql.Select(columns.ToArray())
-                   .FromQuery(newValueQuery, NewValuesTable)
-                   .Join(costBlockMeta, costBlockJoinCondition, aliasMetaTable: InnerQualityGateCostBlockTable)
-                   .Join(costBlockMeta, MetaConstants.CountryInputLevelName, InnerQualityGateCountryTable, InnerQualityGateCostBlockTable);
-
-            return query.Where(costBlockFilter, InnerQualityGateCostBlockTable);
+        private SelectJoinSqlHelper BuildJoinCountryInnerQualityGateQuery(CostBlockEntityMeta costBlockMeta, SelectJoinSqlHelper query)
+        {
+            return query.Join(costBlockMeta, MetaConstants.CountryInputLevelName, InnerQualityGateCountryTable, InnerQualityGateCostBlockTable);
         }
 
         private QueryColumnInfo BuildCheckResultColumn(
@@ -293,6 +454,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     Else = new RawSqlBuilder("1")
                 }
             };
+        }
+
+        private class QualityGateQueryOptions
+        {
+            public SqlHelper InnerQualityGateQuery { get; set; }
+
+            public SqlHelper CountryGroupAverageTableQuery { get; set; }
+
+            public SqlHelper ResultQuery { get; set; }
+
+            public string ResultQualityGateTableAlias { get; set; }
         }
     }
 }
