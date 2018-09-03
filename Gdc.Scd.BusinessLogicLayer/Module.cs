@@ -27,6 +27,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<CountryGroup>();
             services.RegisterEntity<Pla>();
             services.RegisterEntity<Wg>();
+            services.RegisterEntity<Sog>();
             services.RegisterEntity<Availability>();
             services.RegisterEntity<Year>();
             services.RegisterEntity<Duration>();
@@ -43,6 +44,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<CapabilityMatrixCountryAllowView>();
             services.RegisterEntity<RoleCode>();
             services.RegisterEntity<HardwareCalculationResult>();
+            services.RegisterEntity<SoftwareCalculationResult>();
             services.RegisterEntity<Currency>();
             services.RegisterEntity<ExchangeRate>();
             services.RegisterEntity<YearAvailability>();

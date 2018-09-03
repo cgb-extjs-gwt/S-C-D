@@ -55,10 +55,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateUsers();
             this.CreateReactionTimeTypeAvalability();
             this.CreateClusterRegions();
+            this.CreateCurrenciesAndExchangeRates();
             this.CreateCountries();
             this.CreateDurations();
             this.CreateYearAvailability();
-            this.CreateCurrenciesAndExchangeRates();
             
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
@@ -1101,6 +1101,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var len = names.Length;
             var result = new Country[len];
 
+            var eur = repositorySet.GetRepository<Currency>()
+                                       .GetAll()
+                                       .First(x => x.Name.ToUpper() == "EUR");
+
             for (var i = 0; i < len; i++)
             {
                 result[i] = new Country
@@ -1109,7 +1113,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     CanOverrideListAndDealerPrices = GenerateRandomBool(),
                     CanOverrideTransferCostAndPrice = GenerateRandomBool(),
                     ShowDealerPrice = GenerateRandomBool(),
-                    ClusterRegionId = 2
+                    ClusterRegionId = 2,
+                    Currency = eur
                 };
             }
 
