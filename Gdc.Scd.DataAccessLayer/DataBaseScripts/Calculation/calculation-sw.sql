@@ -1,22 +1,6 @@
-﻿IF OBJECT_ID('SoftwareSolution.UpdateMaintenanceListPrice') IS NOT NULL
-    DROP PROCEDURE SoftwareSolution.UpdateMaintenanceListPrice;
-go
-
-IF OBJECT_ID('SoftwareSolution.UpdateDealerPrice') IS NOT NULL
-    DROP PROCEDURE SoftwareSolution.UpdateDealerPrice;
-go
-
-IF OBJECT_ID('SoftwareSolution.UpdateReinsurance') IS NOT NULL
-    DROP PROCEDURE SoftwareSolution.UpdateReinsurance;
-go
-
-IF OBJECT_ID('SoftwareSolution.UpdateSrvSupport') IS NOT NULL
-    DROP PROCEDURE SoftwareSolution.UpdateSrvSupport;
-go
-
-IF OBJECT_ID('SoftwareSolution.UpdateTransferPrice') IS NOT NULL
-    DROP PROCEDURE SoftwareSolution.UpdateTransferPrice;
-go
+﻿IF OBJECT_ID('SoftwareSolution.GetCalcResult') IS NOT NULL
+  DROP FUNCTION SoftwareSolution.GetCalcResult;
+go 
 
 IF OBJECT_ID('SoftwareSolution.CalcDealerPrice') IS NOT NULL
   DROP FUNCTION SoftwareSolution.CalcDealerPrice;
@@ -125,81 +109,115 @@ CREATE VIEW [SoftwareSolution].[SwSpMaintenanceView] as
     LEFT JOIN [References].ExchangeRate er2 on er2.CurrencyId = ssm.CurrencyReinsurance_Approved
 GO
 
-CREATE PROCEDURE [SoftwareSolution].[UpdateMaintenanceListPrice]
+CREATE FUNCTION [SoftwareSolution].[GetCalcResult](
+    @cnt bigint,
+    @sog bigint,
+    @av bigint,
+    @year bigint
+)
+RETURNS TABLE
 AS
-BEGIN
+RETURN 
+    with cte as
+    (
+        select  ib.Country,
+                m.Sog,
+                m.Year,
+                m.Availability,
 
-	SET NOCOUNT ON;
+                m.MaintenanceListPrice,
+                m.MaintenanceListPrice_Approved,
 
-    update calc
-           set MaintenanceListPrice = iif(m.MaintenanceListPrice is null, 
-                                          SoftwareSolution.CalcMaintenanceListPrice(calc.TransferPrice, m.MarkupForProductMargin),
-                                          m.MaintenanceListPrice)
-    from SoftwareSolution.SwSpCostCalculation calc
-    LEFT JOIN SoftwareSolution.SwSpMaintenanceView m on m.Sog = calc.SogId
-                                                        and m.Availability = calc.AvailabilityId
-                                                        and m.Year = calc.YearId;
-END
+                m.MarkupForProductMargin,
+                m.MarkupForProductMargin_Approved,
+
+                m.Reinsurance,
+                m.Reinsurance_Approved,
+
+                m.DiscountDealerPrice,
+                m.DiscountDealerPrice_Approved,
+
+                SoftwareSolution.CalcSrvSupportCost(
+                    ssc.[1stLevelSupportCosts],
+                    m.[2ndLevelSupportCosts],
+                    ib.ibCnt,
+                    m.InstalledBaseSog
+                ) as ServiceSupport,
+                SoftwareSolution.CalcSrvSupportCost(
+                    ssc.[1stLevelSupportCosts_Approved],
+                    m.[2ndLevelSupportCosts_Approved],
+                    ib.ibCnt_Approved,
+                    m.InstalledBaseSog_Approved
+                ) as ServiceSupport_Approved
+
+        FROM SoftwareSolution.SwSpMaintenanceView m,
+             Hardware.ServiceSupportCostView ssc,
+             Atom.InstallBaseByCountryView ib
+
+        WHERE       (@sog is null or m.Sog = @sog)
+                AND (@cnt is null or ib.Country = @cnt)
+                AND (@av is null or m.Availability = @av)
+                AND (@year is null or m.Year = @year)
+    )
+    , cte2 as
+    (
+        select calc.*,
+
+               SoftwareSolution.CalcTransferPrice(Reinsurance, ServiceSupport) as TransferPrice,
+               SoftwareSolution.CalcTransferPrice(Reinsurance_Approved, ServiceSupport_Approved) as TransferPrice_Approved
+        from cte as calc
+    )
+    , cte3 as 
+    (
+        select calc.Country,
+               calc.Sog,
+               calc.Year,
+               calc.Availability,
+
+               calc.DiscountDealerPrice,
+               calc.DiscountDealerPrice_Approved,
+
+               calc.Reinsurance,
+               calc.Reinsurance_Approved,
+
+               calc.ServiceSupport,
+               calc.ServiceSupport_Approved,
+
+               calc.TransferPrice,
+               calc.TransferPrice_Approved,
+
+               (case 
+                    when calc.MaintenanceListPrice is null then SoftwareSolution.CalcMaintenanceListPrice(calc.TransferPrice, calc.MarkupForProductMargin)
+                    else calc.MaintenanceListPrice
+                end) as MaintenanceListPrice,
+               (case 
+                    when calc.MaintenanceListPrice_Approved is null then SoftwareSolution.CalcMaintenanceListPrice(calc.TransferPrice_Approved, calc.MarkupForProductMargin_Approved)
+                    else calc.MaintenanceListPrice_Approved
+                end) as MaintenanceListPrice_Approved
+
+        from cte2 as calc
+    )
+    select calc.Country,
+           calc.Sog,
+           calc.Year,
+           calc.Availability,
+
+           calc.Reinsurance,
+           calc.Reinsurance_Approved,
+
+           calc.ServiceSupport,
+           calc.ServiceSupport_Approved,
+
+           calc.TransferPrice,
+           calc.TransferPrice_Approved,
+
+           calc.MaintenanceListPrice,
+           calc.MaintenanceListPrice_Approved,
+
+           SoftwareSolution.CalcDealerPrice(calc.MaintenanceListPrice, calc.DiscountDealerPrice) as DealerPrice,
+           SoftwareSolution.CalcDealerPrice(calc.MaintenanceListPrice_Approved, calc.DiscountDealerPrice_Approved) as DealerPrice_Approved
+
+    from cte3 as calc
 GO
 
-CREATE PROCEDURE [SoftwareSolution].[UpdateDealerPrice] 
-AS
-BEGIN
 
-	SET NOCOUNT ON;
-
-    update calc
-           set DealerPrice = SoftwareSolution.CalcDealerPrice(calc.MaintenanceListPrice, m.DiscountDealerPrice)
-    from SoftwareSolution.SwSpCostCalculation calc
-    LEFT JOIN SoftwareSolution.SwSpMaintenanceView m on m.Sog = calc.SogId
-                                                        and m.Availability = calc.AvailabilityId
-                                                        and m.Year = calc.YearId;
-END
-GO
-
-CREATE PROCEDURE [SoftwareSolution].[UpdateReinsurance]
-AS
-BEGIN
-
-	SET NOCOUNT ON;
-
-    update calc set Reinsurance = m.Reinsurance
-    from SoftwareSolution.SwSpCostCalculation calc
-    LEFT JOIN SoftwareSolution.SwSpMaintenanceView m on m.Sog = calc.SogId
-                                                        and m.Availability = calc.AvailabilityId
-                                                        and m.Year = calc.YearId;
-END
-GO
-
-CREATE PROCEDURE [SoftwareSolution].[UpdateSrvSupport]
-AS
-BEGIN
-
-    SET NOCOUNT ON;
-
-    UPDATE calc 
-           set ServiceSupport = SoftwareSolution.CalcSrvSupportCost(
-                                   ssc.[1stLevelSupportCostsCountry],
-                                   m.[2ndLevelSupportCosts],
-                                   ib.ibCnt,
-                                   m.InstalledBaseSog
-                                )
-    FROM SoftwareSolution.SwSpCostCalculation calc
-    LEFT JOIN Hardware.ServiceSupportCost ssc on ssc.Country = calc.CountryId
-    LEFT JOIN Atom.InstallBaseByCountryView ib on ib.Country = calc.CountryId
-    LEFT JOIN SoftwareSolution.SwSpMaintenanceView m on m.Sog = calc.SogId
-                                                        and m.Availability = calc.AvailabilityId
-                                                        and m.Year = calc.YearId
-END
-GO
-
-CREATE PROCEDURE [SoftwareSolution].[UpdateTransferPrice]
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    UPDATE SoftwareSolution.SwSpCostCalculation
-           set TransferPrice = SoftwareSolution.CalcTransferPrice(Reinsurance, ServiceSupport)
-
-END
-GO

@@ -1,5 +1,5 @@
-IF OBJECT_ID('Hardware.GetAfr') IS NOT NULL
-  DROP FUNCTION Hardware.GetAfr;
+IF OBJECT_ID('Hardware.GetCalcResult') IS NOT NULL
+  DROP FUNCTION Hardware.GetCalcResult;
 go 
 
 IF OBJECT_ID('Hardware.CalcFieldServiceCost') IS NOT NULL
@@ -26,72 +26,16 @@ IF OBJECT_ID('Hardware.CalcLocSrvStandardWarranty') IS NOT NULL
   DROP FUNCTION Hardware.CalcLocSrvStandardWarranty;
 go 
 
-IF OBJECT_ID('Hardware.UpdateFieldServiceCost') IS NOT NULL
-    DROP PROCEDURE Hardware.UpdateFieldServiceCost;
-go
-
-IF OBJECT_ID('Hardware.UpdateHddRetention') IS NOT NULL
-    DROP PROCEDURE Hardware.UpdateHddRetention;
-go
-
-IF OBJECT_ID('Hardware.UpdateMaterialOow') IS NOT NULL
-    DROP PROCEDURE Hardware.UpdateMaterialOow;
-go
-
-IF OBJECT_ID('Hardware.UpdateMaterialW') IS NOT NULL
-    DROP PROCEDURE Hardware.UpdateMaterialW;
-go
-
-IF OBJECT_ID('Hardware.UpdateSrvSupportCost') IS NOT NULL
-    DROP PROCEDURE Hardware.UpdateSrvSupportCost;
-go
-
-IF OBJECT_ID('Hardware.UpdateTaxAndDutiesOow') IS NOT NULL
-    DROP PROCEDURE Hardware.UpdateTaxAndDutiesOow;
-go
-
-IF OBJECT_ID('Hardware.UpdateTaxAndDutiesW') IS NOT NULL
-    DROP PROCEDURE Hardware.UpdateTaxAndDutiesW;
-go
-
-IF OBJECT_ID('Hardware.UpdateReinsurance') IS NOT NULL
-    DROP PROCEDURE Hardware.UpdateReinsurance;
-go
-
-IF OBJECT_ID('Hardware.UpdateLogisticCost') IS NOT NULL
-    DROP PROCEDURE Hardware.UpdateLogisticCost;
-go
-
-IF OBJECT_ID('Hardware.UpdateOtherDirectCost') IS NOT NULL
-    DROP PROCEDURE Hardware.UpdateOtherDirectCost;
-go
-
-IF OBJECT_ID('Hardware.UpdateLocalServiceStandardWarranty') IS NOT NULL
-    DROP PROCEDURE Hardware.UpdateLocalServiceStandardWarranty;
-go
-
-IF OBJECT_ID('Hardware.UpdateCredits') IS NOT NULL
-    DROP PROCEDURE Hardware.UpdateCredits;
-go
-
-IF OBJECT_ID('Hardware.UpdateAvailabilityFee') IS NOT NULL
-    DROP PROCEDURE Hardware.UpdateAvailabilityFee;
-go
-
-IF OBJECT_ID('Hardware.UpdateServiceTC') IS NOT NULL
-    DROP PROCEDURE Hardware.UpdateServiceTC;
-go
-
-IF OBJECT_ID('Hardware.UpdateServiceTP') IS NOT NULL
-    DROP PROCEDURE Hardware.UpdateServiceTP;
-go
-
 IF OBJECT_ID('Hardware.AvailabilityFeeCalcView', 'V') IS NOT NULL
   DROP VIEW Hardware.AvailabilityFeeCalcView;
 go
 
 IF OBJECT_ID('Hardware.AvailabilityFeeView', 'V') IS NOT NULL
   DROP VIEW Hardware.AvailabilityFeeView;
+go
+
+IF OBJECT_ID('Hardware.ServiceSupportCostView', 'V') IS NOT NULL
+  DROP VIEW Hardware.ServiceSupportCostView;
 go
 
 IF OBJECT_ID('Atom.AfrByDurationView', 'V') IS NOT NULL
@@ -140,6 +84,10 @@ go
 
 IF OBJECT_ID('Atom.TaxAndDutiesView', 'V') IS NOT NULL
   DROP VIEW Atom.TaxAndDutiesView;
+go
+
+IF OBJECT_ID('InputAtoms.WgView', 'V') IS NOT NULL
+  DROP VIEW InputAtoms.WgView;
 go
 
 IF OBJECT_ID('Hardware.CalcReinsuranceCost') IS NOT NULL
@@ -252,180 +200,6 @@ BEGIN
 END
 GO
 
-CREATE view [Hardware].[AvailabilityFeeView] as 
-select fee.Country,
-           fee.Wg,
-           wg.IsMultiVendor, 
-           
-           fee.InstalledBaseHighAvailability as IB,
-           fee.InstalledBaseHighAvailability_Approved as IB_Approved,
-           
-           fee.TotalLogisticsInfrastructureCost,
-           fee.TotalLogisticsInfrastructureCost_Approved,
-
-           (case wg.IsMultiVendor 
-                when 1 then fee.StockValueMv 
-                else fee.StockValueFj 
-            end) as StockValue,
-
-           (case wg.IsMultiVendor 
-                when 1 then fee.StockValueMv_Approved 
-                else fee.StockValueFj_Approved 
-            end) as StockValue_Approved,
-       
-           fee.AverageContractDuration,
-           fee.AverageContractDuration_Approved,
-       
-           (case fee.JapanBuy 
-                when 1 then fee.CostPerKitJapanBuy
-                else fee.CostPerKit
-            end) as CostPerKit,
-       
-           (case fee.JapanBuy 
-                when 1 then fee.CostPerKitJapanBuy_Approved
-                else fee.CostPerKit_Approved
-            end) as CostPerKit_Approved,
-       
-            fee.MaxQty,
-            fee.MaxQty_Approved
-
-    from Hardware.AvailabilityFee fee
-    join InputAtoms.Wg wg on wg.Id = fee.Wg
-GO
-
-CREATE view [Hardware].[AvailabilityFeeCalcView] as 
-     with InstallByCountryCte as (
-        SELECT T.Country as CountryID, 
-               T.Total_IB, 
-               T.Total_IB_Approved, 
-
-               T.Total_IB - coalesce(T.Total_IB_MVS, 0) as Total_IB_FTS, 
-               T.Total_IB_Approved - coalesce(T.Total_IB_MVS_Approved, 0) as Total_IB_FTS_Approved, 
-
-               T.Total_IB_MVS,
-               T.Total_IB_MVS_Approved,
-
-               T.Total_KC_MQ_IB_FTS,
-               T.Total_KC_MQ_IB_FTS_Approved,
-
-               T.Total_KC_MQ_IB_MVS,
-               T.Total_KC_MQ_IB_MVS_Approved
-
-         FROM (
-            select fee.Country, 
-                   sum(fee.IB) as Total_IB, 
-                   sum(fee.IB_Approved) as Total_IB_Approved,
-                    
-                   sum(fee.IsMultiVendor * fee.IB) as Total_IB_MVS,
-                   sum(fee.IsMultiVendor * fee.IB_Approved) as Total_IB_MVS_Approved,
-
-                   sum(fee.IsMultiVendor * fee.CostPerKit / fee.MaxQty * fee.IB) as Total_KC_MQ_IB_MVS,
-                   sum(fee.IsMultiVendor * fee.CostPerKit_Approved / fee.MaxQty_Approved * fee.IB_Approved) as Total_KC_MQ_IB_MVS_Approved,
-
-                   sum((1 - fee.IsMultiVendor) * fee.CostPerKit / fee.MaxQty * fee.IB) as Total_KC_MQ_IB_FTS,
-                   sum((1 - fee.IsMultiVendor) * fee.CostPerKit_Approved / fee.MaxQty_Approved * fee.IB_Approved) as Total_KC_MQ_IB_FTS_Approved
-
-            from Hardware.AvailabilityFeeView fee
-            group by fee.Country 
-        ) T
-    )
-    , AvFeeCte as (
-        select fee.*,
-
-               ib.Total_IB,
-               ib.Total_IB_Approved,
-
-               (case fee.IsMultiVendor 
-                    when 1 then ib.Total_IB_MVS
-                    else ib.Total_IB_FTS
-                end) as Total_IB_VENDOR,               
-
-               (case fee.IsMultiVendor 
-                    when 1 then ib.Total_IB_MVS_Approved
-                    else ib.Total_IB_FTS_Approved
-                end) as Total_IB_VENDOR_Approved,               
-
-               (case fee.IsMultiVendor
-                    when 1 then ib.Total_KC_MQ_IB_MVS
-                    else ib.Total_KC_MQ_IB_FTS
-                end) as Total_KC_MQ_IB_VENDOR,
-
-               (case fee.IsMultiVendor
-                    when 1 then ib.Total_KC_MQ_IB_MVS_Approved
-                    else ib.Total_KC_MQ_IB_FTS_Approved
-                end) as Total_KC_MQ_IB_VENDOR_Approved
-
-        from Hardware.AvailabilityFeeView fee
-        join InstallByCountryCte ib on ib.CountryID = fee.Country
-    )
-    , AvFeeCte2 as (
-        select fee.*,
-
-               Hardware.CalcYI(fee.StockValue, fee.AverageContractDuration) as YI,
-               Hardware.CalcYI(fee.StockValue_Approved, fee.AverageContractDuration_Approved) as YI_Approved,
-          
-               Hardware.CalcTISC(fee.TotalLogisticsInfrastructureCost, fee.Total_IB, fee.Total_IB_VENDOR) as TISC,
-               Hardware.CalcTISC(fee.TotalLogisticsInfrastructureCost_Approved, fee.Total_IB_Approved, fee.Total_IB_VENDOR_Approved) as TISC_Approved
-
-        from AvFeeCte fee
-    )
-    select fee.*, 
-           Hardware.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) as Fee,
-           Hardware.CalcAvailabilityFee(fee.CostPerKit_Approved, fee.MaxQty_Approved, fee.TISC_Approved, fee.YI_Approved, fee.Total_KC_MQ_IB_VENDOR_Approved) as Fee_Approved
-    from AvFeeCte2 fee
-GO
-
-CREATE VIEW [Dependencies].[DurationToYearView] WITH SCHEMABINDING as 
-    select dur.Id as DurID,
-           dur.Name as DurName,
-           y.Id as YearID,
-           y.Name as YearName,
-           dur.Value,
-           dur.IsProlongation
-    from Dependencies.Duration dur
-    join Dependencies.Year y on dur.Value = y.Value and dur.IsProlongation = y.IsProlongation
-GO
-
-CREATE VIEW [Hardware].[FieldServiceCostView] AS
-    SELECT  fsc.Country,
-            fsc.Wg,
-            wg.IsMultiVendor,
-            wg.RoleCodeId,
-            fsc.ServiceLocation,
-            rt.ReactionTypeId,
-            rt.ReactionTimeId,
-
-            fsc.RepairTime,
-            fsc.RepairTime_Approved,
-            
-            fsc.TravelTime,
-            fsc.TravelTime_Approved,
-
-            fsc.LabourCost,
-            fsc.LabourCost_Approved,
-
-            fsc.TravelCost,
-            fsc.TravelCost_Approved,
-
-            fsc.PerformanceRate,
-            fsc.PerformanceRate_Approved,
-
-            (fsc.TimeAndMaterialShare / 100) as TimeAndMaterialShare,
-            (fsc.TimeAndMaterialShare_Approved / 100) as TimeAndMaterialShare_Approved
-
-    FROM Hardware.FieldServiceCost fsc
-    JOIN InputAtoms.Wg on wg.Id = fsc.Wg
-    JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = fsc.ReactionTimeType
-GO
-
-CREATE VIEW Atom.TaxAndDutiesView as
-    select Wg,
-           Country,
-           (TaxAndDuties / 100) as TaxAndDuties, 
-           (TaxAndDuties_Approved / 100) as TaxAndDuties_Approved 
-    from Atom.TaxAndDuties
-GO
-
 CREATE FUNCTION [Hardware].[CalcLogisticCost](
 	@standardHandling float,
     @highAvailabilityHandling float,
@@ -449,7 +223,7 @@ BEGIN
 END
 GO
 
-CREATE function [Hardware].[CalcFieldServiceCost] (
+CREATE FUNCTION [Hardware].[CalcFieldServiceCost] (
     @timeAndMaterialShare float,
     @travelCost float,
     @labourCost float,
@@ -486,7 +260,7 @@ BEGIN
 END
 GO
 
-CREATE function [Hardware].[CalcSrvSupportCost] (
+CREATE FUNCTION [Hardware].[CalcSrvSupportCost] (
     @firstLevelSupport float,
     @secondLevelSupport float,
     @ibCountry float,
@@ -584,7 +358,213 @@ BEGIN
 END
 GO
 
-create view [Atom].[AfrByDurationView] WITH SCHEMABINDING as 
+CREATE FUNCTION [Hardware].[CalcReinsuranceCost](@fee float, @upliftFactor float, @exchangeRate float)
+RETURNS float
+AS
+BEGIN
+    RETURN @fee * @upliftFactor * @exchangeRate
+END
+GO
+
+CREATE FUNCTION [Hardware].[CalcCredit](@materialCost float, @warrantyCost float)
+RETURNS float
+AS
+BEGIN
+	RETURN @materialCost + @warrantyCost;
+END
+GO
+
+CREATE VIEW [Hardware].[AvailabilityFeeView] as 
+    select fee.Country,
+           fee.Wg,
+           wg.IsMultiVendor, 
+           
+           fee.InstalledBaseHighAvailability as IB,
+           fee.InstalledBaseHighAvailability_Approved as IB_Approved,
+           
+           fee.TotalLogisticsInfrastructureCost          * er.Value as TotalLogisticsInfrastructureCost,
+           fee.TotalLogisticsInfrastructureCost_Approved * er.Value as TotalLogisticsInfrastructureCost_Approved,
+
+           (case 
+                when wg.IsMultiVendor = 1 then fee.StockValueMv 
+                else fee.StockValueFj 
+            end) * er.Value as StockValue,
+
+           (case  
+                when wg.IsMultiVendor = 1 then fee.StockValueMv_Approved 
+                else fee.StockValueFj_Approved 
+            end) * er.Value as StockValue_Approved,
+       
+           fee.AverageContractDuration,
+           fee.AverageContractDuration_Approved,
+       
+           (case  
+                when fee.JapanBuy = 1 then fee.CostPerKitJapanBuy
+                else fee.CostPerKit
+            end) as CostPerKit,
+       
+           (case  
+                when fee.JapanBuy = 1 then fee.CostPerKitJapanBuy_Approved
+                else fee.CostPerKit_Approved
+            end) as CostPerKit_Approved,
+       
+            fee.MaxQty,
+            fee.MaxQty_Approved
+
+    from Hardware.AvailabilityFee fee
+    JOIN InputAtoms.Wg wg on wg.Id = fee.Wg
+    JOIN InputAtoms.Country c on c.Id = fee.Country
+    LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+GO
+
+CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as 
+     with InstallByCountryCte as (
+        SELECT T.Country as CountryID, 
+               T.Total_IB, 
+               T.Total_IB_Approved, 
+
+               T.Total_IB - coalesce(T.Total_IB_MVS, 0) as Total_IB_FTS, 
+               T.Total_IB_Approved - coalesce(T.Total_IB_MVS_Approved, 0) as Total_IB_FTS_Approved, 
+
+               T.Total_IB_MVS,
+               T.Total_IB_MVS_Approved,
+
+               T.Total_KC_MQ_IB_FTS,
+               T.Total_KC_MQ_IB_FTS_Approved,
+
+               T.Total_KC_MQ_IB_MVS,
+               T.Total_KC_MQ_IB_MVS_Approved
+
+         FROM (
+            select fee.Country, 
+                   sum(fee.IB) as Total_IB, 
+                   sum(fee.IB_Approved) as Total_IB_Approved,
+                    
+                   sum(fee.IsMultiVendor * fee.IB) as Total_IB_MVS,
+                   sum(fee.IsMultiVendor * fee.IB_Approved) as Total_IB_MVS_Approved,
+
+                   sum(fee.IsMultiVendor * fee.CostPerKit / fee.MaxQty * fee.IB) as Total_KC_MQ_IB_MVS,
+                   sum(fee.IsMultiVendor * fee.CostPerKit_Approved / fee.MaxQty_Approved * fee.IB_Approved) as Total_KC_MQ_IB_MVS_Approved,
+
+                   sum((1 - fee.IsMultiVendor) * fee.CostPerKit / fee.MaxQty * fee.IB) as Total_KC_MQ_IB_FTS,
+                   sum((1 - fee.IsMultiVendor) * fee.CostPerKit_Approved / fee.MaxQty_Approved * fee.IB_Approved) as Total_KC_MQ_IB_FTS_Approved
+
+            from Hardware.AvailabilityFeeVIEW fee
+            group by fee.Country 
+        ) T
+    )
+    , AvFeeCte as (
+        select fee.*,
+
+               ib.Total_IB,
+               ib.Total_IB_Approved,
+
+               (case fee.IsMultiVendor 
+                    when 1 then ib.Total_IB_MVS
+                    else ib.Total_IB_FTS
+                end) as Total_IB_VENDOR,               
+
+               (case fee.IsMultiVendor 
+                    when 1 then ib.Total_IB_MVS_Approved
+                    else ib.Total_IB_FTS_Approved
+                end) as Total_IB_VENDOR_Approved,               
+
+               (case fee.IsMultiVendor
+                    when 1 then ib.Total_KC_MQ_IB_MVS
+                    else ib.Total_KC_MQ_IB_FTS
+                end) as Total_KC_MQ_IB_VENDOR,
+
+               (case fee.IsMultiVendor
+                    when 1 then ib.Total_KC_MQ_IB_MVS_Approved
+                    else ib.Total_KC_MQ_IB_FTS_Approved
+                end) as Total_KC_MQ_IB_VENDOR_Approved
+
+        from Hardware.AvailabilityFeeVIEW fee
+        join InstallByCountryCte ib on ib.CountryID = fee.Country
+    )
+    , AvFeeCte2 as (
+        select fee.*,
+
+               Hardware.CalcYI(fee.StockValue, fee.AverageContractDuration) as YI,
+               Hardware.CalcYI(fee.StockValue_Approved, fee.AverageContractDuration_Approved) as YI_Approved,
+          
+               Hardware.CalcTISC(fee.TotalLogisticsInfrastructureCost, fee.Total_IB, fee.Total_IB_VENDOR) as TISC,
+               Hardware.CalcTISC(fee.TotalLogisticsInfrastructureCost_Approved, fee.Total_IB_Approved, fee.Total_IB_VENDOR_Approved) as TISC_Approved
+
+        from AvFeeCte fee
+    )
+    select fee.*, 
+           Hardware.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) as Fee,
+           Hardware.CalcAvailabilityFee(fee.CostPerKit_Approved, fee.MaxQty_Approved, fee.TISC_Approved, fee.YI_Approved, fee.Total_KC_MQ_IB_VENDOR_Approved) as Fee_Approved
+    from AvFeeCte2 fee
+GO
+
+CREATE VIEW [Dependencies].[DurationToYearView] WITH SCHEMABINDING as 
+    select dur.Id as DurID,
+           dur.Name as DurName,
+           y.Id as YearID,
+           y.Name as YearName,
+           dur.Value,
+           dur.IsProlongation
+    from Dependencies.Duration dur
+    join Dependencies.Year y on dur.Value = y.Value and dur.IsProlongation = y.IsProlongation
+GO
+
+CREATE VIEW [Hardware].[FieldServiceCostView] AS
+    SELECT  fsc.Country,
+            fsc.Wg,
+            wg.IsMultiVendor,
+            
+            hr.OnsiteHourlyRates,
+            hr.OnsiteHourlyRates_Approved,
+
+            fsc.ServiceLocation,
+            rt.ReactionTypeId,
+            rt.ReactionTimeId,
+
+            fsc.RepairTime,
+            fsc.RepairTime_Approved,
+            
+            fsc.TravelTime,
+            fsc.TravelTime_Approved,
+
+            fsc.LabourCost          * er.Value as LabourCost,
+            fsc.LabourCost_Approved * er.Value as LabourCost_Approved,
+
+            fsc.TravelCost          * er.Value as TravelCost,
+            fsc.TravelCost_Approved * er.Value as TravelCost_Approved,
+
+            fsc.PerformanceRate          * er.Value as PerformanceRate,
+            fsc.PerformanceRate_Approved * er.Value as PerformanceRate_Approved,
+
+            (fsc.TimeAndMaterialShare / 100) as TimeAndMaterialShare,
+            (fsc.TimeAndMaterialShare_Approved / 100) as TimeAndMaterialShare_Approved
+
+    FROM Hardware.FieldServiceCost fsc
+    JOIN InputAtoms.Country c on c.Id = fsc.Country
+    JOIN InputAtoms.Wg on wg.Id = fsc.Wg
+    JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = fsc.ReactionTimeType
+    LEFT JOIN Atom.RoleCodeHourlyRates hr on hr.RoleCode = wg.RoleCodeId
+    LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+GO
+
+CREATE VIEW Atom.TaxAndDutiesVIEW as
+    select Wg,
+           Country,
+           (TaxAndDuties / 100) as TaxAndDuties, 
+           (TaxAndDuties_Approved / 100) as TaxAndDuties_Approved 
+    from Atom.TaxAndDuties
+GO
+
+CREATE VIEW [InputAtoms].[WgView] WITH SCHEMABINDING as
+    SELECT wg.Id, wg.Name, wg.IsMultiVendor, pla.Id as Pla, cpla.Id as ClusterPla
+            from InputAtoms.Wg wg,
+                 InputAtoms.Pla pla,
+                 InputAtoms.ClusterPla cpla
+            where wg.PlaId = pla.Id and cpla.id = pla.ClusterPlaId
+GO
+
+CREATE VIEW [Atom].[AfrByDurationView] WITH SCHEMABINDING as 
     select wg.Id as WgID,
            d.Id as DurID, 
 
@@ -606,7 +586,7 @@ create view [Atom].[AfrByDurationView] WITH SCHEMABINDING as
          InputAtoms.Wg wg
 GO
 
-CREATE view  [Hardware].[HddFrByDurationView] WITH SCHEMABINDING as 
+CREATE VIEW [Hardware].[HddFrByDurationView] WITH SCHEMABINDING as 
      select wg.Id as WgID,
             d.Id as DurID, 
 
@@ -628,7 +608,7 @@ CREATE view  [Hardware].[HddFrByDurationView] WITH SCHEMABINDING as
              InputAtoms.Wg wg
 GO
 
-CREATE view [Hardware].[HddRetByDurationView] WITH SCHEMABINDING as 
+CREATE VIEW [Hardware].[HddRetByDurationView] WITH SCHEMABINDING as 
      select wg.Id as WgID,
             d.Id as DurID, 
 
@@ -650,7 +630,7 @@ CREATE view [Hardware].[HddRetByDurationView] WITH SCHEMABINDING as
           InputAtoms.Wg wg
 go
 
-create  view [Atom].[InstallBaseByCountryView] WITH SCHEMABINDING as
+CREATE VIEW [Atom].[InstallBaseByCountryView] WITH SCHEMABINDING as
 
     with InstallBasePlaCte (Country, Pla, totalIB)
     as
@@ -679,31 +659,33 @@ create  view [Atom].[InstallBaseByCountryView] WITH SCHEMABINDING as
 GO
 
 CREATE VIEW [Hardware].[LogisticsCostView] AS
-    SELECT lc.Country, 
+    SELECT lc.Country,
            lc.Wg, 
            rt.ReactionTypeId as ReactionType, 
            rt.ReactionTimeId as ReactionTime,
            
-           lc.StandardHandling,
-           lc.StandardHandling_Approved,
+           lc.StandardHandling          * er.Value as StandardHandling,
+           lc.StandardHandling_Approved * er.Value as StandardHandling_Approved,
 
-           lc.HighAvailabilityHandling,
-           lc.HighAvailabilityHandling_Approved,
+           lc.HighAvailabilityHandling          * er.Value as HighAvailabilityHandling,
+           lc.HighAvailabilityHandling_Approved * er.Value as HighAvailabilityHandling_Approved,
 
-           lc.StandardDelivery,
-           lc.StandardDelivery_Approved,
+           lc.StandardDelivery          * er.Value as StandardDelivery,
+           lc.StandardDelivery_Approved * er.Value as StandardDelivery_Approved,
 
-           lc.ExpressDelivery,
-           lc.ExpressDelivery_Approved,
+           lc.ExpressDelivery          * er.Value as ExpressDelivery,
+           lc.ExpressDelivery_Approved * er.Value as ExpressDelivery_Approved,
 
-           lc.TaxiCourierDelivery,
-           lc.TaxiCourierDelivery_Approved,
+           lc.TaxiCourierDelivery          * er.Value as TaxiCourierDelivery,
+           lc.TaxiCourierDelivery_Approved * er.Value as TaxiCourierDelivery_Approved,
 
-           lc.ReturnDeliveryFactory,
-           lc.ReturnDeliveryFactory_Approved
+           lc.ReturnDeliveryFactory          * er.Value as ReturnDeliveryFactory,
+           lc.ReturnDeliveryFactory_Approved * er.Value as ReturnDeliveryFactory_Approved
 
     FROM Hardware.LogisticsCosts lc
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = lc.ReactionTimeType
+    JOIN InputAtoms.Country c on c.Id = lc.Country
+    LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 GO
 
 CREATE VIEW [Atom].[MarkupOtherCostsView] as 
@@ -781,34 +763,32 @@ CREATE VIEW [InputAtoms].[CountryClusterRegionView] WITH SCHEMABINDING as
     join cte cr on cr.Id = c.ClusterRegionId
 GO
 
-CREATE FUNCTION [Hardware].[GetAfr](@wg bigint, @dur bigint)
-RETURNS float
-AS
-BEGIN
+CREATE VIEW [Hardware].[ServiceSupportCostView] as
+    select ssc.Country,
+           
+           wg.Id as Wg,
+           wg.IsMultiVendor,
+           
+           ssc.ClusterRegion,
+           ssc.ClusterPla,
 
-    DECLARE @result float;
+           ssc.[1stLevelSupportCostsCountry] * er.Value as '1stLevelSupportCosts',
+           ssc.[1stLevelSupportCostsCountry_Approved] * er.Value as '1stLevelSupportCosts_Approved',
 
-    SELECT @result = TotalAFR from Atom.AfrByDurationView where WgID = @wg and DurID = @dur
+           (case 
+                when ssc.[2ndLevelSupportCostsLocal] is null then ssc.[2ndLevelSupportCostsClusterRegion]
+                else ssc.[2ndLevelSupportCostsLocal] * er.Value
+            end) as '2ndLevelSupportCosts', 
 
-    RETURN @result;
+           (case 
+                when ssc.[2ndLevelSupportCostsLocal_Approved] is null then ssc.[2ndLevelSupportCostsClusterRegion_Approved]
+                else ssc.[2ndLevelSupportCostsLocal_Approved] * er.Value
+            end) as '2ndLevelSupportCosts_Approved'
 
-END
-GO
-
-CREATE FUNCTION [Hardware].[CalcReinsuranceCost](@fee float, @upliftFactor float, @exchangeRate float)
-RETURNS float
-AS
-BEGIN
-    RETURN @fee * @upliftFactor * @exchangeRate
-END
-GO
-
-CREATE FUNCTION [Hardware].[CalcCredit](@materialCost float, @warrantyCost float)
-RETURNS float
-AS
-BEGIN
-	RETURN @materialCost + @warrantyCost;
-END
+    from Hardware.ServiceSupportCost ssc
+    join InputAtoms.Country c on c.Id = ssc.Country
+    join InputAtoms.WgVIEW wg on wg.ClusterPla = ssc.ClusterPla
+    left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 GO
 
 CREATE VIEW [Hardware].[ReinsuranceView] as
@@ -824,298 +804,319 @@ CREATE VIEW [Hardware].[ReinsuranceView] as
     FROM Hardware.Reinsurance r
     JOIN Dependencies.ReactionTime_Avalability rta on rta.Id = r.ReactionTimeAvailability
     JOIN Dependencies.Year y on y.Id = r.Year
-    JOIN Dependencies.DurationToYearView dur on dur.YearID = y.Id
+    JOIN Dependencies.DurationToYearVIEW dur on dur.YearID = y.Id
     JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance
     JOIN [References].ExchangeRate er2 on er2.CurrencyId = r.CurrencyReinsurance_Approved
 GO
 
-CREATE PROCEDURE [Hardware].[UpdateReinsurance]
+CREATE FUNCTION [Hardware].[GetCalcResult](
+	@cnt bigint,
+	@wg bigint,
+	@av bigint,
+	@dur bigint,
+	@rtype bigint,
+	@rtime bigint,
+	@loc bigint
+)
+RETURNS TABLE
 AS
-BEGIN
+RETURN 
+    with cte as
+    (
+        select m.Id as MatrixId,
+               m.CountryId,
+               m.WgId,
+               m.AvailabilityId,
+               m.DurationId,
+               m.ReactionTimeId,
+               m.ReactionTypeId,
+               m.ServiceLocationId,
 
-    SET NOCOUNT ON;
+               afr.TotalAFR,
+               afr.TotalAFR_Approved,
+               
+               hdd.HddRet,
+               hdd.HddRet_Approved,
 
-    UPDATE sc SET Reinsurance = r.Cost
-    FROM Hardware.ServiceCostCalculation sc
-    INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId 
-              AND r.Duration = m.DurationId 
-              AND r.AvailabilityId = m.AvailabilityId 
-              AND r.ReactionTimeId = m.ReactionTimeId
+               Hardware.CalcMaterialCostWar(mcw.MaterialCostWarranty, afr.TotalAFR) as MaterialW,
+               Hardware.CalcMaterialCostWar(mcw.MaterialCostWarranty_Approved, afr.TotalAFR_Approved) as MaterialW_Approved,
 
-END
-GO
+               Hardware.CalcMaterialCostWar(mco.MaterialCostOow, afr.TotalAFR) as MaterialOow,
+               Hardware.CalcMaterialCostWar(mco.MaterialCostOow_Approved, afr.TotalAFR_Approved) as MaterialOow_Approved,
 
-CREATE PROCEDURE [Hardware].[UpdateFieldServiceCost]
-AS
-BEGIN
+               Hardware.CalcTaxAndDutiesWar(mcw.MaterialCostWarranty, tax.TaxAndDuties) as TaxAndDutiesW,
+               Hardware.CalcTaxAndDutiesWar(mcw.MaterialCostWarranty_Approved, tax.TaxAndDuties_Approved) as TaxAndDutiesW_Approved,
 
-    SET NOCOUNT ON;
+               Hardware.CalcTaxAndDutiesWar(mco.MaterialCostOow, tax.TaxAndDuties) as TaxAndDutiesOow,
+               Hardware.CalcTaxAndDutiesWar(mco.MaterialCostOow_Approved, tax.TaxAndDuties_Approved) as TaxAndDutiesOow_Approved,
 
-    UPDATE sc SET FieldServiceCost = Hardware.CalcFieldServiceCost(
-                                        fsc.TimeAndMaterialShare, 
-                                        fsc.TravelCost, 
-                                        fsc.LabourCost, 
-                                        fsc.PerformanceRate, 
-                                        fsc.TravelTime, 
-                                        fsc.RepairTime, 
-                                        hr.OnsiteHourlyRates, 
-                                        afr.TotalAFR
-                                    )
-    FROM Hardware.ServiceCostCalculation sc
-    INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
-    LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId 
-                                            and fsc.Country = m.CountryId 
-                                            and fsc.ServiceLocation = m.ServiceLocationId
-                                            and fsc.ReactionTypeId = m.ReactionTypeId
-                                            and fsc.ReactionTimeId = m.ReactionTimeId
-    LEFT JOIN Atom.RoleCodeHourlyRates hr on hr.RoleCode = fsc.RoleCodeId
-END
-GO
+               r.Cost as Reinsurance,
+               r.Cost_Approved as Reinsurance_Approved,
 
-CREATE PROCEDURE [Hardware].[UpdateHddRetention]
-AS
-BEGIN
+               fsc.LabourCost as LabourCost, 
+               fsc.LabourCost_Approved as LabourCost_Approved, 
 
-    SET NOCOUNT ON;
+               fsc.TravelCost as TravelCost,
+               fsc.TravelCost_Approved as TravelCost_Approved,
 
-    UPDATE sc SET HddRetention = hr.HddRet
-    FROM Hardware.ServiceCostCalculation sc
-    INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN Hardware.HddRetByDurationView hr on hr.WgID = m.WgId and hr.DurID = m.DurationId
+               Hardware.CalcFieldServiceCost(
+                    fsc.TimeAndMaterialShare, 
+                    fsc.TravelCost, 
+                    fsc.LabourCost, 
+                    fsc.PerformanceRate, 
+                    fsc.TravelTime, 
+                    fsc.RepairTime, 
+                    fsc.OnsiteHourlyRates, 
+                    afr.TotalAFR
+                ) as FieldServiceCost,
+               Hardware.CalcFieldServiceCost(
+                    fsc.TimeAndMaterialShare_Approved, 
+                    fsc.TravelCost_Approved, 
+                    fsc.LabourCost_Approved, 
+                    fsc.PerformanceRate_Approved, 
+                    fsc.TravelTime_Approved, 
+                    fsc.RepairTime_Approved, 
+                    fsc.OnsiteHourlyRates_Approved, 
+                    afr.TotalAFR_Approved
+                ) as FieldServiceCost_Approved,
 
-END
-GO
+                (dur.Value * Hardware.CalcSrvSupportCost(
+                                    ssc.[1stLevelSupportCosts], 
+                                    ssc.[2ndLevelSupportCosts], 
+                                    ib.ibCnt, 
+                                    ib.ib_Cnt_PLA
+                                )) as ServiceSupport,
+                (dur.Value * Hardware.CalcSrvSupportCost(
+                                    ssc.[1stLevelSupportCosts_Approved], 
+                                    ssc.[2ndLevelSupportCosts_Approved], 
+                                    ib.ibCnt_Approved, 
+                                    ib.ib_Cnt_PLA_Approved
+                                )) as ServiceSupport_Approved,
 
-CREATE PROCEDURE [Hardware].[UpdateMaterialOow]
-AS
-BEGIN
+                Hardware.CalcLogisticCost(
+                    lc.StandardHandling,
+                    lc.HighAvailabilityHandling,
+                    lc.StandardDelivery,
+                    lc.ExpressDelivery,
+                    lc.TaxiCourierDelivery,
+                    lc.ReturnDeliveryFactory,
+                    afr.TotalAFR
+                ) as Logistic,     
+                Hardware.CalcLogisticCost(
+                    lc.StandardHandling_Approved,
+                    lc.HighAvailabilityHandling_Approved,
+                    lc.StandardDelivery_Approved,
+                    lc.ExpressDelivery_Approved,
+                    lc.TaxiCourierDelivery_Approved,
+                    lc.ReturnDeliveryFactory_Approved,
+                    afr.TotalAFR_Approved
+                ) as Logistic_Approved,
 
-    SET NOCOUNT ON;
+                (case 
+                      when afEx.id is null then af.Fee
+                      else 0
+                 end) as AvailabilityFee,
+                (case 
+                      when afEx.id is null then af.Fee_Approved
+                      else 0
+                 end) as AvailabilityFee_Approved,
 
-    UPDATE sc SET MaterialOow = Hardware.CalcMaterialCostWar(mco.MaterialCostOow, afr.TotalAFR)
-    FROM Hardware.ServiceCostCalculation sc
-    INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
-    LEFT JOIN Atom.MaterialCostOow mco on mco.Wg = m.WgId and mco.ClusterRegion = c.ClusterRegionId
-    LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
+                moc.Markup,
+                moc.Markup_Approved,
 
-END
-GO
+                moc.MarkupFactor,
+                moc.MarkupFactor_Approved,
 
-CREATE PROCEDURE [Hardware].[UpdateMaterialW]
-AS
-BEGIN
+                msw.MarkupFactorStandardWarranty, 
+                msw.MarkupFactorStandardWarranty_Approved, 
 
-    SET NOCOUNT ON;
+                msw.MarkupStandardWarranty,
+                msw.MarkupStandardWarranty_Approved
 
-    UPDATE sc SET MaterialW = Hardware.CalcMaterialCostWar(mcw.MaterialCostWarranty, afr.TotalAFR)
-    FROM Hardware.ServiceCostCalculation sc
-    INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
-    LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId and mcw.ClusterRegion = c.ClusterRegionId
-    LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
+        FROM Matrix m
 
-END
-GO
+        INNER JOIN Dependencies.Duration dur on dur.Id = m.DurationId
 
-CREATE PROCEDURE [Hardware].[UpdateSrvSupportCost] 
-AS
-BEGIN
+        INNER JOIN InputAtoms.Country c on c.id = m.CountryId
 
-    SET NOCOUNT ON;
+        LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId AND afr.DurID = m.DurationId
 
-    UPDATE sc SET ServiceSupport = dur.Value * Hardware.CalcSrvSupportCost(
-                                ssc.[1stLevelSupportCostsCountry], 
-                                iif(c.IsImeia = 1, ssc.[2ndLevelSupportCostsClusterRegion], ssc.[2ndLevelSupportCostsLocal]), 
-                                ib.ibCnt, 
-                                ib.ib_Cnt_PLA
-                            )
-    FROM Hardware.ServiceCostCalculation sc
-    INNER JOIN Matrix m on sc.MatrixId = m.Id
-    INNER JOIN Dependencies.Duration dur on dur.Id = m.DurationId
-    INNER JOIN InputAtoms.CountryClusterRegionView c on c.Id = m.CountryId
-    LEFT JOIN Atom.InstallBaseByCountryView ib on ib.Wg = m.WgId and ib.Country = m.CountryId
-    LEFT JOIN Hardware.ServiceSupportCost ssc on ssc.Country = m.CountryId
-END
-GO
+        LEFT JOIN Hardware.HddRetByDurationView hdd on hdd.WgID = m.WgId AND hdd.DurID = m.DurationId
 
-CREATE PROCEDURE [Hardware].[UpdateTaxAndDutiesOow]
-AS
-BEGIN
+        LEFT JOIN Atom.InstallBaseByCountryView ib on ib.Wg = m.WgId AND ib.Country = m.CountryId
 
-    SET NOCOUNT ON;
+        LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.Wg = m.WgId
 
-    UPDATE sc SET TaxAndDutiesOow = Hardware.CalcTaxAndDutiesWar(mco.MaterialCostOow, tax.TaxAndDuties)
-    FROM Hardware.ServiceCostCalculation sc
-    INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
-    LEFT JOIN Atom.TaxAndDutiesView tax on tax.Wg = m.WgId and tax.Country = m.CountryId
-    LEFT JOIN Atom.MaterialCostOow mco on mco.Wg = m.WgId and mco.ClusterRegion = c.ClusterRegionId
+        LEFT JOIN Atom.TaxAndDutiesView tax on tax.Wg = m.WgId AND tax.Country = m.CountryId
 
-END
-GO
+        LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
-CREATE PROCEDURE [Hardware].[UpdateTaxAndDutiesW]
-AS
-BEGIN
+        LEFT JOIN Atom.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
 
-    SET NOCOUNT ON;
+        LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId 
+                                                AND r.Duration = m.DurationId 
+                                                AND r.AvailabilityId = m.AvailabilityId 
+                                                AND r.ReactionTimeId = m.ReactionTimeId
 
-        UPDATE sc SET TaxAndDutiesW = Hardware.CalcTaxAndDutiesWar(mcw.MaterialCostWarranty, tax.TaxAndDuties)
-        FROM Hardware.ServiceCostCalculation sc
-        INNER JOIN Matrix m ON sc.MatrixId = m.Id
-        INNER JOIN InputAtoms.Country c on m.CountryId = c.Id
-        LEFT JOIN Atom.TaxAndDutiesView tax on tax.Wg = m.WgId and tax.Country = m.CountryId
-        LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId and mcw.ClusterRegion = c.ClusterRegionId
+        LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId 
+                                                AND fsc.Country = m.CountryId 
+                                                AND fsc.ServiceLocation = m.ServiceLocationId
+                                                AND fsc.ReactionTypeId = m.ReactionTypeId
+                                                AND fsc.ReactionTimeId = m.ReactionTimeId
 
-END
-GO
+        LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = m.CountryId 
+                                            AND lc.Wg = m.WgId
+                                            AND lc.ReactionTime = m.ReactionTimeId
+                                            AND lc.ReactionType = m.ReactionTypeId
 
-CREATE PROCEDURE [Hardware].[UpdateLogisticCost]
-AS
-BEGIN
+        LEFT JOIN Atom.MarkupOtherCostsView moc on moc.Wg = m.WgId 
+                                               AND moc.Country = m.CountryId
+                                               AND moc.ReactionTimeId = m.ReactionTimeId
+                                               AND moc.ReactionTypeId = m.ReactionTypeId
+                                               AND moc.AvailabilityId = m.AvailabilityId
+                                           
+        LEFT JOIN Atom.MarkupStandardWarantyView msw on msw.Wg = m.WgId 
+                                                    AND msw.Country = m.CountryId
+                                                    AND msw.ReactionTimeId = m.ReactionTimeId
+                                                    AND msw.ReactionTypeId = m.ReactionTypeId
+                                                    AND msw.AvailabilityId = m.AvailabilityId
 
-    SET NOCOUNT ON;
+        LEFT JOIN Hardware.AvailabilityFeeCalcView af on af.Country = m.CountryId AND af.Wg = m.WgId
 
-    UPDATE sc SET Logistic = Hardware.CalcLogisticCost(
-                               lc.StandardHandling,
-                               lc.HighAvailabilityHandling,
-                               lc.StandardDelivery,
-                               lc.ExpressDelivery,
-                               lc.TaxiCourierDelivery,
-                               lc.ReturnDeliveryFactory,
-                               afr.TotalAFR)
-    FROM Hardware.ServiceCostCalculation sc
-    INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
-    LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = m.CountryId 
-                                      and lc.Wg = m.WgId
-                                      and lc.ReactionTime = m.ReactionTimeId
-                                      and lc.ReactionType = m.ReactionTypeId
+        LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId
+                                                AND afEx.ReactionTimeId = m.ReactionTimeId
+                                                AND afEx.ReactionTypeId = m.ReactionTypeId
+                                                AND afEx.ServiceLocationId = m.ServiceLocationId
 
-END
-GO
+        where     (@wg is null or m.WgId = @wg)
+              AND (@cnt is null or m.CountryId = @cnt)
+              AND (@dur is null or m.DurationId = @dur)
+              AND (@av is null or m.AvailabilityId = @av)
+              AND (@rtime is null or m.ReactionTimeId = @rtime)
+              AND (@rtype is null or m.ReactionTypeId = @rtype)
+              AND (@loc is null or m.ServiceLocationId = @loc)
+    )
+    , cte2 as 
+    (
+        select sc.*,
 
-CREATE PROCEDURE [Hardware].[UpdateOtherDirectCost]
-AS
-BEGIN
+               Hardware.CalcOtherDirectCost(
+                    sc.FieldServiceCost, 
+                    sc.ServiceSupport, 
+                    1, 
+                    sc.Logistic, 
+                    sc.Reinsurance, 
+                    sc.MarkupFactor, 
+                    sc.Markup
+                ) as OtherDirect,
+                Hardware.CalcOtherDirectCost(
+                    sc.FieldServiceCost_Approved, 
+                    sc.ServiceSupport_Approved, 
+                    1, 
+                    sc.Logistic_Approved, 
+                    sc.Reinsurance_Approved, 
+                    sc.MarkupFactor_Approved, 
+                    sc.Markup_Approved
+                ) as OtherDirect_Approved,
 
-    SET NOCOUNT ON;
+               Hardware.CalcLocSrvStandardWarranty(
+                    sc.LabourCost,
+                    sc.TravelCost,
+                    sc.ServiceSupport,
+                    sc.Logistic,
+                    sc.TaxAndDutiesW,
+                    sc.TotalAFR,
+                    sc.AvailabilityFee,
+                    sc.MarkupFactorStandardWarranty, 
+                    sc.MarkupStandardWarranty
+                ) as LocalServiceStandardWarranty,
+               Hardware.CalcLocSrvStandardWarranty(
+                    sc.LabourCost_Approved,
+                    sc.TravelCost_Approved,
+                    sc.ServiceSupport_Approved,
+                    sc.Logistic_Approved,
+                    sc.TaxAndDutiesW_Approved,
+                    sc.TotalAFR_Approved,
+                    sc.AvailabilityFee_Approved,
+                    sc.MarkupFactorStandardWarranty_Approved, 
+                    sc.MarkupStandardWarranty_Approved
+                ) as LocalServiceStandardWarranty_Approved
+        from cte as sc
+    )
+    , cte3 as
+    (
+        select sc.*,
 
-    UPDATE sc SET OtherDirect = Hardware.CalcOtherDirectCost(
-                                    sc.FieldServiceCost, 
-                                    sc.ServiceSupport, 
-                                    1, 
-                                    sc.Logistic, 
-                                    sc.Reinsurance, 
-                                    moc.MarkupFactor, 
-                                    moc.Markup
-                                )
-    FROM Hardware.ServiceCostCalculation sc
-    INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN Atom.MarkupOtherCostsView moc on moc.Wg = m.WgId 
-                                               and moc.Country = m.CountryId
-                                               and moc.ReactionTimeId = m.ReactionTimeId
-                                               and moc.ReactionTypeId = m.ReactionTypeId
-                                               and moc.AvailabilityId = m.AvailabilityId
-END
-GO
+               (sc.MaterialW + sc.LocalServiceStandardWarranty) as Credits,
+               (sc.MaterialW_Approved + sc.LocalServiceStandardWarranty_Approved) as Credits_Approved,
 
-CREATE PROCEDURE [Hardware].[UpdateLocalServiceStandardWarranty]
-AS
-BEGIN
+               Hardware.CalcServiceTC(
+                    sc.FieldServiceCost,
+                    sc.ServiceSupport,
+                    sc.MaterialW,
+                    sc.Logistic,
+                    sc.TaxAndDutiesW,
+                    sc.Reinsurance,
+                    sc.AvailabilityFee,
+                    sc.MaterialW + sc.LocalServiceStandardWarranty --Credits
+                ) as ServiceTC,    
+               Hardware.CalcServiceTC(
+                    sc.FieldServiceCost_Approved,
+                    sc.ServiceSupport_Approved,
+                    sc.MaterialW_Approved,
+                    sc.Logistic_Approved,
+                    sc.TaxAndDutiesW_Approved,
+                    sc.Reinsurance_Approved,
+                    sc.AvailabilityFee_Approved,
+                    sc.MaterialW_Approved + sc.LocalServiceStandardWarranty_Approved --Credits_Approved
+                ) as ServiceTC_Approved
 
-    SET NOCOUNT ON;
+        from cte2 sc
+    )
+    select 
+           sc.MatrixId,
 
-    UPDATE sc SET LocalServiceStandardWarranty = Hardware.CalcLocSrvStandardWarranty(
-                                                    fsc.LabourCost,
-                                                    fsc.TravelCost,
-                                                    sc.ServiceSupport,
-                                                    sc.Logistic,
-                                                    sc.TaxAndDutiesW,
-                                                    afr.TotalAFR,
-                                                    sc.AvailabilityFee,
-                                                    msw.MarkupFactorStandardWarranty, 
-                                                    msw.MarkupStandardWarranty)
-    FROM Hardware.ServiceCostCalculation sc
-    INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
-    LEFT JOIN Atom.MarkupStandardWarantyView msw on msw.Wg = m.WgId 
-                                                    and msw.Country = m.CountryId
-                                                    and msw.ReactionTimeId = m.ReactionTimeId
-                                                    and msw.ReactionTypeId = m.ReactionTypeId
-                                                    and msw.AvailabilityId = m.AvailabilityId
-    LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId 
-                                            and fsc.Country = m.CountryId 
-                                            and fsc.ServiceLocation = m.ServiceLocationId
-                                            and fsc.ReactionTypeId = m.ReactionTypeId
-                                            and fsc.ReactionTimeId = m.ReactionTimeId
+           --dependencies
+           sc.CountryId,
+           sc.WgId,
+           sc.AvailabilityId,
+           sc.DurationId,
+           sc.ReactionTimeId,
+           sc.ReactionTypeId,
+           sc.ServiceLocationId,
 
-END
-GO
+           --cost block results
+           sc.FieldServiceCost, sc.FieldServiceCost_Approved,
 
-CREATE PROCEDURE Hardware.UpdateCredits
-AS
-BEGIN
+           sc.ServiceSupport, sc.ServiceSupport_Approved,
 
-	SET NOCOUNT ON;
+           sc.Logistic, sc.Logistic_Approved,
 
-    UPDATE Hardware.ServiceCostCalculation
-           SET Credits = MaterialW + LocalServiceStandardWarranty;
+           sc.AvailabilityFee, sc.AvailabilityFee_Approved,
 
-END
-GO
+           sc.HddRet, sc.HddRet_Approved,
 
-CREATE PROCEDURE Hardware.UpdateAvailabilityFee
-AS
-BEGIN
+           sc.Reinsurance, sc.Reinsurance_Approved,
 
-    SET NOCOUNT ON;
+           sc.TaxAndDutiesW, sc.TaxAndDutiesW_Approved,
 
-    UPDATE sc SET AvailabilityFee = iif(afEx.id is null, af.Fee, 0)
-    FROM Hardware.ServiceCostCalculation sc
-    INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN Hardware.AvailabilityFeeCalcView af on af.Country = m.CountryId and af.Wg = m.WgId
-    LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId
-                                            and afEx.ReactionTimeId = m.ReactionTimeId
-                                            and afEx.ReactionTypeId = m.ReactionTypeId
-                                            and afEx.ServiceLocationId = m.ServiceLocationId
+           sc.TaxAndDutiesOow, sc.TaxAndDutiesOow_Approved,
 
-END
-GO
+           sc.MaterialW, sc.MaterialW_Approved,
 
-CREATE PROCEDURE [Hardware].[UpdateServiceTC]
-AS
-BEGIN
+           sc.MaterialOow, sc.MaterialOow_Approved,
 
-	SET NOCOUNT ON;
+           --resulting costs
+           sc.ServiceTC, sc.ServiceTC_Approved,
 
-    UPDATE Hardware.ServiceCostCalculation 
-            SET ServiceTC = Hardware.CalcServiceTC(
-                                FieldServiceCost,
-                                ServiceSupport,
-                                MaterialW,
-                                Logistic,
-                                TaxAndDutiesW,
-                                Reinsurance,
-                                AvailabilityFee,
-                                Credits
-                           );
+           Hardware.CalcServiceTP(sc.ServiceTC, sc.MarkupFactor, sc.Markup) as ServiceTP,
+           Hardware.CalcServiceTP(sc.ServiceTC_Approved, sc.MarkupFactor_Approved, sc.Markup_Approved) as ServiceTP_Approved,
 
-END
-GO
+           sc.OtherDirect, sc.OtherDirect_Approved,
+           
+           sc.LocalServiceStandardWarranty, sc.LocalServiceStandardWarranty_Approved,
+           
+           sc.Credits, sc.Credits_Approved
 
-CREATE PROCEDURE [Hardware].[UpdateServiceTP]
-AS
-BEGIN
-
-    SET NOCOUNT ON;
-
-    UPDATE sc SET ServiceTP = Hardware.CalcServiceTP(sc.ServiceTC, moc.MarkupFactor, moc.Markup)
-    FROM Hardware.ServiceCostCalculation sc
-    INNER JOIN Matrix m ON sc.MatrixId = m.Id
-    LEFT JOIN Atom.MarkupOtherCosts moc on moc.Wg = m.WgId and moc.Country = m.CountryId
-END
+    from cte3 sc
 GO
