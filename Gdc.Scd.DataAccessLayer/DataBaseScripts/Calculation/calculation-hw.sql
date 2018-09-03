@@ -651,6 +651,7 @@ CREATE VIEW [Atom].[InstallBaseByCountryView] WITH SCHEMABINDING as
     select ib.Wg,
             ib.Country,
             ib.InstalledBaseCountry as ibCnt,
+            ib.InstalledBaseCountry_Approved as ibCnt_Approved,
             ibp.totalIB as ib_Cnt_PLA,
             ibp2.totalIB as ib_Cnt_PLA_Approved
     from Atom.InstallBase ib
