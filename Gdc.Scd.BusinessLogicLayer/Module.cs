@@ -46,6 +46,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<Currency>();
             services.RegisterEntity<ExchangeRate>();
             services.RegisterEntity<YearAvailability>();
+            services.RegisterEntity<ClusterPla>();
         }
     }
 }
