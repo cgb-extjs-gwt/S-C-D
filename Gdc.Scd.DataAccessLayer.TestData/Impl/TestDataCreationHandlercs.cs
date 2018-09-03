@@ -51,7 +51,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         public void Handle()
         {
-            this.CreatePlas();
+            this.CreateClusterPlas();
             this.CreateUsers();
             this.CreateReactionTimeTypeAvalability();
             this.CreateClusterRegions();
@@ -1014,12 +1014,30 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             };
         }
 
-        private void CreatePlas()
+        private void CreateClusterPlas()
         {
             var plas = this.GetPlas();
-            var repository = this.repositorySet.GetRepository<Pla>();
+            var clusterPlas = new List<ClusterPla>();
 
-            repository.Save(plas);
+            ClusterPla clusterPla = null;
+
+            for (var i = 0; i < plas.Length; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    clusterPla = new ClusterPla
+                    {
+                        Name = $"ClusterPla_{i}",
+                        Plas = new List<Pla>()
+                    };
+
+                    clusterPlas.Add(clusterPla);
+                }
+
+                clusterPla.Plas.Add(plas[i]);
+            }
+
+            this.repositorySet.GetRepository<ClusterPla>().Save(clusterPlas);
             this.repositorySet.Sync();
         }
 
