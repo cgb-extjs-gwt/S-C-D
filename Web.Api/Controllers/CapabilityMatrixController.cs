@@ -6,7 +6,7 @@ using System.Web.Mvc;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
-    public class CapabilityMatrixController : Controller
+    public class CapabilityMatrixController : System.Web.Http.ApiController
     {
         private readonly ICapabilityMatrixService capabilityMatrixService;
 

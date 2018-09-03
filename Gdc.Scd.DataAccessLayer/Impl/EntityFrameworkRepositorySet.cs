@@ -20,14 +20,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
     public class EntityFrameworkRepositorySet : DbContext, IRepositorySet
     {
         private readonly IServiceProvider serviceProvider;
-        private readonly IConfiguration configuration;
 
         internal static IDictionary<Type, Action<EntityTypeBuilder>> RegisteredEntities { get; private set; } = new Dictionary<Type, Action<EntityTypeBuilder>>();
 
-        public EntityFrameworkRepositorySet(IServiceProvider serviceProvider, IConfiguration configuration)
+        public EntityFrameworkRepositorySet(IServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider;
-            this.configuration = configuration;
 
             this.ChangeTracker.AutoDetectChangesEnabled = false;
             this.Database.SetCommandTimeout(600);
@@ -203,7 +201,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlServer(this.configuration.GetSection("ConnectionStrings")["CommonDB"]);
+            optionsBuilder.UseSqlServer("Data Source=.\\MSSQLSERVER2;Initial Catalog=Scd_2;Trusted_Connection=True;");
+            //optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["CommonDB"].ConnectionString);
         }
 
         private IEnumerable<DbParameter> GetDbParameters(IEnumerable<CommandParameterInfo> parameters, DbCommand command)

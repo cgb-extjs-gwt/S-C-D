@@ -11,7 +11,7 @@ using System.Web.Mvc;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
-    public class AvailabilityFeeAdminController : Controller
+    public class AvailabilityFeeAdminController : System.Web.Http.ApiController
     {
         private readonly IAvailabilityFeeAdminService availabilityFeeAdminService;
 

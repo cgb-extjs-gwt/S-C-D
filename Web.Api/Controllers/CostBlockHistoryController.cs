@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
-    public class CostBlockHistoryController : Controller
+    public class CostBlockHistoryController : System.Web.Http.ApiController
     {
         private readonly ICostBlockHistoryService costBlockHistoryService;
 

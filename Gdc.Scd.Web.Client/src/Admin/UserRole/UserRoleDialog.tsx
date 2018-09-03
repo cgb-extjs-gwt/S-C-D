@@ -22,7 +22,7 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
 
     state = {
         countryFieldHidden: true,
-        isValid: this.isValidInput
+        isValid: false
     }
 
     render() {

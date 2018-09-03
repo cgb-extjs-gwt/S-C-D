@@ -568,7 +568,7 @@ Ext.create({"xtype":"button"});
 Ext.create({"xtype":"gridcell"});
 Ext.require(['Ext.grid.plugin.Editable', 'Ext.grid.plugin.CellEditing']);
 Ext.create('Ext.data.Store', {
-  fields: ['id', 'name', {
+  fields: ['Id', 'Name', {
     name: 'roleCodeId',
     type: 'int',
     convert: function (val, row) {
@@ -591,11 +591,11 @@ Ext.create('Ext.data.Store', {
       type: 'json',
       writeAllFields: true,
       allowSingle: false,
-      idProperty: "id"
+      idProperty: "Id"
     },
     reader: {
       type: 'json',
-      idProperty: "id"
+      idProperty: "Id"
     },
     api: {
       read: '/api/WarrantyGroup/GetAll',
@@ -610,11 +610,11 @@ Ext.create('Ext.data.Store', {
   }
 });
 Ext.create('Ext.data.Store', {
-  fields: ['id', 'name'],
+  fields: ['Id', 'Name'],
   autoLoad: false,
   pageSize: 0,
   sorters: [{
-    property: 'name',
+    property: 'Name',
     direction: 'ASC'
   }],
   proxy: {

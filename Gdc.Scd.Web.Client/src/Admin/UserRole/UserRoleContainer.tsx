@@ -152,7 +152,7 @@ export default class RoleCodesContainer extends React.Component {
     );
 
     render() {
-        const { isValidForm, isVisibleForm, selectedRecord } = this.state;
+        const { isVisibleForm, selectedRecord } = this.state;
 
         if (!this.state.storeUserReady) {
             this.storeUser.load();

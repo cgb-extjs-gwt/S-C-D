@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
-    public abstract class BaseDomainController<T> : Controller where T : IIdentifiable
+    public abstract class BaseDomainController<T> : System.Web.Http.ApiController where T : IIdentifiable
     {
         protected readonly IDomainService<T> domainService;
 

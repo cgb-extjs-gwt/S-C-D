@@ -11,7 +11,7 @@ using Gdc.Scd.Core.Meta.Interfaces;
 namespace Gdc.Scd.Web.Api.Controllers
 {
 
-    public class CostEditorController : Controller
+    public class CostEditorController : System.Web.Http.ApiController
     {
         private readonly ICostEditorService costEditorService;
 

@@ -14,7 +14,7 @@ namespace Gdc.Scd.DataAccessLayer
         public void Init(IServiceCollection services)
         {
             services.AddScoped(typeof(IRepository<>), typeof(EntityFrameworkRepository<>));
-            services.AddScoped<EntityFrameworkRepositorySet>();
+            services.AddTransient<EntityFrameworkRepositorySet>();
             services.AddScoped<IRepositorySet>(serviceProvider => serviceProvider.GetService<EntityFrameworkRepositorySet>());
             services.AddScoped<ISqlRepository, SqlRepository>();
             services.AddScoped<ICostEditorRepository, CostEditorRepository>();

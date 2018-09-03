@@ -9,7 +9,6 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gdc.Scd.Core.Entities;
 using System.IO;
 using System.Reflection;
 
