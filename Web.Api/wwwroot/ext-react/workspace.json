@@ -1,0 +1,9 @@
+{
+    "frameworks": {
+        "ext": "..\\..\\..\\Gdc.Scd.Web.Client\\node_modules\\@extjs\\ext-react"
+    },
+    "packages": {
+        "dir": "${workspace.dir}/packages/local,${workspace.dir}/packages,D:\\TFSRussia\\Source\\Repos\\SCD2.0 - Copy\\Gdc.Scd.Web.Client\\node_modules\\@extjs,ext-react\\packages",
+        "extract": "${workspace.dir}/packages/remote"
+    }
+}
