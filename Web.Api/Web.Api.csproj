@@ -829,7 +829,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>59609</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:59609/</IISUrl>
+          <IISUrl>http://localhost:59609/scd/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

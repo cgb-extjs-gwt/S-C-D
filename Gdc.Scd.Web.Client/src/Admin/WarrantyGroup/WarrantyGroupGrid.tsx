@@ -53,8 +53,8 @@ export default class RoleCodesGrid extends React.Component {
                 idProperty: "id"
             },
             api: {
-                read: 'api/WarrantyGroup/GetAll',
-                update: 'api/WarrantyGroup/SaveAll'
+                read: '/scd/api/WarrantyGroup/GetAll',
+                update: '/scd/api/WarrantyGroup/SaveAll'
             }
         },
         listeners: {
@@ -79,7 +79,7 @@ export default class RoleCodesGrid extends React.Component {
                 type: 'json'
             },
             api: {
-                read: 'api/RoleCode/GetAll'
+                read: '/scd/api/RoleCode/GetAll'
             }
         },
         listeners: {
