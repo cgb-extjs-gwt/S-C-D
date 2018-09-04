@@ -2,26 +2,34 @@
 
 export class CacheDomainService<T> {
 
-    private controllerName: string;
+    private static all: any = {}; // cache, singleton
 
-    private data: T[];
+    private controllerName: string;
 
     public constructor(cname: string) {
         this.controllerName = cname;
     }
 
     public getAll(): Promise<T[]> {
-        if (this.data) {
-            return Promise.resolve(this.data);
+        let data = this.getAllFromCache();
+        if (data) {
+            return Promise.resolve(data);
         }
         else {
-            return new DomainService<T>(this.controllerName)
-                .getAll()
-                .then(x => {
-                    this.data = x;
-                    return this.data;
-                });
+            return new DomainService<T>(this.controllerName).getAll().then(this.onComplete.bind(this));
         }
     }
 
+    private onComplete(d: T[]): T[] {
+        this.addAllToCache(d);
+        return d;
+    }
+
+    private getAllFromCache(): T[] {
+        return CacheDomainService.all[this.controllerName];
+    }
+
+    private addAllToCache(d: T[]): void {
+        CacheDomainService.all[this.controllerName] = d;
+    }
 }
