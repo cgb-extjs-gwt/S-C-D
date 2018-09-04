@@ -12,7 +12,8 @@ module.exports = function (env) {
 
     return portfinder.getPortPromise().then(port => {
         const nodeEnv = env && env.prod ? 'production' : 'development';
-        const isProd = nodeEnv === 'production';
+        //const isProd = nodeEnv === 'production';
+        const isProd = false;
 
         const plugins = [
             new ExtReactWebpackPlugin({
@@ -61,7 +62,7 @@ module.exports = function (env) {
 
             output: {
                 path: path.join(__dirname, '../Web.Api/wwwroot'),
-                publicPath: '/',
+                publicPath: 'wwwroot',
                 filename: 'bundle.js',
             },
 

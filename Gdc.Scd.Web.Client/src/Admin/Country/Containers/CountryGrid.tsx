@@ -70,7 +70,7 @@ class CountryGrid extends React.Component{
 
     
     render(){
-        return ( <Grid title={ 'Country Settings' } store={ this.store } cls="filter-grid" columnLines= {true} >
+        return ( <Grid title={ 'Country Settingsss' } store={ this.store } cls="filter-grid" columnLines= {true} >
                     <Column text="Country Name" dataIndex="name" flex={1} />
                     <CheckColumn text="Can Override List and Dealer Price" dataIndex="canOverrideListAndDealerPrices" flex={1} />
                     <CheckColumn text="Show Dealer Price" dataIndex="showDealerPrice" flex={1} />

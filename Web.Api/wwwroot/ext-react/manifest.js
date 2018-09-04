@@ -182,6 +182,622 @@ Ext.create({"xtype":"column"});
 Ext.create({"xtype":"checkcolumn"});
 Ext.create({"xtype":"toolbar"});
 Ext.create({"xtype":"button"});
+Ext.create('Ext.data.Store', {
+  fields: ['id', 'name', 'canOverrideListAndDealerPrices', 'showDealerPrice', 'canOverrideTransferCostAndPrice'],
+  autoLoad: true,
+  proxy: {
+    type: 'ajax',
+    api: {
+      read: 'api/Country/GetAll',
+      update: 'api/Country/SaveAll'
+    },
+    reader: {
+      type: 'json',
+      idProperty: 'id'
+    },
+    writer: {
+      type: 'json',
+      writeAllFields: true,
+      idProperty: 'id',
+      allowSingle: false
+    },
+    listeners: {
+      exception: function (proxy, response, operation) {
+        console.log(operation.getError());
+      }
+    }
+  },
+  listeners: {
+    update: function (store, record, operation, modifiedFieldNames, details, eOpts) {
+      var modifiedRecords = _this.store.getUpdatedRecords();
+      if (modifiedRecords.length > 0) {
+        _this.setState({
+          disableSaveButton: false
+        });
+      } else {
+        _this.setState({
+          disableSaveButton: true
+        });
+      }
+    }
+  }
+});
+Ext.create({
+  xtype: 'grid',
+  title: 'Country Settingsss',
+  store: this.store,
+  cls: "filter-grid",
+  columnLines: true
+});
+Ext.create({
+  xtype: 'column',
+  text: "Country Name",
+  dataIndex: "name",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Can Override List and Dealer Price",
+  dataIndex: "canOverrideListAndDealerPrices",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Show Dealer Price",
+  dataIndex: "showDealerPrice",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Can Override TC and TP",
+  dataIndex: "canOverrideTransferCostAndPrice",
+  flex: 1
+});
+Ext.create({
+  xtype: 'toolbar',
+  docked: "bottom"
+});
+Ext.create({
+  xtype: 'button',
+  text: "Save",
+  flex: 1,
+  handler: this.saveRecords,
+  iconCls: "x-fa fa-save",
+  disabled: this.state.disableSaveButton
+});
+Ext.create({"xtype":"grid"});
+Ext.create({"xtype":"column"});
+Ext.create({"xtype":"checkcolumn"});
+Ext.create({"xtype":"toolbar"});
+Ext.create({"xtype":"button"});
+Ext.create('Ext.data.Store', {
+  fields: ['id', 'name', 'canOverrideListAndDealerPrices', 'showDealerPrice', 'canOverrideTransferCostAndPrice'],
+  autoLoad: true,
+  proxy: {
+    type: 'ajax',
+    api: {
+      read: 'api/Country/GetAll',
+      update: 'api/Country/SaveAll'
+    },
+    reader: {
+      type: 'json',
+      idProperty: 'id'
+    },
+    writer: {
+      type: 'json',
+      writeAllFields: true,
+      idProperty: 'id',
+      allowSingle: false
+    },
+    listeners: {
+      exception: function (proxy, response, operation) {
+        console.log(operation.getError());
+      }
+    }
+  },
+  listeners: {
+    update: function (store, record, operation, modifiedFieldNames, details, eOpts) {
+      var modifiedRecords = _this.store.getUpdatedRecords();
+      if (modifiedRecords.length > 0) {
+        _this.setState({
+          disableSaveButton: false
+        });
+      } else {
+        _this.setState({
+          disableSaveButton: true
+        });
+      }
+    }
+  }
+});
+Ext.create({
+  xtype: 'grid',
+  title: 'Country Settings',
+  store: this.store,
+  cls: "filter-grid",
+  columnLines: true
+});
+Ext.create({
+  xtype: 'column',
+  text: "Country Name",
+  dataIndex: "name",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Can Override List and Dealer Price",
+  dataIndex: "canOverrideListAndDealerPrices",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Show Dealer Price",
+  dataIndex: "showDealerPrice",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Can Override TC and TP",
+  dataIndex: "canOverrideTransferCostAndPrice",
+  flex: 1
+});
+Ext.create({
+  xtype: 'toolbar',
+  docked: "bottom"
+});
+Ext.create({
+  xtype: 'button',
+  text: "Save",
+  flex: 1,
+  handler: this.saveRecords,
+  iconCls: "x-fa fa-save",
+  disabled: this.state.disableSaveButton
+});
+Ext.create({"xtype":"grid"});
+Ext.create({"xtype":"column"});
+Ext.create({"xtype":"checkcolumn"});
+Ext.create({"xtype":"toolbar"});
+Ext.create({"xtype":"button"});
+Ext.create('Ext.data.Store', {
+  fields: ['id', 'name', 'canOverrideListAndDealerPrices', 'showDealerPrice', 'canOverrideTransferCostAndPrice'],
+  autoLoad: true,
+  proxy: {
+    type: 'ajax',
+    api: {
+      read: 'api/Country/GetAll',
+      update: 'api/Country/SaveAll'
+    },
+    reader: {
+      type: 'json',
+      idProperty: 'id'
+    },
+    writer: {
+      type: 'json',
+      writeAllFields: true,
+      idProperty: 'id',
+      allowSingle: false
+    },
+    listeners: {
+      exception: function (proxy, response, operation) {
+        console.log(operation.getError());
+      }
+    }
+  },
+  listeners: {
+    update: function (store, record, operation, modifiedFieldNames, details, eOpts) {
+      var modifiedRecords = _this.store.getUpdatedRecords();
+      if (modifiedRecords.length > 0) {
+        _this.setState({
+          disableSaveButton: false
+        });
+      } else {
+        _this.setState({
+          disableSaveButton: true
+        });
+      }
+    }
+  }
+});
+Ext.create({
+  xtype: 'grid',
+  title: 'Country Settingsss',
+  store: this.store,
+  cls: "filter-grid",
+  columnLines: true
+});
+Ext.create({
+  xtype: 'column',
+  text: "Country Name",
+  dataIndex: "name",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Can Override List and Dealer Price",
+  dataIndex: "canOverrideListAndDealerPrices",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Show Dealer Price",
+  dataIndex: "showDealerPrice",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Can Override TC and TP",
+  dataIndex: "canOverrideTransferCostAndPrice",
+  flex: 1
+});
+Ext.create({
+  xtype: 'toolbar',
+  docked: "bottom"
+});
+Ext.create({
+  xtype: 'button',
+  text: "Save",
+  flex: 1,
+  handler: this.saveRecords,
+  iconCls: "x-fa fa-save",
+  disabled: this.state.disableSaveButton
+});
+Ext.create({"xtype":"grid"});
+Ext.create({"xtype":"column"});
+Ext.create({"xtype":"checkcolumn"});
+Ext.create({"xtype":"toolbar"});
+Ext.create({"xtype":"button"});
+Ext.create('Ext.data.Store', {
+  fields: ['id', 'name', 'canOverrideListAndDealerPrices', 'showDealerPrice', 'canOverrideTransferCostAndPrice'],
+  autoLoad: true,
+  proxy: {
+    type: 'ajax',
+    api: {
+      read: 'api/Country/GetAll',
+      update: 'api/Country/SaveAll'
+    },
+    reader: {
+      type: 'json',
+      idProperty: 'id'
+    },
+    writer: {
+      type: 'json',
+      writeAllFields: true,
+      idProperty: 'id',
+      allowSingle: false
+    },
+    listeners: {
+      exception: function (proxy, response, operation) {
+        console.log(operation.getError());
+      }
+    }
+  },
+  listeners: {
+    update: function (store, record, operation, modifiedFieldNames, details, eOpts) {
+      var modifiedRecords = _this.store.getUpdatedRecords();
+      if (modifiedRecords.length > 0) {
+        _this.setState({
+          disableSaveButton: false
+        });
+      } else {
+        _this.setState({
+          disableSaveButton: true
+        });
+      }
+    }
+  }
+});
+Ext.create({
+  xtype: 'grid',
+  title: 'Country Settings',
+  store: this.store,
+  cls: "filter-grid",
+  columnLines: true
+});
+Ext.create({
+  xtype: 'column',
+  text: "Country Name",
+  dataIndex: "name",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Can Override List and Dealer Price",
+  dataIndex: "canOverrideListAndDealerPrices",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Show Dealer Price",
+  dataIndex: "showDealerPrice",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Can Override TC and TP",
+  dataIndex: "canOverrideTransferCostAndPrice",
+  flex: 1
+});
+Ext.create({
+  xtype: 'toolbar',
+  docked: "bottom"
+});
+Ext.create({
+  xtype: 'button',
+  text: "Save",
+  flex: 1,
+  handler: this.saveRecords,
+  iconCls: "x-fa fa-save",
+  disabled: this.state.disableSaveButton
+});
+Ext.create({"xtype":"grid"});
+Ext.create({"xtype":"column"});
+Ext.create({"xtype":"checkcolumn"});
+Ext.create({"xtype":"toolbar"});
+Ext.create({"xtype":"button"});
+Ext.create('Ext.data.Store', {
+  fields: ['id', 'name', 'canOverrideListAndDealerPrices', 'showDealerPrice', 'canOverrideTransferCostAndPrice'],
+  autoLoad: true,
+  proxy: {
+    type: 'ajax',
+    api: {
+      read: 'api/Country/GetAll',
+      update: 'api/Country/SaveAll'
+    },
+    reader: {
+      type: 'json',
+      idProperty: 'id'
+    },
+    writer: {
+      type: 'json',
+      writeAllFields: true,
+      idProperty: 'id',
+      allowSingle: false
+    },
+    listeners: {
+      exception: function (proxy, response, operation) {
+        console.log(operation.getError());
+      }
+    }
+  },
+  listeners: {
+    update: function (store, record, operation, modifiedFieldNames, details, eOpts) {
+      var modifiedRecords = _this.store.getUpdatedRecords();
+      if (modifiedRecords.length > 0) {
+        _this.setState({
+          disableSaveButton: false
+        });
+      } else {
+        _this.setState({
+          disableSaveButton: true
+        });
+      }
+    }
+  }
+});
+Ext.create({
+  xtype: 'grid',
+  title: 'Country Settingssss',
+  store: this.store,
+  cls: "filter-grid",
+  columnLines: true
+});
+Ext.create({
+  xtype: 'column',
+  text: "Country Name",
+  dataIndex: "name",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Can Override List and Dealer Price",
+  dataIndex: "canOverrideListAndDealerPrices",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Show Dealer Price",
+  dataIndex: "showDealerPrice",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Can Override TC and TP",
+  dataIndex: "canOverrideTransferCostAndPrice",
+  flex: 1
+});
+Ext.create({
+  xtype: 'toolbar',
+  docked: "bottom"
+});
+Ext.create({
+  xtype: 'button',
+  text: "Save",
+  flex: 1,
+  handler: this.saveRecords,
+  iconCls: "x-fa fa-save",
+  disabled: this.state.disableSaveButton
+});
+Ext.create({"xtype":"grid"});
+Ext.create({"xtype":"column"});
+Ext.create({"xtype":"checkcolumn"});
+Ext.create({"xtype":"toolbar"});
+Ext.create({"xtype":"button"});
+Ext.create('Ext.data.Store', {
+  fields: ['id', 'name', 'canOverrideListAndDealerPrices', 'showDealerPrice', 'canOverrideTransferCostAndPrice'],
+  autoLoad: true,
+  proxy: {
+    type: 'ajax',
+    api: {
+      read: 'api/Country/GetAll',
+      update: 'api/Country/SaveAll'
+    },
+    reader: {
+      type: 'json',
+      idProperty: 'id'
+    },
+    writer: {
+      type: 'json',
+      writeAllFields: true,
+      idProperty: 'id',
+      allowSingle: false
+    },
+    listeners: {
+      exception: function (proxy, response, operation) {
+        console.log(operation.getError());
+      }
+    }
+  },
+  listeners: {
+    update: function (store, record, operation, modifiedFieldNames, details, eOpts) {
+      var modifiedRecords = _this.store.getUpdatedRecords();
+      if (modifiedRecords.length > 0) {
+        _this.setState({
+          disableSaveButton: false
+        });
+      } else {
+        _this.setState({
+          disableSaveButton: true
+        });
+      }
+    }
+  }
+});
+Ext.create({
+  xtype: 'grid',
+  title: 'Country Settings',
+  store: this.store,
+  cls: "filter-grid",
+  columnLines: true
+});
+Ext.create({
+  xtype: 'column',
+  text: "Country Name",
+  dataIndex: "name",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Can Override List and Dealer Price",
+  dataIndex: "canOverrideListAndDealerPrices",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Show Dealer Price",
+  dataIndex: "showDealerPrice",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Can Override TC and TP",
+  dataIndex: "canOverrideTransferCostAndPrice",
+  flex: 1
+});
+Ext.create({
+  xtype: 'toolbar',
+  docked: "bottom"
+});
+Ext.create({
+  xtype: 'button',
+  text: "Save",
+  flex: 1,
+  handler: this.saveRecords,
+  iconCls: "x-fa fa-save",
+  disabled: this.state.disableSaveButton
+});
+Ext.create({"xtype":"grid"});
+Ext.create({"xtype":"column"});
+Ext.create({"xtype":"checkcolumn"});
+Ext.create({"xtype":"toolbar"});
+Ext.create({"xtype":"button"});
+Ext.create('Ext.data.Store', {
+  fields: ['id', 'name', 'canOverrideListAndDealerPrices', 'showDealerPrice', 'canOverrideTransferCostAndPrice'],
+  autoLoad: true,
+  proxy: {
+    type: 'ajax',
+    api: {
+      read: 'api/Country/GetAll',
+      update: 'api/Country/SaveAll'
+    },
+    reader: {
+      type: 'json',
+      idProperty: 'id'
+    },
+    writer: {
+      type: 'json',
+      writeAllFields: true,
+      idProperty: 'id',
+      allowSingle: false
+    },
+    listeners: {
+      exception: function (proxy, response, operation) {
+        console.log(operation.getError());
+      }
+    }
+  },
+  listeners: {
+    update: function (store, record, operation, modifiedFieldNames, details, eOpts) {
+      var modifiedRecords = _this.store.getUpdatedRecords();
+      if (modifiedRecords.length > 0) {
+        _this.setState({
+          disableSaveButton: false
+        });
+      } else {
+        _this.setState({
+          disableSaveButton: true
+        });
+      }
+    }
+  }
+});
+Ext.create({
+  xtype: 'grid',
+  title: 'Country Settingsss',
+  store: this.store,
+  cls: "filter-grid",
+  columnLines: true
+});
+Ext.create({
+  xtype: 'column',
+  text: "Country Name",
+  dataIndex: "name",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Can Override List and Dealer Price",
+  dataIndex: "canOverrideListAndDealerPrices",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Show Dealer Price",
+  dataIndex: "showDealerPrice",
+  flex: 1
+});
+Ext.create({
+  xtype: 'checkcolumn',
+  text: "Can Override TC and TP",
+  dataIndex: "canOverrideTransferCostAndPrice",
+  flex: 1
+});
+Ext.create({
+  xtype: 'toolbar',
+  docked: "bottom"
+});
+Ext.create({
+  xtype: 'button',
+  text: "Save",
+  flex: 1,
+  handler: this.saveRecords,
+  iconCls: "x-fa fa-save",
+  disabled: this.state.disableSaveButton
+});
+Ext.create({"xtype":"grid"});
+Ext.create({"xtype":"column"});
+Ext.create({"xtype":"checkcolumn"});
+Ext.create({"xtype":"toolbar"});
+Ext.create({"xtype":"button"});
 Ext.require(['Ext.grid.plugin.Editable', 'Ext.grid.plugin.CellEditing']);
 Ext.define('RoleCode', {
   extend: 'Ext.data.Model',
@@ -723,6 +1339,13 @@ Ext.create({"xtype":"column"});
 Ext.create({"xtype":"toolbar"});
 Ext.create({"xtype":"button"});
 Ext.create({"xtype":"checkboxfield"});
+Ext.require('Ext.plugin.Responsive');
+Ext.require('Ext.plugin.Responsive');
+Ext.require('Ext.plugin.Responsive');
+Ext.require('Ext.plugin.Responsive');
+Ext.require('Ext.plugin.Responsive');
+Ext.require('Ext.plugin.Responsive');
+Ext.require('Ext.plugin.Responsive');
 Ext.require('Ext.plugin.Responsive');
 Ext.create({
   xtype: 'container',
@@ -1628,6 +2251,181 @@ Ext.create({
 Ext.create({"xtype":"grid"});
 Ext.create({"xtype":"column"});
 Ext.create({"xtype":"datecolumn"});
+Ext.create({
+  xtype: 'container',
+  fullscreen: true,
+  layout: "fit"
+});
+Ext.create({
+  xtype: 'panel',
+  scrollable: true,
+  docked: "left",
+  shadow: true,
+  zIndex: 2
+});
+Ext.create({
+  xtype: 'titlebar',
+  title: "SCD 2.0",
+  docked: "top"
+});
+Ext.create({
+  xtype: 'panel',
+  title: title,
+  layout: "fit"
+});
+Ext.create({"xtype":"container"});
+Ext.create({"xtype":"titlebar"});
+Ext.create({"xtype":"panel"});
+Ext.create({
+  xtype: 'container',
+  fullscreen: true,
+  layout: "fit"
+});
+Ext.create({
+  xtype: 'panel',
+  scrollable: true,
+  docked: "left",
+  shadow: true,
+  zIndex: 2
+});
+Ext.create({
+  xtype: 'titlebar',
+  title: "SCD 2.0",
+  docked: "top"
+});
+Ext.create({
+  xtype: 'panel',
+  title: title,
+  layout: "fit"
+});
+Ext.create({"xtype":"container"});
+Ext.create({"xtype":"titlebar"});
+Ext.create({"xtype":"panel"});
+Ext.create({
+  xtype: 'container',
+  fullscreen: true,
+  layout: "fit"
+});
+Ext.create({
+  xtype: 'panel',
+  scrollable: true,
+  docked: "left",
+  shadow: true,
+  zIndex: 2
+});
+Ext.create({
+  xtype: 'titlebar',
+  title: "SCD 2.0",
+  docked: "top"
+});
+Ext.create({
+  xtype: 'panel',
+  title: title,
+  layout: "fit"
+});
+Ext.create({"xtype":"container"});
+Ext.create({"xtype":"titlebar"});
+Ext.create({"xtype":"panel"});
+Ext.create({
+  xtype: 'container',
+  fullscreen: true,
+  layout: "fit"
+});
+Ext.create({
+  xtype: 'panel',
+  scrollable: true,
+  docked: "left",
+  shadow: true,
+  zIndex: 2
+});
+Ext.create({
+  xtype: 'titlebar',
+  title: "SCD 2.0",
+  docked: "top"
+});
+Ext.create({
+  xtype: 'panel',
+  title: title,
+  layout: "fit"
+});
+Ext.create({"xtype":"container"});
+Ext.create({"xtype":"titlebar"});
+Ext.create({"xtype":"panel"});
+Ext.create({
+  xtype: 'container',
+  fullscreen: true,
+  layout: "fit"
+});
+Ext.create({
+  xtype: 'panel',
+  scrollable: true,
+  docked: "left",
+  shadow: true,
+  zIndex: 2
+});
+Ext.create({
+  xtype: 'titlebar',
+  title: "SCD 2.0",
+  docked: "top"
+});
+Ext.create({
+  xtype: 'panel',
+  title: title,
+  layout: "fit"
+});
+Ext.create({"xtype":"container"});
+Ext.create({"xtype":"titlebar"});
+Ext.create({"xtype":"panel"});
+Ext.create({
+  xtype: 'container',
+  fullscreen: true,
+  layout: "fit"
+});
+Ext.create({
+  xtype: 'panel',
+  scrollable: true,
+  docked: "left",
+  shadow: true,
+  zIndex: 2
+});
+Ext.create({
+  xtype: 'titlebar',
+  title: "SCD 2.0",
+  docked: "top"
+});
+Ext.create({
+  xtype: 'panel',
+  title: title,
+  layout: "fit"
+});
+Ext.create({"xtype":"container"});
+Ext.create({"xtype":"titlebar"});
+Ext.create({"xtype":"panel"});
+Ext.create({
+  xtype: 'container',
+  fullscreen: true,
+  layout: "fit"
+});
+Ext.create({
+  xtype: 'panel',
+  scrollable: true,
+  docked: "left",
+  shadow: true,
+  zIndex: 2
+});
+Ext.create({
+  xtype: 'titlebar',
+  title: "SCD 2.0",
+  docked: "top"
+});
+Ext.create({
+  xtype: 'panel',
+  title: title,
+  layout: "fit"
+});
+Ext.create({"xtype":"container"});
+Ext.create({"xtype":"titlebar"});
+Ext.create({"xtype":"panel"});
 Ext.create({
   xtype: 'container',
   fullscreen: true,
