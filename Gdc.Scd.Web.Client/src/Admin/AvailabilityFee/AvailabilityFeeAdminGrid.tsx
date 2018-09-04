@@ -17,8 +17,8 @@ class AvailabilityFeeAdminGrid extends React.Component{
         proxy: {
             type: 'ajax',
             api: {
-                read: 'api/AvailabilityFeeAdmin/GetAll',
-                update: 'api/AvailabilityFeeAdmin/SaveAll'
+                read: '/scd/api/AvailabilityFeeAdmin/GetAll',
+                update: '/scd/api/AvailabilityFeeAdmin/SaveAll'
             },
             reader: {
                 type: 'json',
