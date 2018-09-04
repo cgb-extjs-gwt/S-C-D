@@ -1,7 +1,7 @@
-﻿import { DomainService } from "../../Common/Services/DomainService";
+﻿import { CacheDomainService } from "../../Common/Services/CacheDomainService";
 import { NamedId } from "../../Common/States/CommonStates";
 
-export class AvailabilityService extends DomainService<NamedId> {
+export class AvailabilityService extends CacheDomainService<NamedId> {
     constructor() {
         super('availability');
     }

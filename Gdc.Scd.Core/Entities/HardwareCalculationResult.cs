@@ -44,12 +44,6 @@ namespace Gdc.Scd.Core.Entities
         public double? ProActive { get; set; }
         public double? ProActive_Approved { get; set; }
 
-        public double? ServiceTC { get; set; }
-        public double? ServiceTC_Approved { get; set; }
-
-        public double? ServiceTP { get; set; }
-        public double? ServiceTP_Approved { get; set; }
-
         public double? OtherDirect { get; set; }
         public double? OtherDirect_Approved { get; set; }
 
@@ -58,6 +52,16 @@ namespace Gdc.Scd.Core.Entities
 
         public double? Credits { get; set; }
         public double? Credits_Approved { get; set; }
+
+        public double? ServiceTC { get; set; }
+        public double? ServiceTC_Approved { get; set; }
+        public double? ServiceTC_Custom { get; set; }
+        public double? ServiceTC_Custom_Approved { get; set; }
+
+        public double? ServiceTP { get; set; }
+        public double? ServiceTP_Approved { get; set; }
+        public double? ServiceTP_Custom { get; set; }
+        public double? ServiceTP_Custom_Approved { get; set; }
 
         public CapabilityMatrix.CapabilityMatrix Matrix { get; set; }
     }
