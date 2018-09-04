@@ -16,6 +16,7 @@ import WarrantyGroupGrid from '../../Admin/WarrantyGroup/WarrantyGroupGrid';
 import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCostElementsLayout';
 import { init } from '../../CostApproval/Actions/CostApprovalFilterActions';
 import AvailabilityFeeAdminGrid from '../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid';
+import { CalcResultView } from '../../Report';
 
 export const ROOT_LAYOUT_ID = "root-layout";
 
@@ -74,7 +75,8 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/pivot" component={ScdPivotGrid}/>
                         <Route path="/input-cost-elements" component={CostEditorContainer}/>
                         <Route path="/admin/country-management" component={ CountryGrid }/>
-                        <Route path="/cost-approval" component={ ApprovalCostElementsLayout} />
+                        <Route path="/cost-approval" component={ApprovalCostElementsLayout} />
+                        <Route path="/report" component={CalcResultView} />
                         <Route path="/capability-matrix" exact component={CapabilityMatrixView} />
                         <Route path="/capability-matrix/edit" component={CapabilityMatrixEditView} />
                         <Route path="/admin/availability-fee" component={AvailabilityFeeAdminGrid} />
