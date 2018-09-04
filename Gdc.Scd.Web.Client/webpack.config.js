@@ -1,5 +1,3 @@
-/// <binding ProjectOpened='Watch - Development' />
-
 const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -28,6 +26,7 @@ module.exports = function (env) {
             new webpack.NamedModulesPlugin()
         ];
 
+
         if (isProd) {
             plugins.push(
                 new webpack.LoaderOptionsPlugin({
@@ -50,8 +49,6 @@ module.exports = function (env) {
         plugins.push(new HtmlWebpackPlugin({
             template: 'index.html',
             hash: true
-        }), new OpenBrowserPlugin({
-            url: `http://localhost:${port}`
         }));
 
         return {
@@ -63,7 +60,8 @@ module.exports = function (env) {
             ],
 
             output: {
-                path: path.join(__dirname, 'build'),
+                path: path.join(__dirname, '../Web.Api/wwwroot'),
+                publicPath: '/',
                 filename: 'bundle.js',
             },
 
@@ -107,30 +105,30 @@ module.exports = function (env) {
                 }
             },
 
-            devServer: {
-                contentBase: './build',
-                historyApiFallback: true,
-                host: '0.0.0.0',
-                disableHostCheck: true,
-                port,
-                compress: isProd,
-                inline: !isProd,
-                hot: !isProd,
-                stats: {
-                    assets: true,
-                    children: false,
-                    chunks: false,
-                    hash: false,
-                    modules: false,
-                    publicPath: false,
-                    timings: true,
-                    version: false,
-                    warnings: true,
-                    colors: {
-                        green: '\u001b[32m'
-                    }
-                },
-            }
+            //devServer: {
+            //    contentBase: './build',
+            //    historyApiFallback: true,
+            //    host: '0.0.0.0',
+            //    disableHostCheck: true,
+            //    port,
+            //    compress: isProd,
+            //    inline: !isProd,
+            //    hot: !isProd,
+            //    stats: {
+            //        assets: true,
+            //        children: false,
+            //        chunks: false,
+            //        hash: false,
+            //        modules: false,
+            //        publicPath: false,
+            //        timings: true,
+            //        version: false,
+            //        warnings: true,
+            //        colors: {
+            //            green: '\u001b[32m'
+            //        }
+            //    },
+            //}
         };
     })
 };

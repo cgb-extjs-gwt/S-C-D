@@ -7,8 +7,8 @@ Ext.create('Ext.data.Store', {
   proxy: {
     type: 'ajax',
     api: {
-      read: '/api/AvailabilityFeeAdmin/GetAll',
-      update: '/api/AvailabilityFeeAdmin/SaveAll'
+      read: 'api/AvailabilityFeeAdmin/GetAll',
+      update: 'api/AvailabilityFeeAdmin/SaveAll'
     },
     reader: {
       type: 'json',
@@ -100,8 +100,8 @@ Ext.create('Ext.data.Store', {
   proxy: {
     type: 'ajax',
     api: {
-      read: '/api/Country/GetAll',
-      update: '/api/Country/SaveAll'
+      read: 'api/Country/GetAll',
+      update: 'api/Country/SaveAll'
     },
     reader: {
       type: 'json',
@@ -214,10 +214,10 @@ Ext.create('Ext.data.Store', {
       exception: function (proxy, response, operation) {}
     },
     api: {
-      create: '/api/rolecode/SaveAll',
-      read: '/api/rolecode/GetAll',
-      update: '/api/rolecode/SaveAll',
-      destroy: '/api/rolecode/DeleteAll'
+      create: 'api/rolecode/SaveAll',
+      read: 'api/rolecode/GetAll',
+      update: 'api/rolecode/SaveAll',
+      destroy: 'api/rolecode/DeleteAll'
     }
   },
   listeners: {
@@ -324,10 +324,10 @@ Ext.create('Ext.data.Store', {
       idProperty: "id"
     },
     api: {
-      create: '/api/userrole/SaveAll',
-      read: '/api/userrole/GetAll',
-      update: '/api/userrole/SaveAll',
-      destroy: '/api/userrole/DeleteAll'
+      create: 'api/userrole/SaveAll',
+      read: 'api/userrole/GetAll',
+      update: 'api/userrole/SaveAll',
+      destroy: 'api/userrole/DeleteAll'
     }
   }
 });
@@ -345,7 +345,7 @@ Ext.create('Ext.data.Store', {
       type: 'json'
     },
     api: {
-      read: '/api/User/GetAll'
+      read: 'api/User/GetAll'
     }
   },
   listeners: {
@@ -370,7 +370,7 @@ Ext.create('Ext.data.Store', {
       type: 'json'
     },
     api: {
-      read: '/api/Country/GetAll'
+      read: 'api/Country/GetAll'
     }
   },
   listeners: {
@@ -395,7 +395,7 @@ Ext.create('Ext.data.Store', {
       type: 'json'
     },
     api: {
-      read: '/api/Role/GetAll'
+      read: 'api/Role/GetAll'
     }
   },
   listeners: {
@@ -598,8 +598,8 @@ Ext.create('Ext.data.Store', {
       idProperty: "id"
     },
     api: {
-      read: '/api/WarrantyGroup/GetAll',
-      update: '/api/WarrantyGroup/SaveAll'
+      read: 'api/WarrantyGroup/GetAll',
+      update: 'api/WarrantyGroup/SaveAll'
     }
   },
   listeners: {
@@ -623,7 +623,7 @@ Ext.create('Ext.data.Store', {
       type: 'json'
     },
     api: {
-      read: '/api/RoleCode/GetAll'
+      read: 'api/RoleCode/GetAll'
     }
   },
   listeners: {

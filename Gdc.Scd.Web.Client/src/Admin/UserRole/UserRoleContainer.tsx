@@ -41,10 +41,10 @@ export default class RoleCodesContainer extends React.Component {
                 idProperty: "id"
             },
             api: {
-                create: '/api/userrole/SaveAll',
-                read: '/api/userrole/GetAll',
-                update: '/api/userrole/SaveAll',
-                destroy: '/api/userrole/DeleteAll'
+                create: 'api/userrole/SaveAll',
+                read: 'api/userrole/GetAll',
+                update: 'api/userrole/SaveAll',
+                destroy: 'api/userrole/DeleteAll'
             }
         }
     });
@@ -90,7 +90,7 @@ export default class RoleCodesContainer extends React.Component {
                 type: 'json'
             },
             api: {
-                read: '/api/User/GetAll'
+                read: 'api/User/GetAll'
             }
         },
         listeners: {
@@ -115,7 +115,7 @@ export default class RoleCodesContainer extends React.Component {
                 type: 'json'
             },
             api: {
-                read: '/api/Country/GetAll'
+                read: 'api/Country/GetAll'
             }
         },
         listeners: {
@@ -140,7 +140,7 @@ export default class RoleCodesContainer extends React.Component {
                 type: 'json'
             },
             api: {
-                read: '/api/Role/GetAll'
+                read: 'api/Role/GetAll'
             }
         },
         listeners: {

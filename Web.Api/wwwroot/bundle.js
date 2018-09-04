@@ -59,7 +59,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "6a90cfdc65b714756d3e"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "9e041004a1bc6af64ac5"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -700,7 +700,7 @@
 /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
+/******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// __webpack_hash__
 /******/ 	__webpack_require__.h = function() { return hotCurrentHash; };
@@ -39199,8 +39199,8 @@ var AvailabilityFeeAdminGrid = function (_super) {
             proxy: {
                 type: 'ajax',
                 api: {
-                    read: '/api/AvailabilityFeeAdmin/GetAll',
-                    update: '/api/AvailabilityFeeAdmin/SaveAll'
+                    read: 'api/AvailabilityFeeAdmin/GetAll',
+                    update: 'api/AvailabilityFeeAdmin/SaveAll'
                 },
                 reader: {
                     type: 'json',
@@ -39289,8 +39289,8 @@ var CountryGrid = function (_super) {
             proxy: {
                 type: 'ajax',
                 api: {
-                    read: '/api/Country/GetAll',
-                    update: '/api/Country/SaveAll'
+                    read: 'api/Country/GetAll',
+                    update: 'api/Country/SaveAll'
                 },
                 reader: {
                     type: 'json',
@@ -39408,10 +39408,10 @@ var RoleCodesGrid = function (_super) {
                     exception: function (proxy, response, operation) {}
                 },
                 api: {
-                    create: '/api/rolecode/SaveAll',
-                    read: '/api/rolecode/GetAll',
-                    update: '/api/rolecode/SaveAll',
-                    destroy: '/api/rolecode/DeleteAll'
+                    create: 'api/rolecode/SaveAll',
+                    read: 'api/rolecode/GetAll',
+                    update: 'api/rolecode/SaveAll',
+                    destroy: 'api/rolecode/DeleteAll'
                 }
             },
             listeners: {
@@ -39556,10 +39556,10 @@ var RoleCodesContainer = function (_super) {
                     idProperty: "id"
                 },
                 api: {
-                    create: '/api/userrole/SaveAll',
-                    read: '/api/userrole/GetAll',
-                    update: '/api/userrole/SaveAll',
-                    destroy: '/api/userrole/DeleteAll'
+                    create: 'api/userrole/SaveAll',
+                    read: 'api/userrole/GetAll',
+                    update: 'api/userrole/SaveAll',
+                    destroy: 'api/userrole/DeleteAll'
                 }
             }
         });
@@ -39597,7 +39597,7 @@ var RoleCodesContainer = function (_super) {
                     type: 'json'
                 },
                 api: {
-                    read: '/api/User/GetAll'
+                    read: 'api/User/GetAll'
                 }
             },
             listeners: {
@@ -39620,7 +39620,7 @@ var RoleCodesContainer = function (_super) {
                     type: 'json'
                 },
                 api: {
-                    read: '/api/Country/GetAll'
+                    read: 'api/Country/GetAll'
                 }
             },
             listeners: {
@@ -39643,7 +39643,7 @@ var RoleCodesContainer = function (_super) {
                     type: 'json'
                 },
                 api: {
-                    read: '/api/Role/GetAll'
+                    read: 'api/Role/GetAll'
                 }
             },
             listeners: {
@@ -40005,8 +40005,8 @@ var RoleCodesGrid = function (_super) {
                     idProperty: "id"
                 },
                 api: {
-                    read: '/api/WarrantyGroup/GetAll',
-                    update: '/api/WarrantyGroup/SaveAll'
+                    read: 'api/WarrantyGroup/GetAll',
+                    update: 'api/WarrantyGroup/SaveAll'
                 }
             },
             listeners: {
@@ -40030,7 +40030,7 @@ var RoleCodesGrid = function (_super) {
                     type: 'json'
                 },
                 api: {
-                    read: '/api/RoleCode/GetAll'
+                    read: 'api/RoleCode/GetAll'
                 }
             },
             listeners: {

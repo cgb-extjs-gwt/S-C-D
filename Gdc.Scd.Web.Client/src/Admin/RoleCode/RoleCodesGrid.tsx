@@ -50,10 +50,10 @@ export default class RoleCodesGrid extends React.Component {
                 }
             },
             api: {             
-                create: '/api/rolecode/SaveAll',
-                read: '/api/rolecode/GetAll',
-                update: '/api/rolecode/SaveAll',
-                destroy: '/api/rolecode/DeleteAll'
+                create: 'api/rolecode/SaveAll',
+                read: 'api/rolecode/GetAll',
+                update: 'api/rolecode/SaveAll',
+                destroy: 'api/rolecode/DeleteAll'
             }
         },
         listeners: {
