@@ -66,8 +66,8 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         public DomainMeta Get()
         {
-            //var fileName = HostingEnvironment.MapPath("~/DomainConfig.xml");
-            var fileName = "./DomainConfig.xml";
+            var fileName = HostingEnvironment.MapPath("~/DomainConfig.xml");
+            //var fileName = "./DomainConfig.xml";
             var doc = XDocument.Load(fileName);
 
             return this.BuilDomainMeta(doc.Root);

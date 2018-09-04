@@ -20,7 +20,7 @@ export default class RoleCodesGrid extends React.Component {
 
 
     store = Ext.create('Ext.data.Store', {
-        fields: ['Id', 'Name',
+        fields: ['id', 'name',
             {
                 name: 'roleCodeId', type: 'int',
                 convert: function (val, row) {
@@ -46,11 +46,11 @@ export default class RoleCodesGrid extends React.Component {
                 type: 'json',
                 writeAllFields: true,
                 allowSingle: false,
-                idProperty: "Id"
+                idProperty: "id"
             },
             reader: {
                 type: 'json',
-                idProperty: "Id"
+                idProperty: "id"
             },
             api: {
                 read: '/api/WarrantyGroup/GetAll',
@@ -66,7 +66,7 @@ export default class RoleCodesGrid extends React.Component {
     });
 
     storeRoleCode = Ext.create('Ext.data.Store', {
-        fields: ['Id','Name'],
+        fields: ['id','name'],
         autoLoad: false,
         pageSize: 0,
         sorters: [ {

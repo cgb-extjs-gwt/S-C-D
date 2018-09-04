@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Serialization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -24,6 +25,8 @@ namespace Web.Api
             );
 
             var jsonFormatter = new JsonMediaTypeFormatter();
+            jsonFormatter.SerializerSettings.ContractResolver =
+            new CamelCasePropertyNamesContractResolver();
             //optional: set serializer settings here
             config.Services.Replace(typeof(IContentNegotiator), new JsonContentNegotiator(jsonFormatter));
         }
