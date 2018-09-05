@@ -23,7 +23,6 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         public virtual IEnumerable<T> GetAll()
         {
-            var list = this.domainService.GetAll().ToList();
             return this.domainService.GetAll();
         }
 

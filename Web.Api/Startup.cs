@@ -61,11 +61,11 @@ namespace Gdc.Scd.Web
 #if DEBUG
             var parentDirectoryInfo = Directory.GetParent(Directory.GetCurrentDirectory());
 
-                //app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
-                //{
-                //    ConfigFile = "webpack.config.asp.js",
-                //    ProjectPath = Path.Combine(parentDirectoryInfo.FullName, "Gdc.Scd.Web.Client"),
-                //});
+            //app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
+            //{
+            //    ConfigFile = "webpack.config.asp.js",
+            //    ProjectPath = Path.Combine(parentDirectoryInfo.FullName, "Gdc.Scd.Web.Client"),
+            //});
 #endif
             foreach (var handler in serviceProvider.GetServices<IConfigureApplicationHandler>())
             {

@@ -68,7 +68,7 @@ module.exports = function (env) {
 
             output: {
                 path: path.join(__dirname, '../Web.Api/wwwroot'),
-                publicPath: 'wwwroot',
+                publicPath: '/scd/wwwroot',
                 filename: 'bundle.js',
             },
 

@@ -1,2 +1,2 @@
 // @tag App
-// @require D:\SCD2.0_Repo\Web.Api\wwwroot\ext-react\app.js
+// @require D:\TFSRussia\Source\Repos\SCD2.0 - Copy\Web.Api\wwwroot\ext-react\app.js
