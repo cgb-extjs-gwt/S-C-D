@@ -2,7 +2,7 @@
 */obj
 */bin
 Gdc.Scd.Web.Api/wwwroot
-Web.Api/wwwroot
+/Web.Api/wwwroot
 
 /Gdc.Scd.Web.Client/node_modules/@extjs/sencha-cmd/repo/.sencha/repo/remotes/sencha/sencha.cfg
 /Gdc.Scd.Web.Client/node_modules/@extjs/sencha-cmd/repo/.sencha/repo/remotes/sencha-beta/sencha.cfg

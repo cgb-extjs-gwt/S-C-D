@@ -4,8 +4,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const OpenBrowserPlugin = require('open-browser-webpack-plugin');
 const ExtReactWebpackPlugin = require('@extjs/reactor-webpack-plugin');
 const portfinder = require('portfinder');
+const WriteFilePlugin = require('write-file-webpack-plugin');
 
-const sourcePath = path.join(__dirname, './src');
+const sourcePath = path.resolve(__dirname, 'src');
+
+console.log("SOURCE PATH: " + sourcePath);
 
 module.exports = function (env) {
     portfinder.basePort = (env && env.port) || 8080; // the default port to use
@@ -14,8 +17,9 @@ module.exports = function (env) {
         const nodeEnv = env && env.prod ? 'production' : 'development';
         //const isProd = nodeEnv === 'production';
         const isProd = false;
+        //console.log("[IS PRODUCTION]: " + isProd);
 
-        const plugins = [
+        const plugins = [   
             new ExtReactWebpackPlugin({
                 theme: 'custom-ext-react-theme',
                 overrides: ['ext-react/overrides'],
@@ -42,8 +46,10 @@ module.exports = function (env) {
                 })
             );
         } else {
+            plugins.push(new WriteFilePlugin({ test: /^(?!.+(?:hot-update.(js|json))).+$/ }));
+
             plugins.push(
-                new webpack.HotModuleReplacementPlugin()
+                new webpack.HotModuleReplacementPlugin() 
             );
         }
 

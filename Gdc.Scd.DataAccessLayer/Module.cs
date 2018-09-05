@@ -13,16 +13,16 @@ namespace Gdc.Scd.DataAccessLayer
     {
         public void Init(IServiceCollection services)
         {
-            services.AddTransient(typeof(IRepository<>), typeof(EntityFrameworkRepository<>));
-            services.AddTransient<EntityFrameworkRepositorySet>();
-            services.AddTransient<IRepositorySet>(serviceProvider => serviceProvider.GetService<EntityFrameworkRepositorySet>());
-            services.AddTransient<ISqlRepository, SqlRepository>();
-            services.AddTransient<ICostEditorRepository, CostEditorRepository>();
-            services.AddTransient<ICostBlockValueHistoryRepository, CostBlockValueHistoryRepository>();
-            services.AddTransient<IRepository<CostBlockHistory>, CostBlockHistoryRepository>();
-            services.AddTransient<IRepository<ReactionTimeType>, ReactionTimeTypeRepository>();
-            services.AddTransient<IRepository<ReactionTimeAvalability>, ReactionTimeAvalabilityRepository>();
-            services.AddTransient<IRepository<ReactionTimeTypeAvalability>, ReactionTimeTypeAvalabilityRepository>();
+            services.AddScoped(typeof(IRepository<>), typeof(EntityFrameworkRepository<>));
+            services.AddScoped<EntityFrameworkRepositorySet>();
+            services.AddScoped<IRepositorySet>(serviceProvider => serviceProvider.GetService<EntityFrameworkRepositorySet>());
+            services.AddScoped<ISqlRepository, SqlRepository>();
+            services.AddScoped<ICostEditorRepository, CostEditorRepository>();
+            services.AddScoped<ICostBlockValueHistoryRepository, CostBlockValueHistoryRepository>();
+            services.AddScoped<IRepository<CostBlockHistory>, CostBlockHistoryRepository>();
+            services.AddScoped<IRepository<ReactionTimeType>, ReactionTimeTypeRepository>();
+            services.AddScoped<IRepository<ReactionTimeAvalability>, ReactionTimeAvalabilityRepository>();
+            services.AddScoped<IRepository<ReactionTimeTypeAvalability>, ReactionTimeTypeAvalabilityRepository>();
 
             services.AddTransient<BaseColumnMetaSqlBuilder<IdFieldMeta>, IdColumnMetaSqlBuilder>();
             services.AddTransient<BaseColumnMetaSqlBuilder<SimpleFieldMeta>, SimpleColumnMetaSqlBuilder>();
