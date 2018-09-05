@@ -1,7 +1,7 @@
 ﻿import { Container, TabPanel } from "@extjs/ext-react";
 import * as React from "react";
-import { HardwareCostView } from "./HardwareCostView";
-import { SoftwareCostView } from "./SoftwareCostView";
+import { HwCostView } from "./HwCostView";
+import { SwCostView } from "./SwCostView";
 
 export class CalcResultView extends React.Component<any, any> {
 
@@ -13,11 +13,11 @@ export class CalcResultView extends React.Component<any, any> {
                 <TabPanel flex="1" tabBar={{ layout: { pack: 'left' } }}>
 
                     <Container title="Hardware service costs" layout="fit">
-                        <HardwareCostView />
+                        <HwCostView />
                     </Container>
 
                     <Container title="Software &amp; Solution service costs" layout="fit">
-                        <SoftwareCostView />
+                        <SwCostView />
                     </Container>
 
                 </TabPanel>

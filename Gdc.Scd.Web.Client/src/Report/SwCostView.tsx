@@ -5,7 +5,7 @@ import { SwCalcFilterModel } from "./Model/SwCalcFilterModel";
 import { IReportService } from "./Services/IReportService";
 import { ReportFactory } from "./Services/ReportFactory";
 
-export class SoftwareCostView extends React.Component<any, any> {
+export class SwCostView extends React.Component<any, any> {
 
     private grid: Grid;
 

@@ -5,7 +5,7 @@ import { HwCalcFilterModel } from "./Model/HwCalcFilterModel";
 import { IReportService } from "./Services/IReportService";
 import { ReportFactory } from "./Services/ReportFactory";
 
-export class HardwareCostView extends React.Component<any, any> {
+export class HwCostView extends React.Component<any, any> {
 
     private grid: Grid;
 
