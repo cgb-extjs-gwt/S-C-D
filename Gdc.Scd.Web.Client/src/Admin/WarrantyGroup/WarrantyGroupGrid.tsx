@@ -53,8 +53,8 @@ export default class RoleCodesGrid extends React.Component {
                 idProperty: "id"
             },
             api: {
-                read: '/api/WarrantyGroup/GetAll',
-                update: '/api/WarrantyGroup/SaveAll'
+                read: '/api/wg/GetAll',
+                update: '/api/wg/SaveAll'
             }
         },
         listeners: {

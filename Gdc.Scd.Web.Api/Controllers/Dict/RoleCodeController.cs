@@ -3,9 +3,9 @@ using Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.Web.Api.Controllers.Dict
 {
-    public class WgController : BaseDomainController<Wg>
+    public class RoleCodeController : BaseDomainController<RoleCode>
     {
-        public WgController(IDomainService<Wg> domainService) 
+        public RoleCodeController(IDomainService<RoleCode> domainService) 
             : base(domainService) { }
     }
 }
