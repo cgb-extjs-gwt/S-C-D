@@ -9,8 +9,12 @@ using Gdc.Scd.Core.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin;
+using Ninject;
+using Ninject.Modules;
+using Ninject.Web.Mvc;
 using Owin;
 using Web.Api;
+using Web.Api.DI;
 
 [assembly: OwinStartupAttribute(typeof(Gdc.Scd.Web.Startup))]
 namespace Gdc.Scd.Web
@@ -31,6 +35,7 @@ namespace Gdc.Scd.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
             this.InitModules(services);
             var types = typeof(Startup).Assembly.GetExportedTypes();
             List<Type> controllerTypes=new List<Type>();
@@ -48,11 +53,12 @@ namespace Gdc.Scd.Web
         public void Configuration(IAppBuilder app)
         {
 
-            var services = new ServiceCollection();
-            ConfigureServices(services);
-            var resolver = new DefaultDependencyResolver(services.BuildServiceProvider());
-            DependencyResolver.SetResolver(resolver);
-            GlobalConfiguration.Configuration.DependencyResolver = new DefaultDependencyResolver(services.BuildServiceProvider()); 
+            NinjectModule registrations = new NinjectRegistrations();
+            var kernel = new StandardKernel(registrations);
+            var ninjectResolver = new NinjectScdDependencyResolver(kernel);
+
+            DependencyResolver.SetResolver(ninjectResolver); // MVC
+            GlobalConfiguration.Configuration.DependencyResolver = ninjectResolver; // Web API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
