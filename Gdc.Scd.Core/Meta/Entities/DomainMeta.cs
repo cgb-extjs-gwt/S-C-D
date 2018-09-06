@@ -1,4 +1,6 @@
-﻿namespace Gdc.Scd.Core.Meta.Entities
+﻿using Gdc.Scd.Core.Interfaces;
+
+namespace Gdc.Scd.Core.Meta.Entities
 {
     public class DomainMeta
     {
@@ -6,6 +8,9 @@
 
         public MetaCollection<ApplicationMeta> Applications { get; set; }
 
-        public MetaCollection<InputLevelMeta> InputLevels { get; set; }
+        public CostElementMeta GetCostElement(ICostElementIdentifier costElementIdentifier)
+        {
+            return this.CostBlocks[costElementIdentifier.CostBlockId].CostElements[costElementIdentifier.CostElementId];
+        }
     }
 }

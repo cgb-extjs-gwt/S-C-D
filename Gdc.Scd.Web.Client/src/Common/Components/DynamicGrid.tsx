@@ -2,19 +2,29 @@ import * as React from "react";
 import { Grid, Column, CheckColumn } from "@extjs/ext-react";
 import { ColumnInfo, ColumnType } from "../States/ColumnInfo";
 
-export interface DynamicGridProps {
+export interface DynamicGridActions {
+    onSelectionChange?(grid, records: any[])
+}
+
+export interface DynamicGridProps extends DynamicGridActions {
     store
     columns: ColumnInfo[]
     id?: string
-    height?: number
+    minHeight?: number
+    minWidth?: number
 }
 
 export class DynamicGrid extends React.Component<DynamicGridProps> {
     render() {
-        const { store, columns, id, height, children } = this.props;
+        const { store, columns, id, minHeight, minWidth, children, onSelectionChange } = this.props;
 
         return (
-            <Grid store={store} columnLines={true} height={height}>
+            <Grid 
+                store={store} 
+                columnLines={true} 
+                minHeight={minHeight}
+                minWidth={minWidth}
+                onSelect={onSelectionChange}>
                 {
                     columns.map(column => {
                         const columnOption = {
