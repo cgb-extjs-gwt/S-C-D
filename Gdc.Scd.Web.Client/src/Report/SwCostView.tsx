@@ -1,11 +1,12 @@
-﻿import { Column, Container, Grid } from "@extjs/ext-react";
+﻿import { Column, Container, Grid, NumberColumn } from "@extjs/ext-react";
 import * as React from "react";
+import { CalcCostProps } from "./Components/CalcCostProps";
 import { SwCalcFilter } from "./Components/SwCalcFilter";
 import { SwCalcFilterModel } from "./Model/SwCalcFilterModel";
 import { IReportService } from "./Services/IReportService";
 import { ReportFactory } from "./Services/ReportFactory";
 
-export class SwCostView extends React.Component<any, any> {
+export class SwCostView extends React.Component<CalcCostProps, any> {
 
     private grid: Grid;
 
@@ -13,7 +14,7 @@ export class SwCostView extends React.Component<any, any> {
 
     private srv: IReportService;
 
-    public constructor(props: any) {
+    public constructor(props: CalcCostProps) {
         super(props);
         this.init();
     }
@@ -42,11 +43,20 @@ export class SwCostView extends React.Component<any, any> {
 
                     <Column flex="2" isHeaderGroup={true} text="Resulting costs" dataIndex="none" cls="calc-cost-result-blue" defaults={{ minWidth: 100 }}>
 
-                        <Column flex="1" text="Service<br>support<br>cost" dataIndex="serviceSupport" />
-                        <Column flex="1" text="Reinsurance" dataIndex="reinsurance" />
-                        <Column flex="1" text="Transer<br>price" dataIndex="transferPrice" />
-                        <Column flex="1" text="Maintenance<br>list<br>price" dataIndex="maintenanceListPrice" />
-                        <Column flex="1" text="Dealer<br>reference<br>price" dataIndex="dealerPrice" />
+                        <NumberColumn flex="1" text="Service<br>support cost" dataIndex="serviceSupport" />
+                        <NumberColumn flex="1" text="Reinsurance" dataIndex="reinsurance" />
+                        <NumberColumn flex="1" text="Transer<br>price" dataIndex="transferPrice" />
+
+                        <Column isHeaderGroup={true} text="Maintenance<br>list price" dataIndex="" defaults={{ minWidth: 100 }}>
+                            <NumberColumn flex="1" text="Calc" dataIndex="maintenanceListPrice" />
+                            <NumberColumn flex="1" text="Manual" dataIndex="maintenanceListPriceManual" />
+                        </Column>
+
+                        <Column isHeaderGroup={true} text="Dealer<br>reference price" dataIndex="" defaults={{ minWidth: 100 }}>
+                            <NumberColumn flex="1" text="Calc" dataIndex="dealerPrice" />
+                            <NumberColumn flex="1" text="Manual" dataIndex="dealerPriceManual" />
+                        </Column>
+
 
                     </Column>
 

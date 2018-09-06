@@ -55,13 +55,13 @@ namespace Gdc.Scd.Core.Entities
 
         public double? ServiceTC { get; set; }
         public double? ServiceTC_Approved { get; set; }
-        public double? ServiceTC_Custom { get; set; }
-        public double? ServiceTC_Custom_Approved { get; set; }
+        public double? ServiceTCManual { get; set; }
+        public double? ServiceTCManual_Approved { get; set; }
 
         public double? ServiceTP { get; set; }
         public double? ServiceTP_Approved { get; set; }
-        public double? ServiceTP_Custom { get; set; }
-        public double? ServiceTP_Custom_Approved { get; set; }
+        public double? ServiceTPManual { get; set; }
+        public double? ServiceTPManual_Approved { get; set; }
 
         public CapabilityMatrix.CapabilityMatrix Matrix { get; set; }
     }

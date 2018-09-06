@@ -1,11 +1,12 @@
-﻿import { Column, Container, Grid, NumberColumn, NumberCell } from "@extjs/ext-react";
+﻿import { Column, Container, Grid, NumberColumn } from "@extjs/ext-react";
 import * as React from "react";
+import { CalcCostProps } from "./Components/CalcCostProps";
 import { HwCalcFilter } from "./Components/HwCalcFilter";
 import { HwCalcFilterModel } from "./Model/HwCalcFilterModel";
 import { IReportService } from "./Services/IReportService";
 import { ReportFactory } from "./Services/ReportFactory";
 
-export class HwCostView extends React.Component<any, any> {
+export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private grid: Grid;
 
@@ -13,12 +14,14 @@ export class HwCostView extends React.Component<any, any> {
 
     private srv: IReportService;
 
-    public constructor(props: any) {
+    public constructor(props: CalcCostProps) {
         super(props);
         this.init();
     }
 
     public render() {
+
+        const editMode = !this.props.approved;
 
         return (
             <Container layout="fit">
@@ -29,27 +32,7 @@ export class HwCostView extends React.Component<any, any> {
                     ref="grid"
                     store={this.state.costs}
                     width="100%"
-                    platformConfig={{
-                        desktop: {
-                            plugins: {
-                                gridpagingtoolbar: true,
-                                gridcellediting: true
-                            }
-                            //plugins: [
-                            //    'pagingtoolbar',
-                            //    Ext.create('Ext.grid.plugin.CellEditing', {
-                            //        clicksToEdit: 2,
-                            //        listeners: {
-                            //            beforeedit: function (e, editor) {
-                            //                console.log('beforeedit');
-                            //                //if (editor.rowIdx == 0)
-                            //                //    return false;
-                            //            }
-                            //        }
-                            //    })
-                            //]
-                        }
-                    }}>
+                    platformConfig={this.pluginConf()}>
 
                     { /*dependencies*/}
 
@@ -69,17 +52,17 @@ export class HwCostView extends React.Component<any, any> {
 
                     <Column isHeaderGroup={true} text="Cost block results" dataIndex="" cls="calc-cost-result-blue" defaults={{ minWidth: 100 }}>
 
-                        <Column flex="1" text="Field<br>service<br>cost" dataIndex="fieldServiceCost" />
-                        <Column flex="1" text="Service<br>support<br>cost" dataIndex="serviceSupport" />
-                        <Column flex="1" text="Logistic<br>cost" dataIndex="logistic" />
-                        <Column flex="1" text="Availability<br>fee" dataIndex="availabilityFee" />
-                        <Column flex="1" text="HDD<br>retention" dataIndex="hddRetention" />
-                        <Column flex="1" text="Reinsurance" dataIndex="reinsurance" />
-                        <Column flex="1" text="Tax &amp; Duties<br>iW period" dataIndex="taxAndDutiesW" />
-                        <Column flex="1" text="Tax &amp; Duties<br>OOW period" dataIndex="taxAndDutiesOow" />
-                        <Column flex="1" text="Material<br>cost<br>iW period" dataIndex="materialW" />
-                        <Column flex="1" text="Material<br>cost<br>OOW period" dataIndex="materialOow" />
-                        <Column flex="1" text="Pro<br>active" dataIndex="proActive" />
+                        <NumberColumn flex="1" text="Field<br>service<br>cost" dataIndex="fieldServiceCost" />
+                        <NumberColumn flex="1" text="Service<br>support<br>cost" dataIndex="serviceSupport" />
+                        <NumberColumn flex="1" text="Logistic<br>cost" dataIndex="logistic" />
+                        <NumberColumn flex="1" text="Availability<br>fee" dataIndex="availabilityFee" />
+                        <NumberColumn flex="1" text="HDD<br>retention" dataIndex="hddRetention" />
+                        <NumberColumn flex="1" text="Reinsurance" dataIndex="reinsurance" />
+                        <NumberColumn flex="1" text="Tax &amp; Duties<br>iW period" dataIndex="taxAndDutiesW" />
+                        <NumberColumn flex="1" text="Tax &amp; Duties<br>OOW period" dataIndex="taxAndDutiesOow" />
+                        <NumberColumn flex="1" text="Material<br>cost<br>iW period" dataIndex="materialW" />
+                        <NumberColumn flex="1" text="Material<br>cost<br>OOW period" dataIndex="materialOow" />
+                        <NumberColumn flex="1" text="Pro<br>active" dataIndex="proActive" />
 
                     </Column>
 
@@ -87,12 +70,19 @@ export class HwCostView extends React.Component<any, any> {
 
                     <Column isHeaderGroup={true} text="Resulting costs" dataIndex="" cls="calc-cost-result-yellow" defaults={{ minWidth: 100 }}>
 
-                        <NumberColumn flex="1" text="Service<br>TC" dataIndex="serviceTC" editable={true} renderer={this.numberRenderer.bind(this)} />
-                        <NumberColumn flex="1" text="Service<br>TP" dataIndex="serviceTP" editable={true} renderer={this.numberRenderer.bind(this)} />
+                        <Column isHeaderGroup={true} text="Service TC" dataIndex="" defaults={{ minWidth: 100 }}>
+                            <NumberColumn flex="1" text="Calc" dataIndex="serviceTC" />
+                            <NumberColumn flex="1" text="Manual" dataIndex="serviceTCManual" editable={editMode} renderer={this.numberRenderer.bind(this)} />
+                        </Column>
 
-                        <Column flex="1" text="Other<br>direct<br>cost" dataIndex="otherDirect" />
-                        <Column flex="1" text="Local<br>service<br>standard<br>warranty" dataIndex="localServiceStandardWarranty" />
-                        <Column flex="1" text="Credits" dataIndex="credits" />
+                        <Column isHeaderGroup={true} text="Service TP" dataIndex="" defaults={{ minWidth: 100 }}>
+                            <NumberColumn flex="1" text="Calc" dataIndex="serviceTP" />
+                            <NumberColumn flex="1" text="Manual" dataIndex="serviceTPManual" editable={editMode} renderer={this.numberRenderer.bind(this)} />
+                        </Column>
+
+                        <NumberColumn flex="1" text="Other<br>direct<br>cost" dataIndex="otherDirect" />
+                        <NumberColumn flex="1" text="Local<br>service<br>standard<br>warranty" dataIndex="localServiceStandardWarranty" />
+                        <NumberColumn flex="1" text="Credits" dataIndex="credits" />
 
                     </Column>
 
@@ -137,4 +127,25 @@ export class HwCostView extends React.Component<any, any> {
         return isNaN(value) ? ' ' : value;
     }
 
+    private pluginConf(): any {
+
+        let cfg: any = {
+            desktop: {
+                plugins: {
+                    gridpagingtoolbar: true
+                }
+            },
+            '!desktop': {
+                plugins: {
+                    gridpagingtoolbar: true
+                }
+            }
+        };
+        if (!this.props.approved) {
+            cfg['desktop'].plugins['gridcellediting'] = true;
+            cfg['!desktop'].plugins['grideditable'] = true;
+        }
+
+        return cfg;
+    }
 }
