@@ -1,4 +1,4 @@
-﻿import { Column, Container, Grid, NumberColumn } from "@extjs/ext-react";
+﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { HwCalcFilter } from "./Components/HwCalcFilter";
@@ -21,7 +21,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     public render() {
 
-        const editMode = !this.props.approved;
+        const canEdit = this.canEdit();
 
         return (
             <Container layout="fit">
@@ -86,10 +86,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                         <NumberColumn text="Service TC(calc)" dataIndex="serviceTC" />
-                        <NumberColumn text="Service TC(manual)" dataIndex="serviceTCManual" editable={editMode} renderer={this.numberRenderer.bind(this)} />
+                        <NumberColumn text="Service TC(manual)" dataIndex="serviceTCManual" editable={canEdit} renderer={this.numberRenderer.bind(this)} />
 
                         <NumberColumn text="Service TP(calc)" dataIndex="serviceTP" />
-                        <NumberColumn text="Service TP(manual)" dataIndex="serviceTPManual" editable={editMode} renderer={this.numberRenderer.bind(this)} />
+                        <NumberColumn text="Service TP(manual)" dataIndex="serviceTPManual" editable={canEdit} renderer={this.numberRenderer.bind(this)} />
 
                         <NumberColumn text="Other direct cost" dataIndex="otherDirect" />
                         <NumberColumn text="Local service standard warranty" dataIndex="localServiceStandardWarranty" />
@@ -98,6 +98,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     </Column>
 
                 </Grid>
+
+                {this.toolbar()}
 
             </Container>
         );
@@ -117,6 +119,14 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         this.state = {
             costs: []
         };
+    }
+
+    private cancelChanges() {
+        console.log('cancelChanges()');
+    }
+
+    private saveRecords() {
+        console.log('saveRecords()');
     }
 
     private onSearch(filter: HwCalcFilterModel) {
@@ -152,11 +162,39 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 }
             }
         };
-        if (!this.props.approved) {
+
+        if (this.canEdit()) {
             cfg['desktop'].plugins['gridcellediting'] = true;
             cfg['!desktop'].plugins['grideditable'] = true;
         }
 
         return cfg;
+    }
+
+    private canEdit() {
+        return !this.props.approved;
+    }
+
+    private toolbar() {
+        if (this.canEdit()) {
+            return (
+                <Toolbar docked="bottom">
+                    <Button
+                        text="Cancel"
+                        flex={1}
+                        iconCls="x-fa fa-trash"
+                        handler={this.cancelChanges}
+                        disabled={this.state.disableCancelButton}
+                    />
+                    <Button
+                        text="Save"
+                        flex={1}
+                        iconCls="x-fa fa-save"
+                        handler={this.saveRecords}
+                        disabled={this.state.disableSaveButton}
+                    />
+                </Toolbar>
+            );
+        }
     }
 }

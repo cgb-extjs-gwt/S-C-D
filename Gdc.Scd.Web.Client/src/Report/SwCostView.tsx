@@ -1,4 +1,4 @@
-﻿import { Column, Container, Grid, NumberColumn } from "@extjs/ext-react";
+﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { SwCalcFilter } from "./Components/SwCalcFilter";
@@ -69,6 +69,8 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
                 </Grid>
 
+                {this.toolbar()}
+
             </Container>
         );
     }
@@ -90,6 +92,14 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         };
     }
 
+    private cancelChanges() {
+        console.log('cancelChanges()');
+    }
+
+    private saveRecords() {
+        console.log('saveRecords()');
+    }
+
     private onSearch(filter: SwCalcFilterModel) {
         this.reload();
     }
@@ -98,4 +108,30 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         let filter = this.filter.getModel();
     }
 
+    private canEdit() {
+        return !this.props.approved;
+    }
+
+    private toolbar() {
+        if (this.canEdit()) {
+            return (
+                <Toolbar docked="bottom">
+                    <Button
+                        text="Cancel"
+                        flex={1}
+                        iconCls="x-fa fa-trash"
+                        handler={this.cancelChanges}
+                        disabled={this.state.disableCancelButton}
+                    />
+                    <Button
+                        text="Save"
+                        flex={1}
+                        iconCls="x-fa fa-save"
+                        handler={this.saveRecords}
+                        disabled={this.state.disableSaveButton}
+                    />
+                </Toolbar>
+            );
+        }
+    }
 }
