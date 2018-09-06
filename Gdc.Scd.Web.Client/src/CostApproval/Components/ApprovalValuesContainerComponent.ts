@@ -1,35 +1,67 @@
 import { connect } from "react-redux";
-import { ApprovalValuesProps, ApprovalValuesActions, ApprovalValuesViewComponent } from "./ApprovalValuesViewComponent";
+import { ApprovalValuesProps, ApprovalValuesActions, ApprovalValuesViewComponent, DetailsProps } from "./ApprovalValuesViewComponent";
 import { CommonState } from "../../Layout/States/AppStates";
 import * as CostApprovalService from "../Services/CostApprovalService"
 import { API_URL, buildMvcUrl } from "../../Common/Services/Ajax";
 import { NamedId } from "../../Common/States/CommonStates";
 import { buildGetApproveBundleDetailUrl } from "../Services/CostApprovalService";
 import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
-import { getDependecyColumnsFromMeta } from "../../Common/Helpers/ColumnInfoHelper";
+import { getDependecyColumns, getInputLevelColumns, buildNameColumnInfo } from "../../Common/Helpers/ColumnInfoHelper";
+import { ApprovalBundle } from "../States/ApprovalBundle";
+import { getDependencies } from "../../Common/Helpers/MetaHelper";
 
 export interface ApprovalValuesContainerProps {
-    bundleId: number
-    costBlockId: string
+    approvalBundle: ApprovalBundle
     onHandled?()
 }
 
 export const ApprovalValuesContainerComponent = 
     connect<ApprovalValuesProps, ApprovalValuesActions, ApprovalValuesContainerProps, CommonState>(
-        (state, { bundleId, costBlockId }) => {
+        (state, { approvalBundle }) => {
             const meta = state.app.appMetaData;
 
             let columns: ColumnInfo[];
             let dataLoadUrl: string;
+            let details: DetailsProps;
             
             if (meta) {
-                dataLoadUrl = buildGetApproveBundleDetailUrl(bundleId);
+                dataLoadUrl = buildGetApproveBundleDetailUrl(approvalBundle.id);
+
+                const costBlock = meta.costBlocks.find(item => item.id === approvalBundle.costBlock.id);
+                const dependencies = getDependencies(costBlock);
+
+                const dependencyColumns = getDependecyColumns(dependencies);
+                const inputLevelColumns = getInputLevelColumns(costBlock);
+                const otherColumns = [
+                    { title: 'Value', dataIndex: 'Value', type: ColumnType.Simple },
+                    { title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.Checkbox },
+                    { title: 'Country group error', dataIndex: `IsRegionError`, type: ColumnType.Checkbox }
+                ];
 
                 columns = [
-                    { title: 'InputLevel', dataIndex: 'InputLevelName', type: ColumnType.Simple },
-                    ...getDependecyColumnsFromMeta(meta, costBlockId),
-                    { title: 'Value', dataIndex: 'Value', type: ColumnType.Simple }
+                    buildNameColumnInfo(approvalBundle.inputLevel),
+                    ...dependencyColumns,
+                    ...otherColumns
                 ]
+
+                details = {
+                    columns: [
+                        ...inputLevelColumns,
+                        ...dependencyColumns,
+                        ...otherColumns
+                    ],
+                    buildDataLoadUrl: data => {
+                        const costBlockFilter = {};
+
+                        for (const dependency of dependencies) {
+                            costBlockFilter[dependency.id] = [
+                                data[`${dependency.id}Id`]
+                            ];
+                        }
+
+                        return buildGetApproveBundleDetailUrl(approvalBundle.id, data.HistoryValueId, costBlockFilter);
+                    }
+                };
             } else {
                 columns = [];
             }
@@ -37,16 +69,18 @@ export const ApprovalValuesContainerComponent =
             return <ApprovalValuesProps>{
                 dataLoadUrl,
                 columns,
-                id: bundleId.toString()
+                id: approvalBundle.costBlock.id.toString(),
+                details,
+                message: approvalBundle.qualityGateErrorExplanation
             }
         },
-        (dispatch, { bundleId, costBlockId, onHandled }) => ({
+        (dispatch, { approvalBundle, onHandled }) => ({
             onApprove: () => {
-                CostApprovalService.approve(bundleId)
+                CostApprovalService.approve(approvalBundle.id)
                 onHandled && onHandled();
             },
             onSendBackToRequestor: message => {
-                CostApprovalService.reject(bundleId, message);
+                CostApprovalService.reject(approvalBundle.id, message);
                 onHandled && onHandled();
             }
         })

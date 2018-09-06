@@ -26,7 +26,6 @@ export class ApprovalBundleItemComponent extends React.Component<ApprovalBundleI
     public render() {
         const { bundle, onHandled } = this.props;
         const { id, costBlock } = bundle;
-        
 
         return (
             <Panel 
@@ -43,7 +42,7 @@ export class ApprovalBundleItemComponent extends React.Component<ApprovalBundleI
             >
                 {
                     this.state.isFirstExpand &&
-                    <ApprovalValuesContainerComponent bundleId={id} costBlockId={costBlock.id} onHandled={onHandled}/>
+                    <ApprovalValuesContainerComponent  approvalBundle={bundle} onHandled={onHandled}/>
                 }
             </Panel>
         );

@@ -15,8 +15,19 @@ export const reject = (historyId: number, message: string) => post(CONTROLLER_NA
 
 export const getBundles = (filter: BundleFilter) => get<ApprovalBundle[]>(CONTROLLER_NAME, 'GetApprovalBundles', filter);
 
-export const buildGetApproveBundleDetailUrl = (bundleId: number) => 
-    buildMvcUrl(CONTROLLER_NAME, 'GetApproveBundleDetail', { costBlockHistoryId: bundleId });
+export const buildGetApproveBundleDetailUrl = (
+    bundleId: number, 
+    historyValueId?: number, 
+    costBlockFilter?: { [key: string]: number[] }
+) => {
+    const params: any = {
+        costBlockHistoryId: bundleId, 
+        historyValueId
+    };
 
+    if (costBlockFilter) {
+        params.costBlockFilter = JSON.stringify(costBlockFilter);
+    }
 
-
+    return buildMvcUrl(CONTROLLER_NAME, 'GetApproveBundleDetail', params);
+}
