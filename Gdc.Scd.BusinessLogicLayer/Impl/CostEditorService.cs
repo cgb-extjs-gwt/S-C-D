@@ -23,11 +23,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepositorySet repositorySet;
 
+        private readonly ICostBlockFilterBuilder costBlockFilterBuilder;
+
+        private readonly IQualityGateSevice qualityGateSevice;
+
         public CostEditorService(
             ICostEditorRepository costEditorRepository,
             ISqlRepository sqlRepository,
             ICostBlockHistoryService historySevice,
             IRepositorySet repositorySet,
+            ICostBlockFilterBuilder costBlockFilterBuilder,
+            IQualityGateSevice qualityGateSevice,
             DomainMeta meta,
             DomainEnitiesMeta domainEnitiesMeta)
         {
@@ -37,37 +43,38 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.meta = meta;
             this.domainEnitiesMeta = domainEnitiesMeta;
             this.repositorySet = repositorySet;
+            this.costBlockFilterBuilder = costBlockFilterBuilder;
+            this.qualityGateSevice = qualityGateSevice;
         }
 
         public async Task<IEnumerable<NamedId>> GetCostElementFilterItems(CostEditorContext context)
         {
-            var costElement = this.GetCostElementMeta(context);
+            var costElement = this.meta.GetCostElement(context);
 
             return await this.GetCostElementFilterItems(context, costElement);
         }
 
         public async Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context)
         {
-            var previousInputLevel = 
-                this.meta.CostBlocks[context.CostBlockId]
-                         .CostElements[context.CostElementId]
+            var previousInputLevel =
+                this.meta.GetCostElement(context)
                          .GetPreviousInputLevel(context.InputLevelId);
 
-            var filter = this.GetRegionFilter(context);
+            var filter = this.costBlockFilterBuilder.BuildRegionFilter(context);
 
             return await this.sqlRepository.GetDistinctItems(context.CostBlockId, context.ApplicationId, previousInputLevel.Id, filter);
         }
 
         public async Task<IEnumerable<NamedId>> GetRegions(CostEditorContext context)
         {
-            var costElement = this.GetCostElementMeta(context);
+            var costElement = this.meta.GetCostElement(context);
 
             return await this.GetRegions(context, costElement);
         }
 
         public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context)
         {
-            var filter = this.GetFilter(context);
+            var filter = this.costBlockFilterBuilder.BuildFilter(context);
             var editItemInfo = this.GetEditItemInfo(context);
 
             return await this.costEditorRepository.GetEditItems(editItemInfo, filter);
@@ -77,7 +84,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             IEnumerable<NamedId> referenceValues = null;
 
-            var costBlock = (CostBlockEntityMeta)this.domainEnitiesMeta.GetEntityMeta(context.CostBlockId, context.ApplicationId);
+            var costBlock = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
             if (costBlock.CostElementsFields[context.CostElementId] is ReferenceFieldMeta field)
             {
                 referenceValues = await this.sqlRepository.GetNameIdItems(field.ReferenceMeta, field.ReferenceValueField, field.ReferenceFaceField);
@@ -88,7 +95,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<CostElementData> GetCostElementData(CostEditorContext context)
         {
-            var costElementMeta = this.GetCostElementMeta(context);
+            var costElementMeta = this.meta.GetCostElement(context);
 
             return new CostElementData
             {
@@ -98,73 +105,44 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             };
         }
 
-        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, bool forApproval)
+        public async Task<QualityGateResult> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, ApprovalOption approvalOption)
         {
-            var editItemInfo = this.GetEditItemInfo(context);
-            var filter = this.GetFilter(context);
+            QualityGateResult checkResult;
 
-            using (var transaction = this.repositorySet.GetTransaction())
+            if (approvalOption.IsApproving && !approvalOption.HasQualityGateErrors)
             {
-                try
-                {
-                    var result = await this.costEditorRepository.UpdateValues(editItems, editItemInfo, filter);
-
-                    await this.historySevice.Save(context, editItems, forApproval);
-
-                    transaction.Commit();
-
-                    return result;
-                }
-                catch
-                {
-                    transaction.Rollback();
-
-                    throw;
-                }
+                checkResult = await this.qualityGateSevice.Check(editItems, context);
             }
-        }
-
-        private IDictionary<string, IEnumerable<object>> GetRegionFilter(CostEditorContext context)
-        {
-            var filter = new Dictionary<string, IEnumerable<object>>();
-
-            if (context.RegionInputId != null)
+            else
             {
-                var costElement = this.GetCostElementMeta(context);
-
-                filter.Add(costElement.RegionInput.Id, new object[] { context.RegionInputId });
+                checkResult = new QualityGateResult();
             }
 
-            return filter;
-        }
-
-        private IDictionary<string, IEnumerable<object>> GetFilter(CostEditorContext context)
-        {
-            var filter = this.GetRegionFilter(context);
-
-            if (context.CostElementFilterIds != null)
+            if (!checkResult.HasErrors)
             {
-                var costElement = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId];
-                var filterValues = context.CostElementFilterIds.Cast<object>().ToArray();
+                var editItemInfo = this.GetEditItemInfo(context);
+                var filter = this.costBlockFilterBuilder.BuildFilter(context);
 
-                filter.Add(costElement.Dependency.Id, filterValues);
-            }
-
-            if (context.InputLevelFilterIds != null)
-            {
-                var costElement = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId];
-                var previousInputLevel = costElement.GetPreviousInputLevel(context.InputLevelId);
-
-                if (previousInputLevel != null && 
-                    (costElement.RegionInput == null || costElement.RegionInput.Id != previousInputLevel.Id))
+                using (var transaction = this.repositorySet.GetTransaction())
                 {
-                    var filterValues = context.InputLevelFilterIds.Cast<object>().ToArray();
+                    try
+                    {
+                        var result = await this.costEditorRepository.UpdateValues(editItems, editItemInfo, filter);
 
-                    filter.Add(previousInputLevel.Id, filterValues);
+                        await this.historySevice.Save(context, editItems, approvalOption);
+
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+
+                        throw;
+                    }
                 }
             }
 
-            return filter;
+            return checkResult;
         }
 
         private EditItemInfo GetEditItemInfo(CostEditorContext context)
@@ -184,7 +162,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (costElementMeta.Dependency != null)
             {
-                var filter = this.GetRegionFilter(context);
+                var filter = this.costBlockFilterBuilder.BuildRegionFilter(context);
 
                 filterItems = await this.sqlRepository.GetDistinctItems(context.CostBlockId, context.ApplicationId, costElementMeta.Dependency.Id, filter);
             }
@@ -202,11 +180,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return regions;
-        }
-
-        private CostElementMeta GetCostElementMeta(CostEditorContext context)
-        {
-            return this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId];
         }
     }
 }

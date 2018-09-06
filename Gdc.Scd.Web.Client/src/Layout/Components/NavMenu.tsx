@@ -32,12 +32,24 @@ const NavMenu: React.SFC<NavMenuProps & any> = ({
                     { id: '/about', text: 'About', iconCls: 'x-fa fa-info', leaf: true },
                     { id: '/pivot', text: 'Pivot grid', iconCls: 'x-fa fa-info', leaf: true },
                     { id: '/input-cost-elements', text: 'Input Cost Elements', iconCls: 'x-fa fa-info', leaf: true },
+                    { id: '/cost-approval', text: 'Approve cost elements', iconCls: 'x-fa fa-check-square-o', leaf: true},
                     { id: '/capability-matrix', text: 'Portfolio', iconCls: 'x-fa fa-suitcase', leaf: true },
                     {
                         id: '/admin', text: 'Admin', iconCls: 'x-fa fa-info', disabled: true, children: [{
                             id: '/admin/country-management',
                             text: 'Country Management', iconCls: 'x-fa fa-globe', leaf: true
-                        }]
+                        }, {
+                            id: '/admin/availability-fee',
+                            text: 'Availability Fee', iconCls: 'x-fa fa-cog', leaf: true
+                            },
+                            {
+                                id: '/admin/role-code-management',
+                                text: 'Role codes', iconCls: 'x-fa fa-users', leaf: true
+                            },
+                            {
+                                id: '/admin/warranty-group-management',
+                                text: 'Warranty groups', iconCls: 'x-fa fa-industry', leaf: true
+                            }]
                     }
                 ]
             }

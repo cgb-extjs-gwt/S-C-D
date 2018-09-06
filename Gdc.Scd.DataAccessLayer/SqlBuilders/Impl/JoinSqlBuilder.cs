@@ -4,7 +4,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
-    public class JoinSqlBuilder : BaseSqlBuilder
+    public class JoinSqlBuilder : BaseQuerySqlBuilder
     {
         public ISqlBuilder Condition { get; set; }
 
@@ -16,7 +16,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
         {
             string result;
 
-            var sql = this.SqlBuilder.Build(context);
+            var sql = this.Query.Build(context);
             var type = this.Type.ToString().ToUpper();
             var table = this.Table.Build(context);
 

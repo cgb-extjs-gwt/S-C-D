@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Web.Api.Entities;
@@ -22,6 +23,7 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         public virtual IEnumerable<T> GetAll()
         {
+            var list = this.domainService.GetAll().ToList();
             return this.domainService.GetAll();
         }
 
@@ -48,7 +50,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
-        public virtual void Save(T item)
+        public virtual void Save([FromBody]T item)
         {
             this.domainService.Save(item);
         }
@@ -59,9 +61,19 @@ namespace Gdc.Scd.Web.Api.Controllers
             this.domainService.Save(items);
         }
 
-        public virtual void Delete(long id)
+        [HttpPost]
+        public virtual void Delete([FromBody]long id)
         {
             this.domainService.Delete(id);
+        }
+
+        [HttpPost]
+        public virtual void DeleteAll([FromBody]IEnumerable<T> items)
+        {
+            foreach(var item in items)
+            {
+                this.domainService.Delete(item.Id);
+            }         
         }
 
         protected virtual IQueryable<T> OrderBy(IQueryable<T> query, SortInfo[] sortInfos)

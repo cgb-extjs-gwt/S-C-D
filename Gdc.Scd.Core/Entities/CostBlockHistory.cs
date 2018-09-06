@@ -18,6 +18,8 @@ namespace Gdc.Scd.Core.Entities
 
         public User ApproveRejectUser { get; set; }
 
+        public string RejectMessage { get; set; }
+
         public CostBlockHistoryState State { get; set; }
 
         public HistoryContext Context { get; set; }
@@ -25,5 +27,9 @@ namespace Gdc.Scd.Core.Entities
         public int EditItemCount { get; set; }
 
         public bool IsDifferentValues { get; set; }
+
+        public bool HasQualityGateErrors { get; set; }
+
+        public string QualityGateErrorExplanation { get; set; }
     }
 }

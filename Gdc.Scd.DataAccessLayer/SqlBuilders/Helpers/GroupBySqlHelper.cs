@@ -4,18 +4,18 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class GroupBySqlHelper : SqlHelper, IGroupBySqlHelper<SelectGroupBySqlHelper>
+    public class GroupBySqlHelper : OrderBySqlHelper, IGroupBySqlHelper<OrderBySqlHelper>
     {
         public GroupBySqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
         {
         }
 
-        public SelectGroupBySqlHelper GroupBy(params ColumnInfo[] columns)
+        public OrderBySqlHelper GroupBy(params ColumnInfo[] columns)
         {
-            return new SelectGroupBySqlHelper(new GroupBySqlBuilder
+            return new OrderBySqlHelper(new GroupBySqlBuilder
             {
-                SqlBuilder = this.ToSqlBuilder(),
+                Query = this.ToSqlBuilder(),
                 Columns = columns
             });
         }

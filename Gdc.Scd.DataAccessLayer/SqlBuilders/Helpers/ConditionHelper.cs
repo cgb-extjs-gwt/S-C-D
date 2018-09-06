@@ -28,6 +28,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<AndSqlBuilder>(operands);
         }
 
+        public static ConditionHelper And(IEnumerable<ConditionHelper> operands)
+        {
+            return CreateConditionHelper<AndSqlBuilder>(operands);
+        }
+
         public static ConditionHelper AndStatic(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
         {
             return CreateConditionHelper<AndSqlBuilder>(filter, tableName);
@@ -43,6 +48,16 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelperBrackets<AndSqlBuilder>(leftOperand.ToSqlBuilder(), rightOperand.ToSqlBuilder());
         }
 
+        public static ConditionHelper AndBrackets(IEnumerable<ISqlBuilder> operands)
+        {
+            return CreateConditionHelperBrackets<AndSqlBuilder>(operands);
+        }
+
+        public static ConditionHelper AndBrackets(IEnumerable<ConditionHelper> operands)
+        {
+            return CreateConditionHelperBrackets<AndSqlBuilder>(operands);
+        }
+
         public static ConditionHelper Or(ISqlBuilder leftOperand, ISqlBuilder rightOperand)
         {
             return CreateConditionHelper<OrSqlBuilder>(leftOperand, rightOperand);
@@ -54,6 +69,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         }
 
         public static ConditionHelper Or(IEnumerable<ISqlBuilder> operands)
+        {
+            return CreateConditionHelper<OrSqlBuilder>(operands);
+        }
+
+        public static ConditionHelper Or(IEnumerable<ConditionHelper> operands)
         {
             return CreateConditionHelper<OrSqlBuilder>(operands);
         }
@@ -73,6 +93,16 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelperBrackets<OrSqlBuilder>(leftOperand.ToSqlBuilder(), rightOperand.ToSqlBuilder());
         }
 
+        public static ConditionHelper OrBrackets(IEnumerable<ISqlBuilder> operands)
+        {
+            return CreateConditionHelperBrackets<OrSqlBuilder>(operands);
+        }
+
+        public static ConditionHelper OrBrackets(IEnumerable<ConditionHelper> operands)
+        {
+            return CreateConditionHelperBrackets<OrSqlBuilder>(operands);
+        }
+
         public ConditionHelper And(ISqlBuilder rightOperand)
         {
             return CreateConditionHelper<AndSqlBuilder>(this.ToSqlBuilder(), rightOperand);
@@ -90,12 +120,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public ConditionHelper AndBrackets(ISqlBuilder rightOperand)
         {
-            return CreateConditionHelperBrackets<AndSqlBuilder>(this.ToSqlBuilder(), rightOperand);
+            return this.CreateConditionHelperBrackets<AndSqlBuilder>(rightOperand);
         }
 
         public ConditionHelper AndBrackets(SqlHelper rightOperand)
         {
-            return CreateConditionHelperBrackets<AndSqlBuilder>(this.ToSqlBuilder(), rightOperand.ToSqlBuilder());
+            return this.CreateConditionHelperBrackets<AndSqlBuilder>(rightOperand.ToSqlBuilder());
         }
 
         public ConditionHelper Or(ISqlBuilder rightOperand)
@@ -115,18 +145,30 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public ConditionHelper OrBrackets(ISqlBuilder rightOperand)
         {
-            return CreateConditionHelper<OrSqlBuilder>(this.ToSqlBuilder(), rightOperand);
+            return this.CreateConditionHelperBrackets<OrSqlBuilder>(rightOperand);
         }
 
         public ConditionHelper OrBrackets(SqlHelper rightOperand)
         {
-            return CreateConditionHelper<OrSqlBuilder>(this.ToSqlBuilder(), rightOperand.ToSqlBuilder());
+            return this.CreateConditionHelperBrackets<OrSqlBuilder>(rightOperand.ToSqlBuilder());
         }
 
         private static ConditionHelper CreateConditionHelper<T>(ISqlBuilder leftOperand, ISqlBuilder rightOperand)
             where T : BinaryOperatorSqlBuilder, new()
         {
-            return new ConditionHelper(SqlOperators.BinaryOperator<T>(leftOperand, rightOperand));
+            ConditionHelper result;
+
+            var rawSqlBuilder = leftOperand as RawSqlBuilder;
+            if (rawSqlBuilder == null || !string.IsNullOrWhiteSpace(rawSqlBuilder.RawSql))
+            {
+                result = new ConditionHelper(SqlOperators.BinaryOperator<T>(leftOperand, rightOperand));
+            }
+            else
+            {
+                result = new ConditionHelper(rightOperand);
+            }
+
+            return result;
         }
 
         private static ConditionHelper CreateConditionHelper<T>(IEnumerable<ISqlBuilder> operands)
@@ -161,6 +203,27 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return result;
         }
 
+        private static ConditionHelper CreateConditionHelper<T>(IEnumerable<ConditionHelper> operands)
+            where T : BinaryOperatorSqlBuilder, new()
+        {
+            return CreateConditionHelper<T>(operands.Select(operand => operand.ToSqlBuilder()));
+        }
+
+        private static ConditionHelper CreateConditionHelperBrackets<T>(IEnumerable<ISqlBuilder> operands)
+            where T : BinaryOperatorSqlBuilder, new()
+        {
+            return new ConditionHelper(new BracketsSqlBuilder
+            {
+                Query = CreateConditionHelper<T>(operands).ToSqlBuilder()
+            });
+        }
+
+        private static ConditionHelper CreateConditionHelperBrackets<T>(IEnumerable<ConditionHelper> operands)
+            where T : BinaryOperatorSqlBuilder, new()
+        {
+            return CreateConditionHelperBrackets<T>(operands.Select(operand => operand.ToSqlBuilder()));
+        }
+
         private static ConditionHelper CreateConditionHelperBrackets<T>(ISqlBuilder leftOperand, ISqlBuilder rightOperand) 
             where T : BinaryOperatorSqlBuilder, new()
         {
@@ -168,7 +231,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
             return new ConditionHelper(new BracketsSqlBuilder
             {
-                SqlBuilder = binOperator
+                Query = binOperator
             });
         }
 
@@ -206,6 +269,18 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             }
 
             return CreateConditionHelper<T>(inBuilders);
+        }
+
+        private ConditionHelper CreateConditionHelperBrackets<T>(ISqlBuilder rightOperand)
+            where T : BinaryOperatorSqlBuilder, new()
+        {
+            rightOperand = new BracketsSqlBuilder
+            {
+                Query = rightOperand
+            };
+
+
+            return CreateConditionHelper<T>(this.ToSqlBuilder(), rightOperand);
         }
     }
 }

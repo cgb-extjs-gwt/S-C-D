@@ -1,5 +1,5 @@
 import { Reducer, Action } from "redux";
-import { CostBlockState, CostElementState, InputLevelState, CheckItem, EditItem, DataLoadingState } from "../States/CostBlockStates";
+import { CostBlockState, CostElementState, InputLevelState, CheckItem, EditItem, DataLoadingState, CostBlockEditState } from "../States/CostBlockStates";
 import { CostEditortData, CostElementMeta, CostEditorState, CostBlockMeta, InputType, FieldType } from "../States/CostEditorStates";
 import { 
     COST_EDITOR_PAGE, 
@@ -33,6 +33,8 @@ import {
     COST_BLOCK_INPUT_APPLY_FILTERS,
     COST_BLOCK_INPUT_LOAD_COST_ELEMENT_DATA,
     CostElementDataLoadedAction,
+    SaveEditItemsAction,
+    COST_BLOCK_INPUT_RESET_ERRORS,
  } from "../Actions/CostBlockActions";
 import { mapIf } from "../../Common/Helpers/CommonHelpers";
 import { changeSelecitonFilterItem, resetFilter, loadFilter } from "./FilterReducer";
@@ -112,7 +114,8 @@ const initSuccess: Reducer<CostEditorState, PageInitAction<CostEditortData>> = (
                     appliedFilter: {
                         costElementsItemIds: new Set<string>(),
                         inputLevelItemIds: new Set<string>()
-                    }
+                    },
+                    saveErrors: []
                 }
             })),
             visibleCostBlockIds,
@@ -335,19 +338,29 @@ const editItem = buildCostBlockChanger<ItemEditedAction>(
     }
 )
 
-const saveEditItems = buildCostBlockChanger(
-    (costBlock, action) => ({
-        ...costBlock,
-        edit: {
-            ...costBlock.edit,
-            editedItems: [],
-            originalItems: costBlock.edit.originalItems.map(
-                origItem => 
-                    costBlock.edit.editedItems.find(editedItem => editedItem.id === origItem.id) || 
-                    origItem
-            )
-        }
-    })
+const saveEditItems = buildCostBlockChanger<SaveEditItemsAction>(
+    (costBlock, action) => {
+        const edit: CostBlockEditState = action.qualityGateResult.hasErrors
+            ? {
+                ...costBlock.edit,
+                saveErrors: action.qualityGateResult.errors
+            }
+            : {
+                ...costBlock.edit,
+                editedItems: [],
+                originalItems: costBlock.edit.originalItems.map(
+                    origItem => 
+                        costBlock.edit.editedItems.find(editedItem => editedItem.id === origItem.id) || 
+                        origItem
+                ),
+                saveErrors: []
+            };
+
+        return {
+            ...costBlock,
+            edit
+        };
+    }
 )
 
 const checkedFilterItemsSet = (filterItems: CheckItem[]) => {
@@ -378,6 +391,16 @@ const applyFilters = buildCostBlockChanger(
             }
         }
     }
+)
+
+const resetErrors = buildCostBlockChanger(
+    costBlock => ({
+        ...costBlock,
+        edit: {
+            ...costBlock.edit,
+            saveErrors: []
+        }
+    })
 )
 
 export const costBlockReducer: Reducer<CostEditorState, Action<string>> = (state, action) => {
@@ -429,6 +452,9 @@ export const costBlockReducer: Reducer<CostEditorState, Action<string>> = (state
 
         case COST_BLOCK_INPUT_APPLY_FILTERS:
             return applyFilters(state, action)
+
+        case COST_BLOCK_INPUT_RESET_ERRORS:
+            return resetErrors(state, action);
 
         default:
             return state;

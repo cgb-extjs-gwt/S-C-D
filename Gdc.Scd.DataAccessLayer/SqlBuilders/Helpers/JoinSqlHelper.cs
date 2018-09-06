@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.Core.Meta.Entities;
+﻿using System.Collections.Generic;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
@@ -16,7 +17,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             return new JoinSqlBuilder
             {
-                SqlBuilder = this.ToSqlBuilder(),
+                Query = this.ToSqlBuilder(),
                 Table = table,
                 Condition = condition,
                 Type = type
@@ -47,7 +48,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 sqlBuilder = new AliasSqlBuilder
                 {
                     Alias = alias,
-                    SqlBuilder = table
+                    Query = table
                 };
             }
 
@@ -59,7 +60,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return this.Join(null, tableName, condition, type, alias);
         }
 
-        public ISqlBuilder Join(BaseEntityMeta meta, string referenceFieldName, string aliasMetaTable = null)
+        public ISqlBuilder Join(BaseEntityMeta meta, string referenceFieldName, string joinedTableAlias = null, string metaTableAlias = null)
         {
             var referenceField = (ReferenceFieldMeta)meta.GetField(referenceFieldName);
 
@@ -67,14 +68,32 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     referenceField.ReferenceMeta.Schema,
                     referenceField.ReferenceMeta.Name,
                     SqlOperators.Equals(
-                        new ColumnInfo(referenceField.Name, meta.Name),
-                        new ColumnInfo(referenceField.ReferenceValueField, aliasMetaTable ?? referenceField.ReferenceMeta.Name)),
-                    alias: aliasMetaTable);
+                        new ColumnInfo(referenceField.Name, metaTableAlias ?? meta.Name),
+                        new ColumnInfo(referenceField.ReferenceValueField, joinedTableAlias ?? referenceField.ReferenceMeta.Name)),
+                    alias: joinedTableAlias);
         }
 
         public ISqlBuilder Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner, string aliasMetaTable = null)
         {
             return this.Join(meta.Schema, meta.Name, condition, type, aliasMetaTable);
+        }
+
+        public ISqlBuilder Join(IEnumerable<JoinInfo> joinInfos)
+        {
+            var joinHelper = this;
+
+            if (joinInfos != null)
+            {
+                foreach (var joinInfo in joinInfos)
+                {
+                    var sqlBuilder = joinHelper.Join(joinInfo.Meta, joinInfo.ReferenceFieldName, joinInfo.JoinedTableAlias);
+
+                    joinHelper = new JoinSqlHelper(
+                        joinHelper.Join(joinInfo.Meta, joinInfo.ReferenceFieldName, joinInfo.JoinedTableAlias, joinInfo.MetaTableAlias));
+                }
+            }
+
+            return joinHelper.ToSqlBuilder();
         }
     }
 }

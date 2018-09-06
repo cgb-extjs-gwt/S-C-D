@@ -2,7 +2,7 @@
 {
     public class CapabilityMatrixDto
     {
-        public virtual long Id { get; set; }
+        public long Id { get; set; }
 
         public string Country { get; set; }
 

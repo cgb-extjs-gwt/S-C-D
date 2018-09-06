@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Gdc.Scd.Core.Meta.Entities;
+﻿using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces
 {
-    public interface IFromSqlHelper<T>
+    public interface IFromSqlHelper<out TResult>
     {
-        T From(string tabeName, string schemaName = null, string dataBaseName = null, string alias = null);
+        TResult From(string tabeName, string schemaName = null, string dataBaseName = null, string alias = null);
 
-        T From(BaseEntityMeta meta, string alias = null);
+        TResult From(BaseEntityMeta meta, string alias = null);
 
-        T FromQuery(ISqlBuilder query);
+        TResult FromQuery(ISqlBuilder query, string alias = null);
 
-        T FromQuery(SqlHelper sqlHelper);
+        TResult FromQuery(SqlHelper sqlHelper, string alias = null);
     }
 }

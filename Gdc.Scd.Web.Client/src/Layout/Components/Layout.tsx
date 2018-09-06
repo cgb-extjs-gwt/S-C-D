@@ -9,19 +9,32 @@ import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
 import { connect } from 'react-redux';
 import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
 import { CapabilityMatrixView, CapabilityMatrixEditView } from '../../CapabilityMatrix';
+import RoleCodesGrid from '../../Admin/RoleCode/RoleCodesGrid';
 import { CommonState } from '../States/AppStates';
-import CountryGrid  from '../../Admin/Country/containers/CountryGrid';
+import CountryGrid from '../../Admin/Country/containers/CountryGrid';
+import WarrantyGroupGrid from '../../Admin/WarrantyGroup/WarrantyGroupGrid';
+import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCostElementsLayout';
+import { init } from '../../CostApproval/Actions/CostApprovalFilterActions';
+import AvailabilityFeeAdminGrid from '../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid';
+
+export const ROOT_LAYOUT_ID = "root-layout";
 
 interface LayoutProps {
     title: string
     history: any,
     location: any,
+    onInit?()
 }
 
 /**
  * The main application view and routes
  */
 export class Layout extends React.Component<LayoutProps> {
+
+    componentDidMount(){
+        this.props.onInit();
+    }
+
     navigate = (path) => {
         this.props.history.push(path);
     }
@@ -36,7 +49,7 @@ export class Layout extends React.Component<LayoutProps> {
         }
 
         return (
-            <Container fullscreen layout="fit">
+            <Container id={ROOT_LAYOUT_ID} fullscreen layout="fit">
                 <Panel scrollable docked="left" shadow zIndex={2}>
                     <TitleBar title="SCD 2.0" docked="top" />
                     <NavMenu
@@ -61,8 +74,12 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/pivot" component={ScdPivotGrid}/>
                         <Route path="/input-cost-elements" component={CostEditorContainer}/>
                         <Route path="/admin/country-management" component={ CountryGrid }/>
+                        <Route path="/cost-approval" component={ ApprovalCostElementsLayout} />
                         <Route path="/capability-matrix" exact component={CapabilityMatrixView} />
                         <Route path="/capability-matrix/edit" component={CapabilityMatrixEditView} />
+                        <Route path="/admin/availability-fee" component={AvailabilityFeeAdminGrid} />
+                        <Route path="/admin/role-code-management" component={RoleCodesGrid} />
+                        <Route path="/admin/warranty-group-management" component={WarrantyGroupGrid} />
                     </Switch>
                 </Panel>
             </Container>
@@ -73,7 +90,10 @@ export class Layout extends React.Component<LayoutProps> {
 const containerFactory = connect<LayoutProps, {}, {}, CommonState>(
     state => ({
         title: state.app.currentPage && state.app.currentPage.title
-    } as LayoutProps)
+    } as LayoutProps),
+    dispatch => ({
+        onInit: () => dispatch(init())
+    })
 );
 
 export const LayoutContainer = withRouter(containerFactory(Layout));
