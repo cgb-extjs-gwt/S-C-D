@@ -36,7 +36,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                     { /*dependencies*/}
 
-                    <Column isHeaderGroup={true} text="Dependencies" dataIndex="" cls="calc-cost-result-green" defaults={{ flex: 1, cls: "x-text-el-wrap" }}>
+                    <Column
+                        isHeaderGroup={true}
+                        text="Dependencies"
+                        dataIndex=""
+                        cls="calc-cost-result-green"
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                         <Column text="Country" dataIndex="country" />
                         <Column text="WG(Asset)" dataIndex="wg" />
@@ -50,7 +55,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                     { /*cost block results*/}
 
-                    <Column isHeaderGroup={true} text="Cost block results" dataIndex="" cls="calc-cost-result-blue" defaults={{ flex: 1, cls: "x-text-el-wrap" }}>
+                    <Column
+                        isHeaderGroup={true}
+                        text="Cost block results"
+                        dataIndex=""
+                        cls="calc-cost-result-blue"
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                         <NumberColumn text="Field service cost" dataIndex="fieldServiceCost" />
                         <NumberColumn text="Service support cost" dataIndex="serviceSupport" />
@@ -68,7 +78,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                     { /*Resulting costs*/}
 
-                    <Column isHeaderGroup={true} text="Resulting costs" dataIndex="" cls="calc-cost-result-yellow" defaults={{ flex: 1, cls: "x-text-el-wrap" }}>
+                    <Column
+                        isHeaderGroup={true}
+                        text="Resulting costs"
+                        dataIndex=""
+                        cls="calc-cost-result-yellow"
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                         <NumberColumn text="Service TC(calc)" dataIndex="serviceTC" />
                         <NumberColumn text="Service TC(manual)" dataIndex="serviceTCManual" editable={editMode} renderer={this.numberRenderer.bind(this)} />

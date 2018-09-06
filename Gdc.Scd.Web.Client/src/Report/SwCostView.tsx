@@ -30,7 +30,13 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
                     { /*dependencies*/}
 
-                    <Column flex="1" isHeaderGroup={true} text="Dependencies" dataIndex="none" cls="calc-cost-result-green" defaults={{ flex: 1, cls: "x-text-el-wrap" }}>
+                    <Column
+                        flex="1"
+                        isHeaderGroup={true}
+                        text="Dependencies"
+                        dataIndex="none"
+                        cls="calc-cost-result-green"
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                         <Column text="Country" dataIndex="country" />
                         <Column text="SOG(Asset)" dataIndex="wg" />
@@ -41,7 +47,13 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
                     { /*Resulting costs*/}
 
-                    <Column flex="2" isHeaderGroup={true} text="Resulting costs" dataIndex="none" cls="calc-cost-result-blue" defaults={{ flex: 1, cls: "x-text-el-wrap" }}>
+                    <Column
+                        flex="2"
+                        isHeaderGroup={true}
+                        text="Resulting costs"
+                        dataIndex="none"
+                        cls="calc-cost-result-blue"
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                         <NumberColumn text="Service support cost" dataIndex="serviceSupport" />
                         <NumberColumn text="Reinsurance" dataIndex="reinsurance" />
