@@ -33,7 +33,6 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public MetaCollection<RelatedItemsHistoryEntityMeta> RelatedItemsHistories { get; } = new MetaCollection<RelatedItemsHistoryEntityMeta>();
 
-
         public IEnumerable<BaseEntityMeta> AllMetas
         {
             get

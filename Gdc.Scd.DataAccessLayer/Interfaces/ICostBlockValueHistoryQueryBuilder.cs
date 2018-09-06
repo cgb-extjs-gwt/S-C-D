@@ -11,21 +11,12 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
     {
         SelectJoinSqlHelper BuildSelectHistoryValueQuery(
             HistoryContext historyContext, 
-            IEnumerable<BaseColumnInfo> addingSelectColumns = null, 
-            string valueColumnName = null);
+            IEnumerable<BaseColumnInfo> addingSelectColumns = null);
 
         TQuery BuildJoinHistoryValueQuery<TQuery>(
             HistoryContext historyContext, 
             TQuery query, 
             JoinHistoryValueQueryOptions options = null)
-            where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>;
-
-        SqlHelper BuildJoinHistoryValueQuery<TQuery>(
-            CostBlockHistory history, 
-            TQuery query, 
-            JoinHistoryValueQueryOptions options = null,
-            long? historyValueId = null,
-            ConditionHelper additionalWhere = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>;
 
         SqlHelper BuildJoinApproveHistoryValueQuery<TQuery>(
@@ -34,13 +25,12 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
             InputLevelJoinType inputLevelJoinType = InputLevelJoinType.HistoryContext, 
             IEnumerable<JoinInfo> joinInfos = null,
             long? historyValueId = null,
-            ConditionHelper additionalWhere = null)
+            IDictionary<string, IEnumerable<object>> costBlockFiter = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>;
 
         SqlHelper BuildSelectJoinApproveHistoryValueQuery(
             CostBlockHistory history, 
             long? historyValueId = null, 
-            string valueColumnName = null, 
-            string inputLevelIdAlias = null);
+            IDictionary<string, IEnumerable<object>> costBlockFilter = null);
     }
 }

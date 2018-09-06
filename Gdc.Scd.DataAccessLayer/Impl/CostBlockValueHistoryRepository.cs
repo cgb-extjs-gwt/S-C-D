@@ -22,20 +22,16 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly ICostBlockValueHistoryQueryBuilder historyQueryBuilder;
 
-        private readonly ICostBlockValueHistoryMapper costBlockValueHistoryMapper;
-
         public CostBlockValueHistoryRepository(
             DomainMeta domainMeta,
             DomainEnitiesMeta domainEnitiesMeta,
             IRepositorySet repositorySet, 
-            ICostBlockValueHistoryQueryBuilder costBlockValueHistoryQueryBuilder,
-            ICostBlockValueHistoryMapper costBlockValueHistoryMapper)
+            ICostBlockValueHistoryQueryBuilder costBlockValueHistoryQueryBuilder)
         {
             this.repositorySet = repositorySet;
             this.domainMeta = domainMeta;
             this.domainEnitiesMeta = domainEnitiesMeta;
             this.historyQueryBuilder = costBlockValueHistoryQueryBuilder;
-            this.costBlockValueHistoryMapper = costBlockValueHistoryMapper;
         }
 
         public async Task Save(CostBlockHistory history, IEnumerable<EditItem> editItems, IDictionary<string, long[]> relatedItems)
@@ -81,14 +77,19 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(CostBlockHistory history, long? historyValueId = null)
+        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
+            CostBlockHistory history, 
+            long? historyValueId = null, 
+            IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
-            var query = this.historyQueryBuilder.BuildSelectJoinApproveHistoryValueQuery(history, historyValueId);
+            var query = this.historyQueryBuilder.BuildSelectJoinApproveHistoryValueQuery(history, historyValueId, costBlockFilter);
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+            var mapper = new CostBlockValueHistoryMapper(costBlockMeta)
+            {
+                UseHistoryValueId = true
+            };
 
-            return await this.repositorySet.ReadBySql(
-                query, 
-                reader => this.costBlockValueHistoryMapper.MapWithHistoryId(costBlockMeta, reader));
+            return await this.repositorySet.ReadBySql(query, mapper.Map);
         }
 
         public async Task<IEnumerable<HistoryItem>> GetHistory(

@@ -31,6 +31,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IQualityGateRepository qualityGateRepository;
 
+        private readonly IQualityGateSevice qualityGateSevice;
+
         public CostBlockHistoryService(
             IRepositorySet repositorySet,
             IUserService userService,
@@ -39,6 +41,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             IEmailService emailService,
             ICostBlockFilterBuilder costBlockFilterBuilder,
             IQualityGateRepository qualityGateRepository,
+            IQualityGateSevice qualityGateSevice,
             DomainMeta domainMeta,
             DomainEnitiesMeta domainEnitiesMeta)
         {
@@ -51,6 +54,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.emailService = emailService;
             this.costBlockFilterBuilder = costBlockFilterBuilder;
             this.qualityGateRepository = qualityGateRepository;
+            this.qualityGateSevice = qualityGateSevice;
         }
 
         public IQueryable<CostBlockHistory> GetHistories()
@@ -124,7 +128,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     CostBlock = MetaDto.Build(costBlock),
                     CostElement = MetaDto.Build(costElement),
                     InputLevel = MetaDto.Build(costElement.InputLevels[history.Context.InputLevelId]),
-                    RegionInput = regionInput
+                    RegionInput = regionInput,
+                    QualityGateErrorExplanation = history.QualityGateErrorExplanation
                 };
 
                 historyDtos.Add(historyDto);
@@ -194,16 +199,33 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(CostBlockHistory history, long? historyValueId = null)
+        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
+            CostBlockHistory history, 
+            long? historyValueId = null, 
+            IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
-            return await this.qualityGateRepository.GetApproveBundleDetailQualityGate(history, historyValueId);
+            IEnumerable<CostBlockValueHistory> result;
+
+            if (this.qualityGateSevice.IsUseCheck(history.Context))
+            {
+                result = await this.qualityGateRepository.GetApproveBundleDetailQualityGate(history, historyValueId, costBlockFilter);
+            }
+            else
+            {
+                result = await this.costBlockValueHistoryRepository.GetApproveBundleDetail(history, historyValueId, costBlockFilter);
+            }
+
+            return result;
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(long costBlockHistoryId, long? historyValueId = null)
+        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
+            long costBlockHistoryId, 
+            long? historyValueId = null, 
+            IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
             var history = this.repositorySet.GetRepository<CostBlockHistory>().Get(costBlockHistoryId);
 
-            return await this.GetApproveBundleDetail(history, historyValueId);
+            return await this.GetApproveBundleDetail(history, historyValueId, costBlockFilter);
         }
 
         public async Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption)

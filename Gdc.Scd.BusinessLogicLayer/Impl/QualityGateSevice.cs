@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -47,7 +48,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return result;
         }
 
-        private bool IsUseCheck(CostEditorContext context)
+        public bool IsUseCheck(ICostElementIdentifier context)
         {
             var result = false;
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);

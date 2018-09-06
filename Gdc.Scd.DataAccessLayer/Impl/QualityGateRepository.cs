@@ -14,18 +14,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly DomainEnitiesMeta domainEnitiesMeta;
 
-        private readonly ICostBlockValueHistoryMapper costBlockValueHistoryMapper;
-
         public QualityGateRepository(
             IQualityGateQueryBuilder qualityGateQueryBuilder, 
             IRepositorySet repositorySet,
-            ICostBlockValueHistoryMapper costBlockValueHistoryMapper,
             DomainEnitiesMeta domainEnitiesMeta)
         {
             this.qualityGateQueryBuilder = qualityGateQueryBuilder;
             this.repositorySet = repositorySet;
             this.domainEnitiesMeta = domainEnitiesMeta;
-            this.costBlockValueHistoryMapper = costBlockValueHistoryMapper;
         }
 
         public async Task<IEnumerable<CostBlockValueHistory>> Check(
@@ -35,20 +31,26 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
             var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(historyContext, editItems, costBlockFilter);
+            var mapper = new CostBlockValueHistoryMapper(costBlockMeta)
+            {
+                UseQualityGate = true,
+            };
 
-            return await this.repositorySet.ReadBySql(
-                query, 
-                reader => this.costBlockValueHistoryMapper.MapWithQualityGate(costBlockMeta, reader));
+            return await this.repositorySet.ReadBySql(query, mapper.Map);
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetailQualityGate(CostBlockHistory history, long? historyValueId = null)
+        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetailQualityGate(CostBlockHistory history, long? historyValueId = null, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
-            var query = this.qualityGateQueryBuilder.BuildQulityGateApprovalQuery(history, historyValueId);
+            var query = this.qualityGateQueryBuilder.BuildQulityGateApprovalQuery(history, historyValueId, costBlockFilter);
+            var maxInputLevelId = historyValueId.HasValue ? null : history.Context.InputLevelId;
+            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, maxInputLevelId)
+            {
+                UseQualityGate = true,
+                UseHistoryValueId = true
+            };
 
-            return await this.repositorySet.ReadBySql(
-                query,
-                reader => this.costBlockValueHistoryMapper.MapWithQualityGate(costBlockMeta, reader));
+            return await this.repositorySet.ReadBySql(query, mapper.Map);
         }
     }
 }

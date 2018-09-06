@@ -6,7 +6,9 @@ namespace Gdc.Scd.Core.Entities
     {
         public long HistoryValueId { get; set; }
 
-        public NamedId InputLevel { get; set; }
+        public NamedId LastInputLevel { get; set; }
+
+        public IDictionary<string, NamedId> InputLevels { get; set; }
 
         public IDictionary<string, NamedId> Dependencies { get; set; }
 

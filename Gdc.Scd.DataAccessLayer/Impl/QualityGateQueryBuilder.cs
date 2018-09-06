@@ -43,17 +43,16 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private const string CostElementValuesTable = "CostElementValuesTable";
 
-        private readonly string countryGroupIdColumnName = $"{nameof(CountryGroup)}{nameof(CountryGroup.Id)}";
+        private const string HistoryValueIdColumn = "HistoryValueIdColumn";
 
-        private readonly DomainMeta domainMeta;
+        private readonly string countryGroupIdColumnName = $"{nameof(CountryGroup)}{nameof(CountryGroup.Id)}";
 
         private readonly DomainEnitiesMeta domainEnitiesMeta;
 
         private readonly ICostBlockValueHistoryQueryBuilder historyQueryBuilder;
 
-        public QualityGateQueryBuilder(ICostBlockValueHistoryQueryBuilder historyQueryBuilder, DomainMeta domainMeta, DomainEnitiesMeta domainEnitiesMeta)
+        public QualityGateQueryBuilder(ICostBlockValueHistoryQueryBuilder historyQueryBuilder, DomainEnitiesMeta domainEnitiesMeta)
         {
-            this.domainMeta = domainMeta;
             this.domainEnitiesMeta = domainEnitiesMeta;
             this.historyQueryBuilder = historyQueryBuilder;
         }
@@ -64,68 +63,71 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             IDictionary<string, IEnumerable<object>> costBlockFilter)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
-            var costElementValueColumns = this.BuildCostElementValueTableColumns(historyContext, NewValueColumn, costBlockMeta.Name, NewValuesTable);
-
             var options = new QualityGateQueryOptions
             {
-                SelectInputLevelId = MetaConstants.WgInputLevelName,
                 OnlyFailed = true,
-                CostElementValueTableQuery = 
-                    Sql.Select(costElementValueColumns.ToArray())
-                       .FromQuery(this.BuildNewValuesQuery(editItems, historyContext.InputLevelId), NewValuesTable)
-                       .Join(
-                            costBlockMeta, 
-                            SqlOperators.Equals(
-                                new ColumnInfo(historyContext.InputLevelId, NewValuesTable), 
-                                new ColumnInfo(historyContext.InputLevelId, costBlockMeta.Name)))
-                       .Join(costBlockMeta, MetaConstants.CountryInputLevelName, CountryTableAlias)
-                       .Where(costBlockFilter)
             };
+
+            var costElementValueColumns = this.BuildCostElementValueTableColumns(historyContext, options, NewValueColumn, costBlockMeta.Name, NewValuesTable);
+
+            options.CostElementValueTableQuery = Sql.Select(costElementValueColumns.ToArray())
+                .FromQuery(this.BuildNewValuesQuery(editItems, historyContext.InputLevelId), NewValuesTable)
+                .Join(
+                    costBlockMeta,
+                    SqlOperators.Equals(
+                        new ColumnInfo(historyContext.InputLevelId, NewValuesTable),
+                        new ColumnInfo(historyContext.InputLevelId, costBlockMeta.Name)))
+                .Join(costBlockMeta, MetaConstants.CountryInputLevelName, CountryTableAlias)
+                .Where(costBlockFilter);
 
             return this.BuildQualityGateQuery(historyContext, options);
         }
 
-        public SqlHelper BuildQulityGateApprovalQuery(CostBlockHistory history, long? historyValueId = null)
+        public SqlHelper BuildQulityGateApprovalQuery(
+            CostBlockHistory history, 
+            long? historyValueId = null, 
+            IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
+            var options = new QualityGateQueryOptions
+            {
+                UseHistoryValueIdColumn = true,
+            };
+
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
-            var costElementValueTableColumns = this.BuildCostElementValueTableColumns(history.Context, history.Context.CostElementId, costBlockMeta.Name);
+            var costElementValueTableColumns = this.BuildCostElementValueTableColumns(history.Context, options, history.Context.CostElementId, costBlockMeta.Name);
             var costElementValueTableQuery = 
                 Sql.Select(costElementValueTableColumns.ToArray())
                    .From(costBlockMeta.HistoryMeta);
 
-            var options = new QualityGateQueryOptions
-            {
-                CostElementValueTableQuery = this.historyQueryBuilder.BuildJoinApproveHistoryValueQuery(
-                   history,
-                   costElementValueTableQuery,
-                   InputLevelJoinType.All,
-                   new JoinInfo[] 
-                   {
-                       new JoinInfo
-                       {
-                           Meta = costBlockMeta,
-                           ReferenceFieldName = MetaConstants.CountryInputLevelName,
-                           JoinedTableAlias = CountryTableAlias
-                       }
-                   },
-                   historyValueId)
-            };
+            options.CostElementValueTableQuery = this.historyQueryBuilder.BuildJoinApproveHistoryValueQuery(
+                history,
+                costElementValueTableQuery,
+                InputLevelJoinType.All,
+                new JoinInfo[]
+                {
+                    new JoinInfo
+                    {
+                        Meta = costBlockMeta,
+                        ReferenceFieldName = MetaConstants.CountryInputLevelName,
+                        JoinedTableAlias = CountryTableAlias
+                    }
+                },
+                historyValueId,
+                costBlockFilter);
+            
 
             SqlHelper query;
 
             if (historyValueId.HasValue)
             {
-                options.SelectInputLevelId = MetaConstants.WgInputLevelName;
-
                 query = this.BuildQualityGateQuery(history.Context, options);
             }
             else
             {
+                options.MaxInputLevel = history.Context.InputLevelId;
                 options.CustomCheckColumns =
                     this.BuildQualityGateQueryCheckColumns(costBlockMeta)
                         .Select(column => SqlFunctions.Min(column.Alias, ResultQualityGateTable, column.Alias));
-
-                options.SelectInputLevelId = history.Context.InputLevelId;
 
                 query = this.BuildQualityGateQuery(history.Context, options);
 
@@ -141,32 +143,33 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return query;
         }
 
-        private string BuildAlias(string column, string table)
+        private string BuildAlias(string item1, string item2)
         {
-            return $"{table}_{column}";
+            return $"{item1}_{item2}";
         }
 
-        private SqlHelper BuildQualityGateQuery(HistoryContext historyContext, QualityGateQueryOptions options)
+        private SqlHelper BuildQualityGateQuery(HistoryContext historyContext, QualityGateQueryOptions options, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
 
             var checkColumns = this.BuildQualityGateQueryCheckColumns(costBlockMeta);
             var innerColumns =
-                costBlockMeta.DependencyFields.Select(field => new ColumnInfo(field.Name, InnerQualityGateTable))
+                costBlockMeta.CoordinateFields.Select(field => new ColumnInfo(field.Name, InnerQualityGateTable))
                                               .Concat(checkColumns.OfType<BaseColumnInfo>())
                                               .ToList();
 
-            innerColumns.Add(new ColumnInfo(MetaConstants.WgInputLevelName, InnerQualityGateTable));
             innerColumns.Add(new ColumnInfo(NewValueColumn, InnerQualityGateTable));
-            innerColumns.Add(new ColumnInfo(historyContext.InputLevelId, InnerQualityGateTable));
 
-            var inputLevelField = costBlockMeta.InputLevelFields[options.SelectInputLevelId];
+            if (options.UseHistoryValueIdColumn)
+            {
+                innerColumns.Add(new ColumnInfo(HistoryValueIdColumn, InnerQualityGateTable));
+            }
 
             var columns = this.BuildQualityGateQueryColumns(costBlockMeta, options).OfType<BaseColumnInfo>();
             if (options.CustomCheckColumns == null)
             {
                 columns = columns.Concat(checkColumns.Select(
-                    column => new ColumnInfo(column.Alias, ResultQualityGateTable, this.BuildAlias(column.Alias, ResultQualityGateTable))));
+                    column => new ColumnInfo(column.Alias, ResultQualityGateTable, this.BuildAlias(ResultQualityGateTable, column.Alias))));
             }
             else
             {
@@ -177,23 +180,23 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 Sql.Select(columns.ToArray())
                    .FromQuery(
                        Sql.Select(innerColumns.ToArray())
-                          .FromQuery(this.BuildInnerQualityGateQuery(historyContext), InnerQualityGateTable),
+                          .FromQuery(this.BuildInnerQualityGateQuery(historyContext, options), InnerQualityGateTable),
                        ResultQualityGateTable)
-                   .Join(costBlockMeta, inputLevelField.Name, metaTableAlias: ResultQualityGateTable)
-                   .Join(costBlockMeta.DependencyFields.Select(field => new JoinInfo(costBlockMeta, field.Name, metaTableAlias: ResultQualityGateTable)));
+                   .Join(costBlockMeta.CoordinateFields.Select(field => new JoinInfo(costBlockMeta, field.Name, metaTableAlias: ResultQualityGateTable)));
 
             if (options.OnlyFailed)
             {
                 var falseValue = new RawSqlBuilder("0");
-                var whereCondition = SqlOperators.Equals(new ColumnSqlBuilder(PeriodCheckColumn, ResultQualityGateTable), falseValue)
-                                                 .Or(SqlOperators.Equals(
-                                                     new ColumnSqlBuilder(CountryGroupCheckColumn, ResultQualityGateTable),
-                                                     falseValue));
+                var whereCondition =
+                    SqlOperators.Equals(new ColumnSqlBuilder(PeriodCheckColumn, ResultQualityGateTable), falseValue)
+                                .Or(SqlOperators.Equals(
+                                    new ColumnSqlBuilder(CountryGroupCheckColumn, ResultQualityGateTable),
+                                    falseValue));
 
                 qualityQateResultQuery = ((SelectJoinSqlHelper)qualityQateResultQuery).Where(whereCondition);
             }
 
-            var costElementValuesColumns = this.BuildCostElementValueTableColumns(historyContext);
+            var costElementValuesColumns = this.BuildCostElementValueTableColumns(historyContext, options);
             var withCostElementValuesTable = new WithQuery
             {
                 Name = CostElementValuesTable,
@@ -213,7 +216,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private QueryColumnInfo[] BuildQualityGateQueryCheckColumns(CostBlockEntityMeta costBlockMeta)
         {
-            var qualityGate = this.domainMeta.CostBlocks[costBlockMeta.Name].QualityGate;
+            var qualityGate = costBlockMeta.DomainMeta.QualityGate;
             var periodCheckColumn = BuildCheckResultColumn(
                 InnerQualityGateTable,
                 OldValueColumn,
@@ -235,18 +238,24 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private List<ColumnInfo> BuildQualityGateQueryColumns(CostBlockEntityMeta costBlockMeta, QualityGateQueryOptions options)
         {
-            var inputLevelField = costBlockMeta.InputLevelFields[options.SelectInputLevelId];
             var columns = new List<ColumnInfo>
             {
-                new ColumnInfo(NewValueColumn, ResultQualityGateTable, this.BuildAlias(NewValueColumn, ResultQualityGateTable)),
-                new ColumnInfo(MetaConstants.IdFieldKey, inputLevelField.ReferenceMeta.Name, this.BuildAlias(MetaConstants.IdFieldKey, inputLevelField.ReferenceMeta.Name)),
-                new ColumnInfo(MetaConstants.NameFieldKey, inputLevelField.ReferenceMeta.Name, this.BuildAlias(MetaConstants.NameFieldKey, inputLevelField.ReferenceMeta.Name))
+                new ColumnInfo(NewValueColumn, ResultQualityGateTable, this.BuildAlias(ResultQualityGateTable, NewValueColumn)),
             };
 
-            columns.AddRange(costBlockMeta.DependencyFields.SelectMany(field => new[]
+            if (options.UseHistoryValueIdColumn)
             {
-                new ColumnInfo(MetaConstants.IdFieldKey, field.ReferenceMeta.Name, this.BuildAlias(MetaConstants.IdFieldKey, field.ReferenceMeta.Name)),
-                new ColumnInfo(MetaConstants.NameFieldKey, field.ReferenceMeta.Name, this.BuildAlias(MetaConstants.NameFieldKey, field.ReferenceMeta.Name))
+                columns.Add(new ColumnInfo(HistoryValueIdColumn, ResultQualityGateTable));
+            }
+
+            var inputLevelFields = 
+                costBlockMeta.DomainMeta.FilterInputLevels(options.MaxInputLevel)
+                                        .Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]);
+
+            columns.AddRange(inputLevelFields.Concat(costBlockMeta.DependencyFields).SelectMany(field => new[]
+            {
+                new ColumnInfo(MetaConstants.IdFieldKey, field.ReferenceMeta.Name, this.BuildAlias(field.ReferenceMeta.Name, MetaConstants.IdFieldKey)),
+                new ColumnInfo(MetaConstants.NameFieldKey, field.ReferenceMeta.Name, this.BuildAlias(field.ReferenceMeta.Name, MetaConstants.NameFieldKey))
             }));
 
             return columns;
@@ -314,17 +323,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         }
 
         private List<ColumnInfo> BuildCostElementValueTableColumns(
-            HistoryContext historyContext, 
+            HistoryContext historyContext,
+            QualityGateQueryOptions options,
             string newValueColumn = NewValueColumn, 
             string table = null, 
             string newValueColumnTable = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
-
-            var columns =
-                costBlockMeta.InputLevelFields.Concat(costBlockMeta.DependencyFields)
-                                              .Select(field => new ColumnInfo(field.Name, table))
-                                              .ToList();
+            var columns = costBlockMeta.CoordinateFields.Select(field => new ColumnInfo(field.Name, table)).ToList();
 
             columns.Add(new ColumnInfo(newValueColumn, newValueColumnTable ?? table, NewValueColumn));
 
@@ -333,21 +339,29 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             columns.Add(new ColumnInfo(approvedCostElement.Name, table, OldValueColumn));
             columns.Add(new ColumnInfo(this.countryGroupIdColumnName, CountryTableAlias));
 
+            if (options.UseHistoryValueIdColumn)
+            {
+                columns.Add(new ColumnInfo(MetaConstants.IdFieldKey, costBlockMeta.HistoryMeta.Name, HistoryValueIdColumn));
+            }
+
             return columns;
         }
 
-        private SqlHelper BuildInnerQualityGateQuery(HistoryContext historyContext)
+        private SqlHelper BuildInnerQualityGateQuery(HistoryContext historyContext, QualityGateQueryOptions options)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
-            var coordinateColumns =
-                costBlockMeta.InputLevelFields.Concat(costBlockMeta.DependencyFields)
-                                              .Select(field => new ColumnInfo(field.Name, CostElementValuesTable));
+            var coordinateColumns = costBlockMeta.CoordinateFields.Select(field => new ColumnInfo(field.Name, CostElementValuesTable));
 
             var columns = new List<BaseColumnInfo>(coordinateColumns)
             {
                 new ColumnInfo(NewValueColumn, CostElementValuesTable),
                 new ColumnInfo(OldValueColumn, CostElementValuesTable)
             };
+
+            if (options.UseHistoryValueIdColumn)
+            {
+                columns.Add(new ColumnInfo(HistoryValueIdColumn, CostElementValuesTable));
+            }
 
             columns.Add(new QueryColumnInfo
             {
@@ -410,11 +424,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             public IEnumerable<BaseColumnInfo> CustomCheckColumns { get; set; }
 
-            public string SelectInputLevelId { get; set; }
-
             public SqlHelper CostElementValueTableQuery { get; set; }
 
             public bool OnlyFailed { get; set; }
+
+            public bool UseHistoryValueIdColumn { get; set; }
+
+            public string MaxInputLevel { get; set; }
         }
     }
 }

@@ -12,6 +12,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public MetaCollection<ReferenceFieldMeta> DependencyFields { get; } = new MetaCollection<ReferenceFieldMeta>();
 
+        public IEnumerable<ReferenceFieldMeta> CoordinateFields => this.InputLevelFields.Concat(this.DependencyFields);
+
         public MetaCollection<FieldMeta> CostElementsFields { get; } = new MetaCollection<FieldMeta>();
 
         public override IEnumerable<FieldMeta> AllFields

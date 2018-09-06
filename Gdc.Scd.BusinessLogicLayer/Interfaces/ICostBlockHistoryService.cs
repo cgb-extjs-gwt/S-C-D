@@ -23,9 +23,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption);
 
-        Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(CostBlockHistory history, long? historyValueId = null);
+        Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
+            CostBlockHistory history, 
+            long? historyValueId = null, 
+            IDictionary<string, IEnumerable<object>> costBlockFilter = null);
 
-        Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(long costBlockHistoryId, long? historyValueId = null);
+        Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
+            long costBlockHistoryId, 
+            long? historyValueId = null, 
+            IDictionary<string, IEnumerable<object>> costBlockFilter = null);
 
         Task Approve(long historyId);
 

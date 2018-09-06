@@ -24,5 +24,7 @@ namespace Gdc.Scd.Core.Dto
         public MetaDto CostElement { get; set; }
 
         public MetaDto InputLevel { get; set; }
+
+        public string QualityGateErrorExplanation { get; set; }
     }
 }
