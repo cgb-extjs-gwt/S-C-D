@@ -238,9 +238,23 @@ namespace Gdc.Scd.Core.Meta.Impl
             return meta;
         }
 
+        private DomainInfo<InputLevelMeta> BuildInputLevelDomainInfo(XElement node)
+        {
+            var inputLevels = this.BuildStoreTypedDomainInfo<InputLevelMeta>(node, InputLevelNodeName);
+
+            var index = 0;
+
+            foreach(var inputLevel in inputLevels.Items)
+            {
+                inputLevel.LevelNumber = index++;
+            }
+
+            return inputLevels;
+        }
+
         private DomainDefination BuildDomainDefination(XElement node)
         {
-            var inputLevels = this.BuildStoreTypedDomainInfo<InputLevelMeta>(node.Element(InputLevelListNodeName), InputLevelNodeName);
+            var inputLevels = this.BuildInputLevelDomainInfo(node.Element(InputLevelListNodeName));
 
             var qualityGateNode = node.Element(QualityGateNodeName);
             if (qualityGateNode != null)

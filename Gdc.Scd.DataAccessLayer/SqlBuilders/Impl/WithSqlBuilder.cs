@@ -22,7 +22,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 
         public override IEnumerable<ISqlBuilder> GetChildrenBuilders()
         {
-            return this.WithQueries.Select(query => query.Query);
+            return base.GetChildrenBuilders().Concat(this.WithQueries.Select(query => query.Query));
         }
 
         private string BuildQuery(WithQuery query, SqlBuilderContext context)

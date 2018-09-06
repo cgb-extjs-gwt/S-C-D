@@ -29,6 +29,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly ICostBlockFilterBuilder costBlockFilterBuilder;
 
+        private readonly IQualityGateRepository qualityGateRepository;
+
+        private readonly IQualityGateSevice qualityGateSevice;
+
         public CostBlockHistoryService(
             IRepositorySet repositorySet,
             IUserService userService,
@@ -36,6 +40,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             ISqlRepository sqlRepository,
             IEmailService emailService,
             ICostBlockFilterBuilder costBlockFilterBuilder,
+            IQualityGateRepository qualityGateRepository,
+            IQualityGateSevice qualityGateSevice,
             DomainMeta domainMeta,
             DomainEnitiesMeta domainEnitiesMeta)
         {
@@ -47,6 +53,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.sqlRepository = sqlRepository;
             this.emailService = emailService;
             this.costBlockFilterBuilder = costBlockFilterBuilder;
+            this.qualityGateRepository = qualityGateRepository;
+            this.qualityGateSevice = qualityGateSevice;
         }
 
         public IQueryable<CostBlockHistory> GetHistories()
@@ -69,14 +77,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return this.FilterHistories(this.GetHistoriesForApproval(), filter);
         }
 
-        public async Task<IEnumerable<CostBlockHistoryApprovalDto>> GetDtoHistoriesForApproval(CostBlockHistoryFilter filter)
+        public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles(CostBlockHistoryFilter filter)
         {
             var histories = this.GetHistoriesForApproval(filter).ToArray();
             var historyInfos =
                 histories.Select(history => new
                 {
                     History = history,
-                    RegionInput = this.domainMeta.CostBlocks[history.Context.CostBlockId].CostElements[history.Context.CostElementId].RegionInput
+                    RegionInput = this.domainMeta.GetCostElement(history.Context).RegionInput
                 });
 
             var historyInfoGroups = historyInfos.Where(info => info.RegionInput != null).GroupBy(info => info.RegionInput);
@@ -95,7 +103,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 regionCache.Add(historyInfoGroup.Key, regions.ToDictionary(region => region.Id));
             }
 
-            var historyDtos = new List<CostBlockHistoryApprovalDto>();
+            var historyDtos = new List<ApprovalBundle>();
 
             foreach (var history in histories)
             {
@@ -105,7 +113,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     ? null 
                     : regionCache[costElement.RegionInput][history.Context.RegionInputId.Value];
 
-                var historyDto = new CostBlockHistoryApprovalDto
+                var historyDto = new ApprovalBundle
                 {
                     Id = history.Id,
                     EditDate = history.EditDate,
@@ -120,7 +128,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     CostBlock = MetaDto.Build(costBlock),
                     CostElement = MetaDto.Build(costElement),
                     InputLevel = MetaDto.Build(costElement.InputLevels[history.Context.InputLevelId]),
-                    RegionInput = regionInput
+                    RegionInput = regionInput,
+                    QualityGateErrorExplanation = history.QualityGateErrorExplanation
                 };
 
                 historyDtos.Add(historyDto);
@@ -129,18 +138,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return historyDtos;
         }
 
-        public async Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(CostEditorContext context, long editItemId, QueryInfo queryInfo = null)
+        public async Task<IEnumerable<HistoryItem>> GetHistory(CostEditorContext context, long editItemId, QueryInfo queryInfo = null)
         {
             var historyContext = HistoryContext.Build(context);
             var filter = this.costBlockFilterBuilder.BuildFilter(context);
-            var region = this.domainMeta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId].RegionInput;
+            var region = this.domainMeta.GetCostElement(context).RegionInput;
 
             if (region == null || region.Id != context.InputLevelId)
             {
                 filter.Add(context.InputLevelId, new object[] { editItemId });
             }
 
-            return await this.costBlockValueHistoryRepository.GetCostBlockHistoryValueDto(historyContext, filter, queryInfo);
+            return await this.costBlockValueHistoryRepository.GetHistory(historyContext, filter, queryInfo);
         }
 
         public async Task Approve(long historyId)
@@ -190,16 +199,33 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(CostBlockHistory history)
+        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
+            CostBlockHistory history, 
+            long? historyValueId = null, 
+            IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
-            return await this.costBlockValueHistoryRepository.GetByCostBlockHistory(history);
+            IEnumerable<CostBlockValueHistory> result;
+
+            if (this.qualityGateSevice.IsUseCheck(history.Context))
+            {
+                result = await this.qualityGateRepository.GetApproveBundleDetailQualityGate(history, historyValueId, costBlockFilter);
+            }
+            else
+            {
+                result = await this.costBlockValueHistoryRepository.GetApproveBundleDetail(history, historyValueId, costBlockFilter);
+            }
+
+            return result;
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(long costBlockHistoryId)
+        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
+            long costBlockHistoryId, 
+            long? historyValueId = null, 
+            IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
             var history = this.repositorySet.GetRepository<CostBlockHistory>().Get(costBlockHistoryId);
 
-            return await this.GetHistoryValues(history);
+            return await this.GetApproveBundleDetail(history, historyValueId, costBlockFilter);
         }
 
         public async Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption)
