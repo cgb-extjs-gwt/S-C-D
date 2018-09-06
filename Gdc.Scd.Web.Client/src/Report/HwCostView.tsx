@@ -31,59 +31,70 @@ export class HwCostView extends React.Component<any, any> {
                     width="100%"
                     platformConfig={{
                         desktop: {
-                            //plugins: {
-                            //    gridpagingtoolbar: true,
-                            //    gridcellediting: true
-                            //}
-                            plugins: [
-                                'pagingtoolbar',
-                                Ext.create('Ext.grid.plugin.CellEditing', {
-                                    clicksToEdit: 2,
-                                    listeners: {
-                                        beforeedit: function (e, editor) {
-                                            console.log('beforeedit');
-                                            //if (editor.rowIdx == 0)
-                                            //    return false;
-                                        }
-                                    }
-                                })
-                            ]
+                            plugins: {
+                                gridpagingtoolbar: true,
+                                gridcellediting: true
+                            }
+                            //plugins: [
+                            //    'pagingtoolbar',
+                            //    Ext.create('Ext.grid.plugin.CellEditing', {
+                            //        clicksToEdit: 2,
+                            //        listeners: {
+                            //            beforeedit: function (e, editor) {
+                            //                console.log('beforeedit');
+                            //                //if (editor.rowIdx == 0)
+                            //                //    return false;
+                            //            }
+                            //        }
+                            //    })
+                            //]
                         }
-                    }}
-                    defaults={{ minWidth: 100 }}>
+                    }}>
 
                     { /*dependencies*/}
 
-                    <Column flex="1" text="Country" dataIndex="country" />
-                    <Column flex="1" text="WG(Asset)" dataIndex="wg" />
-                    <Column flex="1" text="Availability" dataIndex="availability" />
-                    <Column flex="1" text="Duration" dataIndex="duration" />
-                    <Column flex="1" text="Reaction<br>type" dataIndex="reactionType" />
-                    <Column flex="1" text="Reaction<br>time" dataIndex="reactionTime" />
-                    <Column flex="1" text="Service<br>location" dataIndex="serviceLocation" />
+                    <Column isHeaderGroup={true} text="Dependencies" dataIndex="" cls="calc-cost-result-green" defaults={{ minWidth: 100 }}>
+
+                        <Column flex="1" text="Country" dataIndex="country" />
+                        <Column flex="1" text="WG(Asset)" dataIndex="wg" />
+                        <Column flex="1" text="Availability" dataIndex="availability" />
+                        <Column flex="1" text="Duration" dataIndex="duration" />
+                        <Column flex="1" text="Reaction<br>type" dataIndex="reactionType" />
+                        <Column flex="1" text="Reaction<br>time" dataIndex="reactionTime" />
+                        <Column flex="1" text="Service<br>location" dataIndex="serviceLocation" />
+
+                    </Column>
 
                     { /*cost block results*/}
 
-                    <Column flex="1" text="Field<br>service<br>cost" dataIndex="fieldServiceCost" />
-                    <Column flex="1" text="Service<br>support<br>cost" dataIndex="serviceSupport" />
-                    <Column flex="1" text="Logistic<br>cost" dataIndex="logistic" />
-                    <Column flex="1" text="Availability<br>fee" dataIndex="availabilityFee" />
-                    <Column flex="1" text="HDD<br>retention" dataIndex="hddRetention" />
-                    <Column flex="1" text="Reinsurance" dataIndex="reinsurance" />
-                    <Column flex="1" text="Tax &amp; Duties<br>iW period" dataIndex="taxAndDutiesW" />
-                    <Column flex="1" text="Tax &amp; Duties<br>OOW period" dataIndex="taxAndDutiesOow" />
-                    <Column flex="1" text="Material<br>cost<br>iW period" dataIndex="materialW" />
-                    <Column flex="1" text="Material<br>cost<br>OOW period" dataIndex="materialOow" />
-                    <Column flex="1" text="Pro<br>active" dataIndex="proActive" />
+                    <Column isHeaderGroup={true} text="Cost block results" dataIndex="" cls="calc-cost-result-blue" defaults={{ minWidth: 100 }}>
+
+                        <Column flex="1" text="Field<br>service<br>cost" dataIndex="fieldServiceCost" />
+                        <Column flex="1" text="Service<br>support<br>cost" dataIndex="serviceSupport" />
+                        <Column flex="1" text="Logistic<br>cost" dataIndex="logistic" />
+                        <Column flex="1" text="Availability<br>fee" dataIndex="availabilityFee" />
+                        <Column flex="1" text="HDD<br>retention" dataIndex="hddRetention" />
+                        <Column flex="1" text="Reinsurance" dataIndex="reinsurance" />
+                        <Column flex="1" text="Tax &amp; Duties<br>iW period" dataIndex="taxAndDutiesW" />
+                        <Column flex="1" text="Tax &amp; Duties<br>OOW period" dataIndex="taxAndDutiesOow" />
+                        <Column flex="1" text="Material<br>cost<br>iW period" dataIndex="materialW" />
+                        <Column flex="1" text="Material<br>cost<br>OOW period" dataIndex="materialOow" />
+                        <Column flex="1" text="Pro<br>active" dataIndex="proActive" />
+
+                    </Column>
 
                     { /*Resulting costs*/}
 
-                    <NumberColumn flex="1" text="Service<br>TC" dataIndex="serviceTC" editable={true} renderer={this.numberRenderer.bind(this)} />
-                    <NumberColumn flex="1" text="Service<br>TP" dataIndex="serviceTP" editable={true} renderer={this.numberRenderer.bind(this)} />
+                    <Column isHeaderGroup={true} text="Resulting costs" dataIndex="" cls="calc-cost-result-yellow" defaults={{ minWidth: 100 }}>
 
-                    <Column flex="1" text="Other<br>direct<br>cost" dataIndex="otherDirect" />
-                    <Column flex="1" text="Local<br>service<br>standard<br>warranty" dataIndex="localServiceStandardWarranty" />
-                    <Column flex="1" text="Credits" dataIndex="credits" />
+                        <NumberColumn flex="1" text="Service<br>TC" dataIndex="serviceTC" editable={true} renderer={this.numberRenderer.bind(this)} />
+                        <NumberColumn flex="1" text="Service<br>TP" dataIndex="serviceTP" editable={true} renderer={this.numberRenderer.bind(this)} />
+
+                        <Column flex="1" text="Other<br>direct<br>cost" dataIndex="otherDirect" />
+                        <Column flex="1" text="Local<br>service<br>standard<br>warranty" dataIndex="localServiceStandardWarranty" />
+                        <Column flex="1" text="Credits" dataIndex="credits" />
+
+                    </Column>
 
                 </Grid>
 

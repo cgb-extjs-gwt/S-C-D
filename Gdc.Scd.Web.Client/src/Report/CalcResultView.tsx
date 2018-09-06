@@ -12,11 +12,11 @@ export class CalcResultView extends React.Component<any, any> {
 
                 <TabPanel flex="1" tabBar={{ layout: { pack: 'left' } }}>
 
-                    <Container title="Hardware service costs" layout="fit">
+                    <Container title="Hardware<br>service costs" layout="fit">
                         <HwCostView />
                     </Container>
 
-                    <Container title="Software &amp; Solution service costs" layout="fit">
+                    <Container title="Software &amp; Solution<br>service costs" layout="fit">
                         <SwCostView />
                     </Container>
 
