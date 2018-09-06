@@ -30,33 +30,28 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
                     { /*dependencies*/}
 
-                    <Column flex="1" isHeaderGroup={true} text="Dependencies" dataIndex="none" cls="calc-cost-result-green" defaults={{ minWidth: 100 }}>
+                    <Column flex="1" isHeaderGroup={true} text="Dependencies" dataIndex="none" cls="calc-cost-result-green" defaults={{ flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column flex="1" text="Country" dataIndex="country" />
-                        <Column flex="1" text="SOG(Asset)" dataIndex="wg" />
-                        <Column flex="1" text="Availability" dataIndex="availability" />
-                        <Column flex="1" text="Year" dataIndex="duration" />
+                        <Column text="Country" dataIndex="country" />
+                        <Column text="SOG(Asset)" dataIndex="wg" />
+                        <Column text="Availability" dataIndex="availability" />
+                        <Column text="Year" dataIndex="duration" />
 
                     </Column>
 
                     { /*Resulting costs*/}
 
-                    <Column flex="2" isHeaderGroup={true} text="Resulting costs" dataIndex="none" cls="calc-cost-result-blue" defaults={{ minWidth: 100 }}>
+                    <Column flex="2" isHeaderGroup={true} text="Resulting costs" dataIndex="none" cls="calc-cost-result-blue" defaults={{ flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <NumberColumn flex="1" text="Service<br>support cost" dataIndex="serviceSupport" />
-                        <NumberColumn flex="1" text="Reinsurance" dataIndex="reinsurance" />
-                        <NumberColumn flex="1" text="Transer<br>price" dataIndex="transferPrice" />
+                        <NumberColumn text="Service support cost" dataIndex="serviceSupport" />
+                        <NumberColumn text="Reinsurance" dataIndex="reinsurance" />
+                        <NumberColumn text="Transer price" dataIndex="transferPrice" />
 
-                        <Column isHeaderGroup={true} text="Maintenance<br>list price" dataIndex="" defaults={{ minWidth: 100 }}>
-                            <NumberColumn flex="1" text="Calc" dataIndex="maintenanceListPrice" />
-                            <NumberColumn flex="1" text="Manual" dataIndex="maintenanceListPriceManual" />
-                        </Column>
+                        <NumberColumn flex="1" text="Maintenance list price(calc)" dataIndex="maintenanceListPrice" />
+                        <NumberColumn flex="1" text="Maintenance list price(manual)" dataIndex="maintenanceListPriceManual" />
 
-                        <Column isHeaderGroup={true} text="Dealer<br>reference price" dataIndex="" defaults={{ minWidth: 100 }}>
-                            <NumberColumn flex="1" text="Calc" dataIndex="dealerPrice" />
-                            <NumberColumn flex="1" text="Manual" dataIndex="dealerPriceManual" />
-                        </Column>
-
+                        <NumberColumn flex="1" text="Dealer reference price(calc)" dataIndex="dealerPrice" />
+                        <NumberColumn flex="1" text="Dealer reference price(manual)" dataIndex="dealerPriceManual" />
 
                     </Column>
 

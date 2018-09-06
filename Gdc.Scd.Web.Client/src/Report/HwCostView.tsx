@@ -36,53 +36,49 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                     { /*dependencies*/}
 
-                    <Column isHeaderGroup={true} text="Dependencies" dataIndex="" cls="calc-cost-result-green" defaults={{ minWidth: 100 }}>
+                    <Column isHeaderGroup={true} text="Dependencies" dataIndex="" cls="calc-cost-result-green" defaults={{ flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column flex="1" text="Country" dataIndex="country" />
-                        <Column flex="1" text="WG(Asset)" dataIndex="wg" />
-                        <Column flex="1" text="Availability" dataIndex="availability" />
-                        <Column flex="1" text="Duration" dataIndex="duration" />
-                        <Column flex="1" text="Reaction<br>type" dataIndex="reactionType" />
-                        <Column flex="1" text="Reaction<br>time" dataIndex="reactionTime" />
-                        <Column flex="1" text="Service<br>location" dataIndex="serviceLocation" />
+                        <Column text="Country" dataIndex="country" />
+                        <Column text="WG(Asset)" dataIndex="wg" />
+                        <Column text="Availability" dataIndex="availability" />
+                        <Column text="Duration" dataIndex="duration" />
+                        <Column text="Reaction type" dataIndex="reactionType" />
+                        <Column text="Reaction time" dataIndex="reactionTime" />
+                        <Column text="Service location" dataIndex="serviceLocation" />
 
                     </Column>
 
                     { /*cost block results*/}
 
-                    <Column isHeaderGroup={true} text="Cost block results" dataIndex="" cls="calc-cost-result-blue" defaults={{ minWidth: 100 }}>
+                    <Column isHeaderGroup={true} text="Cost block results" dataIndex="" cls="calc-cost-result-blue" defaults={{ flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <NumberColumn flex="1" text="Field<br>service<br>cost" dataIndex="fieldServiceCost" />
-                        <NumberColumn flex="1" text="Service<br>support<br>cost" dataIndex="serviceSupport" />
-                        <NumberColumn flex="1" text="Logistic<br>cost" dataIndex="logistic" />
-                        <NumberColumn flex="1" text="Availability<br>fee" dataIndex="availabilityFee" />
-                        <NumberColumn flex="1" text="HDD<br>retention" dataIndex="hddRetention" />
-                        <NumberColumn flex="1" text="Reinsurance" dataIndex="reinsurance" />
-                        <NumberColumn flex="1" text="Tax &amp; Duties<br>iW period" dataIndex="taxAndDutiesW" />
-                        <NumberColumn flex="1" text="Tax &amp; Duties<br>OOW period" dataIndex="taxAndDutiesOow" />
-                        <NumberColumn flex="1" text="Material<br>cost<br>iW period" dataIndex="materialW" />
-                        <NumberColumn flex="1" text="Material<br>cost<br>OOW period" dataIndex="materialOow" />
-                        <NumberColumn flex="1" text="Pro<br>active" dataIndex="proActive" />
+                        <NumberColumn text="Field service cost" dataIndex="fieldServiceCost" />
+                        <NumberColumn text="Service support cost" dataIndex="serviceSupport" />
+                        <NumberColumn text="Logistic cost" dataIndex="logistic" />
+                        <NumberColumn text="Availability fee" dataIndex="availabilityFee" />
+                        <NumberColumn text="HDD retention" dataIndex="hddRetention" />
+                        <NumberColumn text="Reinsurance" dataIndex="reinsurance" />
+                        <NumberColumn text="Tax &amp; Duties iW period" dataIndex="taxAndDutiesW" />
+                        <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="taxAndDutiesOow" />
+                        <NumberColumn text="Material cost iW period" dataIndex="materialW" />
+                        <NumberColumn text="Material cost OOW period" dataIndex="materialOow" />
+                        <NumberColumn text="Pro active" dataIndex="proActive" />
 
                     </Column>
 
                     { /*Resulting costs*/}
 
-                    <Column isHeaderGroup={true} text="Resulting costs" dataIndex="" cls="calc-cost-result-yellow" defaults={{ minWidth: 100 }}>
+                    <Column isHeaderGroup={true} text="Resulting costs" dataIndex="" cls="calc-cost-result-yellow" defaults={{ flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column isHeaderGroup={true} text="Service TC" dataIndex="" defaults={{ minWidth: 100 }}>
-                            <NumberColumn flex="1" text="Calc" dataIndex="serviceTC" />
-                            <NumberColumn flex="1" text="Manual" dataIndex="serviceTCManual" editable={editMode} renderer={this.numberRenderer.bind(this)} />
-                        </Column>
+                        <NumberColumn text="Service TC(calc)" dataIndex="serviceTC" />
+                        <NumberColumn text="Service TC(manual)" dataIndex="serviceTCManual" editable={editMode} renderer={this.numberRenderer.bind(this)} />
 
-                        <Column isHeaderGroup={true} text="Service TP" dataIndex="" defaults={{ minWidth: 100 }}>
-                            <NumberColumn flex="1" text="Calc" dataIndex="serviceTP" />
-                            <NumberColumn flex="1" text="Manual" dataIndex="serviceTPManual" editable={editMode} renderer={this.numberRenderer.bind(this)} />
-                        </Column>
+                        <NumberColumn text="Service TP(calc)" dataIndex="serviceTP" />
+                        <NumberColumn text="Service TP(manual)" dataIndex="serviceTPManual" editable={editMode} renderer={this.numberRenderer.bind(this)} />
 
-                        <NumberColumn flex="1" text="Other<br>direct<br>cost" dataIndex="otherDirect" />
-                        <NumberColumn flex="1" text="Local<br>service<br>standard<br>warranty" dataIndex="localServiceStandardWarranty" />
-                        <NumberColumn flex="1" text="Credits" dataIndex="credits" />
+                        <NumberColumn text="Other direct cost" dataIndex="otherDirect" />
+                        <NumberColumn text="Local service standard warranty" dataIndex="localServiceStandardWarranty" />
+                        <NumberColumn text="Credits" dataIndex="credits" />
 
                     </Column>
 
