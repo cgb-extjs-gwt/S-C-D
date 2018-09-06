@@ -11,20 +11,23 @@ namespace Web.Api
     public class DefaultDependencyResolver : System.Web.Mvc.IDependencyResolver, System.Web.Http.Dependencies.IDependencyResolver, IDependencyScope
     {
         protected IServiceProvider serviceProvider;
+        private readonly IServiceScope scope;
 
         public DefaultDependencyResolver(IServiceProvider serviceProvider)
         {
+
             this.serviceProvider = serviceProvider;
+            this.scope = serviceProvider.CreateScope();
         }
 
         public IDependencyScope BeginScope()
         {
-            return this;
+            return new DefaultDependencyResolver(this.serviceProvider);
         }
 
         public void Dispose()
         {
-            
+            this.scope.Dispose();
         }
 
         public object GetService(Type serviceType)
