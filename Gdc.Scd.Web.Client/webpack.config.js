@@ -67,7 +67,7 @@ module.exports = function (env) {
             ],
 
             output: {
-                path: path.join(__dirname, '../Web.Api/wwwroot'),
+                path: path.join(__dirname, '../Gdc.Scd.Web.Server/wwwroot'),
                 publicPath: '/scd/wwwroot',
                 filename: 'bundle.js',
             },

@@ -34,7 +34,7 @@ namespace Gdc.Scd.DataAccessLayer
             services.AddTransient<IConfigureDatabaseHandler, ViewConfigureHandler>();
             services.AddTransient<ICustomConfigureTableHandler, ViewConfigureHandler>();
 
-            services.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(HistoryContext), nameof(CostBlockHistory.Context)));
+            //services.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(HistoryContext), nameof(CostBlockHistory.Context)));
         }
     }
 }
