@@ -2,7 +2,7 @@
 using Gdc.Scd.Core.Meta.Constants;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Gdc.Scd.Core.Entities
+namespace Gdc.Scd.Core.Entities.Calculation
 {
     [Table(MetaConstants.CalculationTable, Schema = MetaConstants.HardwareSchema)]
     public class HardwareCalculationResult : IIdentifiable

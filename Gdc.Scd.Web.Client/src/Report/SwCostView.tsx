@@ -1,4 +1,4 @@
-﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
+﻿import { Column, Container, Grid, NumberColumn } from "@extjs/ext-react";
 import * as React from "react";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { SwCalcFilter } from "./Components/SwCalcFilter";
@@ -34,7 +34,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         flex="1"
                         isHeaderGroup={true}
                         text="Dependencies"
-                        dataIndex="none"
+                        dataIndex=""
                         cls="calc-cost-result-green"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
@@ -48,29 +48,22 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                     { /*Resulting costs*/}
 
                     <Column
-                        flex="2"
+                        flex="1"
                         isHeaderGroup={true}
                         text="Resulting costs"
-                        dataIndex="none"
+                        dataIndex=""
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                         <NumberColumn text="Service support cost" dataIndex="serviceSupport" />
                         <NumberColumn text="Reinsurance" dataIndex="reinsurance" />
                         <NumberColumn text="Transer price" dataIndex="transferPrice" />
-
-                        <NumberColumn flex="1" text="Maintenance list price(calc)" dataIndex="maintenanceListPrice" />
-                        <NumberColumn flex="1" text="Maintenance list price(manual)" dataIndex="maintenanceListPriceManual" />
-
-                        <NumberColumn flex="1" text="Dealer reference price(calc)" dataIndex="dealerPrice" />
-                        <NumberColumn flex="1" text="Dealer reference price(manual)" dataIndex="dealerPriceManual" />
+                        <NumberColumn text="Maintenance list price" dataIndex="maintenanceListPrice" />
+                        <NumberColumn text="Dealer reference price" dataIndex="dealerPrice" />
 
                     </Column>
 
                 </Grid>
-
-                {this.toolbar()}
-
             </Container>
         );
     }
@@ -92,46 +85,11 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         };
     }
 
-    private cancelChanges() {
-        console.log('cancelChanges()');
-    }
-
-    private saveRecords() {
-        console.log('saveRecords()');
-    }
-
     private onSearch(filter: SwCalcFilterModel) {
         this.reload();
     }
 
     private reload() {
         let filter = this.filter.getModel();
-    }
-
-    private canEdit() {
-        return !this.props.approved;
-    }
-
-    private toolbar() {
-        if (this.canEdit()) {
-            return (
-                <Toolbar docked="bottom">
-                    <Button
-                        text="Cancel"
-                        flex={1}
-                        iconCls="x-fa fa-trash"
-                        handler={this.cancelChanges}
-                        disabled={this.state.disableCancelButton}
-                    />
-                    <Button
-                        text="Save"
-                        flex={1}
-                        iconCls="x-fa fa-save"
-                        handler={this.saveRecords}
-                        disabled={this.state.disableSaveButton}
-                    />
-                </Toolbar>
-            );
-        }
     }
 }

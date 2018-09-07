@@ -3,7 +3,6 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Web.Api.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
@@ -36,15 +35,9 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
-        public Task SaveHwCost([FromBody]IEnumerable<HwCostManualDto> records)
+        public void SaveHwCost([FromBody]IEnumerable<HwCostManualDto> records)
         {
-            return calcSrv.SaveHardwareCost(records);
-        }
-
-        [HttpPost]
-        public Task SaveSwCost([FromBody]IEnumerable<SwCostManualDto> records)
-        {
-            return calcSrv.SaveSoftfwareCost(records);
+            calcSrv.SaveHardwareCost(records);
         }
     }
 }

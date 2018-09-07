@@ -3,7 +3,7 @@ using Gdc.Scd.Core.Meta.Constants;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Gdc.Scd.Core.Entities
+namespace Gdc.Scd.Core.Entities.Calculation
 {
     [Table(MetaConstants.CalculationTable, Schema = MetaConstants.SoftwareSolutionSchema)]
     public class SoftwareCalculationResult : IIdentifiable
@@ -33,12 +33,8 @@ namespace Gdc.Scd.Core.Entities
 
         public double? MaintenanceListPrice { get; set; }
         public double? MaintenanceListPrice_Approved { get; set; }
-        public double? MaintenanceListPriceManual { get; set; }
-        public double? MaintenanceListPriceManual_Approved { get; set; }
 
         public double? DealerPrice { get; set; }
         public double? DealerPrice_Approved { get; set; }
-        public double? DealerPriceManual { get; set; }
-        public double? DealerPriceManual_Approved { get; set; }
     }
 }

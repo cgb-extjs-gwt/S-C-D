@@ -1,6 +1,5 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
@@ -10,8 +9,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         IEnumerable<SwCostDto> GetSoftwareCost(SwFilterDto filter, int start, int limit, out int count);
 
-        Task SaveHardwareCost(IEnumerable<HwCostManualDto> records);
-
-        Task SaveSoftfwareCost(IEnumerable<SwCostManualDto> records);
+        void SaveHardwareCost(IEnumerable<HwCostManualDto> records);
     }
 }
