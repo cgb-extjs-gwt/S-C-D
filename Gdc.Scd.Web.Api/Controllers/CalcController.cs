@@ -17,8 +17,13 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public DataInfo<HwCostDto> GetHwCost(HwFilterDto filter, int start, int limit)
+        public DataInfo<HwCostDto> GetHwCost(HwFilterDto filter, int start = 0, int limit = 50)
         {
+            if (start < 0 || limit > 50)
+            {
+                return null;
+            }
+
             int total;
             IEnumerable<HwCostDto> items = calcSrv.GetHardwareCost(filter, start, limit, out total);
 
@@ -26,8 +31,13 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public DataInfo<SwCostDto> GetSwCost(SwFilterDto filter, int start, int limit)
+        public DataInfo<SwCostDto> GetSwCost(SwFilterDto filter, int start = 0, int limit = 50)
         {
+            if (start < 0 || limit > 50)
+            {
+                return null;
+            }
+
             int total;
             IEnumerable<SwCostDto> items = calcSrv.GetSoftwareCost(filter, start, limit, out total);
 
