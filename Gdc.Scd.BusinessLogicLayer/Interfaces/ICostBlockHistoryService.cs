@@ -13,11 +13,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         IQueryable<CostBlockHistory> GetHistories(CostBlockHistoryFilter filter);
 
-        IQueryable<CostBlockHistory> GetHistoriesForApproval();
+        IQueryable<CostBlockHistory> GetHistories(CostBlockHistoryState state);
 
-        IQueryable<CostBlockHistory> GetHistoriesForApproval(CostBlockHistoryFilter filter);
+        IQueryable<CostBlockHistory> GetHistories(CostBlockHistoryFilter filter, CostBlockHistoryState state);
 
-        Task<IEnumerable<ApprovalBundle>> GetApprovalBundles(CostBlockHistoryFilter filter);
+        Task<IEnumerable<ApprovalBundle>> GetApprovalBundles(CostBlockHistoryFilter filter, CostBlockHistoryState state);
 
         Task<IEnumerable<HistoryItem>> GetHistory(CostEditorContext context, long editItemId, QueryInfo queryInfo = null);
 

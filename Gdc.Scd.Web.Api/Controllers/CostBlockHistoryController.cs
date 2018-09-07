@@ -20,9 +20,9 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles([FromQuery]CostBlockHistoryFilter filter)
+        public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles([FromQuery]CostBlockHistoryFilter filter, [FromQuery]CostBlockHistoryState state)
         {
-            return await this.costBlockHistoryService.GetApprovalBundles(filter);
+            return await this.costBlockHistoryService.GetApprovalBundles(filter, state);
         }
 
         [HttpGet]

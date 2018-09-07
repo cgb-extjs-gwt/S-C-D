@@ -67,19 +67,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return this.FilterHistories(this.GetHistories(), filter);
         }
 
-        public IQueryable<CostBlockHistory> GetHistoriesForApproval()
+        public IQueryable<CostBlockHistory> GetHistories(CostBlockHistoryState state)
         {
-            return this.GetHistories().Where(history => history.State == CostBlockHistoryState.Pending);
+            return this.GetHistories().Where(history => history.State == state);
         }
 
-        public IQueryable<CostBlockHistory> GetHistoriesForApproval(CostBlockHistoryFilter filter)
+        public IQueryable<CostBlockHistory> GetHistories(CostBlockHistoryFilter filter, CostBlockHistoryState state)
         {
-            return this.FilterHistories(this.GetHistoriesForApproval(), filter);
+            return this.FilterHistories(this.GetHistories(state), filter);
         }
 
-        public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles(CostBlockHistoryFilter filter)
+        public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles(CostBlockHistoryFilter filter, CostBlockHistoryState state)
         {
-            var histories = this.GetHistoriesForApproval(filter).ToArray();
+            var histories = this.GetHistories(filter, state).ToArray();
             var historyInfos =
                 histories.Select(history => new
                 {
@@ -247,7 +247,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 EditDate = DateTime.UtcNow,
                 EditUser = this.userService.GetCurrentUser(),
-                State = approvalOption.IsApproving ? CostBlockHistoryState.Pending : CostBlockHistoryState.None,
+                State = approvalOption.IsApproving ? CostBlockHistoryState.Approving : CostBlockHistoryState.Saved,
                 Context = HistoryContext.Build(context),
                 EditItemCount = editItemArray.Length,
                 IsDifferentValues = isDifferentValues, 

@@ -4,6 +4,7 @@ import { get, post, buildMvcUrl } from "../../Common/Services/Ajax";
 import { CostMetaData } from "../../Common/States/CostMetaStates";
 import { ApprovalBundle } from "../States/ApprovalBundle";
 import { BundleFilter } from "../States/BundleFilter";
+import { ApprovalBundleState } from "../States/ApprovalBundleState";
 
 export const CONTROLLER_NAME = 'CostBlockHistory';
 
@@ -13,7 +14,7 @@ export const approve = (historyId: number) => post(CONTROLLER_NAME, 'Approve', n
 
 export const reject = (historyId: number, message: string) => post(CONTROLLER_NAME, 'Reject', null, { historyId, message });
 
-export const getBundles = (filter: BundleFilter) => get<ApprovalBundle[]>(CONTROLLER_NAME, 'GetApprovalBundles', filter);
+export const getBundles = (filter: BundleFilter, state: ApprovalBundleState) => get<ApprovalBundle[]>(CONTROLLER_NAME, 'GetApprovalBundles', { ...filter, state });
 
 export const buildGetApproveBundleDetailUrl = (
     bundleId: number, 

@@ -1,5 +1,5 @@
 import { connect } from "react-redux";
-import { ApprovalValuesProps, ApprovalValuesActions, ApprovalValuesViewComponent, DetailsProps } from "./ApprovalValuesViewComponent";
+import { ApprovalValuesProps, ApprovalValuesViewComponent, DetailsProps } from "./ApprovalValuesViewComponent";
 import { CommonState } from "../../Layout/States/AppStates";
 import * as CostApprovalService from "../Services/CostApprovalService"
 import { API_URL, buildMvcUrl } from "../../Common/Services/Ajax";
@@ -12,11 +12,10 @@ import { getDependencies } from "../../Common/Helpers/MetaHelper";
 
 export interface ApprovalValuesContainerProps {
     approvalBundle: ApprovalBundle
-    onHandled?()
 }
 
 export const ApprovalValuesContainerComponent = 
-    connect<ApprovalValuesProps, ApprovalValuesActions, ApprovalValuesContainerProps, CommonState>(
+    connect<ApprovalValuesProps, {}, ApprovalValuesContainerProps, CommonState>(
         (state, { approvalBundle }) => {
             const meta = state.app.appMetaData;
 
@@ -73,15 +72,5 @@ export const ApprovalValuesContainerComponent =
                 details,
                 message: approvalBundle.qualityGateErrorExplanation
             }
-        },
-        (dispatch, { approvalBundle, onHandled }) => ({
-            onApprove: () => {
-                CostApprovalService.approve(approvalBundle.id)
-                onHandled && onHandled();
-            },
-            onSendBackToRequestor: message => {
-                CostApprovalService.reject(approvalBundle.id, message);
-                onHandled && onHandled();
-            }
-        })
+        }
     )(ApprovalValuesViewComponent)

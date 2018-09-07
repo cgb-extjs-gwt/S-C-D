@@ -1,10 +1,10 @@
 import { NamedId, ElementWithParent } from "../../Common/States/CommonStates";
 import { CostBlockMeta } from "../../Common/States/CostMetaStates";
 
-export interface BudleFilter {
-    filter: BundleFilterStates,
-    applyFilter: BundleFilterStates
-}
+// export interface BundleFilter {
+//     filter: BundleFilterStates,
+//     applyFilter: BundleFilterStates
+// }
 
 export interface BundleFilterStates {
     selectedApplicationId: string

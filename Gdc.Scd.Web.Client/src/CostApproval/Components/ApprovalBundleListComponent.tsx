@@ -4,116 +4,135 @@ import { ApprovalBundle } from '../States/ApprovalBundle';
 import * as approvalService from '../Services/CostApprovalService';
 import { ApprovalBundleItemComponent } from './ApprovalBundleItemComponent';
 import { BundleFilter } from '../States/BundleFilter';
+import { ApprovalBundleState } from '../States/ApprovalBundleState';
 
-export interface ApprovalBundleListProps {
-    filter?: BundleFilter
+export interface ApprovalBundleListActions {
+    reloadBundles?()
+}
+
+export interface ApprovalBundleListProps extends ApprovalBundleListActions {
+    // filter?: BundleFilter
+    // state?: ApprovalBundleState
+    bundles?: ApprovalBundle[]
     flex?: number
+    buildChildrenBundleItem?(bundle: ApprovalBundle, onHandled: () => void): any
 }
 
-export interface ApprovalBundleListState {
-    filter: BundleFilter
-    bundles: ApprovalBundle[]
-    isReloadBundles: boolean
-}
+// export interface ApprovalBundleListState {
+//     filter: BundleFilter
+//     bundles: ApprovalBundle[]
+//     isReloadBundles: boolean
+// }
 
-export class ApprovalBundleListComponent extends React.Component<ApprovalBundleListProps, ApprovalBundleListState> {
-    constructor(props: ApprovalBundleListProps) {
-        super(props);
+export class ApprovalBundleListComponent extends React.Component<ApprovalBundleListProps> {
+    // constructor(props: ApprovalBundleListProps) {
+    //     super(props);
 
-        this.state = { 
-            filter: props.filter,
-            bundles: [],
-            isReloadBundles: false
-        };
-    }
+    //     this.state = { 
+    //         filter: props.filter,
+    //         bundles: [],
+    //         isReloadBundles: false
+    //     };
+    // }
 
-    componentWillReceiveProps(nextProps: ApprovalBundleListProps) {
-        if (!this.equalsFilter(this.state.filter, nextProps.filter)) {
-            this.setState({ filter: nextProps.filter });
-            this.reloadBundles(nextProps.filter);
-        }
-    }
+    // componentWillReceiveProps(nextProps: ApprovalBundleListProps) {
+    //     if (!this.equalsFilter(this.state.filter, nextProps.filter)) {
+    //         this.setState({ filter: nextProps.filter });
+    //         this.reloadBundles(nextProps.filter);
+    //     }
+    // }
 
-    shouldComponentUpdate(nextProps: ApprovalBundleListProps, nextState: ApprovalBundleListState) {
-        return this.state.bundles !== nextState.bundles;
-    }
+    // shouldComponentUpdate(nextProps: ApprovalBundleListProps, nextState: ApprovalBundleListState) {
+    //     return this.state.bundles !== nextState.bundles;
+    // }
 
-    componentDidMount() {
-        this.reloadBundles(this.state.filter);
+    // componentDidMount() {
+    //     this.reloadBundles(this.state.filter);
+    // }
+
+    shouldComponentUpdate(nextProps: ApprovalBundleListProps) {
+        return this.props.bundles !== nextProps.bundles;
     }
 
     render() {
-        const { flex } = this.props;
-        const { bundles, isReloadBundles } = this.state;
+        const { flex, buildChildrenBundleItem, bundles, reloadBundles } = this.props;
 
         return (
             <Container layout="vbox" flex={flex} scrollable>
                 {
-                    isReloadBundles
-                        ? this.textContainer("Loading")
-                        : bundles.length > 0
-                            ? bundles.map(bundle => (
-                                <ApprovalBundleItemComponent 
-                                    key={bundle.id}
-                                    bundle={bundle} 
-                                    onHandled={() => this.reloadBundles(this.state.filter)}
-                                />
-                            ))
-                            : this.textContainer("No items")
+                    bundles && bundles.length > 0
+                        ? bundles.map(bundle => (
+                            <ApprovalBundleItemComponent 
+                                key={bundle.id}
+                                bundle={bundle} 
+                            >
+                                { 
+                                    buildChildrenBundleItem && 
+                                    buildChildrenBundleItem(bundle, reloadBundles) 
+                                }
+                            </ApprovalBundleItemComponent>
+                        ))
+                        : this.textContainer("No items")
                 }
             </Container>
         );
     }
 
-    private reloadBundles = (filter: BundleFilter) => {
-        this.setState({ 
-            bundles: [],
-            isReloadBundles: true 
-        });
+    // private reloadBundles = (filter: BundleFilter) => {
+    //     const { state } = this.props;
 
-        approvalService.getBundles(filter)
-                       .then(bundles => this.setState({ 
-                           bundles,
-                           isReloadBundles: false 
-                        }));
-    }
+    //     this.setState({ 
+    //         bundles: [],
+    //         isReloadBundles: true 
+    //     });
 
-    private equalsFilter(filter1: BundleFilter, filter2: BundleFilter) {
-        let result = true;
+    //     approvalService.getBundles(filter, state)
+    //                    .then(bundles => this.setState({ 
+    //                        bundles,
+    //                        isReloadBundles: false 
+    //                     }));
+    // }
 
-        if (filter1 !== filter2) {
-            if (filter1 == null || filter2 == null) {
-                result = false;
-            } else if (filter1.dateTimeFrom !== filter2.dateTimeFrom ||
-                filter1.dateTimeTo !== filter2.dateTimeTo ||
-                !this.equalsArray(filter1.applicationIds, filter2.applicationIds) ||
-                !this.equalsArray(filter1.costBlockIds, filter2.costBlockIds) ||
-                !this.equalsArray(filter1.costElementIds, filter2.costElementIds) ||
-                !this.equalsArray(filter1.userIds, filter2.userIds)) {
-                result = false;
-            }
-        }
+    // private reloadBundlesByState = () => {
+    //     this.reloadBundles(this.state.filter);
+    // }
 
-        return result;
-    }
+    // private equalsFilter(filter1: BundleFilter, filter2: BundleFilter) {
+    //     let result = true;
 
-    private equalsArray<T>(array1: T[], array2: T[]) {
-        let result: boolean;
+    //     if (filter1 !== filter2) {
+    //         if (filter1 == null || filter2 == null) {
+    //             result = false;
+    //         } else if (filter1.dateTimeFrom !== filter2.dateTimeFrom ||
+    //             filter1.dateTimeTo !== filter2.dateTimeTo ||
+    //             !this.equalsArray(filter1.applicationIds, filter2.applicationIds) ||
+    //             !this.equalsArray(filter1.costBlockIds, filter2.costBlockIds) ||
+    //             !this.equalsArray(filter1.costElementIds, filter2.costElementIds) ||
+    //             !this.equalsArray(filter1.userIds, filter2.userIds)) {
+    //             result = false;
+    //         }
+    //     }
 
-        if (array1 === array2) {
-            result = true;
-        } else {
-            if (!array1 || !array2) {
-                result = false;
-            } else if (array1.length !== array2.length) {
-                result = false;
-            } else {
-                result = array1.every((value, index) => array1[index] === array2[index]);
-            }
-        }
+    //     return result;
+    // }
 
-        return result;
-    }
+    // private equalsArray<T>(array1: T[], array2: T[]) {
+    //     let result: boolean;
+
+    //     if (array1 === array2) {
+    //         result = true;
+    //     } else {
+    //         if (!array1 || !array2) {
+    //             result = false;
+    //         } else if (array1.length !== array2.length) {
+    //             result = false;
+    //         } else {
+    //             result = array1.every((value, index) => array1[index] === array2[index]);
+    //         }
+    //     }
+
+    //     return result;
+    // }
 
     private textContainer(text: string) {
         return (
