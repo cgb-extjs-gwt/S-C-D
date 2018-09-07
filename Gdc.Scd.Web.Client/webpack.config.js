@@ -19,7 +19,7 @@ module.exports = function (env) {
         const isProd = false;
         //console.log("[IS PRODUCTION]: " + isProd);
 
-        const plugins = [   
+        const plugins = [
             new ExtReactWebpackPlugin({
                 theme: 'custom-ext-react-theme',
                 overrides: ['ext-react/overrides'],
@@ -49,7 +49,7 @@ module.exports = function (env) {
             plugins.push(new WriteFilePlugin({ test: /^(?!.+(?:hot-update.(js|json))).+$/ }));
 
             plugins.push(
-                new webpack.HotModuleReplacementPlugin() 
+                new webpack.HotModuleReplacementPlugin()
             );
         }
 
@@ -67,9 +67,9 @@ module.exports = function (env) {
             ],
 
             output: {
-                path: path.join(__dirname, '../Web.Api/wwwroot'),
-                publicPath: '/scd/wwwroot',
-                filename: 'bundle.js',
+                path: path.join(__dirname, '../Web.Api/Content'),
+                publicPath: '/scd/Content',
+                filename: 'bundle.js'
             },
 
             module: {
@@ -108,7 +108,7 @@ module.exports = function (env) {
 
             stats: {
                 colors: {
-                    green: '\u001b[32m',
+                    green: '\u001b[32m'
                 }
             },
 
@@ -137,5 +137,5 @@ module.exports = function (env) {
             //    },
             //}
         };
-    })
+    });
 };

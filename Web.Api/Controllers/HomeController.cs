@@ -6,7 +6,13 @@ namespace Gdc.Scd.Web.Controllers
     {
         public ActionResult Index()
         {
-            return File("~/wwwroot/index.html", "text/html");
+            return File("~/Content/index.html", "text/html");
+        }
+
+        [HttpPost]
+        public ActionResult TestAjax(FormCollection form)
+        {
+            return JavaScript("<script>alert(\"some message\")</script>");
         }
     }
 }

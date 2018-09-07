@@ -1,4 +1,5 @@
-export const API_URL = '/api/';
+export const API_URL = '/scd/api/'; 
+//export declare var API_URL: any;
 
 export enum Methods {
     Get = 'GET',

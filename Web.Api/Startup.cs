@@ -14,7 +14,6 @@ using Ninject.Modules;
 using Ninject.Web.Mvc;
 using Owin;
 using Web.Api;
-using Web.Api.DI;
 
 [assembly: OwinStartupAttribute(typeof(Gdc.Scd.Web.Startup))]
 namespace Gdc.Scd.Web
@@ -53,12 +52,11 @@ namespace Gdc.Scd.Web
         public void Configuration(IAppBuilder app)
         {
 
-            NinjectModule registrations = new NinjectRegistrations();
-            var kernel = new StandardKernel(registrations);
-            var ninjectResolver = new NinjectScdDependencyResolver(kernel);
-
-            DependencyResolver.SetResolver(ninjectResolver); // MVC
-            GlobalConfiguration.Configuration.DependencyResolver = ninjectResolver; // Web API
+            var services = new ServiceCollection();
+            ConfigureServices(services);
+            var resolver = new DefaultDependencyResolver(services.BuildServiceProvider());
+            DependencyResolver.SetResolver(resolver);
+            GlobalConfiguration.Configuration.DependencyResolver = new DefaultDependencyResolver(services.BuildServiceProvider());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
