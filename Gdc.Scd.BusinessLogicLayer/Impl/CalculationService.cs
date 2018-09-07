@@ -143,7 +143,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 Availability = x.Availability,
                 Year = x.Year,
 
-
                 DealerPrice = x.DealerPrice,
                 DealerPrice_Approved = x.DealerPrice_Approved,
 
