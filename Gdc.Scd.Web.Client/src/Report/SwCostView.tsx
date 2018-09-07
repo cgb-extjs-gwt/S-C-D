@@ -6,6 +6,10 @@ import { SwCalcFilterModel } from "./Model/SwCalcFilterModel";
 import { IReportService } from "./Services/IReportService";
 import { ReportFactory } from "./Services/ReportFactory";
 
+function numOrEmpty(v: number): any {
+    return typeof v === 'number' ? v : ' ';
+}
+
 export class SwCostView extends React.Component<CalcCostProps, any> {
 
     private grid: Grid;
@@ -13,6 +17,50 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     private filter: SwCalcFilter;
 
     private srv: IReportService;
+
+    private store = Ext.create('Ext.data.Store', {
+        pageSize: 25,
+        autoLoad: true,
+
+        fields: [{
+            name: 'serviceSupportCalc',
+            convert: function (val, row) {
+                return numOrEmpty(row.data.serviceSupport);
+            }
+        }, {
+            name: 'reinsuranceCalc',
+            convert: function (val, row) {
+                return numOrEmpty(row.data.reinsurance);
+            }
+        }, {
+            name: 'transferPriceCalc',
+            convert: function (val, row) {
+                return numOrEmpty(row.data.transferPrice);
+            }
+        }, {
+            name: 'maintenanceListPriceCalc',
+            convert: function (val, row) {
+                return numOrEmpty(row.data.maintenanceListPrice);
+            }
+        }, {
+            name: 'dealerPriceCalc',
+            convert: function (val, row) {
+                return numOrEmpty(row.data.dealerPrice);
+            }
+        }],
+
+        proxy: {
+            type: 'ajax',
+            api: {
+                read: '/api/calc/getswcost'
+            },
+            reader: {
+                type: 'json',
+                rootProperty: 'items',
+                totalProperty: 'total'
+            }
+        }
+    });
 
     public constructor(props: CalcCostProps) {
         super(props);
@@ -26,7 +74,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
                 <SwCalcFilter ref="filter" docked="right" onSearch={this.onSearch} />
 
-                <Grid ref="grid" store={this.state.denied} width="100%" plugins={['pagingtoolbar']}>
+                <Grid ref="grid" store={this.store} width="100%" plugins={['pagingtoolbar']}>
 
                     { /*dependencies*/}
 
@@ -39,9 +87,9 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                         <Column text="Country" dataIndex="country" />
-                        <Column text="SOG(Asset)" dataIndex="wg" />
+                        <Column text="SOG(Asset)" dataIndex="sog" />
                         <Column text="Availability" dataIndex="availability" />
-                        <Column text="Year" dataIndex="duration" />
+                        <Column text="Year" dataIndex="year" />
 
                     </Column>
 
@@ -55,11 +103,11 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <NumberColumn text="Service support cost" dataIndex="serviceSupport" />
-                        <NumberColumn text="Reinsurance" dataIndex="reinsurance" />
-                        <NumberColumn text="Transer price" dataIndex="transferPrice" />
-                        <NumberColumn text="Maintenance list price" dataIndex="maintenanceListPrice" />
-                        <NumberColumn text="Dealer reference price" dataIndex="dealerPrice" />
+                        <Column text="Service support cost" dataIndex="serviceSupportCalc" />
+                        <Column text="Reinsurance" dataIndex="reinsuranceCalc" />
+                        <Column text="Transer price" dataIndex="transferPriceCalc" />
+                        <Column text="Maintenance list price" dataIndex="maintenanceListPriceCalc" />
+                        <Column text="Dealer reference price" dataIndex="dealerPriceCalc" />
 
                     </Column>
 
