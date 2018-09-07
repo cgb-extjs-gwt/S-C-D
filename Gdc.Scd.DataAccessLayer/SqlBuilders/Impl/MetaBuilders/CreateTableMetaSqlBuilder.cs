@@ -4,16 +4,17 @@ using System.Linq;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
+using Ninject;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
 {
     public class CreateTableMetaSqlBuilder : ISqlBuilder
     {
-        private readonly IServiceProvider serviceProvider;
+        private readonly IKernel serviceProvider;
 
         public BaseEntityMeta Meta { get; set; }
 
-        public CreateTableMetaSqlBuilder(IServiceProvider serviceProvider)
+        public CreateTableMetaSqlBuilder(IKernel serviceProvider)
         {
             this.serviceProvider = serviceProvider;
         }
@@ -40,7 +41,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
             foreach (var field in this.Meta.AllFields)
             {
                 var columnBuilderType = typeof(BaseColumnMetaSqlBuilder<>).MakeGenericType(field.GetType());
-                var columnBuilder = (IColumnMetaSqlBuilder)this.serviceProvider.GetService(columnBuilderType);
+                var columnBuilder = (IColumnMetaSqlBuilder)this.serviceProvider.Get(columnBuilderType);
                 columnBuilder.Field = field;
 
                 columns.Add(columnBuilder.Build(null));

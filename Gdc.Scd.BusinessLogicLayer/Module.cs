@@ -21,25 +21,25 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ICostBlockFilterBuilder, CostBlockFilterBuilder>();
 
-            services.RegisterEntity<Country>();
-            services.RegisterEntity<Pla>();
-            services.RegisterEntity<Wg>();
-            services.RegisterEntity<Availability>();
-            services.RegisterEntity<Duration>();
-            services.RegisterEntity<ReactionType>();
-            services.RegisterEntity<ReactionTime>();
-            services.RegisterEntity<ReactionTimeType>();
-            services.RegisterEntity<ReactionTimeAvalability>();
-            services.RegisterEntity<ReactionTimeTypeAvalability>();
-            services.RegisterEntity<ServiceLocation>();
-            services.RegisterEntity<CapabilityMatrix>();
-            services.RegisterEntity<CapabilityMatrixRule>();
-            services.RegisterEntity<CapabilityMatrixAllowView>();
-            services.RegisterEntity<AdminAvailabilityFee>();
-            services.RegisterEntity<CapabilityMatrixCountryAllowView>();
-            services.RegisterEntity<RoleCode>();
-            services.RegisterEntity<Role>();
-            services.RegisterEntity<UserRole>();
+            //services.RegisterEntity<Country>();
+            //services.RegisterEntity<Pla>();
+            //services.RegisterEntity<Wg>();
+            //services.RegisterEntity<Availability>();
+            //services.RegisterEntity<Duration>();
+            //services.RegisterEntity<ReactionType>();
+            //services.RegisterEntity<ReactionTime>();
+            //services.RegisterEntity<ReactionTimeType>();
+            //services.RegisterEntity<ReactionTimeAvalability>();
+            //services.RegisterEntity<ReactionTimeTypeAvalability>();
+            //services.RegisterEntity<ServiceLocation>();
+            //services.RegisterEntity<CapabilityMatrix>();
+            //services.RegisterEntity<CapabilityMatrixRule>();
+            //services.RegisterEntity<CapabilityMatrixAllowView>();
+            //services.RegisterEntity<AdminAvailabilityFee>();
+            //services.RegisterEntity<CapabilityMatrixCountryAllowView>();
+            //services.RegisterEntity<RoleCode>();
+            //services.RegisterEntity<Role>();
+            //services.RegisterEntity<UserRole>();
         }
     }
 }

@@ -14,16 +14,17 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Gdc.Scd.DataAccessLayer.Helpers;
+using Ninject;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
     public class EntityFrameworkRepositorySet : DbContext, IRepositorySet
     {
-        private readonly IServiceProvider serviceProvider;
+        private readonly IKernel serviceProvider;
 
         internal static IDictionary<Type, Action<EntityTypeBuilder>> RegisteredEntities { get; private set; } = new Dictionary<Type, Action<EntityTypeBuilder>>();
 
-        public EntityFrameworkRepositorySet(IServiceProvider serviceProvider)
+        public EntityFrameworkRepositorySet(IKernel serviceProvider)
         {
             this.serviceProvider = serviceProvider;
 
@@ -40,7 +41,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public IRepository<T> GetRepository<T>() where T : class, IIdentifiable, new()
         {
-            return this.serviceProvider.GetService<IRepository<T>>();
+            return this.serviceProvider.Get<IRepository<T>>();
         }
 
         public void Sync()

@@ -5,16 +5,17 @@ using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using Ninject;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
 {
     public class DatabaseMetaSqlBuilder : ISqlBuilder
     {
-        private readonly IServiceProvider serviceProvider;
+        private readonly IKernel serviceProvider;
 
         private readonly DomainEnitiesMeta meta;
 
-        public DatabaseMetaSqlBuilder(DomainEnitiesMeta meta, IServiceProvider serviceProvider)
+        public DatabaseMetaSqlBuilder(DomainEnitiesMeta meta, IKernel serviceProvider)
         {
             this.meta = meta;
             this.serviceProvider = serviceProvider;
@@ -49,7 +50,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
 
             foreach (var entityMeta in this.meta.AllMetas)
             {
-                var tableBuilder = this.serviceProvider.GetService<CreateTableMetaSqlBuilder>();
+                var tableBuilder = this.serviceProvider.Get<CreateTableMetaSqlBuilder>();
                 tableBuilder.Meta = entityMeta;
 
                 tableSqls.Add(tableBuilder.Build(context));
