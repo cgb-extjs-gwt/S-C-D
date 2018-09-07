@@ -16,7 +16,6 @@ using Gdc.Scd.DataAccessLayer.TestData.Impl;
 using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Ninject.Web.Common;
-using Gdc.Scd.Web.Server.Service;
 using Ninject.Web.WebApi;
 
 namespace Gdc.Scd.Web.Server.DI
@@ -36,11 +35,6 @@ namespace Gdc.Scd.Web.Server.DI
         public IDependencyScope BeginScope()
         {
             return new NinjectDependencyScope(this.kernel.BeginBlock());
-        }
-
-        private void AddBindings()
-        {
-           
         }
     }
 }

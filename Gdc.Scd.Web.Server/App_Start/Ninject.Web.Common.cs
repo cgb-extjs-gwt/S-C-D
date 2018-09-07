@@ -8,7 +8,6 @@ namespace Gdc.Scd.Web.Server.App_Start
     using System.Web;
     using System.Web.Http;
     using Gdc.Scd.Web.Server.DI;
-    using Gdc.Scd.Web.Server.Service;
     using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 
     using Ninject;

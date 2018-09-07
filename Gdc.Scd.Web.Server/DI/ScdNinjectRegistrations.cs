@@ -12,7 +12,6 @@ using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Ninject;
 using Gdc.Scd.DataAccessLayer.TestData.Impl;
-using Gdc.Scd.Web.Server.Service;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix;
 
@@ -57,7 +56,6 @@ namespace Gdc.Scd.Web.Server.DI
             Bind<ICustomConfigureTableHandler>().To<ViewConfigureHandler>().InTransientScope();
 #if DEBUG
             Bind<IConfigureDatabaseHandler>().To<TestDataCreationHandlercs>();
-            Bind<IMessageService>().To<MessageService>();
 #endif
             Bind<DomainMeta>().ToMethod(context => Kernel.Get<IDomainMetaSevice>().Get()).InSingletonScope();
             Bind<DomainEnitiesMeta>().ToMethod(context =>
