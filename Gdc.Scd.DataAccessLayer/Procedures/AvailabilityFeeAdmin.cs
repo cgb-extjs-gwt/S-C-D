@@ -20,7 +20,7 @@ namespace Gdc.Scd.DataAccessLayer.Procedures
         public List<AdminAvailabilityFeeDto> Execute(int pageNumber, int limit, out int totalCount)
         {
             var parameters = Prepare(pageNumber, limit);
-            var outParameter = SqlParameterBuilder.CreateOutputParam("@totalCount", System.Data.SqlDbType.Int);
+            var outParameter = SqlParameterBuilder.CreateOutputParam("@totalCount", System.Data.DbType.Int32);
             return _repositorySet.ExecuteProc<AdminAvailabilityFeeDto, int>(PROC_NAME, outParameter, 
                 out totalCount,
                 parameters);

@@ -17,12 +17,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             throw new System.NotImplementedException();
         }
 
-        public Task SaveHardwareResult()
+        public Task SaveHardwareCost(IEnumerable<HwCostManualDto> records)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task SaveSoftfwareResult()
+        public Task SaveSoftfwareCost(IEnumerable<SwCostManualDto> records)
         {
             throw new System.NotImplementedException();
         }

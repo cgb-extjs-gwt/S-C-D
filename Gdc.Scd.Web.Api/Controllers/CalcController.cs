@@ -2,6 +2,7 @@
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Web.Api.Entities;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Gdc.Scd.Web.Api.Controllers
@@ -17,33 +18,33 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public DataInfo<HwCostDto> Hardware(HwFilterDto filter, int start, int limit)
+        public DataInfo<HwCostDto> GetHwCost(HwFilterDto filter, int start, int limit)
         {
             int total;
-            var items = calcSrv.GetHardwareCost(filter, start, limit, out total);
+            IEnumerable<HwCostDto> items = calcSrv.GetHardwareCost(filter, start, limit, out total);
 
             return new DataInfo<HwCostDto> { Items = items, Total = total };
         }
 
         [HttpGet]
-        public DataInfo<SwCostDto> Software(SwFilterDto filter, int start, int limit)
+        public DataInfo<SwCostDto> GetSwCost(SwFilterDto filter, int start, int limit)
         {
             int total;
-            var items = calcSrv.GetSoftwareCost(filter, start, limit, out total);
+            IEnumerable<SwCostDto> items = calcSrv.GetSoftwareCost(filter, start, limit, out total);
 
             return new DataInfo<SwCostDto> { Items = items, Total = total };
         }
 
         [HttpPost]
-        public Task Hardware()
+        public Task SaveHwCost([FromBody]IEnumerable<HwCostManualDto> records)
         {
-            return calcSrv.SaveHardwareResult();
+            return calcSrv.SaveHardwareCost(records);
         }
 
         [HttpPost]
-        public Task Software()
+        public Task SaveSwCost([FromBody]IEnumerable<SwCostManualDto> records)
         {
-            return calcSrv.SaveSoftfwareResult();
+            return calcSrv.SaveSoftfwareCost(records);
         }
     }
 }
