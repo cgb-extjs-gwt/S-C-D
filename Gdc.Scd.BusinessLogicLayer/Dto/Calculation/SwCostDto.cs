@@ -2,8 +2,6 @@
 {
     public class SwCostDto
     {
-        public long Id { get; set; }
-
         public string Country { get; set; }
 
         public string Sog { get; set; }
@@ -23,12 +21,8 @@
 
         public double? MaintenanceListPrice { get; set; }
         public double? MaintenanceListPrice_Approved { get; set; }
-        public double? MaintenanceListPriceManual { get; set; }
-        public double? MaintenanceListPriceManual_Approved { get; set; }
 
         public double? DealerPrice { get; set; }
         public double? DealerPrice_Approved { get; set; }
-        public double? DealerPriceManual { get; set; }
-        public double? DealerPriceManual_Approved { get; set; }
     }
 }

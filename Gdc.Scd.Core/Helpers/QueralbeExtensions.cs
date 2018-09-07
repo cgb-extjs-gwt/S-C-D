@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -33,6 +34,17 @@ namespace Gdc.Scd.Core.Helpers
             )
         {
             return condition ? source.Where(predicate) : source;
+        }
+
+        public static IEnumerable<TSource> Paging<TSource>(
+                this IQueryable<TSource> source,
+                int start,
+                int limit,
+                out int count
+            )
+        {
+            count = source.Count();
+            return source.Skip(start).Take(limit).ToList();
         }
     }
 }
