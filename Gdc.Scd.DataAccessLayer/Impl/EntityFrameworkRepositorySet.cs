@@ -11,8 +11,6 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Ninject;
 
@@ -22,6 +20,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
     {
         private readonly IKernel serviceProvider;
 
+        public DateTime CreatedDateTime { get; set; }
+
         internal static IDictionary<Type, Action<EntityTypeBuilder>> RegisteredEntities { get; private set; } = new Dictionary<Type, Action<EntityTypeBuilder>>();
 
         public EntityFrameworkRepositorySet(IKernel serviceProvider)
@@ -30,6 +30,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             this.ChangeTracker.AutoDetectChangesEnabled = false;
             this.Database.SetCommandTimeout(600);
+
+            CreatedDateTime = DateTime.Now;
         }
 
         public ITransaction GetTransaction()
@@ -46,6 +48,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public void Sync()
         {
+            this.ChangeTracker.DetectChanges();
             this.SaveChanges();
         }
 

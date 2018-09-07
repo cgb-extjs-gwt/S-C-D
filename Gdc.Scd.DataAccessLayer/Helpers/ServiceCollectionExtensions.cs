@@ -2,7 +2,6 @@
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.Extensions.DependencyInjection;
 using Ninject;
 
 namespace Gdc.Scd.DataAccessLayer.Helpers

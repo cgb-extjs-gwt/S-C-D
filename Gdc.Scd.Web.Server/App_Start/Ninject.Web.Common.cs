@@ -13,6 +13,7 @@ namespace Gdc.Scd.Web.Server.App_Start
     using Ninject;
     using Ninject.Web.Common;
     using Ninject.Web.Common.WebHost;
+    using Ninject.Web.WebApi;
 
     public static class NinjectWebCommon 
     {
@@ -69,7 +70,7 @@ namespace Gdc.Scd.Web.Server.App_Start
             var resolver = new ScdNinjectDependencyResolver(kernel);
             System.Web.Mvc.DependencyResolver.SetResolver(resolver);
 
-            GlobalConfiguration.Configuration.DependencyResolver = resolver;
+            GlobalConfiguration.Configuration.DependencyResolver = new NinjectDependencyResolver(kernel); ;
         }        
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Interfaces;
@@ -9,11 +10,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 {
     public class EntityFrameworkRepository<T> : IRepository<T> where T : class, IIdentifiable, new()
     {
+        private readonly DateTime DateTime;
+
         protected readonly EntityFrameworkRepositorySet repositorySet;
 
         public EntityFrameworkRepository(EntityFrameworkRepositorySet repositorySet)
         {
             this.repositorySet = repositorySet;
+            DateTime = DateTime.Now;
         }
 
         public virtual T Get(long id)
@@ -112,6 +116,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     set.Update(item);
                 }
             }
+
+            
         }
     }
 }

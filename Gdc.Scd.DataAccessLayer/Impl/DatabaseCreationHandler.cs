@@ -6,7 +6,6 @@ using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders;
-using Microsoft.Extensions.DependencyInjection;
 using Ninject;
 
 namespace Gdc.Scd.DataAccessLayer.Impl

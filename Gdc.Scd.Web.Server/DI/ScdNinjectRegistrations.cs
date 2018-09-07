@@ -14,6 +14,9 @@ using Ninject;
 using Gdc.Scd.DataAccessLayer.TestData.Impl;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix;
+using System;
+using Microsoft.EntityFrameworkCore;
+using Gdc.Scd.BusinessLogicLayer.Entities;
 
 namespace Gdc.Scd.Web.Server.DI
 {
@@ -33,12 +36,10 @@ namespace Gdc.Scd.Web.Server.DI
             Bind<IDomainEnitiesMetaService>().To<DomainEnitiesMetaService>().InSingletonScope();
 
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InRequestScope();
-            Bind<EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InRequestScope();
-            Bind<IRepositorySet>().To<EntityFrameworkRepositorySet>().InRequestScope();
-            Bind<ISqlRepository>().To<SqlRepository>().InRequestScope();
+            Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InRequestScope();
+            Bind<CostEditorContext>().ToSelf();
             Bind<ICostEditorRepository>().To<CostEditorRepository>().InRequestScope();
             Bind<ICostBlockValueHistoryRepository>().To<CostBlockValueHistoryRepository>().InRequestScope();
-            Bind<ISqlRepository>().To<SqlRepository>().InRequestScope();
             Bind<ISqlRepository>().To<SqlRepository>().InRequestScope();
             Bind<IRepository<CostBlockHistory>>().To<CostBlockHistoryRepository>().InRequestScope();
             Bind<IRepository<ReactionTimeType>>().To<ReactionTimeTypeRepository>().InRequestScope();
