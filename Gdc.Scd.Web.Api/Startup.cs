@@ -15,7 +15,7 @@ namespace Gdc.Scd.Web
 
         public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
-            Configuration = configuration;
+            this.Configuration = configuration;
             this.env = env;
         }
 
