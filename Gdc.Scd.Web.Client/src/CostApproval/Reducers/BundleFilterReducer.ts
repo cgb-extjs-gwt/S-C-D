@@ -91,13 +91,6 @@ const selectEndDate: Reducer<BundleFilterStates, CommonAction<Date>> = (state, a
     }
 }
 
-// const applyFilter: Reducer<BundleFilter, Action<string>> = (state, action) =>{
-//     return {
-//         ...state,
-//         applyFilter: {...state.filter}
-//     }
-// }
-
 const init: Reducer<BundleFilterStates, LoadingMetaDataAction> = (state, { data }) => {
     const applicationId = data.applications[0].id;
     const costBlock = data.costBlocks.find(item => item.applicationIds.includes(applicationId));
@@ -131,8 +124,6 @@ export const bundleFilterReducer: Reducer<BundleFilterStates, Action<string>> = 
             return selectStartDate(state, <CommonAction<Date>>action);
         case COST_APPROVAL_SELECT_END_DATE:
             return selectEndDate(state, <CommonAction<Date>>action);
-        // case COST_APPROVAL_APPLY_FILTER:
-        //     return applyFilter(state, <Action<string>>action);
         case APP_LOAD_META:
             return init(state, <LoadingMetaDataAction>action);
         default:

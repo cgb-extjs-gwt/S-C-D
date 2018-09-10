@@ -8,30 +8,6 @@ import { PageName } from "../../Common/States/CommonStates";
 import { ApprovalCostElementsLayoutState } from "../States/ApprovalCostElementsLayoutState";
 import { loadBundlesByFilter } from "../Actions/BundleListActions";
 
-// export const ApprovalBundleListContainerComponent = connect<ApprovalBundleListProps, {}, ApprovalBundleListProps, CommonState>(
-//     (state, { buildChildrenBundleItem, state: bundleState })  => {
-//         let filter: BundleFilter = null;
-
-//         const applyFilter = state.pages.costApproval.applyFilter;
-
-//         if (applyFilter) {
-//             filter = {
-//                 dateTimeFrom: applyFilter.startDate || null,
-//                 dateTimeTo: applyFilter.endDate || null,
-//                 applicationIds: applyFilter && applyFilter.selectedApplicationId ? [ applyFilter.selectedApplicationId ] : null,
-//                 costBlockIds: applyFilter.selectedCostBlockIds || null,
-//                 costElementIds: applyFilter.selectedCostElementIds ? applyFilter.selectedCostElementIds.map(el => el.element) : null
-//             }
-//         }
-
-//         return { 
-//             filter,
-//             buildChildrenBundleItem,
-//             state: bundleState
-//         }
-//     }
-// )(ApprovalBundleListComponent)
-
 export interface ApprovalBundleListContainerProps extends PageName {
     approvalBundleState: ApprovalBundleState
     buildChildrenBundleItem?(bundle: ApprovalBundle, onHandled: () => void): any
@@ -42,10 +18,10 @@ export const ApprovalBundleListContainerComponent = connect<ApprovalBundleListPr
         const { bundles } = <ApprovalCostElementsLayoutState>state.pages[pageName]
         
         return {
-            bundles
+            bundles: bundles.items
         };
     },
     (dispatch, { pageName, approvalBundleState }) => ({
-        reloadBundles: () => loadBundlesByFilter(pageName, approvalBundleState)
+        reloadBundles: () => dispatch(loadBundlesByFilter(pageName, approvalBundleState))
     })
 )(ApprovalBundleListComponent)

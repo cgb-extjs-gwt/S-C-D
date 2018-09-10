@@ -11,14 +11,12 @@ export interface ApproveRejectContainerProps {
 export const ApproveRejectContainerComponent = 
     connect<{}, ApproveRejectActions, ApproveRejectContainerProps, CommonState>(
         null,
-        (dispatch, { bundleId, onHandled }) => ({
-            onApprove: () => {
-                CostApprovalService.approve(bundleId)
-                onHandled && onHandled();
-            },
-            onSendBackToRequestor: message => {
-                CostApprovalService.reject(bundleId, message);
-                onHandled && onHandled();
+        (dispatch, { bundleId, onHandled }) => {
+            const handlePromise = (promise: Promise<any>) => promise.then(() => onHandled && onHandled());
+
+            return  {
+                onApprove: () => handlePromise(CostApprovalService.approve(bundleId)),
+                onSendBackToRequestor: message => handlePromise(CostApprovalService.reject(bundleId, message))
             }
-        })
+        }
     )(ApproveRejectComponent)

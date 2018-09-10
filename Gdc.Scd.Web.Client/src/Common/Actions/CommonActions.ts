@@ -2,6 +2,7 @@ import { Action } from "redux";
 
 export interface PageAction extends Action<string> {
     pageName: string
+    isPageAction: boolean
 }
 
 export interface ItemSelectedAction extends Action<string> {
