@@ -66,16 +66,11 @@ namespace Gdc.Scd.Web.Server.App_Start
         private static void RegisterServices(IKernel kernel)
         {
             kernel.Load(AppDomain.CurrentDomain.GetAssemblies());
-            var resolver = new ScdNinjectDependencyResolver(kernel);
+
+            var resolver = new Gdc.Scd.Web.Server.DI.NinjectDependencyResolver(kernel);
             System.Web.Mvc.DependencyResolver.SetResolver(resolver);
 
-            GlobalConfiguration.Configuration.DependencyResolver = new NinjectDependencyResolver(kernel);
-
-            var handleServices = kernel.GetAll<IConfigureApplicationHandler>();
-            foreach (var handler in handleServices)
-            {
-                handler.Handle();
-            }
+            GlobalConfiguration.Configuration.DependencyResolver = new Ninject.Web.WebApi.NinjectDependencyResolver(kernel);
         }        
     }
 }

@@ -20,8 +20,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
     {
         private readonly IKernel serviceProvider;
 
-        public DateTime CreatedDateTime { get; set; }
-
         internal static IDictionary<Type, Action<EntityTypeBuilder>> RegisteredEntities { get; private set; } = new Dictionary<Type, Action<EntityTypeBuilder>>();
 
         public EntityFrameworkRepositorySet(IKernel serviceProvider)
@@ -30,8 +28,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             this.ChangeTracker.AutoDetectChangesEnabled = false;
             this.Database.SetCommandTimeout(600);
-
-            CreatedDateTime = DateTime.Now;
         }
 
         public ITransaction GetTransaction()

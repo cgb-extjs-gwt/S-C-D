@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gdc.Scd.Core.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,6 +12,8 @@ namespace Gdc.Scd.Web.Server
 {
     public class WebApiApplication : System.Web.HttpApplication
     {
+        private static bool _firstRequest = true;
+
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
@@ -19,5 +22,20 @@ namespace Gdc.Scd.Web.Server
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
+
+#if DEBUG
+        protected void Application_EndRequest()
+        {
+            if (_firstRequest)
+            {
+                var handlers = DependencyResolver.Current.GetServices<IConfigureApplicationHandler>();
+                foreach (var handler in handlers)
+                {
+                    handler.Handle();
+                }
+                _firstRequest = false;
+            }
+        }
+#endif
     }
 }

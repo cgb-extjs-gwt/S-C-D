@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using System.Web.Http.Dependencies;
 using Gdc.Scd.Core.Meta.Interfaces;
 using Gdc.Scd.Core.Meta.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -16,25 +15,27 @@ using Gdc.Scd.DataAccessLayer.TestData.Impl;
 using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Ninject.Web.Common;
-using Ninject.Web.WebApi;
+using System.Web.Mvc;
 
 namespace Gdc.Scd.Web.Server.DI
 {
-    public class ScdNinjectDependencyResolver : ScdNinjectDependencyScope,
-        System.Web.Mvc.IDependencyResolver,
-        System.Web.Http.Dependencies.IDependencyResolver
+    public class NinjectDependencyResolver : IDependencyResolver
     {
-        private IKernel kernel;
+        readonly IKernel kernal;
 
-        public ScdNinjectDependencyResolver(IKernel kernel)
-            :base(kernel)
+        public NinjectDependencyResolver(IKernel kernel)
         {
-            this.kernel = kernel;
+            this.kernal = kernel;
         }
 
-        public IDependencyScope BeginScope()
+        public object GetService(Type serviceType)
         {
-            return new NinjectDependencyScope(this.kernel.BeginBlock());
+            return kernal.TryGet(serviceType);
+        }
+
+        public IEnumerable<object> GetServices(Type serviceType)
+        {
+            return kernal.GetAll(serviceType);
         }
     }
 }

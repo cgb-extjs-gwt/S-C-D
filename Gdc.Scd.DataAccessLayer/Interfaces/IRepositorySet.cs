@@ -11,8 +11,6 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
     public interface IRepositorySet
     {
-        DateTime CreatedDateTime { get; set; }
-
         IRepository<T> GetRepository<T>() where T : class, IIdentifiable, new();
 
         void Sync();

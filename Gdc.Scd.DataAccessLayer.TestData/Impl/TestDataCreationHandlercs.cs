@@ -12,6 +12,7 @@ using System.Linq;
 using System.IO;
 using System.Reflection;
 using System.Configuration;
+using Gdc.Scd.DataAccessLayer.Impl;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -37,13 +38,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string DurationKey = "Duration";
 
-        private readonly IRepositorySet repositorySet;
+        private readonly EntityFrameworkRepositorySet repositorySet;
 
         private readonly DomainEnitiesMeta entityMetas;
 
         public TestDataCreationHandlercs(
             DomainEnitiesMeta entityMetas,
-            IRepositorySet repositorySet)
+            EntityFrameworkRepositorySet repositorySet)
         {
             this.entityMetas = entityMetas;
             this.repositorySet = repositorySet;
