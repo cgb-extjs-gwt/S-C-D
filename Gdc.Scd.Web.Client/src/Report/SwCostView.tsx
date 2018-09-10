@@ -1,10 +1,8 @@
-﻿import { Column, Container, Grid, NumberColumn } from "@extjs/ext-react";
+﻿import { Column, Container, Grid } from "@extjs/ext-react";
 import * as React from "react";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { SwCalcFilter } from "./Components/SwCalcFilter";
 import { SwCalcFilterModel } from "./Model/SwCalcFilterModel";
-import { IReportService } from "./Services/IReportService";
-import { ReportFactory } from "./Services/ReportFactory";
 
 function numOrEmpty(v: number): any {
     return typeof v === 'number' ? v : ' ';
@@ -16,8 +14,6 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
     private filter: SwCalcFilter;
 
-    private srv: IReportService;
-
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
         pageSize: 25,
         autoLoad: true,
@@ -28,9 +24,19 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                 return numOrEmpty(row.data.serviceSupport);
             }
         }, {
+            name: 'serviceSupportCalc_Approved',
+            convert: function (val, row) {
+                return numOrEmpty(row.data.serviceSupport_Approved);
+            }
+        }, {
             name: 'reinsuranceCalc',
             convert: function (val, row) {
                 return numOrEmpty(row.data.reinsurance);
+            }
+        }, {
+            name: 'reinsuranceCalc_Approved',
+            convert: function (val, row) {
+                return numOrEmpty(row.data.reinsurance_Approved);
             }
         }, {
             name: 'transferPriceCalc',
@@ -38,14 +44,29 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                 return numOrEmpty(row.data.transferPrice);
             }
         }, {
+            name: 'transferPriceCalc_Approved',
+            convert: function (val, row) {
+                return numOrEmpty(row.data.transferPrice_Approved);
+            }
+        }, {
             name: 'maintenanceListPriceCalc',
             convert: function (val, row) {
                 return numOrEmpty(row.data.maintenanceListPrice);
             }
         }, {
+            name: 'maintenanceListPriceCalc_Approved',
+            convert: function (val, row) {
+                return numOrEmpty(row.data.maintenanceListPrice_Approved);
+            }
+        }, {
             name: 'dealerPriceCalc',
             convert: function (val, row) {
                 return numOrEmpty(row.data.dealerPrice);
+            }
+        }, {
+            name: 'dealerPriceCalc_Approved',
+            convert: function (val, row) {
+                return numOrEmpty(row.data.dealerPrice_Approved);
             }
         }],
 
@@ -68,6 +89,20 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     }
 
     public render() {
+
+        let serviceSupportCalc: string = "serviceSupportCalc";
+        let reinsuranceCalc: string = "reinsuranceCalc";
+        let transferPriceCalc: string = "transferPriceCalc";
+        let maintenanceListPriceCalc: string = "maintenanceListPriceCalc";
+        let dealerPriceCalc: string = "dealerPriceCalc";
+
+        if (this.props.approved) {
+            serviceSupportCalc = "serviceSupportCalc_Approved";
+            reinsuranceCalc = "reinsuranceCalc_Approved";
+            transferPriceCalc = "transferPriceCalc_Approved";
+            maintenanceListPriceCalc = "maintenanceListPriceCalc_Approved";
+            dealerPriceCalc = "dealerPriceCalc_Approved";
+        }
 
         return (
             <Container layout="fit">
@@ -103,11 +138,11 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column text="Service support cost" dataIndex="serviceSupportCalc" />
-                        <Column text="Reinsurance" dataIndex="reinsuranceCalc" />
-                        <Column text="Transer price" dataIndex="transferPriceCalc" />
-                        <Column text="Maintenance list price" dataIndex="maintenanceListPriceCalc" />
-                        <Column text="Dealer reference price" dataIndex="dealerPriceCalc" />
+                        <Column text="Service support cost" dataIndex={serviceSupportCalc} />
+                        <Column text="Reinsurance" dataIndex={reinsuranceCalc} />
+                        <Column text="Transer price" dataIndex={transferPriceCalc} />
+                        <Column text="Maintenance list price" dataIndex={maintenanceListPriceCalc} />
+                        <Column text="Dealer reference price" dataIndex={dealerPriceCalc} />
 
                     </Column>
 
@@ -137,7 +172,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onBeforeLoad(s, operation) {
-        let filter = { ...this.filter.getModel(), approved: this.props.approved };
+        let filter = this.filter.getModel();
         let params = Ext.apply({}, operation.getParams(), filter);
         operation.setParams(params);
     }
