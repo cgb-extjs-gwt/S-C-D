@@ -46,5 +46,5 @@
     "webpack-dev-server": "^2.4.1",
     "write-file-webpack-plugin": "^4.3.2"
   }
-, "-vs-binding":{"AfterBuild":["build"],"ProjectOpened":["start"]}
+, "-vs-binding":{"BeforeBuild":["update"],"AfterBuild":["build"],"ProjectOpened":["start"]}
 }

@@ -1,3 +1,4 @@
+/// <binding />
 const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -67,7 +68,7 @@ module.exports = function (env) {
             ],
 
             output: {
-                path: path.join(__dirname, '../Web.Api/Content'),
+                path: path.join(__dirname, '../Gdc.Scd.Web.Server/Content'),
                 publicPath: '/scd/Content',
                 filename: 'bundle.js'
             },

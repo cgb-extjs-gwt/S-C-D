@@ -10,7 +10,7 @@ namespace Gdc.Scd.Web.Server.Controllers
     {
         public ActionResult Index()
         {
-            return File("~/wwwroot/index.html", "text/html");
+            return File("~/Content/index.html", "text/html");
         }
     }
 }

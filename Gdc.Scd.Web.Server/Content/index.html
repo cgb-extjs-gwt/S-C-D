@@ -18,7 +18,17 @@
                 color: rgba(17, 17, 17, 0.54);
             }
     </style>
-<link href="/scd/wwwroot/ext-react\ext.css?5dd5ad929823289ecaef" rel="stylesheet"></head>
+    <script src="/scd/Scripts/jquery-1.10.2.min.js"></script>
+<link href="/scd/Content/ext-react\ext.css?a83ca1a70002e48aad74" rel="stylesheet"></head>
 <body>
-<script type="text/javascript" src="/scd/wwwroot/ext-react\ext.js?5dd5ad929823289ecaef"></script><script type="text/javascript" src="/scd/wwwroot/bundle.js?5dd5ad929823289ecaef"></script></body>
+    <script type="text/javascript">
+        $.ajax({
+            type: 'GET',
+            url: 'api/helper/GetApiUrl',
+            success: function (result) {
+                eval(result);
+            }
+        });
+    </script>
+<script type="text/javascript" src="/scd/Content/ext-react\ext.js?a83ca1a70002e48aad74"></script><script type="text/javascript" src="/scd/Content/bundle.js?a83ca1a70002e48aad74"></script></body>
 </html>
