@@ -2,7 +2,7 @@
 
 export class CacheDomainService<T> {
 
-    private static all: any = {}; // cache, singleton
+    private static all: any = {}; // promises cache, singleton
 
     private controllerName: string;
 
@@ -11,25 +11,11 @@ export class CacheDomainService<T> {
     }
 
     public getAll(): Promise<T[]> {
-        let data = this.getAllFromCache();
-        if (data) {
-            return Promise.resolve(data);
+        let p = CacheDomainService.all[this.controllerName];
+        if (!p) {
+            p = new DomainService<T>(this.controllerName).getAll();
+            CacheDomainService.all[this.controllerName] = p;
         }
-        else {
-            return new DomainService<T>(this.controllerName).getAll().then(this.onComplete.bind(this));
-        }
-    }
-
-    private onComplete(d: T[]): T[] {
-        this.addAllToCache(d);
-        return d;
-    }
-
-    private getAllFromCache(): T[] {
-        return CacheDomainService.all[this.controllerName];
-    }
-
-    private addAllToCache(d: T[]): void {
-        CacheDomainService.all[this.controllerName] = d;
+        return p;
     }
 }
