@@ -7,6 +7,8 @@ import { ReactionTypeService } from "../../Dict/Services/ReactionTypeService";
 import { ServiceLocationService } from "../../Dict/Services/ServiceLocationService";
 import { WgService } from "../../Dict/Services/WgService";
 import { IDictService } from "./IDictService";
+import { SogService } from "./SogService";
+import { YearService } from "./YearService";
 
 export class DictService implements IDictService {
 
@@ -19,7 +21,7 @@ export class DictService implements IDictService {
     }
 
     public getSog(): Promise<NamedId<string>[]> {
-        throw new Error("Method not implemented.");
+        return new SogService().getAll();
     }
 
     public getAvailabilityTypes(): Promise<NamedId<string>[]> {
@@ -31,7 +33,7 @@ export class DictService implements IDictService {
     }
 
     public getYears(): Promise<NamedId<string>[]> {
-        throw new Error("Method not implemented.");
+        return new YearService().getAll();
     }
 
     public getReactTypes(): Promise<NamedId<string>[]> {

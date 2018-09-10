@@ -1,4 +1,4 @@
-﻿import { FakeDictService } from "../../Dict/fakes/FakeDictService";
+﻿import { DictService } from "../../Dict/Services/DictService";
 import { IDictService } from "../../Dict/Services/IDictService";
 import { FakeReportService } from "../fakes/FakeReportService";
 import { IReportService } from "./IReportService";
@@ -10,7 +10,7 @@ export class ReportFactory {
     }
 
     public static getDictService(): IDictService {
-        return new FakeDictService();
+        return new DictService();
     }
 
 }

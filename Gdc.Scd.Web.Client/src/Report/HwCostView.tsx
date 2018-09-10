@@ -3,9 +3,6 @@ import * as React from "react";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { HwCalcFilter } from "./Components/HwCalcFilter";
 import { HwCalcFilterModel } from "./Model/HwCalcFilterModel";
-import { IReportService } from "./Services/IReportService";
-import { ReportFactory } from "./Services/ReportFactory";
-import { numOrEmpty } from "./Helpers/numOrEmpty";
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
@@ -17,197 +14,28 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         pageSize: 25,
         autoLoad: true,
 
-        fields: [{
-            name: 'serviceSupportCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.serviceSupport);
-            }
-        }, {
-            name: 'serviceSupportCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.serviceSupport_Approved);
-            }
-        }, {
-            name: 'fieldServiceCostCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.fieldServiceCost);
-            }
-        }, {
-            name: 'fieldServiceCostCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.fieldServiceCost_Approved);
-            }
-        }, {
-            name: 'reinsuranceCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.reinsurance);
-            }
-        }, {
-            name: 'reinsuranceCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.reinsurance_Approved);
-            }
-        }, {
-            name: 'logisticCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.logistic);
-            }
-        }, {
-            name: 'logisticCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.logistic_Approved);
-            }
-        }, {
-            name: 'availabilityFeeCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.availabilityFee);
-            }
-        }, {
-            name: 'availabilityFeeCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.availabilityFee_Approved);
-            }
-        }, {
-            name: 'hddRetentionCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.hddRetention);
-            }
-        }, {
-            name: 'hddRetentionCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.hddRetention_Approved);
-            }
-        }, {
-            name: 'taxAndDutiesWCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.taxAndDutiesW);
-            }
-        }, {
-            name: 'taxAndDutiesWCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.taxAndDutiesW_Approved);
-            }
-        }, {
-            name: 'taxAndDutiesOowCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.taxAndDutiesOow);
-            }
-        }, {
-            name: 'taxAndDutiesOowCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.taxAndDutiesOow_Approved);
-            }
-        }, {
-            name: 'materialWCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.materialW);
-            }
-        }, {
-            name: 'materialWCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.materialW_Approved);
-            }
-        }, {
-            name: 'materialOowCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.materialOow);
-            }
-        }, {
-            name: 'materialOowCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.materialOow_Approved);
-            }
-        }, {
-            name: 'proActiveCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.proActive);
-            }
-        }, {
-            name: 'proActiveCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.proActive_Approved);
-            }
-        }, {
-            name: 'serviceTCCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.serviceTC);
-            }
-        }, {
-            name: 'serviceTCCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.serviceTC_Approved);
-            }
-        }, {
-            name: 'serviceTCManualCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.serviceTCManual);
-            }
-        }, {
-            name: 'serviceTCManualCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.serviceTCManual_Approved);
-            }
-        }, {
-            name: 'serviceTPCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.serviceTP);
-            }
-        }, {
-            name: 'serviceTPCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.serviceTP_Approved);
-            }
-        }, {
-            name: 'serviceTPManualCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.serviceTPManual);
-            }
-        }, {
-            name: 'serviceTPManualCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.serviceTPManual_Approved);
-            }
-        }, {
-            name: 'otherDirectCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.otherDirect);
-            }
-        }, {
-            name: 'otherDirectCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.otherDirect_Approved);
-            }
-        }, {
-            name: 'localServiceStandardWarrantyCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.localServiceStandardWarranty);
-            }
-        }, {
-            name: 'localServiceStandardWarrantyCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.localServiceStandardWarranty_Approved);
-            }
-        }, {
-            name: 'creditsCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.credits);
-            }
-        }, {
-            name: 'creditsCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.credits_Approved);
-            }
-        }],
-
         proxy: {
             type: 'ajax',
             api: {
-                read: '/api/calc/gethwcost'
+                read: '/api/calc/gethwcost',
+                update: '/api/calc/savehwcost'
+            },
+            writer: {
+                type: 'json',
+                writeAllFields: true,
+                allowSingle: false,
+                idProperty: "id"
             },
             reader: {
                 type: 'json',
                 rootProperty: 'items',
                 totalProperty: 'total'
+            }
+        },
+        listeners: {
+            update: (store, record, operation, modifiedFieldNames, details, eOpts) => {
+                const changed = this.store.getUpdatedRecords().length;
+                this.toggleToolbar(changed == 0);
             }
         }
     });
@@ -226,44 +54,44 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
         const canEdit = this.canEdit();
 
-        let fieldServiceCost: string = 'fieldServiceCostCalc';
-        let serviceSupport: string = 'serviceSupportCalc';
-        let logistic: string = 'logisticCalc';
-        let availabilityFee: string = 'availabilityFeeCalc';
-        let hddRetention: string = 'hddRetentionCalc';
-        let reinsurance: string = 'reinsuranceCalc';
-        let taxAndDutiesW: string = 'taxAndDutiesWCalc';
-        let taxAndDutiesOow: string = 'taxAndDutiesOowCalc';
-        let materialW: string = 'materialWCalc';
-        let materialOow: string = 'materialOowCalc';
-        let proActive: string = 'proActiveCalc';
-        let serviceTC: string = 'serviceTCCalc';
-        let serviceTCManual: string = 'serviceTCManualCalc';
-        let serviceTP: string = 'serviceTPCalc';
-        let serviceTPManual: string = 'serviceTPManualCalc';
-        let otherDirect: string = 'otherDirectCalc';
-        let localServiceStandardWarranty: string = 'localServiceStandardWarrantyCalc';
-        let credits: string = 'creditsCalc';
+        let fieldServiceCost: string = 'fieldServiceCost';
+        let serviceSupport: string = 'serviceSupport';
+        let logistic: string = 'logistic';
+        let availabilityFee: string = 'availabilityFee';
+        let hddRetention: string = 'hddRetention';
+        let reinsurance: string = 'reinsurance';
+        let taxAndDutiesW: string = 'taxAndDutiesW';
+        let taxAndDutiesOow: string = 'taxAndDutiesOow';
+        let materialW: string = 'materialW';
+        let materialOow: string = 'materialOow';
+        let proActive: string = 'proActive';
+        let serviceTC: string = 'serviceTC';
+        let serviceTCManual: string = 'serviceTCManual';
+        let serviceTP: string = 'serviceTP';
+        let serviceTPManual: string = 'serviceTPManual';
+        let otherDirect: string = 'otherDirect';
+        let localServiceStandardWarranty: string = 'localServiceStandardWarranty';
+        let credits: string = 'credits';
 
         if (this.props.approved) {
-            fieldServiceCost = 'fieldServiceCostCalc_Approved';
-            serviceSupport = 'serviceSupportCalc_Approved';
-            logistic = 'logisticCalc_Approved';
-            availabilityFee = 'availabilityFeeCalc_Approved';
-            hddRetention = 'hddRetentionCalc_Approved';
-            reinsurance = 'reinsuranceCalc_Approved';
-            taxAndDutiesW = 'taxAndDutiesWCalc_Approved';
-            taxAndDutiesOow = 'taxAndDutiesOowCalc_Approved';
-            materialW = 'materialWCalc_Approved';
-            materialOow = 'materialOowCalc_Approved';
-            proActive = 'proActiveCalc_Approved';
-            serviceTC = 'serviceTCCalc_Approved';
-            serviceTCManual = 'serviceTCManualCalc_Approved';
-            serviceTP = 'serviceTPCalc_Approved';
-            serviceTPManual = 'serviceTPManualCalc_Approved';
-            otherDirect = 'otherDirectCalc_Approved';
-            localServiceStandardWarranty = 'localServiceStandardWarrantyCalc_Approved';
-            credits = 'creditsCalc_Approved';
+            fieldServiceCost = 'fieldServiceCost_Approved';
+            serviceSupport = 'serviceSupport_Approved';
+            logistic = 'logistic_Approved';
+            availabilityFee = 'availabilityFee_Approved';
+            hddRetention = 'hddRetention_Approved';
+            reinsurance = 'reinsurance_Approved';
+            taxAndDutiesW = 'taxAndDutiesW_Approved';
+            taxAndDutiesOow = 'taxAndDutiesOow_Approved';
+            materialW = 'materialW_Approved';
+            materialOow = 'materialOow_Approved';
+            proActive = 'proActive_Approved';
+            serviceTC = 'serviceTC_Approved';
+            serviceTCManual = 'serviceTCManual_Approved';
+            serviceTP = 'serviceTP_Approved';
+            serviceTPManual = 'serviceTPManual_Approved';
+            otherDirect = 'otherDirect_Approved';
+            localServiceStandardWarranty = 'localServiceStandardWarranty_Approved';
+            credits = 'credits_Approved';
         }
 
         return (
@@ -305,17 +133,17 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column text="Field service cost" dataIndex={fieldServiceCost} />
-                        <Column text="Service support cost" dataIndex={serviceSupport} />
-                        <Column text="Logistic cost" dataIndex={logistic} />
-                        <Column text="Availability fee" dataIndex={availabilityFee} />
-                        <Column text="HDD retention" dataIndex={hddRetention} />
-                        <Column text="Reinsurance" dataIndex={reinsurance} />
-                        <Column text="Tax &amp; Duties iW period" dataIndex={taxAndDutiesW} />
-                        <Column text="Tax &amp; Duties OOW period" dataIndex={taxAndDutiesOow} />
-                        <Column text="Material cost iW period" dataIndex={materialW} />
-                        <Column text="Material cost OOW period" dataIndex={materialOow} />
-                        <Column text="Pro active" dataIndex={proActive} />
+                        <NumberColumn text="Field service cost" dataIndex="fieldServiceCost" />
+                        <NumberColumn text="Service support cost" dataIndex="serviceSupport" />
+                        <NumberColumn text="Logistic cost" dataIndex="logistic" />
+                        <NumberColumn text="Availability fee" dataIndex="availabilityFee" />
+                        <NumberColumn text="HDD retention" dataIndex="hddRetention" />
+                        <NumberColumn text="Reinsurance" dataIndex="reinsurance" />
+                        <NumberColumn text="Tax &amp; Duties iW period" dataIndex="taxAndDutiesW" />
+                        <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="taxAndDutiesOow" />
+                        <NumberColumn text="Material cost iW period" dataIndex="materialW" />
+                        <NumberColumn text="Material cost OOW period" dataIndex="materialOow" />
+                        <NumberColumn text="Pro active" dataIndex="proActive" />
 
                     </Column>
 
@@ -328,15 +156,15 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-yellow"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column text="Service TC(calc)" dataIndex={serviceTC} />
-                        <Column text="Service TC(manual)" dataIndex={serviceTCManual} editable={canEdit} renderer={this.numberRenderer.bind(this)} />
+                        <NumberColumn text="Service TC(calc)" dataIndex={serviceTC} />
+                        <NumberColumn text="Service TC(manual)" dataIndex="serviceTCManual" editable={canEdit} />
 
-                        <Column text="Service TP(calc)" dataIndex={serviceTP} />
-                        <Column text="Service TP(manual)" dataIndex={serviceTPManual} editable={canEdit} renderer={this.numberRenderer.bind(this)} />
+                        <NumberColumn text="Service TP(calc)" dataIndex={serviceTP} />
+                        <NumberColumn text="Service TP(manual)" dataIndex="serviceTPManual" editable={canEdit} />
 
-                        <Column text="Other direct cost" dataIndex={otherDirect} />
-                        <Column text="Local service standard warranty" dataIndex={localServiceStandardWarranty} />
-                        <Column text="Credits" dataIndex={credits} />
+                        <NumberColumn text="Other direct cost" dataIndex={otherDirect} />
+                        <NumberColumn text="Local service standard warranty" dataIndex={localServiceStandardWarranty} />
+                        <NumberColumn text="Credits" dataIndex={credits} />
 
                     </Column>
 
@@ -356,16 +184,40 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     private init() {
         this.onSearch = this.onSearch.bind(this);
         this.onBeforeLoad = this.onBeforeLoad.bind(this);
+        this.cancelChanges = this.cancelChanges.bind(this);
+        this.saveRecords = this.saveRecords.bind(this);
 
         this.store.on('beforeload', this.onBeforeLoad);
     }
 
+    private toggleToolbar(disable: boolean) {
+        this.setState({ disableSaveButton: disable, disableCancelButton: disable });
+    }
+
     private cancelChanges() {
-        console.log('cancelChanges()');
+        this.store.rejectChanges();
+        this.toggleToolbar(true);
     }
 
     private saveRecords() {
-        console.log('saveRecords()');
+        this.store.sync({
+            scope: this,
+
+            success: function (batch, options) {
+                //TODO: show successfull message box
+                this.setState({
+                    disableSaveButton: true,
+                    disableCancelButton: true
+                });
+                this.store.load();
+            },
+
+            failure: (batch, options) => {
+                //TODO: show error
+                this.store.rejectChanges();
+            }
+        });
+
     }
 
     private onSearch(filter: HwCalcFilterModel) {
@@ -380,10 +232,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         let filter = this.filter.getModel();
         let params = Ext.apply({}, operation.getParams(), filter);
         operation.setParams(params);
-    }
-
-    private numberRenderer(value, { data }): string {
-        return isNaN(value) ? ' ' : value;
     }
 
     private pluginConf(): any {

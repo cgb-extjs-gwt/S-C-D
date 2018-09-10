@@ -1,8 +1,7 @@
-﻿import { Column, Container, Grid } from "@extjs/ext-react";
+﻿import { Column, Container, Grid, NumberColumn } from "@extjs/ext-react";
 import * as React from "react";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { SwCalcFilter } from "./Components/SwCalcFilter";
-import { numOrEmpty } from "./Helpers/numOrEmpty";
 import { SwCalcFilterModel } from "./Model/SwCalcFilterModel";
 
 export class SwCostView extends React.Component<CalcCostProps, any> {
@@ -14,58 +13,6 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
         pageSize: 25,
         autoLoad: true,
-
-        fields: [{
-            name: 'serviceSupportCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.serviceSupport);
-            }
-        }, {
-            name: 'serviceSupportCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.serviceSupport_Approved);
-            }
-        }, {
-            name: 'reinsuranceCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.reinsurance);
-            }
-        }, {
-            name: 'reinsuranceCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.reinsurance_Approved);
-            }
-        }, {
-            name: 'transferPriceCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.transferPrice);
-            }
-        }, {
-            name: 'transferPriceCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.transferPrice_Approved);
-            }
-        }, {
-            name: 'maintenanceListPriceCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.maintenanceListPrice);
-            }
-        }, {
-            name: 'maintenanceListPriceCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.maintenanceListPrice_Approved);
-            }
-        }, {
-            name: 'dealerPriceCalc',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.dealerPrice);
-            }
-        }, {
-            name: 'dealerPriceCalc_Approved',
-            convert: function (val, row) {
-                return numOrEmpty(row.data.dealerPrice_Approved);
-            }
-        }],
 
         proxy: {
             type: 'ajax',
@@ -87,18 +34,18 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
     public render() {
 
-        let serviceSupportCalc: string = 'serviceSupportCalc';
-        let reinsuranceCalc: string = 'reinsuranceCalc';
-        let transferPriceCalc: string = 'transferPriceCalc';
-        let maintenanceListPriceCalc: string = 'maintenanceListPriceCalc';
-        let dealerPriceCalc: string = 'dealerPriceCalc';
+        let serviceSupport: string = 'serviceSupport';
+        let reinsurance: string = 'reinsurance';
+        let transferPrice: string = 'transferPrice';
+        let maintenanceListPrice: string = 'maintenanceListPrice';
+        let dealerPrice: string = 'dealerPrice';
 
         if (this.props.approved) {
-            serviceSupportCalc = 'serviceSupportCalc_Approved';
-            reinsuranceCalc = 'reinsuranceCalc_Approved';
-            transferPriceCalc = 'transferPriceCalc_Approved';
-            maintenanceListPriceCalc = 'maintenanceListPriceCalc_Approved';
-            dealerPriceCalc = 'dealerPriceCalc_Approved';
+            serviceSupport = 'serviceSupport_Approved';
+            reinsurance = 'reinsurance_Approved';
+            transferPrice = 'transferPrice_Approved';
+            maintenanceListPrice = 'maintenanceListPrice_Approved';
+            dealerPrice = 'dealerPrice_Approved';
         }
 
         return (
@@ -135,11 +82,11 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column text="Service support cost" dataIndex={serviceSupportCalc} />
-                        <Column text="Reinsurance" dataIndex={reinsuranceCalc} />
-                        <Column text="Transer price" dataIndex={transferPriceCalc} />
-                        <Column text="Maintenance list price" dataIndex={maintenanceListPriceCalc} />
-                        <Column text="Dealer reference price" dataIndex={dealerPriceCalc} />
+                        <NumberColumn text="Service support cost" dataIndex={serviceSupport} />
+                        <NumberColumn text="Reinsurance" dataIndex={reinsurance} />
+                        <NumberColumn text="Transer price" dataIndex={transferPrice} />
+                        <NumberColumn text="Maintenance list price" dataIndex={maintenanceListPrice} />
+                        <NumberColumn text="Dealer reference price" dataIndex={dealerPrice} />
 
                     </Column>
 

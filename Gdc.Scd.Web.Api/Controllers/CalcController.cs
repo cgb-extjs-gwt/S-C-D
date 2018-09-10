@@ -3,6 +3,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Web.Api.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
@@ -45,9 +46,15 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
-        public void SaveHwCost([FromBody]IEnumerable<HwCostManualDto> records)
+        public void SaveHwCost([FromBody]IEnumerable<HwCostDto> records)
         {
-            calcSrv.SaveHardwareCost(records);
+            var model = records.Select(x => new HwCostManualDto
+            {
+                Id = x.Id,
+                ServiceTC = x.ServiceTCManual,
+                ServiceTP = x.ServiceTPManual
+            });
+            calcSrv.SaveHardwareCost(model);
         }
 
         private bool isRangeValid(int start, int limit)

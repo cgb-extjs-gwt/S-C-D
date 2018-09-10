@@ -144,8 +144,6 @@ export default class RoleCodesGrid extends React.Component {
             this.store.clearFilter();
     }
 
-    
-
     private getValueColumn() {
         let selectField;
         let renderer: (value, data: { data }) => string;
