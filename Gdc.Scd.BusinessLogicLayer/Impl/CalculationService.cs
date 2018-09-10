@@ -50,8 +50,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                              .WhereIf(filter.ServiceLocation.HasValue, x => x.m.ServiceLocationId == filter.ServiceLocation.Value);
             }
 
-            query = query.OrderBy(x => x.m.Id);
-
             var result = query.Select(x => new HwCostDto
             {
                 Id = x.m.Id,

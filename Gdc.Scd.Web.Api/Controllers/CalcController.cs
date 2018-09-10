@@ -52,7 +52,7 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         private bool isRangeValid(int start, int limit)
         {
-            return start >= 0 && limit < 50;
+            return start >= 0 && limit <= 50;
         }
     }
 }

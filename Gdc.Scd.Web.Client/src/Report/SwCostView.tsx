@@ -2,11 +2,8 @@
 import * as React from "react";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { SwCalcFilter } from "./Components/SwCalcFilter";
+import { numOrEmpty } from "./Helpers/numOrEmpty";
 import { SwCalcFilterModel } from "./Model/SwCalcFilterModel";
-
-function numOrEmpty(v: number): any {
-    return typeof v === 'number' ? v : ' ';
-}
 
 export class SwCostView extends React.Component<CalcCostProps, any> {
 
@@ -90,18 +87,18 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
     public render() {
 
-        let serviceSupportCalc: string = "serviceSupportCalc";
-        let reinsuranceCalc: string = "reinsuranceCalc";
-        let transferPriceCalc: string = "transferPriceCalc";
-        let maintenanceListPriceCalc: string = "maintenanceListPriceCalc";
-        let dealerPriceCalc: string = "dealerPriceCalc";
+        let serviceSupportCalc: string = 'serviceSupportCalc';
+        let reinsuranceCalc: string = 'reinsuranceCalc';
+        let transferPriceCalc: string = 'transferPriceCalc';
+        let maintenanceListPriceCalc: string = 'maintenanceListPriceCalc';
+        let dealerPriceCalc: string = 'dealerPriceCalc';
 
         if (this.props.approved) {
-            serviceSupportCalc = "serviceSupportCalc_Approved";
-            reinsuranceCalc = "reinsuranceCalc_Approved";
-            transferPriceCalc = "transferPriceCalc_Approved";
-            maintenanceListPriceCalc = "maintenanceListPriceCalc_Approved";
-            dealerPriceCalc = "dealerPriceCalc_Approved";
+            serviceSupportCalc = 'serviceSupportCalc_Approved';
+            reinsuranceCalc = 'reinsuranceCalc_Approved';
+            transferPriceCalc = 'transferPriceCalc_Approved';
+            maintenanceListPriceCalc = 'maintenanceListPriceCalc_Approved';
+            dealerPriceCalc = 'dealerPriceCalc_Approved';
         }
 
         return (
