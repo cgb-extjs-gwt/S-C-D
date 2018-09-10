@@ -10,14 +10,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 {
     public class EntityFrameworkRepository<T> : IRepository<T> where T : class, IIdentifiable, new()
     {
-        private readonly DateTime DateTime;
-
         protected readonly EntityFrameworkRepositorySet repositorySet;
 
         public EntityFrameworkRepository(EntityFrameworkRepositorySet repositorySet)
         {
             this.repositorySet = repositorySet;
-            DateTime = DateTime.Now;
         }
 
         public virtual T Get(long id)
