@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
-using Microsoft.Extensions.Configuration;
-using System.Web;
 using System.Web.Hosting;
 
 namespace Gdc.Scd.Core.Meta.Impl
