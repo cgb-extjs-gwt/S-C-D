@@ -12,13 +12,13 @@
         "modern"
     ],
     "overrides": [
-        "D:\\SCD2.0_Repo\\Gdc.Scd.Web.Client\\ext-react\\overrides",
+        "D:\\TFSRussia\\Source\\Repos\\SCD2.02\\Gdc.Scd.Web.Client\\ext-react\\overrides",
         "jsdom-environment.js"
     ],
     "packages": {
         "dir": [
-            "D:\\SCD2.0_Repo\\Gdc.Scd.Web.Client\\node_modules\\@extjs",
-            "D:\\SCD2.0_Repo\\Gdc.Scd.Web.Client\\ext-react\\packages"
+            "D:\\TFSRussia\\Source\\Repos\\SCD2.02\\Gdc.Scd.Web.Client\\node_modules\\@extjs",
+            "D:\\TFSRussia\\Source\\Repos\\SCD2.02\\Gdc.Scd.Web.Client\\ext-react\\packages"
         ]
     },
     "output": {

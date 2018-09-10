@@ -39,25 +39,25 @@ namespace Gdc.Scd.Web.Server.Controllers
             return this.meta;
         }
 
-        public async Task<CostElementData> GetCostElementData(CostEditorContext context)
+        public async Task<CostElementData> GetCostElementData([System.Web.Http.FromUri]CostEditorContext context)
         {
             return await this.costEditorService.GetCostElementData(context);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context)
+        public async Task<IEnumerable<NamedId>> GetInputLevelFilterItems([System.Web.Http.FromUri]CostEditorContext context)
         {
             return await this.costEditorService.GetInputLevelFilterItems(context);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context)
+        public async Task<IEnumerable<EditItem>> GetEditItems([System.Web.Http.FromUri]CostEditorContext context)
         {
             return await this.costEditorService.GetEditItems(context);
         }
 
         [HttpPost]
-        public async Task<ActionResult> UpdateValues([System.Web.Http.FromBody]IEnumerable<EditItem> editItems, CostEditorContext context, bool forApproval)
+        public async Task<ActionResult> UpdateValues([System.Web.Http.FromBody]IEnumerable<EditItem> editItems, [System.Web.Http.FromUri]CostEditorContext context, bool forApproval)
         {
             await this.costEditorService.UpdateValues(editItems, context, forApproval);
 

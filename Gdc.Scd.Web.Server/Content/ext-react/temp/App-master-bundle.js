@@ -1,2 +1,2 @@
 // @tag App
-// @require D:\SCD2.0_Repo\Gdc.Scd.Web.Server\Content\ext-react\app.js
+// @require D:\TFSRussia\Source\Repos\SCD2.02\Gdc.Scd.Web.Server\Content\ext-react\app.js

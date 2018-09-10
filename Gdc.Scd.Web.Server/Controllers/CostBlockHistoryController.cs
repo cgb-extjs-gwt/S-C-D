@@ -20,19 +20,19 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CostBlockHistoryApprovalDto>> GetDtoHistoriesForApproval(CostBlockHistoryFilter filter)
+        public async Task<IEnumerable<CostBlockHistoryApprovalDto>> GetDtoHistoriesForApproval([System.Web.Http.FromUri]CostBlockHistoryFilter filter)
         {
             return await this.costBlockHistoryService.GetDtoHistoriesForApproval(filter);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues(long costBlockHistoryId)
+        public async Task<IEnumerable<CostBlockValueHistory>> GetHistoryValues([System.Web.Http.FromUri]long costBlockHistoryId)
         {
            return await this.costBlockHistoryService.GetHistoryValues(costBlockHistoryId);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Dictionary<string, object>>> GetHistoryValueTable(long costBlockHistoryId)
+        public async Task<IEnumerable<Dictionary<string, object>>> GetHistoryValueTable([System.Web.Http.FromUri]long costBlockHistoryId)
         {
             var historyValues = await this.costBlockHistoryService.GetHistoryValues(costBlockHistoryId);
 
@@ -57,11 +57,11 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         [HttpGet]
         public async Task<IEnumerable<CostBlockHistoryValueDto>> GetCostBlockHistoryValueDto(
-            CostEditorContext context, 
-            long editItemId, 
-            int? start, 
-            int? limit, 
-            string sort = null)
+            [System.Web.Http.FromUri]CostEditorContext context,
+            [System.Web.Http.FromUri]long editItemId,
+            [System.Web.Http.FromUri]int? start,
+            [System.Web.Http.FromUri]int? limit,
+            [System.Web.Http.FromUri]string sort = null)
         {
             QueryInfo queryInfo = null;
 
