@@ -133,17 +133,17 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <NumberColumn text="Field service cost" dataIndex="fieldServiceCost" />
-                        <NumberColumn text="Service support cost" dataIndex="serviceSupport" />
-                        <NumberColumn text="Logistic cost" dataIndex="logistic" />
-                        <NumberColumn text="Availability fee" dataIndex="availabilityFee" />
-                        <NumberColumn text="HDD retention" dataIndex="hddRetention" />
-                        <NumberColumn text="Reinsurance" dataIndex="reinsurance" />
-                        <NumberColumn text="Tax &amp; Duties iW period" dataIndex="taxAndDutiesW" />
-                        <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="taxAndDutiesOow" />
-                        <NumberColumn text="Material cost iW period" dataIndex="materialW" />
-                        <NumberColumn text="Material cost OOW period" dataIndex="materialOow" />
-                        <NumberColumn text="Pro active" dataIndex="proActive" />
+                        <NumberColumn text="Field service cost" dataIndex={fieldServiceCost} />
+                        <NumberColumn text="Service support cost" dataIndex={serviceSupport} />
+                        <NumberColumn text="Logistic cost" dataIndex={logistic} />
+                        <NumberColumn text="Availability fee" dataIndex={availabilityFee} />
+                        <NumberColumn text="HDD retention" dataIndex={hddRetention} />
+                        <NumberColumn text="Reinsurance" dataIndex={reinsurance} />
+                        <NumberColumn text="Tax &amp; Duties iW period" dataIndex={taxAndDutiesW} />
+                        <NumberColumn text="Tax &amp; Duties OOW period" dataIndex={taxAndDutiesOow} />
+                        <NumberColumn text="Material cost iW period" dataIndex={materialW} />
+                        <NumberColumn text="Material cost OOW period" dataIndex={materialOow} />
+                        <NumberColumn text="Pro active" dataIndex={proActive} />
 
                     </Column>
 
