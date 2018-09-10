@@ -67,7 +67,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 AvailabilityFee = x.hw.AvailabilityFee,
                 AvailabilityFee_Approved = x.hw.AvailabilityFee_Approved,
 
-                Credits  = x.hw.Credits,
+                Credits = x.hw.Credits,
                 Credits_Approved = x.hw.Credits_Approved,
 
                 FieldServiceCost = x.hw.FieldServiceCost,
@@ -164,10 +164,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public void SaveHardwareCost(IEnumerable<HwCostManualDto> records)
         {
-            var entities = hwRepo.GetAll()
-                                 .Where(x => records.Any(y => y.Id == x.Id) &&
-                                             x.Matrix.Country.CanOverrideTransferCostAndPrice)
-                                 .ToDictionary(x => x.Id, y => y);
+            var recordsId = records.Select(x => x.Id);
+
+            var query = hwRepo.GetAll()
+                              .Where(x => recordsId.Contains(x.Id) &&
+                                          x.Matrix.Country.CanOverrideTransferCostAndPrice);
+
+            var entities = query.ToDictionary(x => x.Id, y => y);
 
             ITransaction transaction = null;
             try
