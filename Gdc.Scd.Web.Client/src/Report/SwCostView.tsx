@@ -18,7 +18,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
     private srv: IReportService;
 
-    private store = Ext.create('Ext.data.Store', {
+    private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
         pageSize: 25,
         autoLoad: true,
 
@@ -119,18 +119,13 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     public componentDidMount() {
         this.grid = this.refs.grid as Grid;
         this.filter = this.refs.filter as SwCalcFilter;
-        //
-        this.reload();
     }
 
     private init() {
-        this.srv = ReportFactory.getReportService();
         this.onSearch = this.onSearch.bind(this);
-        //
-        this.state = {
-            allowed: [],
-            denied: []
-        };
+        this.onBeforeLoad = this.onBeforeLoad.bind(this);
+
+        this.store.on('beforeload', this.onBeforeLoad);
     }
 
     private onSearch(filter: SwCalcFilterModel) {
@@ -138,6 +133,12 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private reload() {
-        let filter = this.filter.getModel();
+        this.store.load();
+    }
+
+    private onBeforeLoad(s, operation) {
+        let filter = { ...this.filter.getModel(), approved: this.props.approved };
+        let params = Ext.apply({}, operation.getParams(), filter);
+        operation.setParams(params);
     }
 }

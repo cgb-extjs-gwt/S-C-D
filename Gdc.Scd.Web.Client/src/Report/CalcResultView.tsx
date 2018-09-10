@@ -13,7 +13,7 @@ export class CalcResultView extends React.Component<any, any> {
                 <TabPanel flex="1" tabBar={{ layout: { pack: 'left' } }}>
 
                     <Container title="Hardware<br>service costs" layout="fit">
-                        <HwCostView />
+                        <HwCostView approved={false}/>
                     </Container>
 
                     <Container title="Hardware<br>service costs<br>(approved)" layout="fit">
@@ -21,7 +21,7 @@ export class CalcResultView extends React.Component<any, any> {
                     </Container>
 
                     <Container title="Software &amp; Solution<br>service costs" layout="fit">
-                        <SwCostView />
+                        <SwCostView approved={false} />
                     </Container>
 
                     <Container title="Software &amp; Solution<br>service costs<br>(approved)" layout="fit">

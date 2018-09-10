@@ -1,3 +1,3 @@
 ﻿export class CalcCostProps {
-    public approved?: boolean;
+    public approved: boolean;
 }

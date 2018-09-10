@@ -19,7 +19,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         [HttpGet]
         public DataInfo<HwCostDto> GetHwCost(HwFilterDto filter, int start = 0, int limit = 50)
         {
-            if (start < 0 || limit > 50)
+            if (!isRangeValid(start, limit))
             {
                 return null;
             }
@@ -33,7 +33,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         [HttpGet]
         public DataInfo<SwCostDto> GetSwCost(SwFilterDto filter, int start = 0, int limit = 50)
         {
-            if (start < 0 || limit > 50)
+            if (!isRangeValid(start, limit))
             {
                 return null;
             }
@@ -48,6 +48,11 @@ namespace Gdc.Scd.Web.Api.Controllers
         public void SaveHwCost([FromBody]IEnumerable<HwCostManualDto> records)
         {
             calcSrv.SaveHardwareCost(records);
+        }
+
+        private bool isRangeValid(int start, int limit)
+        {
+            return start >= 0 && limit < 50;
         }
     }
 }
