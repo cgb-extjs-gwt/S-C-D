@@ -157,10 +157,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                         <NumberColumn text="Service TC(calc)" dataIndex={serviceTC} />
-                        <NumberColumn text="Service TC(manual)" dataIndex="serviceTCManual" editable={canEdit} />
+                        <NumberColumn text="Service TC(manual)" dataIndex={serviceTCManual} editable={canEdit} />
 
                         <NumberColumn text="Service TP(calc)" dataIndex={serviceTP} />
-                        <NumberColumn text="Service TP(manual)" dataIndex="serviceTPManual" editable={canEdit} />
+                        <NumberColumn text="Service TP(manual)" dataIndex={serviceTPManual} editable={canEdit} />
 
                         <NumberColumn text="Other direct cost" dataIndex={otherDirect} />
                         <NumberColumn text="Local service standard warranty" dataIndex={localServiceStandardWarranty} />
