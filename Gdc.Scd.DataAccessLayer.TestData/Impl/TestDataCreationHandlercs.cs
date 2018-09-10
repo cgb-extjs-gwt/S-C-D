@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Reflection;
+using System.Configuration;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -1288,7 +1289,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private string ReadText(string fn)
         {
-            string root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string root = ConfigurationManager.AppSettings["ScriptsLocation"] ?? 
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             fn = Path.Combine(root, fn);
             return File.ReadAllText(fn);
         }

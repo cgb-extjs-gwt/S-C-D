@@ -7,6 +7,7 @@ namespace Gdc.Scd.Web.Server.App_Start
     using System.Reflection;
     using System.Web;
     using System.Web.Http;
+    using Gdc.Scd.Core.Interfaces;
     using Gdc.Scd.Web.Server.DI;
     using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 
@@ -43,7 +44,7 @@ namespace Gdc.Scd.Web.Server.App_Start
         /// <returns>The created kernel.</returns>
         private static IKernel CreateKernel()
         {
-            var kernel = new StandardKernel();
+            var kernel = new StandardKernel(new NinjectSettings() { LoadExtensions = false });
             try
             {
                 kernel.Bind<Func<IKernel>>().ToMethod(ctx => () => new Bootstrapper().Kernel);
@@ -64,13 +65,17 @@ namespace Gdc.Scd.Web.Server.App_Start
         /// <param name="kernel">The kernel.</param>
         private static void RegisterServices(IKernel kernel)
         {
-            //kernel.Bind<IMessageService>().To<MessageService>();
-
-            kernel.Load(Assembly.GetExecutingAssembly());
+            kernel.Load(AppDomain.CurrentDomain.GetAssemblies());
             var resolver = new ScdNinjectDependencyResolver(kernel);
             System.Web.Mvc.DependencyResolver.SetResolver(resolver);
 
-            GlobalConfiguration.Configuration.DependencyResolver = new NinjectDependencyResolver(kernel); ;
+            GlobalConfiguration.Configuration.DependencyResolver = new NinjectDependencyResolver(kernel);
+
+            var handleServices = kernel.GetAll<IConfigureApplicationHandler>();
+            foreach (var handler in handleServices)
+            {
+                handler.Handle();
+            }
         }        
     }
 }

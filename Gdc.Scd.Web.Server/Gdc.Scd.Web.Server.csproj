@@ -193,7 +193,6 @@
     <Compile Include="Controllers\WarrantyGroupController.cs" />
     <Compile Include="DI\ScdNinjectDependencyResolver.cs" />
     <Compile Include="DI\ScdNinjectDependencyScope.cs" />
-    <Compile Include="DI\ScdNinjectRegistrations.cs" />
     <Compile Include="Entities\DataInfo.cs" />
     <Compile Include="Entities\FilterInfo.cs" />
     <Compile Include="Entities\UpdateValuesParam.cs" />
