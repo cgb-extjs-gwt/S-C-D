@@ -63,8 +63,6 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string PeriodCoeffNodeName = "PeriodCoeff";
 
-        private readonly IConfiguration configuration;
-
         private readonly Regex idRegex = new Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled);
 
 

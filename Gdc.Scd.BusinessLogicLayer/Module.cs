@@ -26,12 +26,15 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<IAvailabilityFeeAdminService>().To<AvailabilityFeeAdminService>().InRequestScope();
             Bind<IEmailService>().To<EmailService>().InRequestScope();
             Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InRequestScope();
-            services.AddScoped<ICostBlockFilterBuilder, CostBlockFilterBuilder>();
-            services.AddScoped<IQualityGateSevice, QualityGateSevice>();
+            Bind<IQualityGateSevice>().To<QualityGateSevice>().InRequestScope();
+
+            Kernel.RegisterEntity<ClusterRegion>();
             Kernel.RegisterEntity<Country>();
+            Kernel.RegisterEntity<CountryGroup>();
             Kernel.RegisterEntity<Pla>();
             Kernel.RegisterEntity<Wg>();
             Kernel.RegisterEntity<Availability>();
+            Kernel.RegisterEntity<Year>();
             Kernel.RegisterEntity<Duration>();
             Kernel.RegisterEntity<ReactionType>();
             Kernel.RegisterEntity<ReactionTime>();
@@ -45,33 +48,13 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<AdminAvailabilityFee>();
             Kernel.RegisterEntity<CapabilityMatrixCountryAllowView>();
             Kernel.RegisterEntity<RoleCode>();
+            Kernel.RegisterEntity<HardwareCalculationResult>();
+            Kernel.RegisterEntity<Currency>();
+            Kernel.RegisterEntity<ExchangeRate>();
+            Kernel.RegisterEntity<YearAvailability>();
+            Kernel.RegisterEntity<ClusterPla>();
             Kernel.RegisterEntity<Role>();
             Kernel.RegisterEntity<UserRole>();
-            services.RegisterEntity<ClusterRegion>();
-            services.RegisterEntity<Country>();
-            services.RegisterEntity<CountryGroup>();
-            services.RegisterEntity<Pla>();
-            services.RegisterEntity<Wg>();
-            services.RegisterEntity<Availability>();
-            services.RegisterEntity<Year>();
-            services.RegisterEntity<Duration>();
-            services.RegisterEntity<ReactionType>();
-            services.RegisterEntity<ReactionTime>();
-            services.RegisterEntity<ReactionTimeType>();
-            services.RegisterEntity<ReactionTimeAvalability>();
-            services.RegisterEntity<ReactionTimeTypeAvalability>();
-            services.RegisterEntity<ServiceLocation>();
-            services.RegisterEntity<CapabilityMatrix>();
-            services.RegisterEntity<CapabilityMatrixRule>();
-            services.RegisterEntity<CapabilityMatrixAllowView>();
-            services.RegisterEntity<AdminAvailabilityFee>();
-            services.RegisterEntity<CapabilityMatrixCountryAllowView>();
-            services.RegisterEntity<RoleCode>();
-            services.RegisterEntity<HardwareCalculationResult>();
-            services.RegisterEntity<Currency>();
-            services.RegisterEntity<ExchangeRate>();
-            services.RegisterEntity<YearAvailability>();
-            services.RegisterEntity<ClusterPla>();
         }
     }
 }

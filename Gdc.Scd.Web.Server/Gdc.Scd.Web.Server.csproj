@@ -247,6 +247,7 @@
     <Compile Include="DI\ScdNinjectDependencyScope.cs" />
     <Compile Include="Entities\DataInfo.cs" />
     <Compile Include="Entities\FilterInfo.cs" />
+    <Compile Include="Entities\QualityGateResultDto.cs" />
     <Compile Include="Entities\UpdateValuesParam.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

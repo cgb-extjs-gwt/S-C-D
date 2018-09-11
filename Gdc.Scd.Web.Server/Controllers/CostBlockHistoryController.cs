@@ -20,16 +20,16 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles([FromQuery]CostBlockHistoryFilter filter)
+        public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles([System.Web.Http.FromUri]CostBlockHistoryFilter filter)
         {
             return await this.costBlockHistoryService.GetApprovalBundles(filter);
         }
 
         [HttpGet]
         public async Task<IEnumerable<Dictionary<string, object>>> GetApproveBundleDetail(
-            [FromQuery]long costBlockHistoryId, 
-            [FromQuery]long? historyValueId = null, 
-            [FromQuery]string costBlockFilter = null)
+            [System.Web.Http.FromUri]long costBlockHistoryId,
+            [System.Web.Http.FromUri]long? historyValueId = null,
+            [System.Web.Http.FromUri]string costBlockFilter = null)
         {
             Dictionary<string, IEnumerable<object>> filterDictionary = null;
 
@@ -64,11 +64,11 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         [HttpGet]
         public async Task<IEnumerable<HistoryItem>> GetHistory(
-            CostEditorContext context, 
-            long editItemId, 
-            int? start, 
-            int? limit, 
-            string sort = null)
+            [System.Web.Http.FromUri]CostEditorContext context,
+            [System.Web.Http.FromUri]long editItemId,
+            [System.Web.Http.FromUri]int? start,
+            [System.Web.Http.FromUri]int? limit,
+            [System.Web.Http.FromUri]string sort = null)
         {
             QueryInfo queryInfo = null;
 

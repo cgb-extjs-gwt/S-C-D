@@ -6,7 +6,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
-
+using Gdc.Scd.Web.Server.Entities;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
@@ -53,7 +53,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<QualityGateResultDto> UpdateValues([FromBody]IEnumerable<EditItem> editItems, [FromQuery]CostEditorContext context, [FromQuery]ApprovalOption approvalOption)
+        public async Task<QualityGateResultDto> UpdateValues([System.Web.Http.FromBody]IEnumerable<EditItem> editItems, [System.Web.Http.FromUri]CostEditorContext context, [System.Web.Http.FromUri]ApprovalOption approvalOption)
         {
             var qualityGateResult = await this.costEditorService.UpdateValues(editItems, context, approvalOption);
             var errors = new List<IDictionary<string, object>>();
@@ -85,13 +85,6 @@ namespace Gdc.Scd.Web.Server.Controllers
                 HasErrors = qualityGateResult.HasErrors,
                 Errors = errors
             };
-        }
-
-        public async Task<ActionResult> UpdateValues([System.Web.Http.FromBody]IEnumerable<EditItem> editItems, [System.Web.Http.FromUri]CostEditorContext context, bool forApproval)
-        {
-            await this.costEditorService.UpdateValues(editItems, context, forApproval);
-
-            return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
         }
     }
 }
