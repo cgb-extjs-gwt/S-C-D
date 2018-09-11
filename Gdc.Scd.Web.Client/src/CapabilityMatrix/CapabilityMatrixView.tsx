@@ -1,13 +1,13 @@
-﻿import * as React from "react";
-import { Container, Button, Grid, Toolbar } from "@extjs/ext-react";
-import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService";
-import { MatrixFactory } from "./Services/MatrixFactory";
-import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
+﻿import { Button, Container, Grid, Toolbar } from "@extjs/ext-react";
+import * as React from "react";
 import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
+import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
+import { FilterPanel } from "./Components/FilterPanel";
 import { NullStringColumn } from "./Components/NullStringColumn";
 import { ReadonlyCheckColumn } from "./Components/ReadonlyCheckColumn";
-import { FilterPanel } from "./Components/FilterPanel";
 import { CapabilityMatrixFilterModel } from "./Model/CapabilityMatrixFilterModel";
+import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService";
+import { MatrixFactory } from "./Services/MatrixFactory";
 
 export class CapabilityMatrixView extends React.Component<any, any> {
 
@@ -36,6 +36,23 @@ export class CapabilityMatrixView extends React.Component<any, any> {
         }
     });
 
+    private denyStore: Ext.data.IStore = Ext.create('Ext.data.Store', {
+        pageSize: 25,
+        autoLoad: true,
+
+        proxy: {
+            type: 'ajax',
+            api: {
+                read: '/api/capabilitymatrix/denied'
+            },
+            reader: {
+                type: 'json',
+                rootProperty: 'items',
+                totalProperty: 'total'
+            }
+        }
+    });
+
     public constructor(props: any) {
         super(props);
         this.init();
@@ -53,7 +70,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     <Button iconCls="x-fa fa-undo" text="Allow combinations" ui="confirm" handler={this.onAllow} />
                 </Toolbar>
 
-                <Grid ref="denied" store={this.state.denied} width="100%" minHeight="45%" title="Denied combinations" selectable="multi" plugins={['pagingtoolbar']}>
+                <Grid ref="denied" store={this.denyStore} width="100%" minHeight="45%" title="Denied combinations" selectable="multi" plugins={['pagingtoolbar']}>
                     <NullStringColumn flex="1" text="Country" dataIndex="country" />
                     <NullStringColumn flex="1" text="WG(Asset)" dataIndex="wg" />
                     <NullStringColumn flex="1" text="Availability" dataIndex="availability" />
@@ -98,12 +115,8 @@ export class CapabilityMatrixView extends React.Component<any, any> {
         this.onSearch = this.onSearch.bind(this);
         this.onBeforeLoad = this.onBeforeLoad.bind(this);
         //
-        this.state = {
-            allowed: [],
-            denied: []
-        };
-        //
         this.allowStore.on('beforeload', this.onBeforeLoad);
+        this.denyStore.on('beforeload', this.onBeforeLoad);
     }
 
     private onEdit() {
@@ -134,17 +147,8 @@ export class CapabilityMatrixView extends React.Component<any, any> {
     }
 
     private reload() {
-        let filter = this.filter.getModel();
-
+        this.denyStore.load();
         this.allowStore.load();
-
-        this.srv.getDenied(filter).then(x => this.setState(
-            {
-                denied: {
-                    data: x.items,
-                    pageSize: 2
-                }
-            }));
     }
 
     private onBeforeLoad(s, operation) {
