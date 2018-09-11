@@ -53,7 +53,7 @@ namespace Gdc.Scd.Core.Helpers
             )
         {
             count = source.Count();
-            return source.Skip(start).Take(limit).ToList();
+            return Paging(source, start, limit);
         }
     }
 }
