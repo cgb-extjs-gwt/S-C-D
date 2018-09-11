@@ -1,6 +1,8 @@
-﻿namespace Gdc.Scd.BusinessLogicLayer.Entities
+﻿using Gdc.Scd.Core.Interfaces;
+
+namespace Gdc.Scd.Core.Entities
 {
-    public class CostEditorContext
+    public class CostEditorContext : ICostElementIdentifier
     {
         public string ApplicationId { get; set; }
 

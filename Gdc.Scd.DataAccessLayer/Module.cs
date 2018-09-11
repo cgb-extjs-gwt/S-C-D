@@ -20,6 +20,20 @@ namespace Gdc.Scd.DataAccessLayer
     {
         public override void Load()
         {
+            services.AddScoped(typeof(IRepository<>), typeof(EntityFrameworkRepository<>));
+            services.AddScoped<EntityFrameworkRepositorySet>();
+            services.AddScoped<IRepositorySet>(serviceProvider => serviceProvider.GetService<EntityFrameworkRepositorySet>());
+            services.AddScoped<ISqlRepository, SqlRepository>();
+            services.AddScoped<ICostEditorRepository, CostEditorRepository>();
+            services.AddScoped<ICostBlockValueHistoryRepository, CostBlockValueHistoryRepository>();
+            services.AddScoped<IRepository<CostBlockHistory>, CostBlockHistoryRepository>();
+            services.AddScoped<IRepository<ReactionTimeType>, ReactionTimeTypeRepository>();
+            services.AddScoped<IRepository<ReactionTimeAvalability>, ReactionTimeAvalabilityRepository>();
+            services.AddScoped<IRepository<ReactionTimeTypeAvalability>, ReactionTimeTypeAvalabilityRepository>();
+            services.AddScoped<ICostBlockValueHistoryQueryBuilder, CostBlockValueHistoryQueryBuilder>();
+            services.AddScoped<IRepository<YearAvailability>, YearAvailabilityRepository>();
+            services.AddScoped<IQualityGateRepository, QualityGateRepository>();
+            services.AddScoped<IQualityGateQueryBuilder, QualityGateQueryBuilder>();
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InRequestScope();
             Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InRequestScope();
             Bind<ICostEditorRepository>().To<CostEditorRepository>().InRequestScope();

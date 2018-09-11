@@ -12,10 +12,22 @@
 
         public const string NameFieldKey = "Name";
 
+        public const string IdFieldKey = "Id";
+
         public const string CostBlockHistoryTableName = "CostBlockHistory";
 
         public const string AdminSchema = "Admin";
 
+        public const string CountryInputLevelName = "Country";
+        
         public const string DefaultSchema = "dbo";
+
+        public const string WgInputLevelName = "Wg";
+        
+        public const string CalculationTable = "ServiceCostCalculation";
+
+        public const string HardwareSchema = "Hardware";
+
+        public const string ReferencesSchema = "References";
     }
 }

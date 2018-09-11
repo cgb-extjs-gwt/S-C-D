@@ -2,7 +2,7 @@
 
 namespace Gdc.Scd.Core.Dto
 {
-    public class CostBlockHistoryValueDto
+    public class HistoryItem
     {
         public DateTime EditDate { get; set; }
 

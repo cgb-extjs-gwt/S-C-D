@@ -3,7 +3,7 @@ using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("Wg", Schema = MetaConstants.InputLevelSchema)]
+    [Table(MetaConstants.WgInputLevelName, Schema = MetaConstants.InputLevelSchema)]
     public class Wg : NamedId
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -14,7 +14,9 @@ namespace Gdc.Scd.Core.Entities
         }
 
         public long? RoleCodeId { get; set; }
+
         public RoleCode RoleCode { get; set; }
 
+        public bool IsMultiVendor { get; set; }
     }
 }

@@ -57,6 +57,13 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string TypeOptionNodeName = "TypeOption";
 
+        private const string QualityGateNodeName = "QualityGate";
+
+        private const string CountryGroupCoeffNodeName = "CountryGroupCoeff";
+
+        private const string PeriodCoeffNodeName = "PeriodCoeff";
+
+        private readonly IConfiguration configuration;
 
         private readonly Regex idRegex = new Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled);
 
@@ -108,6 +115,12 @@ namespace Gdc.Scd.Core.Meta.Impl
             costBlockMeta.ApplicationIds =
                 this.BuildItemCollectionByDomainInfo(node.Element(ApplicationListNodeName), ApplicationNodeName, defination.Applications)
                     .Select(application => application.Id);
+
+            var qualityGateNode = node.Element(QualityGateNodeName);
+
+            costBlockMeta.QualityGate = qualityGateNode == null 
+                ? defination.QualityGate 
+                : this.BuildQualityGate(qualityGateNode);
 
             return costBlockMeta;
         }
@@ -210,6 +223,8 @@ namespace Gdc.Scd.Core.Meta.Impl
                 throw new Exception("Name attribute not found");
             }
 
+            this.CheckId(nameAttr.Value);
+
             var captionAttr = node.Attribute(CaptionAttributeName);
             var meta = new T
             {
@@ -220,16 +235,37 @@ namespace Gdc.Scd.Core.Meta.Impl
             return meta;
         }
 
+        private DomainInfo<InputLevelMeta> BuildInputLevelDomainInfo(XElement node)
+        {
+            var inputLevels = this.BuildStoreTypedDomainInfo<InputLevelMeta>(node, InputLevelNodeName);
+
+            var index = 0;
+
+            foreach(var inputLevel in inputLevels.Items)
+            {
+                inputLevel.LevelNumber = index++;
+            }
+
+            return inputLevels;
+        }
+
         private DomainDefination BuildDomainDefination(XElement node)
         {
-            var inputLevels = this.BuildStoreTypedDomainInfo<InputLevelMeta>(node.Element(InputLevelListNodeName), InputLevelNodeName);
+            var inputLevels = this.BuildInputLevelDomainInfo(node.Element(InputLevelListNodeName));
+
+            var qualityGateNode = node.Element(QualityGateNodeName);
+            if (qualityGateNode != null)
+            {
+                qualityGateNode = qualityGateNode.Element(DefaultNodeName);
+            }
 
             return new DomainDefination
             {
                 InputLevels = inputLevels,
                 RegionInputs = this.BuildDomainInfo<InputLevelMeta>(node.Element(RegionInputListNodeName), InputLevelNodeName, inputLevels.Items),
                 Dependencies = this.BuildStoreTypedDomainInfo<DependencyMeta>(node.Element(DependencyListNodeName), DependencyNodeName),
-                Applications = this.BuildDomainInfo<ApplicationMeta>(node.Element(ApplicationListNodeName), ApplicationNodeName)
+                Applications = this.BuildDomainInfo<ApplicationMeta>(node.Element(ApplicationListNodeName), ApplicationNodeName),
+                QualityGate = this.BuildQualityGate(qualityGateNode)
             };
         }
 
@@ -238,16 +274,11 @@ namespace Gdc.Scd.Core.Meta.Impl
             var nameAttribute = node.Attribute(NameAttributeName);
             var captionAttribute = node.Attribute(CaptionAttributeName);
 
-            var id = nameAttribute.Value;
-
-            if (!this.idRegex.IsMatch(id))
-            {
-                throw new Exception("Invalid BaseDomainMeta id");
-            }
+            this.CheckId(nameAttribute.Value);
 
             return new T
             {
-                Id = id,
+                Id = nameAttribute.Value,
                 Name = captionAttribute == null ? nameAttribute.Value : captionAttribute.Value
             };
         }
@@ -298,6 +329,38 @@ namespace Gdc.Scd.Core.Meta.Impl
             return this.BuildDomainInfo(listNode, itemNodeName, items);
         }
 
+        private void CheckId(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id) || !this.idRegex.IsMatch(id))
+            {
+                throw new Exception($"Invalid BaseDomainMeta id '{id}'");
+            }
+        }
+
+        private QualityGate BuildQualityGate(XElement node)
+        {
+            var qualityGate = new QualityGate();
+
+            if (node != null)
+            {
+                var regionCoeffNode = node.Element(CountryGroupCoeffNodeName);
+                if (regionCoeffNode != null &&
+                    double.TryParse(regionCoeffNode.Value, out var regionCoeff))
+                {
+                    qualityGate.CountryGroupCoeff = regionCoeff;
+                }
+
+                var periodCoeffNode = node.Element(PeriodCoeffNodeName);
+                if (regionCoeffNode != null &&
+                    double.TryParse(regionCoeffNode.Value, out var periodCoeff))
+                {
+                    qualityGate.PeriodCoeff = periodCoeff;
+                }
+            }
+
+            return qualityGate;
+        }
+
         private class DomainInfo<T> where T : IMetaIdentifialble
         {
             public MetaCollection<T> Items { get; } = new MetaCollection<T>();
@@ -314,6 +377,8 @@ namespace Gdc.Scd.Core.Meta.Impl
             public DomainInfo<DependencyMeta> Dependencies { get; set; }
 
             public DomainInfo<ApplicationMeta> Applications { get; set; }
+
+            public QualityGate QualityGate { get; set; }
         }
     }
 }

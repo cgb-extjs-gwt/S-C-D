@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
@@ -21,7 +21,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (context.RegionInputId != null)
             {
-                var costElement = this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId];
+                var costElement = this.meta.GetCostElement(context);
 
                 filter.Add(costElement.RegionInput.Id, new object[] { context.RegionInputId });
             }

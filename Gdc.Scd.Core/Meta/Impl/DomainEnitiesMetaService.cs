@@ -37,9 +37,9 @@ namespace Gdc.Scd.Core.Meta.Impl
             {
                 foreach (var applicationId in costBlockMeta.ApplicationIds)
                 {
-                    var costBlockEntity = new CostBlockEntityMeta(costBlockMeta.Id, applicationId);
+                    var costBlockEntity = new CostBlockEntityMeta(costBlockMeta, costBlockMeta.Id, applicationId);
 
-                    foreach (var inputLevelMeta in costBlockMeta.GetInputLevels())
+                    foreach (var inputLevelMeta in costBlockMeta.InputLevels)
                     {
                         this.BuildInputLevels(inputLevelMeta, costBlockEntity, domainEnitiesMeta);
                     }
@@ -120,9 +120,9 @@ namespace Gdc.Scd.Core.Meta.Impl
                         if (referenceMeta == null)
                         {
                             referenceMeta = new NamedEntityMeta(entityName, schemaName);
-                        }
 
-                        domainEnitiesMeta.OtherMetas.Add(referenceMeta);
+                            domainEnitiesMeta.OtherMetas.Add(referenceMeta);
+                        }
 
                         field = new ReferenceFieldMeta(costElementMeta.Id, referenceMeta, costElementMeta.TypeOptions[IdFieldNameKey])
                         {

@@ -97,6 +97,36 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<LessOrEqualSqlBuilder>(leftColumn, rightColumn);
         }
 
+        public static ConditionHelper Subtract(ISqlBuilder leftOperand, ISqlBuilder rightOperand)
+        {
+            return CreateConditionHelper<SubtractionSqlBuilder>(leftOperand, rightOperand);
+        }
+
+        public static ConditionHelper Subtract(string columnName, string paramName, object value = null, string tableName = null)
+        {
+            return CreateConditionHelper<SubtractionSqlBuilder>(columnName, paramName, value, tableName);
+        }
+
+        public static ConditionHelper Subtract(ColumnInfo leftColumn, ColumnInfo rightColumn)
+        {
+            return CreateConditionHelper<SubtractionSqlBuilder>(leftColumn, rightColumn);
+        }
+
+        public static ConditionHelper Multiply(ISqlBuilder leftOperand, ISqlBuilder rightOperand)
+        {
+            return CreateConditionHelper<MultiplicationSqlBuilder>(leftOperand, rightOperand);
+        }
+
+        public static ConditionHelper Multiply(string columnName, string paramName, object value = null, string tableName = null)
+        {
+            return CreateConditionHelper<MultiplicationSqlBuilder>(columnName, paramName, value, tableName);
+        }
+
+        public static ConditionHelper Multiply(ColumnInfo leftColumn, ColumnInfo rightColumn)
+        {
+            return CreateConditionHelper<MultiplicationSqlBuilder>(leftColumn, rightColumn);
+        }
+
         public static ConditionHelper IsNull(ISqlBuilder operand)
         {
             var isNull = new IsNullSqlBuilder

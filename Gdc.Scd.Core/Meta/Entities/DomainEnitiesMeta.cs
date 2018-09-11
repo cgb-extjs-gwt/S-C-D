@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Meta.Entities
@@ -11,6 +12,7 @@ namespace Gdc.Scd.Core.Meta.Entities
             get
             {
                 return
+                    
                     this.CostBlocks[fullName] ??
                     this.Dependencies[fullName] ??
                     this.InputLevels[fullName] ??
@@ -55,6 +57,11 @@ namespace Gdc.Scd.Core.Meta.Entities
         public NamedEntityMeta GetInputLevel(string name)
         {
             return (NamedEntityMeta)this.GetEntityMeta(name, MetaConstants.InputLevelSchema);
+        }
+
+        public CostBlockEntityMeta GetCostBlockEntityMeta(ICostBlockIdentifier costBlockIdentifier)
+        {
+            return (CostBlockEntityMeta)this.GetEntityMeta(costBlockIdentifier.CostBlockId, costBlockIdentifier.ApplicationId);
         }
     }
 }

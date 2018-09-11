@@ -1,6 +1,6 @@
 ﻿using Gdc.Scd.Core.Interfaces;
 
-namespace Gdc.Scd.BusinessLogicLayer.Entities.CapabilityMatrix
+namespace Gdc.Scd.Core.Entities.CapabilityMatrix
 {
     public abstract class CapabilityMatrixView : IIdentifiable
     {

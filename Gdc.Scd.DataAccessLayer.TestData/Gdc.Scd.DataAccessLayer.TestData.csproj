@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Calculation\calculation.sql" Link="Scripts\calculation.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Ninject" Version="3.3.4" />
   </ItemGroup>
 

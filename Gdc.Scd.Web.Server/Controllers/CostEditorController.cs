@@ -17,19 +17,15 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         private readonly IDomainMetaSevice domainMetaSevice;
 
-        private readonly IDomainService<Country> countryService;
-
         private readonly DomainMeta meta;
 
         public CostEditorController(
             ICostEditorService costEditorService, 
             IDomainMetaSevice domainMetaSevice,
-            IDomainService<Country> countryService,
             DomainMeta meta)
         {
             this.costEditorService = costEditorService;
             this.domainMetaSevice = domainMetaSevice;
-            this.countryService = countryService;
             this.meta = meta;
         }
 
@@ -57,6 +53,40 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
+        public async Task<QualityGateResultDto> UpdateValues([FromBody]IEnumerable<EditItem> editItems, [FromQuery]CostEditorContext context, [FromQuery]ApprovalOption approvalOption)
+        {
+            var qualityGateResult = await this.costEditorService.UpdateValues(editItems, context, approvalOption);
+            var errors = new List<IDictionary<string, object>>();
+
+            if (qualityGateResult.Errors != null)
+            {
+                foreach (var error in qualityGateResult.Errors)
+                {
+                    var errorDictionary = new Dictionary<string, object>
+                    {
+                        ["WarrantyGroupId"] = error.LastInputLevel.Id,
+                        ["WarrantyGroupName"] = error.LastInputLevel.Name,
+                        [nameof(error.IsPeriodError)] = error.IsPeriodError,
+                        [nameof(error.IsRegionError)] = error.IsRegionError
+                    };
+
+                    foreach (var dependency in error.Dependencies)
+                    {
+                        errorDictionary.Add($"{dependency.Key}Id", dependency.Value.Id);
+                        errorDictionary.Add($"{dependency.Key}Name", dependency.Value.Name);
+                    }
+
+                    errors.Add(errorDictionary);
+                }
+            }
+
+            return new QualityGateResultDto
+            {
+                HasErrors = qualityGateResult.HasErrors,
+                Errors = errors
+            };
+        }
+
         public async Task<ActionResult> UpdateValues([System.Web.Http.FromBody]IEnumerable<EditItem> editItems, [System.Web.Http.FromUri]CostEditorContext context, bool forApproval)
         {
             await this.costEditorService.UpdateValues(editItems, context, forApproval);

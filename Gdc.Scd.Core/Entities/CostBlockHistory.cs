@@ -27,5 +27,9 @@ namespace Gdc.Scd.Core.Entities
         public int EditItemCount { get; set; }
 
         public bool IsDifferentValues { get; set; }
+
+        public bool HasQualityGateErrors { get; set; }
+
+        public string QualityGateErrorExplanation { get; set; }
     }
 }

@@ -26,6 +26,13 @@
       <InputLevel>Country</InputLevel>
     </Default>
   </RegionInputs>
+
+  <QualityGate>
+    <Default>
+      <CountryGroupCoeff>0.1</CountryGroupCoeff>
+      <PeriodCoeff>0.1</PeriodCoeff>
+    </Default>
+  </QualityGate>
   
   <Dependencies>
     <Dependency Name="Year"/>
@@ -33,9 +40,9 @@
     <Dependency Name="ReactionTimeType" Caption="Reaction" Type="View"/>
     <Dependency Name="ReactionTimeAvailability" Caption="Reaction" Type="View"/>
     <Dependency Name="ReactionTimeTypeAvailability" Caption="Reaction" Type="View"/>
-    <Dependency Name="ServiceLocationProActive " Caption="Service location for ProActive"/>
+    <Dependency Name="ServiceLocationProActive" Caption="Service location for ProActive"/>
     <Dependency Name="Availability" Caption="Availability"/>
-    <Dependency Name="YearAvailability" Caption="Year Availability"/>
+    <Dependency Name="YearAvailability" Caption="Year Availability" Type="View"/>
   </Dependencies>
 
   <Applications>
@@ -169,6 +176,10 @@
         <Element Name="TimeAndMaterialShare" Caption="Time and material share" InputOption="Manually"/>
         <!--<Element Name="AFR" InputOption="Reference"/>-->
       </Elements>
+      <QualityGate>
+        <CountryGroupCoeff>0.15</CountryGroupCoeff>
+        <PeriodCoeff>0.15</PeriodCoeff>
+      </QualityGate>
     </Block>
 
     <Block Name="ServiceSupportCost" Caption="Service Support Cost">
@@ -216,7 +227,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="InstalledBaseGighAvailability" Caption="Installed base high availability" InputOption="Manually"/>
+        <Element Name="InstalledBaseHighAvailability" Caption="Installed base high availability" InputOption="Manually"/>
         <Element Name="TotalLogisticsInfrastructureCost" Caption="Total logistics infrastructure cost" InputOption="Manually">
           <InputLevels>
             <InputLevel>Country</InputLevel>
@@ -275,7 +286,7 @@
           </InputLevels>
           <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
         </Element>
-        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" RegionInput="_none_" Dependency="ReactionTimeTypeAvailability">
+        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" RegionInput="_none_" Dependency="Year">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -349,12 +360,11 @@
         <Element Name="CentralExecutionShcReportRepetition " Caption="Central execution SHC &amp; report Repetition" InputOption="Reference"/>
         <Element Name="LocalShcCustomerBriefingRepetition " Caption="Local SHC customer briefing Repetition" InputOption="Reference"/>-->
         <!--<Element Name="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually" Dependency="ServiceLocationProActive"/>-->
-        <!--TODO: Check Dependency="RoleCode"-->
-        <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually" Dependency="RoleCode"/>
+        <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually"/>
       </Elements>
     </Block>
   
-    <Block Name="SwSpMaintenance " Caption="SW / SP Maintenance">
+    <Block Name="SwSpMaintenance" Caption="SW / SP Maintenance">
       <Applications>
         <Application>SoftwareSolution</Application>
       </Applications>
@@ -387,6 +397,7 @@
             <InputLevel>SwDigit</InputLevel>
             <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
+          <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
         </Element>
         <Element Name="RecommendedSwSpMaintenanceListPrice" Caption="Recommended SW/SP Maintenance List Price" InputOption="Manually" Dependency="Availability" RegionInput="_none_">
           <InputLevels>

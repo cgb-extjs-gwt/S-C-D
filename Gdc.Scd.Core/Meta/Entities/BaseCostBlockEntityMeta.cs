@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Gdc.Scd.Core.Interfaces;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
-    public abstract class BaseCostBlockEntityMeta : BaseEntityMeta
+    public abstract class BaseCostBlockEntityMeta : BaseEntityMeta, ICostBlockIdentifier
     {
         public IdFieldMeta IdField { get; } = new IdFieldMeta();
 
         public MetaCollection<ReferenceFieldMeta> InputLevelFields { get; } = new MetaCollection<ReferenceFieldMeta>();
 
         public MetaCollection<ReferenceFieldMeta> DependencyFields { get; } = new MetaCollection<ReferenceFieldMeta>();
+
+        public IEnumerable<ReferenceFieldMeta> CoordinateFields => this.InputLevelFields.Concat(this.DependencyFields);
 
         public MetaCollection<FieldMeta> CostElementsFields { get; } = new MetaCollection<FieldMeta>();
 
@@ -29,6 +30,10 @@ namespace Gdc.Scd.Core.Meta.Entities
                 }
             }
         }
+
+        string ICostBlockIdentifier.ApplicationId => this.Schema;
+
+        string ICostBlockIdentifier.CostBlockId => this.Name;
 
         public BaseCostBlockEntityMeta(string name, string shema = null)
             : base(name, shema)

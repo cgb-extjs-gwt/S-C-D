@@ -25,7 +25,6 @@ import {
     loadEditItemsByContext, 
     clearEditItems, 
     editItem, 
-    saveEditItemsToServer, 
     selectRegionWithReloading, 
     applyFiltersWithReloading 
 } 

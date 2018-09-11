@@ -9,9 +9,30 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public MetaCollection<CostElementMeta> CostElements { get; set; }
 
-        public IEnumerable<InputLevelMeta> GetInputLevels()
+        public IEnumerable<InputLevelMeta> InputLevels
         {
-            return this.CostElements.SelectMany(costElement => costElement.InputLevels).Distinct();
+            get
+            {
+                return
+                    this.CostElements.SelectMany(costElement => costElement.InputLevels)
+                                     .Distinct()
+                                     .OrderBy(inputLevel => inputLevel.LevelNumber);
+            }
+        }
+
+        public QualityGate QualityGate { get; set; }
+
+        public IEnumerable<InputLevelMeta> FilterInputLevels(string maxInputLevelId)
+        {
+            foreach (var inputLevel in this.InputLevels)
+            {
+                yield return inputLevel;
+
+                if (inputLevel.Id == maxInputLevelId)
+                {
+                    break;
+                }
+            }
         }
     }
 }

@@ -40,8 +40,8 @@ export const get = <T=any>(controller: string, action: string, params = null) =>
     return requestMvc(controller, action, Methods.Get, params).then<T>(resp => JSON.parse(resp.responseText));
 }
 
-export const post = <T>(controller: string, action: string, data: T, params = null) => {
-    return requestMvc(controller, action, Methods.Post, params, { jsonData: data });
+export const post = <TData, TResult=any>(controller: string, action: string, data: TData, params = null) => {
+    return requestMvc(controller, action, Methods.Post, params, { jsonData: data }).then<TResult>(resp => JSON.parse(resp.responseText));
 }
 
 export const put = <T>(controller: string, action: string, data: T, params = null) => {
