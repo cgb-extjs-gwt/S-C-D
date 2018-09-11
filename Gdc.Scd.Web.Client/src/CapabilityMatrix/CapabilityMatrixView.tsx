@@ -19,6 +19,23 @@ export class CapabilityMatrixView extends React.Component<any, any> {
 
     private srv: ICapabilityMatrixService;
 
+    private allowStore: Ext.data.IStore = Ext.create('Ext.data.Store', {
+        pageSize: 25,
+        autoLoad: true,
+
+        proxy: {
+            type: 'ajax',
+            api: {
+                read: '/api/capabilitymatrix/allowed'
+            },
+            reader: {
+                type: 'json',
+                rootProperty: 'items',
+                totalProperty: 'total'
+            }
+        }
+    });
+
     public constructor(props: any) {
         super(props);
         this.init();
@@ -49,7 +66,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     <ReadonlyCheckColumn flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
 
-                <Grid ref="allowed" store={this.state.allowed} width="100%" minHeight="45%" title="Allowed combinations" selectable={false} plugins={['pagingtoolbar']}>
+                <Grid ref="allowed" store={this.allowStore} width="100%" minHeight="45%" title="Allowed combinations" selectable={false} plugins={['pagingtoolbar']}>
                     <NullStringColumn flex="1" text="Country" dataIndex="country" />
                     <NullStringColumn flex="1" text="WG(Asset)" dataIndex="wg" />
                     <NullStringColumn flex="1" text="Availability" dataIndex="availability" />
@@ -79,11 +96,14 @@ export class CapabilityMatrixView extends React.Component<any, any> {
         this.onEdit = this.onEdit.bind(this);
         this.onAllow = this.onAllow.bind(this);
         this.onSearch = this.onSearch.bind(this);
+        this.onBeforeLoad = this.onBeforeLoad.bind(this);
         //
         this.state = {
             allowed: [],
             denied: []
         };
+        //
+        this.allowStore.on('beforeload', this.onBeforeLoad);
     }
 
     private onEdit() {
@@ -116,12 +136,8 @@ export class CapabilityMatrixView extends React.Component<any, any> {
     private reload() {
         let filter = this.filter.getModel();
 
-        this.srv.getAllowed(filter).then(x => this.setState({
-            allowed: {
-                data: x.items,
-                pageSize: 2
-            }
-        }));
+        this.allowStore.load();
+
         this.srv.getDenied(filter).then(x => this.setState(
             {
                 denied: {
@@ -129,5 +145,11 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     pageSize: 2
                 }
             }));
+    }
+
+    private onBeforeLoad(s, operation) {
+        let filter = this.filter.getModel();
+        let params = Ext.apply({}, operation.getParams(), filter);
+        operation.setParams(params);
     }
 }
