@@ -59,7 +59,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "502a28165e87481a809d"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "d828f6d02357ab3bc79e"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -39163,6 +39163,7 @@ module.exports = function(module) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_react__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__extjs_reactor__ = __webpack_require__("../node_modules/@extjs/reactor/dist/index.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__extjs_reactor___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__extjs_reactor__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Common_Services_Ajax__ = __webpack_require__("./Common/Services/Ajax.ts");
 var __extends = this && this.__extends || function () {
     var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
         d.__proto__ = b;
@@ -39185,6 +39186,8 @@ const CheckColumn = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__extjs_rea
 const Toolbar = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__extjs_reactor__["reactify"])('Toolbar');
 const Button = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__extjs_reactor__["reactify"])('Button');
 
+
+var CONTROLLER_NAME = 'AvailabilityFeeAdmin';
 var AvailabilityFeeAdminGrid = function (_super) {
     __extends(AvailabilityFeeAdminGrid, _super);
     function AvailabilityFeeAdminGrid() {
@@ -39199,8 +39202,8 @@ var AvailabilityFeeAdminGrid = function (_super) {
             proxy: {
                 type: 'ajax',
                 api: {
-                    read: '/scd/api/AvailabilityFeeAdmin/GetAll',
-                    update: '/scd/api/AvailabilityFeeAdmin/SaveAll'
+                    read: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__Common_Services_Ajax__["c" /* buildMvcUrl */])(CONTROLLER_NAME, 'GetAll'),
+                    update: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__Common_Services_Ajax__["c" /* buildMvcUrl */])(CONTROLLER_NAME, 'SaveAll')
                 },
                 reader: {
                     type: 'json',
@@ -39254,6 +39257,7 @@ var AvailabilityFeeAdminGrid = function (_super) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_react__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__extjs_reactor__ = __webpack_require__("../node_modules/@extjs/reactor/dist/index.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__extjs_reactor___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__extjs_reactor__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Common_Services_Ajax__ = __webpack_require__("./Common/Services/Ajax.ts");
 var __extends = this && this.__extends || function () {
     var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
         d.__proto__ = b;
@@ -39276,6 +39280,8 @@ const CheckColumn = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__extjs_rea
 const Toolbar = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__extjs_reactor__["reactify"])('Toolbar');
 const Button = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__extjs_reactor__["reactify"])('Button');
 
+
+var CONTROLLER_NAME = 'Country';
 var CountryGrid = function (_super) {
     __extends(CountryGrid, _super);
     function CountryGrid() {
@@ -39289,8 +39295,8 @@ var CountryGrid = function (_super) {
             proxy: {
                 type: 'ajax',
                 api: {
-                    read: '/scd/api/Country/GetAll',
-                    update: '/scd/api/Country/SaveAll'
+                    read: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__Common_Services_Ajax__["c" /* buildMvcUrl */])(CONTROLLER_NAME, 'GetAll'),
+                    update: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__Common_Services_Ajax__["c" /* buildMvcUrl */])(CONTROLLER_NAME, 'SaveAll')
                 },
                 reader: {
                     type: 'json',
@@ -39351,6 +39357,7 @@ var CountryGrid = function (_super) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_react__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__extjs_reactor__ = __webpack_require__("../node_modules/@extjs/reactor/dist/index.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__extjs_reactor___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__extjs_reactor__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Common_Services_Ajax__ = __webpack_require__("./Common/Services/Ajax.ts");
 var __extends = this && this.__extends || function () {
     var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
         d.__proto__ = b;
@@ -39372,6 +39379,8 @@ const Column = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__extjs_reactor_
 const Toolbar = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__extjs_reactor__["reactify"])('Toolbar');
 const Button = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__extjs_reactor__["reactify"])('Button');
 
+
+var CONTROLLER_NAME = 'RoleCode';
 Ext.require(['Ext.grid.plugin.Editable', 'Ext.grid.plugin.CellEditing']);
 Ext.define('RoleCode', {
     extend: 'Ext.data.Model',
@@ -39408,10 +39417,10 @@ var RoleCodesGrid = function (_super) {
                     exception: function (proxy, response, operation) {}
                 },
                 api: {
-                    create: '/scd/api/rolecode/SaveAll',
-                    read: '/scd/api/rolecode/GetAll',
-                    update: '/scd/api/rolecode/SaveAll',
-                    destroy: '/scd/api/rolecode/DeleteAll'
+                    create: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__Common_Services_Ajax__["c" /* buildMvcUrl */])(CONTROLLER_NAME, 'SaveAll'),
+                    read: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__Common_Services_Ajax__["c" /* buildMvcUrl */])(CONTROLLER_NAME, 'GetAll'),
+                    update: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__Common_Services_Ajax__["c" /* buildMvcUrl */])(CONTROLLER_NAME, 'SaveAll'),
+                    destroy: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__Common_Services_Ajax__["c" /* buildMvcUrl */])(CONTROLLER_NAME, 'DeleteAll')
                 }
             },
             listeners: {
@@ -39504,6 +39513,7 @@ var RoleCodesGrid = function (_super) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__extjs_reactor___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__extjs_reactor__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__UserRoleDialog__ = __webpack_require__("./Admin/UserRole/UserRoleDialog.tsx");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__UserRoleGrid__ = __webpack_require__("./Admin/UserRole/UserRoleGrid.tsx");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Common_Services_Ajax__ = __webpack_require__("./Common/Services/Ajax.ts");
 var __extends = this && this.__extends || function () {
     var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
         d.__proto__ = b;
@@ -39524,6 +39534,11 @@ const Container = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__extjs_react
 
 
 
+
+var CONTROLLER_NAME = 'UserRole';
+var USER_CONTROLLER_NAME = 'User';
+var ROLE_CONTROLLER_NAME = 'Role';
+var COUNTRY_CONTROLLER_NAME = 'Country';
 Ext.define('UserRole', {
     extend: 'Ext.data.Model',
     fields: ['id', 'userId', 'countryId', 'roleId']
@@ -39556,10 +39571,10 @@ var RoleCodesContainer = function (_super) {
                     idProperty: "id"
                 },
                 api: {
-                    create: '/scd/api/userrole/SaveAll',
-                    read: '/scd/api/userrole/GetAll',
-                    update: '/scd/api/userrole/SaveAll',
-                    destroy: '/scd/api/userrole/DeleteAll'
+                    create: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__Common_Services_Ajax__["c" /* buildMvcUrl */])(CONTROLLER_NAME, 'SaveAll'),
+                    read: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__Common_Services_Ajax__["c" /* buildMvcUrl */])(CONTROLLER_NAME, 'GetAll'),
+                    update: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__Common_Services_Ajax__["c" /* buildMvcUrl */])(CONTROLLER_NAME, 'SaveAll'),
+                    destroy: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__Common_Services_Ajax__["c" /* buildMvcUrl */])(CONTROLLER_NAME, 'DeleteAll')
                 }
             }
         });
@@ -39597,7 +39612,7 @@ var RoleCodesContainer = function (_super) {
                     type: 'json'
                 },
                 api: {
-                    read: '/scd/api/User/GetAll'
+                    read: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__Common_Services_Ajax__["c" /* buildMvcUrl */])(USER_CONTROLLER_NAME, 'GetAll')
                 }
             },
             listeners: {
@@ -39620,7 +39635,7 @@ var RoleCodesContainer = function (_super) {
                     type: 'json'
                 },
                 api: {
-                    read: '/scd/api/Country/GetAll'
+                    read: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__Common_Services_Ajax__["c" /* buildMvcUrl */])(COUNTRY_CONTROLLER_NAME, 'GetAll')
                 }
             },
             listeners: {
@@ -39643,7 +39658,7 @@ var RoleCodesContainer = function (_super) {
                     type: 'json'
                 },
                 api: {
-                    read: '/scd/api/Role/GetAll'
+                    read: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__Common_Services_Ajax__["c" /* buildMvcUrl */])(ROLE_CONTROLLER_NAME, 'GetAll')
                 }
             },
             listeners: {
@@ -39941,6 +39956,7 @@ var UserRoleGrid = function (_super) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_react__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__extjs_reactor__ = __webpack_require__("../node_modules/@extjs/reactor/dist/index.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__extjs_reactor___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__extjs_reactor__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Common_Services_Ajax__ = __webpack_require__("./Common/Services/Ajax.ts");
 var __extends = this && this.__extends || function () {
     var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
         d.__proto__ = b;
@@ -39964,6 +39980,9 @@ const Toolbar = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__extjs_reactor
 const Button = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__extjs_reactor__["reactify"])('Button');
 const CheckBoxField = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__extjs_reactor__["reactify"])('CheckBoxField');
 
+
+var CONTROLLER_NAME = 'WarrantyGroup';
+var ROLECODE_CONTROLLER_NAME = "RoleCode";
 Ext.require(['Ext.grid.plugin.Editable', 'Ext.grid.plugin.CellEditing']);
 var RoleCodesGrid = function (_super) {
     __extends(RoleCodesGrid, _super);
@@ -40005,8 +40024,8 @@ var RoleCodesGrid = function (_super) {
                     idProperty: "id"
                 },
                 api: {
-                    read: '/scd/api/WarrantyGroup/GetAll',
-                    update: '/scd/api/WarrantyGroup/SaveAll'
+                    read: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__Common_Services_Ajax__["c" /* buildMvcUrl */])(CONTROLLER_NAME, 'GetAll'),
+                    update: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__Common_Services_Ajax__["c" /* buildMvcUrl */])(CONTROLLER_NAME, 'SaveAll')
                 }
             },
             listeners: {
@@ -40030,7 +40049,7 @@ var RoleCodesGrid = function (_super) {
                     type: 'json'
                 },
                 api: {
-                    read: '/scd/api/RoleCode/GetAll'
+                    read: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__Common_Services_Ajax__["c" /* buildMvcUrl */])(ROLECODE_CONTROLLER_NAME, 'GetAll')
                 }
             },
             listeners: {
@@ -40062,7 +40081,7 @@ var RoleCodesGrid = function (_super) {
             });
         };
         _this.ManageRoleCodes = function () {
-            window.location.href = "/admin/role-code-management";
+            window.location.href = "/scd/admin/role-code-management";
         };
         _this.cancelChanges = function () {
             _this.store.rejectChanges();
@@ -40963,7 +40982,6 @@ var ExtMsgHelper = function () {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* unused harmony export API_URL */
 /* unused harmony export Methods */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return get; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return post; });
@@ -40977,7 +40995,6 @@ var __assign = this && this.__assign || Object.assign || function (t) {
     }
     return t;
 };
-var API_URL = '/scd/api/';
 var Methods;
 (function (Methods) {
     Methods["Get"] = "GET";

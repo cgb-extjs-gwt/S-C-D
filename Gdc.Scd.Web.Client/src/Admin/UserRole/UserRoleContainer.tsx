@@ -2,6 +2,12 @@
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, Container, TextField, Dialog, GridCell } from '@extjs/ext-react';
 import { UserRoleDialog } from './UserRoleDialog'
 import { UserRoleGrid } from './UserRoleGrid'
+import { buildMvcUrl } from "../../Common/Services/Ajax";
+
+const CONTROLLER_NAME = 'UserRole';
+const USER_CONTROLLER_NAME = 'User';
+const ROLE_CONTROLLER_NAME = 'Role';
+const COUNTRY_CONTROLLER_NAME = 'Country';
 
 
 Ext.define('UserRole', {
@@ -41,10 +47,10 @@ export default class RoleCodesContainer extends React.Component {
                 idProperty: "id"
             },
             api: {
-                create: '/scd/api/userrole/SaveAll',
-                read: '/scd/api/userrole/GetAll',
-                update: '/scd/api/userrole/SaveAll',
-                destroy: '/scd/api/userrole/DeleteAll'
+                create: buildMvcUrl(CONTROLLER_NAME, 'SaveAll'),
+                read: buildMvcUrl(CONTROLLER_NAME, 'GetAll'),
+                update: buildMvcUrl(CONTROLLER_NAME, 'SaveAll'),
+                destroy: buildMvcUrl(CONTROLLER_NAME, 'DeleteAll')
             }
         }
     });
@@ -90,7 +96,7 @@ export default class RoleCodesContainer extends React.Component {
                 type: 'json'
             },
             api: {
-                read: '/scd/api/User/GetAll'
+                read: buildMvcUrl(USER_CONTROLLER_NAME, 'GetAll')
             }
         },
         listeners: {
@@ -115,7 +121,7 @@ export default class RoleCodesContainer extends React.Component {
                 type: 'json'
             },
             api: {
-                read: '/scd/api/Country/GetAll'
+                read: buildMvcUrl(COUNTRY_CONTROLLER_NAME, 'GetAll')
             }
         },
         listeners: {
@@ -140,7 +146,7 @@ export default class RoleCodesContainer extends React.Component {
                 type: 'json'
             },
             api: {
-                read: '/scd/api/Role/GetAll'
+                read: buildMvcUrl(ROLE_CONTROLLER_NAME, 'GetAll')
             }
         },
         listeners: {

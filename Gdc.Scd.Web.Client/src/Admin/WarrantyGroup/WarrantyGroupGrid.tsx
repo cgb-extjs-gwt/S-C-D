@@ -3,6 +3,10 @@ import { FieldType } from "../../CostEditor/States/CostEditorStates";
 import { EditItem } from "../../CostEditor/States/CostBlockStates";
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, SelectionColumn, CheckBoxField } from '@extjs/ext-react';
 import { NamedId } from '../../Common/States/CommonStates';
+import { buildMvcUrl } from "../../Common/Services/Ajax";
+
+const CONTROLLER_NAME = 'WarrantyGroup';
+const ROLECODE_CONTROLLER_NAME="RoleCode"
 
 Ext.require([
     'Ext.grid.plugin.Editable',
@@ -53,8 +57,8 @@ export default class RoleCodesGrid extends React.Component {
                 idProperty: "id"
             },
             api: {
-                read: '/scd/api/WarrantyGroup/GetAll',
-                update: '/scd/api/WarrantyGroup/SaveAll'
+                read: buildMvcUrl(CONTROLLER_NAME, 'GetAll'),
+                update: buildMvcUrl(CONTROLLER_NAME, 'SaveAll')
             }
         },
         listeners: {
@@ -79,7 +83,7 @@ export default class RoleCodesGrid extends React.Component {
                 type: 'json'
             },
             api: {
-                read: '/scd/api/RoleCode/GetAll'
+                read: buildMvcUrl(ROLECODE_CONTROLLER_NAME, 'GetAll')
             }
         },
         listeners: {
@@ -119,7 +123,7 @@ export default class RoleCodesGrid extends React.Component {
     }
 
     ManageRoleCodes = () => {
-        window.location.href = "/admin/role-code-management";
+        window.location.href = "/scd/admin/role-code-management";
     }
 
     cancelChanges = () => {

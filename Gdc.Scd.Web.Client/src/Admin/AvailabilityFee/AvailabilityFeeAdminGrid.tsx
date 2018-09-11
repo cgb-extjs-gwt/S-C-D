@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Grid, Column, CheckColumn, Toolbar, Button } from '@extjs/ext-react';
+import { buildMvcUrl } from "../../Common/Services/Ajax";
 
+const CONTROLLER_NAME = 'AvailabilityFeeAdmin';
 
 class AvailabilityFeeAdminGrid extends React.Component{
 
@@ -17,8 +19,8 @@ class AvailabilityFeeAdminGrid extends React.Component{
         proxy: {
             type: 'ajax',
             api: {
-                read: '/scd/api/AvailabilityFeeAdmin/GetAll',
-                update: '/scd/api/AvailabilityFeeAdmin/SaveAll'
+                read: buildMvcUrl(CONTROLLER_NAME, 'GetAll'),
+                update: buildMvcUrl(CONTROLLER_NAME, 'SaveAll')
             },
             reader: {
                 type: 'json',

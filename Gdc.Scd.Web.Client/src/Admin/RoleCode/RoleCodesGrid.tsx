@@ -3,6 +3,9 @@ import { FieldType } from "../../CostEditor/States/CostEditorStates";
 import { EditItem } from "../../CostEditor/States/CostBlockStates";
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField } from '@extjs/ext-react';
 import { NamedId } from '../../Common/States/CommonStates';
+import { buildMvcUrl } from "../../Common/Services/Ajax";
+
+const CONTROLLER_NAME = 'RoleCode';
 
 Ext.require([
     'Ext.grid.plugin.Editable',
@@ -50,10 +53,10 @@ export default class RoleCodesGrid extends React.Component {
                 }
             },
             api: {             
-                create: '/scd/api/rolecode/SaveAll',
-                read: '/scd/api/rolecode/GetAll',
-                update: '/scd/api/rolecode/SaveAll',
-                destroy: '/scd/api/rolecode/DeleteAll'
+                create: buildMvcUrl(CONTROLLER_NAME, 'SaveAll'),
+                read: buildMvcUrl(CONTROLLER_NAME, 'GetAll'),
+                update: buildMvcUrl(CONTROLLER_NAME, 'SaveAll'),
+                destroy: buildMvcUrl(CONTROLLER_NAME, 'DeleteAll')
             }
         },
         listeners: {

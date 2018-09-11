@@ -13,7 +13,7 @@ namespace Gdc.Scd.Web.Server.Controllers
     {
         public HttpResponseMessage GetApiUrl()
         {
-            string responseBody = "\"" + Request.GetRequestContext().VirtualPathRoot + "/api/\"";
+            string responseBody =  Request.GetRequestContext().VirtualPathRoot + "/api/";
             var response = Request.CreateResponse(HttpStatusCode.OK);
 
             response.Content = new StringContent(responseBody, Encoding.UTF8, "text/plain");
