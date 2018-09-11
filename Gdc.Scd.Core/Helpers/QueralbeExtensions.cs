@@ -39,6 +39,15 @@ namespace Gdc.Scd.Core.Helpers
         public static IEnumerable<TSource> Paging<TSource>(
                 this IQueryable<TSource> source,
                 int start,
+                int limit
+            )
+        {
+            return source.Skip(start).Take(limit).ToList();
+        }
+
+        public static IEnumerable<TSource> Paging<TSource>(
+                this IQueryable<TSource> source,
+                int start,
                 int limit,
                 out int count
             )

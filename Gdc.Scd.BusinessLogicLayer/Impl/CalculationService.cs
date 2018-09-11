@@ -34,90 +34,91 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public IEnumerable<HwCostDto> GetHardwareCost(HwFilterDto filter, int start, int limit, out int count)
         {
-            var query = from m in matrixRepo.GetAll()
-                        from hw in hwRepo.GetAll()
-                        where m.Id == hw.Id
-                        select new { m, hw };
+            var query = matrixRepo.GetAll();
 
             if (filter != null)
             {
-                query = query.WhereIf(filter.Country.HasValue, x => x.m.CountryId == filter.Country.Value)
-                             .WhereIf(filter.Wg.HasValue, x => x.m.WgId == filter.Wg.Value)
-                             .WhereIf(filter.Availability.HasValue, x => x.m.AvailabilityId == filter.Availability.Value)
-                             .WhereIf(filter.Duration.HasValue, x => x.m.DurationId == filter.Duration.Value)
-                             .WhereIf(filter.ReactionType.HasValue, x => x.m.ReactionTypeId == filter.ReactionType.Value)
-                             .WhereIf(filter.ReactionTime.HasValue, x => x.m.ReactionTimeId == filter.ReactionTime.Value)
-                             .WhereIf(filter.ServiceLocation.HasValue, x => x.m.ServiceLocationId == filter.ServiceLocation.Value);
+                query = query.WhereIf(filter.Country.HasValue, x => x.CountryId == filter.Country.Value)
+                             .WhereIf(filter.Wg.HasValue, x => x.WgId == filter.Wg.Value)
+                             .WhereIf(filter.Availability.HasValue, x => x.AvailabilityId == filter.Availability.Value)
+                             .WhereIf(filter.Duration.HasValue, x => x.DurationId == filter.Duration.Value)
+                             .WhereIf(filter.ReactionType.HasValue, x => x.ReactionTypeId == filter.ReactionType.Value)
+                             .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTimeId == filter.ReactionTime.Value)
+                             .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocationId == filter.ServiceLocation.Value);
             }
 
-            var result = query.Select(x => new HwCostDto
-            {
-                Id = x.m.Id,
+            count = query.Count(); //optimization! get count without join!!!
 
-                Country = x.m.Country,
-                Wg = x.m.Wg,
-                Availability = x.m.Availability,
-                Duration = x.m.Duration,
-                ReactionTime = x.m.ReactionTime,
-                ReactionType = x.m.ReactionType,
-                ServiceLocation = x.m.ServiceLocation,
+            var result = from m in query
+                         join hw in hwRepo.GetAll() on m.Id equals hw.Id
+                         select new HwCostDto
+                         {
+                             Id = m.Id,
 
-                AvailabilityFee = x.hw.AvailabilityFee,
-                AvailabilityFee_Approved = x.hw.AvailabilityFee_Approved,
+                             Country = m.Country,
+                             Wg = m.Wg,
+                             Availability = m.Availability,
+                             Duration = m.Duration,
+                             ReactionTime = m.ReactionTime,
+                             ReactionType = m.ReactionType,
+                             ServiceLocation = m.ServiceLocation,
 
-                Credits = x.hw.Credits,
-                Credits_Approved = x.hw.Credits_Approved,
+                             AvailabilityFee = hw.AvailabilityFee,
+                             AvailabilityFee_Approved = hw.AvailabilityFee_Approved,
 
-                FieldServiceCost = x.hw.FieldServiceCost,
-                FieldServiceCost_Approved = x.hw.FieldServiceCost_Approved,
+                             Credits = hw.Credits,
+                             Credits_Approved = hw.Credits_Approved,
 
-                HddRetention = x.hw.HddRetention,
-                HddRetention_Approved = x.hw.HddRetention_Approved,
+                             FieldServiceCost = hw.FieldServiceCost,
+                             FieldServiceCost_Approved = hw.FieldServiceCost_Approved,
 
-                LocalServiceStandardWarranty = x.hw.LocalServiceStandardWarranty,
-                LocalServiceStandardWarranty_Approved = x.hw.LocalServiceStandardWarranty_Approved,
+                             HddRetention = hw.HddRetention,
+                             HddRetention_Approved = hw.HddRetention_Approved,
 
-                Logistic = x.hw.Logistic,
-                Logistic_Approved = x.hw.Logistic_Approved,
+                             LocalServiceStandardWarranty = hw.LocalServiceStandardWarranty,
+                             LocalServiceStandardWarranty_Approved = hw.LocalServiceStandardWarranty_Approved,
 
-                MaterialW = x.hw.MaterialW,
-                MaterialW_Approved = x.hw.MaterialW_Approved,
+                             Logistic = hw.Logistic,
+                             Logistic_Approved = hw.Logistic_Approved,
 
-                MaterialOow = x.hw.MaterialOow,
-                MaterialOow_Approved = x.hw.MaterialOow_Approved,
+                             MaterialW = hw.MaterialW,
+                             MaterialW_Approved = hw.MaterialW_Approved,
 
-                TaxAndDutiesW = x.hw.TaxAndDutiesW,
-                TaxAndDutiesW_Approved = x.hw.TaxAndDutiesW_Approved,
+                             MaterialOow = hw.MaterialOow,
+                             MaterialOow_Approved = hw.MaterialOow_Approved,
 
-                TaxAndDutiesOow = x.hw.TaxAndDutiesOow,
-                TaxAndDutiesOow_Approved = x.hw.TaxAndDutiesOow_Approved,
+                             TaxAndDutiesW = hw.TaxAndDutiesW,
+                             TaxAndDutiesW_Approved = hw.TaxAndDutiesW_Approved,
 
-                OtherDirect = x.hw.OtherDirect,
-                OtherDirect_Approved = x.hw.OtherDirect_Approved,
+                             TaxAndDutiesOow = hw.TaxAndDutiesOow,
+                             TaxAndDutiesOow_Approved = hw.TaxAndDutiesOow_Approved,
 
-                ProActive = x.hw.ProActive,
-                ProActive_Approved = x.hw.ProActive_Approved,
+                             OtherDirect = hw.OtherDirect,
+                             OtherDirect_Approved = hw.OtherDirect_Approved,
 
-                Reinsurance = x.hw.Reinsurance,
-                Reinsurance_Approved = x.hw.Reinsurance,
+                             ProActive = hw.ProActive,
+                             ProActive_Approved = hw.ProActive_Approved,
 
-                ServiceSupport = x.hw.ServiceSupport,
-                ServiceSupport_Approved = x.hw.ServiceSupport_Approved,
+                             Reinsurance = hw.Reinsurance,
+                             Reinsurance_Approved = hw.Reinsurance,
 
-                ServiceTC = x.hw.ServiceTC,
-                ServiceTC_Approved = x.hw.ServiceTC_Approved,
+                             ServiceSupport = hw.ServiceSupport,
+                             ServiceSupport_Approved = hw.ServiceSupport_Approved,
 
-                ServiceTCManual = x.hw.ServiceTCManual,
-                ServiceTCManual_Approved = x.hw.ServiceTCManual_Approved,
+                             ServiceTC = hw.ServiceTC,
+                             ServiceTC_Approved = hw.ServiceTC_Approved,
 
-                ServiceTP = x.hw.ServiceTP,
-                ServiceTP_Approved = x.hw.ServiceTP_Approved,
+                             ServiceTCManual = hw.ServiceTCManual,
+                             ServiceTCManual_Approved = hw.ServiceTCManual_Approved,
 
-                ServiceTPManual = x.hw.ServiceTPManual,
-                ServiceTPManual_Approved = x.hw.ServiceTPManual_Approved
-            });
+                             ServiceTP = hw.ServiceTP,
+                             ServiceTP_Approved = hw.ServiceTP_Approved,
 
-            return result.Paging(start, limit, out count);
+                             ServiceTPManual = hw.ServiceTPManual,
+                             ServiceTPManual_Approved = hw.ServiceTPManual_Approved
+                         };
+
+            return result.Paging(start, limit);
         }
 
         public IEnumerable<SwCostDto> GetSoftwareCost(SwFilterDto filter, int start, int limit, out int count)
