@@ -7,6 +7,7 @@ Ext.require('Ext.panel.Collapser');
 
 export interface ApprovalBundleItemProps {
     bundle: ApprovalBundle
+    isCheckColumnsVisible: boolean
 }
 
 interface ApprovalBundleItemState {
@@ -23,7 +24,7 @@ export class ApprovalBundleItemComponent extends React.Component<ApprovalBundleI
     }
 
     public render() {
-        const { bundle, children } = this.props;
+        const { bundle, children, isCheckColumnsVisible } = this.props;
         const { id, costBlock } = bundle;
 
         return (
@@ -41,7 +42,7 @@ export class ApprovalBundleItemComponent extends React.Component<ApprovalBundleI
             >
                 {
                     this.state.isFirstExpand &&
-                    <ApprovalValuesContainerComponent approvalBundle={bundle}>
+                    <ApprovalValuesContainerComponent approvalBundle={bundle} isCheckColumnsVisible={isCheckColumnsVisible}>
                         {children}
                     </ApprovalValuesContainerComponent>
                 }

@@ -8,6 +8,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
     {
         SqlHelper BuildQualityGateQuery(HistoryContext historyContext, IEnumerable<EditItem> editItems, IDictionary<string, IEnumerable<object>> costBlockFilter);
 
+        SqlHelper BuildQualityGateQuery(CostBlockHistory history, IDictionary<string, IEnumerable<object>> costBlockFilter = null);
+
         SqlHelper BuildQulityGateApprovalQuery(CostBlockHistory history, long? historyValueId = null, IDictionary<string, IEnumerable<object>> costBlockFilter = null);
     }
 }

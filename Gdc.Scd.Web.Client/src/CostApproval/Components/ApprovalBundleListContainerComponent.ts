@@ -7,21 +7,26 @@ import { ApprovalBundleState } from "../States/ApprovalBundleState";
 import { PageName } from "../../Common/States/CommonStates";
 import { ApprovalCostElementsLayoutState } from "../States/ApprovalCostElementsLayoutState";
 import { loadBundlesByFilter } from "../Actions/BundleListActions";
+import { openPage } from "../../Layout/Actions/AppActions";
 
 export interface ApprovalBundleListContainerProps extends PageName {
+    title: string
     approvalBundleState: ApprovalBundleState
+    isCheckColumnsVisible: boolean
     buildChildrenBundleItem?(bundle: ApprovalBundle, onHandled: () => void): any
 }
 
 export const ApprovalBundleListContainerComponent = connect<ApprovalBundleListProps, ApprovalBundleListActions, ApprovalBundleListContainerProps & any, CommonState>(
-    (state, { buildChildrenBundleItem, approvalBundleState, pageName })  => {
+    (state, { buildChildrenBundleItem, approvalBundleState, pageName, isCheckColumnsVisible })  => {
         const { bundles } = <ApprovalCostElementsLayoutState>state.pages[pageName]
         
         return {
-            bundles: bundles.items
+            bundles,
+            isCheckColumnsVisible
         };
     },
-    (dispatch, { pageName, approvalBundleState }) => ({
-        reloadBundles: () => dispatch(loadBundlesByFilter(pageName, approvalBundleState))
+    (dispatch, { pageName, approvalBundleState, title }) => ({
+        onInit: () => dispatch(openPage(pageName, title)),
+        onReloadBundles: () => dispatch(loadBundlesByFilter(pageName, approvalBundleState))
     })
 )(ApprovalBundleListComponent)

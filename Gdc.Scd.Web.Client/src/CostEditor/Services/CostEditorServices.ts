@@ -2,6 +2,7 @@ import { CostEditorState, CostEditortData } from "../States/CostEditorStates";
 import { CostBlockState, EditItem, CostElementData } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { get, post, buildMvcUrl } from "../../Common/Services/Ajax";
+import { QualityGateResult } from "../../QualityGate/States/QualityGateResult";
 
 export const COST_EDITOR_CONTROLLER_NAME = 'CostEditor';
 
@@ -22,11 +23,6 @@ export interface ApprovalOption {
     isApproving?: boolean
     hasQualityGateErrors?: boolean
     qualityGateErrorExplanation?: string
-}
-
-export interface QualityGateResult {
-    errors: {[key: string]: any}[]
-    hasErrors: boolean
 }
 
 export const getCostEditorData = () => get<CostEditortData>(COST_EDITOR_CONTROLLER_NAME, 'GetCostEditorData');

@@ -91,45 +91,38 @@ export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilter
         onApplicationSelect: (selectedAppId) => dispatch(<PageItemSelectedAction>{
             type: approvalActions.COST_APPROVAL_SELECT_APPLICATION,
             selectedItemId: selectedAppId,
-            pageName,
-            isPageAction: true
+            pageName
         }),
         onCostBlockCheck: (selectedCostBlock) => dispatch(<PageItemSelectedAction>{
             type: approvalActions.COST_APPROVAL_CHECK_COST_BLOCK,
             selectedItemId: selectedCostBlock,
-            pageName,
-            isPageAction: true
+            pageName
         }),
         onCostBlockUncheck: (selectedCostBlock) => dispatch(<PageItemSelectedAction>{
             type: approvalActions.COST_APPROVAL_UNCHECK_COST_BLOCK,
             selectedItemId: selectedCostBlock,
-            pageName,
-            isPageAction: true
+            pageName
         }),
         onCostElementCheck: (selectedCostElement, parentElementId) => dispatch(<PageItemWithParentSelectedAction>{
             type: approvalActions.COST_APPROVAL_CHECK_COST_ELEMENT,
             selectedItemId: selectedCostElement,
             selectedItemParentId: parentElementId,
-            pageName,
-            isPageAction: true
+            pageName
         }),
         onCostElementUncheck: (selectCostElement) => dispatch(<PageItemSelectedAction>{
             type: approvalActions.COST_APPROVAL_UNCHECK_COST_ELEMENT,
             selectedItemId: selectCostElement,
-            pageName,
-            isPageAction: true
+            pageName
         }),
         onStartDateChange: (selectedDate) => dispatch(<PageCommonAction<Date>>{
             type: approvalActions.COST_APPROVAL_SELECT_START_DATE,
             data: selectedDate,
-            pageName,
-            isPageAction: true
+            pageName
         }),
         onEndDateChange: (selectedDate) => dispatch(<PageCommonAction<Date>>{
             type: approvalActions.COST_APPROVAL_SELECT_END_DATE,
             data: selectedDate,
-            pageName,
-            isPageAction: true
+            pageName
         }),
         onApplyFilter: () => dispatch(loadBundlesByFilter(pageName, approvalBundleState))
     })

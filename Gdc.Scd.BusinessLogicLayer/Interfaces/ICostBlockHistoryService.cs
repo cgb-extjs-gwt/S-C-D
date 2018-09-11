@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
@@ -34,6 +35,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
             IDictionary<string, IEnumerable<object>> costBlockFilter = null);
 
         Task Approve(long historyId);
+
+        Task<QualityGateResultDto> SendForApproval(long historyId, string qualityGateErrorExplanation = null);
 
         void Reject(long historyId, string message = null);
     }

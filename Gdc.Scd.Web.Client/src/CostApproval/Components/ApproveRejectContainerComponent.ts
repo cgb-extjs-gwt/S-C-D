@@ -2,11 +2,7 @@ import { connect } from "react-redux";
 import { ApproveRejectActions, ApproveRejectComponent } from "./ApproveRejectComponent";
 import { CommonState } from "../../Layout/States/AppStates";
 import * as CostApprovalService from "../Services/CostApprovalService"
-
-export interface ApproveRejectContainerProps {
-    bundleId: number,
-    onHandled?()
-}
+import { ApproveRejectContainerProps } from "./ApproveRejectContainerProps";
 
 export const ApproveRejectContainerComponent = 
     connect<{}, ApproveRejectActions, ApproveRejectContainerProps, CommonState>(

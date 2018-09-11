@@ -14,8 +14,9 @@ import { CommonState } from '../States/AppStates';
 import CountryGrid from '../../Admin/Country/containers/CountryGrid';
 import WarrantyGroupGrid from '../../Admin/WarrantyGroup/WarrantyGroupGrid';
 import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCostElementsLayout';
-import { init } from '../../CostApproval/Actions/CostApprovalFilterActions';
 import AvailabilityFeeAdminGrid from '../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid';
+import { loadMetaDataFromServer } from '../Actions/AppActions';
+import { OwnApprovalCostElementsLayout } from '../../CostApproval/Components/OwnApprovalCostElementsLayout';
 
 export const ROOT_LAYOUT_ID = "root-layout";
 
@@ -75,6 +76,7 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path="/input-cost-elements" component={CostEditorContainer}/>
                         <Route path="/admin/country-management" component={ CountryGrid }/>
                         <Route path="/cost-approval" component={ ApprovalCostElementsLayout} />
+                        <Route path="/own-cost-approval" component={ OwnApprovalCostElementsLayout} />
                         <Route path="/capability-matrix" exact component={CapabilityMatrixView} />
                         <Route path="/capability-matrix/edit" component={CapabilityMatrixEditView} />
                         <Route path="/admin/availability-fee" component={AvailabilityFeeAdminGrid} />
@@ -92,7 +94,7 @@ const containerFactory = connect<LayoutProps, {}, {}, CommonState>(
         title: state.app.currentPage && state.app.currentPage.title
     } as LayoutProps),
     dispatch => ({
-        onInit: () => dispatch(init())
+        onInit: () => dispatch(loadMetaDataFromServer())
     })
 );
 

@@ -3,11 +3,10 @@ import { QualityGateErrorProps, QualityGateErrorActions, QualityGateErrorView } 
 import { CommonState } from "../../Layout/States/AppStates";
 import { getDependecyColumnsFromMeta } from "../../Common/Helpers/ColumnInfoHelper";
 import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
-import { saveEditItemsToServer, resetErrors } from "../Actions/CostBlockActions";
 
-export interface QualityGateErrorContainerProps {
+export interface QualityGateErrorContainerProps extends QualityGateErrorActions {
     costBlockId: string
-    errors: {[key: string]: any}[]
+    errors?: {[key: string]: any}[]
 }
 
 export const QualityGateErrorContainer = 
@@ -30,14 +29,8 @@ export const QualityGateErrorContainer =
                 errors
             };
         },
-        (dispatch, { costBlockId }) => ({
-            onSave: (explanationMessage) => dispatch(
-                saveEditItemsToServer(costBlockId, { 
-                    qualityGateErrorExplanation: explanationMessage,
-                    isApproving: true,
-                    hasQualityGateErrors: true
-                })
-            ),
-            onCancel: () => dispatch(resetErrors(costBlockId))
+        (dispatch, { costBlockId, onSave, onCancel }) => ({
+            onSave: explanationMessage => onSave && onSave(explanationMessage),
+            onCancel: () => onCancel && onCancel()
         })
     )(QualityGateErrorView)

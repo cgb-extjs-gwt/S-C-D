@@ -68,7 +68,7 @@ export class ApproveRejectComponent extends React.Component<ApproveRejectActions
     private onApprove = () => {
         const { onApprove } = this.props;
         
-        this.setState({isVisibleRejectForm: false})
+        this.setState({isVisibleRejectForm: false});
 
         onApprove && onApprove();
     }

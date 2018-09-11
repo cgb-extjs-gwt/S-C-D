@@ -1,7 +1,7 @@
 import { BundleFilterStates } from "./BundleFilterStates";
-import { BundleListState } from "./BundleListState";
+import { ApprovalBundle } from "./ApprovalBundle";
 
 export interface ApprovalCostElementsLayoutState {
-    bundles: BundleListState
+    bundles: ApprovalBundle[]
     filter: BundleFilterStates
 }

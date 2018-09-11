@@ -12,11 +12,12 @@ import { getDependencies } from "../../Common/Helpers/MetaHelper";
 
 export interface ApprovalValuesContainerProps {
     approvalBundle: ApprovalBundle
+    isCheckColumnsVisible: boolean
 }
 
 export const ApprovalValuesContainerComponent = 
     connect<ApprovalValuesProps, {}, ApprovalValuesContainerProps, CommonState>(
-        (state, { approvalBundle }) => {
+        (state, { approvalBundle, isCheckColumnsVisible }) => {
             const meta = state.app.appMetaData;
 
             let columns: ColumnInfo[];
@@ -31,11 +32,17 @@ export const ApprovalValuesContainerComponent =
 
                 const dependencyColumns = getDependecyColumns(dependencies);
                 const inputLevelColumns = getInputLevelColumns(costBlock);
-                const otherColumns = [
-                    { title: 'Value', dataIndex: 'Value', type: ColumnType.Simple },
+                const checkColumns = [
                     { title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.Checkbox },
                     { title: 'Country group error', dataIndex: `IsRegionError`, type: ColumnType.Checkbox }
                 ];
+                const otherColumns = [
+                    { title: 'Value', dataIndex: 'Value', type: ColumnType.Simple },
+                ];
+
+                if(isCheckColumnsVisible) {
+                    otherColumns.push(...checkColumns);
+                }
 
                 columns = [
                     buildNameColumnInfo(approvalBundle.inputLevel),

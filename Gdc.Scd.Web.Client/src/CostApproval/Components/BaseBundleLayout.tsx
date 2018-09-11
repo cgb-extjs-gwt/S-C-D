@@ -9,6 +9,8 @@ export abstract class BaseBundleLayout extends React.Component{
     public render(){
         const pageName = this.getPageName();
         const approvalState = this.getApprovalBundleState();
+        const title = this.getTitle();
+        const isCheckColumnsVisible = this.isCheckColumnsVisible();
 
         return (
             <Container
@@ -21,6 +23,8 @@ export abstract class BaseBundleLayout extends React.Component{
                     buildChildrenBundleItem={this.buildChildrenBundleItem}
                     approvalBundleState={approvalState}
                     pageName={pageName}
+                    title={title}
+                    isCheckColumnsVisible={isCheckColumnsVisible}
                 />
                 <FilterBundleContainer pageName={pageName} approvalBundleState={approvalState}/>
             </Container>
@@ -32,6 +36,10 @@ export abstract class BaseBundleLayout extends React.Component{
     protected abstract getApprovalBundleState(): ApprovalBundleState
 
     protected abstract getPageName(): string
+
+    protected abstract getTitle(): string
+
+    protected abstract isCheckColumnsVisible(): boolean
 }
 
 export default BaseBundleLayout;

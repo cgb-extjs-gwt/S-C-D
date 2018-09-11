@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -103,6 +104,12 @@ namespace Gdc.Scd.Web.Api.Controllers
             this.costBlockHistoryService.Reject(historyId, message);
 
             return this.Ok();
+        }
+
+        [HttpGet]
+        public async Task<QualityGateResultDto> SendForApproval([FromQuery]long historyId, [FromQuery]string qualityGateErrorExplanation = null)
+        {
+            return await this.costBlockHistoryService.SendForApproval(historyId, qualityGateErrorExplanation);
         }
     }
 }

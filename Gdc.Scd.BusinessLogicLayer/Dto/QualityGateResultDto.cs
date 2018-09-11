@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Gdc.Scd.Core.Entities;
 
-namespace Gdc.Scd.Web.Api.Entities
+namespace Gdc.Scd.Web.BusinessLogicLayer.Entities
 {
     public class QualityGateResultDto
     {
