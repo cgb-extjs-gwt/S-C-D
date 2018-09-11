@@ -22,11 +22,12 @@
 </head>
 <body>
     <script type="text/javascript">
+        var API_URL;
         $.ajax({
             type: 'GET',
-            url: 'api/helper/GetApiUrl',
+            url: '/scd/api/helper/GetApiUrl',
             success: function (result) {
-                eval(result);
+                API_URL = result;
             }
         });
     </script>

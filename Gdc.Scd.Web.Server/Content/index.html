@@ -19,16 +19,17 @@
             }
     </style>
     <script src="/scd/Scripts/jquery-1.10.2.min.js"></script>
-<link href="/scd/Content/ext-react\ext.css?8f264b9627b4b31f5fff" rel="stylesheet"></head>
+<link href="/scd/Content/ext-react\ext.css?502a28165e87481a809d" rel="stylesheet"></head>
 <body>
     <script type="text/javascript">
+        var API_URL;
         $.ajax({
             type: 'GET',
-            url: 'api/helper/GetApiUrl',
+            url: '/scd/api/helper/GetApiUrl',
             success: function (result) {
-                eval(result);
+                API_URL = result;
             }
         });
     </script>
-<script type="text/javascript" src="/scd/Content/ext-react\ext.js?8f264b9627b4b31f5fff"></script><script type="text/javascript" src="/scd/Content/bundle.js?8f264b9627b4b31f5fff"></script></body>
+<script type="text/javascript" src="/scd/Content/ext-react\ext.js?502a28165e87481a809d"></script><script type="text/javascript" src="/scd/Content/bundle.js?502a28165e87481a809d"></script></body>
 </html>
