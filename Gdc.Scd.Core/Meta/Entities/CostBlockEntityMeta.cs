@@ -14,6 +14,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public SimpleFieldMeta DeletedDateField { get; set; } = new SimpleFieldMeta("DeletedDateTime", TypeCode.DateTime) { IsNullOption = true };
 
+        public CostBlockMeta DomainMeta { get; }
+
         public override IEnumerable<FieldMeta> AllFields
         {
             get
@@ -30,9 +32,19 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
         }
 
-        public CostBlockEntityMeta(string name, string shema = null)
+        public CostBlockEntityMeta(CostBlockMeta meta, string name, string shema = null)
             : base(name, shema)
         {
+            this.DomainMeta = meta;
+        }
+
+        public FieldMeta GetApprovedCostElement(string costElementId)
+        {
+            var costElementField = this.CostElementsFields[costElementId];
+
+            this.CostElementsApprovedFields.TryGetValue(costElementField, out var approvedCostElement);
+
+            return approvedCostElement;
         }
     }
 }

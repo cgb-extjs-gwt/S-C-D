@@ -49,7 +49,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<IEnumerable<NamedId>> GetCostElementFilterItems(CostEditorContext context)
         {
-            var costElement = this.GetCostElementMeta(context);
+            var costElement = this.meta.GetCostElement(context);
 
             return await this.GetCostElementFilterItems(context, costElement);
         }
@@ -57,8 +57,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public async Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context)
         {
             var previousInputLevel =
-                this.GetCostElementMeta(context)
-                    .GetPreviousInputLevel(context.InputLevelId);
+                this.meta.GetCostElement(context)
+                         .GetPreviousInputLevel(context.InputLevelId);
 
             var filter = this.costBlockFilterBuilder.BuildRegionFilter(context);
 
@@ -67,7 +67,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<IEnumerable<NamedId>> GetRegions(CostEditorContext context)
         {
-            var costElement = this.GetCostElementMeta(context);
+            var costElement = this.meta.GetCostElement(context);
 
             return await this.GetRegions(context, costElement);
         }
@@ -84,7 +84,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             IEnumerable<NamedId> referenceValues = null;
 
-            var costBlock = (CostBlockEntityMeta)this.domainEnitiesMeta.GetEntityMeta(context.CostBlockId, context.ApplicationId);
+            var costBlock = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
             if (costBlock.CostElementsFields[context.CostElementId] is ReferenceFieldMeta field)
             {
                 referenceValues = await this.sqlRepository.GetNameIdItems(field.ReferenceMeta, field.ReferenceValueField, field.ReferenceFaceField);
@@ -95,7 +95,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<CostElementData> GetCostElementData(CostEditorContext context)
         {
-            var costElementMeta = this.GetCostElementMeta(context);
+            var costElementMeta = this.meta.GetCostElement(context);
 
             return new CostElementData
             {
@@ -180,11 +180,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return regions;
-        }
-
-        private CostElementMeta GetCostElementMeta(CostEditorContext context)
-        {
-            return this.meta.CostBlocks[context.CostBlockId].CostElements[context.CostElementId];
         }
     }
 }

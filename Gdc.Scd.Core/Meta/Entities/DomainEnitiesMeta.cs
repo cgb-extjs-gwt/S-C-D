@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Meta.Entities
@@ -32,7 +33,6 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public MetaCollection<RelatedItemsHistoryEntityMeta> RelatedItemsHistories { get; } = new MetaCollection<RelatedItemsHistoryEntityMeta>();
 
-
         public IEnumerable<BaseEntityMeta> AllMetas
         {
             get
@@ -57,6 +57,11 @@ namespace Gdc.Scd.Core.Meta.Entities
         public NamedEntityMeta GetInputLevel(string name)
         {
             return (NamedEntityMeta)this.GetEntityMeta(name, MetaConstants.InputLevelSchema);
+        }
+
+        public CostBlockEntityMeta GetCostBlockEntityMeta(ICostBlockIdentifier costBlockIdentifier)
+        {
+            return (CostBlockEntityMeta)this.GetEntityMeta(costBlockIdentifier.CostBlockId, costBlockIdentifier.ApplicationId);
         }
     }
 }

@@ -11,4 +11,5 @@ export interface ApprovalBundle {
     costBlock: NamedId
     costElement: NamedId
     inputLevel: NamedId
+    qualityGateErrorExplanation: string
 }

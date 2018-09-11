@@ -1,6 +1,8 @@
-﻿namespace Gdc.Scd.Core.Entities
+﻿using Gdc.Scd.Core.Interfaces;
+
+namespace Gdc.Scd.Core.Entities
 {
-    public class HistoryContext
+    public class HistoryContext : ICostElementIdentifier
     {
         public string ApplicationId { get; set; }
 
