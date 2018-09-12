@@ -47,20 +47,27 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
-        public Task Allow([FromBody]long[] ids)
+        public async Task<object> Allow([FromBody]long[] ids)
         {
-            return capabilityMatrixService.AllowCombinations(ids);
+            await capabilityMatrixService.AllowCombinations(ids);
+            return OkResult();
         }
 
         [HttpPost]
-        public Task Deny([FromBody]CapabilityMatrixRuleSetDto m)
+        public async Task<object> Deny([FromBody]CapabilityMatrixRuleSetDto m)
         {
-            return capabilityMatrixService.DenyCombination(m);
+            await capabilityMatrixService.DenyCombination(m);
+            return OkResult();
         }
 
         private bool isRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 50;
+        }
+
+        object OkResult()
+        {
+            return new { ok = true };
         }
     }
 }
