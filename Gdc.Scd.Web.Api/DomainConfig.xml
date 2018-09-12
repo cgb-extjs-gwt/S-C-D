@@ -403,8 +403,22 @@
             <InputLevel>Country</InputLevel>
           </InputLevels>
         </Element>
-        <Element Name="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually" Dependency="ServiceLocation"/>
-        <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually"/>
+        <Element Name="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually" Dependency="ServiceLocation">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+        </Element>
       </Elements>
     </Block>
   

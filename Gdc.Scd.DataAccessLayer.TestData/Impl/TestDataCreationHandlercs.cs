@@ -37,6 +37,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string DurationKey = "Duration";
 
+        private const string ProActiveKey = "ProActive";
+
+        private const string ProActiveSlaKey = "ProActiveSla";
+
         private readonly IRepositorySet repositorySet;
 
         private readonly DomainEnitiesMeta entityMetas;
@@ -241,7 +245,32 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     selectQuery = selectQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
                 }
 
-                yield return Sql.Insert(costBlockMeta, insertFields.ToArray()).Query(selectQuery);
+                SqlHelper insertQuery = selectQuery;
+
+                if (costBlockMeta.DomainMeta.Name == ProActiveKey)
+                {
+                    var remoteOptions = new Dictionary<string, IEnumerable<object>>
+                    {
+                        [MetaConstants.NameFieldKey] = new object[] { "2", "3", "4" }
+                    };
+
+                    var remoteCondition = ConditionHelper.AndBrackets(
+                        SqlOperators.Equals(MetaConstants.NameFieldKey, "remote", "Remote", ServiceLocationKey),
+                        ConditionHelper.AndStatic(remoteOptions, ProActiveSlaKey, "remote"));
+
+                    var onSiteOptions = new Dictionary<string, IEnumerable<object>>
+                    {
+                        [MetaConstants.NameFieldKey] = new object[] { "6", "7" }
+                    };
+
+                    var onSiteCondition = ConditionHelper.AndBrackets(
+                        SqlOperators.Equals(MetaConstants.NameFieldKey, "onSite", "On-Site", ServiceLocationKey),
+                        ConditionHelper.AndStatic(onSiteOptions, ProActiveSlaKey, "onSite"));
+
+                    insertQuery = selectQuery.Where(ConditionHelper.Or(remoteCondition, onSiteCondition));
+                }
+
+                yield return Sql.Insert(costBlockMeta, insertFields.ToArray()).Query(insertQuery);
             }
         }
 
@@ -1162,7 +1191,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "Door-to-Door (SWAP)",
                 "Desk-to-Desk (SWAP)",
                 "On-Site",
-                "On-Site (Exchange)"
+                "On-Site (Exchange)",
+                "Remote"
             };
         }
 
