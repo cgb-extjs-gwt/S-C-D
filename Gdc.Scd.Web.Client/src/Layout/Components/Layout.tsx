@@ -72,17 +72,17 @@ export class Layout extends React.Component<LayoutProps> {
                 <Panel title={title} layout="fit">
                     <Switch>
                         <Route path={buildComponentUrl("/")} component={Home} exact/>
-                        <Route path="/scd/about" component={About}/>
-                        <Route path="/scd/pivot" component={ScdPivotGrid}/>
-                        <Route path="/scd/input-cost-elements" component={CostEditorContainer}/>
-                        <Route path="/scd/admin/country-management" component={ CountryGrid }/>
-                        <Route path="/scd/cost-approval" component={ ApprovalCostElementsLayout} />
-                        <Route path="/scd/capability-matrix" exact component={CapabilityMatrixView} />
-                        <Route path="/scd/capability-matrix/edit" component={CapabilityMatrixEditView} />
-                        <Route path="/scd/admin/availability-fee" component={AvailabilityFeeAdminGrid} />
-                        <Route path="/scd/admin/role-code-management" component={RoleCodesGrid} />
-                        <Route path="/scd/admin/warranty-group-management" component={WarrantyGroupGrid} />
-                        <Route path="/scd/admin/user-role" component={UserRoleContainer} />                   
+                        <Route path={buildComponentUrl("/scd/about")} component={About}/>
+                        <Route path={buildComponentUrl("/scd/pivot")} component={ScdPivotGrid}/>
+                        <Route path={buildComponentUrl("/scd/input-cost-elements")} component={CostEditorContainer}/>
+                        <Route path={buildComponentUrl("/scd/admin/country-management")} component={ CountryGrid }/>
+                        <Route path={buildComponentUrl("/scd/cost-approval")} component={ ApprovalCostElementsLayout} />
+                        <Route path={buildComponentUrl("/scd/capability-matrix")} exact component={CapabilityMatrixView} />
+                        <Route path={buildComponentUrl("/scd/capability-matrix/edit")} component={CapabilityMatrixEditView} />
+                        <Route path={buildComponentUrl("/scd/admin/availability-fee")} component={AvailabilityFeeAdminGrid} />
+                        <Route path={buildComponentUrl("/scd/admin/role-code-management")} component={RoleCodesGrid} />
+                        <Route path={buildComponentUrl("/scd/admin/warranty-group-management")} component={WarrantyGroupGrid} />
+                        <Route path={buildComponentUrl("/scd/admin/user-role")} component={UserRoleContainer} />                   
                     </Switch>
                 </Panel>
             </Container>

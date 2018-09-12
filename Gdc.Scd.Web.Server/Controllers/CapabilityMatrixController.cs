@@ -2,7 +2,7 @@
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Web.Server.Entities;
 using System.Threading.Tasks;
-using System.Web.Mvc;
+using System.Web.Http;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
@@ -18,7 +18,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public DataInfo<CapabilityMatrixDto> Allowed([System.Web.Http.FromUri]CapabilityMatrixFilterDto filter, [System.Web.Http.FromUri]int start = 0, [System.Web.Http.FromUri]int limit = 25)
+        public DataInfo<CapabilityMatrixDto> Allowed(CapabilityMatrixFilterDto filter, int start = 0, int limit = 25)
         {
             if (!isRangeValid(start, limit))
             {
