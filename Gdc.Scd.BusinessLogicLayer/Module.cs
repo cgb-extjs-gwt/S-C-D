@@ -55,6 +55,9 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<ClusterPla>();
             Kernel.RegisterEntity<Role>();
             Kernel.RegisterEntity<UserRole>();
+            Kernel.RegisterEntity<ProActiveSla>();
+            Kernel.RegisterEntity<SwDigit>();
+            Kernel.RegisterEntity<Sog>();
         }
     }
 }
