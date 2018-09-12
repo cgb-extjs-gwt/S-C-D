@@ -59,7 +59,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateDurations();
             this.CreateYearAvailability();
             this.CreateCurrenciesAndExchangeRates();
-            
+            this.CreateProActiveSla();
+            this.CreateTestItems<SwDigit>();
+            this.CreateTestItems<Sog>();
+
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
 
@@ -134,7 +137,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             repositorySet.Sync();
         }
 
-
         private void CreateClusterRegions()
         {
             //Insert Cluster Regions
@@ -149,6 +151,39 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var user = new User { Name = "Test user" };
 
             repository.Save(user);
+            this.repositorySet.Sync();
+        }
+
+        private void CreateProActiveSla()
+        {
+            this.repositorySet.GetRepository<ProActiveSla>().Save(new ProActiveSla[] 
+            {
+                new ProActiveSla { Name = "0" },
+                new ProActiveSla { Name = "2" },
+                new ProActiveSla { Name = "3" },
+                new ProActiveSla { Name = "4" },
+                new ProActiveSla { Name = "6" },
+                new ProActiveSla { Name = "7" },
+            });
+
+            this.repositorySet.Sync();
+        }
+
+        private void CreateTestItems<T>(int count = 5) where T : NamedId, new()
+        {
+            var items = new List<T>();
+            var typeName = typeof(T).Name;
+
+
+            for (var i = 0; i < count; i++)
+            {
+                items.Add(new T
+                {
+                    Name = $"{typeName}_{i}"
+                });
+            }
+
+            this.repositorySet.GetRepository<T>().Save(items);
             this.repositorySet.Sync();
         }
 

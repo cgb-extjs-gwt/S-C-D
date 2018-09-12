@@ -40,9 +40,9 @@
     <Dependency Name="ReactionTimeType" Caption="Reaction" Type="View"/>
     <Dependency Name="ReactionTimeAvailability" Caption="Reaction" Type="View"/>
     <Dependency Name="ReactionTimeTypeAvailability" Caption="Reaction" Type="View"/>
-    <Dependency Name="ServiceLocationProActive" Caption="Service location for ProActive"/>
     <Dependency Name="Availability" Caption="Availability"/>
     <Dependency Name="YearAvailability" Caption="Year Availability" Type="View"/>
+    <Dependency Name="ProActiveSla" Caption="Pro Active SLA"/>
   </Dependencies>
 
   <Applications>
@@ -345,21 +345,65 @@
         <Application>SoftwareSolution</Application>
       </Applications>
       <Elements>
-        <Element Name="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort" InputOption="Manually"/>
-        <Element Name="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort" InputOption="Manually"/>
-        <Element Name="LocalPreparationShcEffort" Caption="Local preparation SHC effort" InputOption="Manually"/>
-        <Element Name="LocalPreparationShcEffortReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_">
+        <Element Name="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort" InputOption="Manually">
           <InputLevels>
+            <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
-            <InputLevel>Wg</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
         </Element>
-        <!--<Element Name="LocalShcCustomerBriefingEffort" Caption="Local SHC customer briefing effort" InputOption="Manually" Dependency="ServiceLocationProActive"/>-->
-        <!--<Element Name="LocalRegularUpdateReadyRepetition" Caption="Local regular update ready for service Repetition" InputOption="Reference"/>
-        <Element Name="LocalPreparationShcRepetition" Caption="Local preparation SHC Repetition" InputOption="Reference"/>
-        <Element Name="CentralExecutionShcReportRepetition " Caption="Central execution SHC &amp; report Repetition" InputOption="Reference"/>
-        <Element Name="LocalShcCustomerBriefingRepetition " Caption="Local SHC customer briefing Repetition" InputOption="Reference"/>-->
-        <!--<Element Name="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually" Dependency="ServiceLocationProActive"/>-->
+        <Element Name="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort" InputOption="Manually">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="LocalPreparationShcEffort" Caption="Local preparation SHC effort" InputOption="Manually">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="CentralExecutionShcReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sog</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="LocalShcCustomerBriefingEffort" Caption="Local SHC customer briefing effort" InputOption="Manually" Dependency="ServiceLocation">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="LocalRegularUpdateReadyRepetition" Caption="Local regular update ready for service Repetition" InputOption="Manually" Dependency="ProActiveSla" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="LocalPreparationShcRepetition" Caption="Local preparation SHC Repetition" InputOption="Manually" Dependency="ProActiveSla" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="CentralExecutionShcReportRepetition" Caption="Central execution SHC &amp; report Repetition" InputOption="Manually" Dependency="ProActiveSla" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="LocalShcCustomerBriefingRepetition" Caption="Local SHC customer briefing Repetition" InputOption="Manually" Dependency="ProActiveSla" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually" Dependency="ServiceLocation"/>
         <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually"/>
       </Elements>
     </Block>
