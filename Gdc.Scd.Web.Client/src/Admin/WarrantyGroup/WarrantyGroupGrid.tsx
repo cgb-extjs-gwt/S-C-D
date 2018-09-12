@@ -125,7 +125,6 @@ class WarrantyGroupGrid extends React.Component<any> {
     }
 
     ManageRoleCodes = () => {
-        console.log(this.props);
         let path = buildComponentUrl("/admin/role-code-management");
         this.props.history.push(path);
     }
