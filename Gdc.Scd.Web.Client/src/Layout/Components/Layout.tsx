@@ -17,6 +17,7 @@ import WarrantyGroupGrid from '../../Admin/WarrantyGroup/WarrantyGroupGrid';
 import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCostElementsLayout';
 import { init } from '../../CostApproval/Actions/CostApprovalFilterActions';
 import AvailabilityFeeAdminGrid from '../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid';
+import { buildComponentUrl } from "../../Common/Services/Ajax";
 
 export const ROOT_LAYOUT_ID = "root-layout";
 
@@ -70,7 +71,7 @@ export class Layout extends React.Component<LayoutProps> {
 
                 <Panel title={title} layout="fit">
                     <Switch>
-                        <Route path="/scd/" component={Home} exact/>
+                        <Route path={buildComponentUrl("/")} component={Home} exact/>
                         <Route path="/scd/about" component={About}/>
                         <Route path="/scd/pivot" component={ScdPivotGrid}/>
                         <Route path="/scd/input-cost-elements" component={CostEditorContainer}/>

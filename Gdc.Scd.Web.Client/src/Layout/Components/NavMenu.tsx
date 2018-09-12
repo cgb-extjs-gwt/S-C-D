@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { TreeList } from '@extjs/ext-react';
+import { buildComponentUrl } from "../../Common/Services/Ajax";
 
 declare var Ext:any;
 
@@ -28,26 +29,26 @@ const NavMenu: React.SFC<NavMenuProps & any> = ({
         store={{
             root: {
                 children: [
-                    { id: '/scd/', text: 'Home', iconCls: 'x-fa fa-home', leaf: true },
-                    { id: '/scd/about', text: 'About', iconCls: 'x-fa fa-info', leaf: true },
-                    { id: '/scd/pivot', text: 'Pivot grid', iconCls: 'x-fa fa-info', leaf: true },
-                    { id: '/scd/input-cost-elements', text: 'Input Cost Elements', iconCls: 'x-fa fa-info', leaf: true },
-                    { id: '/scd/cost-approval', text: 'Approve cost elements', iconCls: 'x-fa fa-check-square-o', leaf: true},
-                    { id: '/scd/capability-matrix', text: 'Portfolio', iconCls: 'x-fa fa-suitcase', leaf: true },
+                    { id: buildComponentUrl('/'), text: 'Home', iconCls: 'x-fa fa-home', leaf: true },
+                    { id: buildComponentUrl('/about'), text: 'About', iconCls: 'x-fa fa-info', leaf: true },
+                    { id: buildComponentUrl('/pivot'), text: 'Pivot grid', iconCls: 'x-fa fa-info', leaf: true },
+                    { id: buildComponentUrl('/input-cost-elements'), text: 'Input Cost Elements', iconCls: 'x-fa fa-info', leaf: true },
+                    { id: buildComponentUrl('/cost-approval'), text: 'Approve cost elements', iconCls: 'x-fa fa-check-square-o', leaf: true},
+                    { id: buildComponentUrl('/capability-matrix'), text: 'Portfolio', iconCls: 'x-fa fa-suitcase', leaf: true },
                     {
-                        id: '/scd/admin', text: 'Admin', iconCls: 'x-fa fa-info', disabled: true, children: [{
-                            id: '/scd/admin/country-management',
+                        id: buildComponentUrl('/admin'), text: 'Admin', iconCls: 'x-fa fa-info', disabled: true, children: [{
+                            id: buildComponentUrl('/admin/country-management'),
                             text: 'Country Management', iconCls: 'x-fa fa-globe', leaf: true
                         }, {
-                                id: '/scd/admin/availability-fee',
+                                id: buildComponentUrl('/admin/availability-fee'),
                             text: 'Availability Fee', iconCls: 'x-fa fa-cog', leaf: true
                             },
                             {
-                                id: '/scd/admin/warranty-group-management',
+                                id: buildComponentUrl('/admin/warranty-group-management'),
                                 text: 'Warranty groups', iconCls: 'x-fa fa-industry', leaf: true
                             },                       
                              {
-                                 id: '/scd/admin/user-role',
+                                 id: buildComponentUrl('/admin/user-role'),
                                 text: 'User roles', iconCls: 'x-fa fa-users', leaf: true
                             }
                         ]

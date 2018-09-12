@@ -4,6 +4,8 @@ import { EditItem } from "../../CostEditor/States/CostBlockStates";
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, SelectionColumn, CheckBoxField } from '@extjs/ext-react';
 import { NamedId } from '../../Common/States/CommonStates';
 import { buildMvcUrl } from "../../Common/Services/Ajax";
+import { withRouter } from 'react-router';
+import { buildComponentUrl } from "../../Common/Services/Ajax";
 
 const CONTROLLER_NAME = 'WarrantyGroup';
 const ROLECODE_CONTROLLER_NAME="RoleCode"
@@ -13,7 +15,7 @@ Ext.require([
     'Ext.grid.plugin.CellEditing',
 ]);
 
-export default class RoleCodesGrid extends React.Component {
+class WarrantyGroupGrid extends React.Component<any> {
     state = {
         render: false,
         disableSaveButton: true,
@@ -123,7 +125,9 @@ export default class RoleCodesGrid extends React.Component {
     }
 
     ManageRoleCodes = () => {
-        window.location.href = "/scd/admin/role-code-management";
+        console.log(this.props);
+        let path = buildComponentUrl("/admin/role-code-management");
+        this.props.history.push(path);
     }
 
     cancelChanges = () => {
@@ -254,3 +258,5 @@ export default class RoleCodesGrid extends React.Component {
         )
     }
 }
+
+export default withRouter(WarrantyGroupGrid);
