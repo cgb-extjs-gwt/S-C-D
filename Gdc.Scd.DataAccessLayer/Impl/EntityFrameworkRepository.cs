@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Interfaces;
@@ -112,6 +113,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     set.Update(item);
                 }
             }
+
+            
         }
     }
 }

@@ -6,7 +6,7 @@ using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders;
-using Microsoft.Extensions.DependencyInjection;
+using Ninject;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -14,11 +14,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
     {
         private readonly DomainEnitiesMeta meta;
 
-        private readonly IServiceProvider serviceProvider;
+        private readonly IKernel serviceProvider;
 
         private readonly EntityFrameworkRepositorySet repositorySet;
 
-        public DatabaseCreationHandler(DomainEnitiesMeta meta, IServiceProvider serviceProvider, EntityFrameworkRepositorySet repositorySet)
+        public DatabaseCreationHandler(DomainEnitiesMeta meta, IKernel serviceProvider, EntityFrameworkRepositorySet repositorySet)
         {
             this.meta = meta;
             this.serviceProvider = serviceProvider;
@@ -40,7 +40,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     this.repositorySet.ExecuteSql(command);
                 }
 
-                foreach (var configDatabaseHandler in this.serviceProvider.GetServices<IConfigureDatabaseHandler>())
+                foreach (var configDatabaseHandler in this.serviceProvider.GetAll<IConfigureDatabaseHandler>())
                 {
                     configDatabaseHandler.Handle();
                 }
@@ -67,7 +67,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         private IEnumerable<string> GetCreateTableCommands(IEnumerable<(string Schema, string Table)> registeredEntityInfos)
         {
             var entityMetas = this.GetNotRegisteredMetas(registeredEntityInfos);
-            var customHandlers = this.serviceProvider.GetServices<ICustomConfigureTableHandler>();
+            var customHandlers = this.serviceProvider.GetAll<ICustomConfigureTableHandler>();
 
             foreach (var entityMeta in entityMetas)
             {

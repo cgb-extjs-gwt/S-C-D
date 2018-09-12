@@ -1,4 +1,5 @@
-export const API_URL = '/api/';
+declare var APP_URL: any;
+export const API_URL=APP_URL+'/api/';
 
 export enum Methods {
     Get = 'GET',
@@ -64,6 +65,12 @@ export const buildMvcUrl = (controller: string, action: string, params?: { [key:
 
         url = Ext.urlAppend(url, urlParams);
     }
+
+    return url;
+}   
+
+export const buildComponentUrl = (componentPath: string) => {
+    let url = `${APP_URL}${componentPath}`;
 
     return url;
 }   
