@@ -18,33 +18,55 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public DataInfo<CapabilityMatrixDto> Allowed(CapabilityMatrixFilterDto filter)
+        public DataInfo<CapabilityMatrixDto> Allowed(CapabilityMatrixFilterDto filter, int start = 0, int limit = 25)
         {
+            if (!isRangeValid(start, limit))
+            {
+                return null;
+            }
+
             int total;
-            var items = capabilityMatrixService.GetAllowedCombinations(filter, 0, 25, out total);  //TODO: remove hard coded values
+            var items = capabilityMatrixService.GetAllowedCombinations(filter, start, limit, out total);
 
             return new DataInfo<CapabilityMatrixDto> { Items = items, Total = total };
         }
 
         [HttpGet]
-        public DataInfo<CapabilityMatrixRuleDto> Denied(CapabilityMatrixFilterDto filter)
+        public DataInfo<CapabilityMatrixRuleDto> Denied(CapabilityMatrixFilterDto filter, int start = 0, int limit = 25)
         {
+            if (!isRangeValid(start, limit))
+            {
+                return null;
+            }
+
             int total;
-            var items = capabilityMatrixService.GetDeniedCombinations(filter, 0, 25, out total); //TODO: remove hard coded values
+            var items = capabilityMatrixService.GetDeniedCombinations(filter, start, limit, out total);
 
             return new DataInfo<CapabilityMatrixRuleDto> { Items = items, Total = total };
         }
 
         [HttpPost]
-        public Task Allow([System.Web.Http.FromBody]long[] ids)
+        public async Task<object> Allow([FromBody]long[] ids)
         {
-            return capabilityMatrixService.AllowCombinations(ids);
+            await capabilityMatrixService.AllowCombinations(ids);
+            return OkResult();
         }
 
         [HttpPost]
-        public Task Deny([System.Web.Http.FromBody]CapabilityMatrixRuleSetDto m)
+        public async Task<object> Deny([FromBody]CapabilityMatrixRuleSetDto m)
         {
-            return capabilityMatrixService.DenyCombination(m);
+            await capabilityMatrixService.DenyCombination(m);
+            return OkResult();
+        }
+
+        private bool isRangeValid(int start, int limit)
+        {
+            return start >= 0 && limit <= 50;
+        }
+
+        object OkResult()
+        {
+            return new { ok = true };
         }
     }
 }
