@@ -17,5 +17,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             //TODO: Fake behaviour
             return this.GetAll().FirstOrDefault();
         }
+
     }
 }

@@ -1,18 +1,24 @@
+/// <binding />
 const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const OpenBrowserPlugin = require('open-browser-webpack-plugin');
 const ExtReactWebpackPlugin = require('@extjs/reactor-webpack-plugin');
 const portfinder = require('portfinder');
+const WriteFilePlugin = require('write-file-webpack-plugin');
 
-const sourcePath = path.join(__dirname, './src');
+const sourcePath = path.resolve(__dirname, 'src');
+
+console.log("SOURCE PATH: " + sourcePath);
 
 module.exports = function (env) {
     portfinder.basePort = (env && env.port) || 8080; // the default port to use
 
     return portfinder.getPortPromise().then(port => {
         const nodeEnv = env && env.prod ? 'production' : 'development';
-        const isProd = nodeEnv === 'production';
+        //const isProd = nodeEnv === 'production';
+        const isProd = false;
+        //console.log("[IS PRODUCTION]: " + isProd);
 
         const plugins = [
             new ExtReactWebpackPlugin({
@@ -25,6 +31,7 @@ module.exports = function (env) {
             }),
             new webpack.NamedModulesPlugin()
         ];
+
 
         if (isProd) {
             plugins.push(
@@ -40,6 +47,8 @@ module.exports = function (env) {
                 })
             );
         } else {
+            plugins.push(new WriteFilePlugin({ test: /^(?!.+(?:hot-update.(js|json))).+$/ }));
+
             plugins.push(
                 new webpack.HotModuleReplacementPlugin()
             );
@@ -48,8 +57,6 @@ module.exports = function (env) {
         plugins.push(new HtmlWebpackPlugin({
             template: 'index.html',
             hash: true
-        }), new OpenBrowserPlugin({
-            url: `http://localhost:${port}`
         }));
 
         return {
@@ -61,8 +68,9 @@ module.exports = function (env) {
             ],
 
             output: {
-                path: path.join(__dirname, 'build'),
-                filename: 'bundle.js',
+                path: path.join(__dirname, '../Gdc.Scd.Web.Server/Content'),
+                publicPath: '/scd/Content',
+                filename: 'bundle.js'
             },
 
             module: {
@@ -101,34 +109,34 @@ module.exports = function (env) {
 
             stats: {
                 colors: {
-                    green: '\u001b[32m',
+                    green: '\u001b[32m'
                 }
             },
 
-            devServer: {
-                contentBase: './build',
-                historyApiFallback: true,
-                host: '0.0.0.0',
-                disableHostCheck: true,
-                port,
-                compress: isProd,
-                inline: !isProd,
-                hot: !isProd,
-                stats: {
-                    assets: true,
-                    children: false,
-                    chunks: false,
-                    hash: false,
-                    modules: false,
-                    publicPath: false,
-                    timings: true,
-                    version: false,
-                    warnings: true,
-                    colors: {
-                        green: '\u001b[32m'
-                    }
-                },
-            }
+            //devServer: {
+            //    contentBase: './build',
+            //    historyApiFallback: true,
+            //    host: '0.0.0.0',
+            //    disableHostCheck: true,
+            //    port,
+            //    compress: isProd,
+            //    inline: !isProd,
+            //    hot: !isProd,
+            //    stats: {
+            //        assets: true,
+            //        children: false,
+            //        chunks: false,
+            //        hash: false,
+            //        modules: false,
+            //        publicPath: false,
+            //        timings: true,
+            //        version: false,
+            //        warnings: true,
+            //        colors: {
+            //            green: '\u001b[32m'
+            //        }
+            //    },
+            //}
         };
-    })
+    });
 };

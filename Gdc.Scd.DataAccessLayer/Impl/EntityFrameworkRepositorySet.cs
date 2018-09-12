@@ -11,23 +11,20 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Gdc.Scd.DataAccessLayer.Helpers;
+using Ninject;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
     public class EntityFrameworkRepositorySet : DbContext, IRepositorySet
     {
-        private readonly IServiceProvider serviceProvider;
-        private readonly IConfiguration configuration;
+        private readonly IKernel serviceProvider;
 
         internal static IDictionary<Type, Action<EntityTypeBuilder>> RegisteredEntities { get; private set; } = new Dictionary<Type, Action<EntityTypeBuilder>>();
 
-        public EntityFrameworkRepositorySet(IServiceProvider serviceProvider, IConfiguration configuration)
+        public EntityFrameworkRepositorySet(IKernel serviceProvider)
         {
             this.serviceProvider = serviceProvider;
-            this.configuration = configuration;
 
             this.ChangeTracker.AutoDetectChangesEnabled = false;
             this.Database.SetCommandTimeout(600);
@@ -42,7 +39,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public IRepository<T> GetRepository<T>() where T : class, IIdentifiable, new()
         {
-            return this.serviceProvider.GetService<IRepository<T>>();
+            return this.serviceProvider.Get<IRepository<T>>();
         }
 
         public void Sync()
@@ -203,7 +200,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlServer(this.configuration.GetSection("ConnectionStrings")["CommonDB"]);
+            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["CommonDB"].ConnectionString);
         }
 
         private IEnumerable<DbParameter> GetDbParameters(IEnumerable<CommandParameterInfo> parameters, DbCommand command)

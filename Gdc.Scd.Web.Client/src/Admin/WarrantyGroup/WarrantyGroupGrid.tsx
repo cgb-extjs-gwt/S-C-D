@@ -3,13 +3,19 @@ import { FieldType } from "../../CostEditor/States/CostEditorStates";
 import { EditItem } from "../../CostEditor/States/CostBlockStates";
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, SelectionColumn, CheckBoxField } from '@extjs/ext-react';
 import { NamedId } from '../../Common/States/CommonStates';
+import { buildMvcUrl } from "../../Common/Services/Ajax";
+import { withRouter } from 'react-router';
+import { buildComponentUrl } from "../../Common/Services/Ajax";
+
+const CONTROLLER_NAME = 'WarrantyGroup';
+const ROLECODE_CONTROLLER_NAME="RoleCode"
 
 Ext.require([
     'Ext.grid.plugin.Editable',
     'Ext.grid.plugin.CellEditing',
 ]);
 
-export default class RoleCodesGrid extends React.Component {
+class WarrantyGroupGrid extends React.Component<any> {
     state = {
         render: false,
         disableSaveButton: true,
@@ -53,8 +59,8 @@ export default class RoleCodesGrid extends React.Component {
                 idProperty: "id"
             },
             api: {
-                read: '/api/WarrantyGroup/GetAll',
-                update: '/api/WarrantyGroup/SaveAll'
+                read: buildMvcUrl(CONTROLLER_NAME, 'GetAll'),
+                update: buildMvcUrl(CONTROLLER_NAME, 'SaveAll')
             }
         },
         listeners: {
@@ -65,12 +71,12 @@ export default class RoleCodesGrid extends React.Component {
         }
     });
 
-    storeRC = Ext.create('Ext.data.Store', {
+    storeRoleCode = Ext.create('Ext.data.Store', {
         fields: ['id','name'],
         autoLoad: false,
         pageSize: 0,
         sorters: [ {
-            property: 'name',
+            property: 'Name',
             direction: 'ASC'
         }],
         proxy: {
@@ -79,7 +85,7 @@ export default class RoleCodesGrid extends React.Component {
                 type: 'json'
             },
             api: {
-                read: '/api/RoleCode/GetAll'
+                read: buildMvcUrl(ROLECODE_CONTROLLER_NAME, 'GetAll')
             }
         },
         listeners: {
@@ -119,7 +125,8 @@ export default class RoleCodesGrid extends React.Component {
     }
 
     ManageRoleCodes = () => {
-        window.location.href = "/admin/role-code-management";
+        let path = buildComponentUrl("/admin/role-code-management");
+        this.props.history.push(path);
     }
 
     cancelChanges = () => {
@@ -149,13 +156,13 @@ export default class RoleCodesGrid extends React.Component {
 
     
 
-    private getValueColumn() {
+    private getRoleCodeColumn() {
         let selectField;
         let renderer: (value, data: { data }) => string;
 
         selectField = (
             <ComboBoxField              
-                store={this.storeRC}
+                store={this.storeRoleCode}
                 valueField="id"
                 displayField="name"            
                 label="Select role code"
@@ -166,7 +173,7 @@ export default class RoleCodesGrid extends React.Component {
             let result: string;
             if (this.state.render) {
                 if (data.roleCodeId > 0) {
-                    const selectedItem = this.storeRC.data.items.find(item => item.data.id === data.roleCodeId);
+                    const selectedItem = this.storeRoleCode.data.items.find(item => item.data.id === data.roleCodeId);
                     result = selectedItem.data.name;
                 } else
                     result = "";
@@ -189,7 +196,7 @@ export default class RoleCodesGrid extends React.Component {
 
     render() {
         if (!this.state.render) {
-            this.storeRC.load();
+            this.storeRoleCode.load();
             return null;
         }
         return (
@@ -220,7 +227,7 @@ export default class RoleCodesGrid extends React.Component {
                     flex={1}
                 />
 
-                {this.getValueColumn()}
+                {this.getRoleCodeColumn()}
                 <Toolbar docked="top">
                     <CheckBoxField boxLabel="Show only WGs with no Role code" onChange={(chkBox, newValue, oldValue) => this.filterOnChange(chkBox, newValue, oldValue)} />
                 </Toolbar>
@@ -250,3 +257,5 @@ export default class RoleCodesGrid extends React.Component {
         )
     }
 }
+
+export default withRouter(WarrantyGroupGrid);
