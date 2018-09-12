@@ -3,8 +3,8 @@ using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("Sog", Schema = MetaConstants.InputLevelSchema)]
-    public class Sog : NamedId
+    [Table("SwDigit", Schema = MetaConstants.InputLevelSchema)]
+    public class SwDigit : NamedId
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id
