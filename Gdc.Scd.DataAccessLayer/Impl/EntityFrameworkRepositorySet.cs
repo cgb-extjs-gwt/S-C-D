@@ -44,7 +44,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public void Sync()
         {
-            this.ChangeTracker.DetectChanges();
             this.SaveChanges();
         }
 
