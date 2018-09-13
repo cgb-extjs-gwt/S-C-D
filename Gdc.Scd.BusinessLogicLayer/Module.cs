@@ -29,7 +29,6 @@ namespace Gdc.Scd.BusinessLogicLayer
             services.RegisterEntity<CountryGroup>();
             services.RegisterEntity<Pla>();
             services.RegisterEntity<Wg>();
-            services.RegisterEntity<Sog>();
             services.RegisterEntity<Availability>();
             services.RegisterEntity<Year>();
             services.RegisterEntity<Duration>();

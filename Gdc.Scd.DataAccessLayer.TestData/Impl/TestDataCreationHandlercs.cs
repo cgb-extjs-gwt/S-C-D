@@ -157,14 +157,14 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateProActiveSla()
         {
-            this.repositorySet.GetRepository<ProActiveSla>().Save(new ProActiveSla[] 
+            this.repositorySet.GetRepository<ProActiveSla>().Save(new ProActiveSla[]
             {
-                new ProActiveSla { Name = "0" },
-                new ProActiveSla { Name = "2" },
-                new ProActiveSla { Name = "3" },
-                new ProActiveSla { Name = "4" },
-                new ProActiveSla { Name = "6" },
-                new ProActiveSla { Name = "7" },
+                new ProActiveSla { Name = "0", Value = 0 },
+                new ProActiveSla { Name = "2", Value = 2 },
+                new ProActiveSla { Name = "3", Value = 3 },
+                new ProActiveSla { Name = "4", Value = 4 },
+                new ProActiveSla { Name = "6", Value = 6 },
+                new ProActiveSla { Name = "7", Value = 7 }
             });
 
             this.repositorySet.Sync();
@@ -1083,7 +1083,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new RoleCode
                 {
                     Name = "SEFS05"
-                    
+
                 }
             };
         }
