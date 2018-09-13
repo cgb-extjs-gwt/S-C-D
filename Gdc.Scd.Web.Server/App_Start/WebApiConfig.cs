@@ -24,13 +24,12 @@ namespace Gdc.Scd.Web.Server
             );
 
             var jsonFormatter = new JsonMediaTypeFormatter();
-            jsonFormatter.SerializerSettings.ContractResolver =
-            new CamelCasePropertyNamesContractResolver();
+            jsonFormatter.SerializerSettings.ContractResolver = new CamelCaseExceptDictionaryKeysResolver();
             //optional: set serializer settings here
             config.Services.Replace(typeof(IContentNegotiator), new JsonContentNegotiator(jsonFormatter));
         }
 
-        public class JsonContentNegotiator : IContentNegotiator
+        private class JsonContentNegotiator : IContentNegotiator
         {
             private readonly JsonMediaTypeFormatter _jsonFormatter;
 
@@ -43,6 +42,18 @@ namespace Gdc.Scd.Web.Server
             {
                 var result = new ContentNegotiationResult(_jsonFormatter, new MediaTypeHeaderValue("application/json"));
                 return result;
+            }
+        }
+
+        private class CamelCaseExceptDictionaryKeysResolver : CamelCasePropertyNamesContractResolver
+        {
+            protected override JsonDictionaryContract CreateDictionaryContract(Type objectType)
+            {
+                var contract = base.CreateDictionaryContract(objectType);
+
+                contract.PropertyNameResolver = propertyName => propertyName;
+
+                return contract;
             }
         }
     }

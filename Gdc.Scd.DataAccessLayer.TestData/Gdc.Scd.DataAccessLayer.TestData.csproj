@@ -5,9 +5,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Calculation\calculation.sql" Link="Scripts\calculation.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Remove="Scripts\availabilityFee.sql" />
+    <None Remove="Scripts\matrix.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\availabilityFee.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Calculation\calculation.sql" Link="Scripts\calculation.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Scripts\matrix.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -22,15 +36,6 @@
 
   <ItemGroup>
     <Reference Include="System.Configuration" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Scripts\availabilityFee.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Scripts\matrix.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
