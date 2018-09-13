@@ -155,7 +155,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 ServiceSupport_Approved = x.ServiceSupport_Approved,
 
                 TransferPrice = x.TransferPrice,
-                TransferPrice_Approved = x.TransferPrice_Approved
+                TransferPrice_Approved = x.TransferPrice_Approved,
+
+                ProActive = x.ProActive,
+                ProActive_Approved = x.ProActive_Approved
             });
 
             return result.Paging(start, limit, out count);

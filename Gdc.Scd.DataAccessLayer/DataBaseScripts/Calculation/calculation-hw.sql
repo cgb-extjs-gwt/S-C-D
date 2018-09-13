@@ -74,6 +74,10 @@ IF OBJECT_ID('Hardware.FieldServiceCostView', 'V') IS NOT NULL
   DROP VIEW Hardware.FieldServiceCostView;
 go
 
+IF OBJECT_ID('Hardware.ProActiveView', 'V') IS NOT NULL
+  DROP VIEW Hardware.ProActiveView;
+go
+
 IF OBJECT_ID('Atom.MarkupOtherCostsView', 'V') IS NOT NULL
   DROP VIEW Atom.MarkupOtherCostsView;
 go
@@ -129,6 +133,19 @@ go
 IF OBJECT_ID('Hardware.CalcYI') IS NOT NULL
   DROP FUNCTION Hardware.CalcYI;
 go 
+
+IF OBJECT_ID('Hardware.CalcProActive') IS NOT NULL
+  DROP FUNCTION Hardware.CalcProActive;
+go 
+
+CREATE FUNCTION [Hardware].[CalcProActive](@setupCost float, @yearCost float, @dur int)
+RETURNS float
+AS
+BEGIN
+	RETURN @setupCost + @yearCost * @dur;
+END
+
+GO
 
 CREATE FUNCTION [Hardware].[CalcYI](@grValue float, @deprMo float)
 RETURNS float
@@ -810,6 +827,105 @@ CREATE VIEW [Hardware].[ReinsuranceView] as
     JOIN [References].ExchangeRate er2 on er2.CurrencyId = r.CurrencyReinsurance_Approved
 GO
 
+CREATE VIEW [Hardware].[ProActiveView] AS
+with ProActiveCte as 
+(
+    select pro.Country,
+           pro.Wg,
+
+           (pro.LocalRemoteAccessSetupPreparationEffort * pro.OnSiteHourlyRate) as LocalRemoteAccessSetup,
+           (pro.LocalRemoteAccessSetupPreparationEffort_Approved * pro.OnSiteHourlyRate_Approved) as LocalRemoteAccessSetup_Approved,
+
+           (pro.LocalRegularUpdateReadyEffort * 
+            pro.OnSiteHourlyRate * 
+            sla.LocalRegularUpdateReadyRepetition) as LocalRegularUpdate,
+
+           (pro.LocalRegularUpdateReadyEffort_Approved * 
+            pro.OnSiteHourlyRate_Approved * 
+            sla.LocalRegularUpdateReadyRepetition) as LocalRegularUpdate_Approved,
+
+           (pro.LocalPreparationShcEffort * 
+            pro.OnSiteHourlyRate * 
+            sla.LocalPreparationShcRepetition) as LocalPreparation,
+
+           (pro.LocalPreparationShcEffort_Approved * 
+            pro.OnSiteHourlyRate_Approved * 
+            sla.LocalPreparationShcRepetition) as LocalPreparation_Approved,
+
+           (pro.LocalRemoteShcCustomerBriefingEffort * 
+            pro.OnSiteHourlyRate * 
+            sla.LocalRemoteShcCustomerBriefingRepetition) as LocalRemoteCustomerBriefing,
+
+           (pro.LocalRemoteShcCustomerBriefingEffort_Approved * 
+            pro.OnSiteHourlyRate_Approved * 
+            sla.LocalRemoteShcCustomerBriefingRepetition) as LocalRemoteCustomerBriefing_Approved,
+
+           (pro.LocalOnsiteShcCustomerBriefingEffort * 
+            pro.OnSiteHourlyRate * 
+            sla.LocalOnsiteShcCustomerBriefingRepetition) as LocalOnsiteCustomerBriefing,
+
+           (pro.LocalOnsiteShcCustomerBriefingEffort_Approved * 
+            pro.OnSiteHourlyRate_Approved * 
+            sla.LocalOnsiteShcCustomerBriefingRepetition) as LocalOnsiteCustomerBriefing_Approved,
+
+           (pro.TravellingTime * 
+            pro.OnSiteHourlyRate * 
+            sla.TravellingTimeRepetition) as Travel,
+
+           (pro.TravellingTime_Approved * 
+            pro.OnSiteHourlyRate_Approved * 
+            sla.TravellingTimeRepetition) as Travel_Approved,
+
+           (pro.CentralExecutionShcReportCost * 
+            sla.CentralExecutionShcReportRepetition) as CentralExecutionReport,
+
+           (pro.CentralExecutionShcReportCost_Approved * 
+            sla.CentralExecutionShcReportRepetition) as CentralExecutionReport_Approved
+
+    from Hardware.ProActive pro
+    join Dependencies.ProActiveSla sla on sla.id = pro.ProActiveSla
+)
+select pro.Country,
+       pro.Wg,
+
+        pro.LocalPreparation,
+        pro.LocalPreparation_Approved,
+
+        pro.LocalRegularUpdate,
+        pro.LocalRegularUpdate_Approved,
+
+        pro.LocalRemoteCustomerBriefing,
+        pro.LocalRemoteCustomerBriefing_Approved,
+
+        pro.LocalOnsiteCustomerBriefing,
+        pro.LocalOnsiteCustomerBriefing_Approved,
+
+        pro.Travel,
+        pro.Travel_Approved,
+
+        pro.CentralExecutionReport,
+        pro.CentralExecutionReport_Approved,
+
+       pro.LocalRemoteAccessSetup as Setup,
+       pro.LocalRemoteAccessSetup_Approved  as Setup_Approved,
+
+       (pro.LocalPreparation + 
+        pro.LocalRegularUpdate + 
+        pro.LocalRemoteCustomerBriefing +
+        pro.LocalOnsiteCustomerBriefing +
+        pro.Travel +
+        pro.CentralExecutionReport) as Service,
+       
+       (pro.LocalPreparation_Approved + 
+        pro.LocalRegularUpdate_Approved + 
+        pro.LocalRemoteCustomerBriefing_Approved +
+        pro.LocalOnsiteCustomerBriefing_Approved +
+        pro.Travel_Approved +
+        pro.CentralExecutionReport_Approved) as Service_Approved
+
+from ProActiveCte pro
+GO
+
 CREATE FUNCTION [Hardware].[GetCalcResult](
 	@cnt bigint,
 	@wg bigint,
@@ -932,7 +1048,10 @@ RETURN
                 msw.MarkupFactorStandardWarranty_Approved, 
 
                 msw.MarkupStandardWarranty,
-                msw.MarkupStandardWarranty_Approved
+                msw.MarkupStandardWarranty_Approved,
+
+                Hardware.CalcProActive(pro.Setup, pro.Service, dur.Value) as ProActive,
+                Hardware.CalcProActive(pro.Setup_Approved, pro.Service_Approved, dur.Value) as ProActive_Approved
 
         FROM Matrix m
 
@@ -988,6 +1107,8 @@ RETURN
                                                 AND afEx.ReactionTimeId = m.ReactionTimeId
                                                 AND afEx.ReactionTypeId = m.ReactionTypeId
                                                 AND afEx.ServiceLocationId = m.ServiceLocationId
+
+        LEFT JOIN Hardware.ProActiveView pro ON pro.Country = m.CountryId AND pro.Wg = m.WgId
 
         where     (@wg is null or m.WgId = @wg)
               AND (@cnt is null or m.CountryId = @cnt)
@@ -1106,6 +1227,8 @@ RETURN
            sc.MaterialW, sc.MaterialW_Approved,
 
            sc.MaterialOow, sc.MaterialOow_Approved,
+
+           sc.ProActive, sc.ProActive_Approved,
 
            --resulting costs
            sc.ServiceTC, sc.ServiceTC_Approved,

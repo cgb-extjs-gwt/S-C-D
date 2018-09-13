@@ -1,5 +1,6 @@
 ﻿import { Column, Container, Grid, NumberColumn } from "@extjs/ext-react";
 import * as React from "react";
+import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { SwCalcFilter } from "./Components/SwCalcFilter";
 import { SwCalcFilterModel } from "./Model/SwCalcFilterModel";
@@ -17,7 +18,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         proxy: {
             type: 'ajax',
             api: {
-                read: '/api/calc/getswcost'
+                read: buildMvcUrl('calc', 'getswcost')
             },
             reader: {
                 type: 'json',
@@ -39,6 +40,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         let transferPrice: string = 'transferPrice';
         let maintenanceListPrice: string = 'maintenanceListPrice';
         let dealerPrice: string = 'dealerPrice';
+        let proActive: string = 'proActive';
 
         if (this.props.approved) {
             serviceSupport = 'serviceSupport_Approved';
@@ -46,6 +48,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
             transferPrice = 'transferPrice_Approved';
             maintenanceListPrice = 'maintenanceListPrice_Approved';
             dealerPrice = 'dealerPrice_Approved';
+            proActive = 'proActive_Approved';
         }
 
         return (
@@ -87,6 +90,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Transer price" dataIndex={transferPrice} />
                         <NumberColumn text="Maintenance list price" dataIndex={maintenanceListPrice} />
                         <NumberColumn text="Dealer reference price" dataIndex={dealerPrice} />
+                        <NumberColumn text="Pro active" dataIndex={proActive} />
 
                     </Column>
 

@@ -24,5 +24,8 @@
 
         public double? DealerPrice { get; set; }
         public double? DealerPrice_Approved { get; set; }
+
+        public double? ProActive { get; set; }
+        public double? ProActive_Approved { get; set; }
     }
 }

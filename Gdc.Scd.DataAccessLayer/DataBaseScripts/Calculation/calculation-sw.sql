@@ -22,6 +22,10 @@ IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceView', 'V') IS NOT NULL
   DROP VIEW SoftwareSolution.SwSpMaintenanceView;
 go
 
+IF OBJECT_ID('SoftwareSolution.ProActiveView', 'V') IS NOT NULL
+  DROP VIEW SoftwareSolution.ProActiveView;
+go
+
 CREATE FUNCTION [SoftwareSolution].[CalcDealerPrice] (@maintenance float, @discount float)
 returns float
 as
@@ -107,6 +111,109 @@ CREATE VIEW [SoftwareSolution].[SwSpMaintenanceView] as
     JOIN Dependencies.Year_Availability ya on ya.Id = ssm.YearAvailability
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = ssm.CurrencyReinsurance
     LEFT JOIN [References].ExchangeRate er2 on er2.CurrencyId = ssm.CurrencyReinsurance_Approved
+GO
+
+CREATE VIEW [SoftwareSolution].[ProActiveView] AS
+with ProActiveCte as 
+(
+    select pro.Country,
+           pro.Wg,
+           pro.Sog,
+           pro.SwDigit,
+
+           (pro.LocalRemoteAccessSetupPreparationEffort * pro.OnSiteHourlyRate) as LocalRemoteAccessSetup,
+           (pro.LocalRemoteAccessSetupPreparationEffort_Approved * pro.OnSiteHourlyRate_Approved) as LocalRemoteAccessSetup_Approved,
+
+           (pro.LocalRegularUpdateReadyEffort * 
+            pro.OnSiteHourlyRate * 
+            sla.LocalRegularUpdateReadyRepetition) as LocalRegularUpdate,
+
+           (pro.LocalRegularUpdateReadyEffort_Approved * 
+            pro.OnSiteHourlyRate_Approved * 
+            sla.LocalRegularUpdateReadyRepetition) as LocalRegularUpdate_Approved,
+
+           (pro.LocalPreparationShcEffort * 
+            pro.OnSiteHourlyRate * 
+            sla.LocalPreparationShcRepetition) as LocalPreparation,
+
+           (pro.LocalPreparationShcEffort_Approved * 
+            pro.OnSiteHourlyRate_Approved * 
+            sla.LocalPreparationShcRepetition) as LocalPreparation_Approved,
+
+           (pro.LocalRemoteShcCustomerBriefingEffort * 
+            pro.OnSiteHourlyRate * 
+            sla.LocalRemoteShcCustomerBriefingRepetition) as LocalRemoteCustomerBriefing,
+
+           (pro.LocalRemoteShcCustomerBriefingEffort_Approved * 
+            pro.OnSiteHourlyRate_Approved * 
+            sla.LocalRemoteShcCustomerBriefingRepetition) as LocalRemoteCustomerBriefing_Approved,
+
+           (pro.LocalOnsiteShcCustomerBriefingEffort * 
+            pro.OnSiteHourlyRate * 
+            sla.LocalOnsiteShcCustomerBriefingRepetition) as LocalOnsiteCustomerBriefing,
+
+           (pro.LocalOnsiteShcCustomerBriefingEffort_Approved * 
+            pro.OnSiteHourlyRate_Approved * 
+            sla.LocalOnsiteShcCustomerBriefingRepetition) as LocalOnsiteCustomerBriefing_Approved,
+
+           (pro.TravellingTime * 
+            pro.OnSiteHourlyRate * 
+            sla.TravellingTimeRepetition) as Travel,
+
+           (pro.TravellingTime_Approved * 
+            pro.OnSiteHourlyRate_Approved * 
+            sla.TravellingTimeRepetition) as Travel_Approved,
+
+           (pro.CentralExecutionShcReportCost * 
+            sla.CentralExecutionShcReportRepetition) as CentralExecutionReport,
+
+           (pro.CentralExecutionShcReportCost_Approved * 
+            sla.CentralExecutionShcReportRepetition) as CentralExecutionReport_Approved
+
+    from SoftwareSolution.ProActive pro
+    join Dependencies.ProActiveSla sla on sla.id = pro.ProActiveSla
+)
+select pro.Country,
+       pro.Wg,
+       pro.Sog,
+       pro.SwDigit,
+
+        pro.LocalPreparation,
+        pro.LocalPreparation_Approved,
+
+        pro.LocalRegularUpdate,
+        pro.LocalRegularUpdate_Approved,
+
+        pro.LocalRemoteCustomerBriefing,
+        pro.LocalRemoteCustomerBriefing_Approved,
+
+        pro.LocalOnsiteCustomerBriefing,
+        pro.LocalOnsiteCustomerBriefing_Approved,
+
+        pro.Travel,
+        pro.Travel_Approved,
+
+        pro.CentralExecutionReport,
+        pro.CentralExecutionReport_Approved,
+
+        pro.LocalRemoteAccessSetup as Setup,
+        pro.LocalRemoteAccessSetup_Approved  as Setup_Approved,
+
+       (pro.LocalPreparation + 
+        pro.LocalRegularUpdate + 
+        pro.LocalRemoteCustomerBriefing +
+        pro.LocalOnsiteCustomerBriefing +
+        pro.Travel +
+        pro.CentralExecutionReport) as Service,
+       
+       (pro.LocalPreparation_Approved + 
+        pro.LocalRegularUpdate_Approved + 
+        pro.LocalRemoteCustomerBriefing_Approved +
+        pro.LocalOnsiteCustomerBriefing_Approved +
+        pro.Travel_Approved +
+        pro.CentralExecutionReport_Approved) as Service_Approved
+
+from ProActiveCte pro
 GO
 
 CREATE FUNCTION [SoftwareSolution].[GetCalcResult](
@@ -215,9 +322,12 @@ RETURN
            calc.MaintenanceListPrice_Approved,
 
            SoftwareSolution.CalcDealerPrice(calc.MaintenanceListPrice, calc.DiscountDealerPrice) as DealerPrice,
-           SoftwareSolution.CalcDealerPrice(calc.MaintenanceListPrice_Approved, calc.DiscountDealerPrice_Approved) as DealerPrice_Approved
+           SoftwareSolution.CalcDealerPrice(calc.MaintenanceListPrice_Approved, calc.DiscountDealerPrice_Approved) as DealerPrice_Approved,
+
+           Hardware.CalcProActive(pro.Setup, pro.Service, y.Value) as ProActive,
+           Hardware.CalcProActive(pro.Setup_Approved, pro.Service_Approved, y.Value) as ProActive_Approved
 
     from cte3 as calc
+    left join Dependencies.Year y on y.id = calc.Year
+    left join SoftwareSolution.ProActiveView pro on pro.Country = calc.Country and pro.Sog = calc.Sog
 GO
-
-

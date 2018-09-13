@@ -1,5 +1,6 @@
 ﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
+import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { HwCalcFilter } from "./Components/HwCalcFilter";
 import { HwCalcFilterModel } from "./Model/HwCalcFilterModel";
@@ -17,8 +18,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         proxy: {
             type: 'ajax',
             api: {
-                read: '/api/calc/gethwcost',
-                update: '/api/calc/savehwcost'
+                read:   buildMvcUrl('calc', 'gethwcost'),
+                update: buildMvcUrl('calc', 'savehwcost')
             },
             writer: {
                 type: 'json',

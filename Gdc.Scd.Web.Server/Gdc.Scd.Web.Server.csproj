@@ -225,6 +225,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AvailabilityFeeAdminController.cs" />
     <Compile Include="Controllers\BaseDomainController.cs" />
+    <Compile Include="Controllers\CalcController.cs" />
     <Compile Include="Controllers\CapabilityMatrixController.cs" />
     <Compile Include="Controllers\CostBlockHistoryController.cs" />
     <Compile Include="Controllers\CostEditorController.cs" />
