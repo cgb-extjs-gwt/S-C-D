@@ -1,15 +1,21 @@
-﻿using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.DataAccessLayer.Interfaces;
+﻿using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.TestData.Impl;
-using Microsoft.Extensions.DependencyInjection;
+using Ninject.Modules;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.DataAccessLayer.TestData
 {
-    public class Module : IModule
+    public class Module : NinjectModule
     {
-        public void Init(IServiceCollection services)
+        public override void Load()
         {
-            services.AddTransient<IConfigureDatabaseHandler, TestDataCreationHandlercs>();
+#if DEBUG
+            Bind<IConfigureDatabaseHandler>().To<TestDataCreationHandlercs>();
+#endif
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
@@ -8,6 +9,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -37,13 +39,18 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string DurationKey = "Duration";
 
-        private readonly IRepositorySet repositorySet;
+        private readonly EntityFrameworkRepositorySet repositorySet;
+
+        private const string ProActiveKey = "ProActive";
+
+        private const string ProActiveSlaKey = "ProActiveSla";
+
 
         private readonly DomainEnitiesMeta entityMetas;
 
         public TestDataCreationHandlercs(
             DomainEnitiesMeta entityMetas,
-            IRepositorySet repositorySet)
+            EntityFrameworkRepositorySet repositorySet)
         {
             this.entityMetas = entityMetas;
             this.repositorySet = repositorySet;
@@ -53,6 +60,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             this.CreateClusterPlas();
             this.CreateUsers();
+            this.CreateRoles();
             this.CreateReactionTimeTypeAvalability();
             this.CreateClusterRegions();
             this.CreateCurrenciesAndExchangeRates();
@@ -149,9 +157,27 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         private void CreateUsers()
         {
             var repository = this.repositorySet.GetRepository<User>();
-            var user = new User { Name = "Test user" };
+            var users = new List<User> {
+                new User { Name = "Test user 1", Login="g02\testUser1", Email="testuser1@fujitsu.com" },
+                new User { Name = "Test user 2", Login="g03\testUser2", Email="testuser2@fujitsu.com" },
+                new User { Name = "Test user 3", Login="g04\testUser3", Email="testuser3@fujitsu.com" }
+            };
 
-            repository.Save(user);
+            repository.Save(users);
+            this.repositorySet.Sync();
+        }
+
+        private void CreateRoles()
+        {
+            var repository = this.repositorySet.GetRepository<Role>();
+            var roles = new List<Role> {
+                new Role {Name = "Test Role 1", IsGlobal=true},
+                new Role {Name = "Test Role 2", IsGlobal=true },
+                new Role {Name = "Test Role 3", IsGlobal=false },
+                new Role {Name = "Test Role 4", IsGlobal=false },
+                new Role {Name = "Test Role 5", IsGlobal=false }
+            };       
+            repository.Save(roles);
             this.repositorySet.Sync();
         }
 
@@ -242,7 +268,32 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     selectQuery = selectQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
                 }
 
-                yield return Sql.Insert(costBlockMeta, insertFields.ToArray()).Query(selectQuery);
+                SqlHelper insertQuery = selectQuery;
+
+                if (costBlockMeta.DomainMeta.Name == ProActiveKey)
+                {
+                    var remoteOptions = new Dictionary<string, IEnumerable<object>>
+                    {
+                        [MetaConstants.NameFieldKey] = new object[] { "2", "3", "4" }
+                    };
+
+                    var remoteCondition = ConditionHelper.AndBrackets(
+                        SqlOperators.Equals(MetaConstants.NameFieldKey, "remote", "Remote", ServiceLocationKey),
+                        ConditionHelper.AndStatic(remoteOptions, ProActiveSlaKey, "remote"));
+
+                    var onSiteOptions = new Dictionary<string, IEnumerable<object>>
+                    {
+                        [MetaConstants.NameFieldKey] = new object[] { "6", "7" }
+                    };
+
+                    var onSiteCondition = ConditionHelper.AndBrackets(
+                        SqlOperators.Equals(MetaConstants.NameFieldKey, "onSite", "On-Site", ServiceLocationKey),
+                        ConditionHelper.AndStatic(onSiteOptions, ProActiveSlaKey, "onSite"));
+
+                    insertQuery = selectQuery.Where(ConditionHelper.Or(remoteCondition, onSiteCondition));
+                }
+
+                yield return Sql.Insert(costBlockMeta, insertFields.ToArray()).Query(insertQuery);
             }
         }
 
@@ -1168,7 +1219,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "Door-to-Door (SWAP)",
                 "Desk-to-Desk (SWAP)",
                 "On-Site",
-                "On-Site (Exchange)"
+                "On-Site (Exchange)",
+                "Remote"
             };
         }
 
@@ -1239,7 +1291,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private string ReadText(string fn)
         {
-            string root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string root = ConfigurationManager.AppSettings["ScriptsLocation"] ?? 
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             fn = Path.Combine(root, fn);
             return File.ReadAllText(fn);
         }

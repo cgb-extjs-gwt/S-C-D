@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
 import { CapabilityMatrixView, CapabilityMatrixEditView } from '../../CapabilityMatrix';
 import RoleCodesGrid from '../../Admin/RoleCode/RoleCodesGrid';
+import UserRoleContainer from '../../Admin/UserRole/UserRoleContainer';
 import { CommonState } from '../States/AppStates';
 import CountryGrid from '../../Admin/Country/containers/CountryGrid';
 import WarrantyGroupGrid from '../../Admin/WarrantyGroup/WarrantyGroupGrid';
@@ -17,6 +18,7 @@ import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCo
 import { init } from '../../CostApproval/Actions/CostApprovalFilterActions';
 import AvailabilityFeeAdminGrid from '../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid';
 import { CalcResultView } from '../../Report';
+import { buildComponentUrl } from "../../Common/Services/Ajax";
 
 export const ROOT_LAYOUT_ID = "root-layout";
 
@@ -70,18 +72,19 @@ export class Layout extends React.Component<LayoutProps> {
 
                 <Panel title={title} layout="fit">
                     <Switch>
-                        <Route path="/" component={Home} exact/>
-                        <Route path="/about" component={About}/>
-                        <Route path="/pivot" component={ScdPivotGrid}/>
-                        <Route path="/input-cost-elements" component={CostEditorContainer}/>
-                        <Route path="/admin/country-management" component={ CountryGrid }/>
-                        <Route path="/cost-approval" component={ApprovalCostElementsLayout} />
-                        <Route path="/report" component={CalcResultView} />
-                        <Route path="/capability-matrix" exact component={CapabilityMatrixView} />
-                        <Route path="/capability-matrix/edit" component={CapabilityMatrixEditView} />
-                        <Route path="/admin/availability-fee" component={AvailabilityFeeAdminGrid} />
-                        <Route path="/admin/role-code-management" component={RoleCodesGrid} />
-                        <Route path="/admin/warranty-group-management" component={WarrantyGroupGrid} />
+                        <Route path={buildComponentUrl("/")} component={Home} exact/>
+                        <Route path={buildComponentUrl("/about")} component={About}/>
+                        <Route path={buildComponentUrl("/pivot")} component={ScdPivotGrid}/>
+                        <Route path={buildComponentUrl("/input-cost-elements")} component={CostEditorContainer}/>
+                        <Route path={buildComponentUrl("/admin/country-management")} component={ CountryGrid }/>
+                        <Route path={buildComponentUrl("/cost-approval")} component={ApprovalCostElementsLayout} />
+                        <Route path={buildComponentUrl("/report")} component={CalcResultView} />
+                        <Route path={buildComponentUrl("/capability-matrix")} exact component={CapabilityMatrixView} />
+                        <Route path={buildComponentUrl("/capability-matrix/edit")} component={CapabilityMatrixEditView} />
+                        <Route path={buildComponentUrl("/admin/availability-fee")} component={AvailabilityFeeAdminGrid} />
+                        <Route path={buildComponentUrl("/admin/role-code-management")} component={RoleCodesGrid} />
+                        <Route path={buildComponentUrl("/admin/warranty-group-management")} component={WarrantyGroupGrid} />
+                        <Route path={buildComponentUrl("/admin/user-role")} component={UserRoleContainer} />                   
                     </Switch>
                 </Panel>
             </Container>
