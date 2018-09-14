@@ -5,7 +5,7 @@ const getLayout = () => (<any>Ext.getCmp(ROOT_LAYOUT_ID));
 export const shomMask = () => {
     const layout = getLayout();
 
-    layout && layout.setMasked({xtype: "loadmask"});
+    layout && layout.setMasked({ xtype: "loadmask" });
 }
 
 export const hideMask = () => {

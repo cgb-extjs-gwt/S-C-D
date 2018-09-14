@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
-using Microsoft.Extensions.Configuration;
+using System.Web.Hosting;
 
 namespace Gdc.Scd.Core.Meta.Impl
 {
@@ -63,18 +63,13 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string PeriodCoeffNodeName = "PeriodCoeff";
 
-        private readonly IConfiguration configuration;
-
         private readonly Regex idRegex = new Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled);
 
-        public DomainMetaSevice(IConfiguration configuration)
-        {
-            this.configuration = configuration;
-        }
 
         public DomainMeta Get()
         {
-            var fileName = this.configuration[DomainMetaConfigKey];
+            var fileName = HostingEnvironment.MapPath("~/DomainConfig.xml");
+            //var fileName = "./DomainConfig.xml";
             var doc = XDocument.Load(fileName);
 
             return this.BuilDomainMeta(doc.Root);

@@ -8,9 +8,12 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Configuration;
+using Gdc.Scd.DataAccessLayer.Impl;
 using System.Text.RegularExpressions;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
@@ -37,17 +40,18 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string DurationKey = "Duration";
 
+        private readonly EntityFrameworkRepositorySet repositorySet;
+
         private const string ProActiveKey = "ProActive";
 
         private const string ProActiveSlaKey = "ProActiveSla";
 
-        private readonly IRepositorySet repositorySet;
 
         private readonly DomainEnitiesMeta entityMetas;
 
         public TestDataCreationHandlercs(
             DomainEnitiesMeta entityMetas,
-            IRepositorySet repositorySet)
+            EntityFrameworkRepositorySet repositorySet)
         {
             this.entityMetas = entityMetas;
             this.repositorySet = repositorySet;
@@ -57,6 +61,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             this.CreateClusterPlas();
             this.CreateUsers();
+            this.CreateRoles();
             this.CreateReactionTimeTypeAvalability();
             this.CreateClusterRegions();
             this.CreateCountries();
@@ -76,9 +81,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
-            queries.AddRange(this.BuildFromFile(@"Scripts\matrix.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts\availabilityFee.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts\calculation.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.calculation.sql"));
 
             foreach (var query in queries)
             {
@@ -152,9 +157,27 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         private void CreateUsers()
         {
             var repository = this.repositorySet.GetRepository<User>();
-            var user = new User { Name = "Test user" };
+            var users = new List<User> {
+                new User { Name = "Test user 1", Login="g02\testUser1", Email="testuser1@fujitsu.com" },
+                new User { Name = "Test user 2", Login="g03\testUser2", Email="testuser2@fujitsu.com" },
+                new User { Name = "Test user 3", Login="g04\testUser3", Email="testuser3@fujitsu.com" }
+            };
 
-            repository.Save(user);
+            repository.Save(users);
+            this.repositorySet.Sync();
+        }
+
+        private void CreateRoles()
+        {
+            var repository = this.repositorySet.GetRepository<Role>();
+            var roles = new List<Role> {
+                new Role {Name = "Test Role 1", IsGlobal=true},
+                new Role {Name = "Test Role 2", IsGlobal=true },
+                new Role {Name = "Test Role 3", IsGlobal=false },
+                new Role {Name = "Test Role 4", IsGlobal=false },
+                new Role {Name = "Test Role 5", IsGlobal=false }
+            };       
+            repository.Save(roles);
             this.repositorySet.Sync();
         }
 
@@ -1263,9 +1286,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private string ReadText(string fn)
         {
-            string root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            fn = Path.Combine(root, fn);
-            return File.ReadAllText(fn);
+            var assembly = Assembly.GetExecutingAssembly();
+            var stream = assembly.GetManifestResourceStream($"{assembly.GetName().Name}.{fn}");
+            var streamReader = new StreamReader(stream);
+
+            return streamReader.ReadToEnd();
         }
     }
 }

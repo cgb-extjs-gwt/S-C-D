@@ -3,6 +3,9 @@ import { FieldType } from "../../CostEditor/States/CostEditorStates";
 import { EditItem } from "../../CostEditor/States/CostBlockStates";
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField } from '@extjs/ext-react';
 import { NamedId } from '../../Common/States/CommonStates';
+import { buildMvcUrl } from "../../Common/Services/Ajax";
+
+const CONTROLLER_NAME = 'RoleCode';
 
 Ext.require([
     'Ext.grid.plugin.Editable',
@@ -50,10 +53,10 @@ export default class RoleCodesGrid extends React.Component {
                 }
             },
             api: {             
-                create: '/api/rolecode/SaveAll',
-                read: '/api/rolecode/GetAll',
-                update: '/api/rolecode/SaveAll',
-                destroy: '/api/rolecode/DeleteAll'
+                create: buildMvcUrl(CONTROLLER_NAME, 'SaveAll'),
+                read: buildMvcUrl(CONTROLLER_NAME, 'GetAll'),
+                update: buildMvcUrl(CONTROLLER_NAME, 'SaveAll'),
+                destroy: buildMvcUrl(CONTROLLER_NAME, 'DeleteAll')
             }
         },
         listeners: {
@@ -97,18 +100,15 @@ export default class RoleCodesGrid extends React.Component {
         });
     }
 
-    reloadStore = () => {
-        this.store.load();
-    }
-
     newRecord = () => {
         this.store.add(Ext.create('RoleCode', { id: 0, name: 'new' }));
+        this.saveRecords();
         this.setState({ disableNewButton: true });
     }
 
     deleteRecord = () => {
         this.store.remove(this.state.selectedRecord);
-        this.setState({ disableDeleteButton: true });
+        this.setState({ disableDeleteButton: true, disableNewButton: false });
     }
 
     selectRowHandler = (dataView, records, selected, selection) => {

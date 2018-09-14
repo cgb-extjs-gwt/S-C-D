@@ -1,20 +1,19 @@
 import { Reducer, Action } from "redux";
-import { COST_APPROVAL_PAGE,
-         COST_APPROVAL_SELECT_APPLICATION,
-         COST_APPROVAL_CHECK_COST_BLOCK,
-         COST_APPROVAL_CHECK_COST_ELEMENT,
-         COST_APPROVAL_UNCHECK_COST_BLOCK,
-         COST_APPROVAL_UNCHECK_COST_ELEMENT,
-         COST_APPROVAL_SELECT_START_DATE,
-         COST_APPROVAL_SELECT_END_DATE, 
-         COST_APPROVAL_APPLY_FILTER,
-         COST_APPROVAL_ON_INIT} from '../Actions/CostApprovalFilterActions';
-import { BundleFilterStates, BudleFilter } from '../States/BundleFilterStates'
+import { 
+    COST_APPROVAL_SELECT_APPLICATION,
+    COST_APPROVAL_CHECK_COST_BLOCK,
+    COST_APPROVAL_CHECK_COST_ELEMENT,
+    COST_APPROVAL_UNCHECK_COST_BLOCK,
+    COST_APPROVAL_UNCHECK_COST_ELEMENT,
+    COST_APPROVAL_SELECT_START_DATE,
+    COST_APPROVAL_SELECT_END_DATE, 
+    COST_APPROVAL_ON_INIT
+} from '../Actions/CostApprovalFilterActions';
+import { BundleFilterStates } from '../States/BundleFilterStates'
 import { PageInitAction, APP_PAGE_INIT, APP_LOAD_META, LoadingMetaDataAction } from "../../Layout/Actions/AppActions";
 import { ItemSelectedAction, ItemWithParentSelectedAction, CommonAction } from "../../Common/Actions/CommonActions";
 import { ElementWithParent } from '../../Common/States/CommonStates';
 import filter from "../Components/FilterBundlesView";
-import { ActionSheet } from "../../../node_modules/@extjs/ext-react";
 
 const initialBundleFilterState = () => {
     const startDateNow = new Date();
@@ -31,106 +30,74 @@ const initialBundleFilterState = () => {
         endDate: endDateNow
     }
 
-    return <BudleFilter>{
-        initialized: false,
-        filter,
-        applyFilter: filter
-    }
+    return filter;
 };
 
-const selectApplication: Reducer<BudleFilter, ItemSelectedAction> = (state, action) => {
+const selectApplication: Reducer<BundleFilterStates, ItemSelectedAction> = (state, action) => {
     return {
         ...state,
-        filter:{
-            ...state.filter,
-            selectedApplicationId: action.selectedItemId,
-            selectedCostBlockIds: [],
-            selectedCostElementIds: []
-        }
+        selectedApplicationId: action.selectedItemId,
+        selectedCostBlockIds: [],
+        selectedCostElementIds: []
     }
 }
 
-const checkCostBlock: Reducer<BudleFilter, ItemSelectedAction> = (state, action) => {
+const checkCostBlock: Reducer<BundleFilterStates, ItemSelectedAction> = (state, action) => {
     return {
-        ...state,
-        filter: {
-            ...state.filter,
-            selectedCostBlockIds: state.filter.selectedCostBlockIds.concat(action.selectedItemId)
-        }
+            ...state,
+            selectedCostBlockIds: state.selectedCostBlockIds.concat(action.selectedItemId)
     }
 }
 
-const checkCostElement: Reducer<BudleFilter, ItemWithParentSelectedAction> = (state, action) => {
+const checkCostElement: Reducer<BundleFilterStates, ItemWithParentSelectedAction> = (state, action) => {
     return {
         ...state,
-        filter: {
-            ...state.filter,
-            selectedCostElementIds: state.filter.selectedCostElementIds.concat(
-                <ElementWithParent<string, string>>
-                {
-                    element: action.selectedItemId, 
-                    parentId: action.selectedItemParentId
-                }
-            )}
-        }
-}
-
-const unCheckCostBlock: Reducer<BudleFilter, ItemSelectedAction> = (state, action) => {
-    return {
-        ...state,
-        filter:{
-            ...state.filter,
-            selectedCostBlockIds: state.filter.selectedCostBlockIds.filter(elem => elem !== action.selectedItemId),
-            selectedCostElementIds: state.filter.selectedCostElementIds.filter(elem => elem.parentId != action.selectedItemId)
-        }
-        
+        selectedCostElementIds: state.selectedCostElementIds.concat(
+            <ElementWithParent<string, string>>
+            {
+                element: action.selectedItemId, 
+                parentId: action.selectedItemParentId
+            }
+        )
     }
 }
 
-const unCheckCostElement: Reducer<BudleFilter, ItemSelectedAction> = (state, action) => {
+const unCheckCostBlock: Reducer<BundleFilterStates, ItemSelectedAction> = (state, action) => {
     return {
         ...state,
-        filter: {
-            ...state.filter,
-            selectedCostElementIds: state.filter.selectedCostElementIds.filter(elem => elem.element != action.selectedItemId)
-        }
+        selectedCostBlockIds: state.selectedCostBlockIds.filter(elem => elem !== action.selectedItemId),
+        selectedCostElementIds: state.selectedCostElementIds.filter(elem => elem.parentId != action.selectedItemId)
     }
 }
 
-const selectStartDate: Reducer<BudleFilter, CommonAction<Date>> = (state, action) => {
+const unCheckCostElement: Reducer<BundleFilterStates, ItemSelectedAction> = (state, action) => {
+    return {
+        ...state,
+        selectedCostElementIds: state.selectedCostElementIds.filter(elem => elem.element != action.selectedItemId)
+    }
+}
+
+const selectStartDate: Reducer<BundleFilterStates, CommonAction<Date>> = (state, action) => {
     console.log(action.data);
     return {
         ...state,
-        filter: {
-            ...state.filter,
-            startDate: action.data
-        }
+        startDate: action.data
     }
 }
 
-const selectEndDate: Reducer<BudleFilter, CommonAction<Date>> = (state, action) => {
+const selectEndDate: Reducer<BundleFilterStates, CommonAction<Date>> = (state, action) => {
     return {
         ...state,
-        filter: {
-            ...state.filter,
-            endDate: new Date(action.data.setHours(23, 59, 59, 999))
-        }
+        endDate: new Date(action.data.setHours(23, 59, 59, 999))
     }
 }
 
-const applyFilter: Reducer<BudleFilter, Action<string>> = (state, action) =>{
-    return {
-        ...state,
-        applyFilter: {...state.filter}
-    }
-}
-
-const init: Reducer<BudleFilter, LoadingMetaDataAction> = (state, { data }) => {
+const init: Reducer<BundleFilterStates, LoadingMetaDataAction> = (state, { data }) => {
     const applicationId = data.applications[0].id;
     const costBlock = data.costBlocks.find(item => item.applicationIds.includes(applicationId));
 
     const filter: BundleFilterStates = {
-        ...state.filter,
+        ...state,
         selectedApplicationId: applicationId,
         selectedCostBlockIds: [costBlock.id],
         selectedCostElementIds: [{
@@ -139,14 +106,10 @@ const init: Reducer<BudleFilter, LoadingMetaDataAction> = (state, { data }) => {
         }]
     }
 
-    return <BudleFilter>{
-        ...state,
-        filter,
-        applyFilter: filter
-    }
+    return filter;
 }
 
-export const bundleFilterReducer: Reducer<BudleFilter, Action<string>> = (state = initialBundleFilterState(), action) => {
+export const bundleFilterReducer: Reducer<BundleFilterStates, Action<string>> = (state = initialBundleFilterState(), action) => {
     switch(action.type){
         case COST_APPROVAL_SELECT_APPLICATION:
             return selectApplication(state, <ItemSelectedAction>action);
@@ -162,12 +125,9 @@ export const bundleFilterReducer: Reducer<BudleFilter, Action<string>> = (state 
             return selectStartDate(state, <CommonAction<Date>>action);
         case COST_APPROVAL_SELECT_END_DATE:
             return selectEndDate(state, <CommonAction<Date>>action);
-        case COST_APPROVAL_APPLY_FILTER:
-            return applyFilter(state, <Action<string>>action);
         case APP_LOAD_META:
             return init(state, <LoadingMetaDataAction>action);
         default:
             return state;
     }
-
 }
