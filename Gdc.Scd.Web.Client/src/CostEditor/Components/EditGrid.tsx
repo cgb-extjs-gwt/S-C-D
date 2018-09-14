@@ -37,6 +37,7 @@ export class EditGrid extends React.Component<EditGridProps> {
                 const mapItem = this.itemsMap.get(item.id);
 
                 return (
+                    mapItem &&
                     mapItem.name == item.name && 
                     mapItem.value == item.value && 
                     mapItem.valueCount == item.valueCount
