@@ -105,7 +105,7 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
         Ext.Msg.confirm(
           'Saving changes', 
           'Do you want to save the changes?',
-          (buttonId: string) => onSaving && onSaving(forApproval)
+          (buttonId: string) => buttonId == 'yes' && onSaving && onSaving(forApproval)
         );
     }
     
@@ -115,7 +115,7 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
         Ext.Msg.confirm(
             'Clearing changes', 
             'Do you want to clear the changes?',
-            (buttonId: string) => onCleared && onCleared()
+            (buttonId: string) => buttonId == 'yes' && onCleared && onCleared()
         );
     }
 

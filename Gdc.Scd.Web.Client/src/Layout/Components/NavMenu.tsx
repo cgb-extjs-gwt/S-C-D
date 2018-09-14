@@ -28,9 +28,6 @@ const NavMenu: React.SFC<NavMenuProps & any> = ({
         store={{
             root: {
                 children: [
-                    { id: buildComponentUrl('/'), text: 'Home', iconCls: 'x-fa fa-home', leaf: true },
-                    { id: buildComponentUrl('/about'), text: 'About', iconCls: 'x-fa fa-info', leaf: true },
-                    { id: buildComponentUrl('/pivot'), text: 'Pivot grid', iconCls: 'x-fa fa-info', leaf: true },
                     { id: buildComponentUrl('/input-cost-elements'), text: 'Input Cost Elements', iconCls: 'x-fa fa-info', leaf: true },
                     { id: buildComponentUrl('/cost-approval'), text: 'Approve cost elements', iconCls: 'x-fa fa-check-square-o', leaf: true},
                     { id: buildComponentUrl('/own-cost-approval'), text: 'Own approve cost elements', iconCls: 'x-fa fa-check-square-o', leaf: true},

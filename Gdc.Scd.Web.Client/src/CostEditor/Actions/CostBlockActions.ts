@@ -208,6 +208,15 @@ export const getDataByCostElementSelection = (costBlockId: string, costElementId
                     )
                 )
             }
+
+            if (costElement.inputLevel.selectedItemId == null){
+                dispatch(
+                    getFilterItemsByInputLevelSelection(
+                        costBlockId, 
+                        costElementId, 
+                        costElement.
+                        inputLevel.list[0].inputLevelId));
+            }
         }
     )
 
