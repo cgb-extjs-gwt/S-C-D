@@ -39,6 +39,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return await this.repositorySet.ReadBySql(query, mapper.Map);
         }
 
+        public async Task<IEnumerable<CostBlockValueHistory>> Check(CostBlockHistory history, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
+        {
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+            var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(history, costBlockFilter);
+            var mapper = new CostBlockValueHistoryMapper(costBlockMeta)
+            {
+                UseQualityGate = true,
+            };
+
+            return await this.repositorySet.ReadBySql(query, mapper.Map);
+        }
+
         public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetailQualityGate(CostBlockHistory history, long? historyValueId = null, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);

@@ -83,6 +83,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return this.BuildQualityGateQuery(historyContext, options);
         }
 
+        public SqlHelper BuildQualityGateQuery(CostBlockHistory history, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
+        {
+            var options = new QualityGateQueryOptions
+            {
+                OnlyFailed = true
+            };
+
+            options.CostElementValueTableQuery = this.BuildCostElementValueTableQuery(history, options, null, costBlockFilter);
+
+            return this.BuildQualityGateQuery(history.Context, options);
+        }
+
         public SqlHelper BuildQulityGateApprovalQuery(
             CostBlockHistory history, 
             long? historyValueId = null, 
@@ -90,31 +102,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var options = new QualityGateQueryOptions
             {
-                UseHistoryValueIdColumn = true,
+                UseHistoryValueIdColumn = true
             };
-
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
-            var costElementValueTableColumns = this.BuildCostElementValueTableColumns(history.Context, options, history.Context.CostElementId, costBlockMeta.Name);
-            var costElementValueTableQuery = 
-                Sql.Select(costElementValueTableColumns.ToArray())
-                   .From(costBlockMeta.HistoryMeta);
-
-            options.CostElementValueTableQuery = this.historyQueryBuilder.BuildJoinApproveHistoryValueQuery(
-                history,
-                costElementValueTableQuery,
-                InputLevelJoinType.All,
-                new JoinInfo[]
-                {
-                    new JoinInfo
-                    {
-                        Meta = costBlockMeta,
-                        ReferenceFieldName = MetaConstants.CountryInputLevelName,
-                        JoinedTableAlias = CountryTableAlias
-                    }
-                },
-                historyValueId,
-                costBlockFilter);
-            
+            options.CostElementValueTableQuery = this.BuildCostElementValueTableQuery(history, options, historyValueId, costBlockFilter);
 
             SqlHelper query;
 
@@ -124,6 +114,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
             else
             {
+                var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+
                 options.MaxInputLevel = history.Context.InputLevelId;
                 options.CustomCheckColumns =
                     this.BuildQualityGateQueryCheckColumns(costBlockMeta)
@@ -141,6 +133,35 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
 
             return query;
+        }
+
+        private SqlHelper BuildCostElementValueTableQuery(
+            CostBlockHistory history, 
+            QualityGateQueryOptions options, 
+            long? historyValueId = null, 
+            IDictionary<string, IEnumerable<object>> costBlockFilter = null)
+        {
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+            var costElementValueTableColumns = this.BuildCostElementValueTableColumns(history.Context, options, history.Context.CostElementId, costBlockMeta.Name);
+            var costElementValueTableQuery =
+                Sql.Select(costElementValueTableColumns.ToArray())
+                   .From(costBlockMeta.HistoryMeta);
+
+            return this.historyQueryBuilder.BuildJoinApproveHistoryValueQuery(
+                history,
+                costElementValueTableQuery,
+                InputLevelJoinType.All,
+                new JoinInfo[]
+                {
+                    new JoinInfo
+                    {
+                        Meta = costBlockMeta,
+                        ReferenceFieldName = MetaConstants.CountryInputLevelName,
+                        JoinedTableAlias = CountryTableAlias
+                    }
+                },
+                historyValueId,
+                costBlockFilter);
         }
 
         private string BuildAlias(string item1, string item2)

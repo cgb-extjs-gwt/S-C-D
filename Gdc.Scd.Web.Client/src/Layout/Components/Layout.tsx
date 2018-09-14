@@ -15,9 +15,10 @@ import { CommonState } from '../States/AppStates';
 import CountryGrid from '../../Admin/Country/containers/CountryGrid';
 import WarrantyGroupGrid from '../../Admin/WarrantyGroup/WarrantyGroupGrid';
 import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCostElementsLayout';
-import { init } from '../../CostApproval/Actions/CostApprovalFilterActions';
 import AvailabilityFeeAdminGrid from '../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid';
+import { loadMetaDataFromServer } from '../Actions/AppActions';
 import { buildComponentUrl } from "../../Common/Services/Ajax";
+import { OwnApprovalCostElementsLayout } from '../../CostApproval/Components/OwnApprovalCostElementsLayout';
 
 export const ROOT_LAYOUT_ID = "root-layout";
 
@@ -77,6 +78,7 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path={buildComponentUrl("/input-cost-elements")} component={CostEditorContainer}/>
                         <Route path={buildComponentUrl("/admin/country-management")} component={ CountryGrid }/>
                         <Route path={buildComponentUrl("/cost-approval")} component={ ApprovalCostElementsLayout} />
+                        <Route path={buildComponentUrl("/own-cost-approval")} component={ OwnApprovalCostElementsLayout} />
                         <Route path={buildComponentUrl("/capability-matrix")} exact component={CapabilityMatrixView} />
                         <Route path={buildComponentUrl("/capability-matrix/edit")} component={CapabilityMatrixEditView} />
                         <Route path={buildComponentUrl("/admin/availability-fee")} component={AvailabilityFeeAdminGrid} />
@@ -95,7 +97,7 @@ const containerFactory = connect<LayoutProps, {}, {}, CommonState>(
         title: state.app.currentPage && state.app.currentPage.title
     } as LayoutProps),
     dispatch => ({
-        onInit: () => dispatch(init())
+        onInit: () => dispatch(loadMetaDataFromServer())
     })
 );
 

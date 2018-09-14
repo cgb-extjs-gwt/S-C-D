@@ -6,6 +6,7 @@ using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 using Newtonsoft.Json;
 
 namespace Gdc.Scd.Web.Server.Controllers
@@ -20,9 +21,9 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles([System.Web.Http.FromUri]CostBlockHistoryFilter filter)
+        public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles([System.Web.Http.FromUri]CostBlockHistoryFilter filter, [System.Web.Http.FromUri]CostBlockHistoryState state)
         {
-            return await this.costBlockHistoryService.GetApprovalBundles(filter);
+            return await this.costBlockHistoryService.GetApprovalBundles(filter, state);
         }
 
         [HttpGet]
@@ -103,6 +104,12 @@ namespace Gdc.Scd.Web.Server.Controllers
             this.costBlockHistoryService.Reject(historyId, message);
 
             return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
+        }
+
+        [HttpGet]
+        public async Task<QualityGateResultDto> SendForApproval([System.Web.Http.FromUri]long historyId, [System.Web.Http.FromUri]string qualityGateErrorExplanation = null)
+        {
+            return await this.costBlockHistoryService.SendForApproval(historyId, qualityGateErrorExplanation);
         }
     }
 }
