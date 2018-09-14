@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
@@ -37,5 +38,18 @@ namespace Gdc.Scd.Web.Server
             }
         }
 #endif
+        //protected void Application_Error(object sender, EventArgs e)
+        //{
+        //    Exception ex = Server.GetLastError();
+        //    string to = "nikita.zotov.gdc@ts.fujitsu.com";
+        //    string from = "nikita.zotov.gdc@ts.fujitsu.com";
+        //    MailMessage message = new MailMessage(from, to);
+        //    message.Subject = "Using the new SMTP client.";
+        //    message.Body = ex.ToString();
+        //    SmtpClient client = new SmtpClient("mail.fsc.net");
+        //    // Credentials are necessary if the server requires the client 
+        //    // to authenticate before it will send e-mail on the client's behalf.
+        //    client.Send(message);          
+        //}
     }
 }
