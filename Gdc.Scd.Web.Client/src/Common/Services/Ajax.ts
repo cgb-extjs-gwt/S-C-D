@@ -36,12 +36,17 @@ const requestMvc = (
     return request(url, method, params, options);
 }
 
+const responseParse = (resp: { responseText: string }) => 
+    resp.responseText == null || resp.responseText == "" 
+        ? null 
+        : JSON.parse(resp.responseText);
+
 export const get = <T=any>(controller: string, action: string, params = null) => {
-    return requestMvc(controller, action, Methods.Get, params).then<T>(resp => JSON.parse(resp.responseText));
+    return requestMvc(controller, action, Methods.Get, params).then<T>(responseParse);
 }
 
 export const post = <TData, TResult=any>(controller: string, action: string, data: TData, params = null) => {
-    return requestMvc(controller, action, Methods.Post, params, { jsonData: data }).then<TResult>(resp => JSON.parse(resp.responseText));
+    return requestMvc(controller, action, Methods.Post, params, { jsonData: data }).then<TResult>(responseParse);
 }
 
 export const put = <T>(controller: string, action: string, data: T, params = null) => {

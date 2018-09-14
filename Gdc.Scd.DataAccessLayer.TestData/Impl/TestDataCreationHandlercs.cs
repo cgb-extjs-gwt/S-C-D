@@ -45,7 +45,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string ProActiveSlaKey = "ProActiveSla";
 
-
         private readonly DomainEnitiesMeta entityMetas;
 
         public TestDataCreationHandlercs(
@@ -80,10 +79,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
-            queries.AddRange(this.BuildFromFile(@"Scripts\matrix.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts\availabilityFee.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts\calculation-hw.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts\calculation-sw.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
 
             foreach (var query in queries)
             {
@@ -1291,10 +1290,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private string ReadText(string fn)
         {
-            string root = ConfigurationManager.AppSettings["ScriptsLocation"] ?? 
-                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            fn = Path.Combine(root, fn);
-            return File.ReadAllText(fn);
+            var assembly = Assembly.GetExecutingAssembly();
+            var stream = assembly.GetManifestResourceStream($"{assembly.GetName().Name}.{fn}");
+            var streamReader = new StreamReader(stream);
+
+            return streamReader.ReadToEnd();
         }
     }
 }

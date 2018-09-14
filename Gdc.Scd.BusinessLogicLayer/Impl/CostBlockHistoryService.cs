@@ -8,6 +8,7 @@ using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -67,19 +68,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return this.FilterHistories(this.GetHistories(), filter);
         }
 
-        public IQueryable<CostBlockHistory> GetHistoriesForApproval()
+        public IQueryable<CostBlockHistory> GetHistories(CostBlockHistoryState state)
         {
-            return this.GetHistories().Where(history => history.State == CostBlockHistoryState.Pending);
+            return this.GetHistories().Where(history => history.State == state);
         }
 
-        public IQueryable<CostBlockHistory> GetHistoriesForApproval(CostBlockHistoryFilter filter)
+        public IQueryable<CostBlockHistory> GetHistories(CostBlockHistoryFilter filter, CostBlockHistoryState state)
         {
-            return this.FilterHistories(this.GetHistoriesForApproval(), filter);
+            return this.FilterHistories(this.GetHistories(state), filter);
         }
 
-        public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles(CostBlockHistoryFilter filter)
+        public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles(CostBlockHistoryFilter filter, CostBlockHistoryState state)
         {
-            var histories = this.GetHistoriesForApproval(filter).ToArray();
+            var histories = this.GetHistories(filter, state).ToArray();
             var historyInfos =
                 histories.Select(history => new
                 {
@@ -150,6 +151,36 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return await this.costBlockValueHistoryRepository.GetHistory(historyContext, filter, queryInfo);
+        }
+
+        public async Task<QualityGateResultDto> SendForApproval(long historyId, string qualityGateErrorExplanation = null)
+        {
+            var historyRepository = this.repositorySet.GetRepository<CostBlockHistory>();
+            var history = historyRepository.Get(historyId);
+
+            QualityGateResultDto qualityGateResult;
+
+            var option = new ApprovalOption
+            {
+                IsApproving = true,
+                QualityGateErrorExplanation = qualityGateErrorExplanation
+            };
+
+            if (string.IsNullOrWhiteSpace(qualityGateErrorExplanation))
+            {
+                qualityGateResult = await this.qualityGateSevice.CheckAsQualityGateResultDto(history);
+            }
+            else
+            {
+                qualityGateResult = new QualityGateResultDto();
+            }
+
+            if (!qualityGateResult.HasErrors)
+            {
+                this.Save(history, option);
+            }
+
+            return qualityGateResult;
         }
 
         public async Task Approve(long historyId)
@@ -247,7 +278,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 EditDate = DateTime.UtcNow,
                 EditUser = this.userService.GetCurrentUser(),
-                State = approvalOption.IsApproving ? CostBlockHistoryState.Pending : CostBlockHistoryState.None,
                 Context = HistoryContext.Build(context),
                 EditItemCount = editItemArray.Length,
                 IsDifferentValues = isDifferentValues, 
@@ -255,10 +285,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 QualityGateErrorExplanation = approvalOption.QualityGateErrorExplanation
             };
 
-            var costBlockHistoryRepository = this.repositorySet.GetRepository<CostBlockHistory>();
-
-            costBlockHistoryRepository.Save(history);
-            this.repositorySet.Sync();
+            this.Save(history, approvalOption);
 
             var relatedItems = new Dictionary<string, long[]>
             {
@@ -291,6 +318,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             await this.costBlockValueHistoryRepository.Save(history, editItemArray, relatedItems);
+        }
+
+        private void Save(CostBlockHistory history, ApprovalOption approvalOption)
+        {
+            if (approvalOption.HasQualityGateErrors && string.IsNullOrWhiteSpace(approvalOption.QualityGateErrorExplanation))
+            {
+                throw new Exception("QualityGateErrorExplanation must be");
+            }
+
+            history.State = approvalOption.IsApproving ? CostBlockHistoryState.Approving : CostBlockHistoryState.Saved;
+
+            this.repositorySet.GetRepository<CostBlockHistory>().Save(history);
+            this.repositorySet.Sync();
         }
 
         private void SetHistoryState(CostBlockHistory history, CostBlockHistoryState state)

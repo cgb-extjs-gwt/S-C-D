@@ -23,3 +23,7 @@ export interface ElementWithParent<T=NamedId, U=string>{
     element : T,
     parentId : U
 }
+
+export interface PageName {
+    pageName: string
+}
