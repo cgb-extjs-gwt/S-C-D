@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Grid, SelectField, Column, Container, CheckBoxField, CheckColumn } from "@extjs/ext-react";
+import { Grid, SelectField, Column, Container, CheckBoxField, CheckColumn, NumberField } from "@extjs/ext-react";
 import { FieldType } from "../States/CostEditorStates";
 import { EditItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
@@ -146,7 +146,9 @@ export class EditGrid extends React.Component<EditGridProps> {
 
             case FieldType.Double:
                 column = (
-                    <Column {...columnOptions}/>
+                    <Column {...columnOptions}>
+                        <NumberField required validators={{type:"number", message:"Invalid value"}}/>
+                    </Column>
                 );
                 break;
 
