@@ -72,8 +72,7 @@ export class Layout extends React.Component<LayoutProps> {
 
                 <Panel title={title} layout="fit">
                     <Switch>
-                        <Route path={buildComponentUrl("/")} component={Home} exact/>
-                        <Route path={buildComponentUrl("/about")} component={About}/>
+                        <Route path={buildComponentUrl("/")} component={CostEditorContainer} exact/>
                         <Route path={buildComponentUrl("/pivot")} component={ScdPivotGrid}/>
                         <Route path={buildComponentUrl("/input-cost-elements")} component={CostEditorContainer}/>
                         <Route path={buildComponentUrl("/admin/country-management")} component={ CountryGrid }/>

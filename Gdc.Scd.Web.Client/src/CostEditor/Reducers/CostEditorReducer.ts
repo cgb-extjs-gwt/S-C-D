@@ -13,6 +13,7 @@ import { CostBlockState, CostElementState } from "../States/CostBlockStates";
 import { ItemSelectedAction } from "../../Common/Actions/CommonActions";
 import { NamedId } from "../../Common/States/CommonStates";
 import { APP_PAGE_INIT, PageInitAction } from "../../Layout/Actions/AppActions";
+import { CountryInputLevelName } from "../../Common/Constants/MetaConstants";
 
 const createMap = <T extends NamedId>(array: T[]) => {
     const map = new Map<string, T>();
@@ -25,14 +26,14 @@ const createMap = <T extends NamedId>(array: T[]) => {
 const initSuccess: Reducer<CostEditorState, PageInitAction<CostEditortData>> = (state, action) => {
     const { applications, costBlocks } = action.data;
     const selectedApplicationId = applications[0].id;
-    const costBlockMetas = costBlocks.map(costBlock => ({
+    const costBlockMetas = costBlocks.map(costBlock => (<CostBlockMeta>{
         ...costBlock,
         costElements: costBlock.costElements.map(costElement => ({
             ...costElement,
-            inputLevels: costElement.inputLevels.map((inputLevel, index) => ({
+            inputLevels: costElement.inputLevels.map((inputLevel, index) => (<InputLevelMeta>{
                 ...inputLevel,
                 levelNumer: index,
-                isFilterLoading: index > 1
+                isFilterLoading: index > 0 && costElement.inputLevels[index - 1].id != CountryInputLevelName
             }))
         }))
     }))
