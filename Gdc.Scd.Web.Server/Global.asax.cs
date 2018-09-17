@@ -23,7 +23,6 @@ namespace Gdc.Scd.Web.Server
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
 
-#if DEBUG
         protected void Application_EndRequest()
         {
             if (_firstRequest)
@@ -36,6 +35,5 @@ namespace Gdc.Scd.Web.Server
                 _firstRequest = false;
             }
         }
-#endif
     }
 }
