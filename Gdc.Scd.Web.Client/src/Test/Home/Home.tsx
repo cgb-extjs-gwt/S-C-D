@@ -15,14 +15,13 @@ export default class Home extends React.Component<void, any> {
     });
 
     render() {
-        return (
-            <p>Hello there</p>
+        return (          
             <Grid store={this.store}>
                 <Toolbar docked="top">
                     <SearchField 
                         ui="faded" 
                         ref={field => this.query = field} 
-                        placeholder="Search..." 
+                        placeholder="Hello there..." 
                         onChange={this.onSearch.bind(this)}
                         responsiveConfig={{
                             [small]: { 
