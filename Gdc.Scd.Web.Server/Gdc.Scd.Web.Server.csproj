@@ -230,7 +230,9 @@
     <Compile Include="Controllers\Dict\ReactionTimeController.cs" />
     <Compile Include="Controllers\Dict\ReactionTypeController.cs" />
     <Compile Include="Controllers\Dict\ServiceLocationController.cs" />
+    <Compile Include="Controllers\Dict\SogController.cs" />
     <Compile Include="Controllers\Dict\WgController.cs" />
+    <Compile Include="Controllers\Dict\YearController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\RoleCodeController.cs" />
     <Compile Include="Controllers\RoleController.cs" />

@@ -87,8 +87,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
+            //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
+            //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
 
             foreach (var query in queries)
             {

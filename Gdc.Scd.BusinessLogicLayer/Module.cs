@@ -16,6 +16,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind(typeof(IDomainService<>)).To(typeof(DomainService<>)).InRequestScope();
             Bind<ICostEditorService>().To<CostEditorService>().InRequestScope();
             Bind<ICapabilityMatrixService>().To<CapabilityMatrixService>().InRequestScope();
+            Bind<ICalculationService>().To<CalculationService>().InRequestScope();
             Bind<IUserService>().To<UserService>().InRequestScope();
             Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InRequestScope();
             Bind<IAvailabilityFeeAdminService>().To<AvailabilityFeeAdminService>().InRequestScope();
@@ -44,6 +45,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<CapabilityMatrixCountryAllowView>();
             Kernel.RegisterEntity<RoleCode>();
             Kernel.RegisterEntity<HardwareCalculationResult>();
+            Kernel.RegisterEntity<SoftwareCalculationResult>();
             Kernel.RegisterEntity<Currency>();
             Kernel.RegisterEntity<ExchangeRate>();
             Kernel.RegisterEntity<YearAvailability>();
