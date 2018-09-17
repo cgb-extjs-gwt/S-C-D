@@ -1,0 +1,379 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="FrieseModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'friese.dbo.Intranet_SOG_Info' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="Intranet_SOG_Info">
+          <Key>
+            <PropertyRef Name="SOG_Code" />
+            <PropertyRef Name="Only Contracts allowed" />
+            <PropertyRef Name="Global Scope" />
+            <PropertyRef Name="Global Support Pack" />
+            <PropertyRef Name="SWAP" />
+            <PropertyRef Name="Harm STDW Duration" />
+          </Key>
+          <Property Name="SOG_Code" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="SOG" Type="nvarchar" MaxLength="255" />
+          <Property Name="Activ" Type="varchar" MaxLength="3" />
+          <Property Name="Produktreihe" Type="nvarchar" MaxLength="255" />
+          <Property Name="Types" Type="nvarchar" MaxLength="255" />
+          <Property Name="Only Contracts allowed" Type="varchar" MaxLength="3" Nullable="false" />
+          <Property Name="Duration" Type="nvarchar" MaxLength="255" />
+          <Property Name="Alignment" Type="nvarchar" MaxLength="255" />
+          <Property Name="Reinsurance Process Info" Type="nvarchar" MaxLength="250" />
+          <Property Name="RecGroup" Type="nvarchar" MaxLength="255" />
+          <Property Name="SCD relevant" Type="varchar" MaxLength="3" />
+          <Property Name="EOL" Type="nvarchar" MaxLength="255" />
+          <Property Name="Global Scope" Type="varchar" MaxLength="3" Nullable="false" />
+          <Property Name="Global Support Pack" Type="varchar" MaxLength="3" Nullable="false" />
+          <Property Name="SWAP" Type="varchar" MaxLength="3" Nullable="false" />
+          <Property Name="HW Produktbeschreibung" Type="nvarchar(max)" />
+          <Property Name="Harm STDW Duration" Type="nvarchar" MaxLength="1" Nullable="false" />
+          <Property Name="ServiceFabgr" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'friese.dbo.Intranet_WG_Info' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="Intranet_WG_Info">
+          <Key>
+            <PropertyRef Name="WG" />
+            <PropertyRef Name="Only Contracts allowed" />
+            <PropertyRef Name="Global Scope" />
+            <PropertyRef Name="Global Support Pack" />
+            <PropertyRef Name="SWAP" />
+            <PropertyRef Name="Harm STDW Duration" />
+            <PropertyRef Name="SOG Definition" />
+          </Key>
+          <Property Name="WG" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="WG Definition" Type="nvarchar" MaxLength="255" />
+          <Property Name="Activ" Type="varchar" MaxLength="3" />
+          <Property Name="PLA" Type="nvarchar" MaxLength="255" />
+          <Property Name="Service Types" Type="nvarchar" MaxLength="255" />
+          <Property Name="Only Contracts allowed" Type="varchar" MaxLength="3" Nullable="false" />
+          <Property Name="max Spares availability" Type="nvarchar" MaxLength="255" />
+          <Property Name="Portfolio Alignment Category" Type="nvarchar" MaxLength="255" />
+          <Property Name="Reinsurance Process Info" Type="nvarchar" MaxLength="250" />
+          <Property Name="Recommended Category" Type="nvarchar" MaxLength="255" />
+          <Property Name="SCD relevant" Type="varchar" MaxLength="3" />
+          <Property Name="EOL Date" Type="nvarchar" MaxLength="255" />
+          <Property Name="Global Scope" Type="varchar" MaxLength="3" Nullable="false" />
+          <Property Name="Global Support Pack" Type="varchar" MaxLength="3" Nullable="false" />
+          <Property Name="SWAP" Type="varchar" MaxLength="3" Nullable="false" />
+          <Property Name="HW Produktbeschreibung" Type="nvarchar(max)" />
+          <Property Name="Harm STDW Duration" Type="nvarchar" MaxLength="1" Nullable="false" />
+          <Property Name="SOG" Type="nvarchar" MaxLength="255" />
+          <Property Name="SOG Definition" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="ServiceFabgr" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'friese.dbo.v_SAR_new_codes' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="v_SAR_new_codes">
+          <Key>
+            <PropertyRef Name="Service_Code" />
+            <PropertyRef Name="MaxSpares" />
+          </Key>
+          <Property Name="Service_Code" Type="nvarchar" MaxLength="18" Nullable="false" />
+          <Property Name="Country" Type="nvarchar" MaxLength="250" />
+          <Property Name="WG" Type="nvarchar" MaxLength="3" />
+          <Property Name="SOG" Type="varchar" MaxLength="10" />
+          <Property Name="ServiceType" Type="varchar" MaxLength="250" />
+          <Property Name="Response_Recovery" Type="nvarchar" MaxLength="255" />
+          <Property Name="BusinessHours" Type="nvarchar" MaxLength="255" />
+          <Property Name="SecondSLA" Type="nvarchar" MaxLength="255" />
+          <Property Name="SAP_Kurztext_Englisch" Type="varchar" MaxLength="250" />
+          <Property Name="Duration" Type="nvarchar" MaxLength="50" />
+          <Property Name="Servicelevel" Type="nvarchar" MaxLength="250" />
+          <Property Name="VStatus" Type="nvarchar" MaxLength="50" />
+          <Property Name="EKSchluesselSAP" Type="varchar" MaxLength="10" />
+          <Property Name="MaxSpares" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="EKSchluessel" Type="nvarchar" MaxLength="250" />
+          <Property Name="Project" Type="nvarchar" MaxLength="50" />
+          <Property Name="SCD_ServiceType" Type="varchar" MaxLength="50" />
+          <Property Name="Atom_Location" Type="varchar" MaxLength="50" />
+          <Property Name="Atom_R_Type" Type="nvarchar" MaxLength="255" />
+          <Property Name="Atom_R_Time" Type="nvarchar" MaxLength="255" />
+          <Property Name="Atom_Availability" Type="nvarchar" MaxLength="255" />
+          <Property Name="Atom_Duration" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <EntityContainer Name="FrieseModelStoreContainer">
+          <EntitySet Name="Intranet_SOG_Info" EntityType="Self.Intranet_SOG_Info" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [Intranet_SOG_Info].[SOG_Code] AS [SOG_Code], 
+    [Intranet_SOG_Info].[SOG] AS [SOG], 
+    [Intranet_SOG_Info].[Activ] AS [Activ], 
+    [Intranet_SOG_Info].[Produktreihe] AS [Produktreihe], 
+    [Intranet_SOG_Info].[Types] AS [Types], 
+    [Intranet_SOG_Info].[Only Contracts allowed] AS [Only Contracts allowed], 
+    [Intranet_SOG_Info].[Duration] AS [Duration], 
+    [Intranet_SOG_Info].[Alignment] AS [Alignment], 
+    [Intranet_SOG_Info].[Reinsurance Process Info] AS [Reinsurance Process Info], 
+    [Intranet_SOG_Info].[RecGroup] AS [RecGroup], 
+    [Intranet_SOG_Info].[SCD relevant] AS [SCD relevant], 
+    [Intranet_SOG_Info].[EOL] AS [EOL], 
+    [Intranet_SOG_Info].[Global Scope] AS [Global Scope], 
+    [Intranet_SOG_Info].[Global Support Pack] AS [Global Support Pack], 
+    [Intranet_SOG_Info].[SWAP] AS [SWAP], 
+    [Intranet_SOG_Info].[HW Produktbeschreibung] AS [HW Produktbeschreibung], 
+    [Intranet_SOG_Info].[Harm STDW Duration] AS [Harm STDW Duration], 
+    [Intranet_SOG_Info].[ServiceFabgr] AS [ServiceFabgr]
+    FROM [dbo].[Intranet_SOG_Info] AS [Intranet_SOG_Info]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="Intranet_WG_Info" EntityType="Self.Intranet_WG_Info" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [Intranet_WG_Info].[WG] AS [WG], 
+    [Intranet_WG_Info].[WG Definition] AS [WG Definition], 
+    [Intranet_WG_Info].[Activ] AS [Activ], 
+    [Intranet_WG_Info].[PLA] AS [PLA], 
+    [Intranet_WG_Info].[Service Types] AS [Service Types], 
+    [Intranet_WG_Info].[Only Contracts allowed] AS [Only Contracts allowed], 
+    [Intranet_WG_Info].[max Spares availability] AS [max Spares availability], 
+    [Intranet_WG_Info].[Portfolio Alignment Category] AS [Portfolio Alignment Category], 
+    [Intranet_WG_Info].[Reinsurance Process Info] AS [Reinsurance Process Info], 
+    [Intranet_WG_Info].[Recommended Category] AS [Recommended Category], 
+    [Intranet_WG_Info].[SCD relevant] AS [SCD relevant], 
+    [Intranet_WG_Info].[EOL Date] AS [EOL Date], 
+    [Intranet_WG_Info].[Global Scope] AS [Global Scope], 
+    [Intranet_WG_Info].[Global Support Pack] AS [Global Support Pack], 
+    [Intranet_WG_Info].[SWAP] AS [SWAP], 
+    [Intranet_WG_Info].[HW Produktbeschreibung] AS [HW Produktbeschreibung], 
+    [Intranet_WG_Info].[Harm STDW Duration] AS [Harm STDW Duration], 
+    [Intranet_WG_Info].[SOG] AS [SOG], 
+    [Intranet_WG_Info].[SOG Definition] AS [SOG Definition], 
+    [Intranet_WG_Info].[ServiceFabgr] AS [ServiceFabgr]
+    FROM [dbo].[Intranet_WG_Info] AS [Intranet_WG_Info]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="v_SAR_new_codes" EntityType="Self.v_SAR_new_codes" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [v_SAR_new_codes].[Service_Code] AS [Service_Code], 
+    [v_SAR_new_codes].[Country] AS [Country], 
+    [v_SAR_new_codes].[WG] AS [WG], 
+    [v_SAR_new_codes].[SOG] AS [SOG], 
+    [v_SAR_new_codes].[ServiceType] AS [ServiceType], 
+    [v_SAR_new_codes].[Response_Recovery] AS [Response_Recovery], 
+    [v_SAR_new_codes].[BusinessHours] AS [BusinessHours], 
+    [v_SAR_new_codes].[SecondSLA] AS [SecondSLA], 
+    [v_SAR_new_codes].[SAP_Kurztext_Englisch] AS [SAP_Kurztext_Englisch], 
+    [v_SAR_new_codes].[Duration] AS [Duration], 
+    [v_SAR_new_codes].[Servicelevel] AS [Servicelevel], 
+    [v_SAR_new_codes].[VStatus] AS [VStatus], 
+    [v_SAR_new_codes].[EKSchluesselSAP] AS [EKSchluesselSAP], 
+    [v_SAR_new_codes].[MaxSpares] AS [MaxSpares], 
+    [v_SAR_new_codes].[EKSchluessel] AS [EKSchluessel], 
+    [v_SAR_new_codes].[Project] AS [Project], 
+    [v_SAR_new_codes].[SCD_ServiceType] AS [SCD_ServiceType], 
+    [v_SAR_new_codes].[Atom_Location] AS [Atom_Location], 
+    [v_SAR_new_codes].[Atom_R_Type] AS [Atom_R_Type], 
+    [v_SAR_new_codes].[Atom_R_Time] AS [Atom_R_Time], 
+    [v_SAR_new_codes].[Atom_Availability] AS [Atom_Availability], 
+    [v_SAR_new_codes].[Atom_Duration] AS [Atom_Duration]
+    FROM [dbo].[v_SAR_new_codes] AS [v_SAR_new_codes]</DefiningQuery>
+          </EntitySet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="FrieseModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Intranet_SOG_Info">
+          <Key>
+            <PropertyRef Name="SOG_Code" />
+            <PropertyRef Name="Only_Contracts_allowed" />
+            <PropertyRef Name="Global_Scope" />
+            <PropertyRef Name="Global_Support_Pack" />
+            <PropertyRef Name="SWAP" />
+            <PropertyRef Name="Harm_STDW_Duration" />
+          </Key>
+          <Property Name="SOG_Code" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SOG" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Activ" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="Produktreihe" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Types" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Only_Contracts_allowed" Type="String" MaxLength="3" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Duration" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Alignment" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Reinsurance_Process_Info" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="RecGroup" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SCD_relevant" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="EOL" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Global_Scope" Type="String" MaxLength="3" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Global_Support_Pack" Type="String" MaxLength="3" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="SWAP" Type="String" MaxLength="3" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="HW_Produktbeschreibung" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Harm_STDW_Duration" Type="String" MaxLength="1" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ServiceFabgr" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Intranet_WG_Info">
+          <Key>
+            <PropertyRef Name="WG" />
+            <PropertyRef Name="Only_Contracts_allowed" />
+            <PropertyRef Name="Global_Scope" />
+            <PropertyRef Name="Global_Support_Pack" />
+            <PropertyRef Name="SWAP" />
+            <PropertyRef Name="Harm_STDW_Duration" />
+            <PropertyRef Name="SOG_Definition" />
+          </Key>
+          <Property Name="WG" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="WG_Definition" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Activ" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="PLA" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Service_Types" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Only_Contracts_allowed" Type="String" MaxLength="3" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="max_Spares_availability" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Portfolio_Alignment_Category" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Reinsurance_Process_Info" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Recommended_Category" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SCD_relevant" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="EOL_Date" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Global_Scope" Type="String" MaxLength="3" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Global_Support_Pack" Type="String" MaxLength="3" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="SWAP" Type="String" MaxLength="3" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="HW_Produktbeschreibung" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Harm_STDW_Duration" Type="String" MaxLength="1" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SOG" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SOG_Definition" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ServiceFabgr" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="v_SAR_new_codes">
+          <Key>
+            <PropertyRef Name="Service_Code" />
+            <PropertyRef Name="MaxSpares" />
+          </Key>
+          <Property Name="Service_Code" Type="String" MaxLength="18" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Country" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="WG" Type="String" MaxLength="3" FixedLength="false" Unicode="true" />
+          <Property Name="SOG" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ServiceType" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Response_Recovery" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="BusinessHours" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SecondSLA" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SAP_Kurztext_Englisch" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Duration" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Servicelevel" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="VStatus" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="EKSchluesselSAP" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="MaxSpares" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="EKSchluessel" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Project" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="SCD_ServiceType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Atom_Location" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Atom_R_Type" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Atom_R_Time" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Atom_Availability" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Atom_Duration" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityContainer Name="FrieseEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Intranet_SOG_Info" EntityType="Self.Intranet_SOG_Info" />
+          <EntitySet Name="Intranet_WG_Info" EntityType="Self.Intranet_WG_Info" />
+          <EntitySet Name="v_SAR_new_codes" EntityType="Self.v_SAR_new_codes" />
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="FrieseModelStoreContainer" CdmEntityContainer="FrieseEntities">
+          <EntitySetMapping Name="Intranet_SOG_Info">
+            <EntityTypeMapping TypeName="FrieseModel.Intranet_SOG_Info">
+              <MappingFragment StoreEntitySet="Intranet_SOG_Info">
+                <ScalarProperty Name="SOG_Code" ColumnName="SOG_Code" />
+                <ScalarProperty Name="SOG" ColumnName="SOG" />
+                <ScalarProperty Name="Activ" ColumnName="Activ" />
+                <ScalarProperty Name="Produktreihe" ColumnName="Produktreihe" />
+                <ScalarProperty Name="Types" ColumnName="Types" />
+                <ScalarProperty Name="Only_Contracts_allowed" ColumnName="Only Contracts allowed" />
+                <ScalarProperty Name="Duration" ColumnName="Duration" />
+                <ScalarProperty Name="Alignment" ColumnName="Alignment" />
+                <ScalarProperty Name="Reinsurance_Process_Info" ColumnName="Reinsurance Process Info" />
+                <ScalarProperty Name="RecGroup" ColumnName="RecGroup" />
+                <ScalarProperty Name="SCD_relevant" ColumnName="SCD relevant" />
+                <ScalarProperty Name="EOL" ColumnName="EOL" />
+                <ScalarProperty Name="Global_Scope" ColumnName="Global Scope" />
+                <ScalarProperty Name="Global_Support_Pack" ColumnName="Global Support Pack" />
+                <ScalarProperty Name="SWAP" ColumnName="SWAP" />
+                <ScalarProperty Name="HW_Produktbeschreibung" ColumnName="HW Produktbeschreibung" />
+                <ScalarProperty Name="Harm_STDW_Duration" ColumnName="Harm STDW Duration" />
+                <ScalarProperty Name="ServiceFabgr" ColumnName="ServiceFabgr" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Intranet_WG_Info">
+            <EntityTypeMapping TypeName="FrieseModel.Intranet_WG_Info">
+              <MappingFragment StoreEntitySet="Intranet_WG_Info">
+                <ScalarProperty Name="WG" ColumnName="WG" />
+                <ScalarProperty Name="WG_Definition" ColumnName="WG Definition" />
+                <ScalarProperty Name="Activ" ColumnName="Activ" />
+                <ScalarProperty Name="PLA" ColumnName="PLA" />
+                <ScalarProperty Name="Service_Types" ColumnName="Service Types" />
+                <ScalarProperty Name="Only_Contracts_allowed" ColumnName="Only Contracts allowed" />
+                <ScalarProperty Name="max_Spares_availability" ColumnName="max Spares availability" />
+                <ScalarProperty Name="Portfolio_Alignment_Category" ColumnName="Portfolio Alignment Category" />
+                <ScalarProperty Name="Reinsurance_Process_Info" ColumnName="Reinsurance Process Info" />
+                <ScalarProperty Name="Recommended_Category" ColumnName="Recommended Category" />
+                <ScalarProperty Name="SCD_relevant" ColumnName="SCD relevant" />
+                <ScalarProperty Name="EOL_Date" ColumnName="EOL Date" />
+                <ScalarProperty Name="Global_Scope" ColumnName="Global Scope" />
+                <ScalarProperty Name="Global_Support_Pack" ColumnName="Global Support Pack" />
+                <ScalarProperty Name="SWAP" ColumnName="SWAP" />
+                <ScalarProperty Name="HW_Produktbeschreibung" ColumnName="HW Produktbeschreibung" />
+                <ScalarProperty Name="Harm_STDW_Duration" ColumnName="Harm STDW Duration" />
+                <ScalarProperty Name="SOG" ColumnName="SOG" />
+                <ScalarProperty Name="SOG_Definition" ColumnName="SOG Definition" />
+                <ScalarProperty Name="ServiceFabgr" ColumnName="ServiceFabgr" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="v_SAR_new_codes">
+            <EntityTypeMapping TypeName="FrieseModel.v_SAR_new_codes">
+              <MappingFragment StoreEntitySet="v_SAR_new_codes">
+                <ScalarProperty Name="Service_Code" ColumnName="Service_Code" />
+                <ScalarProperty Name="Country" ColumnName="Country" />
+                <ScalarProperty Name="WG" ColumnName="WG" />
+                <ScalarProperty Name="SOG" ColumnName="SOG" />
+                <ScalarProperty Name="ServiceType" ColumnName="ServiceType" />
+                <ScalarProperty Name="Response_Recovery" ColumnName="Response_Recovery" />
+                <ScalarProperty Name="BusinessHours" ColumnName="BusinessHours" />
+                <ScalarProperty Name="SecondSLA" ColumnName="SecondSLA" />
+                <ScalarProperty Name="SAP_Kurztext_Englisch" ColumnName="SAP_Kurztext_Englisch" />
+                <ScalarProperty Name="Duration" ColumnName="Duration" />
+                <ScalarProperty Name="Servicelevel" ColumnName="Servicelevel" />
+                <ScalarProperty Name="VStatus" ColumnName="VStatus" />
+                <ScalarProperty Name="EKSchluesselSAP" ColumnName="EKSchluesselSAP" />
+                <ScalarProperty Name="MaxSpares" ColumnName="MaxSpares" />
+                <ScalarProperty Name="EKSchluessel" ColumnName="EKSchluessel" />
+                <ScalarProperty Name="Project" ColumnName="Project" />
+                <ScalarProperty Name="SCD_ServiceType" ColumnName="SCD_ServiceType" />
+                <ScalarProperty Name="Atom_Location" ColumnName="Atom_Location" />
+                <ScalarProperty Name="Atom_R_Type" ColumnName="Atom_R_Type" />
+                <ScalarProperty Name="Atom_R_Time" ColumnName="Atom_R_Time" />
+                <ScalarProperty Name="Atom_Availability" ColumnName="Atom_Availability" />
+                <ScalarProperty Name="Atom_Duration" ColumnName="Atom_Duration" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

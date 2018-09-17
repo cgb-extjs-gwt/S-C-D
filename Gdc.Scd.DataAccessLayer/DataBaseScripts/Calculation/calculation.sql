@@ -1,30 +1,30 @@
 IF OBJECT_ID('dbo.GetAfr') IS NOT NULL
   DROP FUNCTION dbo.GetAfr;
-go 
+go
 
 IF OBJECT_ID('dbo.CalcFieldServiceCost') IS NOT NULL
   DROP FUNCTION dbo.CalcFieldServiceCost;
-go 
+go
 
 IF OBJECT_ID('dbo.CalcHddRetention') IS NOT NULL
   DROP FUNCTION dbo.CalcHddRetention;
-go 
+go
 
 IF OBJECT_ID('dbo.CalcMaterialCostWar') IS NOT NULL
   DROP FUNCTION dbo.CalcMaterialCostWar;
-go 
+go
 
 IF OBJECT_ID('dbo.CalcSrvSupportCost') IS NOT NULL
   DROP FUNCTION dbo.CalcSrvSupportCost;
-go 
+go
 
 IF OBJECT_ID('dbo.CalcTaxAndDutiesWar') IS NOT NULL
   DROP FUNCTION dbo.CalcTaxAndDutiesWar;
-go 
+go
 
 IF OBJECT_ID('dbo.CalcLocSrvStandardWarranty') IS NOT NULL
   DROP FUNCTION dbo.CalcLocSrvStandardWarranty;
-go 
+go
 
 IF TYPE_ID('dbo.execError') IS NOT NULL
   DROP Type dbo.execError;
@@ -188,7 +188,7 @@ AS
 BEGIN
 	RETURN @grValue / @deprMo * 12;
 END
-GO
+go
 
 CREATE FUNCTION [dbo].[CalcTISC](
     @tisc float,
@@ -200,7 +200,7 @@ AS
 BEGIN
 	RETURN @tisc / @totalIB * @totalIB_VENDOR;
 END
-GO
+go
 
 CREATE FUNCTION [dbo].[CalcAvailabilityFee](
 	@kc float,
@@ -214,7 +214,7 @@ AS
 BEGIN
 	RETURN @kc/@mq * (@tisc + @yi) / @totalIB;
 END
-GO
+go
 
 CREATE FUNCTION [dbo].[AddMarkup](
     @value float,
@@ -237,7 +237,7 @@ BEGIN
     RETURN @value;
 
 END
-GO
+go
 
 CREATE view [Hardware].[AvailabilityFeeView] as 
     select fee.Country,
@@ -255,7 +255,7 @@ CREATE view [Hardware].[AvailabilityFeeView] as
             fee.MaxQty
     from Hardware.AvailabilityFee fee
     join InputAtoms.Wg wg on wg.Id = fee.Wg
-GO
+go
 
 CREATE view [Hardware].[AvailabilityFeeCalcView] as 
     with InstallByCountryCte as (
@@ -298,7 +298,7 @@ CREATE view [Hardware].[AvailabilityFeeCalcView] as
     select fee.*, 
            dbo.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) as Fee
     from AvFeeCte2 fee
-GO
+go
 
 CREATE VIEW [Dependencies].[DurationToYearView] as 
     select dur.Id as DurID,
@@ -309,7 +309,7 @@ CREATE VIEW [Dependencies].[DurationToYearView] as
            dur.IsProlongation
     from Dependencies.Duration dur
     join Dependencies.Year y on dur.Value = y.Value and dur.IsProlongation = y.IsProlongation
-GO
+go
 
 CREATE VIEW [Hardware].[FieldServiceCostView] AS
     SELECT  fsc.Country,
@@ -328,7 +328,7 @@ CREATE VIEW [Hardware].[FieldServiceCostView] AS
     FROM Hardware.FieldServiceCost fsc
     JOIN InputAtoms.Wg on wg.Id = fsc.Wg
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = fsc.ReactionTimeType
-GO
+go
 
 CREATE FUNCTION [dbo].[CalcLogisticCost](
 	@standardHandling float,
@@ -351,7 +351,7 @@ BEGIN
                 @returnDelivery
            );
 END
-GO
+go
 
 CREATE function [dbo].[CalcFieldServiceCost] (
     @timeAndMaterialShare float,
@@ -372,7 +372,7 @@ BEGIN
                    @performanceRate
                 );
 END
-GO
+go
 
 CREATE FUNCTION [dbo].[CalcHddRetention](@cost float, @fr float)
 RETURNS float
@@ -380,7 +380,7 @@ AS
 BEGIN
     RETURN @cost * @fr;
 END
-GO
+go
 
 CREATE FUNCTION [dbo].[CalcMaterialCostWar](@cost float, @afr float)
 RETURNS float
@@ -388,7 +388,7 @@ AS
 BEGIN
     RETURN @cost * @afr;
 END
-GO
+go
 
 CREATE function [dbo].[CalcSrvSupportCost] (
     @firstLevelSupport float,
@@ -401,7 +401,7 @@ as
 BEGIN
     return @firstLevelSupport / @ibCountry + @secondLevelSupport / @ibPla;
 END
-GO
+go
 
 CREATE FUNCTION [dbo].[CalcTaxAndDutiesWar](@cost float, @tax float)
 RETURNS float
@@ -409,7 +409,7 @@ AS
 BEGIN
     RETURN @cost * @tax;
 END
-GO
+go
 
 CREATE FUNCTION [dbo].[CalcLocSrvStandardWarranty](
     @labourCost float,
@@ -430,7 +430,7 @@ BEGIN
 
     return @afr * (@totalCost + @taxAndDutiesW) + @fee;
 END
-GO
+go
 
 CREATE FUNCTION [dbo].[CalcOtherDirectCost](
     @fieldSrvCost float,
@@ -446,7 +446,7 @@ AS
 BEGIN
     return dbo.AddMarkup(@fieldSrvCost + @srvSupportCost + @materialCost + @logisticCost + @reinsurance, @markupFactor, @markup);
 END
-GO
+go
 
 CREATE FUNCTION [dbo].[CalcServiceTC](
     @fieldSrvCost float,
@@ -470,7 +470,7 @@ BEGIN
            @fee -
            @credits;
 END
-GO
+go
 
 CREATE FUNCTION [dbo].[CalcServiceTP](
     @serviceTC float,
@@ -482,7 +482,7 @@ AS
 BEGIN
 	RETURN dbo.AddMarkup(@serviceTC, @markupFactor, @markup);
 END
-GO
+go
 
 create view [Atom].[AfrByDurationView] as 
     select wg.Id as WgID,
@@ -495,7 +495,7 @@ create view [Atom].[AfrByDurationView] as
                   and y.Value <= d.Value) as TotalAFR
     from Dependencies.Duration d,
          InputAtoms.Wg wg
-GO
+go
 
 CREATE view [Hardware].[HddFrByDurationView] as 
      select wg.Id as WgID,
@@ -508,7 +508,7 @@ CREATE view [Hardware].[HddFrByDurationView] as
                        and y.Value <= d.Value) as TotalFr
         from Dependencies.Duration d,
              InputAtoms.Wg wg
-GO
+go
 
 CREATE view [Hardware].[HddRetByDurationView] as 
      select wg.Id as WgID,
@@ -539,7 +539,7 @@ create view [Atom].[InstallBaseByCountryView] as
             ibp.totalIB as ib_Cnt_PLA
     from Atom.InstallBase ib
     LEFT JOIN InstallBasePlaCte ibp on ibp.Pla = ib.Pla and ibp.Country = ib.Country
-GO
+go
 
 CREATE VIEW [Hardware].[LogisticsCostView] AS
     SELECT lc.Country, 
@@ -554,7 +554,7 @@ CREATE VIEW [Hardware].[LogisticsCostView] AS
            lc.ReturnDeliveryFactory
     FROM Hardware.LogisticsCosts lc
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = lc.ReactionTimeType
-GO
+go
 
 CREATE VIEW [Atom].[MarkupOtherCostsView] as 
     select m.Country,
@@ -566,7 +566,7 @@ CREATE VIEW [Atom].[MarkupOtherCostsView] as
            m.MarkupFactor
     from Atom.MarkupOtherCosts m
     join Dependencies.ReactionTime_ReactionType_Avalability tta on tta.id = m.ReactionTimeTypeAvailability
-GO
+go
 
 CREATE VIEW [Atom].[MarkupStandardWarantyView] as 
     select m.Country,
@@ -578,7 +578,7 @@ CREATE VIEW [Atom].[MarkupStandardWarantyView] as
            m.MarkupStandardWarranty
     from Atom.MarkupStandardWaranty m
     join Dependencies.ReactionTime_ReactionType_Avalability tta on tta.id = m.ReactionTimeTypeAvailability
-GO
+go
 
 CREATE VIEW [InputAtoms].[CountryClusterRegionView] as
     with cte (id, IsImeia, IsJapan, IsAsia, IsLatinAmerica, IsOceania, IsUnitedStates) as (
@@ -624,7 +624,7 @@ CREATE VIEW [InputAtoms].[CountryClusterRegionView] as
             cr.IsUnitedStates
     from InputAtoms.Country c
     join cte cr on cr.Id = c.ClusterRegionId
-GO
+go
 
 CREATE FUNCTION [dbo].[GetAfr](@wg bigint, @dur bigint)
 RETURNS float
@@ -638,7 +638,7 @@ BEGIN
     RETURN @result;
 
 END
-GO
+go
 
 CREATE FUNCTION [dbo].[CalcReinsuranceCost](@fee float, @upliftFactor float, @exchangeRate float)
 RETURNS float
@@ -646,7 +646,7 @@ AS
 BEGIN
     RETURN @fee * @upliftFactor * @exchangeRate
 END
-GO
+go
 
 CREATE FUNCTION [dbo].[CalcCredit](@materialCost float, @warrantyCost float)
 RETURNS float
@@ -654,7 +654,7 @@ AS
 BEGIN
 	RETURN @materialCost + @warrantyCost;
 END
-GO
+go
 
 CREATE VIEW [Hardware].[ReinsuranceView] as
     SELECT r.Wg, 
@@ -667,7 +667,7 @@ CREATE VIEW [Hardware].[ReinsuranceView] as
     JOIN Dependencies.Year y on y.Id = r.Year
     JOIN Dependencies.DurationToYearView dur on dur.YearID = y.Id
     JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance
-GO
+go
 
 CREATE PROCEDURE [dbo].[UpdateReinsurance]
 AS
@@ -685,7 +685,7 @@ BEGIN
               AND rd.ReactionTimeId = m.ReactionTimeId
 
 END
-GO
+go
 
 CREATE PROCEDURE [dbo].[UpdateFieldServiceCost]
 AS
@@ -714,7 +714,7 @@ BEGIN
                                             and fsc.ReactionTimeId = m.ReactionTimeId
     LEFT JOIN Atom.RoleCodeHourlyRates hr on hr.RoleCode = fsc.RoleCodeId
 END
-GO
+go
 
 CREATE PROCEDURE [dbo].[UpdateHddRetention]
 AS
@@ -728,7 +728,7 @@ BEGIN
     LEFT JOIN Hardware.HddRetByDurationView hr on hr.WgID = m.WgId and hr.DurID = m.DurationId
 
 END
-GO
+go
 
 CREATE PROCEDURE [dbo].[UpdateMaterialOow]
 AS
@@ -745,7 +745,7 @@ BEGIN
     LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
 
 END
-GO
+go
 
 CREATE PROCEDURE [dbo].[UpdateMaterialW]
 AS
@@ -762,7 +762,7 @@ BEGIN
     LEFT JOIN Atom.AfrByDurationView afr on afr.WgID = m.WgId and afr.DurID = m.DurationId
 
 END
-GO
+go
 
 CREATE PROCEDURE [dbo].[UpdateSrvSupportCost] 
 AS
@@ -785,7 +785,7 @@ BEGIN
     LEFT JOIN Hardware.ServiceSupportCost ssc on ib.Country = m.CountryId
 
 END
-GO
+go
 
 CREATE PROCEDURE [dbo].[UpdateTaxAndDutiesOow]
 AS
@@ -802,7 +802,7 @@ BEGIN
     LEFT JOIN Atom.MaterialCostOow mco on mco.Wg = m.WgId and mco.ClusterRegion = c.ClusterRegionId
 
 END
-GO
+go
 
 CREATE PROCEDURE [dbo].[UpdateTaxAndDutiesW]
 AS
@@ -819,7 +819,7 @@ BEGIN
         LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId and mcw.ClusterRegion = c.ClusterRegionId
 
 END
-GO
+go
 
 CREATE PROCEDURE [dbo].[UpdateLogisticCost]
 AS
@@ -845,7 +845,7 @@ BEGIN
                                       and lc.ReactionType = m.ReactionTypeId
 
 END
-GO
+go
 
 CREATE PROCEDURE [dbo].[UpdateOtherDirectCost]
 AS
@@ -871,7 +871,7 @@ BEGIN
                                                and moc.ReactionTypeId = m.ReactionTypeId
                                                and moc.AvailabilityId = m.AvailabilityId
 END
-GO
+go
 
 CREATE PROCEDURE [dbo].[UpdateLocalServiceStandardWarranty]
 AS
@@ -905,7 +905,7 @@ BEGIN
                                             and fsc.ReactionTimeId = m.ReactionTimeId
 
 END
-GO
+go
 
 CREATE PROCEDURE [dbo].[UpdateCredits]
 AS
@@ -917,7 +917,7 @@ BEGIN
            SET Credits = MaterialW + LocalServiceStandardWarranty;
 
 END
-GO
+go
 
 CREATE PROCEDURE [dbo].[UpdateAvailabilityFee]
 AS
@@ -936,7 +936,7 @@ BEGIN
                                             and afEx.ServiceLocationId = m.ServiceLocationId
 
 END
-GO
+go
 
 CREATE PROCEDURE [dbo].[UpdateServiceTC]
 AS
@@ -957,7 +957,7 @@ BEGIN
                            );
 
 END
-GO
+go
 
 CREATE PROCEDURE [dbo].[UpdateServiceTP]
 AS
@@ -971,4 +971,4 @@ BEGIN
     INNER JOIN Matrix m ON sc.MatrixId = m.Id
     LEFT JOIN Atom.MarkupOtherCosts moc on moc.Wg = m.WgId and moc.Country = m.CountryId
 END
-GO
+go

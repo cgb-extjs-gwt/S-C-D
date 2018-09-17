@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <None Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Calculation\calculation.sql" Link="Scripts\calculation.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
@@ -26,10 +26,13 @@
 
   <ItemGroup>
     <None Update="Scripts\availabilityFee.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Scripts\insert-countries.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Scripts\matrix.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

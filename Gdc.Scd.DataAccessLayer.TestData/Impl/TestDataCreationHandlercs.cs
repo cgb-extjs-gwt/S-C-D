@@ -8,7 +8,6 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -64,13 +63,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateRoles();
             this.CreateReactionTimeTypeAvalability();
             this.CreateClusterRegions();
-            this.CreateCountries();
             this.CreateDurations();
             this.CreateYearAvailability();
             this.CreateCurrenciesAndExchangeRates();
             this.CreateProActiveSla();
-            this.CreateTestItems<SwDigit>();
-            this.CreateTestItems<Sog>();
 
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
@@ -81,6 +77,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
+            queries.AddRange(this.BuildFromFile(@"Scripts\insert-countries.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts\matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts\availabilityFee.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts\calculation.sql"));
@@ -89,32 +86,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 this.repositorySet.ExecuteSql(query);
             }
-        }
-
-        private void CreateCountries()
-        {
-            var countryGroups = new List<CountryGroup>();
-
-            CountryGroup countryGroup = null;
-
-            foreach (var country in this.GetCountries())
-            {
-                if (countryGroup == null || countryGroup.Countries.Count % 5 == 0)
-                {
-                    countryGroup = new CountryGroup
-                    {
-                        Name = $"CountryGroup_{countryGroups.Count}",
-                        Countries = new List<Country>()
-                    };
-
-                    countryGroups.Add(countryGroup);
-                }
-
-                countryGroup.Countries.Add(country);
-            }
-
-            this.repositorySet.GetRepository<CountryGroup>().Save(countryGroups);
-            this.repositorySet.Sync();
         }
 
         private void CreateYearAvailability()
@@ -387,7 +358,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private IEnumerable<SqlHelper> BuildFromFile(string fn)
         {
-            return Regex.Split(ReadText(fn), "go", RegexOptions.IgnoreCase)
+            return Regex.Split(ReadText(fn), @"[\r\n]+go[\s]*[\r\n]*", RegexOptions.IgnoreCase)
                                .Where(x => !string.IsNullOrWhiteSpace(x))
                                .Select(x => new SqlHelper(new RawSqlBuilder() { RawSql = x }));
         }
@@ -400,7 +371,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 new Pla
                 {
-                    Name = "Desktops",
+                    Name = "DESKTOP AND WORKSTATION",
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -479,7 +450,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 },
                 new Pla
                 {
-                    Name = "Mobiles",
+                    Name = "NOTEBOOK AND TABLET",
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -526,7 +497,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 },
                 new Pla
                 {
-                    Name = "Peripherals",
+                    Name = "PERIPHERALS",
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -577,7 +548,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 },
                 new Pla
                 {
-                    Name = "Storage Products",
+                    Name = "STORAGE PRODUCTS",
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -864,7 +835,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 },
                 new Pla
                 {
-                    Name = "x86/IA Servers",
+                    Name = "X86 / IA SERVER",
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -1097,6 +1068,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         },
                     }
                 },
+                new Pla { Name = "EPS MAINFRAME PRODUCTS"},
+                new Pla { Name = "RETAIL PRODUCTS"},
+                new Pla { Name = "UNIX SERVER" }
             };
         }
 

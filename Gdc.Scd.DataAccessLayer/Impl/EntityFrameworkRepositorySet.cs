@@ -259,5 +259,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
             return sb.ToString();
         }
+
+        public void Replace<T>(T oldEntity, T newEntity) where T:class
+        {
+            Entry(oldEntity).CurrentValues.SetValues(newEntity);
+        }
     }
 }

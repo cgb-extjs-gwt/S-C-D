@@ -13,6 +13,10 @@ namespace Gdc.Scd.Core.Entities
             set => base.Id = value;
         }
 
+        public string ISO2CountryCode { get; set; }
+
+        public string LUT { get; set; }
+
         public bool CanOverrideListAndDealerPrices { get; set; }
 
         public bool ShowDealerPrice { get; set; }

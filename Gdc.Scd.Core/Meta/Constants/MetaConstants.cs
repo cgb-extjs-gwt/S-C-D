@@ -29,5 +29,6 @@
         public const string HardwareSchema = "Hardware";
 
         public const string ReferencesSchema = "References";
+        public const string PorSchema = "Por";
     }
 }
