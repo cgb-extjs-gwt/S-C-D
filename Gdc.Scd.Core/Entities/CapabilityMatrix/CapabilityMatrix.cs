@@ -1,8 +1,6 @@
 ﻿using Gdc.Scd.Core.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities.CapabilityMatrix
 {

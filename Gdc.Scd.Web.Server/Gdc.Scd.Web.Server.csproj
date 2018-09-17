@@ -219,6 +219,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AvailabilityFeeAdminController.cs" />
     <Compile Include="Controllers\BaseDomainController.cs" />
+    <Compile Include="Controllers\CalcController.cs" />
     <Compile Include="Controllers\CapabilityMatrixController.cs" />
     <Compile Include="Controllers\CostBlockHistoryController.cs" />
     <Compile Include="Controllers\CostEditorController.cs" />
@@ -235,7 +236,6 @@
     <Compile Include="Controllers\RoleController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\UserRoleController.cs" />
-    <Compile Include="Controllers\WarrantyGroupController.cs" />
     <Compile Include="DI\ScdNinjectDependencyResolver.cs" />
     <Compile Include="DI\ScdNinjectDependencyScope.cs" />
     <Compile Include="Entities\DataInfo.cs" />
@@ -267,10 +267,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Areas\" />
-    <Folder Include="Content\" />
-    <Folder Include="Models\" />
-    <Folder Include="Scripts\" />
     <Folder Include="Views\Shared\" />
     <Folder Include="Views\Test\" />
   </ItemGroup>

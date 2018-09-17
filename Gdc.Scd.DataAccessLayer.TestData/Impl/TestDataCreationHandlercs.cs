@@ -13,6 +13,13 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -44,7 +51,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string ProActiveSlaKey = "ProActiveSla";
 
-
         private readonly DomainEnitiesMeta entityMetas;
 
         public TestDataCreationHandlercs(
@@ -62,10 +68,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateRoles();
             this.CreateReactionTimeTypeAvalability();
             this.CreateClusterRegions();
+            this.CreateCurrenciesAndExchangeRates();
             this.CreateCountries();
             this.CreateDurations();
             this.CreateYearAvailability();
-            this.CreateCurrenciesAndExchangeRates();
             this.CreateProActiveSla();
             this.CreateTestItems<SwDigit>();
             this.CreateTestItems<Sog>();
@@ -81,7 +87,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.calculation.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
 
             foreach (var query in queries)
             {
@@ -181,14 +188,14 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateProActiveSla()
         {
-            this.repositorySet.GetRepository<ProActiveSla>().Save(new ProActiveSla[] 
+            this.repositorySet.GetRepository<ProActiveSla>().Save(new ProActiveSla[]
             {
                 new ProActiveSla { Name = "0" },
                 new ProActiveSla { Name = "2" },
                 new ProActiveSla { Name = "3" },
                 new ProActiveSla { Name = "4" },
                 new ProActiveSla { Name = "6" },
-                new ProActiveSla { Name = "7" },
+                new ProActiveSla { Name = "7" }
             });
 
             this.repositorySet.Sync();
@@ -1122,7 +1129,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new RoleCode
                 {
                     Name = "SEFS05"
-                    
+
                 }
             };
         }
@@ -1175,6 +1182,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var len = names.Length;
             var result = new Country[len];
 
+            var eur = repositorySet.GetRepository<Currency>()
+                                       .GetAll()
+                                       .First(x => x.Name.ToUpper() == "EUR");
+
             for (var i = 0; i < len; i++)
             {
                 result[i] = new Country
@@ -1183,7 +1194,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     CanOverrideListAndDealerPrices = GenerateRandomBool(),
                     CanOverrideTransferCostAndPrice = GenerateRandomBool(),
                     ShowDealerPrice = GenerateRandomBool(),
-                    ClusterRegionId = 2
+                    ClusterRegionId = 2,
+                    Currency = eur
                 };
             }
 

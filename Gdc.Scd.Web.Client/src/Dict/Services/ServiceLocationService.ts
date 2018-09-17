@@ -1,7 +1,7 @@
-﻿import { DomainService } from "../../Common/Services/DomainService";
+﻿import { CacheDomainService } from "../../Common/Services/CacheDomainService";
 import { NamedId } from "../../Common/States/CommonStates";
 
-export class ServiceLocationService extends DomainService<NamedId> {
+export class ServiceLocationService extends CacheDomainService<NamedId> {
     constructor() {
         super('servicelocation');
     }

@@ -7,7 +7,7 @@ import { buildMvcUrl } from "../../Common/Services/Ajax";
 import { withRouter } from 'react-router';
 import { buildComponentUrl } from "../../Common/Services/Ajax";
 
-const CONTROLLER_NAME = 'WarrantyGroup';
+const CONTROLLER_NAME = 'wg';
 const ROLECODE_CONTROLLER_NAME="RoleCode"
 
 Ext.require([
