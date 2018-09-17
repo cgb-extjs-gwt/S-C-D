@@ -17,7 +17,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public DataInfo<HwCostDto> GetHwCost(HwFilterDto filter, int start = 0, int limit = 50)
+        public DataInfo<HwCostDto> GetHwCost([FromUri]HwFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 50)
         {
             if (!isRangeValid(start, limit))
             {
@@ -31,7 +31,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public DataInfo<SwCostDto> GetSwCost(SwFilterDto filter, int start = 0, int limit = 50)
+        public DataInfo<SwCostDto> GetSwCost([FromUri]SwFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 50)
         {
             if (!isRangeValid(start, limit))
             {
