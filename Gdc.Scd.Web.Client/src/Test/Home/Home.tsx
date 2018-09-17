@@ -16,6 +16,7 @@ export default class Home extends React.Component<void, any> {
 
     render() {
         return (
+            <p>Hello there</p>
             <Grid store={this.store}>
                 <Toolbar docked="top">
                     <SearchField 
