@@ -6,7 +6,7 @@ using System.Web.Http;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
-    public class CapabilityMatrixController : System.Web.Http.ApiController
+    public class CapabilityMatrixController : ApiController
     {
         private readonly ICapabilityMatrixService capabilityMatrixService;
 
@@ -18,7 +18,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public DataInfo<CapabilityMatrixDto> Allowed(CapabilityMatrixFilterDto filter, int start = 0, int limit = 25)
+        public DataInfo<CapabilityMatrixDto> Allowed([FromUri]CapabilityMatrixFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 25)
         {
             if (!isRangeValid(start, limit))
             {
@@ -32,7 +32,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public DataInfo<CapabilityMatrixRuleDto> Denied([System.Web.Http.FromUri]CapabilityMatrixFilterDto filter, [System.Web.Http.FromUri]int start = 0, [System.Web.Http.FromUri]int limit = 25)
+        public DataInfo<CapabilityMatrixRuleDto> Denied([FromUri]CapabilityMatrixFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 25)
         {
             if (!isRangeValid(start, limit))
             {
@@ -46,14 +46,14 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<object> Allow([System.Web.Http.FromBody]long[] ids)
+        public async Task<object> Allow([FromBody]long[] ids)
         {
             await capabilityMatrixService.AllowCombinations(ids);
             return OkResult();
         }
 
         [HttpPost]
-        public async Task<object> Deny([System.Web.Http.FromBody]CapabilityMatrixRuleSetDto m)
+        public async Task<object> Deny([FromBody]CapabilityMatrixRuleSetDto m)
         {
             await capabilityMatrixService.DenyCombination(m);
             return OkResult();
