@@ -76,7 +76,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     ref="denied"
                     store={this.denyStore}
                     width="100%"
-                    height="45%"
+                    height="50%"
                     minHeight="45%"
                     title="Denied combinations"
                     selectable="multi"
@@ -97,7 +97,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     ref="allowed"
                     store={this.allowStore}
                     width="100%"
-                    height="45%"
+                    height="50%"
                     minHeight="45%"
                     title="Allowed combinations"
                     selectable={false}
