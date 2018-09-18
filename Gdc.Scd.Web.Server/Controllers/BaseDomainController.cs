@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Web.Mvc;
+using System.Web.Http;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Helpers;
@@ -49,25 +49,25 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        public virtual void Save([System.Web.Http.FromBody]T item)
+        public virtual void Save([FromBody]T item)
         {
             this.domainService.Save(item);
         }
 
         [HttpPost]
-        public virtual void SaveAll([System.Web.Http.FromBody]IEnumerable<T> items)
+        public virtual void SaveAll([FromBody]IEnumerable<T> items)
         {
             this.domainService.Save(items);
         }
 
         [HttpPost]
-        public virtual void Delete([System.Web.Http.FromBody]long id)
+        public virtual void Delete([FromBody]long id)
         {
             this.domainService.Delete(id);
         }
 
         [HttpPost]
-        public virtual void DeleteAll([System.Web.Http.FromBody]IEnumerable<T> items)
+        public virtual void DeleteAll([FromBody]IEnumerable<T> items)
         {
             foreach(var item in items)
             {
