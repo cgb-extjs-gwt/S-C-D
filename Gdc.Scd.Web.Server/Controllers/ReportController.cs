@@ -14,9 +14,25 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public object Schema(string type)
+        public AutoGridModel Schema(string type)
         {
-            return new { url = "schema", type = type };
+            return new AutoGridModel
+            {
+                caption = "Auto grid server model",
+
+                fields = new AutoColumnModel[] {
+                    new AutoColumnModel { name= "col_1", text= "Super fields 1", type= AutoColumnType.number },
+                    new AutoColumnModel { name= "col_2", text= "Super fields 2", type= AutoColumnType.text },
+                    new AutoColumnModel { name= "col_3", text= "Super fields 3", type= AutoColumnType.text },
+                    new AutoColumnModel { name= "col_4", text= "Super fields 4", type= AutoColumnType.text }
+                },
+
+                filter = new AutoFilterModel[] {
+                    new AutoFilterModel{ name= "col_1", text= "Super fields 1", type= AutoColumnType.number },
+                    new AutoFilterModel{ name= "col_2", text= "Super fields 2", type= AutoColumnType.text },
+                    new AutoFilterModel{ name= "col_4", text= "Super fields 4", type= AutoColumnType.text }
+                }
+            };
         }
 
         [HttpGet]
@@ -51,5 +67,44 @@ namespace Gdc.Scd.Web.Server.Controllers
         {
             return start >= 0 && limit <= 50;
         }
+    }
+
+    public class AutoGridModel
+    {
+        public string caption { get; set; }
+
+        public AutoColumnModel[] fields { get; set; }
+
+        public AutoFilterModel[] filter { get; set; }
+    }
+
+    public class AutoColumnModel
+    {
+        public string text { get; set; }
+
+        public string name { get; set; }
+
+        public AutoColumnType? type { get; set; }
+
+        public bool? allowNull { get; set; }
+
+        public int? flex { get; set; }
+    }
+
+    public class AutoFilterModel
+    {
+        public string text { get; set; }
+
+        public string name { get; set; }
+
+        public AutoColumnType? type { get; set; }
+
+        public object value { get; set; }
+    }
+
+    public enum AutoColumnType
+    {
+        text,
+        number
     }
 }
