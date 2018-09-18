@@ -12,7 +12,7 @@ import { buildComponentUrl } from "../../Common/Services/Ajax";
 import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCostElementsLayout';
 import { OwnApprovalCostElementsLayout } from '../../CostApproval/Components/OwnApprovalCostElementsLayout';
 import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
-import { CalcResultView, ReportView } from '../../Report';
+import { CalcResultView, ReportListView } from '../../Report';
 import { large, medium } from '../../responsiveFormulas';
 import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
 import { loadMetaDataFromServer } from '../Actions/AppActions';
@@ -78,7 +78,7 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path={buildComponentUrl("/cost-approval")} component={ ApprovalCostElementsLayout} />
                         <Route path={buildComponentUrl("/own-cost-approval")} component={ OwnApprovalCostElementsLayout} />
                         <Route path={buildComponentUrl("/report")} exact component={CalcResultView} />
-                        <Route path={buildComponentUrl("/report/all")} component={ReportView} />
+                        <Route path={buildComponentUrl("/report/all")} component={ReportListView} />
                         <Route path={buildComponentUrl("/capability-matrix")} exact component={CapabilityMatrixView} />
                         <Route path={buildComponentUrl("/capability-matrix/edit")} component={CapabilityMatrixEditView} />
                         <Route path={buildComponentUrl("/admin/availability-fee")} component={AvailabilityFeeAdminGrid} />

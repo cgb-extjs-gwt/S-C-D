@@ -1,7 +1,5 @@
 ﻿import { CalcResultView } from "./CalcResultView";
-import { ReportView } from "./ReportView";
+import { ReportListView } from "./ReportListView";
 
 
-export {
-    CalcResultView, ReportView
-};
+export { CalcResultView, ReportListView };

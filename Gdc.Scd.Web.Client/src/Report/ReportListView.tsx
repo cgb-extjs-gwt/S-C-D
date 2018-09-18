@@ -2,7 +2,7 @@
 import * as React from "react";
 import { buildComponentUrl } from "../Common/Services/Ajax";
 
-export class ReportView extends React.Component<any, any> {
+export class ReportListView extends React.Component<any, any> {
 
     constructor(props: any) {
         super(props);
