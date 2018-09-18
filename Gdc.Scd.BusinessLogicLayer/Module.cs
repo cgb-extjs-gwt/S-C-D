@@ -1,16 +1,11 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.CapabilityMatrix;
-using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Ninject.Modules;
 using Ninject.Web.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer
 {
@@ -21,6 +16,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind(typeof(IDomainService<>)).To(typeof(DomainService<>)).InRequestScope();
             Bind<ICostEditorService>().To<CostEditorService>().InRequestScope();
             Bind<ICapabilityMatrixService>().To<CapabilityMatrixService>().InRequestScope();
+            Bind<ICalculationService>().To<CalculationService>().InRequestScope();
             Bind<IUserService>().To<UserService>().InRequestScope();
             Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InRequestScope();
             Bind<IAvailabilityFeeAdminService>().To<AvailabilityFeeAdminService>().InRequestScope();
@@ -49,6 +45,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<CapabilityMatrixCountryAllowView>();
             Kernel.RegisterEntity<RoleCode>();
             Kernel.RegisterEntity<HardwareCalculationResult>();
+            Kernel.RegisterEntity<SoftwareCalculationResult>();
             Kernel.RegisterEntity<Currency>();
             Kernel.RegisterEntity<ExchangeRate>();
             Kernel.RegisterEntity<YearAvailability>();

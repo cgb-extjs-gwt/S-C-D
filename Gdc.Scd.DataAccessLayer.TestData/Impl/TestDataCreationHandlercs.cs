@@ -1,6 +1,13 @@
-﻿using Gdc.Scd.Core.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
@@ -8,11 +15,9 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Configuration;
 using System.IO;
 using System.Reflection;
-using System.Configuration;
-using Gdc.Scd.DataAccessLayer.Impl;
 using System.Text.RegularExpressions;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
@@ -23,7 +28,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string PlaLevelId = "Pla";
 
-        private const string WgLevelId = "Wg";
+        private const string ClusterRegionId = "ClusterRegion";
 
         private const string RoleCodeKey = "RoleCode";
 
@@ -45,7 +50,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string ProActiveSlaKey = "ProActiveSla";
 
-
         private readonly DomainEnitiesMeta entityMetas;
 
         public TestDataCreationHandlercs(
@@ -63,16 +67,16 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateRoles();
             this.CreateReactionTimeTypeAvalability();
             this.CreateClusterRegions();
+            this.CreateCurrenciesAndExchangeRates();
             this.CreateCountries();
             this.CreateDurations();
             this.CreateYearAvailability();
-            this.CreateCurrenciesAndExchangeRates();
             this.CreateProActiveSla();
             this.CreateTestItems<SwDigit>();
             this.CreateTestItems<Sog>();
 
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
-            var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(WgLevelId, MetaConstants.InputLevelSchema);
+            var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.WgInputLevelName, MetaConstants.InputLevelSchema);
 
             var queries = new List<SqlHelper>
             {
@@ -82,7 +86,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.calculation.sql"));
+            //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
+            //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
 
             foreach (var query in queries)
             {
@@ -182,14 +187,14 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateProActiveSla()
         {
-            this.repositorySet.GetRepository<ProActiveSla>().Save(new ProActiveSla[] 
+            this.repositorySet.GetRepository<ProActiveSla>().Save(new ProActiveSla[]
             {
                 new ProActiveSla { Name = "0" },
                 new ProActiveSla { Name = "2" },
                 new ProActiveSla { Name = "3" },
                 new ProActiveSla { Name = "4" },
                 new ProActiveSla { Name = "6" },
-                new ProActiveSla { Name = "7" },
+                new ProActiveSla { Name = "7" }
             });
 
             this.repositorySet.Sync();
@@ -243,7 +248,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
                 var insertFields = referenceFields.Select(field => field.Name).ToList();
 
-                var wgField = costBlockMeta.InputLevelFields[WgLevelId];
+                var wgField = costBlockMeta.InputLevelFields[MetaConstants.WgInputLevelName];
                 var plaField = costBlockMeta.InputLevelFields[PlaLevelId];
 
                 if (plaField != null && wgField != null)
@@ -251,11 +256,26 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     selectColumns =
                         selectColumns.Select(
                             field => field.TableName == plaField.Name
-                                ? new ColumnInfo("PlaId", WgLevelId, plaField.Name)
+                                ? new ColumnInfo($"{nameof(Pla)}{nameof(Wg.Id)}", MetaConstants.WgInputLevelName, plaField.Name)
                                 : field)
                                     .ToList();
 
                     referenceFields.Remove(plaField);
+                }
+
+                var clusterRegionField = costBlockMeta.InputLevelFields[ClusterRegionId];
+                var countryField = costBlockMeta.InputLevelFields[MetaConstants.CountryInputLevelName];
+
+                if (clusterRegionField != null && countryField != null)
+                {
+                    selectColumns =
+                        selectColumns.Select(
+                            field => field.TableName == clusterRegionField.Name
+                                ? new ColumnInfo(nameof(Country.ClusterRegionId), MetaConstants.CountryInputLevelName, ClusterRegionId)
+                                : field)
+                                    .ToList();
+
+                    referenceFields.Remove(clusterRegionField);
                 }
 
                 var selectQuery = Sql.Select(selectColumns.ToArray()).From(referenceFields[0].ReferenceMeta);
@@ -267,32 +287,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     selectQuery = selectQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
                 }
 
-                SqlHelper insertQuery = selectQuery;
-
-                if (costBlockMeta.DomainMeta.Name == ProActiveKey)
-                {
-                    var remoteOptions = new Dictionary<string, IEnumerable<object>>
-                    {
-                        [MetaConstants.NameFieldKey] = new object[] { "2", "3", "4" }
-                    };
-
-                    var remoteCondition = ConditionHelper.AndBrackets(
-                        SqlOperators.Equals(MetaConstants.NameFieldKey, "remote", "Remote", ServiceLocationKey),
-                        ConditionHelper.AndStatic(remoteOptions, ProActiveSlaKey, "remote"));
-
-                    var onSiteOptions = new Dictionary<string, IEnumerable<object>>
-                    {
-                        [MetaConstants.NameFieldKey] = new object[] { "6", "7" }
-                    };
-
-                    var onSiteCondition = ConditionHelper.AndBrackets(
-                        SqlOperators.Equals(MetaConstants.NameFieldKey, "onSite", "On-Site", ServiceLocationKey),
-                        ConditionHelper.AndStatic(onSiteOptions, ProActiveSlaKey, "onSite"));
-
-                    insertQuery = selectQuery.Where(ConditionHelper.Or(remoteCondition, onSiteCondition));
-                }
-
-                yield return Sql.Insert(costBlockMeta, insertFields.ToArray()).Query(insertQuery);
+                yield return Sql.Insert(costBlockMeta, insertFields.ToArray()).Query(selectQuery);
             }
         }
 
@@ -1133,7 +1128,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new RoleCode
                 {
                     Name = "SEFS05"
-                    
+
                 }
             };
         }
@@ -1186,6 +1181,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var len = names.Length;
             var result = new Country[len];
 
+            var eur = repositorySet.GetRepository<Currency>()
+                                       .GetAll()
+                                       .First(x => x.Name.ToUpper() == "EUR");
+
             for (var i = 0; i < len; i++)
             {
                 result[i] = new Country
@@ -1194,7 +1193,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     CanOverrideListAndDealerPrices = GenerateRandomBool(),
                     CanOverrideTransferCostAndPrice = GenerateRandomBool(),
                     ShowDealerPrice = GenerateRandomBool(),
-                    ClusterRegionId = 2
+                    ClusterRegionId = 2,
+                    Currency = eur
                 };
             }
 
