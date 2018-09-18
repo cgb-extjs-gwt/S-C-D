@@ -1,8 +1,23 @@
-﻿import { Column, Container, Grid } from "@extjs/ext-react";
+﻿import { Column, Container, Grid, NumberColumn, GridProps } from "@extjs/ext-react";
 import * as React from "react";
+import { AutoColumnModel } from "../Model/AutoColumnModel";
+import { AutoColumnType } from "../Model/AutoColumnType";
+import { AutoFilterModel } from "../Model/AutoFilterModel";
 import { AutoFilter } from "./AutoFilter";
 
-export abstract class AutoGrid extends React.Component<any, any> {
+export interface AutoGridProps {
+
+    url: string;
+
+    columns: AutoColumnModel[];
+
+    filter: AutoFilterModel[];
+
+    title?: string;
+
+}
+
+export class AutoGrid extends React.Component<AutoGridProps, any> {
 
     private grid: Grid;
 
@@ -17,7 +32,7 @@ export abstract class AutoGrid extends React.Component<any, any> {
         proxy: {
             type: 'ajax',
             api: {
-                read: this.getUrl()
+                read: this.props.url
             },
             reader: {
                 type: 'json',
@@ -27,30 +42,49 @@ export abstract class AutoGrid extends React.Component<any, any> {
         }
     });
 
-    public constructor(props: any) {
+    public constructor(props: AutoGridProps) {
         super(props);
         this.init();
     }
 
-    public abstract getColumns(): Column[];
-
-    public abstract getFilter(): React.Component[];
-
-    public abstract getUrl(): string;
-
     public render() {
+
+        let cfg = {} as GridProps;
+
+        if (this.props.title) {
+            cfg.title = this.props.title;
+        }
+
         return (
             <Container layout="fit">
 
-                <AutoFilter ref="filter" docked="right" filter={this.getFilter} onSearch={this.onSearch} />
+                <AutoFilter ref="filter" docked="right" filter={this.props.filter} onSearch={this.onSearch} />
 
                 <Grid
+                    {...cfg}
                     ref="grid"
                     store={this.store}
                     width="100%"
                     plugins={['pagingtoolbar']}>
 
-                    {this.getColumns()}
+                    {this.props.columns.map((v, i) => {
+
+                        switch (v.type) {
+
+                            case AutoColumnType.NUMBER:
+                                return (
+                                    <NumberColumn key={i} flex={v.flex || 1} text={v.text} dataIndex={v.name} />
+                                );
+
+                            case AutoColumnType.TEXT:
+                            default:
+                                return (
+                                    <Column key={i} flex={v.flex || 1} text={v.text} dataIndex={v.name} />
+                                );
+
+                        }
+                    })}
+
 
                 </Grid>
 

@@ -1,8 +1,10 @@
-﻿import { Button, Container, Panel, PanelProps, TextField } from "@extjs/ext-react";
+﻿import { Button, Container, Panel, PanelProps, TextField, NumberField } from "@extjs/ext-react";
 import * as React from "react";
+import { AutoFilterModel } from "../Model/AutoFilterModel";
+import { AutoColumnType } from "../Model/AutoColumnType";
 
 export interface AutoFilterPanelProps extends PanelProps {
-    filter(): React.Component[];
+    filter: AutoFilterModel[];
     onSearch(filter: any): void;
 }
 
@@ -17,16 +19,31 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
         return (
             <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
 
-                <Container margin="10px 0"
+                <Container
+                    ref="fields"
+                    margin="10px 0"
                     defaults={{
                         maxWidth: '200px',
-                        valueField: 'id',
-                        displayField: 'name',
-                        queryMode: 'local',
                         clearable: 'true'
                     }}>
 
-                    {this.props.filter()}
+                    {this.props.filter.map((v, i) => {
+
+                        switch (v.type) {
+
+                            case AutoColumnType.NUMBER:
+                                return (
+                                    <NumberField key={i} ref={v.name} name={v.name} label={v.text} />
+                                );
+
+                            case AutoColumnType.TEXT:
+                            default:
+                                return (
+                                    <TextField key={i} ref={v.name} name={v.name} label={v.text} />
+                                );
+
+                        }
+                    })}
 
                 </Container>
 
@@ -38,11 +55,15 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
 
     public getModel(): any {
         let result = {};
+        let filter = this.props.filter;
 
-        let fields = this.props.filter();
+        for (let i = 0, item; item = filter[i]; i++) {
 
-        for (let i = 0, f: any; f = fields[i]; i++) {
-            result[f.getLabel()] = f.getValue();
+            let f = this.refs[item.name] as any;
+
+            if (f.getValue()) {
+                result[item.name] = f.getValue();
+            }
         }
 
         return result;
@@ -58,5 +79,4 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
             handler(this.getModel());
         }
     }
-
 }
