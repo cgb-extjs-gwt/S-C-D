@@ -1,17 +1,13 @@
-﻿using System;
+﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Dto.AvailabilityFee;
+using Gdc.Scd.Web.Server.Entities;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Gdc.Scd.BusinessLogicLayer.Entities;
-using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Dto.AvailabilityFee;
-using System.Web.Mvc;
-using Gdc.Scd.Web.Server.Entities;
+using System.Web.Http;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
-    public class AvailabilityFeeAdminController : System.Web.Http.ApiController
+    public class AvailabilityFeeAdminController : ApiController
     {
         private readonly IAvailabilityFeeAdminService availabilityFeeAdminService;
 
@@ -49,7 +45,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        public void SaveAll([System.Web.Http.FromBody]IEnumerable<AdminAvailabilityFeeViewDto> records)
+        public void SaveAll([FromBody]IEnumerable<AdminAvailabilityFeeViewDto> records)
         {
             availabilityFeeAdminService.SaveCombinations(records);
         }
