@@ -1,4 +1,5 @@
-﻿using System.Web.Http;
+﻿using Gdc.Scd.Web.Server.Entities;
+using System.Web.Http;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
@@ -7,9 +8,48 @@ namespace Gdc.Scd.Web.Server.Controllers
         public ReportController() { }
 
         [HttpGet]
-        public object GetReport()
+        public object Export(string type)
         {
-            throw new System.NotImplementedException();
+            return new { url = "export", type = type };
+        }
+
+        [HttpGet]
+        public object Schema(string type)
+        {
+            return new { url = "schema", type = type };
+        }
+
+        [HttpGet]
+        public DataInfo<object> View(string type, [FromUri] object filter, [FromUri]int start = 0, [FromUri]int limit = 50)
+        {
+            if (!isRangeValid(start, limit))
+            {
+                return null;
+            }
+
+            var d = new object[]
+            {
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+            };
+
+            return new DataInfo<object>() { Items = d, Total = d.Length };
+
+        }
+
+        private bool isRangeValid(int start, int limit)
+        {
+            return start >= 0 && limit <= 50;
         }
     }
 }

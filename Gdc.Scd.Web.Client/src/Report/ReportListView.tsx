@@ -13,7 +13,8 @@ export class ReportListView extends React.Component<any, any> {
         return (
             <Container padding="20px">
                 <div onClick={this.onOpenLink}>
-                    <a data-href="/report/view">Sample report</a>
+                    <a data-href="/report/abc">Sample report abc</a><br />
+                    <a data-href="/report/xyz">Sample report xyz</a>
                 </div>
             </Container>
         );

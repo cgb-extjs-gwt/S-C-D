@@ -1,44 +1,54 @@
 ﻿import * as React from "react";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { AutoGrid } from "./Components/AutoGrid";
-import { AutoColumnModel } from "./Model/AutoColumnModel";
-import { AutoColumnType } from "./Model/AutoColumnType";
-import { AutoFilterModel } from "./Model/AutoFilterModel";
+import { AutoGridModel } from "./Model/AutogridModel";
+import { IReportService } from "./Services/IReportService";
+import { ReportFactory } from "./Services/ReportFactory";
 
-export class ReportView extends React.Component<any, any> {
+export class ReportView extends React.Component<any, AutoGridModel> {
+
+    private type: string;
+
+    private srv: IReportService;
 
     constructor(props: any) {
+
+        var type = props.match.params.type;
+
+        if (!type) {
+            throw new Error('invalid report type');
+        }
+
         super(props);
         this.init();
+
+        this.type = type;
+    }
+
+    public componentDidMount() {
+        this.srv.getSchema(this.type).then(x => this.setState(x));
     }
 
     public render() {
-        return (
-            <AutoGrid columns={this.getColumns()} filter={this.getFilter()} url={this.getUrl()} />
-        );
+
+        let grid = null;
+
+        if (this.state) {
+            let schema = this.state;
+
+            grid = (
+                <AutoGrid columns={schema.fields} filter={schema.filter} url={this.getUrl()} title={schema.caption} />
+            );
+        }
+
+        return grid;
     }
 
     private init() {
-    }
-
-    public getColumns(): AutoColumnModel[] {
-        return [
-            { name: 'col_1', text: 'Super fields 1', type: AutoColumnType.NUMBER },
-            { name: 'col_2', text: 'Super fields 2', type: AutoColumnType.TEXT },
-            { name: 'col_3', text: 'Super fields 3', type: AutoColumnType.TEXT },
-            { name: 'col_4', text: 'Super fields 4', type: AutoColumnType.TEXT }
-        ];
-    }
-
-    public getFilter(): AutoFilterModel[] {
-        return [
-            { name: 'col_1', text: 'Super fields 1', type: AutoColumnType.NUMBER },
-            { name: 'col_2', text: 'Super fields 2', type: AutoColumnType.TEXT },
-            { name: 'col_4', text: 'Super fields 4', type: AutoColumnType.TEXT }
-        ];
+        this.srv = ReportFactory.getReportService();
     }
 
     public getUrl(): string {
-        return buildMvcUrl('report', 'GetReport', { 'type': 'tst' });
+        return buildMvcUrl('report', 'view', { 'type': this.type });
     }
 }
