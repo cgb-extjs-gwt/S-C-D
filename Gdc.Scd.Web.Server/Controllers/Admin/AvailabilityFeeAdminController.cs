@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 
-namespace Gdc.Scd.Web.Server.Controllers
+namespace Gdc.Scd.Web.Server.Controllers.Admin
 {
     public class AvailabilityFeeAdminController : ApiController
     {
