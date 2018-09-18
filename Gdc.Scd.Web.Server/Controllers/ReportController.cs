@@ -14,95 +14,103 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public AutoGridModel Schema(string type)
+        public ReportModel Schema(string type)
         {
-            return new AutoGridModel
+            return new ReportModel
             {
                 caption = "Auto grid server model",
 
-                fields = new AutoColumnModel[] {
-                    new AutoColumnModel { name= "col_1", text= "Super fields 1", type= AutoColumnType.number },
-                    new AutoColumnModel { name= "col_2", text= "Super fields 2", type= AutoColumnType.text },
-                    new AutoColumnModel { name= "col_3", text= "Super fields 3", type= AutoColumnType.text },
-                    new AutoColumnModel { name= "col_4", text= "Super fields 4", type= AutoColumnType.text }
+                fields = new ReportColumnModel[] {
+                    new ReportColumnModel { name= nameof(SampleReport.col_1), text= "Super fields 1", type= ReportColumnType.number },
+                    new ReportColumnModel { name= nameof(SampleReport.col_2), text= "Super fields 2", type= ReportColumnType.text },
+                    new ReportColumnModel { name= nameof(SampleReport.col_3), text= "Super fields 3", type= ReportColumnType.text },
+                    new ReportColumnModel { name= nameof(SampleReport.col_4), text= "Super fields 4", type= ReportColumnType.text }
                 },
 
-                filter = new AutoFilterModel[] {
-                    new AutoFilterModel{ name= "col_1", text= "Super fields 1", type= AutoColumnType.number },
-                    new AutoFilterModel{ name= "col_2", text= "Super fields 2", type= AutoColumnType.text },
-                    new AutoFilterModel{ name= "col_4", text= "Super fields 4", type= AutoColumnType.text }
+                filter = new ReportFilterModel[] {
+                    new ReportFilterModel{ name= nameof(SampleReport.col_1), text= "Super fields 1", type= ReportColumnType.number },
+                    new ReportFilterModel{ name= nameof(SampleReport.col_2), text= "Super fields 2", type= ReportColumnType.text },
+                    new ReportFilterModel{ name= nameof(SampleReport.col_4), text= "Super fields 4", type= ReportColumnType.text }
                 }
             };
         }
 
         [HttpGet]
-        public DataInfo<object> View(string type, [FromUri] object filter, [FromUri]int start = 0, [FromUri]int limit = 50)
+        public DataInfo<SampleReport> View(string type, [FromUri] object filter, [FromUri]int start = 0, [FromUri]int limit = 50)
         {
             if (!isRangeValid(start, limit))
             {
                 return null;
             }
 
-            var d = new object[]
+            var d = new SampleReport[]
             {
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new SampleReport { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new SampleReport { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new SampleReport { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new SampleReport { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new SampleReport { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new SampleReport { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new SampleReport { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new SampleReport { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new SampleReport { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new SampleReport { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new SampleReport { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new SampleReport { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
             };
 
-            return new DataInfo<object>() { Items = d, Total = d.Length };
-
+            return new DataInfo<SampleReport> { Items = d, Total = d.Length };
         }
 
         private bool isRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 50;
         }
+
     }
 
-    public class AutoGridModel
+    public class SampleReport
+    {
+        public string col_1 { get; set; }
+        public int col_2 { get; set; }
+        public string col_3 { get; set; }
+        public string col_4 { get; set; }
+    }
+
+    public class ReportModel
     {
         public string caption { get; set; }
 
-        public AutoColumnModel[] fields { get; set; }
+        public ReportColumnModel[] fields { get; set; }
 
-        public AutoFilterModel[] filter { get; set; }
+        public ReportFilterModel[] filter { get; set; }
     }
 
-    public class AutoColumnModel
+    public class ReportColumnModel
     {
         public string text { get; set; }
 
         public string name { get; set; }
 
-        public AutoColumnType? type { get; set; }
+        public ReportColumnType? type { get; set; }
 
         public bool? allowNull { get; set; }
 
         public int? flex { get; set; }
     }
 
-    public class AutoFilterModel
+    public class ReportFilterModel
     {
         public string text { get; set; }
 
         public string name { get; set; }
 
-        public AutoColumnType? type { get; set; }
+        public ReportColumnType? type { get; set; }
 
         public object value { get; set; }
     }
 
-    public enum AutoColumnType
+    public enum ReportColumnType
     {
         text,
         number
