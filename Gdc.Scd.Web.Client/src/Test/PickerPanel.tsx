@@ -1,5 +1,6 @@
 ﻿import * as React from 'react';
 import { FormPanel, NumberField, Button, ComboBoxField, Grid, Column } from '@extjs/ext-react';
+import { buildMvcUrl } from "../Common/Services/Ajax";
 Ext.require('Ext.grid.plugin.PagingToolbar');
 export interface PickerPanelProps {
     value?: number;
@@ -7,8 +8,10 @@ export interface PickerPanelProps {
     onCancelClick: () => void;
 }
 
+const CONTROLLER_NAME = 'Users';
+
 export default class PickerPanel extends React.Component<PickerPanelProps, any> {
-    ComboBoxField: any;
+    private pickerField: ComboBoxField & any;
     private numberField: NumberField & any;
     state = {
         disableSendButton: true
@@ -23,7 +26,7 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
         proxy: {
             type: 'ajax',
             api: {
-                read: '/api/Users/SearchUser',
+                read: buildMvcUrl(CONTROLLER_NAME, 'SearchUser'),
             },
             reader: {
                 type: 'json',
@@ -46,7 +49,7 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
     loadUsers = () => {
         this.store.load({
             params: {
-                searchString: this.ComboBoxField.getValue()
+                searchString: this.pickerField.getValue()
             },
             callback: function (records, operation, success) {
 
@@ -60,6 +63,7 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
         return (
             <FormPanel>
                 <ComboBoxField
+                    ref={combobox => this.pickerField = combobox}
                     store={this.store}
                     width={200}
                     label="Find user name"
@@ -73,7 +77,7 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
                 />
                 <Button
                     text="Send"
-                    handler={() => onSendClick(this.ComboBoxField.getValue())}
+                    handler={() => onSendClick(this.pickerField.getValue())}
                     disabled={this.state.disableSendButton}
                 />
                 <Button text="Cancel" handler={onCancelClick} />
