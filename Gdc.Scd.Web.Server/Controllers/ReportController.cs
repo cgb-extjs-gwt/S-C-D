@@ -31,7 +31,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public ReportSchemaDto Schema(string type)
+        public ReportSchema Schema(string type)
         {
             return service.GetSchema(type);
         }

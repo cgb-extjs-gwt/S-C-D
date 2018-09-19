@@ -49,23 +49,23 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             };
         }
 
-        public ReportSchemaDto GetSchema(string type)
+        public ReportSchema GetSchema(string type)
         {
-            return new ReportSchemaDto
+            return new ReportSchema
             {
                 Caption = "Auto grid server model",
 
-                Fields = new ReportColumnDto[] {
-                    new ReportColumnDto { name= "col_1", text= "Super fields 1", type= ReportColumnType.number },
-                    new ReportColumnDto { name= "col_2", text= "Super fields 2", type= ReportColumnType.text },
-                    new ReportColumnDto { name= "col_3", text= "Super fields 3", type= ReportColumnType.text },
-                    new ReportColumnDto { name= "col_4", text= "Super fields 4", type= ReportColumnType.text }
+                Fields = new ReportColumn[] {
+                    new ReportColumn { name= "col_1", text= "Super fields 1", type= ReportColumnType.number },
+                    new ReportColumn { name= "col_2", text= "Super fields 2", type= ReportColumnType.text },
+                    new ReportColumn { name= "col_3", text= "Super fields 3", type= ReportColumnType.text },
+                    new ReportColumn { name= "col_4", text= "Super fields 4", type= ReportColumnType.text }
                 },
 
-                Filter = new ReportFilterDto[] {
-                    new ReportFilterDto { name= "col_1", text= "Super fields 1", type= ReportColumnType.number },
-                    new ReportFilterDto { name= "col_2", text= "Super fields 2", type= ReportColumnType.text },
-                    new ReportFilterDto { name= "col_4", text= "Super fields 4", type= ReportColumnType.text }
+                Filter = new ReportFilter[] {
+                    new ReportFilter { name= "col_1", text= "Super fields 1", type= ReportColumnType.number },
+                    new ReportFilter { name= "col_2", text= "Super fields 2", type= ReportColumnType.text },
+                    new ReportFilter { name= "col_4", text= "Super fields 4", type= ReportColumnType.text }
                 }
             };
         }

@@ -7,7 +7,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
     {
         IEnumerable<ReportDto> GetReports();
 
-        ReportSchemaDto GetSchema(string type);
+        ReportSchema GetSchema(string type);
 
         object Excel(string type);
 
