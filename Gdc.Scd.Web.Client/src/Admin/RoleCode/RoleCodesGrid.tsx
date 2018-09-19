@@ -10,6 +10,7 @@ const CONTROLLER_NAME = 'RoleCode';
 Ext.require([
     'Ext.grid.plugin.Editable',
     'Ext.grid.plugin.CellEditing',
+    'Ext.data.validator.Presence'
 ]);
 
 Ext.define('RoleCode', {
@@ -160,15 +161,7 @@ export default class RoleCodesGrid extends React.Component {
                     dataIndex="name"
                     editable                 
                 >
-                    <TextField                       
-                        onChange={(field, newValue, oldValue)=> {
-                            isValid = (newValue.trim().length > 0);
-                            if (!isValid) {
-                                field.errorMessage = "Wrong value"
-                                field.errorTarget = "side"
-                            }   
-                        }}
-                    />
+                    <TextField required validators={(value) => { return value.trim().length > 0 }}/> 
                 </Column>
 
                 <Toolbar docked="top">
