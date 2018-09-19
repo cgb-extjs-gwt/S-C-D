@@ -21,7 +21,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         {
             //TODO: need to add behavior
         }
-        public DataInfo<UserInfo> SearchUser(string searchString)
+        public DataInfo<UserInfo> SearchUser(string _dc, string searchString, int page = 1, int start = 0, int limit = 25)
         {
             var foundUsers = activeDirectoryService.SearchForUserByString(searchString).Select(
                 user => new UserInfo

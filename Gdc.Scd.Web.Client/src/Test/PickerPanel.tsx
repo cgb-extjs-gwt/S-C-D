@@ -15,59 +15,54 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
     };
 
     store = Ext.create('Ext.data.Store', {
-        pageSize: 50,
-        fields: ['Username', 'SamAccount'],
         autoLoad: true,
+        fields: ['abbr', 'name'],
+        data: [
+            //{ "abbr": "AL", "name": "Alabama" },
+            //{ "abbr": "BG", "name": "Bbbbb" }
+        ],
         proxy: {
             type: 'ajax',
             api: {
                 read: '/api/Users/SearchUser',
-                update: '/api/Users/SelectUser'
             },
             reader: {
                 type: 'json',
-                rootProperty: 'items',
-                totalProperty: 'total'
+                successProperty: 'success',
+                messageProperty: 'message'
             },
             writer: {
                 type: 'json',
-                writeAllFields: true,
-                allowSingle: false
-            },
-            listeners: {
-                exception: function (proxy, response, operation) {
-                    //TODO: show error
-                }
+                encode: 'true',
             }
         },
         listeners: {
-            update: (store, record, operation, modifiedFieldNames, details, eOpts) => {
-                const modifiedRecords = this.store.getUpdatedRecords();
-                if (modifiedRecords.length > 0) {
-                    this.setState({ disableSaveButton: false });
-                }
-                else {
-                    this.setState({ disableSaveButton: true });
-                }
+            exception: function (proxy, response, operation) {
+                //TODO: show error
+                console.log(operation.getError());
             }
         }
     });
 
     loadUsers = () => {
+        console.log("1");
+        this.store.load({
+            params: {
+                searchString: "B"
+            },
+            callback: function (records, operation, success) {
 
+            },
+            scope: this
+        });
     }
 
     public render() {
         const { value, onSendClick, onCancelClick } = this.props;
-        const data = [
-            { "name": "AAA", "abbr": "AE" },
-            { "name": "BBB", "abbr": "BE" },
-        ]
         return (
             <FormPanel>
                 <ComboBoxField
-                    //store={this.store}
-                    options={data}
+                    store={this.store}
                     width={200}
                     label="Find user name"
                     displayField="name"
