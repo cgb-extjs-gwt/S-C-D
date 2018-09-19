@@ -13,12 +13,8 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.IO;
-using System.Reflection;
-using System.Text.RegularExpressions;
+
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
