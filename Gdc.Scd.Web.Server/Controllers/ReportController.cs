@@ -1,11 +1,20 @@
-﻿using Gdc.Scd.Web.Server.Entities;
+﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
+using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Web.Server.Entities;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web.Http;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
     public class ReportController : ApiController
     {
-        public ReportController() { }
+        private readonly IReportService service;
+
+        public ReportController(IReportService reportService)
+        {
+            this.service = reportService;
+        }
 
         [HttpGet]
         public object Export(string type)
@@ -14,38 +23,16 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public DataInfo<Report> GetAll()
+        public DataInfo<ReportDto> GetAll()
         {
-            var d = new Report[]
-            {
-                new Report { Name = "Sample report abc", Type = "abc" },
-                new Report { Name = "CBA sample report", Type = "cba" },
-                new Report { Name = "HDD retention report", Type = "hdd-retention" },
-                new Report { Name = "XYZ report", Type = "xyz" }
-            };
-            return new DataInfo<Report> { Items = d, Total = d.Length };
+            IEnumerable<ReportDto> d = service.GetReports();
+            return new DataInfo<ReportDto> { Items = d, Total = d.Count() };
         }
 
         [HttpGet]
-        public ReportModel Schema(string type)
+        public ReportSchemaDto Schema(string type)
         {
-            return new ReportModel
-            {
-                caption = "Auto grid server model",
-
-                fields = new ReportColumnModel[] {
-                    new ReportColumnModel { name= nameof(SampleReport.col_1), text= "Super fields 1", type= ReportColumnType.number },
-                    new ReportColumnModel { name= nameof(SampleReport.col_2), text= "Super fields 2", type= ReportColumnType.text },
-                    new ReportColumnModel { name= nameof(SampleReport.col_3), text= "Super fields 3", type= ReportColumnType.text },
-                    new ReportColumnModel { name= nameof(SampleReport.col_4), text= "Super fields 4", type= ReportColumnType.text }
-                },
-
-                filter = new ReportFilterModel[] {
-                    new ReportFilterModel{ name= nameof(SampleReport.col_1), text= "Super fields 1", type= ReportColumnType.number },
-                    new ReportFilterModel{ name= nameof(SampleReport.col_2), text= "Super fields 2", type= ReportColumnType.text },
-                    new ReportFilterModel{ name= nameof(SampleReport.col_4), text= "Super fields 4", type= ReportColumnType.text }
-                }
-            };
+            return service.GetSchema(type);
         }
 
         [HttpGet]
@@ -79,14 +66,6 @@ namespace Gdc.Scd.Web.Server.Controllers
         {
             return start >= 0 && limit <= 50;
         }
-
-    }
-
-    public class Report
-    {
-        public string Type { get; set; }
-
-        public string Name { get; set; }
     }
 
     public class SampleReport
@@ -95,44 +74,5 @@ namespace Gdc.Scd.Web.Server.Controllers
         public int col_2 { get; set; }
         public string col_3 { get; set; }
         public string col_4 { get; set; }
-    }
-
-    public class ReportModel
-    {
-        public string caption { get; set; }
-
-        public ReportColumnModel[] fields { get; set; }
-
-        public ReportFilterModel[] filter { get; set; }
-    }
-
-    public class ReportColumnModel
-    {
-        public string text { get; set; }
-
-        public string name { get; set; }
-
-        public ReportColumnType? type { get; set; }
-
-        public bool? allowNull { get; set; }
-
-        public int? flex { get; set; }
-    }
-
-    public class ReportFilterModel
-    {
-        public string text { get; set; }
-
-        public string name { get; set; }
-
-        public ReportColumnType? type { get; set; }
-
-        public object value { get; set; }
-    }
-
-    public enum ReportColumnType
-    {
-        text,
-        number
     }
 }

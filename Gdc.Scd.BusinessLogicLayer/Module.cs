@@ -17,6 +17,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<ICostEditorService>().To<CostEditorService>().InRequestScope();
             Bind<ICapabilityMatrixService>().To<CapabilityMatrixService>().InRequestScope();
             Bind<ICalculationService>().To<CalculationService>().InRequestScope();
+            Bind<IReportService>().To<ReportService>().InRequestScope();
             Bind<IUserService>().To<UserService>().InRequestScope();
             Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InRequestScope();
             Bind<IAvailabilityFeeAdminService>().To<AvailabilityFeeAdminService>().InRequestScope();
