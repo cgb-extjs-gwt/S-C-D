@@ -6,6 +6,32 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
     public class ReportService : IReportService
     {
+        public object Excel(string type)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IEnumerable<object> GetData(string type, ReportFilterCollection filter, int start, int limit, out int total)
+        {
+            var d = new object[]
+            {
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
+            };
+            total = d.Length;
+            return d;
+        }
+
         public IEnumerable<ReportDto> GetReports()
         {
             return new ReportDto[]

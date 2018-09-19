@@ -6,6 +6,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
     public interface IReportService
     {
         IEnumerable<ReportDto> GetReports();
+
         ReportSchemaDto GetSchema(string type);
+
+        object Excel(string type);
+
+        IEnumerable<object> GetData(string type, ReportFilterCollection filter, int start, int limit, out int total);
     }
 }
