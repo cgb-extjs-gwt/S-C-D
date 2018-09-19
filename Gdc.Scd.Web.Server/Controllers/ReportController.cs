@@ -14,6 +14,19 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
+        public DataInfo<Report> GetAll()
+        {
+            var d = new Report[]
+            {
+                new Report { Name = "Sample report abc", Type = "abc" },
+                new Report { Name = "CBA sample report", Type = "cba" },
+                new Report { Name = "HDD retention report", Type = "hdd-retention" },
+                new Report { Name = "XYZ report", Type = "xyz" }
+            };
+            return new DataInfo<Report> { Items = d, Total = d.Length };
+        }
+
+        [HttpGet]
         public ReportModel Schema(string type)
         {
             return new ReportModel
@@ -67,6 +80,13 @@ namespace Gdc.Scd.Web.Server.Controllers
             return start >= 0 && limit <= 50;
         }
 
+    }
+
+    public class Report
+    {
+        public string Type { get; set; }
+
+        public string Name { get; set; }
     }
 
     public class SampleReport
