@@ -11,7 +11,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             throw new System.NotImplementedException();
         }
 
-        public IEnumerable<object> GetData(string type, ReportFilterCollection filter, int start, int limit, out int total)
+        public IEnumerable<object> GetData(
+                string type,
+                ReportFilterCollection filter,
+                int start,
+                int limit,
+                out int total
+            )
         {
             var d = new object[]
             {

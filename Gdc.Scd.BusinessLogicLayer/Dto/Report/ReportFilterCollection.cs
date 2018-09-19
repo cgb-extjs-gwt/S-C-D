@@ -9,6 +9,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Dto.Report
 
         public ReportFilterCollection(IEnumerable<KeyValuePair<string, string>> items) : this()
         {
+            if(items == null)
+            {
+                throw new ArgumentException("Invalid item collection");
+            }
+
             foreach (var item in items)
             {
                 if (!ContainsKey(item.Key))
