@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
+﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
+using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -15,17 +16,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     public class ActiveDirectoryService : IActiveDirectoryService
     {
         private readonly WindowsIdentity currentIdentity;
-        private readonly string forestName;
-        private readonly string defaultDomain;
-        private readonly string adServiceAccount;
-        private readonly string adServicePassword;
+        public ActiveDirectoryConfig Configuration { get; set; }
         public ActiveDirectoryService()
         {
             currentIdentity = WindowsIdentity.GetCurrent();
-            this.forestName = ConfigurationManager.ConnectionStrings["AdForestName"].ConnectionString;
-            this.defaultDomain = ConfigurationManager.ConnectionStrings["defaultDomain"].ConnectionString;
-            this.adServiceAccount = ConfigurationManager.ConnectionStrings["AdServiceAccount"].ConnectionString;
-            this.adServicePassword = ConfigurationManager.ConnectionStrings["AdServicePassword"].ConnectionString;
         }
         public bool CheckCredentials(string userName, string password, string domainName)
         {
@@ -73,10 +67,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public DirectoryEntry GetUserFromForestByUsername(string userName, string password, string domainName)
         {
-            if (string.IsNullOrEmpty(forestName) || string.IsNullOrEmpty(userName) ||
+            if (string.IsNullOrEmpty(Configuration.ForestName) || string.IsNullOrEmpty(userName) ||
                 string.IsNullOrEmpty(password))
                 return null;
-            var domainContext = new DirectoryContext(DirectoryContextType.Forest, forestName, userName, password);
+            var domainContext = new DirectoryContext(DirectoryContextType.Forest, Configuration.ForestName, userName, password);
             var currentForest = Forest.GetForest(domainContext);
             var gc = currentForest.FindGlobalCatalog();
 
@@ -90,10 +84,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public IEnumerable<DirectoryEntry> SearchForUserByString(string search)
+        public List<UserPrincipal> SearchForUserByString(string search)
         {
             var searchResults = new List<DirectoryEntry>();
-            using (var context = new PrincipalContext(ContextType.Domain, defaultDomain, adServiceAccount, adServicePassword))
+            using (var context = new PrincipalContext(ContextType.Domain, Configuration.DefaultDomain, Configuration.AdServiceAccount, Configuration.AdServicePassword))
             {
                 using (var user = new UserPrincipal(context))
                 {
@@ -104,14 +98,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     };
                     try
                     {
-                        var results = searcher.FindAll();
+                        var results = searcher.FindAll().Cast<UserPrincipal>();
                         if (results == null || results.Count() == 0)
                             return null;
-                        foreach (var result in results)
-                        {
-                            searchResults.Add(result.GetUnderlyingObject() as DirectoryEntry);
-                        }
-                        return searchResults;
+                        //foreach (var result in results)
+                        //{
+                        //    searchResults.Add(result.GetUnderlyingObject() as DirectoryEntry);
+                        //}
+                        //return searchResults;
+                        return results.ToList();
                     }
                     catch (Exception)
                     {
@@ -122,7 +117,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         }
         public UserPrincipal FindByIdentity(string userIdentity)
         {
-            using (var context = new PrincipalContext(ContextType.Domain, defaultDomain, adServiceAccount, adServicePassword))
+            using (var context = new PrincipalContext(ContextType.Domain, Configuration.DefaultDomain, Configuration.AdServiceAccount, Configuration.AdServicePassword))
             {
                 try
                 {
