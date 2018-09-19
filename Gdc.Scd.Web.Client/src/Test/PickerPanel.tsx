@@ -18,8 +18,7 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
         autoLoad: true,
         fields: ['abbr', 'name'],
         data: [
-            //{ "abbr": "AL", "name": "Alabama" },
-            //{ "abbr": "BG", "name": "Bbbbb" }
+
         ],
         proxy: {
             type: 'ajax',
@@ -45,10 +44,9 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
     });
 
     loadUsers = () => {
-        console.log("1");
         this.store.load({
             params: {
-                searchString: "B"
+                searchString: this.ComboBoxField.getValue()
             },
             callback: function (records, operation, success) {
 
