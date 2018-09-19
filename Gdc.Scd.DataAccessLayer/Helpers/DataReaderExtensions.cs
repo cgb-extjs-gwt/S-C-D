@@ -43,5 +43,50 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
 
             return null;
         }
+
+        public static string MapAsJson(this DbDataReader reader)
+        {
+            if (reader == null ||
+                !reader.HasRows ||
+                reader.FieldCount <= 0)
+            {
+                return null;
+            }
+
+            var sb = new StringBuilder(512);
+            int i, fieldCount = reader.FieldCount;
+            bool flag = false;
+
+            sb.Append('[');
+
+            while (reader.Read())
+            {
+                if (flag)
+                {
+                    sb.Append(',');
+                }
+
+                sb.Append('{');
+
+                for (i = 0; i < fieldCount; i++)
+                {
+                    if (propDictionary.ContainsKey(reader.GetName(i).ToUpper()))
+                    {
+                        var info = propDictionary[reader.GetName(i).ToUpper()];
+                        if (info != null && info.CanWrite)
+                        {
+                            var value = reader.GetValue(i);
+                            info.SetValue(newObj, (value == DBNull.Value) ? default(T) : value, null);
+                        }
+                    }
+                }
+
+                sb.Append('}');
+            }
+
+            sb.Append(']');
+
+            return sb.ToString();
+        }
     }
 }
