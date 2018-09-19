@@ -32,6 +32,7 @@ const NavMenu: React.SFC<NavMenuProps & any> = ({
                     { id: buildComponentUrl('/cost-approval'), text: 'Approve cost elements', iconCls: 'x-fa fa-check-square-o', leaf: true},
                     { id: buildComponentUrl('/own-cost-approval'), text: 'Own approve cost elements', iconCls: 'x-fa fa-check-square-o', leaf: true},
                     { id: buildComponentUrl('/report'), text: 'Review process', iconCls: 'x-fa fa-balance-scale', leaf: true },
+                    { id: buildComponentUrl('/test'), text: 'Test', iconCls: 'x-fa fa-balance-scale', leaf: true },
                     { id: buildComponentUrl('/capability-matrix'), text: 'Portfolio', iconCls: 'x-fa fa-suitcase', leaf: true },
                     {
                         id: buildComponentUrl('/admin'), text: 'Admin', iconCls: 'x-fa fa-info', disabled: true, children: [{

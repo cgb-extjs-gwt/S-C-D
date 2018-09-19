@@ -1,16 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.DirectoryServices;
 using System.Linq;
 using System.Threading.Tasks;
-using Gdc.Scd.Core.Entities;
+using System.Web.Mvc;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Web.Api.Entities;
+using Gdc.Scd.Web.Server.Entities;
 
-namespace Gdc.Scd.Web.Server.Controllers
+namespace Gdc.Scd.Web.Api.Controllers
 {
-    public class UserController : BaseDomainController<User>
+    public class UsersController : Controller
     {
-        public UserController(IDomainService<User> domainService) : base(domainService)
+        private readonly IActiveDirectoryService activeDirectoryService;
+        public UsersController(IActiveDirectoryService activeDirectoryService)
         {
+            this.activeDirectoryService = activeDirectoryService;
+        }
+        public void SelectUser([System.Web.Http.FromBody]DirectoryEntry user)
+        {
+            //TODO: need to add behavior
+        }
+        public DataInfo<UserInfo> SearchUser(string searchString)
+        {
+            var foundUsers = activeDirectoryService.SearchForUserByString(searchString).Select(
+                user => new UserInfo
+                {
+                    Username = user.Username,
+                    UserSamAccount = activeDirectoryService.FindByIdentity(user.Username).SamAccountName,
+                });
+
+            return new DataInfo<UserInfo> { Items = foundUsers, Total = foundUsers.Count() };
         }
     }
 }
