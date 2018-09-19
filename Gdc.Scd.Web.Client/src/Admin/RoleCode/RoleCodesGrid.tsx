@@ -158,13 +158,19 @@ export default class RoleCodesGrid extends React.Component {
                     text="Role code"
                     flex={1}
                     dataIndex="name"
-                    editable
-                    renderer={function (value, metaData) {
-                        isValid = (value.length < 1);
+                    editable                 
+                >
+                    <TextField                       
+                        onChange={(field, newValue, oldValue)=> {
+                            isValid = (newValue.trim().length > 0);
+                            if (!isValid) {
+                                field.errorMessage = "Wrong value"
+                                field.errorTarget = "side"
+                            }   
+                        }}
+                    />
+                </Column>
 
-                        return value;
-                    }}
-                />  
                 <Toolbar docked="top">
                     <Button
                         text="New"

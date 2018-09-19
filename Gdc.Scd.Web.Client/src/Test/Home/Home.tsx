@@ -21,7 +21,7 @@ export default class Home extends React.Component<void, any> {
                     <SearchField 
                         ui="faded" 
                         ref={field => this.query = field} 
-                        placeholder="Hello there..." 
+                        placeholder="Search..." 
                         onChange={this.onSearch.bind(this)}
                         responsiveConfig={{
                             [small]: { 
