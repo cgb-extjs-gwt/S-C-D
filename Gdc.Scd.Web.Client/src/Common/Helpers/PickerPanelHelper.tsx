@@ -1,6 +1,6 @@
 ﻿import * as React from 'react';
 import { FormPanel, NumberField, Button, ComboBoxField, Grid, Column } from '@extjs/ext-react';
-import { buildMvcUrl } from "../Common/Services/Ajax";
+import { buildMvcUrl } from "../Services/Ajax"
 Ext.require('Ext.grid.plugin.PagingToolbar');
 export interface PickerPanelProps {
     value?: string;
@@ -16,7 +16,7 @@ Ext.define('User', {
         { name: 'name', type: 'string' }
     ]
 });
-export default class PickerPanel extends React.Component<PickerPanelProps, any> {
+export default class PickerPanelHelper extends React.Component<PickerPanelProps, any> {
     private pickerField: ComboBoxField & any;
     private numberField: NumberField & any;
     private sendButton: Button & any;
@@ -65,6 +65,7 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
                 searchString: this.pickerField.getValue()
             },
             callback: function (records, operation, success) {
+                this.pickerField.collapse();
                 var userStore = this.pickerField.getStore();
                 userStore.removeAll();
                 if (records[0].data.total > 0) {
@@ -93,10 +94,11 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
                     label="Find user name"
                     displayField="name"
                     valueField="code"
-                    queryMode="local"
+                    queryMode="remote"
                     labelAlign="placeholder"
                     onKeyUp={() => this.loadUsers()}
                     onChange={() => this.enableSend()}
+                    valueNotFoundText="no results"
                     hideTrigger
                     typeAhead
                 />

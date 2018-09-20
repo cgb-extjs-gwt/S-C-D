@@ -18,17 +18,6 @@ namespace Gdc.Scd.Web.Api.Controllers
         public UsersController(IActiveDirectoryService activeDirectoryService)
         {
             this.activeDirectoryService = activeDirectoryService;
-        }
-        [System.Web.Http.HttpGet]
-        public void SelectUser(string userIdentity, string _dc)
-        {
-            //TODO: need to add behavior
-        }
-        [System.Web.Http.HttpGet]
-        public DataInfo<UserInfo> SearchUser(string _dc, string searchString, int page = 1, int start = 0, int limit = 25)
-        {
-            if (string.IsNullOrEmpty(searchString))
-                return new DataInfo<UserInfo> { Items = new List<UserInfo>(), Total = 0 };
             activeDirectoryService.Configuration = new Scd.BusinessLogicLayer.Helpers.ActiveDirectoryConfig
             {
                 ForestName = ConfigurationManager.AppSettings["AdForestName"],
@@ -36,7 +25,21 @@ namespace Gdc.Scd.Web.Api.Controllers
                 AdServiceAccount = ConfigurationManager.AppSettings["AdServiceAccount"],
                 AdServicePassword = ConfigurationManager.AppSettings["AdServicePassword"],
             };
-            var foundUsers = activeDirectoryService.SearchForUserByString(searchString, 3).Select(
+        }
+        [System.Web.Http.HttpGet]
+        public void SelectUser(string userIdentity, string _dc)
+        {
+            var userDirectoryEntry = activeDirectoryService.FindByIdentity(userIdentity);
+            // some other behavior
+        }
+        [System.Web.Http.HttpGet]
+        public DataInfo<UserInfo> SearchUser(string _dc, string searchString, int page = 1, int start = 0, int limit = 25)
+        {
+            var searchCount = Int32.Parse(ConfigurationManager.AppSettings["UsersSearchCount"]);
+            if (string.IsNullOrEmpty(searchString))
+                return new DataInfo<UserInfo> { Items = new List<UserInfo>(), Total = 0 };
+            
+            var foundUsers = activeDirectoryService.SearchForUserByString(searchString, searchCount).Select(
                 user => new UserInfo
                 {
                     Username = user.DisplayName,
