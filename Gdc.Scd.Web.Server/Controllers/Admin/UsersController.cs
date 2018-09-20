@@ -26,6 +26,8 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
         [HttpGet]
         public DataInfo<UserInfo> SearchUser(string _dc, string searchString, int page = 1, int start = 0, int limit = 25)
         {
+            if (string.IsNullOrEmpty(searchString))
+                return new DataInfo<UserInfo> { Items = new List<UserInfo>(), Total = 0 };
             activeDirectoryService.Configuration = new Scd.BusinessLogicLayer.Helpers.ActiveDirectoryConfig
             {
                 ForestName = ConfigurationManager.AppSettings["AdForestName"],

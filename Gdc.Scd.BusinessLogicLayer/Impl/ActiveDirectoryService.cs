@@ -97,12 +97,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     {
                         var results = searcher.FindAll().Cast<UserPrincipal>();
                         if (results == null || results.Count() == 0)
-                            return null;
-                        //foreach (var result in results)
-                        //{
-                        //    searchResults.Add(result.GetUnderlyingObject() as DirectoryEntry);
-                        //}
-                        //return searchResults;
+                            return new List<UserPrincipal>();
                         return results.ToList();
                     }
                     catch (Exception)
