@@ -3,8 +3,8 @@ import { FormPanel, NumberField, Button, ComboBoxField, Grid, Column } from '@ex
 import { buildMvcUrl } from "../Common/Services/Ajax";
 Ext.require('Ext.grid.plugin.PagingToolbar');
 export interface PickerPanelProps {
-    value?: number;
-    onSendClick: (value: number) => void;
+    value?: string;
+    onSendClick: (value: string) => void;
     onCancelClick: () => void;
 }
 
@@ -24,13 +24,13 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
         disableSendButton: true
     };
     private userList = [
-        
+
     ];
     store = Ext.create('Ext.data.Store', {
         autoLoad: true,
         fields: ['abbr', 'name'],
         data: [
-            
+
         ],
         proxy: {
             type: 'ajax',
@@ -55,23 +55,27 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
         }
     });
 
+    enableSend = () => {
+        this.setState({ disableSendButton: false });
+    }
+
     loadUsers = () => {
         this.store.load({
             params: {
                 searchString: this.pickerField.getValue()
             },
             callback: function (records, operation, success) {
-                if (records[0].data.total > 0)
-                    records[0].data.items.forEach(function (element) {
-                        var user = Ext.create('User', {
-                            abbr: element.SamAccountName, name: element.DisplayName
-                        });
-                        var userStore = Ext.getStore(this);
-                        userStore.add(user)
-                        //this.userList = [
-                            
-                        //];
-                    });
+                var userStore = this.pickerField.getStore();
+                userStore.removeAll();
+                if (records[0].data.total > 0) {
+                    this.setState({ disableSendButton: true });
+                    for (var i = 0; i < records[0].data.total; i++) {
+
+                        userStore.add([{ abbr: records[0].data.items[i].userSamAccount, name: records[0].data.items[i].username }]);
+                    };
+                    this.pickerField.expand();
+                }
+
             },
             scope: this
         });
@@ -85,14 +89,15 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
                     ref={combobox => this.pickerField = combobox}
                     store={this.store}
                     //options={this.userList}
-                    width={200}
+                    width={500}
                     label="Find user name"
                     displayField="name"
                     valueField="code"
                     queryMode="local"
                     labelAlign="placeholder"
                     onKeyUp={() => this.loadUsers()}
-                    hideTrigger 
+                    onChange={() => this.enableSend()}
+                    hideTrigger
                     typeAhead
                 />
                 <Button
