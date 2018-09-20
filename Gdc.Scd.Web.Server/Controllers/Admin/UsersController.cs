@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Web.Api.Entities;
 using Gdc.Scd.Web.Server.Entities;
+using System.Collections.Generic;
 using System.Configuration;
 using System.DirectoryServices;
 using System.Linq;
