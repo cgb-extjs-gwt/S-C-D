@@ -9,19 +9,28 @@ export interface PickerPanelProps {
 }
 
 const CONTROLLER_NAME = 'Users';
-
+Ext.define('User', {
+    extend: 'Ext.data.Model',
+    fields: [
+        { name: 'abbr', type: 'string' },
+        { name: 'name', type: 'string' }
+    ]
+});
 export default class PickerPanel extends React.Component<PickerPanelProps, any> {
     private pickerField: ComboBoxField & any;
     private numberField: NumberField & any;
+    private sendButton: Button & any;
     state = {
         disableSendButton: true
     };
-
+    private userList = [
+        
+    ];
     store = Ext.create('Ext.data.Store', {
         autoLoad: true,
         fields: ['abbr', 'name'],
         data: [
-
+            
         ],
         proxy: {
             type: 'ajax',
@@ -52,7 +61,17 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
                 searchString: this.pickerField.getValue()
             },
             callback: function (records, operation, success) {
-
+                if (records[0].data.total > 0)
+                    records[0].data.items.forEach(function (element) {
+                        var user = Ext.create('User', {
+                            abbr: element.SamAccountName, name: element.DisplayName
+                        });
+                        var userStore = Ext.getStore(this);
+                        userStore.add(user)
+                        this.userList = [
+                            
+                        ];
+                    });
             },
             scope: this
         });
@@ -65,6 +84,7 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
                 <ComboBoxField
                     ref={combobox => this.pickerField = combobox}
                     store={this.store}
+                    //options={this.userList}
                     width={200}
                     label="Find user name"
                     displayField="name"
@@ -72,10 +92,11 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
                     queryMode="local"
                     labelAlign="placeholder"
                     onKeyUp={() => this.loadUsers()}
-                    hideTrigger
+                    hideTrigger 
                     typeAhead
                 />
                 <Button
+                    ref={button => this.sendButton = button}
                     text="Send"
                     handler={() => onSendClick(this.pickerField.getValue())}
                     disabled={this.state.disableSendButton}
