@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 
-namespace Gdc.Scd.DataAccessLayer.Procedures
+namespace Gdc.Scd.BusinessLogicLayer.Procedures
 {
     public class AvailabilityFeeAdmin
     {
