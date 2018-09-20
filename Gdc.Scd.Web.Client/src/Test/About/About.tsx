@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Container, Button } from '@extjs/ext-react';
-import PickerWindow from '../PickerWindow';
+import PickerWindow from '../../Common/Helpers/PickerWindowHelper';
 import { get, post } from '../../Common/Services/Ajax';
 
 interface PickerState {
