@@ -4,7 +4,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 {
     public static class FileNameHelper
     {
-        private static readonly Regex REPORT_FN_REGEX = new Regex(@"\W", RegexOptions.Compiled);
+        private static readonly Regex REPORT_FN_REGEX = new Regex(@"[\s\W]+", RegexOptions.Compiled);
 
         public static string Excel(string fn)
         {

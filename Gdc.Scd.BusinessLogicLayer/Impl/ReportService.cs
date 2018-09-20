@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 
-namespace Gdc.Scd.BusinessLogicLayer.Impl.Report
+namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
     public class ReportService : IReportService
     {

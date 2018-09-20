@@ -1,5 +1,4 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Impl;
-using Gdc.Scd.BusinessLogicLayer.Impl.Report;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
