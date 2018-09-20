@@ -68,9 +68,9 @@ export default class PickerPanel extends React.Component<PickerPanelProps, any> 
                         });
                         var userStore = Ext.getStore(this);
                         userStore.add(user)
-                        this.userList = [
+                        //this.userList = [
                             
-                        ];
+                        //];
                     });
             },
             scope: this

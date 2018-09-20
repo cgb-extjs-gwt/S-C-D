@@ -16,7 +16,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         bool CheckCredentials(string userName, string password, string domainName);
         DirectoryEntry GetUserByEmail(string email, string userName, string password, string domainName);
         DirectoryEntry GetUserFromForestByUsername(string userName, string password, string domainName);
-        List<UserPrincipal> SearchForUserByString(string search);
+        List<UserPrincipal> SearchForUserByString(string search, int count);
         UserPrincipal FindByIdentity(string userIdentity);
     }
 }

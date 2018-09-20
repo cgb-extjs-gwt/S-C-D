@@ -36,7 +36,7 @@ namespace Gdc.Scd.Web.Api.Controllers
                 AdServiceAccount = ConfigurationManager.AppSettings["AdServiceAccount"],
                 AdServicePassword = ConfigurationManager.AppSettings["AdServicePassword"],
             };
-            var foundUsers = activeDirectoryService.SearchForUserByString(searchString).Select(
+            var foundUsers = activeDirectoryService.SearchForUserByString(searchString, 5).Select(
                 user => new UserInfo
                 {
                     Username = user.DisplayName,
