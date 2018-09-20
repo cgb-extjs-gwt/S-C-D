@@ -1,17 +1,50 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using System.Collections.Generic;
+using Gdc.Scd.Core.Entities.Report;
+using Gdc.Scd.DataAccessLayer.Helpers;
+using Gdc.Scd.DataAccessLayer.Interfaces;
 using System.Data;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
     public class ReportService : IReportService
     {
+        private readonly IRepositorySet repositorySet;
+
+        private readonly IRepository<Report> reportRepo;
+
+        private readonly IRepository<ReportColumn> columnRepo;
+
+        private readonly IRepository<ReportFilter> filterRepo;
+
+        public ReportService(
+                IRepositorySet repositorySet,
+                IRepository<Report> reportRepo,
+                IRepository<ReportColumn> columnRepo,
+                IRepository<ReportFilter> filterRepo
+            )
+        {
+            this.repositorySet = repositorySet;
+            this.reportRepo = reportRepo;
+            this.columnRepo = columnRepo;
+            this.filterRepo = filterRepo;
+        }
+
         public Stream Excel(
                 long reportId,
                 ReportFilterCollection filter,
                 out string fileName
+            )
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public DataTable GetData(
+                long reportId,
+                ReportFilterCollection filter
             )
         {
             throw new System.NotImplementedException();
@@ -50,54 +83,61 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return Newtonsoft.Json.JsonConvert.SerializeObject(d);
         }
 
-        public IEnumerable<ReportDto> GetReports()
+        public Task<ReportDto[]> GetReports()
         {
-            return new ReportDto[]
-            {
-                new ReportDto { Id = 1, Name = "HW and ProActive Service based on Master portfolio / HW and ProActive Service based on Portfolio Alignment", CountrySpecific = true, HasFreesedVersion = true },
-                new ReportDto { Id = 1, Name = "MCT Contract", CountrySpecific = true, HasFreesedVersion = true },
-                new ReportDto { Id = 1, Name = "Locap", CountrySpecific = true, HasFreesedVersion = true },
-                new ReportDto { Id = 1, Name = "Locap Detailed", CountrySpecific = true, HasFreesedVersion = true },
-                new ReportDto { Id = 1, Name = "HDD Retention", CountrySpecific = true, HasFreesedVersion = true },
-                new ReportDto { Id = 1, Name = "ProActive_Parameter", CountrySpecific = true, HasFreesedVersion = true },
-                new ReportDto { Id = 1, Name = "SCD Parameter", CountrySpecific = true, HasFreesedVersion = true },
-                new ReportDto { Id = 1, Name = "Service Coverage based on Master Portfolio", CountrySpecific = true },
-                new ReportDto { Id = 1, Name = "Logistic Reports" },
-                new ReportDto { Id = 1, Name = "PO Standard Warranty Material" },
-                new ReportDto { Id = 1, Name = "CalcOutput vs. FREEZE", CountrySpecific = true },
-                new ReportDto { Id = 1, Name = "CalcOutput new vs.old", CountrySpecific = true },
-                new ReportDto { Id = 1, Name = "SolutionPack ProActive Costing", CountrySpecific = true },
-                new ReportDto { Id = 1, Name = "PriceList_CD_CS", CountrySpecific = true },
-                new ReportDto { Id = 1, Name = "SW Service Price List", CountrySpecific = false },
-                new ReportDto { Id = 1, Name = "SW Service Price List detailed", CountrySpecific = false },
-                new ReportDto { Id = 1, Name = "Mapping SOG to WG_Ordercodes_Software and Solutions", CountrySpecific = false },
-                new ReportDto { Id = 1, Name = "SolutionPack Price List", CountrySpecific = false },
-                new ReportDto { Id = 1, Name = "SolutionPack Price List Details", CountrySpecific = false },
-                new ReportDto { Id = 1, Name = "ProActive Costing", CountrySpecific = true },
-                new ReportDto { Id = 1, Name = "ISPROA_Parameter", CountrySpecific = true },
-                new ReportDto { Id = 1, Name = "FLAT Fee Reports", CountrySpecific = false }
-            };
+            return reportRepo.GetAll()
+                             .Select(x => new ReportDto
+                             {
+                                 Id = x.Id,
+                                 Name = x.Name,
+                                 Title = x.Title,
+                                 CountrySpecific = x.CountrySpecific,
+                                 HasFreesedVersion = x.HasFreesedVersion
+                             })
+                             .GetAsync();
         }
 
-        public ReportSchemaDto GetSchema(long reportId)
+        public async Task<ReportSchemaDto> GetSchema(long reportId)
         {
-            return new ReportSchemaDto
+            var report = await reportRepo.GetAll()
+                                         .Where(x => x.Id == reportId)
+                                         .Select(x => new ReportSchemaDto
+                                         {
+                                             Id = x.Id,
+                                             Name = x.Name,
+                                             Title = x.Title
+                                         })
+                                         .GetFirstOrDefaultAsync();
+
+            if (report == null)
             {
-                Title = "Auto grid server model",
+                throw new System.ArgumentException("Report not found");
+            }
 
-                Fields = new ReportColumnDto[] {
-                    new ReportColumnDto { Name= "col_1", Text= "Super fields 1", Type= ReportColumnType.NUMBER },
-                    new ReportColumnDto { Name= "col_2", Text= "Super fields 2", Type= ReportColumnType.TEXT },
-                    new ReportColumnDto { Name= "col_3", Text= "Super fields 3", Type= ReportColumnType.TEXT },
-                    new ReportColumnDto { Name= "col_4", Text= "Super fields 4", Type= ReportColumnType.TEXT }
-                },
+            report.Fields = await columnRepo.GetAll()
+                                            .Where(x => x.Report.Id == reportId)
+                                            .Select(x => new ReportColumnDto
+                                            {
+                                                Type = x.Type,
+                                                Name = x.Name,
+                                                Text = x.Text,
+                                                AllowNull = x.AllowNull,
+                                                Flex = x.Flex
+                                            })
+                                            .GetAsync();
 
-                Filter = new ReportFilterDto[] {
-                    new ReportFilterDto { Name= "col_1", Text= "Super fields 1", Type= ReportColumnType.NUMBER },
-                    new ReportFilterDto { Name= "col_2", Text= "Super fields 2", Type= ReportColumnType.TEXT },
-                    new ReportFilterDto { Name= "col_4", Text= "Super fields 4", Type= ReportColumnType.TEXT }
-                }
-            };
+            report.Filter = await filterRepo.GetAll()
+                                            .Where(x => x.Report.Id == reportId)
+                                            .Select(x => new ReportFilterDto
+                                            {
+                                                Type = x.Type,
+                                                Name = x.Name,
+                                                Text = x.Text,
+                                                Value = x.Value
+                                            })
+                                            .GetAsync();
+
+            return report;
         }
     }
 }

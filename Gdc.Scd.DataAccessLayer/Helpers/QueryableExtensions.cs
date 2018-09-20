@@ -1,12 +1,14 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
-namespace Gdc.Scd.Core.Helpers
+namespace Gdc.Scd.DataAccessLayer.Helpers
 {
-    public static class QueralbeExtensions
+    public static class QueryableExtensions
     {
         public static IQueryable<TEntity> OrderBy<TEntity>(this IQueryable<TEntity> source, string orderByProperty, bool isDescending)
         {
@@ -27,13 +29,19 @@ namespace Gdc.Scd.Core.Helpers
             return source.Provider.CreateQuery<TEntity>(resultExpression);
         }
 
-        public static IQueryable<TSource> WhereIf<TSource>(
-                this IQueryable<TSource> source,
-                bool condition,
-                Expression<Func<TSource, bool>> predicate
-            )
+        public static Task<TSource> GetFirstAsync<TSource>(this IQueryable<TSource> source)
         {
-            return condition ? source.Where(predicate) : source;
+            return EntityFrameworkQueryableExtensions.FirstAsync(source);
+        }
+
+        public static Task<TSource> GetFirstOrDefaultAsync<TSource>(this IQueryable<TSource> source)
+        {
+            return EntityFrameworkQueryableExtensions.FirstOrDefaultAsync(source);
+        }
+
+        public static Task<TSource[]> GetAsync<TSource>(this IQueryable<TSource> source)
+        {
+            return EntityFrameworkQueryableExtensions.ToArrayAsync(source);
         }
 
         public static IEnumerable<TSource> Paging<TSource>(
@@ -54,6 +62,15 @@ namespace Gdc.Scd.Core.Helpers
         {
             count = source.Count();
             return Paging(source, start, limit);
+        }
+
+        public static IQueryable<TSource> WhereIf<TSource>(
+                this IQueryable<TSource> source,
+                bool condition,
+                Expression<Func<TSource, bool>> predicate
+            )
+        {
+            return condition ? source.Where(predicate) : source;
         }
     }
 }

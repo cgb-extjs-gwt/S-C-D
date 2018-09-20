@@ -1,9 +1,8 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Web.Server.Entities;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace Gdc.Scd.Web.Server.Controllers
@@ -26,14 +25,18 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public DataInfo<ReportDto> GetAll()
+        public Task<DataInfo<ReportDto>> GetAll()
         {
-            IEnumerable<ReportDto> d = service.GetReports();
-            return new DataInfo<ReportDto> { Items = d, Total = d.Count() };
+            return service.GetReports()
+                          .ContinueWith(x =>
+                          {
+                              var d = x.Result;
+                              return new DataInfo<ReportDto> { Items = d, Total = d.Length };
+                          });
         }
 
         [HttpGet]
-        public ReportSchemaDto Schema([FromUri]long id)
+        public Task<ReportSchemaDto> Schema([FromUri]long id)
         {
             return service.GetSchema(id);
         }

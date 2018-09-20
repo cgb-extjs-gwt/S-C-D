@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.DataAccessLayer.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -27,9 +26,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return this.repositorySet.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public Task<IEnumerable<T>> GetAllAsync()
         {
-            return await this.repositorySet.Set<T>().ToArrayAsync();
+            return this.repositorySet.Set<T>()
+                                     .ToArrayAsync()
+                                     .ContinueWith(x => (IEnumerable<T>)x.Result);
         }
 
         public virtual void Save(T item)

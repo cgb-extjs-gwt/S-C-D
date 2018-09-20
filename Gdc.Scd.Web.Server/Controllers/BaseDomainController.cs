@@ -1,7 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.Web.Server.Entities;
 using Newtonsoft.Json;
 using System;
@@ -69,19 +69,20 @@ namespace Gdc.Scd.Web.Server.Controllers
         [HttpPost]
         public virtual void DeleteAll([FromBody]IEnumerable<T> items)
         {
-            foreach(var item in items)
+            foreach (var item in items)
             {
                 this.domainService.Delete(item.Id);
-            }         
+            }
         }
 
         protected virtual IQueryable<T> OrderBy(IQueryable<T> query, SortInfo[] sortInfos)
         {
             if (sortInfos != null && sortInfos.Length > 0)
             {
-                foreach (var sortInfo in sortInfos)
+                for (var i = 0; i < sortInfos.Length; i++)
                 {
-                    query = query.OrderBy(sortInfo.Property, sortInfo.Direction == SortDirection.Desc);
+                    var sortInfo = sortInfos[i];
+                    query = QueryableExtensions.OrderBy(query, sortInfo.Property, sortInfo.Direction == SortDirection.Desc);
                 }
             }
 

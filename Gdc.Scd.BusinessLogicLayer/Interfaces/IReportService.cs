@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
 using System.Data;
 using System.IO;
-using Gdc.Scd.BusinessLogicLayer.Dto.Report;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface IReportService
     {
-        IEnumerable<ReportDto> GetReports();
+        Task<ReportDto[]> GetReports();
 
-        ReportSchemaDto GetSchema(long reportId);
+        Task<ReportSchemaDto> GetSchema(long reportId);
 
         Stream Excel(long reportId, ReportFilterCollection filter, out string fileName);
 
