@@ -1,5 +1,6 @@
 ﻿import * as React from 'react';
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, Container, TextField, Dialog, GridCell } from '@extjs/ext-react';
+import PickerWindow from '../../Test/PickerWindow';
 
 interface UserRoleDialogProps {
     store
@@ -13,6 +14,7 @@ interface UserRoleDialogProps {
     saveRecords?()
 }
 
+
 export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
 
     private userRoleForm: Dialog & any;
@@ -22,7 +24,8 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
 
     state = {
         countryFieldHidden: true,
-        isValid: false
+        isValid: false,
+        isVisible: false
     }
 
     render() {
@@ -42,7 +45,16 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
                             }
                         }}
                         onHide={this.onFormCancel}
-                    >
+            >
+                 <Button
+                    text="People Picker"
+                    handler={() => this.showPickerWindow()}
+                />
+                <PickerWindow
+                    isVisible={this.state.isVisible}
+                    onSendClick={this.onSendDialogClick}
+                    onCancelClick={this.onCancelClick}
+                />
                         <ComboBoxField
                             ref={combobox => this.userComboBox = combobox}
                             store={storeUser}
@@ -148,5 +160,26 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
         else {
             this.setState({ isValid: false })
         }
+    }
+
+    private onCancelClick = () => {
+        this.setState({
+            ...this.state,
+            isVisible: false
+        });
+    }
+    private showPickerWindow = () => {
+        this.setState({
+            ...this.state,
+            isVisible: true
+        });
+    }
+    private onSendDialogClick = (value: number) => {
+
+
+        this.setState({
+            ...this.state,
+            isVisible: false
+        });
     }
 }
