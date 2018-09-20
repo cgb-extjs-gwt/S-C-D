@@ -1,6 +1,6 @@
 ﻿namespace Gdc.Scd.BusinessLogicLayer.Dto.Report
 {
-    public class ReportDto
+    public class ReportSchemaDto
     {
         public long Id { get; set; }
 
@@ -8,8 +8,8 @@
 
         public string Title { get; set; }
 
-        public bool CountrySpecific { get; set; }
+        public ReportColumnDto[] Fields { get; set; }
 
-        public bool HasFreesedVersion { get; set; }
+        public ReportFilterDto[] Filter { get; set; }
     }
 }

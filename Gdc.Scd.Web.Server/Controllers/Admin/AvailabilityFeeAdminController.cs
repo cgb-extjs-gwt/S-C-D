@@ -1,5 +1,5 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.Core.Dto.AvailabilityFee;
+﻿using Gdc.Scd.BusinessLogicLayer.Dto.AvailabilityFee;
+using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Web.Server.Entities;
 using System.Collections.Generic;
 using System.Linq;

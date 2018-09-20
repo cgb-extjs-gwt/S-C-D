@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Gdc.Scd.Web.Server
+namespace Gdc.Scd.BusinessLogicLayer.Helpers
 {
     public static class DateHelper
     {

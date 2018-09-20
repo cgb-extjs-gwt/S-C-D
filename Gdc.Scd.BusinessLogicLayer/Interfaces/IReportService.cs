@@ -9,12 +9,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
     {
         IEnumerable<ReportDto> GetReports();
 
-        ReportSchema GetSchema(string type);
+        ReportSchemaDto GetSchema(long reportId);
 
-        Stream Excel(string type, ReportFilterCollection filter);
+        Stream Excel(long reportId, ReportFilterCollection filter, out string fileName);
 
-        DataTable GetData(string type, ReportFilterCollection filter, int start, int limit, out int total);
+        DataTable GetData(long reportId, ReportFilterCollection filter, int start, int limit, out int total);
 
-        string GetJsonArrayData(string type, ReportFilterCollection filter, int start, int limit, out int total);
+        string GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit, out int total);
     }
 }

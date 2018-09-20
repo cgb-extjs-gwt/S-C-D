@@ -18,10 +18,10 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public HttpResponseMessage Export(string type)
+        public HttpResponseMessage Export([FromUri]long id)
         {
-            var data = service.Excel(type, GetFilter());
-            var fn = ExcelReportFn(type);
+            string fn;
+            var data = service.Excel(id, GetFilter(), out fn);
             return this.ExcelContent(data, fn);
         }
 
@@ -33,13 +33,13 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public ReportSchema Schema(string type)
+        public ReportSchemaDto Schema([FromUri]long id)
         {
-            return service.GetSchema(type);
+            return service.GetSchema(id);
         }
 
         [HttpGet]
-        public HttpResponseMessage View(string type, [FromUri]int start = 0, [FromUri]int limit = 50)
+        public HttpResponseMessage View([FromUri]long id, [FromUri]int start = 0, [FromUri]int limit = 50)
         {
             if (!IsRangeValid(start, limit))
             {
@@ -47,7 +47,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             }
 
             int total;
-            string json = service.GetJsonArrayData(type, GetFilter(), start, limit, out total);
+            string json = service.GetJsonArrayData(id, GetFilter(), start, limit, out total);
             return this.JsonContent(json, total);
         }
 
@@ -59,11 +59,6 @@ namespace Gdc.Scd.Web.Server.Controllers
         private static bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 50;
-        }
-
-        private static string ExcelReportFn(string type)
-        {
-            return string.Concat("report-", type, "-", DateHelper.Timestamp(), ".xls");
         }
     }
 }

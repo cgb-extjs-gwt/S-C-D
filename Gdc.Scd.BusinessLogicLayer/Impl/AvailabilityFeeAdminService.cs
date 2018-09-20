@@ -1,6 +1,6 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
+﻿using Gdc.Scd.BusinessLogicLayer.Dto.AvailabilityFee;
+using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
-using Gdc.Scd.Core.Dto.AvailabilityFee;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System;

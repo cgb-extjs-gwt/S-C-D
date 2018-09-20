@@ -31,5 +31,7 @@
         public const string ReferencesSchema = "References";
 
         public const string SoftwareSolutionSchema = "SoftwareSolution";
+
+        public const string ReportSchema = "Report";
     }
 }

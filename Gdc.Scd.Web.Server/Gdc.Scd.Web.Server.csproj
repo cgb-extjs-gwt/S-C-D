@@ -254,7 +254,6 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Heplers\ApiControllerHelper.cs" />
-    <Compile Include="Heplers\DateHelper.cs" />
     <Compile Include="Heplers\MimeTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

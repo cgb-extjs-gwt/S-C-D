@@ -1,4 +1,4 @@
-﻿using Gdc.Scd.Core.Dto.AvailabilityFee;
+﻿using Gdc.Scd.BusinessLogicLayer.Dto.AvailabilityFee;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using System.Collections.Generic;

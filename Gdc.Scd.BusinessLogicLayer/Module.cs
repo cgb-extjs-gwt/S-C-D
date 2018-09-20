@@ -4,6 +4,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.CapabilityMatrix;
+using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Ninject.Modules;
 using Ninject.Web.Common;
@@ -27,6 +28,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<IQualityGateSevice>().To<QualityGateSevice>().InRequestScope();
             Bind<IActiveDirectoryService>().To<ActiveDirectoryService>().InRequestScope();
 
+            /*----------dictionaries-----------*/
             Kernel.RegisterEntity<ClusterRegion>();
             Kernel.RegisterEntity<Country>();
             Kernel.RegisterEntity<CountryGroup>();
@@ -41,23 +43,32 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<ReactionTimeAvalability>();
             Kernel.RegisterEntity<ReactionTimeTypeAvalability>();
             Kernel.RegisterEntity<ServiceLocation>();
-            Kernel.RegisterEntity<CapabilityMatrix>();
-            Kernel.RegisterEntity<CapabilityMatrixRule>();
-            Kernel.RegisterEntity<CapabilityMatrixAllowView>();
-            Kernel.RegisterEntity<AdminAvailabilityFee>();
-            Kernel.RegisterEntity<CapabilityMatrixCountryAllowView>();
-            Kernel.RegisterEntity<RoleCode>();
-            Kernel.RegisterEntity<HardwareCalculationResult>();
-            Kernel.RegisterEntity<SoftwareCalculationResult>();
             Kernel.RegisterEntity<Currency>();
             Kernel.RegisterEntity<ExchangeRate>();
             Kernel.RegisterEntity<YearAvailability>();
             Kernel.RegisterEntity<ClusterPla>();
-            Kernel.RegisterEntity<Role>();
-            Kernel.RegisterEntity<UserRole>();
             Kernel.RegisterEntity<ProActiveSla>();
             Kernel.RegisterEntity<SwDigit>();
             Kernel.RegisterEntity<Sog>();
+
+            /*----------admin---------*/
+            Kernel.RegisterEntity<AdminAvailabilityFee>();
+            Kernel.RegisterEntity<RoleCode>();
+            Kernel.RegisterEntity<Role>();
+            Kernel.RegisterEntity<UserRole>();
+
+            /*---------domain business logic------------*/
+            Kernel.RegisterEntity<CapabilityMatrix>();
+            Kernel.RegisterEntity<CapabilityMatrixRule>();
+            Kernel.RegisterEntity<CapabilityMatrixAllowView>();
+            Kernel.RegisterEntity<HardwareCalculationResult>();
+            Kernel.RegisterEntity<SoftwareCalculationResult>();
+            Kernel.RegisterEntity<CapabilityMatrixCountryAllowView>();
+
+            /*---------reports----------*/
+            Kernel.RegisterEntity<Report>();
+            Kernel.RegisterEntity<ReportColumn>();
+            Kernel.RegisterEntity<ReportFilter>();
         }
     }
 }
