@@ -9,7 +9,6 @@ namespace Gdc.Scd.Core.Entities
         public virtual long Id { get; set; }
 
         [MustCompare(true)]
-
         public virtual string Name { get; set; }
     }
 }

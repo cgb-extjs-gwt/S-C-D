@@ -39,16 +39,15 @@ namespace Gdc.Scd.Import.Por
             Bind<IPorSogService>().To<PorSogService>();
             Bind<IPorWgService>().To<PorWgService>();
             Bind<IPorSwDigitService>().To<PorSwDigitService>();
+            Bind<IPorSwLicenseService>().To<PorSwLicenseService>();
 
             //Comparators
             Bind(typeof(IEqualityComparer<>)).To(typeof(PorEqualityComparer<>));
             
 
             //Domain Services
-            Bind<DomainService<Pla>>().ToSelf();
-            Bind<DomainService<SFab>>().ToSelf();
-            Bind<DomainService<Sog>>().ToSelf();
-            Bind<DomainService<Wg>>().ToSelf();
+            Bind(typeof(ImportPorService<>)).ToSelf();
+            Bind(typeof(DomainService<>)).ToSelf();
 
 
             Kernel.RegisterEntity<Pla>();
@@ -56,6 +55,13 @@ namespace Gdc.Scd.Import.Por
             Kernel.RegisterEntity<SFab>();
             Kernel.RegisterEntity<Wg>();
             Kernel.RegisterEntity<SwDigit>();
+            Kernel.RegisterEntity<SwLicense>();
+            Kernel.RegisterEntity<Availability>();
+            Kernel.RegisterEntity<ReactionTime>();
+            Kernel.RegisterEntity<ReactionType>();
+            Kernel.RegisterEntity<ServiceLocation>();
+            Kernel.RegisterEntity<Duration>();
+            Kernel.RegisterEntity<ProActiveSla>();
         }
     }
 }

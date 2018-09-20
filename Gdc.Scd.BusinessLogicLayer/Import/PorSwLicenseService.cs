@@ -12,12 +12,12 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Import
 {
-    public class PorSwDigitService : ImportPorService<SwDigit>, IPorSwDigitService
+    public class PorSwLicenseService : ImportPorService<SwLicense>, IPorSwLicenseService
     {
         private ILogger<LogLevel> _logger;
 
-        public PorSwDigitService(IRepositorySet repositorySet, 
-            IEqualityComparer<SwDigit> comparer,
+        public PorSwLicenseService(IRepositorySet repositorySet,
+            IEqualityComparer<SwLicense> comparer,
             ILogger<LogLevel> logger)
             : base(repositorySet, comparer)
         {
@@ -27,20 +27,20 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             _logger = logger;
         }
 
-        public bool Deactivate(IDictionary<string, string> swInfo, DateTime modifiedDateTime)
+        public bool Deactivate(IEnumerable<SCD_SW_Overview> swInfo, DateTime modifiedDateTime)
         {
             var result = true;
 
             try
             {
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATE_STEP_BEGIN, nameof(SwDigit));
+                _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATE_STEP_BEGIN, nameof(SwLicense));
 
-                var porItems = swInfo.Keys.Select(k => k.ToLower()).ToList();
+                var porItems = swInfo.Select(sw => sw.Software_Lizenz.ToLower()).ToList();
 
                 //select all that is not coming from POR and was not already deactivated in SCD
                 var itemsToDeacivate = this.GetAll()
-                                          .Where(f => !porItems.Contains(f.Name.ToLower())
-                                                    && !f.DeactivatedDateTime.HasValue).ToList();
+                                          .Where(s => !porItems.Contains(s.Name.ToLower())
+                                                    && !s.DeactivatedDateTime.HasValue).ToList();
 
                 var deactivated = this.Deactivate(itemsToDeacivate, modifiedDateTime);
 
@@ -65,41 +65,47 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             return result;
         }
 
-        public bool UploadSwDigits(IDictionary<string, string> swInfo, 
-            IEnumerable<Sog> sogs, 
-            DateTime modifiedDateTime)
+        public bool UploadSwLicense(IEnumerable<SCD_SW_Overview> swInfo, 
+            IEnumerable<SwDigit> digits, DateTime modifiedDateTime)
         {
             var result = true;
 
             try
             {
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(SwDigit));
+                _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(SwLicense));
 
-                var updatedSwDigits = new List<SwDigit>();
+                var updatedSwLicenses = new List<SwLicense>();
 
-                foreach (var swDigit in swInfo)
+                foreach (var swLicense in swInfo)
                 {
-                    var sog = sogs.FirstOrDefault(p => p.Name.Equals(swDigit.Value, StringComparison.OrdinalIgnoreCase));
-                    if (sog == null)
+                    
+                    var digit = digits.FirstOrDefault(d => d.Name.Equals(swLicense.Software_Lizenz_Digit, 
+                        StringComparison.OrdinalIgnoreCase));
+
+                    if (digit == null)
                     {
                         _logger.Log(LogLevel.Warn,
-                            PorImportLoggingMessage.UNKNOW_SOG, $"{nameof(SwDigit)} {swDigit.Key}", swDigit.Value);
+                            PorImportLoggingMessage.UNKNOW_DIGIT, 
+                            $"{nameof(SwLicense)} {swLicense.Software_Lizenz}", 
+                            swLicense.Software_Lizenz_Digit);
                         continue;
                     }
 
-                    updatedSwDigits.Add(new SwDigit
+                    updatedSwLicenses.Add(new SwLicense
                     {
-                        Name = swDigit.Key,
-                        SogId = sog.Id
+                        Name = swLicense.Software_Lizenz,
+                        SoftwareLicenseDescription = swLicense.Software_Lizenz_Beschreibung,
+                        SoftwareLicenseName = swLicense.Software_Lizenz_Benennung,
+                        SwDigitId = digit.Id
                     });
                 }
 
-                var added = this.AddOrActivate(updatedSwDigits, modifiedDateTime);
+                var added = this.AddOrActivate(updatedSwLicenses, modifiedDateTime);
 
                 foreach (var addedEntity in added)
                 {
                     _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
-                        nameof(SwDigit), addedEntity.Name);
+                        nameof(SwLicense), addedEntity.Name);
                 }
 
                 _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_END, added.Count);

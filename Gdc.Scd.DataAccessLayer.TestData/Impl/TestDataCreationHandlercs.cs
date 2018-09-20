@@ -156,12 +156,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             this.repositorySet.GetRepository<ProActiveSla>().Save(new ProActiveSla[] 
             {
-                new ProActiveSla { Name = "0" },
-                new ProActiveSla { Name = "2" },
-                new ProActiveSla { Name = "3" },
-                new ProActiveSla { Name = "4" },
-                new ProActiveSla { Name = "6" },
-                new ProActiveSla { Name = "7" },
+                new ProActiveSla { Name = "0", ExternalName = "none" },
+                new ProActiveSla { Name = "1", ExternalName = "with autocall" },
+                new ProActiveSla { Name = "2", ExternalName = "with 1x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
+                new ProActiveSla { Name = "3", ExternalName = "with 2x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
+                new ProActiveSla { Name = "4", ExternalName = "with 4x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
+                new ProActiveSla { Name = "6", ExternalName = "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)" },
+                new ProActiveSla { Name = "7", ExternalName = "with 4x System Health Check & Patch Information incl. onsite Technical Account Management (per year)" },
             });
 
             this.repositorySet.Sync();
@@ -270,14 +271,19 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateReactionTimeTypeAvalability()
         {
-            var twoBusinessDay = new ReactionTime { Name = "2nd Business Day" };
-            var nbd = new ReactionTime { Name = "NBD" };
-            var fourHour = new ReactionTime { Name = "4h" };
-            var twentyFourHour = new ReactionTime { Name = "24h" };
-            var eightHour = new ReactionTime { Name = "8h" };
+            var twoBusinessDay = new ReactionTime { Name = "2nd Business Day", ExternalName = "SBD" };
+            var nbd = new ReactionTime { Name = "NBD", ExternalName = "NBD" };
+            var fourHour = new ReactionTime { Name = "4h", ExternalName = "4h" };
+            var twentyFourHour = new ReactionTime { Name = "24h", ExternalName = "24h" };
+            var eightHour = new ReactionTime { Name = "8h", ExternalName = "8h" };
+            var noneTime = new ReactionTime { Name = "none", ExternalName = "none" };
 
-            var response = new ReactionType { Name = "response" };
-            var recovery = new ReactionType { Name = "recovery" };
+            var response = new ReactionType { Name = "response", ExternalName = "response" };
+            var recovery = new ReactionType { Name = "recovery", ExternalName = "recovery" };
+            var noneType = new ReactionType { Name = "none", ExternalName = "none" };
+
+            this.repositorySet.GetRepository<ReactionType>().Save(noneType);
+            this.repositorySet.GetRepository<ReactionTime>().Save(noneTime);
 
             this.repositorySet.GetRepository<ReactionTimeType>().Save(new List<ReactionTimeType>
             {
@@ -290,8 +296,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReactionTimeType { ReactionTime = fourHour, ReactionType = recovery },
             });
 
-            var nineByFive = new Availability { Name = "9x5" };
-            var twentyFourBySeven = new Availability { Name = "24x7" };
+            var nineByFive = new Availability { Name = "9x5", ExternalName = "9x5 (local business hours);9x5 (08:00-17:00)" };
+            var twentyFourBySeven = new Availability { Name = "24x7", ExternalName = "24x7" };
 
             var reactionTimeAvalabilities = new List<ReactionTimeAvalability>
             {
@@ -1176,6 +1182,23 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             return result;
         }
 
+        private List<ServiceLocation> GetServiceLocations()
+        {
+            return new List<ServiceLocation>
+            {
+                new ServiceLocation {Name = "Material/Spares Service", ExternalName = "Material/Spares" },
+                new ServiceLocation {Name = "Bring-In Service", ExternalName = "Bring-In" },
+                new ServiceLocation {Name = "Send-In / Return-to-Base Service", ExternalName = "Send-In/Return-to-Base Service" },
+                new ServiceLocation {Name = "Collect & Return Service", ExternalName = "Collect & Return" },
+                new ServiceLocation {Name = "Collect & Return-Display Service", ExternalName = "Collect & Return-Display Service" },
+                new ServiceLocation {Name = "Door-to-Door Exchange Service", ExternalName = "Door-to-Door Exchange" },
+                new ServiceLocation {Name = "Desk-to-Desk Exchange Service", ExternalName = "Desk-to-Desk Exchange" },
+                new ServiceLocation {Name = "On-Site Service", ExternalName = "On-Site Service" },
+                new ServiceLocation {Name = "On-Site Exchange Service", ExternalName = "On-Site Exchange" },
+                new ServiceLocation {Name = "Remote", ExternalName = "Remote Service" },
+
+            };
+        }
         private string[] GetServiceLocationCodeNames()
         {
             return new string[]
@@ -1232,10 +1255,12 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             return new Duration[]
             {
-                new Duration { Name = "3 Years", Value = 3, IsProlongation = false },
-                new Duration { Name = "4 Years", Value = 4, IsProlongation = false },
-                new Duration { Name = "5 Years", Value = 5, IsProlongation = false },
-                new Duration { Name = "Prolongation", Value = 1, IsProlongation = true }
+                new Duration { Name = "1 Year", Value = 1, IsProlongation = false, ExternalName = "1 year" },
+                new Duration { Name = "2 Years", Value = 2, IsProlongation = false, ExternalName = "2 years"},
+                new Duration { Name = "3 Years", Value = 3, IsProlongation = false, ExternalName = "3 years" },
+                new Duration { Name = "4 Years", Value = 4, IsProlongation = false, ExternalName = "4 years" },
+                new Duration { Name = "5 Years", Value = 5, IsProlongation = false, ExternalName = "5 years" },
+                new Duration { Name = "Prolongation", Value = 1, IsProlongation = true, ExternalName = "1 year (P)" }
             };
         }
 

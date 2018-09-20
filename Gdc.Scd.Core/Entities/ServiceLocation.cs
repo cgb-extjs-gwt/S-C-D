@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Gdc.Scd.Core.Entities
 {
     [Table("ServiceLocation", Schema = MetaConstants.DependencySchema)]
-    public class ServiceLocation : NamedId
+    public class ServiceLocation : ExternalEntity
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id

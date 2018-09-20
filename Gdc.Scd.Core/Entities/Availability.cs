@@ -4,7 +4,7 @@ using Gdc.Scd.Core.Meta.Constants;
 namespace Gdc.Scd.Core.Entities
 {
     [Table("Availability", Schema = MetaConstants.DependencySchema)]
-    public class Availability : NamedId
+    public class Availability : ExternalEntity
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id

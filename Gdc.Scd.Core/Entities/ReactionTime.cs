@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Gdc.Scd.Core.Entities
 {
     [Table("ReactionTime", Schema = MetaConstants.DependencySchema)]
-    public class ReactionTime : NamedId
+    public class ReactionTime : ExternalEntity
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id

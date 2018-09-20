@@ -8,6 +8,6 @@ namespace Gdc.Scd.DataAccessLayer.External.Interfaces
 {
     public interface IDataImporter<out T> where T: class
     {
-        IEnumerable<T> ImportData();
+        IQueryable<T> ImportData();
     }
 }

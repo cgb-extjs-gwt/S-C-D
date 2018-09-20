@@ -20,7 +20,7 @@ namespace Gdc.Scd.DataAccessLayer.External.Impl
             _frieseEntities = frieseEntities;
         }
 
-        public IEnumerable<T> ImportData()
+        public IQueryable<T> ImportData()
         {
             return Entities;
         }

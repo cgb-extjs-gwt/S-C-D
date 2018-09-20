@@ -128,5 +128,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
 
             }
         }
+
+        public IQueryable<T> GetAllActive()
+        {
+            return this.GetAll().Where(entity => !entity.DeactivatedDateTime.HasValue);
+        }
     }
 }
