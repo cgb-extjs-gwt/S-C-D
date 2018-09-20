@@ -7,26 +7,26 @@ import { ReportFactory } from "./Services/ReportFactory";
 
 export class ReportView extends React.Component<any, AutoGridModel> {
 
-    private type: string;
+    private id: string;
 
     private srv: IReportService;
 
     constructor(props: any) {
 
-        var type = props.match.params.type;
+        var id = props.match.params.id;
 
-        if (!type) {
-            throw new Error('invalid report type');
+        if (!id) {
+            throw new Error('invalid report id');
         }
 
         super(props);
         this.init();
 
-        this.type = type;
+        this.id = id;
     }
 
     public componentDidMount() {
-        this.srv.getSchema(this.type).then(x => this.setState(x));
+        this.srv.getSchema(this.id).then(x => this.setState(x));
     }
 
     public render() {
@@ -49,6 +49,6 @@ export class ReportView extends React.Component<any, AutoGridModel> {
     }
 
     public getUrl(): string {
-        return buildMvcUrl('report', 'view', { 'type': this.type });
+        return buildMvcUrl('report', 'view', { 'type': this.id });
     }
 }

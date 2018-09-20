@@ -16,6 +16,12 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
     }
 
     public render() {
+        var filter = this.props.filter;
+
+        if (!this.checkModel(filter)) {
+            return null;
+        }
+
         return (
             <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
 
@@ -78,5 +84,9 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
         if (handler) {
             handler(this.getModel());
         }
+    }
+
+    private checkModel(filter: AutoFilterModel[]) {
+        return filter && filter.length > 0;
     }
 }

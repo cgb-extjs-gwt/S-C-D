@@ -29,13 +29,13 @@ export class ReportService implements IReportService {
         return p;
     }
 
-    public getSchema(type: string): Promise<AutoGridModel> {
+    public getSchema(id: string): Promise<AutoGridModel> {
 
-        let p = ReportService.schemas[type];
+        let p = ReportService.schemas[id];
 
         if (!p) {
-            p = get<AutoGridModel>(this.controllerName, 'schema', { type: type });
-            ReportService.schemas[type] = p;
+            p = get<AutoGridModel>(this.controllerName, 'schema', { id: id });
+            ReportService.schemas[id] = p;
         }
 
         return p;

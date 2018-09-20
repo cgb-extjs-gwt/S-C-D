@@ -1,7 +1,5 @@
-﻿export interface ReportModel {
+﻿import { NamedId } from "../../Common/States/CommonStates";
 
+export interface ReportModel extends NamedId {
     type: string;
-
-    name: string;
-
 }

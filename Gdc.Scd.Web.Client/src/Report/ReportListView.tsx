@@ -35,7 +35,7 @@ export class ReportListView extends React.Component<any, ReportListViewState> {
                     {reports.map((x, i) => {
                         return (
                             <div key={i}>
-                                <a data-href={'/report/' + x.type}>{x.name}</a><br /><br />
+                                <a data-href={'/report/' + x.id}>{x.name}</a><br /><br />
                             </div>
                         );
                     })}
