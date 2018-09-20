@@ -6,8 +6,9 @@ import { costBlockReducer } from "./CostEditor/Reducers/CostBlockReducer";
 import { appReducer } from "./Layout/Reducers/AppReducer";
 import { CommonState, AppState } from "./Layout/States/AppStates";
 import { COST_EDITOR_PAGE } from "./CostEditor/Actions/CostEditorActions";
-import { COST_APPROVAL_PAGE } from "./CostApproval/Actions/CostApprovalFilterActions";
-import { bundleFilterReducer } from "./CostApproval/Reducers/BundleFilterReducer";
+import { buildApprovalCostElementsReducer } from "./CostApproval/Reducers/ApprovalCostElementsReducer";
+import { COST_APPROVAL_PAGE, OWN_COST_APPROVAL_PAGE } from "./CostApproval/Constants/CostApprovalConstants";
+import { qualityGateErrorsReducer } from "./CostApproval/Reducers/QualityGateErrorsReducer";
 
 const asyncActionHandler = store => next => action => {
     if (action instanceof AsyncAction) {
@@ -29,7 +30,10 @@ export const storeFactory = () => {
             
                 return state;
             },
-            [COST_APPROVAL_PAGE]: bundleFilterReducer
+            [COST_APPROVAL_PAGE]: buildApprovalCostElementsReducer(COST_APPROVAL_PAGE),
+            [OWN_COST_APPROVAL_PAGE]: buildApprovalCostElementsReducer(OWN_COST_APPROVAL_PAGE, {
+                qualityGateErrors: qualityGateErrorsReducer
+            })
         })
     });
 

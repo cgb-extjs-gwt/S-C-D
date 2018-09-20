@@ -1,14 +1,19 @@
 import { CommonState } from "../../Layout/States/AppStates";
 import { connect } from "react-redux";
 import FilterBundlesView, { FilterApprovalProps, ApprovalFilterActions } from "./FilterBundlesView";
-import { SelectList, NamedId, ElementWithParent } from "../../Common/States/CommonStates";
-import { ItemSelectedAction, ItemWithParentSelectedAction, CommonAction } from '../../Common/Actions/CommonActions';
+import { SelectList, NamedId, ElementWithParent, PageName } from "../../Common/States/CommonStates";
+import { ItemSelectedAction, ItemWithParentSelectedAction, CommonAction, PageItemSelectedAction, PageCommonAction, PageItemWithParentSelectedAction, PageAction } from '../../Common/Actions/CommonActions';
 import * as approvalActions from '../../CostApproval/Actions/CostApprovalFilterActions';
+import { ApprovalCostElementsLayoutState } from "../States/ApprovalCostElementsLayoutState";
+import { loadBundlesByFilter } from '../Actions/BundleListActions'
+import { ApprovalBundleState } from "../States/ApprovalBundleState";
 
+export interface FilterBundleContainerProps extends PageName {
+    approvalBundleState: ApprovalBundleState
+}
 
-export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilterActions, {}, CommonState>
-(
-    state => {
+export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilterActions, FilterBundleContainerProps, CommonState>(
+    (state, { pageName }) => {
 
         //app meta data is not loaded yet
         if (!state.app.appMetaData)
@@ -17,7 +22,9 @@ export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilter
         }
         
         const meta = state.app.appMetaData;
-        const filter = state.pages.costApproval.filter;
+        //const filter = state.pages.costApproval.filter;
+        const page = <ApprovalCostElementsLayoutState>state.pages[pageName];
+        const filter = page.filter;
 
         const applications = {
             selectedItemId: filter.selectedApplicationId,
@@ -76,43 +83,48 @@ export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilter
             application: applications,
             costBlocks: costBlocks,
             costElements: costElements,
-            startDate: state.pages.costApproval.filter.startDate ?  state.pages.costApproval.filter.startDate : new Date(),
-            endDate: state.pages.costApproval.filter.endDate ? state.pages.costApproval.filter.endDate : new Date(),
+            startDate: filter.startDate || new Date(),
+            endDate: filter.endDate || new Date(),
         }
     },
-    dispatch => (<ApprovalFilterActions>{
-        onApplicationSelect: (selectedAppId) => dispatch(<ItemSelectedAction>{
+    (dispatch, { pageName, approvalBundleState }) => (<ApprovalFilterActions>{
+        onApplicationSelect: (selectedAppId) => dispatch(<PageItemSelectedAction>{
             type: approvalActions.COST_APPROVAL_SELECT_APPLICATION,
-            selectedItemId: selectedAppId
+            selectedItemId: selectedAppId,
+            pageName
         }),
-        onCostBlockCheck: (selectedCostBlock) => dispatch(<ItemSelectedAction>{
+        onCostBlockCheck: (selectedCostBlock) => dispatch(<PageItemSelectedAction>{
             type: approvalActions.COST_APPROVAL_CHECK_COST_BLOCK,
-            selectedItemId: selectedCostBlock
+            selectedItemId: selectedCostBlock,
+            pageName
         }),
-        onCostBlockUncheck: (selectedCostBlock) => dispatch(<ItemSelectedAction>{
+        onCostBlockUncheck: (selectedCostBlock) => dispatch(<PageItemSelectedAction>{
             type: approvalActions.COST_APPROVAL_UNCHECK_COST_BLOCK,
-            selectedItemId: selectedCostBlock
+            selectedItemId: selectedCostBlock,
+            pageName
         }),
-        onCostElementCheck: (selectedCostElement, parentElementId) => dispatch(<ItemWithParentSelectedAction>{
+        onCostElementCheck: (selectedCostElement, parentElementId) => dispatch(<PageItemWithParentSelectedAction>{
             type: approvalActions.COST_APPROVAL_CHECK_COST_ELEMENT,
             selectedItemId: selectedCostElement,
-            selectedItemParentId: parentElementId
+            selectedItemParentId: parentElementId,
+            pageName
         }),
-        onCostElementUncheck: (selectCostElement) => dispatch(<ItemSelectedAction>{
+        onCostElementUncheck: (selectCostElement) => dispatch(<PageItemSelectedAction>{
             type: approvalActions.COST_APPROVAL_UNCHECK_COST_ELEMENT,
-            selectedItemId: selectCostElement
+            selectedItemId: selectCostElement,
+            pageName
         }),
-        onStartDateChange: (selectedDate) => dispatch(<CommonAction<Date>>{
+        onStartDateChange: (selectedDate) => dispatch(<PageCommonAction<Date>>{
             type: approvalActions.COST_APPROVAL_SELECT_START_DATE,
-            data: selectedDate
+            data: selectedDate,
+            pageName
         }),
-        onEndDateChange: (selectedDate) => dispatch(<CommonAction<Date>>{
+        onEndDateChange: (selectedDate) => dispatch(<PageCommonAction<Date>>{
             type: approvalActions.COST_APPROVAL_SELECT_END_DATE,
-            data: selectedDate
+            data: selectedDate,
+            pageName
         }),
-        onApplyFilter: () => dispatch({
-            type: approvalActions.COST_APPROVAL_APPLY_FILTER
-        }),
+        onApplyFilter: () => dispatch(loadBundlesByFilter(pageName, approvalBundleState))
     })
     
 )(FilterBundlesView)

@@ -6,8 +6,9 @@ import { EditItem, CostElementData, DataLoadingState } from "../States/CostBlock
 import { NamedId } from "../../Common/States/CommonStates";
 import { losseDataCheckHandlerAction, buildCostEditorContext } from "../Helpers/CostEditorHelpers";
 import { CommonState } from "../../Layout/States/AppStates";
-import { ApprovalOption, QualityGateResult } from "../Services/CostEditorServices";
+import { ApprovalOption } from "../Services/CostEditorServices";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
+import { QualityGateResult } from "../../QualityGate/States/QualityGateResult";
 
 export const COST_BLOCK_INPUT_SELECT_REGIONS = 'COST_BLOCK_INPUT.SELECT.REGIONS';
 export const COST_BLOCK_INPUT_SELECT_COST_ELEMENT = 'COST_BLOCK_INPUT.SELECT.COST_ELEMENT';
@@ -206,6 +207,15 @@ export const getDataByCostElementSelection = (costBlockId: string, costElementId
                         data => dispatch(loadCostElementData(costBlockId, costElementId, data))
                     )
                 )
+            }
+
+            if (costElement.inputLevel.selectedItemId == null){
+                dispatch(
+                    getFilterItemsByInputLevelSelection(
+                        costBlockId, 
+                        costElementId, 
+                        costElement.
+                        inputLevel.list[0].inputLevelId));
             }
         }
     )

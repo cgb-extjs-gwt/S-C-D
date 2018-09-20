@@ -1,7 +1,7 @@
 import { CostEditorState } from "../../CostEditor/States/CostEditorStates";
-import { CostBlockMeta, CostMetaData } from "../../Common/States/CostMetaStates";
-import { BundleFilterStates, BudleFilter } from "../../CostApproval/States/BundleFilterStates";
-import { applyFilters } from "../../CostEditor/Actions/CostBlockActions";
+import { CostMetaData } from "../../Common/States/CostMetaStates";
+import { ApprovalCostElementsLayoutState } from "../../CostApproval/States/ApprovalCostElementsLayoutState";
+import { OwnApprovalCostElementsLayoutState } from "../../CostApproval/States/OwnApprovalCostElementsLayoutState";
 
 export interface AppState {
     isLoading: boolean
@@ -17,6 +17,7 @@ export interface CommonState {
     app: AppState
     pages: {
         costEditor: CostEditorState,
-        costApproval: BudleFilter
+        costApproval: ApprovalCostElementsLayoutState,
+        ownCostApproval: OwnApprovalCostElementsLayoutState
     }
 }

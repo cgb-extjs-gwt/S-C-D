@@ -70,8 +70,7 @@ class AvailabilityFeeAdminGrid extends React.Component{
     }
 
     render(){
-        console.log(this.store);
-        return ( <Grid title={ 'Availability Fee Settings' } store={ this.store } cls="filter-grid" columnLines= {true} plugins={['pagingtoolbar']} >
+        return (<Grid title={ 'Availability Fee Settings' } store={ this.store } cls="filter-grid" columnLines= {true} plugins={['pagingtoolbar']} >
                     <Column text="Country" dataIndex="countryName" flex={1} />
                     <Column text="Reaction Time" dataIndex="reactionTimeName" flex={1} />
                     <Column text="Reaction Type" dataIndex="reactionTypeName" flex={1} />

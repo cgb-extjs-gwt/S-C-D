@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Core.Meta.Constants;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities
@@ -22,5 +23,8 @@ namespace Gdc.Scd.Core.Entities
         public ClusterRegion ClusterRegion { get; set; }
 
         public long ClusterRegionId { get; set; }
+
+        [Required]
+        public Currency Currency { get; set; }
     }
 }

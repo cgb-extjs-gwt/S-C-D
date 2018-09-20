@@ -1,23 +1,25 @@
-import * as React from 'react'
-import { Container, TitleBar, Button, Sheet, Panel } from '@extjs/ext-react';
-import { Switch, Route, Redirect, withRouter } from 'react-router-dom'
-import NavMenu from './NavMenu';
-import { medium, large } from '../../responsiveFormulas';
-import Home from '../../Test/Home/Home';
-import About from '../../Test/About/About';
-import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
+import { Container, Panel, TitleBar } from '@extjs/ext-react';
+import * as React from 'react';
 import { connect } from 'react-redux';
-import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
-import { CapabilityMatrixView, CapabilityMatrixEditView } from '../../CapabilityMatrix';
+import { Route, Switch, withRouter } from 'react-router-dom';
+import AvailabilityFeeAdminGrid from '../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid';
+import CountryGrid from '../../Admin/Country/containers/CountryGrid';
 import RoleCodesGrid from '../../Admin/RoleCode/RoleCodesGrid';
 import UserRoleContainer from '../../Admin/UserRole/UserRoleContainer';
-import { CommonState } from '../States/AppStates';
-import CountryGrid from '../../Admin/Country/containers/CountryGrid';
 import WarrantyGroupGrid from '../../Admin/WarrantyGroup/WarrantyGroupGrid';
-import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCostElementsLayout';
-import { init } from '../../CostApproval/Actions/CostApprovalFilterActions';
-import AvailabilityFeeAdminGrid from '../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid';
+import { CapabilityMatrixEditView, CapabilityMatrixView } from '../../CapabilityMatrix';
 import { buildComponentUrl } from "../../Common/Services/Ajax";
+import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCostElementsLayout';
+import { OwnApprovalCostElementsLayout } from '../../CostApproval/Components/OwnApprovalCostElementsLayout';
+import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
+import { CalcResultView } from '../../Report';
+import { large, medium } from '../../responsiveFormulas';
+import About from '../../Test/About/About';
+import Home from '../../Test/Home/Home';
+import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
+import { loadMetaDataFromServer } from '../Actions/AppActions';
+import { CommonState } from '../States/AppStates';
+import NavMenu from './NavMenu';
 
 export const ROOT_LAYOUT_ID = "root-layout";
 
@@ -71,18 +73,20 @@ export class Layout extends React.Component<LayoutProps> {
 
                 <Panel title={title} layout="fit">
                     <Switch>
-                        <Route path={buildComponentUrl("/")} component={Home} exact/>
-                        <Route path={buildComponentUrl("/about")} component={About}/>
+                        <Route path={buildComponentUrl("/")} component={CostEditorContainer} exact/>
                         <Route path={buildComponentUrl("/pivot")} component={ScdPivotGrid}/>
                         <Route path={buildComponentUrl("/input-cost-elements")} component={CostEditorContainer}/>
                         <Route path={buildComponentUrl("/admin/country-management")} component={ CountryGrid }/>
                         <Route path={buildComponentUrl("/cost-approval")} component={ ApprovalCostElementsLayout} />
+                        <Route path={buildComponentUrl("/own-cost-approval")} component={ OwnApprovalCostElementsLayout} />
+                        <Route path={buildComponentUrl("/report")} component={CalcResultView} />
                         <Route path={buildComponentUrl("/capability-matrix")} exact component={CapabilityMatrixView} />
                         <Route path={buildComponentUrl("/capability-matrix/edit")} component={CapabilityMatrixEditView} />
                         <Route path={buildComponentUrl("/admin/availability-fee")} component={AvailabilityFeeAdminGrid} />
                         <Route path={buildComponentUrl("/admin/role-code-management")} component={RoleCodesGrid} />
                         <Route path={buildComponentUrl("/admin/warranty-group-management")} component={WarrantyGroupGrid} />
-                        <Route path={buildComponentUrl("/admin/user-role")} component={UserRoleContainer} />                   
+                        <Route path={buildComponentUrl("/admin/user-role")} component={UserRoleContainer} />
+                        <Route path={buildComponentUrl("/test")} component={About} />                   
                     </Switch>
                 </Panel>
             </Container>
@@ -95,7 +99,7 @@ const containerFactory = connect<LayoutProps, {}, {}, CommonState>(
         title: state.app.currentPage && state.app.currentPage.title
     } as LayoutProps),
     dispatch => ({
-        onInit: () => dispatch(init())
+        onInit: () => dispatch(loadMetaDataFromServer())
     })
 );
 

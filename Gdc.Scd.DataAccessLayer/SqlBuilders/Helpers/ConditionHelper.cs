@@ -33,9 +33,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<AndSqlBuilder>(operands);
         }
 
-        public static ConditionHelper AndStatic(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
+        public static ConditionHelper AndStatic(IDictionary<string, IEnumerable<object>> filter, string tableName = null, string paramNamePrefix = null)
         {
-            return CreateConditionHelper<AndSqlBuilder>(filter, tableName);
+            return CreateConditionHelper<AndSqlBuilder>(filter, tableName, paramNamePrefix);
         }
 
         public static ConditionHelper AndBrackets(ISqlBuilder leftOperand, ISqlBuilder rightOperand)
@@ -78,9 +78,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<OrSqlBuilder>(operands);
         }
 
-        public static ConditionHelper OrStatic(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
+        public static ConditionHelper OrStatic(IDictionary<string, IEnumerable<object>> filter, string tableName = null, string paramNamePrefix = null)
         {
-            return CreateConditionHelper<OrSqlBuilder>(filter, tableName);
+            return CreateConditionHelper<OrSqlBuilder>(filter, tableName, paramNamePrefix);
         }
 
         public static ConditionHelper OrBrackets(ISqlBuilder leftOperand, ISqlBuilder rightOperand)
@@ -113,9 +113,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<AndSqlBuilder>(this.ToSqlBuilder(), rightOperand.ToSqlBuilder());
         }
 
-        public ConditionHelper And(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
+        public ConditionHelper And(IDictionary<string, IEnumerable<object>> filter, string tableName = null, string paramNamePrefix = null)
         {
-            return CreateConditionHelper<AndSqlBuilder>(filter, tableName);
+            return CreateConditionHelper<AndSqlBuilder>(filter, tableName, paramNamePrefix);
         }
 
         public ConditionHelper AndBrackets(ISqlBuilder rightOperand)
@@ -138,9 +138,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<OrSqlBuilder>(this.ToSqlBuilder(), rightOperand.ToSqlBuilder());
         }
 
-        public ConditionHelper Or(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
+        public ConditionHelper Or(IDictionary<string, IEnumerable<object>> filter, string tableName = null, string paramNamePrefix = null)
         {
-            return CreateConditionHelper<OrSqlBuilder>(filter, tableName);
+            return CreateConditionHelper<OrSqlBuilder>(filter, tableName, paramNamePrefix);
         }
 
         public ConditionHelper OrBrackets(ISqlBuilder rightOperand)
@@ -235,10 +235,15 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             });
         }
 
-        private static ConditionHelper CreateConditionHelper<T>(IDictionary<string, IEnumerable<object>> filter, string tableName)
+        private static ConditionHelper CreateConditionHelper<T>(IDictionary<string, IEnumerable<object>> filter, string tableName, string paramNamePrefix)
             where T : BinaryOperatorSqlBuilder, new()
         {
             var inBuilders = new List<InSqlBuilder>();
+
+            if (paramNamePrefix == null)
+            {
+                paramNamePrefix = string.Empty;
+            }
 
             foreach (var filterItem in filter)
             {
@@ -251,7 +256,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     {
                         ParamInfo = value as CommandParameterInfo ?? new CommandParameterInfo
                         {
-                            Name = $"{filterItem.Key}_{index++}",
+                            Name = $"{paramNamePrefix}{filterItem.Key}_{index++}",
                             Value = value
                         }
                     });
