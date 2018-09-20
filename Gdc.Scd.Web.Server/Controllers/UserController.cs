@@ -20,7 +20,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             this.activeDirectoryService = activeDirectoryService;
         }
         [System.Web.Http.HttpGet]
-        public void SelectUser([System.Web.Http.FromBody]DirectoryEntry user)
+        public void SelectUser(string userIdentity, string _dc)
         {
             //TODO: need to add behavior
         }
@@ -36,7 +36,7 @@ namespace Gdc.Scd.Web.Api.Controllers
                 AdServiceAccount = ConfigurationManager.AppSettings["AdServiceAccount"],
                 AdServicePassword = ConfigurationManager.AppSettings["AdServicePassword"],
             };
-            var foundUsers = activeDirectoryService.SearchForUserByString(searchString).Select(
+            var foundUsers = activeDirectoryService.SearchForUserByString(searchString, 3).Select(
                 user => new UserInfo
                 {
                     Username = user.DisplayName,
