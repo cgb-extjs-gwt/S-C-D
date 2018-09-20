@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { FormPanel, NumberField, Button, ComboBoxField, Grid, Column } from '@extjs/ext-react';
+import { FormPanel, NumberField, Button, ComboBoxField, Grid, Column, ComboBox } from '@extjs/ext-react';
 import { buildMvcUrl } from "../Services/Ajax"
 Ext.require('Ext.grid.plugin.PagingToolbar');
 export interface PickerPanelProps {
@@ -81,19 +81,20 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
             scope: this
         });
     }
-
+    getUserIdentity = () => {
+        return this.pickerField.getValue();
+    }
     public render() {
         const { value, onSendClick, onCancelClick } = this.props;
         return (
             <FormPanel>
-                <ComboBoxField
+                <ComboBox
                     ref={combobox => this.pickerField = combobox}
                     store={this.store}
-                    //options={this.userList}
-                    width={500}
+                    width={400}
                     label="Find user name"
                     displayField="name"
-                    valueField="code"
+                    valueField="abbr"
                     queryMode="remote"
                     labelAlign="placeholder"
                     onKeyUp={() => this.loadUsers()}
@@ -105,7 +106,7 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
                 <Button
                     ref={button => this.sendButton = button}
                     text="Send"
-                    handler={() => onSendClick(this.pickerField.getValue())}
+                    handler={() => onSendClick(this.getUserIdentity())}
                     disabled={this.state.disableSendButton}
                 />
                 <Button text="Cancel" handler={onCancelClick} />
