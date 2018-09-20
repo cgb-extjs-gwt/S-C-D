@@ -47,7 +47,7 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return entities;
         }
 
-        public static string MapToJson(this DbDataReader reader)
+        public static string MapToJsonArray(this DbDataReader reader)
         {
             if (IsEmpty(reader))
             {

@@ -44,6 +44,8 @@ namespace Gdc.Scd.Web.Server.Controllers
                 return null;
             }
 
+            //this.JsonContent
+
             int total;
             IEnumerable<object> d = service.GetData(type, GetFilter(), start, limit, out total);
             return new DataInfo<object> { Items = d, Total = total };
