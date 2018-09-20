@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using Gdc.Scd.BusinessLogicLayer.Dto.Report;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
@@ -9,8 +11,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         ReportSchema GetSchema(string type);
 
-        object Excel(string type);
+        Stream Excel(string type);
 
-        IEnumerable<object> GetData(string type, ReportFilterCollection filter, int start, int limit, out int total);
+        DataTable GetData(string type, ReportFilterCollection filter, int start, int limit, out int total);
+
+        string GetJsonArrayData(string type, ReportFilterCollection filter, int start, int limit, out int total);
     }
 }

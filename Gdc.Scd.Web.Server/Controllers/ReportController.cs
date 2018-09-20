@@ -18,9 +18,9 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public object Export(string type)
+        public HttpResponseMessage Export(string type)
         {
-            return service.Excel(type);
+            return this.ExcelContent(service.Excel(type), ExcelReportFn(type));
         }
 
         [HttpGet]
@@ -37,18 +37,16 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public DataInfo<object> View(string type, [FromUri]int start = 0, [FromUri]int limit = 50)
+        public HttpResponseMessage View(string type, [FromUri]int start = 0, [FromUri]int limit = 50)
         {
             if (!IsRangeValid(start, limit))
             {
                 return null;
             }
 
-            //this.JsonContent
-
             int total;
-            IEnumerable<object> d = service.GetData(type, GetFilter(), start, limit, out total);
-            return new DataInfo<object> { Items = d, Total = total };
+            string json = service.GetJsonArrayData(type, GetFilter(), start, limit, out total);
+            return this.JsonContent(json, total);
         }
 
         private ReportFilterCollection GetFilter()
@@ -56,9 +54,14 @@ namespace Gdc.Scd.Web.Server.Controllers
             return new ReportFilterCollection(Request.GetQueryNameValuePairs());
         }
 
-        private bool IsRangeValid(int start, int limit)
+        private static bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 50;
+        }
+
+        private static string ExcelReportFn(string type)
+        {
+            return string.Concat("report-", type, "-", DateHelper.Timestamp(), ".xls");
         }
     }
 }

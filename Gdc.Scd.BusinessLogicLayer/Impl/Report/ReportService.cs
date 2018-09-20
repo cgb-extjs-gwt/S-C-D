@@ -1,6 +1,8 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl.Report
 {
@@ -34,18 +36,23 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl.Report
 
     public class ReportService : IReportService
     {
-        public object Excel(string type)
+        public Stream Excel(string type)
         {
             throw new System.NotImplementedException();
         }
 
-        public IEnumerable<object> GetData(
+        public DataTable GetData(
                 string type,
                 ReportFilterCollection filter,
                 int start,
                 int limit,
                 out int total
             )
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public string GetJsonArrayData(string type, ReportFilterCollection filter, int start, int limit, out int total)
         {
             var d = new object[]
             {
@@ -63,7 +70,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl.Report
                 new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
             };
             total = d.Length;
-            return d;
+
+            return Newtonsoft.Json.JsonConvert.SerializeObject(d);
         }
 
         public IEnumerable<ReportDto> GetReports()
