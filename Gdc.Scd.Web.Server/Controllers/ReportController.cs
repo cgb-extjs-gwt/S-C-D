@@ -20,7 +20,9 @@ namespace Gdc.Scd.Web.Server.Controllers
         [HttpGet]
         public HttpResponseMessage Export(string type)
         {
-            return this.ExcelContent(service.Excel(type), ExcelReportFn(type));
+            var data = service.Excel(type, GetFilter());
+            var fn = ExcelReportFn(type);
+            return this.ExcelContent(data, fn);
         }
 
         [HttpGet]

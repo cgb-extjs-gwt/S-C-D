@@ -36,7 +36,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl.Report
 
     public class ReportService : IReportService
     {
-        public Stream Excel(string type)
+        public Stream Excel(string type, ReportFilterCollection filter)
         {
             throw new System.NotImplementedException();
         }

@@ -11,7 +11,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         ReportSchema GetSchema(string type);
 
-        Stream Excel(string type);
+        Stream Excel(string type, ReportFilterCollection filter);
 
         DataTable GetData(string type, ReportFilterCollection filter, int start, int limit, out int total);
 
