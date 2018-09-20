@@ -126,9 +126,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return Database.ExecuteSqlCommandAsync(sql, parameters);
         }
 
-        public List<T> ExecuteProc<T>(string procName, 
-            params DbParameter[] parameters) 
-            where T : new()
+        public List<T> ExecuteProc<T>(string procName, params DbParameter[] parameters) where T : new()
         {
             using (var connection = Database.GetDbConnection())
             {
@@ -136,22 +134,22 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 DbCommand dbCommand = connection.CreateCommand();
                 dbCommand.CommandText = procName;
                 dbCommand.CommandType = CommandType.StoredProcedure;
-                foreach (var param in parameters)
-                    dbCommand.Parameters.Add(param);
-                List<T> entities;
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    dbCommand.Parameters.Add(parameters[i]);
+                }
                 using (var reader = dbCommand.ExecuteReader())
                 {
-                    entities = reader.MapToList<T>();
+                    return reader.MapToList<T>();
                 }
-
-                return entities.ToList();
             }
         }
 
-        public List<T> ExecuteProc<T, V>(string procName, DbParameter outParam, 
-            out V returnVal,
-            params DbParameter[] parameters)
-            where T : new()
+        public List<T> ExecuteProc<T, V>(
+                string procName,
+                DbParameter outParam,
+                out V returnVal,
+                params DbParameter[] parameters) where T : new()
         {
             using (var connection = Database.GetDbConnection())
             {
@@ -159,8 +157,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 DbCommand dbCommand = connection.CreateCommand();
                 dbCommand.CommandText = procName;
                 dbCommand.CommandType = CommandType.StoredProcedure;
-                foreach (var param in parameters)
-                    dbCommand.Parameters.Add(param);
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    dbCommand.Parameters.Add(parameters[i]);
+                }
                 dbCommand.Parameters.Add(outParam);
 
                 List<T> entities;
@@ -170,7 +170,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 }
 
                 returnVal = outParam.Value == null ? default(V) : (V)outParam.Value;
-
                 return entities;
             }
         }
@@ -245,16 +244,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var sb = new System.Text.StringBuilder("EXEC ", 30).Append(procName);
             if (parameters != null && parameters.Length > 0)
             {
-                sb.Append(" ");
-                bool flag = false;
-                for (var i = 0; i < parameters.Length; i++)
+                sb.Append(" ").Append(parameters[0].ParameterName);
+
+                for (var i = 1; i < parameters.Length; i++)
                 {
-                    if (flag)
-                    {
-                        sb.Append(", ");
-                    }
-                    flag = true;
-                    sb.Append(parameters[i].ParameterName);
+                    sb.Append(", ").Append(parameters[i].ParameterName);
                 }
             }
             return sb.ToString();
