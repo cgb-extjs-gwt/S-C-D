@@ -174,6 +174,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             var entities = query.ToDictionary(x => x.Id, y => y);
 
+            if(entities.Count == 0)
+            {
+                return;
+            }
+
             ITransaction transaction = null;
             try
             {
