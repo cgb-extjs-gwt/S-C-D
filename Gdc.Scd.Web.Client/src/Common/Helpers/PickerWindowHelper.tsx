@@ -1,12 +1,12 @@
 ﻿import * as React from 'react';
 import { Dialog } from '@extjs/ext-react';
-import PickerPanel, { PickerPanelProps } from './PickerPanel';
+import PickerPanel, { PickerPanelProps } from './PickerPanelHelper';
 
 interface PickerWindowProps extends PickerPanelProps {
     isVisible: boolean;
 }
 
-export default class PickerWindow extends React.Component<PickerWindowProps, any> {
+export default class PickerWindowHelper extends React.Component<PickerWindowProps, any> {
     private dialog: Dialog;
 
     public render() {
