@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="SCDOldModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <!--Errors Found During Generation:
+warning 6013: The table/view 'friese.dbo.LUT_TSP' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
+        <EntityType Name="LUT_TSP">
+          <Property Name="Country Group" Type="varchar" MaxLength="255" />
+          <Property Name="Service Code" Type="varchar" MaxLength="255" />
+          <Property Name="Description" Type="varchar" MaxLength="255" />
+          <Property Name="Scope" Type="varchar" MaxLength="255" />
+          <Property Name="Start Date" Type="varchar" MaxLength="255" />
+          <Property Name="Warranty Group" Type="varchar" MaxLength="3" />
+        </EntityType>-->
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'friese.dbo.SCD_SW_Overview' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="SCD_SW_Overview">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="WG" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="WG-Definition" Type="nvarchar" MaxLength="255" />
+          <Property Name="PLA" Type="nvarchar" MaxLength="255" />
+          <Property Name="Software Lizenz Digit" Type="nvarchar" MaxLength="50" />
+          <Property Name="Software Lizenz Beschreibung" Type="nvarchar" MaxLength="250" />
+          <Property Name="Service_Code" Type="varchar" MaxLength="50" />
+          <Property Name="Service Description" Type="varchar" MaxLength="4000" />
+          <Property Name="Service Code Requester" Type="nvarchar" MaxLength="255" />
+          <Property Name="Software Lizenz" Type="varchar" MaxLength="50" />
+          <Property Name="Software Lizenz Benennung" Type="varchar" MaxLength="1000" />
+          <Property Name="Service Code Status" Type="nvarchar" MaxLength="50" />
+          <Property Name="Service Short Description" Type="varchar" MaxLength="250" />
+          <Property Name="Proactive" Type="nvarchar" MaxLength="250" />
+          <Property Name="SCD_Relevant" Type="varchar" MaxLength="50" />
+          <Property Name="ID" Type="int" Nullable="false" />
+          <Property Name="SOG_Code" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="SOG" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6013: The table/view 'friese.dbo.SCD_SWR_Level' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
+        <EntityType Name="SCD_SWR_Level">
+          <Property Name="ID" Type="nvarchar" MaxLength="50" />
+          <Property Name="Beschreibung" Type="nvarchar" MaxLength="250" />
+          <Property Name="Proactive" Type="nvarchar" MaxLength="250" />
+          <Property Name="Servicelevel" Type="nvarchar" MaxLength="255" />
+          <Property Name="SW_level_digit_ReactiveMapping" Type="nvarchar" MaxLength="50" />
+        </EntityType>-->
+        <EntityContainer Name="SCDOldModelStoreContainer">
+          <EntitySet Name="SCD_SW_Overview" EntityType="Self.SCD_SW_Overview" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [SCD_SW_Overview].[WG] AS [WG], 
+    [SCD_SW_Overview].[WG-Definition] AS [WG-Definition], 
+    [SCD_SW_Overview].[PLA] AS [PLA], 
+    [SCD_SW_Overview].[Software Lizenz Digit] AS [Software Lizenz Digit], 
+    [SCD_SW_Overview].[Software Lizenz Beschreibung] AS [Software Lizenz Beschreibung], 
+    [SCD_SW_Overview].[Service_Code] AS [Service_Code], 
+    [SCD_SW_Overview].[Service Description] AS [Service Description], 
+    [SCD_SW_Overview].[Service Code Requester] AS [Service Code Requester], 
+    [SCD_SW_Overview].[Software Lizenz] AS [Software Lizenz], 
+    [SCD_SW_Overview].[Software Lizenz Benennung] AS [Software Lizenz Benennung], 
+    [SCD_SW_Overview].[Service Code Status] AS [Service Code Status], 
+    [SCD_SW_Overview].[Service Short Description] AS [Service Short Description], 
+    [SCD_SW_Overview].[Proactive] AS [Proactive], 
+    [SCD_SW_Overview].[SCD_Relevant] AS [SCD_Relevant], 
+    [SCD_SW_Overview].[ID] AS [ID], 
+    [SCD_SW_Overview].[SOG_Code] AS [SOG_Code], 
+    [SCD_SW_Overview].[SOG] AS [SOG]
+    FROM [dbo].[SCD_SW_Overview] AS [SCD_SW_Overview]</DefiningQuery>
+          </EntitySet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="SCDOldModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="SCD_SW_Overview">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="WG" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="WG_Definition" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="PLA" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Software_Lizenz_Digit" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Software_Lizenz_Beschreibung" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Service_Code" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Service_Description" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" />
+          <Property Name="Service_Code_Requester" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Software_Lizenz" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Software_Lizenz_Benennung" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="Service_Code_Status" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Service_Short_Description" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Proactive" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="SCD_Relevant" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ID" Type="Int32" Nullable="false" />
+          <Property Name="SOG_Code" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SOG" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityContainer Name="SCDOldEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="SCD_SW_Overview" EntityType="Self.SCD_SW_Overview" />
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="SCDOldModelStoreContainer" CdmEntityContainer="SCDOldEntities">
+          <EntitySetMapping Name="SCD_SW_Overview">
+            <EntityTypeMapping TypeName="SCDOldModel.SCD_SW_Overview">
+              <MappingFragment StoreEntitySet="SCD_SW_Overview">
+                <ScalarProperty Name="WG" ColumnName="WG" />
+                <ScalarProperty Name="WG_Definition" ColumnName="WG-Definition" />
+                <ScalarProperty Name="PLA" ColumnName="PLA" />
+                <ScalarProperty Name="Software_Lizenz_Digit" ColumnName="Software Lizenz Digit" />
+                <ScalarProperty Name="Software_Lizenz_Beschreibung" ColumnName="Software Lizenz Beschreibung" />
+                <ScalarProperty Name="Service_Code" ColumnName="Service_Code" />
+                <ScalarProperty Name="Service_Description" ColumnName="Service Description" />
+                <ScalarProperty Name="Service_Code_Requester" ColumnName="Service Code Requester" />
+                <ScalarProperty Name="Software_Lizenz" ColumnName="Software Lizenz" />
+                <ScalarProperty Name="Software_Lizenz_Benennung" ColumnName="Software Lizenz Benennung" />
+                <ScalarProperty Name="Service_Code_Status" ColumnName="Service Code Status" />
+                <ScalarProperty Name="Service_Short_Description" ColumnName="Service Short Description" />
+                <ScalarProperty Name="Proactive" ColumnName="Proactive" />
+                <ScalarProperty Name="SCD_Relevant" ColumnName="SCD_Relevant" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="SOG_Code" ColumnName="SOG_Code" />
+                <ScalarProperty Name="SOG" ColumnName="SOG" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

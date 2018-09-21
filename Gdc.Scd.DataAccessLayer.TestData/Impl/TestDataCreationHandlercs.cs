@@ -15,7 +15,6 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -69,12 +68,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateReactionTimeTypeAvalability();
             this.CreateClusterRegions();
             this.CreateCurrenciesAndExchangeRates();
-            this.CreateCountries();
             this.CreateDurations();
             this.CreateYearAvailability();
             this.CreateProActiveSla();
-            this.CreateTestItems<SwDigit>();
-            this.CreateTestItems<Sog>();
+            this.CreateRolecodes();
 
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.WgInputLevelName, MetaConstants.InputLevelSchema);
@@ -85,6 +82,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
+            queries.AddRange(this.BuildFromFile(@"Scripts.insert-countries.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
@@ -94,32 +92,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 this.repositorySet.ExecuteSql(query);
             }
-        }
-
-        private void CreateCountries()
-        {
-            var countryGroups = new List<CountryGroup>();
-
-            CountryGroup countryGroup = null;
-
-            foreach (var country in this.GetCountries())
-            {
-                if (countryGroup == null || countryGroup.Countries.Count % 5 == 0)
-                {
-                    countryGroup = new CountryGroup
-                    {
-                        Name = $"CountryGroup_{countryGroups.Count}",
-                        Countries = new List<Country>()
-                    };
-
-                    countryGroups.Add(countryGroup);
-                }
-
-                countryGroup.Countries.Add(country);
-            }
-
-            this.repositorySet.GetRepository<CountryGroup>().Save(countryGroups);
-            this.repositorySet.Sync();
         }
 
         private void CreateYearAvailability()
@@ -181,7 +153,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Role {Name = "Test Role 3", IsGlobal=false },
                 new Role {Name = "Test Role 4", IsGlobal=false },
                 new Role {Name = "Test Role 5", IsGlobal=false }
-            };       
+            };
             repository.Save(roles);
             this.repositorySet.Sync();
         }
@@ -190,12 +162,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             this.repositorySet.GetRepository<ProActiveSla>().Save(new ProActiveSla[]
             {
-                new ProActiveSla { Name = "0" },
-                new ProActiveSla { Name = "2" },
-                new ProActiveSla { Name = "3" },
-                new ProActiveSla { Name = "4" },
-                new ProActiveSla { Name = "6" },
-                new ProActiveSla { Name = "7" }
+                new ProActiveSla { Name = "0", ExternalName = "none" },
+                new ProActiveSla { Name = "1", ExternalName = "with autocall" },
+                new ProActiveSla { Name = "2", ExternalName = "with 1x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
+                new ProActiveSla { Name = "3", ExternalName = "with 2x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
+                new ProActiveSla { Name = "4", ExternalName = "with 4x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
+                new ProActiveSla { Name = "6", ExternalName = "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)" },
+                new ProActiveSla { Name = "7", ExternalName = "with 4x System Health Check & Patch Information incl. onsite Technical Account Management (per year)" },
             });
 
             this.repositorySet.Sync();
@@ -294,14 +267,19 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateReactionTimeTypeAvalability()
         {
-            var twoBusinessDay = new ReactionTime { Name = "2nd Business Day" };
-            var nbd = new ReactionTime { Name = "NBD" };
-            var fourHour = new ReactionTime { Name = "4h" };
-            var twentyFourHour = new ReactionTime { Name = "24h" };
-            var eightHour = new ReactionTime { Name = "8h" };
+            var twoBusinessDay = new ReactionTime { Name = "2nd Business Day", ExternalName = "SBD" };
+            var nbd = new ReactionTime { Name = "NBD", ExternalName = "NBD" };
+            var fourHour = new ReactionTime { Name = "4h", ExternalName = "4h" };
+            var twentyFourHour = new ReactionTime { Name = "24h", ExternalName = "24h" };
+            var eightHour = new ReactionTime { Name = "8h", ExternalName = "8h" };
+            var noneTime = new ReactionTime { Name = "none", ExternalName = "none" };
 
-            var response = new ReactionType { Name = "response" };
-            var recovery = new ReactionType { Name = "recovery" };
+            var response = new ReactionType { Name = "response", ExternalName = "response" };
+            var recovery = new ReactionType { Name = "recovery", ExternalName = "recovery" };
+            var noneType = new ReactionType { Name = "none", ExternalName = "none" };
+
+            this.repositorySet.GetRepository<ReactionType>().Save(noneType);
+            this.repositorySet.GetRepository<ReactionTime>().Save(noneTime);
 
             this.repositorySet.GetRepository<ReactionTimeType>().Save(new List<ReactionTimeType>
             {
@@ -314,8 +292,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReactionTimeType { ReactionTime = fourHour, ReactionType = recovery },
             });
 
-            var nineByFive = new Availability { Name = "9x5" };
-            var twentyFourBySeven = new Availability { Name = "24x7" };
+            var nineByFive = new Availability { Name = "9x5", ExternalName = "9x5 (local business hours);9x5 (08:00-17:00)" };
+            var twentyFourBySeven = new Availability { Name = "24x7", ExternalName = "24x7" };
 
             var reactionTimeAvalabilities = new List<ReactionTimeAvalability>
             {
@@ -382,7 +360,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private IEnumerable<SqlHelper> BuildFromFile(string fn)
         {
-            return Regex.Split(ReadText(fn), "go", RegexOptions.IgnoreCase)
+            return Regex.Split(ReadText(fn), @"[\r\n]+go[\s]*[\r\n]*", RegexOptions.IgnoreCase)
                                .Where(x => !string.IsNullOrWhiteSpace(x))
                                .Select(x => new SqlHelper(new RawSqlBuilder() { RawSql = x }));
         }
@@ -395,7 +373,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 new Pla
                 {
-                    Name = "Desktops",
+                    Name = "DESKTOP AND WORKSTATION",
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -474,7 +452,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 },
                 new Pla
                 {
-                    Name = "Mobiles",
+                    Name = "NOTEBOOK AND TABLET",
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -521,7 +499,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 },
                 new Pla
                 {
-                    Name = "Peripherals",
+                    Name = "PERIPHERALS",
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -572,7 +550,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 },
                 new Pla
                 {
-                    Name = "Storage Products",
+                    Name = "STORAGE PRODUCTS",
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -859,7 +837,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 },
                 new Pla
                 {
-                    Name = "x86/IA Servers",
+                    Name = "X86 / IA SERVER",
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -1092,6 +1070,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         },
                     }
                 },
+                new Pla { Name = "EPS MAINFRAME PRODUCTS"},
+                new Pla { Name = "RETAIL PRODUCTS"},
+                new Pla { Name = "UNIX SERVER" }
             };
         }
 
@@ -1122,84 +1103,32 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.repositorySet.Sync();
         }
 
-        private RoleCode[] GetRoleCodes()
-        {
-            return new RoleCode[]
-            {
-                new RoleCode
-                {
-                    Name = "SEFS05"
-
-                }
-            };
-        }
-
         private void CreateRolecodes()
         {
-            var roleCodes = this.GetRoleCodes();
+            var roleCodes = new RoleCode[] { new RoleCode { Name = "SEFS05" } };
+
             var repository = this.repositorySet.GetRepository<RoleCode>();
 
             repository.Save(roleCodes);
             this.repositorySet.Sync();
         }
 
-        private Country[] GetCountries()
+        private List<ServiceLocation> GetServiceLocations()
         {
-            var names = new[]
+            return new List<ServiceLocation>
             {
-                "Algeria",
-                "Austria",
-                "Balkans",
-                "Belgium",
-                "CIS & Russia",
-                "Czech Republic",
-                "Denmark",
-                "Egypt",
-                "Finland",
-                "France",
-                "Germany",
-                "Greece",
-                "Hungary",
-                "India",
-                "Italy",
-                "Japan",
-                "Luxembourg",
-                "Middle East",
-                "Morocco",
-                "Netherlands",
-                "Norway",
-                "Poland",
-                "Portugal",
-                "South Africa",
-                "Spain",
-                "Sweden",
-                "Switzerland",
-                "Tunisia",
-                "Turkey",
-                "UK & Ireland"
+                new ServiceLocation {Name = "Material/Spares Service", ExternalName = "Material/Spares" },
+                new ServiceLocation {Name = "Bring-In Service", ExternalName = "Bring-In" },
+                new ServiceLocation {Name = "Send-In / Return-to-Base Service", ExternalName = "Send-In/Return-to-Base Service" },
+                new ServiceLocation {Name = "Collect & Return Service", ExternalName = "Collect & Return" },
+                new ServiceLocation {Name = "Collect & Return-Display Service", ExternalName = "Collect & Return-Display Service" },
+                new ServiceLocation {Name = "Door-to-Door Exchange Service", ExternalName = "Door-to-Door Exchange" },
+                new ServiceLocation {Name = "Desk-to-Desk Exchange Service", ExternalName = "Desk-to-Desk Exchange" },
+                new ServiceLocation {Name = "On-Site Service", ExternalName = "On-Site Service" },
+                new ServiceLocation {Name = "On-Site Exchange Service", ExternalName = "On-Site Exchange" },
+                new ServiceLocation {Name = "Remote", ExternalName = "Remote Service" },
+
             };
-
-            var len = names.Length;
-            var result = new Country[len];
-
-            var eur = repositorySet.GetRepository<Currency>()
-                                       .GetAll()
-                                       .First(x => x.Name.ToUpper() == "EUR");
-
-            for (var i = 0; i < len; i++)
-            {
-                result[i] = new Country
-                {
-                    Name = names[i],
-                    CanOverrideListAndDealerPrices = GenerateRandomBool(),
-                    CanOverrideTransferCostAndPrice = GenerateRandomBool(),
-                    ShowDealerPrice = GenerateRandomBool(),
-                    ClusterRegionId = 2,
-                    Currency = eur
-                };
-            }
-
-            return result;
         }
 
         private string[] GetServiceLocationCodeNames()
@@ -1258,10 +1187,12 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             return new Duration[]
             {
-                new Duration { Name = "3 Years", Value = 3, IsProlongation = false },
-                new Duration { Name = "4 Years", Value = 4, IsProlongation = false },
-                new Duration { Name = "5 Years", Value = 5, IsProlongation = false },
-                new Duration { Name = "Prolongation", Value = 1, IsProlongation = true }
+                new Duration { Name = "1 Year", Value = 1, IsProlongation = false, ExternalName = "1 year" },
+                new Duration { Name = "2 Years", Value = 2, IsProlongation = false, ExternalName = "2 years"},
+                new Duration { Name = "3 Years", Value = 3, IsProlongation = false, ExternalName = "3 years" },
+                new Duration { Name = "4 Years", Value = 4, IsProlongation = false, ExternalName = "4 years" },
+                new Duration { Name = "5 Years", Value = 5, IsProlongation = false, ExternalName = "5 years" },
+                new Duration { Name = "Prolongation", Value = 1, IsProlongation = true, ExternalName = "1 year (P)" }
             };
         }
 
@@ -1275,13 +1206,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 "SEIE07",
                 "SEIE08",
             };
-        }
-
-        private bool GenerateRandomBool()
-        {
-            Random gen = new Random();
-            int prob = gen.Next(100);
-            return prob <= 70;
         }
 
         private string ReadText(string fn)

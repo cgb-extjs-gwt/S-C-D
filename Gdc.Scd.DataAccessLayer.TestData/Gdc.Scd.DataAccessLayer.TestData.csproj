@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <None Remove="Scripts\availabilityFee.sql" />
+    <None Remove="Scripts\insert-countries.sql" />
     <None Remove="Scripts\matrix.sql" />
   </ItemGroup>
 
@@ -22,6 +23,7 @@
     <EmbeddedResource Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Calculation\calculation-sw.sql" Link="Scripts\calculation-sw.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Scripts\insert-countries.sql" />
     <EmbeddedResource Include="Scripts\matrix.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>

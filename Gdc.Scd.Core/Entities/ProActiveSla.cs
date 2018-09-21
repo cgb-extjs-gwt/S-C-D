@@ -4,7 +4,7 @@ using Gdc.Scd.Core.Meta.Constants;
 namespace Gdc.Scd.Core.Entities
 {
     [Table("ProActiveSla", Schema = MetaConstants.DependencySchema)]
-    public class ProActiveSla : NamedId
+    public class ProActiveSla : ExternalEntity
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id

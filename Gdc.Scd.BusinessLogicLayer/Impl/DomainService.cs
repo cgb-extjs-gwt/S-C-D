@@ -48,7 +48,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public void Save(IEnumerable<T> items)
+        public virtual void Save(IEnumerable<T> items)
         {
             using (var transaction = this.repositorySet.GetTransaction())
             {
