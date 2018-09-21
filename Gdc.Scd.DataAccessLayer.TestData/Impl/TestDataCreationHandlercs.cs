@@ -70,8 +70,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateRolecodes();
 
             var queries = new List<SqlHelper>();
-            queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts.insert-countries.sql"));
+            queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
