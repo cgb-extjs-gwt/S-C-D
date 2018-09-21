@@ -76,6 +76,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
+
+            foreach (var query in queries)
+            {
+                this.repositorySet.ExecuteSql(query);
+            }
         }
 
         private void CreateServiceLocations()
