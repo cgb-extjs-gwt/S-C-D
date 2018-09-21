@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using Gdc.Scd.Core.Entities;
+﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Impl;
@@ -53,8 +47,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         private readonly DomainEnitiesMeta entityMetas;
 
         public TestDataCreationHandlercs(
-            DomainEnitiesMeta entityMetas,
-            EntityFrameworkRepositorySet repositorySet)
+                DomainEnitiesMeta entityMetas,
+                EntityFrameworkRepositorySet repositorySet
+            )
         {
             this.entityMetas = entityMetas;
             this.repositorySet = repositorySet;
@@ -63,6 +58,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         public void Handle()
         {
             this.CreateClusterPlas();
+            this.CreateServiceLocations();
             this.CreateUsers();
             this.CreateRoles();
             this.CreateReactionTimeTypeAvalability();
@@ -73,25 +69,20 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateProActiveSla();
             this.CreateRolecodes();
 
-            var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
-            var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.WgInputLevelName, MetaConstants.InputLevelSchema);
-
-            var queries = new List<SqlHelper>
-            {
-                this.BuildInsertSql(MetaConstants.InputLevelSchema, RoleCodeKey, this.GetRoleCodeNames()),
-                this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
-            };
+            var queries = new List<SqlHelper>();
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts.insert-countries.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
+        }
 
-            foreach (var query in queries)
-            {
-                this.repositorySet.ExecuteSql(query);
-            }
+        private void CreateServiceLocations()
+        {
+            var repo = repositorySet.GetRepository<ServiceLocation>();
+            repo.Save(GetServiceLocations());
+            repositorySet.Sync();
         }
 
         private void CreateYearAvailability()
@@ -1128,23 +1119,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ServiceLocation {Name = "On-Site Exchange Service", ExternalName = "On-Site Exchange" },
                 new ServiceLocation {Name = "Remote", ExternalName = "Remote Service" },
 
-            };
-        }
-
-        private string[] GetServiceLocationCodeNames()
-        {
-            return new string[]
-            {
-                "Material",
-                "Bring-In",
-                "Send-In",
-                "Collect & Return",
-                "Collect & Return (Displays)",
-                "Door-to-Door (SWAP)",
-                "Desk-to-Desk (SWAP)",
-                "On-Site",
-                "On-Site (Exchange)",
-                "Remote"
             };
         }
 

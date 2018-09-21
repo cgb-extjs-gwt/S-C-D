@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="System.Configuration" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.DirectoryServices.Protocols" />
