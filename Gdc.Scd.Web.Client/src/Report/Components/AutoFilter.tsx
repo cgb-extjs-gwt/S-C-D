@@ -16,11 +16,7 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
     }
 
     public render() {
-        var filter = this.props.filter;
-
-        if (!this.checkModel(filter)) {
-            return null;
-        }
+        var filter = this.props.filter || [];
 
         return (
             <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
@@ -33,19 +29,19 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
                         clearable: 'true'
                     }}>
 
-                    {this.props.filter.map((v, i) => {
+                    {filter.map((v, i) => {
 
                         switch (v.type) {
 
                             case AutoColumnType.NUMBER:
                                 return (
-                                    <NumberField key={i} ref={v.name} name={v.name} label={v.text} />
+                                    <NumberField key={i} ref={v.name} name={v.name} label={v.text} value={v.value} />
                                 );
 
                             case AutoColumnType.TEXT:
                             default:
                                 return (
-                                    <TextField key={i} ref={v.name} name={v.name} label={v.text} />
+                                    <TextField key={i} ref={v.name} name={v.name} label={v.text} value={v.value} />
                                 );
 
                         }
@@ -63,12 +59,14 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
         let result = {};
         let filter = this.props.filter;
 
-        for (let i = 0, item; item = filter[i]; i++) {
+        if (filter) {
+            for (let i = 0, item; item = filter[i]; i++) {
 
-            let f = this.refs[item.name] as any;
+                let f = this.refs[item.name] as any;
 
-            if (f.getValue()) {
-                result[item.name] = f.getValue();
+                if (f.getValue()) {
+                    result[item.name] = f.getValue();
+                }
             }
         }
 
@@ -84,9 +82,5 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
         if (handler) {
             handler(this.getModel());
         }
-    }
-
-    private checkModel(filter: AutoFilterModel[]) {
-        return filter && filter.length > 0;
     }
 }

@@ -49,6 +49,6 @@ export class ReportView extends React.Component<any, AutoGridModel> {
     }
 
     public getUrl(): string {
-        return buildMvcUrl('report', 'view', { 'type': this.id });
+        return buildMvcUrl('report', 'view', { 'id': this.id });
     }
 }

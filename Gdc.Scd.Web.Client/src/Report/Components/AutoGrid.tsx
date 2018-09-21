@@ -58,7 +58,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
         return (
             <Container layout="fit">
 
-                <AutoFilter ref="filter" docked="right" filter={this.props.filter} onSearch={this.onSearch} />
+                <AutoFilter ref="filter" docked="right" hidden={!this.showFilter()} filter={this.props.filter} onSearch={this.onSearch} />
 
                 <Grid
                     {...cfg}
@@ -116,5 +116,10 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
         let filter = this.filter.getModel();
         let params = Ext.apply({}, operation.getParams(), filter);
         operation.setParams(params);
+    }
+
+    private showFilter() {
+        let filter = this.props.filter;
+        return filter && filter.length > 0;
     }
 }
