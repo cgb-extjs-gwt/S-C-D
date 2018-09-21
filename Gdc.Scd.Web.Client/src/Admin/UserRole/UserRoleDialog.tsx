@@ -1,6 +1,7 @@
 ﻿import * as React from 'react';
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, Container, TextField, Dialog, GridCell } from '@extjs/ext-react';
-import PickerWindow from '../../Test/PickerWindow';
+import PickerWindow from '../../Common/Helpers/PickerWindowHelper';
+import PickerPanel, { PickerPanelProps } from '../../Common/Helpers/PickerPanelHelper';
 
 interface UserRoleDialogProps {
     store
@@ -50,11 +51,7 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
                     text="People Picker"
                     handler={() => this.showPickerWindow()}
                 />
-                <PickerWindow
-                    isVisible={this.state.isVisible}
-                    onSendClick={this.onSendDialogClick}
-                    onCancelClick={this.onCancelClick}
-                />
+
                         <ComboBoxField
                             ref={combobox => this.userComboBox = combobox}
                             store={storeUser}
