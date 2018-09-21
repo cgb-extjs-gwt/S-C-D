@@ -84,7 +84,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public List<UserPrincipal> SearchForUserByString(string search)
+        public List<UserPrincipal> SearchForUserByString(string search, int count = 5)
         {
             var searchResults = new List<DirectoryEntry>();
             using (var context = new PrincipalContext(ContextType.Domain, Configuration.DefaultDomain, Configuration.AdServiceAccount, Configuration.AdServicePassword))
@@ -100,13 +100,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     {
                         var results = searcher.FindAll().Cast<UserPrincipal>();
                         if (results == null || results.Count() == 0)
-                            return null;
-                        //foreach (var result in results)
-                        //{
-                        //    searchResults.Add(result.GetUnderlyingObject() as DirectoryEntry);
-                        //}
-                        //return searchResults;
-                        return results.ToList();
+                            return new List<UserPrincipal>();
+                        return results.Take(count).ToList();
                     }
                     catch (Exception)
                     {

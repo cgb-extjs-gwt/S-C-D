@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Container, Button } from '@extjs/ext-react';
-import PickerWindow from '../PickerWindow';
+import PickerWindow from '../../Common/Helpers/PickerWindowHelper';
+import { get, post } from '../../Common/Services/Ajax';
 
 interface PickerState {
     isVisible: boolean;
@@ -9,64 +10,6 @@ interface PickerState {
 class About extends React.Component<any, PickerState> {
     public componentWillMount() {
         this.setState({ isVisible: false })
-    }
-
-    store = Ext.create('Ext.data.Store', {
-        pageSize: 50,
-        fields: ['countryName', 'countryId', 'reactionTimeName',
-            'reactionTimeId', 'reactionTypeName', 'reactionTypeId',
-            'serviceLocatorName', 'serviceLocatorId', 'isApplicable', 'innerId'],
-        autoLoad: true,
-        proxy: {
-            type: 'ajax',
-            api: {
-                read: '/api/AvailabilityFeeAdmin/GetAll',
-                update: '/api/AvailabilityFeeAdmin/SaveAll'
-            },
-            reader: {
-                type: 'json',
-                rootProperty: 'items',
-                totalProperty: 'total'
-            },
-            writer: {
-                type: 'json',
-                writeAllFields: true,
-                allowSingle: false
-            },
-            listeners: {
-                exception: function (proxy, response, operation) {
-                    //TODO: show error
-                }
-            }
-        },
-        listeners: {
-            update: (store, record, operation, modifiedFieldNames, details, eOpts) => {
-                const modifiedRecords = this.store.getUpdatedRecords();
-                if (modifiedRecords.length > 0) {
-                    //this.setState({ disableSaveButton: false });
-                }
-                else {
-                    //this.setState({ disableSaveButton: true });
-                }
-            }
-        }
-    });
-
-    saveRecords = () => {
-
-        this.store.sync({
-            callback: function (batch, options) {
-            },
-
-            success: function (batch, options) {
-                //TODO: show successfull message box
-            },
-
-            failure: (batch, options) => {
-                //TODO: show error
-            }
-
-        });
     }
     render() {
         return (
@@ -99,13 +42,11 @@ class About extends React.Component<any, PickerState> {
             isVisible: true
         });
     }
-    private onSendDialogClick = (value: number) => {
-
-
-        this.setState({
-            ...this.state,
-            isVisible: false
-        });
+    private onSendDialogClick = (value: string) => {
+        var data = {
+            "userIdentity": value,
+        };
+        var result = get("users", "SelectUser", data);
     }
 }
 
