@@ -1,10 +1,7 @@
-﻿import { CheckBoxField, CheckBoxFieldProps } from "@extjs/ext-react";
-import * as React from "react";
+﻿import { CheckBoxField } from "@extjs/ext-react";
 
-export class BooleanFilter extends React.Component<CheckBoxFieldProps, any> {
-    public render() {
-        return (
-            <CheckBoxField {...this.props} />
-        );
+export class BooleanFilter extends CheckBoxField {
+    public getValue(): string {
+        return (this as any).getChecked();
     }
 }
