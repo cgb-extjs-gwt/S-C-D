@@ -29,6 +29,16 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return source.Provider.CreateQuery<TEntity>(resultExpression);
         }
 
+        public static Task<TSource[]> GetAsync<TSource>(this IQueryable<TSource> source)
+        {
+            return EntityFrameworkQueryableExtensions.ToArrayAsync(source);
+        }
+
+        public static Task<int> GetCountAsync<TSource>(this IQueryable<TSource> source)
+        {
+            return EntityFrameworkQueryableExtensions.CountAsync(source);
+        }
+
         public static Task<TSource> GetFirstAsync<TSource>(this IQueryable<TSource> source)
         {
             return EntityFrameworkQueryableExtensions.FirstAsync(source);
@@ -37,11 +47,6 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
         public static Task<TSource> GetFirstOrDefaultAsync<TSource>(this IQueryable<TSource> source)
         {
             return EntityFrameworkQueryableExtensions.FirstOrDefaultAsync(source);
-        }
-
-        public static Task<TSource[]> GetAsync<TSource>(this IQueryable<TSource> source)
-        {
-            return EntityFrameworkQueryableExtensions.ToArrayAsync(source);
         }
 
         public static IEnumerable<TSource> Paging<TSource>(
@@ -62,6 +67,16 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
         {
             count = source.Count();
             return Paging(source, start, limit);
+        }
+
+        public static Task<TSource> GetSingleAsync<TSource>(this IQueryable<TSource> source)
+        {
+            return EntityFrameworkQueryableExtensions.SingleAsync(source);
+        }
+
+        public static Task<TSource> GetSingleOrDefaultAsync<TSource>(this IQueryable<TSource> source)
+        {
+            return EntityFrameworkQueryableExtensions.SingleOrDefaultAsync(source);
         }
 
         public static IQueryable<TSource> WhereIf<TSource>(
