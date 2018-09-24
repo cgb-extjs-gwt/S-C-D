@@ -47,20 +47,19 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.SaveChanges();
         }
 
-        public async Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
+        public Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
         {
-            var result = new List<T>();
-
-            await WithCommand(async command =>
+            return WithCommand(async cmd =>
             {
-                command.CommandText = sql;
+                cmd.CommandText = sql;
 
                 if (parameters != null)
                 {
-                    command.Parameters.AddRange(this.GetDbParameters(parameters, command).ToArray());
+                    cmd.Parameters.AddRange(this.GetDbParameters(parameters, cmd).ToArray());
                 }
 
-                var reader = await command.ExecuteReaderAsync();
+                var result = new List<T>(30);
+                var reader = await cmd.ExecuteReaderAsync();
 
                 if (reader.HasRows)
                 {
@@ -69,9 +68,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         result.Add(mapFunc(reader));
                     }
                 }
+                return (IEnumerable<T>)result;
             });
-
-            return result;
         }
 
         public async Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc)
