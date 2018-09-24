@@ -1,4 +1,4 @@
-﻿import { AutoColumnType } from "./AutoColumnType";
+﻿import { AutoFilterType } from "./AutoFilterType";
 
 export interface AutoFilterModel {
 
@@ -6,7 +6,7 @@ export interface AutoFilterModel {
 
     name: string;
 
-    type?: AutoColumnType;
+    type?: AutoFilterType;
 
     value?: any;
 
