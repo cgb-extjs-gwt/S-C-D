@@ -3,6 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities.Report
 {
-    [Table("ReportFilterType", Schema = MetaConstants.ReportSchema)]
+    [Table("ReportColumnType", Schema = MetaConstants.ReportSchema)]
     public class ReportColumnType : NamedId { }
 }
