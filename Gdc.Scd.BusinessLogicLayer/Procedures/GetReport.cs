@@ -19,23 +19,23 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             _repositorySet = repositorySet;
         }
 
-        public Task<(DataTable tbl, int total)> ExecuteTableAsync(long reportId, ReportFilterCollection filter, int start, int limit)
+        public Task<DataTableDto> ExecuteTableAsync(long reportId, ReportFilterCollection filter, int start, int limit)
         {
             var parameters = Prepare(reportId, filter, start, limit);
             return _repositorySet.ExecuteProcAsTableAsync(PROC_NAME, parameters)
                                  .ContinueWith(x =>
                                  {
-                                     return (tbl: x.Result, total: GetTotal(parameters));
+                                     return new DataTableDto { Data = x.Result, Total = GetTotal(parameters) };
                                  });
         }
 
-        public Task<(string json, int total)> ExecuteJsonAsync(long reportId, ReportFilterCollection filter, int start, int limit)
+        public Task<JsonArrayDto> ExecuteJsonAsync(long reportId, ReportFilterCollection filter, int start, int limit)
         {
             var parameters = Prepare(reportId, filter, start, limit);
             return _repositorySet.ExecuteProcAsJsonAsync(PROC_NAME, parameters)
                                  .ContinueWith(x =>
                                  {
-                                     return (json: x.Result, total: GetTotal(parameters));
+                                     return new JsonArrayDto { Json = x.Result, Total = GetTotal(parameters) };
                                  });
         }
 

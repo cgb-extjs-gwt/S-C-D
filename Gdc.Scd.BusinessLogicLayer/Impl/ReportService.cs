@@ -6,7 +6,6 @@ using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System;
 using System.Data;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,25 +34,22 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.filterRepo = filterRepo;
         }
 
-        public Task<(Stream data, string fileName)> Excel(long reportId, ReportFilterCollection filter)
+        public Task<FileStreamDto> Excel(long reportId, ReportFilterCollection filter)
         {
             throw new NotImplementedException();
         }
 
-        public Task<DataTable> GetData(
-                long reportId,
-                ReportFilterCollection filter
-            )
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<(DataTable tbl, int total)> GetData(long reportId, ReportFilterCollection filter, int start, int limit)
+        public Task<DataTable> GetData(long reportId, ReportFilterCollection filter)
         {
             throw new NotImplementedException();
         }
 
-        public Task<(string json, int total)> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit)
+        public Task<DataTableDto> GetData(long reportId, ReportFilterCollection filter, int start, int limit)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<JsonArrayDto> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit)
         {
             return new GetReport(repositorySet).ExecuteJsonAsync(reportId, filter, start, limit);
         }

@@ -1,6 +1,4 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
-using System.Data;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
@@ -11,10 +9,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<ReportSchemaDto> GetSchema(long reportId);
 
-        Task<(Stream data, string fileName)> Excel(long reportId, ReportFilterCollection filter);
+        Task<FileStreamDto> Excel(long reportId, ReportFilterCollection filter);
 
-        Task<(DataTable tbl, int total)> GetData(long reportId, ReportFilterCollection filter, int start, int limit);
+        Task<DataTableDto> GetData(long reportId, ReportFilterCollection filter, int start, int limit);
 
-        Task<(string json, int total)> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit);
+        Task<JsonArrayDto> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit);
     }
 }

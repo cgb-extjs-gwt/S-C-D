@@ -23,7 +23,7 @@ namespace Gdc.Scd.Web.Server.Controllers
                           .ContinueWith(x =>
                           {
                               var res = x.Result;
-                              return this.ExcelContent(res.data, res.fileName);
+                              return this.ExcelContent(res.Data, res.FileName);
                           });
         }
 
@@ -56,7 +56,7 @@ namespace Gdc.Scd.Web.Server.Controllers
                           .ContinueWith(x =>
                           {
                               var res = x.Result;
-                              return this.JsonContent(res.json, res.total);
+                              return this.JsonContent(res.Json, res.Total);
                           });
         }
 
