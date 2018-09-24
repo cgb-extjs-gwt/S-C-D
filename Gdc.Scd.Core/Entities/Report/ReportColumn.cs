@@ -13,7 +13,7 @@ namespace Gdc.Scd.Core.Entities.Report
         public string Text { get; set; }
 
         [Required]
-        public string Type { get; set; }
+        public ReportColumnType Type { get; set; }
 
         public bool AllowNull { get; set; }
 

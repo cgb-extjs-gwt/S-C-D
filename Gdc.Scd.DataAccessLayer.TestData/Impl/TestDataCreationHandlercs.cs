@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Impl;
@@ -38,13 +39,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string DurationKey = "Duration";
 
-        private readonly EntityFrameworkRepositorySet repositorySet;
-
         private const string ProActiveKey = "ProActive";
 
         private const string ProActiveSlaKey = "ProActiveSla";
 
         private readonly DomainEnitiesMeta entityMetas;
+
+        private readonly EntityFrameworkRepositorySet repositorySet;
 
         public TestDataCreationHandlercs(
                 DomainEnitiesMeta entityMetas,
@@ -69,11 +70,16 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateProActiveSla();
             this.CreateRolecodes();
 
+            //report
+            this.CreateReportColumnTypes();
+            this.CreateReportFilterTypes();
+
             var queries = new List<SqlHelper>();
             queries.AddRange(this.BuildFromFile(@"Scripts.insert-countries.sql"));
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.reports.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
 
@@ -1106,6 +1112,42 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var repository = this.repositorySet.GetRepository<RoleCode>();
 
             repository.Save(roleCodes);
+            this.repositorySet.Sync();
+        }
+
+        private void CreateReportColumnTypes()
+        {
+            var items = new ReportColumnType[] {
+                new ReportColumnType { Name = "text" },
+                new ReportColumnType { Name = "number" },
+                new ReportColumnType { Name = "boolean" }
+            };
+
+            var repository = this.repositorySet.GetRepository<ReportColumnType>();
+            repository.Save(items);
+            this.repositorySet.Sync();
+        }
+
+        private void CreateReportFilterTypes()
+        {
+            var items = new ReportFilterType[] {
+                new ReportFilterType { Name = "text" },
+                new ReportFilterType { Name = "number" },
+                new ReportFilterType { Name = "boolean" },
+                new ReportFilterType { Name = "wg" },
+                new ReportFilterType { Name = "sog" },
+                new ReportFilterType { Name = "countrygroup" },
+                new ReportFilterType { Name = "country" },
+                new ReportFilterType { Name = "availability" },
+                new ReportFilterType { Name = "duration" },
+                new ReportFilterType { Name = "reactiontime" },
+                new ReportFilterType { Name = "reactiontype" },
+                new ReportFilterType { Name = "servicelocation" },
+                new ReportFilterType { Name = "year" }
+            };
+
+            var repository = this.repositorySet.GetRepository<ReportFilterType>();
+            repository.Save(items);
             this.repositorySet.Sync();
         }
 

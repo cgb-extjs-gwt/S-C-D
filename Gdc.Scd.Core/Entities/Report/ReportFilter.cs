@@ -13,7 +13,7 @@ namespace Gdc.Scd.Core.Entities.Report
         public string Text { get; set; }
 
         [Required]
-        public string Type { get; set; }
+        public ReportFilterType Type { get; set; }
 
         public string Value { get; set; }
     }

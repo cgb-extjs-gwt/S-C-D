@@ -4,5 +4,5 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Gdc.Scd.Core.Entities.Report
 {
     [Table("ReportFilterType", Schema = MetaConstants.ReportSchema)]
-    public class ReportColumnType : NamedId { }
+    public class ReportFilterType : NamedId { }
 }
