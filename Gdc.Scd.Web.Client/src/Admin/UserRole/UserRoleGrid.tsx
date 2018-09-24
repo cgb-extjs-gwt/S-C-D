@@ -11,7 +11,7 @@ interface UserRoleGridProps {
     onHideDialog?()
     onShowDialog?()
     onSelectRecord?(record)
-    saveRecords?()
+    saveRecords?(store)
 }
 
 export class UserRoleGrid extends React.Component<UserRoleGridProps> {
@@ -36,7 +36,7 @@ export class UserRoleGrid extends React.Component<UserRoleGridProps> {
         if (buttonId == 'yes') {
             const { store, saveRecords } = this.props;
             store.remove(record);
-            saveRecords();
+            saveRecords(store);
         }     
     }
 

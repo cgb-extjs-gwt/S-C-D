@@ -3,6 +3,8 @@ import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, Container, T
 import { UserRoleDialog } from './UserRoleDialog'
 import { UserRoleGrid } from './UserRoleGrid'
 import { buildMvcUrl } from "../../Common/Services/Ajax";
+import { UserRoleFilterPanel } from "./UserRoleFilterPanel"; 
+import { UserRoleFilterModel } from "./UserRoleFilterModel";
 
 const CONTROLLER_NAME = 'UserRole';
 const USER_CONTROLLER_NAME = 'User';
@@ -17,7 +19,21 @@ Ext.define('UserRole', {
     ]
 });
 
+Ext.define('User', {
+    extend: 'Ext.data.Model',
+    fields: [
+        'id', 'name', 'email', 'login'
+    ]
+});
+
 export default class RoleCodesContainer extends React.Component {
+    private filter: UserRoleFilterPanel;
+
+    public componentDidMount() {
+        this.filter = this.refs.filter as UserRoleFilterPanel;
+        //
+        this.store.load();
+    }
 
     state = {
         selectedRecord: null,
@@ -69,7 +85,7 @@ export default class RoleCodesContainer extends React.Component {
             }
         });
     }
-
+  
     private onHideDialog = () => {
         this.setState({ isVisibleForm: false })
     }
@@ -82,8 +98,18 @@ export default class RoleCodesContainer extends React.Component {
         this.setState({ selectedRecord: record })
     }
 
+    private onSearch(filter: UserRoleFilterModel) {
+        this.store.load();
+    }
+
+    private onBeforeLoad(s, operation) {
+        let filter = this.filter.getModel();
+        let params = Ext.apply({}, operation.getParams(), filter);
+        operation.setParams(params);
+    }
+
     storeUser = Ext.create('Ext.data.Store', {
-        fields: ['id', 'name'],
+        model: 'User',
         autoLoad: false,
         pageSize: 0,
         sorters: [{
@@ -92,11 +118,20 @@ export default class RoleCodesContainer extends React.Component {
         }],
         proxy: {
             type: 'ajax',
+            writer: {
+                type: 'json',
+                writeAllFields: true,
+                allowSingle: false,
+                idProperty: "id"
+            },
             reader: {
                 type: 'json'
             },
             api: {
-                read: buildMvcUrl(USER_CONTROLLER_NAME, 'GetAll')
+                create: buildMvcUrl(USER_CONTROLLER_NAME, 'SaveAll'),
+                read: buildMvcUrl(USER_CONTROLLER_NAME, 'GetAll'),
+                update: buildMvcUrl(CONTROLLER_NAME, 'SaveAll'),
+                destroy: buildMvcUrl(CONTROLLER_NAME, 'DeleteAll')
             }
         },
         listeners: {
@@ -175,6 +210,7 @@ export default class RoleCodesContainer extends React.Component {
 
         return (
             <Container layout="fit">
+                <UserRoleFilterPanel ref="filter" docked="right" onSearch={this.onSearch.bind(this)} />
                 <UserRoleGrid
                     store={this.store}
                     storeUser={this.storeUser}

@@ -1,9 +1,8 @@
 ﻿import * as React from 'react';
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, Container, TextField, Dialog, GridCell } from '@extjs/ext-react';
-import PickerWindow from '../../Common/Helpers/PickerWindowHelper';
 import PickerPanel, { PickerPanelProps } from '../../Common/Helpers/PickerPanelHelper';
 
-interface UserRoleDialogProps {
+interface UserRoleDialogProps{
     store
     storeUser
     storeCountry
@@ -12,118 +11,147 @@ interface UserRoleDialogProps {
     selectedRecord
     isVisibleForm
     onHideDialog?()
-    saveRecords?()
+    saveRecords?()   
 }
 
-
 export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
-
     private userRoleForm: Dialog & any;
-    private userComboBox: ComboBoxField & any;
+    private userPickerPanel: PickerPanel & any;
     private countryComboBox: ComboBoxField & any;
     private roleComboBox: ComboBoxField & any;
 
-    state = {
-        countryFieldHidden: true,
-        isValid: false,
-        isVisible: false
-    }
+
+    private countryFieldHidden = true;
+    private isVisible = false;
+
+    state={
+        ...this.state,
+        isValid: false
+    };
 
     render() {
         const { isVisibleForm, selectedRecord } = this.props;
         const { store, storeUser, storeCountry, storeRole } = this.props;
+      
 
         return (                      
-                    <Dialog
-                        displayed={isVisibleForm}
-                        closable
-                        closeAction="hide"
-                        ref={form => this.userRoleForm = form}
-                        platformConfig={{
-                            "!phone": {
-                                maxHeight: 500,
-                                width: 350
-                            }
-                        }}
-                        onHide={this.onFormCancel}
-            >
-                 <Button
-                    text="People Picker"
-                    handler={() => this.showPickerWindow()}
+            <Dialog
+                displayed={isVisibleForm}
+                closable
+                closeAction="hide"
+                ref={form => this.userRoleForm = form}
+                platformConfig={{
+                    "!phone": {
+                        maxHeight: 500,
+                        width: 350
+                    }
+                }}
+                onHide={this.onFormCancel}
+                >
+                <PickerPanel
+                    ref={pickerPanel => this.userPickerPanel = pickerPanel}
+                    onSendClick={this.onSendDialogClick}
+                    onCancelClick={this.onCancelClick}
                 />
-
-                        <ComboBoxField
-                            ref={combobox => this.userComboBox = combobox}
-                            store={storeUser}
-                            valueField="id"
-                            displayField="name"
-                            label="User"
-                            queryMode="local"
-                            value={selectedRecord && selectedRecord.data.userId}
-                            editable={false}
-                            required={true}
-                            onChange={this.isValidInput.bind(this)}
-                        />
-                        <ComboBoxField
-                            store={storeRole}
-                            valueField="id"
-                            displayField="name"
-                            label="Role"
-                            queryMode="local"
-                            value={selectedRecord && selectedRecord.data.roleId}
-                            ref={combobox => this.roleComboBox = combobox}
-                            editable={false}
-                            required={true}
-                            onChange={this.onRoleChange}
-                        />
-                        <ComboBoxField
-                            ref={combobox => this.countryComboBox = combobox}
-                            store={storeCountry}
-                            valueField="id"
-                            displayField="name"
-                            label="Country"
-                            queryMode="local"
-                            value={selectedRecord && selectedRecord.data.countryId}
-                            editable={false}
-                            required={true}
-                            hidden={this.state.countryFieldHidden}
-                            onChange={this.isValidInput.bind(this)}
-                        />                  
-                        <Toolbar docked="bottom">
-                            <Button
-                                text="Save"
-                                handler={this.onFormSave.bind(this)}
-                                flex={1}
-                                disabled={!this.state.isValid}
-                            />
-                            <Button text="Cancel" handler={this.onFormCancel} flex={1} />
-                        </Toolbar>
-                    </Dialog>
+                <ComboBoxField
+                    ref={combobox => this.roleComboBox = combobox}
+                    store={storeRole}
+                    valueField="id"
+                    displayField="name"
+                    label="Role"
+                    queryMode="local"
+                    value={selectedRecord && selectedRecord.data.roleId}                  
+                    editable={false}
+                    required={true}
+                    onChange={this.onRoleChange.bind(this)}
+                />
+                <ComboBoxField
+                    ref={combobox => this.countryComboBox = combobox}
+                    store={storeCountry}
+                    valueField="id"
+                    displayField="name"
+                    label="Country"
+                    queryMode="local"
+                    value={selectedRecord && selectedRecord.data.countryId}
+                    editable={false}
+                    required={true}
+                    hidden={this.countryFieldHidden}
+                    onChange={this.isValidInput.bind(this)}
+                />                  
+                <Toolbar docked="bottom">
+                    <Button
+                        text="Save"
+                        handler={this.onFormSave.bind(this)}
+                        flex={1}
+                        disabled={!this.state.isValid}
+                    />
+                    <Button text="Cancel" handler={this.onFormCancel} flex={1} />
+                </Toolbar>
+            </Dialog>
         )
     }
 
     private onFormSave = () => {
-        const { store, onHideDialog, selectedRecord, saveRecords } = this.props;
+        const { store, storeUser, onHideDialog, selectedRecord, saveRecords } = this.props;
+        this.getUserId(this).then((userId) => {
+            if (selectedRecord) {
+                selectedRecord.set({
+                    userId: userId,
+                    countryId: this.countryComboBox.getValue(),
+                    roleId: this.roleComboBox.getValue()
+                });
+            }
+            else {
+                let newUser = Ext.create('UserRole', {
+                    userId: userId,
+                    roleId: this.roleComboBox.getValue(),
+                    countryId: this.countryComboBox.getValue()
+                });
+                store.add(newUser);
+                newUser.set({ id: 0 });
+            }
+            saveRecords();
+            onHideDialog();
+        })}        
 
-        if (selectedRecord) {
-            selectedRecord.set({
-                userId: this.userComboBox.getValue(),
-                countryId: this.countryComboBox.getValue(),
-                roleId: this.roleComboBox.getValue()
-            });
-        }
-        else {
-            let newItem = Ext.create('UserRole', {
-                userId: this.userComboBox.getValue(),
-                roleId: this.roleComboBox.getValue(),
-                countryId: this.countryComboBox.getValue()
-            });
-            store.add(newItem);
-            newItem.set({ id: 0 });
-        };
-        saveRecords();
-        onHideDialog();
+    private getUserId = (context) => {
+        return new Promise(function (resolve, reject) {
+            const { storeUser } = context.props;
+            let pickedUser = context.userPickerPanel.getUserIdentity();
+            let userIndex = storeUser.find('email', pickedUser.email)
+            let user = null;
+            if (userIndex == -1) {
+                user = Ext.create('User', {
+                    name: pickedUser.name,
+                    login: pickedUser.login,
+                    email: pickedUser.email
+                })
+                storeUser.add(user)
+                user.set({ id: 0 })
+                storeUser.sync({
+                    scope: this,
 
+                    success: function (batch, options) {
+                        storeUser.load(function (records, operation, success) {
+                            userIndex = storeUser.find('email', pickedUser.email)
+                            user = storeUser.data.items[userIndex]
+
+                            resolve(user.id)
+                        });
+                    },
+                    failure: (batch, options) => {
+                        //TODO: show error
+                        storeUser.rejectChanges();
+                        reject();
+                    }
+                });
+            }
+            else {
+                user = storeUser.data.items[userIndex]
+
+                resolve(user.id)
+            }
+        })
     }
 
     private onFormCancel = () => {
@@ -139,23 +167,28 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
             if (selectedRole.data.isGlobal) {
                 this.countryComboBox.setValue(null);
             }
-            this.setState({ countryFieldHidden: selectedRole.data.isGlobal });
+            this.countryFieldHidden = selectedRole.data.isGlobal
         }
         else {
-            this.setState({ countryFieldHidden: true });
+            this.countryFieldHidden = true
         }
         this.isValidInput();
     }
 
     private isValidInput = () => {
-        if (this.userComboBox && this.userComboBox.getValue() > 0 &&
+        if (this.userPickerPanel && this.userPickerPanel.getUserIdentity() &&
             this.roleComboBox && this.roleComboBox.getValue() > 0 &&
-            ((!this.state.countryFieldHidden && this.countryComboBox && this.countryComboBox.getValue() > 0) || this.state.countryFieldHidden)) {
-
-            this.setState({ isValid: true })
+            ((!this.countryFieldHidden && this.countryComboBox && this.countryComboBox.getValue() > 0) || this.countryFieldHidden)) {
+            this.setState({
+                ...this.state,
+                isValid: true
+            });
         }
         else {
-            this.setState({ isValid: false })
+            this.setState({
+                ...this.state,
+                isValid: false
+            });
         }
     }
 
@@ -165,18 +198,8 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
             isVisible: false
         });
     }
-    private showPickerWindow = () => {
-        this.setState({
-            ...this.state,
-            isVisible: true
-        });
-    }
-    private onSendDialogClick = (value: number) => {
 
-
-        this.setState({
-            ...this.state,
-            isVisible: false
-        });
+    private onSendDialogClick = (value: string) => {
+        this.isVisible = false
     }
 }
