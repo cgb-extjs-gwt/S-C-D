@@ -51,7 +51,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                  new SqlParameterBuilder().WithName("@filter").WithKeyValue(filter).Build(),
                  new SqlParameterBuilder().WithName("@start").WithValue(start).Build(),
                  new SqlParameterBuilder().WithName("@limit").WithValue(limit).Build(),
-                 new SqlParameterBuilder().WithName("@total").WithDirection(ParameterDirection.Output).Build()
+                 new SqlParameterBuilder().WithName("@total").WithType(DbType.Int32).WithDirection(ParameterDirection.Output).Build()
             };
         }
 

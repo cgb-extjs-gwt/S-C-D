@@ -88,8 +88,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters
         public SqlParameterBuilder WithKeyValue(IDictionary<string, string> values)
         {
             var tbl = new DataTable();
-            tbl.Columns.Add("key", typeof(string));
-            tbl.Columns.Add("value", typeof(string));
+
+            tbl.Columns.Add(new DataColumn("key", typeof(string)) { MaxLength = 100 });
+            tbl.Columns.Add(new DataColumn("value", typeof(string)) { MaxLength = 4000 });
 
             if (values != null)
             {
