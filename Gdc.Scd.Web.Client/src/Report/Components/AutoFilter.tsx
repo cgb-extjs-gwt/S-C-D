@@ -1,7 +1,7 @@
-﻿import { Button, Container, Panel, PanelProps, TextField, NumberField } from "@extjs/ext-react";
+﻿import { Button, Container, NumberField, Panel, PanelProps, TextField } from "@extjs/ext-react";
 import * as React from "react";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
-import { AutoColumnType } from "../Model/AutoColumnType";
+import { AutoFilterType } from "../Model/AutoFilterType";
 
 export interface AutoFilterPanelProps extends PanelProps {
     filter: AutoFilterModel[];
@@ -33,12 +33,12 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
 
                         switch (v.type) {
 
-                            case AutoColumnType.NUMBER:
+                            case AutoFilterType.NUMBER:
                                 return (
                                     <NumberField key={i} ref={v.name} name={v.name} label={v.text} value={v.value} />
                                 );
 
-                            case AutoColumnType.TEXT:
+                            case AutoFilterType.TEXT:
                             default:
                                 return (
                                     <TextField key={i} ref={v.name} name={v.name} label={v.text} value={v.value} />
