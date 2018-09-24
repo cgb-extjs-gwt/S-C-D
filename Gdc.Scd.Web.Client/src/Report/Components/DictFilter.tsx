@@ -38,6 +38,19 @@ export class DictFilter extends React.Component<DictFilterProps, any> {
         this.combo = this.refs.country as ComboBoxField;
     }
 
+    public getModel(): string {
+        return this.getSelected();
+    }
+
+    public getSelected(): string {
+        let result: string = null;
+        let selected = (this.combo as any).getSelection();
+        if (selected) {
+            result = selected.data.id;
+        }
+        return result;
+    }
+
     private init() {
         this.srv = ReportFactory.getDictService();
         this.state = {
