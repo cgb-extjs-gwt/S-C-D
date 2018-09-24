@@ -118,6 +118,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                             .Where(x => x.Report.Id == reportId)
                                             .Select(x => new ReportColumnDto
                                             {
+                                                TypeId = x.Type.Id,
                                                 Type = x.Type.Name,
                                                 Name = x.Name,
                                                 Text = x.Text,
@@ -130,6 +131,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                             .Where(x => x.Report.Id == reportId)
                                             .Select(x => new ReportFilterDto
                                             {
+                                                TypeId = x.Type.Id,
                                                 Type = x.Type.Name,
                                                 Name = x.Name,
                                                 Text = x.Text,
