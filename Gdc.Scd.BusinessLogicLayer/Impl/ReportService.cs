@@ -131,6 +131,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                             .Where(x => x.Report.Id == reportId)
                                             .Select(x => new ReportFilterDto
                                             {
+                                                MultiSelect = x.Type.MultiSelect,
                                                 TypeId = x.Type.Id,
                                                 Type = x.Type.Name,
                                                 Name = x.Name,

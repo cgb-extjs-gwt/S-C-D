@@ -1134,16 +1134,16 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "text" },
                 new ReportFilterType { Name = "number" },
                 new ReportFilterType { Name = "boolean" },
-                new ReportFilterType { Name = "wg" },
-                new ReportFilterType { Name = "sog" },
-                new ReportFilterType { Name = "countrygroup" },
-                new ReportFilterType { Name = "country" },
-                new ReportFilterType { Name = "availability" },
-                new ReportFilterType { Name = "duration" },
-                new ReportFilterType { Name = "reactiontime" },
-                new ReportFilterType { Name = "reactiontype" },
-                new ReportFilterType { Name = "servicelocation" },
-                new ReportFilterType { Name = "year" }
+                new ReportFilterType { Name = "wg" , MultiSelect = true },
+                new ReportFilterType { Name = "sog" , MultiSelect = true },
+                new ReportFilterType { Name = "countrygroup" , MultiSelect = true },
+                new ReportFilterType { Name = "country" , MultiSelect = true },
+                new ReportFilterType { Name = "availability" , MultiSelect = true },
+                new ReportFilterType { Name = "duration" , MultiSelect = true },
+                new ReportFilterType { Name = "reactiontime" , MultiSelect = true },
+                new ReportFilterType { Name = "reactiontype" , MultiSelect = true },
+                new ReportFilterType { Name = "servicelocation" , MultiSelect = true },
+                new ReportFilterType { Name = "year" , MultiSelect = true }
             };
 
             var repository = this.repositorySet.GetRepository<ReportFilterType>();
