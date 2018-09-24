@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
@@ -82,6 +83,31 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters
             }
 
             return WithTypeName("ListID").WithPValue(tbl);
+        }
+
+        public SqlParameterBuilder WithKeyValue(IDictionary<string, string> values)
+        {
+            var tbl = new DataTable();
+            tbl.Columns.Add("key", typeof(string));
+            tbl.Columns.Add("value", typeof(string));
+
+            if (values != null)
+            {
+                var rows = tbl.Rows;
+                foreach (var v in values)
+                {
+                    if (v.Value == null)
+                    {
+                        rows.Add(v.Key);
+                    }
+                    else
+                    {
+                        rows.Add(v.Key, v.Value);
+                    }
+                }
+            }
+
+            return WithTypeName("KeyValuePair").WithPValue(tbl);
         }
 
         public SqlParameterBuilder WithNull()
