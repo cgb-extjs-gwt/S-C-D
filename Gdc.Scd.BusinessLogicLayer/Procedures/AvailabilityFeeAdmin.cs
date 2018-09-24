@@ -27,7 +27,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                 parameters);
         }
 
-        private DbParameter[] Prepare(int pageNumber, int limit)
+        private static DbParameter[] Prepare(int pageNumber, int limit)
         {
             return new DbParameter[] {
                  new SqlParameterBuilder().WithName("@pageSize").WithValue(limit).Build(),

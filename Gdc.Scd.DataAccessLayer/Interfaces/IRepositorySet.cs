@@ -31,8 +31,6 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         int ExecuteProc(string procName, params DbParameter[] parameters);
 
-        void Replace<T>(T oldEntity, T newEntity) where T : class;
-
         Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters);
 
         List<T> ExecuteProc<T>(string procName, params DbParameter[] parameters)
@@ -43,7 +41,16 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
            params DbParameter[] parameters)
            where T : new();
 
+        DataTable ExecuteProcAsTable(string procName, params DbParameter[] parameters);
 
-       IEnumerable<Type> GetRegisteredEntities();
+        Task<DataTable> ExecuteProcAsTableAsync(string procName, params DbParameter[] parameters);
+
+        string ExecuteProcAsJson(string procName, params DbParameter[] parameters);
+
+        Task<string> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters);
+
+        void Replace<T>(T oldEntity, T newEntity) where T : class;
+
+        IEnumerable<Type> GetRegisteredEntities();
     }
 }

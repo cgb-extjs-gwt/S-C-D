@@ -1,8 +1,10 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.BusinessLogicLayer.Procedures;
 using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using System;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -33,16 +35,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.filterRepo = filterRepo;
         }
 
-        public Stream Excel(
-                long reportId,
-                ReportFilterCollection filter,
-                out string fileName
-            )
+        public Task<(Stream data, string fileName)> Excel(long reportId, ReportFilterCollection filter)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public DataTable GetData(
+        public Task<DataTable> GetData(
                 long reportId,
                 ReportFilterCollection filter
             )
@@ -50,37 +48,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             throw new System.NotImplementedException();
         }
 
-        public DataTable GetData(
-                long reportId,
-                ReportFilterCollection filter,
-                int start,
-                int limit,
-                out int total
-            )
+        public Task<(DataTable tbl, int total)> GetData(long reportId, ReportFilterCollection filter, int start, int limit)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public string GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit, out int total)
+        public Task<(string json, int total)> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit)
         {
-            var d = new object[]
-            {
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-                new { col_1 = "v1", col_2 = 2, col_3 = "3", col_4 = "bla bla bla" },
-            };
-            total = d.Length;
-
-            return Newtonsoft.Json.JsonConvert.SerializeObject(d);
+            return new GetReport(repositorySet).ExecuteJsonAsync(reportId, filter, start, limit);
         }
 
         public Task<ReportDto[]> GetReports()

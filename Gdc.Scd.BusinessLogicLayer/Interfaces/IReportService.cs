@@ -11,10 +11,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<ReportSchemaDto> GetSchema(long reportId);
 
-        Stream Excel(long reportId, ReportFilterCollection filter, out string fileName);
+        Task<(Stream data, string fileName)> Excel(long reportId, ReportFilterCollection filter);
 
-        DataTable GetData(long reportId, ReportFilterCollection filter, int start, int limit, out int total);
+        Task<(DataTable tbl, int total)> GetData(long reportId, ReportFilterCollection filter, int start, int limit);
 
-        string GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit, out int total);
+        Task<(string json, int total)> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit);
     }
 }

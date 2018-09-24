@@ -174,6 +174,26 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
         }
 
+        public DataTable ExecuteProcAsTable(string procName, params DbParameter[] parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DataTable> ExecuteProcAsTableAsync(string procName, params DbParameter[] parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string ExecuteProcAsJson(string procName, params DbParameter[] parameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<Type> GetRegisteredEntities()
         {
             return RegisteredEntities.Keys.ToArray();

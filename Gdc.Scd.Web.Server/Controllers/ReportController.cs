@@ -17,11 +17,14 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public HttpResponseMessage Export([FromUri]long id)
+        public Task<HttpResponseMessage> Export([FromUri]long id)
         {
-            string fn;
-            var data = service.Excel(id, GetFilter(), out fn);
-            return this.ExcelContent(data, fn);
+            return service.Excel(id, GetFilter())
+                          .ContinueWith(x =>
+                          {
+                              var res = x.Result;
+                              return this.ExcelContent(res.data, res.fileName);
+                          });
         }
 
         [HttpGet]
@@ -42,16 +45,19 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public HttpResponseMessage View([FromUri]long id, [FromUri]int start = 0, [FromUri]int limit = 50)
+        public Task<HttpResponseMessage> View([FromUri]long id, [FromUri]int start = 0, [FromUri]int limit = 50)
         {
             if (!IsRangeValid(start, limit))
             {
-                return null;
+                return Task.FromResult<HttpResponseMessage>(null);
             }
 
-            int total;
-            string json = service.GetJsonArrayData(id, GetFilter(), start, limit, out total);
-            return this.JsonContent(json, total);
+            return service.GetJsonArrayData(id, GetFilter(), start, limit)
+                          .ContinueWith(x =>
+                          {
+                              var res = x.Result;
+                              return this.JsonContent(res.json, res.total);
+                          });
         }
 
         private ReportFilterCollection GetFilter()
