@@ -49,38 +49,27 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
         {
-            //TODO: remove direct connection management
-            var connection = this.Database.GetDbConnection();
             var result = new List<T>();
 
-            try
+            await WithCommand(async command =>
             {
-                await connection.OpenAsync();
+                command.CommandText = sql;
 
-                using (var command = connection.CreateCommand())
+                if (parameters != null)
                 {
-                    command.CommandText = sql;
+                    command.Parameters.AddRange(this.GetDbParameters(parameters, command).ToArray());
+                }
 
-                    if (parameters != null)
+                var reader = await command.ExecuteReaderAsync();
+
+                if (reader.HasRows)
+                {
+                    while (await reader.ReadAsync())
                     {
-                        command.Parameters.AddRange(this.GetDbParameters(parameters, command).ToArray());
-                    }
-
-                    var reader = await command.ExecuteReaderAsync();
-
-                    if (reader.HasRows)
-                    {
-                        while (await reader.ReadAsync())
-                        {
-                            result.Add(mapFunc(reader));
-                        }
+                        result.Add(mapFunc(reader));
                     }
                 }
-            }
-            finally
-            {
-                connection.Close();
-            }
+            });
 
             return result;
         }
