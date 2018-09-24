@@ -128,21 +128,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public List<T> ExecuteProc<T>(string procName, params DbParameter[] parameters) where T : new()
         {
-            using (var connection = Database.GetDbConnection())
+            return WithCommand(cmd =>
             {
-                connection.Open();
-                DbCommand dbCommand = connection.CreateCommand();
-                dbCommand.CommandText = procName;
-                dbCommand.CommandType = CommandType.StoredProcedure;
-                for (var i = 0; i < parameters.Length; i++)
-                {
-                    dbCommand.Parameters.Add(parameters[i]);
-                }
-                using (var reader = dbCommand.ExecuteReader())
+                cmd.CommandText = procName;
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.AddParameters(parameters);
+
+                using (var reader = cmd.ExecuteReader())
                 {
                     return reader.MapToList<T>();
                 }
-            }
+            });
         }
 
         public List<T> ExecuteProc<T, V>(
@@ -151,47 +148,94 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 out V returnVal,
                 params DbParameter[] parameters) where T : new()
         {
-            using (var connection = Database.GetDbConnection())
-            {
-                connection.Open();
-                DbCommand dbCommand = connection.CreateCommand();
-                dbCommand.CommandText = procName;
-                dbCommand.CommandType = CommandType.StoredProcedure;
-                for (var i = 0; i < parameters.Length; i++)
-                {
-                    dbCommand.Parameters.Add(parameters[i]);
-                }
-                dbCommand.Parameters.Add(outParam);
+            V outValue = default(V);
+            List<T> entities = null;
 
-                List<T> entities;
-                using (var reader = dbCommand.ExecuteReader())
+            WithCommand(cmd =>
+            {
+                cmd.CommandText = procName;
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.AddParameters(parameters);
+                cmd.AddParameter(outParam);
+
+                using (var reader = cmd.ExecuteReader())
                 {
                     entities = reader.MapToList<T>();
                 }
 
-                returnVal = outParam.Value == null ? default(V) : (V)outParam.Value;
-                return entities;
-            }
+                if (outParam.Value != null)
+                {
+                    outValue = (V)outParam.Value;
+                }
+            });
+
+            returnVal = outValue;
+            return entities;
         }
 
         public DataTable ExecuteProcAsTable(string procName, params DbParameter[] parameters)
         {
-            throw new NotImplementedException();
+            return WithCommand(cmd =>
+            {
+                cmd.CommandText = procName;
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.AddParameters(parameters);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    return reader.MapToTable();
+                }
+            });
         }
 
         public Task<DataTable> ExecuteProcAsTableAsync(string procName, params DbParameter[] parameters)
         {
-            throw new NotImplementedException();
+            return WithCommand(async cmd =>
+            {
+                cmd.CommandText = procName;
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.AddParameters(parameters);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    return reader.MapToTable();
+                }
+            });
         }
 
         public string ExecuteProcAsJson(string procName, params DbParameter[] parameters)
         {
-            throw new NotImplementedException();
+            return WithCommand(cmd =>
+            {
+                cmd.CommandText = procName;
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.AddParameters(parameters);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    return reader.MapToJsonArray();
+                }
+            });
         }
 
         public Task<string> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters)
         {
-            throw new NotImplementedException();
+            return WithCommand(async cmd =>
+            {
+                cmd.CommandText = procName;
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.AddParameters(parameters);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    return reader.MapToJsonArray();
+                }
+            });
         }
 
         public IEnumerable<Type> GetRegisteredEntities()
@@ -274,9 +318,61 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return sb.ToString();
         }
 
-        public void Replace<T>(T oldEntity, T newEntity) where T:class
+        public void Replace<T>(T oldEntity, T newEntity) where T : class
         {
             Entry(oldEntity).CurrentValues.SetValues(newEntity);
+        }
+
+        private void WithCommand(Action<DbCommand> func)
+        {
+            //TODO: remove direct connection management
+            using (var conn = Database.GetDbConnection())
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    func(cmd);
+                }
+            }
+        }
+
+        private async Task WithCommand(Func<DbCommand, Task> func)
+        {
+            //TODO: remove direct connection management
+            using (var conn = Database.GetDbConnection())
+            {
+                await conn.OpenAsync();
+                using (var cmd = conn.CreateCommand())
+                {
+                    await func(cmd);
+                }
+            }
+        }
+
+        private T WithCommand<T>(Func<DbCommand, T> func)
+        {
+            //TODO: remove direct connection management
+            using (var conn = Database.GetDbConnection())
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    return func(cmd);
+                }
+            }
+        }
+
+        private async Task<T> WithCommand<T>(Func<DbCommand, Task<T>> func)
+        {
+            //TODO: remove direct connection management
+            using (var conn = Database.GetDbConnection())
+            {
+                await conn.OpenAsync();
+                using (var cmd = conn.CreateCommand())
+                {
+                    return await func(cmd);
+                }
+            }
         }
     }
 }

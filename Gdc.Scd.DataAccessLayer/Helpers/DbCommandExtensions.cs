@@ -1,0 +1,20 @@
+﻿using System.Data.Common;
+
+namespace Gdc.Scd.DataAccessLayer.Helpers
+{
+    public static class DbCommandExtensions
+    {
+        public static void AddParameters(this DbCommand cmd, params DbParameter[] parameters)
+        {
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                cmd.Parameters.Add(parameters[i]);
+            }
+        }
+
+        public static void AddParameter(this DbCommand cmd, DbParameter parameter)
+        {
+            cmd.Parameters.Add(parameter);
+        }
+    }
+}
