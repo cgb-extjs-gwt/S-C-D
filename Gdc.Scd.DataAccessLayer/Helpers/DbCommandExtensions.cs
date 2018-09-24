@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using System.Data;
+using System.Data.Common;
 
 namespace Gdc.Scd.DataAccessLayer.Helpers
 {
@@ -15,6 +16,13 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
         public static void AddParameter(this DbCommand cmd, DbParameter parameter)
         {
             cmd.Parameters.Add(parameter);
+        }
+
+        public static void AsStoredProcedure(this DbCommand cmd, string procName, params DbParameter[] parameters)
+        {
+            cmd.CommandText = procName;
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.AddParameters(parameters);
         }
     }
 }

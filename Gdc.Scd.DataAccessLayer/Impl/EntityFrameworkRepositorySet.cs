@@ -117,10 +117,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             return WithCommand(cmd =>
             {
-                cmd.CommandText = procName;
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                cmd.AddParameters(parameters);
+                cmd.AsStoredProcedure(procName, parameters);
 
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -140,10 +137,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             WithCommand(cmd =>
             {
-                cmd.CommandText = procName;
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                cmd.AddParameters(parameters);
+                cmd.AsStoredProcedure(procName, parameters);
                 cmd.AddParameter(outParam);
 
                 using (var reader = cmd.ExecuteReader())
@@ -165,10 +159,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             return WithCommand(cmd =>
             {
-                cmd.CommandText = procName;
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                cmd.AddParameters(parameters);
+                cmd.AsStoredProcedure(procName, parameters);
 
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -181,10 +172,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             return WithCommand(async cmd =>
             {
-                cmd.CommandText = procName;
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                cmd.AddParameters(parameters);
+                cmd.AsStoredProcedure(procName, parameters);
 
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
@@ -197,10 +185,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             return WithCommand(cmd =>
             {
-                cmd.CommandText = procName;
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                cmd.AddParameters(parameters);
+                cmd.AsStoredProcedure(procName, parameters);
 
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -213,10 +198,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             return WithCommand(async cmd =>
             {
-                cmd.CommandText = procName;
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                cmd.AddParameters(parameters);
+                cmd.AsStoredProcedure(procName, parameters);
 
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
