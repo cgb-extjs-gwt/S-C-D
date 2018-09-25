@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Entities;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
-using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.DataAccessLayer.Entities;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 
 namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
@@ -43,7 +43,13 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<string> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters);
 
+        string ExecuteAsJson(string sql, params DbParameter[] parameters);
+
         Task<string> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters);
+
+        DataTable ExecuteAsTable(string sql, params DbParameter[] parameters);
+
+        Task<DataTable> ExecuteAsTableAsync(string sql, params DbParameter[] parameters);
 
         T ExecuteScalar<T>(string sql, params DbParameter[] parameters);
 

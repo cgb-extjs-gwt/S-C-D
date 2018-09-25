@@ -3,6 +3,7 @@ using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
+using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 
@@ -17,9 +18,25 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             _repo = repo;
         }
 
-        public Task<DataTableDto> ExecuteTableAsync(string func, ReportFilterCollection filter, int start, int limit)
+        public Task<DataTable> ExecuteTableAsync(string func, DbParameter[] parameters)
         {
-            throw new System.NotImplementedException();
+            return _repo.ExecuteAsTableAsync(SelectAllQuery(func, parameters), parameters);
+        }
+
+        public async Task<DataTableDto> ExecuteTableAsync(
+                string func,
+                int start,
+                int limit,
+                DbParameter[] parameters
+            )
+        {
+            var result = new DataTableDto();
+
+            result.Total = await _repo.ExecuteScalarAsync<int>(CountQuery(func, parameters), parameters);
+
+            result.Data = await _repo.ExecuteAsTableAsync(SelectQuery(func, parameters), Copy(parameters, start, limit));
+
+            return result;
         }
 
         public async Task<JsonArrayDto> ExecuteJsonAsync(
@@ -43,6 +60,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             return new SqlStringBuilder()
                     .Append("SELECT COUNT(*) FROM ").AppendFunc(func, parameters)
                     .Build();
+        }
+
+        private static string SelectAllQuery(string func, DbParameter[] parameters)
+        {
+            return new SqlStringBuilder()
+                   .Append("SELECT * FROM ").AppendFunc(func, parameters)
+                   .Build();
         }
 
         private static string SelectQuery(string func, DbParameter[] parameters)

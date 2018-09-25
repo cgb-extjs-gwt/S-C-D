@@ -178,6 +178,20 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
+        public string ExecuteAsJson(string sql, params DbParameter[] parameters)
+        {
+            return WithCommand(cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    return reader.MapToJsonArray();
+                }
+            });
+        }
+
         public Task<string> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>
@@ -188,6 +202,34 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
                     return reader.MapToJsonArray();
+                }
+            });
+        }
+
+        public DataTable ExecuteAsTable(string sql, params DbParameter[] parameters)
+        {
+            return WithCommand(cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    return reader.MapToTable();
+                }
+            });
+        }
+
+        public Task<DataTable> ExecuteAsTableAsync(string sql, params DbParameter[] parameters)
+        {
+            return WithCommand(async cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    return reader.MapToTable();
                 }
             });
         }

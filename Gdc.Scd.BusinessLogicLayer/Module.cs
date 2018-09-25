@@ -7,12 +7,6 @@ using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Ninject.Modules;
 using Ninject.Web.Common;
-using NLog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer
 {
