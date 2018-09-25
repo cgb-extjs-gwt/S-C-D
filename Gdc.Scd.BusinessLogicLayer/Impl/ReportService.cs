@@ -6,6 +6,7 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -55,6 +56,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public Task<JsonArrayDto> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit)
         {
+            var r = GetSchemas().GetSchema(reportId);
+            var func = r.Report.SqlFunc;
+            var parameters = r.AsDbParameters();
+
+
+
             return new GetReport(repositorySet).ExecuteJsonAsync(reportId, filter, start, limit);
         }
 
@@ -95,6 +102,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                     .Select(x => new ReportColumn
                                     {
                                         Id = x.Id,
+                                        Index = x.Index,
                                         Name = x.Name,
                                         Text = x.Text,
                                         Report = new Report { Id = x.Report.Id },
@@ -112,6 +120,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                     .Select(x => new ReportFilter
                                     {
                                         Id = x.Id,
+                                        Index = x.Index,
                                         Name = x.Name,
                                         Text = x.Text,
                                         Report = new Report { Id = x.Report.Id },
@@ -132,8 +141,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             for (var i = 0; i < reports.Length; i++)
             {
                 var r = reports[i];
-                var cols = columns.Contains(r.Id) ? columns[r.Id].ToArray() : EMPTY_COLUMNS;
-                var fils = filters.Contains(r.Id) ? filters[r.Id].ToArray() : EMPTY_FILTERS;
+                var cols = columns.Contains(r.Id) ? columns[r.Id].OrderBy(x => x.Index).ToArray() : EMPTY_COLUMNS;
+                var fils = filters.Contains(r.Id) ? filters[r.Id].OrderBy(x => x.Index).ToArray() : EMPTY_FILTERS;
 
                 collection.Add(r.Id, new ReportSchema(r, cols, fils));
             }
@@ -190,6 +199,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.columns = columns;
             this.filters = filters;
         }
+
+        public Report Report { get { return report; } }
 
         public ReportSchemaDto AsSchemaDto()
         {
@@ -256,6 +267,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 };
             }
 
+            return result;
+        }
+
+        public DbParameter[] AsDbParameters()
+        {
+            int len = filters.Length;
+
+            var result = new DbParameter[len];
+            for (var i = 0; i < len; i++)
+            {
+
+            }
             return result;
         }
     }

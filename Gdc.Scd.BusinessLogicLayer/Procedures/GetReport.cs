@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
+using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
@@ -39,6 +40,65 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                                  });
         }
 
+        public Task<JsonArrayDto> ExecuteJsonAsync(
+                string func,
+                ReportFilterCollection filter,
+                int start,
+                int limit
+            )
+        {
+            var parameters = Prepare(reportId, filter, start, limit);
+            return _repositorySet.ExecuteProcAsJsonAsync(PROC_NAME, parameters)
+                                 .ContinueWith(x =>
+                                 {
+                                     return new JsonArrayDto { Json = x.Result, Total = GetTotal(parameters) };
+                                 });
+        }
+
+        private static string CountQuery(string func, ReportFilterCollection filter)
+        {
+            var builder = new SqlStringBuilder();
+
+            builder.Append("select count(*) from ").Append(func)
+                   .Append("(");
+
+            AppendFilter(filter, builder);
+
+            builder.Append(")");
+
+            return builder.AsSql();
+        }
+
+        private static string SelectQuery(string func, ReportFilterCollection filter, int start, int limit)
+        {
+            var builder = new SqlStringBuilder();
+
+            builder.Append("select * from ").Append(func).Append("(");
+
+            AppendFilter(filter, builder);
+
+            builder.Append(") WHERE ROWNUM BETWEEN @start AND @limit");
+
+            return builder.AsSql();
+        }
+
+        private static SqlStringBuilder AppendFilter(ReportFilterCollection filter, SqlStringBuilder builder)
+        {
+            //bool flag = false;
+
+            //foreach (var i in filter)
+            //{
+            //    if (flag)
+            //    {
+            //        builder.Append(", ");
+            //    }
+            //    builder.Append("@").Append(i.Key);
+            //    flag = true;
+            //}
+
+            return builder;
+        }
+
         private static DbParameter[] Prepare(
                 long reportId,
                 ReportFilterCollection filter,
@@ -52,6 +112,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                  new SqlParameterBuilder().WithName("@start").WithValue(start).Build(),
                  new SqlParameterBuilder().WithName("@limit").WithValue(limit).Build(),
                  new SqlParameterBuilder().WithName("@total").WithType(DbType.Int32).WithDirection(ParameterDirection.Output).Build()
+            };
+        }
+
+        private static DbParameter[] Prepare2(
+                int start,
+                int limit
+            )
+        {
+            return new DbParameter[] {
+                 new SqlParameterBuilder().WithName("@start").WithValue(start).Build(),
+                 new SqlParameterBuilder().WithName("@limit").WithValue(limit).Build()
             };
         }
 

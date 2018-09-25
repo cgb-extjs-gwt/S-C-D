@@ -9,6 +9,8 @@ namespace Gdc.Scd.Core.Entities.Report
     {
         public Report Report { get; set; }
 
+        public int Index { get; set; }
+
         [Required]
         public string Text { get; set; }
 
