@@ -1,7 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
-using System;
 using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
@@ -57,7 +57,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
         private static int GetTotal(DbParameter[] parameters)
         {
-            return Convert.ToInt32(parameters[4].Value);
+            return parameters[4].GetInt32();
         }
     }
 }

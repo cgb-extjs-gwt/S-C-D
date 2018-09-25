@@ -126,35 +126,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
-        public List<T> ExecuteProc<T, V>(
-                string procName,
-                DbParameter outParam,
-                out V returnVal,
-                params DbParameter[] parameters) where T : new()
-        {
-            V outValue = default(V);
-            List<T> entities = null;
-
-            WithCommand(cmd =>
-            {
-                cmd.AsStoredProcedure(procName, parameters);
-                cmd.AddParameter(outParam);
-
-                using (var reader = cmd.ExecuteReader())
-                {
-                    entities = reader.MapToList<T>();
-                }
-
-                if (outParam.Value != null)
-                {
-                    outValue = (V)outParam.Value;
-                }
-            });
-
-            returnVal = outValue;
-            return entities;
-        }
-
         public DataTable ExecuteProcAsTable(string procName, params DbParameter[] parameters)
         {
             return WithCommand(cmd =>
@@ -290,32 +261,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public void Replace<T>(T oldEntity, T newEntity) where T : class
         {
             Entry(oldEntity).CurrentValues.SetValues(newEntity);
-        }
-
-        private void WithCommand(Action<DbCommand> func)
-        {
-            //TODO: remove direct connection management
-            using (var conn = Database.GetDbConnection())
-            {
-                conn.Open();
-                using (var cmd = conn.CreateCommand())
-                {
-                    func(cmd);
-                }
-            }
-        }
-
-        private async Task WithCommand(Func<DbCommand, Task> func)
-        {
-            //TODO: remove direct connection management
-            using (var conn = Database.GetDbConnection())
-            {
-                await conn.OpenAsync();
-                using (var cmd = conn.CreateCommand())
-                {
-                    await func(cmd);
-                }
-            }
         }
 
         private T WithCommand<T>(Func<DbCommand, T> func)

@@ -33,13 +33,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters);
 
-        List<T> ExecuteProc<T>(string procName, params DbParameter[] parameters)
-            where T : new();
-
-        List<T> ExecuteProc<T, V>(string procName, DbParameter outParam,
-           out V returnVal,
-           params DbParameter[] parameters)
-           where T : new();
+        List<T> ExecuteProc<T>(string procName, params DbParameter[] parameters) where T : new();
 
         DataTable ExecuteProcAsTable(string procName, params DbParameter[] parameters);
 
