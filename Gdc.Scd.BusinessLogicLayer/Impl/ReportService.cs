@@ -3,6 +3,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
 using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -58,11 +59,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var r = GetSchemas().GetSchema(reportId);
             var func = r.Report.SqlFunc;
-            //var parameters = r.AsDbParameters();
+            var parameters = r.FillParameters(filter);
 
-
-
-            return new GetReport(repositorySet).ExecuteJsonAsync(func, start, limit);
+            return new GetReport(repositorySet).ExecuteJsonAsync(func, start, limit, parameters);
         }
 
         public ReportDto[] GetReports()
@@ -270,16 +269,42 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return result;
         }
 
-        public DbParameter[] AsDbParameters()
+        public DbParameter[] FillParameters()
+        {
+            return FillParameters(null);
+        }
+
+        public DbParameter[] FillParameters(ReportFilterCollection src)
         {
             int len = filters.Length;
-
             var result = new DbParameter[len];
+
             for (var i = 0; i < len; i++)
             {
-
+                result[i] = FillParameter(filters[i], src);
             }
+
             return result;
+        }
+
+        public DbParameter FillParameter(ReportFilter f, ReportFilterCollection src)
+        {
+            var builder = new SqlParameterBuilder();
+
+            builder.WithName(f.Name);
+
+            string value;
+
+            if (src != null && src.TryGetValue(f.Name, out value))
+            {
+                builder.WithValue(value);
+            }
+            else
+            {
+                builder.WithNull();
+            }
+
+            return builder.Build();
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
 using Gdc.Scd.BusinessLogicLayer.Helpers;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
-using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 
@@ -25,28 +25,27 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         public async Task<JsonArrayDto> ExecuteJsonAsync(
                 string func,
                 int start,
-                int limit
+                int limit,
+                DbParameter[] parameters
             )
         {
-            var parameters = Prepare(start, limit);
-
             var result = new JsonArrayDto();
 
-            result.Total = await _repo.ExecuteScalarAsync<int>(CountQuery(func));
+            result.Total = await _repo.ExecuteScalarAsync<int>(CountQuery(func, parameters), parameters);
 
-            result.Json = await _repo.ExecuteAsJsonAsync(SelectQuery(func), parameters);
+            result.Json = await _repo.ExecuteAsJsonAsync(SelectQuery(func, parameters), Copy(parameters, start, limit));
 
             return result;
         }
 
-        private static string CountQuery(string func, params DbParameter[] parameters)
+        private static string CountQuery(string func, DbParameter[] parameters)
         {
             return new SqlStringBuilder()
                     .Append("SELECT COUNT(*) FROM ").AppendFunc(func, parameters)
                     .Build();
         }
 
-        private static string SelectQuery(string func, params DbParameter[] parameters)
+        private static string SelectQuery(string func, DbParameter[] parameters)
         {
             return new SqlStringBuilder()
                    .Append("SELECT * FROM ").AppendFunc(func, parameters)
@@ -54,31 +53,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                    .Build();
         }
 
-        private static DbParameter[] Prepare(
-                long reportId,
-                ReportFilterCollection filter,
-                int start,
-                int limit
-            )
+        private static DbParameter[] Copy(DbParameter[] parameters, int start, int limit)
         {
-            return new DbParameter[] {
-                 new SqlParameterBuilder().WithName("@reportId").WithValue(reportId).Build(),
-                 new SqlParameterBuilder().WithName("@filter").WithKeyValue(filter).Build(),
-                 new SqlParameterBuilder().WithName("@start").WithValue(start).Build(),
-                 new SqlParameterBuilder().WithName("@limit").WithValue(limit).Build(),
-                 new SqlParameterBuilder().WithName("@total").WithType(DbType.Int32).WithDirection(ParameterDirection.Output).Build()
-            };
-        }
+            const int MIN = 2;
 
-        private static DbParameter[] Prepare(
-                int start,
-                int limit
-            )
-        {
-            return new DbParameter[] {
-                 new SqlParameterBuilder().WithName("@start").WithValue(start).Build(),
-                 new SqlParameterBuilder().WithName("@limit").WithValue(start + limit).Build()
-            };
+            var len = parameters == null ? 0 : parameters.Length;
+            var result = new DbParameter[len + MIN];
+
+            int i = 0;
+
+            for (; i < len; i++)
+            {
+                result[i] = parameters[i].Copy();
+            }
+
+            result[i++] = new SqlParameterBuilder().WithName("@start").WithValue(start).Build();
+            result[i++] = new SqlParameterBuilder().WithName("@limit").WithValue(start + limit).Build();
+
+            return result;
         }
     }
 }
