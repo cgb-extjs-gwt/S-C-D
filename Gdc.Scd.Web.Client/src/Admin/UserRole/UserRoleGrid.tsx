@@ -17,15 +17,15 @@ interface UserRoleGridProps {
 export class UserRoleGrid extends React.Component<UserRoleGridProps> {
 
     onNewButtonClick = () => {
-        const { onShowDialog, onSelectRecord } = this.props;
-        onShowDialog();
+        const { onShowDialog, onSelectRecord } = this.props;       
         onSelectRecord(null);
+        onShowDialog();
     }
 
     onEditButtonClick = (grid, info) => {
         const { onShowDialog, onSelectRecord } = this.props;
-        onShowDialog();
         onSelectRecord(info.record);
+        onShowDialog();
     }
 
     onDeleteButtonClick = (grid, info)  => {

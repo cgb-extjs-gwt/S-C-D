@@ -14,25 +14,39 @@ interface UserRoleDialogProps{
     saveRecords?()   
 }
 
-export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
+export class UserRoleDialog extends React.Component<UserRoleDialogProps, any> {
     private userRoleForm: Dialog & any;
     private userPickerPanel: PickerPanel & any;
     private countryComboBox: ComboBoxField & any;
     private roleComboBox: ComboBoxField & any;
 
+    public constructor(props: any) {
+        super(props);
+        this.init();
+    }
 
-    private countryFieldHidden = true;
-    private isVisible = false;
+    public componentWillMount() {
+        const { storeRole, selectedRecord } = this.props;
+        let selectedRole = selectedRecord && storeRole.getById(selectedRecord.data.roleId)
+        this.setState({
+            ...this.state,
+            countryFieldHidden: selectedRole && selectedRole.data.isGlobal
+        })                
+    }
 
-    state={
-        ...this.state,
-        isValid: false
-    };
+    public init() {       
+        this.state = {
+            ...this.state,
+            countryFieldHidden: true,
+            isVisible: false,
+            isValid: false
+        }     
+    }
 
     render() {
         const { isVisibleForm, selectedRecord } = this.props;
         const { store, storeUser, storeCountry, storeRole } = this.props;
-      
+
 
         return (                      
             <Dialog
@@ -47,11 +61,10 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
                     }
                 }}
                 onHide={this.onFormCancel}
-                >
+            >
                 <PickerPanel
                     ref={pickerPanel => this.userPickerPanel = pickerPanel}
-                    onSendClick={this.onSendDialogClick}
-                    onCancelClick={this.onCancelClick}
+                    value={selectedRecord && storeUser.getById(selectedRecord.data.userId)}               
                 />
                 <ComboBoxField
                     ref={combobox => this.roleComboBox = combobox}
@@ -75,7 +88,7 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
                     value={selectedRecord && selectedRecord.data.countryId}
                     editable={false}
                     required={true}
-                    hidden={this.countryFieldHidden}
+                    hidden={this.state.countryFieldHidden}
                     onChange={this.isValidInput.bind(this)}
                 />                  
                 <Toolbar docked="bottom">
@@ -167,10 +180,16 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
             if (selectedRole.data.isGlobal) {
                 this.countryComboBox.setValue(null);
             }
-            this.countryFieldHidden = selectedRole.data.isGlobal
+            this.setState({
+                ...this.state,
+                countryFieldHidden: selectedRole.data.isGlobal
+            });
         }
         else {
-            this.countryFieldHidden = true
+            this.setState({
+                ...this.state,
+                countryFieldHidden: true
+            });
         }
         this.isValidInput();
     }
@@ -178,7 +197,7 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
     private isValidInput = () => {
         if (this.userPickerPanel && this.userPickerPanel.getUserIdentity() &&
             this.roleComboBox && this.roleComboBox.getValue() > 0 &&
-            ((!this.countryFieldHidden && this.countryComboBox && this.countryComboBox.getValue() > 0) || this.countryFieldHidden)) {
+            ((!this.state.countryFieldHidden && this.countryComboBox && this.countryComboBox.getValue() > 0) || this.state.countryFieldHidden)) {
             this.setState({
                 ...this.state,
                 isValid: true
@@ -200,6 +219,9 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps> {
     }
 
     private onSendDialogClick = (value: string) => {
-        this.isVisible = false
+        this.setState({
+            ...this.state,
+            isVisible: false
+        });
     }
 }

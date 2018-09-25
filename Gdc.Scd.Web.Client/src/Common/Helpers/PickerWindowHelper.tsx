@@ -4,6 +4,8 @@ import PickerPanel, { PickerPanelProps } from './PickerPanelHelper';
 
 export interface PickerWindowProps extends PickerPanelProps {
     isVisible: boolean;
+    onSendClick: (value: string) => void;
+    onCancelClick: () => void;
 }
 
 export default class PickerWindowHelper extends React.Component<PickerWindowProps, any> {
@@ -27,8 +29,6 @@ export default class PickerWindowHelper extends React.Component<PickerWindowProp
                 <PickerPanel
                     ref={pickerPanel => this.pickerPanel = pickerPanel}
                     value={value}
-                    onSendClick={onSendClick}
-                    onCancelClick={onCancelClick}
                 />
                 <Button                   
                     text="Send"

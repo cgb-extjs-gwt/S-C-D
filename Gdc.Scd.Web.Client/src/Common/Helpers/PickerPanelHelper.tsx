@@ -3,9 +3,7 @@ import { FormPanel, NumberField, Button, ComboBoxField, Grid, Column, ComboBox }
 import { buildMvcUrl } from "../Services/Ajax"
 Ext.require('Ext.grid.plugin.PagingToolbar');
 export interface PickerPanelProps {
-    value?: string;
-    onSendClick: (value: string) => void;
-    onCancelClick: () => void;
+    value?: any;
 }
 
 const CONTROLLER_NAME = 'User';
@@ -22,7 +20,7 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
         autoLoad: true,
         fields: ['item', 'name'],
         data: [
-
+            this.props.value
         ],
         proxy: {
             type: 'ajax',
@@ -80,14 +78,15 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
         return this.pickerField.getValue();
     }
     public render() {
-        const { value, onSendClick, onCancelClick } = this.props;
+        const { value } = this.props;
         return (
                 <ComboBox
                     ref={combobox => this.pickerField = combobox}
                     store={this.store}
-                    label="Find user name"
+                    label={value ? "User" : "Find user name"}
                     displayField="name"
                     valueField="item"
+                    value={value}
                     queryMode="remote"
                     labelAlign="placeholder"
                     onKeyUp={() => this.loadUsers()}

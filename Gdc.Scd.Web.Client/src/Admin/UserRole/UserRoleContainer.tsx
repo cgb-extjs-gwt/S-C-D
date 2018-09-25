@@ -99,7 +99,10 @@ export default class RoleCodesContainer extends React.Component {
     }
 
     private onSearch(filter: UserRoleFilterModel) {
-        this.store.load();
+        this.store.clearFilter()
+        filter.user ? this.store.filter('userId', filter.user) : false
+        filter.role ? this.store.filter('roleId', filter.role) : false
+        filter.country ? this.store.filter('countryId', filter.country) : false
     }
 
     private onBeforeLoad(s, operation) {
