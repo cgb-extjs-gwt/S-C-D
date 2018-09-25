@@ -23,6 +23,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<IEmailService>().To<EmailService>().InRequestScope();
             Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InRequestScope();
             Bind<IQualityGateSevice>().To<QualityGateSevice>().InRequestScope();
+            Bind<IActiveDirectoryService>().To<ActiveDirectoryService>().InRequestScope();
 
             Kernel.RegisterEntity<ClusterRegion>();
             Kernel.RegisterEntity<Country>();

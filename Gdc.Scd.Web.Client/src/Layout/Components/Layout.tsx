@@ -85,7 +85,8 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path={buildComponentUrl("/admin/availability-fee")} component={AvailabilityFeeAdminGrid} />
                         <Route path={buildComponentUrl("/admin/role-code-management")} component={RoleCodesGrid} />
                         <Route path={buildComponentUrl("/admin/warranty-group-management")} component={WarrantyGroupGrid} />
-                        <Route path={buildComponentUrl("/admin/user-role")} component={UserRoleContainer} />                   
+                        <Route path={buildComponentUrl("/admin/user-role")} component={UserRoleContainer} />
+                        <Route path={buildComponentUrl("/test")} component={About} />                   
                     </Switch>
                 </Panel>
             </Container>
