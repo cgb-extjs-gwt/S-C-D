@@ -178,6 +178,46 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
+        public Task<string> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters)
+        {
+            return WithCommand(async cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    return reader.MapToJsonArray();
+                }
+            });
+        }
+
+        public T ExecuteScalar<T>(string sql, params DbParameter[] parameters)
+        {
+            return WithCommand(cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                var res = cmd.ExecuteScalar();
+
+                return res == DBNull.Value ? default(T) : (T)res;
+            });
+        }
+
+        public Task<T> ExecuteScalarAsync<T>(string sql, params DbParameter[] parameters)
+        {
+            return WithCommand(async cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                var res = await cmd.ExecuteScalarAsync();
+
+                return res == DBNull.Value ? default(T) : (T)res;
+            });
+        }
+
         public IEnumerable<Type> GetRegisteredEntities()
         {
             return RegisteredEntities.Keys.ToArray();
@@ -266,7 +306,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         private T WithCommand<T>(Func<DbCommand, T> func)
         {
             //TODO: remove direct connection management
-            using (var conn = Database.GetDbConnection())
+            var conn = this.Database.GetDbConnection();
+
+            try
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
@@ -274,18 +316,27 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     return func(cmd);
                 }
             }
+            finally
+            {
+                conn.Close();
+            }
         }
 
         private async Task<T> WithCommand<T>(Func<DbCommand, Task<T>> func)
         {
             //TODO: remove direct connection management
-            using (var conn = Database.GetDbConnection())
+            var conn = this.Database.GetDbConnection();
+            try
             {
                 await conn.OpenAsync();
                 using (var cmd = conn.CreateCommand())
                 {
                     return await func(cmd);
                 }
+            }
+            finally
+            {
+                conn.Close();
             }
         }
     }

@@ -58,11 +58,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var r = GetSchemas().GetSchema(reportId);
             var func = r.Report.SqlFunc;
-            var parameters = r.AsDbParameters();
+            //var parameters = r.AsDbParameters();
 
 
 
-            return new GetReport(repositorySet).ExecuteJsonAsync(reportId, filter, start, limit);
+            return new GetReport(repositorySet).ExecuteJsonAsync(func, start, limit);
         }
 
         public ReportDto[] GetReports()

@@ -43,6 +43,12 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<string> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters);
 
+        Task<string> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters);
+
+        T ExecuteScalar<T>(string sql, params DbParameter[] parameters);
+
+        Task<T> ExecuteScalarAsync<T>(string sql, params DbParameter[] parameters);
+
         void Replace<T>(T oldEntity, T newEntity) where T : class;
 
         IEnumerable<Type> GetRegisteredEntities();
