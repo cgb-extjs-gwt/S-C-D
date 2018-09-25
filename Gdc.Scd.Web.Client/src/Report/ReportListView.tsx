@@ -1,52 +1,56 @@
-﻿import { Container } from "@extjs/ext-react";
+﻿import { Column, Container, Grid } from "@extjs/ext-react";
 import * as React from "react";
-import { buildComponentUrl } from "../Common/Services/Ajax";
-import { IReportService } from "./Services/IReportService";
-import { ReportFactory } from "./Services/ReportFactory";
-import { ReportModel } from "./Model/ReportModel";
+import { ReadonlyCheckColumn } from "../CapabilityMatrix/Components/ReadonlyCheckColumn";
+import { buildComponentUrl, buildMvcUrl } from "../Common/Services/Ajax";
 
-export interface ReportListViewState {
-    list: ReportModel[];
-};
+export class ReportListView extends React.Component<any, any> {
 
-export class ReportListView extends React.Component<any, ReportListViewState> {
+    private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
 
-    private srv: IReportService;
+        pageSize: 50,
 
-    public state: ReportListViewState = {
-        list: null
-    };
+        autoLoad: true,
+
+        proxy: {
+            type: 'ajax',
+            api: {
+                read: buildMvcUrl('report', 'getall')
+            },
+            reader: {
+                type: 'json',
+                rootProperty: 'items',
+                totalProperty: 'total'
+            }
+        }
+    });
 
     public constructor(props: any) {
         super(props);
         this.init();
     }
 
-    public componentDidMount() {
-        this.srv.getReports().then(x => this.setState({ list: x.items }));
-    }
-
     public render() {
-        let reports = this.state.list || [];
         return (
-            <Container padding="20px">
-                <div onClick={this.onOpenLink}>
+            <Container layout="fit">
 
-                    {reports.map((x, i) => {
-                        return (
-                            <div key={i}>
-                                <a data-href={'/report/' + x.id}>{x.name}</a><br /><br />
-                            </div>
-                        );
-                    })}
+                <Grid
+                    ref="grid"
+                    store={this.store}
+                    width="100%"
+                    title="SCD reports"
+                    plugins={['pagingtoolbar']}>
 
-                </div>
+                    <Column flex="1" text="Name" dataIndex="name" />
+                    <Column flex="1" text="Title" dataIndex="title" />
+                    <ReadonlyCheckColumn flex="1" text="Country specific" dataIndex="CountrySpecific" />
+                    <ReadonlyCheckColumn flex="1" text="Has freesed version" dataIndex="HasFreesedVersion" />
+
+                </Grid>
             </Container>
         );
     }
 
     private init() {
-        this.srv = ReportFactory.getReportService();
         this.onOpenLink = this.onOpenLink.bind(this);
     }
 
