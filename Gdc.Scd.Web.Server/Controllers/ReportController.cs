@@ -28,18 +28,14 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public Task<DataInfo<ReportDto>> GetAll()
+        public DataInfo<ReportDto> GetAll()
         {
-            return service.GetReports()
-                          .ContinueWith(x =>
-                          {
-                              var d = x.Result;
-                              return new DataInfo<ReportDto> { Items = d, Total = d.Length };
-                          });
+            var d = service.GetReports();
+            return new DataInfo<ReportDto> { Items = d, Total = d.Length };
         }
 
         [HttpGet]
-        public Task<ReportSchemaDto> Schema([FromUri]long id)
+        public ReportSchemaDto Schema([FromUri]long id)
         {
             return service.GetSchema(id);
         }

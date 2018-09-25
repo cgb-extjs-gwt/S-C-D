@@ -2,9 +2,9 @@
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
 using Gdc.Scd.Core.Entities.Report;
-using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,6 +13,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
     public class ReportService : IReportService
     {
+        private static readonly object syncRoot = new object();
+
+        private static ReportSchemaCollection cache; //static report and schemas cache
+
         private readonly IRepositorySet repositorySet;
 
         private readonly IRepository<Report> reportRepo;
@@ -54,64 +58,203 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new GetReport(repositorySet).ExecuteJsonAsync(reportId, filter, start, limit);
         }
 
-        public Task<ReportDto[]> GetReports()
+        public ReportDto[] GetReports()
         {
-            return reportRepo.GetAll()
-                             .Select(x => new ReportDto
-                             {
-                                 Id = x.Id,
-                                 Name = x.Name,
-                                 Title = x.Title,
-                                 CountrySpecific = x.CountrySpecific,
-                                 HasFreesedVersion = x.HasFreesedVersion
-                             })
-                             .GetAsync();
+            return GetSchemas().GetReportDto();
         }
 
-        public async Task<ReportSchemaDto> GetSchema(long reportId)
+        public ReportSchemaDto GetSchema(long reportId)
         {
-            var report = await reportRepo.GetAll()
-                                         .Where(x => x.Id == reportId)
-                                         .Select(x => new ReportSchemaDto
-                                         {
-                                             Id = x.Id,
-                                             Name = x.Name,
-                                             Title = x.Title
-                                         })
-                                         .GetFirstOrDefaultAsync();
+            return GetSchemas().GetSchemaDto(reportId);
+        }
 
-            if (report == null)
+        private ReportSchemaCollection GetSchemas()
+        {
+            if (cache == null)
             {
-                throw new System.ArgumentException("Report not found");
+                lock (syncRoot)
+                {
+                    if (cache == null)
+                    {
+                        cache = LoadSchemas();
+                    }
+                }
+            }
+            return cache;
+        }
+
+        private ReportSchemaCollection LoadSchemas()
+        {
+            var collection = new ReportSchemaCollection();
+
+            var reports = reportRepo.GetAll().ToArray();
+
+            var columns = columnRepo.GetAll()
+                                    .Select(x => new ReportColumn
+                                    {
+                                        Id = x.Id,
+                                        Name = x.Name,
+                                        Text = x.Text,
+                                        Report = new Report { Id = x.Report.Id },
+                                        AllowNull = x.AllowNull,
+                                        Flex = x.Flex,
+                                        Type = new ReportColumnType
+                                        {
+                                            Id = x.Type.Id,
+                                            Name = x.Type.Name
+                                        }
+                                    })
+                                    .ToLookup(x => x.Report.Id);
+
+            var filters = filterRepo.GetAll()
+                                    .Select(x => new ReportFilter
+                                    {
+                                        Id = x.Id,
+                                        Name = x.Name,
+                                        Text = x.Text,
+                                        Report = new Report { Id = x.Report.Id },
+                                        Value = x.Value,
+                                        Type = new ReportFilterType
+                                        {
+                                            Id = x.Type.Id,
+                                            Name = x.Type.Name,
+                                            MultiSelect = x.Type.MultiSelect,
+                                            ExecSql = x.Type.ExecSql
+                                        }
+                                    })
+                                    .ToLookup(x => x.Report.Id);
+
+            var EMPTY_COLUMNS = new ReportColumn[0];
+            var EMPTY_FILTERS = new ReportFilter[0];
+
+            for (var i = 0; i < reports.Length; i++)
+            {
+                var r = reports[i];
+                var cols = columns.Contains(r.Id) ? columns[r.Id].ToArray() : EMPTY_COLUMNS;
+                var fils = filters.Contains(r.Id) ? filters[r.Id].ToArray() : EMPTY_FILTERS;
+
+                collection.Add(r.Id, new ReportSchema(r, cols, fils));
             }
 
-            report.Fields = await columnRepo.GetAll()
-                                            .Where(x => x.Report.Id == reportId)
-                                            .Select(x => new ReportColumnDto
-                                            {
-                                                TypeId = x.Type.Id,
-                                                Type = x.Type.Name,
-                                                Name = x.Name,
-                                                Text = x.Text,
-                                                AllowNull = x.AllowNull,
-                                                Flex = x.Flex
-                                            })
-                                            .GetAsync();
+            return collection;
+        }
+    }
 
-            report.Filter = await filterRepo.GetAll()
-                                            .Where(x => x.Report.Id == reportId)
-                                            .Select(x => new ReportFilterDto
-                                            {
-                                                MultiSelect = x.Type.MultiSelect,
-                                                TypeId = x.Type.Id,
-                                                Type = x.Type.Name,
-                                                Name = x.Name,
-                                                Text = x.Text,
-                                                Value = x.Value
-                                            })
-                                            .GetAsync();
+    internal class ReportSchemaCollection : Dictionary<long, ReportSchema>
+    {
+        public ReportSchema GetSchema(long reportId)
+        {
+            if (ContainsKey(reportId))
+            {
+                return this[reportId];
+            }
+            throw new ArgumentException("Schema not found");
+        }
 
-            return report;
+        public ReportSchemaDto GetSchemaDto(long reportId)
+        {
+            return GetSchema(reportId).AsSchemaDto();
+        }
+
+        public ReportDto[] GetReportDto()
+        {
+            var result = new ReportDto[this.Count];
+            int i = 0;
+
+            foreach (var x in this)
+            {
+                result[i++] = x.Value.AsReportDto();
+            }
+
+            return result;
+        }
+    }
+
+    internal class ReportSchema
+    {
+        private Report report;
+
+        private ReportColumn[] columns;
+
+        private ReportFilter[] filters;
+
+        public ReportSchema(
+                Report report,
+                ReportColumn[] columns,
+                ReportFilter[] filters
+            )
+        {
+            this.report = report;
+            this.columns = columns;
+            this.filters = filters;
+        }
+
+        public ReportSchemaDto AsSchemaDto()
+        {
+            return new ReportSchemaDto
+            {
+                Id = report.Id,
+                Name = report.Name,
+                Title = report.Title,
+                Fields = AsFields(),
+                Filter = AsFilter()
+            };
+        }
+
+        public ReportDto AsReportDto()
+        {
+            return new ReportDto
+            {
+                Id = report.Id,
+                Name = report.Name,
+                Title = report.Title,
+                CountrySpecific = report.CountrySpecific,
+                HasFreesedVersion = report.HasFreesedVersion
+            };
+        }
+
+        public ReportColumnDto[] AsFields()
+        {
+            int len = columns.Length;
+            var result = new ReportColumnDto[len];
+
+            for (var i = 0; i < len; i++)
+            {
+                var x = columns[i];
+                result[i] = new ReportColumnDto
+                {
+                    TypeId = x.Type.Id,
+                    Type = x.Type.Name,
+                    Name = x.Name,
+                    Text = x.Text,
+                    AllowNull = x.AllowNull,
+                    Flex = x.Flex
+                };
+            }
+
+            return result;
+        }
+
+        public ReportFilterDto[] AsFilter()
+        {
+            int len = filters.Length;
+            var result = new ReportFilterDto[len];
+
+            for (var i = 0; i < len; i++)
+            {
+                var x = filters[i];
+                result[i] = new ReportFilterDto
+                {
+                    MultiSelect = x.Type.MultiSelect,
+                    TypeId = x.Type.Id,
+                    Type = x.Type.Name,
+                    Name = x.Name,
+                    Text = x.Text,
+                    Value = x.Value
+                };
+            }
+
+            return result;
         }
     }
 }

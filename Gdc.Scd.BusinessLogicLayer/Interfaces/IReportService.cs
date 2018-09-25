@@ -5,9 +5,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface IReportService
     {
-        Task<ReportDto[]> GetReports();
+        ReportDto[] GetReports();
 
-        Task<ReportSchemaDto> GetSchema(long reportId);
+        ReportSchemaDto GetSchema(long reportId);
 
         Task<FileStreamDto> Excel(long reportId, ReportFilterCollection filter);
 
