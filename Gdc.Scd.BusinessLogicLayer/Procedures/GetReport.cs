@@ -1,6 +1,5 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
 using Gdc.Scd.BusinessLogicLayer.Helpers;
-using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using System.Data;
@@ -11,33 +10,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 {
     public class GetReport
     {
-        private const string PROC_NAME = "Report.GetReport";
+        private readonly IRepositorySet _repo;
 
-        private readonly IRepositorySet _repositorySet;
-
-        public GetReport(IRepositorySet repositorySet)
+        public GetReport(IRepositorySet repo)
         {
-            _repositorySet = repositorySet;
+            _repo = repo;
         }
 
-        public Task<DataTableDto> ExecuteTableAsync(long reportId, ReportFilterCollection filter, int start, int limit)
+        public Task<DataTableDto> ExecuteTableAsync(string func, ReportFilterCollection filter, int start, int limit)
         {
-            var parameters = Prepare(reportId, filter, start, limit);
-            return _repositorySet.ExecuteProcAsTableAsync(PROC_NAME, parameters)
-                                 .ContinueWith(x =>
-                                 {
-                                     return new DataTableDto { Data = x.Result, Total = GetTotal(parameters) };
-                                 });
-        }
-
-        public Task<JsonArrayDto> ExecuteJsonAsync(long reportId, ReportFilterCollection filter, int start, int limit)
-        {
-            var parameters = Prepare(reportId, filter, start, limit);
-            return _repositorySet.ExecuteProcAsJsonAsync(PROC_NAME, parameters)
-                                 .ContinueWith(x =>
-                                 {
-                                     return new JsonArrayDto { Json = x.Result, Total = GetTotal(parameters) };
-                                 });
+            throw new System.NotImplementedException();
         }
 
         public async Task<JsonArrayDto> ExecuteJsonAsync(
@@ -50,58 +32,30 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
             var result = new JsonArrayDto();
 
-            result.Total = await _repositorySet.ExecuteScalarAsync<int>(CountQuery(func, null));
+            result.Total = await _repo.ExecuteScalarAsync<int>(CountQuery(func));
 
-            result.Json = await _repositorySet.ExecuteAsJsonAsync(SelectQuery(func, null, start, limit), parameters);
+            result.Json = await _repo.ExecuteAsJsonAsync(SelectQuery(func), parameters);
 
             return result;
         }
 
-        private static string CountQuery(string func, ReportFilterCollection filter)
+        private static string CountQuery(string func, params DbParameter[] parameters)
         {
             var builder = new SqlStringBuilder();
 
-            builder.Append("select count(*) from ").Append(func)
-                   .Append("(");
-
-            AppendFuncArgs(filter, builder);
-
-            builder.Append(")");
+            builder.Append("SELECT COUNT(*) FROM ").AppendFunc(func, parameters);
 
             return builder.Build();
         }
 
-        private static string SelectQuery(string func, ReportFilterCollection filter, int start, int limit)
+        private static string SelectQuery(string func, params DbParameter[] parameters)
         {
             var builder = new SqlStringBuilder();
 
-            builder.Append("select * from ").Append(func).Append("(");
-
-            AppendFuncArgs(filter, builder);
-
-            builder.Append(") WHERE ROWNUM BETWEEN @start AND @limit");
+            builder.Append("SELECT * FROM ").AppendFunc(func, parameters)
+                   .Append(" WHERE ROWNUM BETWEEN @start AND @limit");
 
             return builder.Build();
-        }
-
-        private static SqlStringBuilder AppendFuncArgs(
-                ReportFilterCollection filter,
-                SqlStringBuilder builder
-            )
-        {
-            //bool flag = false;
-
-            //foreach (var i in filter)
-            //{
-            //    if (flag)
-            //    {
-            //        builder.Append(", ");
-            //    }
-            //    builder.Append("@").Append(i.Key);
-            //    flag = true;
-            //}
-
-            return builder;
         }
 
         private static DbParameter[] Prepare(
@@ -129,11 +83,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                  new SqlParameterBuilder().WithName("@start").WithValue(start).Build(),
                  new SqlParameterBuilder().WithName("@limit").WithValue(start + limit).Build()
             };
-        }
-
-        private static int GetTotal(DbParameter[] parameters)
-        {
-            return parameters[4].GetInt32();
         }
     }
 }

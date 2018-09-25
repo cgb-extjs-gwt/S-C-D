@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Data.Common;
+using System.Text;
 
 namespace Gdc.Scd.BusinessLogicLayer.Helpers
 {
@@ -108,7 +109,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             {
                 bool flag = false;
                 sb.Append("(VALUES ");
-                for(var i = 0; i < items.Length; i++)
+                for (var i = 0; i < items.Length; i++)
                 {
                     if (flag)
                     {
@@ -119,6 +120,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
                 }
                 sb.Append(")");
             }
+            return this;
+        }
+
+        public SqlStringBuilder AppendFunc(string func, params DbParameter[] parameters)
+        {
+            sb.Append(func).Append("(");
+
+            if (parameters != null && parameters.Length > 0)
+            {
+                sb.Append("@").Append(parameters[0].ParameterName);
+
+                for (var i = 1; i < parameters.Length; i++)
+                {
+                    sb.Append(", ").Append("@").Append(parameters[i].ParameterName);
+                }
+            }
+
+            sb.Append(")");
             return this;
         }
 
