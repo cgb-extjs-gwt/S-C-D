@@ -122,7 +122,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             return this;
         }
 
-        public string AsSql()
+        public string Build()
         {
             return sb.ToString();
         }

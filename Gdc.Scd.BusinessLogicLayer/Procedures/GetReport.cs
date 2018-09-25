@@ -68,7 +68,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
             builder.Append(")");
 
-            return builder.AsSql();
+            return builder.Build();
         }
 
         private static string SelectQuery(string func, ReportFilterCollection filter, int start, int limit)
@@ -81,7 +81,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
             builder.Append(") WHERE ROWNUM BETWEEN @start AND @limit");
 
-            return builder.AsSql();
+            return builder.Build();
         }
 
         private static SqlStringBuilder AppendFuncArgs(
