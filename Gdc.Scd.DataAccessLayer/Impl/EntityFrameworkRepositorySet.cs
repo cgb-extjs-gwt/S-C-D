@@ -1,18 +1,18 @@
-﻿using System;
+﻿using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Entities;
+using Gdc.Scd.DataAccessLayer.Helpers;
+using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Ninject;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
-using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.DataAccessLayer.Entities;
-using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Gdc.Scd.DataAccessLayer.Helpers;
-using Ninject;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
