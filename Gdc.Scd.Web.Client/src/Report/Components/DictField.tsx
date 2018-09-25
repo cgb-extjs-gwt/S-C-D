@@ -4,17 +4,13 @@ import { NamedId } from "../../Common/States/CommonStates";
 import { IDictService } from "../../Dict/Services/IDictService";
 import { ReportFactory } from "../Services/ReportFactory";
 
-export interface DictFilterProps extends ComboBoxFieldProps {
-    getItems(srv: IDictService): Promise<NamedId[]>;
-}
-
-export class DictFilter extends React.Component<DictFilterProps, any> {
+export abstract class DictField extends React.Component<ComboBoxFieldProps, any> {
 
     private combo: ComboBoxField;
 
-    private srv: IDictService;
+    protected srv: IDictService;
 
-    public constructor(props: DictFilterProps) {
+    public constructor(props: ComboBoxFieldProps) {
         super(props);
         this.init();
     }
@@ -34,8 +30,8 @@ export class DictFilter extends React.Component<DictFilterProps, any> {
     }
 
     public componentDidMount() {
-        this.props.getItems(this.srv).then(x => this.setState({ items: x }));
-        this.combo = this.refs.country as ComboBoxField;
+        this.getItems().then(x => this.setState({ items: x }));
+        this.combo = this.refs.combo as ComboBoxField;
     }
 
     public getValue(): string {
@@ -50,6 +46,8 @@ export class DictFilter extends React.Component<DictFilterProps, any> {
         }
         return result;
     }
+
+    protected abstract getItems(): Promise<NamedId[]>;
 
     private init() {
         this.srv = ReportFactory.getDictService();

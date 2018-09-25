@@ -2,6 +2,16 @@
 import * as React from "react";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
 import { AutoFilterType } from "../Model/AutoFilterType";
+import { AvailabilityField } from "./AvailabilityField";
+import { CountryField } from "./CountryField";
+import { CountryGroupField } from "./CountryGroupField";
+import { DurationField } from "./DurationField";
+import { ReactionTimeField } from "./ReactionTimeField";
+import { ReactionTypeField } from "./ReactionTypeField";
+import { ServiceLocationField } from "./ServiceLocationField";
+import { SogField } from "./SogField";
+import { WgField } from "./WgField";
+import { YearField } from "./YearField";
 
 export interface AutoFilterPanelProps extends PanelProps {
     filter: AutoFilterModel[];
@@ -29,23 +39,7 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
                         clearable: 'true'
                     }}>
 
-                    {filter.map((v, i) => {
-
-                        switch (v.type) {
-
-                            case AutoFilterType.NUMBER:
-                                return (
-                                    <NumberField key={i} ref={v.name} name={v.name} label={v.text} value={v.value} />
-                                );
-
-                            case AutoFilterType.TEXT:
-                            default:
-                                return (
-                                    <TextField key={i} ref={v.name} name={v.name} label={v.text} value={v.value} />
-                                );
-
-                        }
-                    })}
+                    {filter.map(this.CreateField)}
 
                 </Container>
 
@@ -53,6 +47,48 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
 
             </Panel>
         );
+    }
+
+    private CreateField(model: AutoFilterModel, index: number): JSX.Element {
+        switch (model.type) {
+
+            case AutoFilterType.NUMBER:
+                return (<NumberField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+
+            case AutoFilterType.WG:
+                return (<WgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+
+            case AutoFilterType.SOG:
+                return (<SogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+
+            case AutoFilterType.COUNTRY:
+                return (<CountryField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+
+            case AutoFilterType.COUNTRYGROUP:
+                return (<CountryGroupField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+
+            case AutoFilterType.AVAILABILITY:
+                return (<AvailabilityField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+
+            case AutoFilterType.DURATION:
+                return (<DurationField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+
+            case AutoFilterType.YEAR:
+                return (<YearField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+
+            case AutoFilterType.REACTIONTIME:
+                return (<ReactionTimeField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+
+            case AutoFilterType.REACTIONTYPE:
+                return (<ReactionTypeField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+
+            case AutoFilterType.SERVICELOCATION:
+                return (<ServiceLocationField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+
+            case AutoFilterType.TEXT:
+            default:
+                return (<TextField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+        }
     }
 
     public getModel(): any {

@@ -51,7 +51,7 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
         {
             if (IsEmpty(reader))
             {
-                return null;
+                return "[]";
             }
 
             var sb = new StringBuilder(512);
