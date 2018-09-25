@@ -70,6 +70,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private ReportSchemaCollection GetSchemas()
         {
+            //double check lock
+
             if (cache == null)
             {
                 lock (syncRoot)
