@@ -41,21 +41,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
         private static string CountQuery(string func, params DbParameter[] parameters)
         {
-            var builder = new SqlStringBuilder();
-
-            builder.Append("SELECT COUNT(*) FROM ").AppendFunc(func, parameters);
-
-            return builder.Build();
+            return new SqlStringBuilder()
+                    .Append("SELECT COUNT(*) FROM ").AppendFunc(func, parameters)
+                    .Build();
         }
 
         private static string SelectQuery(string func, params DbParameter[] parameters)
         {
-            var builder = new SqlStringBuilder();
-
-            builder.Append("SELECT * FROM ").AppendFunc(func, parameters)
-                   .Append(" WHERE ROWNUM BETWEEN @start AND @limit");
-
-            return builder.Build();
+            return new SqlStringBuilder()
+                   .Append("SELECT * FROM ").AppendFunc(func, parameters)
+                   .Append(" WHERE ROWNUM BETWEEN @start AND @limit")
+                   .Build();
         }
 
         private static DbParameter[] Prepare(
