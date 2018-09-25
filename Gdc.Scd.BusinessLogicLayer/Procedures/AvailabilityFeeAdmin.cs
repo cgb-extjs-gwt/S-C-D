@@ -30,9 +30,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         private static DbParameter[] Prepare(int pageNumber, int limit)
         {
             return new DbParameter[] {
-                 new SqlParameterBuilder().WithName("@pageSize").WithValue(limit).Build(),
-                 new SqlParameterBuilder().WithName("@pageNumber").WithValue(pageNumber).Build(),
-                 new SqlParameterBuilder().WithName("@totalCount").WithType(DbType.Int32).WithDirection(ParameterDirection.Output).Build()
+                 new DbParameterBuilder().WithName("@pageSize").WithValue(limit).Build(),
+                 new DbParameterBuilder().WithName("@pageNumber").WithValue(pageNumber).Build(),
+                 new DbParameterBuilder().WithName("@totalCount").WithType(DbType.Int32).WithDirection(ParameterDirection.Output).Build()
             };
         }
 

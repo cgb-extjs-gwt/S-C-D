@@ -4,11 +4,11 @@ using System.Data.Common;
 
 namespace Gdc.Scd.DataAccessLayer.Helpers
 {
-    public static class DbParameterHelper
+    public static class DbParameterExtensions
     {
         public static DbParameter Copy(this DbParameter p)
         {
-            return new SqlParameterBuilder()
+            return new DbParameterBuilder()
                         .WithName(p.ParameterName)
                         .WithType(p.DbType)
                         .WithDirection(p.Direction)
@@ -20,6 +20,12 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
         {
             var v = parameter.Value;
             return v == null || v == DBNull.Value ? 0 : Convert.ToInt32(v);
+        }
+
+        public static long GetInt64(this DbParameter parameter)
+        {
+            var v = parameter.Value;
+            return v == null || v == DBNull.Value ? 0 : Convert.ToInt64(v);
         }
     }
 }

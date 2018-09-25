@@ -67,8 +67,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                 result[i] = parameters[i].Copy();
             }
 
-            result[i++] = new SqlParameterBuilder().WithName("@start").WithValue(start).Build();
-            result[i++] = new SqlParameterBuilder().WithName("@limit").WithValue(start + limit).Build();
+            result[i++] = new DbParameterBuilder().WithName("@start").WithValue(start).Build();
+            result[i++] = new DbParameterBuilder().WithName("@limit").WithValue(start + limit).Build();
 
             return result;
         }

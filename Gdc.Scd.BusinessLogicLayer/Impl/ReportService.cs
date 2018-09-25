@@ -289,7 +289,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public DbParameter FillParameter(ReportFilter f, ReportFilterCollection src)
         {
-            var builder = new SqlParameterBuilder();
+            var builder = new DbParameterBuilder();
 
             builder.WithName(f.Name);
 

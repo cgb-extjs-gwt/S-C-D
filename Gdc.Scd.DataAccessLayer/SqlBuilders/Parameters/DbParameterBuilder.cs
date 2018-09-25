@@ -9,66 +9,66 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters
     /// <summary>
     /// Create MS SQL parameter
     /// </summary>
-    public class SqlParameterBuilder
+    public class DbParameterBuilder
     {
         private SqlParameter p;
 
-        public SqlParameterBuilder()
+        public DbParameterBuilder()
         {
             p = new SqlParameter();
         }
 
         public DbParameter Build() { return p; }
 
-        public SqlParameterBuilder WithName(string name)
+        public DbParameterBuilder WithName(string name)
         {
             p.ParameterName = name;
             return this;
         }
 
-        public SqlParameterBuilder WithType(DbType type)
+        public DbParameterBuilder WithType(DbType type)
         {
             p.DbType = type;
             return this;
         }
 
-        public SqlParameterBuilder WithTypeName(string typeName)
+        public DbParameterBuilder WithTypeName(string typeName)
         {
             p.TypeName = typeName;
             return this;
         }
 
-        public SqlParameterBuilder WithValue(object value)
+        public DbParameterBuilder WithValue(object value)
         {
             return WithPValue(value);
         }
 
-        public SqlParameterBuilder WithValue(long? value)
+        public DbParameterBuilder WithValue(long? value)
         {
             return value.HasValue ? WithPValue(value.Value) : WithNull();
         }
 
-        public SqlParameterBuilder WithValue(long value)
+        public DbParameterBuilder WithValue(long value)
         {
             return WithPValue(value);
         }
 
-        public SqlParameterBuilder WithValue(int? value)
+        public DbParameterBuilder WithValue(int? value)
         {
             return value.HasValue ? WithPValue(value.Value) : WithNull();
         }
 
-        public SqlParameterBuilder WithValue(int value)
+        public DbParameterBuilder WithValue(int value)
         {
             return WithPValue(value);
         }
 
-        public SqlParameterBuilder WithValue(DataTable value)
+        public DbParameterBuilder WithValue(DataTable value)
         {
             return WithPValue(value);
         }
 
-        public SqlParameterBuilder WithListIdValue(long[] values)
+        public DbParameterBuilder WithListIdValue(long[] values)
         {
             var tbl = new DataTable();
             tbl.Columns.Add("id", typeof(long));
@@ -85,7 +85,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters
             return WithTypeName("ListID").WithPValue(tbl);
         }
 
-        public SqlParameterBuilder WithKeyValue(IDictionary<string, string> values)
+        public DbParameterBuilder WithKeyValue(IDictionary<string, string> values)
         {
             var tbl = new DataTable();
 
@@ -111,18 +111,18 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters
             return WithTypeName("KeyValuePair").WithPValue(tbl);
         }
 
-        public SqlParameterBuilder WithNull()
+        public DbParameterBuilder WithNull()
         {
             return WithPValue(DBNull.Value);
         }
 
-        public SqlParameterBuilder WithDirection(ParameterDirection pdir)
+        public DbParameterBuilder WithDirection(ParameterDirection pdir)
         {
             p.Direction = pdir;
             return this;
         }
 
-        private SqlParameterBuilder WithPValue(object v)
+        private DbParameterBuilder WithPValue(object v)
         {
             p.Value = v;
             return this;
@@ -130,52 +130,52 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters
 
         public static DbParameter CreateOutputParam(string pname, DbType type)
         {
-            return new SqlParameterBuilder().WithName(pname).WithType(type).WithDirection(ParameterDirection.Output).Build();
+            return new DbParameterBuilder().WithName(pname).WithType(type).WithDirection(ParameterDirection.Output).Build();
         }
 
         public static DbParameter Create(string pname, int pvalue)
         {
-            return new SqlParameterBuilder().WithName(pname).WithValue(pvalue).Build();
+            return new DbParameterBuilder().WithName(pname).WithValue(pvalue).Build();
         }
 
         public static DbParameter Create(string pname, int? pvalue)
         {
-            return new SqlParameterBuilder().WithName(pname).WithValue(pvalue).Build();
+            return new DbParameterBuilder().WithName(pname).WithValue(pvalue).Build();
         }
 
         public static DbParameter Create(string pname, long pvalue)
         {
-            return new SqlParameterBuilder().WithName(pname).WithValue(pvalue).Build();
+            return new DbParameterBuilder().WithName(pname).WithValue(pvalue).Build();
         }
 
         public static DbParameter Create(string pname, long? pvalue)
         {
-            return new SqlParameterBuilder().WithName(pname).WithValue(pvalue).Build();
+            return new DbParameterBuilder().WithName(pname).WithValue(pvalue).Build();
         }
 
         public static DbParameter Create(string pname)
         {
-            return new SqlParameterBuilder().WithName(pname).WithNull().Build();
+            return new DbParameterBuilder().WithName(pname).WithNull().Build();
         }
 
         public static DbParameter Create(string pname, object value)
         {
-            return new SqlParameterBuilder().WithName(pname).WithValue(value).Build();
+            return new DbParameterBuilder().WithName(pname).WithValue(value).Build();
         }
 
         public static DbParameter Create(DbType type, string pname, object value)
         {
-            return new SqlParameterBuilder().WithName(pname).WithValue(value).WithType(type).Build();
+            return new DbParameterBuilder().WithName(pname).WithValue(value).WithType(type).Build();
         }
 
         public static DbParameter Create(string typeName, string pname, DataTable value)
         {
-            return new SqlParameterBuilder().WithName(pname).WithValue(value).WithTypeName(typeName).Build();
+            return new DbParameterBuilder().WithName(pname).WithValue(value).WithTypeName(typeName).Build();
         }
 
         public static DbParameter CreateListID(string pname, long[] values)
         {
-            return new SqlParameterBuilder().WithName(pname).WithListIdValue(values).Build();
+            return new DbParameterBuilder().WithName(pname).WithListIdValue(values).Build();
         }
     }
 }
