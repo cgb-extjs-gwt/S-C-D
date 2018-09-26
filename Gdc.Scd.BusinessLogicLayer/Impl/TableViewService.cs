@@ -43,7 +43,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public async Task<TableViewInfoDto> GetTableViewInfo()
         {
             var costBlockInfos = this.GetCostBlockInfo().ToArray();
-            var filters = await this.tableViewRepository.GetFilters(costBlockInfos);
             var costBlockInfosDto = costBlockInfos.Select(info => new TableViewCostBlockInfoDto
             {
                 MetaId = info.Meta.DomainMeta.Id,
@@ -53,7 +52,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new TableViewInfoDto
             {
                 CostBlockInfos = costBlockInfosDto,
-                Filters = filters
+                Filters = await this.tableViewRepository.GetFilters(costBlockInfos),
+                References = await this.tableViewRepository.GetReferences(costBlockInfos)
             };
         }
 

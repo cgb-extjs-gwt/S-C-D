@@ -8,5 +8,7 @@ namespace Gdc.Scd.Core.Entities
         public IEnumerable<TableViewCostBlockInfoDto> CostBlockInfos { get; set; }
 
         public IDictionary<string, IEnumerable<NamedId>> Filters { get; set; }
+
+        public IDictionary<string, IEnumerable<NamedId>> References { get; set; }
     }
 }

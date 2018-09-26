@@ -13,5 +13,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
         Task UpdateRecords(TableViewCostBlockInfo[] tableViewInfos, IEnumerable<TableViewRecord> records);
 
         Task<IDictionary<string, IEnumerable<NamedId>>> GetFilters(TableViewCostBlockInfo[] costBlockInfos);
+
+        Task<IDictionary<string, IEnumerable<NamedId>>> GetReferences(TableViewCostBlockInfo[] costBlockInfos);
     }
 }

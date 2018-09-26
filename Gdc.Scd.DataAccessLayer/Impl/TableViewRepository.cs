@@ -13,7 +13,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 {
     public class TableViewRepository : ITableViewRepository
     {
-        private const char aliasSeparator = '.';
+        private const char AliasSeparator = '.';
 
         private readonly IRepositorySet repositorySet;
 
@@ -148,14 +148,34 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return result;
         }
 
+        public async Task<IDictionary<string, IEnumerable<NamedId>>> GetReferences(TableViewCostBlockInfo[] costBlockInfos)
+        {
+            var result = new Dictionary<string, IEnumerable<NamedId>>();
+
+            foreach (var costBlockInfo in costBlockInfos)
+            {
+                foreach (var costElementId in costBlockInfo.CostElementIds)
+                {
+                    if (costBlockInfo.Meta.CostElementsFields[costElementId] is ReferenceFieldMeta field)
+                    {
+                        var items = await this.sqlRepository.GetNameIdItems(field.ReferenceMeta, field.ReferenceValueField, field.ReferenceFaceField);
+
+                        result.Add(field.Name, items);
+                    }
+                }
+            }
+
+            return result;
+        }
+
         private string BuildColumnAlias(BaseEntityMeta meta, FieldMeta field)
         {
-            return $"{meta.Name}{aliasSeparator}{field.Name}";
+            return $"{meta.Name}{AliasSeparator}{field.Name}";
         }
 
         private ColumnInfo ParseColumnAlias(string columnAlias)
         {
-            var values = columnAlias.Split(aliasSeparator);
+            var values = columnAlias.Split(AliasSeparator);
 
             return new ColumnInfo(values[1], values[0], columnAlias);
         }
