@@ -61,6 +61,12 @@
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
+          <TableView>
+            <Roles>
+              <Role>PRS PSM</Role>  
+              <Role>PRS Finance</Role>
+            </Roles>
+          </TableView>
         </Element>
       </Elements>
     </Block>
@@ -113,6 +119,12 @@
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
+          <TableView>
+            <Roles>
+              <Role>PRS PSM</Role>  
+              <Role>PRS Finance</Role>
+            </Roles>
+          </TableView>
         </Element>
       </Elements>
     </Block>
@@ -126,6 +138,12 @@
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
+          <TableView>
+            <Roles>
+              <Role>PRS PSM</Role>  
+              <Role>PRS Finance</Role>
+            </Roles>
+          </TableView>
         </Element>
       </Elements>
     </Block>
@@ -167,6 +185,11 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
+          <TableView>
+            <Roles>
+              <Role>PRS PSM</Role>  
+            </Roles>
+          </TableView>
         </Element>
         <Element Name="TravelTime" Caption="Travel Time (MTTT)" InputOption="Manually" Dependency="ServiceLocation"/>
         <!--<Element Name="OnsiteHourlyRate" Caption="Onsite hourly rate" InputOption="Reference"/>-->
@@ -266,11 +289,21 @@
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
+          <TableView>
+            <Roles>
+              <Role>PRS PSM</Role>  
+            </Roles>
+          </TableView>
         </Element>
         <Element Name="HddMaterialCost" Caption="HDD Material Cost" InputOption="Manually" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
+          <TableView>
+            <Roles>
+              <Role>PRS PSM</Role>  
+            </Roles>
+          </TableView>
         </Element>
       </Elements>
     </Block>
@@ -285,16 +318,31 @@
             <InputLevel>Wg</InputLevel>
           </InputLevels>
           <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
+          <TableView>
+            <Roles>
+              <Role>PRS PSM</Role>  
+            </Roles>
+          </TableView>
         </Element>
         <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" RegionInput="_none_" Dependency="Year">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
+          <TableView>
+            <Roles>
+              <Role>PRS PSM</Role>  
+            </Roles>
+          </TableView>
         </Element>
         <Element Name="ReinsuranceUpliftFactor" Caption="Reinsurance uplift factor" InputOption="Manually" Dependency="ReactionTimeAvailability" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
+          <TableView>
+            <Roles>
+              <Role>PRS PSM</Role>  
+            </Roles>
+          </TableView>
         </Element>
       </Elements>
     </Block>
@@ -352,6 +400,12 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
+          <TableView>
+            <Roles>
+              <Role>PRS PSM</Role>  
+              <Role>PRS Finance</Role>
+            </Roles>
+          </TableView>
         </Element>
         <Element Name="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort" InputOption="Manually"/>
         <Element Name="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort" InputOption="Manually"/>

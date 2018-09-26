@@ -18,6 +18,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             throw new System.NotImplementedException();
         }
 
+        public IEnumerable<Role> GetCurrentUserRoles()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public bool IsUserInRole(User user, Role role, Country country=null)
         {
             var roles = this.GetAll().Where(x => x.UserId == user.Id).Select(x => x.Role);

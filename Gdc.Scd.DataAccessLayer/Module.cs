@@ -5,14 +5,8 @@ using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders;
-using Ninject;
 using Ninject.Modules;
 using Ninject.Web.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.DataAccessLayer
 {
@@ -33,6 +27,7 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<IRepository<YearAvailability>>().To<YearAvailabilityRepository>().InRequestScope();
             Bind<IQualityGateRepository>().To<QualityGateRepository>().InRequestScope();
             Bind<IQualityGateQueryBuilder>().To<QualityGateQueryBuilder>().InRequestScope();
+            Bind<ITableViewRepository>().To<TableViewRepository>().InRequestScope();
 
             Bind<BaseColumnMetaSqlBuilder<IdFieldMeta>>().To<IdColumnMetaSqlBuilder>().InTransientScope();
             Bind<BaseColumnMetaSqlBuilder<SimpleFieldMeta>>().To<SimpleColumnMetaSqlBuilder>().InTransientScope();

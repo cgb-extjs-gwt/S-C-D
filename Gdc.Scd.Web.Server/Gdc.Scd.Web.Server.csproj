@@ -239,6 +239,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\RoleCodeController.cs" />
     <Compile Include="Controllers\RoleController.cs" />
+    <Compile Include="Controllers\TableViewController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\UserRoleController.cs" />
     <Compile Include="DI\ScdNinjectDependencyResolver.cs" />
