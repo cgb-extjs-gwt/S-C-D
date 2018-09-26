@@ -8,8 +8,10 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
     public interface ITableViewRepository
     {
-        Task<IEnumerable<TableViewRecord>> GetRecords(TableViewQueryInfo[] tableViewInfos, QueryInfo queryInfo, IDictionary<ColumnInfo, IEnumerable<object>> filter = null);
+        Task<IEnumerable<TableViewRecord>> GetRecords(TableViewCostBlockInfo[] tableViewInfos, QueryInfo queryInfo, IDictionary<ColumnInfo, IEnumerable<object>> filter = null);
 
-        Task UpdateRecords(TableViewQueryInfo[] tableViewInfos, IEnumerable<TableViewRecord> records);
+        Task UpdateRecords(TableViewCostBlockInfo[] tableViewInfos, IEnumerable<TableViewRecord> records);
+
+        Task<IDictionary<string, IEnumerable<NamedId>>> GetFilters(TableViewCostBlockInfo[] costBlockInfos);
     }
 }

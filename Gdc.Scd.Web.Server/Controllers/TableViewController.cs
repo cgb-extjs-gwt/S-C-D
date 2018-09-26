@@ -16,14 +16,22 @@ namespace Gdc.Scd.Web.Server.Controllers
             this.tableViewService = tableViewService;
         }
 
-        public async Task<IEnumerable<TableViewRecord>> GetRecords(QueryInfo queryInfo, Dictionary<ColumnInfo, IEnumerable<object>> filter = null)
+        [HttpGet]
+        public async Task<IEnumerable<TableViewRecord>> GetRecords([FromUri]QueryInfo queryInfo, [FromUri]Dictionary<ColumnInfo, IEnumerable<object>> filter = null)
         {
             return await this.tableViewService.GetRecords(queryInfo, filter);
         }
 
+        [HttpPost]
         public async Task UpdateRecords(IEnumerable<TableViewRecord> records)
         {
             await this.tableViewService.UpdateRecords(records);
+        }
+
+        [HttpGet]
+        public async Task<TableViewInfoDto> GetTableViewInfo()
+        {
+            return await this.tableViewService.GetTableViewInfo();
         }
     }
 }

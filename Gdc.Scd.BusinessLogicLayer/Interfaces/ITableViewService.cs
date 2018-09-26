@@ -10,5 +10,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         Task<IEnumerable<TableViewRecord>> GetRecords(QueryInfo queryInfo, IDictionary<ColumnInfo, IEnumerable<object>> filter = null);
 
         Task UpdateRecords(IEnumerable<TableViewRecord> records);
+
+        Task<TableViewInfoDto> GetTableViewInfo();
     }
 }

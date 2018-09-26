@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
@@ -27,19 +28,36 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<IEnumerable<TableViewRecord>> GetRecords(QueryInfo queryInfo, IDictionary<ColumnInfo, IEnumerable<object>> filter = null)
         {
-            var tableViewInfos = this.BuildTableViewQueryInfos().ToArray();
+            var costBlockInfos = this.GetCostBlockInfo().ToArray();
             
-            return await this.tableViewRepository.GetRecords(tableViewInfos, queryInfo, filter);
+            return await this.tableViewRepository.GetRecords(costBlockInfos, queryInfo, filter);
         }
 
         public async Task UpdateRecords(IEnumerable<TableViewRecord> records)
         {
-            var tableViewInfos = this.BuildTableViewQueryInfos().ToArray();
+            var costBlockInfos = this.GetCostBlockInfo().ToArray();
 
-            await this.tableViewRepository.UpdateRecords(tableViewInfos, records);
+            await this.tableViewRepository.UpdateRecords(costBlockInfos, records);
         }
 
-        private IEnumerable<TableViewQueryInfo> BuildTableViewQueryInfos()
+        public async Task<TableViewInfoDto> GetTableViewInfo()
+        {
+            var costBlockInfos = this.GetCostBlockInfo().ToArray();
+            var filters = await this.tableViewRepository.GetFilters(costBlockInfos);
+            var costBlockInfosDto = costBlockInfos.Select(info => new TableViewCostBlockInfoDto
+            {
+                MetaId = info.Meta.DomainMeta.Id,
+                CostElementIds = info.CostElementIds
+            });
+
+            return new TableViewInfoDto
+            {
+                CostBlockInfos = costBlockInfosDto,
+                Filters = filters
+            };
+        }
+
+        private IEnumerable<TableViewCostBlockInfo> GetCostBlockInfo()
         {
             var roles = this.userRoleService.GetCurrentUserRoles();
 
@@ -52,10 +70,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 if (fieldNames.Length > 0)
                 {
-                    yield return new TableViewQueryInfo
+                    yield return new TableViewCostBlockInfo
                     {
                         Meta = costBlock,
-                        FieldNames = fieldNames
+                        CostElementIds = fieldNames
                     };
                 }
             }

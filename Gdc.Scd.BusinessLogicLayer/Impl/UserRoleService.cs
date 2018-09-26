@@ -20,7 +20,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public IEnumerable<Role> GetCurrentUserRoles()
         {
-            throw new System.NotImplementedException();
+            //TODO: Getting fake user roles
+            return new[]
+            {
+                new Role { Name = "PRS PSM" },
+                new Role { Name = "PRS Finance" }
+            };
         }
 
         public bool IsUserInRole(User user, Role role, Country country=null)

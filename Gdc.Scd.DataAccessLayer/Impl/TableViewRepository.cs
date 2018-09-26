@@ -17,29 +17,32 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly IRepositorySet repositorySet;
 
-        public TableViewRepository(IRepositorySet repositorySet)
+        private readonly ISqlRepository sqlRepository;
+
+        public TableViewRepository(IRepositorySet repositorySet, ISqlRepository sqlRepository)
         {
             this.repositorySet = repositorySet;
+            this.sqlRepository = sqlRepository;
         }
 
         public async Task<IEnumerable<TableViewRecord>> GetRecords(
-            TableViewQueryInfo[] tableViewInfos, 
+            TableViewCostBlockInfo[] costBlockInfos, 
             QueryInfo queryInfo, 
             IDictionary<ColumnInfo, IEnumerable<object>> filter = null)
         {
-            var coordinateFieldInfos = this.GetCoordinateFieldInfos(tableViewInfos);
-            var columnInfo = this.BuildTableViewColumnInfo(tableViewInfos, coordinateFieldInfos);
+            var coordinateFieldInfos = this.GetCoordinateFieldInfos(costBlockInfos);
+            var columnInfo = this.BuildTableViewColumnInfo(costBlockInfos, coordinateFieldInfos);
             var columns = columnInfo.IdColumns.Concat(columnInfo.DataColumns).ToArray();
-            var joinQuery = Sql.Select(columns).From(tableViewInfos[0].Meta);
+            var joinQuery = Sql.Select(columns).From(costBlockInfos[0].Meta);
 
-            for (var index = 1; index < tableViewInfos.Length; index++)
+            for (var index = 1; index < costBlockInfos.Length; index++)
             {
-                var costBlock = tableViewInfos[index].Meta;
+                var costBlock = costBlockInfos[index].Meta;
                 var conditions = new List<ConditionHelper>();
 
                 foreach (var coordinateField in costBlock.CoordinateFields)
                 {
-                    var conditionInfo = tableViewInfos.FirstOrDefault(
+                    var conditionInfo = costBlockInfos.FirstOrDefault(
                         info => info.Meta.ContainsCoordinateField(coordinateField.Name));
 
                     if (conditionInfo != null)
@@ -74,15 +77,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
-        public async Task UpdateRecords(TableViewQueryInfo[] tableViewInfos, IEnumerable<TableViewRecord> records)
+        public async Task UpdateRecords(TableViewCostBlockInfo[] costBlockInfos, IEnumerable<TableViewRecord> records)
         {
             var queries = new List<SqlHelper>();
-            var fieldDictionary = tableViewInfos.ToDictionary(
+            var fieldDictionary = costBlockInfos.ToDictionary(
                 info => info.Meta.Name, 
                 info => new
                 {
                     QueryInfo = info,
-                    FieldsHashSet = new HashSet<string>(info.FieldNames)
+                    FieldsHashSet = new HashSet<string>(info.CostElementIds)
                 });
 
             foreach (var record in records)
@@ -130,6 +133,21 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
         }
 
+        public async Task<IDictionary<string, IEnumerable<NamedId>>> GetFilters(TableViewCostBlockInfo[] costBlockInfos)
+        {
+            var result = new Dictionary<string, IEnumerable<NamedId>>();
+            var coordinateFields = this.GetCoordinateFieldInfos(costBlockInfos).Select(fieldInfo => fieldInfo.CoordinateField);
+
+            foreach (var field in coordinateFields)
+            {
+                var items = await this.sqlRepository.GetNameIdItems(field.ReferenceMeta, field.ReferenceValueField, field.ReferenceFaceField);
+
+                result.Add(field.Name, items);
+            }
+
+            return result;
+        }
+
         private string BuildColumnAlias(BaseEntityMeta meta, FieldMeta field)
         {
             return $"{meta.Name}{aliasSeparator}{field.Name}";
@@ -142,7 +160,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return new ColumnInfo(values[1], values[0], columnAlias);
         }
 
-        private TableViewColumnInfo BuildTableViewColumnInfo(IEnumerable<TableViewQueryInfo> tableViewInfos, IEnumerable<CoordinateFieldInfo> coordinateFieldInfos)
+        private TableViewColumnInfo BuildTableViewColumnInfo(IEnumerable<TableViewCostBlockInfo> costBlockInfos, IEnumerable<CoordinateFieldInfo> coordinateFieldInfos)
         {
             var coordinateColumns = coordinateFieldInfos.Select(
                 info => new ColumnInfo(info.CoordinateField.Name, info.CoordinateField.ReferenceMeta.Name, info.CoordinateField.Name));
@@ -150,10 +168,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var costElementColumns = new List<ColumnInfo>();
             var idColumns = new List<ColumnInfo>();
 
-            foreach (var info in tableViewInfos)
+            foreach (var info in costBlockInfos)
             {
                 costElementColumns.AddRange(
-                    info.FieldNames.Select(info.Meta.GetField)
+                    info.CostElementIds.Select(info.Meta.GetField)
                                    .Select(field => new ColumnInfo(
                                         field.Name, 
                                         info.Meta.Name, 
@@ -169,12 +187,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             };
         }
 
-        private IEnumerable<CoordinateFieldInfo> GetCoordinateFieldInfos(IEnumerable<TableViewQueryInfo> tableViewInfos)
+        private IEnumerable<CoordinateFieldInfo> GetCoordinateFieldInfos(IEnumerable<TableViewCostBlockInfo> costBlockInfos)
         {
             var coordinateHashSet = new HashSet<string>();
             var coordinateFieldInfos = new List<CoordinateFieldInfo>();
 
-            foreach (var info in tableViewInfos)
+            foreach (var info in costBlockInfos)
             {
                 foreach (var field in info.Meta.CoordinateFields)
                 {
