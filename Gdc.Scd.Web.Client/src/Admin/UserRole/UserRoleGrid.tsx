@@ -118,16 +118,16 @@ export class UserRoleGrid extends React.Component<UserRoleGridProps> {
                 store={store}
                 cls="filter-grid"
                 columnLines={true}
-                shadow        
-                emptyText=" "
+                shadow
             >
                 {this.getUserColumn()}              
                 {this.getRoleColumn()}  
                 {this.getCountryColumn()} 
                 <Column
                     text="Actions"
-                    flex={1}      
-                    dataIndex=""
+                    flex={1}
+                    dataIndex="id"
+                    renderer={() => { return '' }}
                 >
                     <GridCell
                         tools={{
@@ -140,7 +140,6 @@ export class UserRoleGrid extends React.Component<UserRoleGridProps> {
                                 handler: this.onDeleteButtonClick
                             }
                             }}
-                        value=""
                         />
                  </Column>
                 <Toolbar docked="top">   

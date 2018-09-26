@@ -25,13 +25,15 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, any> {
         this.init();
     }
 
-    public componentWillMount() {
+    public componentDidMount() {
         const { storeRole, selectedRecord } = this.props;
-        let selectedRole = selectedRecord && storeRole.getById(selectedRecord.data.roleId)
-        this.setState({
-            ...this.state,
-            countryFieldHidden: selectedRole && selectedRole.data.isGlobal
-        })                
+        if (selectedRecord) {
+            let selectedRole = storeRole.getById(selectedRecord.data.roleId)
+            this.setState({
+                ...this.state,
+                countryFieldHidden: selectedRole && selectedRole.data.isGlobal
+            })              
+        }         
     }
 
     public init() {       
@@ -162,7 +164,7 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, any> {
             else {
                 user = storeUser.data.items[userIndex]
 
-                resolve(user.id)
+                resolve(user.id) 
             }
         })
     }

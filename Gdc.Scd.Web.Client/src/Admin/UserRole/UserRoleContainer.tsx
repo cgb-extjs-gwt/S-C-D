@@ -15,7 +15,15 @@ const COUNTRY_CONTROLLER_NAME = 'Country';
 Ext.define('UserRole', {
     extend: 'Ext.data.Model',
     fields: [
-        'id', 'userId', 'countryId', 'roleId'
+        'id', 'userId', 'roleId',
+        {
+            name: 'countryId', type: 'int',
+            convert: function (val, row) {
+                if (!val)
+                    return '';
+                return val;
+            }
+        }
     ]
 });
 
@@ -100,9 +108,9 @@ export default class RoleCodesContainer extends React.Component {
 
     private onSearch(filter: UserRoleFilterModel) {
         this.store.clearFilter()
-        filter.user ? this.store.filter('userId', filter.user) : false
-        filter.role ? this.store.filter('roleId', filter.role) : false
-        filter.country ? this.store.filter('countryId', filter.country) : false
+        filter.user ? this.store.filterBy((record) => { return record.data.userId == filter.user }) : false
+        filter.role ? this.store.filterBy((record) => { return record.data.roleId == filter.role }) : false
+        filter.country ? this.store.filterBy((record) => { return record.data.countryId == filter.country }) : false
     }
 
     private onBeforeLoad(s, operation) {

@@ -17,10 +17,10 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
 
     ];
     store = Ext.create('Ext.data.Store', {
-        autoLoad: true,
+        autoLoad: false,
         fields: ['item', 'name'],
         data: [
-            this.props.value
+            
         ],
         proxy: {
             type: 'ajax',
@@ -44,6 +44,19 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
             }
         }
     });
+
+    public componentDidMount() {
+        const { value } = this.props;
+        if (value) {
+            var userStore = this.pickerField.getStore();
+            userStore.removeAll();
+            userStore.add([{
+                name: value.data.name,
+                item: value.data
+            }]);
+            this.pickerField.setValue(value.data);
+        }
+    }
 
     enableSend = () => {
         this.setState({ disableSendButton: false });
@@ -86,12 +99,12 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
                     label={value ? "User" : "Find user name"}
                     displayField="name"
                     valueField="item"
-                    value={value}
                     queryMode="remote"
                     labelAlign="placeholder"
                     onKeyUp={() => this.loadUsers()}
                     onChange={() => this.enableSend()}
                     valueNotFoundText="no results"
+                    value={value && value}
                     hideTrigger
                     typeAhead
                 />
