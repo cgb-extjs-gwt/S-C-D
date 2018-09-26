@@ -9,5 +9,7 @@ export interface IReportService {
 
     getSchema(id: string): Promise<AutoGridModel>;
 
+    getSchemaByName(name: string): Promise<AutoGridModel>;
+
     getReports(): Promise<DataInfo<ReportModel>>;
 }

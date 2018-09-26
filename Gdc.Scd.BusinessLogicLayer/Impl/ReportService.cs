@@ -74,6 +74,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return GetSchemas().GetSchemaDto(reportId);
         }
 
+        public ReportSchemaDto GetSchema(string reportName)
+        {
+            return GetSchemas().GetSchemaDto(reportName);
+        }
+
         private ReportSchemaCollection GetSchemas()
         {
             //double check lock
@@ -161,9 +166,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             throw new ArgumentException("Schema not found");
         }
 
+        public ReportSchema GetSchema(string name)
+        {
+            var result = Values.FirstOrDefault(x => string.Compare(x.Report.Name, name, true) == 0);
+            if (result == null)
+            {
+                throw new ArgumentException("Schema not found");
+            }
+            return result;
+        }
+
         public ReportSchemaDto GetSchemaDto(long reportId)
         {
             return GetSchema(reportId).AsSchemaDto();
+        }
+
+        public ReportSchemaDto GetSchemaDto(string name)
+        {
+            return GetSchema(name).AsSchemaDto();
         }
 
         public ReportDto[] GetReportDto()

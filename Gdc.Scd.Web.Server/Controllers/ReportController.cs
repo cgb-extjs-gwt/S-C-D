@@ -41,6 +41,12 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
+        public ReportSchemaDto Schema([FromUri]string name)
+        {
+            return service.GetSchema(name);
+        }
+
+        [HttpGet]
         public Task<HttpResponseMessage> View([FromUri]long id, [FromUri]int start = 0, [FromUri]int limit = 50)
         {
             if (!IsRangeValid(start, limit))

@@ -79,7 +79,7 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path={buildComponentUrl("/own-cost-approval")} component={ OwnApprovalCostElementsLayout} />
                         <Route path={buildComponentUrl("/report")} exact component={CalcResultView} />
                         <Route path={buildComponentUrl("/report/all")} exact component={ReportListView} />
-                        <Route path={buildComponentUrl("/report/:id")} exact component={ReportView} />
+                        <Route path={buildComponentUrl("/report/:name")} exact component={ReportView} />
                         <Route path={buildComponentUrl("/capability-matrix")} exact component={CapabilityMatrixView} />
                         <Route path={buildComponentUrl("/capability-matrix/edit")} component={CapabilityMatrixEditView} />
                         <Route path={buildComponentUrl("/admin/availability-fee")} component={AvailabilityFeeAdminGrid} />

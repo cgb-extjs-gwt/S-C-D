@@ -7,26 +7,26 @@ import { ReportFactory } from "./Services/ReportFactory";
 
 export class ReportView extends React.Component<any, AutoGridModel> {
 
-    private id: string;
+    private name: string;
 
     private srv: IReportService;
 
     constructor(props: any) {
 
-        var id = props.match.params.id;
+        var rname = props.match.params.name;
 
-        if (!id) {
-            throw new Error('invalid report id');
+        if (!rname) {
+            throw new Error('invalid report name');
         }
 
         super(props);
         this.init();
 
-        this.id = id;
+        this.name = rname;
     }
 
     public componentDidMount() {
-        this.srv.getSchema(this.id).then(x => this.setState(x));
+        this.srv.getSchemaByName(this.name).then(x => this.setState(x));
     }
 
     public render() {
@@ -49,6 +49,6 @@ export class ReportView extends React.Component<any, AutoGridModel> {
     }
 
     public getUrl(): string {
-        return buildMvcUrl('report', 'view', { 'id': this.id });
+        return buildMvcUrl('report', 'view', { 'id': this.state.id });
     }
 }

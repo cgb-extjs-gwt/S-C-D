@@ -40,4 +40,16 @@ export class ReportService implements IReportService {
 
         return p;
     }
+
+    public getSchemaByName(name: string): Promise<AutoGridModel> {
+
+        let p = ReportService.schemas[name];
+
+        if (!p) {
+            p = get<AutoGridModel>(this.controllerName, 'schema', { name: name });
+            ReportService.schemas[name] = p;
+        }
+
+        return p;
+    }
 }

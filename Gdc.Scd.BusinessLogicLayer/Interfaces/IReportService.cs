@@ -9,6 +9,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         ReportSchemaDto GetSchema(long reportId);
 
+        ReportSchemaDto GetSchema(string reportName);
+
         Task<FileStreamDto> Excel(long reportId, ReportFilterCollection filter);
 
         Task<DataTableDto> GetData(long reportId, ReportFilterCollection filter, int start, int limit);

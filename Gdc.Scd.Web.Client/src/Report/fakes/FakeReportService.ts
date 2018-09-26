@@ -9,9 +9,12 @@ import { fakeReportList } from "./FakeReportList";
 import { fakeSchema } from "./FakeSchema";
 
 export class FakeReportService implements IReportService {
-
     public getSchema(): Promise<AutoGridModel> {
         return this.fromResult(fakeSchema);
+    }
+
+    getSchemaByName(name: string): Promise<AutoGridModel> {
+        return this.getSchema();
     }
 
     public getHwCost(filter: HwCalcFilterModel): Promise<DataInfo<HwCalcListModel>> {

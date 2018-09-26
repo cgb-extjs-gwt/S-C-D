@@ -3,6 +3,10 @@ import { AutoFilterType } from "../Model/AutoFilterType";
 
 export const fakeSchema = {
 
+    id: '1',
+
+    name: 'fake-report',
+
     caption: "Fake report",
 
     fields: [
