@@ -58,7 +58,16 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return source.Skip(start).Take(limit).ToList();
         }
 
-        public static IEnumerable<TSource> Paging<TSource>(
+        public static Task<TSource[]> PagingAsync<TSource>(
+               this IQueryable<TSource> source,
+               int start,
+               int limit
+           )
+        {
+            return GetAsync(source.Skip(start).Take(limit));
+        }
+
+        public static IEnumerable<TSource> PagingWithCount<TSource>(
                 this IQueryable<TSource> source,
                 int start,
                 int limit,
@@ -67,6 +76,17 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
         {
             count = source.Count();
             return Paging(source, start, limit);
+        }
+
+        public static async Task<Tuple<TSource[], int>> PagingWithCountAsync<TSource>(
+                this IQueryable<TSource> source,
+                int start,
+                int limit
+            )
+        {
+            var count = await GetCountAsync(source);
+            var result = await PagingAsync(source, start, limit);
+            return new Tuple<TSource[], int>(result, count);
         }
 
         public static Task<TSource> GetSingleAsync<TSource>(this IQueryable<TSource> source)

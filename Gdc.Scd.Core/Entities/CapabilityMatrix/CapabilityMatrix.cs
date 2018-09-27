@@ -9,25 +9,54 @@ namespace Gdc.Scd.Core.Entities.CapabilityMatrix
     {
         public long Id { get; set; }
 
-        public Country Country { get; set; }
+        #region Dependencies, denormalized
 
-        [Required]
-        public Wg Wg { get; set; }
+        public long? CountryId { get; set; }
+        public string Country { get; set; }
+        public string CountryGroup { get; set; }
+        public Country CountryRef { get; set; }
 
+        public long WgId { get; set; }
         [Required]
-        public Availability Availability { get; set; }
+        public string Wg { get; set; }
+        [Required]
+        public string WgDescription { get; set; }
+        [Required]
+        public Wg WgRef { get; set; }
 
+        public long AvailabilityId { get; set; }
         [Required]
-        public Duration Duration { get; set; }
+        public string Availability { get; set; }
+        [Required]
+        public Availability AvailabilityRef { get; set; }
 
+        public long DurationId { get; set; }
         [Required]
-        public ReactionType ReactionType { get; set; }
+        public string Duration { get; set; }
+        [Required]
+        public string DurationValue { get; set; }
+        [Required]
+        public Duration DurationRef { get; set; }
 
+        public long ReactionTypeId { get; set; }
         [Required]
-        public ReactionTime ReactionTime { get; set; }
+        public string ReactionType { get; set; }
+        [Required]
+        public ReactionType ReactionTypeRef { get; set; }
 
+        public long ReactionTimeId { get; set; }
         [Required]
-        public ServiceLocation ServiceLocation { get; set; }
+        public string ReactionTime { get; set; }
+        [Required]
+        public ReactionTime ReactionTimeRef { get; set; }
+
+        public long ServiceLocationId { get; set; }
+        [Required]
+        public string ServiceLocation { get; set; }
+        [Required]
+        public ServiceLocation ServiceLocationRef { get; set; }
+
+        #endregion
 
         public bool FujitsuGlobalPortfolio { get; set; }
 

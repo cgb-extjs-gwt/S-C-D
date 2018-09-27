@@ -4,6 +4,7 @@ using Gdc.Scd.BusinessLogicLayer.Procedures;
 using Gdc.Scd.Core.Entities.CapabilityMatrix;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -43,16 +44,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new AddMatrixRules(repositorySet).ExecuteAsync(m);
         }
 
-        public IEnumerable<CapabilityMatrixDto> GetAllowedCombinations(int start, int limit, out int count)
+        public Task<Tuple<CapabilityMatrixDto[], int>> GetAllowedCombinations(int start, int limit)
         {
-            return GetAllowedCombinations(null, start, limit, out count);
+            return GetAllowedCombinations(null, start, limit);
         }
 
-        public IEnumerable<CapabilityMatrixDto> GetAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit, out int count)
+        public Task<Tuple<CapabilityMatrixDto[], int>> GetAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
         {
             if (filter != null && filter.Country.HasValue)
             {
-                return GetCountryAllowedCombinations(filter, start, limit, out count);
+                return GetCountryAllowedCombinations(filter, start, limit);
             }
 
             var query = allowRepo.GetAll();
@@ -86,10 +87,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IsCorePortfolio = x.CorePortfolio
             });
 
-            return result.Paging(start, limit, out count);
+            return result.PagingWithCountAsync(start, limit);
         }
 
-        public IEnumerable<CapabilityMatrixDto> GetCountryAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit, out int count)
+        public Task<Tuple<CapabilityMatrixDto[], int>> GetCountryAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit, out int count)
         {
             var query = countryAllowRepo.GetAll();
 
@@ -119,7 +120,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 ServiceLocation = x.ServiceLocation,
             });
 
-            return result.Paging(start, limit, out count);
+            return result.PagingWithCount(start, limit, out count);
         }
 
         public IEnumerable<CapabilityMatrixRuleDto> GetDeniedCombinations(int start, int limit, out int count)
@@ -171,7 +172,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IsCorePortfolio = x.CorePortfolio
             });
 
-            return result.Paging(start, limit, out count);
+            return result.PagingWithCount(start, limit, out count);
         }
     }
 }

@@ -3,6 +3,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Web.Server.Entities;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace Gdc.Scd.Web.Api.Controllers
@@ -17,31 +18,35 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public DataInfo<HwCostDto> GetHwCost([FromUri]HwFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 50)
+        public Task<DataInfo<HwCostDto>> GetHwCost([FromUri]HwFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 50)
         {
             if (!isRangeValid(start, limit))
             {
                 return null;
             }
 
-            int total;
-            IEnumerable<HwCostDto> items = calcSrv.GetHardwareCost(filter, start, limit, out total);
-
-            return new DataInfo<HwCostDto> { Items = items, Total = total };
+            return calcSrv.GetHardwareCost(filter, start, limit)
+                          .ContinueWith(x =>
+                          {
+                              var result = x.Result;
+                              return new DataInfo<HwCostDto> { Items = result.Item1, Total = result.Item2 };
+                          });
         }
 
         [HttpGet]
-        public DataInfo<SwCostDto> GetSwCost([FromUri]SwFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 50)
+        public Task<DataInfo<SwCostDto>> GetSwCost([FromUri]SwFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 50)
         {
             if (!isRangeValid(start, limit))
             {
                 return null;
             }
 
-            int total;
-            IEnumerable<SwCostDto> items = calcSrv.GetSoftwareCost(filter, start, limit, out total);
-
-            return new DataInfo<SwCostDto> { Items = items, Total = total };
+            return calcSrv.GetSoftwareCost(filter, start, limit)
+                          .ContinueWith(x =>
+                          {
+                              var result = x.Result;
+                              return new DataInfo<SwCostDto> { Items = result.Item1, Total = result.Item2 };
+                          });
         }
 
         [HttpPost]

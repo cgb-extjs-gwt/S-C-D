@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities.Calculation
@@ -7,9 +8,61 @@ namespace Gdc.Scd.Core.Entities.Calculation
     [Table(MetaConstants.CalculationTable, Schema = MetaConstants.HardwareSchema)]
     public class HardwareCalculationResult : IIdentifiable
     {
-        [ForeignKey("Matrix")]
-        [Column("MatrixId")]
         public long Id { get; set; }
+
+        #region Dependencies, denormalized
+
+        public long CountryId { get; set; }
+        [Required]
+        public string Country { get; set; }
+        [Required]
+        public string CountryGroup { get; set; }
+        [Required]
+        public Country CountryRef { get; set; }
+
+        public long WgId { get; set; }
+        [Required]
+        public string Wg { get; set; }
+        [Required]
+        public string WgDescription { get; set; }
+        [Required]
+        public Wg WgRef { get; set; }
+
+        public long AvailabilityId { get; set; }
+        [Required]
+        public string Availability { get; set; }
+        [Required]
+        public Availability AvailabilityRef { get; set; }
+
+        public long DurationId { get; set; }
+        [Required]
+        public string Duration { get; set; }
+        [Required]
+        public string DurationValue { get; set; }
+        [Required]
+        public Duration DurationRef { get; set; }
+
+        public long ReactionTypeId { get; set; }
+        [Required]
+        public string ReactionType { get; set; }
+        [Required]
+        public ReactionType ReactionTypeRef { get; set; }
+
+        public long ReactionTimeId { get; set; }
+        [Required]
+        public string ReactionTime { get; set; }
+        [Required]
+        public ReactionTime ReactionTimeRef { get; set; }
+
+        public long ServiceLocationId { get; set; }
+        [Required]
+        public string ServiceLocation { get; set; }
+        [Required]
+        public ServiceLocation ServiceLocationRef { get; set; }
+
+        #endregion
+
+        #region Calc results
 
         public double? FieldServiceCost { get; set; }
         public double? FieldServiceCost_Approved { get; set; }
@@ -63,6 +116,6 @@ namespace Gdc.Scd.Core.Entities.Calculation
         public double? ServiceTPManual { get; set; }
         public double? ServiceTPManual_Approved { get; set; }
 
-        public CapabilityMatrix.CapabilityMatrix Matrix { get; set; }
+        #endregion
     }
 }
