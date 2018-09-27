@@ -49,13 +49,13 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return EntityFrameworkQueryableExtensions.FirstOrDefaultAsync(source);
         }
 
-        public static IEnumerable<TSource> Paging<TSource>(
+        public static TSource[] Paging<TSource>(
                 this IQueryable<TSource> source,
                 int start,
                 int limit
             )
         {
-            return source.Skip(start).Take(limit).ToList();
+            return source.Skip(start).Take(limit).ToArray();
         }
 
         public static Task<TSource[]> PagingAsync<TSource>(
@@ -67,15 +67,15 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return GetAsync(source.Skip(start).Take(limit));
         }
 
-        public static IEnumerable<TSource> PagingWithCount<TSource>(
+        public static Tuple<TSource[], int> PagingWithCount<TSource>(
                 this IQueryable<TSource> source,
                 int start,
-                int limit,
-                out int count
+                int limit
             )
         {
-            count = source.Count();
-            return Paging(source, start, limit);
+            var count = source.Count();
+            var result = Paging(source, start, limit);
+            return new Tuple<TSource[], int>(result, count);
         }
 
         public static async Task<Tuple<TSource[], int>> PagingWithCountAsync<TSource>(
