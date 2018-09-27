@@ -16,6 +16,7 @@ using Gdc.Scd.DataAccessLayer.External.Por;
 using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Import.Por.Models;
+using Gdc.Scd.Core.Entities.CapabilityMatrix;
 
 namespace Gdc.Scd.Import.Por
 {
@@ -34,6 +35,7 @@ namespace Gdc.Scd.Import.Por
                 var wgImporter = kernel.Get<IDataImporter<SCD2_WarrantyGroups>>();
                 var softwareImporter = kernel.Get<IDataImporter<SCD2_SW_Overview>>();
                 var fspCodesImporter = kernel.Get<IDataImporter<SCD2_v_SAR_new_codes>>();
+                var lutCodesImporter = kernel.Get<IDataImporter<SCD2_LUT_TSP>>();
 
 
                 var plaService = kernel.Get<DomainService<Pla>>();
@@ -47,6 +49,7 @@ namespace Gdc.Scd.Import.Por
                 var proactiveService = kernel.Get<DomainService<ProActiveSla>>();
                 var countryService = kernel.Get<DomainService<Country>>();
                 var countryGroupService = kernel.Get<DomainService<CountryGroup>>();
+                var matrixService = kernel.Get<DomainService<CapabilityMatrix>>();
 
                 var sFabDomainService = kernel.Get<ImportService<SFab>>();
                 var sogDomainService = kernel.Get<ImportService<Sog>>();
@@ -80,8 +83,8 @@ namespace Gdc.Scd.Import.Por
                 //Start Process
                 logger.Log(LogLevel.Info, ImportConstantMessages.START_PROCESS);
 
-                Func<SCD2_ServiceOfferingGroups, bool> sogPredicate = sog => sog.Warranty_Calculation_relevant == "JA";
-                Func<SCD2_WarrantyGroups, bool> wgPredicate = wg => wg.Warranty_Calculation_relevant == "JA";
+                Func<SCD2_ServiceOfferingGroups, bool> sogPredicate = sog => sog.Warranty_Calculation_relevant == "JA" && sog.Active_Flag == "1";
+                Func<SCD2_WarrantyGroups, bool> wgPredicate = wg => wg.Warranty_Calculation_relevant == "JA" && wg.Active_Flag == "1";
 
                 logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, nameof(Sog));
                 var porSogs = sogImporter.ImportData()
@@ -167,11 +170,11 @@ namespace Gdc.Scd.Import.Por
                 step++;
 
                 //STEP6: REBUILD RELATIONSHIPS BETWEEN SOFTWARE LICENSES AND DIGITS
+                var digits = digitService.GetAllActive().ToList();
                 if (rebuildRelationships)
                 {
                     logger.Log(LogLevel.Info, ImportConstantMessages.REBUILD_RELATIONSHIPS_START, step);
                     var licenses = licenseService.GetAllActive().ToList();
-                    var digits = digitService.GetAllActive().ToList();
                     success = swLicenseDigitService.UploadSwDigitAndLicenseRelation(licenses, digits, porSoftware, DateTime.Now);
                     if (!success)
                     {
@@ -206,7 +209,7 @@ namespace Gdc.Scd.Import.Por
                 var result = FillCountryDictionary(countryService.GetAll().ToList(), countryGroupService.GetAll().ToList());
                 var locationDictionary = FillSlaDictionary(locationServiceValues);
                 var reactionTimeDictionary = FillSlaDictionary(reactionTypeValues);
-                var rectionTypeDictionary = FillSlaDictionary(reactionTypeValues);
+                var reactionTypeDictionary = FillSlaDictionary(reactionTypeValues);
                 var availabilityDictionary = FillSlaDictionary(availabilityValues);
                 var durationDictionary = FillSlaDictionary(durationValues);
                 var proactiveDictionary = FillSlaDictionary(proActiveValues);
@@ -235,14 +238,44 @@ namespace Gdc.Scd.Import.Por
                         softwareCodes.Add(code);
                 }
 
-                logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(HwFspCodeTranslation));
+                logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, "Standard Warranties");
+
                 
+                var lutCodes = lutCodesImporter.ImportData().ToList();
+                logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, "Standard Warranties", lutCodes.Count);
+
+                var wgs = wgDomainService.GetAllActive().ToList();
+
+                logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(HwFspCodeTranslation));
+
+                success = hardwareService.UploadHardware(otherHardwareCodes, proActiveCodes, stdwCodes, lutCodes, result,
+                    wgs, sogs, availabilityDictionary, reactionTimeDictionary, reactionTypeDictionary, locationDictionary,
+                    durationDictionary, proactiveDictionary, matrixService.GetAll(), DateTime.Now, proactiveServiceTypes,
+                    standardWarrantiesServiceTypes, hardwareServiceTypes);
+
+                if (success)
+                    hardwareService.DeactivateFspHardware(otherHardwareCodes.Union(proActiveCodes).Union(stdwCodes), DateTime.Now);
+                
+                logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);
+                step++;
+
+                logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(SwFspCodeTranslation));
+
+                success = softwareService.UploadSoftware(softwareCodes, wgs, digits, porSoftware, availabilityDictionary, reactionTimeDictionary,
+                    reactionTypeDictionary, locationDictionary, durationDictionary, DateTime.Now, softwareServiceTypes);
+
+                if (success)
+                    softwareService.DeactivateFspSoftware(softwareCodes, DateTime.Now);
+
+                logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);
+                logger.Log(LogLevel.Info, ImportConstantMessages.END_PROCESS);
             }
 
             catch(Exception ex)
             {
                 logger.Log(LogLevel.Fatal, ex, "POR Import completed unsuccessfully. Please find details below.");
                 //TODO: Send emails
+
             }
         }
 

@@ -18,5 +18,6 @@ namespace Gdc.Scd.Import.Por
 
         public static string CONFIGURATION_ERROR = "{0} key is not configured";
         public static string START_PROCESS = "Process started...";
+        public static string END_PROCESS = "POR Upload Process has been finished";
     }
 }
