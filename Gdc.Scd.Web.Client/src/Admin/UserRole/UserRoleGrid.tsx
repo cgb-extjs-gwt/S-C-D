@@ -126,8 +126,8 @@ export class UserRoleGrid extends React.Component<UserRoleGridProps> {
                 <Column
                     text="Actions"
                     flex={1}
-                    dataIndex="id"
-                    renderer={() => { return '' }}
+                    dataIndex=""       
+                    renderer={() => { return " " }} //it displays some simbol otherwise
                 >
                     <GridCell
                         tools={{
@@ -139,8 +139,9 @@ export class UserRoleGrid extends React.Component<UserRoleGridProps> {
                                 tooltip: "Delete",
                                 handler: this.onDeleteButtonClick
                             }
-                            }}
-                        />
+                        }}                      
+                    />
+
                  </Column>
                 <Toolbar docked="top">   
                     <Button

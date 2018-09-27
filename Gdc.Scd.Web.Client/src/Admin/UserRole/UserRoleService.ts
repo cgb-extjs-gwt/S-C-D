@@ -26,8 +26,4 @@ export class UserRoleService {
         return new CountryService().getAll();
     }
 
-    public getUserRoles(filter: UserRoleFilterModel): Promise<DataInfo<UserRoleFilterModel>> {
-        return get<DataInfo<UserRoleFilterModel>>(this.controllerName, 'getBy', filter);
-    }
-
 }

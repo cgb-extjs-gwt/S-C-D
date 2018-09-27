@@ -7,6 +7,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using System.Configuration;
 using System.Web.Http;
 using Gdc.Scd.Web.Server.Entities;
+using System.Security.Principal;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
@@ -42,7 +43,7 @@ namespace Gdc.Scd.Web.Server.Controllers
                 user => new User
                 {
                     Name = user.DisplayName,
-                    Login = user.SamAccountName,
+                    Login = user.Sid.Translate(typeof(NTAccount)).ToString(),
                     Email = user.EmailAddress
                 }).ToList();
 
