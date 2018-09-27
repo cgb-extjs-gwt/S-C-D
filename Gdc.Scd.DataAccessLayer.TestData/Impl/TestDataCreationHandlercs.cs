@@ -240,7 +240,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     selectColumns =
                         selectColumns.Select(
                             field => field.TableName == clusterRegionField.Name
-                                ? new ColumnInfo(nameof(Country.CountryGroup.Region.ClusterRegion.Name), MetaConstants.CountryInputLevelName, ClusterRegionId)
+                                ? new ColumnInfo(nameof(Country.CountryGroup.Region.ClusterRegion), MetaConstants.CountryInputLevelName, ClusterRegionId)
                                 : field)
                                     .ToList();
 
