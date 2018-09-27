@@ -18,31 +18,35 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public DataInfo<CapabilityMatrixDto> Allowed([FromUri]CapabilityMatrixFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 25)
+        public Task<DataInfo<CapabilityMatrixDto>> Allowed([FromUri]CapabilityMatrixFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 25)
         {
             if (!isRangeValid(start, limit))
             {
                 return null;
             }
 
-            int total;
-            var items = capabilityMatrixService.GetAllowedCombinations(filter, start, limit, out total);
-
-            return new DataInfo<CapabilityMatrixDto> { Items = items, Total = total };
+            return capabilityMatrixService.GetAllowedCombinations(filter, start, limit)
+                                          .ContinueWith(x => new DataInfo<CapabilityMatrixDto>
+                                          {
+                                              Items = x.Result.Item1,
+                                              Total = x.Result.Item2
+                                          });
         }
 
         [HttpGet]
-        public DataInfo<CapabilityMatrixRuleDto> Denied([FromUri]CapabilityMatrixFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 25)
+        public Task<DataInfo<CapabilityMatrixRuleDto>> Denied([FromUri]CapabilityMatrixFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 25)
         {
             if (!isRangeValid(start, limit))
             {
                 return null;
             }
 
-            int total;
-            var items = capabilityMatrixService.GetDeniedCombinations(filter, start, limit, out total);
-
-            return new DataInfo<CapabilityMatrixRuleDto> { Items = items, Total = total };
+            return capabilityMatrixService.GetDeniedCombinations(filter, start, limit)
+                                          .ContinueWith(x => new DataInfo<CapabilityMatrixRuleDto>
+                                          {
+                                              Items = x.Result.Item1,
+                                              Total = x.Result.Item2
+                                          });
         }
 
         [HttpPost]

@@ -5,7 +5,6 @@ using Gdc.Scd.Core.Entities.CapabilityMatrix;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -90,7 +89,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return result.PagingWithCountAsync(start, limit);
         }
 
-        public Task<Tuple<CapabilityMatrixDto[], int>> GetCountryAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit, out int count)
+        public Task<Tuple<CapabilityMatrixDto[], int>> GetCountryAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
         {
             var query = countryAllowRepo.GetAll();
 
@@ -120,15 +119,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 ServiceLocation = x.ServiceLocation,
             });
 
-            return result.PagingWithCount(start, limit, out count);
+            return result.PagingWithCountAsync(start, limit);
         }
 
-        public IEnumerable<CapabilityMatrixRuleDto> GetDeniedCombinations(int start, int limit, out int count)
+        public Task<Tuple<CapabilityMatrixRuleDto[], int>> GetDeniedCombinations(int start, int limit)
         {
-            return GetDeniedCombinations(null, start, limit, out count);
+            return GetDeniedCombinations(null, start, limit);
         }
 
-        public IEnumerable<CapabilityMatrixRuleDto> GetDeniedCombinations(CapabilityMatrixFilterDto filter, int start, int limit, out int count)
+        public Task<Tuple<CapabilityMatrixRuleDto[], int>> GetDeniedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
         {
             var query = ruleRepo.GetAll();
 
@@ -172,7 +171,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IsCorePortfolio = x.CorePortfolio
             });
 
-            return result.PagingWithCount(start, limit, out count);
+            return result.PagingWithCountAsync(start, limit);
         }
     }
 }
