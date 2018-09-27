@@ -14,6 +14,14 @@ namespace Gdc.Scd.Core.Entities
             set => base.Id = value;
         }
 
+        public string CountryDigit { get; set; }
+
+        public string LUTCode { get; set; }
+
+        public long RegionId { get; set; }
+
+        public Region Region { get; set; }
+
         public List<Country> Countries { get; set; }
     }
 }

@@ -116,5 +116,19 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             
         }
+
+        public virtual void DeleteAll()
+        {
+            var tableName = GetTableName();
+            this.repositorySet.ExecuteSql($"TRUNCATE TABLE {tableName}");
+        }
+
+        private string GetTableName()
+        {
+            var mapping = this.repositorySet.Model.FindEntityType(typeof(T)).Relational();
+            var schema = mapping.Schema;
+            var tableName = mapping.TableName;
+            return $"[{schema}].[{tableName}]";
+        }
     }
 }

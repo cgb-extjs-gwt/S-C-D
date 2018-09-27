@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Import
 {
-    public class PorSwLicenseService : ImportPorService<SwLicense>, IPorSwLicenseService
+    public class PorSwLicenseService : ImportService<SwLicense>, IPorSwLicenseService
     {
         private ILogger<LogLevel> _logger;
 
@@ -27,7 +27,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             _logger = logger;
         }
 
-        public bool Deactivate(IEnumerable<SCD_SW_Overview> swInfo, DateTime modifiedDateTime)
+        public bool Deactivate(IEnumerable<SCD2_SW_Overview> swInfo, DateTime modifiedDateTime)
         {
             var result = true;
 
@@ -65,8 +65,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             return result;
         }
 
-        public bool UploadSwLicense(IEnumerable<SCD_SW_Overview> swInfo, 
-            IEnumerable<SwDigit> digits, DateTime modifiedDateTime)
+        public bool UploadSwLicense(IEnumerable<SCD2_SW_Overview> swInfo,
+            DateTime modifiedDateTime)
         {
             var result = true;
 
@@ -79,24 +79,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
                 foreach (var swLicense in swInfo)
                 {
                     
-                    var digit = digits.FirstOrDefault(d => d.Name.Equals(swLicense.Software_Lizenz_Digit, 
-                        StringComparison.OrdinalIgnoreCase));
-
-                    if (digit == null)
-                    {
-                        _logger.Log(LogLevel.Warn,
-                            PorImportLoggingMessage.UNKNOW_DIGIT, 
-                            $"{nameof(SwLicense)} {swLicense.Software_Lizenz}", 
-                            swLicense.Software_Lizenz_Digit);
-                        continue;
-                    }
-
                     updatedSwLicenses.Add(new SwLicense
                     {
                         Name = swLicense.Software_Lizenz,
                         SoftwareLicenseDescription = swLicense.Software_Lizenz_Beschreibung,
-                        SoftwareLicenseName = swLicense.Software_Lizenz_Benennung,
-                        SwDigitId = digit.Id
+                        SoftwareLicenseName = swLicense.Software_Lizenz_Benennung
                     });
                 }
 

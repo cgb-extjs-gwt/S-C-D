@@ -12,7 +12,7 @@ namespace Gdc.Scd.DataAccessLayer.External.Por
     using System;
     using System.Collections.Generic;
     
-    public partial class SCD_SW_Overview
+    public partial class SCD2_SW_Overview
     {
         public string WG { get; set; }
         public string WG_Definition { get; set; }
@@ -31,5 +31,7 @@ namespace Gdc.Scd.DataAccessLayer.External.Por
         public int ID { get; set; }
         public string SOG_Code { get; set; }
         public string SOG { get; set; }
+        public string ServiceFabGrp { get; set; }
+        public string SCD_ServiceType { get; set; }
     }
 }

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Import
 {
-    public class PorWgService : ImportPorService<Wg>, IPorWgService
+    public class PorWgService : ImportService<Wg>, IPorWgService
     {
         private ILogger<LogLevel> _logger;
 
@@ -26,7 +26,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             _logger = logger;
         }
 
-        public bool DeactivateSogs(IEnumerable<Intranet_WG_Info> wgs, DateTime modifiedDatetime)
+        public bool DeactivateSogs(IEnumerable<SCD2_WarrantyGroups> wgs, DateTime modifiedDatetime)
         {
             var result = true;
 
@@ -34,7 +34,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             {
                 _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATE_STEP_BEGIN, nameof(Wg));
 
-                var porItems = wgs.Select(w => w.WG.ToLower()).ToList();
+                var porItems = wgs.Select(w => w.Warranty_Group.ToLower()).ToList();
 
                 //select all that is not coming from POR and was not already deactivated in SCD
                 var itemsToDeacivate = this.GetAll()
@@ -64,7 +64,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             return result;
         }
 
-        public bool UploadWgs(IEnumerable<Intranet_WG_Info> wgs, 
+        public bool UploadWgs(IEnumerable<SCD2_WarrantyGroups> wgs, 
             IEnumerable<SFab> sFabs, IEnumerable<Sog> sogs, 
             IEnumerable<Pla> plas, DateTime modifiedDateTime)
         {
@@ -76,26 +76,25 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             {
                 foreach (var porWg in wgs)
                 {
-                    var pla = plas.FirstOrDefault(p => p.Name.Equals(porWg.PLA, StringComparison.OrdinalIgnoreCase));
+                    var pla = plas.FirstOrDefault(p => p.Name.Equals(porWg.Warranty_PLA, StringComparison.OrdinalIgnoreCase));
 
                     if (pla == null)
                     {
                         _logger.Log(LogLevel.Warn,
-                               PorImportLoggingMessage.UNKNOWN_PLA, $"{nameof(Wg)} {porWg.WG}", porWg.PLA);
+                               PorImportLoggingMessage.UNKNOWN_PLA, $"{nameof(Wg)} {porWg.Warranty_Group}", porWg.Warranty_PLA);
                         continue;
                     }
 
                     SFab sFab = sFabs.FirstOrDefault(fab =>
-                                fab.Name.Equals(porWg.ServiceFabgr, StringComparison.OrdinalIgnoreCase));
+                                fab.Name.Equals(porWg.FabGrp, StringComparison.OrdinalIgnoreCase));
 
                     Sog sog = sogs.FirstOrDefault(wg => wg.Name.Equals(porWg.SOG, StringComparison.OrdinalIgnoreCase));
 
                     updatedWgs.Add(new Wg
                     {
-                        Alignment = porWg.Portfolio_Alignment_Category,
-                        Description = porWg.WG_Definition,
-                        HWProductDescription = porWg.HW_Produktbeschreibung,
-                        Name = porWg.WG,
+                        Alignment = porWg.Alignment,
+                        Description = porWg.Warranty_Group_Name,
+                        Name = porWg.Warranty_Group,
                         PlaId = pla.Id,
                         SFabId = sFab?.Id,
                         SogId = sog?.Id

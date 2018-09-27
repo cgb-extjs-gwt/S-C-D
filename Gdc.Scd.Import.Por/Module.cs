@@ -32,21 +32,23 @@ namespace Gdc.Scd.Import.Por
             Bind<ILogger<LogLevel>>().To<BusinessLogicLayer.Import.Logger>().InSingletonScope();
 
             //TODO: Replace with normal binding when Dirk gives an access
-            Bind(typeof(IDataImporter<>)).To(typeof(PorDataImporter<>)).InSingletonScope().Named("por");
-            Bind(typeof(IDataImporter<>)).To(typeof(PorOldDataImporter<>)).InSingletonScope().Named("oldPor");
+            Bind(typeof(IDataImporter<>)).To(typeof(PorDataImporter<>)).InSingletonScope();
 
             Bind<IPorSFabsService>().To<PorSFabService>();
             Bind<IPorSogService>().To<PorSogService>();
             Bind<IPorWgService>().To<PorWgService>();
             Bind<IPorSwDigitService>().To<PorSwDigitService>();
             Bind<IPorSwLicenseService>().To<PorSwLicenseService>();
+            Bind<IPorSwDigitLicenseService>().To<PorSwDigitLicenseService>();
+            Bind<IHwFspCodeTranslationService>().To<PorHwFspCodeTranslationService>();
+            Bind<ISwFspCodeTranslationService>().To<PorSwFspCodeTranslationService>();
 
             //Comparators
             Bind(typeof(IEqualityComparer<>)).To(typeof(PorEqualityComparer<>));
-            
+
 
             //Domain Services
-            Bind(typeof(ImportPorService<>)).ToSelf();
+            Bind(typeof(ImportService<>)).ToSelf();
             Bind(typeof(DomainService<>)).ToSelf();
 
 
@@ -55,6 +57,7 @@ namespace Gdc.Scd.Import.Por
             Kernel.RegisterEntity<SFab>();
             Kernel.RegisterEntity<Wg>();
             Kernel.RegisterEntity<SwDigit>();
+            Kernel.RegisterEntity<SwDigitLicense>();
             Kernel.RegisterEntity<SwLicense>();
             Kernel.RegisterEntity<Availability>();
             Kernel.RegisterEntity<ReactionTime>();
@@ -62,6 +65,8 @@ namespace Gdc.Scd.Import.Por
             Kernel.RegisterEntity<ServiceLocation>();
             Kernel.RegisterEntity<Duration>();
             Kernel.RegisterEntity<ProActiveSla>();
+            Kernel.RegisterEntity<CountryGroup>();
+            Kernel.RegisterEntity<Country>();
         }
     }
 }

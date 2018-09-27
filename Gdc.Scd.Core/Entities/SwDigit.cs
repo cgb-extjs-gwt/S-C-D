@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using Gdc.Scd.Core.Attributes;
 using Gdc.Scd.Core.Interfaces;
@@ -23,5 +24,7 @@ namespace Gdc.Scd.Core.Entities
         public DateTime CreatedDateTime { get; set; }
         public DateTime? DeactivatedDateTime { get; set; }
         public DateTime ModifiedDateTime { get; set; }
+
+        public ICollection<SwDigitLicense> SwDigitLicenses { get; set; }
     }
 }

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Import
 {
-    public class PorSogService : ImportPorService<Sog>, IPorSogService
+    public class PorSogService : ImportService<Sog>, IPorSogService
     {
         private ILogger<LogLevel> _logger;
 
@@ -28,7 +28,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
         }
 
 
-        public bool DeactivateSogs(IEnumerable<Intranet_SOG_Info> sogs, DateTime modifiedDatetime)
+        public bool DeactivateSogs(IEnumerable<SCD2_ServiceOfferingGroups> sogs, DateTime modifiedDatetime)
         {
             var result = true;
 
@@ -36,7 +36,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             {
                 _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATE_STEP_BEGIN, nameof(Sog));
 
-                var porItems = sogs.Select(s => s.SOG_Code.ToLower()).ToList();
+                var porItems = sogs.Select(s => s.Service_Offering_Group.ToLower()).ToList();
 
                 //select all that is not coming from POR and was not already deactivated in SCD
                 var itemsToDeacivate = this.GetAll()
@@ -66,7 +66,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             return result;
         }
 
-        public bool UploadSogs(IEnumerable<Intranet_SOG_Info> sogs, 
+        public bool UploadSogs(IEnumerable<SCD2_ServiceOfferingGroups> sogs, 
             IEnumerable<Pla> plas,
             IEnumerable<SFab> sFabs,
             DateTime modifiedDateTime)
@@ -79,24 +79,23 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             {
                 foreach (var porSog in sogs)
                 {
-                    var pla = plas.FirstOrDefault(p => p.Name.Equals(porSog.Produktreihe, StringComparison.OrdinalIgnoreCase));
+                    var pla = plas.FirstOrDefault(p => p.Name.Equals(porSog.SOG_PLA, StringComparison.OrdinalIgnoreCase));
 
                     if (pla == null)
                     {
                         _logger.Log(LogLevel.Warn,
-                               PorImportLoggingMessage.UNKNOWN_PLA, $"{nameof(Sog)} {porSog.SOG_Code}", porSog.Produktreihe);
+                               PorImportLoggingMessage.UNKNOWN_PLA, $"{nameof(Sog)} {porSog.Service_Offering_Group}", porSog.SOG_PLA);
                         continue;
                     }
 
                     SFab sFab = sFabs.FirstOrDefault(fab =>
-                                fab.Name.Equals(porSog.ServiceFabgr, StringComparison.OrdinalIgnoreCase));
+                                fab.Name.Equals(porSog.FabGrp, StringComparison.OrdinalIgnoreCase));
 
                     updatedSogs.Add(new Sog
                     {
                         Alignment = porSog.Alignment,
-                        Description = porSog.SOG,
-                        HWProductDescription = porSog.HW_Produktbeschreibung,
-                        Name = porSog.SOG_Code,
+                        Description = porSog.Service_Offering_Group_Name,
+                        Name = porSog.Service_Offering_Group,
                         PlaId = pla.Id,
                         SFabId = sFab?.Id,
 

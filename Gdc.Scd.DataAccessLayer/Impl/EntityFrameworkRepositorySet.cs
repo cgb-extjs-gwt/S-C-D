@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Ninject;
+using Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {

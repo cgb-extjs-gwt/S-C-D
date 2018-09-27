@@ -10,10 +10,10 @@ namespace Gdc.Scd.Import.Por.Models
     public class SwHelperModel
     {
         public IDictionary<string, string> SwDigits { get; set; }
-        public IDictionary<string, SCD_SW_Overview> SwLicenses { get; set; }
+        public IDictionary<string, SCD2_SW_Overview> SwLicenses { get; set; }
 
         public SwHelperModel(IDictionary<string, string> swDigits, 
-            IDictionary<string, SCD_SW_Overview> swLicenses)
+            IDictionary<string, SCD2_SW_Overview> swLicenses)
         {
             this.SwDigits = swDigits;
             this.SwLicenses = swLicenses;

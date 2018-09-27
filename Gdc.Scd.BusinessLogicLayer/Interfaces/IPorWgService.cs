@@ -10,12 +10,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface IPorWgService
     {
-        bool UploadWgs(IEnumerable<Intranet_WG_Info> wgs,
+        bool UploadWgs(IEnumerable<SCD2_WarrantyGroups> wgs,
             IEnumerable<SFab> sFabs,
             IEnumerable<Sog> sogs,
             IEnumerable<Pla> plas,
             DateTime modifiedDateTime);
 
-        bool DeactivateSogs(IEnumerable<Intranet_WG_Info> sogs, DateTime modifiedDatetime);
+        bool DeactivateSogs(IEnumerable<SCD2_WarrantyGroups> sogs, DateTime modifiedDatetime);
     }
 }

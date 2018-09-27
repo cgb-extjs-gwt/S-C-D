@@ -12,7 +12,7 @@ namespace Gdc.Scd.DataAccessLayer.External.Por
     using System;
     using System.Collections.Generic;
     
-    public partial class v_SAR_new_codes
+    public partial class SCD2_v_SAR_new_codes
     {
         public string Service_Code { get; set; }
         public string Country { get; set; }

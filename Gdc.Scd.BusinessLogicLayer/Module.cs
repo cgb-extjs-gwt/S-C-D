@@ -30,6 +30,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<IQualityGateSevice>().To<QualityGateSevice>().InRequestScope();
 
             Kernel.RegisterEntity<ClusterRegion>();
+            Kernel.RegisterEntity<Region>();
             Kernel.RegisterEntity<Country>();
             Kernel.RegisterEntity<CountryGroup>();
             Kernel.RegisterEntity<Pla>();
@@ -61,8 +62,9 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<Sog>();
             Kernel.RegisterEntity<SFab>();
             Kernel.RegisterEntity<SwLicense>();
-            Kernel.RegisterEntity<FspCodeTranslation>();
-            Kernel.RegisterEntity<FspCodeLicenseMapping>();
+            Kernel.RegisterEntity<SwDigitLicense>();
+            Kernel.RegisterEntity<HwFspCodeTranslation>();
+            Kernel.RegisterEntity<SwFspCodeTranslation>();
         }
     }
 }
