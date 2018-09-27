@@ -18,7 +18,11 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public Task<DataInfo<CapabilityMatrixDto>> Allowed([FromUri]CapabilityMatrixFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 25)
+        public Task<DataInfo<CapabilityMatrixDto>> Allowed(
+                [FromUri]CapabilityMatrixFilterDto filter,
+                [FromUri]int start = 0,
+                [FromUri]int limit = 25
+            )
         {
             if (!isRangeValid(start, limit))
             {
@@ -34,7 +38,11 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public Task<DataInfo<CapabilityMatrixRuleDto>> Denied([FromUri]CapabilityMatrixFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 25)
+        public Task<DataInfo<CapabilityMatrixRuleDto>> Denied(
+                [FromUri]CapabilityMatrixFilterDto filter,
+                [FromUri]int start = 0,
+                [FromUri]int limit = 25
+            )
         {
             if (!isRangeValid(start, limit))
             {

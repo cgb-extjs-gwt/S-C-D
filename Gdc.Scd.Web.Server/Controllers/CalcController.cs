@@ -18,7 +18,11 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public Task<DataInfo<HwCostDto>> GetHwCost([FromUri]HwFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 50)
+        public Task<DataInfo<HwCostDto>> GetHwCost(
+                [FromUri]HwFilterDto filter,
+                [FromUri]int start = 0,
+                [FromUri]int limit = 50
+            )
         {
             if (!isRangeValid(start, limit))
             {
@@ -26,15 +30,19 @@ namespace Gdc.Scd.Web.Api.Controllers
             }
 
             return calcSrv.GetHardwareCost(filter, start, limit)
-                          .ContinueWith(x =>
+                          .ContinueWith(x => new DataInfo<HwCostDto>
                           {
-                              var result = x.Result;
-                              return new DataInfo<HwCostDto> { Items = result.Item1, Total = result.Item2 };
+                              Items = x.Result.Item1,
+                              Total = x.Result.Item2
                           });
         }
 
         [HttpGet]
-        public Task<DataInfo<SwCostDto>> GetSwCost([FromUri]SwFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 50)
+        public Task<DataInfo<SwCostDto>> GetSwCost(
+                [FromUri]SwFilterDto filter,
+                [FromUri]int start = 0,
+                [FromUri]int limit = 50
+            )
         {
             if (!isRangeValid(start, limit))
             {
@@ -42,10 +50,10 @@ namespace Gdc.Scd.Web.Api.Controllers
             }
 
             return calcSrv.GetSoftwareCost(filter, start, limit)
-                          .ContinueWith(x =>
+                          .ContinueWith(x => new DataInfo<SwCostDto>
                           {
-                              var result = x.Result;
-                              return new DataInfo<SwCostDto> { Items = result.Item1, Total = result.Item2 };
+                              Items = x.Result.Item1,
+                              Total = x.Result.Item2
                           });
         }
 
