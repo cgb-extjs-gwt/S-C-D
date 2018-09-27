@@ -235,17 +235,17 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 var clusterRegionField = costBlockMeta.InputLevelFields[ClusterRegionId];
                 var countryField = costBlockMeta.InputLevelFields[MetaConstants.CountryInputLevelName];
 
-                if (clusterRegionField != null && countryField != null)
-                {
-                    selectColumns =
-                        selectColumns.Select(
-                            field => field.TableName == clusterRegionField.Name
-                                ? new ColumnInfo(nameof(Country.CountryGroup.Region.ClusterRegion), MetaConstants.CountryInputLevelName, ClusterRegionId)
-                                : field)
-                                    .ToList();
+                //if (clusterRegionField != null && countryField != null)
+                //{
+                //    selectColumns =
+                //        selectColumns.Select(
+                //            field => field.TableName == clusterRegionField.Name
+                //                ? new ColumnInfo(nameof(Country.CountryGroup.Region.ClusterRegionId), MetaConstants.CountryInputLevelName, ClusterRegionId)
+                //                : field)
+                //                    .ToList();
 
-                    referenceFields.Remove(clusterRegionField);
-                }
+                //    referenceFields.Remove(clusterRegionField);
+                //}
 
                 var selectQuery = Sql.Select(selectColumns.ToArray()).From(referenceFields[0].ReferenceMeta);
 
