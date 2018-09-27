@@ -8,11 +8,10 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
-    public interface IPorSwLicenseService
+    public interface IPorSwDigitLicenseService
     {
-        bool UploadSwLicense(IEnumerable<SCD2_SW_Overview> swInfo,
-            DateTime modifiedDateTime);
-
-        bool Deactivate(IEnumerable<SCD2_SW_Overview> swInfo, DateTime modifiedDateTime);
+        bool UploadSwDigitAndLicenseRelation(IEnumerable<SwLicense> licenses,
+            IEnumerable<SwDigit> digits,
+            IEnumerable<SCD2_SW_Overview> swInfo, DateTime created);
     }
 }

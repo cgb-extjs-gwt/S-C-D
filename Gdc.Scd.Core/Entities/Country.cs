@@ -1,5 +1,4 @@
 ﻿using Gdc.Scd.Core.Meta.Constants;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities
@@ -14,21 +13,20 @@ namespace Gdc.Scd.Core.Entities
             set => base.Id = value;
         }
 
-        public string ISO2CountryCode { get; set; }
+        public string ISO3CountryCode { get; set; }
 
-        public string LUT { get; set; }
+        public string SAPCountryCode { get; set; }
 
-        public bool CanOverrideListAndDealerPrices { get; set; }
-
-        public bool ShowDealerPrice { get; set; }
+        public bool CanStoreListAndDealerPrices { get; set; }
 
         public bool CanOverrideTransferCostAndPrice { get; set; }
 
-        public ClusterRegion ClusterRegion { get; set; }
+        public bool IsMaster { get; set; }
 
-        public long ClusterRegionId { get; set; }
+        public string QualityGateGroup { get; set; }
 
-        [Required]
-        public Currency Currency { get; set; }
+        public CountryGroup CountryGroup { get; set; }
+
+        public long CountryGroupId { get; set; }
     }
 }

@@ -20,10 +20,6 @@ namespace Gdc.Scd.Core.Entities
             set => base.Id = value;
         }
 
-        [MustCompare]
-        public long SwDigitId { get; set; }
-        public SwDigit SwDigit { get; set; }
-
         [MustCompare(true, IsIgnoreCase =true)]
         public string SoftwareLicenseName { get; set; }
 
@@ -33,5 +29,7 @@ namespace Gdc.Scd.Core.Entities
         public DateTime CreatedDateTime { get; set; }
         public DateTime? DeactivatedDateTime { get; set; }
         public DateTime ModifiedDateTime { get; set; }
+
+        public ICollection<SwDigitLicense> SwDigitLicenses { get; set; }
     }
 }

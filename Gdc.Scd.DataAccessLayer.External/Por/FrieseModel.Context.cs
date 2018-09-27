@@ -25,8 +25,10 @@ namespace Gdc.Scd.DataAccessLayer.External.Por
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<Intranet_SOG_Info> Intranet_SOG_Info { get; set; }
-        public virtual DbSet<Intranet_WG_Info> Intranet_WG_Info { get; set; }
-        public virtual DbSet<v_SAR_new_codes> v_SAR_new_codes { get; set; }
+        public virtual DbSet<SCD2_ServiceOfferingGroups> SCD2_ServiceOfferingGroups { get; set; }
+        public virtual DbSet<SCD2_SW_Overview> SCD2_SW_Overview { get; set; }
+        public virtual DbSet<SCD2_v_SAR_new_codes> SCD2_v_SAR_new_codes { get; set; }
+        public virtual DbSet<SCD2_WarrantyGroups> SCD2_WarrantyGroups { get; set; }
+        public virtual DbSet<SCD2_LUT_TSP> SCD2_LUT_TSP { get; set; }
     }
 }

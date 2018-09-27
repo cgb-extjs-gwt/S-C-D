@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Import
 {
-    public class PorSwDigitService : ImportPorService<SwDigit>, IPorSwDigitService
+    public class PorSwDigitService : ImportService<SwDigit>, IPorSwDigitService
     {
         private ILogger<LogLevel> _logger;
 

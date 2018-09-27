@@ -12,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Import
 {
-    public class ImportPorService<T> : DomainService<T> where T: NamedId, IDeactivatable, new()
+    public class ImportService<T> : DomainService<T> where T: NamedId, IDeactivatable, new()
     {
         private const int BATCH_NUMBER = 1000;
         private readonly IEqualityComparer<T> _comparer;
 
 
-        public ImportPorService(IRepositorySet repositorySet,
+        public ImportService(IRepositorySet repositorySet,
             IEqualityComparer<T> comparer)
             : base(repositorySet)
         {
