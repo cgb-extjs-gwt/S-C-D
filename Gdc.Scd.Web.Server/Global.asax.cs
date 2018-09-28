@@ -24,7 +24,6 @@ namespace Gdc.Scd.Web.Server
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
 
-#if DEBUG
         protected void Application_EndRequest()
         {
             if (_firstRequest)
@@ -37,19 +36,5 @@ namespace Gdc.Scd.Web.Server
                 _firstRequest = false;
             }
         }
-#endif
-        //protected void Application_Error(object sender, EventArgs e)
-        //{
-        //    Exception ex = Server.GetLastError();
-        //    string to = "nikita.zotov.gdc@ts.fujitsu.com";
-        //    string from = "nikita.zotov.gdc@ts.fujitsu.com";
-        //    MailMessage message = new MailMessage(from, to);
-        //    message.Subject = "Using the new SMTP client.";
-        //    message.Body = ex.ToString();
-        //    SmtpClient client = new SmtpClient("mail.fsc.net");
-        //    // Credentials are necessary if the server requires the client 
-        //    // to authenticate before it will send e-mail on the client's behalf.
-        //    client.Send(message);          
-        //}
     }
 }
