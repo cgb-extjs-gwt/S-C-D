@@ -1,10 +1,12 @@
 ﻿import * as React from "react";
 import { ComboBoxField, CheckBoxField, Container, Button, Panel, PanelProps } from "@extjs/ext-react";
-import { UserRoleService } from "./UserRoleService";
 import { UserRoleFilterModel } from "./UserRoleFilterModel";
 
 export interface UserRoleFilterPanelProps extends PanelProps {
-    onSearch(filter: UserRoleFilterModel): void;
+    users: any[],
+    roles: any[],
+    countries: any[],
+    onSearch(filter: UserRoleFilterModel): void
 }
 
 export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProps, any> {
@@ -15,8 +17,6 @@ export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProp
 
     private role: ComboBoxField;
 
-    private srv: UserRoleService;
-
     public constructor(props: any) {
         super(props);
         this.init();
@@ -24,7 +24,7 @@ export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProp
 
     public render() {
         return (
-            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
+            <Panel title="Filter By" {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
 
                 <Container margin="10px 0"
                     defaults={{
@@ -35,9 +35,9 @@ export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProp
                         clearable: 'true'
                     }}
                 >
-                    <ComboBoxField ref="user" label="User:" options={this.state.users} />
-                    <ComboBoxField ref="role" label="Role:" options={this.state.roles} />
-                    <ComboBoxField ref="country" label="Country:" options={this.state.countries} />
+                    <ComboBoxField ref="user" label="User:" options={this.props.users} />
+                    <ComboBoxField ref="role" label="Role:" options={this.props.roles} />
+                    <ComboBoxField ref="country" label="Country:" options={this.props.countries} />
                 </Container>
 
                 <Button text="Search" ui="action" width="100px" handler={this.onSearch} margin="20px auto" />
@@ -47,18 +47,6 @@ export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProp
     }
 
     public componentDidMount() {
-        Promise.all([
-            this.srv.getUsers(),
-            this.srv.getRoles(),
-            this.srv.getCountries()
-        ]).then(x => {
-            this.setState({
-                users: x[0],
-                roles:x[1],
-                countries: x[2]
-            });
-        });
-        //
         this.user = this.refs.user as ComboBoxField;
         this.role = this.refs.role as ComboBoxField;
         this.country = this.refs.country as ComboBoxField;
@@ -73,15 +61,7 @@ export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProp
     }
 
     private init() {
-        this.srv = new UserRoleService();
-        //
         this.onSearch = this.onSearch.bind(this);
-        //
-        this.state = {
-            users: [],
-            roles: [],
-            countries: []
-        };
     }
 
 

@@ -1,10 +1,11 @@
 ﻿import * as React from 'react';
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, Container, TextField, Dialog, GridCell } from '@extjs/ext-react';
-import { UserRoleDialog } from './UserRoleDialog'
-import { UserRoleGrid } from './UserRoleGrid'
-import { buildMvcUrl } from "../../Common/Services/Ajax";
-import { UserRoleFilterPanel } from "./UserRoleFilterPanel"; 
-import { UserRoleFilterModel } from "./UserRoleFilterModel";
+import { UserRoleDialog } from '../Components/UserRoleDialog'
+import { UserRoleGrid } from '../Components/UserRoleGrid'
+import { buildMvcUrl } from "../../../Common/Services/Ajax";
+import { UserRoleFilterPanel } from "../Filter/UserRoleFilterPanel"; 
+import { UserRoleFilterModel } from "../Filter/UserRoleFilterModel";
+import { UserRoleService } from "../Services/UserRoleService";
 
 const CONTROLLER_NAME = 'UserRole';
 const USER_CONTROLLER_NAME = 'User';
@@ -36,14 +37,54 @@ Ext.define('User', {
 
 export default class RoleCodesContainer extends React.Component {
     private filter: UserRoleFilterPanel;
+    private srv: UserRoleService;
+
+    public constructor(props: any) {
+        super(props);
+        this.init();
+    }
+
+    private init() {
+        this.srv = new UserRoleService();
+        this.onSearch = this.onSearch.bind(this);
+    }
 
     public componentDidMount() {
         this.filter = this.refs.filter as UserRoleFilterPanel;
-        //
+
+        Promise.all([
+            this.srv.getUsers(),
+            this.srv.getRoles(),
+            this.srv.getCountries()
+        ]).then(x => {
+            this.setState({
+                ...this.state,
+                users: x[0].sort(this.compare),
+                roles: x[1].sort(this.compare),
+                countries: x[2].sort(this.compare),
+                storeCountryReady: true,
+                storeRoleReady:true
+            });
+        });
+
         this.store.load();
     }
 
+    private compare = (a, b) => {
+        if (a.name > b.name) {
+            return 1;
+        }
+        if (a.name < b.name) {
+            return -1;
+        }
+        return 0;
+    }
+
     state = {
+        users: [],
+        roles: [],
+        countries: [],
+
         selectedRecord: null,
 
         storeUserReady: false,
@@ -113,12 +154,6 @@ export default class RoleCodesContainer extends React.Component {
         filter.country ? this.store.filterBy((record) => { return record.data.countryId == filter.country }) : false
     }
 
-    private onBeforeLoad(s, operation) {
-        let filter = this.filter.getModel();
-        let params = Ext.apply({}, operation.getParams(), filter);
-        operation.setParams(params);
-    }
-
     storeUser = Ext.create('Ext.data.Store', {
         model: 'User',
         autoLoad: false,
@@ -153,56 +188,6 @@ export default class RoleCodesContainer extends React.Component {
     }
     );   
 
-    storeCountry = Ext.create('Ext.data.Store', {
-        fields: ['id', 'name'],
-        autoLoad: false,
-        pageSize: 0,
-        sorters: [{
-            property: 'name',
-            direction: 'ASC'
-        }],
-        proxy: {
-            type: 'ajax',
-            reader: {
-                type: 'json'
-            },
-            api: {
-                read: buildMvcUrl(COUNTRY_CONTROLLER_NAME, 'GetAll')
-            }
-        },
-        listeners: {
-            datachanged: (store) => {
-                this.setState({ storeCountryReady: true });
-            }
-        }
-    }
-    );
-
-    storeRole = Ext.create('Ext.data.Store', {
-        fields: ['id', 'name'],
-        autoLoad: false,
-        pageSize: 0,
-        sorters: [{
-            property: 'name',
-            direction: 'ASC'
-        }],
-        proxy: {
-            type: 'ajax',
-            reader: {
-                type: 'json'
-            },
-            api: {
-                read: buildMvcUrl(ROLE_CONTROLLER_NAME, 'GetAll')
-            }
-        },
-        listeners: {
-            datachanged: (store) => {
-                this.setState({ storeRoleReady: true });
-            }
-        }
-    }
-    );
-
     render() {
         const { isVisibleForm, selectedRecord } = this.state;
 
@@ -210,23 +195,25 @@ export default class RoleCodesContainer extends React.Component {
             this.storeUser.load();
             return null;
         }
-        if (!this.state.storeCountryReady) {
-            this.storeCountry.load();
-            return null;
-        }
-        if (!this.state.storeRoleReady) {
-            this.storeRole.load();
+        if (!this.state.storeCountryReady || !this.state.storeRoleReady) {
             return null;
         }
 
         return (
             <Container layout="fit">
-                <UserRoleFilterPanel ref="filter" docked="right" onSearch={this.onSearch.bind(this)} />
+                <UserRoleFilterPanel
+                    ref="filter"
+                    docked="right"
+                    onSearch={this.onSearch.bind(this)}
+                    users={this.state.users}
+                    roles={this.state.roles}
+                    countries={this.state.countries}
+                />
                 <UserRoleGrid
                     store={this.store}
                     storeUser={this.storeUser}
-                    storeRole={this.storeRole}
-                    storeCountry={this.storeCountry}
+                    roles={this.state.roles}
+                    countries={this.state.countries}
 
                     onHideDialog={this.onHideDialog}
                     onShowDialog={this.onShowDialog}
@@ -237,8 +224,8 @@ export default class RoleCodesContainer extends React.Component {
                     <UserRoleDialog
                         store={this.store}
                         storeUser={this.storeUser}
-                        storeRole={this.storeRole}
-                        storeCountry={this.storeCountry}
+                        roles={this.state.roles}
+                        countries={this.state.countries}
 
                         selectedRecord={selectedRecord}
                         isVisibleForm={isVisibleForm}

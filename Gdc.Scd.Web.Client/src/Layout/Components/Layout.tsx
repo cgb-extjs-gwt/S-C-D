@@ -5,7 +5,7 @@ import { Route, Switch, withRouter } from 'react-router-dom';
 import AvailabilityFeeAdminGrid from '../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid';
 import CountryGrid from '../../Admin/Country/containers/CountryGrid';
 import RoleCodesGrid from '../../Admin/RoleCode/RoleCodesGrid';
-import UserRoleContainer from '../../Admin/UserRole/UserRoleContainer';
+import UserRoleContainer from '../../Admin/UserRole/Containers/UserRoleContainer';
 import WarrantyGroupGrid from '../../Admin/WarrantyGroup/WarrantyGroupGrid';
 import { CapabilityMatrixEditView, CapabilityMatrixView } from '../../CapabilityMatrix';
 import { buildComponentUrl } from "../../Common/Services/Ajax";

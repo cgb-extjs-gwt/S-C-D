@@ -1,12 +1,12 @@
 ﻿import * as React from 'react';
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, Container, TextField, Dialog, GridCell } from '@extjs/ext-react';
-import PickerPanel, { PickerPanelProps } from '../../Common/Helpers/PickerPanelHelper';
+import PickerPanel, { PickerPanelProps } from '../../../Common/Helpers/PickerPanelHelper';
 
 interface UserRoleDialogProps{
     store
     storeUser
-    storeCountry
-    storeRole
+    countries
+    roles
 
     selectedRecord
     isVisibleForm
@@ -26,12 +26,12 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, any> {
     }
 
     public componentDidMount() {
-        const { storeRole, selectedRecord } = this.props;
+        const { roles, selectedRecord } = this.props;
         if (selectedRecord) {
-            let selectedRole = storeRole.getById(selectedRecord.data.roleId)
+            let selectedRole = roles.find(item=>item.id==selectedRecord.data.roleId)
             this.setState({
                 ...this.state,
-                countryFieldHidden: selectedRole && selectedRole.data.isGlobal
+                countryFieldHidden: selectedRole && selectedRole.isGlobal
             })              
         }         
     }
@@ -47,7 +47,7 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, any> {
 
     render() {
         const { isVisibleForm, selectedRecord } = this.props;
-        const { store, storeUser, storeCountry, storeRole } = this.props;
+        const { store, storeUser, countries, roles } = this.props;
 
 
         return (                      
@@ -63,6 +63,13 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, any> {
                     }
                 }}
                 onHide={this.onFormCancel}
+                defaults={{
+                    valueField: 'id',
+                    displayField: 'name',
+                    queryMode: 'local',
+                    editable: false,
+                    required: true
+                }}
             >
                 <PickerPanel
                     ref={pickerPanel => this.userPickerPanel = pickerPanel}
@@ -70,26 +77,16 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, any> {
                 />
                 <ComboBoxField
                     ref={combobox => this.roleComboBox = combobox}
-                    store={storeRole}
-                    valueField="id"
-                    displayField="name"
+                    options={roles}
                     label="Role"
-                    queryMode="local"
                     value={selectedRecord && selectedRecord.data.roleId}                  
-                    editable={false}
-                    required={true}
                     onChange={this.onRoleChange.bind(this)}
                 />
                 <ComboBoxField
                     ref={combobox => this.countryComboBox = combobox}
-                    store={storeCountry}
-                    valueField="id"
-                    displayField="name"
+                    options={countries}
                     label="Country"
-                    queryMode="local"
                     value={selectedRecord && selectedRecord.data.countryId}
-                    editable={false}
-                    required={true}
                     hidden={this.state.countryFieldHidden}
                     onChange={this.isValidInput.bind(this)}
                 />                  
@@ -175,16 +172,16 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, any> {
     }
 
     private onRoleChange = (combobox) => {
-        const { storeRole } = this.props;
+        const { roles } = this.props;
         const roleId = combobox.getValue();
         if (roleId && roleId > 0) {
-            const selectedRole = storeRole.data.items.find(item => item.data.id === roleId);
-            if (selectedRole.data.isGlobal) {
+            const selectedRole = roles.find(item => item.id === roleId);
+            if (selectedRole.isGlobal) {
                 this.countryComboBox.setValue(null);
             }
             this.setState({
                 ...this.state,
-                countryFieldHidden: selectedRole.data.isGlobal
+                countryFieldHidden: selectedRole.isGlobal
             });
         }
         else {

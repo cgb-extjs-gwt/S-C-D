@@ -1,11 +1,11 @@
-import { NamedId, DataInfo } from "../../Common/States/CommonStates";
-import { UserRoleFilterModel } from "./UserRoleFilterModel";
+import { NamedId, DataInfo } from "../../../Common/States/CommonStates";
+import { UserRoleFilterModel } from "../Filter/UserRoleFilterModel";
 
-import { UserService } from "../../Dict/Services/UserService";
-import { RoleService } from "../../Dict/Services/RoleService";
-import { CountryService } from "../../Dict/Services/CountryService";
+import { UserService } from "../../../Dict/Services/UserService";
+import { RoleService } from "../../../Dict/Services/RoleService";
+import { CountryService } from "../../../Dict/Services/CountryService";
 
-import { get, post } from "../../Common/Services/Ajax";
+import { get, post } from "../../../Common/Services/Ajax";
 
 export class UserRoleService {
 
@@ -24,6 +24,5 @@ export class UserRoleService {
 
     public getCountries(): Promise<NamedId<string>[]> {
         return new CountryService().getAll();
-    }
-
+    }   
 }
