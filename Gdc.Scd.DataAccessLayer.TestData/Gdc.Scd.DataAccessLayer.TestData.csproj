@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <None Remove="Scripts\availabilityFee.sql" />
-    <None Remove="Scripts\insert-countries.sql" />
     <None Remove="Scripts\matrix.sql" />
     <None Remove="Scripts\reports.sql" />
   </ItemGroup>

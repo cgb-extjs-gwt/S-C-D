@@ -66,8 +66,6 @@ namespace Gdc.Scd.BusinessLogicLayer
             /*---------domain business logic------------*/
             Kernel.RegisterEntity<CapabilityMatrix>();
             Kernel.RegisterEntity<CapabilityMatrixRule>();
-            Kernel.RegisterEntity<CapabilityMatrixAllowView>();
-            Kernel.RegisterEntity<CapabilityMatrixCountryAllowView>();
             Kernel.RegisterEntity<HardwareCalculationResult>();
             Kernel.RegisterEntity<SoftwareCalculationResult>();
 
