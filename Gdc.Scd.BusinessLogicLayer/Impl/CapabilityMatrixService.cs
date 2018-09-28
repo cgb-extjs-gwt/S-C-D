@@ -14,23 +14,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     {
         private readonly IRepositorySet repositorySet;
 
+        private readonly IRepository<CapabilityMatrix> matrixRepo;
+
         private readonly IRepository<CapabilityMatrixRule> ruleRepo;
-
-        private readonly IRepository<CapabilityMatrixAllowView> allowRepo;
-
-        private readonly IRepository<CapabilityMatrixCountryAllowView> countryAllowRepo;
 
         public CapabilityMatrixService(
                 IRepositorySet repositorySet,
                 IRepository<CapabilityMatrixRule> ruleRepo,
-                IRepository<CapabilityMatrixAllowView> allowRepo,
-                IRepository<CapabilityMatrixCountryAllowView> countryAllowRepo
+                IRepository<CapabilityMatrix> matrixRepo
             )
         {
             this.repositorySet = repositorySet;
             this.ruleRepo = ruleRepo;
-            this.allowRepo = allowRepo;
-            this.countryAllowRepo = countryAllowRepo;
+            this.matrixRepo = matrixRepo;
         }
 
         public Task AllowCombinations(long[] items)
@@ -43,19 +39,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new AddMatrixRules(repositorySet).ExecuteAsync(m);
         }
 
-        public Task<Tuple<CapabilityMatrixDto[], int>> GetAllowedCombinations(int start, int limit)
-        {
-            return GetAllowedCombinations(null, start, limit);
-        }
-
         public Task<Tuple<CapabilityMatrixDto[], int>> GetAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
         {
             if (filter != null && filter.Country.HasValue)
             {
                 return GetCountryAllowedCombinations(filter, start, limit);
             }
+            else
+            {
+                return GetMasterAllowedCombinations(filter, start, limit);
+            }
+        }
 
-            var query = allowRepo.GetAll();
+        public async Task<Tuple<CapabilityMatrixDto[], int>> GetMasterAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
+        {
+            var query = GetAllowed().Where(x => x.CountryId == null);
 
             if (filter != null)
             {
@@ -70,7 +68,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                              .WhereIf(filter.IsCorePortfolio.HasValue && filter.IsCorePortfolio.Value, x => x.CorePortfolio);
             }
 
-            var result = query.Select(x => new CapabilityMatrixDto
+            var count = await query.GetCountAsync();
+
+            var result = await query.Select(x => new CapabilityMatrixDto
             {
                 Id = x.Id,
 
@@ -84,14 +84,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IsGlobalPortfolio = x.FujitsuGlobalPortfolio,
                 IsMasterPortfolio = x.MasterPortfolio,
                 IsCorePortfolio = x.CorePortfolio
-            });
+            }).PagingAsync(start, limit);
 
-            return result.PagingWithCountAsync(start, limit);
+            return new Tuple<CapabilityMatrixDto[], int>(result, count);
         }
 
-        public Task<Tuple<CapabilityMatrixDto[], int>> GetCountryAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
+        public async Task<Tuple<CapabilityMatrixDto[], int>> GetCountryAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
         {
-            var query = countryAllowRepo.GetAll();
+            var query = GetAllowed();
 
             if (filter != null)
             {
@@ -104,9 +104,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                              .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocationId == filter.ServiceLocation.Value);
             }
 
-            query = query.OrderBy(x => x.Country);
+            var count = await query.GetCountAsync();
 
-            var result = query.Select(x => new CapabilityMatrixDto
+            var result = await query.Select(x => new CapabilityMatrixDto
             {
                 Id = x.Id,
 
@@ -117,17 +117,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 ReactionType = x.ReactionType,
                 ReactionTime = x.ReactionTime,
                 ServiceLocation = x.ServiceLocation,
-            });
+            }).PagingAsync(start, limit);
 
-            return result.PagingWithCountAsync(start, limit);
+            return new Tuple<CapabilityMatrixDto[], int>(result, count);
         }
 
-        public Task<Tuple<CapabilityMatrixRuleDto[], int>> GetDeniedCombinations(int start, int limit)
-        {
-            return GetDeniedCombinations(null, start, limit);
-        }
-
-        public Task<Tuple<CapabilityMatrixRuleDto[], int>> GetDeniedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
+        public async Task<Tuple<CapabilityMatrixRuleDto[], int>> GetDeniedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
         {
             var query = ruleRepo.GetAll();
 
@@ -154,7 +149,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                              .WhereIf(filter.IsCorePortfolio.HasValue && filter.IsCorePortfolio.Value, x => x.CorePortfolio);
             }
 
-            var result = query.Select(x => new CapabilityMatrixRuleDto
+            var count = await query.GetCountAsync();
+
+            var result = await query.Select(x => new CapabilityMatrixRuleDto
             {
                 Id = x.Id,
 
@@ -169,9 +166,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IsGlobalPortfolio = x.FujitsuGlobalPortfolio,
                 IsMasterPortfolio = x.MasterPortfolio,
                 IsCorePortfolio = x.CorePortfolio
-            });
+            }).PagingAsync(start, limit);
 
-            return result.PagingWithCountAsync(start, limit);
+            return new Tuple<CapabilityMatrixRuleDto[], int>(result, count);
+        }
+
+        private IQueryable<CapabilityMatrix> GetAllowed()
+        {
+            return matrixRepo.GetAll().Where(x => !x.Denied);
         }
     }
 }
