@@ -49,7 +49,6 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, any> {
         const { isVisibleForm, selectedRecord } = this.props;
         const { store, storeUser, countries, roles } = this.props;
 
-
         return (                      
             <Dialog
                 displayed={isVisibleForm}
@@ -208,19 +207,5 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, any> {
                 isValid: false
             });
         }
-    }
-
-    private onCancelClick = () => {
-        this.setState({
-            ...this.state,
-            isVisible: false
-        });
-    }
-
-    private onSendDialogClick = (value: string) => {
-        this.setState({
-            ...this.state,
-            isVisible: false
-        });
     }
 }
