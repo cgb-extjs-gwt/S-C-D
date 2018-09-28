@@ -59,18 +59,15 @@ namespace Gdc.Scd.BusinessLogicLayer
 
             /*----------admin---------*/
             Kernel.RegisterEntity<AdminAvailabilityFee>();
-            Kernel.RegisterEntity<RoleCode>();
             Kernel.RegisterEntity<Role>();
+            Kernel.RegisterEntity<RoleCode>();
             Kernel.RegisterEntity<UserRole>();
 
             /*---------domain business logic------------*/
-            Kernel.RegisterEntity<AdminAvailabilityFee>();
             Kernel.RegisterEntity<CapabilityMatrix>();
             Kernel.RegisterEntity<CapabilityMatrixRule>();
             Kernel.RegisterEntity<CapabilityMatrixAllowView>();
             Kernel.RegisterEntity<CapabilityMatrixCountryAllowView>();
-            Kernel.RegisterEntity<HardwareCalculationResult>();
-            Kernel.RegisterEntity<SoftwareCalculationResult>();
             Kernel.RegisterEntity<HardwareCalculationResult>();
             Kernel.RegisterEntity<SoftwareCalculationResult>();
 
