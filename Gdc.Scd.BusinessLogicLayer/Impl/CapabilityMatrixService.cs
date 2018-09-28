@@ -43,7 +43,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             if (filter != null && filter.Country.HasValue)
             {
-                return GetCountryAllowedCombinations(filter, start, limit);
+                return GetCountryAllowedCombinations(filter.Country.Value, filter, start, limit);
             }
             else
             {
@@ -89,14 +89,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new Tuple<CapabilityMatrixDto[], int>(result, count);
         }
 
-        public async Task<Tuple<CapabilityMatrixDto[], int>> GetCountryAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
+        public async Task<Tuple<CapabilityMatrixDto[], int>> GetCountryAllowedCombinations(long country, CapabilityMatrixFilterDto filter, int start, int limit)
         {
-            var query = GetAllowed();
+            var query = GetAllowed().Where(x => x.CountryId == country);
 
             if (filter != null)
             {
-                query = query.WhereIf(filter.Country.HasValue, x => x.CountryId == filter.Country.Value)
-                             .WhereIf(filter.Wg.HasValue, x => x.WgId == filter.Wg.Value)
+                query = query.WhereIf(filter.Wg.HasValue, x => x.WgId == filter.Wg.Value)
                              .WhereIf(filter.Availability.HasValue, x => x.AvailabilityId == filter.Availability.Value)
                              .WhereIf(filter.Duration.HasValue, x => x.DurationId == filter.Duration.Value)
                              .WhereIf(filter.ReactionType.HasValue, x => x.ReactionTypeId == filter.ReactionType.Value)
