@@ -25,6 +25,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<IQualityGateSevice>().To<QualityGateSevice>().InRequestScope();
             Bind<IActiveDirectoryService>().To<ActiveDirectoryService>().InRequestScope();
             Bind<ITableViewService>().To<TableViewService>().InRequestScope();
+            Bind<IUserRoleService>().To<UserRoleService>().InRequestScope();
 
             Kernel.RegisterEntity<ClusterRegion>();
             Kernel.RegisterEntity<Country>();

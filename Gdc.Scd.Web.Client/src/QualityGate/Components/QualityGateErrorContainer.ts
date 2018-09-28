@@ -17,10 +17,10 @@ export const QualityGateErrorContainer =
 
             if (meta) {
                 columns = [
-                    { title: 'Wg', dataIndex: `WarrantyGroupName`, type: ColumnType.Simple },
+                    { title: 'Wg', dataIndex: `WarrantyGroupName`, type: ColumnType.Text },
                     ...getDependecyColumnsFromMeta(meta, costBlockId),
-                    { title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.Checkbox },
-                    { title: 'Country group error', dataIndex: `IsRegionError`, type: ColumnType.Checkbox },
+                    { title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.CheckBox },
+                    { title: 'Country group error', dataIndex: `IsRegionError`, type: ColumnType.CheckBox },
                 ];
             }
 

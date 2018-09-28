@@ -17,17 +17,23 @@ import { large, medium } from '../../responsiveFormulas';
 import About from '../../Test/About/About';
 import Home from '../../Test/Home/Home';
 import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
-import { loadMetaDataFromServer } from '../Actions/AppActions';
+import { loadMetaDataFromServer, openPage } from '../Actions/AppActions';
 import { CommonState } from '../States/AppStates';
 import NavMenu from './NavMenu';
+import { TableViewContainer } from '../../TableView/Components/TableViewContainer';
+import { TreeItem } from '../../Common/States/TreeItem';
 
 export const ROOT_LAYOUT_ID = "root-layout";
 
-interface LayoutProps {
-    title: string
-    history: any,
-    location: any,
+export interface LayoutActions {
     onInit?()
+    onItemClick?(item: TreeItem)
+}
+
+export interface LayoutProps extends LayoutActions {
+    title: string
+    history: any
+    location: any
 }
 
 /**
@@ -39,15 +45,15 @@ export class Layout extends React.Component<LayoutProps> {
         this.props.onInit();
     }
 
-    navigate = (path) => {
-        this.props.history.push(path);
-    }
+    // navigate = (path) => {
+    //     this.props.history.push(path);
+    // }
 
     render() {
-        const { location, history, title } = this.props;
+        const { location, history, title, onItemClick } = this.props;
 
         const navMenuDefaults = {
-            onItemClick: this.navigate,
+            onItemClick: onItemClick,
             //onItemClick: (path: string) => this.props.onMenuItemClick(path, history),
             selection: location.pathname
         }
@@ -76,6 +82,7 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path={buildComponentUrl("/")} component={CostEditorContainer} exact/>
                         <Route path={buildComponentUrl("/pivot")} component={ScdPivotGrid}/>
                         <Route path={buildComponentUrl("/input-cost-elements")} component={CostEditorContainer}/>
+                        <Route path={buildComponentUrl("/table-view")} component={TableViewContainer}/>
                         <Route path={buildComponentUrl("/admin/country-management")} component={ CountryGrid }/>
                         <Route path={buildComponentUrl("/cost-approval")} component={ ApprovalCostElementsLayout} />
                         <Route path={buildComponentUrl("/own-cost-approval")} component={ OwnApprovalCostElementsLayout} />
@@ -94,12 +101,27 @@ export class Layout extends React.Component<LayoutProps> {
     }
 }
 
-const containerFactory = connect<LayoutProps, {}, {}, CommonState>(
+const containerFactory = connect<LayoutProps, LayoutActions, any, CommonState>(
     state => ({
         title: state.app.currentPage && state.app.currentPage.title
     } as LayoutProps),
-    dispatch => ({
-        onInit: () => dispatch(loadMetaDataFromServer())
+    (dispatch, props) => ({
+        onInit: () => { 
+            dispatch(loadMetaDataFromServer());
+            
+            const node = Ext.getCmp(ROOT_LAYOUT_ID).down('treelist').getStore().getNodeById(window.location.pathname);
+
+            if (node) {
+                const treeItem: TreeItem = node.data;
+
+                dispatch(openPage(treeItem.id, treeItem.text));
+            }
+        },
+        onItemClick: item => {
+            props.history.push(item.id);
+            
+            dispatch(openPage(item.id, item.text));
+        }
     })
 );
 

@@ -3,7 +3,6 @@ import { Container, ComboBoxField, Panel, FormPanel, RadioField, ContainerField,
 import { CostBlockState, EditItem, CheckItem } from '../States/CostBlockStates'
 import { Filter } from './Filter';
 import { SelectList, NamedId } from '../../Common/States/CommonStates';
-import { FieldType } from '../States/CostEditorStates';
 import { EditGridToolProps, EditGridTool, EditGridToolActions } from './EditGridTool';
 
 Ext.require([

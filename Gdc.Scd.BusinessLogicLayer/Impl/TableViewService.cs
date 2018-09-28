@@ -26,7 +26,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.meta = meta;
         }
 
-        public async Task<IEnumerable<TableViewRecord>> GetRecords(QueryInfo queryInfo, IDictionary<ColumnInfo, IEnumerable<object>> filter = null)
+        public async Task<DataInfo<TableViewRecord>> GetRecords(QueryInfo queryInfo, IDictionary<ColumnInfo, IEnumerable<object>> filter = null)
         {
             var costBlockInfos = this.GetCostBlockInfo().ToArray();
             
@@ -66,7 +66,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 var fieldNames =
                     (from costElement in costBlock.DomainMeta.CostElements
                      where costElement.TableViewOption != null && roles.Any(role => costElement.TableViewOption.RoleNames.Contains(role.Name))
-                     select costElement.Name).ToArray();
+                     select costElement.Id).ToArray();
 
                 if (fieldNames.Length > 0)
                 {

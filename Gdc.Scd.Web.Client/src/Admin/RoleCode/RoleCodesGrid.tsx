@@ -1,5 +1,4 @@
 ﻿import * as React from 'react';
-import { FieldType } from "../../CostEditor/States/CostEditorStates";
 import { EditItem } from "../../CostEditor/States/CostBlockStates";
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField } from '@extjs/ext-react';
 import { NamedId } from '../../Common/States/CommonStates';

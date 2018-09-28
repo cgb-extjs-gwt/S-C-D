@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.DirectoryServices;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Mvc;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Web.Api.Entities;
-using Gdc.Scd.Web.Server.Entities;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {

@@ -1,5 +1,5 @@
 import { Action, Reducer } from "redux";
-import { CostEditorState, CostEditortData, CostBlockMeta, CostElementMeta, InputLevelMeta } from "../States/CostEditorStates";
+import { CostEditorState } from "../States/CostEditorStates";
 import { 
     COST_EDITOR_PAGE, 
     COST_EDITOR_SELECT_APPLICATION, 
@@ -14,6 +14,7 @@ import { ItemSelectedAction } from "../../Common/Actions/CommonActions";
 import { NamedId } from "../../Common/States/CommonStates";
 import { APP_PAGE_INIT, PageInitAction } from "../../Layout/Actions/AppActions";
 import { CountryInputLevelName } from "../../Common/Constants/MetaConstants";
+import { CostBlockMeta, InputLevelMeta, CostMetaData } from "../../Common/States/CostMetaStates";
 
 const createMap = <T extends NamedId>(array: T[]) => {
     const map = new Map<string, T>();
@@ -23,7 +24,7 @@ const createMap = <T extends NamedId>(array: T[]) => {
     return map;
 }
 
-const initSuccess: Reducer<CostEditorState, PageInitAction<CostEditortData>> = (state, action) => {
+const initSuccess: Reducer<CostEditorState, PageInitAction<CostMetaData>> = (state, action) => {
     const { applications, costBlocks } = action.data;
     const selectedApplicationId = applications[0].id;
     const costBlockMetas = costBlocks.map(costBlock => (<CostBlockMeta>{
@@ -92,7 +93,7 @@ const loseChanges: Reducer<CostEditorState, Action<string>> = state => ({
 export const costEditorReducer: Reducer<CostEditorState, Action<string>> = (state = defaultState(), action) => {
     switch(action.type) {
         case APP_PAGE_INIT:
-            return initSuccess(state, <PageInitAction<CostEditortData>>action);
+            return initSuccess(state, <PageInitAction<CostMetaData>>action);
 
         case COST_EDITOR_SELECT_APPLICATION:
             return {

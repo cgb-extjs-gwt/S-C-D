@@ -1,9 +1,9 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.Web.Server.Entities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
+using Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
