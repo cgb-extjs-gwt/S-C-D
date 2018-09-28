@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
+﻿using Gdc.Scd.BusinessLogicLayer.Impl;
+using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.External.Por;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Import
 {
-    public class PorSFabService : ImportPorService<SFab>, IPorSFabsService
+    public class PorSFabService : ImportService<SFab>, IPorSFabsService
     {
         private ILogger<LogLevel> _logger;
 

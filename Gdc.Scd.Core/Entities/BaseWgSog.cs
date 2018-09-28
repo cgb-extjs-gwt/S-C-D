@@ -11,9 +11,6 @@ namespace Gdc.Scd.Core.Entities
         [MustCompare(true, IsIgnoreCase = true)]
         public string Alignment { get; set; }
 
-        [MustCompare(true, IsIgnoreCase = true)]
-        public string HWProductDescription { get; set; }
-
         [MustCompare(true)]
         public long PlaId { get; set; }
         public Pla Pla { get; set; }
@@ -21,5 +18,8 @@ namespace Gdc.Scd.Core.Entities
         [MustCompare(true)]
         public long? SFabId { get; set; }
         public SFab SFab { get; set; }
+
+        [MustCompare(true)]
+        public string SCD_ServiceType { get; set; }
     }
 }

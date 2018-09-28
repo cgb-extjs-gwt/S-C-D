@@ -18,5 +18,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
         void Save(IEnumerable<T> items);
 
         void Delete(long id);
+
+        void DeleteAll();
     }
 }

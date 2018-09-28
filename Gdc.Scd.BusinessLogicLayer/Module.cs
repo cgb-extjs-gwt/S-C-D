@@ -29,6 +29,7 @@ namespace Gdc.Scd.BusinessLogicLayer
 
             /*----------dictionaries-----------*/
             Kernel.RegisterEntity<ClusterRegion>();
+            Kernel.RegisterEntity<Region>();
             Kernel.RegisterEntity<Country>();
             Kernel.RegisterEntity<CountryGroup>();
             Kernel.RegisterEntity<Pla>();
@@ -52,7 +53,9 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<SFab>();
             Kernel.RegisterEntity<SwLicense>();
             Kernel.RegisterEntity<FspCodeTranslation>();
-            Kernel.RegisterEntity<FspCodeLicenseMapping>();
+            Kernel.RegisterEntity<SwDigitLicense>();
+            Kernel.RegisterEntity<HwFspCodeTranslation>();
+            Kernel.RegisterEntity<SwFspCodeTranslation>();
 
             /*----------admin---------*/
             Kernel.RegisterEntity<AdminAvailabilityFee>();
@@ -61,12 +64,15 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<UserRole>();
 
             /*---------domain business logic------------*/
+            Kernel.RegisterEntity<AdminAvailabilityFee>();
             Kernel.RegisterEntity<CapabilityMatrix>();
             Kernel.RegisterEntity<CapabilityMatrixRule>();
             Kernel.RegisterEntity<CapabilityMatrixAllowView>();
+            Kernel.RegisterEntity<CapabilityMatrixCountryAllowView>();
             Kernel.RegisterEntity<HardwareCalculationResult>();
             Kernel.RegisterEntity<SoftwareCalculationResult>();
-            Kernel.RegisterEntity<CapabilityMatrixCountryAllowView>();
+            Kernel.RegisterEntity<HardwareCalculationResult>();
+            Kernel.RegisterEntity<SoftwareCalculationResult>();
 
             /*---------reports----------*/
             Kernel.RegisterEntity<Report>();

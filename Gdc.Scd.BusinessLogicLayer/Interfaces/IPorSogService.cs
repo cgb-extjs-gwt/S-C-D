@@ -10,11 +10,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface IPorSogService
     {
-        bool UploadSogs(IEnumerable<Intranet_SOG_Info> sogs, 
+        bool UploadSogs(IEnumerable<SCD2_ServiceOfferingGroups> sogs, 
             IEnumerable<Pla> plas,
             IEnumerable<SFab> sFabs,
             DateTime modifiedDate);
 
-        bool DeactivateSogs(IEnumerable<Intranet_SOG_Info> sogs, DateTime modifiedDatetime);
+        bool DeactivateSogs(IEnumerable<SCD2_ServiceOfferingGroups> sogs, DateTime modifiedDatetime);
     }
 }

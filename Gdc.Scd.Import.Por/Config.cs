@@ -9,14 +9,14 @@ namespace Gdc.Scd.Import.Por
 {
     public static class Config
     {
-        public static string[] AllowedServiceTypes
+        public static string[] HwServiceTypes
         {
             get
             {
-                var serviceTypes = ConfigurationManager.AppSettings["SCDServiceTypes"];
-                if (String.IsNullOrEmpty(serviceTypes))
+                var hwServiceTypes = ConfigurationManager.AppSettings["HWServiceTypes"];
+                if (String.IsNullOrEmpty(hwServiceTypes))
                     throw new ConfigurationErrorsException(String.Format(ImportConstantMessages.CONFIGURATION_ERROR, "SCDServiceTypes"));
-                return serviceTypes.Split(';');
+                return hwServiceTypes.Split(';');
             }
         }
 
@@ -42,11 +42,22 @@ namespace Gdc.Scd.Import.Por
             }
         }
 
+        public static string[] SoftwareSolutionTypes
+        {
+            get
+            {
+                var swServiceTypes = ConfigurationManager.AppSettings["SoftwareTypes"];
+                if (String.IsNullOrEmpty(swServiceTypes))
+                    throw new ConfigurationErrorsException(String.Format(ImportConstantMessages.CONFIGURATION_ERROR, "SoftwareTypes"));
+                return swServiceTypes.Split(';');
+            }
+        }
+
         public static string[] AllServiceTypes
         {
             get
             {
-                return AllowedServiceTypes.Union(ProActiveServices).Union(StandardWarrantyTypes).ToArray();
+                return HwServiceTypes.Union(ProActiveServices).Union(StandardWarrantyTypes).Union(SoftwareSolutionTypes).ToArray();
             }
         }
     }
