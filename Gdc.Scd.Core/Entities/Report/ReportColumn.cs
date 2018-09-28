@@ -7,6 +7,7 @@ namespace Gdc.Scd.Core.Entities.Report
     [Table("ReportColumn", Schema = MetaConstants.ReportSchema)]
     public class ReportColumn: NamedId
     {
+        [Required]
         public Report Report { get; set; }
 
         public int Index { get; set; }

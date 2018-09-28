@@ -7,6 +7,7 @@ namespace Gdc.Scd.Core.Entities.Report
     [Table("ReportFilter", Schema = MetaConstants.ReportSchema)]
     public class ReportFilter : NamedId
     {
+        [Required]
         public Report Report { get; set; }
 
         public int Index { get; set; }
