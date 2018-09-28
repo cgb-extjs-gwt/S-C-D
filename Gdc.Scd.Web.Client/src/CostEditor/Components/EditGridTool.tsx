@@ -5,7 +5,7 @@ import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, Dialog, Cont
 import { NamedId } from '../../Common/States/CommonStates';
 import { HistoryValuesGridContainer } from './HistoryValuesGridContainer';
 import { ValueColumnProps, EditGrid, EditGridProps } from './EditGrid';
-import { QualityGateErrorContainer } from './QualityGateErrorContainer';
+import { QualityGateWindowContainer } from './QualityGateWindowContainer';
 
 Ext.require([
     'Ext.grid.plugin.CellEditing', 
@@ -92,8 +92,9 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                     />
                 </Toolbar>
 
-                { this.getHistoryWindow() }
-                { this.getQualityGateErrorWindow() }
+                {this.getHistoryWindow()}
+
+                <QualityGateWindowContainer costBlockId={props.costBlockId} errors={props.qualityGateErrors} />
             </Container>
         );
     }
@@ -104,7 +105,7 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
         Ext.Msg.confirm(
           'Saving changes', 
           'Do you want to save the changes?',
-          (buttonId: string) => onSaving && onSaving(forApproval)
+          (buttonId: string) => buttonId == 'yes' && onSaving && onSaving(forApproval)
         );
     }
     
@@ -114,7 +115,7 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
         Ext.Msg.confirm(
             'Clearing changes', 
             'Do you want to clear the changes?',
-            (buttonId: string) => onCleared && onCleared()
+            (buttonId: string) => buttonId == 'yes' && onCleared && onCleared()
         );
     }
 
@@ -139,27 +140,6 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                 layout="fit"
             >
                 <HistoryValuesGridContainer editItemId={editItemId} />
-            </Dialog>
-        );
-    }
-
-    private getQualityGateErrorWindow() {
-        const { qualityGateErrors, costBlockId } = this.props;
-
-        return (
-            <Dialog 
-                displayed={qualityGateErrors && qualityGateErrors.length > 0} 
-                title="Quality gate errors" 
-                maximizable
-                resizable={{
-                    dynamic: true,
-                    edges: 'all'
-                }}
-                minHeight="600"
-                minWidth="700"
-                layout="fit"
-            >
-                <QualityGateErrorContainer costBlockId={costBlockId} errors={qualityGateErrors} />
             </Dialog>
         );
     }

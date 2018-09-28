@@ -5,9 +5,26 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Calculation\calculation.sql" Link="Scripts\calculation.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Remove="Scripts\availabilityFee.sql" />
+    <None Remove="Scripts\matrix.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\availabilityFee.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Calculation\calculation-hw.sql" Link="Scripts\calculation-hw.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Calculation\calculation-sw.sql" Link="Scripts\calculation-sw.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Scripts\matrix.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -22,18 +39,6 @@
 
   <ItemGroup>
     <Reference Include="System.Configuration" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Scripts\availabilityFee.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Scripts\insert-countries.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Scripts\matrix.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

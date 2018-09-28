@@ -12,5 +12,17 @@ namespace Gdc.Scd.Core.Entities
             get => base.Id;
             set => base.Id = value;
         }
+
+        public int LocalRegularUpdateReadyRepetition { get; set; }
+
+        public int LocalPreparationShcRepetition { get; set; }
+
+        public int LocalRemoteShcCustomerBriefingRepetition { get; set; }
+
+        public int LocalOnsiteShcCustomerBriefingRepetition { get; set; }
+
+        public int TravellingTimeRepetition { get; set; }
+
+        public int CentralExecutionShcReportRepetition { get; set; }
     }
 }

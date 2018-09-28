@@ -1,6 +1,8 @@
 import { CommonAction } from "../../Common/Actions/CommonActions";
 import { Action } from "redux";
 import { CostMetaData } from "../../Common/States/CostMetaStates";
+import { getCostMetaData } from "../Services/AppService";
+import { asyncAction } from "../../Common/Actions/AsyncAction";
 
 export const APP_PAGE_OPEN = 'APP.PAGE.OPEN';
 export const APP_LOADING = 'APP.LOADING';
@@ -56,3 +58,13 @@ export const loadMetaData = (data: CostMetaData) => (<LoadingMetaDataAction>{
     type: APP_LOAD_META,
     data
 })
+
+export const loadMetaDataFromServer = () => asyncAction(
+    dispatch => {
+        getCostMetaData().then(
+            data => {
+                dispatch(loadMetaData(data));
+            } 
+        );
+    }
+)

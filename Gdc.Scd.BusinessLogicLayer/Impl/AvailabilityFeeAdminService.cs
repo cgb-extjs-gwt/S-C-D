@@ -1,16 +1,10 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Entities;
-using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.BusinessLogicLayer.Procedures;
+﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Dto.AvailabilityFee;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
+using Gdc.Scd.DataAccessLayer.Procedures;
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Text;
-using System.Threading.Tasks;
-using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Dto.AvailabilityFee;
-using Gdc.Scd.DataAccessLayer.Procedures;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {

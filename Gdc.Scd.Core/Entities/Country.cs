@@ -27,6 +27,15 @@ namespace Gdc.Scd.Core.Entities
 
         public CountryGroup CountryGroup { get; set; }
 
-        public long CountryGroupId { get; set; }
+        public long? CountryGroupId { get; set; }
+
+        public long? RegionId { get; set; }
+        public Region Region { get; set; }
+
+        public ClusterRegion ClusterRegion { get; set; }
+        public long? ClusterRegionId { get; set; }
+
+        public Currency Currency { get; set; }
+        public long CurrencyId { get; set; }
     }
 }

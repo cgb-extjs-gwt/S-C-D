@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.CapabilityMatrix;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
@@ -22,12 +23,14 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind(typeof(IDomainService<>)).To(typeof(DomainService<>)).InRequestScope();
             Bind<ICostEditorService>().To<CostEditorService>().InRequestScope();
             Bind<ICapabilityMatrixService>().To<CapabilityMatrixService>().InRequestScope();
+            Bind<ICalculationService>().To<CalculationService>().InRequestScope();
             Bind<IUserService>().To<UserService>().InRequestScope();
             Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InRequestScope();
             Bind<IAvailabilityFeeAdminService>().To<AvailabilityFeeAdminService>().InRequestScope();
             Bind<IEmailService>().To<EmailService>().InRequestScope();
             Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InRequestScope();
             Bind<IQualityGateSevice>().To<QualityGateSevice>().InRequestScope();
+            Bind<IActiveDirectoryService>().To<ActiveDirectoryService>().InRequestScope();
 
             Kernel.RegisterEntity<ClusterRegion>();
             Kernel.RegisterEntity<Region>();
@@ -51,6 +54,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<CapabilityMatrixCountryAllowView>();
             Kernel.RegisterEntity<RoleCode>();
             Kernel.RegisterEntity<HardwareCalculationResult>();
+            Kernel.RegisterEntity<SoftwareCalculationResult>();
             Kernel.RegisterEntity<Currency>();
             Kernel.RegisterEntity<ExchangeRate>();
             Kernel.RegisterEntity<YearAvailability>();

@@ -2,8 +2,8 @@
 {
     public enum CostBlockHistoryState
     {
-        None,
-        Pending,
+        Saved,
+        Approving,
         Approved,
         Rejected
     }

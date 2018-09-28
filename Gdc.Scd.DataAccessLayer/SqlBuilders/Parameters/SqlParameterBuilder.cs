@@ -52,15 +52,6 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters
             return WithPValue(value);
         }
 
-        public static DbParameter CreateOutputParam(string pname, SqlDbType type)
-        {
-            var param = new SqlParameter(pname, type)
-            {
-                Direction = ParameterDirection.Output
-            };
-            return param;
-        }
-
         public SqlParameterBuilder WithValue(int? value)
         {
             return value.HasValue ? WithPValue(value.Value) : WithNull();
@@ -98,10 +89,21 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters
             return WithPValue(DBNull.Value);
         }
 
+        public SqlParameterBuilder WithDirection(ParameterDirection pdir)
+        {
+            p.Direction = pdir;
+            return this;
+        }
+
         private SqlParameterBuilder WithPValue(object v)
         {
             p.Value = v;
             return this;
+        }
+
+        public static DbParameter CreateOutputParam(string pname, DbType type)
+        {
+            return new SqlParameterBuilder().WithName(pname).WithType(type).WithDirection(ParameterDirection.Output).Build();
         }
 
         public static DbParameter Create(string pname, int pvalue)
