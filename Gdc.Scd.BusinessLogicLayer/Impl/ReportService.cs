@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
+using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
 using Gdc.Scd.Core.Entities.Report;
@@ -81,23 +82,26 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private ReportSchemaCollection GetSchemas()
         {
-//#if DEBUG
-            return LoadSchemas();
-//#else
-//            double check lock
+            if (ReportConfig.SchemaCache())
+            {
+                //double check lock
 
-//                if (cache == null)
-//                {
-//                    lock (syncRoot)
-//                    {
-//                        if (cache == null)
-//                        {
-//                            cache = LoadSchemas();
-//                        }
-//                    }
-//                }
-//            return cache;
-//#endif
+                if (cache == null)
+                {
+                    lock (syncRoot)
+                    {
+                        if (cache == null)
+                        {
+                            cache = LoadSchemas();
+                        }
+                    }
+                }
+                return cache;
+            }
+            else
+            {
+                return LoadSchemas();
+            }
         }
 
         private ReportSchemaCollection LoadSchemas()
