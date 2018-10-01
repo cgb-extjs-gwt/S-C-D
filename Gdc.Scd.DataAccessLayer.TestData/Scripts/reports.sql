@@ -20,6 +20,15 @@
 
 GO
 
+CREATE VIEW InputAtoms.WgView as 
+    select wg.*
+         , sog.Name as Sog
+         , sog.Description as SogDescription
+    from InputAtoms.Wg wg
+    left join InputAtoms.Sog sog on sog.id = wg.SogId
+    where wg.DeactivatedDateTime is null
+GO
+
 CREATE VIEW MatrixView as 
     select m.Id
          , fsp.Name FSP
@@ -47,7 +56,7 @@ CREATE VIEW MatrixView as
     from Matrix m
     join Hardware.ServiceCostCalculation sc on sc.MatrixId = m.Id
     join InputAtoms.CountryView cnt on cnt.Id = m.CountryId
-    join InputAtoms.Wg wg on wg.id = m.WgId
+    join InputAtoms.WgView wg on wg.id = m.WgId
     join Dependencies.Availability av on av.Id= m.AvailabilityId
     join Dependencies.Duration dur on dur.id = m.DurationId
     join Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
@@ -57,39 +66,30 @@ CREATE VIEW MatrixView as
 
 GO
 
-CREATE FUNCTION Report.Locap
-(	
+CREATE FUNCTION Report.GetMatrixBySla
+(
     @cnt bigint,
-    @wg bigint
+    @wg bigint,
+    @av bigint,
+    @dur bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc bigint
 )
 RETURNS TABLE 
 AS
-RETURN 
-(
-    select top(50)
-           fsp.Name as Fsp
-         , wg.Description as WgDescription
-         , fsp.ServiceDescription as ServiceLevel
-         , rtime.Name as ReactionTime
-         , m.DurationValue as ServicePeriod
-         , wg.Name as Wg
-         , (sc.ProActive_Approved + coalesce(sc.ServiceTPManual_Approved, sc.ServiceTP_Approved)) as Dcos
-         , coalesce(sc.ServiceTPManual_Approved, sc.ServiceTP_Approved) as ServiceTP
-         , m.Country
-         , null as ServiceType
-         , null as PlausiCheck
-         , null as PortfolioType
-         , null as ReleaseCreated
-         , sog.Name as Sog
-    from Hardware.ServiceCostCalculation sc
-    join MatrixView m on m.Id = sc.MatrixId
-    join InputAtoms.Wg wg on wg.id = m.WgId
-    join Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
-    left join FspCodeTranslation fsp on fsp.MatrixId = sc.MatrixId
-    left join InputAtoms.Sog sog on sog.Id = wg.SogId
+RETURN (
+    select m.*
+    from MatrixView m
     where m.Denied = 0 
-      and m.CountryId = @cnt
-      and (@wg is null or m.WgId = @wg)
+        and m.CountryId = @cnt
+        and m.WgId = @wg
+        and (@av is null or m.AvailabilityId = @av)
+        and (@dur is null or m.DurationId = @dur)
+        and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
+        and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
+        and (@loc is null or m.ServiceLocationId = @loc)
 )
-
 GO
+
+

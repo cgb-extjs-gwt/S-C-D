@@ -1,5 +1,4 @@
 ﻿using Gdc.Scd.Core.Attributes;
-using Gdc.Scd.Core.enums;
 
 namespace Gdc.Scd.Core.Entities
 {
