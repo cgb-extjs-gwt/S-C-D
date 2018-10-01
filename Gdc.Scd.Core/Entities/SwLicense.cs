@@ -20,11 +20,8 @@ namespace Gdc.Scd.Core.Entities
             set => base.Id = value;
         }
 
-        [MustCompare(true, IsIgnoreCase =true)]
-        public string SoftwareLicenseName { get; set; }
-
         [MustCompare(true, IsIgnoreCase = true)]
-        public string SoftwareLicenseDescription { get; set; }
+        public string Description { get; set; }
 
         public DateTime CreatedDateTime { get; set; }
         public DateTime? DeactivatedDateTime { get; set; }

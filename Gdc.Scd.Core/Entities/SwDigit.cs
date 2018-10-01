@@ -17,6 +17,9 @@ namespace Gdc.Scd.Core.Entities
             set => base.Id = value;
         }
 
+        [MustCompare(true, IsIgnoreCase = true)]
+        public string Description { get; set; }
+
         [MustCompare]
         public long SogId { get; set; }
         public Sog Sog { get; set; }

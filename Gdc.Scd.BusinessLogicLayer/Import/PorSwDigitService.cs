@@ -27,7 +27,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             _logger = logger;
         }
 
-        public bool Deactivate(IDictionary<string, string> swInfo, DateTime modifiedDateTime)
+        public bool Deactivate(IDictionary<string, SCD2_SW_Overview> swInfo, DateTime modifiedDateTime)
         {
             var result = true;
 
@@ -65,7 +65,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             return result;
         }
 
-        public bool UploadSwDigits(IDictionary<string, string> swInfo, 
+        public bool UploadSwDigits(IDictionary<string, SCD2_SW_Overview> swInfo, 
             IEnumerable<Sog> sogs, 
             DateTime modifiedDateTime)
         {
@@ -79,18 +79,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
 
                 foreach (var swDigit in swInfo)
                 {
-                    var sog = sogs.FirstOrDefault(p => p.Name.Equals(swDigit.Value, StringComparison.OrdinalIgnoreCase));
+                    var sog = sogs.FirstOrDefault(p => p.Name.Equals(swDigit.Value.SOG_Code, StringComparison.OrdinalIgnoreCase));
                     if (sog == null)
                     {
                         _logger.Log(LogLevel.Warn,
-                            PorImportLoggingMessage.UNKNOW_SOG, $"{nameof(SwDigit)} {swDigit.Key}", swDigit.Value);
+                            PorImportLoggingMessage.UNKNOWN_SOG, $"{nameof(SwDigit)} {swDigit.Key}", swDigit.Value.SOG_Code);
                         continue;
                     }
 
                     updatedSwDigits.Add(new SwDigit
                     {
                         Name = swDigit.Key,
-                        SogId = sog.Id
+                        SogId = sog.Id,
+                        Description = swDigit.Value.Software_Lizenz_Beschreibung
                     });
                 }
 

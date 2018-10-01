@@ -20,8 +20,5 @@ namespace Gdc.Scd.Core.Entities
         public DateTime CreatedDateTime { get; set; }
         public DateTime? DeactivatedDateTime { get; set; }
         public DateTime ModifiedDateTime { get; set; }
-
-        [MustCompare(true)]
-        public ServiceType ServiceType { get; set; }
     }
 }

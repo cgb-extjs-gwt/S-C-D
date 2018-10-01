@@ -22,12 +22,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
             Dictionary<string, long> availabilities, Dictionary<string, long> reactionTime,
             Dictionary<string, long> reactionTypes, Dictionary<string, long> locations,
             Dictionary<string, long> durations, Dictionary<string, long> proActive,
-            IQueryable<CapabilityMatrix> matrix,
             DateTime createdDateTime,
             IEnumerable<string> proActiveServiceTypes,
             IEnumerable<string> standardWarrantiesServiceTypes,
             IEnumerable<string> otherHardware);
-
-        bool DeactivateFspHardware(IEnumerable<SCD2_v_SAR_new_codes> fspCodes, DateTime modifiedDate);
     }
 }

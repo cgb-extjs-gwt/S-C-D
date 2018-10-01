@@ -19,7 +19,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
 
         public void Log(LogLevel level, Exception exception, string message, params object[] args)
         {
-            _logger.Log(level, exception, message, args);
+            _logger.Log(level, exception, String.Format("{0}: {1}", message, exception), args);
         }
     }
 }

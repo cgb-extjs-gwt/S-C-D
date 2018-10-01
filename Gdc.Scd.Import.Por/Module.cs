@@ -31,7 +31,6 @@ namespace Gdc.Scd.Import.Por
             Bind<ISqlRepository>().To<SqlRepository>().InSingletonScope();
             Bind<ILogger<LogLevel>>().To<BusinessLogicLayer.Import.Logger>().InSingletonScope();
 
-            //TODO: Replace with normal binding when Dirk gives an access
             Bind(typeof(IDataImporter<>)).To(typeof(PorDataImporter<>)).InSingletonScope();
 
             Bind<IPorSFabsService>().To<PorSFabService>();
@@ -67,6 +66,8 @@ namespace Gdc.Scd.Import.Por
             Kernel.RegisterEntity<ProActiveSla>();
             Kernel.RegisterEntity<CountryGroup>();
             Kernel.RegisterEntity<Country>();
+            Kernel.RegisterEntity<HwFspCodeTranslation>();
+            Kernel.RegisterEntity<SwFspCodeTranslation>();
         }
     }
 }

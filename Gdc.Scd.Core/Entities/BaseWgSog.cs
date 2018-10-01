@@ -21,5 +21,7 @@ namespace Gdc.Scd.Core.Entities
 
         [MustCompare(true)]
         public string SCD_ServiceType { get; set; }
+
+        public bool IsSoftware { get; set; }
     }
 }

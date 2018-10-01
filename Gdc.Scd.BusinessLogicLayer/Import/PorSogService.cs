@@ -69,7 +69,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
         public bool UploadSogs(IEnumerable<SCD2_ServiceOfferingGroups> sogs, 
             IEnumerable<Pla> plas,
             IEnumerable<SFab> sFabs,
-            DateTime modifiedDateTime)
+            DateTime modifiedDateTime, IEnumerable<string> softwareServiceTypes)
         {
             var result = true;
             _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(Sog));
@@ -98,10 +98,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
                         Name = porSog.Service_Offering_Group,
                         PlaId = pla.Id,
                         SFabId = sFab?.Id,
-
-                        //TODO: Edit to appropriate column when Dirk returns
-                        ServiceType = porSog.Alignment == "Software" ?
-                                        ServiceType.Software : ServiceType.Hardware
+                        SCD_ServiceType = porSog.SCD_ServiceType,
+                        IsSoftware = ImportHelper.IsSoftware(porSog.SCD_ServiceType, softwareServiceTypes)
                     });
                 }
 

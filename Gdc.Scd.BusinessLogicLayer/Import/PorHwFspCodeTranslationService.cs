@@ -14,13 +14,12 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Import
 {
-    public class PorHwFspCodeTranslationService : ImportService<HwFspCodeTranslation>, IHwFspCodeTranslationService
+    public class PorHwFspCodeTranslationService : PorFspTranslationService<HwFspCodeTranslation>, IHwFspCodeTranslationService
     {
-        private ILogger<LogLevel> _logger;
+        private readonly ILogger<LogLevel> _logger;
 
-        public PorHwFspCodeTranslationService(IRepositorySet repositorySet, IEqualityComparer<HwFspCodeTranslation> comparer,
-            ILogger<LogLevel> logger)
-            : base(repositorySet, comparer)
+        public PorHwFspCodeTranslationService(IRepositorySet repositorySet,
+            ILogger<LogLevel> logger) : base(repositorySet)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
@@ -39,98 +38,62 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             Dictionary<string, long> availabilities, Dictionary<string, long> reactionTime,
             Dictionary<string, long> reactionTypes, Dictionary<string, long> locations,
             Dictionary<string, long> durations, Dictionary<string, long> proActive,
-            IQueryable<CapabilityMatrix> matrix, 
             DateTime createdDateTime,
             IEnumerable<string> proActiveServiceTypes,
             IEnumerable<string> standardWarrantiesServiceTypes,
             IEnumerable<string> otherHardware)
         {
-            _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes");
-            var hwResult = true;
-
-            hwResult = UploadCodes(hardwareCodes, code => code.Country, countries, warranties, sogs, availabilities,
-                                    reactionTime, reactionTypes, locations, durations, proActive, matrix, createdDateTime, proActiveServiceTypes, false);
-
-            _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, hwResult ? "0" : "-1");
-
-            _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes: ProActive");
-            
-                
-            var proActiveResult =  UploadCodes(proActiveCodes, code => code.Country, countries, warranties, sogs, availabilities,
-                                 reactionTime, reactionTypes, locations, durations, proActive, matrix, createdDateTime, proActiveServiceTypes, true);
-
-            _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, proActiveResult ? "0" : "-1");
-
-            _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes: Standard Warranty");
-
-            Func<SCD2_v_SAR_new_codes, string> getCountryCode = code =>
+            using (var transaction = this._repositorySet.GetTransaction())
             {
-                var mapping = stdw.FirstOrDefault(c => c.Service_Code.Equals(code));
-                if (mapping == null)
-                    return null;
-                return mapping.Country_Group;
-            };
-
-            var stdwResult = UploadCodes(stdwCodes, getCountryCode, countries, warranties, sogs, availabilities,
-                                    reactionTime, reactionTypes, locations, durations, proActive, matrix, createdDateTime, proActiveServiceTypes, false);
-
-            _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, stdwResult ? "0" : "-1");
-
-            return hwResult && proActiveResult && stdwResult;
-        }
-
-        
-
-        public bool DeactivateFspHardware(IEnumerable<SCD2_v_SAR_new_codes> fspCodes, DateTime modifiedDate)
-        {
-            var result = true;
-
-            try
-            {
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATE_STEP_BEGIN, nameof(HwFspCodeTranslation));
-
-                var porItems = fspCodes.Select(code => code.Service_Code.ToLower()).ToList();
-
-                //select all that is not coming from POR and was not already deactivated in SCD
-                var itemsToDeacivate = this.GetAll()
-                                          .Where(s => !porItems.Contains(s.Name.ToLower())
-                                                    && !s.DeactivatedDateTime.HasValue).ToList();
-
-                var deactivated = this.Deactivate(itemsToDeacivate, modifiedDate);
-
-                if (deactivated)
+                try
                 {
-                    foreach (var deactivateItem in itemsToDeacivate)
+                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.DELETE_BEGIN, nameof(HwFspCodeTranslation));
+                    _repository.DeleteAll();
+                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.DELETE_END);
+
+                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes");
+                    var hwResult = true;
+
+                    hwResult = UploadCodes(hardwareCodes, code => code.Country, countries, warranties, sogs, availabilities,
+                                            reactionTime, reactionTypes, locations, durations, proActive, createdDateTime, proActiveServiceTypes, false);
+
+                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, hwResult ? "0" : "-1");
+
+                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes: ProActive");
+
+
+                    var proActiveResult = UploadCodes(proActiveCodes, code => code.Country, countries, warranties, sogs, availabilities,
+                                         reactionTime, reactionTypes, locations, durations, proActive, createdDateTime, proActiveServiceTypes, true);
+
+                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, proActiveResult ? "0" : "-1");
+
+                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes: Standard Warranty");
+
+                    Func<SCD2_v_SAR_new_codes, string> getCountryCode = code =>
                     {
-                        _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATED_ENTITY,
-                            nameof(HwFspCodeTranslation), deactivateItem.Name);
-                    }
+                        var mapping = stdw.FirstOrDefault(c => c.Service_Code.Equals(code.Service_Code));
+                        if (mapping == null)
+                            return null;
+                        return mapping.Country_Group;
+                    };
+
+                    var stdwResult = UploadCodes(stdwCodes, getCountryCode, countries, warranties, sogs, availabilities,
+                                            reactionTime, reactionTypes, locations, durations, proActive, createdDateTime, proActiveServiceTypes, false);
+
+                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, stdwResult ? "0" : "-1");
+
+                    var result = hwResult && proActiveResult && stdwResult;
+                    transaction.Commit();
+                    return result;
                 }
-
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATE_STEP_END, itemsToDeacivate.Count);
+                catch(Exception ex)
+                {
+                    transaction.Rollback();
+                    _logger.Log(LogLevel.Error, ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
+                    return false;
+                }
             }
-
-            catch (Exception ex)
-            {
-                _logger.Log(LogLevel.Error, ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
-                result = false;
-            }
-
-            return result;
         }
-
-        private long? MapSlaToMatrix(HwFspCodeTranslation code, IQueryable<CapabilityMatrix> matrix)
-        {
-            var record = matrix.FirstOrDefault(m => m.Availability.Id == code.AvailabilityId &&
-                                                    m.Duration.Id == code.DurationId &&
-                                                    m.ReactionTime.Id == code.ReactionTimeId &&
-                                                    m.ReactionType.Id == code.ReactionTypeId &&
-                                                    m.ServiceLocation.Id == code.ServiceLocationId &&
-                                                    m.Wg.Id == code.WgId &&
-                                                    m.Country.Id == code.CountryId);
-            return record?.Id;
-        }
-
 
         private bool UploadCodes (IEnumerable<SCD2_v_SAR_new_codes> hardwareCodes,
             Func<SCD2_v_SAR_new_codes, string> getCountryCode,
@@ -140,7 +103,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             Dictionary<string, long> availabilities, Dictionary<string, long> reactionTime,
             Dictionary<string, long> reactionTypes, Dictionary<string, long> locations,
             Dictionary<string, long> durations, Dictionary<string, long> proActive,
-            IQueryable<CapabilityMatrix> matrix,
             DateTime createdDateTime,
             IEnumerable<string> proactiveServiceType,
             bool isProactive)
@@ -175,7 +137,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
                         var sog = sogs.FirstOrDefault(s => s.Name == code.SOG);
                         if (sog == null)
                         {
-                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOW_SOG, code.Service_Code, code.SOG);
+                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_SOG, code.Service_Code, code.SOG);
                             continue;
                         }
 
@@ -225,16 +187,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
                                 EKSAPKey = code.EKSchluesselSAP,
                                 EKKey = code.EKSchluessel,
                                 Status = code.VStatus,
-                                ProactiveSlaId = sla.ProActive
+                                ProactiveSlaId = sla.ProActive,
+                                ServiceType = code.ServiceType,
+                                CreatedDateTime = createdDateTime
                             };
 
-                            if (!isProactive)
-                            {
-                                var matrixId = MapSlaToMatrix(dbcode, matrix);
-
-                                if (matrixId.HasValue)
-                                    dbcode.MatrixId = matrixId;
-                            }
+                            _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                                            nameof(HwFspCodeTranslation), dbcode.Name);
 
                             updatedFspCodes.Add(dbcode);
                         }
@@ -242,24 +201,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
 
                 }
 
-                var added = this.AddOrActivate(updatedFspCodes, createdDateTime);
+                this.Save(updatedFspCodes);
 
-                foreach (var addedEntity in added)
-                {
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
-                        nameof(HwFspCodeTranslation), addedEntity.Name);
-                }
-
-                _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_END, added.Count);
+                _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_END, updatedFspCodes.Count);
+                return result;
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
-                result = false;
+                throw ex;
             }
-
-            return result;
         }
-
     }
 }

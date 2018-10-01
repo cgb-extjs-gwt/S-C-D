@@ -13,16 +13,6 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Configuration;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Configuration;
-using Gdc.Scd.DataAccessLayer.Impl;
-using System.Text.RegularExpressions;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -77,14 +67,14 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateDurations();
             this.CreateYearAvailability();
             this.CreateProActiveSla();
+            this.CreateServiceLocations();
 
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.WgInputLevelName, MetaConstants.InputLevelSchema);
 
             var queries = new List<SqlHelper>
             {
-                this.BuildInsertSql(MetaConstants.InputLevelSchema, RoleCodeKey, this.GetRoleCodeNames()),
-                this.BuildInsertSql(MetaConstants.DependencySchema, ServiceLocationKey, this.GetServiceLocationCodeNames()),
+                this.BuildInsertSql(MetaConstants.InputLevelSchema, RoleCodeKey, this.GetRoleCodeNames())
             };
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
@@ -1121,9 +1111,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.repositorySet.Sync();
         }
 
-        private List<ServiceLocation> GetServiceLocations()
+        private void CreateServiceLocations()
         {
-            return new List<ServiceLocation>
+            var repository = this.repositorySet.GetRepository<ServiceLocation>();
+
+            repository.Save(new List<ServiceLocation>
             {
                 new ServiceLocation {Name = "Material/Spares Service", ExternalName = "Material/Spares" },
                 new ServiceLocation {Name = "Bring-In Service", ExternalName = "Bring-In" },
@@ -1136,23 +1128,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ServiceLocation {Name = "On-Site Exchange Service", ExternalName = "On-Site Exchange" },
                 new ServiceLocation {Name = "Remote", ExternalName = "Remote Service" },
 
-            };
-        }
-        private string[] GetServiceLocationCodeNames()
-        {
-            return new string[]
-            {
-                "Material",
-                "Bring-In",
-                "Send-In",
-                "Collect & Return",
-                "Collect & Return (Displays)",
-                "Door-to-Door (SWAP)",
-                "Desk-to-Desk (SWAP)",
-                "On-Site",
-                "On-Site (Exchange)",
-                "Remote"
-            };
+            });
+
+            this.repositorySet.Sync();
         }
 
         private Year[] GetYears()
@@ -1527,7 +1505,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "MDE",
                 RegionId = wemeiaRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "MDE",
                 CountryDigit = "ME"
 
             };
@@ -1543,7 +1521,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "NOA",
                 RegionId = wemeiaRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "NOA",
                 CountryDigit = "NA"
 
             };
@@ -1644,7 +1622,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Country { Name = "Lithuania", SAPCountryCode = "LIT", ISO3CountryCode = "LTU", CountryGroup = finlandCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = finlandCG.RegionId },
                 new Country { Name = "Norway", SAPCountryCode = "NOR", ISO3CountryCode = "NOR", CountryGroup = norwayCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = norwayCG.RegionId },
                 new Country { Name = "Sweden", SAPCountryCode = "SWD", ISO3CountryCode = "SWE", CountryGroup = swedenCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = swedenCG.RegionId },
-                new Country { Name = "Australia", SAPCountryCode = "AUS", ISO3CountryCode = "AUS", CountryGroup = austriaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = oceaniaClusterId, RegionId = austriaCG.RegionId },
+                new Country { Name = "Australia", SAPCountryCode = "AUS", ISO3CountryCode = "AUS", CountryGroup = australiaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = oceaniaClusterId, RegionId = australiaCG.RegionId },
                 new Country { Name = "New Zealand", SAPCountryCode = "NSL", ISO3CountryCode = "NZL", CountryGroup = newZealnadCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = oceaniaClusterId, RegionId = newZealnadCG.RegionId },
                 new Country { Name = "Guernsey", SAPCountryCode = "", ISO3CountryCode = "GGY", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId },
                 new Country { Name = "Ireland", SAPCountryCode = "GBR", ISO3CountryCode = "IRL", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId },
@@ -1718,7 +1696,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Country { Name = "Mauritania", SAPCountryCode = "MTN", ISO3CountryCode = "MRT", CountryGroup = noaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = noaCG.RegionId },
                 new Country { Name = "Morocco", SAPCountryCode = "NOA", ISO3CountryCode = "MAR", CountryGroup = noaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = noaCG.RegionId },
                 new Country { Name = "Niger", SAPCountryCode = "NGR", ISO3CountryCode = "NER", CountryGroup = noaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = noaCG.RegionId },
-                new Country { Name = "Sao Tome and Principe", SAPCountryCode = "STP", ISO3CountryCode = "", CountryGroup = noaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = chinaCG.RegionId },
+                new Country { Name = "Sao Tome and Principe", SAPCountryCode = "STP", ISO3CountryCode = "", CountryGroup = noaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = noaCG.RegionId },
                 new Country { Name = "Senegal", SAPCountryCode = "SEN", ISO3CountryCode = "SEN", CountryGroup = noaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = noaCG.RegionId },
                 new Country { Name = "Seychelles", SAPCountryCode = "SEY", ISO3CountryCode = "SYC", CountryGroup = noaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = noaCG.RegionId },
                 new Country { Name = "Sierra Leone", SAPCountryCode = "LEO", ISO3CountryCode = "SLE", CountryGroup = noaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = noaCG.RegionId },

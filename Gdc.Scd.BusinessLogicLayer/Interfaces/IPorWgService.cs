@@ -14,8 +14,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
             IEnumerable<SFab> sFabs,
             IEnumerable<Sog> sogs,
             IEnumerable<Pla> plas,
-            DateTime modifiedDateTime);
+            DateTime modifiedDateTime, IEnumerable<string> softwareServiceTypes);
 
-        bool DeactivateSogs(IEnumerable<SCD2_WarrantyGroups> sogs, DateTime modifiedDatetime);
+        bool DeactivateWgs(IEnumerable<SCD2_WarrantyGroups> sogs, DateTime modifiedDatetime);
     }
 }

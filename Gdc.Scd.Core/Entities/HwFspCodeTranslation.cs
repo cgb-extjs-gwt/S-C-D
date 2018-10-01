@@ -11,7 +11,7 @@ using Gdc.Scd.Core.Entities.CapabilityMatrix;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("FspCodeTranslation", Schema = MetaConstants.FspCodeTranslationSchema)]
+    [Table("HwFspCodeTranslation", Schema = MetaConstants.FspCodeTranslationSchema)]
     public class HwFspCodeTranslation : FspCodeTranslation
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -24,10 +24,10 @@ namespace Gdc.Scd.Core.Entities
         public Country Country { get; set; }
         public long? CountryId { get; set; }
 
-        public CapabilityMatrix.CapabilityMatrix Matrix { get; set; }
-        public long? MatrixId { get; set; }
-
         public ProActiveSla ProActiveSla { get; set; }
         public long? ProactiveSlaId { get; set; }
+
+        public Wg Wg { get; set; }
+        public long WgId { get; set; }
     }
 }

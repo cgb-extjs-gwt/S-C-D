@@ -19,6 +19,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.DataAccessLayer.Ext
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Import.Por", "Gdc.Scd.Import.Por\Gdc.Scd.Import.Por.csproj", "{741EBD7B-DCFD-4247-AFD2-B5DB5ADDFBCE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SharedLibraries", "SharedLibraries", "{1C127868-43C6-4815-A22F-8C1882802A87}"
+	ProjectSection(SolutionItems) = preProject
+		SharedLibraries\Fujitsu.GDC.ErrorNotification.dll = SharedLibraries\Fujitsu.GDC.ErrorNotification.dll
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
