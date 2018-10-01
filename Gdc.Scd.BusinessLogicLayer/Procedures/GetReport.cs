@@ -75,7 +75,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         private static string SelectQuery(string func, DbParameter[] parameters)
         {
             return new SqlStringBuilder()
-                   .Append("SELECT * FROM ").AppendFunc(func, parameters)
+                   .Append("SELECT TOP(100) * FROM ").AppendFunc(func, parameters)
                    .Build();
         }
 
