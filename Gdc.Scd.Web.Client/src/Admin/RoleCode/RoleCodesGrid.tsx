@@ -28,8 +28,7 @@ export default class RoleCodesGrid extends React.Component {
         disableDeleteButton: true,
         disableNewButton: false,
         deletedRecord: null,
-        selectedRecord: null,
-        isValid: true
+        selectedRecord: null
     };
 
 
@@ -131,8 +130,6 @@ export default class RoleCodesGrid extends React.Component {
     }
 
     render() {
-        let isValid = this.state.isValid;
-
         return (
             <Grid
                 title={'Role codes'}
@@ -192,7 +189,7 @@ export default class RoleCodesGrid extends React.Component {
                         flex={1}
                         iconCls="x-fa fa-save"
                         handler={this.saveRecords}
-                        disabled={this.state.disableSaveButton || !isValid}
+                        disabled={this.state.disableSaveButton}
                     />
                 </Toolbar>
             </Grid>
