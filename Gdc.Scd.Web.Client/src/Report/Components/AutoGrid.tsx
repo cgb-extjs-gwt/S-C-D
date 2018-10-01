@@ -58,7 +58,8 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
                     {...cfg}
                     ref="grid"
                     store={this.store}
-                    width="100%">
+                    width="100%"
+                    defaults={{minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                     {this.props.columns.map((v, i) => {
 
