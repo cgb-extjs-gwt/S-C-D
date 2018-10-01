@@ -72,7 +72,8 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, any> {
             >
                 <PickerPanel
                     ref={pickerPanel => this.userPickerPanel = pickerPanel}
-                    value={selectedRecord && storeUser.getById(selectedRecord.data.userId)}               
+                    value={selectedRecord && storeUser.getById(selectedRecord.data.userId)}    
+                    onChange={this.isValidInput.bind(this)}
                 />
                 <ComboBoxField
                     ref={combobox => this.roleComboBox = combobox}

@@ -11,6 +11,6 @@ namespace Gdc.Scd.Web.Server.Controllers
     {
         public UserRoleController(IDomainService<UserRole> domainService) : base(domainService)
         {
-        }
+        }               
     }
 }

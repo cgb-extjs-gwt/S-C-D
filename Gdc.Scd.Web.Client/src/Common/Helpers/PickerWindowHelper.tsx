@@ -16,6 +16,10 @@ export default class PickerWindowHelper extends React.Component<PickerWindowProp
         disableSendButton: true
     };
 
+    enableSend = () => {
+        this.setState({ disableSendButton: false });
+    }
+
     public render() {
         const { isVisible, value, onSendClick, onCancelClick } = this.props;
 
@@ -29,6 +33,7 @@ export default class PickerWindowHelper extends React.Component<PickerWindowProp
                 <PickerPanel
                     ref={pickerPanel => this.pickerPanel = pickerPanel}
                     value={value}
+                    onChange={this.enableSend}
                 />
                 <Button                   
                     text="Send"
