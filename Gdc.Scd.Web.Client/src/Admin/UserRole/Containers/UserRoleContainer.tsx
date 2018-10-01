@@ -149,9 +149,9 @@ export default class RoleCodesContainer extends React.Component {
 
     private onSearch(filter: UserRoleFilterModel) {
         this.store.clearFilter()
-        filter.user ? this.store.filterBy((record) => { return record.data.userId == filter.user }) : false
-        filter.role ? this.store.filterBy((record) => { return record.data.roleId == filter.role }) : false
-        filter.country ? this.store.filterBy((record) => { return record.data.countryId == filter.country }) : false
+        filter.user ? this.store.filterBy(record => record.data.userId == filter.user) : false
+        filter.role ? this.store.filterBy(record => record.data.roleId == filter.role) : false
+        filter.country ? this.store.filterBy(record => record.data.countryId == filter.country) : false
     }
 
     storeUser = Ext.create('Ext.data.Store', {
