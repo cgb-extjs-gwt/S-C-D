@@ -161,7 +161,7 @@ export default class RoleCodesGrid extends React.Component {
                     dataIndex="name"
                     editable                 
                 >
-                    <TextField required validators={(value) => { return value.trim().length > 0 }}/> 
+                    <TextField required validators={ value => value.trim().length > 0 }/> 
                 </Column>
 
                 <Toolbar docked="top">
