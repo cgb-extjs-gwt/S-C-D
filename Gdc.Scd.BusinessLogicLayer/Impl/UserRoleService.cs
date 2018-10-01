@@ -24,6 +24,5 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             return this.GetAll().Where(x => x.UserId == user.Id).Select(x => x.RoleId).Contains(role.Id);
         }
-
     }
 }

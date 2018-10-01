@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gdc.Scd.Web.Client", "Gdc.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Web.Server", "Gdc.Scd.Web.Server\Gdc.Scd.Web.Server.csproj", "{4950B622-0EA6-436C-B502-BF22B560D41F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Spooler", "Gdc.Scd.Spooler\Gdc.Scd.Spooler.csproj", "{C98A5155-A567-46C5-8D44-4F2568F41567}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{4950B622-0EA6-436C-B502-BF22B560D41F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4950B622-0EA6-436C-B502-BF22B560D41F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4950B622-0EA6-436C-B502-BF22B560D41F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C98A5155-A567-46C5-8D44-4F2568F41567}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C98A5155-A567-46C5-8D44-4F2568F41567}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C98A5155-A567-46C5-8D44-4F2568F41567}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C98A5155-A567-46C5-8D44-4F2568F41567}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

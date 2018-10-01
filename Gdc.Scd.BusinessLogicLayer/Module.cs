@@ -56,6 +56,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<ProActiveSla>();
             Kernel.RegisterEntity<SwDigit>();
             Kernel.RegisterEntity<Sog>();
+            Kernel.RegisterEntity<JobsSchedule>();
         }
     }
 }
