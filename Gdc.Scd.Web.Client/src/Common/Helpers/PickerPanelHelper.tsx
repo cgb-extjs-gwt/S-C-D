@@ -3,34 +3,24 @@ import { FormPanel, NumberField, Button, ComboBoxField, Grid, Column, ComboBox }
 import { buildMvcUrl } from "../Services/Ajax"
 Ext.require('Ext.grid.plugin.PagingToolbar');
 export interface PickerPanelProps {
-    value?: string;
-    onSendClick: (value: string) => void;
-    onCancelClick: () => void;
+    value?: any;
 }
 
-const CONTROLLER_NAME = 'Users';
-Ext.define('User', {
-    extend: 'Ext.data.Model',
-    fields: [
-        { name: 'abbr', type: 'string' },
-        { name: 'name', type: 'string' }
-    ]
-});
+const CONTROLLER_NAME = 'User';
+
 export default class PickerPanelHelper extends React.Component<PickerPanelProps, any> {
     private pickerField: ComboBoxField & any;
     private numberField: NumberField & any;
     private sendButton: Button & any;
-    state = {
-        disableSendButton: true
-    };
+
     private userList = [
 
     ];
     store = Ext.create('Ext.data.Store', {
-        autoLoad: true,
-        fields: ['abbr', 'name'],
+        autoLoad: false,
+        fields: ['item', 'name'],
         data: [
-
+            
         ],
         proxy: {
             type: 'ajax',
@@ -55,6 +45,19 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
         }
     });
 
+    public componentDidMount() {
+        const { value } = this.props;
+        if (value) {
+            var userStore = this.pickerField.getStore();
+            userStore.removeAll();
+            userStore.add([{
+                name: value.data.name,
+                item: value.data
+            }]);
+            this.pickerField.setValue(value.data);
+        }
+    }
+
     enableSend = () => {
         this.setState({ disableSendButton: false });
     }
@@ -72,7 +75,10 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
                     this.setState({ disableSendButton: true });
                     for (var i = 0; i < records[0].data.total; i++) {
 
-                        userStore.add([{ abbr: records[0].data.items[i].userSamAccount, name: records[0].data.items[i].username }]);
+                        userStore.add([{
+                            name: records[0].data.items[i].name,
+                            item: records[0].data.items[i]
+                        }]);
                     };
                     this.pickerField.expand();
                 }
@@ -85,32 +91,23 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
         return this.pickerField.getValue();
     }
     public render() {
-        const { value, onSendClick, onCancelClick } = this.props;
+        const { value } = this.props;
         return (
-            <FormPanel>
                 <ComboBox
                     ref={combobox => this.pickerField = combobox}
                     store={this.store}
-                    width={400}
-                    label="Find user name"
+                    label={value ? "User" : "Find user name"}
                     displayField="name"
-                    valueField="abbr"
+                    valueField="item"
                     queryMode="remote"
                     labelAlign="placeholder"
                     onKeyUp={() => this.loadUsers()}
                     onChange={() => this.enableSend()}
                     valueNotFoundText="no results"
+                    value={value && value}
                     hideTrigger
                     typeAhead
                 />
-                <Button
-                    ref={button => this.sendButton = button}
-                    text="Send"
-                    handler={() => onSendClick(this.getUserIdentity())}
-                    disabled={this.state.disableSendButton}
-                />
-                <Button text="Cancel" handler={onCancelClick} />
-            </FormPanel>
         );
     }
 }

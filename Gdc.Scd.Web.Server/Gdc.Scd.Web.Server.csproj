@@ -238,8 +238,8 @@
     <Compile Include="Controllers\Dict\YearController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\RoleCodeController.cs" />
-    <Compile Include="Controllers\RoleController.cs" />
     <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="Controllers\RoleController.cs" />
     <Compile Include="Controllers\UserRoleController.cs" />
     <Compile Include="DI\ScdNinjectDependencyResolver.cs" />
     <Compile Include="DI\ScdNinjectDependencyScope.cs" />
@@ -247,7 +247,6 @@
     <Compile Include="Entities\FilterInfo.cs" />
     <Compile Include="Entities\QualityGateResultDto.cs" />
     <Compile Include="Entities\UpdateValuesParam.cs" />
-    <Compile Include="Entities\UserInfo.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

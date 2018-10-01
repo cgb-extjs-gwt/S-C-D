@@ -1,31 +1,31 @@
 ﻿import * as React from 'react';
-import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, Container, TextField, Dialog, GridCell } from '@extjs/ext-react';
+import { Grid, Column, Toolbar, Button, GridCell } from '@extjs/ext-react';
 import { UserRoleDialog } from './UserRoleDialog'
 
 interface UserRoleGridProps {
     store
     storeUser
-    storeCountry
-    storeRole
+    countries
+    roles
 
     onHideDialog?()
     onShowDialog?()
     onSelectRecord?(record)
-    saveRecords?()
+    saveRecords?(store)
 }
 
 export class UserRoleGrid extends React.Component<UserRoleGridProps> {
 
     onNewButtonClick = () => {
-        const { onShowDialog, onSelectRecord } = this.props;
-        onShowDialog();
+        const { onShowDialog, onSelectRecord } = this.props;       
         onSelectRecord(null);
+        onShowDialog();
     }
 
     onEditButtonClick = (grid, info) => {
         const { onShowDialog, onSelectRecord } = this.props;
-        onShowDialog();
         onSelectRecord(info.record);
+        onShowDialog();
     }
 
     onDeleteButtonClick = (grid, info)  => {
@@ -36,7 +36,7 @@ export class UserRoleGrid extends React.Component<UserRoleGridProps> {
         if (buttonId == 'yes') {
             const { store, saveRecords } = this.props;
             store.remove(record);
-            saveRecords();
+            saveRecords(store);
         }     
     }
 
@@ -46,7 +46,7 @@ export class UserRoleGrid extends React.Component<UserRoleGridProps> {
         renderer = (value, { data }) => {
             let result: string;
             if (data.userId > 0) {
-                const selectedItem = storeUser.data.items.find(item => item.data.id === data.userId);
+                const selectedItem = storeUser.getById(data.userId);
                 result = selectedItem.data.name;
             } else
                 result = "";
@@ -66,12 +66,12 @@ export class UserRoleGrid extends React.Component<UserRoleGridProps> {
 
     private getCountryColumn() {
         let renderer: (value, data: { data }) => string;
-        const { storeCountry } = this.props;
+        const { countries } = this.props;
         renderer = (value, { data }) => {
             let result: string;
             if (data.countryId > 0) {
-                const selectedItem = storeCountry.data.items.find(item => item.data.id === data.countryId);
-                result = selectedItem.data.name;
+                const selectedItem = countries.find(item => item.id === data.countryId);
+                result = selectedItem.name;
             } else
                 result = "";
             return result;
@@ -89,12 +89,12 @@ export class UserRoleGrid extends React.Component<UserRoleGridProps> {
 
     private getRoleColumn() {
         let renderer: (value, data: { data }) => string;
-        const { storeRole } = this.props;
+        const { roles } = this.props;
         renderer = (value, { data }) => {
             let result: string;
             if (data.roleId > 0) {
-                const selectedItem = storeRole.data.items.find(item => item.data.id === data.roleId);
-                result = selectedItem.data.name;
+                const selectedItem = roles.find(item => item.id === data.roleId);
+                result = selectedItem.name;
             } else
                 result = "";           
             return result;
@@ -118,16 +118,16 @@ export class UserRoleGrid extends React.Component<UserRoleGridProps> {
                 store={store}
                 cls="filter-grid"
                 columnLines={true}
-                shadow        
-                emptyText=" "
+                shadow
             >
                 {this.getUserColumn()}              
                 {this.getRoleColumn()}  
                 {this.getCountryColumn()} 
                 <Column
                     text="Actions"
-                    flex={1}      
-                    dataIndex=""
+                    flex={1}
+                    dataIndex=""       
+                    renderer={() => { return " " }} //it displays some simbol otherwise
                 >
                     <GridCell
                         tools={{
@@ -139,9 +139,9 @@ export class UserRoleGrid extends React.Component<UserRoleGridProps> {
                                 tooltip: "Delete",
                                 handler: this.onDeleteButtonClick
                             }
-                            }}
-                        value=""
-                        />
+                        }}                      
+                    />
+
                  </Column>
                 <Toolbar docked="top">   
                     <Button

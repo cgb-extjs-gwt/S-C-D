@@ -26,6 +26,7 @@ export default class RoleCodesGrid extends React.Component {
         disableSaveButton: true,
         disableDeleteButton: true,
         disableNewButton: false,
+        deletedRecord: null,
         selectedRecord: null
     };
 
@@ -50,7 +51,10 @@ export default class RoleCodesGrid extends React.Component {
             listeners: {
                 exception: function (proxy, response, operation) {
                     //TODO: show error
-                }
+                    if (response.responseText.includes("The DELETE statement conflicted with the REFERENCE constraint")) {
+                        Ext.Msg.alert('Error', 'This item cannot be deleted because it is still referenced by other items.')
+                    }
+                }               
             },
             api: {             
                 create: buildMvcUrl(CONTROLLER_NAME, 'SaveAll'),
@@ -107,12 +111,13 @@ export default class RoleCodesGrid extends React.Component {
     }
 
     deleteRecord = () => {
+        this.state.deletedRecord = this.state.selectedRecord
         this.store.remove(this.state.selectedRecord);
         this.setState({ disableDeleteButton: true, disableNewButton: false });
     }
 
     selectRowHandler = (dataView, records, selected, selection) => {
-        if (records[0]) {
+        if (!this.state.deletedRecord && records[0]) {
             this.setState({
                 selectedRecord: records[0],
                 disableDeleteButton: false
