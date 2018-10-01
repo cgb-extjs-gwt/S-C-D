@@ -15,7 +15,7 @@ export default class Home extends React.Component<void, any> {
     });
 
     render() {
-        return (
+        return (          
             <Grid store={this.store}>
                 <Toolbar docked="top">
                     <SearchField 

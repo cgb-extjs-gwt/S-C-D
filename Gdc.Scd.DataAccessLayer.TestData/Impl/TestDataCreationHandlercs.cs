@@ -122,9 +122,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             var repository = this.repositorySet.GetRepository<User>();
             var users = new List<User> {
-                new User { Name = "Test user 1", Login="g02\testUser1", Email="testuser1@fujitsu.com" },
-                new User { Name = "Test user 2", Login="g03\testUser2", Email="testuser2@fujitsu.com" },
-                new User { Name = "Test user 3", Login="g04\testUser3", Email="testuser3@fujitsu.com" }
+                new User { Name = "Test user 1", Login="g02\\testUser1", Email="testuser1@fujitsu.com" },
+                new User { Name = "Test user 2", Login="g03\\testUser2", Email="testuser2@fujitsu.com" },
+                new User { Name = "Test user 3", Login="g04\\testUser3", Email="testuser3@fujitsu.com" }
             };
 
             repository.Save(users);
@@ -135,14 +135,19 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             var repository = this.repositorySet.GetRepository<Role>();
             var roles = new List<Role> {
-                new Role {Name = "Test Role 1", IsGlobal=true},
-                new Role {Name = "Test Role 2", IsGlobal=true },
-                new Role {Name = "Test Role 3", IsGlobal=false },
-                new Role {Name = "Test Role 4", IsGlobal=false },
-                new Role {Name = "Test Role 5", IsGlobal=false }
+                new Role {Name = "SCD Admin", IsGlobal=true},
+                new Role {Name = "PRS PSM", IsGlobal=true },
+                new Role {Name = "Country key user", IsGlobal=false },
+                new Role {Name = "Country Finance Director", IsGlobal=false },
+                new Role {Name = "PRS Finance", IsGlobal=true },
+                new Role {Name = "Spares Logistics", IsGlobal=true },
+                new Role {Name = "GTS user", IsGlobal=true },
+                new Role {Name = "Guest", IsGlobal=true },
+                new Role {Name = "Opportunity Center", IsGlobal=true }
             };
             repository.Save(roles);
-            this.repositorySet.Sync();
+            this.repositorySet.Sync();          
+
         }
 
         private void CreateProActiveSla()

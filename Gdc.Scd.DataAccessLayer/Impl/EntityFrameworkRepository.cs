@@ -87,9 +87,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             if (item != null)
             {
-                var entry = this.repositorySet.Entry(item);
-
-                entry.State = EntityState.Deleted;
+                if (!this.IsNewItem(item))
+                {
+                    var entry = this.repositorySet.Entry(item);
+                    entry.State = EntityState.Deleted;
+                }                  
             }
         }
 
