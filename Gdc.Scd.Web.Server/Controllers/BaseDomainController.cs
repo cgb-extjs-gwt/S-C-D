@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
-    public abstract class BaseDomainController<T> : System.Web.Http.ApiController where T : IIdentifiable
+    public abstract class BaseDomainController<T> : ApiController where T : IIdentifiable
     {
         protected readonly IDomainService<T> domainService;
 
@@ -88,7 +88,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             return query;
         }
 
-        protected virtual IQueryable<T> Filter(IQueryable<T> query, Entities.FilterInfo[] filterInfos)
+        protected virtual IQueryable<T> Filter(IQueryable<T> query, FilterInfo[] filterInfos)
         {
             if (filterInfos != null && filterInfos.Length > 0)
             {
@@ -105,7 +105,7 @@ namespace Gdc.Scd.Web.Server.Controllers
 
             return query;
 
-            BinaryExpression GetEqualExpression(Entities.FilterInfo filterInfo, Expression param)
+            BinaryExpression GetEqualExpression(FilterInfo filterInfo, Expression param)
             {
                 return Expression.Equal(
                     Expression.Property(param, filterInfo.Property),
@@ -113,7 +113,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             }
         }
 
-        protected virtual object ConvertToValue(Entities.FilterInfo filterInfo)
+        protected virtual object ConvertToValue(FilterInfo filterInfo)
         {
             var type = typeof(T);
             var property = type.GetProperty(filterInfo.Property);
