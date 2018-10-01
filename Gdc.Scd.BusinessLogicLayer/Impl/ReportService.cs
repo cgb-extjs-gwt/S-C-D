@@ -100,6 +100,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
             else
             {
+                cache = null;
                 return LoadSchemas();
             }
         }
