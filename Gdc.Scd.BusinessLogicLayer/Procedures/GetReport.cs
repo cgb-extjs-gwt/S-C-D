@@ -2,7 +2,6 @@
 using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
@@ -20,7 +19,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
         public Task<DataTable> ExecuteTableAsync(string func, DbParameter[] parameters)
         {
-            return _repo.ExecuteAsTableAsync(SelectAllQuery(func, parameters), parameters);
+            return _repo.ExecuteAsTableAsync(SelectQuery(func, parameters), parameters);
         }
 
         public async Task<DataTableDto> ExecuteTableAsync(
@@ -34,7 +33,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
             result.Total = await _repo.ExecuteScalarAsync<int>(CountQuery(func, parameters), parameters);
 
-            result.Data = await _repo.ExecuteAsTableAsync(SelectQuery(func, parameters), Copy(parameters, start, limit));
+            result.Data = await _repo.ExecuteAsTableAsync(SelectQuery(func, parameters, start, limit), Copy(parameters));
 
             return result;
         }
@@ -50,10 +49,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
             result.Total = await _repo.ExecuteScalarAsync<int>(CountQuery(func, parameters), parameters);
 
-            result.Json = await _repo.ExecuteAsJsonAsync(SelectQuery(func, parameters), Copy(parameters, start, limit));
+            result.Json = await _repo.ExecuteAsJsonAsync(SelectQuery(func, parameters, start, limit), Copy(parameters));
 
             return result;
         }
+
+        public async Task<JsonArrayDto> ExecuteJsonAsync(string func, DbParameter[] parameters)
+        {
+            var result = new JsonArrayDto();
+
+            string sql = SelectQuery(func, parameters);
+            result.Json = await _repo.ExecuteAsJsonAsync(sql, parameters);
+
+            return result;
+        }
+
 
         private static string CountQuery(string func, DbParameter[] parameters)
         {
@@ -62,27 +72,25 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                     .Build();
         }
 
-        private static string SelectAllQuery(string func, DbParameter[] parameters)
-        {
-            return new SqlStringBuilder()
-                   .Append("SELECT * FROM ").AppendFunc(func, parameters)
-                   .Build();
-        }
-
         private static string SelectQuery(string func, DbParameter[] parameters)
         {
             return new SqlStringBuilder()
                    .Append("SELECT * FROM ").AppendFunc(func, parameters)
-                   .Append(" WHERE ROWNUM BETWEEN @start AND @limit")
                    .Build();
         }
 
-        private static DbParameter[] Copy(DbParameter[] parameters, int start, int limit)
+        private static string SelectQuery(string func, DbParameter[] parameters, int start, int limit)
         {
-            const int MIN = 2;
+            return new SqlStringBuilder()
+                   .Append("SELECT * FROM ").AppendFunc(func, parameters)
+                   .Append(" WHERE ROWNUM BETWEEN ").AppendValue(start).Append(" AND ").AppendValue(limit)
+                   .Build();
+        }
 
+        private static DbParameter[] Copy(DbParameter[] parameters)
+        {
             var len = parameters == null ? 0 : parameters.Length;
-            var result = new DbParameter[len + MIN];
+            var result = new DbParameter[len];
 
             int i = 0;
 
@@ -90,9 +98,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             {
                 result[i] = parameters[i].Copy();
             }
-
-            result[i++] = new DbParameterBuilder().WithName("@start").WithValue(start).Build();
-            result[i++] = new DbParameterBuilder().WithName("@limit").WithValue(start + limit).Build();
 
             return result;
         }

@@ -61,7 +61,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var func = r.Report.SqlFunc;
             var parameters = r.FillParameters(filter);
 
-            return new GetReport(repositorySet).ExecuteJsonAsync(func, start, limit, parameters);
+            return new GetReport(repositorySet).ExecuteJsonAsync(func, parameters);
         }
 
         public ReportDto[] GetReports()
@@ -81,19 +81,23 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private ReportSchemaCollection GetSchemas()
         {
-            //double check lock
+//#if DEBUG
+            return LoadSchemas();
+//#else
+//            double check lock
 
-            if (cache == null)
-            {
-                lock (syncRoot)
-                {
-                    if (cache == null)
-                    {
-                        cache = LoadSchemas();
-                    }
-                }
-            }
-            return cache;
+//                if (cache == null)
+//                {
+//                    lock (syncRoot)
+//                    {
+//                        if (cache == null)
+//                        {
+//                            cache = LoadSchemas();
+//                        }
+//                    }
+//                }
+//            return cache;
+//#endif
         }
 
         private ReportSchemaCollection LoadSchemas()

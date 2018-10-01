@@ -18,6 +18,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             return this;
         }
 
+        public SqlStringBuilder AppendValue(int v)
+        {
+            sb.Append(v);
+            return this;
+        }
+
         public SqlStringBuilder AppendValue(long? v)
         {
             if (v.HasValue)
