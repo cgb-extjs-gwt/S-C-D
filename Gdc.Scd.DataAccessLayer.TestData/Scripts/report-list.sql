@@ -9,7 +9,7 @@
 ('ProActive-reports', 'ProActive reports', 1, 0, 'Report.ProActive'),
 
 --HDD retention reports 
-('HDD-Retention-country', 'HDD retention reports on country level', 1, 1, ''),
+('HDD-Retention-country', 'HDD retention reports on country level', 1, 1, 'Report.HddRetentionByCountry'),
 ('HDD-Retention-central', 'HDD retention reports as central report', 0, 1, ''),
 ('HDD-Retention-parameter', 'HDD retention parameter', 0, 1, ''),
 

@@ -12,7 +12,7 @@ export class EuroStringColumn extends React.Component<ColumnProps, any> {
         return <Column {...this.props} renderer={this.renderer} />
     }
 
-    private renderer(value: any, row: any) {
-        return typeof value === 'number' ? Ext.util.Format.currency(value, '€') : '';
+    private renderer(value: any, row: any): string {
+        return typeof value === 'number' ? Ext.util.Format.number(value, '0.00') + ' EUR' : '';
     }
 }

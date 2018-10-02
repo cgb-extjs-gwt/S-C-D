@@ -95,6 +95,9 @@ CREATE VIEW Hardware.ServiceCostCalculationView AS
          , sc.TaxAndDutiesOow_Approved as TaxAndDutiesOow
          , sc.TaxAndDutiesW_Approved as TaxAndDutiesW
 
+         , null as DealerPrice
+         , null as ListPrice
+
     from Hardware.ServiceCostCalculation sc
 GO
 
