@@ -3,7 +3,6 @@
     @cnt bigint,
     @wg bigint,
     @av bigint,
-    @dur bigint,
     @reactiontime bigint,
     @reactiontype bigint,
     @loc bigint
@@ -11,35 +10,63 @@
 RETURNS TABLE 
 AS
 RETURN (
-    select m.Country
+    with cte as (
+        select @cnt as CountryId
+             , @wg as WgId
+             , m.AvailabilityId 
+             , m.ReactionTimeId 
+             , m.ReactionTypeId 
+             , m.ServiceLocationId
+             , sum(case when dur.Value = 1 then sc.ServiceTP_Approved end) as ServiceTP1
+             , sum(case when dur.Value = 2 then sc.ServiceTP_Approved end) as ServiceTP2
+             , sum(case when dur.Value = 3 then sc.ServiceTP_Approved end) as ServiceTP3
+             , sum(case when dur.Value = 4 then sc.ServiceTP_Approved end) as ServiceTP4
+             , sum(case when dur.Value = 5 then sc.ServiceTP_Approved end) as ServiceTP5
+        from Matrix m
+        join Hardware.ServiceCostCalculation sc on sc.MatrixId = m.Id
+        join InputAtoms.Wg wg on wg.id = m.WgId and wg.DeactivatedDateTime is null
+        join Dependencies.Duration dur on dur.Id = m.DurationId and dur.IsProlongation = 0
+        where m.Denied = 0 
+            and m.CountryId = @cnt
+            and m.WgId = @wg
+            and (@av is null or m.AvailabilityId = @av)
+            and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
+            and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
+            and (@loc is null or m.ServiceLocationId = @loc)
+        group by m.AvailabilityId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId
+    )
+    select cnt.Name as Country
          , wg.Name as Wg
          , wg.Description as WgDescription
          , null as SLA
-         , m.ServiceLocation as ServiceLocation
-         , m.ReactionTimeExt as ReactionTime
+         , loc.ExternalName as ServiceLocation
+         , rtime.ExternalName as ReactionTime
+         , rtype.ExternalName as ReactionType
+         , av.ExternalName as Availability
 
-         , coalesce(sc.ServiceTPManual_Approved, sc.ServiceTP_Approved) as ServiceTP
+         , CAST(ROUND(m.ServiceTP1, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTP1
+         , CAST(ROUND(m.ServiceTP2, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTP2
+         , CAST(ROUND(m.ServiceTP3, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTP3
+         , CAST(ROUND(m.ServiceTP4, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTP4
+         , CAST(ROUND(m.ServiceTP5, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTP5
 
-         , null as ServiceTP1
-         , null as ServiceTP2
-         , null as ServiceTP3
-         , null as ServiceTP4
-         , null as ServiceTP5
-
-         , null as ServiceTPMonthly1
-         , null as ServiceTPMonthly2
-         , null as ServiceTPMonthly3
-         , null as ServiceTPMonthly4
-         , null as ServiceTPMonthly5
+         , CAST(ROUND(m.ServiceTP1 / 12, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTPMonthly1
+         , CAST(ROUND(m.ServiceTP2 / 12, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTPMonthly2
+         , CAST(ROUND(m.ServiceTP3 / 12, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTPMonthly3
+         , CAST(ROUND(m.ServiceTP4 / 12, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTPMonthly4
+         , CAST(ROUND(m.ServiceTP5 / 12, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTPMonthly5
 
          , null as WarrantyLevel
-
          , null as PortfolioType
          , sog.Name as Sog
 
-    from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
-    join Hardware.ServiceCostCalculation sc on sc.MatrixId = m.Id
+    from cte m
+    join InputAtoms.CountryView cnt on cnt.Id = m.CountryId
     join InputAtoms.WgView wg on wg.id = m.WgId
+    join Dependencies.Availability av on av.Id= m.AvailabilityId
+    join Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
+    join Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
+    join Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
     left join InputAtoms.Sog sog on sog.Id = wg.SogId
 )
 
@@ -63,6 +90,10 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceLocation', 'Service Level Description', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ReactionTime', 'Reaction Time', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ReactionType', 'Reaction Type', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Availability', 'Availability', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTP1', 'Service Tranfer Price yearly - year1', 1, 1);
@@ -101,8 +132,6 @@ set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 4, 'wg', 'Warranty Group');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 8, 'av', 'Availability');
-set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 9, 'dur', 'Service period');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 10, 'reactiontime', 'Reaction time');
 set @index = @index + 1;
