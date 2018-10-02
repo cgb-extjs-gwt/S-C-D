@@ -5,6 +5,7 @@ import { AutoColumnType } from "../Model/AutoColumnType";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
 import { AutoFilter } from "./AutoFilter";
 import { EuroStringColumn } from "./EuroStringColumn";
+import { PercentColumn } from "./PercentColumn";
 
 export interface AutoGridProps {
 
@@ -74,6 +75,11 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
                             case AutoColumnType.EURO:
                                 return (
                                     <EuroStringColumn key={i} flex={v.flex || 1} text={v.text} dataIndex={v.name} />
+                                );
+
+                            case AutoColumnType.PERCENT:
+                                return (
+                                    <PercentColumn key={i} flex={v.flex || 1} text={v.text} dataIndex={v.name} />
                                 );
 
                             case AutoColumnType.TEXT:

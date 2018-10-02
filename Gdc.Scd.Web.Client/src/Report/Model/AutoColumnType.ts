@@ -4,5 +4,6 @@
     NUMBER = 'number',
     BOOLEAN = 'boolean',
     EURO = 'euro',
+    PERCENT = 'percent'
 
 }
