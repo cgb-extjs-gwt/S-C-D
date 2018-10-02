@@ -14,15 +14,7 @@ namespace Gdc.Scd.Core.Comparators
             return
                    type.IsValueType ||
                    type.IsPrimitive ||
-                   new[]
-                   {
-                       typeof(String),
-                       typeof(Decimal),
-                       typeof(DateTime),
-                       typeof(DateTimeOffset),
-                       typeof(TimeSpan),
-                       typeof(Guid)
-                   }.Contains(type) ||
+                   type == typeof(String) ||
                    (Convert.GetTypeCode(type) != TypeCode.Object);
         }
     }

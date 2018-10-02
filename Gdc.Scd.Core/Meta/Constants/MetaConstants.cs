@@ -32,7 +32,7 @@
 
         public const string SoftwareSchema = "Software";
 
-        public const string FspCodeTranslationSchema = "FspCodeTranslation";
+        public const string FspCodeTranslationSchema = "Fsp";
 
         public const string ReferencesSchema = "References";
 

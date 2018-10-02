@@ -7,7 +7,6 @@ using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Ninject.Modules;
 using Ninject.Web.Common;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;

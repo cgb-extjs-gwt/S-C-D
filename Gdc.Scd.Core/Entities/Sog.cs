@@ -1,7 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using Gdc.Scd.Core.Attributes;
-using Gdc.Scd.Core.enums;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 

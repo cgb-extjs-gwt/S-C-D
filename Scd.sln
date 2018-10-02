@@ -15,14 +15,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gdc.Scd.Web.Client", "Gdc.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Web.Server", "Gdc.Scd.Web.Server\Gdc.Scd.Web.Server.csproj", "{4950B622-0EA6-436C-B502-BF22B560D41F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.DataAccessLayer.External", "Gdc.Scd.DataAccessLayer.External\Gdc.Scd.DataAccessLayer.External.csproj", "{E0ECEC35-17DE-4448-A69A-1BE8BB7C9A56}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Import.Por", "Gdc.Scd.Import.Por\Gdc.Scd.Import.Por.csproj", "{741EBD7B-DCFD-4247-AFD2-B5DB5ADDFBCE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SharedLibraries", "SharedLibraries", "{1C127868-43C6-4815-A22F-8C1882802A87}"
 	ProjectSection(SolutionItems) = preProject
 		SharedLibraries\Fujitsu.GDC.ErrorNotification.dll = SharedLibraries\Fujitsu.GDC.ErrorNotification.dll
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Import.Por.Core", "Gdc.Scd.Import.Por.Core\Gdc.Scd.Import.Por.Core.csproj", "{2C7950F5-92EA-4A0C-A620-3C473BC21097}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,14 +54,14 @@ Global
 		{4950B622-0EA6-436C-B502-BF22B560D41F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4950B622-0EA6-436C-B502-BF22B560D41F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4950B622-0EA6-436C-B502-BF22B560D41F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E0ECEC35-17DE-4448-A69A-1BE8BB7C9A56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E0ECEC35-17DE-4448-A69A-1BE8BB7C9A56}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E0ECEC35-17DE-4448-A69A-1BE8BB7C9A56}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E0ECEC35-17DE-4448-A69A-1BE8BB7C9A56}.Release|Any CPU.Build.0 = Release|Any CPU
 		{741EBD7B-DCFD-4247-AFD2-B5DB5ADDFBCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{741EBD7B-DCFD-4247-AFD2-B5DB5ADDFBCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{741EBD7B-DCFD-4247-AFD2-B5DB5ADDFBCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{741EBD7B-DCFD-4247-AFD2-B5DB5ADDFBCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C7950F5-92EA-4A0C-A620-3C473BC21097}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C7950F5-92EA-4A0C-A620-3C473BC21097}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C7950F5-92EA-4A0C-A620-3C473BC21097}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C7950F5-92EA-4A0C-A620-3C473BC21097}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
