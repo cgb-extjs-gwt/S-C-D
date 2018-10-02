@@ -46,7 +46,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<TableViewInfoDto> GetTableViewInfo()
+        public async Task<TableViewInfo> GetTableViewInfo()
         {
             return await this.tableViewService.GetTableViewInfo();
         }

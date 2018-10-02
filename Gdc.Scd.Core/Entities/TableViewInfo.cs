@@ -3,9 +3,9 @@ using Gdc.Scd.Core.Dto;
 
 namespace Gdc.Scd.Core.Entities
 {
-    public class TableViewInfoDto
+    public class TableViewInfo
     {
-        public IEnumerable<TableViewCostBlockInfoDto> CostBlockInfos { get; set; }
+        public TableViewRecordInfo RecordInfo { get; set; }
 
         public IDictionary<string, IEnumerable<NamedId>> Filters { get; set; }
 

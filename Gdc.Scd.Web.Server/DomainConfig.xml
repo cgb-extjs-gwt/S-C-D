@@ -119,12 +119,12 @@
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
-          <TableView>
+          <!--<TableView>
             <Roles>
               <Role>PRS PSM</Role>  
               <Role>PRS Finance</Role>
             </Roles>
-          </TableView>
+          </TableView>-->
         </Element>
       </Elements>
     </Block>
@@ -138,12 +138,12 @@
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
-          <TableView>
+          <!--<TableView>
             <Roles>
               <Role>PRS PSM</Role>  
               <Role>PRS Finance</Role>
             </Roles>
-          </TableView>
+          </TableView>-->
         </Element>
       </Elements>
     </Block>

@@ -11,6 +11,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task UpdateRecords(IEnumerable<TableViewRecord> records);
 
-        Task<TableViewInfoDto> GetTableViewInfo();
+        Task<TableViewInfo> GetTableViewInfo();
     }
 }

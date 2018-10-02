@@ -40,24 +40,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             await this.tableViewRepository.UpdateRecords(costBlockInfos, records);
         }
 
-        public async Task<TableViewInfoDto> GetTableViewInfo()
+        public async Task<TableViewInfo> GetTableViewInfo()
         {
             var costBlockInfos = this.GetCostBlockInfo().ToArray();
-            var costBlockInfosDto = costBlockInfos.Select(info => new TableViewCostBlockInfoDto
-            {
-                MetaId = info.Meta.DomainMeta.Id,
-                CostElementIds = info.CostElementIds
-            });
 
-            return new TableViewInfoDto
+            return new TableViewInfo
             {
-                CostBlockInfos = costBlockInfosDto,
+                RecordInfo = this.tableViewRepository.GetTableViewRecordInfo(costBlockInfos),
                 Filters = await this.tableViewRepository.GetFilters(costBlockInfos),
                 References = await this.tableViewRepository.GetReferences(costBlockInfos)
             };
         }
 
-        private IEnumerable<TableViewCostBlockInfo> GetCostBlockInfo()
+        private IEnumerable<TableViewCostElementInfo> GetCostBlockInfo()
         {
             var roles = this.userRoleService.GetCurrentUserRoles();
 
@@ -70,7 +65,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 if (fieldNames.Length > 0)
                 {
-                    yield return new TableViewCostBlockInfo
+                    yield return new TableViewCostElementInfo
                     {
                         Meta = costBlock,
                         CostElementIds = fieldNames

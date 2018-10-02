@@ -4,14 +4,14 @@ namespace Gdc.Scd.Core.Entities
 {
     public class TableViewRecord
     {
-        public Dictionary<string, long> Ids { get; set; }
+        public Dictionary<string, NamedId> Coordinates { get; set; }
 
-        public Dictionary<string, object> Data { get; set; }
+        public Dictionary<string, ValueCount> Data { get; set; }
 
         public TableViewRecord()
         {
-            this.Ids = new Dictionary<string, long>();
-            this.Data = new Dictionary<string, object>();
+            this.Coordinates = new Dictionary<string, NamedId>();
+            this.Data = new Dictionary<string, ValueCount>();
         }
     }
 }
