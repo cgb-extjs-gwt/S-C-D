@@ -1,5 +1,8 @@
-﻿
-ALTER FUNCTION Report.LocapDetailed
+﻿IF OBJECT_ID('Report.LocapDetailed') IS NOT NULL
+  DROP FUNCTION Report.LocapDetailed;
+go 
+
+CREATE FUNCTION Report.LocapDetailed
 (
     @cnt bigint,
     @wg bigint,
@@ -12,14 +15,14 @@ ALTER FUNCTION Report.LocapDetailed
 RETURNS TABLE 
 AS
 RETURN (
-    select fsp.Name as Fsp
+    select m.Fsp
          , wg.Description as WgDescription
          , wg.Name as Wg
-         , sog.Description as SogDescription
+         , wg.SogDescription as SogDescription
          , m.ServiceLocation as ServiceLevel
-         , rtime.Name as ReactionTime
+         , m.ReactionTime
          , m.DurationValue as ServicePeriod
-         , sog.Name as Sog
+         , wg.Sog as Sog
          , (sc.ProActive_Approved + coalesce(sc.ServiceTPManual_Approved, sc.ServiceTP_Approved)) as Dcos
          , coalesce(sc.ServiceTPManual_Approved, sc.ServiceTP_Approved) as ServiceTP
          , null as ListPrice
@@ -43,9 +46,6 @@ RETURN (
     from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
     join Hardware.ServiceCostCalculation sc on sc.MatrixId = m.Id
     join InputAtoms.WgView wg on wg.id = m.WgId
-    join Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
-    left join FspCodeTranslation fsp on fsp.MatrixId = sc.MatrixId
-    left join InputAtoms.Sog sog on sog.Id = wg.SogId
 )
 
 GO

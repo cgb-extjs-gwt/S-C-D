@@ -2,7 +2,7 @@
 
 namespace Gdc.Scd.Core.Entities
 {
-    public class FspCodeTranslation : NamedId
+    public abstract class FspCodeTranslation : NamedId
     {
         public string ServiceDescription { get; set; }
 

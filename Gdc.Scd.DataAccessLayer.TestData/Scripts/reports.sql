@@ -1,4 +1,20 @@
-﻿CREATE VIEW InputAtoms.CountryView WITH SCHEMABINDING AS
+﻿IF OBJECT_ID('Report.GetMatrixBySla') IS NOT NULL
+  DROP FUNCTION Report.GetMatrixBySla;
+go 
+
+IF OBJECT_ID('dbo.MatrixView', 'V') IS NOT NULL
+  DROP VIEW dbo.MatrixView;
+go
+
+IF OBJECT_ID('InputAtoms.CountryView', 'V') IS NOT NULL
+  DROP VIEW InputAtoms.CountryView;
+go
+
+IF OBJECT_ID('InputAtoms.WgView', 'V') IS NOT NULL
+  DROP VIEW InputAtoms.WgView;
+go
+
+CREATE VIEW InputAtoms.CountryView WITH SCHEMABINDING AS
     select c.Id
          , c.Name
          , c.ISO3CountryCode
@@ -31,7 +47,8 @@ GO
 
 CREATE VIEW MatrixView as 
     select m.Id
-         , fsp.Name FSP
+         , fsp.Name Fsp
+         , fsp.ServiceDescription as FspDescription
          , m.CountryId
          , cnt.Name as Country
          , cnt.CountryGroup as CountryGroup
@@ -62,8 +79,14 @@ CREATE VIEW MatrixView as
     join Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
     join Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
     join Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
-    left join FspCodeTranslation fsp on fsp.MatrixId = m.Id
-
+    left join Fsp.HwFspCodeTranslation fsp on fsp.CountryId = m.CountryId
+                                          and fsp.WgId = m.WgId
+                                          and fsp.AvailabilityId = m.AvailabilityId
+                                          and fsp.DurationId = m.DurationId
+                                          and fsp.ReactionTimeId = m.ReactionTimeId
+                                          and fsp.ReactionTypeId = m.ReactionTypeId
+                                          and fsp.ServiceLocationId = m.ServiceLocationId
+    where m.Denied = 0 
 GO
 
 CREATE FUNCTION Report.GetMatrixBySla
@@ -81,14 +104,13 @@ AS
 RETURN (
     select m.*
     from MatrixView m
-    where m.Denied = 0 
-        and m.CountryId = @cnt
-        and m.WgId = @wg
-        and (@av is null or m.AvailabilityId = @av)
-        and (@dur is null or m.DurationId = @dur)
-        and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
-        and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
-        and (@loc is null or m.ServiceLocationId = @loc)
+    where m.CountryId = @cnt
+      and m.WgId = @wg
+      and (@av is null or m.AvailabilityId = @av)
+      and (@dur is null or m.DurationId = @dur)
+      and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
+      and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
+      and (@loc is null or m.ServiceLocationId = @loc)
 )
 GO
 

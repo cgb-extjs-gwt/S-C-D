@@ -1,4 +1,8 @@
-﻿CREATE FUNCTION Report.Locap
+﻿IF OBJECT_ID('Report.Locap') IS NOT NULL
+  DROP FUNCTION Report.Locap;
+go 
+
+CREATE FUNCTION Report.Locap
 (
     @cnt bigint,
     @wg bigint,
@@ -11,10 +15,10 @@
 RETURNS TABLE 
 AS
 RETURN (
-    select fsp.Name as Fsp
+    select m.Fsp
          , wg.Description as WgDescription
-         , fsp.ServiceDescription as ServiceLevel
-         , rtime.Name as ReactionTime
+         , m.FspDescription as ServiceLevel
+         , m.ReactionTime
          , m.DurationValue as ServicePeriod
          , wg.Name as Wg
          , (sc.ProActive_Approved + coalesce(sc.ServiceTPManual_Approved, sc.ServiceTP_Approved)) as Dcos
@@ -28,8 +32,6 @@ RETURN (
     from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
     join Hardware.ServiceCostCalculation sc on sc.MatrixId = m.Id
     join InputAtoms.Wg wg on wg.id = m.WgId
-    join Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
-    left join FspCodeTranslation fsp on fsp.MatrixId = sc.MatrixId
     left join InputAtoms.Sog sog on sog.Id = wg.SogId
 )
 GO

@@ -1,4 +1,8 @@
-﻿CREATE FUNCTION Report.Contract
+﻿IF OBJECT_ID('Report.Contract') IS NOT NULL
+  DROP FUNCTION Report.Contract;
+go 
+
+CREATE FUNCTION Report.Contract
 (
     @cnt bigint,
     @wg bigint,
@@ -58,7 +62,7 @@ RETURN (
 
          , null as WarrantyLevel
          , null as PortfolioType
-         , sog.Name as Sog
+         , wg.Sog as Sog
 
     from cte m
     join InputAtoms.CountryView cnt on cnt.Id = m.CountryId
@@ -67,15 +71,12 @@ RETURN (
     join Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
     join Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
     join Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
-    left join InputAtoms.Sog sog on sog.Id = wg.SogId
 )
 
 GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CONTRACT');
 declare @index int = 0;
-
-update Report.Report set SqlFunc = 'Report.Contract' where id = @reportId;
 
 delete from Report.ReportColumn where ReportId = @reportId;
 set @index = @index + 1;
