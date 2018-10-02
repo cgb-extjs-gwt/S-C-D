@@ -39,10 +39,10 @@ RETURN (
          , wg.Name as Wg
          , wg.Description as WgDescription
          , null as SLA
-         , loc.ExternalName as ServiceLocation
-         , rtime.ExternalName as ReactionTime
-         , rtype.ExternalName as ReactionType
-         , av.ExternalName as Availability
+         , loc.Name as ServiceLocation
+         , rtime.Name as ReactionTime
+         , rtype.Name as ReactionType
+         , av.Name as Availability
 
          , CAST(ROUND(m.ServiceTP1, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTP1
          , CAST(ROUND(m.ServiceTP2, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTP2
