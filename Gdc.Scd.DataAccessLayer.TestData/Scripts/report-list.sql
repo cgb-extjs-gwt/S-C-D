@@ -1,16 +1,13 @@
 ﻿insert into Report.Report(Name, Title, CountrySpecific, HasFreesedVersion, SqlFunc) values
 
 ('Locap', 'LOCAP reports (for a specific country)', 1,  1, 'Report.Locap'),
-
 ('Locap-Detailed', 'LOCAP reports detailed', 1,  1, 'Report.LocapDetailed'),
-
 ('Contract', 'Contract reports', 1,  1, 'Report.Contract'),
-
 ('ProActive-reports', 'ProActive reports', 1, 0, 'Report.ProActive'),
 
 --HDD retention reports 
 ('HDD-Retention-country', 'HDD retention reports on country level', 1, 1, 'Report.HddRetentionByCountry'),
-('HDD-Retention-central', 'HDD retention reports as central report', 0, 1, ''),
+('HDD-Retention-central', 'HDD retention reports as central report', 0, 1, 'Report.HddRetentionCentral'),
 ('HDD-Retention-parameter', 'HDD retention parameter', 0, 1, ''),
 
 --Calculation Parameter Overview reports 
