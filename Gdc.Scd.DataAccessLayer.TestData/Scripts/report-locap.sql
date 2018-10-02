@@ -28,11 +28,10 @@ RETURN (
          , null as PlausiCheck
          , null as PortfolioType
          , null as ReleaseCreated
-         , sog.Name as Sog
+         , wg.Sog
     from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
     join Hardware.ServiceCostCalculation sc on sc.MatrixId = m.Id
-    join InputAtoms.Wg wg on wg.id = m.WgId
-    left join InputAtoms.Sog sog on sog.Id = wg.SogId
+    join InputAtoms.WgView wg on wg.id = m.WgId
 )
 GO
 

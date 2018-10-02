@@ -6,7 +6,7 @@
 
 ('Contract', 'Contract reports', 1,  1, 'Report.Contract'),
 
-('ProActive-reports', 'ProActive reports', 1, 0, ''),
+('ProActive-reports', 'ProActive reports', 1, 0, 'Report.ProActive'),
 
 --HDD retention reports 
 ('HDD-Retention-country', 'HDD retention reports on country level', 1, 1, ''),
