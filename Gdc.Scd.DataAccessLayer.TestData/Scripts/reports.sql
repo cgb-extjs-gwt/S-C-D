@@ -2,6 +2,10 @@
   DROP FUNCTION Report.GetMatrixBySla;
 go 
 
+IF OBJECT_ID('Hardware.ServiceCostCalculationView', 'V') IS NOT NULL
+  DROP VIEW Hardware.ServiceCostCalculationView;
+go
+
 IF OBJECT_ID('dbo.MatrixView', 'V') IS NOT NULL
   DROP VIEW dbo.MatrixView;
 go
@@ -13,6 +17,31 @@ go
 IF OBJECT_ID('InputAtoms.WgView', 'V') IS NOT NULL
   DROP VIEW InputAtoms.WgView;
 go
+
+IF OBJECT_ID('Report.AsEuroStr') IS NOT NULL
+  DROP FUNCTION Report.AsEuroStr;
+go 
+
+IF OBJECT_ID('Report.AsEuroSignStr') IS NOT NULL
+  DROP FUNCTION Report.AsEuroSignStr;
+go 
+
+CREATE FUNCTION Report.AsEuroStr(@value float)
+RETURNS varchar(20)
+AS
+BEGIN
+	RETURN CAST(ROUND(@value, 2) AS VARCHAR(20)) + ' EUR';
+END
+GO
+
+CREATE FUNCTION Report.AsEuroSignStr(@value float)
+RETURNS varchar(20)
+AS
+BEGIN
+	RETURN CAST(ROUND(@value, 2) AS VARCHAR(20)) + ' €';
+END
+
+GO
 
 CREATE VIEW InputAtoms.CountryView WITH SCHEMABINDING AS
     select c.Id
@@ -43,6 +72,30 @@ CREATE VIEW InputAtoms.WgView as
     from InputAtoms.Wg wg
     left join InputAtoms.Sog sog on sog.id = wg.SogId
     where wg.DeactivatedDateTime is null
+GO
+
+CREATE VIEW Hardware.ServiceCostCalculationView AS
+    select sc.MatrixId
+         , sc.AvailabilityFee_Approved as AvailabilityFee
+         , sc.Credits_Approved as Credits
+         , sc.FieldServiceCost_Approved as FieldServiceCost
+         , sc.HddRetention_Approved as HddRetention
+         , sc.LocalServiceStandardWarranty_Approved as LocalServiceStandardWarranty
+         , sc.Logistic_Approved as Logistic
+         , sc.MaterialOow_Approved as MaterialOow
+         , sc.MaterialW_Approved as MaterialW
+         , sc.OtherDirect_Approved as OtherDirect
+         , sc.ProActive_Approved as ProActive
+         , sc.Reinsurance_Approved as Reinsurance
+         , sc.ServiceSupport_Approved as ServiceSupport
+
+         , coalesce(sc.ServiceTCManual_Approved, sc.ServiceTC_Approved) ServiceTC
+         , coalesce(sc.ServiceTPManual_Approved, sc.ServiceTP_Approved) ServiceTP
+
+         , sc.TaxAndDutiesOow_Approved as TaxAndDutiesOow
+         , sc.TaxAndDutiesW_Approved as TaxAndDutiesW
+
+    from Hardware.ServiceCostCalculation sc
 GO
 
 CREATE VIEW MatrixView as 

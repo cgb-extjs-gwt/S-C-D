@@ -23,28 +23,28 @@ RETURN (
          , m.ReactionTime
          , m.DurationValue as ServicePeriod
          , wg.Sog as Sog
-         , (sc.ProActive_Approved + coalesce(sc.ServiceTPManual_Approved, sc.ServiceTP_Approved)) as Dcos
-         , coalesce(sc.ServiceTPManual_Approved, sc.ServiceTP_Approved) as ServiceTP
+         , Report.AsEuroSignStr(sc.ProActive + sc.ServiceTP) as Dcos
+         , Report.AsEuroSignStr(sc.ServiceTP) as ServiceTP
          , null as ListPrice
          , null as DealerPrice
          , m.Country
-         , sc.FieldServiceCost_Approved as FieldServiceCost
-         , null as ServiceSupportCost 
-         , sc.MaterialOow_Approved as MaterialOow
-         , sc.MaterialW_Approved as MaterialW
-         , sc.TaxAndDutiesW_Approved as TaxAndDutiesW
-         , sc.Logistic_Approved as LogisticW
-         , sc.Logistic_Approved as LogisticOow
-         , sc.Reinsurance_Approved as Reinsurance
-         , sc.Reinsurance_Approved as ReinsuranceOow
-         , sc.OtherDirect_Approved as OtherDirect
-         , sc.Credits_Approved as Credits
+         , Report.AsEuroSignStr(sc.FieldServiceCost) as FieldServiceCost
+         , Report.AsEuroSignStr(sc.ServiceSupport) as ServiceSupportCost 
+         , Report.AsEuroSignStr(sc.MaterialOow) as MaterialOow
+         , Report.AsEuroSignStr(sc.MaterialW) as MaterialW
+         , Report.AsEuroSignStr(sc.TaxAndDutiesW) as TaxAndDutiesW
+         , Report.AsEuroSignStr(sc.Logistic) as LogisticW
+         , Report.AsEuroSignStr(sc.Logistic) as LogisticOow
+         , Report.AsEuroSignStr(sc.Reinsurance) as Reinsurance
+         , Report.AsEuroSignStr(sc.Reinsurance) as ReinsuranceOow
+         , Report.AsEuroSignStr(sc.OtherDirect) as OtherDirect
+         , Report.AsEuroSignStr(sc.Credits) as Credits
          , null as IndirectCostOpex
          , null as ServiceType
          , null as PlausiCheck
          , null as PortfolioType
     from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
-    join Hardware.ServiceCostCalculation sc on sc.MatrixId = m.Id
+    join Hardware.ServiceCostCalculationView sc on sc.MatrixId = m.Id
     join InputAtoms.WgView wg on wg.id = m.WgId
 )
 

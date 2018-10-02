@@ -21,8 +21,8 @@ RETURN (
          , m.ReactionTime
          , m.DurationValue as ServicePeriod
          , wg.Name as Wg
-         , (sc.ProActive_Approved + coalesce(sc.ServiceTPManual_Approved, sc.ServiceTP_Approved)) as Dcos
-         , coalesce(sc.ServiceTPManual_Approved, sc.ServiceTP_Approved) as ServiceTP
+         , Report.AsEuroSignStr(sc.ProActive + sc.ServiceTP) as Dcos
+         , Report.AsEuroSignStr(sc.ServiceTP) as ServiceTP
          , m.Country
          , null as ServiceType
          , null as PlausiCheck
@@ -30,7 +30,7 @@ RETURN (
          , null as ReleaseCreated
          , wg.Sog
     from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
-    join Hardware.ServiceCostCalculation sc on sc.MatrixId = m.Id
+    join Hardware.ServiceCostCalculationView sc on sc.MatrixId = m.Id
     join InputAtoms.WgView wg on wg.id = m.WgId
 )
 GO

@@ -48,17 +48,17 @@ RETURN (
          , rtype.Name as ReactionType
          , av.Name as Availability
 
-         , CAST(ROUND(m.ServiceTP1, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTP1
-         , CAST(ROUND(m.ServiceTP2, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTP2
-         , CAST(ROUND(m.ServiceTP3, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTP3
-         , CAST(ROUND(m.ServiceTP4, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTP4
-         , CAST(ROUND(m.ServiceTP5, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTP5
+         , Report.AsEuroStr(m.ServiceTP1) AS ServiceTP1
+         , Report.AsEuroStr(m.ServiceTP2) AS ServiceTP2
+         , Report.AsEuroStr(m.ServiceTP3) AS ServiceTP3
+         , Report.AsEuroStr(m.ServiceTP4) AS ServiceTP4
+         , Report.AsEuroStr(m.ServiceTP5) AS ServiceTP5
 
-         , CAST(ROUND(m.ServiceTP1 / 12, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTPMonthly1
-         , CAST(ROUND(m.ServiceTP2 / 12, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTPMonthly2
-         , CAST(ROUND(m.ServiceTP3 / 12, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTPMonthly3
-         , CAST(ROUND(m.ServiceTP4 / 12, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTPMonthly4
-         , CAST(ROUND(m.ServiceTP5 / 12, 2) AS VARCHAR(20)) + ' EUR' AS ServiceTPMonthly5
+         , Report.AsEuroStr(m.ServiceTP1 / 12) AS ServiceTPMonthly1
+         , Report.AsEuroStr(m.ServiceTP2 / 12) AS ServiceTPMonthly2
+         , Report.AsEuroStr(m.ServiceTP3 / 12) AS ServiceTPMonthly3
+         , Report.AsEuroStr(m.ServiceTP4 / 12) AS ServiceTPMonthly4
+         , Report.AsEuroStr(m.ServiceTP5 / 12) AS ServiceTPMonthly5
 
          , null as WarrantyLevel
          , null as PortfolioType
@@ -72,7 +72,6 @@ RETURN (
     join Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
     join Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
 )
-
 GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CONTRACT');
