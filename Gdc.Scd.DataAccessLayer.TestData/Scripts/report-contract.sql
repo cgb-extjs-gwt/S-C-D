@@ -72,7 +72,7 @@ RETURN (
 
 GO
 
-declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'Contract');
+declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CONTRACT');
 declare @index int = 0;
 
 update Report.Report set SqlFunc = 'Report.Contract' where id = @reportId;
