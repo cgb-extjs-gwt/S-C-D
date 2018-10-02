@@ -1,9 +1,10 @@
-﻿import { Column, Container, Grid, NumberColumn, GridProps } from "@extjs/ext-react";
+﻿import { Column, Container, Grid, GridProps, NumberColumn } from "@extjs/ext-react";
 import * as React from "react";
 import { AutoColumnModel } from "../Model/AutoColumnModel";
 import { AutoColumnType } from "../Model/AutoColumnType";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
 import { AutoFilter } from "./AutoFilter";
+import { EuroStringColumn } from "./EuroStringColumn";
 
 export interface AutoGridProps {
 
@@ -68,6 +69,11 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
                             case AutoColumnType.NUMBER:
                                 return (
                                     <NumberColumn key={i} flex={v.flex || 1} text={v.text} dataIndex={v.name} />
+                                );
+
+                            case AutoColumnType.EURO:
+                                return (
+                                    <EuroStringColumn key={i} flex={v.flex || 1} text={v.text} dataIndex={v.name} />
                                 );
 
                             case AutoColumnType.TEXT:

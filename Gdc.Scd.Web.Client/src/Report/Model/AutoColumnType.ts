@@ -2,6 +2,7 @@
 
     TEXT = 'text',
     NUMBER = 'number',
-    BOOLEAN = 'boolean'
+    BOOLEAN = 'boolean',
+    EURO = 'euro',
 
 }

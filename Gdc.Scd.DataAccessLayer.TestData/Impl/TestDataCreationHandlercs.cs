@@ -1119,7 +1119,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var items = new ReportColumnType[] {
                 new ReportColumnType { Name = "text" },
                 new ReportColumnType { Name = "number" },
-                new ReportColumnType { Name = "boolean" }
+                new ReportColumnType { Name = "boolean" },
+                new ReportColumnType { Name = "euro" }
             };
 
             var repository = this.repositorySet.GetRepository<ReportColumnType>();
