@@ -10,9 +10,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface IPorSwDigitService
     {
-        bool UploadSwDigits(IDictionary<string, string> swInfo, IEnumerable<Sog> sogs, 
+        bool UploadSwDigits(IDictionary<string, SCD2_SW_Overview> swInfo, IEnumerable<Sog> sogs, 
             DateTime modifiedDateTime);
 
-        bool Deactivate(IDictionary<string, string> swInfo, DateTime modifiedDateTime);
+        bool Deactivate(IDictionary<string, SCD2_SW_Overview> swInfo, DateTime modifiedDateTime);
     }
 }

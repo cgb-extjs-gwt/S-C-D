@@ -43,7 +43,7 @@ namespace Gdc.Scd.Import.Por
                 //SLA ATOMS
                 var locationService = kernel.Get<DomainService<ServiceLocation>>();
                 var reactionTypeService = kernel.Get<DomainService<ReactionType>>();
-                var responseTimeService = kernel.Get<DomainService<ReactionType>>();
+                var responseTimeService = kernel.Get<DomainService<ReactionTime>>();
                 var availabilityService = kernel.Get<DomainService<Availability>>();
                 var durationService = kernel.Get<DomainService<Duration>>();
                 var proactiveService = kernel.Get<DomainService<ProActiveSla>>();
@@ -68,8 +68,6 @@ namespace Gdc.Scd.Import.Por
                 var softwareService = kernel.Get<ISwFspCodeTranslationService>();
                 #endregion
 
-                
-
                 //CONFIGURATION
                 logger.Log(LogLevel.Info, "Reading configuration...");
                 var softwareServiceTypes = Config.SoftwareSolutionTypes;
@@ -83,8 +81,8 @@ namespace Gdc.Scd.Import.Por
                 //Start Process
                 logger.Log(LogLevel.Info, ImportConstantMessages.START_PROCESS);
 
-                Func<SCD2_ServiceOfferingGroups, bool> sogPredicate = sog => sog.Warranty_Calculation_relevant == "JA" && sog.Active_Flag == "1";
-                Func<SCD2_WarrantyGroups, bool> wgPredicate = wg => wg.Warranty_Calculation_relevant == "JA" && wg.Active_Flag == "1";
+                Func<SCD2_ServiceOfferingGroups, bool> sogPredicate = sog => sog.Active_Flag == "1";
+                Func<SCD2_WarrantyGroups, bool> wgPredicate = wg => wg.Active_Flag == "1";
 
                 logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, nameof(Sog));
                 var porSogs = sogImporter.ImportData()
@@ -119,7 +117,7 @@ namespace Gdc.Scd.Import.Por
                 var sFabs = sFabDomainService.GetAllActive().ToList();
 
                 logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(Sog));
-                success = sogService.UploadSogs(porSogs, plas, sFabs, DateTime.Now);
+                success = sogService.UploadSogs(porSogs, plas, sFabs, DateTime.Now, softwareServiceTypes);
                 if (success)
                     success = sogService.DeactivateSogs(porSogs, DateTime.Now);
                 logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);
@@ -129,9 +127,9 @@ namespace Gdc.Scd.Import.Por
                 var sogs = sogDomainService.GetAllActive().ToList();
 
                 logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(Wg));
-                success = wgService.UploadWgs(porWGs, sFabs, sogs, plas, DateTime.Now);
+                success = wgService.UploadWgs(porWGs, sFabs, sogs, plas, DateTime.Now, softwareServiceTypes);
                 if (success)
-                    success = wgService.DeactivateSogs(porWGs, DateTime.Now);
+                    success = wgService.DeactivateWgs(porWGs, DateTime.Now);
                 logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);
                 step++;
 
@@ -208,7 +206,7 @@ namespace Gdc.Scd.Import.Por
 
                 var result = FillCountryDictionary(countryService.GetAll().ToList(), countryGroupService.GetAll().ToList());
                 var locationDictionary = FillSlaDictionary(locationServiceValues);
-                var reactionTimeDictionary = FillSlaDictionary(reactionTypeValues);
+                var reactionTimeDictionary = FillSlaDictionary(reactonTimeValues);
                 var reactionTypeDictionary = FillSlaDictionary(reactionTypeValues);
                 var availabilityDictionary = FillSlaDictionary(availabilityValues);
                 var durationDictionary = FillSlaDictionary(durationValues);
@@ -230,7 +228,7 @@ namespace Gdc.Scd.Import.Por
 
                     else if (standardWarrantiesServiceTypes.Contains(code.SCD_ServiceType))
                     {
-                        if (code.SCD_ServiceType.Substring(11, 4).ToUpper() == "STDW")
+                        if (code.Service_Code.Substring(11, 4).ToUpper() == "STDW")
                             stdwCodes.Add(code);
                     }
 
@@ -250,22 +248,16 @@ namespace Gdc.Scd.Import.Por
 
                 success = hardwareService.UploadHardware(otherHardwareCodes, proActiveCodes, stdwCodes, lutCodes, result,
                     wgs, sogs, availabilityDictionary, reactionTimeDictionary, reactionTypeDictionary, locationDictionary,
-                    durationDictionary, proactiveDictionary, matrixService.GetAll(), DateTime.Now, proactiveServiceTypes,
+                    durationDictionary, proactiveDictionary, DateTime.Now, proactiveServiceTypes,
                     standardWarrantiesServiceTypes, hardwareServiceTypes);
-
-                if (success)
-                    hardwareService.DeactivateFspHardware(otherHardwareCodes.Union(proActiveCodes).Union(stdwCodes), DateTime.Now);
                 
                 logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);
                 step++;
 
                 logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(SwFspCodeTranslation));
 
-                success = softwareService.UploadSoftware(softwareCodes, wgs, digits, porSoftware, availabilityDictionary, reactionTimeDictionary,
+                success = softwareService.UploadSoftware(softwareCodes, sogs, digits, porSoftware, availabilityDictionary, reactionTimeDictionary,
                     reactionTypeDictionary, locationDictionary, durationDictionary, DateTime.Now, softwareServiceTypes);
-
-                if (success)
-                    softwareService.DeactivateFspSoftware(softwareCodes, DateTime.Now);
 
                 logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);
                 logger.Log(LogLevel.Info, ImportConstantMessages.END_PROCESS);
@@ -273,9 +265,8 @@ namespace Gdc.Scd.Import.Por
 
             catch(Exception ex)
             {
-                logger.Log(LogLevel.Fatal, ex, "POR Import completed unsuccessfully. Please find details below.");
-                //TODO: Send emails
-
+                logger.Log(LogLevel.Fatal, ex, ImportConstantMessages.UNEXPECTED_ERROR);
+                Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstantMessages.UNEXPECTED_ERROR, ex, null, null);
             }
         }
 
@@ -314,13 +305,13 @@ namespace Gdc.Scd.Import.Por
         private static SwHelperModel FillSwInfo(
             IEnumerable<SCD2_SW_Overview> swInfo)
         {
-            var swDigitsDictionary = new Dictionary<string, string>();
+            var swDigitsDictionary = new Dictionary<string, SCD2_SW_Overview>();
             var swLicenseDictionary = new Dictionary<string, SCD2_SW_Overview>();
 
             foreach (var sw in swInfo)
             {
                 if (!swDigitsDictionary.Keys.Contains(sw.Software_Lizenz_Digit, StringComparer.OrdinalIgnoreCase))
-                    swDigitsDictionary.Add(sw.Software_Lizenz_Digit, sw.SOG_Code);
+                    swDigitsDictionary.Add(sw.Software_Lizenz_Digit, sw);
 
                 if (!swLicenseDictionary.Keys.Contains(sw.Software_Lizenz, StringComparer.OrdinalIgnoreCase))
                     swLicenseDictionary.Add(sw.Software_Lizenz, sw);  
@@ -339,14 +330,19 @@ namespace Gdc.Scd.Import.Por
                 if (String.IsNullOrEmpty(countryGroup.CountryDigit) && String.IsNullOrEmpty(countryGroup.LUTCode))
                     continue;
 
+                var countryDigits = new List<string>();
 
-                var digits = countryGroup.LUTCode.Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(d => d.Trim())
-                                         .Union(countryGroup.CountryDigit.Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(d => d.Trim()));
+                if (!String.IsNullOrEmpty(countryGroup.LUTCode))
+                    countryDigits.AddRange(countryGroup.LUTCode.Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(d => d.Trim()));
+
+                if (!String.IsNullOrEmpty(countryGroup.CountryDigit))
+                    countryDigits.AddRange(countryGroup.CountryDigit.Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(d => d.Trim()));
+
 
                 var masterCountries = countries.Where(c => c.CountryGroupId == countryGroup.Id && c.IsMaster);
                 if (masterCountries.Any())
                 {
-                    foreach (var digit in digits)
+                    foreach (var digit in countryDigits)
                     {
                         if (result.Keys.Contains(digit))
                             result[digit].AddRange(masterCountries.Select(c => c.Id));

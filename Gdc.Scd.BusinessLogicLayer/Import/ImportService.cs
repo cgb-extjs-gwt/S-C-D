@@ -9,12 +9,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Gdc.Scd.BusinessLogicLayer.Extensions;
 
 namespace Gdc.Scd.BusinessLogicLayer.Import
 {
     public class ImportService<T> : DomainService<T> where T: NamedId, IDeactivatable, new()
     {
-        private const int BATCH_NUMBER = 1000;
+        private const int BATCH_NUMBER = 50;
         private readonly IEqualityComparer<T> _comparer;
 
 
@@ -54,8 +55,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             Expression<Func<T, bool>> predicate = null)
         {
             List<T> batch = new List<T>();
-            var dbItems = predicate == null ? this.GetAll() 
-                                            : this.GetAll().Where(predicate);
+            var dbItems = predicate == null ? this.GetAll().ToList() 
+                                            : this.GetAll().Where(predicate).ToList();
+
             foreach (T item in itemsToUpdate)
             {
                 var dbItem = dbItems.FirstOrDefault(i => i.Name.Equals(item.Name, 
@@ -75,12 +77,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
                     //if something was changed update in the database
                     if (!_comparer.Equals(dbItem, item))
                     {
-                        item.Id = dbItem.Id;
-                        item.DeactivatedDateTime = null;
-                        item.ModifiedDateTime = modifiedDate;
-                        item.CreatedDateTime = dbItem.CreatedDateTime == DateTime.MinValue ? 
-                                                                         modifiedDate : dbItem.CreatedDateTime;
-                        this.repositorySet.Replace(dbItem, item);
+                        item.CopyModifiedValues<T>(dbItem, modifiedDate);
                         batch.Add(dbItem);
                     }
 

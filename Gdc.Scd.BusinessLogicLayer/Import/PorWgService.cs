@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Gdc.Scd.BusinessLogicLayer.Extensions;
 
 namespace Gdc.Scd.BusinessLogicLayer.Import
 {
@@ -26,7 +27,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
             _logger = logger;
         }
 
-        public bool DeactivateSogs(IEnumerable<SCD2_WarrantyGroups> wgs, DateTime modifiedDatetime)
+        public bool DeactivateWgs(IEnumerable<SCD2_WarrantyGroups> wgs, DateTime modifiedDatetime)
         {
             var result = true;
 
@@ -36,10 +37,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
 
                 var porItems = wgs.Select(w => w.Warranty_Group.ToLower()).ToList();
 
-                //select all that is not coming from POR and was not already deactivated in SCD
+                //select all that is not coming from POR and was not already deactivated in SCD and also either does not
+                //exists in Logistic DB or was already deactivated there
                 var itemsToDeacivate = this.GetAll()
-                                          .Where(w => !porItems.Contains(w.Name.ToLower())
-                                                    && !w.DeactivatedDateTime.HasValue).ToList();
+                                          .Where(w => !w.IsMultiVendor && !porItems.Contains(w.Name.ToLower())
+                                                    && !w.DeactivatedDateTime.HasValue && (!w.ExistsInLogisticsDb || w.IsDeactivatedInLogistic)).ToList();
 
                 var deactivated = this.Deactivate(itemsToDeacivate, modifiedDatetime);
 
@@ -66,7 +68,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
 
         public bool UploadWgs(IEnumerable<SCD2_WarrantyGroups> wgs, 
             IEnumerable<SFab> sFabs, IEnumerable<Sog> sogs, 
-            IEnumerable<Pla> plas, DateTime modifiedDateTime)
+            IEnumerable<Pla> plas, DateTime modifiedDateTime, 
+            IEnumerable<string> softwareServiceTypes)
         {
             var result = true;
             _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(Wg));
@@ -89,6 +92,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
                                 fab.Name.Equals(porWg.FabGrp, StringComparison.OrdinalIgnoreCase));
 
                     Sog sog = sogs.FirstOrDefault(wg => wg.Name.Equals(porWg.SOG, StringComparison.OrdinalIgnoreCase));
+                    if (sog == null && !String.IsNullOrEmpty(porWg.SOG))
+                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.SOG_NOT_EXISTS, porWg.SOG);
 
                     updatedWgs.Add(new Wg
                     {
@@ -97,7 +102,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
                         Name = porWg.Warranty_Group,
                         PlaId = pla.Id,
                         SFabId = sFab?.Id,
-                        SogId = sog?.Id
+                        SogId = sog?.Id,
+                        ExistsInLogisticsDb = false,
+                        IsDeactivatedInLogistic = false,
+                        SCD_ServiceType = porWg.SCD_ServiceType,
+                        IsSoftware = ImportHelper.IsSoftware(porWg.SCD_ServiceType, softwareServiceTypes)
                     });
                 }
 

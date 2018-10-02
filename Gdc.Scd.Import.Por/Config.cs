@@ -16,7 +16,7 @@ namespace Gdc.Scd.Import.Por
                 var hwServiceTypes = ConfigurationManager.AppSettings["HWServiceTypes"];
                 if (String.IsNullOrEmpty(hwServiceTypes))
                     throw new ConfigurationErrorsException(String.Format(ImportConstantMessages.CONFIGURATION_ERROR, "SCDServiceTypes"));
-                return hwServiceTypes.Split(';');
+                return hwServiceTypes.Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             }
         }
 
@@ -27,7 +27,7 @@ namespace Gdc.Scd.Import.Por
                 var proactiveServiceTypes = ConfigurationManager.AppSettings["ProActiveTypes"];
                 if (String.IsNullOrEmpty(proactiveServiceTypes))
                     throw new ConfigurationErrorsException(String.Format(ImportConstantMessages.CONFIGURATION_ERROR, "ProActiveTypes"));
-                return proactiveServiceTypes.Split(';');
+                return proactiveServiceTypes.Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             }
         }
 
@@ -38,7 +38,7 @@ namespace Gdc.Scd.Import.Por
                 var stwServiceTypes = ConfigurationManager.AppSettings["StandardWarrantyTypes"];
                 if (String.IsNullOrEmpty(stwServiceTypes))
                     throw new ConfigurationErrorsException(String.Format(ImportConstantMessages.CONFIGURATION_ERROR, "StandardWarrantyTypes"));
-                return stwServiceTypes.Split(';');
+                return stwServiceTypes.Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             }
         }
 
@@ -49,7 +49,7 @@ namespace Gdc.Scd.Import.Por
                 var swServiceTypes = ConfigurationManager.AppSettings["SoftwareTypes"];
                 if (String.IsNullOrEmpty(swServiceTypes))
                     throw new ConfigurationErrorsException(String.Format(ImportConstantMessages.CONFIGURATION_ERROR, "SoftwareTypes"));
-                return swServiceTypes.Split(';');
+                return swServiceTypes.Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             }
         }
 

@@ -82,8 +82,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
                     updatedSwLicenses.Add(new SwLicense
                     {
                         Name = swLicense.Software_Lizenz,
-                        SoftwareLicenseDescription = swLicense.Software_Lizenz_Beschreibung,
-                        SoftwareLicenseName = swLicense.Software_Lizenz_Benennung
+                        Description = swLicense.Software_Lizenz_Benennung
                     });
                 }
 

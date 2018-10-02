@@ -8,7 +8,7 @@ namespace Gdc.Scd.Core.Entities
     {
         public virtual long Id { get; set; }
 
-        [MustCompare(true)]
+        [MustCompare(true, IsIgnoreCase = true)]
         public virtual string Name { get; set; }
     }
 }

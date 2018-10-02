@@ -9,7 +9,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
     public static class PorImportLoggingMessage
     {
         public const string UNKNOWN_PLA = "{0} was not uploaded as PLA {1} does not exist in the database";
-        public const string UNKNOW_SOG = "{0} was not uploaded as SOG {1} does not exist in the database";
+        public const string UNKNOWN_SOG = "{0} was not uploaded as SOG {1} does not exist in the database";
         public const string UNKNOWN_SLA_TRANSLATION = "{0} was not uploaded as SLA Translation coulde not be mapped";
         public const string UNKNOW_DIGIT = "{0} was not uploaded as SW Digit {1} does not exist in the database";
         public const string UNKNOWN_LICENSE = "{0} was not uploaded as SW License {1} does not exist in the database";
@@ -29,5 +29,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Import
         public const string UPLOAD_HW_CODES_START = "Uploading {0} is started...";
         public const string UPLOAD_HW_CODES_ENDS = "Uploading is ended. Code: {0}";
         public const string INCORRECT_SOFTWARE_FSPCODE_DIGIT_MAPPING = "Mapping between FSP Code {0} and Digit. ({1}) digits were found.";
+        public const string SOG_NOT_EXISTS = "SOG {0} does not exist in the SCD.";
+        public const string DELETE_BEGIN = "Deletion {0} is started...";
+        public const string DELETE_END = "Deletion ended.";
     }
 }

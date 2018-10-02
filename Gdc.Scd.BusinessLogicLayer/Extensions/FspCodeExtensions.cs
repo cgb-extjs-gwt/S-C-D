@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Extensions
 {
-    public static class FspCodeExtension
+    public static class FspCodeExtensions
     {
         public static SlaDto MapFspCodeToSla(this SCD2_v_SAR_new_codes porFspCode, 
             Dictionary<string, long> serviceLocations,

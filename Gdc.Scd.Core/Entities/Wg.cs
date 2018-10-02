@@ -25,9 +25,12 @@ namespace Gdc.Scd.Core.Entities
         public RoleCode RoleCode { get; set; }
 
         public bool IsMultiVendor { get; set; }
+        public bool ExistsInLogisticsDb { get; set; }
+        public bool IsDeactivatedInLogistic { get; set; }
 
         public DateTime CreatedDateTime { get; set; }
         public DateTime? DeactivatedDateTime { get; set; }
         public DateTime ModifiedDateTime { get; set; }
+
     }
 }
