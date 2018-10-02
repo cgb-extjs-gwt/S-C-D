@@ -13,7 +13,11 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
     public class UserController : BaseDomainController<User>
     {
         private readonly IActiveDirectoryService activeDirectoryService;
-        public UserController(IDomainService<User> domainService, IActiveDirectoryService activeDirectoryService) : base(domainService)
+
+        public UserController(
+                IDomainService<User> domainService, 
+                IActiveDirectoryService activeDirectoryService
+            ) : base(domainService)
         {
             this.activeDirectoryService = activeDirectoryService;
             activeDirectoryService.Configuration = new Scd.BusinessLogicLayer.Helpers.ActiveDirectoryConfig
@@ -31,6 +35,7 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
             var userDirectoryEntry = activeDirectoryService.FindByIdentity(userIdentity);
             // some other behavior
         }
+
         [HttpGet]
         public DataInfo<User> SearchUser(string _dc, string searchString, int page = 1, int start = 0, int limit = 25)
         {
