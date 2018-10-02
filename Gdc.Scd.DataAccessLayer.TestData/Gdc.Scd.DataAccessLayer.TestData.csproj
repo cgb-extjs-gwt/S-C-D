@@ -6,8 +6,12 @@
 
   <ItemGroup>
     <None Remove="Scripts\availabilityFee.sql" />
+    <None Remove="Scripts\dropEverything.sql" />
     <None Remove="Scripts\matrix.sql" />
     <None Remove="Scripts\report-contract.sql" />
+    <None Remove="Scripts\report-hdd-retention-central.sql" />
+    <None Remove="Scripts\report-hdd-retention-country.sql" />
+    <None Remove="Scripts\report-hdd-retention-parameter.sql" />
     <None Remove="Scripts\report-list.sql" />
     <None Remove="Scripts\report-local-detailed.sql" />
     <None Remove="Scripts\report-locap.sql" />
@@ -28,10 +32,14 @@
     <EmbeddedResource Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Calculation\calculation-sw.sql" Link="Scripts\calculation-sw.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Scripts\dropEverything.sql" />
     <EmbeddedResource Include="Scripts\matrix.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Scripts\report-contract.sql" />
+    <EmbeddedResource Include="Scripts\report-hdd-retention-central.sql" />
+    <EmbeddedResource Include="Scripts\report-hdd-retention-country.sql" />
+    <EmbeddedResource Include="Scripts\report-hdd-retention-parameter.sql" />
     <EmbeddedResource Include="Scripts\report-list.sql" />
     <EmbeddedResource Include="Scripts\report-local-detailed.sql" />
     <EmbeddedResource Include="Scripts\report-locap.sql" />
