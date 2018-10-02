@@ -1,19 +1,20 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.Web.Api.Entities;
-using Gdc.Scd.Web.Server.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
+using System.Threading.Tasks;
+using Gdc.Scd.Core.Entities;
+using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using System.Configuration;
 using System.Web.Http;
+using Gdc.Scd.Web.Server.Entities;
+using System.Security.Principal;
 
-namespace Gdc.Scd.Web.Server.Controllers.Admin
+namespace Gdc.Scd.Web.Server.Controllers
 {
-    public class UsersController : ApiController
+    public class UserController : BaseDomainController<User>
     {
         private readonly IActiveDirectoryService activeDirectoryService;
-
-        public UsersController(IActiveDirectoryService activeDirectoryService)
+        public UserController(IDomainService<User> domainService, IActiveDirectoryService activeDirectoryService) : base(domainService)
         {
             this.activeDirectoryService = activeDirectoryService;
             activeDirectoryService.Configuration = new Scd.BusinessLogicLayer.Helpers.ActiveDirectoryConfig
@@ -31,22 +32,22 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
             var userDirectoryEntry = activeDirectoryService.FindByIdentity(userIdentity);
             // some other behavior
         }
-
         [HttpGet]
-        public DataInfo<UserInfo> SearchUser(string _dc, string searchString, int page = 1, int start = 0, int limit = 25)
+        public DataInfo<User> SearchUser(string _dc, string searchString, int page = 1, int start = 0, int limit = 25)
         {
             var searchCount = Int32.Parse(ConfigurationManager.AppSettings["UsersSearchCount"]);
             if (string.IsNullOrEmpty(searchString))
-                return new DataInfo<UserInfo> { Items = new List<UserInfo>(), Total = 0 };
-            
+                return new DataInfo<User> { Items = new List<User>(), Total = 0 };
+
             var foundUsers = activeDirectoryService.SearchForUserByString(searchString, searchCount).Select(
-                user => new UserInfo
+                user => new User
                 {
-                    Username = user.DisplayName,
-                    UserSamAccount = user.SamAccountName,
+                    Name = user.DisplayName,
+                    Login = user.Sid.Translate(typeof(NTAccount)).ToString(),
+                    Email = user.EmailAddress
                 }).ToList();
 
-            return new DataInfo<UserInfo> { Items = foundUsers, Total = foundUsers.Count() };
+            return new DataInfo<User> { Items = foundUsers, Total = foundUsers.Count() };
         }
     }
 }
