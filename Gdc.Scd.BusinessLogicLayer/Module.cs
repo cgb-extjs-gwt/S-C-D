@@ -68,6 +68,8 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<SwDigitLicense>();
             Kernel.RegisterEntity<HwFspCodeTranslation>();
             Kernel.RegisterEntity<SwFspCodeTranslation>();
+            Kernel.RegisterEntity<TaxAndDutiesEntity>();
+            Kernel.RegisterEntity<ImportConfiguration>();
         }
     }
 }

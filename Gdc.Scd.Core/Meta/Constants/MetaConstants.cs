@@ -4,6 +4,8 @@
     {
         public const string InputLevelSchema = "InputAtoms";
 
+        public const string AtomSchema = "Atom";
+
         public const string DependencySchema = "Dependencies";
 
         public const string HistorySchema = "History";
@@ -37,5 +39,7 @@
         public const string ReferencesSchema = "References";
 
         public const string SoftwareSolutionSchema = "SoftwareSolution";
+
+        public const string ImportSchema = "Import";
     }
 }
