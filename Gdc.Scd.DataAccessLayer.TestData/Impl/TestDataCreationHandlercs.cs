@@ -84,8 +84,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.report-locap.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.report-local-detailed.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.report-contract.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
 
             foreach (var query in queries)
             {
