@@ -883,7 +883,8 @@ with ProActiveCte as
             sla.CentralExecutionShcReportRepetition) as CentralExecutionReport_Approved
 
     from Hardware.ProActive pro
-    join Dependencies.ProActiveSla sla on sla.id = pro.ProActiveSla
+    left join Fsp.HwFspCodeTranslation fsp on fsp.WgId = pro.Wg
+    left join Dependencies.ProActiveSla sla on sla.id = fsp.ProactiveSlaId
 )
 select pro.Country,
        pro.Wg,
