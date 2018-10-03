@@ -19,6 +19,8 @@
         public const string AdminSchema = "Admin";
 
         public const string CountryInputLevelName = "Country";
+
+        public const string RegionLevel = "Region";
         
         public const string DefaultSchema = "dbo";
 
@@ -27,6 +29,10 @@
         public const string CalculationTable = "ServiceCostCalculation";
 
         public const string HardwareSchema = "Hardware";
+
+        public const string SoftwareSchema = "Software";
+
+        public const string FspCodeTranslationSchema = "Fsp";
 
         public const string ReferencesSchema = "References";
 

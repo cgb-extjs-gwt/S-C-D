@@ -3,9 +3,15 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.CapabilityMatrix;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Ninject.Modules;
 using Ninject.Web.Common;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer
 {
@@ -26,6 +32,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<IActiveDirectoryService>().To<ActiveDirectoryService>().InRequestScope();
 
             Kernel.RegisterEntity<ClusterRegion>();
+            Kernel.RegisterEntity<Region>();
             Kernel.RegisterEntity<Country>();
             Kernel.RegisterEntity<CountryGroup>();
             Kernel.RegisterEntity<Pla>();
@@ -56,6 +63,11 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<ProActiveSla>();
             Kernel.RegisterEntity<SwDigit>();
             Kernel.RegisterEntity<Sog>();
+            Kernel.RegisterEntity<SFab>();
+            Kernel.RegisterEntity<SwLicense>();
+            Kernel.RegisterEntity<SwDigitLicense>();
+            Kernel.RegisterEntity<HwFspCodeTranslation>();
+            Kernel.RegisterEntity<SwFspCodeTranslation>();
         }
     }
 }

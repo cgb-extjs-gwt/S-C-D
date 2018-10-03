@@ -31,6 +31,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         int ExecuteProc(string procName, params DbParameter[] parameters);
 
+        void Replace<T>(T oldEntity, T newEntity) where T : class;
+
         Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters);
 
         List<T> ExecuteProc<T>(string procName, params DbParameter[] parameters)

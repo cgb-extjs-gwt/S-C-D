@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Gdc.Scd.Core.Entities
 {
     [Table("Duration", Schema = MetaConstants.DependencySchema)]
-    public class Duration : NamedId
+    public class Duration : ExternalEntity
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id
