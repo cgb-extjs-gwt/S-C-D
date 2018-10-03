@@ -15,16 +15,15 @@
   <ItemGroup>
     <PackageReference Include="Ninject" Version="3.3.4" />
     <PackageReference Include="Ninject.Web.Common" Version="3.3.1" />
-    <PackageReference Include="NLog" Version="4.5.9" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj" />
-    <ProjectReference Include="..\Gdc.Scd.DataAccessLayer.External\Gdc.Scd.DataAccessLayer.External.csproj" />
     <ProjectReference Include="..\Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.DirectoryServices.Protocols" />

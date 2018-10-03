@@ -28,11 +28,11 @@ namespace Gdc.Scd.Core.Comparators
 
                             if (prop1Value == null && prop2Value == null)
                             {
-                                result = result && true;
+                                result = true;
                             }
-                            else if (prop1Value == null | prop2Value == null)
+                            else if (prop1Value == null || prop2Value == null)
                             {
-                                result = result && false;
+                                result = false;
                             }
                             else
                             {

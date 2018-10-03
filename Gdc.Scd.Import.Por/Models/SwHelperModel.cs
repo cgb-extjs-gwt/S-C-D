@@ -1,9 +1,6 @@
-﻿using Gdc.Scd.DataAccessLayer.External.Por;
-using System;
+﻿using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Gdc.Scd.Import.Por.Models
 {

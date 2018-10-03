@@ -72,9 +72,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
+    <Compile Include="FormatDataHelper.cs" />
     <Compile Include="ImportConstantMessages.cs" />
     <Compile Include="Models\SwHelperModel.cs" />
     <Compile Include="Module.cs" />
+    <Compile Include="PorService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -97,13 +99,13 @@
       <Project>{f587c0f8-3f2f-4f50-9ea2-2d8c74d8330b}</Project>
       <Name>Gdc.Scd.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Gdc.Scd.DataAccessLayer.External\Gdc.Scd.DataAccessLayer.External.csproj">
-      <Project>{e0ecec35-17de-4448-a69a-1be8bb7c9a56}</Project>
-      <Name>Gdc.Scd.DataAccessLayer.External</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj">
       <Project>{8903ea84-f24a-4ef5-8cba-6aaf1139d07d}</Project>
       <Name>Gdc.Scd.DataAccessLayer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Por.Core\Gdc.Scd.Import.Por.Core.csproj">
+      <Project>{2c7950f5-92ea-4a0c-a620-3c473bc21097}</Project>
+      <Name>Gdc.Scd.Import.Por.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
