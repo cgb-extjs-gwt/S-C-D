@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,10 @@ namespace Gdc.Scd.Import.AmberRoad
             try
             {
                 AmberRoadImportService.UploadTaxAndDuties();
+            }
+            catch(FileNotFoundException ex)
+            {
+                AmberRoadImportService.Logger.Log(LogLevel.Info, ex.Message);
             }
             catch(Exception ex)
             {
