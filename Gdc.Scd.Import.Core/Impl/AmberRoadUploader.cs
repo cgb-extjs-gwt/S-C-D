@@ -30,6 +30,7 @@ namespace Gdc.Scd.Import.Core.Impl
             this._repositorySet = repositorySet;
             this._repositoryTaxAndDuties = this._repositorySet.GetRepository<TaxAndDutiesEntity>();
             this._repositoryCountry = this._repositorySet.GetRepository<Country>();
+            this._logger = logger;
         }
 
         public int Upload(IEnumerable<TaxAndDutiesDto> items, DateTime modifiedDateTime)
@@ -102,16 +103,19 @@ namespace Gdc.Scd.Import.Core.Impl
             var dbItemsCountries = this._repositoryCountry.GetAll().Where(c => c.IsMaster).Select(c => c.Id).ToList();
             var dbItemsTaxAndDuties = this._repositoryTaxAndDuties.GetAll().ToList();
 
-            var itemsToDeactivate = dbItemsTaxAndDuties.Where(entity => dbItemsCountries.Contains(entity.CountryId)).ToList();
+            var itemsToDeactivate = dbItemsTaxAndDuties.Where(entity => !dbItemsCountries.Contains(entity.CountryId)).ToList();
             foreach (var item in itemsToDeactivate)
             {
-                _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATING_ENTITY, nameof(TaxAndDutiesEntity), item.Country.Name);
+                _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATING_ENTITY, nameof(TaxAndDutiesEntity), item.CountryId);
                 item.DeactivatedDateTime = modifiedDateTime;
                 item.ModifiedDateTime = modifiedDateTime;
             }
 
-            this._repositoryTaxAndDuties.Save(itemsToDeactivate);
-            this._repositorySet.Sync();
+            if (itemsToDeactivate.Any())
+            {
+                this._repositoryTaxAndDuties.Save(itemsToDeactivate);
+                this._repositorySet.Sync();
+            }
 
             return itemsToDeactivate.Count;
         }

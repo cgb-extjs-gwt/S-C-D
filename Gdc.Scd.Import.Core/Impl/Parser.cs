@@ -6,10 +6,8 @@ using Gdc.Scd.Import.Core.Interfaces;
 using NLog;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.Core.Impl
 {
@@ -43,7 +41,7 @@ namespace Gdc.Scd.Import.Core.Impl
                 var row = info.Content.ReadLine();
                 if (!String.IsNullOrEmpty(row))
                 {
-                    var splittedRow = row.Split(info.Delimeter);
+                    var splittedRow = row.Split(info.Delimeter.ToCharArray());
                     var entity = ParseRow(splittedRow);
                     entities.Add(entity);
                 }
@@ -66,15 +64,19 @@ namespace Gdc.Scd.Import.Core.Impl
                         object value = pi.PropertyType.GetDefaultValue();
                         if (pi.PropertyType.IsNumericType())
                         {
+                            var style = NumberStyles.Number | NumberStyles.AllowDecimalPoint;
+                            var culture = CultureInfo.CreateSpecificCulture("de-DE");
                             switch (parseInfoAttr.Format)
                             {
                                 case Enums.Format.Percentage:
                                     propValue = propValue.Replace("%", "").Trim();
                                     double dblResult = 0.0;
-                                    if (Double.TryParse(propValue, out dblResult))
+                                    if (Double.TryParse(propValue, style, culture, out dblResult))
                                         value = dblResult;
                                     else
+                                    {
                                         _logger.Log(LogLevel.Warn, ImportConstants.PARSE_CANNOT_PARSE, propValue, typeof(Double));
+                                    }
                                     break;
                                 case Enums.Format.Number:
                                     int intResult = 0;
@@ -85,7 +87,7 @@ namespace Gdc.Scd.Import.Core.Impl
                                     break;
                                 case Enums.Format.None:
                                     dblResult = 0;
-                                    if (Double.TryParse(propValue, out dblResult))
+                                    if (Double.TryParse(propValue, style, culture, out dblResult))
                                         value = Double.Parse(propValue);
                                     else
                                         _logger.Log(LogLevel.Warn, ImportConstants.PARSE_CANNOT_PARSE, propValue, typeof(Double));

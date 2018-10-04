@@ -51,7 +51,7 @@ namespace Gdc.Scd.Import.Core.Impl
 
             _logger.Log(LogLevel.Info, ImportConstants.CHECK_LAST_MODIFIED_DATE);
             var modifiedDateTime = _downloader.GetModifiedDateTime(downloadDto);
-            _logger.Log(LogLevel.Info, ImportConstants.CHECK_LAST_MODIFIED_DATE_END, modifiedDateTime.ToLongDateString());
+            _logger.Log(LogLevel.Info, ImportConstants.CHECK_LAST_MODIFIED_DATE_END, modifiedDateTime.ToString());
 
             _logger.Log(LogLevel.Info, ImportConstants.CHECK_CONFIGURATION, 
                 configuration.FileName, configuration.ProcessedDateTime?.ToLongDateString(), configuration.Occurancy);
@@ -62,6 +62,7 @@ namespace Gdc.Scd.Import.Core.Impl
                 _logger.Log(LogLevel.Info, ImportConstants.DOWNLOAD_FILE_START, configuration.FileName);
                 var downloadedInfo = _downloader.DownloadData(downloadDto);
                 _logger.Log(LogLevel.Info, ImportConstants.DOWNLOAD_FILE_END);
+                IEnumerable<T> entities = null;
 
                 using (downloadedInfo)
                 {
@@ -73,26 +74,28 @@ namespace Gdc.Scd.Import.Core.Impl
                     };
 
                     _logger.Log(LogLevel.Info, ImportConstants.PARSE_START);
-                    var entities = _parser.Parse(parsedModel);
+                    entities = _parser.Parse(parsedModel);
                     _logger.Log(LogLevel.Info, ImportConstants.PARSE_END, entities?.Count());
-                    if (entities != null && entities.Any())
-                    {
-                        _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_START);
-                        int result = _uploader.Upload(entities, DateTime.Now);
-                        _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, result);
-                        _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATE_START, nameof(TaxAndDutiesEntity));
-                        result = _uploader.Deactivate(DateTime.Now);
-                        _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATE_END, result);
-                        _logger.Log(LogLevel.Info, ImportConstants.MOVE_FILE_START, configuration.ProcessedFilesPath);
-                        _downloader.MoveFile(downloadDto);
-                        _logger.Log(LogLevel.Info, ImportConstants.MOVE_FILE_END);
-                    }
-                    else
-                    {
-                        _logger.Log(LogLevel.Error, ImportConstants.PARSE_CANNOT_PARSE);
-                        throw new Exception($"File is invalid. Please check file {Path.Combine(configuration.FilePath, configuration.FileName)}");
-                    }
                 }
+
+                if (entities != null && entities.Any())
+                {
+                    _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_START);
+                    int result = _uploader.Upload(entities, DateTime.Now);
+                    _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, result);
+                    _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATE_START, nameof(TaxAndDutiesEntity));
+                    result = _uploader.Deactivate(DateTime.Now);
+                    _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATE_END, result);
+                    _logger.Log(LogLevel.Info, ImportConstants.MOVE_FILE_START, configuration.ProcessedFilesPath);
+                    _downloader.MoveFile(downloadDto);
+                    _logger.Log(LogLevel.Info, ImportConstants.MOVE_FILE_END);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, ImportConstants.PARSE_INVALID_FILE);
+                    throw new Exception($"File is invalid. Please check file {Path.Combine(configuration.FilePath, configuration.FileName)}");
+                }
+                
             }
             else
             {

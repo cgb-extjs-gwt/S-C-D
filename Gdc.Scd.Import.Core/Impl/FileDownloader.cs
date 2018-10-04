@@ -14,7 +14,7 @@ namespace Gdc.Scd.Import.Core.Impl
         public StreamReader DownloadData(DownloadInfoDto info)
         {
             var filePath = CheckFile(info);
-            return new StreamReader(filePath, Encoding.Unicode);
+            return new StreamReader(filePath);
         }
 
         public DateTime GetModifiedDateTime(DownloadInfoDto info)
@@ -27,7 +27,8 @@ namespace Gdc.Scd.Import.Core.Impl
         public void MoveFile(DownloadInfoDto info)
         {
             var filePath = CheckFile(info);
-            File.Copy(filePath, Path.Combine(info.ProcessedFilePath, $"{info.File}_{DateTime.Now.ToShortDateString()}"));
+            File.Copy(filePath, 
+                Path.Combine(info.ProcessedFilePath, $"{Path.GetFileNameWithoutExtension(info.File)}_{DateTime.Now.ToShortDateString()}{Path.GetExtension(info.File)}"), true);
             File.Delete(filePath);
         }
 

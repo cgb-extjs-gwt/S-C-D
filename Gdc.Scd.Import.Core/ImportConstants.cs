@@ -28,6 +28,6 @@ namespace Gdc.Scd.Import.Core
         public static string EMPTY_COUNTRY = "Skip uploading for one record as country is empty";
         public static string DEACTIVATE_START = "Deactivation for {0} is started...";
         public static string DEACTIVATE_END = "Deactivation finished. {0} rows affected.";
-        public static string DEACTIVATING_ENTITY = "{0} with Country {1} is deactivated.";
+        public static string DEACTIVATING_ENTITY = "{0} with CountryId {1} is deactivated.";
     }
 }

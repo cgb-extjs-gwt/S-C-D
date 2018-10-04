@@ -16,13 +16,13 @@ namespace Gdc.Scd.Import.Core.Dto
         [ParseInfo(1)]
         public string CountryGroup { get; set; }
 
-        [ParseInfo(2)]
+        [ParseInfo(3)]
         public string Country { get; set; }
 
-        [ParseInfo(3)]
+        [ParseInfo(2)]
         public string ISO3Code { get; set; }
 
         [ParseInfo(4, Format = Format.Percentage)]
-        public double AverageSumDutiesAndTaxes { get; set; }
+        public double? AverageSumDutiesAndTaxes { get; set; }
     }
 }

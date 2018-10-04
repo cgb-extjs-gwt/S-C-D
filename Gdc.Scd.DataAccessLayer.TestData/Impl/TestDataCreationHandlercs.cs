@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Impl;
@@ -1206,14 +1207,14 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             var taxAndDuties = new ImportConfiguration
             {
-                Name = "TaxAndDuties",
+                Name = ImportSystems.AMBERROAD,
                 FilePath = @"C:\Users\BorisovaE\Desktop",
                 FileName = "SCD_Duties_Taxes.csv",
                 ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed",
-                Delimeter = ';',
+                Delimeter = ";",
                 HasHeader = true
             };
 

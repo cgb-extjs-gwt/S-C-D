@@ -9,7 +9,7 @@ namespace Gdc.Scd.Import.Core.Dto
 {
     public class ParseInfoDto
     {
-        public char Delimeter { get; set; }
+        public string Delimeter { get; set; }
         public StreamReader Content { get; set; }
         public bool HasHeader { get; set; }
     }

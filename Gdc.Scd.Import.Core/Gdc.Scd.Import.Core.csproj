@@ -49,12 +49,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\ColumnNumberAttribute.cs" />
+    <Compile Include="Attributes\ParseInfoAttribute.cs" />
     <Compile Include="Dto\DownloadInfoDto.cs" />
     <Compile Include="Dto\ParseInfoDto.cs" />
     <Compile Include="Dto\TaxAndDutiesDto.cs" />
+    <Compile Include="Enums\Format.cs" />
+    <Compile Include="Impl\AmberRoadUploader.cs" />
+    <Compile Include="Impl\DataBaseConfigHandler.cs" />
+    <Compile Include="Impl\FileDownloader.cs" />
+    <Compile Include="Impl\ImportManager.cs" />
+    <Compile Include="Impl\Logger.cs" />
     <Compile Include="Impl\Parser.cs" />
+    <Compile Include="ImportConstants.cs" />
+    <Compile Include="Interfaces\IConfigHandler.cs" />
     <Compile Include="Interfaces\IDownloader.cs" />
+    <Compile Include="Interfaces\IImportManager.cs" />
     <Compile Include="Interfaces\IParser.cs" />
     <Compile Include="Interfaces\IUploader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -63,6 +72,10 @@
     <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj">
       <Project>{f587c0f8-3f2f-4f50-9ea2-2d8c74d8330b}</Project>
       <Name>Gdc.Scd.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj">
+      <Project>{8903ea84-f24a-4ef5-8cba-6aaf1139d07d}</Project>
+      <Name>Gdc.Scd.DataAccessLayer</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

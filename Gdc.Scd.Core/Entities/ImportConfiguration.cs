@@ -25,7 +25,7 @@ namespace Gdc.Scd.Core.Entities
         public ImportMode ImportMode { get; set; }
         public DateTime? ProcessedDateTime { get; set; }
         public string ProcessedFilesPath { get; set; }
-        public char Delimeter { get; set; }
+        public string Delimeter { get; set; }
         public bool HasHeader { get; set; }
     }
 }
