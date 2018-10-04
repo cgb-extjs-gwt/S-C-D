@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -72,9 +73,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
-        public async Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc)
+        public Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc)
         {
-            return await this.ReadBySql(query.ToSql(), mapFunc, query.GetParameters());
+            return ReadBySql(query.ToSql(), mapFunc, query.GetParameters());
         }
 
         public int ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null)
@@ -126,19 +127,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
-        public DataTable ExecuteProcAsTable(string procName, params DbParameter[] parameters)
-        {
-            return WithCommand(cmd =>
-            {
-                cmd.AsStoredProcedure(procName, parameters);
-
-                using (var reader = cmd.ExecuteReader())
-                {
-                    return reader.MapToTable();
-                }
-            });
-        }
-
         public Task<DataTable> ExecuteProcAsTableAsync(string procName, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>
@@ -152,19 +140,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
-        public string ExecuteProcAsJson(string procName, params DbParameter[] parameters)
-        {
-            return WithCommand(cmd =>
-            {
-                cmd.AsStoredProcedure(procName, parameters);
-
-                using (var reader = cmd.ExecuteReader())
-                {
-                    return reader.MapToJsonArray();
-                }
-            });
-        }
-
         public Task<string> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>
@@ -172,20 +147,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 cmd.AsStoredProcedure(procName, parameters);
 
                 using (var reader = await cmd.ExecuteReaderAsync())
-                {
-                    return reader.MapToJsonArray();
-                }
-            });
-        }
-
-        public string ExecuteAsJson(string sql, params DbParameter[] parameters)
-        {
-            return WithCommand(cmd =>
-            {
-                cmd.CommandText = sql;
-                cmd.AddParameters(parameters);
-
-                using (var reader = cmd.ExecuteReader())
                 {
                     return reader.MapToJsonArray();
                 }
@@ -206,16 +167,16 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
-        public DataTable ExecuteAsTable(string sql, params DbParameter[] parameters)
+        public Task<Stream> ExecuteAsJsonStreamAsync(string sql, params DbParameter[] parameters)
         {
-            return WithCommand(cmd =>
+            return WithCommand(async cmd =>
             {
                 cmd.CommandText = sql;
                 cmd.AddParameters(parameters);
 
-                using (var reader = cmd.ExecuteReader())
+                using (var reader = await cmd.ExecuteReaderAsync())
                 {
-                    return reader.MapToTable();
+                    return reader.MapToJsonArrayStream();
                 }
             });
         }
@@ -231,19 +192,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 {
                     return reader.MapToTable();
                 }
-            });
-        }
-
-        public T ExecuteScalar<T>(string sql, params DbParameter[] parameters)
-        {
-            return WithCommand(cmd =>
-            {
-                cmd.CommandText = sql;
-                cmd.AddParameters(parameters);
-
-                var res = cmd.ExecuteScalar();
-
-                return res == DBNull.Value ? default(T) : (T)res;
             });
         }
 

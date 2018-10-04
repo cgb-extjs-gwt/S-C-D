@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Gdc.Scd.DataAccessLayer.Interfaces
@@ -35,23 +36,15 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         List<T> ExecuteProc<T>(string procName, params DbParameter[] parameters) where T : new();
 
-        DataTable ExecuteProcAsTable(string procName, params DbParameter[] parameters);
-
         Task<DataTable> ExecuteProcAsTableAsync(string procName, params DbParameter[] parameters);
-
-        string ExecuteProcAsJson(string procName, params DbParameter[] parameters);
 
         Task<string> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters);
 
-        string ExecuteAsJson(string sql, params DbParameter[] parameters);
-
         Task<string> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters);
 
-        DataTable ExecuteAsTable(string sql, params DbParameter[] parameters);
+        Task<Stream> ExecuteAsJsonStreamAsync(string sql, params DbParameter[] parameters);
 
         Task<DataTable> ExecuteAsTableAsync(string sql, params DbParameter[] parameters);
-
-        T ExecuteScalar<T>(string sql, params DbParameter[] parameters);
 
         Task<T> ExecuteScalarAsync<T>(string sql, params DbParameter[] parameters);
 

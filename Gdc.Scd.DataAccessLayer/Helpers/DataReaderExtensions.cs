@@ -56,12 +56,34 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
 
             var sb = new StringBuilder(512);
 
-            using (JsonWriter writer = new JsonTextWriter(new StringWriter(sb)))
+            using (var writer = new JsonTextWriter(new StringWriter(sb)))
             {
                 WriteJsonArray(reader, writer);
             }
 
             return sb.ToString();
+        }
+
+        public static Stream MapToJsonArrayStream(this DbDataReader reader)
+        {
+            if (IsEmpty(reader))
+            {
+                return null;
+            }
+
+            var ms = new MemoryStream(2048);
+
+            using (var streamWriter = new StreamWriter(ms))
+            {
+                using (var writer = new JsonTextWriter(streamWriter))
+                {
+                    WriteJsonArray(reader, writer);
+                }
+            }
+
+            ms.Position = 0;
+
+            return ms;
         }
 
         public static DataTable MapToTable(this DbDataReader reader)
