@@ -19,7 +19,7 @@
 ('CalcOutput-new-vs-old', 'Country CalcOutput new vs. old report (e.g.  Germany_CalcOutput new vs. old)', 1, 0, 'Report.CalcOutputNewVsOld'),
 
 --Solution Pack reports 
-('SolutionPack-ProActive-Costing', 'Country SolutionPack ProActive Costing report (e.g.  Germany_SolutionPack ProActive Costing)', 1, 0, ''),
+('SolutionPack-ProActive-Costing', 'Country SolutionPack ProActive Costing report (e.g.  Germany_SolutionPack ProActive Costing)', 1, 0, 'Report.SolutionPackProActiveCosting'),
 ('SolutionPack-Price-List', 'SolutionPack Price List report', 0, 0, ''),
 ('SolutionPack-Price-List-Details', 'SolutionPack Price List Detailed report', 0, 0, ''),
 
