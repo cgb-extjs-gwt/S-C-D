@@ -65,7 +65,7 @@ CREATE VIEW InputAtoms.CountryView WITH SCHEMABINDING AS
 
 GO
 
-CREATE VIEW InputAtoms.WgView as 
+CREATE VIEW InputAtoms.WgSogView as 
     select wg.*
          , sog.Name as Sog
          , sog.Description as SogDescription
