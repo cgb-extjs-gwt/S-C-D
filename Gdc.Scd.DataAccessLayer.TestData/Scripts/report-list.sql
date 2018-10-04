@@ -21,7 +21,7 @@
 --Solution Pack reports 
 ('SolutionPack-ProActive-Costing', 'Country SolutionPack ProActive Costing report (e.g.  Germany_SolutionPack ProActive Costing)', 1, 0, 'Report.SolutionPackProActiveCosting'),
 ('SolutionPack-Price-List', 'SolutionPack Price List report', 0, 0, 'Report.SolutionPackPriceList'),
-('SolutionPack-Price-List-Details', 'SolutionPack Price List Detailed report', 0, 0, ''),
+('SolutionPack-Price-List-Details', 'SolutionPack Price List Detailed report', 0, 0, 'Report.SolutionPackPriceListDetail'),
 
 ('PO-Standard-Warranty-Material', 'PO Standard Warranty Material Report', 0, 0, ''),
 ('FLAT-Fee-Reports', 'Availability Fee_Report (old FSL fee report)', 0, 0, ''),
