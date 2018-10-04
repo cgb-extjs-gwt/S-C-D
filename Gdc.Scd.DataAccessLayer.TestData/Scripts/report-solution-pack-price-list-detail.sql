@@ -1,8 +1,8 @@
-﻿IF OBJECT_ID('Report.SolutionPackPriceList') IS NOT NULL
-  DROP FUNCTION Report.SolutionPackPriceList;
+﻿IF OBJECT_ID('Report.SolutionPackPriceListDetail') IS NOT NULL
+  DROP FUNCTION Report.SolutionPackPriceListDetail;
 go 
 
-CREATE FUNCTION Report.SolutionPackPriceList
+CREATE FUNCTION Report.SolutionPackPriceListDetail
 (
     @sog bigint
 )
@@ -11,11 +11,16 @@ AS
 RETURN (
     select 
               sog.Description as SogDescription
-            , sog.Name as Sog
+            , dig.Name as Digit
             , fsp.Name
+            , sog.Name as Sog
 
             , fsp.ServiceDescription as SpDescription
             , null as Sp
+
+            , sw.[2ndLevelSupportCosts_Approved] as SupportCost
+            
+            , sw.Reinsurance_Approved as Reinsurance
 
             , null as TP
             , SoftwareSolution.CalcDealerPrice(sw.MaintenanceListPrice_Approved, sw.DiscountDealerPrice_Approved) as DealerPrice
@@ -23,13 +28,14 @@ RETURN (
 
     from SoftwareSolution.SwSpMaintenanceView sw
     join InputAtoms.Sog sog on sog.id = sw.Sog
+    join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
     join Fsp.SwFspCodeTranslation fsp on fsp.SogId = sw.Sog and fsp.SwDigitId = sw.SwDigit
     where (@sog is null or sw.Sog = @sog)
 )
 
 GO
 
-declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'SOLUTIONPACK-PRICE-LIST');
+declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'SOLUTIONPACK-PRICE-LIST-DETAILS');
 declare @index int = 0;
 
 delete from Report.ReportColumn where ReportId = @reportId;
@@ -37,16 +43,21 @@ delete from Report.ReportColumn where ReportId = @reportId;
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SogDescription', 'Infrastructure Solution', 1, 1);
 set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Digit', 'SW Product Order no.', 1, 1);
+set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Sog', 'Service Offering Group', 1, 1);
-
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Fsp', 'SolutionPack Product no.', 1, 1);
-
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SpDescription', 'SolutionPack Service Description', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Sp', 'SolutionPack Service Short Description', 1, 1);
 
+
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'SupportCost', 'Technical Solution Support cost', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'Reinsurance', 'Reinsurance', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'TP', 'Transfer Price', 1, 1);
 set @index = @index + 1;
