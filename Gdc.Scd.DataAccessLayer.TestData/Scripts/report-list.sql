@@ -12,7 +12,7 @@
 
 --Calculation Parameter Overview reports 
 ('Calculation-Parameter-hw', 'Calculation Parameter Overview reports for HW maintenance cost elements', 1,  0, 'Report.CalcParameterHw'),
-('Calculation-Parameter-proactive', 'Calculation Parameter Overview reports for ProActive cost elements', 1,  0, ''),
+('Calculation-Parameter-proactive', 'Calculation Parameter Overview reports for ProActive cost elements', 1,  0, 'Report.CalcParameterProActive'),
 
 --New vs. old reports 
 ('CalcOutput-vs-FREEZE', 'Country_CalcOutput actual vs. FREEZE report (e.g. Germany_CalcOutput actual vs. FREEZE)', 1, 0, ''),
