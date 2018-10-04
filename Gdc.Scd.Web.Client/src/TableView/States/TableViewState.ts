@@ -1,5 +1,6 @@
 import { NamedId } from "../../Common/States/CommonStates";
 import { FieldInfo } from "../../Common/States/FieldInfo";
+import { TableViewRecord } from "./TableViewRecord";
 
 export interface TableViewRecordInfo {
     coordinates: FieldInfo[]
@@ -14,4 +15,5 @@ export interface TableViewInfo {
 
 export interface TableViewState {
     info: TableViewInfo
+    editedRecords: TableViewRecord[]
 }

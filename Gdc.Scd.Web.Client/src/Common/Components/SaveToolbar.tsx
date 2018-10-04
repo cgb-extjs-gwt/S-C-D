@@ -11,9 +11,23 @@ export interface SaveToolbarProps extends SaveToolbarActions {
     isEnableSave: boolean
 }
 
-export class SaveToolbar extends React.Component<SaveToolbarProps> {
+export class SaveToolbar extends React.Component<SaveToolbarProps, SaveToolbarProps> {
+    constructor(props: SaveToolbarProps) {
+        super(props);
+
+        this.state = props;
+    }
+
+    public componentWillReceiveProps(nextProps: SaveToolbarProps) {
+        if (this.state.isEnableClear != nextProps.isEnableClear || 
+            this.state.isEnableSave != nextProps.isEnableSave) {
+            this.setState(nextProps);
+        }
+    }
+
     public render() {
-        const { isEnableClear, isEnableSave, children } = this.props;
+        const { isEnableClear, isEnableSave } = this.state;
+        const { children } = this.props;
 
         return(
             <Toolbar docked="bottom">
@@ -32,6 +46,19 @@ export class SaveToolbar extends React.Component<SaveToolbarProps> {
                 {children}
             </Toolbar>
         );
+    }
+
+    public enableClearButton(isEnable: boolean) {
+        this.setState({ isEnableClear: isEnable });
+    }
+
+    public enableSaveButton(isEnable: boolean) {
+        this.setState({ isEnableSave: isEnable });
+    }
+
+    public enable(isEnable: boolean) {
+        this.enableClearButton(isEnable);
+        this.enableSaveButton(isEnable);
     }
 
     private showSaveDialog(forApproval: boolean) {

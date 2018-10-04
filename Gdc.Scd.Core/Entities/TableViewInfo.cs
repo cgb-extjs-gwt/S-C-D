@@ -7,7 +7,7 @@ namespace Gdc.Scd.Core.Entities
     {
         public TableViewRecordInfo RecordInfo { get; set; }
 
-        public IDictionary<string, IEnumerable<NamedId>> Filters { get; set; }
+        //public IDictionary<string, IEnumerable<NamedId>> Filters { get; set; }
 
         public IDictionary<string, IEnumerable<NamedId>> References { get; set; }
     }

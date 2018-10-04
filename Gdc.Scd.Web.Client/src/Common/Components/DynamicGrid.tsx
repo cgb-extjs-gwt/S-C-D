@@ -3,22 +3,54 @@ import { Grid, Column, CheckColumn, NumberField, TextField, SelectField, Toolbar
 import { ColumnInfo, ColumnType } from "../States/ColumnInfo";
 import { SaveToolbar } from "./SaveToolbar";
 import { DynamicGridProps } from "./Props/DynamicGridProps";
+import { Model, StoreOperation } from "../States/ExtStates";
 
 export interface StoreDynamicGridProps extends DynamicGridProps {
     store
+    useStoreSync?: boolean
 }
 
 export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
+    private saveToolbar: SaveToolbar
+    private columnsMap = new Map<string, ColumnInfo>()
+
+    constructor(props: StoreDynamicGridProps) {
+        super(props);
+
+        this.state = {
+            hasChanges: false
+        };
+    }
+
     public componentDidMount() {
         const { init } = this.props;
 
         init && init();
     }
 
+    public componentWillUnmount() {
+        this.removeStoreListeners();
+    }
+
+    public componentWillReceiveProps(nextProps: StoreDynamicGridProps) {
+        if (this.props.store != nextProps.store) {
+            this.removeStoreListeners();
+            this.addStoreListeners(nextProps.store);
+        }
+
+        if (this.props.columns != nextProps.columns) {
+            this.removeStoreListeners();
+            this.addStoreListeners(nextProps.store);
+            this.columnsMap.clear();
+
+            nextProps.columns.forEach(column => this.columnsMap.set(column.dataIndex, column));
+        }
+    }
+
     public render() {
         const { store, columns, id, minHeight, minWidth, children, onSelectionChange } = this.props;
         const isEditable = !!columns.find(column => column.isEditable);
-        const hasChanges = store ? this.storeHasChanges(store) : false;
+        const hasChanges = this.hasChanges();
 
         let plugins;
         let selectable;
@@ -28,7 +60,7 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
             selectable = {
                 rows: true,
                 cells: true,
-                columns: true,
+                columns: false,
                 drag: true,
                 extensible: 'y',
             }
@@ -47,11 +79,15 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
                 plugins={plugins}
                 selectable={selectable}
             >
-                {columns.map(column => this.buildColumn(id, column))}
+                {
+                    columns.filter(column => !column.isInvisible)
+                           .map(column => this.buildColumn(id, column))
+                }
                 {children}
                 {
                     isEditable &&
                     <SaveToolbar 
+                        ref={toolbar => this.saveToolbar = toolbar}
                         isEnableClear={hasChanges} 
                         isEnableSave={hasChanges}
                         onCancel={this.onCancel}
@@ -60,6 +96,12 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
                 }
             </Grid>
         );
+    }
+
+    private hasChanges() {
+        const { store } = this.props;
+
+        return store ? store.getModifiedRecords().length > 0 : false;
     }
 
     private onCancel = () => {
@@ -71,17 +113,22 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
     }
 
     private onSave = () => {
-        const { store, onSave } = this.props;
+        const { store, onSave, useStoreSync } = this.props;
+        const saveFn = () => {
+            onSave && onSave();
 
-        store.sync({
-            callback: onSave
-        });
-    }
+            this.saveToolbar.enable(this.hasChanges());
+        };
 
-    private storeHasChanges(store) {
-        const records: any[] = store.getRange();
-
-        return !!records.find(record => record.dirty);
+        if (useStoreSync) {
+            store.sync({
+                callback: saveFn
+            });
+        }
+        else {
+            store.commitChanges();
+            saveFn();
+        }
     }
 
     private buildColumn(gridId: string, column: ColumnInfo) {
@@ -93,6 +140,10 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
             editable: column.isEditable
         };
 
+        if (column.rendererFn) {
+            columnOption.renderer = column.rendererFn;
+        }
+
         switch(column.type) {
             case ColumnType.CheckBox:
                 return (<CheckColumn {...columnOption} disabled={!column.isEditable}/>);
@@ -100,7 +151,7 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
             default:
                 let editor = null;
 
-                if (!column.isEditable) {
+                if (column.isEditable) {
                     switch (column.type) {
                         case ColumnType.Numeric:
                             editor = (<NumberField required validators={{ type:"number", message:"Invalid value" }}/>);
@@ -112,8 +163,11 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
         
                         case ColumnType.Reference:
                             editor = this.getReferenceEditor(column);
+                            const getReferenceName = value => value == ' ' ? value : column.referenceItems.get(value).name;
 
-                            columnOption.renderer = value => column.referenceItems.get(value).name;
+                            columnOption.renderer = column.rendererFn 
+                                ? (value, record) => column.rendererFn(getReferenceName(value), record) 
+                                : (value, record) => getReferenceName(value)
                             break;
                     }
                 }
@@ -134,5 +188,40 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
         return (
             <SelectField options={options} />
         )
+    }
+
+    private onUpdateStore = (store, record: Model, operation: StoreOperation, modifiedFieldNames: string[], details) => {
+        switch (operation) {
+            case StoreOperation.Edit: 
+                if (this.saveToolbar) {
+                    this.saveToolbar.enable(true);
+                }
+
+                modifiedFieldNames.forEach(dataIndex => {
+                    const column = this.columnsMap.get(dataIndex);
+
+                    column.editMappingFn && column.editMappingFn(record, dataIndex);
+                });
+                break;
+            
+            case StoreOperation.Reject: 
+            case StoreOperation.Commit: 
+                if (this.saveToolbar) {
+                    this.saveToolbar.enable(false);
+                }
+                break;
+        }
+    }
+
+    private addStoreListeners = store => {
+        if (store) {
+            store.on('update', this.onUpdateStore, this);
+        }
+    }
+
+    private removeStoreListeners = () => {
+        const { store } = this.props;
+
+        store && store.un('update', this.onUpdateStore);
     }
 }

@@ -1,34 +1,26 @@
-import { connect } from "react-redux";
+import { connect, connectAdvanced } from "react-redux";
 import { AjaxDynamicGridProps, AjaxDynamicGridActions, AjaxDynamicGrid } from "../../Common/Components/AjaxDynamicGrid";
 import { CommonState } from "../../Layout/States/AppStates";
 import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
 import { findMeta } from "../../Common/Helpers/MetaHelper";
 import { NamedId } from "../../Common/States/CommonStates";
 import { CostBlockMeta, FieldType, CostElementMeta, CostMetaData } from "../../Common/States/CostMetaStates";
-import { buildGetRecordsUrl, getTableViewInfo } from "../Services/TableViewService";
+import { buildGetRecordsUrl, getTableViewInfo, updateRecords } from "../Services/TableViewService";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { CommonAction } from "../../Common/Actions/CommonActions";
-import { loadTableViewInfo } from "../Actions/TableViewActions";
+import { loadTableViewInfo, editRecord, resetChanges } from "../Actions/TableViewActions";
 import { TableViewInfo } from "../States/TableViewState";
 import { TableViewRecord } from "../States/TableViewRecord";
 import { FieldInfo } from "../../Common/States/FieldInfo";
-
-// const mapToColumnInfo = (
-//     fieldIfnos: FieldInfo[],
-//     meta: CostMetaData,
-//     mapFn: (costBlock: CostBlockMeta, costElement: CostElementMeta, fieldInfo: FieldInfo) => ColumnInfo
-// ) => fieldIfnos.map(fieldInfo => {
-//     const costBlockMeta = findMeta(meta.costBlocks, fieldInfo.metaId);
-//     const costElementMeta = findMeta(costBlockMeta.costElements, fieldInfo.fieldName);
-
-//     return mapFn(costBlockMeta, costElementMeta, fieldInfo);
-// })
+import { Dispatch } from "redux";
+import { StoreOperation, Model } from "../../Common/States/ExtStates";
+import { isEqualCoordinates } from "../Helpers/TableViewHelper";
 
 const mapToColumnInfo = (
     fieldIfnos: FieldInfo[],
     meta: CostMetaData,
     costBlockCache: Map<string, CostBlockMeta>,
-    mapFn: (costBlock: CostBlockMeta, fieldInfo: FieldInfo) => ColumnInfo
+    mapFn: (costBlock: CostBlockMeta, fieldInfo: FieldInfo) => ColumnInfo<TableViewRecord>
 ) => fieldIfnos.map(fieldInfo => {
     let costBlockMeta = costBlockCache.get(fieldInfo.metaId);
     if (!costBlockMeta) {
@@ -58,7 +50,7 @@ const buildCoordinateColumn = (costBlock: CostBlockMeta, fieldInfo: FieldInfo) =
         }
     }
 
-    return <ColumnInfo>{
+    return <ColumnInfo<TableViewRecord>>{
         ...buildColumn(item, fieldInfo),
         type: ColumnType.Text,
         mappingFn: (record: TableViewRecord) => record.coordinates[fieldInfo.dataIndex].name
@@ -70,7 +62,7 @@ const buildCostElementColumn = (costBlock: CostBlockMeta, fieldInfo: FieldInfo, 
     let referenceItems: Map<string, NamedId>;
 
     const costElement = findMeta(costBlock.costElements, fieldInfo.fieldName);
-    const fieldType = costElement.typeOptions ? costElement.typeOptions.Type : ColumnType.Numeric;
+    const fieldType = costElement.typeOptions ? costElement.typeOptions.Type : FieldType.Double;
 
     switch (fieldType) {
         case FieldType.Double:
@@ -89,59 +81,164 @@ const buildCostElementColumn = (costBlock: CostBlockMeta, fieldInfo: FieldInfo, 
             break;
     }
 
-    return <ColumnInfo>{
+    return <ColumnInfo<TableViewRecord>>{
         ...buildColumn(costElement, fieldInfo),
         isEditable: true,
         type,
         referenceItems,
-        mappingFn: (record: TableViewRecord) => {
-            const valueCount = record.data[fieldInfo.dataIndex];
+        mappingFn: record => record.data[fieldInfo.dataIndex].value,
+        editMappingFn: (record, dataIndex) => record.data.data[dataIndex].value = record.get(dataIndex),
+        rendererFn: (value, record) => {
+            const dataIndex = buildCountDataIndex(fieldInfo.dataIndex);
+            const count = record.get(dataIndex);
 
-            return valueCount.count == 1 
-                ? valueCount.value 
-                : `(${valueCount.count} values)`;
+            return count == 1 ? value : `(${count} values)`;
         }
     };
 }
 
-export const TableViewContainer = connect<AjaxDynamicGridProps, AjaxDynamicGridActions, {}, CommonState>(
-    state => {
-        let dataLoadUrl: string;
+const buildCountColumns = (costBlock: CostBlockMeta, fieldInfo: FieldInfo) => (<ColumnInfo<TableViewRecord>>{
+    isInvisible: true,
+    dataIndex: buildCountDataIndex(fieldInfo.dataIndex),
+    mappingFn: record => record.data[fieldInfo.dataIndex].count
+})
+
+const buildCountDataIndex = (dataIndex: string) => `${dataIndex}_Count`
+
+const buildProps = (state: CommonState) => {
+    let readUrl: string;
+    let updateUrl: string;
+    
+    const columns = [];
+    const tableViewInfo = state.pages.tableView.info;
+    const meta = state.app.appMetaData;
+
+    if (tableViewInfo && meta) {
+        readUrl = buildGetRecordsUrl();
+
+        const costBlockCache = new Map<string, CostBlockMeta>();
+        const coordinateColumns = mapToColumnInfo(tableViewInfo.recordInfo.coordinates, meta, costBlockCache, buildCoordinateColumn);
+        const costElementColumns = mapToColumnInfo(
+            tableViewInfo.recordInfo.data, 
+            meta, 
+            costBlockCache, 
+            (costBlock, fieldInfo) => buildCostElementColumn(costBlock, fieldInfo, tableViewInfo));
         
-        const columns = [];
-        const tableViewInfo = state.pages.tableView.info;
-        const meta = state.app.appMetaData;
+        const countColumns = mapToColumnInfo(tableViewInfo.recordInfo.data, meta, costBlockCache, buildCountColumns);
 
-        if (tableViewInfo && meta) {
-            dataLoadUrl = buildGetRecordsUrl();
+        columns.push(...countColumns, ...coordinateColumns, ...costElementColumns);
+    }
 
-            // const coordinateColumns = mapToColumnInfo(tableViewInfo.recordInfo.coordinates, meta, buildCoordinateColumn);
-            // const costElementColumns = mapToColumnInfo(
-            //     tableViewInfo.recordInfo.data, 
-            //     meta, 
-            //     (costBlock, costElement, fieldInfo) => buildCostElementColumn(costBlock, costElement, fieldInfo, tableViewInfo));
-
-            const costBlockCache = new Map<string, CostBlockMeta>();
-            const coordinateColumns = mapToColumnInfo(tableViewInfo.recordInfo.coordinates, meta, costBlockCache, buildCoordinateColumn);
-            const costElementColumns = mapToColumnInfo(
-                tableViewInfo.recordInfo.data, 
-                meta, 
-                costBlockCache, 
-                (costBlock, fieldInfo) => buildCostElementColumn(costBlock, fieldInfo, tableViewInfo));
-
-            columns.push(...coordinateColumns, ...costElementColumns);
+    return <AjaxDynamicGridProps<TableViewRecord>>{
+        columns,
+        apiUrls: {
+            read: readUrl
         }
+    };
+}
 
-        return <AjaxDynamicGridProps>{
-            dataLoadUrl,
-            columns
-        };
-    },
-    dispatch => (<AjaxDynamicGridActions>{
-        init: () => handleRequest(
-            getTableViewInfo().then(
-                tableViewInfo => dispatch(loadTableViewInfo(tableViewInfo))
-            )
+const buildActions = (state: CommonState, dispatch: Dispatch) => (<AjaxDynamicGridActions<TableViewRecord>>{
+    init: () => !state.pages.tableView.info && handleRequest(
+        getTableViewInfo().then(
+            tableViewInfo => dispatch(loadTableViewInfo(tableViewInfo))
         )
+    ),
+    updateRecord: (store, record, operation, modifiedFieldNames) => {
+        switch (operation) {
+            case StoreOperation.Edit:
+                const [dataIndex] = modifiedFieldNames;
+                const tableViewRecord = record.data;
+                const countDataIndex = buildCountDataIndex(dataIndex);
+
+                if (record.get(countDataIndex) == 0) {
+                    record.set(countDataIndex, 1);
+                }
+
+                dispatch(editRecord(tableViewRecord, dataIndex));
+                break;
+        }
+    },
+    onSave: () =>  handleRequest(
+        updateRecords(state.pages.tableView.editedRecords).then(
+            () => dispatch(resetChanges())
+        )
+    ),
+    onCancel: () => dispatch(resetChanges()),
+    loadData: (store, records) => {
+        const editRecords = state.pages.tableView.editedRecords;
+        if (editRecords && editRecords.length > 0) {
+            for (const editRecord of editRecords) {
+                const record = records.find(item => isEqualCoordinates(item.data, editRecord));
+
+                if (record) {
+                    Object.keys(editRecord.data).forEach(key => {
+                        record.set(key, editRecord.data[key].value);
+                    });
+                }
+            }
+        }
+    }
+})
+
+export const TableViewContainer = connectAdvanced<CommonState, AjaxDynamicGridProps, any>(
+    dispatch => state => ({
+        ...buildProps(state),
+        ...buildActions(state, dispatch)
     })
 )(AjaxDynamicGrid)
+
+// export const TableViewContainer = connect<AjaxDynamicGridProps, AjaxDynamicGridActions, {}, CommonState>(
+//     state => {
+//         let readUrl: string;
+//         let updateUrl: string;
+        
+//         const columns = [];
+//         const tableViewInfo = state.pages.tableView.info;
+//         const meta = state.app.appMetaData;
+
+//         if (tableViewInfo && meta) {
+//             readUrl = buildGetRecordsUrl();
+
+//             const costBlockCache = new Map<string, CostBlockMeta>();
+//             const coordinateColumns = mapToColumnInfo(tableViewInfo.recordInfo.coordinates, meta, costBlockCache, buildCoordinateColumn);
+//             const costElementColumns = mapToColumnInfo(
+//                 tableViewInfo.recordInfo.data, 
+//                 meta, 
+//                 costBlockCache, 
+//                 (costBlock, fieldInfo) => buildCostElementColumn(costBlock, fieldInfo, tableViewInfo));
+
+//             columns.push(...coordinateColumns, ...costElementColumns);
+//         }
+
+//         return <AjaxDynamicGridProps>{
+//             columns,
+//             apiUrls: {
+//                 read: readUrl
+//             }
+//         };
+//     },
+//     dispatch => (<AjaxDynamicGridActions>{
+//         init: () => handleRequest(
+//             getTableViewInfo().then(
+//                 tableViewInfo => dispatch(loadTableViewInfo(tableViewInfo))
+//             )
+//         ),
+//         updateRecord: (store, record, operation, [ dataIndex ]) => {
+//             if (operation == 'edit') {
+//                 const tableViewRecord: TableViewRecord = record.data;
+//                 const valueCount = tableViewRecord.data[dataIndex];
+
+//                 if (valueCount.count == 0) {
+//                     valueCount.count = 1;
+//                 }
+
+//                 dispatch(editRecord(tableViewRecord, dataIndex));
+//             }
+//         },
+//         onSave: () => dispatch(saveChanges()),
+//         onCancel: () => dispatch(resetChanges()),
+//         loadData: (store, records) => {
+
+//         }
+//     })
+// )(AjaxDynamicGrid)

@@ -7,7 +7,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface ITableViewService
     {
-        Task<DataInfo<TableViewRecord>> GetRecords(QueryInfo queryInfo, IDictionary<ColumnInfo, IEnumerable<object>> filter = null);
+        Task<IEnumerable<TableViewRecord>> GetRecords();
 
         Task UpdateRecords(IEnumerable<TableViewRecord> records);
 

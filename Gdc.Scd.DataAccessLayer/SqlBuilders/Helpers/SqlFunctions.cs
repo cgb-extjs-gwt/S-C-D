@@ -34,7 +34,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 Query = new CountSqlBuilder
                 {
                     TableName = tableName,
-                    ColumnName = columnName ?? "*",
+                    ColumnName = columnName,
                     IsDisctinct = isDisctinct
                 },
                 Alias = alias

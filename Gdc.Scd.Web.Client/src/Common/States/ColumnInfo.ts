@@ -1,4 +1,5 @@
 import { NamedId } from "./CommonStates";
+import { Model } from "./ExtStates";
 
 export enum ColumnType {
     Text,
@@ -7,11 +8,14 @@ export enum ColumnType {
     Reference
 }
 
-export interface ColumnInfo {
+export interface ColumnInfo<T=any> {
     dataIndex: string
     title: string
     type: ColumnType
     isEditable?: boolean
     referenceItems?: Map<string, NamedId>
-    mappingFn?(data): any
+    isInvisible?: boolean
+    mappingFn?(data: T): any
+    editMappingFn?(data: Model<T>, dataIndex: string)
+    rendererFn?(value, record: Model<T>): any
 }

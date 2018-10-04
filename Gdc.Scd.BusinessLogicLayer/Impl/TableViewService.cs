@@ -26,11 +26,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.meta = meta;
         }
 
-        public async Task<DataInfo<TableViewRecord>> GetRecords(QueryInfo queryInfo, IDictionary<ColumnInfo, IEnumerable<object>> filter = null)
+        public async Task<IEnumerable<TableViewRecord>> GetRecords()
         {
             var costBlockInfos = this.GetCostBlockInfo().ToArray();
             
-            return await this.tableViewRepository.GetRecords(costBlockInfos, queryInfo, filter);
+            return await this.tableViewRepository.GetRecords(costBlockInfos);
         }
 
         public async Task UpdateRecords(IEnumerable<TableViewRecord> records)
@@ -47,7 +47,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new TableViewInfo
             {
                 RecordInfo = this.tableViewRepository.GetTableViewRecordInfo(costBlockInfos),
-                Filters = await this.tableViewRepository.GetFilters(costBlockInfos),
+                //Filters = await this.tableViewRepository.GetFilters(costBlockInfos),
                 References = await this.tableViewRepository.GetReferences(costBlockInfos)
             };
         }
