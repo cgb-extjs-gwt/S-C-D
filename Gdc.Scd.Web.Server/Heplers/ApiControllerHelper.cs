@@ -36,9 +36,7 @@ namespace Gdc.Scd.Web.Server
             headers.ContentType = new MediaTypeHeaderValue(mediaType);
             headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = fileName };
 
-            var response = new HttpResponseMessage(HttpStatusCode.OK);
-            response.Content = new StreamContent(data);
-            return response;
+            return new HttpResponseMessage(HttpStatusCode.OK) { Content = content };
         }
 
         public static HttpResponseMessage JsonContent(this ApiController ctrl, string json)
@@ -53,6 +51,16 @@ namespace Gdc.Scd.Web.Server
         public static HttpResponseMessage JsonContent(this ApiController ctrl, string jsonArray, int total)
         {
             return JsonContent(ctrl, WithDataInfo(jsonArray, total));
+        }
+
+        public static HttpResponseMessage JsonContent(this ApiController ctrl, Stream data)
+        {
+            var content = new StreamContent(data);
+            var headers = content.Headers;
+            headers.ContentType = new MediaTypeHeaderValue(MimeTypes.APPLICATION_JSON);
+            headers.ContentType.CharSet = "UTF-8";
+
+            return new HttpResponseMessage(HttpStatusCode.OK) { Content = content };
         }
 
         private static string WithDataInfo(string jsonArray, int total)
