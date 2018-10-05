@@ -23,7 +23,7 @@
 ('SolutionPack-Price-List', 'SolutionPack Price List report', 0, 0, 'Report.SolutionPackPriceList'),
 ('SolutionPack-Price-List-Details', 'SolutionPack Price List Detailed report', 0, 0, 'Report.SolutionPackPriceListDetail'),
 
-('PO-Standard-Warranty-Material', 'PO Standard Warranty Material Report', 0, 0, ''),
+('PO-Standard-Warranty-Material', 'PO Standard Warranty Material Report', 0, 0, 'Report.PoStandardWarrantyMaterial'),
 ('FLAT-Fee-Reports', 'Availability Fee_Report (old FSL fee report)', 0, 0, ''),
 
 --Software reports
