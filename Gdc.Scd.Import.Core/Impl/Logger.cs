@@ -1,8 +1,12 @@
 ﻿using Gdc.Scd.Core.Interfaces;
-using System;
 using NLog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Gdc.Scd.Import.Por.Core.Impl
+namespace Gdc.Scd.Import.Core.Impl
 {
     public class Logger : ILogger<LogLevel>
     {

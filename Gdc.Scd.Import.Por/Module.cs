@@ -22,7 +22,7 @@ namespace Gdc.Scd.Import.Por
             Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InSingletonScope();
             Bind<FrieseEntities>().ToSelf().InSingletonScope();
             Bind<ISqlRepository>().To<SqlRepository>().InSingletonScope();
-            Bind<ILogger<LogLevel>>().To<Core.Impl.Logger>().InSingletonScope();
+            Bind<ILogger<LogLevel>>().To<Import.Core.Impl.Logger>().InSingletonScope();
 
             Bind(typeof(IDataImporter<>)).To(typeof(PorDataImporter<>)).InSingletonScope();
 
