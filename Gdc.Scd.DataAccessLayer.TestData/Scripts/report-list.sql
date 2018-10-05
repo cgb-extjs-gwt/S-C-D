@@ -28,7 +28,7 @@
 
 --Software reports
 ('SW-Service-Price-List', 'Software services price list', 0, 0, 'Report.SwServicePriceList'),
-('SW-Service-Price-List-detailed', 'Software services price list detailed', 0, 0, ''),
+('SW-Service-Price-List-detailed', 'Software services price list detailed', 0, 0, 'Report.SwServicePriceListDetail'),
 
 --Logistics reports
 ('Logistic-cost-country', 'Logistics cost report local per country', 1,  0, ''),
