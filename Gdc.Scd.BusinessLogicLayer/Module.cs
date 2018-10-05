@@ -26,6 +26,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<IUserService>().To<UserService>().InRequestScope();
             Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InRequestScope();
             Bind<IAvailabilityFeeAdminService>().To<AvailabilityFeeAdminService>().InRequestScope();
+            Bind<ICountryAdminService>().To<CountryAdminService>().InRequestScope();
             Bind<IEmailService>().To<EmailService>().InRequestScope();
             Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InRequestScope();
             Bind<IQualityGateSevice>().To<QualityGateSevice>().InRequestScope();
