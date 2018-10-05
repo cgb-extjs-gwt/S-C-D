@@ -27,7 +27,7 @@
 ('FLAT-Fee-Reports', 'Availability Fee_Report (old FSL fee report)', 0, 0, 'Report.FlatFeeReport'),
 
 --Software reports
-('SW-Service-Price-List', 'Software services price list', 0, 0, ''),
+('SW-Service-Price-List', 'Software services price list', 0, 0, 'Report.SwServicePriceList'),
 ('SW-Service-Price-List-detailed', 'Software services price list detailed', 0, 0, ''),
 
 --Logistics reports
