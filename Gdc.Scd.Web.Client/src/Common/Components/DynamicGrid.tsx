@@ -3,10 +3,10 @@ import { Grid, Column, CheckColumn, NumberField, TextField, SelectField, Toolbar
 import { ColumnInfo, ColumnType } from "../States/ColumnInfo";
 import { SaveToolbar } from "./SaveToolbar";
 import { DynamicGridProps } from "./Props/DynamicGridProps";
-import { Model, StoreOperation } from "../States/ExtStates";
+import { Model, StoreOperation, Store } from "../States/ExtStates";
 
 export interface StoreDynamicGridProps extends DynamicGridProps {
-    store
+    store: Store
     useStoreSync?: boolean
 }
 
@@ -48,7 +48,7 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
     }
 
     public render() {
-        const { store, columns, id, minHeight, minWidth, children, onSelectionChange } = this.props;
+        const { store, columns, id, minHeight, minWidth, children, onSelectionChange, flex } = this.props;
         const isEditable = !!columns.find(column => column.isEditable);
         const hasChanges = this.hasChanges();
 
@@ -78,6 +78,7 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
                 onSelect={onSelectionChange}
                 plugins={plugins}
                 selectable={selectable}
+                flex={flex}
             >
                 {
                     columns.filter(column => !column.isInvisible)
@@ -190,7 +191,7 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
         )
     }
 
-    private onUpdateStore = (store, record: Model, operation: StoreOperation, modifiedFieldNames: string[], details) => {
+    private onUpdateStore = (store: Store, record: Model, operation: StoreOperation, modifiedFieldNames: string[], details) => {
         switch (operation) {
             case StoreOperation.Edit: 
                 if (this.saveToolbar) {
@@ -213,7 +214,7 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
         }
     }
 
-    private addStoreListeners = store => {
+    private addStoreListeners = (store: Store) => {
         if (store) {
             store.on('update', this.onUpdateStore, this);
         }

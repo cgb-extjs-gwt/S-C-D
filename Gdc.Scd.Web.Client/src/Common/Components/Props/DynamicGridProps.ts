@@ -12,4 +12,5 @@ export interface DynamicGridProps extends DynamicGridActions {
     id?: string
     minHeight?: number
     minWidth?: number
+    flex?: number
 }

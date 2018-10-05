@@ -110,6 +110,7 @@ const buildProps = (state: CommonState) => {
     let updateUrl: string;
     
     const columns = [];
+    const filterDataIndexes = [];
     const tableViewInfo = state.pages.tableView.info;
     const meta = state.app.appMetaData;
 
@@ -127,10 +128,13 @@ const buildProps = (state: CommonState) => {
         const countColumns = mapToColumnInfo(tableViewInfo.recordInfo.data, meta, costBlockCache, buildCountColumns);
 
         columns.push(...countColumns, ...coordinateColumns, ...costElementColumns);
+
+        coordinateColumns.forEach(column => filterDataIndexes.push(column.dataIndex));
     }
 
     return <AjaxDynamicGridProps<TableViewRecord>>{
         columns,
+        filterDataIndexes,
         apiUrls: {
             read: readUrl
         }
@@ -143,7 +147,7 @@ const buildActions = (state: CommonState, dispatch: Dispatch) => (<AjaxDynamicGr
             tableViewInfo => dispatch(loadTableViewInfo(tableViewInfo))
         )
     ),
-    updateRecord: (store, record, operation, modifiedFieldNames) => {
+    onUpdateRecord: (store, record, operation, modifiedFieldNames) => {
         switch (operation) {
             case StoreOperation.Edit:
                 const [dataIndex] = modifiedFieldNames;
@@ -164,7 +168,7 @@ const buildActions = (state: CommonState, dispatch: Dispatch) => (<AjaxDynamicGr
         )
     ),
     onCancel: () => dispatch(resetChanges()),
-    loadData: (store, records) => {
+    onLoadData: (store, records) => {
         const editRecords = state.pages.tableView.editedRecords;
         if (editRecords && editRecords.length > 0) {
             for (const editRecord of editRecords) {
