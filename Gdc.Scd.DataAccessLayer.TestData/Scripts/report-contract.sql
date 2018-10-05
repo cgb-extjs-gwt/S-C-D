@@ -48,17 +48,17 @@ RETURN (
          , rtype.Name as ReactionType
          , av.Name as Availability
 
-         , Report.AsEuroStr(m.ServiceTP1) AS ServiceTP1
-         , Report.AsEuroStr(m.ServiceTP2) AS ServiceTP2
-         , Report.AsEuroStr(m.ServiceTP3) AS ServiceTP3
-         , Report.AsEuroStr(m.ServiceTP4) AS ServiceTP4
-         , Report.AsEuroStr(m.ServiceTP5) AS ServiceTP5
+         , m.ServiceTP1 AS ServiceTP1
+         , m.ServiceTP2 AS ServiceTP2
+         , m.ServiceTP3 AS ServiceTP3
+         , m.ServiceTP4 AS ServiceTP4
+         , m.ServiceTP5 AS ServiceTP5
 
-         , Report.AsEuroStr(m.ServiceTP1 / 12) AS ServiceTPMonthly1
-         , Report.AsEuroStr(m.ServiceTP2 / 12) AS ServiceTPMonthly2
-         , Report.AsEuroStr(m.ServiceTP3 / 12) AS ServiceTPMonthly3
-         , Report.AsEuroStr(m.ServiceTP4 / 12) AS ServiceTPMonthly4
-         , Report.AsEuroStr(m.ServiceTP5 / 12) AS ServiceTPMonthly5
+         , m.ServiceTP1 / 12 AS ServiceTPMonthly1
+         , m.ServiceTP2 / 12 AS ServiceTPMonthly2
+         , m.ServiceTP3 / 12 AS ServiceTPMonthly3
+         , m.ServiceTP4 / 12 AS ServiceTPMonthly4
+         , m.ServiceTP5 / 12 AS ServiceTPMonthly5
 
          , null as WarrantyLevel
          , null as PortfolioType
@@ -66,7 +66,7 @@ RETURN (
 
     from cte m
     join InputAtoms.CountryView cnt on cnt.Id = m.CountryId
-    join InputAtoms.WgView wg on wg.id = m.WgId
+    join InputAtoms.WgSogView wg on wg.id = m.WgId
     join Dependencies.Availability av on av.Id= m.AvailabilityId
     join Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
     join Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
@@ -96,26 +96,26 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Availability', 'Availability', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTP1', 'Service Tranfer Price yearly - year1', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTP1', 'Service Tranfer Price yearly - year1', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTP2', 'Service Tranfer Price yearly - year2', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTP2', 'Service Tranfer Price yearly - year2', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTP3', 'Service Tranfer Price yearly - year3', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTP3', 'Service Tranfer Price yearly - year3', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTP4', 'Service Tranfer Price yearly - year4', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTP4', 'Service Tranfer Price yearly - year4', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTP5', 'Service Tranfer Price yearly - year5', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTP5', 'Service Tranfer Price yearly - year5', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTPMonthly1', 'Service Tranfer Price monthly - year1', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTPMonthly1', 'Service Tranfer Price monthly - year1', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTPMonthly2', 'Service Tranfer Price monthly - year2', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTPMonthly2', 'Service Tranfer Price monthly - year2', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTPMonthly3', 'Service Tranfer Price monthly - year3', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTPMonthly3', 'Service Tranfer Price monthly - year3', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTPMonthly4', 'Service Tranfer Price monthly - year4', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTPMonthly4', 'Service Tranfer Price monthly - year4', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTPMonthly5', 'Service Tranfer Price monthly - year5', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTPMonthly5', 'Service Tranfer Price monthly - year5', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'WarrantyLevel', 'Warranty Level', 1, 1);

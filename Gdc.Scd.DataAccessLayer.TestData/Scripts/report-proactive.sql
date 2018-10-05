@@ -18,7 +18,7 @@ RETURN (
     select m.Country
             , m.CountryGroup
             , null as InfSolution
-            , wg.Name as Wg
+            , m.Wg
             , m.Fsp
             , null as SpDescription
             , null as Sp
@@ -39,7 +39,6 @@ RETURN (
 
     from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
     join Hardware.ServiceCostCalculationView sc on sc.MatrixId = m.Id
-    join InputAtoms.WgView wg on wg.id = m.WgId
     join Dependencies.Duration dur on dur.Id = m.DurationId
 )
 

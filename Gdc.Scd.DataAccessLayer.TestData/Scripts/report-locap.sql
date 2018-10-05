@@ -21,8 +21,8 @@ RETURN (
          , m.ReactionTime
          , m.DurationValue as ServicePeriod
          , wg.Name as Wg
-         , Report.AsEuroSignStr(sc.ProActive + sc.ServiceTP) as Dcos
-         , Report.AsEuroSignStr(sc.ServiceTP) as ServiceTP
+         , (sc.ProActive + sc.ServiceTP) as Dcos
+         , sc.ServiceTP
          , m.Country
          , null as ServiceType
          , null as PlausiCheck
@@ -31,7 +31,7 @@ RETURN (
          , wg.Sog
     from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
     join Hardware.ServiceCostCalculationView sc on sc.MatrixId = m.Id
-    join InputAtoms.WgView wg on wg.id = m.WgId
+    join InputAtoms.WgSogView wg on wg.id = m.WgId
 )
 GO
 
@@ -52,9 +52,9 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Wg', 'WG', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Dcos', 'Service DCOS', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'Dcos', 'Service DCOS', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTP', 'Service TP (Full cost)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTP', 'Service TP (Full cost)', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Country', 'Country Name', 1, 1);
 set @index = @index + 1;

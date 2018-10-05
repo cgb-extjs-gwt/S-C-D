@@ -17,7 +17,7 @@ AS
 RETURN (
     select c.Region
          , c.Name as Country
-         , wg.Name as Wg
+         , m.Wg
 
          , m.ServiceLocation as ServiceLevel
          , m.ReactionTime
@@ -39,7 +39,6 @@ RETURN (
 
     from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
     join Hardware.ServiceCostCalculationView sc on sc.MatrixId = m.Id
-    join InputAtoms.WgView wg on wg.id = m.WgId
     join InputAtoms.CountryView c on c.Id = m.CountryId
     join Hardware.LogisticsCostView l on l.Country = m.CountryId
                                      and l.Wg = m.WgId
