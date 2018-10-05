@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Impl;
@@ -68,6 +69,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateYearAvailability();
             this.CreateProActiveSla();
             this.CreateServiceLocations();
+            this.CreateImportConfiguration();
 
             var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
             var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.WgInputLevelName, MetaConstants.InputLevelSchema);
@@ -1199,6 +1201,29 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var streamReader = new StreamReader(stream);
 
             return streamReader.ReadToEnd();
+        }
+
+        private void CreateImportConfiguration()
+        {
+            var taxAndDuties = new ImportConfiguration
+            {
+                Name = ImportSystems.AMBERROAD,
+                FilePath = @"C:\Users\BorisovaE\Desktop",
+                FileName = "SCD_Duties_Taxes.csv",
+                ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
+                ProcessedDateTime = null,
+                Occurancy = Core.Enums.Occurancy.PerMonth,
+                ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed",
+                Delimeter = ";",
+                HasHeader = true
+            };
+
+            this.repositorySet.GetRepository<ImportConfiguration>().Save(new List<ImportConfiguration>()
+            {
+                taxAndDuties
+            });
+
+            this.repositorySet.Sync();
         }
 
         private void CreateRegions()
