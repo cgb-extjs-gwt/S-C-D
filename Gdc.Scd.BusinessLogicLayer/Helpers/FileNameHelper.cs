@@ -9,7 +9,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
         public static string Excel(string fn)
         {
             fn = REPORT_FN_REGEX.Replace(fn, "-");
-            return string.Concat(fn, "-", DateHelper.Timestamp(), ".xls");
+            return string.Concat(fn, "-", DateHelper.Timestamp(), ".xlsx");
         }
     }
 }

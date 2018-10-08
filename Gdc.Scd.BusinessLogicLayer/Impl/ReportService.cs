@@ -56,16 +56,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return result;
         }
 
-        public Task<DataTable> GetData(long reportId, ReportFilterCollection filter)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DataTableDto> GetData(long reportId, ReportFilterCollection filter, int start, int limit)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<JsonArrayDto> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit)
         {
             var r = GetSchemas().GetSchema(reportId);

@@ -1,9 +1,7 @@
-﻿using ClosedXML.Excel;
-using Gdc.Scd.BusinessLogicLayer.Dto.Report;
+﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
 using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using System;
 using System.Data.Common;
 using System.IO;
 using System.Threading.Tasks;
@@ -21,48 +19,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
         public async Task<Stream> ExecuteExcelAsync(ReportSchemaDto schema, string func, DbParameter[] parameters)
         {
+            var writer = new ReportExcelWriter(schema);
+            var sql = SelectAllQuery(func, parameters, 1000);
 
-            var fields = schema.Fields;
+            await _repo.ReadBySql(sql, writer.Write, parameters);
 
-            var workbook = new XLWorkbook();
-            var worksheet = workbook.Worksheets.Add(schema.Name);
-
-            int row = 1;
-
-            for (var i = 0; i < fields.Length; i++)
-            {
-                var f = fields[i];
-                var cell = worksheet.Cell(row, i + 1);
-                cell.Value = f.Text;
-                cell.Style.Font.Bold = true;
-            }
-
-
-            var ms = new MemoryStream(2048);
-
-            Action<DbDataReader> map = (DbDataReader reader) =>
-            {
-
-                row++;
-
-                for (var i = 0; i < fields.Length; i++)
-                {
-                    var ordinal = reader.GetOrdinal(fields[i].Name);
-                    if (!reader.IsDBNull(ordinal))
-                    {
-                        worksheet.Cell(row, i + 1).Value = reader[ordinal];
-                    }
-                }
-
-            };
-
-            await _repo.ReadBySql(SelectAllQuery(func, parameters, 1000), map, parameters);
-
-            workbook.SaveAs(ms);
-
-            ms.Seek(0, SeekOrigin.Begin);
-
-            return ms;
+            return writer.GetData();
         }
 
         public async Task<JsonArrayDto> ExecuteJsonAsync(
