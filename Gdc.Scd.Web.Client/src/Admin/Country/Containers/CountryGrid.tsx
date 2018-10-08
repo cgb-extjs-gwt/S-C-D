@@ -1,8 +1,13 @@
 import * as React from 'react';
-import { Grid, Column, CheckColumn, Toolbar, Button } from '@extjs/ext-react';
+import { Grid, Column, CheckColumn, Toolbar, Button, TextField } from '@extjs/ext-react';
 import { buildMvcUrl } from "../../../Common/Services/Ajax";
 
-const CONTROLLER_NAME = 'Country';
+const CONTROLLER_NAME = 'CountryManagement';
+
+Ext.require([
+    'Ext.grid.plugin.Editable',
+    'Ext.grid.plugin.CellEditing',
+]);
 
 class CountryGrid extends React.Component{
 
@@ -10,8 +15,14 @@ class CountryGrid extends React.Component{
         disableSaveButton: true
     };
 
+    renderer = (value) => value ? value : " ";
+
     store = Ext.create('Ext.data.Store', {
-        fields: ['id', 'name', 'canOverrideListAndDealerPrices', 'showDealerPrice', 'canOverrideTransferCostAndPrice'],
+        fields: ['countryId',
+            'countryGroup', 'countryName', 'lUTCode', 'countryDigit',
+            'iSO3Code', 'isMaster',
+            'canStoreListAndDealerPrices',
+            'canOverrideTransferCostAndPrice', 'qualityGroup'],
         autoLoad: true,
         proxy: {
             type: 'ajax',
@@ -21,12 +32,13 @@ class CountryGrid extends React.Component{
             },
             reader: {
                 type: 'json',
-                idProperty: 'id'
+                rootProperty: 'items',
+                totalProperty: 'total'
             },
             writer: {
                 type: 'json',
                 writeAllFields: true,
-                idProperty: 'id',
+                idProperty: 'countryId',
                 allowSingle: false
             },
             listeners: {
@@ -72,22 +84,31 @@ class CountryGrid extends React.Component{
 
     
     render(){
-        return ( <Grid title={ 'Country Settings' } store={ this.store } cls="filter-grid" columnLines= {true} >
-                    <Column text="Country Name" dataIndex="name" flex={1} />
-                    <CheckColumn text="Can Override List and Dealer Price" dataIndex="canOverrideListAndDealerPrices" flex={1} />
-                    <CheckColumn text="Show Dealer Price" dataIndex="showDealerPrice" flex={1} />
-                    <CheckColumn text="Can Override TC and TP" dataIndex="canOverrideTransferCostAndPrice" flex={1} />
+        return (<Grid title={'Country Settings'} store={this.store} cls="filter-grid" columnLines={true}
+            plugins={['pagingtoolbar', 'gridcellediting']}>
+            <Column text="Group" dataIndex="countryGroup" flex={1} />
+            <Column text="Country" dataIndex="countryName" flex={1} />
+            <Column text="LUT" dataIndex="lutCode" flex={1} renderer={this.renderer.bind(this)} />
+            <Column text="Digit" dataIndex="countryDigit" flex={1} renderer={this.renderer.bind(this)} />
+            <Column text="ISO Code" dataIndex="isO3Code" flex={1} renderer={this.renderer.bind(this)} />
+            <Column text="Is Master" dataIndex="isMaster" flex={1} />
+            <CheckColumn text="Store List and Dealer Prices" dataIndex="canStoreListAndDealerPrices" flex={2} />
+            <CheckColumn text="Override TC and TP" dataIndex="canOverrideTransferCostAndPrice" flex={2} />
+            <Column text="Quality Group" dataIndex="qualityGroup" flex={1} editable
+                renderer={this.renderer.bind(this)} >
+                <TextField />
+            </Column>
 
-                    <Toolbar docked="bottom">
-                        <Button 
-                            text="Save" 
-                            flex = {1} 
-                            handler = { this.saveRecords }
-                            iconCls = "x-fa fa-save"
-                            disabled = { this.state.disableSaveButton }
-                        />
-                    </Toolbar>
-                </Grid>);
+            <Toolbar docked="bottom">
+                 <Button 
+                      text="Save" 
+                      flex = {1} 
+                      handler = { this.saveRecords }
+                      iconCls = "x-fa fa-save"
+                      disabled = { this.state.disableSaveButton }
+                />
+             </Toolbar>
+        </Grid>);
     }
 }
 
