@@ -61,6 +61,7 @@ namespace Gdc.Scd.Import.Por
             Kernel.RegisterEntity<Country>();
             Kernel.RegisterEntity<HwFspCodeTranslation>();
             Kernel.RegisterEntity<SwFspCodeTranslation>();
+            Kernel.RegisterEntity<SoftwareProactive>();
         }
     }
 }
