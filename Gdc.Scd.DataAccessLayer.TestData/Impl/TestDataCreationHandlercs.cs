@@ -82,6 +82,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
 
+            queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
+
             queries.AddRange(this.BuildFromFile(@"Scripts.reports.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.report-list.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-output-new-vs-old.sql"));
@@ -103,9 +106,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.report-solutionpack-proactive-costing.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.report-SW-Service-Price-List-detail.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.report-SW-Service-Price-List.sql"));
-
-            queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
 
             foreach (var query in queries)
             {
