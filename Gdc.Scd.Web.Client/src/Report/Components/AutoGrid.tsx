@@ -1,4 +1,4 @@
-﻿import { Column, Container, Grid, GridProps, NumberColumn } from "@extjs/ext-react";
+﻿import { Button, Column, Container, Grid, GridProps, NumberColumn, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
 import { AutoColumnModel } from "../Model/AutoColumnModel";
 import { AutoColumnType } from "../Model/AutoColumnType";
@@ -10,6 +10,8 @@ import { PercentColumn } from "./PercentColumn";
 export interface AutoGridProps {
 
     url: string;
+
+    downloadUrl: string;
 
     columns: AutoColumnModel[];
 
@@ -54,14 +56,22 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
         return (
             <Container layout="fit">
 
+                <Container hidden={true}>
+                    <iframe ref="downloader"></iframe>
+                </Container>
+
                 <AutoFilter ref="filter" docked="right" hidden={!this.showFilter()} filter={this.props.filter} onSearch={this.onSearch} />
+
+                <Toolbar docked="top">
+                    <Button iconCls="x-fa fa-download" text="Download" handler={this.onDownload} />
+                </Toolbar>
 
                 <Grid
                     {...cfg}
                     ref="grid"
                     store={this.store}
                     width="100%"
-                    defaults={{minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                    defaults={{ minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                     {this.props.columns.map((v, i) => {
 
@@ -106,8 +116,21 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
     private init() {
         this.onSearch = this.onSearch.bind(this);
         this.onBeforeLoad = this.onBeforeLoad.bind(this);
+        this.onDownload = this.onDownload.bind(this);
 
         this.store.on('beforeload', this.onBeforeLoad);
+    }
+
+    private onDownload() {
+        let url = this.props.downloadUrl;
+
+        let filter = this.filter.getModel() || {};
+        filter._dc = new Date().getTime();
+
+        url = Ext.urlAppend(url, Ext.urlEncode(filter, true));
+
+        var ifr = this.refs['downloader'] as HTMLElement;
+        ifr.setAttribute('src', url);
     }
 
     private onSearch(filter: any) {
