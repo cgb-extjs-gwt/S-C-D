@@ -94,13 +94,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             {
                 var f = fields[i];
                 ordinals[i] = reader.GetOrdinal(f.Name);
-                formats[i] = GetFormat(f.Type);
+                formats[i] = GetFormatter(f.Type);
             }
 
             this.prepared = true;
         }
 
-        public static Func<DbDataReader, int, object> GetFormat(string type)
+        public static Func<DbDataReader, int, object> GetFormatter(string type)
         {
             if (string.Compare(type, "number", true) == 0)
             {
