@@ -13,6 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.93.1" />
     <PackageReference Include="Ninject" Version="3.3.4" />
     <PackageReference Include="Ninject.Web.Common" Version="3.3.1" />
   </ItemGroup>

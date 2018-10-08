@@ -7,6 +7,11 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
     {
         public static void AddParameters(this DbCommand cmd, params DbParameter[] parameters)
         {
+            if(parameters == null)
+            {
+                return;
+            }
+
             for (var i = 0; i < parameters.Length; i++)
             {
                 cmd.Parameters.Add(parameters[i]);

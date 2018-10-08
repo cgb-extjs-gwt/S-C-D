@@ -22,6 +22,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc);
 
+        Task ReadBySql(string sql, Action<DbDataReader> mapFunc, params DbParameter[] parameters);
+
         int ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null);
 
         int ExecuteSql(SqlHelper query);

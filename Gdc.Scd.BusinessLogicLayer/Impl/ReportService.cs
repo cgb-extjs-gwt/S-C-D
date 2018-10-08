@@ -41,9 +41,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.filterRepo = filterRepo;
         }
 
-        public Task<FileStreamDto> Excel(long reportId, ReportFilterCollection filter)
+        public async Task<FileStreamDto> Excel(long reportId, ReportFilterCollection filter)
         {
-            throw new NotImplementedException();
+            var r = GetSchemas().GetSchema(reportId);
+            var func = r.Report.SqlFunc;
+            var parameters = r.FillParameters(filter);
+            var schema = r.AsSchemaDto();
+
+            var result = new FileStreamDto();
+
+            result.FileName = FileNameHelper.Excel(schema.Name);
+            result.Data = await new GetReport(repositorySet).ExecuteExcelAsync(schema, func, parameters);
+
+            return result;
         }
 
         public Task<DataTable> GetData(long reportId, ReportFilterCollection filter)

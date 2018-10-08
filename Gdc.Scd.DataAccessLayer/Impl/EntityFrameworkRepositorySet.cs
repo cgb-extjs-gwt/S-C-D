@@ -78,6 +78,27 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return ReadBySql(query.ToSql(), mapFunc, query.GetParameters());
         }
 
+        public Task ReadBySql(string sql, Action<DbDataReader> mapFunc, params DbParameter[] parameters)
+        {
+            return WithCommand(async cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                var reader = await cmd.ExecuteReaderAsync();
+
+                if (reader.HasRows)
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        mapFunc(reader);
+                    }
+                }
+
+                return 0; //stub for correct task
+            });
+        }
+
         public int ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null)
         {
             var dbParams = this.GetDbParameters(parameters);
