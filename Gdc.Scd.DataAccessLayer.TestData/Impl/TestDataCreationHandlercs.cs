@@ -81,11 +81,29 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
+
             queries.AddRange(this.BuildFromFile(@"Scripts.reports.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.report-list.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-locap.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-local-detailed.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-output-new-vs-old.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-output-vs-FREEZE.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.7report-calc-parameter-hw.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-parameter-proactive.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.report-contract.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-flat-fee.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-hdd-retention-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-hdd-retention-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-hdd-retention-parameter.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-local-detailed.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-locap.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-logistic-cost-calc-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-po-standard-warranty.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-solution-pack-price-list-detail.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-solution-pack-price-list.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-solutionpack-proactive-costing.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-SW-Service-Price-List-detail.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-SW-Service-Price-List.sql"));
+
             queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
 
