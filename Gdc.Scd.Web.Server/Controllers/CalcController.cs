@@ -64,7 +64,9 @@ namespace Gdc.Scd.Web.Api.Controllers
             {
                 Id = x.Id,
                 ServiceTC = x.ServiceTCManual,
-                ServiceTP = x.ServiceTPManual
+                ServiceTP = x.ServiceTPManual,
+                ListPrice = x.ListPrice,
+                DealerDiscount = x.DealerDiscount
             });
             calcSrv.SaveHardwareCost(model);
         }
