@@ -34,20 +34,27 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                 DbParameter[] parameters
             )
         {
-            var result = new JsonArrayDto();
+            string sql;
+            JsonArrayDto result = new JsonArrayDto();
 
-            result.Total = await _repo.ExecuteScalarAsync<int>(CountQuery(func, parameters), parameters);
+            sql = CountQuery(func, parameters);
 
-            result.Json = await _repo.ExecuteAsJsonAsync(SelectQuery(func, parameters, start, limit), Copy(parameters));
+            result.Total = await _repo.ExecuteScalarAsync<int>(sql, parameters);
+
+            parameters = parameters.Copy();
+            sql = SelectQuery(func, parameters, start, limit);
+
+            result.Json = await _repo.ExecuteAsJsonAsync(sql, parameters);
 
             return result;
         }
 
         public async Task<JsonArrayDto> ExecuteJsonAsync(string func, DbParameter[] parameters)
         {
-            var result = new JsonArrayDto();
+            string sql;
+            JsonArrayDto result = new JsonArrayDto();
 
-            string sql = SelectQuery(func, parameters);
+            sql = SelectQuery(func, parameters);
             result.Json = await _repo.ExecuteAsJsonAsync(sql, parameters);
 
             return result;
@@ -80,21 +87,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                    .Append("SELECT * FROM ").AppendFunc(func, parameters)
                    .Append(" WHERE ROWNUM BETWEEN ").AppendValue(start).Append(" AND ").AppendValue(limit)
                    .Build();
-        }
-
-        private static DbParameter[] Copy(DbParameter[] parameters)
-        {
-            var len = parameters == null ? 0 : parameters.Length;
-            var result = new DbParameter[len];
-
-            int i = 0;
-
-            for (; i < len; i++)
-            {
-                result[i] = parameters[i].Copy();
-            }
-
-            return result;
         }
     }
 }

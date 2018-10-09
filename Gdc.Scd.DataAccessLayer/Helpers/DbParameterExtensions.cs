@@ -16,6 +16,19 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
                         .Build();
         }
 
+        public static DbParameter[] Copy(this DbParameter[] parameters)
+        {
+            var len = parameters == null ? 0 : parameters.Length;
+            var result = new DbParameter[len];
+
+            for (int i = 0; i < len; i++)
+            {
+                result[i] = parameters[i].Copy();
+            }
+
+            return result;
+        }
+
         public static int GetInt32(this DbParameter parameter)
         {
             var v = parameter.Value;
