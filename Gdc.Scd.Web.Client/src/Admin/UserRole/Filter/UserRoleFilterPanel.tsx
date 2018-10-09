@@ -3,7 +3,7 @@ import { ComboBoxField, CheckBoxField, Container, Button, Panel, PanelProps } fr
 import { UserRoleFilterModel } from "./UserRoleFilterModel";
 
 export interface UserRoleFilterPanelProps extends PanelProps {
-    users: any[],
+    storeUser?,
     roles: any[],
     countries: any[],
     onSearch(filter: UserRoleFilterModel): void
@@ -35,7 +35,7 @@ export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProp
                         clearable: 'true'
                     }}
                 >
-                    <ComboBoxField ref="user" label="User:" options={this.props.users} />
+                    <ComboBoxField ref="user" label="User:" store={this.props.storeUser} />
                     <ComboBoxField ref="role" label="Role:" options={this.props.roles} />
                     <ComboBoxField ref="country" label="Country:" options={this.props.countries} />
                 </Container>

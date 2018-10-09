@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
+using System.Net.Http;
 using System.Web.Http;
 
 namespace Gdc.Scd.Web.Server.Controllers
@@ -67,17 +69,18 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        public virtual void DeleteAll([FromBody]IEnumerable<T> items)
+        public virtual HttpResponseMessage DeleteAll([FromBody]IEnumerable<T> items)
         {
             foreach (var item in items)
             {
                 this.domainService.Delete(item.Id);
             }
+            return Request.CreateResponse(HttpStatusCode.OK);
         }
 
         protected virtual IQueryable<T> OrderBy(IQueryable<T> query, SortInfo[] sortInfos)
         {
-            if (sortInfos != null && sortInfos.Length > 0)
+            if (sortInfos != null)
             {
                 for (var i = 0; i < sortInfos.Length; i++)
                 {
@@ -89,7 +92,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             return query;
         }
 
-        protected virtual IQueryable<T> Filter(IQueryable<T> query, Entities.FilterInfo[] filterInfos)
+        protected virtual IQueryable<T> Filter(IQueryable<T> query, FilterInfo[] filterInfos)
         {
             if (filterInfos != null && filterInfos.Length > 0)
             {
@@ -106,7 +109,7 @@ namespace Gdc.Scd.Web.Server.Controllers
 
             return query;
 
-            BinaryExpression GetEqualExpression(Entities.FilterInfo filterInfo, Expression param)
+            BinaryExpression GetEqualExpression(FilterInfo filterInfo, Expression param)
             {
                 return Expression.Equal(
                     Expression.Property(param, filterInfo.Property),
@@ -114,7 +117,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             }
         }
 
-        protected virtual object ConvertToValue(Entities.FilterInfo filterInfo)
+        protected virtual object ConvertToValue(FilterInfo filterInfo)
         {
             var type = typeof(T);
             var property = type.GetProperty(filterInfo.Property);
