@@ -1,3 +1,11 @@
+alter table Hardware.ServiceCostCalculation
+   drop column DealerPrice, DealerPrice_Approved;
+
+alter table Hardware.ServiceCostCalculation
+   add DealerPrice as (ListPrice - (ListPrice * DealerDiscount)),
+       DealerPrice_Approved as (ListPrice_Approved - (ListPrice_Approved * DealerDiscount_Approved));
+go
+
 IF OBJECT_ID('Hardware.GetCalcResult') IS NOT NULL
   DROP FUNCTION Hardware.GetCalcResult;
 go 

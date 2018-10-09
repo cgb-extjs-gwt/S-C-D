@@ -117,7 +117,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                              ServiceTP_Approved = hw.ServiceTP_Approved,
 
                              ServiceTPManual = hw.ServiceTPManual,
-                             ServiceTPManual_Approved = hw.ServiceTPManual_Approved
+                             ServiceTPManual_Approved = hw.ServiceTPManual_Approved,
+
+                             ListPrice = hw.ListPrice,
+                             ListPrice_Approved = hw.ListPrice_Approved,
+
+                             DealerDiscount = hw.DealerDiscount,
+                             DealerDiscount_Approved = hw.DealerDiscount_Approved,
+
+                             DealerPrice = hw.DealerPrice,
+                             DealerPrice_Approved = hw.DealerPrice_Approved
                          };
 
             var result = await query2.PagingAsync(start, limit);
@@ -174,11 +183,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var recordsId = records.Select(x => x.Id);
 
-            var query = hwRepo.GetAll()
-                              .Where(x => recordsId.Contains(x.Id) &&
-                                          x.Matrix.Country.CanOverrideTransferCostAndPrice);
-
-            var entities = query.ToDictionary(x => x.Id, y => y);
+            var entities = hwRepo.GetAll()
+                              .Where(x => recordsId.Contains(x.Id))
+                              .Select(x => new { Hw = x, Country = x.Matrix.Country })
+                              .ToDictionary(x => x.Hw.Id, y => y);
 
             if (entities.Count == 0)
             {
@@ -192,14 +200,29 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 foreach (var rec in records)
                 {
-                    if (entities.ContainsKey(rec.Id))
+                    if (!entities.ContainsKey(rec.Id))
                     {
-                        var e = entities[rec.Id];
+                        continue;
+                    }
 
-                        e.ServiceTCManual = rec.ServiceTC;
-                        e.ServiceTPManual = rec.ServiceTP;
+                    var e = entities[rec.Id];
+                    var country = e.Country;
+                    var hw = e.Hw;
 
-                        hwRepo.Save(e);
+                    if (country.CanOverrideTransferCostAndPrice)
+                    {
+                        hw.ServiceTCManual = rec.ServiceTC;
+                        hw.ServiceTPManual = rec.ServiceTP;
+                        //
+                        hwRepo.Save(hw);
+                    }
+
+                    if (country.CanStoreListAndDealerPrices)
+                    {
+                        hw.ListPrice = rec.ListPrice;
+                        hw.DealerDiscount = rec.DealerDiscount;
+                        //
+                        hwRepo.Save(hw);
                     }
                 }
 

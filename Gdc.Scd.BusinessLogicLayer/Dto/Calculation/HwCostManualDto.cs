@@ -7,5 +7,9 @@
         public double? ServiceTC { get; set; }
 
         public double? ServiceTP { get; set; }
+
+        public double? ListPrice { get; set; }
+
+        public double? DealerDiscount { get; set; }
     }
 }
