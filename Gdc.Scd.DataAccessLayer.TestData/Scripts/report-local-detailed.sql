@@ -28,17 +28,17 @@ RETURN (
          , null as ListPrice
          , null as DealerPrice
          , m.Country
-         , Report.AsEuroSignStr(sc.FieldServiceCost) as FieldServiceCost
-         , Report.AsEuroSignStr(sc.ServiceSupport) as ServiceSupportCost 
-         , Report.AsEuroSignStr(sc.MaterialOow) as MaterialOow
-         , Report.AsEuroSignStr(sc.MaterialW) as MaterialW
-         , Report.AsEuroSignStr(sc.TaxAndDutiesW) as TaxAndDutiesW
-         , Report.AsEuroSignStr(sc.Logistic) as LogisticW
-         , Report.AsEuroSignStr(sc.Logistic) as LogisticOow
-         , Report.AsEuroSignStr(sc.Reinsurance) as Reinsurance
-         , Report.AsEuroSignStr(sc.Reinsurance) as ReinsuranceOow
-         , Report.AsEuroSignStr(sc.OtherDirect) as OtherDirect
-         , Report.AsEuroSignStr(sc.Credits) as Credits
+         , sc.FieldServiceCost as FieldServiceCost
+         , sc.ServiceSupport as ServiceSupportCost 
+         , sc.MaterialOow as MaterialOow
+         , sc.MaterialW as MaterialW
+         , sc.TaxAndDutiesW as TaxAndDutiesW
+         , sc.Logistic as LogisticW
+         , sc.Logistic as LogisticOow
+         , sc.Reinsurance as Reinsurance
+         , sc.Reinsurance as ReinsuranceOow
+         , sc.OtherDirect as OtherDirect
+         , sc.Credits as Credits
          , null as IndirectCostOpex
          , null as ServiceType
          , null as PlausiCheck

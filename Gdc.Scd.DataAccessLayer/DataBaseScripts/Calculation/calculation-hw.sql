@@ -566,11 +566,11 @@ CREATE VIEW [Hardware].[FieldServiceCostView] AS
 GO
 
 CREATE VIEW Atom.TaxAndDutiesVIEW as
-    select Wg,
-           Country,
+    select Country,
            (TaxAndDuties / 100) as TaxAndDuties, 
            (TaxAndDuties_Approved / 100) as TaxAndDuties_Approved 
     from Atom.TaxAndDuties
+    where DeactivatedDateTime is null
 GO
 
 CREATE VIEW [InputAtoms].[WgView] WITH SCHEMABINDING as
@@ -805,7 +805,7 @@ CREATE VIEW [Hardware].[ServiceSupportCostView] as
 
     from Hardware.ServiceSupportCost ssc
     join InputAtoms.Country c on c.Id = ssc.Country
-    join InputAtoms.WgVIEW wg on wg.ClusterPla = ssc.ClusterPla
+    join InputAtoms.WgView wg on wg.ClusterPla = ssc.ClusterPla
     left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 GO
 
@@ -1068,7 +1068,7 @@ RETURN
 
         LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.Wg = m.WgId
 
-        LEFT JOIN Atom.TaxAndDutiesView tax on tax.Wg = m.WgId AND tax.Country = m.CountryId
+        LEFT JOIN Atom.TaxAndDutiesView tax on tax.Country = m.CountryId
 
         LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 

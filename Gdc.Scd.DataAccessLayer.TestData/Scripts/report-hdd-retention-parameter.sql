@@ -18,7 +18,7 @@ select
      , hdd.HddMaterialCost_Approved as HddMaterialCost
 
 from Hardware.HddRetention hdd
-join InputAtoms.WgView wg on wg.Id = hdd.Wg
+join InputAtoms.WgSogView wg on wg.Id = hdd.Wg
 join Dependencies.Year y on y.Id = hdd.Year
 
 where (@wg is null or wg.Id = @wg)

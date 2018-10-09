@@ -176,7 +176,7 @@ RETURN (
                                         AND lc.ReactionTime = m.ReactionTimeId
                                         AND lc.ReactionType = m.ReactionTypeId
 
-    JOIN Atom.TaxAndDutiesView tax on tax.Wg = m.WgId AND tax.Country = m.CountryId
+    JOIN Atom.TaxAndDutiesView tax on tax.Country = m.CountryId
 
     JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 

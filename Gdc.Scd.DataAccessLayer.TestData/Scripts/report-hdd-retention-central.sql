@@ -17,7 +17,7 @@ RETURN (
          , null as DealerPrice
          , null as ListPrice
     from Hardware.HddRetByDurationView hdd
-    join InputAtoms.WgView wg on wg.Id = hdd.WgID
+    join InputAtoms.WgSogView wg on wg.Id = hdd.WgID
     join Dependencies.Duration dur on dur.Id = hdd.DurID
     where (@wg is null or wg.Id = @wg)
       and (@dur is null or dur.Id = @dur)

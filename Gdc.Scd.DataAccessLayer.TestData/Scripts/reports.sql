@@ -14,8 +14,8 @@ IF OBJECT_ID('InputAtoms.CountryView', 'V') IS NOT NULL
   DROP VIEW InputAtoms.CountryView;
 go
 
-IF OBJECT_ID('InputAtoms.WgView', 'V') IS NOT NULL
-  DROP VIEW InputAtoms.WgView;
+IF OBJECT_ID('InputAtoms.WgSogView', 'V') IS NOT NULL
+  DROP VIEW InputAtoms.WgSogView;
 go
 
 IF OBJECT_ID('Atom.Afr5YearView', 'V') IS NOT NULL
