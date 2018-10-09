@@ -155,7 +155,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
             public object GetPercent(DbDataReader reader)
             {
-                return reader.GetDouble(ordinal).ToString("#.##") + "%";
+                return reader.GetDouble(ordinal).ToString("#.###") + "%";
             }
         }
     }
