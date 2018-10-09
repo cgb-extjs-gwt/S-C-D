@@ -69,9 +69,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
         private static string SelectQuery(string func, DbParameter[] parameters)
         {
-            return new SqlStringBuilder()
-                   .Append("SELECT TOP(10) * FROM ").AppendFunc(func, parameters)
-                   .Build();
+            return SelectAllQuery(func, parameters, 30);
         }
 
         private static string SelectAllQuery(string func, DbParameter[] parameters, int max)
