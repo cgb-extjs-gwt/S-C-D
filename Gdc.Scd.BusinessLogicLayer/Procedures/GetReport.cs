@@ -22,7 +22,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             var writer = new ReportExcelWriter(schema);
             var sql = SelectAllQuery(func, parameters, 1000);
 
-            await _repo.ReadBySql(sql, writer.Write, parameters);
+            await _repo.ReadBySql(sql, writer.WriteBody, parameters);
 
             return writer.GetData();
         }

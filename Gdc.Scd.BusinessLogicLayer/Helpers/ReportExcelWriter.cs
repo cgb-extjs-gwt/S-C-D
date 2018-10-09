@@ -14,9 +14,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
         private int currentRow;
 
-        private int[] ordinals;
-
-        private Func<DbDataReader, int, object>[] formats;
+        private ReportColumnFormat[] formatters;
 
         private readonly ReportColumnDto[] fields;
 
@@ -46,7 +44,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             return stream;
         }
 
-        public void Write(DbDataReader reader)
+        public void WriteBody(DbDataReader reader)
         {
             if (!this.prepared)
             {
@@ -57,11 +55,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
             for (var i = 0; i < fieldCount; i++)
             {
-                var ordinal = ordinals[i];
+                var f = formatters[i];
+                var ordinal = f.ordinal;
 
                 if (!reader.IsDBNull(ordinal))
                 {
-                    worksheet.Cell(currentRow, i + 1).Value = formats[i](reader, ordinal);
+                    worksheet.Cell(currentRow, i + 1).Value = f.format(reader);
                 }
             }
         }
@@ -87,66 +86,77 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
         private void Prepare(DbDataReader reader)
         {
-            ordinals = new int[fieldCount];
-            formats = new Func<DbDataReader, int, object>[fieldCount];
+            formatters = new ReportColumnFormat[fieldCount];
 
             for (var i = 0; i < fieldCount; i++)
             {
                 var f = fields[i];
-                ordinals[i] = reader.GetOrdinal(f.Name);
-                formats[i] = GetFormatter(f.Type);
+                formatters[i] = new ReportColumnFormat(reader.GetOrdinal(f.Name), f.Type);
             }
 
             this.prepared = true;
         }
 
-        public static Func<DbDataReader, int, object> GetFormatter(string type)
+        private class ReportColumnFormat
         {
-            if (string.Compare(type, "number", true) == 0)
-            {
-                return GetNumber;
-            }
-            else if (string.Compare(type, "boolean", true) == 0)
-            {
-                return GetBoolean;
-            }
-            else if (string.Compare(type, "euro", true) == 0)
-            {
-                return GetEuro;
-            }
-            else if (string.Compare(type, "percent", true) == 0)
-            {
-                return GetPercent;
-            }
-            else
-            {
-                return GetText;
-            }
-        }
+            public readonly int ordinal;
 
-        public static object GetText(DbDataReader reader, int ordinal)
-        {
-            return reader[ordinal];
-        }
+            public readonly Func<DbDataReader, object> format;
 
-        public static object GetNumber(DbDataReader reader, int ordinal)
-        {
-            return reader.GetDouble(ordinal).ToString("#.####");
-        }
+            public ReportColumnFormat(int ordinal, string type)
+            {
+                this.ordinal = ordinal;
+                this.format = GetFormatter(type);
+            }
 
-        public static object GetBoolean(DbDataReader reader, int ordinal)
-        {
-            return reader.GetBoolean(ordinal) ? "YES" : "NO";
-        }
+            public Func<DbDataReader, object> GetFormatter(string type)
+            {
+                if (string.Compare(type, "number", true) == 0)
+                {
+                    return GetNumber;
+                }
+                else if (string.Compare(type, "boolean", true) == 0)
+                {
+                    return GetBoolean;
+                }
+                else if (string.Compare(type, "euro", true) == 0)
+                {
+                    return GetEuro;
+                }
+                else if (string.Compare(type, "percent", true) == 0)
+                {
+                    return GetPercent;
+                }
+                else
+                {
+                    return GetText;
+                }
+            }
 
-        public static object GetEuro(DbDataReader reader, int ordinal)
-        {
-            return reader.GetDouble(ordinal).ToString("#.##") + " EUR";
-        }
+            public object GetText(DbDataReader reader)
+            {
+                return reader[ordinal];
+            }
 
-        public static object GetPercent(DbDataReader reader, int ordinal)
-        {
-            return reader.GetDouble(ordinal).ToString("#.##") + "%";
+            public object GetNumber(DbDataReader reader)
+            {
+                return reader.GetDouble(ordinal).ToString("#.####");
+            }
+
+            public object GetBoolean(DbDataReader reader)
+            {
+                return reader.GetBoolean(ordinal) ? "YES" : "NO";
+            }
+
+            public object GetEuro(DbDataReader reader)
+            {
+                return reader.GetDouble(ordinal).ToString("#.##") + " EUR";
+            }
+
+            public object GetPercent(DbDataReader reader)
+            {
+                return reader.GetDouble(ordinal).ToString("#.##") + "%";
+            }
         }
     }
 }
