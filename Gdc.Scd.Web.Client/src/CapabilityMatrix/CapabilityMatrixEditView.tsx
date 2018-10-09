@@ -40,7 +40,7 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
 
     public render() {
         return (
-            <Container layout="vbox" padding="10px">
+            <Container layout="vbox" padding="10px" scrollable="true">
 
                 <ComboBoxField
                     ref="country"
@@ -56,7 +56,7 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
                     onChange={this.onCountryChange}
                 />
 
-                <Container layout="hbox">
+                <Container layout="hbox" scrollable="true">
                     <MultiSelect ref="wg" maxHeight={SELECT_MAX_HEIGHT} title="Asset(WG)" itemTpl="{name}" store={this.state.warrantyGroups} />
                     <MultiSelect ref="availability" maxHeight={SELECT_MAX_HEIGHT} title="Availability" itemTpl="{name}" store={this.state.availabilityTypes} />
                     <MultiSelect ref="duration" maxHeight={SELECT_MAX_HEIGHT} title="Duration" itemTpl="{name}" store={this.state.durationTypes} />
