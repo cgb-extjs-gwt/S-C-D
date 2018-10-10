@@ -6,7 +6,29 @@
 
   <ItemGroup>
     <None Remove="Scripts\availabilityFee.sql" />
+    <None Remove="Scripts\dropEverything.sql" />
     <None Remove="Scripts\matrix.sql" />
+    <None Remove="Scripts\report-calc-output-new-vs-old.sql" />
+    <None Remove="Scripts\report-calc-output-vs-FREEZE.sql" />
+    <None Remove="Scripts\report-calc-parameter-hw.sql" />
+    <None Remove="Scripts\report-calc-parameter-proactive.sql" />
+    <None Remove="Scripts\report-contract.sql" />
+    <None Remove="Scripts\report-flat-fee.sql" />
+    <None Remove="Scripts\report-hdd-retention-central.sql" />
+    <None Remove="Scripts\report-hdd-retention-country.sql" />
+    <None Remove="Scripts\report-hdd-retention-parameter.sql" />
+    <None Remove="Scripts\report-list.sql" />
+    <None Remove="Scripts\report-local-detailed.sql" />
+    <None Remove="Scripts\report-locap.sql" />
+    <None Remove="Scripts\report-logistic-cost-calc-country.sql" />
+    <None Remove="Scripts\report-po-standard-warranty.sql" />
+    <None Remove="Scripts\report-proactive.sql" />
+    <None Remove="Scripts\report-solution-pack-price-list-detail.sql" />
+    <None Remove="Scripts\report-solution-pack-price-list.sql" />
+    <None Remove="Scripts\report-solutionpack-proactive-costing.sql" />
+    <None Remove="Scripts\report-SW-Service-Price-List-detail.sql" />
+    <None Remove="Scripts\report-SW-Service-Price-List.sql" />
+    <None Remove="Scripts\reports.sql" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,9 +44,31 @@
     <EmbeddedResource Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Calculation\calculation-sw.sql" Link="Scripts\calculation-sw.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Scripts\dropEverything.sql" />
     <EmbeddedResource Include="Scripts\matrix.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Scripts\report-calc-output-new-vs-old.sql" />
+    <EmbeddedResource Include="Scripts\report-calc-output-vs-FREEZE.sql" />
+    <EmbeddedResource Include="Scripts\report-calc-parameter-hw.sql" />
+    <EmbeddedResource Include="Scripts\report-calc-parameter-proactive.sql" />
+    <EmbeddedResource Include="Scripts\report-contract.sql" />
+    <EmbeddedResource Include="Scripts\report-flat-fee.sql" />
+    <EmbeddedResource Include="Scripts\report-hdd-retention-central.sql" />
+    <EmbeddedResource Include="Scripts\report-hdd-retention-country.sql" />
+    <EmbeddedResource Include="Scripts\report-hdd-retention-parameter.sql" />
+    <EmbeddedResource Include="Scripts\report-list.sql" />
+    <EmbeddedResource Include="Scripts\report-local-detailed.sql" />
+    <EmbeddedResource Include="Scripts\report-locap.sql" />
+    <EmbeddedResource Include="Scripts\report-logistic-cost-calc-country.sql" />
+    <EmbeddedResource Include="Scripts\report-po-standard-warranty.sql" />
+    <EmbeddedResource Include="Scripts\report-proactive.sql" />
+    <EmbeddedResource Include="Scripts\report-solution-pack-price-list-detail.sql" />
+    <EmbeddedResource Include="Scripts\report-solution-pack-price-list.sql" />
+    <EmbeddedResource Include="Scripts\report-solutionpack-proactive-costing.sql" />
+    <EmbeddedResource Include="Scripts\report-SW-Service-Price-List-detail.sql" />
+    <EmbeddedResource Include="Scripts\report-SW-Service-Price-List.sql" />
+    <EmbeddedResource Include="Scripts\reports.sql" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,7 +76,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj" />
     <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj" />
     <ProjectReference Include="..\Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj" />
   </ItemGroup>

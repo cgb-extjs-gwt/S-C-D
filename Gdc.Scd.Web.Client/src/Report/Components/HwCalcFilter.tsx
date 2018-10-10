@@ -65,7 +65,7 @@ export class HwCalcFilter extends React.Component<FilterPanelProps, any> {
             this.srv.getWG(),
             this.srv.getAvailabilityTypes(),
             this.srv.getDurationTypes(),
-            this.srv.getReactTypes(),
+            this.srv.getReactionTypes(),
             this.srv.getReactionTimeTypes(),
             this.srv.getServiceLocationTypes()
         ]).then(x => {

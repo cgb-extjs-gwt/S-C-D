@@ -5,17 +5,15 @@ import { Route, Switch, withRouter } from 'react-router-dom';
 import AvailabilityFeeAdminGrid from '../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid';
 import CountryGrid from '../../Admin/Country/containers/CountryGrid';
 import RoleCodesGrid from '../../Admin/RoleCode/RoleCodesGrid';
-import UserRoleContainer from '../../Admin/UserRole/UserRoleContainer';
+import UserRoleContainer from '../../Admin/UserRole/Containers/UserRoleContainer';
 import WarrantyGroupGrid from '../../Admin/WarrantyGroup/WarrantyGroupGrid';
 import { CapabilityMatrixEditView, CapabilityMatrixView } from '../../CapabilityMatrix';
 import { buildComponentUrl } from "../../Common/Services/Ajax";
 import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCostElementsLayout';
 import { OwnApprovalCostElementsLayout } from '../../CostApproval/Components/OwnApprovalCostElementsLayout';
 import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
-import { CalcResultView } from '../../Report';
+import { CalcResultView, ReportListView, ReportView } from '../../Report';
 import { large, medium } from '../../responsiveFormulas';
-import About from '../../Test/About/About';
-import Home from '../../Test/Home/Home';
 import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
 import { loadMetaDataFromServer, openPage } from '../Actions/AppActions';
 import { CommonState } from '../States/AppStates';
@@ -86,14 +84,15 @@ export class Layout extends React.Component<LayoutProps> {
                         <Route path={buildComponentUrl("/admin/country-management")} component={ CountryGrid }/>
                         <Route path={buildComponentUrl("/cost-approval")} component={ ApprovalCostElementsLayout} />
                         <Route path={buildComponentUrl("/own-cost-approval")} component={ OwnApprovalCostElementsLayout} />
-                        <Route path={buildComponentUrl("/report")} component={CalcResultView} />
+                        <Route path={buildComponentUrl("/report")} exact component={CalcResultView} />
+                        <Route path={buildComponentUrl("/report/all")} exact component={ReportListView} />
+                        <Route path={buildComponentUrl("/report/:name")} exact component={ReportView} />
                         <Route path={buildComponentUrl("/capability-matrix")} exact component={CapabilityMatrixView} />
                         <Route path={buildComponentUrl("/capability-matrix/edit")} component={CapabilityMatrixEditView} />
                         <Route path={buildComponentUrl("/admin/availability-fee")} component={AvailabilityFeeAdminGrid} />
                         <Route path={buildComponentUrl("/admin/role-code-management")} component={RoleCodesGrid} />
                         <Route path={buildComponentUrl("/admin/warranty-group-management")} component={WarrantyGroupGrid} />
                         <Route path={buildComponentUrl("/admin/user-role")} component={UserRoleContainer} />
-                        <Route path={buildComponentUrl("/test")} component={About} />                   
                     </Switch>
                 </Panel>
             </Container>

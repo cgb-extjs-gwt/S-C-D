@@ -18,7 +18,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         proxy: {
             type: 'ajax',
             api: {
-                read:   buildMvcUrl('calc', 'gethwcost'),
+                read: buildMvcUrl('calc', 'gethwcost'),
                 update: buildMvcUrl('calc', 'savehwcost')
             },
             writer: {
@@ -70,6 +70,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         let serviceTCManual: string = 'serviceTCManual';
         let serviceTP: string = 'serviceTP';
         let serviceTPManual: string = 'serviceTPManual';
+        let listPrice: string = 'listPrice';
+        let dealerDiscount: string = 'dealerDiscount';
+        let dealerPrice: string = 'dealerPrice';
         let otherDirect: string = 'otherDirect';
         let localServiceStandardWarranty: string = 'localServiceStandardWarranty';
         let credits: string = 'credits';
@@ -90,6 +93,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             serviceTCManual = 'serviceTCManual_Approved';
             serviceTP = 'serviceTP_Approved';
             serviceTPManual = 'serviceTPManual_Approved';
+            listPrice = 'listPrice_Approved';
+            dealerDiscount = 'dealerDiscount_Approved';
+            dealerPrice = 'dealerPrice_Approved';
             otherDirect = 'otherDirect_Approved';
             localServiceStandardWarranty = 'localServiceStandardWarranty_Approved';
             credits = 'credits_Approved';
@@ -162,6 +168,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                         <NumberColumn text="Service TP(calc)" dataIndex={serviceTP} />
                         <NumberColumn text="Service TP(manual)" dataIndex={serviceTPManual} editable={canEdit} />
+
+                        <NumberColumn text="List price" dataIndex={listPrice} editable={canEdit} />
+                        <NumberColumn text="Dealer discount" dataIndex={dealerDiscount} editable={canEdit} />
+                        <NumberColumn text="Dealer price" dataIndex={dealerPrice} />
 
                         <NumberColumn text="Other direct cost" dataIndex={otherDirect} />
                         <NumberColumn text="Local service standard warranty" dataIndex={localServiceStandardWarranty} />

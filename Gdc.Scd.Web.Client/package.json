@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npm run clean && cross-env NODE_ENV=development webpack --env.prod=false --progress --colors",
+    "buildProd": "npm run clean && cross-env NODE_ENV=production webpack --env.prod=true --progress --colors",
     "clean": "rimraf build",
     "prod": "cd build && static-server --port 8080",
     "start": "webpack-dev-server --progress --colors"

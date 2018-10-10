@@ -1,18 +1,20 @@
-﻿using System;
+﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Helpers;
+using Gdc.Scd.Web.Server.Entities;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Web.Mvc;
-using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Helpers;
-using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Web.Server.Entities;
-using Newtonsoft.Json;
+using System.Net;
+using System.Net.Http;
+using System.Web.Http;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
-    public abstract class BaseDomainController<T> : System.Web.Http.ApiController where T : IIdentifiable
+    public abstract class BaseDomainController<T> : ApiController where T : IIdentifiable
     {
         protected readonly IDomainService<T> domainService;
 
@@ -49,46 +51,48 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        public virtual void Save([System.Web.Http.FromBody]T item)
+        public virtual void Save([FromBody]T item)
         {
             this.domainService.Save(item);
         }
 
         [HttpPost]
-        public virtual void SaveAll([System.Web.Http.FromBody]IEnumerable<T> items)
+        public virtual void SaveAll([FromBody]IEnumerable<T> items)
         {
             this.domainService.Save(items);
         }
 
         [HttpPost]
-        public virtual void Delete([System.Web.Http.FromBody]long id)
+        public virtual void Delete([FromBody]long id)
         {
             this.domainService.Delete(id);
         }
 
         [HttpPost]
-        public virtual void DeleteAll([System.Web.Http.FromBody]IEnumerable<T> items)
+        public virtual HttpResponseMessage DeleteAll([FromBody]IEnumerable<T> items)
         {
-            foreach(var item in items)
+            foreach (var item in items)
             {
                 this.domainService.Delete(item.Id);
-            }         
+            }
+            return Request.CreateResponse(HttpStatusCode.OK);
         }
 
         protected virtual IQueryable<T> OrderBy(IQueryable<T> query, SortInfo[] sortInfos)
         {
-            if (sortInfos != null && sortInfos.Length > 0)
+            if (sortInfos != null)
             {
-                foreach (var sortInfo in sortInfos)
+                for (var i = 0; i < sortInfos.Length; i++)
                 {
-                    query = query.OrderBy(sortInfo.Property, sortInfo.Direction == SortDirection.Desc);
+                    var sortInfo = sortInfos[i];
+                    query = QueryableExtensions.OrderBy(query, sortInfo.Property, sortInfo.Direction == SortDirection.Desc);
                 }
             }
 
             return query;
         }
 
-        protected virtual IQueryable<T> Filter(IQueryable<T> query, Entities.FilterInfo[] filterInfos)
+        protected virtual IQueryable<T> Filter(IQueryable<T> query, FilterInfo[] filterInfos)
         {
             if (filterInfos != null && filterInfos.Length > 0)
             {
@@ -105,7 +109,7 @@ namespace Gdc.Scd.Web.Server.Controllers
 
             return query;
 
-            BinaryExpression GetEqualExpression(Entities.FilterInfo filterInfo, Expression param)
+            BinaryExpression GetEqualExpression(FilterInfo filterInfo, Expression param)
             {
                 return Expression.Equal(
                     Expression.Property(param, filterInfo.Property),
@@ -113,7 +117,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             }
         }
 
-        protected virtual object ConvertToValue(Entities.FilterInfo filterInfo)
+        protected virtual object ConvertToValue(FilterInfo filterInfo)
         {
             var type = typeof(T);
             var property = type.GetProperty(filterInfo.Property);

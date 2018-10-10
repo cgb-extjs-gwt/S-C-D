@@ -11,9 +11,12 @@ import { fakeWG } from "./FakeWG";
 import { fakeYears } from "./FakeYear";
 
 export class FakeDictService implements IDictService {
-
     public getCountries(): Promise<NamedId[]> {
         return this.fromResult(fakeCountries);
+    }
+
+    public getCountryGroups(): Promise<NamedId<string>[]> {
+        return this.getCountries();
     }
 
     public getWG(): Promise<NamedId[]> {
@@ -36,7 +39,7 @@ export class FakeDictService implements IDictService {
         return this.fromResult(fakeYears);
     }
 
-    public getReactTypes(): Promise<NamedId[]> {
+    public getReactionTypes(): Promise<NamedId[]> {
         return this.fromResult(fakeReactTypes);
     }
 

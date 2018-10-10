@@ -3,6 +3,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.CapabilityMatrix;
+using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Ninject.Modules;
 using Ninject.Web.Common;
@@ -17,9 +18,11 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<ICostEditorService>().To<CostEditorService>().InRequestScope();
             Bind<ICapabilityMatrixService>().To<CapabilityMatrixService>().InRequestScope();
             Bind<ICalculationService>().To<CalculationService>().InRequestScope();
+            Bind<IReportService>().To<ReportService>().InRequestScope();
             Bind<IUserService>().To<UserService>().InRequestScope();
             Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InRequestScope();
             Bind<IAvailabilityFeeAdminService>().To<AvailabilityFeeAdminService>().InRequestScope();
+            Bind<ICountryAdminService>().To<CountryAdminService>().InRequestScope();
             Bind<IEmailService>().To<EmailService>().InRequestScope();
             Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InRequestScope();
             Bind<IQualityGateSevice>().To<QualityGateSevice>().InRequestScope();
@@ -27,7 +30,9 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<ITableViewService>().To<TableViewService>().InRequestScope();
             Bind<IUserRoleService>().To<UserRoleService>().InRequestScope();
 
+            /*----------dictionaries-----------*/
             Kernel.RegisterEntity<ClusterRegion>();
+            Kernel.RegisterEntity<Region>();
             Kernel.RegisterEntity<Country>();
             Kernel.RegisterEntity<CountryGroup>();
             Kernel.RegisterEntity<Pla>();
@@ -41,23 +46,37 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<ReactionTimeAvalability>();
             Kernel.RegisterEntity<ReactionTimeTypeAvalability>();
             Kernel.RegisterEntity<ServiceLocation>();
-            Kernel.RegisterEntity<CapabilityMatrix>();
-            Kernel.RegisterEntity<CapabilityMatrixRule>();
-            Kernel.RegisterEntity<CapabilityMatrixAllowView>();
-            Kernel.RegisterEntity<AdminAvailabilityFee>();
-            Kernel.RegisterEntity<CapabilityMatrixCountryAllowView>();
-            Kernel.RegisterEntity<RoleCode>();
-            Kernel.RegisterEntity<HardwareCalculationResult>();
-            Kernel.RegisterEntity<SoftwareCalculationResult>();
             Kernel.RegisterEntity<Currency>();
             Kernel.RegisterEntity<ExchangeRate>();
             Kernel.RegisterEntity<YearAvailability>();
             Kernel.RegisterEntity<ClusterPla>();
-            Kernel.RegisterEntity<Role>();
-            Kernel.RegisterEntity<UserRole>();
             Kernel.RegisterEntity<ProActiveSla>();
             Kernel.RegisterEntity<SwDigit>();
             Kernel.RegisterEntity<Sog>();
+            Kernel.RegisterEntity<SFab>();
+            Kernel.RegisterEntity<SwLicense>();
+            Kernel.RegisterEntity<SwDigitLicense>();
+            Kernel.RegisterEntity<HwFspCodeTranslation>();
+            Kernel.RegisterEntity<SwFspCodeTranslation>();
+            Kernel.RegisterEntity<TaxAndDutiesEntity>();
+            Kernel.RegisterEntity<ImportConfiguration>();
+
+            /*----------admin---------*/
+            Kernel.RegisterEntity<AdminAvailabilityFee>();
+            Kernel.RegisterEntity<Role>();
+            Kernel.RegisterEntity<RoleCode>();
+            Kernel.RegisterEntity<UserRole>();
+
+            /*---------domain business logic------------*/
+            Kernel.RegisterEntity<CapabilityMatrix>();
+            Kernel.RegisterEntity<CapabilityMatrixRule>();
+            Kernel.RegisterEntity<HardwareCalculationResult>();
+            Kernel.RegisterEntity<SoftwareCalculationResult>();
+
+            /*---------reports----------*/
+            Kernel.RegisterEntity<Report>();
+            Kernel.RegisterEntity<ReportColumn>();
+            Kernel.RegisterEntity<ReportFilter>();
         }
     }
 }

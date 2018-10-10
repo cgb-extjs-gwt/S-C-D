@@ -166,6 +166,7 @@ class WarrantyGroupGrid extends React.Component<any> {
                 displayField="name"            
                 label="Select role code"
                 queryMode="local"
+                editable={false}
             />
         );
         renderer = (value, { data }) => {

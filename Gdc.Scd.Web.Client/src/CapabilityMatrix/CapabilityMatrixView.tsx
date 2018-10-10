@@ -28,7 +28,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
         proxy: {
             type: 'ajax',
             api: {
-                read: buildMvcUrl('capabilitymatrix','allowed')
+                read: buildMvcUrl('capabilitymatrix', 'allowed')
             },
             reader: {
                 type: 'json',
@@ -45,7 +45,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
         proxy: {
             type: 'ajax',
             api: {
-                read: buildMvcUrl('capabilitymatrix','denied')
+                read: buildMvcUrl('capabilitymatrix', 'denied')
             },
             reader: {
                 type: 'json',

@@ -2,6 +2,7 @@
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Http;
 using Gdc.Scd.Core.Entities;
 
@@ -17,31 +18,43 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public DataInfo<HwCostDto> GetHwCost([FromUri]HwFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 50)
+        public Task<DataInfo<HwCostDto>> GetHwCost(
+                [FromUri]HwFilterDto filter,
+                [FromUri]int start = 0,
+                [FromUri]int limit = 50
+            )
         {
             if (!isRangeValid(start, limit))
             {
                 return null;
             }
 
-            int total;
-            IEnumerable<HwCostDto> items = calcSrv.GetHardwareCost(filter, start, limit, out total);
-
-            return new DataInfo<HwCostDto> { Items = items, Total = total };
+            return calcSrv.GetHardwareCost(filter, start, limit)
+                          .ContinueWith(x => new DataInfo<HwCostDto>
+                          {
+                              Items = x.Result.Item1,
+                              Total = x.Result.Item2
+                          });
         }
 
         [HttpGet]
-        public DataInfo<SwCostDto> GetSwCost([FromUri]SwFilterDto filter, [FromUri]int start = 0, [FromUri]int limit = 50)
+        public Task<DataInfo<SwCostDto>> GetSwCost(
+                [FromUri]SwFilterDto filter,
+                [FromUri]int start = 0,
+                [FromUri]int limit = 50
+            )
         {
             if (!isRangeValid(start, limit))
             {
                 return null;
             }
 
-            int total;
-            IEnumerable<SwCostDto> items = calcSrv.GetSoftwareCost(filter, start, limit, out total);
-
-            return new DataInfo<SwCostDto> { Items = items, Total = total };
+            return calcSrv.GetSoftwareCost(filter, start, limit)
+                          .ContinueWith(x => new DataInfo<SwCostDto>
+                          {
+                              Items = x.Result.Item1,
+                              Total = x.Result.Item2
+                          });
         }
 
         [HttpPost]
@@ -51,7 +64,9 @@ namespace Gdc.Scd.Web.Api.Controllers
             {
                 Id = x.Id,
                 ServiceTC = x.ServiceTCManual,
-                ServiceTP = x.ServiceTPManual
+                ServiceTP = x.ServiceTPManual,
+                ListPrice = x.ListPrice,
+                DealerDiscount = x.DealerDiscount
             });
             calcSrv.SaveHardwareCost(model);
         }

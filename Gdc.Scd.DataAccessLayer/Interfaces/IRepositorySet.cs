@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Entities;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.IO;
 using System.Threading.Tasks;
-using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.DataAccessLayer.Entities;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 
 namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
@@ -21,6 +22,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc);
 
+        Task ReadBySql(string sql, Action<DbDataReader> mapFunc, params DbParameter[] parameters);
+
         int ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null);
 
         int ExecuteSql(SqlHelper query);
@@ -33,15 +36,22 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters);
 
-        List<T> ExecuteProc<T>(string procName, params DbParameter[] parameters)
-            where T : new();
+        List<T> ExecuteProc<T>(string procName, params DbParameter[] parameters) where T : new();
 
-        List<T> ExecuteProc<T, V>(string procName, DbParameter outParam,
-           out V returnVal,
-           params DbParameter[] parameters)
-           where T : new();
+        Task<DataTable> ExecuteProcAsTableAsync(string procName, params DbParameter[] parameters);
 
+        Task<string> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters);
 
-       IEnumerable<Type> GetRegisteredEntities();
+        Task<string> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters);
+
+        Task<Stream> ExecuteAsJsonStreamAsync(string sql, params DbParameter[] parameters);
+
+        Task<DataTable> ExecuteAsTableAsync(string sql, params DbParameter[] parameters);
+
+        Task<T> ExecuteScalarAsync<T>(string sql, params DbParameter[] parameters);
+
+        void Replace<T>(T oldEntity, T newEntity) where T : class;
+
+        IEnumerable<Type> GetRegisteredEntities();
     }
 }

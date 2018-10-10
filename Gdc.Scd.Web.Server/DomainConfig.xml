@@ -148,7 +148,8 @@
       </Elements>
     </Block>
 
-    <Block Name="TaxAndDuties" Caption="Tax &amp; duties">
+    <!--HARDCODED-->
+    <!--<Block Name="TaxAndDuties" Caption="Tax &amp; duties">
       <Applications>
         <Application>Atom</Application>
       </Applications>
@@ -160,7 +161,7 @@
           </InputLevels>
         </Element>
       </Elements>
-    </Block>
+    </Block>-->
 
     <Block Name="RoleCodeHourlyRates" Caption="Role Code Hourly Rates">
       <Applications>
