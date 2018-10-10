@@ -2,6 +2,7 @@
 import * as React from "react";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { MultiSelect } from "./Components/MultiSelect";
+import { MultiSelectWg } from "./Components/MultiSelectWg";
 import { CapabilityMatrixEditModel } from "./Model/CapabilityMatrixEditModel";
 import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService";
 import { MatrixFactory } from "./Services/MatrixFactory";
@@ -58,7 +59,7 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
 
                 <div className="matrix-edit-container">
                     <div>
-                        <MultiSelect ref="wg" maxHeight={SELECT_MAX_HEIGHT} title="Asset(WG)" itemTpl="{name}" store={this.state.warrantyGroups} />
+                        <MultiSelectWg ref="wg" maxHeight={SELECT_MAX_HEIGHT} title="Asset(WG)" itemTpl="{name}" store={this.state.warrantyGroups} />
                     </div>
                     <div>
                         <MultiSelect ref="availability" maxHeight={SELECT_MAX_HEIGHT} title="Availability" itemTpl="{name}" store={this.state.availabilityTypes} />
