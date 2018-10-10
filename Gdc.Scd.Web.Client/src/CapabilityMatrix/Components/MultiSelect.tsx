@@ -23,7 +23,11 @@ export interface MultiSelectProps {
 
 export class MultiSelect extends React.Component<MultiSelectProps> {
 
+    private cb: any;
+
     private lst: List;
+
+    private flag: boolean; //stub for correct checkbox work
 
     public constructor(props: MultiSelectProps) {
         super(props);
@@ -45,13 +49,32 @@ export class MultiSelect extends React.Component<MultiSelectProps> {
 
         return (
             <Container width={width} maxWidth={maxWidth}>
-                <CheckBoxField boxLabel={title} padding="7px" bodyAlign="left" onChange={this.onTopSelectionChange} />
-                <List ref="lst" itemTpl={itemTpl} store={store} height={height} maxHeight={maxHeight} selectable={selectable} scrollable="true" />
+                <CheckBoxField
+                    ref="cb"
+                    boxLabel={title}
+                    padding="7px"
+                    bodyAlign="left"
+                    onChange={this.onTopSelectionChange}
+                />
+                <div onClick={this.onListClick}>
+                    <Container>
+                        <List
+                            ref="lst"
+                            itemTpl={itemTpl}
+                            store={store}
+                            height={height}
+                            maxHeight={maxHeight}
+                            selectable={selectable}
+                            scrollable="true"
+                        />
+                    </Container>
+                </div>
             </Container>
         );
     }
 
     public componentDidMount() {
+        this.cb = this.refs['cb'];
         this.lst = this.refs['lst'] as List;
     }
 
@@ -64,16 +87,31 @@ export class MultiSelect extends React.Component<MultiSelectProps> {
     }
 
     private init() {
+        this.flag = true;
+        //
+        this.onListClick = this.onListClick.bind(this);
         this.onTopSelectionChange = this.onTopSelectionChange.bind(this);
     }
 
-    private onTopSelectionChange(cb: CheckBoxField, newVal: boolean, oldVal: boolean) {
-        let view = this.lst as any;
+    private onListClick() {
+        this.flag = false;
+
+        let lst = this.lst as any;
+        let checked = lst.getSelections().length > 0;
+
+        this.cb.setChecked(checked);
+    }
+
+    private onTopSelectionChange(cb: any, newVal: boolean, oldVal: boolean) {
+        let lst = this.lst as any;
         if (newVal) {
-            view.selectAll();
+            if (this.flag) {
+                lst.selectAll();
+            }
         }
         else {
-            view.deselectAll();
+            lst.deselectAll();
         }
+        this.flag = true;
     }
 }
