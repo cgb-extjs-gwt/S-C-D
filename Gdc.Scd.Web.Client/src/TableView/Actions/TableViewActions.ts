@@ -12,7 +12,7 @@ export const TABLE_VIEW_EDIT_RECORD = 'TABLE_VIEW.EDIT.RECORD'
 export const TABLE_VIEW_RESET_CHANGES = 'TABLE_VIEW.RESET.CHANGES'
 
 export interface EditRecordAction extends Action<string> {
-    record: TableViewRecord
+    records: TableViewRecord[]
     dataIndex: string
 }
 
@@ -21,24 +21,12 @@ export const loadTableViewInfo = (tableViewInfo: TableViewInfo) => (<CommonActio
     data: tableViewInfo
 })
 
-export const editRecord = (record: TableViewRecord, dataIndex: string) => (<EditRecordAction>{
+export const editRecord = (records: TableViewRecord[], dataIndex: string) => (<EditRecordAction>{
     type: TABLE_VIEW_EDIT_RECORD,
-    record,
+    records,
     dataIndex
 })
 
 export const resetChanges = () => (<Action<string>>{
     type: TABLE_VIEW_RESET_CHANGES
 })
-
-// export const saveChanges = () => asyncAction<CommonState>(
-//     (dispatch, getState) => {
-//         const state = getState();
-
-//         handleRequest(
-//             updateRecords(state.pages.tableView.editedRecords).then(
-//                 () => dispatch(resetChanges())
-//             )
-//         );
-//     }
-// )

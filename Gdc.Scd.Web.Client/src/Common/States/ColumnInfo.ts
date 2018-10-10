@@ -1,11 +1,22 @@
 import { NamedId } from "./CommonStates";
-import { Model } from "./ExtStates";
+import { Model, Store } from "./ExtStates";
 
 export enum ColumnType {
     Text,
     CheckBox,
     Numeric,
     Reference
+}
+
+export interface FilterItem {
+    checked: boolean
+    value
+}
+
+export interface ColumnFilter {
+    store: Store<FilterItem>
+    checkedDataIndex: string
+    valueDataIndex: string
 }
 
 export interface ColumnInfo<T=any> {
@@ -15,6 +26,7 @@ export interface ColumnInfo<T=any> {
     isEditable?: boolean
     referenceItems?: Map<string, NamedId>
     isInvisible?: boolean
+    filter?: ColumnFilter
     mappingFn?(data: T): any
     editMappingFn?(data: Model<T>, dataIndex: string)
     rendererFn?(value, record: Model<T>): any

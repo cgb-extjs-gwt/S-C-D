@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Grid, Column, CheckColumn, NumberField, TextField, SelectField, Toolbar, Button } from "@extjs/ext-react";
-import { ColumnInfo, ColumnType } from "../States/ColumnInfo";
+import { ColumnInfo, ColumnType, FilterItem, ColumnFilter } from "../States/ColumnInfo";
 import { SaveToolbar } from "./SaveToolbar";
 import { DynamicGridProps } from "./Props/DynamicGridProps";
 import { Model, StoreOperation, Store } from "../States/ExtStates";
@@ -145,6 +145,10 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
             columnOption.renderer = column.rendererFn;
         }
 
+        if (column.filter) {
+            columnOption.menu = this.buildFilterMenu(column.filter);
+        }
+
         switch(column.type) {
             case ColumnType.CheckBox:
                 return (<CheckColumn {...columnOption} disabled={!column.isEditable}/>);
@@ -191,6 +195,49 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
         )
     }
 
+    private buildFilterMenu(filter: ColumnFilter) {
+        let searchFn = null;
+        const searchField = {
+            xtype: 'textfield',
+            label: 'Search',
+            margin: '-15 10 10 10',
+            listeners: {
+                change: (field, newValue: string, oldValue: string) => {
+                    const filters = filter.store.getFilters();
+
+                    if (searchFn) {
+                        filters.remove(searchFn);
+                    }
+
+                    searchFn = (item: Model<FilterItem>) => { 
+                        let valueStr: string = item.data.value.toString();
+                        valueStr = valueStr.toLowerCase()
+
+                        return valueStr.includes(newValue.toLowerCase())
+                    }
+
+                    filters.add(searchFn);
+                }
+            }
+        };
+
+        const grid = {
+            xtype: 'grid',
+            columnLines: true,
+            rowLines: true,
+            store: filter.store,
+            height: 450,
+            margin: '-5 10 10 10',
+            style: 'border: 1px solid rgb(226, 226, 226);',
+            columns: [
+                { xtype: 'checkcolumn', dataIndex: filter.checkedDataIndex, width: 70 },
+                { text: 'Value', dataIndex: filter.valueDataIndex, width: 200  }
+            ]
+        };
+
+        return [ '-', searchField, grid];
+    }
+
     private onUpdateStore = (store: Store, record: Model, operation: StoreOperation, modifiedFieldNames: string[], details) => {
         switch (operation) {
             case StoreOperation.Edit: 
@@ -201,7 +248,7 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
                 modifiedFieldNames.forEach(dataIndex => {
                     const column = this.columnsMap.get(dataIndex);
 
-                    column.editMappingFn && column.editMappingFn(record, dataIndex);
+                    column && column.editMappingFn && column.editMappingFn(record, dataIndex);
                 });
                 break;
             

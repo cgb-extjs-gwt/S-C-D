@@ -1,13 +1,17 @@
 import * as React from "react";
 import { DynamicGridProps, DynamicGridActions } from "./Props/DynamicGridProps";
 import { DynamicGrid } from "./DynamicGrid";
-import { ColumnInfo } from "../States/ColumnInfo";
+import { ColumnInfo, FilterItem, ColumnType } from "../States/ColumnInfo";
 import { Model, StoreOperation, Store, StoreUpdateEventFn } from "../States/ExtStates";
-import { Container } from "@extjs/ext-react";
-import { DynamicGridFilter, ColumnFilter, FilterItem, CHECKED_DATA_INDEX, VALUE_DATA_INDEX } from "./DynamicGridFilter";
+import { Container, Column } from "@extjs/ext-react";
+import { buildReferenceColumnRendered } from "../Helpers/GridHeper";
+
+const CHECKED_DATA_INDEX = 'checked'
+const VALUE_DATA_INDEX = 'value'
 
 export interface AjaxDynamicGridActions<T=any> extends DynamicGridActions {
     onUpdateRecord?: StoreUpdateEventFn<T>
+    onUpdateRecordSet? (records: Model<T>[], operation: StoreOperation, dataIndex: string)
     onLoadData?(store: Store<T>, records: Model<T>[])
 }
 
@@ -23,76 +27,62 @@ export interface AjaxDynamicGridProps<T=any> extends DynamicGridProps, AjaxDynam
 
 type FilterDataItem = {
     store: Store<FilterItem>
+    dataSet: Set<any>
+    filteredDataSet: Set<any>
     renderFn: (value, record: Model) => any
 }
 
 export class AjaxDynamicGrid extends React.Component<AjaxDynamicGridProps> {
     private store: Store
-    private columnFilters: ColumnFilter[]
-    private filterData: Map<string, FilterDataItem>
+    private filterDatas: Map<string, FilterDataItem>
+    private columns: ColumnInfo[]
+    private executeFiltrateFilters = true;
+    private executeFillFilterData = true;
+    private updatedRecords: Model[] = [];
 
     public render() {
         const { children, columns, flex } = this.props;
 
         if (columns && columns.length > 0) {
-            this.initStores();
             this.initFilterData();
-            this.initColumnFilters();
+            this.initStores();
+            this.initColumns();
         }
+
+        const props = {
+            ...this.props,
+            columns: this.columns || []
+        } as AjaxDynamicGridProps;
 
         return (
             <Container layout="vbox" flex={flex}>
-                {
-                    this.columnFilters &&  
-                    this.columnFilters.length > 0 &&
-                    <DynamicGridFilter columnFilters={this.columnFilters}/>
-                }
-                <DynamicGrid {...this.props} store={this.store} flex={1}>
+                <DynamicGrid 
+                    {...props} 
+                    store={this.store} 
+                    flex={1}
+                >
                     {children}
                 </DynamicGrid>
             </Container>
         );
     }
 
-    private initColumnFilters() {
-        if (!this.columnFilters) {
-            const { columns, filterDataIndexes } = this.props;
-
-            // this.columnFilters = this.props.columns.map(column => ({
-            //     filteredColumn: column,
-            //     flex: 1,
-            //     store: this.filterData.get(column.dataIndex).store
-            // } as ColumnFilter));
-
-            this.columnFilters = [];
-            
-            columns.forEach(column => {
-                if (filterDataIndexes.find(dataIndex => column.dataIndex == dataIndex)) {
-                    this.columnFilters.push({
-                        filteredColumn: column,
-                        flex: 1,
-                        store: this.filterData.get(column.dataIndex).store
-                    } as ColumnFilter)
+    private initColumns() {
+        if (!this.columns) {
+            this.columns = this.getVisibleColumns().map(column => ({
+                ...column,
+                filter: column.filter || {
+                    store: this.filterDatas.get(column.dataIndex).store,
+                    checkedDataIndex: CHECKED_DATA_INDEX,
+                    valueDataIndex: VALUE_DATA_INDEX
                 }
-            })
+            }))
         }
     }
 
     private initStores() {
-        const { columns, apiUrls, onUpdateRecord, onLoadData } = this.props;
-
         if (!this.store) {
-            const listeners: any = {
-                load: (store: Store, records: Model[]) => {
-                    this.fillFilterStores(records);
-
-                    onLoadData && onLoadData(store, records);
-                }
-            };
-
-            if (onUpdateRecord) {
-                listeners.update = onUpdateRecord;
-            }
+            const { columns, apiUrls, onUpdateRecord, onUpdateRecordSet, onLoadData } = this.props;
 
             const fields = columns.map(column => ({ 
                 name: column.dataIndex, 
@@ -102,50 +92,84 @@ export class AjaxDynamicGrid extends React.Component<AjaxDynamicGridProps> {
             }));
 
             this.store = Ext.create('Ext.data.Store', {
-                listeners,
                 fields,
                 autoLoad: true,
-                //remoteFilter: true,
-                //remoteSort: true,
-                //pageSize : 300,
                 pageSize: 0,
                 proxy: {
                     type: 'ajax',
                     api: apiUrls,
                     reader: { 
                         type: 'json',
-                        //rootProperty: 'items',
-                        //totalProperty: 'total'
                     },
                     writer: {
                         type: 'json',
                         writeAllFields: true,
                         allowSingle: false
                     }
-                }
+                },
+                listeners: {
+                    load: (store: Store, records: Model[]) => {
+                        this.fillFilterData();
+
+                        onLoadData && onLoadData(store, records);
+                    },
+                    update: (store, record, operation, modifiedFieldNames, details) => {
+                        this.fillFilterData();
+    
+                        onUpdateRecord &&  onUpdateRecord(store, record, operation, modifiedFieldNames, details);
+
+                        if (onUpdateRecordSet) {
+                            if (this.updatedRecords.length == 0) {
+                                setTimeout(() => { 
+                                    onUpdateRecordSet(this.updatedRecords, operation, modifiedFieldNames && modifiedFieldNames[0]);
+
+                                    this.updatedRecords = [];
+                                });
+                            }
+
+                            this.updatedRecords.push(record);
+                        }
+                    }
+                },
             });
         }
     }
 
     private initFilterData() {
-        if (!this.filterData) {
-            const { columns } = this.props;
-
-            this.filterData = new Map<string, FilterDataItem>();
+        if (!this.filterDatas) {
+            this.filterDatas = new Map<string, FilterDataItem>();
 
             const defaultRender = (value, record: Model) => value;
 
-            columns.forEach(column => {
+            this.getVisibleColumns().forEach(column => {
                 const store = Ext.create('Ext.data.Store', {
                     fields: [ CHECKED_DATA_INDEX, VALUE_DATA_INDEX ],
+                    sorters: [{
+                        property: VALUE_DATA_INDEX,
+                        direction: 'ASC'
+                    }],
                     listeners: {
-                        update: this.onUpdateFilterStore
+                        update: (store, record, operation, modifiedFieldNames, details) => {
+                            this.onUpdateFilterStore(store, record, operation, modifiedFieldNames, column.dataIndex);
+                        }
                     }
                 });
 
-                const renderFn = column.rendererFn ? column.rendererFn : defaultRender;
+                let renderFn;
 
-                this.filterData.set(column.dataIndex, { store, renderFn })
+                if (column.type === ColumnType.Reference) {
+                    renderFn = buildReferenceColumnRendered(column);
+                } 
+                else {
+                    renderFn = column.rendererFn ? column.rendererFn : defaultRender;
+                }
+
+                this.filterDatas.set(column.dataIndex, { 
+                    store, 
+                    renderFn,
+                    dataSet: new Set<any>(),
+                    filteredDataSet: new Set<any>()
+                });
             });
         }
     }
@@ -156,92 +180,133 @@ export class AjaxDynamicGrid extends React.Component<AjaxDynamicGridProps> {
         const records: Model[] = [];
 
         this.store.filterBy(record => {
-            let result = true;
+            let isVisible = true;
 
-            columns.forEach(column => {
+            for (const column of this.getVisibleColumns()) {
                 const value = record.get(column.dataIndex);
-                const { store: filterStore, renderFn } = this.filterData.get(column.dataIndex);
+                const { store: filterStore, renderFn } = this.filterDatas.get(column.dataIndex);
 
                 filterStore.each(
-                    ({ data: filterItem }) => 
-                        result = renderFn(value, record) != filterItem.value || filterItem.checked
+                    ({ data: filterItem }) => {
+                        isVisible = renderFn(value, record) != filterItem.value || filterItem.checked
+
+                        return isVisible;
+                    }
                 );
 
-                return result;
-            })
+                if (!isVisible) {
+                    break;
+                }
+            }
 
-            if (result) {
+            if (isVisible) {
                 records.push(record);
             }
 
-            return result;
+            return isVisible;
         });
 
         return records;
     }
 
-    onUpdateFilterStore: StoreUpdateEventFn<FilterItem> = (store, record, operation, modifiedFieldNames) => {
+    onUpdateFilterStore = (store, record, operation, modifiedFieldNames, dataIndex) => {
         if (operation == StoreOperation.Edit && modifiedFieldNames[0] == CHECKED_DATA_INDEX) {
-            const records = this.filtrateStore();
-
-            this.fillFilterStores(records);
+            this.filtreteFilters();
         }
     }
 
-    private fillFilterStores(records: Model[]) {
-        // type DataInfo = {
-        //     set: Set<any>, 
-        //     render(value, record: Model): any
-        // };
+    private filtreteFilters() {
+        if (this.executeFiltrateFilters) {
+            this.executeFiltrateFilters = false;
 
-        // const dataInfoMap = new Map<string, DataInfo>();
-        // const defaultRender = (value, record: Model) => value;
+            setTimeout(() => {
+                const records = this.filtrateStore();
+                const dataSets = this.buildDataSets(records);
 
-        // columns.forEach(column =>  
-        //     dataInfoMap.set(
-        //         column.dataIndex, 
-        //         {
-        //             set: new Set<any>(),
-        //             render: column.rendererFn ? column.rendererFn : defaultRender
-        //         }
-        //     )
-        // );
+                this.filterDatas.forEach((filterData, dataIndex) => {
+                    let allChecked = true;
 
-        const { columns } = this.props;
-        const dataSets = new Map<string, Set<any>>();
+                    filterData.store.each(record => allChecked = record.data.checked);
 
-        columns.forEach(
-            column => dataSets.set(column.dataIndex, new Set<any>())
-        );
+                    if (allChecked) {
+                        filterData.filteredDataSet = dataSets.get(dataIndex);
+
+                        filterData.store.filterBy(
+                            record => filterData.filteredDataSet.has(record.data.value)
+                        );
+                    }
+                });
+
+                this.executeFiltrateFilters = true;
+            });
+        }
+    }
+
+    private fillFilterData() {
+        if (this.executeFillFilterData) {
+            this.executeFillFilterData = true;
+
+            setTimeout(() => {
+                const records: Model[] = [];
+    
+                this.store.each(record => records.push(record), this, true);
+                
+                const dataSets = this.buildDataSets(records);
+    
+                this.updateFilterData(dataSets);
+
+                this.executeFillFilterData = false;
+            });
+        }
+    }
+
+    private buildDataSets(records: Model[]) {
+        const newDataSets = new Map<string, Set<any>>();
+
+        this.filterDatas.forEach((data, dataIndex) => newDataSets.set(dataIndex, new Set<any>()));
 
         records.forEach(record => {
-            columns.forEach(({ dataIndex }) => {
-                //const dataInfo = dataInfoMap.get(dataIndex);
-                const dataSet = dataSets.get(dataIndex)
+            this.filterDatas.forEach(({ renderFn }, dataIndex) => {
                 const value = record.get(dataIndex);
-                //const renderedValue = dataInfo.render(value, record);
-                const renderedValue = this.filterData.get(dataIndex).renderFn(value, record);
-                
-                //dataInfo.set.add(renderedValue);
-                dataSet.add(renderedValue);
+                const renderedValue = renderFn(value, record);
+
+                newDataSets.get(dataIndex).add(renderedValue);
             });
         });
-     
-        this.filterData.forEach((filterDataItem, dataIndex) => {
-            const filterItems: FilterItem[] = [];
 
-            dataSets.forEach(
-                value => filterItems.push({
-                    checked: true,
-                    value
-                })
-            )
+        return newDataSets;
+    }
 
-            this.filterData.get(dataIndex).store.loadData(filterItems);
+    private updateFilterData(newDataSets: Map<string, Set<any>>) {
+        newDataSets.forEach((newDataSet, dataIndex) => {
+            const { dataSet, store, filteredDataSet } = this.filterDatas.get(dataIndex);
+
+            dataSet.forEach(value => {
+                if (!newDataSet.has(value)) {
+                    dataSet.delete(value);
+                    filteredDataSet.delete(value);
+
+                    store.remove(
+                        store.findBy(record => record.data.value === value)
+                    )
+                }
+            });
+
+            newDataSet.forEach(value => {
+                if (!dataSet.has(value)) {
+                    dataSet.add(value);
+                    filteredDataSet.add(value);
+                    store.add({ checked: true, value } as FilterItem);
+                }
+            });
         });
     }
 
     private replaceNullValue(value) {
         return value == null ? ' ' : value;
+    }
+
+    private getVisibleColumns() {
+        return this.props.columns.filter(column => !column.isInvisible);
     }
 }

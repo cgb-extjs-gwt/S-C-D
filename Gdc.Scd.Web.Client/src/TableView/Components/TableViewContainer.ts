@@ -155,11 +155,16 @@ const buildActions = (state: CommonState, dispatch: Dispatch) => (<AjaxDynamicGr
                 const countDataIndex = buildCountDataIndex(dataIndex);
 
                 if (record.get(countDataIndex) == 0) {
-                    record.set(countDataIndex, 1);
+                    record.data[countDataIndex] = 1;
                 }
-
-                dispatch(editRecord(tableViewRecord, dataIndex));
                 break;
+        }
+    },
+    onUpdateRecordSet: (records, operation, dataIndex) => {
+        if (operation == StoreOperation.Edit) {
+            const tableViewRecords = records.map(rec => rec.data);
+
+            dispatch(editRecord(tableViewRecords, dataIndex));
         }
     },
     onSave: () =>  handleRequest(
@@ -190,59 +195,3 @@ export const TableViewContainer = connectAdvanced<CommonState, AjaxDynamicGridPr
         ...buildActions(state, dispatch)
     })
 )(AjaxDynamicGrid)
-
-// export const TableViewContainer = connect<AjaxDynamicGridProps, AjaxDynamicGridActions, {}, CommonState>(
-//     state => {
-//         let readUrl: string;
-//         let updateUrl: string;
-        
-//         const columns = [];
-//         const tableViewInfo = state.pages.tableView.info;
-//         const meta = state.app.appMetaData;
-
-//         if (tableViewInfo && meta) {
-//             readUrl = buildGetRecordsUrl();
-
-//             const costBlockCache = new Map<string, CostBlockMeta>();
-//             const coordinateColumns = mapToColumnInfo(tableViewInfo.recordInfo.coordinates, meta, costBlockCache, buildCoordinateColumn);
-//             const costElementColumns = mapToColumnInfo(
-//                 tableViewInfo.recordInfo.data, 
-//                 meta, 
-//                 costBlockCache, 
-//                 (costBlock, fieldInfo) => buildCostElementColumn(costBlock, fieldInfo, tableViewInfo));
-
-//             columns.push(...coordinateColumns, ...costElementColumns);
-//         }
-
-//         return <AjaxDynamicGridProps>{
-//             columns,
-//             apiUrls: {
-//                 read: readUrl
-//             }
-//         };
-//     },
-//     dispatch => (<AjaxDynamicGridActions>{
-//         init: () => handleRequest(
-//             getTableViewInfo().then(
-//                 tableViewInfo => dispatch(loadTableViewInfo(tableViewInfo))
-//             )
-//         ),
-//         updateRecord: (store, record, operation, [ dataIndex ]) => {
-//             if (operation == 'edit') {
-//                 const tableViewRecord: TableViewRecord = record.data;
-//                 const valueCount = tableViewRecord.data[dataIndex];
-
-//                 if (valueCount.count == 0) {
-//                     valueCount.count = 1;
-//                 }
-
-//                 dispatch(editRecord(tableViewRecord, dataIndex));
-//             }
-//         },
-//         onSave: () => dispatch(saveChanges()),
-//         onCancel: () => dispatch(resetChanges()),
-//         loadData: (store, records) => {
-
-//         }
-//     })
-// )(AjaxDynamicGrid)

@@ -16,38 +16,40 @@ const loadInfo: Reducer<TableViewState, CommonAction<TableViewInfo>> = (state, a
 })
 
 const editRecord: Reducer<TableViewState, EditRecordAction> = (state, action) => {
-    const recordIndex = state.editedRecords.findIndex(editRecord => isEqualCoordinates(editRecord,  action.record));
-        
-    let editedRecords: TableViewRecord[];
+    let editedRecords = state.editedRecords;
 
-    const changedData = { 
-        [action.dataIndex]: action.record.data[action.dataIndex]
-    };
+    action.records.forEach(actionRecord => {
+        const recordIndex = editedRecords.findIndex(editRecord => isEqualCoordinates(editRecord,  actionRecord));
 
-    if (recordIndex == -1) {
-        editedRecords = [
-            ...state.editedRecords, 
-            {
-                coordinates: action.record.coordinates,
-                data: changedData
-            }
-        ];
-    }
-    else {
-        editedRecords = state.editedRecords.map(
-            (record, index) => 
-                index == recordIndex 
-                    ? {
-                        coordinates: action.record.coordinates,
-                        data: { 
-                            ...record.data, 
-                            ...changedData
+        const changedData = { 
+            [action.dataIndex]: actionRecord.data[action.dataIndex]
+        };
+
+        if (recordIndex == -1) {
+            editedRecords = [
+                ...editedRecords, 
+                {
+                    coordinates: actionRecord.coordinates,
+                    data: changedData
+                }
+            ];
+        }
+        else {
+            editedRecords = editedRecords.map(
+                (record, index) => 
+                    index == recordIndex 
+                        ? {
+                            coordinates: actionRecord.coordinates,
+                            data: { 
+                                ...record.data, 
+                                ...changedData
+                            }
                         }
-                    }
-                    : record
-        );
-    }
-
+                        : record
+            );
+        }
+    });
+    
     return {
         ...state,
         editedRecords
