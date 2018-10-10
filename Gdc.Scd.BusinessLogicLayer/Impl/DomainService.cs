@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
@@ -34,7 +35,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 try
                 {
-
                     this.InnerSave(item);
                     this.repositorySet.Sync();
                     transaction.Commit();
@@ -48,7 +48,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public void Save(IEnumerable<T> items)
+        public virtual void Save(IEnumerable<T> items)
         {
             using (var transaction = this.repositorySet.GetTransaction())
             {

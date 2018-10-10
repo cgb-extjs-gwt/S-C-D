@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Grid, Column, CheckColumn, Toolbar, Button } from '@extjs/ext-react';
+import { buildMvcUrl } from "../../Common/Services/Ajax";
 
+const CONTROLLER_NAME = 'AvailabilityFeeAdmin';
 
 class AvailabilityFeeAdminGrid extends React.Component{
 
@@ -17,8 +19,8 @@ class AvailabilityFeeAdminGrid extends React.Component{
         proxy: {
             type: 'ajax',
             api: {
-                read: '/api/AvailabilityFeeAdmin/GetAll',
-                update: '/api/AvailabilityFeeAdmin/SaveAll'
+                read: buildMvcUrl(CONTROLLER_NAME, 'GetAll'),
+                update: buildMvcUrl(CONTROLLER_NAME, 'SaveAll')
             },
             reader: {
                 type: 'json',
@@ -68,8 +70,7 @@ class AvailabilityFeeAdminGrid extends React.Component{
     }
 
     render(){
-        console.log(this.store);
-        return ( <Grid title={ 'Availability Fee Settings' } store={ this.store } cls="filter-grid" columnLines= {true} plugins={['pagingtoolbar']} >
+        return (<Grid title={ 'Availability Fee Settings' } store={ this.store } cls="filter-grid" columnLines= {true} plugins={['pagingtoolbar']} >
                     <Column text="Country" dataIndex="countryName" flex={1} />
                     <Column text="Reaction Time" dataIndex="reactionTimeName" flex={1} />
                     <Column text="Reaction Type" dataIndex="reactionTypeName" flex={1} />

@@ -1,0 +1,485 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="FrieseModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'friese.dbo.SCD2_LUT_TSP' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="SCD2_LUT_TSP">
+          <Key>
+            <PropertyRef Name="Country Group" />
+            <PropertyRef Name="Service Code" />
+            <PropertyRef Name="Warranty Group" />
+          </Key>
+          <Property Name="Country Group" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="Service Code" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="Description" Type="varchar" MaxLength="255" />
+          <Property Name="Scope" Type="varchar" MaxLength="255" />
+          <Property Name="Start Date" Type="varchar" MaxLength="255" />
+          <Property Name="Warranty Group" Type="varchar" MaxLength="3" Nullable="false" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'friese.dbo.SCD2_ServiceOfferingGroups' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="SCD2_ServiceOfferingGroups">
+          <Key>
+            <PropertyRef Name="Service Offering Group" />
+            <PropertyRef Name="Active Flag" />
+          </Key>
+          <Property Name="Service Offering Group" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="Service Offering Group Name" Type="nvarchar" MaxLength="255" />
+          <Property Name="SOG PLA" Type="nvarchar" MaxLength="255" />
+          <Property Name="Active Flag" Type="varchar" MaxLength="1" Nullable="false" />
+          <Property Name="start date" Type="datetime" />
+          <Property Name="Service_Type" Type="varchar" MaxLength="255" />
+          <Property Name="CRU" Type="nvarchar" MaxLength="255" />
+          <Property Name="FabGrp" Type="nvarchar" MaxLength="255" />
+          <Property Name="Spares availability" Type="nvarchar" MaxLength="255" />
+          <Property Name="Alignment" Type="nvarchar" MaxLength="255" />
+          <Property Name="Warranty Calculation relevant" Type="nvarchar" MaxLength="255" />
+          <Property Name="EOL" Type="nvarchar" MaxLength="255" />
+          <Property Name="Service Types" Type="nvarchar" MaxLength="255" />
+          <Property Name="GlobalSupportPack" Type="nvarchar" MaxLength="255" />
+          <Property Name="SCD_ServiceType" Type="varchar(max)" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'friese.dbo.SCD2_SW_Overview' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="SCD2_SW_Overview">
+          <Key>
+            <PropertyRef Name="WG" />
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="SOG_Code" />
+          </Key>
+          <Property Name="WG" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="WG-Definition" Type="nvarchar" MaxLength="255" />
+          <Property Name="PLA" Type="nvarchar" MaxLength="255" />
+          <Property Name="Software Lizenz Digit" Type="nvarchar" MaxLength="50" />
+          <Property Name="Software Lizenz Beschreibung" Type="nvarchar" MaxLength="250" />
+          <Property Name="Service_Code" Type="varchar" MaxLength="50" />
+          <Property Name="Service Description" Type="varchar" MaxLength="4000" />
+          <Property Name="Service Code Requester" Type="nvarchar" MaxLength="255" />
+          <Property Name="Software Lizenz" Type="varchar" MaxLength="50" />
+          <Property Name="Software Lizenz Benennung" Type="varchar" MaxLength="1000" />
+          <Property Name="Service Code Status" Type="nvarchar" MaxLength="50" />
+          <Property Name="Service Short Description" Type="varchar" MaxLength="250" />
+          <Property Name="Proactive" Type="nvarchar" MaxLength="250" />
+          <Property Name="SCD_Relevant" Type="varchar" MaxLength="50" />
+          <Property Name="ID" Type="int" Nullable="false" />
+          <Property Name="SOG_Code" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="SOG" Type="nvarchar" MaxLength="255" />
+          <Property Name="ServiceFabGrp" Type="nvarchar" MaxLength="255" />
+          <Property Name="SCD_ServiceType" Type="varchar" MaxLength="250" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'friese.dbo.SCD2_v_SAR_new_codes' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="SCD2_v_SAR_new_codes">
+          <Key>
+            <PropertyRef Name="Service_Code" />
+            <PropertyRef Name="MaxSpares" />
+          </Key>
+          <Property Name="Service_Code" Type="nvarchar" MaxLength="18" Nullable="false" />
+          <Property Name="Country" Type="nvarchar" MaxLength="250" />
+          <Property Name="WG" Type="nvarchar" MaxLength="3" />
+          <Property Name="SOG" Type="varchar" MaxLength="10" />
+          <Property Name="ServiceType" Type="varchar" MaxLength="250" />
+          <Property Name="Response_Recovery" Type="nvarchar" MaxLength="255" />
+          <Property Name="BusinessHours" Type="nvarchar" MaxLength="255" />
+          <Property Name="SecondSLA" Type="nvarchar" MaxLength="255" />
+          <Property Name="SAP_Kurztext_Englisch" Type="varchar" MaxLength="250" />
+          <Property Name="Duration" Type="nvarchar" MaxLength="50" />
+          <Property Name="Servicelevel" Type="nvarchar" MaxLength="250" />
+          <Property Name="VStatus" Type="nvarchar" MaxLength="50" />
+          <Property Name="EKSchluesselSAP" Type="varchar" MaxLength="10" />
+          <Property Name="MaxSpares" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="EKSchluessel" Type="nvarchar" MaxLength="250" />
+          <Property Name="Project" Type="nvarchar" MaxLength="50" />
+          <Property Name="SCD_ServiceType" Type="varchar" MaxLength="50" />
+          <Property Name="Atom_Location" Type="varchar" MaxLength="50" />
+          <Property Name="Atom_R_Type" Type="nvarchar" MaxLength="255" />
+          <Property Name="Atom_R_Time" Type="nvarchar" MaxLength="255" />
+          <Property Name="Atom_Availability" Type="nvarchar" MaxLength="255" />
+          <Property Name="Atom_Duration" Type="nvarchar" MaxLength="255" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'friese.dbo.SCD2_WarrantyGroups' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="SCD2_WarrantyGroups">
+          <Key>
+            <PropertyRef Name="Warranty Group" />
+            <PropertyRef Name="Active Flag" />
+            <PropertyRef Name="SOG" />
+          </Key>
+          <Property Name="Warranty Group" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="Warranty Group Name" Type="nvarchar" MaxLength="255" />
+          <Property Name="Warranty PLA" Type="nvarchar" MaxLength="255" />
+          <Property Name="Active Flag" Type="varchar" MaxLength="1" Nullable="false" />
+          <Property Name="start date" Type="datetime" />
+          <Property Name="Service_Type" Type="varchar" MaxLength="255" />
+          <Property Name="CRU" Type="nvarchar" MaxLength="255" />
+          <Property Name="FabGrp" Type="nvarchar" MaxLength="255" />
+          <Property Name="Spares availability" Type="nvarchar" MaxLength="255" />
+          <Property Name="Alignment" Type="nvarchar" MaxLength="255" />
+          <Property Name="Warranty Calculation relevant" Type="nvarchar" MaxLength="255" />
+          <Property Name="EOL" Type="nvarchar" MaxLength="255" />
+          <Property Name="Service Types" Type="nvarchar" MaxLength="255" />
+          <Property Name="SOG" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="SCD_ServiceType" Type="varchar(max)" />
+        </EntityType>
+        <EntityContainer Name="FrieseModelStoreContainer">
+          <EntitySet Name="SCD2_LUT_TSP" EntityType="Self.SCD2_LUT_TSP" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [SCD2_LUT_TSP].[Country Group] AS [Country Group], 
+    [SCD2_LUT_TSP].[Service Code] AS [Service Code], 
+    [SCD2_LUT_TSP].[Description] AS [Description], 
+    [SCD2_LUT_TSP].[Scope] AS [Scope], 
+    [SCD2_LUT_TSP].[Start Date] AS [Start Date], 
+    [SCD2_LUT_TSP].[Warranty Group] AS [Warranty Group]
+    FROM [dbo].[SCD2_LUT_TSP] AS [SCD2_LUT_TSP]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="SCD2_ServiceOfferingGroups" EntityType="Self.SCD2_ServiceOfferingGroups" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [SCD2_ServiceOfferingGroups].[Service Offering Group] AS [Service Offering Group], 
+    [SCD2_ServiceOfferingGroups].[Service Offering Group Name] AS [Service Offering Group Name], 
+    [SCD2_ServiceOfferingGroups].[SOG PLA] AS [SOG PLA], 
+    [SCD2_ServiceOfferingGroups].[Active Flag] AS [Active Flag], 
+    [SCD2_ServiceOfferingGroups].[start date] AS [start date], 
+    [SCD2_ServiceOfferingGroups].[Service_Type] AS [Service_Type], 
+    [SCD2_ServiceOfferingGroups].[CRU] AS [CRU], 
+    [SCD2_ServiceOfferingGroups].[FabGrp] AS [FabGrp], 
+    [SCD2_ServiceOfferingGroups].[Spares availability] AS [Spares availability], 
+    [SCD2_ServiceOfferingGroups].[Alignment] AS [Alignment], 
+    [SCD2_ServiceOfferingGroups].[Warranty Calculation relevant] AS [Warranty Calculation relevant], 
+    [SCD2_ServiceOfferingGroups].[EOL] AS [EOL], 
+    [SCD2_ServiceOfferingGroups].[Service Types] AS [Service Types], 
+    [SCD2_ServiceOfferingGroups].[GlobalSupportPack] AS [GlobalSupportPack], 
+    [SCD2_ServiceOfferingGroups].[SCD_ServiceType] AS [SCD_ServiceType]
+    FROM [dbo].[SCD2_ServiceOfferingGroups] AS [SCD2_ServiceOfferingGroups]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="SCD2_SW_Overview" EntityType="Self.SCD2_SW_Overview" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [SCD2_SW_Overview].[WG] AS [WG], 
+    [SCD2_SW_Overview].[WG-Definition] AS [WG-Definition], 
+    [SCD2_SW_Overview].[PLA] AS [PLA], 
+    [SCD2_SW_Overview].[Software Lizenz Digit] AS [Software Lizenz Digit], 
+    [SCD2_SW_Overview].[Software Lizenz Beschreibung] AS [Software Lizenz Beschreibung], 
+    [SCD2_SW_Overview].[Service_Code] AS [Service_Code], 
+    [SCD2_SW_Overview].[Service Description] AS [Service Description], 
+    [SCD2_SW_Overview].[Service Code Requester] AS [Service Code Requester], 
+    [SCD2_SW_Overview].[Software Lizenz] AS [Software Lizenz], 
+    [SCD2_SW_Overview].[Software Lizenz Benennung] AS [Software Lizenz Benennung], 
+    [SCD2_SW_Overview].[Service Code Status] AS [Service Code Status], 
+    [SCD2_SW_Overview].[Service Short Description] AS [Service Short Description], 
+    [SCD2_SW_Overview].[Proactive] AS [Proactive], 
+    [SCD2_SW_Overview].[SCD_Relevant] AS [SCD_Relevant], 
+    [SCD2_SW_Overview].[ID] AS [ID], 
+    [SCD2_SW_Overview].[SOG_Code] AS [SOG_Code], 
+    [SCD2_SW_Overview].[SOG] AS [SOG], 
+    [SCD2_SW_Overview].[ServiceFabGrp] AS [ServiceFabGrp], 
+    [SCD2_SW_Overview].[SCD_ServiceType] AS [SCD_ServiceType]
+    FROM [dbo].[SCD2_SW_Overview] AS [SCD2_SW_Overview]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="SCD2_v_SAR_new_codes" EntityType="Self.SCD2_v_SAR_new_codes" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [SCD2_v_SAR_new_codes].[Service_Code] AS [Service_Code], 
+    [SCD2_v_SAR_new_codes].[Country] AS [Country], 
+    [SCD2_v_SAR_new_codes].[WG] AS [WG], 
+    [SCD2_v_SAR_new_codes].[SOG] AS [SOG], 
+    [SCD2_v_SAR_new_codes].[ServiceType] AS [ServiceType], 
+    [SCD2_v_SAR_new_codes].[Response_Recovery] AS [Response_Recovery], 
+    [SCD2_v_SAR_new_codes].[BusinessHours] AS [BusinessHours], 
+    [SCD2_v_SAR_new_codes].[SecondSLA] AS [SecondSLA], 
+    [SCD2_v_SAR_new_codes].[SAP_Kurztext_Englisch] AS [SAP_Kurztext_Englisch], 
+    [SCD2_v_SAR_new_codes].[Duration] AS [Duration], 
+    [SCD2_v_SAR_new_codes].[Servicelevel] AS [Servicelevel], 
+    [SCD2_v_SAR_new_codes].[VStatus] AS [VStatus], 
+    [SCD2_v_SAR_new_codes].[EKSchluesselSAP] AS [EKSchluesselSAP], 
+    [SCD2_v_SAR_new_codes].[MaxSpares] AS [MaxSpares], 
+    [SCD2_v_SAR_new_codes].[EKSchluessel] AS [EKSchluessel], 
+    [SCD2_v_SAR_new_codes].[Project] AS [Project], 
+    [SCD2_v_SAR_new_codes].[SCD_ServiceType] AS [SCD_ServiceType], 
+    [SCD2_v_SAR_new_codes].[Atom_Location] AS [Atom_Location], 
+    [SCD2_v_SAR_new_codes].[Atom_R_Type] AS [Atom_R_Type], 
+    [SCD2_v_SAR_new_codes].[Atom_R_Time] AS [Atom_R_Time], 
+    [SCD2_v_SAR_new_codes].[Atom_Availability] AS [Atom_Availability], 
+    [SCD2_v_SAR_new_codes].[Atom_Duration] AS [Atom_Duration]
+    FROM [dbo].[SCD2_v_SAR_new_codes] AS [SCD2_v_SAR_new_codes]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="SCD2_WarrantyGroups" EntityType="Self.SCD2_WarrantyGroups" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [SCD2_WarrantyGroups].[Warranty Group] AS [Warranty Group], 
+    [SCD2_WarrantyGroups].[Warranty Group Name] AS [Warranty Group Name], 
+    [SCD2_WarrantyGroups].[Warranty PLA] AS [Warranty PLA], 
+    [SCD2_WarrantyGroups].[Active Flag] AS [Active Flag], 
+    [SCD2_WarrantyGroups].[start date] AS [start date], 
+    [SCD2_WarrantyGroups].[Service_Type] AS [Service_Type], 
+    [SCD2_WarrantyGroups].[CRU] AS [CRU], 
+    [SCD2_WarrantyGroups].[FabGrp] AS [FabGrp], 
+    [SCD2_WarrantyGroups].[Spares availability] AS [Spares availability], 
+    [SCD2_WarrantyGroups].[Alignment] AS [Alignment], 
+    [SCD2_WarrantyGroups].[Warranty Calculation relevant] AS [Warranty Calculation relevant], 
+    [SCD2_WarrantyGroups].[EOL] AS [EOL], 
+    [SCD2_WarrantyGroups].[Service Types] AS [Service Types], 
+    [SCD2_WarrantyGroups].[SOG] AS [SOG], 
+    [SCD2_WarrantyGroups].[SCD_ServiceType] AS [SCD_ServiceType]
+    FROM [dbo].[SCD2_WarrantyGroups] AS [SCD2_WarrantyGroups]</DefiningQuery>
+          </EntitySet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="FrieseModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="SCD2_LUT_TSP">
+          <Key>
+            <PropertyRef Name="Country_Group" />
+            <PropertyRef Name="Service_Code" />
+            <PropertyRef Name="Warranty_Group" />
+          </Key>
+          <Property Name="Country_Group" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Service_Code" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Scope" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Start_Date" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Warranty_Group" Type="String" MaxLength="3" FixedLength="false" Unicode="false" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SCD2_ServiceOfferingGroups">
+          <Key>
+            <PropertyRef Name="Service_Offering_Group" />
+            <PropertyRef Name="Active_Flag" />
+          </Key>
+          <Property Name="Service_Offering_Group" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Service_Offering_Group_Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SOG_PLA" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Active_Flag" Type="String" MaxLength="1" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="start_date" Type="DateTime" Precision="3" />
+          <Property Name="Service_Type" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="CRU" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="FabGrp" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Spares_availability" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Alignment" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Warranty_Calculation_relevant" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="EOL" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Service_Types" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="GlobalSupportPack" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SCD_ServiceType" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="SCD2_SW_Overview">
+          <Key>
+            <PropertyRef Name="WG" />
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="SOG_Code" />
+          </Key>
+          <Property Name="WG" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="WG_Definition" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="PLA" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Software_Lizenz_Digit" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Software_Lizenz_Beschreibung" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Service_Code" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Service_Description" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" />
+          <Property Name="Service_Code_Requester" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Software_Lizenz" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Software_Lizenz_Benennung" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="Service_Code_Status" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Service_Short_Description" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Proactive" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="SCD_Relevant" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ID" Type="Int32" Nullable="false" />
+          <Property Name="SOG_Code" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SOG" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="ServiceFabGrp" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SCD_ServiceType" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="SCD2_v_SAR_new_codes">
+          <Key>
+            <PropertyRef Name="Service_Code" />
+            <PropertyRef Name="MaxSpares" />
+          </Key>
+          <Property Name="Service_Code" Type="String" MaxLength="18" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Country" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="WG" Type="String" MaxLength="3" FixedLength="false" Unicode="true" />
+          <Property Name="SOG" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ServiceType" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Response_Recovery" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="BusinessHours" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SecondSLA" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SAP_Kurztext_Englisch" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Duration" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Servicelevel" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="VStatus" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="EKSchluesselSAP" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="MaxSpares" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="EKSchluessel" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Project" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="SCD_ServiceType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Atom_Location" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Atom_R_Type" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Atom_R_Time" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Atom_Availability" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Atom_Duration" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="SCD2_WarrantyGroups">
+          <Key>
+            <PropertyRef Name="Warranty_Group" />
+            <PropertyRef Name="Active_Flag" />
+            <PropertyRef Name="SOG" />
+          </Key>
+          <Property Name="Warranty_Group" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Warranty_Group_Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Warranty_PLA" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Active_Flag" Type="String" MaxLength="1" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="start_date" Type="DateTime" Precision="3" />
+          <Property Name="Service_Type" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="CRU" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="FabGrp" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Spares_availability" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Alignment" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Warranty_Calculation_relevant" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="EOL" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Service_Types" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SOG" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SCD_ServiceType" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityContainer Name="FrieseEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="SCD2_LUT_TSP" EntityType="Self.SCD2_LUT_TSP" />
+          <EntitySet Name="SCD2_ServiceOfferingGroups" EntityType="Self.SCD2_ServiceOfferingGroups" />
+          <EntitySet Name="SCD2_SW_Overview" EntityType="Self.SCD2_SW_Overview" />
+          <EntitySet Name="SCD2_v_SAR_new_codes" EntityType="Self.SCD2_v_SAR_new_codes" />
+          <EntitySet Name="SCD2_WarrantyGroups" EntityType="Self.SCD2_WarrantyGroups" />
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="FrieseModelStoreContainer" CdmEntityContainer="FrieseEntities">
+          <EntitySetMapping Name="SCD2_LUT_TSP">
+            <EntityTypeMapping TypeName="FrieseModel.SCD2_LUT_TSP">
+              <MappingFragment StoreEntitySet="SCD2_LUT_TSP">
+                <ScalarProperty Name="Country_Group" ColumnName="Country Group" />
+                <ScalarProperty Name="Service_Code" ColumnName="Service Code" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Scope" ColumnName="Scope" />
+                <ScalarProperty Name="Start_Date" ColumnName="Start Date" />
+                <ScalarProperty Name="Warranty_Group" ColumnName="Warranty Group" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SCD2_ServiceOfferingGroups">
+            <EntityTypeMapping TypeName="FrieseModel.SCD2_ServiceOfferingGroups">
+              <MappingFragment StoreEntitySet="SCD2_ServiceOfferingGroups">
+                <ScalarProperty Name="Service_Offering_Group" ColumnName="Service Offering Group" />
+                <ScalarProperty Name="Service_Offering_Group_Name" ColumnName="Service Offering Group Name" />
+                <ScalarProperty Name="SOG_PLA" ColumnName="SOG PLA" />
+                <ScalarProperty Name="Active_Flag" ColumnName="Active Flag" />
+                <ScalarProperty Name="start_date" ColumnName="start date" />
+                <ScalarProperty Name="Service_Type" ColumnName="Service_Type" />
+                <ScalarProperty Name="CRU" ColumnName="CRU" />
+                <ScalarProperty Name="FabGrp" ColumnName="FabGrp" />
+                <ScalarProperty Name="Spares_availability" ColumnName="Spares availability" />
+                <ScalarProperty Name="Alignment" ColumnName="Alignment" />
+                <ScalarProperty Name="Warranty_Calculation_relevant" ColumnName="Warranty Calculation relevant" />
+                <ScalarProperty Name="EOL" ColumnName="EOL" />
+                <ScalarProperty Name="Service_Types" ColumnName="Service Types" />
+                <ScalarProperty Name="GlobalSupportPack" ColumnName="GlobalSupportPack" />
+                <ScalarProperty Name="SCD_ServiceType" ColumnName="SCD_ServiceType" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SCD2_SW_Overview">
+            <EntityTypeMapping TypeName="FrieseModel.SCD2_SW_Overview">
+              <MappingFragment StoreEntitySet="SCD2_SW_Overview">
+                <ScalarProperty Name="WG" ColumnName="WG" />
+                <ScalarProperty Name="WG_Definition" ColumnName="WG-Definition" />
+                <ScalarProperty Name="PLA" ColumnName="PLA" />
+                <ScalarProperty Name="Software_Lizenz_Digit" ColumnName="Software Lizenz Digit" />
+                <ScalarProperty Name="Software_Lizenz_Beschreibung" ColumnName="Software Lizenz Beschreibung" />
+                <ScalarProperty Name="Service_Code" ColumnName="Service_Code" />
+                <ScalarProperty Name="Service_Description" ColumnName="Service Description" />
+                <ScalarProperty Name="Service_Code_Requester" ColumnName="Service Code Requester" />
+                <ScalarProperty Name="Software_Lizenz" ColumnName="Software Lizenz" />
+                <ScalarProperty Name="Software_Lizenz_Benennung" ColumnName="Software Lizenz Benennung" />
+                <ScalarProperty Name="Service_Code_Status" ColumnName="Service Code Status" />
+                <ScalarProperty Name="Service_Short_Description" ColumnName="Service Short Description" />
+                <ScalarProperty Name="Proactive" ColumnName="Proactive" />
+                <ScalarProperty Name="SCD_Relevant" ColumnName="SCD_Relevant" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="SOG_Code" ColumnName="SOG_Code" />
+                <ScalarProperty Name="SOG" ColumnName="SOG" />
+                <ScalarProperty Name="ServiceFabGrp" ColumnName="ServiceFabGrp" />
+                <ScalarProperty Name="SCD_ServiceType" ColumnName="SCD_ServiceType" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SCD2_v_SAR_new_codes">
+            <EntityTypeMapping TypeName="FrieseModel.SCD2_v_SAR_new_codes">
+              <MappingFragment StoreEntitySet="SCD2_v_SAR_new_codes">
+                <ScalarProperty Name="Service_Code" ColumnName="Service_Code" />
+                <ScalarProperty Name="Country" ColumnName="Country" />
+                <ScalarProperty Name="WG" ColumnName="WG" />
+                <ScalarProperty Name="SOG" ColumnName="SOG" />
+                <ScalarProperty Name="ServiceType" ColumnName="ServiceType" />
+                <ScalarProperty Name="Response_Recovery" ColumnName="Response_Recovery" />
+                <ScalarProperty Name="BusinessHours" ColumnName="BusinessHours" />
+                <ScalarProperty Name="SecondSLA" ColumnName="SecondSLA" />
+                <ScalarProperty Name="SAP_Kurztext_Englisch" ColumnName="SAP_Kurztext_Englisch" />
+                <ScalarProperty Name="Duration" ColumnName="Duration" />
+                <ScalarProperty Name="Servicelevel" ColumnName="Servicelevel" />
+                <ScalarProperty Name="VStatus" ColumnName="VStatus" />
+                <ScalarProperty Name="EKSchluesselSAP" ColumnName="EKSchluesselSAP" />
+                <ScalarProperty Name="MaxSpares" ColumnName="MaxSpares" />
+                <ScalarProperty Name="EKSchluessel" ColumnName="EKSchluessel" />
+                <ScalarProperty Name="Project" ColumnName="Project" />
+                <ScalarProperty Name="SCD_ServiceType" ColumnName="SCD_ServiceType" />
+                <ScalarProperty Name="Atom_Location" ColumnName="Atom_Location" />
+                <ScalarProperty Name="Atom_R_Type" ColumnName="Atom_R_Type" />
+                <ScalarProperty Name="Atom_R_Time" ColumnName="Atom_R_Time" />
+                <ScalarProperty Name="Atom_Availability" ColumnName="Atom_Availability" />
+                <ScalarProperty Name="Atom_Duration" ColumnName="Atom_Duration" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SCD2_WarrantyGroups">
+            <EntityTypeMapping TypeName="FrieseModel.SCD2_WarrantyGroups">
+              <MappingFragment StoreEntitySet="SCD2_WarrantyGroups">
+                <ScalarProperty Name="Warranty_Group" ColumnName="Warranty Group" />
+                <ScalarProperty Name="Warranty_Group_Name" ColumnName="Warranty Group Name" />
+                <ScalarProperty Name="Warranty_PLA" ColumnName="Warranty PLA" />
+                <ScalarProperty Name="Active_Flag" ColumnName="Active Flag" />
+                <ScalarProperty Name="start_date" ColumnName="start date" />
+                <ScalarProperty Name="Service_Type" ColumnName="Service_Type" />
+                <ScalarProperty Name="CRU" ColumnName="CRU" />
+                <ScalarProperty Name="FabGrp" ColumnName="FabGrp" />
+                <ScalarProperty Name="Spares_availability" ColumnName="Spares availability" />
+                <ScalarProperty Name="Alignment" ColumnName="Alignment" />
+                <ScalarProperty Name="Warranty_Calculation_relevant" ColumnName="Warranty Calculation relevant" />
+                <ScalarProperty Name="EOL" ColumnName="EOL" />
+                <ScalarProperty Name="Service_Types" ColumnName="Service Types" />
+                <ScalarProperty Name="SOG" ColumnName="SOG" />
+                <ScalarProperty Name="SCD_ServiceType" ColumnName="SCD_ServiceType" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

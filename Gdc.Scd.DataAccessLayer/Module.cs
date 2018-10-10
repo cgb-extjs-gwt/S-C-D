@@ -5,40 +5,42 @@ using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders;
-using Microsoft.Extensions.DependencyInjection;
+using Ninject.Modules;
+using Ninject.Web.Common;
 
 namespace Gdc.Scd.DataAccessLayer
 {
-    public class Module : IModule
+    public class Module : NinjectModule
     {
-        public void Init(IServiceCollection services)
+        public override void Load()
         {
-            services.AddScoped(typeof(IRepository<>), typeof(EntityFrameworkRepository<>));
-            services.AddScoped<EntityFrameworkRepositorySet>();
-            services.AddScoped<IRepositorySet>(serviceProvider => serviceProvider.GetService<EntityFrameworkRepositorySet>());
-            services.AddScoped<ISqlRepository, SqlRepository>();
-            services.AddScoped<ICostEditorRepository, CostEditorRepository>();
-            services.AddScoped<ICostBlockValueHistoryRepository, CostBlockValueHistoryRepository>();
-            services.AddScoped<IRepository<CostBlockHistory>, CostBlockHistoryRepository>();
-            services.AddScoped<IRepository<ReactionTimeType>, ReactionTimeTypeRepository>();
-            services.AddScoped<IRepository<ReactionTimeAvalability>, ReactionTimeAvalabilityRepository>();
-            services.AddScoped<IRepository<ReactionTimeTypeAvalability>, ReactionTimeTypeAvalabilityRepository>();
-            services.AddScoped<ICostBlockValueHistoryQueryBuilder, CostBlockValueHistoryQueryBuilder>();
-            services.AddScoped<IRepository<YearAvailability>, YearAvailabilityRepository>();
-            services.AddScoped<IQualityGateRepository, QualityGateRepository>();
-            services.AddScoped<IQualityGateQueryBuilder, QualityGateQueryBuilder>();
+            Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InRequestScope();
+            Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InRequestScope();
+            Bind<ICostEditorRepository>().To<CostEditorRepository>().InRequestScope();
+            Bind<ICostBlockValueHistoryRepository>().To<CostBlockValueHistoryRepository>().InRequestScope();
+            Bind<ISqlRepository>().To<SqlRepository>().InRequestScope();
+            Bind<IRepository<CostBlockHistory>>().To<CostBlockHistoryRepository>().InRequestScope();
+            Bind<IRepository<ReactionTimeType>>().To<ReactionTimeTypeRepository>().InRequestScope();
+            Bind<IRepository<ReactionTimeAvalability>>().To<ReactionTimeAvalabilityRepository>().InRequestScope();
+            Bind<IRepository<ReactionTimeTypeAvalability>>().To<ReactionTimeTypeAvalabilityRepository>().InRequestScope();
+            Bind<ICostBlockValueHistoryQueryBuilder>().To<CostBlockValueHistoryQueryBuilder>().InRequestScope();
+            Bind<IRepository<YearAvailability>>().To<YearAvailabilityRepository>().InRequestScope();
+            Bind<IQualityGateRepository>().To<QualityGateRepository>().InRequestScope();
+            Bind<IQualityGateQueryBuilder>().To<QualityGateQueryBuilder>().InRequestScope();
+            Bind<IRepository<Country>>().To<CountryRepository>().InRequestScope();
+            Bind<ITableViewRepository>().To<TableViewRepository>().InRequestScope();
 
-            services.AddTransient<BaseColumnMetaSqlBuilder<IdFieldMeta>, IdColumnMetaSqlBuilder>();
-            services.AddTransient<BaseColumnMetaSqlBuilder<SimpleFieldMeta>, SimpleColumnMetaSqlBuilder>();
-            services.AddTransient<BaseColumnMetaSqlBuilder<ReferenceFieldMeta>, ReferenceColumnMetaSqlBuilder>();
-            services.AddTransient<BaseColumnMetaSqlBuilder<CreatedDateTimeFieldMeta>, CreatedDateTimeColumnMetaSqlBuilder>();
-            services.AddTransient<CreateTableMetaSqlBuilder>();
-            services.AddTransient<DatabaseMetaSqlBuilder>();
-            services.AddTransient<IConfigureApplicationHandler, DatabaseCreationHandler>();
-            services.AddTransient<IConfigureDatabaseHandler, ViewConfigureHandler>();
-            services.AddTransient<ICustomConfigureTableHandler, ViewConfigureHandler>();
+            Bind<BaseColumnMetaSqlBuilder<IdFieldMeta>>().To<IdColumnMetaSqlBuilder>().InTransientScope();
+            Bind<BaseColumnMetaSqlBuilder<SimpleFieldMeta>>().To<SimpleColumnMetaSqlBuilder>().InTransientScope();
+            Bind<BaseColumnMetaSqlBuilder<ReferenceFieldMeta>>().To<ReferenceColumnMetaSqlBuilder>().InTransientScope();
+            Bind<BaseColumnMetaSqlBuilder<CreatedDateTimeFieldMeta>>().To<CreatedDateTimeColumnMetaSqlBuilder>().InTransientScope();
+            Bind<CreateTableMetaSqlBuilder>().To<CreateTableMetaSqlBuilder>().InTransientScope();
+            Bind<DatabaseMetaSqlBuilder>().To<DatabaseMetaSqlBuilder>().InTransientScope();
+            Bind<IConfigureApplicationHandler>().To<DatabaseCreationHandler>().InTransientScope();
+            Bind<IConfigureDatabaseHandler>().To<ViewConfigureHandler>().InTransientScope();
+            Bind<ICustomConfigureTableHandler>().To<ViewConfigureHandler>().InTransientScope();
 
-            services.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(HistoryContext), nameof(CostBlockHistory.Context)));
+            Kernel.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(HistoryContext), nameof(CostBlockHistory.Context)));
         }
     }
 }

@@ -4,9 +4,30 @@
     <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.93.1" />
+    <PackageReference Include="Ninject" Version="3.3.4" />
+    <PackageReference Include="Ninject.Web.Common" Version="3.3.1" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj" />
     <ProjectReference Include="..\Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
+    <Reference Include="System.DirectoryServices.Protocols" />
   </ItemGroup>
 
 </Project>

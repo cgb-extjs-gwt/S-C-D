@@ -2,9 +2,9 @@
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
 using Gdc.Scd.Core.Entities.CapabilityMatrix;
-using Gdc.Scd.Core.Helpers;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,23 +14,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     {
         private readonly IRepositorySet repositorySet;
 
+        private readonly IRepository<CapabilityMatrix> matrixRepo;
+
         private readonly IRepository<CapabilityMatrixRule> ruleRepo;
-
-        private readonly IRepository<CapabilityMatrixAllowView> allowRepo;
-
-        private readonly IRepository<CapabilityMatrixCountryAllowView> countryAllowRepo;
 
         public CapabilityMatrixService(
                 IRepositorySet repositorySet,
                 IRepository<CapabilityMatrixRule> ruleRepo,
-                IRepository<CapabilityMatrixAllowView> allowRepo,
-                IRepository<CapabilityMatrixCountryAllowView> countryAllowRepo
+                IRepository<CapabilityMatrix> matrixRepo
             )
         {
             this.repositorySet = repositorySet;
             this.ruleRepo = ruleRepo;
-            this.allowRepo = allowRepo;
-            this.countryAllowRepo = countryAllowRepo;
+            this.matrixRepo = matrixRepo;
         }
 
         public Task AllowCombinations(long[] items)
@@ -43,91 +39,89 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new AddMatrixRules(repositorySet).ExecuteAsync(m);
         }
 
-        public IEnumerable<CapabilityMatrixDto> GetAllowedCombinations(int start, int limit, out int count)
-        {
-            return GetAllowedCombinations(null, start, limit, out count);
-        }
-
-        public IEnumerable<CapabilityMatrixDto> GetAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit, out int count)
+        public Task<Tuple<CapabilityMatrixDto[], int>> GetAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
         {
             if (filter != null && filter.Country.HasValue)
             {
-                return GetCountryAllowedCombinations(filter, start, limit, out count);
+                return GetCountryAllowedCombinations(filter.Country.Value, filter, start, limit);
             }
+            else
+            {
+                return GetMasterAllowedCombinations(filter, start, limit);
+            }
+        }
 
-            var query = allowRepo.GetAll();
+        public async Task<Tuple<CapabilityMatrixDto[], int>> GetMasterAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
+        {
+            var query = GetAllowed().Where(x => x.Country == null);
 
             if (filter != null)
             {
-                query = query.WhereIf(filter.Wg.HasValue, x => x.WgId == filter.Wg.Value)
-                             .WhereIf(filter.Availability.HasValue, x => x.AvailabilityId == filter.Availability.Value)
-                             .WhereIf(filter.Duration.HasValue, x => x.DurationId == filter.Duration.Value)
-                             .WhereIf(filter.ReactionType.HasValue, x => x.ReactionTypeId == filter.ReactionType.Value)
-                             .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTimeId == filter.ReactionTime.Value)
-                             .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocationId == filter.ServiceLocation.Value)
+                query = query.WhereIf(filter.Wg.HasValue, x => x.Wg.Id == filter.Wg.Value)
+                             .WhereIf(filter.Availability.HasValue, x => x.Availability.Id == filter.Availability.Value)
+                             .WhereIf(filter.Duration.HasValue, x => x.Duration.Id == filter.Duration.Value)
+                             .WhereIf(filter.ReactionType.HasValue, x => x.ReactionType.Id == filter.ReactionType.Value)
+                             .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTime.Id == filter.ReactionTime.Value)
+                             .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocation.Id == filter.ServiceLocation.Value)
                              .WhereIf(filter.IsGlobalPortfolio.HasValue && filter.IsGlobalPortfolio.Value, x => x.FujitsuGlobalPortfolio)
                              .WhereIf(filter.IsMasterPortfolio.HasValue && filter.IsMasterPortfolio.Value, x => x.MasterPortfolio)
                              .WhereIf(filter.IsCorePortfolio.HasValue && filter.IsCorePortfolio.Value, x => x.CorePortfolio);
             }
 
-            var result = query.Select(x => new CapabilityMatrixDto
+            var count = await query.GetCountAsync();
+
+            var result = await query.Select(x => new CapabilityMatrixDto
             {
                 Id = x.Id,
 
-                Wg = x.Wg,
-                Availability = x.Availability,
-                Duration = x.Duration,
-                ReactionType = x.ReactionType,
-                ReactionTime = x.ReactionTime,
-                ServiceLocation = x.ServiceLocation,
+                Wg = x.Wg.Name,
+                Availability = x.Availability.Name,
+                Duration = x.Duration.Name,
+                ReactionType = x.ReactionType.Name,
+                ReactionTime = x.ReactionTime.Name,
+                ServiceLocation = x.ServiceLocation.Name,
 
                 IsGlobalPortfolio = x.FujitsuGlobalPortfolio,
                 IsMasterPortfolio = x.MasterPortfolio,
                 IsCorePortfolio = x.CorePortfolio
-            });
+            }).PagingAsync(start, limit);
 
-            return Paging(result, start, limit, out count);
+            return new Tuple<CapabilityMatrixDto[], int>(result, count);
         }
 
-        public IEnumerable<CapabilityMatrixDto> GetCountryAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit, out int count)
+        public async Task<Tuple<CapabilityMatrixDto[], int>> GetCountryAllowedCombinations(long country, CapabilityMatrixFilterDto filter, int start, int limit)
         {
-            var query = countryAllowRepo.GetAll();
+            var query = GetAllowed().Where(x => x.Country.Id == country);
 
             if (filter != null)
             {
-                query = query.WhereIf(filter.Country.HasValue, x => x.CountryId == filter.Country.Value)
-                             .WhereIf(filter.Wg.HasValue, x => x.WgId == filter.Wg.Value)
-                             .WhereIf(filter.Availability.HasValue, x => x.AvailabilityId == filter.Availability.Value)
-                             .WhereIf(filter.Duration.HasValue, x => x.DurationId == filter.Duration.Value)
-                             .WhereIf(filter.ReactionType.HasValue, x => x.ReactionTypeId == filter.ReactionType.Value)
-                             .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTimeId == filter.ReactionTime.Value)
-                             .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocationId == filter.ServiceLocation.Value);
+                query = query.WhereIf(filter.Wg.HasValue, x => x.Wg.Id == filter.Wg.Value)
+                             .WhereIf(filter.Availability.HasValue, x => x.Availability.Id == filter.Availability.Value)
+                             .WhereIf(filter.Duration.HasValue, x => x.Duration.Id == filter.Duration.Value)
+                             .WhereIf(filter.ReactionType.HasValue, x => x.ReactionType.Id == filter.ReactionType.Value)
+                             .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTime.Id == filter.ReactionTime.Value)
+                             .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocation.Id == filter.ServiceLocation.Value);
             }
 
-            query = query.OrderBy(x => x.Country);
+            var count = await query.GetCountAsync();
 
-            var result = query.Select(x => new CapabilityMatrixDto
+            var result = await query.Select(x => new CapabilityMatrixDto
             {
                 Id = x.Id,
 
-                Country = x.Country,
-                Wg = x.Wg,
-                Availability = x.Availability,
-                Duration = x.Duration,
-                ReactionType = x.ReactionType,
-                ReactionTime = x.ReactionTime,
-                ServiceLocation = x.ServiceLocation,
-            });
+                Country = x.Country.Name,
+                Wg = x.Wg.Name,
+                Availability = x.Availability.Name,
+                Duration = x.Duration.Name,
+                ReactionType = x.ReactionType.Name,
+                ReactionTime = x.ReactionTime.Name,
+                ServiceLocation = x.ServiceLocation.Name,
+            }).PagingAsync(start, limit);
 
-            return Paging(result, start, limit, out count);
+            return new Tuple<CapabilityMatrixDto[], int>(result, count);
         }
 
-        public IEnumerable<CapabilityMatrixRuleDto> GetDeniedCombinations(int start, int limit, out int count)
-        {
-            return GetDeniedCombinations(null, start, limit, out count);
-        }
-
-        public IEnumerable<CapabilityMatrixRuleDto> GetDeniedCombinations(CapabilityMatrixFilterDto filter, int start, int limit, out int count)
+        public async Task<Tuple<CapabilityMatrixRuleDto[], int>> GetDeniedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
         {
             var query = ruleRepo.GetAll();
 
@@ -154,7 +148,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                              .WhereIf(filter.IsCorePortfolio.HasValue && filter.IsCorePortfolio.Value, x => x.CorePortfolio);
             }
 
-            var result = query.Select(x => new CapabilityMatrixRuleDto
+            var count = await query.GetCountAsync();
+
+            var result = await query.Select(x => new CapabilityMatrixRuleDto
             {
                 Id = x.Id,
 
@@ -169,15 +165,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IsGlobalPortfolio = x.FujitsuGlobalPortfolio,
                 IsMasterPortfolio = x.MasterPortfolio,
                 IsCorePortfolio = x.CorePortfolio
-            });
+            }).PagingAsync(start, limit);
 
-            return Paging(result, start, limit, out count);
+            return new Tuple<CapabilityMatrixRuleDto[], int>(result, count);
         }
 
-        private IEnumerable<T> Paging<T>(IQueryable<T> query, int start, int limit, out int count)
+        private IQueryable<CapabilityMatrix> GetAllowed()
         {
-            count = query.Count();
-            return query.Skip(start).Take(limit).ToList();
+            return matrixRepo.GetAll().Where(x => !x.Denied);
         }
     }
 }

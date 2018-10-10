@@ -1,6 +1,6 @@
 import { Reducer, Action } from "redux";
 import { CostBlockState, CostElementState, InputLevelState, CheckItem, EditItem, DataLoadingState, CostBlockEditState } from "../States/CostBlockStates";
-import { CostEditortData, CostElementMeta, CostEditorState, CostBlockMeta, InputType, FieldType } from "../States/CostEditorStates";
+import { CostEditorState } from "../States/CostEditorStates";
 import { 
     COST_EDITOR_PAGE, 
     COST_EDITOR_SELECT_APPLICATION, 
@@ -39,6 +39,7 @@ import {
 import { mapIf } from "../../Common/Helpers/CommonHelpers";
 import { changeSelecitonFilterItem, resetFilter, loadFilter } from "./FilterReducer";
 import { PageInitAction, APP_PAGE_INIT } from "../../Layout/Actions/AppActions";
+import { CostBlockMeta, InputType, FieldType, CostMetaData } from "../../Common/States/CostMetaStates";
 
 const getVisibleCostBlockIds = (costBlockMetas: CostBlockMeta[], selectedApplicationId: string) => {
     return costBlockMetas.filter(costBlockMeta => costBlockMeta.applicationIds.includes(selectedApplicationId))
@@ -82,7 +83,7 @@ const getVisibleCostElementIds = (costBlock: CostBlockMeta) => {
     return costElements.map(costElement => costElement.id);
 }
 
-const initSuccess: Reducer<CostEditorState, PageInitAction<CostEditortData>> = (state, action) => {
+const initSuccess: Reducer<CostEditorState, PageInitAction<CostMetaData>> = (state, action) => {
     const { costBlocks: costBlockMetas } = action.data;
 
     const visibleCostBlockIds = getVisibleCostBlockIds(costBlockMetas, state.selectedApplicationId);
@@ -406,7 +407,7 @@ const resetErrors = buildCostBlockChanger(
 export const costBlockReducer: Reducer<CostEditorState, Action<string>> = (state, action) => {
     switch(action.type) {
         case APP_PAGE_INIT:
-            return initSuccess(state, <PageInitAction<CostEditortData>>action)
+            return initSuccess(state, <PageInitAction<CostMetaData>>action)
         
         case COST_EDITOR_SELECT_APPLICATION:
             return selectApplication(state, <ItemSelectedAction>action)

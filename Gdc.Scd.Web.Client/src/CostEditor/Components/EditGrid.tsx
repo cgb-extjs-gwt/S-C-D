@@ -1,9 +1,9 @@
 import * as React from "react";
-import { Grid, SelectField, Column, Container, CheckBoxField, CheckColumn } from "@extjs/ext-react";
-import { FieldType } from "../States/CostEditorStates";
+import { Grid, SelectField, Column, Container, CheckBoxField, CheckColumn, NumberField } from "@extjs/ext-react";
 import { EditItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { large, small } from "../../responsiveFormulas";
+import { FieldType } from "../../Common/States/CostMetaStates";
 
 export interface ValueColumnProps {
     title: string
@@ -37,6 +37,7 @@ export class EditGrid extends React.Component<EditGridProps> {
                 const mapItem = this.itemsMap.get(item.id);
 
                 return (
+                    mapItem &&
                     mapItem.name == item.name && 
                     mapItem.value == item.value && 
                     mapItem.valueCount == item.valueCount
@@ -146,7 +147,9 @@ export class EditGrid extends React.Component<EditGridProps> {
 
             case FieldType.Double:
                 column = (
-                    <Column {...columnOptions}/>
+                    <Column {...columnOptions}>
+                        <NumberField required validators={{type:"number", message:"Invalid value"}}/>
+                    </Column>
                 );
                 break;
 

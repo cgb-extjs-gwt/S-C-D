@@ -1,29 +1,37 @@
-import * as React from 'react'
-import { Container, TitleBar, Button, Sheet, Panel } from '@extjs/ext-react';
-import { Switch, Route, Redirect, withRouter } from 'react-router-dom'
-import NavMenu from './NavMenu';
-import { medium, large } from '../../responsiveFormulas';
-import Home from '../../Test/Home/Home';
-import About from '../../Test/About/About';
-import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
+import { Container, Panel, TitleBar } from '@extjs/ext-react';
+import * as React from 'react';
 import { connect } from 'react-redux';
-import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
-import { CapabilityMatrixView, CapabilityMatrixEditView } from '../../CapabilityMatrix';
-import RoleCodesGrid from '../../Admin/RoleCode/RoleCodesGrid';
-import { CommonState } from '../States/AppStates';
-import CountryGrid from '../../Admin/Country/containers/CountryGrid';
-import WarrantyGroupGrid from '../../Admin/WarrantyGroup/WarrantyGroupGrid';
-import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCostElementsLayout';
-import { init } from '../../CostApproval/Actions/CostApprovalFilterActions';
+import { Route, Switch, withRouter } from 'react-router-dom';
 import AvailabilityFeeAdminGrid from '../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid';
+import CountryGrid from '../../Admin/Country/containers/CountryGrid';
+import RoleCodesGrid from '../../Admin/RoleCode/RoleCodesGrid';
+import UserRoleContainer from '../../Admin/UserRole/Containers/UserRoleContainer';
+import WarrantyGroupGrid from '../../Admin/WarrantyGroup/WarrantyGroupGrid';
+import { CapabilityMatrixEditView, CapabilityMatrixView } from '../../CapabilityMatrix';
+import { buildComponentUrl } from "../../Common/Services/Ajax";
+import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCostElementsLayout';
+import { OwnApprovalCostElementsLayout } from '../../CostApproval/Components/OwnApprovalCostElementsLayout';
+import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
+import { CalcResultView, ReportListView, ReportView } from '../../Report';
+import { large, medium } from '../../responsiveFormulas';
+import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
+import { loadMetaDataFromServer, openPage } from '../Actions/AppActions';
+import { CommonState } from '../States/AppStates';
+import NavMenu from './NavMenu';
+import { TableViewContainer } from '../../TableView/Components/TableViewContainer';
+import { TreeItem } from '../../Common/States/TreeItem';
 
 export const ROOT_LAYOUT_ID = "root-layout";
 
-interface LayoutProps {
-    title: string
-    history: any,
-    location: any,
+export interface LayoutActions {
     onInit?()
+    onItemClick?(item: TreeItem)
+}
+
+export interface LayoutProps extends LayoutActions {
+    title: string
+    history: any
+    location: any
 }
 
 /**
@@ -35,15 +43,11 @@ export class Layout extends React.Component<LayoutProps> {
         this.props.onInit();
     }
 
-    navigate = (path) => {
-        this.props.history.push(path);
-    }
-
     render() {
-        const { location, history, title } = this.props;
+        const { location, history, title, onItemClick } = this.props;
 
         const navMenuDefaults = {
-            onItemClick: this.navigate,
+            onItemClick: onItemClick,
             //onItemClick: (path: string) => this.props.onMenuItemClick(path, history),
             selection: location.pathname
         }
@@ -69,17 +73,22 @@ export class Layout extends React.Component<LayoutProps> {
 
                 <Panel title={title} layout="fit">
                     <Switch>
-                        <Route path="/" component={Home} exact/>
-                        <Route path="/about" component={About}/>
-                        <Route path="/pivot" component={ScdPivotGrid}/>
-                        <Route path="/input-cost-elements" component={CostEditorContainer}/>
-                        <Route path="/admin/country-management" component={ CountryGrid }/>
-                        <Route path="/cost-approval" component={ ApprovalCostElementsLayout} />
-                        <Route path="/capability-matrix" exact component={CapabilityMatrixView} />
-                        <Route path="/capability-matrix/edit" component={CapabilityMatrixEditView} />
-                        <Route path="/admin/availability-fee" component={AvailabilityFeeAdminGrid} />
-                        <Route path="/admin/role-code-management" component={RoleCodesGrid} />
-                        <Route path="/admin/warranty-group-management" component={WarrantyGroupGrid} />
+                        <Route path={buildComponentUrl("/")} component={CostEditorContainer} exact/>
+                        <Route path={buildComponentUrl("/pivot")} component={ScdPivotGrid}/>
+                        <Route path={buildComponentUrl("/input-cost-elements")} component={CostEditorContainer}/>
+                        <Route path={buildComponentUrl("/table-view")} component={TableViewContainer}/>
+                        <Route path={buildComponentUrl("/admin/country-management")} component={ CountryGrid }/>
+                        <Route path={buildComponentUrl("/cost-approval")} component={ ApprovalCostElementsLayout} />
+                        <Route path={buildComponentUrl("/own-cost-approval")} component={ OwnApprovalCostElementsLayout} />
+                        <Route path={buildComponentUrl("/report")} exact component={CalcResultView} />
+                        <Route path={buildComponentUrl("/report/all")} exact component={ReportListView} />
+                        <Route path={buildComponentUrl("/report/:name")} exact component={ReportView} />
+                        <Route path={buildComponentUrl("/capability-matrix")} exact component={CapabilityMatrixView} />
+                        <Route path={buildComponentUrl("/capability-matrix/edit")} component={CapabilityMatrixEditView} />
+                        <Route path={buildComponentUrl("/admin/availability-fee")} component={AvailabilityFeeAdminGrid} />
+                        <Route path={buildComponentUrl("/admin/role-code-management")} component={RoleCodesGrid} />
+                        <Route path={buildComponentUrl("/admin/warranty-group-management")} component={WarrantyGroupGrid} />
+                        <Route path={buildComponentUrl("/admin/user-role")} component={UserRoleContainer} />
                     </Switch>
                 </Panel>
             </Container>
@@ -87,12 +96,27 @@ export class Layout extends React.Component<LayoutProps> {
     }
 }
 
-const containerFactory = connect<LayoutProps, {}, {}, CommonState>(
+const containerFactory = connect<LayoutProps, LayoutActions, any, CommonState>(
     state => ({
         title: state.app.currentPage && state.app.currentPage.title
     } as LayoutProps),
-    dispatch => ({
-        onInit: () => dispatch(init())
+    (dispatch, props) => ({
+        onInit: () => { 
+            dispatch(loadMetaDataFromServer());
+            
+            const node = Ext.getCmp(ROOT_LAYOUT_ID).down('treelist').getStore().getNodeById(window.location.pathname);
+
+            if (node) {
+                const treeItem: TreeItem = node.data;
+
+                dispatch(openPage(treeItem.id, treeItem.text));
+            }
+        },
+        onItemClick: item => {
+            props.history.push(item.id);
+            
+            dispatch(openPage(item.id, item.text));
+        }
     })
 );
 

@@ -1,27 +1,25 @@
-﻿using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Core.Meta.Entities;
+﻿using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Impl;
 using Gdc.Scd.Core.Meta.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
+using Ninject;
+using Ninject.Modules;
 
 namespace Gdc.Scd.Core
 {
-    public class Module : IModule
+    public class Module : NinjectModule
     {
-        public void Init(IServiceCollection services)
+        public override void Load()
         {
-            services.AddSingleton<IDomainMetaSevice, DomainMetaSevice>();
-            services.AddSingleton<IDomainEnitiesMetaService, DomainEnitiesMetaService>();
-            services.AddSingleton(serviceProvider => serviceProvider.GetService<IDomainMetaSevice>().Get());
-            services.AddSingleton(serviceProvider => 
-            {
-                var domainMeta = serviceProvider.GetService<DomainMeta>();
-                var domainEnitiesMetaService = serviceProvider.GetService<IDomainEnitiesMetaService>();
+            Bind<IDomainMetaSevice>().To<DomainMetaSevice>().InSingletonScope();
+            Bind<IDomainEnitiesMetaService>().To<DomainEnitiesMetaService>().InSingletonScope();
 
-                return domainEnitiesMetaService.Get(domainMeta);
-            });
-            
+            Bind<DomainMeta>().ToMethod(context => Kernel.Get<IDomainMetaSevice>().Get()).InSingletonScope();
+            Bind<DomainEnitiesMeta>().ToMethod(context =>
+            {
+                var domainMeta = Kernel.Get<DomainMeta>();
+                var domainEntitiesMetaService = Kernel.Get<IDomainEnitiesMetaService>();
+                return domainEntitiesMetaService.Get(domainMeta);
+            }).InSingletonScope();
         }
     }
 }

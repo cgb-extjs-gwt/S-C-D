@@ -1,12 +1,15 @@
 ﻿import * as React from 'react';
-import { FieldType } from "../../CostEditor/States/CostEditorStates";
 import { EditItem } from "../../CostEditor/States/CostBlockStates";
-import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField } from '@extjs/ext-react';
+import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, TextField } from '@extjs/ext-react';
 import { NamedId } from '../../Common/States/CommonStates';
+import { buildMvcUrl } from "../../Common/Services/Ajax";
+
+const CONTROLLER_NAME = 'RoleCode';
 
 Ext.require([
     'Ext.grid.plugin.Editable',
     'Ext.grid.plugin.CellEditing',
+    'Ext.data.validator.Presence'
 ]);
 
 Ext.define('RoleCode', {
@@ -23,6 +26,7 @@ export default class RoleCodesGrid extends React.Component {
         disableSaveButton: true,
         disableDeleteButton: true,
         disableNewButton: false,
+        deletedRecord: null,
         selectedRecord: null
     };
 
@@ -47,13 +51,17 @@ export default class RoleCodesGrid extends React.Component {
             listeners: {
                 exception: function (proxy, response, operation) {
                     //TODO: show error
-                }
+                    if (response.status == 409) {
+                        let message = JSON.parse(response.responseText).Message
+                        Ext.Msg.alert('Error', message)
+                    }
+                }               
             },
             api: {             
-                create: '/api/rolecode/SaveAll',
-                read: '/api/rolecode/GetAll',
-                update: '/api/rolecode/SaveAll',
-                destroy: '/api/rolecode/DeleteAll'
+                create: buildMvcUrl(CONTROLLER_NAME, 'SaveAll'),
+                read: buildMvcUrl(CONTROLLER_NAME, 'GetAll'),
+                update: buildMvcUrl(CONTROLLER_NAME, 'SaveAll'),
+                destroy: buildMvcUrl(CONTROLLER_NAME, 'DeleteAll')
             }
         },
         listeners: {
@@ -93,26 +101,30 @@ export default class RoleCodesGrid extends React.Component {
             failure: (batch, options) => {
                 //TODO: show error
                 this.store.rejectChanges();
+                this.setState({
+                    deletedRecord: null
+                });
             }      
         });
     }
 
-    reloadStore = () => {
-        this.store.load();
-    }
-
     newRecord = () => {
         this.store.add(Ext.create('RoleCode', { id: 0, name: 'new' }));
+        this.saveRecords();
         this.setState({ disableNewButton: true });
     }
 
     deleteRecord = () => {
         this.store.remove(this.state.selectedRecord);
-        this.setState({ disableDeleteButton: true });
+        this.setState({
+            disableDeleteButton: true,
+            disableNewButton: false,
+            deletedRecord: this.state.selectedRecord
+        });
     }
 
     selectRowHandler = (dataView, records, selected, selection) => {
-        if (records[0]) {
+        if (!this.state.deletedRecord && records[0]) {
             this.setState({
                 selectedRecord: records[0],
                 disableDeleteButton: false
@@ -124,8 +136,6 @@ export default class RoleCodesGrid extends React.Component {
     }
 
     render() {
-        const props = this.props;
-        const store = this.store;
         return (
             <Grid
                 title={'Role codes'}
@@ -157,16 +167,22 @@ export default class RoleCodesGrid extends React.Component {
                     text="Role code"
                     flex={1}
                     dataIndex="name"
-                    editable
-                />       
-                <Toolbar docked="bottom">   
+                    editable                 
+                >
+                    <TextField required validators={ value => value.trim().length > 0 }/> 
+                </Column>
+
+                <Toolbar docked="top">
                     <Button
                         text="New"
-                        flex={1}
                         iconCls="x-fa fa-plus"
                         handler={this.newRecord}
                         disabled={this.state.disableNewButton}
-                    />
+                        width="100"
+                        textAlign="left"
+                    />               
+                </Toolbar>
+                <Toolbar docked="bottom">   
                     <Button
                         text="Delete"
                         flex={1}
@@ -177,7 +193,7 @@ export default class RoleCodesGrid extends React.Component {
                     <Button
                         text="Save"
                         flex={1}
-                        iconCls="x-fa fa-save"                    
+                        iconCls="x-fa fa-save"
                         handler={this.saveRecords}
                         disabled={this.state.disableSaveButton}
                     />

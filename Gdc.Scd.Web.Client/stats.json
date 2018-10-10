@@ -1,0 +1,70 @@
+[IS PRODUCTION]: false
+
+[at-loader] Using typescript@2.8.3 from typescript and "tsconfig.json" from D:\SCD2.0_Repo\Gdc.Scd.Web.Client/tsconfig.json.
+
+
+[at-loader] Checking started in a separate process...
+
+[at-loader] Ok, 1.314 sec.
+
+building ExtReact bundle: ext => D:\SCD2.0_Repo\Web.Api\wwwroot\ext-react
+Sencha Cmd v6.5.3.6
+[INF] Loading compiler context
+[WRN] the following remote package repository directories did not initialize properly :
+[WRN] 	 - D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo\.sencha\repo\remotes\sencha
+[WRN] Consider removing the local package repository directory at : D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo
+[WRN] It will be recreated dynamically when next needed
+[WRN] the following remote package repository directories did not initialize properly :
+[WRN] 	 - D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo\.sencha\repo\remotes\sencha
+[WRN] Consider removing the local package repository directory at : D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo
+[WRN] It will be recreated dynamically when next needed
+[WRN] the following remote package repository directories did not initialize properly :
+[WRN] 	 - D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo\.sencha\repo\remotes\sencha
+[WRN] Consider removing the local package repository directory at : D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo
+[WRN] It will be recreated dynamically when next needed
+[WRN] the following remote package repository directories did not initialize properly :
+[WRN] 	 - D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo\.sencha\repo\remotes\sencha
+[WRN] Consider removing the local package repository directory at : D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo
+[WRN] It will be recreated dynamically when next needed
+[WRN] the following remote package repository directories did not initialize properly :
+[WRN] 	 - D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo\.sencha\repo\remotes\sencha
+[WRN] Consider removing the local package repository directory at : D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo
+[WRN] It will be recreated dynamically when next needed
+[WRN] the following remote package repository directories did not initialize properly :
+[WRN] 	 - D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo\.sencha\repo\remotes\sencha
+[WRN] Consider removing the local package repository directory at : D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo
+[WRN] It will be recreated dynamically when next needed
+[WRN] the following remote package repository directories did not initialize properly :
+[WRN] 	 - D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo\.sencha\repo\remotes\sencha
+[WRN] Consider removing the local package repository directory at : D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo
+[WRN] It will be recreated dynamically when next needed
+[WRN] the following remote package repository directories did not initialize properly :
+[WRN] 	 - D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo\.sencha\repo\remotes\sencha
+[WRN] Consider removing the local package repository directory at : D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo
+[WRN] It will be recreated dynamically when next needed
+[WRN] the following remote package repository directories did not initialize properly :
+[WRN] 	 - D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo\.sencha\repo\remotes\sencha
+[WRN] Consider removing the local package repository directory at : D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo
+[WRN] It will be recreated dynamically when next needed
+[WRN] the following remote package repository directories did not initialize properly :
+[WRN] 	 - D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo\.sencha\repo\remotes\sencha
+[WRN] Consider removing the local package repository directory at : D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo
+[WRN] It will be recreated dynamically when next needed
+[WRN] the following remote package repository directories did not initialize properly :
+[WRN] 	 - D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo\.sencha\repo\remotes\sencha
+[WRN] Consider removing the local package repository directory at : D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo
+[WRN] It will be recreated dynamically when next needed
+[WRN] the following remote package repository directories did not initialize properly :
+[WRN] 	 - D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo\.sencha\repo\remotes\sencha
+[WRN] Consider removing the local package repository directory at : D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo
+[WRN] It will be recreated dynamically when next needed
+[WRN] the following remote package repository directories did not initialize properly :
+[WRN] 	 - D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo\.sencha\repo\remotes\sencha
+[WRN] Consider removing the local package repository directory at : D:\SCD2.0_Repo\Gdc.Scd.Web.Client\node_modules\@extjs\sencha-cmd\repo
+[WRN] It will be recreated dynamically when next needed
+[INF] Loading app json manifest...
+[INF] Processing data with ClosureCompressor
+[INF] JavaScript input level is NEXT and output level is ES5
+[INF] Writing concatenated output to file D:\SCD2.0_Repo\Web.Api\wwwroot\ext-react\ext.js
+[INF] Processing data with ClosureCompressor
+[INF] JavaScript input level is NEXT and output level is ES5

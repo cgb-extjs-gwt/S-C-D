@@ -1,33 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Data.Common;
-using System.Linq;
-using System.Threading.Tasks;
-using Gdc.Scd.Core.Interfaces;
+﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Entities;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Gdc.Scd.DataAccessLayer.Helpers;
+using Ninject;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.Common;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
     public class EntityFrameworkRepositorySet : DbContext, IRepositorySet
     {
-        private readonly IServiceProvider serviceProvider;
-        private readonly IConfiguration configuration;
+        private readonly IKernel serviceProvider;
 
         internal static IDictionary<Type, Action<EntityTypeBuilder>> RegisteredEntities { get; private set; } = new Dictionary<Type, Action<EntityTypeBuilder>>();
 
-        public EntityFrameworkRepositorySet(IServiceProvider serviceProvider, IConfiguration configuration)
+        public EntityFrameworkRepositorySet(IKernel serviceProvider)
         {
             this.serviceProvider = serviceProvider;
-            this.configuration = configuration;
 
             this.ChangeTracker.AutoDetectChangesEnabled = false;
             this.Database.SetCommandTimeout(600);
@@ -42,7 +40,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public IRepository<T> GetRepository<T>() where T : class, IIdentifiable, new()
         {
-            return this.serviceProvider.GetService<IRepository<T>>();
+            return this.serviceProvider.Get<IRepository<T>>();
         }
 
         public void Sync()
@@ -50,47 +48,55 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.SaveChanges();
         }
 
-        public async Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
+        public Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
         {
-            //TODO: remove direct connection management
-            var connection = this.Database.GetDbConnection();
-            var result = new List<T>();
-
-            try
+            return WithCommand(async cmd =>
             {
-                await connection.OpenAsync();
+                cmd.CommandText = sql;
 
-                using (var command = connection.CreateCommand())
+                if (parameters != null)
                 {
-                    command.CommandText = sql;
+                    cmd.Parameters.AddRange(this.GetDbParameters(parameters, cmd).ToArray());
+                }
 
-                    if (parameters != null)
+                var result = new List<T>(30);
+                var reader = await cmd.ExecuteReaderAsync();
+
+                if (reader.HasRows)
+                {
+                    while (await reader.ReadAsync())
                     {
-                        command.Parameters.AddRange(this.GetDbParameters(parameters, command).ToArray());
-                    }
-
-                    var reader = await command.ExecuteReaderAsync();
-
-                    if (reader.HasRows)
-                    {
-                        while (await reader.ReadAsync())
-                        {
-                            result.Add(mapFunc(reader));
-                        }
+                        result.Add(mapFunc(reader));
                     }
                 }
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return result;
+                return (IEnumerable<T>)result;
+            });
         }
 
-        public async Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc)
+        public Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc)
         {
-            return await this.ReadBySql(query.ToSql(), mapFunc, query.GetParameters());
+            return ReadBySql(query.ToSql(), mapFunc, query.GetParameters());
+        }
+
+        public Task ReadBySql(string sql, Action<DbDataReader> mapFunc, params DbParameter[] parameters)
+        {
+            return WithCommand(async cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                var reader = await cmd.ExecuteReaderAsync();
+
+                if (reader.HasRows)
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        mapFunc(reader);
+                    }
+                }
+
+                return 0; //stub for correct task
+            });
         }
 
         public int ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null)
@@ -129,53 +135,98 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return Database.ExecuteSqlCommandAsync(sql, parameters);
         }
 
-        public List<T> ExecuteProc<T>(string procName, 
-            params DbParameter[] parameters) 
-            where T : new()
+        public List<T> ExecuteProc<T>(string procName, params DbParameter[] parameters) where T : new()
         {
-            using (var connection = Database.GetDbConnection())
+            return WithCommand(cmd =>
             {
-                connection.Open();
-                DbCommand dbCommand = connection.CreateCommand();
-                dbCommand.CommandText = procName;
-                dbCommand.CommandType = CommandType.StoredProcedure;
-                foreach (var param in parameters)
-                    dbCommand.Parameters.Add(param);
-                List<T> entities;
-                using (var reader = dbCommand.ExecuteReader())
-                {
-                    entities = reader.MapToList<T>();
-                }
+                cmd.AsStoredProcedure(procName, parameters);
 
-                return entities.ToList();
-            }
+                using (var reader = cmd.ExecuteReader())
+                {
+                    return reader.MapToList<T>();
+                }
+            });
         }
 
-        public List<T> ExecuteProc<T, V>(string procName, DbParameter outParam, 
-            out V returnVal,
-            params DbParameter[] parameters)
-            where T : new()
+        public Task<DataTable> ExecuteProcAsTableAsync(string procName, params DbParameter[] parameters)
         {
-            using (var connection = Database.GetDbConnection())
+            return WithCommand(async cmd =>
             {
-                connection.Open();
-                DbCommand dbCommand = connection.CreateCommand();
-                dbCommand.CommandText = procName;
-                dbCommand.CommandType = CommandType.StoredProcedure;
-                foreach (var param in parameters)
-                    dbCommand.Parameters.Add(param);
-                dbCommand.Parameters.Add(outParam);
+                cmd.AsStoredProcedure(procName, parameters);
 
-                List<T> entities;
-                using (var reader = dbCommand.ExecuteReader())
+                using (var reader = await cmd.ExecuteReaderAsync())
                 {
-                    entities = reader.MapToList<T>();
+                    return reader.MapToTable();
                 }
+            });
+        }
 
-                returnVal = outParam.Value == null ? default(V) : (V)outParam.Value;
+        public Task<string> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters)
+        {
+            return WithCommand(async cmd =>
+            {
+                cmd.AsStoredProcedure(procName, parameters);
 
-                return entities;
-            }
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    return reader.MapToJsonArray();
+                }
+            });
+        }
+
+        public Task<string> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters)
+        {
+            return WithCommand(async cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    return reader.MapToJsonArray();
+                }
+            });
+        }
+
+        public Task<Stream> ExecuteAsJsonStreamAsync(string sql, params DbParameter[] parameters)
+        {
+            return WithCommand(async cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    return reader.MapToJsonArrayStream();
+                }
+            });
+        }
+
+        public Task<DataTable> ExecuteAsTableAsync(string sql, params DbParameter[] parameters)
+        {
+            return WithCommand(async cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    return reader.MapToTable();
+                }
+            });
+        }
+
+        public Task<T> ExecuteScalarAsync<T>(string sql, params DbParameter[] parameters)
+        {
+            return WithCommand(async cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                var res = await cmd.ExecuteScalarAsync();
+
+                return res == DBNull.Value ? default(T) : (T)res;
+            });
         }
 
         public IEnumerable<Type> GetRegisteredEntities()
@@ -203,7 +254,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlServer(this.configuration.GetSection("ConnectionStrings")["CommonDB"]);
+            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["CommonDB"].ConnectionString, opt => opt.UseRowNumberForPaging());
         }
 
         private IEnumerable<DbParameter> GetDbParameters(IEnumerable<CommandParameterInfo> parameters, DbCommand command)
@@ -248,19 +299,56 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var sb = new System.Text.StringBuilder("EXEC ", 30).Append(procName);
             if (parameters != null && parameters.Length > 0)
             {
-                sb.Append(" ");
-                bool flag = false;
-                for (var i = 0; i < parameters.Length; i++)
+                sb.Append(" ").Append(parameters[0].ParameterName);
+
+                for (var i = 1; i < parameters.Length; i++)
                 {
-                    if (flag)
-                    {
-                        sb.Append(", ");
-                    }
-                    flag = true;
-                    sb.Append(parameters[i].ParameterName);
+                    sb.Append(", ").Append(parameters[i].ParameterName);
                 }
             }
             return sb.ToString();
+        }
+
+        public void Replace<T>(T oldEntity, T newEntity) where T : class
+        {
+            Entry(oldEntity).CurrentValues.SetValues(newEntity);
+        }
+
+        private T WithCommand<T>(Func<DbCommand, T> func)
+        {
+            //TODO: remove direct connection management
+            var conn = this.Database.GetDbConnection();
+
+            try
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    return func(cmd);
+                }
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+        private async Task<T> WithCommand<T>(Func<DbCommand, Task<T>> func)
+        {
+            //TODO: remove direct connection management
+            var conn = this.Database.GetDbConnection();
+            try
+            {
+                await conn.OpenAsync();
+                using (var cmd = conn.CreateCommand())
+                {
+                    return await func(cmd);
+                }
+            }
+            finally
+            {
+                conn.Close();
+            }
         }
     }
 }

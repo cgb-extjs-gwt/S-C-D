@@ -34,10 +34,19 @@ CREATE PROCEDURE [dbo].[GetAvailabilityFeeCoverageCombination]
 
 		SET @totalCount = (SELECT COUNT(*) FROM #Temp_AFR)
 
-		SELECT * FROM #Temp_AFR
-		ORDER BY 1
-		OFFSET @PageSize * (@PageNumber - 1) ROWS
-		FETCH NEXT @PageSize ROWS ONLY;
+		SELECT temp.[CountryName], temp.[CountryId], temp.[ReactionTimeName],
+			   temp.[ReactionTimeId], 
+			   temp.[ReactionTypeName], temp.[ReactionTypeId],
+			   temp.[ServiceLocatorName], temp.[ServiceLocatorId], temp.[Id]
+		FROM (
+				SELECT ROW_NUMBER() OVER (ORDER BY [CountryName]) AS RowNum, 
+						[CountryName], [CountryId], [ReactionTimeName],
+						[ReactionTimeId], 
+						[ReactionTypeName], [ReactionTypeId],
+						[ServiceLocatorName], [ServiceLocatorId], [Id]
+				FROM #Temp_AFR
+		) AS temp
+		WHERE temp.RowNum > @pageSize * (@pageNumber - 1) AND temp.RowNum <= @pageSize * @pageNumber
 			
     END
 go

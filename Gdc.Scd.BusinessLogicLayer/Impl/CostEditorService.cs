@@ -6,6 +6,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -105,17 +106,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             };
         }
 
-        public async Task<QualityGateResult> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, ApprovalOption approvalOption)
+        public async Task<QualityGateResultDto> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, ApprovalOption approvalOption)
         {
-            QualityGateResult checkResult;
+            QualityGateResultDto checkResult;
 
             if (approvalOption.IsApproving && !approvalOption.HasQualityGateErrors)
             {
-                checkResult = await this.qualityGateSevice.Check(editItems, context);
+                checkResult = await this.qualityGateSevice.CheckAsQualityGateResultDto(editItems, context);
             }
             else
             {
-                checkResult = new QualityGateResult();
+                checkResult = new QualityGateResultDto();
             }
 
             if (!checkResult.HasErrors)

@@ -1,4 +1,20 @@
-use Scd_2;
+
+IF OBJECT_ID('dbo.MatrixAllowView', 'V') IS NOT NULL
+  DROP VIEW dbo.MatrixAllowView;
+GO
+
+IF OBJECT_ID('dbo.MatrixAllowCountryView', 'V') IS NOT NULL
+  DROP VIEW dbo.MatrixAllowCountryView;
+GO
+
+IF OBJECT_ID('dbo.MatrixDenyView', 'V') IS NOT NULL
+  DROP VIEW dbo.MatrixDenyView;
+GO
+
+IF OBJECT_ID('dbo.MatrixDenyCountryView', 'V') IS NOT NULL
+  DROP VIEW dbo.MatrixDenyCountryView;
+GO
+
 
 DELETE FROM Hardware.ServiceCostCalculation;
 DELETE FROM Matrix;
@@ -37,11 +53,21 @@ INSERT INTO Matrix (
 	CROSS JOIN Dependencies.ReactionType AS rtype
 	CROSS JOIN Dependencies.ReactionTime AS rtime
 	CROSS JOIN Dependencies.ServiceLocation AS sv
+);
 
-	UNION ALL
+INSERT INTO Matrix (
+				WgId, 
+				AvailabilityId, 
+				DurationId, 
+				ReactionTypeId, 
+				ReactionTimeId, 
+				ServiceLocationId, 
+				FujitsuGlobalPortfolio,
+				MasterPortfolio, 
+				CorePortfolio,
+				Denied) (
 
-	SELECT null, 
-		   wg.Id AS wg, 
+	SELECT wg.Id AS wg, 
 		   av.Id AS av, 
 		   dur.Id AS dur, 
 		   rtype.Id AS reacttype, 

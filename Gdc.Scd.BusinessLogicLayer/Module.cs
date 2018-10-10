@@ -1,52 +1,82 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.CapabilityMatrix;
-using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.DataAccessLayer.Helpers;
-using Microsoft.Extensions.DependencyInjection;
+using Ninject.Modules;
+using Ninject.Web.Common;
 
 namespace Gdc.Scd.BusinessLogicLayer
 {
-    public class Module : IModule
+    public class Module : NinjectModule
     {
-        public void Init(IServiceCollection services)
+        public override void Load()
         {
-            services.AddScoped(typeof(IDomainService<>), typeof(DomainService<>));
-            services.AddScoped<ICostEditorService, CostEditorService>();
-            services.AddScoped<ICapabilityMatrixService, CapabilityMatrixService>();
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<ICostBlockHistoryService, CostBlockHistoryService>();
-            services.AddScoped<IAvailabilityFeeAdminService, AvailabilityFeeAdminService>();
-            services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<ICostBlockFilterBuilder, CostBlockFilterBuilder>();
-            services.AddScoped<IQualityGateSevice, QualityGateSevice>();
+            Bind(typeof(IDomainService<>)).To(typeof(DomainService<>)).InRequestScope();
+            Bind<ICostEditorService>().To<CostEditorService>().InRequestScope();
+            Bind<ICapabilityMatrixService>().To<CapabilityMatrixService>().InRequestScope();
+            Bind<ICalculationService>().To<CalculationService>().InRequestScope();
+            Bind<IReportService>().To<ReportService>().InRequestScope();
+            Bind<IUserService>().To<UserService>().InRequestScope();
+            Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InRequestScope();
+            Bind<IAvailabilityFeeAdminService>().To<AvailabilityFeeAdminService>().InRequestScope();
+            Bind<ICountryAdminService>().To<CountryAdminService>().InRequestScope();
+            Bind<IEmailService>().To<EmailService>().InRequestScope();
+            Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InRequestScope();
+            Bind<IQualityGateSevice>().To<QualityGateSevice>().InRequestScope();
+            Bind<IActiveDirectoryService>().To<ActiveDirectoryService>().InRequestScope();
+            Bind<ITableViewService>().To<TableViewService>().InRequestScope();
+            Bind<IUserRoleService>().To<UserRoleService>().InRequestScope();
 
-            services.RegisterEntity<ClusterRegion>();
-            services.RegisterEntity<Country>();
-            services.RegisterEntity<CountryGroup>();
-            services.RegisterEntity<Pla>();
-            services.RegisterEntity<Wg>();
-            services.RegisterEntity<Availability>();
-            services.RegisterEntity<Year>();
-            services.RegisterEntity<Duration>();
-            services.RegisterEntity<ReactionType>();
-            services.RegisterEntity<ReactionTime>();
-            services.RegisterEntity<ReactionTimeType>();
-            services.RegisterEntity<ReactionTimeAvalability>();
-            services.RegisterEntity<ReactionTimeTypeAvalability>();
-            services.RegisterEntity<ServiceLocation>();
-            services.RegisterEntity<CapabilityMatrix>();
-            services.RegisterEntity<CapabilityMatrixRule>();
-            services.RegisterEntity<CapabilityMatrixAllowView>();
-            services.RegisterEntity<AdminAvailabilityFee>();
-            services.RegisterEntity<CapabilityMatrixCountryAllowView>();
-            services.RegisterEntity<RoleCode>();
-            services.RegisterEntity<HardwareCalculationResult>();
-            services.RegisterEntity<Currency>();
-            services.RegisterEntity<ExchangeRate>();
-            services.RegisterEntity<YearAvailability>();
-            services.RegisterEntity<ClusterPla>();
+            /*----------dictionaries-----------*/
+            Kernel.RegisterEntity<ClusterRegion>();
+            Kernel.RegisterEntity<Region>();
+            Kernel.RegisterEntity<Country>();
+            Kernel.RegisterEntity<CountryGroup>();
+            Kernel.RegisterEntity<Pla>();
+            Kernel.RegisterEntity<Wg>();
+            Kernel.RegisterEntity<Availability>();
+            Kernel.RegisterEntity<Year>();
+            Kernel.RegisterEntity<Duration>();
+            Kernel.RegisterEntity<ReactionType>();
+            Kernel.RegisterEntity<ReactionTime>();
+            Kernel.RegisterEntity<ReactionTimeType>();
+            Kernel.RegisterEntity<ReactionTimeAvalability>();
+            Kernel.RegisterEntity<ReactionTimeTypeAvalability>();
+            Kernel.RegisterEntity<ServiceLocation>();
+            Kernel.RegisterEntity<Currency>();
+            Kernel.RegisterEntity<ExchangeRate>();
+            Kernel.RegisterEntity<YearAvailability>();
+            Kernel.RegisterEntity<ClusterPla>();
+            Kernel.RegisterEntity<ProActiveSla>();
+            Kernel.RegisterEntity<SwDigit>();
+            Kernel.RegisterEntity<Sog>();
+            Kernel.RegisterEntity<SFab>();
+            Kernel.RegisterEntity<SwLicense>();
+            Kernel.RegisterEntity<SwDigitLicense>();
+            Kernel.RegisterEntity<HwFspCodeTranslation>();
+            Kernel.RegisterEntity<SwFspCodeTranslation>();
+            Kernel.RegisterEntity<TaxAndDutiesEntity>();
+            Kernel.RegisterEntity<ImportConfiguration>();
+
+            /*----------admin---------*/
+            Kernel.RegisterEntity<AdminAvailabilityFee>();
+            Kernel.RegisterEntity<Role>();
+            Kernel.RegisterEntity<RoleCode>();
+            Kernel.RegisterEntity<UserRole>();
+
+            /*---------domain business logic------------*/
+            Kernel.RegisterEntity<CapabilityMatrix>();
+            Kernel.RegisterEntity<CapabilityMatrixRule>();
+            Kernel.RegisterEntity<HardwareCalculationResult>();
+            Kernel.RegisterEntity<SoftwareCalculationResult>();
+
+            /*---------reports----------*/
+            Kernel.RegisterEntity<Report>();
+            Kernel.RegisterEntity<ReportColumn>();
+            Kernel.RegisterEntity<ReportFilter>();
         }
     }
 }
