@@ -27,7 +27,6 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<IRepository<YearAvailability>>().To<YearAvailabilityRepository>().InRequestScope();
             Bind<IQualityGateRepository>().To<QualityGateRepository>().InRequestScope();
             Bind<IQualityGateQueryBuilder>().To<QualityGateQueryBuilder>().InRequestScope();
-            Bind<ITableViewRepository>().To<TableViewRepository>().InRequestScope();
             Bind<IRepository<Country>>().To<CountryRepository>().InRequestScope();
             Bind<ITableViewRepository>().To<TableViewRepository>().InRequestScope();
 
