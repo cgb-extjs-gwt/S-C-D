@@ -1,7 +1,7 @@
 ﻿import { CheckBoxField, Container, List, SearchField } from "@extjs/ext-react";
 import * as React from "react";
 import { ExtDataviewHelper } from "../../Common/Helpers/ExtDataviewHelper";
-import { PlaField } from "../../Report/Components/PlaField";
+import { PlaField } from "../../Dict/Components/PlaField";
 
 export interface MultiSelectProps {
 
