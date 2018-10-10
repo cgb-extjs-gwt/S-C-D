@@ -38,8 +38,12 @@
 
         public const string ReferencesSchema = "References";
 
+        public const string PorSchema = "Por";
+
         public const string SoftwareSolutionSchema = "SoftwareSolution";
 
         public const string ImportSchema = "Import";
+
+        public const string ReportSchema = "Report";
     }
 }

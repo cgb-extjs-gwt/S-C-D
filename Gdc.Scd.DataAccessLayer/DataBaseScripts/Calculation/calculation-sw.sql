@@ -117,7 +117,6 @@ CREATE VIEW [SoftwareSolution].[ProActiveView] AS
 with ProActiveCte as 
 (
     select pro.Country,
-           pro.Wg,
            pro.Sog,
            pro.SwDigit,
 
@@ -170,11 +169,11 @@ with ProActiveCte as
            (pro.CentralExecutionShcReportCost_Approved * 
             sla.CentralExecutionShcReportRepetition) as CentralExecutionReport_Approved
 
-    from SoftwareSolution.ProActive pro
-    join Dependencies.ProActiveSla sla on sla.id = pro.ProActiveSla
+    from SoftwareSolution.ProActiveSw pro
+    left join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = pro.SwDigit and fsp.SogId = pro.Sog
+    left join Dependencies.ProActiveSla sla on sla.id = fsp.ProactiveSlaId
 )
 select pro.Country,
-       pro.Wg,
        pro.Sog,
        pro.SwDigit,
 

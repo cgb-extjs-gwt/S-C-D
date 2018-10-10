@@ -70,5 +70,13 @@
         public double? ServiceTPManual { get; set; }
         public double? ServiceTPManual_Approved { get; set; }
 
+        public double? ListPrice { get; set; }
+        public double? ListPrice_Approved { get; set; }
+
+        public double? DealerDiscount { get; set; }
+        public double? DealerDiscount_Approved { get; set; }
+
+        public double? DealerPrice { get; set; }
+        public double? DealerPrice_Approved { get; set; }
     }
 }
