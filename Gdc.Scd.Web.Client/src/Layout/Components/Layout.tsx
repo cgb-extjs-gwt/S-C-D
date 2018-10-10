@@ -43,10 +43,6 @@ export class Layout extends React.Component<LayoutProps> {
         this.props.onInit();
     }
 
-    // navigate = (path) => {
-    //     this.props.history.push(path);
-    // }
-
     render() {
         const { location, history, title, onItemClick } = this.props;
 

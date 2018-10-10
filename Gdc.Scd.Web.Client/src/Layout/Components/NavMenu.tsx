@@ -27,7 +27,6 @@ const NavMenu: React.SFC<NavMenuProps & any> = ({
         {...props}
         ui="nav"
         expanderFirst={false}
-        //onItemClick={(tree, item) => onItemClick(item.node.getId())}
         onItemClick={(tree, item) => onItemClick(item.node.data)}
         selection={selection}
         store={{

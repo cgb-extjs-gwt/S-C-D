@@ -2,12 +2,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -47,7 +45,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new TableViewInfo
             {
                 RecordInfo = this.tableViewRepository.GetTableViewRecordInfo(costBlockInfos),
-                //Filters = await this.tableViewRepository.GetFilters(costBlockInfos),
                 References = await this.tableViewRepository.GetReferences(costBlockInfos)
             };
         }

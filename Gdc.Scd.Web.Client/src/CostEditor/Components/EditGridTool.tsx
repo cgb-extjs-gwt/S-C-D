@@ -71,27 +71,6 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                     onSelected={this.onSelectGrid}
                 />
 
-                {/* <Toolbar docked="bottom">
-                    <Button 
-                        text="Cancel" 
-                        flex={1} 
-                        disabled={!props.isEnableClear}
-                        handler={() => this.showClearDialog()}
-                    />
-                    <Button 
-                        text="Save" 
-                        flex={1} 
-                        disabled={!props.isEnableSave}
-                        handler={() => this.showSaveDialog(false)}
-                    />
-                    <Button 
-                        text="Save and send for approval" 
-                        flex={1} 
-                        disabled={!props.isEnableSave}
-                        handler={() => this.showSaveDialog(true)}
-                    />
-                </Toolbar> */}
-
                 <SaveToolbar 
                     isEnableClear={props.isEnableClear} 
                     isEnableSave={props.isEnableSave}
@@ -113,25 +92,6 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
         );
     }
 
-    // private showSaveDialog(forApproval: boolean) {
-    //     const { onSaving } = this.props;
-    
-    //     Ext.Msg.confirm(
-    //       'Saving changes', 
-    //       'Do you want to save the changes?',
-    //       (buttonId: string) => buttonId == 'yes' && onSaving && onSaving(forApproval)
-    //     );
-    // }
-    
-    // private showClearDialog() {
-    //     const { onCleared } = this.props;
-
-    //     Ext.Msg.confirm(
-    //         'Clearing changes', 
-    //         'Do you want to clear the changes?',
-    //         (buttonId: string) => buttonId == 'yes' && onCleared && onCleared()
-    //     );
-    // }
 
     private getHistoryWindow() {
         const { isVisibleHistoryWindow, selectedItems } = this.state;
