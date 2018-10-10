@@ -1,12 +1,12 @@
-﻿using Gdc.Scd.Web.Server.Entities;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Web.Http;
+using Gdc.Scd.Core.Entities;
+using Newtonsoft.Json;
 
 namespace Gdc.Scd.Web.Server
 {

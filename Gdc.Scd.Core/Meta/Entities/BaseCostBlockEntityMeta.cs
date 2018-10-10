@@ -39,5 +39,10 @@ namespace Gdc.Scd.Core.Meta.Entities
             : base(name, shema)
         {
         }
+
+        public bool ContainsCoordinateField(string fieldName)
+        {
+            return this.InputLevelFields[fieldName] != null || this.DependencyFields[fieldName] != null;
+        }
     }
 }

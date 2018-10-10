@@ -1,6 +1,6 @@
 import { Filter, CostBlockState, InputLevelState, CheckItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
-import { CostBlockMeta, CostEditorState, InputLevelMeta, FieldType } from "../States/CostEditorStates";
+import { CostEditorState } from "../States/CostEditorStates";
 import { CostBlockTab, CostEditorProps, CostEditorActions, CostEditorView } from "./CostEditorView";
 import { connect } from "react-redux";
 import { 
@@ -28,6 +28,7 @@ from "../Actions/CostBlockActions";
 import { SelectListFilter, RegionProps, CostElementProps } from "./CostBlocksView";
 import { EditGridToolProps } from "./EditGridTool";
 import { CommonState } from "../../Layout/States/AppStates";
+import { InputLevelMeta, CostBlockMeta, FieldType } from "../../Common/States/CostMetaStates";
 
 const isSetContainsAllCheckedItems = (set: Set<string>, filterObj: Filter) => {
     let result = true;

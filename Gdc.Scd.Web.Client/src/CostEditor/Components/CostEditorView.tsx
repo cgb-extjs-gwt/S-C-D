@@ -10,7 +10,7 @@ import {
     TabPanel
 } from '@extjs/ext-react';
 import { connect } from 'react-redux';
-import { CostEditorState, CostBlockMeta } from '../States/CostEditorStates';
+import { CostEditorState } from '../States/CostEditorStates';
 import { getCostEditorData } from '../Services/CostEditorServices';
 import { CostBlockState, EditItem, CheckItem, Filter } from '../States/CostBlockStates';
 import { 

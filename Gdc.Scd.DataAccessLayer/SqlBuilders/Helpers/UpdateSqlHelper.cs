@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
@@ -50,6 +51,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         public SqlHelper Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
         {
             return new SqlHelper(this.whereHelper.Where(filter, tableName));
+        }
+
+        public SqlHelper Where(IDictionary<ColumnInfo, IEnumerable<object>> filter)
+        {
+            return new SqlHelper(this.whereHelper.Where(filter));
         }
     }
 }

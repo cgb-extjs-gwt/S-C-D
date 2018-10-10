@@ -26,6 +26,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
+        public IEnumerable<Role> GetCurrentUserRoles()
+        {
+            //TODO: Getting fake user roles
+            return new[]
+            {
+                new Role { Name = "PRS PSM" },
+                new Role { Name = "PRS Finance" }
+            };
+        }
+
         public bool IsUserInRole(User user, Role role, Country country=null)
         {
             var userRoles = this.GetAll().Where(x => x.UserId == user.Id && x.RoleId == role.Id);

@@ -1,9 +1,9 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
-using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.Web.Server.Entities;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Gdc.Scd.BusinessLogicLayer.Dto.Report;
+using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {

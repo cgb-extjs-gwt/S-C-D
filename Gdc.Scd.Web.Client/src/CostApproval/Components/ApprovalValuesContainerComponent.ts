@@ -33,11 +33,11 @@ export const ApprovalValuesContainerComponent =
                 const dependencyColumns = getDependecyColumns(dependencies);
                 const inputLevelColumns = getInputLevelColumns(costBlock);
                 const checkColumns = [
-                    { title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.Checkbox },
-                    { title: 'Country group error', dataIndex: `IsRegionError`, type: ColumnType.Checkbox }
+                    { title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.CheckBox },
+                    { title: 'Country group error', dataIndex: `IsRegionError`, type: ColumnType.CheckBox }
                 ];
                 const otherColumns = [
-                    { title: 'Value', dataIndex: 'Value', type: ColumnType.Simple },
+                    { title: 'Value', dataIndex: 'Value', type: ColumnType.Text },
                 ];
 
                 if(isCheckColumnsVisible) {

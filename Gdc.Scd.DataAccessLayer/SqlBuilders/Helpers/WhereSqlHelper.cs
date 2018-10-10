@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
@@ -25,7 +27,16 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return this.Where(condition.ToSqlBuilder());
         }
 
-        public ISqlBuilder Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null) 
+        public ISqlBuilder Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
+        {
+            var columnFilter = filter.ToDictionary(
+                keyValue => new ColumnInfo(keyValue.Key, tableName),
+                keyValue => keyValue.Value);
+
+            return this.Where(columnFilter);
+        }
+
+        public ISqlBuilder Where(IDictionary<ColumnInfo, IEnumerable<object>> filter) 
         {
             ISqlBuilder result;
 
@@ -38,7 +49,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 result = new WhereSqlBuilder
                 {
                     Query = this.ToSqlBuilder(),
-                    Condition = ConditionHelper.AndStatic(filter, tableName).ToSqlBuilder()
+                    Condition = ConditionHelper.AndStatic(filter).ToSqlBuilder()
                 };
             }
 
