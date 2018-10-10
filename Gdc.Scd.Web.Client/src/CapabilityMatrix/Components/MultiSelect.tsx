@@ -36,19 +36,18 @@ export class MultiSelect extends React.Component<MultiSelectProps> {
 
     public render() {
 
-        let { width, maxWidth, height, maxHeight, title, itemTpl, store, selectable } = this.props;
+        let { width, height, maxHeight, title, itemTpl, store, selectable } = this.props;
 
         title = '<h4>' + title + '</h4>';
 
         width = width || '100%';
-        maxWidth = maxWidth || '200px';
 
         height = height || '100%';
 
         selectable = selectable || 'multi';
 
         return (
-            <Container width={width} maxWidth={maxWidth}>
+            <Container width={width}>
                 <CheckBoxField
                     ref="cb"
                     boxLabel={title}

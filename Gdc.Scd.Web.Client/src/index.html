@@ -16,6 +16,7 @@
         .filter-grid .x-titlebar {
             background-color: rgba(235, 235, 235, 0.979);
         }
+
         .filter-grid .x-titlebar .x-title {
             font-size: 15px;
             color: rgba(17, 17, 17, 0.54);
@@ -39,11 +40,33 @@
         .calc-cost-result-yellow .x-header-el {
             background: rgb(255, 230, 153) !important;
         }
+
+        .matrix-edit-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .matrix-edit-container > div {
+            width: 50%;
+            min-width: 160px;
+        }
+
+        @media (min-width: 700px) {
+            .matrix-edit-container > div {
+                width: 33%;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .matrix-edit-container > div {
+                width: 16.6%;
+            }
+        }
     </style>
 </head>
 <body>
     <script type="text/javascript">
-        var APP_URL ='/scd';
+        var APP_URL = '/scd';
     </script>
 </body>
 </html>
