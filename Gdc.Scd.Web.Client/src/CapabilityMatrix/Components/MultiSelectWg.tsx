@@ -25,7 +25,7 @@ export class MultiSelectWg extends MultiSelect {
         return (
             <Container width={width}>
                 <CheckBoxField
-                    ref="cb"
+                    ref={x => this.cb = x}
                     boxLabel={title}
                     padding="2px"
                     bodyAlign="left"
@@ -36,7 +36,7 @@ export class MultiSelectWg extends MultiSelect {
                 <div onClick={this.onListClick}>
                     <Container>
                         <List
-                            ref="lst"
+                            ref={x => this.lst = x}
                             itemTpl={itemTpl}
                             store={store}
                             height={height}

@@ -49,7 +49,7 @@ export class MultiSelect extends React.Component<MultiSelectProps> {
         return (
             <Container width={width}>
                 <CheckBoxField
-                    ref="cb"
+                    ref={x => this.cb = x}
                     boxLabel={title}
                     padding="7px"
                     bodyAlign="left"
@@ -58,7 +58,7 @@ export class MultiSelect extends React.Component<MultiSelectProps> {
                 <div onClick={this.onListClick}>
                     <Container>
                         <List
-                            ref="lst"
+                            ref={x => this.lst = x}
                             itemTpl={itemTpl}
                             store={store}
                             height={height}
@@ -70,11 +70,6 @@ export class MultiSelect extends React.Component<MultiSelectProps> {
                 </div>
             </Container>
         );
-    }
-
-    public componentDidMount() {
-        this.cb = this.refs['cb'];
-        this.lst = this.refs['lst'] as List;
     }
 
     public getSelected<T>(): T[] {
