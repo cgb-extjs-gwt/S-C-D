@@ -1,17 +1,18 @@
 ﻿import { Button, Container, NumberField, Panel, PanelProps, TextField } from "@extjs/ext-react";
 import * as React from "react";
+import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
+import { CountryField } from "../../Dict/Components/CountryField";
+import { CountryGroupField } from "../../Dict/Components/CountryGroupField";
+import { DurationField } from "../../Dict/Components/DurationField";
+import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
+import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
+import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
+import { SogField } from "../../Dict/Components/SogField";
+import { WgField } from "../../Dict/Components/WgField";
+import { YearField } from "../../Dict/Components/YearField";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
 import { AutoFilterType } from "../Model/AutoFilterType";
-import { AvailabilityField } from "./AvailabilityField";
-import { CountryField } from "./CountryField";
-import { CountryGroupField } from "./CountryGroupField";
-import { DurationField } from "./DurationField";
-import { ReactionTimeField } from "./ReactionTimeField";
-import { ReactionTypeField } from "./ReactionTypeField";
-import { ServiceLocationField } from "./ServiceLocationField";
-import { SogField } from "./SogField";
-import { WgField } from "./WgField";
-import { YearField } from "./YearField";
+
 
 export interface AutoFilterPanelProps extends PanelProps {
     filter: AutoFilterModel[];
