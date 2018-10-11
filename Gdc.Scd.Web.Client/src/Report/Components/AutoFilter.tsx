@@ -13,7 +13,6 @@ import { YearField } from "../../Dict/Components/YearField";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
 import { AutoFilterType } from "../Model/AutoFilterType";
 
-
 export interface AutoFilterPanelProps extends PanelProps {
     filter: AutoFilterModel[];
     onSearch(filter: any): void;
