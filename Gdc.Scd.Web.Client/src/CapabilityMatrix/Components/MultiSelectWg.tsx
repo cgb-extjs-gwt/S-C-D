@@ -56,7 +56,7 @@ export class MultiSelectWg extends React.Component<MultiSelectProps> {
                     bodyAlign="left"
                     onChange={this.onTopSelectionChange}
                 />
-                <PlaField placeholder="PLA" />
+                <PlaField placeholder="PLA" onChange={this.onPlaChange} />
                 <SearchField placeholder="Search by wg/sog..." onChange={this.onSearch} />
                 <div onClick={this.onListClick}>
                     <Container>
@@ -91,6 +91,7 @@ export class MultiSelectWg extends React.Component<MultiSelectProps> {
     private init() {
         this.flag = true;
         //
+        this.onPlaChange = this.onPlaChange.bind(this);
         this.onSearch = this.onSearch.bind(this);
         this.onListClick = this.onListClick.bind(this);
         this.onTopSelectionChange = this.onTopSelectionChange.bind(this);
@@ -116,6 +117,11 @@ export class MultiSelectWg extends React.Component<MultiSelectProps> {
             lst.deselectAll();
         }
         this.flag = true;
+    }
+
+    private onPlaChange(view: any, newValue: string, oldValue: string) {
+        let lst = this.lst as any
+        lst.getStore().filter('plaId', newValue);
     }
 
     private onSearch(view: any, newValue: string, oldValue: string) {

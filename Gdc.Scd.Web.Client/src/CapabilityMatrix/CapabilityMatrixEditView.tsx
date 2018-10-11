@@ -59,7 +59,7 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
 
                 <div className="matrix-edit-container">
                     <div>
-                        <MultiSelectWg ref="wg" maxHeight={SELECT_MAX_HEIGHT} title="Asset(WG)" itemTpl="{name}" store={this.state.warrantyGroups} />
+                        <MultiSelectWg ref="wg" maxHeight="204px" title="Asset(WG)" itemTpl="{name}" store={this.state.warrantyGroups} />
                     </div>
                     <div>
                         <MultiSelect ref="availability" maxHeight={SELECT_MAX_HEIGHT} title="Availability" itemTpl="{name}" store={this.state.availabilityTypes} />
