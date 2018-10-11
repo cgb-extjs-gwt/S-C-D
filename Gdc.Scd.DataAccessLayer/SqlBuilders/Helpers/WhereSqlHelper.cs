@@ -29,7 +29,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public ISqlBuilder Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
         {
-            var columnFilter = filter.ToDictionary(
+            var columnFilter = filter?.ToDictionary(
                 keyValue => new ColumnInfo(keyValue.Key, tableName),
                 keyValue => keyValue.Value);
 
