@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
@@ -23,7 +24,6 @@ namespace Gdc.Scd.Web.Server
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
 
-#if DEBUG
         protected void Application_EndRequest()
         {
             if (_firstRequest)
@@ -36,6 +36,5 @@ namespace Gdc.Scd.Web.Server
                 _firstRequest = false;
             }
         }
-#endif
     }
 }

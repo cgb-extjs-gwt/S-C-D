@@ -13,16 +13,40 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
         }
 
-        public List<Role> GetUserRoles(User user, Country country)
+        public List<Role> GetUserRoles(User user, Country country = null)
         {
-            throw new System.NotImplementedException();
+            var userRoles = this.GetAll().Where(x => x.UserId == user.Id);
+            if (country == null)
+            {
+                return userRoles.Where(x => x.Role.IsGlobal).Select(x=>x.Role).ToList();
+            }
+            else
+            {
+                return userRoles.Where(x => x.Role.IsGlobal || x.CountryId == country.Id).Select(x => x.Role).ToList();
+            }
+        }
+
+        public IEnumerable<Role> GetCurrentUserRoles()
+        {
+            //TODO: Getting fake user roles
+            return new[]
+            {
+                new Role { Name = "PRS PSM" },
+                new Role { Name = "PRS Finance" }
+            };
         }
 
         public bool IsUserInRole(User user, Role role, Country country=null)
         {
-            var roles = this.GetAll().Where(x => x.UserId == user.Id).Select(x => x.Role);
-
-            return this.GetAll().Where(x => x.UserId == user.Id).Select(x => x.RoleId).Contains(role.Id);
+            var userRoles = this.GetAll().Where(x => x.UserId == user.Id && x.RoleId == role.Id);
+            if (country == null)
+            {
+                return userRoles.Where(x => x.Role.IsGlobal).Any();
+            }
+            else
+            {
+                return userRoles.Where(x => x.Role.IsGlobal || x.CountryId==country.Id).Any();
+            } 
         }
 
     }

@@ -9,6 +9,7 @@ import { COST_EDITOR_PAGE } from "./CostEditor/Actions/CostEditorActions";
 import { buildApprovalCostElementsReducer } from "./CostApproval/Reducers/ApprovalCostElementsReducer";
 import { COST_APPROVAL_PAGE, OWN_COST_APPROVAL_PAGE } from "./CostApproval/Constants/CostApprovalConstants";
 import { qualityGateErrorsReducer } from "./CostApproval/Reducers/QualityGateErrorsReducer";
+import { tableViewReducer } from "./TableView/Reducers/TableViewReducer";
 
 const asyncActionHandler = store => next => action => {
     if (action instanceof AsyncAction) {
@@ -33,7 +34,8 @@ export const storeFactory = () => {
             [COST_APPROVAL_PAGE]: buildApprovalCostElementsReducer(COST_APPROVAL_PAGE),
             [OWN_COST_APPROVAL_PAGE]: buildApprovalCostElementsReducer(OWN_COST_APPROVAL_PAGE, {
                 qualityGateErrors: qualityGateErrorsReducer
-            })
+            }),
+            tableView: tableViewReducer
         })
     });
 

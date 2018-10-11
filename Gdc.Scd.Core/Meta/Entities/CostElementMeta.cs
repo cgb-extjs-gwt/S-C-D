@@ -16,6 +16,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public IDictionary<string, string> TypeOptions { get; set; }
 
+        public TableViewOption TableViewOption { get; set; }
+
         public InputLevelMeta GetPreviousInputLevel(string inputLevelId)
         {
             InputLevelMeta previousInputLevel = null;

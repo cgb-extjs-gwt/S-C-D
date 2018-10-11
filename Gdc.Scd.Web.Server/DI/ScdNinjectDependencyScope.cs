@@ -3,8 +3,6 @@ using Ninject.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Web;
 using System.Web.Http.Dependencies;
 
 namespace Gdc.Scd.Web.Server.DI

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
@@ -26,6 +27,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         public GroupBySqlHelper Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
         {
             return new GroupBySqlHelper(this.whereHelper.Where(filter, tableName));
+        }
+
+        public GroupBySqlHelper Where(IDictionary<ColumnInfo, IEnumerable<object>> filter)
+        {
+            return new GroupBySqlHelper(this.whereHelper.Where(filter));
         }
     }
 }

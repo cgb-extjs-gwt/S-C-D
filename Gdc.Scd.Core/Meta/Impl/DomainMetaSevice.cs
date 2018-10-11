@@ -63,13 +63,17 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string PeriodCoeffNodeName = "PeriodCoeff";
 
-        private readonly Regex idRegex = new Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled);
+        private const string TableViewNodeName = "TableView";
 
+        private const string RoleListNodeName = "Roles";
+
+        private const string RoleNodeName = "Role";
+
+        private readonly Regex idRegex = new Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled);
 
         public DomainMeta Get()
         {
             var fileName = HostingEnvironment.MapPath("~/DomainConfig.xml");
-            //var fileName = "./DomainConfig.xml";
             var doc = XDocument.Load(fileName);
 
             return this.BuilDomainMeta(doc.Root);
@@ -155,6 +159,20 @@ namespace Gdc.Scd.Core.Meta.Impl
                 costElementMeta.TypeOptions = 
                     typeNode.Attributes()
                             .ToDictionary(attr => attr.Name.ToString(), attr => attr.Value.ToString());
+            }
+
+            var tableViewAttribute = node.Element(TableViewNodeName);
+            if (tableViewAttribute != null)
+            {
+                var roles = 
+                    tableViewAttribute.Elements(RoleListNodeName)
+                                      .Elements(RoleNodeName)
+                                      .Select(roleNode => roleNode.Value);
+
+                costElementMeta.TableViewOption = new TableViewOption
+                {
+                    RoleNames = new HashSet<string>(roles)
+                };
             }
 
             return costElementMeta;

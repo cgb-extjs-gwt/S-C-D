@@ -1,5 +1,4 @@
 ﻿import * as React from 'react';
-import { FieldType } from "../../CostEditor/States/CostEditorStates";
 import { EditItem } from "../../CostEditor/States/CostBlockStates";
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, SelectionColumn, CheckBoxField } from '@extjs/ext-react';
 import { NamedId } from '../../Common/States/CommonStates';
@@ -7,7 +6,7 @@ import { buildMvcUrl } from "../../Common/Services/Ajax";
 import { withRouter } from 'react-router';
 import { buildComponentUrl } from "../../Common/Services/Ajax";
 
-const CONTROLLER_NAME = 'WarrantyGroup';
+const CONTROLLER_NAME = 'wg';
 const ROLECODE_CONTROLLER_NAME="RoleCode"
 
 Ext.require([
@@ -167,6 +166,7 @@ class WarrantyGroupGrid extends React.Component<any> {
                 displayField="name"            
                 label="Select role code"
                 queryMode="local"
+                editable={false}
             />
         );
         renderer = (value, { data }) => {

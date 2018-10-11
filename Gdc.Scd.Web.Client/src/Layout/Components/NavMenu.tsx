@@ -1,14 +1,17 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import { TreeList } from '@extjs/ext-react';
+import * as React from 'react';
 import { buildComponentUrl } from "../../Common/Services/Ajax";
+import { TreeItem } from '../../Common/States/TreeItem';
 
 declare var Ext:any;
 
 Ext.require('Ext.data.TreeStore');
 
-interface NavMenuProps {
-    onItemClick: Function,
+export interface NavMenuActions {
+    onItemClick?(item: TreeItem)
+}
+
+export interface NavMenuProps extends NavMenuActions {
     selection: string
 }
 
@@ -24,15 +27,18 @@ const NavMenu: React.SFC<NavMenuProps & any> = ({
         {...props}
         ui="nav"
         expanderFirst={false}
-        onItemClick={(tree, item) => onItemClick(item.node.getId())}
+        onItemClick={(tree, item) => onItemClick(item.node.data)}
         selection={selection}
         store={{
             root: {
                 children: [
                     { id: buildComponentUrl('/input-cost-elements'), text: 'Input Cost Elements', iconCls: 'x-fa fa-info', leaf: true },
+                    { id: buildComponentUrl('/table-view'), text: 'Table View', iconCls: 'x-fa fa-info', leaf: true },
                     { id: buildComponentUrl('/cost-approval'), text: 'Approve cost elements', iconCls: 'x-fa fa-check-square-o', leaf: true},
                     { id: buildComponentUrl('/own-cost-approval'), text: 'Own approve cost elements', iconCls: 'x-fa fa-check-square-o', leaf: true},
                     { id: buildComponentUrl('/capability-matrix'), text: 'Portfolio', iconCls: 'x-fa fa-suitcase', leaf: true },
+                    { id: buildComponentUrl('/report'), text: 'Review process', iconCls: 'x-fa fa-balance-scale', leaf: true },
+                    { id: buildComponentUrl('/report/all'), text: 'Report', iconCls: 'x-fa fa-bar-chart', leaf: true },
                     {
                         id: buildComponentUrl('/admin'), text: 'Admin', iconCls: 'x-fa fa-info', disabled: true, children: [{
                             id: buildComponentUrl('/admin/country-management'),
