@@ -27,6 +27,8 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InRequestScope();
             Bind<IQualityGateSevice>().To<QualityGateSevice>().InRequestScope();
             Bind<IActiveDirectoryService>().To<ActiveDirectoryService>().InRequestScope();
+            Bind<ITableViewService>().To<TableViewService>().InRequestScope();
+            Bind<IUserRoleService>().To<UserRoleService>().InRequestScope();
 
             /*----------dictionaries-----------*/
             Kernel.RegisterEntity<ClusterRegion>();

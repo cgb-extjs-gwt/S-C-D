@@ -7,7 +7,6 @@ import { ApprovalBundleState } from "../States/ApprovalBundleState";
 import { PageName } from "../../Common/States/CommonStates";
 import { ApprovalCostElementsLayoutState } from "../States/ApprovalCostElementsLayoutState";
 import { loadBundlesByFilter } from "../Actions/BundleListActions";
-import { openPage } from "../../Layout/Actions/AppActions";
 
 export interface ApprovalBundleListContainerProps extends PageName {
     title: string
@@ -26,7 +25,6 @@ export const ApprovalBundleListContainerComponent = connect<ApprovalBundleListPr
         };
     },
     (dispatch, { pageName, approvalBundleState, title }) => ({
-        onInit: () => dispatch(openPage(pageName, title)),
         onReloadBundles: () => dispatch(loadBundlesByFilter(pageName, approvalBundleState))
     })
 )(ApprovalBundleListComponent)

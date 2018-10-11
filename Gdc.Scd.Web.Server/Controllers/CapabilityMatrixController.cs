@@ -1,8 +1,8 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Dto.CapabilityMatrix;
-using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.Web.Server.Entities;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Web.Http;
+using Gdc.Scd.BusinessLogicLayer.Dto.CapabilityMatrix;
+using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {

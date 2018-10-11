@@ -242,9 +242,9 @@
     <Compile Include="Controllers\Admin\RoleCodeController.cs" />
     <Compile Include="Controllers\Admin\RoleController.cs" />
     <Compile Include="Controllers\Admin\UserRoleController.cs" />
+    <Compile Include="Controllers\TableViewController.cs" />
     <Compile Include="DI\ScdNinjectDependencyResolver.cs" />
     <Compile Include="DI\ScdNinjectDependencyScope.cs" />
-    <Compile Include="Entities\DataInfo.cs" />
     <Compile Include="Entities\FilterInfo.cs" />
     <Compile Include="Entities\QualityGateResultDto.cs" />
     <Compile Include="Entities\UpdateValuesParam.cs" />

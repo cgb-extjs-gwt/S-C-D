@@ -12,3 +12,5 @@ export const getDependencies = (costBlock: CostBlockMeta) => {
 
     return Array.from(dependencyColumnsMap.values());
 }
+
+export const findMeta = <T extends NamedId>(metas: T[], id: string) => metas.find(item => item.id == id)

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Gdc.Scd.Web.Server.Entities
+namespace Gdc.Scd.Core.Entities
 {
     public class DataInfo<T>
     {

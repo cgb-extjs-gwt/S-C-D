@@ -63,6 +63,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             });
         }
 
+        // TODO: Need return DataInfo object, otherwise live scrol don't work. See BaseDomainController method GetBy.
         [HttpGet]
         public async Task<IEnumerable<HistoryItem>> GetHistory(
             [System.Web.Http.FromUri]CostEditorContext context,
