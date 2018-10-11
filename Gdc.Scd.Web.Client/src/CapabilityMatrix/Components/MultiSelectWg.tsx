@@ -1,34 +1,9 @@
 ﻿import { CheckBoxField, Container, List, SearchField } from "@extjs/ext-react";
 import * as React from "react";
-import { ExtDataviewHelper } from "../../Common/Helpers/ExtDataviewHelper";
 import { PlaField } from "../../Dict/Components/PlaField";
+import { MultiSelect, MultiSelectProps } from "./MultiSelect";
 
-export interface MultiSelectProps {
-
-    width?: string;
-
-    maxWidth?: string;
-
-    height?: string;
-
-    maxHeight?: string;
-
-    title: string;
-
-    itemTpl: string;
-
-    store: any;
-
-    selectable?: string;
-}
-
-export class MultiSelectWg extends React.Component<MultiSelectProps> {
-
-    private cb: any;
-
-    private lst: List;
-
-    private flag: boolean; //stub for correct checkbox work
+export class MultiSelectWg extends MultiSelect {
 
     public constructor(props: MultiSelectProps) {
         super(props);
@@ -75,57 +50,24 @@ export class MultiSelectWg extends React.Component<MultiSelectProps> {
         );
     }
 
-    public componentDidMount() {
-        this.cb = this.refs['cb'];
-        this.lst = this.refs['lst'] as List;
-    }
-
-    public getSelected<T>(): T[] {
-        return ExtDataviewHelper.getListSelected(this.lst);
-    }
-
-    public getSelectedKeys<T>(field: string): T[] {
-        return ExtDataviewHelper.getListSelected(this.lst, field);
-    }
-
-    private init() {
-        this.flag = true;
+    protected init() {
+        super.init();
         //
         this.onPlaChange = this.onPlaChange.bind(this);
         this.onSearch = this.onSearch.bind(this);
-        this.onListClick = this.onListClick.bind(this);
-        this.onTopSelectionChange = this.onTopSelectionChange.bind(this);
-    }
-
-    private onListClick() {
-        this.flag = false;
-
-        let lst = this.lst as any;
-        let checked = lst.getSelections().length > 0;
-
-        this.cb.setChecked(checked);
-    }
-
-    private onTopSelectionChange(cb: any, newVal: boolean, oldVal: boolean) {
-        let lst = this.lst as any;
-        if (newVal) {
-            if (this.flag) {
-                lst.selectAll();
-            }
-        }
-        else {
-            lst.deselectAll();
-        }
-        this.flag = true;
     }
 
     private onPlaChange(view: any, newValue: string, oldValue: string) {
-        let lst = this.lst as any
-        lst.getStore().filter('plaId', newValue);
+        this.filter('plaId', newValue);
     }
 
     private onSearch(view: any, newValue: string, oldValue: string) {
-        let lst = this.lst as any
-        lst.getStore().filter('name', newValue);
+        this.filter('name', newValue);
+    }
+
+
+    private filter(key: string, val: string) {
+        let lst = this.lst as any;
+        lst.getStore().filter(key, val);
     }
 }

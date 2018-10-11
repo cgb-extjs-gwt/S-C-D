@@ -23,11 +23,11 @@ export interface MultiSelectProps {
 
 export class MultiSelect extends React.Component<MultiSelectProps> {
 
-    private cb: any;
+    protected cb: any;
 
-    private lst: List;
+    protected lst: List;
 
-    private flag: boolean; //stub for correct checkbox work
+    protected flag: boolean; //stub for correct checkbox work
 
     public constructor(props: MultiSelectProps) {
         super(props);
@@ -85,14 +85,14 @@ export class MultiSelect extends React.Component<MultiSelectProps> {
         return ExtDataviewHelper.getListSelected(this.lst, field);
     }
 
-    private init() {
+    protected init() {
         this.flag = true;
         //
         this.onListClick = this.onListClick.bind(this);
         this.onTopSelectionChange = this.onTopSelectionChange.bind(this);
     }
 
-    private onListClick() {
+    protected onListClick() {
         this.flag = false;
 
         let lst = this.lst as any;
@@ -101,7 +101,7 @@ export class MultiSelect extends React.Component<MultiSelectProps> {
         this.cb.setChecked(checked);
     }
 
-    private onTopSelectionChange(cb: any, newVal: boolean, oldVal: boolean) {
+    protected onTopSelectionChange(cb: any, newVal: boolean, oldVal: boolean) {
         let lst = this.lst as any;
         if (newVal) {
             if (this.flag) {
