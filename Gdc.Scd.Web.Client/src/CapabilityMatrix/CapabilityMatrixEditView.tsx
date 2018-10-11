@@ -1,6 +1,7 @@
 ﻿import { Button, CheckBoxField, ComboBoxField, Container } from "@extjs/ext-react";
 import * as React from "react";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
+import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { MultiSelect } from "./Components/MultiSelect";
 import { MultiSelectWg } from "./Components/MultiSelectWg";
 import { CapabilityMatrixEditModel } from "./Model/CapabilityMatrixEditModel";
@@ -153,7 +154,8 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
     }
 
     private denyCombination() {
-        this.srv.denyItem(this.getModel());
+        let p = this.srv.denyItem(this.getModel());
+        handleRequest(p);
     }
 
     private setPortfolio(val: boolean) {
