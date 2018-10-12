@@ -52,32 +52,28 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
         const isEditable = !!columns.find(column => column.isEditable);
         const hasChanges = this.hasChanges();
 
-        let plugins;
-        let selectable;
-
-        if (isEditable) {
-            plugins = ['cellediting', 'selectionreplicator'];
-            selectable = {
-                rows: true,
-                cells: true,
-                columns: false,
-                drag: true,
-                extensible: 'y',
+        const gridProps = isEditable 
+            ? {
+                plugins: ['cellediting', 'selectionreplicator'],
+                selectable: {
+                    rows: true,
+                    cells: true,
+                    columns: false,
+                    drag: true,
+                    extensible: 'y',
+                }
             }
-        } 
-
-        plugins = isEditable ? ['cellediting', 'selectionreplicator'] : [];
+            : {};
 
         return (
             columns && columns.length > 0 &&
             <Grid 
+                {...gridProps}
                 store={store} 
                 columnLines={true} 
                 minHeight={minHeight}
                 minWidth={minWidth}
                 onSelect={onSelectionChange}
-                plugins={plugins}
-                selectable={selectable}
                 flex={flex}
             >
                 {
