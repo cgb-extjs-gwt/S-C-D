@@ -269,9 +269,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 columns.Add(new ColumnInfo(HistoryValueIdColumn, ResultQualityGateTable));
             }
 
-            var inputLevelFields = 
-                costBlockMeta.DomainMeta.CostElements[historyContext.CostElementId].FilterInputLevels(options.MaxInputLevel)
-                                                                                   .Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]);
+            var inputLevels = options.MaxInputLevel == null
+                ? costBlockMeta.DomainMeta.InputLevels
+                : costBlockMeta.DomainMeta.CostElements[historyContext.CostElementId].FilterInputLevels(options.MaxInputLevel);
+
+            var inputLevelFields = inputLevels.Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]);
 
             columns.AddRange(inputLevelFields.Concat(costBlockMeta.DependencyFields).SelectMany(field => new[]
             {
