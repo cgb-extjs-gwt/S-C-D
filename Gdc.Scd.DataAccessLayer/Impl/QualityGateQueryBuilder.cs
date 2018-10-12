@@ -125,7 +125,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                 var withSqlBuilder = (WithSqlBuilder)query.ToSqlBuilder();
                 var groupBySqlHelper = new GroupBySqlHelper(withSqlBuilder.Query);
-                var groupColumns = this.BuildQualityGateQueryColumns(costBlockMeta, options);
+                var groupColumns = this.BuildQualityGateQueryColumns(costBlockMeta, options, history.Context);
 
                 query = Sql.With(
                     groupBySqlHelper.GroupBy(groupColumns.ToArray()),
@@ -186,7 +186,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 innerColumns.Add(new ColumnInfo(HistoryValueIdColumn, InnerQualityGateTable));
             }
 
-            var columns = this.BuildQualityGateQueryColumns(costBlockMeta, options).OfType<BaseColumnInfo>();
+            var columns = this.BuildQualityGateQueryColumns(costBlockMeta, options, historyContext).OfType<BaseColumnInfo>();
             if (options.CustomCheckColumns == null)
             {
                 columns = columns.Concat(checkColumns.Select(
@@ -257,7 +257,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return new[] { periodCheckColumn, countryGroupCheckColumn };
         }
 
-        private List<ColumnInfo> BuildQualityGateQueryColumns(CostBlockEntityMeta costBlockMeta, QualityGateQueryOptions options)
+        private List<ColumnInfo> BuildQualityGateQueryColumns(CostBlockEntityMeta costBlockMeta, QualityGateQueryOptions options, HistoryContext historyContext)
         {
             var columns = new List<ColumnInfo>
             {
@@ -270,8 +270,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
 
             var inputLevelFields = 
-                costBlockMeta.DomainMeta.FilterInputLevels(options.MaxInputLevel)
-                                        .Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]);
+                costBlockMeta.DomainMeta.CostElements[historyContext.CostElementId].FilterInputLevels(options.MaxInputLevel)
+                                                                                   .Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]);
 
             columns.AddRange(inputLevelFields.Concat(costBlockMeta.DependencyFields).SelectMany(field => new[]
             {

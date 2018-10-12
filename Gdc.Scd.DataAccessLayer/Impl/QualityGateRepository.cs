@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
@@ -55,8 +56,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
             var query = this.qualityGateQueryBuilder.BuildQulityGateApprovalQuery(history, historyValueId, costBlockFilter);
-            var maxInputLevelId = historyValueId.HasValue ? null : history.Context.InputLevelId;
-            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, maxInputLevelId)
+            var inputLevelFilter = new InputLevelFilterParam
+            {
+                CostElementId = history.Context.CostElementId,
+                MaxInputLevelId = historyValueId.HasValue ? null : history.Context.InputLevelId
+            };
+
+            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, inputLevelFilter)
             {
                 UseQualityGate = true,
                 UseHistoryValueId = true
