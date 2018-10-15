@@ -59,6 +59,13 @@ namespace Gdc.Scd.Core.Meta.Entities
             return (NamedEntityMeta)this.GetEntityMeta(name, MetaConstants.InputLevelSchema);
         }
 
+        public CountryEntityMeta GetCountryEntityMeta()
+        {
+            var fullName = BaseEntityMeta.BuildFullName(MetaConstants.CountryInputLevelName, MetaConstants.InputLevelSchema);
+
+            return this.InputLevels[fullName] as CountryEntityMeta;
+        }
+
         public CostBlockEntityMeta GetCostBlockEntityMeta(ICostBlockIdentifier costBlockIdentifier)
         {
             return (CostBlockEntityMeta)this.GetEntityMeta(costBlockIdentifier.CostBlockId, costBlockIdentifier.ApplicationId);
