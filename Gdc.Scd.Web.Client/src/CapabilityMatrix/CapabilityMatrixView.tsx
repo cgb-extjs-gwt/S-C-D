@@ -2,14 +2,14 @@
 import * as React from "react";
 import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
+import { handleRequest } from "../Common/Helpers/RequestHelper";
+import { buildComponentUrl, buildMvcUrl } from "../Common/Services/Ajax";
 import { FilterPanel } from "./Components/FilterPanel";
 import { NullStringColumn } from "./Components/NullStringColumn";
 import { ReadonlyCheckColumn } from "./Components/ReadonlyCheckColumn";
 import { CapabilityMatrixFilterModel } from "./Model/CapabilityMatrixFilterModel";
 import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService";
 import { MatrixFactory } from "./Services/MatrixFactory";
-import { buildMvcUrl } from "../Common/Services/Ajax";
-import { buildComponentUrl } from "../Common/Services/Ajax";
 
 export class CapabilityMatrixView extends React.Component<any, any> {
 
@@ -28,7 +28,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
         proxy: {
             type: 'ajax',
             api: {
-                read: buildMvcUrl('capabilitymatrix','allowed')
+                read: buildMvcUrl('capabilitymatrix', 'allowed')
             },
             reader: {
                 type: 'json',
@@ -45,7 +45,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
         proxy: {
             type: 'ajax',
             api: {
-                read: buildMvcUrl('capabilitymatrix','denied')
+                read: buildMvcUrl('capabilitymatrix', 'denied')
             },
             reader: {
                 type: 'json',
@@ -157,7 +157,8 @@ export class CapabilityMatrixView extends React.Component<any, any> {
     }
 
     private allowCombination(ids: string[]) {
-        this.srv.allowItems(ids).then(x => this.reload());
+        var p = this.srv.allowItems(ids).then(x => this.reload());
+        handleRequest(p);
     }
 
     private getDenySelected(): string[] {

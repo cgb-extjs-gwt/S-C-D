@@ -35,5 +35,5 @@ export const getInputLevelColumns = (costBlock: CostBlockMeta) => {
 export const buildNameColumnInfo = (metaItem: NamedId) => (<ColumnInfo>{
     title: metaItem.name,
     dataIndex: `${metaItem.id}Name`,
-    type: ColumnType.Simple
+    type: ColumnType.Text
 })

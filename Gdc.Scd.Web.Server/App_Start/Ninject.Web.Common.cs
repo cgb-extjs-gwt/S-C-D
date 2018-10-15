@@ -3,18 +3,13 @@
 
 namespace Gdc.Scd.Web.Server.App_Start
 {
-    using System;
-    using System.Reflection;
-    using System.Web;
-    using System.Web.Http;
-    using Gdc.Scd.Core.Interfaces;
-    using Gdc.Scd.Web.Server.DI;
     using Microsoft.Web.Infrastructure.DynamicModuleHelper;
-
     using Ninject;
     using Ninject.Web.Common;
     using Ninject.Web.Common.WebHost;
-    using Ninject.Web.WebApi;
+    using System;
+    using System.Web;
+    using System.Web.Http;
 
     public static class NinjectWebCommon 
     {

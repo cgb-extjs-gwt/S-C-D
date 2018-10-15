@@ -2,10 +2,12 @@
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.CapabilityMatrix;
-using Gdc.Scd.Core.Helpers;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -15,7 +17,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<HardwareCalculationResult> hwRepo;
 
-        private readonly IRepository<CapabilityMatrixCountryAllowView> matrixRepo;
+        private readonly IRepository<CapabilityMatrix> matrixRepo;
 
         private readonly IRepository<SoftwareCalculationResult> swRepo;
 
@@ -23,7 +25,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IRepositorySet repositorySet,
                 IRepository<HardwareCalculationResult> hwRepo,
                 IRepository<SoftwareCalculationResult> swRepo,
-                IRepository<CapabilityMatrixCountryAllowView> matrixRepo
+                IRepository<CapabilityMatrix> matrixRepo
             )
         {
             this.repositorySet = repositorySet;
@@ -32,36 +34,36 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.matrixRepo = matrixRepo;
         }
 
-        public IEnumerable<HwCostDto> GetHardwareCost(HwFilterDto filter, int start, int limit, out int count)
+        public async Task<Tuple<HwCostDto[], int>> GetHardwareCost(HwFilterDto filter, int start, int limit)
         {
             var query = matrixRepo.GetAll();
 
             if (filter != null)
             {
-                query = query.WhereIf(filter.Country.HasValue, x => x.CountryId == filter.Country.Value)
-                             .WhereIf(filter.Wg.HasValue, x => x.WgId == filter.Wg.Value)
-                             .WhereIf(filter.Availability.HasValue, x => x.AvailabilityId == filter.Availability.Value)
-                             .WhereIf(filter.Duration.HasValue, x => x.DurationId == filter.Duration.Value)
-                             .WhereIf(filter.ReactionType.HasValue, x => x.ReactionTypeId == filter.ReactionType.Value)
-                             .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTimeId == filter.ReactionTime.Value)
-                             .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocationId == filter.ServiceLocation.Value);
+                query = query.WhereIf(filter.Country.HasValue, x => x.Country.Id == filter.Country.Value)
+                             .WhereIf(filter.Wg.HasValue, x => x.Wg.Id == filter.Wg.Value)
+                             .WhereIf(filter.Availability.HasValue, x => x.Availability.Id == filter.Availability.Value)
+                             .WhereIf(filter.Duration.HasValue, x => x.Duration.Id == filter.Duration.Value)
+                             .WhereIf(filter.ReactionType.HasValue, x => x.ReactionType.Id == filter.ReactionType.Value)
+                             .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTime.Id == filter.ReactionTime.Value)
+                             .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocation.Id == filter.ServiceLocation.Value);
             }
 
-            count = query.Count(); //optimization! get count without join!!!
+            var count = await query.GetCountAsync(); //optimization! get count without join!!!
 
-            var result = from m in query
+            var query2 = from m in query
                          join hw in hwRepo.GetAll() on m.Id equals hw.Id
                          select new HwCostDto
                          {
                              Id = m.Id,
 
-                             Country = m.Country,
-                             Wg = m.Wg,
-                             Availability = m.Availability,
-                             Duration = m.Duration,
-                             ReactionTime = m.ReactionTime,
-                             ReactionType = m.ReactionType,
-                             ServiceLocation = m.ServiceLocation,
+                             Country = m.Country.Name,
+                             Wg = m.Wg.Name,
+                             Availability = m.Availability.Name,
+                             Duration = m.Duration.Name,
+                             ReactionTime = m.ReactionTime.Name,
+                             ReactionType = m.ReactionType.Name,
+                             ServiceLocation = m.ServiceLocation.Name,
 
                              AvailabilityFee = hw.AvailabilityFee,
                              AvailabilityFee_Approved = hw.AvailabilityFee_Approved,
@@ -115,32 +117,45 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                              ServiceTP_Approved = hw.ServiceTP_Approved,
 
                              ServiceTPManual = hw.ServiceTPManual,
-                             ServiceTPManual_Approved = hw.ServiceTPManual_Approved
+                             ServiceTPManual_Approved = hw.ServiceTPManual_Approved,
+
+                             ListPrice = hw.ListPrice,
+                             ListPrice_Approved = hw.ListPrice_Approved,
+
+                             DealerDiscount = hw.DealerDiscount,
+                             DealerDiscount_Approved = hw.DealerDiscount_Approved,
+
+                             DealerPrice = hw.DealerPrice,
+                             DealerPrice_Approved = hw.DealerPrice_Approved
                          };
 
-            return result.Paging(start, limit);
+            var result = await query2.PagingAsync(start, limit);
+
+            return new Tuple<HwCostDto[], int>(result, count);
         }
 
-        public IEnumerable<SwCostDto> GetSoftwareCost(SwFilterDto filter, int start, int limit, out int count)
+        public async Task<Tuple<SwCostDto[], int>> GetSoftwareCost(SwFilterDto filter, int start, int limit)
         {
             var query = swRepo.GetAll();
 
             if (filter != null)
             {
-                query = query.WhereIf(filter.Country.HasValue, x => x.CountryId == filter.Country.Value)
-                             .WhereIf(filter.Sog.HasValue, x => x.SogId == filter.Sog.Value)
-                             .WhereIf(filter.Availability.HasValue, x => x.AvailabilityId == filter.Availability.Value)
-                             .WhereIf(filter.Year.HasValue, x => x.YearId == filter.Year.Value);
+                query = query.WhereIf(filter.Country.HasValue, x => x.Country.Id == filter.Country.Value)
+                             .WhereIf(filter.Sog.HasValue, x => x.Sog.Id == filter.Sog.Value)
+                             .WhereIf(filter.Availability.HasValue, x => x.Availability.Id == filter.Availability.Value)
+                             .WhereIf(filter.Year.HasValue, x => x.Year.Id == filter.Year.Value);
             }
 
             query = query.OrderBy(x => x.Id);
 
-            var result = query.Select(x => new SwCostDto
+            var count = await query.GetCountAsync();
+
+            var result = await query.Select(x => new SwCostDto
             {
-                Country = x.Country,
-                Sog = x.Sog,
-                Availability = x.Availability,
-                Year = x.Year,
+                Country = x.Country.Name,
+                Sog = x.Sog.Name,
+                Availability = x.Availability.Name,
+                Year = x.Year.Name,
 
                 DealerPrice = x.DealerPrice,
                 DealerPrice_Approved = x.DealerPrice_Approved,
@@ -159,20 +174,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 ProActive = x.ProActive,
                 ProActive_Approved = x.ProActive_Approved
-            });
+            }).PagingAsync(start, limit);
 
-            return result.Paging(start, limit, out count);
+            return new Tuple<SwCostDto[], int>(result, count);
         }
 
         public void SaveHardwareCost(IEnumerable<HwCostManualDto> records)
         {
             var recordsId = records.Select(x => x.Id);
 
-            var query = hwRepo.GetAll()
-                              .Where(x => recordsId.Contains(x.Id) &&
-                                          x.Matrix.Country.CanOverrideTransferCostAndPrice);
+            var entities = hwRepo.GetAll()
+                              .Where(x => recordsId.Contains(x.Id))
+                              .Select(x => new { Hw = x, Country = x.Matrix.Country })
+                              .ToDictionary(x => x.Hw.Id, y => y);
 
-            var entities = query.ToDictionary(x => x.Id, y => y);
+            if (entities.Count == 0)
+            {
+                return;
+            }
 
             ITransaction transaction = null;
             try
@@ -181,14 +200,29 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 foreach (var rec in records)
                 {
-                    if (entities.ContainsKey(rec.Id))
+                    if (!entities.ContainsKey(rec.Id))
                     {
-                        var e = entities[rec.Id];
+                        continue;
+                    }
 
-                        e.ServiceTCManual = rec.ServiceTC;
-                        e.ServiceTPManual = rec.ServiceTP;
+                    var e = entities[rec.Id];
+                    var country = e.Country;
+                    var hw = e.Hw;
 
-                        hwRepo.Save(e);
+                    if (country.CanOverrideTransferCostAndPrice)
+                    {
+                        hw.ServiceTCManual = rec.ServiceTC;
+                        hw.ServiceTPManual = rec.ServiceTP;
+                        //
+                        hwRepo.Save(hw);
+                    }
+
+                    if (country.CanStoreListAndDealerPrices)
+                    {
+                        hw.ListPrice = rec.ListPrice;
+                        hw.DealerDiscount = rec.DealerDiscount;
+                        //
+                        hwRepo.Save(hw);
                     }
                 }
 

@@ -1,5 +1,4 @@
 ﻿import * as React from 'react';
-import { FieldType } from "../../CostEditor/States/CostEditorStates";
 import { EditItem } from "../../CostEditor/States/CostBlockStates";
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, TextField } from '@extjs/ext-react';
 import { NamedId } from '../../Common/States/CommonStates';
@@ -52,8 +51,9 @@ export default class RoleCodesGrid extends React.Component {
             listeners: {
                 exception: function (proxy, response, operation) {
                     //TODO: show error
-                    if (response.responseText.includes("The DELETE statement conflicted with the REFERENCE constraint")) {
-                        Ext.Msg.alert('Error', 'This item cannot be deleted because it is still referenced by other items.')
+                    if (response.status == 409) {
+                        let message = JSON.parse(response.responseText).Message
+                        Ext.Msg.alert('Error', message)
                     }
                 }               
             },
@@ -101,6 +101,9 @@ export default class RoleCodesGrid extends React.Component {
             failure: (batch, options) => {
                 //TODO: show error
                 this.store.rejectChanges();
+                this.setState({
+                    deletedRecord: null
+                });
             }      
         });
     }
@@ -112,9 +115,12 @@ export default class RoleCodesGrid extends React.Component {
     }
 
     deleteRecord = () => {
-        this.state.deletedRecord = this.state.selectedRecord
         this.store.remove(this.state.selectedRecord);
-        this.setState({ disableDeleteButton: true, disableNewButton: false });
+        this.setState({
+            disableDeleteButton: true,
+            disableNewButton: false,
+            deletedRecord: this.state.selectedRecord
+        });
     }
 
     selectRowHandler = (dataView, records, selected, selection) => {

@@ -4,6 +4,7 @@ import { buildMvcUrl } from "../Services/Ajax"
 Ext.require('Ext.grid.plugin.PagingToolbar');
 export interface PickerPanelProps {
     value?: any;
+    onChange?: () => void;
 }
 
 const CONTROLLER_NAME = 'User';
@@ -58,10 +59,6 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
         }
     }
 
-    enableSend = () => {
-        this.setState({ disableSendButton: false });
-    }
-
     loadUsers = () => {
         this.store.load({
             params: {
@@ -88,10 +85,11 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
         });
     }
     getUserIdentity = () => {
-        return this.pickerField.getValue();
+        let user = this.pickerField.getValue();
+        return user.email ? user : null;
     }
     public render() {
-        const { value } = this.props;
+        const { value, onChange } = this.props;
         return (
                 <ComboBox
                     ref={combobox => this.pickerField = combobox}
@@ -102,7 +100,7 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
                     queryMode="remote"
                     labelAlign="placeholder"
                     onKeyUp={() => this.loadUsers()}
-                    onChange={() => this.enableSend()}
+                    onChange={onChange}
                     valueNotFoundText="no results"
                     value={value && value}
                     hideTrigger

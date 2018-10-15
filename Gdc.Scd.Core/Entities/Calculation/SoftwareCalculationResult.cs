@@ -10,41 +10,17 @@ namespace Gdc.Scd.Core.Entities.Calculation
     {
         public long Id { get; set; }
 
-        #region Dependencies, denormalized
-
-        [ForeignKey("CountryRef")]
-        public long CountryId { get; set; }
         [Required]
-        public string Country { get; set; }
-
-        [ForeignKey("SogRef")]
-        public long SogId { get; set; }
-        [Required]
-        public string Sog { get; set; }
-
-        [ForeignKey("AvailabilityRef")]
-        public long AvailabilityId { get; set; }
-        [Required]
-        public string Availability { get; set; }
-
-        [ForeignKey("YearRef")]
-        public long YearId { get; set; }
-        [Required]
-        public string Year { get; set; }
-
-        #endregion
+        public Country Country { get; set; }
 
         [Required]
-        public Country CountryRef { get; set; }
+        public Sog Sog { get; set; }
 
         [Required]
-        public Sog SogRef { get; set; }
+        public Availability Availability { get; set; }
 
         [Required]
-        public Availability AvailabilityRef { get; set; }
-
-        [Required]
-        public Year YearRef { get; set; }
+        public Year Year { get; set; }
 
         public double? Reinsurance { get; set; }
         public double? Reinsurance_Approved { get; set; }

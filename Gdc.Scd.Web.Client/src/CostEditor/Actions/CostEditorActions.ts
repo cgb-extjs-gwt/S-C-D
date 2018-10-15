@@ -4,7 +4,7 @@ import { getCostEditorData } from "../Services/CostEditorServices";
 import { asyncAction } from "../../Common/Actions/AsyncAction";
 import { ItemSelectedAction } from "../../Common/Actions/CommonActions";
 import { losseDataCheckAction } from "../Helpers/CostEditorHelpers";
-import { openPage, pageInit, error } from "../../Layout/Actions/AppActions";
+import { pageInit, error } from "../../Layout/Actions/AppActions";
 import { CommonState } from "../../Layout/States/AppStates";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 
@@ -20,15 +20,11 @@ export interface ShowDataLoseWarningAction extends Action<string> {
 }
 
 export const init = () => asyncAction(
-    dispatch => {
-        dispatch(openPage(COST_EDITOR_PAGE, 'Cost Editor'));
-        
-        handleRequest(
-            getCostEditorData().then(
-                costEditorData => dispatch(pageInit(COST_EDITOR_PAGE, costEditorData)),
-            )
+    dispatch => handleRequest(
+        getCostEditorData().then(
+            costEditorData => dispatch(pageInit(COST_EDITOR_PAGE, costEditorData)),
         )
-    }
+    )
 )
 
 export const selectApplication = (applicationId: string) => (<ItemSelectedAction>{

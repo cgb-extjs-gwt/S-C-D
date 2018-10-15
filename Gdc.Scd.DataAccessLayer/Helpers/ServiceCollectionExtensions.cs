@@ -1,8 +1,8 @@
-﻿using System;
-using Gdc.Scd.Core.Interfaces;
+﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Ninject;
+using System;
 
 namespace Gdc.Scd.DataAccessLayer.Helpers
 {

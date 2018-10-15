@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
@@ -16,6 +17,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public IDictionary<string, string> TypeOptions { get; set; }
 
+        public TableViewOption TableViewOption { get; set; }
+
         public InputLevelMeta GetPreviousInputLevel(string inputLevelId)
         {
             InputLevelMeta previousInputLevel = null;
@@ -31,6 +34,19 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
 
             return previousInputLevel;
+        }
+
+        public IEnumerable<InputLevelMeta> FilterInputLevels(string maxInputLevelId)
+        {
+            foreach (var inputLevel in this.InputLevels.OrderBy(x => x.LevelNumber))
+            {
+                yield return inputLevel;
+
+                if (inputLevel.Id == maxInputLevelId)
+                {
+                    break;
+                }
+            }
         }
     }
 }

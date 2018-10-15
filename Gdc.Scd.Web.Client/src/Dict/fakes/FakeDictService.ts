@@ -3,6 +3,7 @@ import { IDictService } from "../Services/IDictService";
 import { fakeAvailability } from "./FakeAvailability";
 import { fakeCountries } from "./FakeCountries";
 import { fakeDuration } from "./FakeDuration";
+import { fakePla } from "./FakePla";
 import { fakeReactTimeTypes } from "./FakeReactTimeTypes";
 import { fakeReactTypes } from "./FakeReactTypes";
 import { fakeServiceLocationTypes } from "./FakeServiceLocationTypes";
@@ -11,13 +12,20 @@ import { fakeWG } from "./FakeWG";
 import { fakeYears } from "./FakeYear";
 
 export class FakeDictService implements IDictService {
-
     public getCountries(): Promise<NamedId[]> {
         return this.fromResult(fakeCountries);
     }
 
+    public getCountryGroups(): Promise<NamedId<string>[]> {
+        return this.getCountries();
+    }
+
     public getWG(): Promise<NamedId[]> {
         return this.fromResult(fakeWG);
+    }
+
+    public getPla(): Promise<NamedId<string>[]> {
+        return this.fromResult(fakePla);
     }
 
     public getSog(): Promise<NamedId<string>[]> {
@@ -36,7 +44,7 @@ export class FakeDictService implements IDictService {
         return this.fromResult(fakeYears);
     }
 
-    public getReactTypes(): Promise<NamedId[]> {
+    public getReactionTypes(): Promise<NamedId[]> {
         return this.fromResult(fakeReactTypes);
     }
 

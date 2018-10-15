@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using Gdc.Scd.Core.Entities;
+﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
@@ -14,6 +9,12 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -39,18 +40,18 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private const string DurationKey = "Duration";
 
-        private readonly EntityFrameworkRepositorySet repositorySet;
-
         private const string ProActiveKey = "ProActive";
 
         private const string ProActiveSlaKey = "ProActiveSla";
 
-
         private readonly DomainEnitiesMeta entityMetas;
 
+        private readonly EntityFrameworkRepositorySet repositorySet;
+
         public TestDataCreationHandlercs(
-            DomainEnitiesMeta entityMetas,
-            EntityFrameworkRepositorySet repositorySet)
+                DomainEnitiesMeta entityMetas,
+                EntityFrameworkRepositorySet repositorySet
+            )
         {
             this.entityMetas = entityMetas;
             this.repositorySet = repositorySet;
@@ -59,6 +60,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         public void Handle()
         {
             this.CreateClusterPlas();
+            this.CreateServiceLocations();
             this.CreateUsers();
             this.CreateRoles();
             this.CreateReactionTimeTypeAvalability();
@@ -68,21 +70,42 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateDurations();
             this.CreateYearAvailability();
             this.CreateProActiveSla();
-            this.CreateServiceLocations();
             this.CreateImportConfiguration();
+            this.CreateRolecodes();
 
-            var plaInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(PlaLevelId, MetaConstants.InputLevelSchema);
-            var wgInputLevelMeta = (NamedEntityMeta)this.entityMetas.GetEntityMeta(MetaConstants.WgInputLevelName, MetaConstants.InputLevelSchema);
+            //report
+            this.CreateReportColumnTypes();
+            this.CreateReportFilterTypes();
 
-            var queries = new List<SqlHelper>
-            {
-                this.BuildInsertSql(MetaConstants.InputLevelSchema, RoleCodeKey, this.GetRoleCodeNames())
-            };
+            var queries = new List<SqlHelper>();
             queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
+
+            queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
+
+            queries.AddRange(this.BuildFromFile(@"Scripts.reports.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-list.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-output-new-vs-old.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-output-vs-FREEZE.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-parameter-hw.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-parameter-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-contract.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-flat-fee.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-hdd-retention-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-hdd-retention-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-hdd-retention-parameter.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-local-detailed.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-locap.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-logistic-cost-calc-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-po-standard-warranty.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-solution-pack-price-list-detail.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-solution-pack-price-list.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-solutionpack-proactive-costing.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-SW-Service-Price-List-detail.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.report-SW-Service-Price-List.sql"));
 
             foreach (var query in queries)
             {
@@ -119,7 +142,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             repositorySet.Sync();
         }
 
-
         private void CreateUsers()
         {
             var repository = this.repositorySet.GetRepository<User>();
@@ -148,8 +170,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Role {Name = "Opportunity Center", IsGlobal=true }
             };
             repository.Save(roles);
-            this.repositorySet.Sync();          
-
+            this.repositorySet.Sync();
         }
 
         private void CreateProActiveSla()
@@ -1102,24 +1123,57 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.repositorySet.Sync();
         }
 
-        private RoleCode[] GetRoleCodes()
-        {
-            return new RoleCode[]
-            {
-                new RoleCode
-                {
-                    Name = "SEFS05"
-
-                }
-            };
-        }
-
         private void CreateRolecodes()
         {
-            var roleCodes = this.GetRoleCodes();
+            var roleCodes = new RoleCode[] {
+                new RoleCode { Name = "SEFS05" },
+                new RoleCode { Name = "SEFS06" },
+                new RoleCode { Name = "SEFS04" },
+                new RoleCode { Name = "SEIE07" },
+                new RoleCode { Name = "SEIE08" }
+            };
+
             var repository = this.repositorySet.GetRepository<RoleCode>();
 
             repository.Save(roleCodes);
+            this.repositorySet.Sync();
+        }
+
+        private void CreateReportColumnTypes()
+        {
+            var items = new ReportColumnType[] {
+                new ReportColumnType { Name = "text" },
+                new ReportColumnType { Name = "number" },
+                new ReportColumnType { Name = "boolean" },
+                new ReportColumnType { Name = "euro" },
+                new ReportColumnType { Name = "percent" },
+            };
+
+            var repository = this.repositorySet.GetRepository<ReportColumnType>();
+            repository.Save(items);
+            this.repositorySet.Sync();
+        }
+
+        private void CreateReportFilterTypes()
+        {
+            var items = new ReportFilterType[] {
+                new ReportFilterType { Name = "text" },
+                new ReportFilterType { Name = "number" },
+                new ReportFilterType { Name = "boolean" },
+                new ReportFilterType { Name = "wg" , MultiSelect = true },
+                new ReportFilterType { Name = "sog" , MultiSelect = true },
+                new ReportFilterType { Name = "countrygroup" , MultiSelect = true },
+                new ReportFilterType { Name = "country" , MultiSelect = true },
+                new ReportFilterType { Name = "availability" , MultiSelect = true },
+                new ReportFilterType { Name = "duration" , MultiSelect = true },
+                new ReportFilterType { Name = "reactiontime" , MultiSelect = true },
+                new ReportFilterType { Name = "reactiontype" , MultiSelect = true },
+                new ReportFilterType { Name = "servicelocation" , MultiSelect = true },
+                new ReportFilterType { Name = "year" , MultiSelect = true }
+            };
+
+            var repository = this.repositorySet.GetRepository<ReportFilterType>();
+            repository.Save(items);
             this.repositorySet.Sync();
         }
 
@@ -1178,25 +1232,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Duration { Name = "5 Years", Value = 5, IsProlongation = false, ExternalName = "5 years" },
                 new Duration { Name = "Prolongation", Value = 1, IsProlongation = true, ExternalName = "1 year (P)" }
             };
-        }
-
-        private string[] GetRoleCodeNames()
-        {
-            return new string[]
-            {
-                "SEFS05",
-                "SEFS06",
-                "SEFS04",
-                "SEIE07",
-                "SEIE08",
-            };
-        }
-
-        private bool GenerateRandomBool()
-        {
-            Random gen = new Random();
-            int prob = gen.Next(100);
-            return prob <= 70;
         }
 
         private string ReadText(string fn)

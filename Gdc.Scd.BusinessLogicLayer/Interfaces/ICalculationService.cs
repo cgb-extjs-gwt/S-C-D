@@ -1,13 +1,15 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface ICalculationService
     {
-        IEnumerable<HwCostDto> GetHardwareCost(HwFilterDto filter, int start, int limit, out int count);
+        Task<Tuple<HwCostDto[], int>> GetHardwareCost(HwFilterDto filter, int start, int limit);
 
-        IEnumerable<SwCostDto> GetSoftwareCost(SwFilterDto filter, int start, int limit, out int count);
+        Task<Tuple<SwCostDto[], int>> GetSoftwareCost(SwFilterDto filter, int start, int limit);
 
         void SaveHardwareCost(IEnumerable<HwCostManualDto> records);
     }
