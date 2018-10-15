@@ -1,26 +1,18 @@
-
-IF OBJECT_ID('dbo.MatrixAllowView', 'V') IS NOT NULL
-  DROP VIEW dbo.MatrixAllowView;
-GO
-
-IF OBJECT_ID('dbo.MatrixAllowCountryView', 'V') IS NOT NULL
-  DROP VIEW dbo.MatrixAllowCountryView;
-GO
-
-IF OBJECT_ID('dbo.MatrixDenyView', 'V') IS NOT NULL
-  DROP VIEW dbo.MatrixDenyView;
-GO
-
-IF OBJECT_ID('dbo.MatrixDenyCountryView', 'V') IS NOT NULL
-  DROP VIEW dbo.MatrixDenyCountryView;
-GO
-
-
-DELETE FROM Hardware.ServiceCostCalculation;
-DELETE FROM Matrix;
+ALTER INDEX IX_Matrix_AvailabilityId ON Matrix DISABLE;  
+ALTER INDEX IX_Matrix_DurationId ON Matrix DISABLE;  
+ALTER INDEX IX_Matrix_ReactionTimeId ON Matrix DISABLE;  
+ALTER INDEX IX_Matrix_ReactionTypeId ON Matrix DISABLE;  
+ALTER INDEX IX_Matrix_ServiceLocationId ON Matrix DISABLE;  
+ALTER INDEX IX_Matrix_CountryId ON Matrix DISABLE;  
+ALTER INDEX IX_Matrix_WgId ON Matrix DISABLE;  
 
 -- Disable all table constraints
 ALTER TABLE Matrix NOCHECK CONSTRAINT ALL
+
+DELETE FROM Matrix;
+
+DBCC SHRINKDATABASE (Scd_2_3, 50);
+GO
 
 INSERT INTO Matrix (
 				CountryId, 
@@ -53,7 +45,11 @@ INSERT INTO Matrix (
 	CROSS JOIN Dependencies.ReactionType AS rtype
 	CROSS JOIN Dependencies.ReactionTime AS rtime
 	CROSS JOIN Dependencies.ServiceLocation AS sv
+    where cnt.IsMaster = 1
 );
+
+DBCC SHRINKDATABASE (Scd_2_3, 50);
+GO
 
 INSERT INTO Matrix (
 				WgId, 
@@ -88,10 +84,24 @@ INSERT INTO Matrix (
 	CROSS JOIN (VALUES (0), (1)) cport(cp)
 );
 
+DBCC SHRINKDATABASE (Scd_2_3, 50);
+GO
+
+
+ALTER INDEX IX_Matrix_AvailabilityId ON Matrix REBUILD;  
+ALTER INDEX IX_Matrix_DurationId ON Matrix REBUILD;  
+ALTER INDEX IX_Matrix_ReactionTimeId ON Matrix REBUILD;  
+ALTER INDEX IX_Matrix_ReactionTypeId ON Matrix REBUILD;  
+ALTER INDEX IX_Matrix_ServiceLocationId ON Matrix REBUILD;  
+ALTER INDEX IX_Matrix_CountryId ON Matrix REBUILD;  
+ALTER INDEX IX_Matrix_WgId ON Matrix REBUILD;  
+
 -- Enable all table constraints
 ALTER TABLE Matrix CHECK CONSTRAINT ALL
+GO  
 
-INSERT INTO [Hardware].[ServiceCostCalculation] (MatrixId) 
-  SELECT Id FROM Matrix WHERE CountryId IS NOT NULL;
+DBCC SHRINKDATABASE (Scd_2_3, 50);
+GO
+
 
 
