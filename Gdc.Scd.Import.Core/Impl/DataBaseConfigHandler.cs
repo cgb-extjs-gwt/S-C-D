@@ -5,6 +5,7 @@ using Gdc.Scd.Import.Core.Interfaces;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +27,10 @@ namespace Gdc.Scd.Import.Core.Impl
 
         public ImportConfiguration ReadConfiguration(string name)
         {
-            return this._repository.GetAll().FirstOrDefault(config => config.Name == name);
+            var configuration = this._repository.GetAll().FirstOrDefault(config => config.Name == name);
+            if (configuration == null)
+                throw new ConfigurationErrorsException($"Configuration error: Config for {name} doesn't exist in the database");
+            return configuration;
         }
 
         public void UpdateImportResult(ImportConfiguration recordToUpdate, 

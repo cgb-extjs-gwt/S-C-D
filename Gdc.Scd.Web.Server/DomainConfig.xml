@@ -228,7 +228,11 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="InstalledBaseHighAvailability" Caption="Installed base high availability" InputOption="Manually"/>
+        <Element Name="InstalledBaseHighAvailability" Caption="Installed base high availability" InputOption="Manually">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
         <Element Name="TotalLogisticsInfrastructureCost" Caption="Total logistics infrastructure cost" InputOption="Manually">
           <InputLevels>
             <InputLevel>Country</InputLevel>
@@ -249,14 +253,30 @@
             <InputLevel>Country</InputLevel>
           </InputLevels>
         </Element>
-        <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="Automatically" RegionInput="_none_"/>
-        <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="Automatically" RegionInput="_none_"/>
-        <Element Name="MaxQty" Caption="MaxQty" InputOption="Automatically" RegionInput="_none_"/>
+        <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="Automatically" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="Automatically" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
+        <Element Name="MaxQty" Caption="MaxQty" InputOption="Automatically" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
         <Element Name="JapanBuy" Caption="Japan Buy" InputOption="Manually">
           <TypeOption Type="Flag"/>
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
         </Element>
       </Elements>
     </Block>
+
 
     <Block Name="HddRetention" Caption="HDD Retention">
       <Applications>

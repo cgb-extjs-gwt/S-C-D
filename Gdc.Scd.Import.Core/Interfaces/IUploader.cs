@@ -9,7 +9,7 @@ namespace Gdc.Scd.Import.Core.Interfaces
 {
     public interface IUploader<in T>
     {
-        int Upload(IEnumerable<T> items, DateTime modifiedDateTime);
+        void Upload(IEnumerable<T> items, DateTime modifiedDateTime);
         int Deactivate(DateTime modifiedDateTime);
     }
 }

@@ -10,5 +10,6 @@ namespace Gdc.Scd.Core.Enums
     {
         public const string AMBERROAD = "AMBER_ROAD";
         public const string LOGISTICS = "LOGISTICS";
+        public const string EBIS = "EBIS";
     }
 }

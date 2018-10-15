@@ -37,5 +37,7 @@ namespace Gdc.Scd.Core.Entities
 
         public Currency Currency { get; set; }
         public long CurrencyId { get; set; }
+
+        public bool AssignedToMultiVendor { get; set; }
     }
 }
