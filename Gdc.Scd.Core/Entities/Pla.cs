@@ -15,6 +15,7 @@ namespace Gdc.Scd.Core.Entities
             set => base.Id = value;
         }
 
+        public string CodingPattern { get; set; }
         public List<Wg> WarrantyGroups { get; set; }
     }
 }

@@ -29,5 +29,13 @@ namespace Gdc.Scd.Import.Core
         public static string DEACTIVATE_START = "Deactivation for {0} is started...";
         public static string DEACTIVATE_END = "Deactivation finished. {0} rows affected.";
         public static string DEACTIVATING_ENTITY = "{0} with CountryId {1} is deactivated.";
+        public static string UNKNOWN_PLA = "Skip upload {0}: {1} as PLA {2} does not exist";
+        public static string NEW_WG = "Adding new WG {0}...";
+        public static string UPDATE_WG = "Updating WG {0}...";
+        public static string DEACTIVATING_WG = "Deactivating WG {0}...";
+        public static string UPLOAD_WG_START = "Starting Upload WGs...";
+        public static string UPLOAD_WG_END = "WGs were uploaded. {0} rows affected.";
+        public static string UPLOAD_AVAILABILITY_FEE_START = "Starting to Upload Availability Fee for WG {0}";
+        public static string UPLOAD_AVAILABILITY_FEE_END = "Availability fees was uploaded. {0} rows affected.";
     }
 }
