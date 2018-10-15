@@ -7,6 +7,7 @@ import { ReactionTypeService } from "../../Dict/Services/ReactionTypeService";
 import { ServiceLocationService } from "../../Dict/Services/ServiceLocationService";
 import { WgService } from "../../Dict/Services/WgService";
 import { IDictService } from "./IDictService";
+import { PlaService } from "./PlaService";
 import { SogService } from "./SogService";
 import { YearService } from "./YearService";
 
@@ -21,6 +22,10 @@ export class DictService implements IDictService {
 
     public getWG(): Promise<NamedId<string>[]> {
         return new WgService().getAll();
+    }
+
+    public getPla(): Promise<NamedId<string>[]> {
+        return new PlaService().getAll();
     }
 
     public getSog(): Promise<NamedId<string>[]> {

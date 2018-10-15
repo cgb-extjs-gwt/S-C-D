@@ -2,7 +2,7 @@
 import * as React from "react";
 import { NamedId } from "../../Common/States/CommonStates";
 import { IDictService } from "../../Dict/Services/IDictService";
-import { ReportFactory } from "../Services/ReportFactory";
+import { DictFactory } from "../Services/DictFactory";
 
 export abstract class DictField extends React.Component<ComboBoxFieldProps, any> {
 
@@ -50,7 +50,7 @@ export abstract class DictField extends React.Component<ComboBoxFieldProps, any>
     protected abstract getItems(): Promise<NamedId[]>;
 
     private init() {
-        this.srv = ReportFactory.getDictService();
+        this.srv = DictFactory.getDictService();
         this.state = {
             items: []
         };

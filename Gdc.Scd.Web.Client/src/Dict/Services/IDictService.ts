@@ -7,6 +7,8 @@ export interface IDictService {
 
     getWG(): Promise<NamedId[]>;
 
+    getPla(): Promise<NamedId[]>;
+
     getSog(): Promise<NamedId[]>;
 
     getAvailabilityTypes(): Promise<NamedId[]>;

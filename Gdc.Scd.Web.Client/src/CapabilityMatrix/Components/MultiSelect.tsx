@@ -1,5 +1,5 @@
-﻿import * as React from "react";
-import { Container, Label, List } from "@extjs/ext-react";
+﻿import { CheckBoxField, Container, List } from "@extjs/ext-react";
+import * as React from "react";
 import { ExtDataviewHelper } from "../../Common/Helpers/ExtDataviewHelper";
 
 export interface MultiSelectProps {
@@ -23,31 +23,53 @@ export interface MultiSelectProps {
 
 export class MultiSelect extends React.Component<MultiSelectProps> {
 
-    private lst: List;
+    protected cb: any;
+
+    protected lst: List;
+
+    protected flag: boolean; //stub for correct checkbox work
+
+    public constructor(props: MultiSelectProps) {
+        super(props);
+        this.init();
+    }
 
     public render() {
 
-        let { width, maxWidth, height, maxHeight, title, itemTpl, store, selectable } = this.props;
+        let { width, height, maxHeight, title, itemTpl, store, selectable } = this.props;
 
         title = '<h4>' + title + '</h4>';
 
         width = width || '100%';
-        maxWidth = maxWidth || '200px';
 
         height = height || '100%';
 
         selectable = selectable || 'multi';
 
         return (
-            <Container width={width} maxWidth={maxWidth}>
-                <Label html={title} padding="7px" />
-                <List ref="lst" itemTpl={itemTpl} store={store} height={height} maxHeight={maxHeight} selectable={selectable} scrollable="true" />
+            <Container width={width}>
+                <CheckBoxField
+                    ref={x => this.cb = x}
+                    boxLabel={title}
+                    padding="7px"
+                    bodyAlign="left"
+                    onChange={this.onTopSelectionChange}
+                />
+                <div onClick={this.onListClick}>
+                    <Container>
+                        <List
+                            ref={x => this.lst = x}
+                            itemTpl={itemTpl}
+                            store={store}
+                            height={height}
+                            maxHeight={maxHeight}
+                            selectable={selectable}
+                            scrollable="true"
+                        />
+                    </Container>
+                </div>
             </Container>
         );
-    }
-
-    public componentDidMount() {
-        this.lst = this.refs['lst'] as List;
     }
 
     public getSelected<T>(): T[] {
@@ -56,5 +78,34 @@ export class MultiSelect extends React.Component<MultiSelectProps> {
 
     public getSelectedKeys<T>(field: string): T[] {
         return ExtDataviewHelper.getListSelected(this.lst, field);
+    }
+
+    protected init() {
+        this.flag = true;
+        //
+        this.onListClick = this.onListClick.bind(this);
+        this.onTopSelectionChange = this.onTopSelectionChange.bind(this);
+    }
+
+    protected onListClick() {
+        this.flag = false;
+
+        let lst = this.lst as any;
+        let checked = lst.getSelections().length > 0;
+
+        this.cb.setChecked(checked);
+    }
+
+    protected onTopSelectionChange(cb: any, newVal: boolean, oldVal: boolean) {
+        let lst = this.lst as any;
+        if (newVal) {
+            if (this.flag) {
+                lst.selectAll();
+            }
+        }
+        else {
+            lst.deselectAll();
+        }
+        this.flag = true;
     }
 }
