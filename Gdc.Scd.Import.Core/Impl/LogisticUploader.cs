@@ -49,6 +49,7 @@ namespace Gdc.Scd.Import.Core.Impl
                 foreach (var af in availabilityFee)
                 {
                     af.DeactivatedDateTime = modifiedDateTime;
+                    af.ModifiedDateTime = modifiedDateTime;
                     _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATING_ENTITY, $"Availability Fee with WG {wg.Name}", af.CountryId);
                     deactivatedAvailabilityFees.Add(af);
                 }
@@ -188,6 +189,7 @@ namespace Gdc.Scd.Import.Core.Impl
                                     itemToUpdate.CostPerKit = item.CostPerKit;
                                 itemToUpdate.MaxQty = item.MaxQty;
                                 itemToUpdate.DeactivatedDateTime = null;
+                                itemToUpdate.ModifiedDateTime = modifiedDateTime;
                                 batchList.Add(itemToUpdate);
                             }
 

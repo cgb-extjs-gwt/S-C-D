@@ -75,6 +75,7 @@ namespace Gdc.Scd.Import.Core.Impl
                     {
                         entity.TaxAndDuties = item.AverageSumDutiesAndTaxes;
                         entity.DeactivatedDateTime = null;
+                        entity.ModifiedDateTime = modifiedDateTime;
                         this._repositoryTaxAndDuties.Save(entity);
                         result++;
                     }
@@ -86,6 +87,7 @@ namespace Gdc.Scd.Import.Core.Impl
                     entity.CountryId = country.Id;
                     entity.CreatedDateTime = modifiedDateTime;
                     entity.DeactivatedDateTime = null;
+                    entity.ModifiedDateTime = modifiedDateTime;
                     entity.TaxAndDuties = item.AverageSumDutiesAndTaxes;
                     this._repositoryTaxAndDuties.Save(entity);
                     result ++;
