@@ -21,18 +21,5 @@ namespace Gdc.Scd.Core.Meta.Entities
         }
 
         public QualityGate QualityGate { get; set; }
-
-        public IEnumerable<InputLevelMeta> FilterInputLevels(string maxInputLevelId)
-        {
-            foreach (var inputLevel in this.InputLevels)
-            {
-                yield return inputLevel;
-
-                if (inputLevel.Id == maxInputLevelId)
-                {
-                    break;
-                }
-            }
-        }
     }
 }
