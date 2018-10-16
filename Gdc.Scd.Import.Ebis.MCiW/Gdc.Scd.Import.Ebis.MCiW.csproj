@@ -4,16 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0C98C07E-1FDF-43F1-93EA-D86AB3232F25}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Gdc.Scd.Import.Core</RootNamespace>
-    <AssemblyName>Gdc.Scd.Import.Core</AssemblyName>
+    <ProjectGuid>{F2D6315C-A276-433F-813B-BAD4586145C6}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Gdc.Scd.Import.Ebis.MCiW</RootNamespace>
+    <AssemblyName>Gdc.Scd.Import.Ebis.MCiW</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -31,10 +33,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Fujitsu.GDC.ErrorNotification">
+      <HintPath>..\SharedLibraries\Fujitsu.GDC.ErrorNotification.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.EntityFrameworkCore">
+      <HintPath>..\Gdc.Scd.DataAccessLayer\bin\Debug\net461\Microsoft.EntityFrameworkCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject, Version=3.3.4.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.3.3.4\lib\net45\Ninject.dll</HintPath>
+    </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.5.10\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Annotations">
+      <HintPath>..\Gdc.Scd.Import.AmberRoad\bin\Debug\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression" />
@@ -49,33 +63,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\ParseInfoAttribute.cs" />
-    <Compile Include="Config.cs" />
-    <Compile Include="Dto\AfrDto.cs" />
-    <Compile Include="Dto\DownloadInfoDto.cs" />
-    <Compile Include="Dto\InstallBaseDto.cs" />
-    <Compile Include="Dto\LogisticsDto.cs" />
-    <Compile Include="Dto\MaterialCostDto.cs" />
-    <Compile Include="Dto\ParseInfoDto.cs" />
-    <Compile Include="Dto\TaxAndDutiesDto.cs" />
-    <Compile Include="Enums\Format.cs" />
-    <Compile Include="Impl\AmberRoadUploader.cs" />
-    <Compile Include="Impl\DataBaseConfigHandler.cs" />
-    <Compile Include="Impl\EbisAfrUploader.cs" />
-    <Compile Include="Impl\EbisMaterialCostUploader.cs" />
-    <Compile Include="Impl\FileDownloader.cs" />
-    <Compile Include="Impl\ImportManager.cs" />
-    <Compile Include="Impl\InstallBaseUploader.cs" />
-    <Compile Include="Impl\Logger.cs" />
-    <Compile Include="Impl\LogisticUploader.cs" />
-    <Compile Include="Impl\Parser.cs" />
     <Compile Include="ImportConstants.cs" />
-    <Compile Include="Interfaces\IConfigHandler.cs" />
-    <Compile Include="Interfaces\IDownloader.cs" />
-    <Compile Include="Interfaces\IImportManager.cs" />
-    <Compile Include="Interfaces\IParser.cs" />
-    <Compile Include="Interfaces\IUploader.cs" />
+    <Compile Include="MaterialCostService.cs" />
+    <Compile Include="Module.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj">
@@ -86,9 +88,10 @@
       <Project>{8903ea84-f24a-4ef5-8cba-6aaf1139d07d}</Project>
       <Name>Gdc.Scd.DataAccessLayer</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\Gdc.Scd.Import.Core\Gdc.Scd.Import.Core.csproj">
+      <Project>{0c98c07e-1fdf-43f1-93ea-d86ab3232f25}</Project>
+      <Name>Gdc.Scd.Import.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

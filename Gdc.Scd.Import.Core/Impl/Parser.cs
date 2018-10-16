@@ -80,15 +80,15 @@ namespace Gdc.Scd.Import.Core.Impl
                                     break;
                                 case Enums.Format.Number:
                                     int intResult = 0;
-                                    if (Int32.TryParse(propValue, out intResult))
-                                        value = Int32.Parse(propValue);
+                                    if (Int32.TryParse(propValue.Trim(), out intResult))
+                                        value = intResult;
                                     else
                                         _logger.Log(LogLevel.Warn, ImportConstants.PARSE_CANNOT_PARSE, propValue, typeof(Int32));
                                     break;
                                 case Enums.Format.None:
                                     dblResult = 0;
-                                    if (Double.TryParse(propValue, style, culture, out dblResult))
-                                        value = Double.Parse(propValue);
+                                    if (Double.TryParse(propValue.Trim(), style, culture, out dblResult))
+                                        value = dblResult;
                                     else
                                         _logger.Log(LogLevel.Warn, ImportConstants.PARSE_CANNOT_PARSE, propValue, typeof(Double));
                                     break;

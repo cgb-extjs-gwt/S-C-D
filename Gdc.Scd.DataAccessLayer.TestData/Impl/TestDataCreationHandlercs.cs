@@ -1271,10 +1271,52 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 HasHeader = true
             };
 
+            var ebis_afr = new ImportConfiguration
+            {
+                Name = ImportSystems.EBIS_AFR,
+                FilePath = @"C:\Users\BorisovaE\Desktop",
+                FileName = "SCD_FR_LOAD.csv",
+                ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
+                ProcessedDateTime = null,
+                Occurancy = Core.Enums.Occurancy.PerMonth,
+                ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\ebis",
+                Delimeter = ";",
+                HasHeader = true
+            };
+
+            var ebis_material_cost = new ImportConfiguration
+            {
+                Name = ImportSystems.EBIS_MATERIAL_COST,
+                FilePath = @"C:\Users\BorisovaE\Desktop",
+                FileName = "SCD_MATCO_LOAD.csv",
+                ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
+                ProcessedDateTime = null,
+                Occurancy = Core.Enums.Occurancy.PerMonth,
+                ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\ebis",
+                Delimeter = ";",
+                HasHeader = true
+            };
+
+            var ebis_install_base = new ImportConfiguration
+            {
+                Name = ImportSystems.EBIS_INSTALL_BASE,
+                FilePath = @"C:\Users\BorisovaE\Desktop",
+                FileName = "SCD_FQR_LOAD.csv",
+                ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
+                ProcessedDateTime = null,
+                Occurancy = Core.Enums.Occurancy.PerMonth,
+                ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\ebis",
+                Delimeter = ";",
+                HasHeader = true
+            };
+
             this.repositorySet.GetRepository<ImportConfiguration>().Save(new List<ImportConfiguration>()
             {
                 taxAndDuties,
-                logistic
+                logistic,
+                ebis_afr,
+                ebis_install_base,
+                ebis_material_cost
             });
 
             this.repositorySet.Sync();
