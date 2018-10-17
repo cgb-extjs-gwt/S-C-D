@@ -38,7 +38,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 Name = userRole.Role.Name,
                 IsGlobal = userRole.Role.IsGlobal,
-                Country = this.Copy<NamedId>(userRole.Country),
+                Country = userRole.Country == null ? null : this.Copy<NamedId>(userRole.Country),
                 Permissions = userRole.Role.Permissions.Select(permission => permission.Name).ToList()
             });
         }
@@ -99,6 +99,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var applications =
                 costBlockDtos.SelectMany(costBlockDto => costBlockDto.ApplicationIds)
                              .Select(applicationId => domainMeta.Applications[applicationId])
+                             .Distinct()
                              .Where(application => application != null);
 
             var domainMetaDto = new DomainMetaDto
