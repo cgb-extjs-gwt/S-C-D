@@ -16,7 +16,8 @@ RETURNS TABLE
 AS
 RETURN (
     with cte as (
-        select wg.SogDescription as SogDescription
+        select m.Country 
+             , wg.SogDescription as SogDescription
              , m.Fsp
              , wg.Description as WgDescription
              , m.ServiceLocation
@@ -25,8 +26,8 @@ RETURN (
          
              , (m.Duration + ' ' + m.ServiceLocation) as ServiceProduct
             
-             , (sc.ProActive + sc.ServiceTP) as Dcos
-             , null as DcosOld
+             , sc.LocalServiceStandardWarranty as StandardWarranty
+             , null as StandardWarrantyOld
 
              , wg.Sog
 
@@ -35,7 +36,7 @@ RETURN (
         join InputAtoms.WgSogView wg on wg.id = m.WgId
     )
     select sc.*
-         , (100 * (sc.Dcos - sc.DcosOld) / sc.Dcos) as Bw
+         , (100 * (sc.StandardWarranty - sc.StandardWarrantyOld) / sc.StandardWarranty) as Bw
     from cte as sc
 )
 
@@ -46,6 +47,8 @@ declare @index int = 0;
 
 delete from Report.ReportColumn where ReportId = @reportId;
 
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Country', 'Country Name', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SogDescription', 'Portfolio Alignment', 1, 1);
 set @index = @index + 1;
@@ -61,9 +64,9 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceProduct', 'Service Product', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'Dcos', 'NEW - Service DCOS', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'StandardWarranty', 'NEW - Service standard warranty', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'DcosOld', 'OLD - Service DCOS', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'StandardWarrantyOld', 'OLD - Service standard warranty', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 5, 'Bw', 'b/w %', 1, 1);
 set @index = @index + 1;
