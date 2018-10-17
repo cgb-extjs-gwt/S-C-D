@@ -1,11 +1,10 @@
-﻿using Gdc.Scd.Core.Meta.Interfaces;
-
-namespace Gdc.Scd.Core.Meta.Entities
+﻿namespace Gdc.Scd.Core.Meta.Entities
 {
-    public abstract class BaseDomainMeta: IMetaIdentifialble
+    public abstract class BaseDomainMeta<TCostBlock>
+        where TCostBlock : BaseMeta
     {
-        public string Id { get; set; }
+        public MetaCollection<TCostBlock> CostBlocks { get; set; }
 
-        public string Name { get; set; }
+        public MetaCollection<ApplicationMeta> Applications { get; set; }
     }
 }

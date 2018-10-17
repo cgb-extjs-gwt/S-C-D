@@ -29,6 +29,8 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<IQualityGateQueryBuilder>().To<QualityGateQueryBuilder>().InRequestScope();
             Bind<IRepository<Country>>().To<CountryRepository>().InRequestScope();
             Bind<ITableViewRepository>().To<TableViewRepository>().InRequestScope();
+            Bind<IRepository<Role>>().To<RoleRepository>().InRequestScope();
+            Bind<IUserRepository, IRepository<User>>().To<UserRepository>().InRequestScope();
 
             Bind<BaseColumnMetaSqlBuilder<IdFieldMeta>>().To<IdColumnMetaSqlBuilder>().InTransientScope();
             Bind<BaseColumnMetaSqlBuilder<SimpleFieldMeta>>().To<SimpleColumnMetaSqlBuilder>().InTransientScope();
@@ -41,6 +43,11 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<ICustomConfigureTableHandler>().To<ViewConfigureHandler>().InTransientScope();
 
             Kernel.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(HistoryContext), nameof(CostBlockHistory.Context)));
+            Kernel.RegisterEntityAsUnique<User>(nameof(User.Login));
+            Kernel.RegisterEntity<UserRole>();
+            Kernel.RegisterEntityAsUniqueName<Role>();
+            Kernel.RegisterEntityAsUniqueName<Permission>();
+            Kernel.RegisterEntity<RolePermission>();
         }
     }
 }

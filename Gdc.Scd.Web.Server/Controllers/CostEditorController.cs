@@ -3,21 +3,22 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
 using Gdc.Scd.Web.BusinessLogicLayer.Entities;
+using Gdc.Scd.Web.Server.Impl;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
 
+    [ScdAuthorize(Permissions = new[] { PermissionConstants.CostEditor })]
     public class CostEditorController : System.Web.Http.ApiController
     {
         private readonly ICostEditorService costEditorService;
 
         private readonly IDomainMetaSevice domainMetaSevice;
-
-        private readonly DomainMeta meta;
 
         public CostEditorController(
             ICostEditorService costEditorService, 
@@ -26,13 +27,6 @@ namespace Gdc.Scd.Web.Server.Controllers
         {
             this.costEditorService = costEditorService;
             this.domainMetaSevice = domainMetaSevice;
-            this.meta = meta;
-        }
-
-        [HttpGet]
-        public DomainMeta GetCostEditorData()
-        {
-            return this.meta;
         }
 
         public async Task<CostElementData> GetCostElementData([System.Web.Http.FromUri]CostEditorContext context)
