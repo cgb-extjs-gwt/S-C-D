@@ -15,26 +15,22 @@ CREATE FUNCTION Report.CalcOutputVsFREEZE
 RETURNS TABLE 
 AS
 RETURN (
-    with cte as (
-        select wg.SogDescription as SogDescription
-             , m.Fsp
-             , wg.Description as WgDescription
-             , m.ServiceLocation
-             , m.ReactionTime
-             , wg.Name as Wg
+    select    m.Country
+            , wg.SogDescription as SogDescription
+            , m.Fsp
+            , wg.Description as WgDescription
+            , m.ServiceLocation
+            , m.ReactionTime
+            , wg.Name as Wg
          
-             , (m.Duration + ' ' + m.ServiceLocation) as ServiceProduct
+            , (m.Duration + ' ' + m.ServiceLocation) as ServiceProduct
          
-             , (sc.ProActive + sc.ServiceTP) as Dcos
-             , null as DcosFreezed
+            , (sc.ProActive + coalesce(sc.ServiceTPManual, sc.ServiceTP)) as Dcos
+            , (sc.ProActive_Approved + coalesce(sc.ServiceTPManual_Approved, sc.ServiceTP_Approved)) as Dcos_Approved
 
-        from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
-        join Hardware.ServiceCostCalculationView sc on sc.MatrixId = m.Id
-        join InputAtoms.WgSogView wg on wg.id = m.WgId
-    )
-    select sc.*
-         , (100 * (sc.Dcos - sc.DcosFreezed) / sc.Dcos) as Bw
-    from cte as sc
+    from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
+    join Hardware.ServiceCostCalculation sc on sc.MatrixId = m.Id
+    join InputAtoms.WgSogView wg on wg.id = m.WgId
 )
 
 GO
@@ -59,11 +55,9 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceProduct', 'Service Product', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'Dcos', 'Actual - Service DCOS', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'Dcos', 'Not approved Service DCOS', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'DcosFreezed', 'Freezed - Service DCOS', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 5, 'Bw', 'b/w %', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'Dcos_Approved', 'Approved Service DCOS', 1, 1);
 
 set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
