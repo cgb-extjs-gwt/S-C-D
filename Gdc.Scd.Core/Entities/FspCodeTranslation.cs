@@ -40,5 +40,8 @@ namespace Gdc.Scd.Core.Entities
 
         public Duration Duration { get; set; }
         public long? DurationId { get; set; }
+
+        public ProActiveSla ProActiveSla { get; set; }
+        public long? ProactiveSlaId { get; set; }
     }
 }

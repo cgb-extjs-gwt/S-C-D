@@ -34,6 +34,7 @@ namespace Gdc.Scd.Import.Por
             Bind<IPorSwDigitLicenseService>().To<PorSwDigitLicenseService>();
             Bind<IHwFspCodeTranslationService>().To<PorHwFspCodeTranslationService>();
             Bind<ISwFspCodeTranslationService>().To<PorSwFspCodeTranslationService>();
+            Bind<IPorSwProActiveService>().To<PorSwProActiveService>();
 
             //Comparators
             Bind(typeof(IEqualityComparer<>)).To(typeof(PorEqualityComparer<>));
@@ -61,7 +62,7 @@ namespace Gdc.Scd.Import.Por
             Kernel.RegisterEntity<Country>();
             Kernel.RegisterEntity<HwFspCodeTranslation>();
             Kernel.RegisterEntity<SwFspCodeTranslation>();
-            Kernel.RegisterEntity<SoftwareProactive>();
+            Kernel.RegisterEntity<ProActiveDigit>();
         }
     }
 }

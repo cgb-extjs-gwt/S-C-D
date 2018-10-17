@@ -22,6 +22,7 @@ namespace Gdc.Scd.Import.Por
         public static IDataImporter<SCD2_SW_Overview> SoftwareImporter { get; private set; }
         public static IDataImporter<SCD2_v_SAR_new_codes> FspCodesImporter { get; private set; }
         public static IDataImporter<SCD2_LUT_TSP> LutCodesImporter { get; private set; }
+        public static IDataImporter<SCD2_SWR_Level> SwProActiveImporter { get; private set; }
         public static DomainService<Pla> PlaService { get; private set; }
         public static DomainService<ServiceLocation> LocationService { get; private set; }
         public static DomainService<ReactionType> ReactionTypeService { get; private set; }
@@ -36,6 +37,7 @@ namespace Gdc.Scd.Import.Por
         public static ImportService<Wg> WgDomainService { get; private set; }
         public static ImportService<SwDigit> DigitService { get; private set; }
         public static ImportService<SwLicense> LicenseService { get; private set; }
+        public static DomainService<ProActiveDigit> ProActiveDigitService { get; set; }
         public static IPorSFabsService SFabService { get; private set; }
         public static IPorSogService SogService { get; private set; }
         public static IPorWgService WgService { get; private set; }
@@ -44,6 +46,7 @@ namespace Gdc.Scd.Import.Por
         public static IPorSwDigitLicenseService SwLicenseDigitService { get; private set; }
         public static IHwFspCodeTranslationService HardwareService { get; private set; }
         public static ISwFspCodeTranslationService SoftwareService { get; private set; }
+        public static IPorSwProActiveService SoftwareProactiveService { get; private set; }
 
 
         static PorService()
@@ -56,6 +59,7 @@ namespace Gdc.Scd.Import.Por
             FspCodesImporter = kernel.Get<IDataImporter<SCD2_v_SAR_new_codes>>();
             LutCodesImporter = kernel.Get<IDataImporter<SCD2_LUT_TSP>>();
             PlaService = kernel.Get<DomainService<Pla>>();
+            SwProActiveImporter = kernel.Get<IDataImporter<SCD2_SWR_Level>>();
 
             //SLA ATOMS
             LocationService = kernel.Get<DomainService<ServiceLocation>>();
@@ -66,12 +70,14 @@ namespace Gdc.Scd.Import.Por
             ProactiveService = kernel.Get<DomainService<ProActiveSla>>();
             CountryService = kernel.Get<DomainService<Country>>();
             CountryGroupService = kernel.Get<DomainService<CountryGroup>>();
+            ProActiveDigitService = kernel.Get<DomainService<ProActiveDigit>>();
 
             SFabDomainService = kernel.Get<ImportService<SFab>>();
             SogDomainService = kernel.Get<ImportService<Sog>>();
             WgDomainService = kernel.Get<ImportService<Wg>>();
             DigitService = kernel.Get<ImportService<SwDigit>>();
             LicenseService = kernel.Get<ImportService<SwLicense>>();
+            
 
             //SERVICES
             SFabService = kernel.Get<IPorSFabsService>();
@@ -82,6 +88,7 @@ namespace Gdc.Scd.Import.Por
             SwLicenseDigitService = kernel.Get<IPorSwDigitLicenseService>();
             HardwareService = kernel.Get<IHwFspCodeTranslationService>();
             SoftwareService = kernel.Get<ISwFspCodeTranslationService>();
+            SoftwareProactiveService = kernel.Get<IPorSwProActiveService>();
         }
 
         public static void UploadSFabs(List<SCD2_ServiceOfferingGroups> sogs, 
@@ -169,6 +176,14 @@ namespace Gdc.Scd.Import.Por
             var success = HardwareService.UploadHardware(model);
 
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);
+        }
+
+        public static bool UploadSwProactiveInfo(SwProActiveDto model, int step)
+        {
+            Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, "Software Proactive Info");
+            var success = SoftwareProactiveService.UploadSwProactiveInfo(model);
+            Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);
+            return success;
         }
 
         public static void UploadSwFspCodes(SwFspCodeDto model, int step)
