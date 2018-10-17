@@ -33,7 +33,7 @@ namespace Gdc.Scd.Import.Core.Impl
             this._logger = logger;
         }
 
-        public int Upload(IEnumerable<TaxAndDutiesDto> items, DateTime modifiedDateTime)
+        public void Upload(IEnumerable<TaxAndDutiesDto> items, DateTime modifiedDateTime)
         {
             var dbItemsTaxAndDuties = this._repositoryTaxAndDuties.GetAll().ToList();
             var dbItemsCountries = this._repositoryCountry.GetAll().Where(c => c.IsMaster).ToList();
@@ -74,8 +74,8 @@ namespace Gdc.Scd.Import.Core.Impl
                     foreach (var entity in taxAndDutyEntities)
                     {
                         entity.TaxAndDuties = item.AverageSumDutiesAndTaxes;
-                        entity.ModifiedDateTime = modifiedDateTime;
                         entity.DeactivatedDateTime = null;
+                        entity.ModifiedDateTime = modifiedDateTime;
                         this._repositoryTaxAndDuties.Save(entity);
                         result++;
                     }
@@ -85,9 +85,9 @@ namespace Gdc.Scd.Import.Core.Impl
                 {
                     var entity = new TaxAndDutiesEntity();
                     entity.CountryId = country.Id;
-                    entity.ModifiedDateTime = modifiedDateTime;
                     entity.CreatedDateTime = modifiedDateTime;
                     entity.DeactivatedDateTime = null;
+                    entity.ModifiedDateTime = modifiedDateTime;
                     entity.TaxAndDuties = item.AverageSumDutiesAndTaxes;
                     this._repositoryTaxAndDuties.Save(entity);
                     result ++;
@@ -95,7 +95,7 @@ namespace Gdc.Scd.Import.Core.Impl
             }
 
             this._repositorySet.Sync();
-            return result;
+            _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, result);
         }
 
         public int Deactivate(DateTime modifiedDateTime)
@@ -108,7 +108,6 @@ namespace Gdc.Scd.Import.Core.Impl
             {
                 _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATING_ENTITY, nameof(TaxAndDutiesEntity), item.CountryId);
                 item.DeactivatedDateTime = modifiedDateTime;
-                item.ModifiedDateTime = modifiedDateTime;
             }
 
             if (itemsToDeactivate.Any())

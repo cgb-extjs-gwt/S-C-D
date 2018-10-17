@@ -27,17 +27,19 @@ namespace Gdc.Scd.Import.Core.Impl
         public void MoveFile(DownloadInfoDto info)
         {
             var filePath = CheckFile(info);
+            var fileName = Path.GetFileName(filePath);
             File.Copy(filePath, 
-                Path.Combine(info.ProcessedFilePath, $"{Path.GetFileNameWithoutExtension(info.File)}_{DateTime.Now.ToShortDateString()}{Path.GetExtension(info.File)}"), true);
+                Path.Combine(info.ProcessedFilePath, $"{Path.GetFileNameWithoutExtension(fileName)}_{DateTime.Now.ToShortDateString()}{Path.GetExtension(fileName)}"), true);
             File.Delete(filePath);
         }
 
         private string CheckFile(DownloadInfoDto info)
         {
-            var filePath = Path.Combine(info.Path, info.File);
-            if (!File.Exists(filePath))
-                throw new FileNotFoundException("File cannot be found", filePath);
-            return filePath;
+            var files = Directory.GetFiles(info.Path, info.File);
+            if (files.Length == 0)
+                throw new FileNotFoundException("File cannot be found", info.File);
+            var file =  files.Select(f => new FileInfo(Path.Combine(info.Path, f))).OrderByDescending(f => f.LastWriteTime).First();
+            return file.FullName;
         }
     }
 }
