@@ -32,6 +32,7 @@ namespace Gdc.Scd.Import.Core.Impl
             this._repositorySet = repositorySet;
             this._repositoryWg = this._repositorySet.GetRepository<Wg>();
             this._repositoryClusterRegion = this._repositorySet.GetRepository<ClusterRegion>();
+            this._repositoryMaterialCost = this._repositorySet.GetRepository<MaterialCostInWarranty>();
             this._logger = logger;
         }
 
@@ -54,7 +55,7 @@ namespace Gdc.Scd.Import.Core.Impl
                 var wg = wgs.FirstOrDefault(w => w.Name.Equals(item.Wg, StringComparison.OrdinalIgnoreCase));
                 if (wg == null)
                 {
-                    _logger.Log(LogLevel.Info, ImportConstants.UNKNOWN_WARRANTY, item.Wg);
+                    _logger.Log(LogLevel.Warn, ImportConstants.UNKNOWN_WARRANTY, item.Wg);
                     continue;
                 }
                 

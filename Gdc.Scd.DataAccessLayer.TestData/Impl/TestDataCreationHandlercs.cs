@@ -1255,7 +1255,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\amber",
                 Delimeter = ";",
-                HasHeader = true
+                HasHeader = true,
+                Culture = "de-DE"
             };
 
             var logistic = new ImportConfiguration
@@ -1268,7 +1269,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\logistics",
                 Delimeter = "|",
-                HasHeader = true
+                HasHeader = true,
+                Culture = "de-DE"
             };
 
             var ebis_afr = new ImportConfiguration
@@ -1281,7 +1283,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\ebis",
                 Delimeter = ";",
-                HasHeader = true
+                HasHeader = true,
+                Culture = "en-US"
             };
 
             var ebis_material_cost = new ImportConfiguration
@@ -1294,7 +1297,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\ebis",
                 Delimeter = ";",
-                HasHeader = true
+                HasHeader = true,
+                Culture = "en-US"
             };
 
             var ebis_install_base = new ImportConfiguration
@@ -1307,7 +1311,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\ebis",
                 Delimeter = ";",
-                HasHeader = true
+                HasHeader = true,
+                Culture = "en-US"
             };
 
             this.repositorySet.GetRepository<ImportConfiguration>().Save(new List<ImportConfiguration>()

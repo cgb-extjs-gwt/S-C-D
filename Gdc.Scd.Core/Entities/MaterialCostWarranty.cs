@@ -22,7 +22,7 @@ namespace Gdc.Scd.Core.Entities
         public long? WgId { get; set; }
         public Wg Wg { get; set; }
 
-        [Column("Region")]
+        [Column("ClusterRegion")]
         public long? RegionId { get; set; }
         public ClusterRegion Region { get; set; }
 

@@ -70,7 +70,8 @@ namespace Gdc.Scd.Import.Core.Impl
                     {
                         Content = downloadedInfo,
                         Delimeter = configuration.Delimeter,
-                        HasHeader = configuration.HasHeader
+                        HasHeader = configuration.HasHeader,
+                        Culture = configuration.Culture
                     };
 
                     _logger.Log(LogLevel.Info, ImportConstants.PARSE_START);

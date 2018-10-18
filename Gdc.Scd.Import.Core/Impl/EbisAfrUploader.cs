@@ -50,14 +50,14 @@ namespace Gdc.Scd.Import.Core.Impl
                 var wg = wgs.FirstOrDefault(w => w.Name.Equals(item.Wg, StringComparison.OrdinalIgnoreCase));
                 if (wg == null)
                 {
-                    _logger.Log(LogLevel.Info, ImportConstants.UNKNOWN_WARRANTY, item.Wg);
+                    _logger.Log(LogLevel.Warn, ImportConstants.UNKNOWN_WARRANTY, item.Wg);
                     continue;
                 }
                 //Fill only non prolongation values. Prolongation must be filled by PSMs
                 var year = years.FirstOrDefault(y => y.Value == item.Year.Value && !y.IsProlongation);
                 if (year == null)
                 {
-                    _logger.Log(LogLevel.Info, ImportConstants.UNKNOWN_YEAR, item.Year.Value);
+                    _logger.Log(LogLevel.Warn, ImportConstants.UNKNOWN_YEAR, item.Year.Value);
                     continue;
                 }
 

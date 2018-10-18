@@ -42,7 +42,7 @@ namespace Gdc.Scd.Import.Core.Impl
                 if (!String.IsNullOrEmpty(row))
                 {
                     var splittedRow = row.Split(info.Delimeter.ToCharArray());
-                    var entity = ParseRow(splittedRow);
+                    var entity = ParseRow(splittedRow, info.Culture);
                     entities.Add(entity);
                 }
             }
@@ -50,7 +50,7 @@ namespace Gdc.Scd.Import.Core.Impl
             return entities;
         }
 
-        private T ParseRow(string[] values)
+        private T ParseRow(string[] values, string inpCulture = "de-DE")
         {
             var entity = new T();
             foreach (PropertyInfo pi in typeof(T).GetProperties())
@@ -65,7 +65,7 @@ namespace Gdc.Scd.Import.Core.Impl
                         if (pi.PropertyType.IsNumericType())
                         {
                             var style = NumberStyles.Number | NumberStyles.AllowDecimalPoint;
-                            var culture = CultureInfo.CreateSpecificCulture("de-DE");
+                            var culture = CultureInfo.CreateSpecificCulture(inpCulture);
                             switch (parseInfoAttr.Format)
                             {
                                 case Enums.Format.Percentage:
