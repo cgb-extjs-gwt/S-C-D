@@ -32,8 +32,6 @@
 
         public const string HardwareSchema = "Hardware";
 
-        public const string SoftwareSchema = "Software";
-
         public const string FspCodeTranslationSchema = "Fsp";
 
         public const string ReferencesSchema = "References";
