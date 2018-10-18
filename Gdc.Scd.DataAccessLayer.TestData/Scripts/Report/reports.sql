@@ -1,6 +1,14 @@
-﻿IF OBJECT_ID('Report.GetMatrixBySla') IS NOT NULL
+﻿IF OBJECT_ID('Report.GetSwResultBySla') IS NOT NULL
+  DROP FUNCTION Report.GetSwResultBySla;
+go 
+
+IF OBJECT_ID('Report.GetMatrixBySla') IS NOT NULL
   DROP FUNCTION Report.GetMatrixBySla;
 go 
+
+IF OBJECT_ID('SoftwareSolution.ServiceCostCalculationView', 'V') IS NOT NULL
+  DROP VIEW SoftwareSolution.ServiceCostCalculationView;
+go
 
 IF OBJECT_ID('Hardware.ServiceCostCalculationView', 'V') IS NOT NULL
   DROP VIEW Hardware.ServiceCostCalculationView;
@@ -187,4 +195,50 @@ RETURN (
 )
 GO
 
+CREATE view SoftwareSolution.ServiceCostCalculationView as
+    select  sc.CountryId
+          , c.Name as Country
+          , c.CountryGroup
+          , sc.YearId
+          , y.Name as Year
+          , y.Value as YearValue
+          , sc.AvailabilityId
+          , av.Name as Availability
+          , sc.SogId
+          , sog.Sog
+          , sog.SogDescription
+          , sog.Description
+      
+          , sc.DealerPrice_Approved as DealerPrice
+          , sc.MaintenanceListPrice_Approved as MaintenanceListPrice
+          , sc.ProActive_Approved as ProActive
+          , sc.Reinsurance_Approved as Reinsurance
+          , sc.ServiceSupport_Approved as ServiceSupport
+          , sc.TransferPrice_Approved as TransferPrice
 
+    from SoftwareSolution.ServiceCostCalculation sc
+    join Dependencies.Availability av on av.Id = sc.AvailabilityId
+    join InputAtoms.CountryView c on c.id = sc.CountryId
+    join Dependencies.Year y on y.id = sc.YearId
+    left join InputAtoms.WgSogView sog on sog.id = sc.SogId
+
+GO
+
+CREATE FUNCTION Report.GetSwResultBySla
+(
+    @cnt bigint,
+    @sog bigint,
+    @av bigint,
+    @year bigint
+)
+RETURNS TABLE 
+AS
+RETURN (
+    select sc.*
+    from SoftwareSolution.ServiceCostCalculationView sc
+    where sc.CountryId = @cnt
+      and sc.SogId = @sog
+      and (@av is null or sc.AvailabilityId = @av)
+      and (@year is null or sc.YearId = @year)
+)
+GO
