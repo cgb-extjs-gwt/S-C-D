@@ -3,15 +3,10 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.CapabilityMatrix;
-using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Ninject.Modules;
 using Ninject.Web.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer
 {
@@ -23,6 +18,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<ICostEditorService>().To<CostEditorService>().InRequestScope();
             Bind<ICapabilityMatrixService>().To<CapabilityMatrixService>().InRequestScope();
             Bind<ICalculationService>().To<CalculationService>().InRequestScope();
+            Bind<IReportService>().To<ReportService>().InRequestScope();
             Bind<IUserService>().To<UserService>().InRequestScope();
             Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InRequestScope();
             Bind<IAvailabilityFeeAdminService>().To<AvailabilityFeeAdminService>().InRequestScope();
@@ -31,7 +27,10 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InRequestScope();
             Bind<IQualityGateSevice>().To<QualityGateSevice>().InRequestScope();
             Bind<IActiveDirectoryService>().To<ActiveDirectoryService>().InRequestScope();
+            Bind<ITableViewService>().To<TableViewService>().InRequestScope();
+            Bind<IUserRoleService>().To<UserRoleService>().InRequestScope();
 
+            /*----------dictionaries-----------*/
             Kernel.RegisterEntity<ClusterRegion>();
             Kernel.RegisterEntity<Region>();
             Kernel.RegisterEntity<Country>();
@@ -47,20 +46,10 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<ReactionTimeAvalability>();
             Kernel.RegisterEntity<ReactionTimeTypeAvalability>();
             Kernel.RegisterEntity<ServiceLocation>();
-            Kernel.RegisterEntity<CapabilityMatrix>();
-            Kernel.RegisterEntity<CapabilityMatrixRule>();
-            Kernel.RegisterEntity<CapabilityMatrixAllowView>();
-            Kernel.RegisterEntity<AdminAvailabilityFee>();
-            Kernel.RegisterEntity<CapabilityMatrixCountryAllowView>();
-            Kernel.RegisterEntity<RoleCode>();
-            Kernel.RegisterEntity<HardwareCalculationResult>();
-            Kernel.RegisterEntity<SoftwareCalculationResult>();
             Kernel.RegisterEntity<Currency>();
             Kernel.RegisterEntity<ExchangeRate>();
             Kernel.RegisterEntity<YearAvailability>();
             Kernel.RegisterEntity<ClusterPla>();
-            Kernel.RegisterEntity<Role>();
-            Kernel.RegisterEntity<UserRole>();
             Kernel.RegisterEntity<ProActiveSla>();
             Kernel.RegisterEntity<SwDigit>();
             Kernel.RegisterEntity<Sog>();
@@ -72,6 +61,23 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<TaxAndDutiesEntity>();
             Kernel.RegisterEntity<ImportConfiguration>();
             Kernel.RegisterEntity<ProActiveDigit>();
+            Kernel.RegisterEntity<AvailabilityFee>();
+            /*----------admin---------*/
+            Kernel.RegisterEntity<AdminAvailabilityFee>();
+            Kernel.RegisterEntity<Role>();
+            Kernel.RegisterEntity<RoleCode>();
+            Kernel.RegisterEntity<UserRole>();
+
+            /*---------domain business logic------------*/
+            Kernel.RegisterEntity<CapabilityMatrix>();
+            Kernel.RegisterEntity<CapabilityMatrixRule>();
+            Kernel.RegisterEntity<HardwareCalculationResult>();
+            Kernel.RegisterEntity<SoftwareCalculationResult>();
+
+            /*---------reports----------*/
+            Kernel.RegisterEntity<Report>();
+            Kernel.RegisterEntity<ReportColumn>();
+            Kernel.RegisterEntity<ReportFilter>();
         }
     }
 }

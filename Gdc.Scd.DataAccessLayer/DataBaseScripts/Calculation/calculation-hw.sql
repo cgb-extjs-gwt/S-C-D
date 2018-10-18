@@ -1,3 +1,11 @@
+alter table Hardware.ServiceCostCalculation
+   drop column DealerPrice, DealerPrice_Approved;
+
+alter table Hardware.ServiceCostCalculation
+   add DealerPrice as (ListPrice - (ListPrice * DealerDiscount / 100)),
+       DealerPrice_Approved as (ListPrice_Approved - (ListPrice_Approved * DealerDiscount_Approved / 100));
+go
+
 IF OBJECT_ID('Hardware.GetCalcResult') IS NOT NULL
   DROP FUNCTION Hardware.GetCalcResult;
 go 
@@ -566,11 +574,11 @@ CREATE VIEW [Hardware].[FieldServiceCostView] AS
 GO
 
 CREATE VIEW Atom.TaxAndDutiesVIEW as
-    select Wg,
-           Country,
+    select Country,
            (TaxAndDuties / 100) as TaxAndDuties, 
            (TaxAndDuties_Approved / 100) as TaxAndDuties_Approved 
     from Atom.TaxAndDuties
+    where DeactivatedDateTime is null
 GO
 
 CREATE VIEW [InputAtoms].[WgView] WITH SCHEMABINDING as
@@ -805,7 +813,7 @@ CREATE VIEW [Hardware].[ServiceSupportCostView] as
 
     from Hardware.ServiceSupportCost ssc
     join InputAtoms.Country c on c.Id = ssc.Country
-    join InputAtoms.WgVIEW wg on wg.ClusterPla = ssc.ClusterPla
+    join InputAtoms.WgView wg on wg.ClusterPla = ssc.ClusterPla
     left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 GO
 
@@ -883,7 +891,8 @@ with ProActiveCte as
             sla.CentralExecutionShcReportRepetition) as CentralExecutionReport_Approved
 
     from Hardware.ProActive pro
-    join Dependencies.ProActiveSla sla on sla.id = pro.ProActiveSla
+    left join Fsp.HwFspCodeTranslation fsp on fsp.WgId = pro.Wg
+    left join Dependencies.ProActiveSla sla on sla.id = fsp.ProactiveSlaId
 )
 select pro.Country,
        pro.Wg,
@@ -1067,7 +1076,7 @@ RETURN
 
         LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.Wg = m.WgId
 
-        LEFT JOIN Atom.TaxAndDutiesView tax on tax.Wg = m.WgId AND tax.Country = m.CountryId
+        LEFT JOIN Atom.TaxAndDutiesView tax on tax.Country = m.CountryId
 
         LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 

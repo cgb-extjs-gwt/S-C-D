@@ -1,15 +1,14 @@
-﻿using Gdc.Scd.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
-    interface IUserRoleService
+    public interface IUserRoleService 
     {
         bool IsUserInRole(User user, Role role, Country country);
+
         List<Role> GetUserRoles(User user, Country country);
+
+        IEnumerable<Role> GetCurrentUserRoles();
     }
 }

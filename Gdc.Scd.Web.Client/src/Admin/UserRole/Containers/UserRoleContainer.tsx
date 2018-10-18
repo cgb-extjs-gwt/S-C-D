@@ -53,15 +53,13 @@ export default class RoleCodesContainer extends React.Component {
         this.filter = this.refs.filter as UserRoleFilterPanel;
 
         Promise.all([
-            this.srv.getUsers(),
             this.srv.getRoles(),
             this.srv.getCountries()
         ]).then(x => {
             this.setState({
                 ...this.state,
-                users: x[0].sort(this.compare),
-                roles: x[1].sort(this.compare),
-                countries: x[2].sort(this.compare),
+                roles: x[0].sort(this.compare),
+                countries: x[1].sort(this.compare),
                 storeCountryReady: true,
                 storeRoleReady:true
             });
@@ -205,7 +203,7 @@ export default class RoleCodesContainer extends React.Component {
                     ref="filter"
                     docked="right"
                     onSearch={this.onSearch.bind(this)}
-                    users={this.state.users}
+                    storeUser={this.storeUser}
                     roles={this.state.roles}
                     countries={this.state.countries}
                 />

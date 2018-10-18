@@ -1,12 +1,12 @@
 ﻿import { DictService } from "../../Dict/Services/DictService";
 import { IDictService } from "../../Dict/Services/IDictService";
-import { FakeReportService } from "../fakes/FakeReportService";
 import { IReportService } from "./IReportService";
+import { ReportService } from "./ReportService";
 
 export class ReportFactory {
 
     public static getReportService(): IReportService {
-        return new FakeReportService();
+        return new ReportService();
     }
 
     public static getDictService(): IDictService {

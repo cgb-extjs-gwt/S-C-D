@@ -27,7 +27,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateQueryColumnInfo<MinSqlBuilder>(columnName, tableName, alias);
         }
 
-        public static QueryColumnInfo Count(string columnName, bool isDisctinct = false, string tableName = null, string alias = null)
+        public static QueryColumnInfo Count(string columnName = null, bool isDisctinct = false, string tableName = null, string alias = null)
         {
             return new QueryColumnInfo
             {

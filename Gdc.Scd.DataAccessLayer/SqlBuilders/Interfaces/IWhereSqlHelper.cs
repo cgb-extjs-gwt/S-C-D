@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces
@@ -10,5 +11,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces
         TResult Where(ConditionHelper condition);
 
         TResult Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null);
+
+        TResult Where(IDictionary<ColumnInfo, IEnumerable<object>> filter);
     }
 }

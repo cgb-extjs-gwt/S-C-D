@@ -1,14 +1,8 @@
-﻿using Gdc.Scd.Core.Attributes;
-using Gdc.Scd.Core.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace Gdc.Scd.Core.Entities
 {
-    public class FspCodeTranslation : NamedId
+    public abstract class FspCodeTranslation : NamedId
     {
         public string ServiceDescription { get; set; }
 

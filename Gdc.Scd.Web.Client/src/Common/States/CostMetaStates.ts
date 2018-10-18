@@ -1,6 +1,22 @@
 import { NamedId } from "./CommonStates";
 
-export interface InputLevelMeta extends NamedId{
+export interface CostElementMeta extends NamedId {
+    dependency: NamedId
+    description: string
+    inputLevels: InputLevelMeta[]
+    regionInput: NamedId
+    inputType: InputType
+    typeOptions: {
+        Type: FieldType
+    }
+}
+
+export interface CostBlockMeta extends NamedId {
+    applicationIds: string[]
+    costElements: CostElementMeta[]
+}
+
+export interface InputLevelMeta extends NamedId {
     levelNumer: number
     isFilterLoading: boolean
 }
@@ -14,28 +30,8 @@ export enum InputType {
 
 export enum FieldType {
     Reference = "Reference",
-    Double = "Double"
-}
-
-export interface InputLevelMeta extends NamedId {
-    levelNumer: number
-    isFilterLoading: boolean
-}
-
-export interface CostElementMeta extends NamedId{
-    dependency: NamedId
-    description: string
-    inputLevels: InputLevelMeta[]
-    regionInput: NamedId
-    inputType: InputType
-    typeOptions: {
-        Type: FieldType
-    }
-}
-
-export interface CostBlockMeta extends NamedId{
-    applicationIds: string[]
-    costElements: CostElementMeta[]
+    Double = "Double",
+    Flag = "Flag"
 }
 
 export interface CostMetaData{

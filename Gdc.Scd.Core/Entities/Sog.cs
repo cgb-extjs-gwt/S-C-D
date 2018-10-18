@@ -1,7 +1,7 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
-using Gdc.Scd.Core.Interfaces;
+﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities
 {

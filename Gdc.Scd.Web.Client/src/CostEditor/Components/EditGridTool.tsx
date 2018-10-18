@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { FieldType } from "../States/CostEditorStates";
 import { EditItem } from "../States/CostBlockStates";
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, Dialog, Container} from '@extjs/ext-react';
 import { NamedId } from '../../Common/States/CommonStates';
 import { HistoryValuesGridContainer } from './HistoryValuesGridContainer';
 import { ValueColumnProps, EditGrid, EditGridProps } from './EditGrid';
 import { QualityGateWindowContainer } from './QualityGateWindowContainer';
+import { SaveToolbar } from '../../Common/Components/SaveToolbar';
 
 Ext.require([
     'Ext.grid.plugin.CellEditing', 
@@ -71,26 +71,19 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                     onSelected={this.onSelectGrid}
                 />
 
-                <Toolbar docked="bottom">
-                    <Button 
-                        text="Cancel" 
-                        flex={1} 
-                        disabled={!props.isEnableClear}
-                        handler={() => this.showClearDialog()}
-                    />
-                    <Button 
-                        text="Save" 
-                        flex={1} 
-                        disabled={!props.isEnableSave}
-                        handler={() => this.showSaveDialog(false)}
-                    />
+                <SaveToolbar 
+                    isEnableClear={props.isEnableClear} 
+                    isEnableSave={props.isEnableSave}
+                    onCancel={() => this.props.onCleared()}
+                    onSave={() => this.props.onSaving(false)}
+                >
                     <Button 
                         text="Save and send for approval" 
                         flex={1} 
                         disabled={!props.isEnableSave}
-                        handler={() => this.showSaveDialog(true)}
+                        handler={() => this.props.onSaving(true)}
                     />
-                </Toolbar>
+                </SaveToolbar>
 
                 {this.getHistoryWindow()}
 
@@ -99,25 +92,6 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
         );
     }
 
-    private showSaveDialog(forApproval: boolean) {
-        const { onSaving } = this.props;
-    
-        Ext.Msg.confirm(
-          'Saving changes', 
-          'Do you want to save the changes?',
-          (buttonId: string) => buttonId == 'yes' && onSaving && onSaving(forApproval)
-        );
-    }
-    
-    private showClearDialog() {
-        const { onCleared } = this.props;
-
-        Ext.Msg.confirm(
-            'Clearing changes', 
-            'Do you want to clear the changes?',
-            (buttonId: string) => buttonId == 'yes' && onCleared && onCleared()
-        );
-    }
 
     private getHistoryWindow() {
         const { isVisibleHistoryWindow, selectedItems } = this.state;

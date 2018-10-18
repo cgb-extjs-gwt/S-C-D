@@ -1,9 +1,9 @@
 import * as React from "react";
 import { Grid, SelectField, Column, Container, CheckBoxField, CheckColumn, NumberField } from "@extjs/ext-react";
-import { FieldType } from "../States/CostEditorStates";
 import { EditItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { large, small } from "../../responsiveFormulas";
+import { FieldType } from "../../Common/States/CostMetaStates";
 
 export interface ValueColumnProps {
     title: string

@@ -1,12 +1,5 @@
-﻿using Gdc.Scd.Core.Attributes;
-using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Core.Meta.Constants;
-using System;
-using System.Collections.Generic;
+﻿using Gdc.Scd.Core.Meta.Constants;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Core.Entities
 {
@@ -25,5 +18,9 @@ namespace Gdc.Scd.Core.Entities
 
         public Sog Sog { get; set; }
         public long SogId { get; set; }
+
+        public ProActiveSla ProActiveSla { get; set; }
+        public long? ProactiveSlaId { get; set; }
+
     }
 }

@@ -2,6 +2,7 @@ import { CostEditorState } from "../../CostEditor/States/CostEditorStates";
 import { CostMetaData } from "../../Common/States/CostMetaStates";
 import { ApprovalCostElementsLayoutState } from "../../CostApproval/States/ApprovalCostElementsLayoutState";
 import { OwnApprovalCostElementsLayoutState } from "../../CostApproval/States/OwnApprovalCostElementsLayoutState";
+import { TableViewState } from "../../TableView/States/TableViewState";
 
 export interface AppState {
     isLoading: boolean
@@ -18,6 +19,7 @@ export interface CommonState {
     pages: {
         costEditor: CostEditorState,
         costApproval: ApprovalCostElementsLayoutState,
-        ownCostApproval: OwnApprovalCostElementsLayoutState
+        ownCostApproval: OwnApprovalCostElementsLayoutState,
+        tableView: TableViewState
     }
 }

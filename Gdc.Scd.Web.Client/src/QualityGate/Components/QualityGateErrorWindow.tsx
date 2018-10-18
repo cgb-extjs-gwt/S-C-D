@@ -6,10 +6,12 @@ import { QualityGateErrorContainer, QualityGateErrorContainerProps } from "./Qua
 export class QualityGateErrorWindow extends React.Component<QualityGateErrorContainerProps> {
     public render() {
         const { errors } = this.props;
+        const hasErrors = errors && errors.length > 0;
 
         return (
+            hasErrors &&
             <Dialog 
-                displayed={errors && errors.length > 0} 
+                displayed={hasErrors} 
                 title="Quality gate errors" 
                 maximizable
                 resizable={{
@@ -21,7 +23,7 @@ export class QualityGateErrorWindow extends React.Component<QualityGateErrorCont
                 layout="fit"
                 closeAction="destroy"
             >
-                <QualityGateErrorContainer {...this.props} />
+                <QualityGateErrorContainer {...(this.props as any)}  />
             </Dialog>
         );
     }

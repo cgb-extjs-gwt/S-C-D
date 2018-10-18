@@ -11,6 +11,8 @@ namespace Gdc.Scd.Core.Entities.Calculation
         [Column("MatrixId")]
         public long Id { get; set; }
 
+        public CapabilityMatrix.CapabilityMatrix Matrix { get; set; }
+
         public double? FieldServiceCost { get; set; }
         public double? FieldServiceCost_Approved { get; set; }
 
@@ -63,6 +65,15 @@ namespace Gdc.Scd.Core.Entities.Calculation
         public double? ServiceTPManual { get; set; }
         public double? ServiceTPManual_Approved { get; set; }
 
-        public CapabilityMatrix.CapabilityMatrix Matrix { get; set; }
+        public double? ListPrice { get; set; }
+        public double? ListPrice_Approved { get; set; }
+
+        public double? DealerDiscount { get; set; }
+        public double? DealerDiscount_Approved { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public double? DealerPrice { get; private set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public double? DealerPrice_Approved { get; private set; }
     }
 }
