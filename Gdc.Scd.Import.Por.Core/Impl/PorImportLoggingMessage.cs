@@ -15,6 +15,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         public const string UNKNOWN_LICENSE = "{0} was not uploaded as SW License {1} does not exist in the database";
         public const string UNKNOWN_COUNTRY_DIGIT = "{0} was not uploaded as Country code {1} does not exist in the database";
         public const string UNKNOW_WG = "{0} was not uploaded as WG {1} does not exist in the database";
+        public const string UNKNOWN_PROACTIVE = "{0} was not uploaded as ProActive {1} does not exist in the database";
         public const string ADD_STEP_BEGIN = "Adding or updating new {0}s";
         public const string ADD_STEP_END = "Finish adding or updating process. {0} rows affected.";
         public const string DEACTIVATE_STEP_BEGIN = "Deactivating {0}s";
@@ -30,6 +31,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         public const string UPLOAD_HW_CODES_ENDS = "Uploading is ended. Code: {0}";
         public const string INCORRECT_SOFTWARE_FSPCODE_DIGIT_MAPPING = "Mapping between FSP Code {0} and Digit. ({1}) digits were found.";
         public const string SOG_NOT_EXISTS = "SOG {0} does not exist in the SCD.";
+        public const string CHECKING_SW_PROACTIVE = "Checking SW Proactive Info for SW Digit {0}";
         public const string DELETE_BEGIN = "Deletion {0} is started...";
         public const string DELETE_END = "Deletion ended.";
     }

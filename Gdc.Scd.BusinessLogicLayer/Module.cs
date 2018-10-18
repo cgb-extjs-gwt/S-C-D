@@ -59,7 +59,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<HwFspCodeTranslation>();
             Kernel.RegisterEntity<SwFspCodeTranslation>();
             Kernel.RegisterEntity<ImportConfiguration>();
-
+            Kernel.RegisterEntity<ProActiveDigit>();
             /*----------cost block entities---------*/
             Kernel.RegisterEntity<AvailabilityFee>();
             Kernel.RegisterEntity<TaxAndDutiesEntity>();
