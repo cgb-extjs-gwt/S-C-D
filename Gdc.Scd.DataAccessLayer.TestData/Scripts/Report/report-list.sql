@@ -31,7 +31,7 @@
 ('SW-Service-Price-List-detailed', 'Software services price list detailed', 0, 0, 'Report.SwServicePriceListDetail'),
 
 --Logistics reports
-('Logistic-cost-country', 'Logistics cost report local per country', 1,  0, ''),
+('Logistic-cost-country', 'Logistics cost report local per country', 1,  0, 'Report.LogisticCostCountry'),
 ('Logistic-cost-central', 'Logistics cost report central with all country values', 1,  0, ''),
 
 ('Logistic-cost-input-country', 'Logistics Cost Report input currency local per country', 1,  0, ''),
