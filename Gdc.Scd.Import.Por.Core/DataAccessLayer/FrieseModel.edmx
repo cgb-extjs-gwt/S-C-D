@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="FrieseModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="FrieseModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <!--Errors Found During Generation:
 warning 6002: The table/view 'friese.dbo.SCD2_LUT_TSP' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="SCD2_LUT_TSP">
@@ -70,6 +70,18 @@ warning 6002: The table/view 'friese.dbo.SCD2_SW_Overview' does not have a prima
           <Property Name="SOG" Type="nvarchar" MaxLength="255" />
           <Property Name="ServiceFabGrp" Type="nvarchar" MaxLength="255" />
           <Property Name="SCD_ServiceType" Type="varchar" MaxLength="250" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'friese.dbo.SCD2_SWR_Level' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="SCD2_SWR_Level">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Beschreibung" Type="nvarchar" MaxLength="250" />
+          <Property Name="Proactive" Type="nvarchar" MaxLength="250" />
+          <Property Name="Servicelevel" Type="nvarchar" MaxLength="255" />
+          <Property Name="SW_level_digit_ReactiveMapping" Type="nvarchar" MaxLength="50" />
         </EntityType>
         <!--Errors Found During Generation:
 warning 6002: The table/view 'friese.dbo.SCD2_v_SAR_new_codes' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
@@ -178,6 +190,15 @@ warning 6002: The table/view 'friese.dbo.SCD2_WarrantyGroups' does not have a pr
     [SCD2_SW_Overview].[SCD_ServiceType] AS [SCD_ServiceType]
     FROM [dbo].[SCD2_SW_Overview] AS [SCD2_SW_Overview]</DefiningQuery>
           </EntitySet>
+          <EntitySet Name="SCD2_SWR_Level" EntityType="Self.SCD2_SWR_Level" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [SCD2_SWR_Level].[ID] AS [ID], 
+    [SCD2_SWR_Level].[Beschreibung] AS [Beschreibung], 
+    [SCD2_SWR_Level].[Proactive] AS [Proactive], 
+    [SCD2_SWR_Level].[Servicelevel] AS [Servicelevel], 
+    [SCD2_SWR_Level].[SW_level_digit_ReactiveMapping] AS [SW_level_digit_ReactiveMapping]
+    FROM [dbo].[SCD2_SWR_Level] AS [SCD2_SWR_Level]</DefiningQuery>
+          </EntitySet>
           <EntitySet Name="SCD2_v_SAR_new_codes" EntityType="Self.SCD2_v_SAR_new_codes" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
     [SCD2_v_SAR_new_codes].[Service_Code] AS [Service_Code], 
@@ -224,8 +245,7 @@ warning 6002: The table/view 'friese.dbo.SCD2_WarrantyGroups' does not have a pr
     FROM [dbo].[SCD2_WarrantyGroups] AS [SCD2_WarrantyGroups]</DefiningQuery>
           </EntitySet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="FrieseModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -345,7 +365,18 @@ warning 6002: The table/view 'friese.dbo.SCD2_WarrantyGroups' does not have a pr
           <EntitySet Name="SCD2_SW_Overview" EntityType="Self.SCD2_SW_Overview" />
           <EntitySet Name="SCD2_v_SAR_new_codes" EntityType="Self.SCD2_v_SAR_new_codes" />
           <EntitySet Name="SCD2_WarrantyGroups" EntityType="Self.SCD2_WarrantyGroups" />
+          <EntitySet Name="SCD2_SWR_Level" EntityType="FrieseModel.SCD2_SWR_Level" />
         </EntityContainer>
+        <EntityType Name="SCD2_SWR_Level">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Beschreibung" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Proactive" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Servicelevel" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SW_level_digit_ReactiveMapping" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -456,6 +487,17 @@ warning 6002: The table/view 'friese.dbo.SCD2_WarrantyGroups' does not have a pr
                 <ScalarProperty Name="Service_Types" ColumnName="Service Types" />
                 <ScalarProperty Name="SOG" ColumnName="SOG" />
                 <ScalarProperty Name="SCD_ServiceType" ColumnName="SCD_ServiceType" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SCD2_SWR_Level">
+            <EntityTypeMapping TypeName="FrieseModel.SCD2_SWR_Level">
+              <MappingFragment StoreEntitySet="SCD2_SWR_Level">
+                <ScalarProperty Name="SW_level_digit_ReactiveMapping" ColumnName="SW_level_digit_ReactiveMapping" />
+                <ScalarProperty Name="Servicelevel" ColumnName="Servicelevel" />
+                <ScalarProperty Name="Proactive" ColumnName="Proactive" />
+                <ScalarProperty Name="Beschreibung" ColumnName="Beschreibung" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

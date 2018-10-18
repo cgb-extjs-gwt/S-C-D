@@ -78,6 +78,9 @@
     <Compile Include="DataAccessLayer\SCD2_ServiceOfferingGroups.cs">
       <DependentUpon>FrieseModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="DataAccessLayer\SCD2_SWR_Level.cs">
+      <DependentUpon>FrieseModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="DataAccessLayer\SCD2_SW_Overview.cs">
       <DependentUpon>FrieseModel.tt</DependentUpon>
     </Compile>
@@ -92,6 +95,7 @@
     <Compile Include="Dto\SlaDictsDto.cs" />
     <Compile Include="Dto\SlaDto.cs" />
     <Compile Include="Dto\SwFspCodeDto.cs" />
+    <Compile Include="Dto\SwProActiveDto.cs" />
     <Compile Include="Extensions\EntityExtensions.cs" />
     <Compile Include="Extensions\FspCodeExtensions.cs" />
     <Compile Include="Impl\ImportHelper.cs" />
@@ -106,6 +110,7 @@
     <Compile Include="Impl\PorSwDigitService.cs" />
     <Compile Include="Impl\PorSwFspCodeTranslationService.cs" />
     <Compile Include="Impl\PorSwLicenseService.cs" />
+    <Compile Include="Impl\PorSwProActiveService.cs" />
     <Compile Include="Impl\PorWgService.cs" />
     <Compile Include="Interfaces\IDataImporter.cs" />
     <Compile Include="Interfaces\IHwFspCodeTranslationService.cs" />
@@ -114,6 +119,7 @@
     <Compile Include="Interfaces\IPorSwDigitLicenseService.cs" />
     <Compile Include="Interfaces\IPorSwDigitService.cs" />
     <Compile Include="Interfaces\IPorSwLicenseService.cs" />
+    <Compile Include="Interfaces\IPorSwProActiveService.cs" />
     <Compile Include="Interfaces\IPorWgService.cs" />
     <Compile Include="Interfaces\ISwFspCodeTranslationService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

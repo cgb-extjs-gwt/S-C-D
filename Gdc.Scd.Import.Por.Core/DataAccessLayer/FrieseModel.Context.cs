@@ -30,5 +30,6 @@ namespace Gdc.Scd.Import.Por.Core.DataAccessLayer
         public virtual DbSet<SCD2_SW_Overview> SCD2_SW_Overview { get; set; }
         public virtual DbSet<SCD2_v_SAR_new_codes> SCD2_v_SAR_new_codes { get; set; }
         public virtual DbSet<SCD2_WarrantyGroups> SCD2_WarrantyGroups { get; set; }
+        public virtual DbSet<SCD2_SWR_Level> SCD2_SWR_Level { get; set; }
     }
 }
