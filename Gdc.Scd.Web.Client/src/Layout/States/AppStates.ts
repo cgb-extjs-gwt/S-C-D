@@ -15,7 +15,6 @@ export interface Role {
 export interface AppState {
     currentPage: {
         id: string
-        title: string
     }
     appMetaData: CostMetaData
     userRoles: Role[]

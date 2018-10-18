@@ -11,7 +11,6 @@ export const APP_LOAD_DATA = "APP.LOAD.DATA";
 
 export interface OpenPageAction extends Action<string> {
     id: string
-    title: string
 }
 
 export interface PageInitAction<T = any> extends Action<string> {
@@ -26,10 +25,9 @@ export interface LoadingAction extends Action<string> {
 export interface LoadingAppDataAction extends CommonAction<AppData>{
 }
 
-export const openPage = (id: string, title: string) => (<OpenPageAction>{
+export const openPage = (id: string) => (<OpenPageAction>{
     type: APP_PAGE_OPEN,
-    id,
-    title
+    id
 })
 
 export const pageInit = (pageId: string, data) => (<PageInitAction>{

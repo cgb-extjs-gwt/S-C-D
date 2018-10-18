@@ -10,14 +10,14 @@ import { AppState } from "../States/AppStates";
 
 const defaultState = () => (<AppState>{
     appMetaData: null,
-    currentPage: null
+    currentPage: null,
+    userRoles: null
 });
 
 const openPage: Reducer<AppState, OpenPageAction> = (state, action) => ({
     ...state,
     currentPage: {
         id: action.id,
-        title: action.title
     }
 })
 
