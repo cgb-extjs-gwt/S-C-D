@@ -32,7 +32,7 @@
 
 --Logistics reports
 ('Logistic-cost-country', 'Logistics cost report local per country', 1,  0, 'Report.LogisticCostCountry'),
-('Logistic-cost-central', 'Logistics cost report central with all country values', 1,  0, ''),
+('Logistic-cost-central', 'Logistics cost report central with all country values', 1,  0, 'Report.LogisticCostCentral'),
 
 ('Logistic-cost-input-country', 'Logistics Cost Report input currency local per country', 1,  0, ''),
 ('Logistic-cost-input-central', 'Logistics Cost Report input currency central with all country values', 1,  0, ''),
