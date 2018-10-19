@@ -21,7 +21,6 @@ import NavMenu from './NavMenu';
 import { TableViewContainer } from '../../TableView/Components/TableViewContainer';
 import { MenuItem } from '../../Common/States/ExtStates';
 import { NavMenuContainer } from './NavMenuContainer';
-import { Routes } from './Routes';
 
 Ext.require(['Ext.data.ChainedStore'])
 
@@ -39,8 +38,6 @@ export interface RouteItem {
 
 export interface LayoutProps extends LayoutActions {
     title: string
-    //history: any
-    //location: any
     routes: RouteItem[]
     menuItems: MenuItem[]
 }
@@ -64,25 +61,13 @@ export class Layout extends React.Component<LayoutProps> {
                 </Panel>
 
                 <Panel title={title} layout="fit">
-                    <Routes routes={routes}/>
-                    {/* <Switch>
-                        <Route path={buildComponentUrl("/")} component={CostEditorContainer} exact/>
-                        <Route path={buildComponentUrl("/pivot")} component={ScdPivotGrid}/>
-                        <Route path={buildComponentUrl("/input-cost-elements")} component={CostEditorContainer}/>
-                        <Route path={buildComponentUrl("/table-view")} component={TableViewContainer}/>
-                        <Route path={buildComponentUrl("/admin/country-management")} component={ CountryGrid }/>
-                        <Route path={buildComponentUrl("/cost-approval")} component={ ApprovalCostElementsLayout} />
-                        <Route path={buildComponentUrl("/own-cost-approval")} component={ OwnApprovalCostElementsLayout} />
-                        <Route path={buildComponentUrl("/report")} exact component={CalcResultView} />
-                        <Route path={buildComponentUrl("/report/all")} exact component={ReportListView} />
-                        <Route path={buildComponentUrl("/report/:name")} exact component={ReportView} />
-                        <Route path={buildComponentUrl("/capability-matrix")} exact component={CapabilityMatrixView} />
-                        <Route path={buildComponentUrl("/capability-matrix/edit")} component={CapabilityMatrixEditView} />
-                        <Route path={buildComponentUrl("/admin/availability-fee")} component={AvailabilityFeeAdminGrid} />
-                        <Route path={buildComponentUrl("/admin/role-code-management")} component={RoleCodesGrid} />
-                        <Route path={buildComponentUrl("/admin/warranty-group-management")} component={WarrantyGroupGrid} />
-                        <Route path={buildComponentUrl("/admin/user-role")} component={UserRoleContainer} />
-                    </Switch> */}
+                    <Switch>
+                        {
+                            routes.map(route => (
+                                <Route key={route.path} {...route} />
+                            ))
+                        }
+                    </Switch>
                 </Panel>
             </Container>
         );

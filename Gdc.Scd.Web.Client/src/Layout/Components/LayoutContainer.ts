@@ -133,12 +133,6 @@ const buildRouteItems = (routeMenuItems: RouteMenuItem[]) => {
     return routes;
 }
 
-// const buildDefaultRouteItem = ([firstRouteItem]: RouteItem[]) => (<RouteItem>{
-//     ...firstRouteItem,
-//     exact: true,
-//     path: buildComponentUrl('/')
-// })
-
 const findMenuItem = (menuItems: MenuItem[], id: string) => {
     let result: MenuItem = null;
 
@@ -174,10 +168,6 @@ const buildMapStateToProps = () => {
 
             menuItems = buildMenuItems(routeMenuItems);
             routes = buildRouteItems(routeMenuItems);
-            // routes = [
-            //     buildDefaultRouteItem(routes),
-            //     ...routes
-            // ]
         }
 
         let title: string;
@@ -211,64 +201,5 @@ const containerFactory = connect<LayoutProps, LayoutActions, LayoutContainerProp
         areStatesEqual: (nextState, prevState) => nextState.app == prevState.app
     }
 );
-
-
-
-// const containerFactory = () => {
-//     let prevUserRoles: Role[];
-//     let menuItems: MenuItem[] = [];
-//     let routes: RouteItem[] = [];
-
-//     const mapStateToProps = ({ app }: CommonState) => {
-//         if (app.userRoles != prevUserRoles) {
-//             prevUserRoles = app.userRoles;
-
-//             const permissions = getUserPermissions(app.userRoles);
-//             const routeMenuItems = filterByPermissions(permissions, buildRouteMenuItems());
-
-//             menuItems = buildMenuItems(routeMenuItems);
-//             routes = buildRouteItems(routeMenuItems);
-//             routes = [
-//                 buildDefaultRouteItem(routes),
-//                 ...routes
-//             ]
-//         }
-
-//         return <LayoutProps>{
-//             title: app.currentPage && app.currentPage.title,
-//             menuItems,
-//             routes
-//         }
-//     }
-
-//     const mapDispatchToProps = (dispatch: Dispatch) => (<LayoutActions>{ 
-//         onInit: () => { 
-//             dispatch(loadMetaDataFromServer());
-            
-//             const menuItem = findMenuItem(menuItems, window.location.pathname);
-
-//             // const node = 
-//             //     Ext.getCmp(ROOT_LAYOUT_ID)
-//             //         .down('treelist')
-//             //         .getStore()
-//             //         .getNodeById(window.location.pathname);
-
-//             // if (node) {
-//             //     const treeItem: MenuItem = node.data;
-
-//             //     dispatch(openPage(treeItem.id, treeItem.text));
-//             // }
-//         }
-//     })
-
-//     return connect<LayoutProps, LayoutActions, any, CommonState>(
-//         mapStateToProps,
-//         mapDispatchToProps,
-//         null,
-//         {
-//             areStatesEqual: (nextState, prevState) => nextState.app == prevState.app
-//         }
-//     )(Layout)
-// }
 
 export const LayoutContainer = withRouter(containerFactory(Layout));
