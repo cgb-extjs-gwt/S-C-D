@@ -2,7 +2,7 @@
 
 namespace Gdc.Scd.Core.Meta.Dto
 {
-    public class CostBlockDto : BaseCostBlockMeta<CostElementDto>
+    public class ApplicationDto : BaseMeta
     {
         public bool IsUsingCostEditor { get; set; }
 

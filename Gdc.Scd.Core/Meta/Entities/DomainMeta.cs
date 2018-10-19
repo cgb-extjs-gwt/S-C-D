@@ -2,7 +2,7 @@
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
-    public class DomainMeta : BaseDomainMeta<CostBlockMeta>
+    public class DomainMeta : BaseDomainMeta<CostBlockMeta, ApplicationMeta>
     {
         public CostElementMeta GetCostElement(ICostElementIdentifier costElementIdentifier)
         {

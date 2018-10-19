@@ -49,18 +49,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             foreach (var costBlock in this.meta.CostBlocks)
             {
+                var isUsingCostEditor = false;
+                var isUsingTableView = false;
                 var costElementDtos = new List<CostElementDto>();
 
                 foreach (var costElement in costBlock.CostElements)
                 {
                     var costElementDto = new CostElementDto
                     {
-                        IsUsingCostEditor = 
-                            costElement.CostEditorRoles == null || 
-                            costElement.CostEditorRoles.Count == 0 || 
-                            this.ContainsRole(costElement.CostEditorRoles, user),
-
-                        IsUsingTableView = costElement.TableViewRoles != null && this.ContainsRole(costElement.TableViewRoles, user)
+                        IsUsingCostEditor = this.ContainsRole(costElement.CostEditorRoles, user),
+                        IsUsingTableView = this.ContainsRole(costElement.TableViewRoles, user)
                     };
 
                     if (costElementDto.IsUsingCostEditor || costElementDto.IsUsingTableView)
@@ -68,12 +66,22 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                         this.Copy(costElement, costElementDto);
 
                         costElementDtos.Add(costElementDto);
+
+                        if (!isUsingCostEditor)
+                        {
+                            isUsingCostEditor = costElementDto.IsUsingCostEditor;
+                        }
+
+                        if (!isUsingTableView)
+                        {
+                            isUsingTableView = costElementDto.IsUsingTableView;
+                        }
                     }
                 }
 
                 if (costElementDtos.Count > 0)
                 {
-                    var costBlockDto = this.BuildCostBlockDto(costBlock, costElementDtos);
+                    var costBlockDto = this.BuildCostBlockDto(costBlock, costElementDtos, isUsingCostEditor, isUsingTableView);
 
                     costBlockDtos.Add(costBlockDto);
                 }
@@ -82,11 +90,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return this.BuildDomainMetaDto(this.meta, costBlockDtos);
         }
 
-        private CostBlockDto BuildCostBlockDto(CostBlockMeta costBlock, IEnumerable<CostElementDto> costElementDtos)
+        private CostBlockDto BuildCostBlockDto(CostBlockMeta costBlock, IEnumerable<CostElementDto> costElementDtos, bool isUsingCostEditor, bool isUsingTableView)
         {
             var costBlockDto = new CostBlockDto
             {
-                CostElements = new MetaCollection<CostElementDto>(costElementDtos)
+                CostElements = new MetaCollection<CostElementDto>(costElementDtos),
+                IsUsingCostEditor = isUsingCostEditor,
+                IsUsingTableView = isUsingTableView
             };
 
             this.Copy(costBlock, costBlockDto, nameof(CostBlockDto.CostElements));
@@ -96,16 +106,43 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private DomainMetaDto BuildDomainMetaDto(DomainMeta domainMeta, IEnumerable<CostBlockDto> costBlockDtos)
         {
-            var applications =
-                costBlockDtos.SelectMany(costBlockDto => costBlockDto.ApplicationIds)
-                             .Select(applicationId => domainMeta.Applications[applicationId])
-                             .Distinct()
-                             .Where(application => application != null);
+            var applicationInfos = new Dictionary<string, (bool IsUsingCostEditor, bool IsUsingTableView)>();
+
+            foreach(var costBlockDto in costBlockDtos)
+            {
+                foreach(var applicationId in costBlockDto.ApplicationIds)
+                {
+                    if (applicationInfos.TryGetValue(applicationId, out var usingInfo))
+                    {
+                        applicationInfos[applicationId] = (
+                            IsUsingCostEditor: usingInfo.IsUsingCostEditor || costBlockDto.IsUsingCostEditor,
+                            IsUsingTableView: usingInfo.IsUsingTableView || costBlockDto.IsUsingTableView);
+                    }
+                    else
+                    {
+                        applicationInfos[applicationId] = (
+                            IsUsingCostEditor: costBlockDto.IsUsingCostEditor,
+                            IsUsingTableView: costBlockDto.IsUsingTableView);
+                    }
+                }
+            }
+
+            var applications = new List<ApplicationDto>();
+
+            foreach(var applicationInfo in applicationInfos)
+            {
+                var applicationDto = this.Copy<ApplicationDto>(domainMeta.Applications[applicationInfo.Key]);
+
+                applicationDto.IsUsingCostEditor = applicationInfo.Value.IsUsingCostEditor;
+                applicationDto.IsUsingTableView = applicationInfo.Value.IsUsingTableView;
+
+                applications.Add(applicationDto);
+            }
 
             var domainMetaDto = new DomainMetaDto
             {
                 CostBlocks = new MetaCollection<CostBlockDto>(costBlockDtos),
-                Applications = new MetaCollection<ApplicationMeta>(applications)
+                Applications = new MetaCollection<ApplicationDto>(applications)
             };
 
             this.Copy(domainMeta, domainMetaDto, nameof(DomainMetaDto.CostBlocks), nameof(DomainMetaDto.Applications));
@@ -115,13 +152,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private bool ContainsRole(HashSet<string> roleNames, User user)
         {
-            return user.Roles.Any(role => roleNames.Contains(role.Name));
+            return roleNames != null && user.Roles.Any(role => roleNames.Contains(role.Name));
         }
 
         private void Copy(object source, object target, params string[] ignoreProperties)
         {
             var bindingFlags = BindingFlags.Instance | BindingFlags.Public;
-            var targetProperties = (IEnumerable<PropertyInfo>)target.GetType().GetProperties(bindingFlags);
+            var targetProperties = 
+                target.GetType()
+                      .GetProperties(bindingFlags)
+                      .Where(property => property.SetMethod != null);
 
             if (ignoreProperties.Length > 0)
             {

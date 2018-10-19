@@ -2,7 +2,7 @@
 
 namespace Gdc.Scd.Core.Meta.Dto
 {
-    public class DomainMetaDto : BaseDomainMeta<CostBlockDto>
+    public class DomainMetaDto : BaseDomainMeta<CostBlockDto, ApplicationDto>
     {
     }
 }
