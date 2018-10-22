@@ -10,6 +10,7 @@
         <EntityTypeShape EntityType="FrieseModel.SCD2_SW_Overview" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="FrieseModel.SCD2_v_SAR_new_codes" Width="1.5" PointX="0.75" PointY="5.75" IsExpanded="true" />
         <EntityTypeShape EntityType="FrieseModel.SCD2_WarrantyGroups" Width="1.5" PointX="6.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="FrieseModel.SCD2_SWR_Level" Width="2.625" PointX="3.375" PointY="6.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
