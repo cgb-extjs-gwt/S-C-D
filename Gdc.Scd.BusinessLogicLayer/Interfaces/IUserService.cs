@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.Core.Entities;
+﻿using System.Linq;
+using Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
@@ -9,5 +10,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         bool HasPermission(string userLogin, params string[] permissionNames);
 
         bool HasRole(string userLogin, params string[] roleNames);
+
+        IQueryable<Country> GetCurrentUserCountries();
     }
 }

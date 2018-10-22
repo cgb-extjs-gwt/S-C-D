@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
@@ -25,13 +26,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> Check(
-            HistoryContext historyContext,
-            IEnumerable<EditItem> editItems,
-            IDictionary<string, IEnumerable<object>> costBlockFilter)
+        public async Task<IEnumerable<CostBlockValueHistory>> Check(HistoryContext historyContext, IEnumerable<EditItem> editItems, IDictionary<string, long[]> costBlockFilter)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
-            var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(historyContext, editItems, costBlockFilter);
+            var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(historyContext, editItems, costBlockFilter.Convert());
             var mapper = new CostBlockValueHistoryMapper(costBlockMeta)
             {
                 UseQualityGate = true,

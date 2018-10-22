@@ -45,6 +45,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     .Any(roleName => roleNames.Contains(roleName));
         }
 
+        public IQueryable<Country> GetCurrentUserCountries()
+        {
+            var principal = this.principalProvider.GetCurrenctPrincipal();
+
+            return
+                this.GetAll()
+                    .Where(user => user.Login == principal.Identity.Name)
+                    .SelectMany(user => user.UserRoles)
+                    .Where(userRole => userRole.Role.IsGlobal && userRole.Country != null)
+                    .Select(userRole => userRole.Country);
+        }
+
         private IQueryable<Role> GetUserRoles(string userLogin)
         {
             return
