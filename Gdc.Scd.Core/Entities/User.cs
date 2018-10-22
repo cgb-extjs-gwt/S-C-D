@@ -27,5 +27,22 @@ namespace Gdc.Scd.Core.Entities
                 return roles;
             }
         }
+
+        [NotMapped]
+        public IEnumerable<Permission> Permissions
+        {
+            get
+            {
+                IEnumerable<Permission> permissions = null;
+
+                var roles = this.Roles;
+                if (roles != null)
+                {
+                    permissions = roles.SelectMany(role => role.Permissions);
+                }
+
+                return permissions;
+            }
+        }
     }
 }

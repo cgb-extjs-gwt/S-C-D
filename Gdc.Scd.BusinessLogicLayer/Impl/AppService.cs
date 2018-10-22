@@ -4,6 +4,7 @@ using System.Reflection;
 using Gdc.Scd.BusinessLogicLayer.Dto;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Dto;
 using Gdc.Scd.Core.Meta.Entities;
@@ -12,7 +13,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
     public class AppService : IAppService
     {
+        private static readonly string[] costElementPermissions = new[]
+        {
+            PermissionConstants.Admin,
+            PermissionConstants.Approval,
+            PermissionConstants.OwnApproval
+        };
+
         private readonly DomainMeta meta;
+
         private readonly IUserService userService;
 
         public AppService(DomainMeta meta, IUserService userService)
@@ -46,6 +55,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private DomainMetaDto GetMetaDto(User user)
         {
             var costBlockDtos = new List<CostBlockDto>();
+            var userPermissions = new HashSet<string>(user.Permissions.Select(permission => permission.Name));
+            var isAddingCostElement = costElementPermissions.Any(permission => userPermissions.Contains(permission));
+            var userIsAdmin = userPermissions.Contains(PermissionConstants.Admin);
 
             foreach (var costBlock in this.meta.CostBlocks)
             {
@@ -57,11 +69,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     var costElementDto = new CostElementDto
                     {
-                        IsUsingCostEditor = this.ContainsRole(costElement.CostEditorRoles, user),
-                        IsUsingTableView = this.ContainsRole(costElement.TableViewRoles, user)
+                        IsUsingCostEditor = userIsAdmin || this.ContainsRole(costElement.CostEditorRoles, user),
+                        IsUsingTableView = userIsAdmin || this.ContainsRole(costElement.TableViewRoles, user)
                     };
 
-                    if (costElementDto.IsUsingCostEditor || costElementDto.IsUsingTableView)
+                    if (isAddingCostElement || costElementDto.IsUsingCostEditor || costElementDto.IsUsingTableView)
                     {
                         this.Copy(costElement, costElementDto);
 
