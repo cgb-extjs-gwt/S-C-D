@@ -6,10 +6,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
     public interface IQualityGateRepository
     {
-        Task<IEnumerable<CostBlockValueHistory>> Check(
-            HistoryContext historyContext, 
-            IEnumerable<EditItem> editItems, 
-            IDictionary<string, IEnumerable<object>> costBlockFilter);
+        Task<IEnumerable<CostBlockValueHistory>> Check(HistoryContext historyContext, IEnumerable<EditItem> editItems, IDictionary<string, long[]> costBlockFilter);
 
         Task<IEnumerable<CostBlockValueHistory>> Check(CostBlockHistory history, IDictionary<string, IEnumerable<object>> costBlockFilter = null);
 

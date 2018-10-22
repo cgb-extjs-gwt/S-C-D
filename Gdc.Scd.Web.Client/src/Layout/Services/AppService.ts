@@ -1,4 +1,7 @@
 import { CostMetaData } from "../../Common/States/CostMetaStates";
 import { get } from "../../Common/Services/Ajax";
+import { AppData } from "../States/AppStates";
 
-export const getCostMetaData = () => get<CostMetaData>('CostEditor', 'GetCostEditorData');
+const CONTROLLER_NAME = 'App';
+
+export const getAppData = () => get<AppData>(CONTROLLER_NAME, 'GetAppData');

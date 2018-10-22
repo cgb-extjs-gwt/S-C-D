@@ -47,3 +47,12 @@ export interface Store<T=any> {
 export interface StoreUpdateEventFn<T=any> {
     (store: Store<T>, record: Model<T>, operation: StoreOperation, modifiedFieldNames: string[], details)
 }
+
+export interface MenuItem {
+    id: string
+    text?: string
+    iconCls?: string
+    leaf?: boolean
+    disabled?: boolean
+    children?: MenuItem[]
+}

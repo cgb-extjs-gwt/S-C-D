@@ -142,12 +142,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public async Task<IEnumerable<HistoryItem>> GetHistory(CostEditorContext context, long editItemId, QueryInfo queryInfo = null)
         {
             var historyContext = HistoryContext.Build(context);
-            var filter = this.costBlockFilterBuilder.BuildFilter(context);
+            var userCountries = this.userService.GetCurrentUserCountries();
+            var filter = this.costBlockFilterBuilder.BuildFilter(context, userCountries);
             var region = this.domainMeta.GetCostElement(context).RegionInput;
 
             if (region == null || region.Id != context.InputLevelId)
             {
-                filter.Add(context.InputLevelId, new object[] { editItemId });
+                filter.Add(context.InputLevelId, new long[] { editItemId });
             }
 
             return await this.costBlockValueHistoryRepository.GetHistory(historyContext, filter, queryInfo);
@@ -259,7 +260,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return await this.GetApproveBundleDetail(history, historyValueId, costBlockFilter);
         }
 
-        public async Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption)
+        public async Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter)
         {
             if (approvalOption.HasQualityGateErrors && string.IsNullOrWhiteSpace(approvalOption.QualityGateErrorExplanation))
             {
@@ -287,35 +288,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             this.Save(history, approvalOption);
 
-            var relatedItems = new Dictionary<string, long[]>
+            var relatedItems = new Dictionary<string, long[]>(filter)
             {
                 [context.InputLevelId] = editItems.Select(item => item.Id).ToArray()
             };
-
-            var costBlockMeta = this.domainMeta.CostBlocks[context.CostBlockId];
-            var costElementMeta = costBlockMeta.CostElements[context.CostElementId];
-
-            if (costElementMeta.RegionInput != null &&
-                costElementMeta.RegionInput.Id != context.InputLevelId &&
-                context.RegionInputId != null)
-            {
-                relatedItems.Add(costElementMeta.RegionInput.Id, new[] { context.RegionInputId.Value });
-            }
-
-            if (costElementMeta.Dependency != null && 
-                context.CostElementFilterIds != null && 
-                context.CostElementFilterIds.Length > 0)
-            {
-                relatedItems.Add(costElementMeta.Dependency.Id, context.CostElementFilterIds);
-            }
-
-            var inputLevelMeta = costElementMeta.GetPreviousInputLevel(context.InputLevelId);
-            if (inputLevelMeta != null && 
-                context.InputLevelFilterIds != null && 
-                context.InputLevelFilterIds.Length > 0)
-            {
-                relatedItems.Add(inputLevelMeta.Id, context.InputLevelFilterIds);
-            }
 
             await this.costBlockValueHistoryRepository.Save(history, editItemArray, relatedItems);
         }

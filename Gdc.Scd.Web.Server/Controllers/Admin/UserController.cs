@@ -1,15 +1,17 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Web.Server.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Security.Principal;
 using System.Web.Http;
+using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Constants;
+using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Web.Server.Impl;
 
 namespace Gdc.Scd.Web.Server.Controllers.Admin
 {
+    [ScdAuthorize(Permissions = new[] { PermissionConstants.Admin })]
     public class UserController : BaseDomainController<User>
     {
         private readonly IActiveDirectoryService activeDirectoryService;

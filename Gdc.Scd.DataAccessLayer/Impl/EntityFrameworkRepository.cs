@@ -105,19 +105,22 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             if (item != null)
             {
-                var set = this.repositorySet.Set<TItem>();
+                var entry = this.repositorySet.Entry(item);
 
-                if (this.IsNewItem(item))
+                if (entry.State == EntityState.Detached)
                 {
-                    set.Add(item);
-                }
-                else
-                {
-                    set.Update(item);
+                    var set = this.repositorySet.Set<TItem>();
+
+                    if (this.IsNewItem(item))
+                    {
+                        set.Add(item);
+                    }
+                    else
+                    {
+                        set.Update(item);
+                    }
                 }
             }
-
-            
         }
 
         public virtual void DeleteAll()

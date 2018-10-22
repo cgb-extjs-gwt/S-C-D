@@ -2,7 +2,7 @@
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
-    public class DependencyMeta : BaseDomainMeta, IStoreTyped
+    public class DependencyMeta : BaseMeta, IStoreTyped
     {
         public StoreType StoreType { get; set; }
     }

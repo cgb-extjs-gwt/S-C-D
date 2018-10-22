@@ -238,6 +238,7 @@
     <Compile Include="Controllers\Dict\WgController.cs" />
     <Compile Include="Controllers\Dict\YearController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\AppController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\Admin\RoleCodeController.cs" />
     <Compile Include="Controllers\Admin\RoleController.cs" />
@@ -253,6 +254,9 @@
     </Compile>
     <Compile Include="Heplers\ApiControllerHelper.cs" />
     <Compile Include="Heplers\MimeTypes.cs" />
+    <Compile Include="Impl\PrincipalProvider.cs" />
+    <Compile Include="Impl\ScdAuthorizeAttribute.cs" />
+    <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

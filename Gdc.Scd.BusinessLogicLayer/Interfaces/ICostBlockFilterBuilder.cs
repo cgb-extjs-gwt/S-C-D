@@ -5,8 +5,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface ICostBlockFilterBuilder
     {
-        IDictionary<string, IEnumerable<object>> BuildRegionFilter(CostEditorContext context);
+        IDictionary<string, long[]> BuildRegionFilter(CostEditorContext context, IEnumerable<Country> userCountries = null);
 
-        IDictionary<string, IEnumerable<object>> BuildFilter(CostEditorContext context);
+        IDictionary<string, long[]> BuildFilter(CostEditorContext context, IEnumerable<Country> userCountries = null);
     }
 }
