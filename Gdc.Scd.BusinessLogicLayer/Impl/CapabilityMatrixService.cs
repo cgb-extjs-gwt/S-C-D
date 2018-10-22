@@ -16,17 +16,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<CapabilityMatrix> matrixRepo;
 
+        private readonly IRepository<CapabilityMatrixMaster> matrixMasterRepo;
+
         private readonly IRepository<CapabilityMatrixRule> ruleRepo;
 
         public CapabilityMatrixService(
                 IRepositorySet repositorySet,
                 IRepository<CapabilityMatrixRule> ruleRepo,
-                IRepository<CapabilityMatrix> matrixRepo
+                IRepository<CapabilityMatrix> matrixRepo,
+                IRepository<CapabilityMatrixMaster> matrixMasterRepo
             )
         {
             this.repositorySet = repositorySet;
             this.ruleRepo = ruleRepo;
             this.matrixRepo = matrixRepo;
+            this.matrixMasterRepo = matrixMasterRepo;
         }
 
         public Task AllowCombinations(long[] items)
@@ -53,7 +57,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<Tuple<CapabilityMatrixDto[], int>> GetMasterAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
         {
-            var query = GetAllowed().Where(x => x.Country == null);
+            var query = matrixMasterRepo.GetAll().Where(x => !x.Denied);
 
             if (filter != null)
             {
@@ -91,7 +95,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<Tuple<CapabilityMatrixDto[], int>> GetCountryAllowedCombinations(long country, CapabilityMatrixFilterDto filter, int start, int limit)
         {
-            var query = GetAllowed().Where(x => x.Country.Id == country);
+            var query = matrixRepo.GetAll().Where(x => !x.Denied && x.Country.Id == country);
 
             if (filter != null)
             {
@@ -128,7 +132,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             if (filter != null && filter.Country.HasValue)
             {
                 query = query.Where(x => x.Country.Id == filter.Country.Value);
-                query = query.OrderBy(x => x.Country.Name);
             }
             else
             {
@@ -168,11 +171,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }).PagingAsync(start, limit);
 
             return new Tuple<CapabilityMatrixRuleDto[], int>(result, count);
-        }
-
-        private IQueryable<CapabilityMatrix> GetAllowed()
-        {
-            return matrixRepo.GetAll().Where(x => !x.Denied);
         }
     }
 }
