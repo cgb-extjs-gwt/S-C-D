@@ -65,6 +65,7 @@
             <Roles>
               <Role>PRS PSM</Role>  
               <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </TableView>
           <CostEditor>
@@ -177,6 +178,7 @@
             <Roles>
               <Role>PRS PSM</Role>  
               <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </TableView>-->
           <CostEditor>
@@ -202,6 +204,7 @@
             <Roles>
               <Role>PRS PSM</Role>  
               <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </TableView>-->
           <CostEditor>
@@ -255,6 +258,7 @@
           <TableView>
             <Roles>
               <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </TableView>
           <CostEditor>
@@ -539,6 +543,7 @@
           <TableView>
             <Roles>
               <Role>PRS PSM</Role>  
+              <Role>SCD Admin</Role>
             </Roles>
           </TableView>
           <CostEditor>
@@ -554,6 +559,7 @@
           <TableView>
             <Roles>
               <Role>PRS PSM</Role>  
+              <Role>SCD Admin</Role>
             </Roles>
           </TableView>
           <CostEditor>
@@ -578,6 +584,7 @@
           <TableView>
             <Roles>
               <Role>PRS PSM</Role>  
+              <Role>SCD Admin</Role>
             </Roles>
           </TableView>
           <CostEditor>
@@ -592,7 +599,8 @@
           </InputLevels>
           <TableView>
             <Roles>
-              <Role>PRS PSM</Role>  
+              <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </TableView>
           <CostEditor>
@@ -607,7 +615,8 @@
           </InputLevels>
           <TableView>
             <Roles>
-              <Role>PRS PSM</Role>  
+              <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </TableView>
           <CostEditor>
@@ -697,6 +706,7 @@
             <Roles>
               <Role>PRS PSM</Role>  
               <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </TableView>
           <CostEditor>
