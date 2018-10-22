@@ -54,10 +54,6 @@ IF OBJECT_ID('Hardware.ServiceSupportCostView', 'V') IS NOT NULL
   DROP VIEW Hardware.ServiceSupportCostView;
 go
 
-IF OBJECT_ID('Atom.AfrByDurationView', 'V') IS NOT NULL
-  DROP VIEW Atom.AfrByDurationView;
-go
-
 IF OBJECT_ID('Hardware.HddFrByDurationView', 'V') IS NOT NULL
   DROP VIEW Hardware.HddFrByDurationView;
 go
@@ -153,6 +149,70 @@ go
 IF OBJECT_ID('Hardware.CalcProActive') IS NOT NULL
   DROP FUNCTION Hardware.CalcProActive;
 go 
+
+IF OBJECT_ID('Hardware.ConcatByDur') IS NOT NULL
+  DROP FUNCTION Hardware.ConcatByDur;
+go 
+
+IF OBJECT_ID('Hardware.CalcByDur') IS NOT NULL
+  DROP FUNCTION Hardware.CalcByDur;
+go 
+
+CREATE FUNCTION Hardware.CalcByDur
+(
+    @year int,
+    @prolongation bit,
+    @v1 float,
+    @v2 float,
+    @v3 float,
+    @v4 float,
+    @v5 float,
+    @vp float
+)
+RETURNS float
+AS
+BEGIN
+
+    return
+        case
+            when @prolongation = 0 and @year = 1 then @v1
+            when @prolongation = 0 and @year = 2 then @v1 + @v2
+            when @prolongation = 0 and @year = 3 then @v1 + @v2 + @v3
+            when @prolongation = 0 and @year = 4 then @v1 + @v2 + @v3 + @v4
+            when @prolongation = 0 and @year = 5 then @v1 + @v2 + @v3 + @v4 + @v5
+            else @vp
+        end
+
+END
+GO
+
+CREATE FUNCTION Hardware.ConcatByDur
+(
+    @year int,
+    @prolongation bit,
+    @v1 float,
+    @v2 float,
+    @v3 float,
+    @v4 float,
+    @v5 float,
+    @vp float
+)
+RETURNS nvarchar(500)
+AS
+BEGIN
+
+    return
+        case
+            when @prolongation = 0 and @year = 1 then cast(@v1 as nvarchar(50))
+            when @prolongation = 0 and @year = 2 then cast(@v1 as nvarchar(50)) + ';' + cast(@v2 as nvarchar(50))
+            when @prolongation = 0 and @year = 3 then cast(@v1 as nvarchar(50)) + ';' + cast(@v2 as nvarchar(50)) + ';' + cast(@v3 as nvarchar(50))
+            when @prolongation = 0 and @year = 4 then cast(@v1 as nvarchar(50)) + ';' + cast(@v2 as nvarchar(50)) + ';' + cast(@v3 as nvarchar(50)) + ';' + cast(@v4 as nvarchar(50))
+            when @prolongation = 0 and @year = 5 then cast(@v1 as nvarchar(50)) + ';' + cast(@v2 as nvarchar(50)) + ';' + cast(@v3 as nvarchar(50)) + ';' + cast(@v4 as nvarchar(50)) + ';' + cast(@v5 as nvarchar(50))
+            else cast(@vp as nvarchar(50))
+        end
+
+END
+GO
 
 CREATE FUNCTION [Hardware].[CalcProActive](@setupCost float, @yearCost float, @dur int)
 RETURNS float
@@ -595,28 +655,6 @@ CREATE VIEW [InputAtoms].[WgView] WITH SCHEMABINDING as
                  InputAtoms.Pla pla,
                  InputAtoms.ClusterPla cpla
             where wg.PlaId = pla.Id and cpla.id = pla.ClusterPlaId
-GO
-
-CREATE VIEW [Atom].[AfrByDurationView] WITH SCHEMABINDING as 
-    select wg.Id as WgID,
-           d.Id as DurID, 
-
-           (select sum(a.AFR / 100) 
-            from Atom.AFR a
-            JOIN Dependencies.Year y on y.Id = a.Year
-            where a.Wg = wg.Id
-                  and y.IsProlongation = d.IsProlongation
-                  and y.Value <= d.Value) as TotalAFR,
-
-           (select sum(a.AFR_Approved / 100) 
-            from Atom.AFR a
-            JOIN Dependencies.Year y on y.Id = a.Year
-            where a.Wg = wg.Id
-                  and y.IsProlongation = d.IsProlongation
-                  and y.Value <= d.Value) as TotalAFR_Approved
-
-    from Dependencies.Duration d,
-         InputAtoms.Wg wg
 GO
 
 CREATE VIEW [Hardware].[HddFrByDurationView] WITH SCHEMABINDING as 
