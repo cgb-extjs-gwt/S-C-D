@@ -4,7 +4,6 @@ go
 
 CREATE FUNCTION Report.SwServicePriceList
 (
-    @cnt bigint,
     @sog bigint,
     @av bigint,
     @year bigint
@@ -32,10 +31,9 @@ RETURN (
     join Fsp.SwFspCodeTranslation fsp on fsp.SogId = sog.Id
     join Dependencies.Availability av on av.Id = sw.AvailabilityId
     join Dependencies.Year y on y.id = sw.YearId
-    where sw.CountryId = @cnt
-     and (@sog is null or sw.SogId = @sog)
-     and (@av is null or sw.AvailabilityId = @av)
-     and (@year is null or sw.YearId = @year)
+    where (@sog is null or sw.SogId = @sog)
+      and (@av is null or sw.AvailabilityId = @av)
+      and (@year is null or sw.YearId = @year)
 )
 
 GO
@@ -71,8 +69,6 @@ set @index = 0;
 
 delete from Report.ReportFilter where ReportId = @reportId;
 
-set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 7, 'cnt', 'Country name');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 5, 'sog', 'Service Offering Group');
 set @index = @index + 1;

@@ -2,6 +2,10 @@
   DROP FUNCTION Report.GetSwResultBySla;
 go 
 
+IF OBJECT_ID('Report.GetSwResultBySla2') IS NOT NULL
+  DROP FUNCTION Report.GetSwResultBySla2;
+go 
+
 IF OBJECT_ID('Report.GetMatrixBySla') IS NOT NULL
   DROP FUNCTION Report.GetMatrixBySla;
 go 
@@ -195,6 +199,31 @@ RETURN (
 )
 GO
 
+CREATE FUNCTION Report.GetMatrixBySla2
+(
+    @cnt bigint,
+    @wg bigint,
+    @av bigint,
+    @dur bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc bigint
+)
+RETURNS TABLE 
+AS
+RETURN (
+    select m.*
+    from MatrixView m
+    where (@cnt is null or m.CountryId = @cnt)
+      and (@wg is null or m.WgId = @wg)
+      and (@av is null or m.AvailabilityId = @av)
+      and (@dur is null or m.DurationId = @dur)
+      and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
+      and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
+      and (@loc is null or m.ServiceLocationId = @loc)
+)
+GO
+
 CREATE view SoftwareSolution.ServiceCostCalculationView as
     select  sc.YearId
           , y.Name as Year
@@ -236,3 +265,4 @@ RETURN (
       and (@year is null or sc.YearId = @year)
 )
 GO
+
