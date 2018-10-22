@@ -107,7 +107,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 var entry = this.repositorySet.Entry(item);
 
-                if (entry.State == EntityState.Detached)
+                if (entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
                 {
                     var set = this.repositorySet.Set<TItem>();
 
