@@ -8,7 +8,7 @@ GO
 
 INSERT INTO Hardware.ServiceCostCalculation (MatrixId) (
 	SELECT m.Id
-	FROM Matrix m
+	FROM Matrix.Matrix m
     where m.CountryId is not null
 );
 

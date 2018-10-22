@@ -151,7 +151,7 @@ CREATE VIEW MatrixView as
          , m.ServiceLocationId
          , loc.Name as ServiceLocation
          , loc.ExternalName as ServiceLocationExt
-    from Matrix m
+    from Matrix.Matrix m
     join Hardware.ServiceCostCalculation sc on sc.MatrixId = m.Id
     join InputAtoms.CountryView cnt on cnt.Id = m.CountryId
     join InputAtoms.WgView wg on wg.id = m.WgId

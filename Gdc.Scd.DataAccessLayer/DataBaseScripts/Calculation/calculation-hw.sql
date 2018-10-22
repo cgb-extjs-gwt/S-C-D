@@ -1056,7 +1056,7 @@ RETURN
         , Hardware.CalcProActive(pro.Setup, pro.Service, dur.Value) as ProActive
         , Hardware.CalcProActive(pro.Setup_Approved, pro.Service_Approved, dur.Value) as ProActive_Approved
 
-    FROM Matrix m
+    FROM Matrix.Matrix m
 
     INNER JOIN Dependencies.Duration dur on dur.Id = m.DurationId
 
