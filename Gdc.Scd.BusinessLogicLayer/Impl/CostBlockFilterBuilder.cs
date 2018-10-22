@@ -85,19 +85,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return filter;
         }
 
-        //private long[] GetUserCountryIds(User user)
-        //{
-        //    return
-        //        user.UserRoles.Where(userRole => userRole.Role.IsGlobal && userRole.CountryId.HasValue)
-        //                      .Select(userRole => userRole.CountryId.Value)
-        //                      .ToArray();
-        //}
-
-        //private long[] GetUserCountryIds(IEnumerable<Country> userCountries)
-        //{
-        //    return userCountries.Select(country => country.Id).ToArray();
-        //}
-
         private CostElementMeta GetCostElement(CostEditorContext context)
         {
             var costBlock = this.meta.GetCostBlockEntityMeta(context);
