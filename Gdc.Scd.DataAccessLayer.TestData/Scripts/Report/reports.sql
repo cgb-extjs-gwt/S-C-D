@@ -196,10 +196,7 @@ RETURN (
 GO
 
 CREATE view SoftwareSolution.ServiceCostCalculationView as
-    select  sc.CountryId
-          , c.Name as Country
-          , c.CountryGroup
-          , sc.YearId
+    select  sc.YearId
           , y.Name as Year
           , y.Value as YearValue
           , sc.AvailabilityId
@@ -218,7 +215,6 @@ CREATE view SoftwareSolution.ServiceCostCalculationView as
 
     from SoftwareSolution.ServiceCostCalculation sc
     join Dependencies.Availability av on av.Id = sc.AvailabilityId
-    join InputAtoms.CountryView c on c.id = sc.CountryId
     join Dependencies.Year y on y.id = sc.YearId
     left join InputAtoms.WgSogView sog on sog.id = sc.SogId
 
@@ -226,7 +222,6 @@ GO
 
 CREATE FUNCTION Report.GetSwResultBySla
 (
-    @cnt bigint,
     @sog bigint,
     @av bigint,
     @year bigint
@@ -236,8 +231,7 @@ AS
 RETURN (
     select sc.*
     from SoftwareSolution.ServiceCostCalculationView sc
-    where sc.CountryId = @cnt
-      and sc.SogId = @sog
+    where sc.SogId = @sog
       and (@av is null or sc.AvailabilityId = @av)
       and (@year is null or sc.YearId = @year)
 )

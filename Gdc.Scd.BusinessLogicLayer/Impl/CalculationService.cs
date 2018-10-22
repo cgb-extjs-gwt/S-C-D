@@ -140,8 +140,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (filter != null)
             {
-                query = query.WhereIf(filter.Country.HasValue, x => x.Country.Id == filter.Country.Value)
-                             .WhereIf(filter.Sog.HasValue, x => x.Sog.Id == filter.Sog.Value)
+                query = query.WhereIf(filter.Sog.HasValue, x => x.Sog.Id == filter.Sog.Value)
                              .WhereIf(filter.Availability.HasValue, x => x.Availability.Id == filter.Availability.Value)
                              .WhereIf(filter.Year.HasValue, x => x.Year.Id == filter.Year.Value);
             }
@@ -152,7 +151,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             var result = await query.Select(x => new SwCostDto
             {
-                Country = x.Country.Name,
                 Sog = x.Sog.Name,
                 Availability = x.Availability.Name,
                 Year = x.Year.Name,
