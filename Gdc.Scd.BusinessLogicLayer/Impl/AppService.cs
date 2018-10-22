@@ -70,7 +70,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     var costElementDto = new CostElementDto
                     {
                         IsUsingCostEditor = userIsAdmin || this.ContainsRole(costElement.CostEditorRoles, user),
-                        IsUsingTableView = userIsAdmin || this.ContainsRole(costElement.TableViewRoles, user)
+                        IsUsingTableView = this.ContainsRole(costElement.TableViewRoles, user)
                     };
 
                     if (isAddingCostElement || costElementDto.IsUsingCostEditor || costElementDto.IsUsingTableView)
