@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Entities;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
@@ -24,13 +26,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> Check(
-            HistoryContext historyContext,
-            IEnumerable<EditItem> editItems,
-            IDictionary<string, IEnumerable<object>> costBlockFilter)
+        public async Task<IEnumerable<CostBlockValueHistory>> Check(HistoryContext historyContext, IEnumerable<EditItem> editItems, IDictionary<string, long[]> costBlockFilter)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
-            var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(historyContext, editItems, costBlockFilter);
+            var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(historyContext, editItems, costBlockFilter.Convert());
             var mapper = new CostBlockValueHistoryMapper(costBlockMeta)
             {
                 UseQualityGate = true,
@@ -55,8 +54,19 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
             var query = this.qualityGateQueryBuilder.BuildQulityGateApprovalQuery(history, historyValueId, costBlockFilter);
-            var maxInputLevelId = historyValueId.HasValue ? null : history.Context.InputLevelId;
-            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, maxInputLevelId)
+
+            InputLevelFilterParam inputLevelFilter = null;
+
+            if (!historyValueId.HasValue)
+            {
+                inputLevelFilter = new InputLevelFilterParam
+                {
+                    CostElementId = history.Context.CostElementId,
+                    MaxInputLevelId = history.Context.InputLevelId
+                };
+            }
+
+            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, inputLevelFilter)
             {
                 UseQualityGate = true,
                 UseHistoryValueId = true

@@ -3,6 +3,7 @@ using System.Data;
 using System.Linq;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -18,13 +19,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public bool UseQualityGate { get; set; }
 
-        public CostBlockValueHistoryMapper(CostBlockEntityMeta costBlockMeta, string maxInputLevelId = null)
+        public CostBlockValueHistoryMapper(CostBlockEntityMeta costBlockMeta, InputLevelFilterParam inputLevelFilter = null)
         {
             this.costBlockMeta = costBlockMeta;
-            this.inputLevelIds = 
-                costBlockMeta.DomainMeta.FilterInputLevels(maxInputLevelId)
-                                        .Select(inputLevel => inputLevel.Id)
-                                        .ToArray();
+
+            var inputLevels = inputLevelFilter == null
+                ? costBlockMeta.DomainMeta.InputLevels
+                : costBlockMeta.DomainMeta.CostElements[inputLevelFilter.CostElementId].FilterInputLevels(inputLevelFilter.MaxInputLevelId);
+
+            this.inputLevelIds = inputLevels.Select(inputLevel => inputLevel.Id).ToArray();
 
             this.lastInputLevel = this.inputLevelIds.Last();
         }

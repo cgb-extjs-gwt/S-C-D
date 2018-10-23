@@ -167,6 +167,26 @@ namespace Gdc.Scd.Import.Por
                 PorService.UploadHwFspCodes(hwModel, step);
                 step++;
 
+                //UPLOAD PROACTIVE DIGITS
+                PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, "Software ProActive");
+                var swProActive = PorService.SwProActiveImporter.ImportData().ToList();
+                PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, "Software ProActive", swProActive.Count);
+
+                
+                var proActiveDigitModel = new SwProActiveDto
+                {
+                    Proactive = proactiveDictionary,
+                    SwDigits = digits,
+                    ProActiveInfo = swProActive,
+                    CreatedDateTime = DateTime.Now
+                };
+
+                PorService.UploadSwProactiveInfo(proActiveDigitModel, step);
+                step++;
+
+                //STEP 9: UPLOAD SOFTWARE
+                var proActiveDigits = PorService.ProActiveDigitService.GetAll().ToList();
+
                 var swModel = new SwFspCodeDto
                 {
                     Sla = sla,
@@ -175,10 +195,10 @@ namespace Gdc.Scd.Import.Por
                     SoftwareCodes = softwareCodes,
                     Sogs = sogs,
                     SoftwareServiceTypes = softwareServiceTypes,
-                    CreatedDateTime = DateTime.Now
+                    CreatedDateTime = DateTime.Now,
+                    ProActiveDigits = proActiveDigits
                 };
 
-                //STEP 8: UPLOAD SOFTWARE
                 PorService.UploadSwFspCodes(swModel, step);
 
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.END_PROCESS);

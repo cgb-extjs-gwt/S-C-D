@@ -81,10 +81,9 @@ namespace Gdc.Scd.Import.Core.Impl
                 if (entities != null && entities.Any())
                 {
                     _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_START);
-                    int result = _uploader.Upload(entities, DateTime.Now);
-                    _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, result);
+                    _uploader.Upload(entities, DateTime.Now);
                     _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATE_START, nameof(TaxAndDutiesEntity));
-                    result = _uploader.Deactivate(DateTime.Now);
+                    var result = _uploader.Deactivate(DateTime.Now);
                     _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATE_END, result);
                     _logger.Log(LogLevel.Info, ImportConstants.MOVE_FILE_START, configuration.ProcessedFilesPath);
                     _downloader.MoveFile(downloadDto);

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Gdc.Scd.Core.Entities
 {
     [Table("TaxAndDuties", Schema = MetaConstants.AtomSchema)]
-    public class TaxAndDutiesEntity : IDeactivatable, IIdentifiable
+    public class TaxAndDutiesEntity : IIdentifiable, IDeactivatable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }

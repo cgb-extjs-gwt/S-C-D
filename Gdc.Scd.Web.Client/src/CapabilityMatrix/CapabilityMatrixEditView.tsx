@@ -1,10 +1,12 @@
-﻿import * as React from "react";
-import { Container, Button, CheckBoxField, ComboBoxField } from "@extjs/ext-react";
-import { MultiSelect } from "./Components/MultiSelect";
-import { CapabilityMatrixEditModel } from "./Model/CapabilityMatrixEditModel";
-import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService"
-import { MatrixFactory } from "./Services/MatrixFactory";
+﻿import { Button, CheckBoxField, ComboBoxField, Container } from "@extjs/ext-react";
+import * as React from "react";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
+import { handleRequest } from "../Common/Helpers/RequestHelper";
+import { MultiSelect } from "./Components/MultiSelect";
+import { MultiSelectWg } from "./Components/MultiSelectWg";
+import { CapabilityMatrixEditModel } from "./Model/CapabilityMatrixEditModel";
+import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService";
+import { MatrixFactory } from "./Services/MatrixFactory";
 
 const SELECT_MAX_HEIGHT: string = '260px';
 const ID_PROP = 'id';
@@ -40,7 +42,7 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
 
     public render() {
         return (
-            <Container layout="vbox" padding="10px">
+            <Container layout="vbox" padding="10px" scrollable="true">
 
                 <ComboBoxField
                     ref="country"
@@ -56,14 +58,26 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
                     onChange={this.onCountryChange}
                 />
 
-                <Container layout="hbox">
-                    <MultiSelect ref="wg" maxHeight={SELECT_MAX_HEIGHT} title="Asset(WG)" itemTpl="{name}" store={this.state.warrantyGroups} />
-                    <MultiSelect ref="availability" maxHeight={SELECT_MAX_HEIGHT} title="Availability" itemTpl="{name}" store={this.state.availabilityTypes} />
-                    <MultiSelect ref="duration" maxHeight={SELECT_MAX_HEIGHT} title="Duration" itemTpl="{name}" store={this.state.durationTypes} />
-                    <MultiSelect ref="reactType" maxHeight={SELECT_MAX_HEIGHT} title="Reaction type" itemTpl="{name}" store={this.state.reactTypes} />
-                    <MultiSelect ref="reactTime" maxHeight={SELECT_MAX_HEIGHT} title="Reaction time" itemTpl="{name}" store={this.state.reactionTimeTypes} />
-                    <MultiSelect ref="srvLoc" maxHeight={SELECT_MAX_HEIGHT} title="Service location" itemTpl="{name}" store={this.state.serviceLocationTypes} />
-                </Container>
+                <div className="matrix-edit-container">
+                    <div>
+                        <MultiSelectWg ref="wg" maxHeight="204px" title="Asset(WG)" itemTpl="{name}" store={this.state.warrantyGroups} />
+                    </div>
+                    <div>
+                        <MultiSelect ref="availability" maxHeight={SELECT_MAX_HEIGHT} title="Availability" itemTpl="{name}" store={this.state.availabilityTypes} />
+                    </div>
+                    <div>
+                        <MultiSelect ref="duration" maxHeight={SELECT_MAX_HEIGHT} title="Duration" itemTpl="{name}" store={this.state.durationTypes} />
+                    </div>
+                    <div>
+                        <MultiSelect ref="reactType" maxHeight={SELECT_MAX_HEIGHT} title="Reaction type" itemTpl="{name}" store={this.state.reactTypes} />
+                    </div>
+                    <div>
+                        <MultiSelect ref="reactTime" maxHeight={SELECT_MAX_HEIGHT} title="Reaction time" itemTpl="{name}" store={this.state.reactionTimeTypes} />
+                    </div>
+                    <div>
+                        <MultiSelect ref="srvLoc" maxHeight={SELECT_MAX_HEIGHT} title="Service location" itemTpl="{name}" store={this.state.serviceLocationTypes} />
+                    </div>
+                </div>
 
                 <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio }} margin="15px 0">
                     <CheckBoxField ref="globPort" boxLabel="Fujitsu global portfolio" />
@@ -140,7 +154,8 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
     }
 
     private denyCombination() {
-        this.srv.denyItem(this.getModel());
+        let p = this.srv.denyItem(this.getModel());
+        handleRequest(p);
     }
 
     private setPortfolio(val: boolean) {
