@@ -57,7 +57,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var costBlockDtos = new List<CostBlockDto>();
             var userPermissions = new HashSet<string>(user.Permissions.Select(permission => permission.Name));
             var isAddingCostElement = costElementPermissions.Any(permission => userPermissions.Contains(permission));
-            var userIsAdmin = userPermissions.Contains(PermissionConstants.Admin);
 
             foreach (var costBlock in this.meta.CostBlocks)
             {
@@ -69,7 +68,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     var costElementDto = new CostElementDto
                     {
-                        IsUsingCostEditor = userIsAdmin || this.ContainsRole(costElement.CostEditorRoles, user),
+                        IsUsingCostEditor = this.ContainsRole(costElement.CostEditorRoles, user),
                         IsUsingTableView = this.ContainsRole(costElement.TableViewRoles, user)
                     };
 

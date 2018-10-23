@@ -26,6 +26,8 @@
         
         public const string DefaultSchema = "dbo";
 
+        public const string PlaInputLevelName = "Pla";
+
         public const string WgInputLevelName = "Wg";
 
         public const string CalculationTable = "ServiceCostCalculation";
