@@ -12,6 +12,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
             string schemaName = null,
             IDictionary<string, IEnumerable<object>> filter = null);
 
+        Task<IEnumerable<NamedId>> GetDistinctItems(string entityName, string schema, string referenceFieldName, IDictionary<string, long[]> filter);
+
         Task<IEnumerable<NamedId>> GetDistinctItems(string entityName, string entitySchema, string referenceFieldName, IDictionary<string, IEnumerable<object>> filter = null);
 
         Task<IEnumerable<NamedId>> GetNameIdItems(BaseEntityMeta entityMeta, string idField, string nameField, IEnumerable<long> ids = null);

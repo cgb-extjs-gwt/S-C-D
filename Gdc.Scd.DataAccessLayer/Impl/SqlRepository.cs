@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
@@ -30,6 +31,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var query = Sql.SelectDistinct(columnName).From(tableName, schemaName).Where(filter);
 
             return await this.repositorySet.ReadBySql(query, reader => reader[0].ToString());
+        }
+
+        public async Task<IEnumerable<NamedId>> GetDistinctItems(string entityName, string schema, string referenceFieldName, IDictionary<string, long[]> filter)
+        {
+            return await this.GetDistinctItems(entityName, schema, referenceFieldName, filter.Convert());
         }
 
         public async Task<IEnumerable<NamedId>> GetDistinctItems(string entityName, string schema, string referenceFieldName, IDictionary<string, IEnumerable<object>> filter = null)

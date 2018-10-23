@@ -2,11 +2,12 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Web.BusinessLogicLayer.Entities;
+using Gdc.Scd.Web.Server.Impl;
 using Newtonsoft.Json;
 
 namespace Gdc.Scd.Web.Server.Controllers
@@ -21,12 +22,14 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
+        [ScdAuthorize(Permissions = new [] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
         public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles([System.Web.Http.FromUri]CostBlockHistoryFilter filter, [System.Web.Http.FromUri]CostBlockHistoryState state)
         {
             return await this.costBlockHistoryService.GetApprovalBundles(filter, state);
         }
 
         [HttpGet]
+        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
         public async Task<IEnumerable<Dictionary<string, object>>> GetApproveBundleDetail(
             [System.Web.Http.FromUri]long costBlockHistoryId,
             [System.Web.Http.FromUri]long? historyValueId = null,
@@ -65,6 +68,7 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         // TODO: Need return DataInfo object, otherwise live scrol don't work. See BaseDomainController method GetBy.
         [HttpGet]
+        [ScdAuthorize(Permissions = new[] { PermissionConstants.CostEditor })]
         public async Task<IEnumerable<HistoryItem>> GetHistory(
             [System.Web.Http.FromUri]CostEditorContext context,
             [System.Web.Http.FromUri]long editItemId,
@@ -92,6 +96,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
+        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
         public async Task<ActionResult> Approve(long historyId)
         {
             await this.costBlockHistoryService.Approve(historyId);
@@ -100,6 +105,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
+        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
         public ActionResult Reject(long historyId, string message)
         {
             this.costBlockHistoryService.Reject(historyId, message);
@@ -108,6 +114,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
+        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
         public async Task<QualityGateResultDto> SendForApproval([System.Web.Http.FromUri]long historyId, [System.Web.Http.FromUri]string qualityGateErrorExplanation = null)
         {
             return await this.costBlockHistoryService.SendForApproval(historyId, qualityGateErrorExplanation);

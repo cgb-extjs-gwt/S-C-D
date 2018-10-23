@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Gdc.Scd.Core.Constants;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -61,8 +62,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             this.CreateClusterPlas();
             this.CreateServiceLocations();
-            this.CreateUsers();
-            this.CreateRoles();
+            this.CreateUserAndRoles();
             this.CreateReactionTimeTypeAvalability();
             this.CreateRegions();
             this.CreateCurrenciesAndExchangeRates();
@@ -148,34 +148,109 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             repositorySet.Sync();
         }
 
-        private void CreateUsers()
+        private void CreateUserAndRoles()
         {
-            var repository = this.repositorySet.GetRepository<User>();
+            var permissions =
+                typeof(PermissionConstants).GetFields(BindingFlags.Static | BindingFlags.Public)
+                                           .Select(field => new Permission
+                                           {
+                                               Name = field.GetValue(null).ToString()
+                                           })
+                                           .ToList();
+
+            var adminRolePermissions = permissions.Select(permission => new RolePermission { Permission = permission });
+            var tableViewRolePermissions = adminRolePermissions.Where(rolePermission => rolePermission.Permission.Name != PermissionConstants.Admin);
+            var rolePermissions = tableViewRolePermissions.Where(rolePermission => rolePermission.Permission.Name != PermissionConstants.TableView);
+            var adminRole = new Role
+            {
+                Name = "SCD Admin",
+                IsGlobal = true,
+                RolePermissions = adminRolePermissions.ToList()
+            };
+
             var users = new List<User> {
-                new User { Name = "Test user 1", Login="g02\\testUser1", Email="testuser1@fujitsu.com" },
-                new User { Name = "Test user 2", Login="g03\\testUser2", Email="testuser2@fujitsu.com" },
-                new User { Name = "Test user 3", Login="g04\\testUser3", Email="testuser3@fujitsu.com" }
+                new User
+                {
+                    Name = "Test user 1",
+                    Login ="g02\\testUser1",
+                    Email ="testuser1@fujitsu.com",
+                    UserRoles = new List<UserRole>
+                    {
+                        new UserRole
+                        {
+                            Role = adminRole
+                        }
+                    }
+                },
+                new User
+                {
+                    Name = "Test user 2",
+                    Login ="g03\\testUser2",
+                    Email ="testuser2@fujitsu.com"
+                },
+                new User
+                {
+                    Name = "Test user 3",
+                    Login ="g04\\testUser3",
+                    Email ="testuser3@fujitsu.com"
+                }
             };
 
-            repository.Save(users);
-            this.repositorySet.Sync();
-        }
-
-        private void CreateRoles()
-        {
-            var repository = this.repositorySet.GetRepository<Role>();
-            var roles = new List<Role> {
-                new Role {Name = "SCD Admin", IsGlobal=true},
-                new Role {Name = "PRS PSM", IsGlobal=true },
-                new Role {Name = "Country key user", IsGlobal=false },
-                new Role {Name = "Country Finance Director", IsGlobal=false },
-                new Role {Name = "PRS Finance", IsGlobal=true },
-                new Role {Name = "Spares Logistics", IsGlobal=true },
-                new Role {Name = "GTS user", IsGlobal=true },
-                new Role {Name = "Guest", IsGlobal=true },
-                new Role {Name = "Opportunity Center", IsGlobal=true }
+            var roles = new List<Role>
+            {
+                adminRole,
+                new Role
+                {
+                    Name = "PRS PSM",
+                    IsGlobal = true,
+                    RolePermissions = tableViewRolePermissions.ToList()
+                },
+                new Role
+                {
+                    Name = "Country key user",
+                    IsGlobal = false,
+                    RolePermissions = rolePermissions.ToList()
+                },
+                new Role
+                {
+                    Name = "Country Finance Director",
+                    IsGlobal = false,
+                    RolePermissions = rolePermissions.ToList()
+                },
+                new Role
+                {
+                    Name = "PRS Finance",
+                    IsGlobal = true,
+                    RolePermissions = tableViewRolePermissions.ToList()
+                },
+                new Role
+                {
+                    Name = "Spares Logistics",
+                    IsGlobal = true,
+                    RolePermissions = rolePermissions.ToList()
+                },
+                new Role
+                {
+                    Name = "GTS user",
+                    IsGlobal = true,
+                    RolePermissions = rolePermissions.ToList()
+                },
+                new Role
+                {
+                    Name = "Guest",
+                    IsGlobal = true,
+                    RolePermissions = rolePermissions.ToList()
+                },
+                new Role
+                {
+                    Name = "Opportunity Center",
+                    IsGlobal = true,
+                    RolePermissions = rolePermissions.ToList()
+                }
             };
-            repository.Save(roles);
+
+            this.repositorySet.GetRepository<Role>().Save(roles);
+            this.repositorySet.GetRepository<User>().Save(users);
             this.repositorySet.Sync();
         }
 

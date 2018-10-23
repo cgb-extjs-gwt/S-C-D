@@ -14,7 +14,7 @@ import { ItemSelectedAction } from "../../Common/Actions/CommonActions";
 import { NamedId } from "../../Common/States/CommonStates";
 import { APP_PAGE_INIT, PageInitAction } from "../../Layout/Actions/AppActions";
 import { CountryInputLevelName } from "../../Common/Constants/MetaConstants";
-import { CostBlockMeta, InputLevelMeta, CostMetaData } from "../../Common/States/CostMetaStates";
+import { CostBlockMeta, InputLevelMeta, CostMetaData, UsingInfo } from "../../Common/States/CostMetaStates";
 
 const createMap = <T extends NamedId>(array: T[]) => {
     const map = new Map<string, T>();
@@ -24,12 +24,15 @@ const createMap = <T extends NamedId>(array: T[]) => {
     return map;
 }
 
+const filterCostEditorItems = <T extends UsingInfo>(items: T[]) => items.filter(item => item.isUsingCostEditor);
+
 const initSuccess: Reducer<CostEditorState, PageInitAction<CostMetaData>> = (state, action) => {
-    const { applications, costBlocks } = action.data;
+    const { costBlocks } = action.data;
+    const applications = filterCostEditorItems(action.data.applications);
     const selectedApplicationId = applications[0].id;
-    const costBlockMetas = costBlocks.map(costBlock => (<CostBlockMeta>{
+    const costBlockMetas = filterCostEditorItems(costBlocks).map(costBlock => (<CostBlockMeta>{
         ...costBlock,
-        costElements: costBlock.costElements.map(costElement => ({
+        costElements: filterCostEditorItems(costBlock.costElements).map(costElement => ({
             ...costElement,
             inputLevels: costElement.inputLevels.map((inputLevel, index) => (<InputLevelMeta>{
                 ...inputLevel,
