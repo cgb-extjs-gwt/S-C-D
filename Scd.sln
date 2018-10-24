@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Import.AmberRoad", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Import.Logistics", "Gdc.Scd.Import.Logistics\Gdc.Scd.Import.Logistics.csproj", "{A3772A95-3F11-4042-8C00-579D331627FB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Export.CdCs", "Gdc.Scd.Export.CdCs\Gdc.Scd.Export.CdCs.csproj", "{7479E275-0666-47BA-AD26-10285A0F1E75}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +82,10 @@ Global
 		{A3772A95-3F11-4042-8C00-579D331627FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3772A95-3F11-4042-8C00-579D331627FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3772A95-3F11-4042-8C00-579D331627FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7479E275-0666-47BA-AD26-10285A0F1E75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7479E275-0666-47BA-AD26-10285A0F1E75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7479E275-0666-47BA-AD26-10285A0F1E75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7479E275-0666-47BA-AD26-10285A0F1E75}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
