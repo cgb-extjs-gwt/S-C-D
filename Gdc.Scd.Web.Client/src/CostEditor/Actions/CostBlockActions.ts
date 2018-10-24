@@ -2,13 +2,14 @@ import { Action } from "redux";
 import { asyncAction, AsyncAction } from "../../Common/Actions/AsyncAction";
 import * as service from "../Services/CostEditorServices";
 import { CostEditorState } from "../States/CostEditorStates";
-import { EditItem, CostElementData, DataLoadingState } from "../States/CostBlockStates";
+import { EditItem, CostElementData } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { losseDataCheckHandlerAction, buildCostEditorContext } from "../Helpers/CostEditorHelpers";
 import { CommonState } from "../../Layout/States/AppStates";
 import { ApprovalOption } from "../Services/CostEditorServices";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { QualityGateResult } from "../../QualityGate/States/QualityGateResult";
+import { findMeta } from "../../Common/Helpers/MetaHelper";
 
 export const COST_BLOCK_INPUT_SELECT_REGIONS = 'COST_BLOCK_INPUT.SELECT.REGIONS';
 export const COST_BLOCK_INPUT_SELECT_COST_ELEMENT = 'COST_BLOCK_INPUT.SELECT.COST_ELEMENT';
@@ -199,9 +200,9 @@ export const getDataByCostElementSelection = (costBlockId: string, costElementId
             const state = getState().pages.costEditor
             const context = buildCostEditorContext(state);
             const costBlock = state.costBlocks.find(item => item.costBlockId === costBlockId);
-            const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
+            const costElement = costBlock.costElements.list.find(item => item.costElementId === costElementId);
 
-            if (costElement.dataLoadingState === DataLoadingState.Wait) {
+            if (costElement.isDataLoaded) {
                 handleRequest(
                     service.getCostElementData(context).then(
                         data => dispatch(loadCostElementData(costBlockId, costElementId, data))
@@ -225,19 +226,20 @@ export const getFilterItemsByInputLevelSelection = (costBlockId: string, costEle
         (dispatch, getState) => {
             dispatch(selectInputLevel(costBlockId, costElementId, inputLevelId));
 
-            const state = getState().pages.costEditor
-            const costBlockMeta = state.costBlockMetas.get(costBlockId);
+            const state = getState();
+            const costEditor = state.pages.costEditor;
+            const costBlockMeta = findMeta(state.app.appMetaData.costBlocks, costBlockId);
             const costElementMeta = costBlockMeta.costElements.find(item => item.id === costElementId);
             const inputLevelMeta = costElementMeta.inputLevels.find(item => item.id === inputLevelId);
 
             if (inputLevelMeta.isFilterLoading) {
-                const costBlock = state.costBlocks.find(item => item.costBlockId === costBlockId);
-                const costElement = costBlock.costElement.list.find(item => item.costElementId === costBlock.costElement.selectedItemId);
+                const costBlock = costEditor.costBlocks.find(item => item.costBlockId === costBlockId);
+                const costElement = costBlock.costElements.list.find(item => item.costElementId === costBlock.costElements.selectedItemId);
                 const inputLevel = costElement.inputLevel.list.find(item => item.inputLevelId === inputLevelId);
                 
                 if (!inputLevel || !inputLevel.filter)
                 {
-                    const context = buildCostEditorContext(state);
+                    const context = buildCostEditorContext(costEditor);
                     
                     handleRequest(
                         service.getLevelInputFilterItems(context).then(
@@ -249,38 +251,40 @@ export const getFilterItemsByInputLevelSelection = (costBlockId: string, costEle
         }
     )
 
-export const reloadFilterBySelectedRegion = (costBlockId: string, regionId: string) =>
-    asyncAction<CommonState>(
-        (dispatch, getState) => {
-            if (regionId) {
-                const state = getState().pages.costEditor
-                const costBlock = state.costBlocks.find(item => item.costBlockId === costBlockId);
+// export const reloadFilterBySelectedRegion = (costBlockId: string, regionId: string) =>
+//     asyncAction<CommonState>(
+//         (dispatch, getState) => {
+//             if (regionId) {
+//                 const state = getState().pages.costEditor
+//                 const costBlock = state.costBlocks.find(item => item.costBlockId === costBlockId);
 
-                const {
-                    costElement: { selectedItemId: costElementId },
-                } = costBlock;
+//                 const {
+//                     costElement: { selectedItemId: costElementId },
+//                 } = costBlock;
 
-                const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
+//                 const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
 
-                if (costElement.region && costElement.region.selectedItemId !== regionId) {
-                    dispatch(selectRegion(costBlockId, costElementId, regionId));
-                    dispatch(getDataByCostElementSelection(costBlockId, costElementId));
+//                 if (costElement.region && costElement.region.selectedItemId !== regionId) {
+//                     dispatch(selectRegion(costBlockId, costElementId, regionId));
+//                     dispatch(getDataByCostElementSelection(costBlockId, costElementId));
                     
-                    if (costElement.inputLevel.selectedItemId) {
-                        dispatch(getFilterItemsByInputLevelSelection(costBlockId, costElementId, costElement.inputLevel.selectedItemId));
-                    }
-                }
-            }
-        }
-    )
+//                     if (costElement.inputLevel.selectedItemId) {
+//                         dispatch(getFilterItemsByInputLevelSelection(costBlockId, costElementId, costElement.inputLevel.selectedItemId));
+//                     }
+//                 }
+//             }
+//         }
+//     )
 
 export const loadEditItemsByContext = () => 
     asyncAction<CommonState>(
         (dispatch, getState) => {
-            const state = getState().pages.costEditor
-            const context = buildCostEditorContext(state);
+            const { app: { appMetaData }, pages: { costEditor } } = getState();
+            const context = buildCostEditorContext(costEditor);
+            const costBlockMeta = findMeta(appMetaData.costBlocks, context.costBlockId);
+            const { regionInput } = findMeta(costBlockMeta.costElements, context.costElementId);
 
-            if (context.costElementId != null && context.inputLevelId != null) {
+            if (context.costElementId != null && context.inputLevelId != null && (!regionInput || context.regionInputId)) {
                 handleRequest(
                     service.getEditItems(context).then(
                         editItems => dispatch(loadEditItems(context.costBlockId, editItems))
@@ -310,7 +314,11 @@ export const saveEditItemsToServer = (costBlockId: string, approvalOption: Appro
 
 export const selectRegionWithReloading = (costBlockId: string, regionId: string) => losseDataCheckHandlerAction(
     (dispatch, state) => {
-        dispatch(reloadFilterBySelectedRegion(costBlockId, regionId));
+        //dispatch(reloadFilterBySelectedRegion(costBlockId, regionId));
+
+        const costBlock = state.costBlocks.find(item => item.costBlockId == costBlockId);
+
+        dispatch(selectRegion(costBlockId, costBlock.costElements.selectedItemId, regionId));
         dispatch(loadEditItemsByContext());
     }
 )

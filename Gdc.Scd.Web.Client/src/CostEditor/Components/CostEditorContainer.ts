@@ -4,7 +4,6 @@ import { CostEditorState } from "../States/CostEditorStates";
 import { CostBlockTab, CostEditorProps, CostEditorActions, CostEditorView } from "./CostEditorView";
 import { connect } from "react-redux";
 import { 
-    init, 
     selectApplicationLosseDataCheck, 
     selectCostBlock, 
     loseChanges, 
@@ -29,6 +28,8 @@ import { SelectListFilter, RegionProps, CostElementProps } from "./CostBlocksVie
 import { EditGridToolProps } from "./EditGridTool";
 import { CommonState } from "../../Layout/States/AppStates";
 import { InputLevelMeta, CostBlockMeta, FieldType } from "../../Common/States/CostMetaStates";
+import { filterCostEditorItems } from "../Helpers/CostEditorHelpers";
+import { findMeta } from "../../Common/Helpers/MetaHelper";
 
 const isSetContainsAllCheckedItems = (set: Set<string>, filterObj: Filter) => {
     let result = true;
@@ -68,7 +69,7 @@ const buildInputLevel = (
     }
 
     return <SelectListFilter>{
-        id: `${costBlock.costBlockId}_${costBlock.costElement.selectedItemId}`,
+        id: `${costBlock.costBlockId}_${costBlock.costElements.selectedItemId}`,
         filter,
         filterName,
         isVisibleFilter,
@@ -98,22 +99,28 @@ const costBlockTabMap = (
     const costElementProps = <CostElementProps>{
         id: costBlock.costBlockId,
         selectList: {
-            selectedItemId: costBlock.costElement.selectedItemId,
-            list: costBlockMeta.costElements.filter(
-                costElement => costBlock.visibleCostElementIds.includes(costElement.id))
+            selectedItemId: costBlock.costElements.selectedItemId,
+            // // // list: costBlockMeta.costElements.filter(
+            // // //     costElement => costBlock.visibleCostElementIds.includes(costElement.id))
+            // list: costBlockMeta.costElements.filter(
+            //     costElement => 
+            //         costElement.inputType === InputType.Manually || 
+            //         costElement.inputType === InputType.ManuallyAutomaticly
+            // )
+            list: filterCostEditorItems(costBlockMeta.costElements)
         },
         isEnableList,
         isVisibleFilter: false,
     }
 
-    if (costBlock.costElement.selectedItemId != null) {
+    if (costBlock.costElements.selectedItemId != null) {
         const selectedCostElement = 
-            costBlock.costElement.list.find(
-                item => item.costElementId === costBlock.costElement.selectedItemId);
+            costBlock.costElements.list.find(
+                item => item.costElementId === costBlock.costElements.selectedItemId);
 
         const selectedCostElementMeta = 
             costBlockMeta.costElements.find(
-                item => item.id === costBlock.costElement.selectedItemId);
+                item => item.id === costBlock.costElements.selectedItemId);
 
         if (selectedCostElement.inputLevel.selectedItemId != null) {
             selectedInputLevelMeta = 
@@ -178,34 +185,41 @@ const costBlockTabMap = (
 export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},CommonState>(
     state => {
         const { 
-            applications, 
+            //applications, 
             selectedApplicationId,
-            visibleCostBlockIds,
+            //visibleCostBlockIds,
             selectedCostBlockId,
             costBlocks,
-            costBlockMetas,
+            //costBlockMetas,
             dataLossInfo,
         } = state.pages.costEditor;
+
+        const { applications: applicationMets, costBlocks: costBlockMetas } = state.app.appMetaData;
 
         return {
             application: {
                 selectedItemId: selectedApplicationId,
-                list: applications && Array.from(applications.values())
+                list: <NamedId[]>filterCostEditorItems(applicationMets)
+                //list: applications && Array.from(applications.values())
             },
             isDataLossWarningDisplayed: dataLossInfo.isWarningDisplayed,
             costBlocks: {
                 selectedItemId: selectedCostBlockId,
-                list: costBlocks && 
-                      costBlocks.filter(costBlock => visibleCostBlockIds.includes(costBlock.costBlockId))
-                                .map(costBlock => 
-                                    costBlockTabMap(
-                                        costBlock, 
-                                        costBlockMetas.get(costBlock.costBlockId)))
+                // list: costBlocks && 
+                //     //   //costBlocks.filter(costBlock => visibleCostBlockIds.includes(costBlock.costBlockId))
+                //     //   costBlocks.filter(costBlock => findMeta(costBlockMetas, costBlock.costBlockId).applicationIds.includes(selectedApplicationId))
+                //     //             .map(costBlock => 
+                //     //                 costBlockTabMap(
+                //     //                     costBlock, 
+                //     //                     costBlockMetas.get(costBlock.costBlockId)))
+                list: costBlocks &&
+                      costBlocks.map(costBlock => ({ state: costBlock, meta: findMeta(costBlockMetas, costBlock.costBlockId) }))
+                                .filter(costBlockInfo => costBlockInfo.meta.applicationIds.includes(selectedApplicationId))
+                                .map(costBlockInfo => costBlockTabMap(costBlockInfo.state, costBlockInfo.meta))                  
             }
         } as CostEditorProps;
     },
     dispatch => ({
-        onInit: () => dispatch(init()),
         onApplicationSelected: applicationId => dispatch(selectApplicationLosseDataCheck(applicationId)),
         onCostBlockSelected: costBlockId => dispatch(selectCostBlock(costBlockId)),
         onLoseChanges: () => dispatch(loseChanges()),

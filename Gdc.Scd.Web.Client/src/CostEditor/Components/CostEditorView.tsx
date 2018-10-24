@@ -11,13 +11,11 @@ import {
 } from '@extjs/ext-react';
 import { connect } from 'react-redux';
 import { CostEditorState } from '../States/CostEditorStates';
-import { getCostEditorData } from '../Services/CostEditorServices';
 import { CostBlockState, EditItem, CheckItem, Filter } from '../States/CostBlockStates';
 import { 
     selectCostElement, 
     selectInputLevel, 
     getFilterItemsByInputLevelSelection, 
-    reloadFilterBySelectedRegion, 
     changeSelectionCostElementFilter, 
     changeSelectionInputLevelFilter, 
     resetCostElementFilter, 

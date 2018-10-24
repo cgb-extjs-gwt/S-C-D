@@ -66,10 +66,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 foreach (var costElement in costBlock.CostElements)
                 {
+                    var isManualInput = costElement.InputType == InputType.Manually || costElement.InputType == InputType.ManualyAutomaticly;
                     var costElementDto = new CostElementDto
                     {
-                        IsUsingCostEditor = this.ContainsRole(costElement.CostEditorRoles, user),
-                        IsUsingTableView = this.ContainsRole(costElement.TableViewRoles, user)
+                        IsUsingCostEditor = isManualInput && this.ContainsRole(costElement.CostEditorRoles, user),
+                        IsUsingTableView = isManualInput && this.ContainsRole(costElement.TableViewRoles, user)
                     };
 
                     if (isAddingCostElement || costElementDto.IsUsingCostEditor || costElementDto.IsUsingTableView)

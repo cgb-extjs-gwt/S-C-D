@@ -12,8 +12,6 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public InputLevelMeta RegionInput { get; set; }
 
-        public InputType InputType { get; set; }
-
         public IDictionary<string, string> TypeOptions { get; set; }
     }
 }

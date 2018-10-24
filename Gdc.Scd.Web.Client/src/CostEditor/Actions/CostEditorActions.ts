@@ -1,12 +1,11 @@
 import { CostEditorState } from "../States/CostEditorStates";
 import { Action, Dispatch } from "redux";
-import { getCostEditorData } from "../Services/CostEditorServices";
 import { asyncAction } from "../../Common/Actions/AsyncAction";
 import { ItemSelectedAction } from "../../Common/Actions/CommonActions";
-import { losseDataCheckAction } from "../Helpers/CostEditorHelpers";
 import { pageInit } from "../../Layout/Actions/AppActions";
 import { CommonState } from "../../Layout/States/AppStates";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
+import { losseDataCheckHandlerAction } from "../Helpers/CostEditorHelpers";
 
 export const COST_EDITOR_PAGE = 'costEditor';
 export const COST_EDITOR_SELECT_APPLICATION = 'COST_EDITOR.SELECT.APPLICATION';
@@ -18,14 +17,6 @@ export const COST_EDITOR_LOSE_CHANGES = 'COST_EDITOR.LOSE.CHANGES';
 export interface ShowDataLoseWarningAction extends Action<string> {
     dataLoseAction: Action<string>
 }
-
-export const init = () => asyncAction(
-    dispatch => handleRequest(
-        getCostEditorData().then(
-            costEditorData => dispatch(pageInit(COST_EDITOR_PAGE, costEditorData)),
-        )
-    )
-)
 
 export const selectApplication = (applicationId: string) => (<ItemSelectedAction>{
     type: COST_EDITOR_SELECT_APPLICATION,
@@ -59,6 +50,9 @@ export const loseChanges = () => asyncAction<CommonState>(
     }
 )
 
-export const selectApplicationLosseDataCheck = (applicationId: string) => losseDataCheckAction(
-    selectApplication(applicationId)
+export const selectApplicationLosseDataCheck = (applicationId: string) => losseDataCheckHandlerAction(
+    (dispatch, { costBlocks: [ { costBlockId } ] }) => {
+        dispatch(selectApplication(applicationId));
+        dispatch(selectCostBlock(costBlockId));
+    }
 )

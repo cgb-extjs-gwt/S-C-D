@@ -5,28 +5,29 @@ import { showDataLoseWarning } from "../Actions/CostEditorActions";
 import { Dispatch } from "react-redux";
 import { CommonState } from "../../Layout/States/AppStates";
 import { Context } from "../Services/CostEditorServices";
+import { UsingInfo, CostBlockMeta, CostMetaData } from "../../Common/States/CostMetaStates";
 
 const hasUnsavedChanges = (state: CostEditorState) => 
     !state.costBlocks.every(costBlock => !costBlock.edit.editedItems || costBlock.edit.editedItems.length === 0)
 
 export const losseDataCheckHandlerAction = (
-    handler: (dispatch: Dispatch, state: CostEditorState) => void
+    handler: (dispatch: Dispatch, state: CostEditorState, mete: CostMetaData) => void
 ) => 
     asyncAction<CommonState>(
         (dispatch, getState, asyncAction) => {
-            const state = getState();
+            const { app: { appMetaData }, pages: { costEditor } } = getState();
 
-            if (hasUnsavedChanges(state.pages.costEditor)) {
+            if (hasUnsavedChanges(costEditor)) {
                 dispatch(showDataLoseWarning(asyncAction));
             } else {
-                handler(dispatch, state.pages.costEditor)
+                handler(dispatch, costEditor, appMetaData)
             }
         }
     )
 
-export const losseDataCheckAction = (action: Action<string>) => losseDataCheckHandlerAction(
-    dispatch => dispatch(action)
-)
+// export const losseDataCheckAction = (action: Action<string>) => losseDataCheckHandlerAction(
+//     dispatch => dispatch(action)
+// )
 
 export const buildCostEditorContext = (state: CostEditorState) => {
     const { 
@@ -38,7 +39,7 @@ export const buildCostEditorContext = (state: CostEditorState) => {
     const costBlock = costBlocks.find(item => item.costBlockId === costBlockId); 
 
     const { 
-        costElement,
+        costElements,
     } = costBlock;
 
     let costElementFilterIds: string[] = null;
@@ -46,9 +47,9 @@ export const buildCostEditorContext = (state: CostEditorState) => {
     let inputLevelId: string = null;
     let regionInputId: string = null;
 
-    if (costElement.selectedItemId != null) {
+    if (costElements.selectedItemId != null) {
         const selectedCostElement = 
-            costElement.list.find(item => item.costElementId === costElement.selectedItemId);
+            costElements.list.find(item => item.costElementId === costElements.selectedItemId);
 
         regionInputId = selectedCostElement.region && selectedCostElement.region.selectedItemId;
         inputLevelId = selectedCostElement.inputLevel.selectedItemId;
@@ -58,9 +59,11 @@ export const buildCostEditorContext = (state: CostEditorState) => {
         applicationId,
         costBlockId,
         regionInputId,
-        costElementId: costElement.selectedItemId,
+        costElementId: costElements.selectedItemId,
         inputLevelId,
         costElementFilterIds: Array.from(costBlock.edit.appliedFilter.costElementsItemIds),
         inputLevelFilterIds: Array.from(costBlock.edit.appliedFilter.inputLevelItemIds)
     }
 }
+
+export const filterCostEditorItems = <T extends UsingInfo>(items: T[]) => items.filter(item => item.isUsingCostEditor);
