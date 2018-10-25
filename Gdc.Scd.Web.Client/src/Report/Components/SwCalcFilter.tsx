@@ -10,8 +10,6 @@ export interface FilterPanelProps extends PanelProps {
 
 export class SwCalcFilter extends React.Component<FilterPanelProps, any> {
 
-    private country: ComboBoxField;
-
     private sog: ComboBoxField;
 
     private avail: ComboBoxField;
@@ -38,7 +36,6 @@ export class SwCalcFilter extends React.Component<FilterPanelProps, any> {
                         clearable: 'true'
                     }}
                 >
-                    <ComboBoxField ref="country" label="Country:" options={this.state.countries} />
                     <ComboBoxField ref="sog" label="Asset(SOG):" options={this.state.sogs} />
                     <ComboBoxField ref="availability" label="Availability:" options={this.state.availabilityTypes} />
                     <ComboBoxField ref="year" label="Year:" options={this.state.years} />
@@ -65,7 +62,6 @@ export class SwCalcFilter extends React.Component<FilterPanelProps, any> {
             });
         });
         //
-        this.country = this.refs.country as ComboBoxField;
         this.sog = this.refs.sog as ComboBoxField;
         this.avail = this.refs.availability as ComboBoxField;
         this.year = this.refs.year as ComboBoxField;
@@ -73,7 +69,6 @@ export class SwCalcFilter extends React.Component<FilterPanelProps, any> {
 
     public getModel(): SwCalcFilterModel {
         return {
-            country: this.getSelected(this.country),
             sog: this.getSelected(this.sog),
             availability: this.getSelected(this.avail),
             year: this.getSelected(this.year)

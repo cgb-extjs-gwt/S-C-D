@@ -26,13 +26,13 @@
         
         public const string DefaultSchema = "dbo";
 
+        public const string PlaInputLevelName = "Pla";
+
         public const string WgInputLevelName = "Wg";
 
         public const string CalculationTable = "ServiceCostCalculation";
 
         public const string HardwareSchema = "Hardware";
-
-        public const string SoftwareSchema = "Software";
 
         public const string FspCodeTranslationSchema = "Fsp";
 
@@ -45,5 +45,7 @@
         public const string ImportSchema = "Import";
 
         public const string ReportSchema = "Report";
+
+        public const string MatrixSchema = "Matrix";
     }
 }

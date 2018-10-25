@@ -2,10 +2,13 @@
 using System.Web.Http;
 using Gdc.Scd.BusinessLogicLayer.Dto.CapabilityMatrix;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Web.Server.Impl;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
+    [ScdAuthorize(Permissions = new[] { PermissionConstants.Portfolio })]
     public class CapabilityMatrixController : ApiController
     {
         private readonly ICapabilityMatrixService capabilityMatrixService;

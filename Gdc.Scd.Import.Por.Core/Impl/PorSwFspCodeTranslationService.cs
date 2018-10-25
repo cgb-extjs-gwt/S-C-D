@@ -77,6 +77,9 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                             continue;
                         }
 
+                        _logger.Log(LogLevel.Info, PorImportLoggingMessage.CHECKING_SW_PROACTIVE, digit.Name);
+                        var proActive = model.ProActiveDigits.FirstOrDefault(d => d.DigitId.HasValue && d.DigitId == digit.Id);
+
                         var dbcode = new SwFspCodeTranslation
                         {
                             AvailabilityId = sla.Availability,
@@ -93,7 +96,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                             EKKey = code.EKSchluessel,
                             Status = code.VStatus,
                             SwDigitId = digit.Id,
-                            CreatedDateTime = model.CreatedDateTime
+                            CreatedDateTime = model.CreatedDateTime,
+                            ProactiveSlaId = proActive == null ? null : proActive.ProActiveId
                         };
 
                         _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
@@ -118,6 +122,5 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 return result;
             }
         }
-        
     }
 }

@@ -28,7 +28,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<IQualityGateSevice>().To<QualityGateSevice>().InRequestScope();
             Bind<IActiveDirectoryService>().To<ActiveDirectoryService>().InRequestScope();
             Bind<ITableViewService>().To<TableViewService>().InRequestScope();
-            Bind<IUserRoleService>().To<UserRoleService>().InRequestScope();
+            Bind<IAppService>().To<AppService>().InRequestScope();
 
             /*----------dictionaries-----------*/
             Kernel.RegisterEntity<ClusterRegion>();
@@ -60,15 +60,15 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<SwFspCodeTranslation>();
             Kernel.RegisterEntity<TaxAndDutiesEntity>();
             Kernel.RegisterEntity<ImportConfiguration>();
-
+            Kernel.RegisterEntity<ProActiveDigit>();
+            Kernel.RegisterEntity<AvailabilityFee>();
             /*----------admin---------*/
             Kernel.RegisterEntity<AdminAvailabilityFee>();
-            Kernel.RegisterEntity<Role>();
             Kernel.RegisterEntity<RoleCode>();
-            Kernel.RegisterEntity<UserRole>();
 
             /*---------domain business logic------------*/
             Kernel.RegisterEntity<CapabilityMatrix>();
+            Kernel.RegisterEntity<CapabilityMatrixMaster>();
             Kernel.RegisterEntity<CapabilityMatrixRule>();
             Kernel.RegisterEntity<HardwareCalculationResult>();
             Kernel.RegisterEntity<SoftwareCalculationResult>();

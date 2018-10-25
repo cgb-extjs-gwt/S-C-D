@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Attributes\ParseInfoAttribute.cs" />
     <Compile Include="Dto\DownloadInfoDto.cs" />
+    <Compile Include="Dto\LogisticsDto.cs" />
     <Compile Include="Dto\ParseInfoDto.cs" />
     <Compile Include="Dto\TaxAndDutiesDto.cs" />
     <Compile Include="Enums\Format.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="Impl\FileDownloader.cs" />
     <Compile Include="Impl\ImportManager.cs" />
     <Compile Include="Impl\Logger.cs" />
+    <Compile Include="Impl\LogisticUploader.cs" />
     <Compile Include="Impl\Parser.cs" />
     <Compile Include="ImportConstants.cs" />
     <Compile Include="Interfaces\IConfigHandler.cs" />

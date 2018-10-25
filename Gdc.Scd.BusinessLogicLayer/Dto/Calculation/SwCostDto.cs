@@ -2,8 +2,6 @@
 {
     public class SwCostDto
     {
-        public string Country { get; set; }
-
         public string Sog { get; set; }
 
         public string Availability { get; set; }
