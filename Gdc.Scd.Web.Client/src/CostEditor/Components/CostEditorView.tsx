@@ -36,8 +36,6 @@ export interface CostEditorActions {
     onInit?: () => void;
     onApplicationSelected?: (applicationId: string) => void;
     onCostBlockSelected?: (applicationId: string, costBlockId: string) => void;
-    // onLoseChanges?: () => void
-    // onCancelDataLose?: () => void
     tabActions: {
         onRegionSelected?: (regionId: string, costBlockId: string, applicationId: string,) => void
         onCostElementSelected?: (applicationId: string, costBlockId: string, costElementId: string) => void
@@ -81,15 +79,6 @@ export class CostEditorView extends React.Component<CostEditorProps> {
         super(props);
         props.onInit && props.onInit();
     }
-
-    // public componentDidUpdate() {
-    //     const { isDataLossWarningDisplayed } = this.props;
-
-    //     if (isDataLossWarningDisplayed && !this.isShownDataLossWarning) {
-    //         this.showDataLossWarning();
-    //         this.isShownDataLossWarning = true;
-    //     }
-    // }
 
     public render() {
         const { application, costBlocks } = this.props;
@@ -238,27 +227,5 @@ export class CostEditorView extends React.Component<CostEditorProps> {
             </Container>
         );
     }
-
-    // private showDataLossWarning() {
-    //     const { onLoseChanges, onCancelDataLose } = this.props;
-    //     const me = this;
-
-    //     const messageBox = Ext.Msg.confirm(
-    //         'Warning', 
-    //         'You have unsaved changes. If you continue, you will lose changes. Continue?',
-    //         (buttonId: string) => {
-    //             switch(buttonId) {
-    //                 case 'yes':
-    //                     onLoseChanges && onLoseChanges();
-    //                     break;
-    //                 case 'no':
-    //                     onCancelDataLose && onCancelDataLose();
-    //                     break;
-    //             }
-
-    //             me.isShownDataLossWarning = false
-    //         }
-    //     );
-    // }
 }
 

@@ -39,7 +39,6 @@ const buildCostBlockState = (costBlockMeta: CostBlockMeta) => (<CostBlockState>{
                             costElementMeta.typeOptions && costElementMeta.typeOptions.Type === FieldType.Reference
         }))
     },
-    //visibleCostElementIds: getVisibleCostElementIds(costBlockMeta),
     edit: {
         originalItems: null,
         editedItems: [],
@@ -75,113 +74,6 @@ const initByMeta: Reducer<CostEditorState, LoadingAppDataAction> = (state, { dat
             })
         }
     };
-
-
-    // // const { costBlocks } = action.data;
-    // // const applications = filterCostEditorItems(action.data.applications);
-    // // const selectedApplicationId = applications[0].id;
-    // // const costBlockMetas = filterCostEditorItems(costBlocks).map(costBlock => (<CostBlockMeta>{
-    // //     ...costBlock,
-    // //     costElements: filterCostEditorItems(costBlock.costElements).map(costElement => ({
-    // //         ...costElement,
-    // //         inputLevels: costElement.inputLevels.map((inputLevel, index) => (<InputLevelMeta>{
-    // //             ...inputLevel,
-    // //             levelNumer: index,
-    // //             isFilterLoading: index > 0 && costElement.inputLevels[index - 1].id != CountryInputLevelName
-    // //         }))
-    // //     }))
-    // // }))
-
-    // // return action.pageId === COST_EDITOR_PAGE 
-    // //     ? {
-    // //         ...state,
-    // //         applications: createMap(applications),
-    // //         regions: createMap([]),
-    // //         costBlockMetas: createMap(costBlockMetas),
-    // //         selectedApplicationId
-    // //     } 
-    // //     : state;
-
-
-    // // const applications = filterCostEditorItems(action.data.applications); 
-    // // const costBlocks = filterCostEditorItems(action.data.costBlocks);
-
-    // // const costBlocks = filterCostEditorItems(meta.costBlocks).map(costBlockMeta => (<CostBlockState>{
-    // //     costBlockId: costBlockMeta.id,
-    // //     selectedRegionId: null,
-    // //     costElements: {
-    // //         selectedItemId: null,
-    // //         list: filterCostEditorItems(costBlockMeta.costElements).map(costElementMeta => (<CostElementState>{
-    // //             costElementId: costElementMeta.id,
-    // //             inputLevel: {
-    // //                 selectedItemId: null,
-    // //                 list: costElementMeta.inputLevels.map(inputLevel => (<InputLevelState>{
-    // //                     inputLevelId: inputLevel.id
-    // //                 }))
-    // //             },
-    // //             isDataLoaded: costElementMeta.regionInput || 
-    // //                           costElementMeta.dependency || 
-    // //                           costElementMeta.typeOptions && costElementMeta.typeOptions.Type === FieldType.Reference
-    // //         }))
-    // //     },
-    // //     //visibleCostElementIds: getVisibleCostElementIds(costBlockMeta),
-    // //     edit: {
-    // //         originalItems: null,
-    // //         editedItems: [],
-    // //         isFiltersApplied: true,
-    // //         appliedFilter: {
-    // //             costElementsItemIds: new Set<string>(),
-    // //             inputLevelItemIds: new Set<string>()
-    // //         },
-    // //         saveErrors: []
-    // //     }
-    // // }));
-
-    // // return {
-    // //     ...state,
-    // //     selectedApplicationId: filterCostEditorItems(meta.applications)[0].id,
-    // //     selectedCostBlockId: costBlocks[0].costBlockId,
-    // //     costBlocks
-    // // };
-
-    // //const applicationSet = filterCostEditorItems(meta.applications).reduce((set, app) => ({ ...set, [app.id]: {}}), <ApplicationSet>{});
-
-    // const costBlocks = filterCostEditorItems(meta.costBlocks);
-
-    // const applicationSet = filterCostEditorItems(meta.applications).reduce(
-    //     (appSet, app) => ({
-    //         ...appSet,
-    //         [app.id]: costBlocks.reduce(
-    //             (costBlockSet, costBlock) => 
-    //                 costBlock.applicationIds.includes(app.id) 
-    //                 ? ({
-    //                     ...costBlockSet,
-    //                     [costBlock.id]: buildCostBlockState(costBlock)
-    //                 })
-    //                 : costBlockSet, 
-    //             <CostBlockSet>{}
-    //         )
-    //     }), 
-    //     <ApplicationSet>{}
-    // )
-
-
-    // // const costBlocks = filterCostEditorItems(meta.costBlocks).reduce(
-    // //     (applicationSet, costBlock) => {
-
-
-    // //         return applicationSet;
-    // //     },
-    // //     applicationSet
-    // // )
-    
-
-    
-
-    // return <CostEditorState>{
-    //     ...state,
-        
-    // };
 }
 
 const defaultState = () => (<CostEditorState>{
@@ -191,38 +83,6 @@ const defaultState = () => (<CostEditorState>{
         action: null,
     }
 })
-
-// const showDataLoseWarning: Reducer<CostEditorState, ShowDataLoseWarningAction> = (state, action) => ({
-//     ...state,
-//     dataLossInfo: {
-//         ...state.dataLossInfo,
-//         isWarningDisplayed: true,
-//         action: action.dataLoseAction
-//     }
-// })
-
-// const hideDataLoseWarning: Reducer<CostEditorState> = state => ({
-//     ...state,
-//     dataLossInfo: {
-//         ...state.dataLossInfo,
-//         isWarningDisplayed: false,
-//         action: null
-//     }
-// })
-
-// const loseChanges: Reducer<CostEditorState, Action<string>> = state => ({
-//     ...state,
-//     costBlocks: state.costBlocks.map(costBlock => (<CostBlockState>{
-//         ...costBlock,
-//         edit: {
-//             ...costBlock.edit,
-//             editedItems: []
-//         }
-//     })),
-//     dataLossInfo: {
-//         ...state.dataLossInfo,
-//     }
-// })
 
 const loseChanges: Reducer<CostEditorState, Action<string>> = (state, action) => {
     const { id: applicationId, costBlocks } = findApplication(state);
@@ -242,7 +102,6 @@ const loseChanges: Reducer<CostEditorState, Action<string>> = (state, action) =>
         }
     }
 }
-
 
 const clearCostBlockFilters  = (costBlock: CostBlockState, clearSelected: boolean = false) => {
     const result: CostBlockState = {
@@ -272,28 +131,12 @@ const clearCostBlockFilters  = (costBlock: CostBlockState, clearSelected: boolea
 }
 
 const selectApplication: Reducer<CostEditorState, ItemSelectedAction> = (state, { selectedItemId }) => {
-    // const visibleCostBlockIds = getVisibleCostBlockIds(
-    //     Array.from(state.costBlockMetas.values()), 
-    //     action.selectedItemId);
-
-    // const selectedCostBlockId = visibleCostBlockIds.includes(state.selectedCostBlockId)
-    //     ? state.selectedCostBlockId
-    //     : visibleCostBlockIds[0];
-
-    // return {
-    //     ...state,
-    //     costBlocks: state.costBlocks.map(costBlock => clearCostBlockFilters(costBlock, true)),
-    //     visibleCostBlockIds,
-    //     selectedCostBlockId,
-    // }
-
     return {
         ...state,
         applications: {
             ...state.applications,
             selectedItemId
         }
-        //costBlocks: state.costBlocks.map(costBlock => clearCostBlockFilters(costBlock, true)),
     }
 }
 
@@ -326,75 +169,12 @@ const mapCostBlock = (
     }
 }))
 
-// ) => (<CostEditorState>{
-//     ...state,
-//     applications: {
-//         ...state.applications,
-//         list: mapIf(
-//             state.applications.list, 
-//             app => app.id == applicationId,
-//             app => (<ApplicationState>{
-//                 ...app,
-//                 costBlocks: {
-//                     ...app.costBlocks,
-//                     list: mapIf(
-//                         app.costBlocks.list, 
-//                         costBlock => costBlock.costBlockId == costBlockId,
-//                         changeFn
-//                     )
-//                 }
-//             })
-//         )
-//     }
-// })
-
 const buildCostBlockChanger = <TAction extends CostBlockAction, TParam=any>(
     changeFn: ((costBlock: CostBlockState, action: TAction, state: CostEditorState, addionalParam?: TParam) => CostBlockState)
 ) => 
         (state: CostEditorState, action: Action<string>, addionalParam?: TParam) => {
             const costBlockAction = <TAction>action;
             const { applicationId, costBlockId } = costBlockAction;
-
-            // // // return <CostEditorState>{
-            // // //     ...state,
-            // // //     costBlocks: mapIf(
-            // // //         state.costBlocks, 
-            // // //         costBlock => costBlock.costBlockId === costBlockAction.costBlockId,
-            // // //         costBlock => changeFn(costBlock, costBlockAction, state, addionalParam) 
-            // // //     )
-            // // // }
-
-            // // const costBlockSet = state[state.selectedApplicationId];
-
-            // // return <CostEditorState>{
-            // //     ...state,
-            // //     [state.selectedApplicationId]: {
-            // //         ...costBlockSet,
-            // //         [costBlockAction.costBlockId]: changeFn(costBlockSet[costBlockAction.costBlockId], costBlockAction, state, addionalParam)
-            // //     }
-            // // };
-
-            // return <CostEditorState>{
-            //     ...state,
-            //     applications: {
-            //         ...state.applications,
-            //         list: mapIf(
-            //             state.applications.list, 
-            //             app => app.id == costBlockAction.applicationId,
-            //             app => (<Application>{
-            //                 ...app,
-            //                 costBlocks: {
-            //                     ...app.costBlocks,
-            //                     list: mapIf(
-            //                         app.costBlocks.list, 
-            //                         costBlock => costBlock.costBlockId == costBlockAction.costBlockId,
-            //                         costBlock => changeFn(costBlock, costBlockAction, state, addionalParam) 
-            //                     )
-            //                 }
-            //             })
-            //         )
-            //     }
-            // }
 
             return mapCostBlock(
                 state, 
@@ -459,35 +239,6 @@ const selectRegion = buildCostBlockChanger<RegionSelectedAction>(
     })
 )
 
-// const selectCostElement = buildCostBlockChanger<CostElementAction, CostMetaData>(
-//     (costBlock, { costElementId }, state, meta) => (<CostBlockState>{
-//         ...costBlock, 
-//         costElement: {
-//             ...costBlock.costElement,
-//             selectedItemId: costElementId,
-//             list: costBlock.costElement.list.map(item => {
-//                 if (item.costElementId === costElementId && !item.dataLoadingState) {
-//                     const costBlockMeta = findMeta(meta.costBlocks, costBlock.costBlockId);
-//                     const costElementMeta = costBlockMeta.costElements.find(item => item.id === costElementId);
-//                     const isDataLoading = 
-//                         costElementMeta.regionInput || 
-//                         costElementMeta.dependency || 
-//                         costElementMeta.typeOptions && costElementMeta.typeOptions.Type === FieldType.Reference;
-
-//                     item = {
-//                         ...item,
-//                         dataLoadingState: isDataLoading ? DataLoadingState.WaitLoading : DataLoadingState.WithoutLoading
-//                     }
-//                 }
-
-//                 return item;
-//             })
-//         }
-//     })
-// )
-
-
-
 const selectCostElement = buildCostBlockChanger<CostElementAction>(
     (costBlock, { costElementId }) => (<CostBlockState>{
         ...costBlock, 
@@ -539,7 +290,6 @@ const resetInputLevelFilter = buildInputLevelFilterChanger(
 const loadCostElementData = buildCostElementListItemChanger<CostElementDataLoadedAction>(
     (costElement, { costElementData }) => ({
         ...costElement,
-        //dataLoadingState: DataLoadingState.Loaded,
         isDataLoaded: true,
         region: {
             ...costElement.region,
@@ -677,30 +427,14 @@ const selectCostBlock: Reducer<CostEditorState, CostBlockAction> = (state, { app
 
 export const costEditorReducer: Reducer<CostEditorState, Action<string>> = (state = defaultState(), action) => {
     switch(action.type) {
-        // case APP_PAGE_INIT:
-        //     return initSuccess(state, <PageInitAction<CostMetaData>>action);
-
         case APP_LOAD_DATA:
             return initByMeta(state, <LoadingAppDataAction>action);
 
         case COST_EDITOR_SELECT_APPLICATION:
-            // return {
-            //     ...state,
-            //     selectedApplicationId: (<ItemSelectedAction>action).selectedItemId
-            // }
             return selectApplication(state, <ItemSelectedAction>action)
 
         case COST_EDITOR_SELECT_COST_BLOCK:
             return selectCostBlock(state, <CostBlockAction>action);
-
-        // case COST_EDITOR_SHOW_LOSE_CHANGES_WARNING:
-        //     return showDataLoseWarning(state, <ShowDataLoseWarningAction>action);
-
-        // case COST_EDITOR_HIDE_LOSE_CHANGES_WARNING:
-        //     return hideDataLoseWarning(state, action);
-
-        // case COST_EDITOR_LOSE_CHANGES:
-        //     return loseChanges(state, action);
 
         case COST_BLOCK_INPUT_LOAD_COST_ELEMENT_DATA:
             return loadCostElementData(state, action);

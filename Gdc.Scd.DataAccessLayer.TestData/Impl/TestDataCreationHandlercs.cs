@@ -346,30 +346,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 {
                     var referenceMeta = field.ReferenceMeta;
 
-                    //if (referenceMeta.Name == MetaConstants.CountryInputLevelName)
-                    //{
-                    //    var masterCountries =
-                    //        new AliasSqlBuilder
-                    //        {
-                    //            Alias = MasterCountry,
-                    //            Query = new BracketsSqlBuilder
-                    //            {
-                    //                Query =
-                    //                    Sql.Select(MetaConstants.IdFieldKey)
-                    //                       .From(referenceMeta)
-                    //                       .Where(SqlOperators.Equals(nameof(Country.IsMaster), "master", 1))
-                    //                       .ToSqlBuilder()
-                    //            }
-                    //        };
-
-
-                    //    joinQuery = joinQuery.Join(masterCountries, (ISqlBuilder)null, JoinType.Cross);
-                    //}
-                    //else
-                    //{
-                    //    joinQuery = joinQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
-                    //}
-
                     joinQuery = joinQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
                 }
 

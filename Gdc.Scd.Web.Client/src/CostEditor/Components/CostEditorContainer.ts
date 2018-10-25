@@ -51,19 +51,6 @@ const buildInputLevel = (
     let selectedInputLevelId: string = null;
     let isVisibleFilter: boolean;
     
-    // if (selectedInputLevel) {
-    //     isVisibleFilter = selectedInputLevel.filter && selectedInputLevel.filter.length > 0;
-    //     if (isVisibleFilter) {
-    //         const prevLevelNumber = selectedInputLevelMeta.levelNumer - 1;
-    //         const prevInputLevelMeta = inputLevelMetas.find(item => item.levelNumer === prevLevelNumber);
-            
-    //         filterName = prevInputLevelMeta.name;
-    //         filter = selectedInputLevel.filter;
-    //     }
-
-    //     selectedInputLevelId = selectedInputLevel.inputLevelId;
-    // }
-
     if (selectedInputLevel) {
         if (selectedInputLevelMeta.hasFilter) {
             isVisibleFilter = true;
@@ -107,13 +94,6 @@ const costBlockTabMap = (
         id: costBlock.costBlockId,
         selectList: {
             selectedItemId: costBlock.costElements.selectedItemId,
-            // // // list: costBlockMeta.costElements.filter(
-            // // //     costElement => costBlock.visibleCostElementIds.includes(costElement.id))
-            // list: costBlockMeta.costElements.filter(
-            //     costElement => 
-            //         costElement.inputType === InputType.Manually || 
-            //         costElement.inputType === InputType.ManuallyAutomaticly
-            // )
             list: filterCostEditorItems(costBlockMeta.costElements)
         },
         isEnableList,
@@ -193,17 +173,6 @@ const costBlockTabMap = (
 
 export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},CommonState>(
     state => {
-        // const { 
-        //     //applications, 
-        //     selectedApplicationId,
-        //     //visibleCostBlockIds,
-        //     selectedCostBlockId,
-        //     costBlocks,
-        //     //costBlockMetas,
-        //     dataLossInfo,
-        // } = state.pages.costEditor;
-
-        
         const { applications, dataLossInfo } = state.pages.costEditor;
         const { costBlocks } = findApplication(state.pages.costEditor);
         const { applications: applicationMetas, costBlocks: costBlockMetas } = state.app.appMetaData;
@@ -212,21 +181,10 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
             application: {
                 selectedItemId: applications.selectedItemId,
                 list: <NamedId[]>filterCostEditorItems(applicationMetas)
-                //list: applications && Array.from(applications.values())
             },
             isDataLossWarningDisplayed: dataLossInfo.isWarningDisplayed,
             costBlocks: {
                 selectedItemId: costBlocks.selectedItemId,
-                // list: costBlocks && 
-                //     //   //costBlocks.filter(costBlock => visibleCostBlockIds.includes(costBlock.costBlockId))
-                //     //   costBlocks.filter(costBlock => findMeta(costBlockMetas, costBlock.costBlockId).applicationIds.includes(selectedApplicationId))
-                //     //             .map(costBlock => 
-                //     //                 costBlockTabMap(
-                //     //                     costBlock, 
-                //     //                     costBlockMetas.get(costBlock.costBlockId)))
-                // list: costBlocks.list.map(costBlock => ({ state: costBlock, meta: findMeta(costBlockMetas, costBlock.costBlockId) }))
-                //                      .filter(costBlockInfo => costBlockInfo.meta.applicationIds.includes(applications.selectedItemId))
-                //                      .map(costBlockInfo => costBlockTabMap(costBlockInfo.state, costBlockInfo.meta))   
                 list: costBlocks.list.map(costBlock => {
                     let costBlockTab: CostBlockTab;
 
@@ -243,11 +201,8 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
         } as CostEditorProps;
     },
     dispatch => ({
-        //onApplicationSelected: applicationId => dispatch(selectApplicationLosseDataCheck(applicationId)),
         onApplicationSelected: applicationId => dispatch(selectApplication(applicationId)),
         onCostBlockSelected: (applicationId, costBlockId) => dispatch(selectCostBlock(applicationId, costBlockId)),
-        // onLoseChanges: () => dispatch(loseChanges()),
-        // onCancelDataLose: () => dispatch(hideDataLoseWarning()),
         tabActions: {
             onRegionSelected: (regionId, costBlockId, applicationId) => {
                 dispatch(selectRegionWithReloading(applicationId, costBlockId, regionId));

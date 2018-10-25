@@ -10,7 +10,6 @@ export interface CostElementMeta extends NamedId, UsingInfo {
     description: string
     inputLevels: InputLevelMeta[]
     regionInput: NamedId
-    //inputType: InputType
     typeOptions: {
         Type: FieldType
     }
@@ -28,13 +27,6 @@ export interface InputLevelMeta extends NamedId {
     hasFilter: boolean
     filterName
 }
-
-// export enum InputType {
-//     Manually = 0,
-//     Automatically = 1,
-//     Reference = 2,
-//     ManuallyAutomaticly = 3
-// }
 
 export enum FieldType {
     Reference = "Reference",

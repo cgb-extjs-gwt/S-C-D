@@ -43,18 +43,6 @@ export const findInputeLevelByState = (state: CostEditorState, applicationId?: s
 }
 
 export const buildCostEditorContext = (state: CostEditorState) => {
-    // const { 
-    //     selectedApplicationId: applicationId,  
-    //     selectedCostBlockId: costBlockId,
-    //     costBlocks
-    // } = state;
-
-    // const costBlock = costBlocks.find(item => item.costBlockId === costBlockId); 
-
-    // const { 
-    //     costElements,
-    // } = costBlock;
-
     const { id: applicationId, costBlocks } = findApplication(state);
     const costBlock = findCostBlock(costBlocks);
     const { costBlockId, costElements } = costBlock;
@@ -84,31 +72,3 @@ export const buildCostEditorContext = (state: CostEditorState) => {
 }
 
 export const filterCostEditorItems = <T extends UsingInfo>(items: T[]) => items.filter(item => item.isUsingCostEditor);
-
-// const hasUnsavedChanges = (state: CostEditorState) => 
-//     !state.costBlocks.every(costBlock => !costBlock.edit.editedItems || costBlock.edit.editedItems.length === 0)
-
-// const hasUnsavedChanges = (state: CostEditorState) => {
-//     const { costBlocks } = findApplication(state);
-
-//     return !costBlocks.list.every(costBlock => !costBlock.edit.editedItems || costBlock.edit.editedItems.length === 0);
-// }
-
-// export const losseDataCheckHandlerAction = (
-//     handler: (dispatch: Dispatch, state: CostEditorState, meta: CostMetaData) => void
-// ) => 
-//     asyncAction<CommonState>(
-//         (dispatch, getState, asyncAction) => {
-//             const { app: { appMetaData }, pages: { costEditor } } = getState();
-
-//             if (hasUnsavedChanges(costEditor)) {
-//                 dispatch(showDataLoseWarning(asyncAction));
-//             } else {
-//                 handler(dispatch, costEditor, appMetaData)
-//             }
-//         }
-//     )
-
-// export const losseDataCheckAction = (action: Action<string>) => losseDataCheckHandlerAction(
-//     dispatch => dispatch(action)
-// )

@@ -27,7 +27,6 @@ export const COST_BLOCK_INPUT_EDIT_ITEM = 'COST_BLOCK_INPUT.EDIT.ITEM';
 export const COST_BLOCK_INPUT_SAVE_EDIT_ITEMS = 'COST_BLOCK_INPUT.SAVE.EDIT_ITEMS';
 export const COST_BLOCK_INPUT_APPLY_FILTERS = 'COST_BLOCK_INPUT.APPLY.FILTERS';
 export const COST_BLOCK_INPUT_RESET_ERRORS = 'COST_BLOCK_INPUT.RESET.ERRORS';
-//export const COST_EDITOR_LOSE_CHANGES = 'COST_EDITOR.LOSE.CHANGES';
 
 export interface CostBlockAction extends Action<string>  {
     applicationId: string
@@ -227,8 +226,6 @@ export const getDataByCostElementSelection = (applicationId: string, costBlockId
 
             const state = getState().pages.costEditor
             const context = buildCostEditorContext(state);
-            //const costBlock = state.costBlocks.find(item => item.costBlockId === costBlockId);
-            //const costElement = costBlock.costElements.list.find(item => item.costElementId === costElementId);
             const costElement = findCostElementByState(state, applicationId, costBlockId, costElementId);
 
             if (costElement.isDataLoaded) {
@@ -263,10 +260,6 @@ export const getFilterItemsByInputLevelSelection = (applicationId: string, costB
             const inputLevelMeta = findMeta(costElementMeta.inputLevels, inputLevelId);
 
             if (inputLevelMeta.hasFilter) {
-                //const costBlock = costEditor.costBlocks.find(item => item.costBlockId === costBlockId);
-                // const costElement = costBlock.costElements.list.find(item => item.costElementId === costBlock.costElements.selectedItemId);
-                // const inputLevel = costElement.inputLevel.list.find(item => item.inputLevelId === inputLevelId);
-
                 const inputLevel = findInputeLevelByState(costEditor, applicationId, costBlockId, costElementId, inputLevelId)
                 
                 if (!inputLevel || !inputLevel.filter)
@@ -282,31 +275,6 @@ export const getFilterItemsByInputLevelSelection = (applicationId: string, costB
             }
         }
     )
-
-// export const reloadFilterBySelectedRegion = (costBlockId: string, regionId: string) =>
-//     asyncAction<CommonState>(
-//         (dispatch, getState) => {
-//             if (regionId) {
-//                 const state = getState().pages.costEditor
-//                 const costBlock = state.costBlocks.find(item => item.costBlockId === costBlockId);
-
-//                 const {
-//                     costElement: { selectedItemId: costElementId },
-//                 } = costBlock;
-
-//                 const costElement = costBlock.costElement.list.find(item => item.costElementId === costElementId);
-
-//                 if (costElement.region && costElement.region.selectedItemId !== regionId) {
-//                     dispatch(selectRegion(costBlockId, costElementId, regionId));
-//                     dispatch(getDataByCostElementSelection(costBlockId, costElementId));
-                    
-//                     if (costElement.inputLevel.selectedItemId) {
-//                         dispatch(getFilterItemsByInputLevelSelection(costBlockId, costElementId, costElement.inputLevel.selectedItemId));
-//                     }
-//                 }
-//             }
-//         }
-//     )
 
 export const loadEditItemsByContext = () => 
     asyncAction<CommonState>(
@@ -330,9 +298,6 @@ export const saveEditItemsToServer = (applicationId: string, costBlockId: string
     asyncAction<CommonState>(
         (dispatch, getState) => {
             const state = getState().pages.costEditor
-            // const costBlock = 
-            //     state.costBlocks.find(item => item.costBlockId === costBlockId);
-
             const costBlock = findCostBlockByState(state, applicationId, costBlockId);
             const context = buildCostEditorContext(state);
 
@@ -345,23 +310,8 @@ export const saveEditItemsToServer = (applicationId: string, costBlockId: string
         }
     )
 
-// export const selectRegionWithReloading = (applicationId: string, costBlockId: string, regionId: string) => losseDataCheckHandlerAction(
-//     (dispatch, state) => {
-//         //dispatch(reloadFilterBySelectedRegion(costBlockId, regionId));
-
-//         //const costBlock = state.costBlocks.find(item => item.costBlockId == costBlockId);
-//         const costBlock = findCostBlockByState(state, applicationId, costBlockId);
-
-//         dispatch(selectRegion(applicationId, costBlockId, costBlock.costElements.selectedItemId, regionId));
-//         dispatch(loadEditItemsByContext());
-//     }
-// )
-
 export const selectRegionWithReloading = (applicationId: string, costBlockId: string, regionId: string) => asyncAction<CommonState>(
     (dispatch, getState) => {
-        //dispatch(reloadFilterBySelectedRegion(costBlockId, regionId));
-
-        //const costBlock = state.costBlocks.find(item => item.costBlockId == costBlockId);
         const state = getState();
         const costBlock = findCostBlockByState(state.pages.costEditor, applicationId, costBlockId);
 
@@ -370,31 +320,9 @@ export const selectRegionWithReloading = (applicationId: string, costBlockId: st
     }
 )
 
-// export const applyFiltersWithReloading = (applicationId: string, costBlockId: string) => losseDataCheckHandlerAction(
-//     (dispatch, state) => {
-//         dispatch(applyFilters(applicationId, costBlockId));
-//         dispatch(loadEditItemsByContext());
-//     }
-// )
-
 export const applyFiltersWithReloading = (applicationId: string, costBlockId: string) => asyncAction<CommonState>(
      dispatch => {
         dispatch(applyFilters(applicationId, costBlockId));
         dispatch(loadEditItemsByContext());
     }
 )
-
-// export const loseChanges = (applicationId: string, costBlockId: string) => asyncAction<CommonState>(
-//     (dispatch, getState) => {
-//         dispatch(hideDataLoseWarning());
-//         dispatch(<CostBlockAction>{
-//             type: COST_EDITOR_LOSE_CHANGES,
-//             applicationId,
-//             costBlockId
-//         })
-        
-//         const state = getState();
-
-//         dispatch(state.pages.costEditor.dataLossInfo.action);
-//     }
-// )
