@@ -34,7 +34,7 @@ namespace Gdc.Scd.Export.CdCs
                 FileName = Config.CalculatiolToolInputFileName
             };
             var downloadedInputFile = downloader.DownloadData(inputFile);
-          
+
             var slaList = new List<SlaDto>();
 
             using (var memoryStream = new MemoryStream())
@@ -47,7 +47,7 @@ namespace Gdc.Scd.Export.CdCs
                     var colCount = range.ColumnCount();
                     var rowCount = range.RowCount();
 
-                  
+
 
                     for (int row = 2; row < rowCount; row++)
                     {
@@ -66,7 +66,7 @@ namespace Gdc.Scd.Export.CdCs
                         inputSheet.Cell(row, CdCsFileCoumns.ServiceTP).Value = rowCount - row;
                     }
                     workbook.SaveAs(memoryStream);
-                    memoryStream.Seek(0, SeekOrigin.Begin);                  
+                    memoryStream.Seek(0, SeekOrigin.Begin);
 
                     //using (var ctx = new ClientContext(inputFile.WebUrl))
                     //{
@@ -76,32 +76,68 @@ namespace Gdc.Scd.Export.CdCs
                     //}
 
                 }
+            }
 
-                var cdCsFile = new SpFileDto
-                {
-                    WebUrl = Config.CalculatiolToolWeb,
-                    ListName = Config.CalculatiolToolList,
-                    FolderServerRelativeUrl = Config.CalculatiolToolFolder,
-                    FileName = Config.CalculatiolToolFileName
-                };
-                var downloadedcdCsFile = downloader.DownloadData(cdCsFile);
+            var cdCsFile = new SpFileDto
+            {
+                WebUrl = Config.CalculatiolToolWeb,
+                ListName = Config.CalculatiolToolList,
+                FolderServerRelativeUrl = Config.CalculatiolToolFolder,
+                FileName = Config.CalculatiolToolFileName
+            };
+            var downloadedcdCsFile = downloader.DownloadData(cdCsFile);
 
-                var countries = new List<string>() { "China", "Russia", "Germany", "Japan" };
+            var countries = new List<string>() { "China", "Russia", "Germany", "Japan" };
+
+            foreach (var country in countries)
+            {
                 var costsList = new List<ServiceCostDto>();
-
-                foreach (var country in countries)
+                IKernel kernel = new StandardKernel(new Module());
+                var calcService = kernel.Get<CalculatorService>();
+                foreach (var sla in slaList)
                 {
-                    IKernel kernel = new StandardKernel(new Module());
-                    var calcService = kernel.Get<CalculatorService>();
-                    foreach (var sla in slaList)
+                    var costs = await calcService.GetServiceCostsAsync(sla);
+                    costsList.Add(costs);
+                    Console.WriteLine("{0}\t{1}\t{2}", costs.FspCode, costs.ServiceTC, costs.ServiceTP);
+                }
+                using (var memoryStream = new MemoryStream())
+                {
+                    CopyStream(downloadedcdCsFile, memoryStream);
+                    using (var workbook = new XLWorkbook(memoryStream))
+                    using (var inputSheet = workbook.Worksheet(1))
                     {
-                        var costs = await calcService.GetServiceCostsAsync(sla);
-                        costsList.Add(costs);
-                        Console.WriteLine("{0}\t{1}\t{2}", costs.FspCode, costs.ServiceTC, costs.ServiceTP);
+                        var range = inputSheet.RangeUsed();
+                        var colCount = range.ColumnCount();
+                        var rowCount = range.RowCount();
+
+                        for (int row = 2; row < rowCount; row++)
+                        {
+                            slaList.Add(new SlaDto
+                            {
+                                FspCode = inputSheet.Cell(row, InputFileCoumns.FspCode).Value.ToString(),
+                                Country = country,
+                                ServiceLocation = inputSheet.Cell(row, InputFileCoumns.ServiceLocation).Value.ToString(),
+                                Availability = inputSheet.Cell(row, InputFileCoumns.Availability).Value.ToString(),
+                                ReactionTime = inputSheet.Cell(row, InputFileCoumns.ReactionTime).Value.ToString(),
+                                ReactionType = inputSheet.Cell(row, InputFileCoumns.ReactionType).Value.ToString(),
+                                WarrantyGroup = inputSheet.Cell(row, InputFileCoumns.WarrantyGroup).Value.ToString(),
+                                Duration = inputSheet.Cell(row, InputFileCoumns.Duration).Value.ToString(),
+                            });
+                            inputSheet.Cell(row, CdCsFileCoumns.ServiceTC).Value = row;
+                            inputSheet.Cell(row, CdCsFileCoumns.ServiceTP).Value = rowCount - row;
+                        }
+                        workbook.SaveAs(memoryStream);
+                        memoryStream.Seek(0, SeekOrigin.Begin);
+
+                        //using (var ctx = new ClientContext(inputFile.WebUrl))
+                        //{
+                        //    ctx.Credentials = networkCredential;
+
+                        //    File.SaveBinaryDirect(ctx, "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/China " + Config.CalculatiolToolInputFileName, memoryStream, true);
+                        //}
+
                     }
                 }
-
-                Console.ReadKey();
             }
         }
 
