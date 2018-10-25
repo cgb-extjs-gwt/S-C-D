@@ -16,7 +16,7 @@ export interface Filter {
 
 export interface CostElementState extends Filter {
     costElementId: string
-    inputLevel: SelectList<InputLevelState>
+    inputLevels: SelectList<InputLevelState>
     region: SelectList<NamedId>
     //dataLoadingState: DataLoadingState
     isDataLoaded: boolean
@@ -31,6 +31,7 @@ export interface CostElementState extends Filter {
 
 export interface InputLevelState extends Filter {
     inputLevelId: string
+    isFilterLoaded: boolean
 }
 
 export interface CostElementData {

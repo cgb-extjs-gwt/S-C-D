@@ -25,7 +25,8 @@ export interface CostBlockMeta extends NamedId {
 
 export interface InputLevelMeta extends NamedId {
     levelNumer: number
-    isFilterLoading: boolean
+    hasFilter: boolean
+    filterName
 }
 
 // export enum InputType {
