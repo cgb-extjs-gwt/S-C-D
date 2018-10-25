@@ -1,14 +1,9 @@
+ALTER DATABASE SCD_2 SET RECOVERY SIMPLE
+GO 
+
 IF OBJECT_ID('tempdb..#Temp_SLA') IS NOT NULL DROP TABLE #Temp_SLA
 IF OBJECT_ID('tempdb..#Temp_Wg') IS NOT NULL DROP TABLE #Temp_Wg
-IF OBJECT_ID('tempdb..#ShrinkLog') IS NOT NULL DROP PROC #ShrinkLog
-
 go
-
-CREATE PROC #ShrinkLog
-AS
-    DBCC SHRINKFILE ('Scd_2_log', 1);
-    RETURN 0
-GO
 
 ALTER INDEX IX_MatrixMaster_AvailabilityId    ON Matrix.MatrixMaster DISABLE;  
 ALTER INDEX IX_MatrixMaster_DurationId        ON Matrix.MatrixMaster DISABLE;  
@@ -22,7 +17,7 @@ ALTER TABLE Matrix.MatrixMaster NOCHECK CONSTRAINT ALL
 
 DELETE FROM Matrix.MatrixMaster;
 
-exec #ShrinkLog
+
 GO
 
 SELECT av.Id AS av, 
@@ -74,39 +69,41 @@ begin
             FROM #Temp_Sla sla
     );
 
-    exec #ShrinkLog
+    
 end;
 
 ALTER INDEX IX_MatrixMaster_AvailabilityId ON Matrix.MatrixMaster REBUILD;  
-exec #ShrinkLog
+
 GO
 
 ALTER INDEX IX_MatrixMaster_DurationId ON Matrix.MatrixMaster REBUILD;  
-exec #ShrinkLog
+
 GO
 
 ALTER INDEX IX_MatrixMaster_ReactionTimeId ON Matrix.MatrixMaster REBUILD;  
-exec #ShrinkLog
+
 GO
 
 ALTER INDEX IX_MatrixMaster_ReactionTypeId ON Matrix.MatrixMaster REBUILD;  
-exec #ShrinkLog
+
 GO
 
 ALTER INDEX IX_MatrixMaster_ServiceLocationId ON Matrix.MatrixMaster REBUILD;  
-exec #ShrinkLog
+
 GO
 
 ALTER INDEX IX_MatrixMaster_WgId ON Matrix.MatrixMaster REBUILD;  
-exec #ShrinkLog
+
 GO
 
 -- Enable all table constraints
 ALTER TABLE Matrix.MatrixMaster CHECK CONSTRAINT ALL
-exec #ShrinkLog
+
 GO
 
 IF OBJECT_ID('tempdb..#Temp_SLA') IS NOT NULL DROP TABLE #Temp_SLA
 IF OBJECT_ID('tempdb..#Temp_Wg') IS NOT NULL DROP TABLE #Temp_Wg
-IF OBJECT_ID('tempdb..#ShrinkLog') IS NOT NULL DROP PROC #ShrinkLog
+
+ALTER DATABASE SCD_2 SET RECOVERY FULL
+GO 
 

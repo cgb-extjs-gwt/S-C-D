@@ -1,20 +1,10 @@
-IF OBJECT_ID('tempdb..#ShrinkLog') IS NOT NULL DROP PROC #ShrinkLog
-
-GO
-
-CREATE PROC #ShrinkLog
-AS
-    DBCC SHRINKFILE ('Scd_2_log', 1);
-    RETURN 0
-GO
+ALTER DATABASE SCD_2 SET RECOVERY SIMPLE
+GO 
 
 -- Disable all table constraints
 ALTER TABLE Hardware.ServiceCostCalculation NOCHECK CONSTRAINT ALL
 
 DELETE FROM Hardware.ServiceCostCalculation;
-
-exec #ShrinkLog;
-GO
 
 declare @rownum int = 1;
 declare @cnt bigint;
@@ -39,14 +29,17 @@ begin
         where m.CountryId = @cnt
     );
 
-    exec #ShrinkLog;
 end;
 
 ----------------------------------------------------------------------------------
 
 -- Enable all table constraints
 ALTER TABLE Hardware.ServiceCostCalculation CHECK CONSTRAINT ALL
-exec #ShrinkLog;
 GO
 
 IF OBJECT_ID('tempdb..#ShrinkLog') IS NOT NULL DROP PROC #ShrinkLog
+
+ALTER DATABASE SCD_2 SET RECOVERY FULL
+GO 
+
+
