@@ -28,8 +28,6 @@ export interface ApprovalOption {
     qualityGateErrorExplanation?: string
 }
 
-export const getCostEditorData = () => getAppData().then(data => data.meta);
-
 export const getCostElementData = (context: Context) => get<CostElementData>(COST_EDITOR_CONTROLLER_NAME, 'GetCostElementData', context);
 
 export const getLevelInputFilterItems = (context: Context) => 

@@ -7,7 +7,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 {
     public class DelMatrixRules
     {
-        const string PROC_NAME = "DelMatrixRules";
+        const string PROC_NAME = "Matrix.DelRules";
 
         private readonly IRepositorySet repositorySet;
 

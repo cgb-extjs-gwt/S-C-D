@@ -21,29 +21,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
     public class TestDataCreationHandlercs : IConfigureDatabaseHandler
     {
-        private const string CountryLevelId = "Country";
-
-        private const string PlaLevelId = "Pla";
-
         private const string ClusterRegionId = "ClusterRegion";
-
-        private const string RoleCodeKey = "RoleCode";
-
-        private const string ServiceLocationKey = "ServiceLocation";
-
-        private const string YearKey = "Year";
-
-        private const string ReactionTimeKey = "ReactionTime";
-
-        private const string ReactionTypeKey = "ReactionType";
-
-        private const string AvailabilityKey = "Availability";
-
-        private const string DurationKey = "Duration";
-
-        private const string ProActiveKey = "ProActive";
-
-        private const string ProActiveSlaKey = "ProActiveSla";
 
         private readonly DomainEnitiesMeta entityMetas;
 
@@ -79,33 +57,39 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             var queries = new List<SqlHelper>();
             queries.AddRange(this.BuildInsertCostBlockSql());
-            queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
+
+            queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
 
             queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
 
-            queries.AddRange(this.BuildFromFile(@"Scripts.reports.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-list.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-output-new-vs-old.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-output-vs-FREEZE.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-parameter-hw.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-parameter-proactive.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-contract.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-flat-fee.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-hdd-retention-central.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-hdd-retention-country.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-hdd-retention-parameter.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-local-detailed.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-locap.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-logistic-cost-calc-country.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-po-standard-warranty.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-proactive.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-solution-pack-price-list-detail.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-solution-pack-price-list.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-solutionpack-proactive-costing.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-SW-Service-Price-List-detail.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-SW-Service-Price-List.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.reports.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-list.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-new-vs-old.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-vs-FREEZE.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-hw.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-contract.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-flat-fee.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-parameter.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-local-detailed.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-calc-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-calc-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-po-standard-warranty.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list-detail.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solutionpack-proactive-costing.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List-detail.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List.sql"));
 
             foreach (var query in queries)
             {
@@ -305,24 +289,24 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             foreach (var costBlockMeta in this.entityMetas.CostBlocks)
             {
-                var referenceFields = costBlockMeta.InputLevelFields.Concat(costBlockMeta.DependencyFields).ToList();
+                var referenceFields = costBlockMeta.CoordinateFields.ToList();
                 var selectColumns =
                     referenceFields.Select(field => new ColumnInfo(field.ReferenceValueField, field.ReferenceMeta.Name, field.Name))
-                                   .ToList();
+                                   .ToList()
+                                   .AsEnumerable();
 
-                var insertFields = referenceFields.Select(field => field.Name).ToList();
+                var insertFields = referenceFields.Select(field => field.Name).ToArray();
 
                 var wgField = costBlockMeta.InputLevelFields[MetaConstants.WgInputLevelName];
-                var plaField = costBlockMeta.InputLevelFields[PlaLevelId];
+                var plaField = costBlockMeta.InputLevelFields[MetaConstants.PlaInputLevelName];
 
                 if (plaField != null && wgField != null)
                 {
                     selectColumns =
                         selectColumns.Select(
-                            field => field.TableName == plaField.Name
+                            column => column.TableName == plaField.Name
                                 ? new ColumnInfo($"{nameof(Pla)}{nameof(Wg.Id)}", MetaConstants.WgInputLevelName, plaField.Name)
-                                : field)
-                                    .ToList();
+                                : column);
 
                     referenceFields.Remove(plaField);
                 }
@@ -330,28 +314,54 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 var clusterRegionField = costBlockMeta.InputLevelFields[ClusterRegionId];
                 var countryField = costBlockMeta.InputLevelFields[MetaConstants.CountryInputLevelName];
 
-                if (clusterRegionField != null && countryField != null)
-                {
-                    selectColumns =
-                        selectColumns.Select(
-                            field => field.TableName == clusterRegionField.Name
-                                ? new ColumnInfo(nameof(Country.ClusterRegionId), MetaConstants.CountryInputLevelName, ClusterRegionId)
-                                : field)
-                                    .ToList();
+                ReferenceFieldMeta fromField = null;
 
-                    referenceFields.Remove(clusterRegionField);
+                if (countryField == null)
+                {
+                    fromField = referenceFields[0];
+
+                    referenceFields.RemoveAt(0);
+                }
+                else
+                {
+                    if (clusterRegionField != null)
+                    {
+                        selectColumns =
+                            selectColumns.Select(
+                                column => column.TableName == clusterRegionField.Name
+                                    ? new ColumnInfo(nameof(Country.ClusterRegionId), MetaConstants.CountryInputLevelName, ClusterRegionId)
+                                    : column);
+
+                        referenceFields.Remove(clusterRegionField);
+                    }
+
+                    fromField = countryField;
+
+                    referenceFields.Remove(countryField);
                 }
 
-                var selectQuery = Sql.Select(selectColumns.ToArray()).From(referenceFields[0].ReferenceMeta);
+                var joinQuery = Sql.Select(selectColumns.ToArray()).From(fromField.ReferenceMeta);
 
-                for (var i = 1; i < referenceFields.Count; i++)
+                foreach (var field in referenceFields)
                 {
-                    var referenceMeta = referenceFields[i].ReferenceMeta;
+                    var referenceMeta = field.ReferenceMeta;
 
-                    selectQuery = selectQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
+                    joinQuery = joinQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
                 }
 
-                yield return Sql.Insert(costBlockMeta, insertFields.ToArray()).Query(selectQuery);
+                SqlHelper query;
+
+                if (countryField == null)
+                {
+                    query = joinQuery;
+                }
+                else
+                {
+                    query = joinQuery.Where(
+                        SqlOperators.Equals(nameof(Country.IsMaster), "isMaster", true, MetaConstants.CountryInputLevelName));
+                }
+
+                yield return Sql.Insert(costBlockMeta, insertFields).Query(query);
             }
         }
 
