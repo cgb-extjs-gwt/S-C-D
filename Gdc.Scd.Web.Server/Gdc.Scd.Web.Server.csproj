@@ -239,6 +239,7 @@
     <Compile Include="Controllers\Dict\YearController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\AppController.cs" />
+    <Compile Include="Controllers\NotifyController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\Admin\RoleCodeController.cs" />
     <Compile Include="Controllers\Admin\RoleController.cs" />
@@ -253,6 +254,8 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Heplers\ApiControllerHelper.cs" />
+    <Compile Include="Heplers\HttpContextHelper.cs" />
+    <Compile Include="Heplers\JsonHelper.cs" />
     <Compile Include="Heplers\MimeTypes.cs" />
     <Compile Include="Impl\PrincipalProvider.cs" />
     <Compile Include="Impl\ScdAuthorizeAttribute.cs" />

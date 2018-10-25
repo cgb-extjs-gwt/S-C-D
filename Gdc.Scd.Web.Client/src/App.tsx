@@ -1,8 +1,8 @@
-import * as React from 'react'
-import { BrowserRouter as Router } from 'react-router-dom'
-import { Provider, connect } from 'react-redux';
-import { storeFactory } from './StoreFactory';
+import * as React from 'react';
+import { Provider } from 'react-redux';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { LayoutContainer } from './Layout/Components/LayoutContainer';
+import { storeFactory } from './StoreFactory';
 
 declare var Ext:any;
 
