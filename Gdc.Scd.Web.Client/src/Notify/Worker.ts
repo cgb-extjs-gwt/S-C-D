@@ -1,12 +1,10 @@
 ﻿import { buildMvcUrl } from "../Common/Services/Ajax";
 import { WebworkerHelper } from "../Common/Helpers/WebworkerHelper";
 
-//HTML5 web workder task
-
+/** HTML5 web workder task
+    implement infinite long polling connection
+*/
 function connect() {
-
-    //implement infinite long polling connection
-
     let last_index = 0;
     let url = buildMvcUrl('notify', 'connect', { _dc: new Date().getTime() });
 
