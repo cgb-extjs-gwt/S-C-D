@@ -21,29 +21,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
     public class TestDataCreationHandlercs : IConfigureDatabaseHandler
     {
-        private const string CountryLevelId = "Country";
-
-        private const string PlaLevelId = "Pla";
-
         private const string ClusterRegionId = "ClusterRegion";
-
-        private const string RoleCodeKey = "RoleCode";
-
-        private const string ServiceLocationKey = "ServiceLocation";
-
-        private const string YearKey = "Year";
-
-        private const string ReactionTimeKey = "ReactionTime";
-
-        private const string ReactionTypeKey = "ReactionType";
-
-        private const string AvailabilityKey = "Availability";
-
-        private const string DurationKey = "Duration";
-
-        private const string ProActiveKey = "ProActive";
-
-        private const string ProActiveSlaKey = "ProActiveSla";
 
         private readonly DomainEnitiesMeta entityMetas;
 
@@ -311,24 +289,24 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             foreach (var costBlockMeta in this.entityMetas.CostBlocks)
             {
-                var referenceFields = costBlockMeta.InputLevelFields.Concat(costBlockMeta.DependencyFields).ToList();
+                var referenceFields = costBlockMeta.CoordinateFields.ToList();
                 var selectColumns =
                     referenceFields.Select(field => new ColumnInfo(field.ReferenceValueField, field.ReferenceMeta.Name, field.Name))
-                                   .ToList();
+                                   .ToList()
+                                   .AsEnumerable();
 
-                var insertFields = referenceFields.Select(field => field.Name).ToList();
+                var insertFields = referenceFields.Select(field => field.Name).ToArray();
 
                 var wgField = costBlockMeta.InputLevelFields[MetaConstants.WgInputLevelName];
-                var plaField = costBlockMeta.InputLevelFields[PlaLevelId];
+                var plaField = costBlockMeta.InputLevelFields[MetaConstants.PlaInputLevelName];
 
                 if (plaField != null && wgField != null)
                 {
                     selectColumns =
                         selectColumns.Select(
-                            field => field.TableName == plaField.Name
+                            column => column.TableName == plaField.Name
                                 ? new ColumnInfo($"{nameof(Pla)}{nameof(Wg.Id)}", MetaConstants.WgInputLevelName, plaField.Name)
-                                : field)
-                                    .ToList();
+                                : column);
 
                     referenceFields.Remove(plaField);
                 }
@@ -336,28 +314,54 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 var clusterRegionField = costBlockMeta.InputLevelFields[ClusterRegionId];
                 var countryField = costBlockMeta.InputLevelFields[MetaConstants.CountryInputLevelName];
 
-                if (clusterRegionField != null && countryField != null)
-                {
-                    selectColumns =
-                        selectColumns.Select(
-                            field => field.TableName == clusterRegionField.Name
-                                ? new ColumnInfo(nameof(Country.ClusterRegionId), MetaConstants.CountryInputLevelName, ClusterRegionId)
-                                : field)
-                                    .ToList();
+                ReferenceFieldMeta fromField = null;
 
-                    referenceFields.Remove(clusterRegionField);
+                if (countryField == null)
+                {
+                    fromField = referenceFields[0];
+
+                    referenceFields.RemoveAt(0);
+                }
+                else
+                {
+                    if (clusterRegionField != null)
+                    {
+                        selectColumns =
+                            selectColumns.Select(
+                                column => column.TableName == clusterRegionField.Name
+                                    ? new ColumnInfo(nameof(Country.ClusterRegionId), MetaConstants.CountryInputLevelName, ClusterRegionId)
+                                    : column);
+
+                        referenceFields.Remove(clusterRegionField);
+                    }
+
+                    fromField = countryField;
+
+                    referenceFields.Remove(countryField);
                 }
 
-                var selectQuery = Sql.Select(selectColumns.ToArray()).From(referenceFields[0].ReferenceMeta);
+                var joinQuery = Sql.Select(selectColumns.ToArray()).From(fromField.ReferenceMeta);
 
-                for (var i = 1; i < referenceFields.Count; i++)
+                foreach (var field in referenceFields)
                 {
-                    var referenceMeta = referenceFields[i].ReferenceMeta;
+                    var referenceMeta = field.ReferenceMeta;
 
-                    selectQuery = selectQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
+                    joinQuery = joinQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
                 }
 
-                yield return Sql.Insert(costBlockMeta, insertFields.ToArray()).Query(selectQuery);
+                SqlHelper query;
+
+                if (countryField == null)
+                {
+                    query = joinQuery;
+                }
+                else
+                {
+                    query = joinQuery.Where(
+                        SqlOperators.Equals(nameof(Country.IsMaster), "isMaster", true, MetaConstants.CountryInputLevelName));
+                }
+
+                yield return Sql.Insert(costBlockMeta, insertFields).Query(query);
             }
         }
 

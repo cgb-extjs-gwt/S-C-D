@@ -3,7 +3,7 @@
 namespace Gdc.Scd.Core.Meta.Entities
 {
     public abstract class BaseCostBlockMeta<TCostElement> : BaseMeta 
-        where TCostElement : BaseCostElementMeta
+        where TCostElement : BaseMeta
     {
         public IEnumerable<string> ApplicationIds { get; set; }
 
