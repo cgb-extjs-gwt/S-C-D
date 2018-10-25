@@ -19,7 +19,7 @@ RETURN (
           , c.LUTCode
           , wg.Name as Wg
           , wg.Description as WgDescription
-          , null as Cluster
+          , pla.Name as Pla
           , (m.Duration + ' ' + m.ServiceLocation) as ServiceLevel
           , m.ReactionTime
           , m.ReactionType
@@ -27,7 +27,7 @@ RETURN (
 
           , sc.MaterialW_Approved as MaterialW
 
-          , null as AverageSparePrice
+          , mc.MaterialCostWarranty_Approved as MaterialCostWarranty
 
           , afr.AFR1 as AFR1
           , afr.AFR2 as AFR2
@@ -48,6 +48,11 @@ RETURN (
     JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
 
     JOIN Atom.Afr5YearView afr on afr.Wg = m.WgId
+
+    JOIN Atom.MaterialCostWarranty mc on mc.Wg = wg.Id
+
+    LEFT JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
+
 )
 
 GO
@@ -66,7 +71,7 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'WgDescription', 'Warranty Group Name', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Cluster', 'Cluster', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Pla', 'Pla', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceLevel', 'Service Level', 1, 1);
 set @index = @index + 1;
@@ -78,7 +83,7 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'MaterialW', 'Material Price', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'AverageSparePrice', 'Average spare part prices', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'MaterialCostWarranty', 'Material Cost', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'AFR1', 'FR1', 1, 1);

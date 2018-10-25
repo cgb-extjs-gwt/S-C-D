@@ -88,7 +88,7 @@ RETURN (
                             fsc.TravelTime_Approved, 
                             fsc.RepairTime_Approved, 
                             fsc.OnsiteHourlyRates_Approved, 
-                            afr.AFR1 + afr.AFR2
+                            afr.AFR2
                         ) as FieldServiceCost2
 
             , Hardware.CalcFieldServiceCost(
@@ -99,7 +99,7 @@ RETURN (
                             fsc.TravelTime_Approved, 
                             fsc.RepairTime_Approved, 
                             fsc.OnsiteHourlyRates_Approved, 
-                            afr.AFR1 + afr.AFR2 + afr.AFR3
+                            afr.AFR3
                         ) as FieldServiceCost3
 
             , Hardware.CalcFieldServiceCost(
@@ -110,7 +110,7 @@ RETURN (
                             fsc.TravelTime_Approved, 
                             fsc.RepairTime_Approved, 
                             fsc.OnsiteHourlyRates_Approved, 
-                            afr.AFR1 + afr.AFR2 + afr.AFR3 + afr.AFR4
+                            afr.AFR4
                         ) as FieldServiceCost4
 
             , Hardware.CalcFieldServiceCost(
@@ -121,7 +121,7 @@ RETURN (
                             fsc.TravelTime_Approved, 
                             fsc.RepairTime_Approved, 
                             fsc.OnsiteHourlyRates_Approved, 
-                            afr.AFR1 + afr.AFR2 + afr.AFR3 + afr.AFR4 + afr.AFR5
+                            afr.AFR5
                         ) as FieldServiceCost5
 
             , null as '2ndLevelRatio'
@@ -186,7 +186,6 @@ RETURN (
 
     LEFT JOIN ReinsuranceCte r on r.Wg = m.WgId and r.Duration = m.DurationId
 )
-
 GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CALCULATION-PARAMETER-HW');

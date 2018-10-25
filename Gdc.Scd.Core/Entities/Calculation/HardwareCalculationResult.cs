@@ -57,11 +57,15 @@ namespace Gdc.Scd.Core.Entities.Calculation
 
         public double? ServiceTC { get; set; }
         public double? ServiceTC_Approved { get; set; }
+        public string ServiceTC_Str { get; set; }
+        public string ServiceTC_Str_Approved { get; set; }
         public double? ServiceTCManual { get; set; }
         public double? ServiceTCManual_Approved { get; set; }
 
         public double? ServiceTP { get; set; }
         public double? ServiceTP_Approved { get; set; }
+        public string ServiceTP_Str { get; set; }
+        public string ServiceTP_Str_Approved { get; set; }
         public double? ServiceTPManual { get; set; }
         public double? ServiceTPManual_Approved { get; set; }
 

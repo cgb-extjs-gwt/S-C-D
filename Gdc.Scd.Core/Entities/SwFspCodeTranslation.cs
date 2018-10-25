@@ -18,9 +18,5 @@ namespace Gdc.Scd.Core.Entities
 
         public Sog Sog { get; set; }
         public long SogId { get; set; }
-
-        public ProActiveSla ProActiveSla { get; set; }
-        public long? ProactiveSlaId { get; set; }
-
     }
 }

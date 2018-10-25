@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Gdc.Scd.Core.Entities
 {
@@ -8,9 +9,11 @@ namespace Gdc.Scd.Core.Entities
     {
         public bool IsGlobal { get; set; }
 
+        [JsonIgnore]
         public List<RolePermission> RolePermissions { get; set; }
 
         [NotMapped]
+        [JsonIgnore]
         public IEnumerable<Permission> Permissions
         {
             get

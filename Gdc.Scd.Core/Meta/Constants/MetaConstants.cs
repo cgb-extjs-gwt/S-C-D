@@ -45,5 +45,7 @@
         public const string ImportSchema = "Import";
 
         public const string ReportSchema = "Report";
+
+        public const string MatrixSchema = "Matrix";
     }
 }

@@ -25,8 +25,8 @@ RETURN (
          , wg.Sog as Sog
          , Report.AsEuroSignStr(sc.ProActive + sc.ServiceTP) as Dcos
          , Report.AsEuroSignStr(sc.ServiceTP) as ServiceTP
-         , null as ListPrice
-         , null as DealerPrice
+         , sc.ListPrice
+         , sc.DealerPrice
          , m.Country
          , sc.FieldServiceCost as FieldServiceCost
          , sc.ServiceSupport as ServiceSupportCost 
