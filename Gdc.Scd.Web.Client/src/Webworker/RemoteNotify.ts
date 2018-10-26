@@ -27,9 +27,8 @@ const connect = (function () {
                 }
 
                 let batch = xhr.responseText.substring(last_index, curr_index);
+                let messages = batch.split('\n---\n');
                 last_index = curr_index;
-
-                let messages = batch.split('---');
                 for (let i = 0, len = messages.length; i < len; i++) {
 
                     let s = messages[i];

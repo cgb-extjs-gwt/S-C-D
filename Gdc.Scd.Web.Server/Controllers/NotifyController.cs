@@ -59,7 +59,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         private static void Send(HttpResponse resp, object value)
         {
             resp.Write(value.AsJson());
-            resp.Write("---");
+            resp.Write("\n---\n");
             resp.Flush();
         }
     }
