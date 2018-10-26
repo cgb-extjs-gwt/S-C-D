@@ -1,7 +1,7 @@
 ﻿import { buildMvcUrl } from "../Common/Services/Ajax";
 import { WebworkerHelper } from "../Common/Helpers/WebworkerHelper";
 
-const _baseurl = buildMvcUrl('notify', 'connect');
+const _baseurl = window.location.protocol + '//' + window.location.host + buildMvcUrl('notify', 'connect');
 
 /** 
  * HTML5 web workder task
@@ -9,12 +9,8 @@ const _baseurl = buildMvcUrl('notify', 'connect');
 */
 function connect() {
     let last_index = 0;
-    //let url = '_baseurl?_dc=' + new Date().getTime();
-    let url = 'http://localhost:11166/scd/api/notify/connect?_dc=' + new Date().getTime();
-
+    let url = '_baseurl?_dc=' + new Date().getTime();
     try {
-
-
         let xhr = new XMLHttpRequest();
         xhr.open('get', url, true);
         xhr.onprogress = function () {
@@ -70,9 +66,8 @@ let instance: Worker;
 
 export function notifyWorker() {
     if (!instance) {
-        var fn = connect.toString();
-        fn = fn.replace('_baseurl', _baseurl);
-        instance = WebworkerHelper.run(fn);
+        var fn = connect.toString().replace('_baseurl', _baseurl);
+        instance = WebworkerHelper.run(fakeConnect);
     }
     return instance;
 };
