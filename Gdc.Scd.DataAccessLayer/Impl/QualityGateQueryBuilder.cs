@@ -84,7 +84,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                            new ColumnInfo(historyContext.InputLevelId, NewValuesTable),
                            new ColumnInfo(historyContext.InputLevelId, costBlockMeta.Name)))
                    .Join(costBlockMeta, MetaConstants.CountryInputLevelName, CountryTableAlias)
-                   .WhereNotDeleted(costBlockMeta, costBlockFilter);
+                   .WhereNotDeleted(costBlockMeta, costBlockFilter, costBlockMeta.Name);
 
             return this.BuildQualityGateQuery(historyContext, options);
         }
