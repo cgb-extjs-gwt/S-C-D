@@ -10,6 +10,8 @@ const connect = (function () {
 
     const _baseurl = window.location.protocol + '//' + window.location.host + buildMvcUrl('notify', 'connect');
 
+    //return function src as string!!! and replace server '_baseurl'
+
     return function connect() {
         let last_index = 0;
         let url = '_baseurl?_dc=' + new Date().getTime();
@@ -91,27 +93,19 @@ let instance: Worker;
 
 export function RemoteNotify(dispatch) {
     if (!instance) {
+        //instance = WebworkerHelper.run(connect);
+        instance = WebworkerHelper.run(fakeConnect);
 
-        //get function src as string!!!
-        //and replace server URL
-
-        instance = WebworkerHelper.run(connect);
-        //instance = WebworkerHelper.run(fakeConnect);
+        //listen to worker answer and dispatch event to main window
         instance.onmessage = function (e: MessageEvent) {
-
-
-            console.log(e.data);
-            //return;
-
-
-            //let d = e.data;
-            //if (d.type) {
-            //    d.type = d.type.toUpperCase();
-            //}
-            //else {
-            //    d.type = APP_REMOTE_DEFAULT; //unknown message prepare as default
-            //}
-            //dispatch(d);
+            let d = e.data;
+            if (d.type) {
+                d.type = d.type.toUpperCase();
+            }
+            else {
+                d.type = APP_REMOTE_DEFAULT; //unknown message prepare as default
+            }
+            dispatch(d);
         };
     }
     return instance;
