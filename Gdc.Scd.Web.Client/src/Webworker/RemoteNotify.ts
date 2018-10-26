@@ -18,17 +18,21 @@ const connect = (function () {
             xhr.open('get', url, true);
             xhr.onprogress = function () {
 
-                //get new string block
-                //and parse json
-
                 let curr_index = xhr.responseText.length;
                 if (last_index == curr_index) {
                     return;
                 }
 
+                //get new string block
+
                 let batch = xhr.responseText.substring(last_index, curr_index);
-                let messages = batch.split('\n---\n');
                 last_index = curr_index;
+
+                //important to split server answer to get valid json packages
+                let messages = batch.split('\n---\n');
+
+                //ok, parse json
+
                 for (let i = 0, len = messages.length; i < len; i++) {
 
                     let s = messages[i];
@@ -40,11 +44,12 @@ const connect = (function () {
                     try {
                         let data = JSON.parse(s);
 
-                        if (data.type === '<HELLO>') {
-                            continue;
-                        }
+                        //ignore 'hello' server answer
+                        //post only significant data
 
-                        self.postMessage(data, null);
+                        if (data.type !== '<HELLO>') {
+                            self.postMessage(data, null);
+                        }
                     }
                     catch (e) {
                         console.log(e, s);
