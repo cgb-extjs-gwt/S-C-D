@@ -8,11 +8,5 @@ namespace Gdc.Scd.Web.Server
         {
             return ctx.User.Identity.Name;
         }
-
-        public static void SendNow(this HttpResponse resp, object value)
-        {
-            resp.Write(value.AsJson());
-            resp.Flush();
-        }
     }
 }

@@ -3,7 +3,6 @@ import { Provider } from 'react-redux';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { LayoutContainer } from './Layout/Components/LayoutContainer';
 import { storeFactory } from './StoreFactory';
-import { notifyWorker } from './Webworker/Notify';
 
 declare var Ext: any;
 
@@ -11,11 +10,6 @@ declare var Ext: any;
 Ext.require('Ext.plugin.Responsive');
 
 const store = storeFactory();
-
-const notify = notifyWorker();
-notify.onmessage = function (e: MessageEvent) {
-    console.log(e.data);
-};
 
 /**
  * The main application view

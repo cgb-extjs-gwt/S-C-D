@@ -1,13 +1,15 @@
-import { CommonAction } from "../../Common/Actions/CommonActions";
 import { Action } from "redux";
-import { CostMetaData } from "../../Common/States/CostMetaStates";
-import { getAppData } from "../Services/AppService";
 import { asyncAction } from "../../Common/Actions/AsyncAction";
+import { CommonAction } from "../../Common/Actions/CommonActions";
+import { getAppData } from "../Services/AppService";
 import { AppData } from "../States/AppStates";
 
 export const APP_PAGE_OPEN = 'APP.PAGE.OPEN';
 export const APP_PAGE_INIT = 'APP.PAGE.INIT';
 export const APP_LOAD_DATA = "APP.LOAD.DATA";
+
+export const APP_REMOTE_DEFAULT = "APP.REMOTE.DEFAULT";
+export const APP_REMOTE_REPORT = "APP.REMOTE.REPORT";
 
 export interface OpenPageAction extends Action<string> {
     id: string
@@ -22,7 +24,13 @@ export interface LoadingAction extends Action<string> {
     isLoading: boolean
 }
 
-export interface LoadingAppDataAction extends CommonAction<AppData>{
+export interface LoadingAppDataAction extends CommonAction<AppData> {
+}
+
+export interface RemoteAction extends CommonAction<Action> {
+}
+
+export interface LinkPreparedAction extends CommonAction<Action> {
 }
 
 export const openPage = (id: string) => (<OpenPageAction>{
@@ -50,3 +58,8 @@ export const loadMetaDataFromServer = () => asyncAction(
         );
     }
 )
+
+export const remoteDefault = (data: any) => (<RemoteAction>{
+    type: APP_REMOTE_DEFAULT,
+    data
+})

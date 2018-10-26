@@ -2,7 +2,6 @@ import { Reducer, Action } from "redux";
 import { 
     OpenPageAction, 
     APP_PAGE_OPEN,
-    LoadingAction,
     LoadingAppDataAction,
     APP_LOAD_DATA
 } from "../Actions/AppActions";

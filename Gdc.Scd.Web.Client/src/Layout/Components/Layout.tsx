@@ -1,24 +1,6 @@
 import { Container, Panel, TitleBar } from '@extjs/ext-react';
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
-import AvailabilityFeeAdminGrid from '../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid';
-import CountryGrid from '../../Admin/Country/containers/CountryGrid';
-import RoleCodesGrid from '../../Admin/RoleCode/RoleCodesGrid';
-import UserRoleContainer from '../../Admin/UserRole/Containers/UserRoleContainer';
-import WarrantyGroupGrid from '../../Admin/WarrantyGroup/WarrantyGroupGrid';
-import { CapabilityMatrixEditView, CapabilityMatrixView } from '../../CapabilityMatrix';
-import { buildComponentUrl } from "../../Common/Services/Ajax";
-import ApprovalCostElementsLayout from '../../CostApproval/Components/ApprovalCostElementsLayout';
-import { OwnApprovalCostElementsLayout } from '../../CostApproval/Components/OwnApprovalCostElementsLayout';
-import { CostEditorContainer } from '../../CostEditor/Components/CostEditorContainer';
-import { CalcResultView, ReportListView, ReportView } from '../../Report';
-import { large, medium } from '../../responsiveFormulas';
-import { ScdPivotGrid } from '../../Test/ScdPivotGrid';
-import { loadMetaDataFromServer, openPage } from '../Actions/AppActions';
-import { CommonState } from '../States/AppStates';
-import NavMenu from './NavMenu';
-import { TableViewContainer } from '../../TableView/Components/TableViewContainer';
 import { MenuItem } from '../../Common/States/ExtStates';
 import { NavMenuContainer } from './NavMenuContainer';
 

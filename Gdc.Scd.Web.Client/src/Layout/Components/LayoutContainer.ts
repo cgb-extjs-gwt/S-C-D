@@ -1,25 +1,25 @@
 import { connect } from "react-redux";
 import { withRouter } from 'react-router-dom';
-import { LayoutProps, LayoutActions, ROOT_LAYOUT_ID, Layout, RouteItem } from "./Layout";
-import { CommonState, Role } from "../States/AppStates";
-import { loadMetaDataFromServer, openPage } from "../Actions/AppActions";
-import { MenuItem } from "../../Common/States/ExtStates";
+import AvailabilityFeeAdminGrid from "../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid";
+import CountryGrid from "../../Admin/Country/containers/CountryGrid";
+import UserRoleContainer from "../../Admin/UserRole/Containers/UserRoleContainer";
+import WarrantyGroupGrid from "../../Admin/WarrantyGroup/WarrantyGroupGrid";
+import { CapabilityMatrixView } from "../../CapabilityMatrix/CapabilityMatrixView";
+import { CapabilityMatrixEditView } from "../../CapabilityMatrix/index";
+import * as Permissions from "../../Common/Constants/Permissions";
 import { buildComponentUrl } from "../../Common/Services/Ajax";
-import { CostEditorContainer } from "../../CostEditor/Components/CostEditorContainer";
-import { TableViewContainer } from "../../TableView/Components/TableViewContainer";
+import { MenuItem } from "../../Common/States/ExtStates";
 import ApprovalCostElementsLayout from "../../CostApproval/Components/ApprovalCostElementsLayout";
 import { OwnApprovalCostElementsLayout } from "../../CostApproval/Components/OwnApprovalCostElementsLayout";
-import { CapabilityMatrixView } from "../../CapabilityMatrix/CapabilityMatrixView";
+import { CostEditorContainer } from "../../CostEditor/Components/CostEditorContainer";
 import { CalcResultView } from "../../Report/CalcResultView";
-import { ReportListView } from "../../Report/ReportListView";
-import CountryGrid from "../../Admin/Country/containers/CountryGrid";
-import AvailabilityFeeAdminGrid from "../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid";
-import WarrantyGroupGrid from "../../Admin/WarrantyGroup/WarrantyGroupGrid";
-import UserRoleContainer from "../../Admin/UserRole/Containers/UserRoleContainer";
 import { ReportView } from "../../Report/index";
-import * as Permissions from "../../Common/Constants/Permissions"
-import { CapabilityMatrixEditView } from "../../CapabilityMatrix/index";
-import { Dispatch } from "redux";
+import { ReportListView } from "../../Report/ReportListView";
+import { TableViewContainer } from "../../TableView/Components/TableViewContainer";
+import { RemoteNotify } from "../../Webworker/RemoteNotify";
+import { loadMetaDataFromServer, openPage } from "../Actions/AppActions";
+import { CommonState, Role } from "../States/AppStates";
+import { Layout, LayoutActions, LayoutProps, RouteItem } from "./Layout";
 
 interface RouteMenuItem extends RouteItem {
     text?: string
@@ -194,6 +194,8 @@ const containerFactory = connect<LayoutProps, LayoutActions, LayoutContainerProp
         onInit: () => {
             dispatch(loadMetaDataFromServer());
             dispatch(openPage(location.pathname));
+            //
+            RemoteNotify(dispatch);
         }
     }),
     null,

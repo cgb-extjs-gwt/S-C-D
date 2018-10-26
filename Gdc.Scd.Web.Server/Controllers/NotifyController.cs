@@ -28,7 +28,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             var username = context.Username();
             channel.Create(username);
 
-            context.Response.SendNow(new { status = 200 }); //send hello
+            SendHello(context.Response);
 
             Task t = new Task(() =>
             {
@@ -39,7 +39,7 @@ namespace Gdc.Scd.Web.Server.Controllers
                     var msg = channel.GetMessage(username);
                     if (msg != null)
                     {
-                        context.Response.SendNow(msg);
+                        Send(context.Response, msg);
                         channel.RemoveMessage(username, msg);
                     }
 
@@ -49,6 +49,18 @@ namespace Gdc.Scd.Web.Server.Controllers
 
             t.Start();
             return t;
+        }
+
+        private static void SendHello(HttpResponse resp)
+        {
+            Send(resp, new { type = "<HELLO>" });
+        }
+
+        private static void Send(HttpResponse resp, object value)
+        {
+            resp.Write(value.AsJson());
+            resp.Write("---");
+            resp.Flush();
         }
     }
 }
