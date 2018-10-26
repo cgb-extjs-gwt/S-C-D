@@ -128,22 +128,34 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateUserAndRoles()
         {
-            var permissions =
-                typeof(PermissionConstants).GetFields(BindingFlags.Static | BindingFlags.Public)
-                                           .Select(field => new Permission
-                                           {
-                                               Name = field.GetValue(null).ToString()
-                                           })
-                                           .ToList();
+            var costEditorPermission = new Permission { Name = PermissionConstants.CostEditor };
+            var tableViewPermission = new Permission { Name = PermissionConstants.TableView };
+            var approvalPermission = new Permission { Name = PermissionConstants.Approval };
+            var ownApprovalPermission = new Permission { Name = PermissionConstants.OwnApproval };
+            var portfolioPermission = new Permission { Name = PermissionConstants.Portfolio };
+            var reviewProcessPermission = new Permission { Name = PermissionConstants.ReviewProcess };
+            var reportPermission = new Permission { Name = PermissionConstants.Report };
+            var adminPermission = new Permission { Name = PermissionConstants.Admin };
 
-            var adminRolePermissions = permissions.Select(permission => new RolePermission { Permission = permission });
-            var tableViewRolePermissions = adminRolePermissions.Where(rolePermission => rolePermission.Permission.Name != PermissionConstants.Admin);
-            var rolePermissions = tableViewRolePermissions.Where(rolePermission => rolePermission.Permission.Name != PermissionConstants.TableView);
+            var allPermissions = new List<Permission>
+            {
+                costEditorPermission,
+                tableViewPermission,
+                approvalPermission,
+                ownApprovalPermission,
+                portfolioPermission,
+                reviewProcessPermission,
+                reportPermission,
+                adminPermission
+            };
+
+            var allRolePermissions = allPermissions.Select(permission => new RolePermission { Permission = permission });
+
             var adminRole = new Role
             {
                 Name = "SCD Admin",
                 IsGlobal = true,
-                RolePermissions = adminRolePermissions.ToList()
+                RolePermissions = allRolePermissions.ToList()
             };
 
             var users = new List<User> {
@@ -181,49 +193,92 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 {
                     Name = "PRS PSM",
                     IsGlobal = true,
-                    RolePermissions = tableViewRolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = tableViewPermission },
+                        new RolePermission { Permission = costEditorPermission },
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = approvalPermission },
+                        new RolePermission { Permission = ownApprovalPermission },
+                    }
                 },
                 new Role
                 {
                     Name = "Country key user",
                     IsGlobal = false,
-                    RolePermissions = rolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = costEditorPermission },
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = approvalPermission },
+                        new RolePermission { Permission = ownApprovalPermission },
+                        new RolePermission { Permission = reviewProcessPermission },
+                    }
                 },
                 new Role
                 {
                     Name = "Country Finance Director",
                     IsGlobal = false,
-                    RolePermissions = rolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = approvalPermission },
+                        new RolePermission { Permission = reviewProcessPermission },
+                    }
                 },
                 new Role
                 {
                     Name = "PRS Finance",
                     IsGlobal = true,
-                    RolePermissions = tableViewRolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = costEditorPermission },
+                        new RolePermission { Permission = tableViewPermission },
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = approvalPermission },
+                        new RolePermission { Permission = ownApprovalPermission },
+                        new RolePermission { Permission = reviewProcessPermission },
+                    }
                 },
                 new Role
                 {
                     Name = "Spares Logistics",
                     IsGlobal = true,
-                    RolePermissions = rolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = tableViewPermission },
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = reviewProcessPermission },
+                    }
                 },
                 new Role
                 {
                     Name = "GTS user",
                     IsGlobal = true,
-                    RolePermissions = rolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = tableViewPermission },
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = reviewProcessPermission },
+                    }
                 },
                 new Role
                 {
                     Name = "Guest",
                     IsGlobal = true,
-                    RolePermissions = rolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = reportPermission },
+                    }
                 },
                 new Role
                 {
                     Name = "Opportunity Center",
                     IsGlobal = true,
-                    RolePermissions = rolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = reportPermission },
+                    }
                 }
             };
 
