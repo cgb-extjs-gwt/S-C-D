@@ -28,6 +28,8 @@ namespace Gdc.Scd.Web.Server.Controllers
             var username = context.Username();
             channel.Create(username);
 
+            context.Response.SendNow(new { status = 200 }); //send hello
+
             Task t = new Task(() =>
             {
                 //2 minutes waiting...
@@ -37,8 +39,7 @@ namespace Gdc.Scd.Web.Server.Controllers
                     var msg = channel.GetMessage(username);
                     if (msg != null)
                     {
-                        context.Response.Write(msg.AsJson());
-                        context.Response.Flush();
+                        context.Response.SendNow(msg);
                         channel.RemoveMessage(username, msg);
                     }
 

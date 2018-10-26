@@ -3,17 +3,28 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
     public class MemoryChannel : INotifyChannel
     {
-        static ConcurrentDictionary<string, List<object>> channels =
-            new ConcurrentDictionary<string, List<object>>(StringComparer.OrdinalIgnoreCase);
+        private ConcurrentDictionary<string, List<object>> channels;
 
-        public static readonly MemoryChannel Instance = new MemoryChannel();
+        public MemoryChannel()
+        {
+            channels = new ConcurrentDictionary<string, List<object>>(StringComparer.OrdinalIgnoreCase);
+            new Thread(Push).Start();
+        }
 
-        private MemoryChannel() { }
+        void Push()
+        {
+            while (true)
+            {
+                Send(new { current_time = DateTime.Now, value = Guid.NewGuid() });
+                Thread.Sleep(6000);
+            }
+        }
 
         public void Create(string username)
         {

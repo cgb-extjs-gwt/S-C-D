@@ -254,7 +254,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Heplers\ApiControllerHelper.cs" />
-    <Compile Include="Heplers\HttpContextHelper.cs" />
+    <Compile Include="Heplers\HttpHelper.cs" />
     <Compile Include="Heplers\JsonHelper.cs" />
     <Compile Include="Heplers\MimeTypes.cs" />
     <Compile Include="Impl\PrincipalProvider.cs" />
