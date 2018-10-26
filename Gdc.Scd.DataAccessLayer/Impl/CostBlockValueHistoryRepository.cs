@@ -85,7 +85,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var query = this.historyQueryBuilder.BuildSelectJoinApproveHistoryValueQuery(history, historyValueId, costBlockFilter);
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
-            var mapper = new CostBlockValueHistoryMapper(costBlockMeta)
+            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, history.Context.CostElementId)
             {
                 UseHistoryValueId = true
             };

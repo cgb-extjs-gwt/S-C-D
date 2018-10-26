@@ -6,9 +6,9 @@ import { API_URL, buildMvcUrl } from "../../Common/Services/Ajax";
 import { NamedId } from "../../Common/States/CommonStates";
 import { buildGetApproveBundleDetailUrl } from "../Services/CostApprovalService";
 import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
-import { getDependecyColumns, getInputLevelColumns, buildNameColumnInfo } from "../../Common/Helpers/ColumnInfoHelper";
+import { getInputLevelColumns, buildNameColumnInfo } from "../../Common/Helpers/ColumnInfoHelper";
 import { ApprovalBundle } from "../States/ApprovalBundle";
-import { getDependencies } from "../../Common/Helpers/MetaHelper";
+import { getDependency } from "../../Common/Helpers/MetaHelper";
 
 export interface ApprovalValuesContainerProps {
     approvalBundle: ApprovalBundle
@@ -28,9 +28,9 @@ export const ApprovalValuesContainerComponent =
                 dataLoadUrl = buildGetApproveBundleDetailUrl(approvalBundle.id);
 
                 const costBlock = meta.costBlocks.find(item => item.id === approvalBundle.costBlock.id);
-                const dependencies = getDependencies(costBlock);
+                const dependency = getDependency(costBlock, approvalBundle.costElement.id);
 
-                const dependencyColumns = getDependecyColumns(dependencies);
+                const dependencyColumn = buildNameColumnInfo(dependency);
                 const inputLevelColumns = getInputLevelColumns(costBlock);
                 const checkColumns = [
                     { title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.CheckBox },
@@ -46,24 +46,28 @@ export const ApprovalValuesContainerComponent =
 
                 columns = [
                     buildNameColumnInfo(approvalBundle.inputLevel),
-                    ...dependencyColumns,
+                    dependencyColumn,
                     ...otherColumns
                 ]
 
                 details = {
                     columns: [
                         ...inputLevelColumns,
-                        ...dependencyColumns,
+                        dependencyColumn,
                         ...otherColumns
                     ],
                     buildDataLoadUrl: data => {
                         const costBlockFilter = {};
 
-                        for (const dependency of dependencies) {
-                            costBlockFilter[dependency.id] = [
-                                data[`${dependency.id}Id`]
-                            ];
-                        }
+                        // for (const dependency of dependency) {
+                        //     costBlockFilter[dependency.id] = [
+                        //         data[`${dependency.id}Id`]
+                        //     ];
+                        // }
+
+                        costBlockFilter[dependency.id] = [
+                            data[`${dependency.id}Id`]
+                        ]
 
                         return buildGetApproveBundleDetailUrl(approvalBundle.id, data.HistoryValueId, costBlockFilter);
                     }

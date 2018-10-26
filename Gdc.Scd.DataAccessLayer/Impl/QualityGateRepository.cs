@@ -30,7 +30,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
             var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(historyContext, editItems, costBlockFilter.Convert());
-            var mapper = new CostBlockValueHistoryMapper(costBlockMeta)
+            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, historyContext.CostElementId)
             {
                 UseQualityGate = true,
             };
@@ -42,7 +42,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
             var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(history, costBlockFilter);
-            var mapper = new CostBlockValueHistoryMapper(costBlockMeta)
+            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, history.Context.CostElementId)
             {
                 UseQualityGate = true,
             };
@@ -55,18 +55,20 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
             var query = this.qualityGateQueryBuilder.BuildQulityGateApprovalQuery(history, historyValueId, costBlockFilter);
 
-            InputLevelFilterParam inputLevelFilter = null;
+            //InputLevelFilterParam inputLevelFilter = null;
 
-            if (!historyValueId.HasValue)
-            {
-                inputLevelFilter = new InputLevelFilterParam
-                {
-                    CostElementId = history.Context.CostElementId,
-                    MaxInputLevelId = history.Context.InputLevelId
-                };
-            }
+            //if (!historyValueId.HasValue)
+            //{
+            //    inputLevelFilter = new InputLevelFilterParam
+            //    {
+            //        CostElementId = history.Context.CostElementId,
+            //        MaxInputLevelId = history.Context.InputLevelId
+            //    };
+            //}
 
-            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, inputLevelFilter)
+            var maxInputLevelId = historyValueId.HasValue ? null : history.Context.InputLevelId;
+
+            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, history.Context.CostElementId, maxInputLevelId)
             {
                 UseQualityGate = true,
                 UseHistoryValueId = true
