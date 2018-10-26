@@ -8,6 +8,8 @@ namespace Gdc.Scd.Web.Server.Controllers
 {
     public class NotifyController : ApiController
     {
+        private static readonly string HELLO_MSG = new { type = "<HELLO>" }.AsJson();
+
         INotifyChannel channel;
 
         public NotifyController(INotifyChannel channel)
@@ -28,7 +30,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             var username = context.Username();
             channel.Create(username);
 
-            SendHello(context.Response);
+            Send(context.Response, HELLO_MSG);
 
             Task t = new Task(() =>
             {
@@ -51,14 +53,14 @@ namespace Gdc.Scd.Web.Server.Controllers
             return t;
         }
 
-        private static void SendHello(HttpResponse resp)
-        {
-            Send(resp, new { type = "<HELLO>" });
-        }
-
         private static void Send(HttpResponse resp, object value)
         {
-            resp.Write(value.AsJson());
+            Send(resp, value.AsJson());
+        }
+
+        private static void Send(HttpResponse resp, string value)
+        {
+            resp.Write(value);
             resp.Write("\n---\n");
             resp.Flush();
         }
