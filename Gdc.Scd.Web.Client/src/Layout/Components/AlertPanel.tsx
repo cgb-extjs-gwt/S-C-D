@@ -1,7 +1,7 @@
 ﻿import { Container, ContainerProps } from "@extjs/ext-react";
 import * as React from "react";
 import { RemoteNotify } from "../../Webworker/RemoteNotify";
-import { RemoteAction } from "../Actions/NotifyActions";
+import { RemoteAction, APP_REMOTE_REPORT } from "../Actions/NotifyActions";
 
 export class AlertPanel extends React.Component<ContainerProps, any> {
 
@@ -35,11 +35,25 @@ export class AlertPanel extends React.Component<ContainerProps, any> {
     private createAlert(model: RemoteAction, index: number): JSX.Element {
 
         let css = 'alert info'; //todo: add switch by alert type
+        let caption = 'Info!'
+
+        if (model.type === APP_REMOTE_REPORT) {
+            css = 'alert success';
+            caption = 'Success!';
+        }
+
+        let link = "http://jqueryui.com/resources/download/jquery-ui-1.12.1.zip";
+
+
+        //<form action={link}>
+        //    <button type="submit" className="alert-download">download</button>
+        //</form>
 
         return (
             <div key={index} className={css}>
                 <span data-id={index} className="alert-close">&times;</span>
-                <strong>Info!</strong> {model.text}
+                <strong>{caption}</strong> {model.text}
+                <iframe className="alert-frame" src={link}></iframe>
             </div>
         );
     }

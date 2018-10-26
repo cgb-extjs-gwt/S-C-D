@@ -85,7 +85,17 @@ const connect = (function () {
 
 function fakeConnect() {
     setInterval(function () {
-        self.postMessage({ type: 'APP.REMOTE.REPORT', text: new Date().getTime() }, null);
+
+        let type;
+
+        if (Math.random() > 0.3) {
+            type = 'APP.REMOTE.DEFAULT';
+        }
+        else {
+           type = 'APP.REMOTE.REPORT';
+        }
+
+        self.postMessage({ type: type, text: new Date().getTime() }, null);
     }, 5000);
 }
 
