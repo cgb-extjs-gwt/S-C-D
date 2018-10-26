@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { MenuItem } from '../../Common/States/ExtStates';
 import { NavMenuContainer } from './NavMenuContainer';
+import { AlertPanel } from './AlertPanel';
 
 Ext.require(['Ext.data.ChainedStore'])
 
@@ -41,6 +42,8 @@ export class Layout extends React.Component<LayoutProps> {
                     <TitleBar title="SCD 2.0" docked="top" />
                     <NavMenuContainer items={menuItems} />
                 </Panel>
+
+                <AlertPanel />
 
                 <Panel title={title} layout="fit">
                     <Switch>

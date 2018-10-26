@@ -1,6 +1,6 @@
-﻿import { buildMvcUrl } from "../Common/Services/Ajax";
-import { WebworkerHelper } from "../Common/Helpers/WebworkerHelper";
-import { APP_REMOTE_DEFAULT } from "../Layout/Actions/AppActions";
+﻿import { WebworkerHelper } from "../Common/Helpers/WebworkerHelper";
+import { buildMvcUrl } from "../Common/Services/Ajax";
+import { APP_REMOTE_DEFAULT } from "../Layout/Actions/NotifyActions";
 
 /** 
  * HTML5 web workder task
@@ -85,7 +85,7 @@ const connect = (function () {
 
 function fakeConnect() {
     setInterval(function () {
-        self.postMessage({ cur_time: new Date().getTime() }, null);
+        self.postMessage({ type: 'APP.REMOTE.REPORT', text: new Date().getTime() }, null);
     }, 2500);
 }
 

@@ -16,7 +16,6 @@ import { CalcResultView } from "../../Report/CalcResultView";
 import { ReportView } from "../../Report/index";
 import { ReportListView } from "../../Report/ReportListView";
 import { TableViewContainer } from "../../TableView/Components/TableViewContainer";
-import { RemoteNotify } from "../../Webworker/RemoteNotify";
 import { loadMetaDataFromServer, openPage } from "../Actions/AppActions";
 import { CommonState, Role } from "../States/AppStates";
 import { Layout, LayoutActions, LayoutProps, RouteItem } from "./Layout";
@@ -160,6 +159,7 @@ const buildMapStateToProps = () => {
     let routes: RouteItem[] = [];
 
     return ({ app }: CommonState) => {
+
         if (app.userRoles != prevUserRoles) {
             prevUserRoles = app.userRoles;
 
@@ -194,8 +194,6 @@ const containerFactory = connect<LayoutProps, LayoutActions, LayoutContainerProp
         onInit: () => {
             dispatch(loadMetaDataFromServer());
             dispatch(openPage(location.pathname));
-            //
-            RemoteNotify(dispatch);
         }
     }),
     null,
