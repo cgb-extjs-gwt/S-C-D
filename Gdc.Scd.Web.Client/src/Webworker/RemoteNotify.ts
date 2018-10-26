@@ -86,7 +86,7 @@ const connect = (function () {
 function fakeConnect() {
     setInterval(function () {
         self.postMessage({ type: 'APP.REMOTE.REPORT', text: new Date().getTime() }, null);
-    }, 2500);
+    }, 5000);
 }
 
 let instance: Worker;
