@@ -1,9 +1,10 @@
 ﻿using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Constants;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities.CapabilityMatrix
 {
-    [Table("MatrixRule")]
+    [Table("MatrixRule", Schema = MetaConstants.MatrixSchema)]
     public class CapabilityMatrixRule : IIdentifiable
     {
         public long Id { get; set; }

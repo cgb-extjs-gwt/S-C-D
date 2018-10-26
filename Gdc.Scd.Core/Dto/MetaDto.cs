@@ -8,7 +8,7 @@ namespace Gdc.Scd.Core.Dto
 
         public string Name { get; set; }
 
-        public static MetaDto Build(BaseDomainMeta meta)
+        public static MetaDto Build(BaseMeta meta)
         {
             return new MetaDto
             {

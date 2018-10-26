@@ -1,8 +1,8 @@
-﻿IF OBJECT_ID('Report.LogisticCostCalcCountry') IS NOT NULL
-  DROP FUNCTION Report.LogisticCostCalcCountry;
+﻿IF OBJECT_ID('Report.LogisticCostCalcCentral') IS NOT NULL
+  DROP FUNCTION Report.LogisticCostCalcCentral;
 go 
 
-CREATE FUNCTION Report.LogisticCostCalcCountry
+CREATE FUNCTION Report.LogisticCostCalcCentral
 (
     @cnt bigint,
     @wg bigint,
@@ -25,8 +25,6 @@ RETURN (
          , m.Duration
          , m.Availability
 
-         , null as Sla
-
          , sc.ServiceTC
          , l.StandardHandling_Approved as Handling
          , sc.TaxAndDutiesW
@@ -37,7 +35,7 @@ RETURN (
 
          , sc.AvailabilityFee as Fee
 
-    from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
+    from Report.GetMatrixBySla2(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
     join Hardware.ServiceCostCalculationView sc on sc.MatrixId = m.Id
     join InputAtoms.CountryView c on c.Id = m.CountryId
     join Hardware.LogisticsCostView l on l.Country = m.CountryId
@@ -48,7 +46,7 @@ RETURN (
 
 GO
 
-declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'LOGISTIC-COST-CALC-COUNTRY');
+declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'LOGISTIC-COST-CALC-CENTRAL');
 declare @index int = 0;
 
 delete from Report.ReportColumn where ReportId = @reportId;
@@ -70,8 +68,6 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Duration', 'Duration', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Availability', 'Availability', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Sla', 'SLA', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTC', 'Transport cost', 1, 1);

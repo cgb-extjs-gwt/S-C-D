@@ -1,8 +1,8 @@
-﻿IF OBJECT_ID('Report.CalcOutputNewVsOld') IS NOT NULL
-  DROP FUNCTION Report.CalcOutputNewVsOld;
+﻿IF OBJECT_ID('Report.CalcOutputVsFREEZE') IS NOT NULL
+  DROP FUNCTION Report.CalcOutputVsFREEZE;
 go 
 
-CREATE FUNCTION Report.CalcOutputNewVsOld
+CREATE FUNCTION Report.CalcOutputVsFREEZE
 (
     @cnt bigint,
     @wg bigint,
@@ -15,37 +15,33 @@ CREATE FUNCTION Report.CalcOutputNewVsOld
 RETURNS TABLE 
 AS
 RETURN (
-    with cte as (
-        select wg.SogDescription as SogDescription
-             , m.Fsp
-             , wg.Description as WgDescription
-             , m.ServiceLocation
-             , m.ReactionTime
-             , wg.Name as Wg
+    select    m.Country
+            , wg.SogDescription as SogDescription
+            , m.Fsp
+            , wg.Description as WgDescription
+            , m.ServiceLocation
+            , m.ReactionTime
+            , wg.Name as Wg
          
-             , (m.Duration + ' ' + m.ServiceLocation) as ServiceProduct
-            
-             , (sc.ProActive + sc.ServiceTP) as Dcos
-             , null as DcosOld
+            , (m.Duration + ' ' + m.ServiceLocation) as ServiceProduct
+         
+            , sc.LocalServiceStandardWarranty as StandardWarranty
+            , sc.LocalServiceStandardWarranty_Approved as StandardWarranty_Approved
 
-             , wg.Sog
-
-        from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
-        join Hardware.ServiceCostCalculationView sc on sc.MatrixId = m.Id
-        join InputAtoms.WgSogView wg on wg.id = m.WgId
-    )
-    select sc.*
-         , (100 * (sc.Dcos - sc.DcosOld) / sc.Dcos) as Bw
-    from cte as sc
+    from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
+    join Hardware.ServiceCostCalculation sc on sc.MatrixId = m.Id
+    join InputAtoms.WgSogView wg on wg.id = m.WgId
 )
 
 GO
 
-declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CALCOUTPUT-NEW-VS-OLD');
+declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CALCOUTPUT-VS-FREEZE');
 declare @index int = 0;
 
 delete from Report.ReportColumn where ReportId = @reportId;
 
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Country', 'Country Name', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SogDescription', 'Portfolio Alignment', 1, 1);
 set @index = @index + 1;
@@ -61,13 +57,9 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceProduct', 'Service Product', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'Dcos', 'NEW - Service DCOS', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'StandardWarranty', 'Not approved standard warranty', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'DcosOld', 'OLD - Service DCOS', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 5, 'Bw', 'b/w %', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 5, 'Sog', 'SOG', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'StandardWarranty_Approved', 'Approved standard warranty', 1, 1);
 
 set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;

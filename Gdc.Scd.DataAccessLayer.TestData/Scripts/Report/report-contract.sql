@@ -26,7 +26,7 @@ RETURN (
              , sum(case when dur.Value = 3 then sc.ServiceTP_Approved end) as ServiceTP3
              , sum(case when dur.Value = 4 then sc.ServiceTP_Approved end) as ServiceTP4
              , sum(case when dur.Value = 5 then sc.ServiceTP_Approved end) as ServiceTP5
-        from Matrix m
+        from Matrix.Matrix m
         join Hardware.ServiceCostCalculation sc on sc.MatrixId = m.Id
         join InputAtoms.Wg wg on wg.id = m.WgId and wg.DeactivatedDateTime is null
         join Dependencies.Duration dur on dur.Id = m.DurationId and dur.IsProlongation = 0

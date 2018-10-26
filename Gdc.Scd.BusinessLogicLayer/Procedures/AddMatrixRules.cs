@@ -8,7 +8,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 {
     public class AddMatrixRules
     {
-        const string PROC_NAME = "AddMatrixRules";
+        const string PROC_NAME = "Matrix.AddRules";
 
         private readonly IRepositorySet repositorySet;
 
