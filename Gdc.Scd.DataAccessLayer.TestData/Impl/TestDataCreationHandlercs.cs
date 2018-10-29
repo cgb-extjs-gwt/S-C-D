@@ -1,6 +1,14 @@
-﻿using Gdc.Scd.Core.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using Gdc.Scd.Core.Constants;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.Core.Enums;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Impl;
@@ -9,13 +17,6 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using Gdc.Scd.Core.Constants;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
@@ -50,6 +51,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateProActiveSla();
             this.CreateImportConfiguration();
             this.CreateRolecodes();
+            this.CreateSoftwereInputLevels();
 
             //report
             this.CreateReportColumnTypes();
@@ -305,20 +307,70 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateTestItems<T>(int count = 5) where T : NamedId, new()
         {
-            var items = new List<T>();
-            var typeName = typeof(T).Name;
-
-
-            for (var i = 0; i < count; i++)
-            {
-                items.Add(new T
-                {
-                    Name = $"{typeName}_{i}"
-                });
-            }
+            var items = this.BuildTestItems<T>(count);
 
             this.repositorySet.GetRepository<T>().Save(items);
             this.repositorySet.Sync();
+        }
+
+        private void CreateSoftwereInputLevels()
+        {
+            var count = 5;
+            var sogs = this.BuildDeactivatableTestItems<Sog>(count).ToArray();
+            var plas = this.repositorySet.GetRepository<Pla>().GetAll().Take(count).ToArray();
+
+            for (var i = 0; i < count; i++)
+            {
+                sogs[i].PlaId = plas[i].Id;
+            }
+
+            this.repositorySet.GetRepository<Sog>().Save(sogs);
+            this.repositorySet.Sync();
+
+            var swDigit = this.BuildDeactivatableTestItems<SwDigit>(count).ToArray();
+            var sfabs = this.BuildDeactivatableTestItems<SFab>(count).ToArray();
+
+            for (var i = 0; i < count; i++)
+            {
+                swDigit[i].SogId = sogs[i].Id;
+                sfabs[i].PlaId = plas[i].Id;
+            }
+
+            this.repositorySet.GetRepository<SwDigit>().Save(swDigit);
+            this.repositorySet.GetRepository<SFab>().Save(sfabs);
+
+            var swLicences = this.BuildDeactivatableTestItems<SwLicense>();
+
+            this.repositorySet.GetRepository<SwLicense>().Save(swLicences);
+            this.repositorySet.Sync();
+        }
+
+        private IEnumerable<T> BuildTestItems<T>(int count = 5) where T : NamedId, new()
+        {
+            var typeName = typeof(T).Name;
+
+            for (var i = 0; i < count; i++)
+            {
+                var item = new T
+                {
+                    Name = $"{typeName}_{i}"
+                };
+
+                yield return item;
+            }
+        }
+
+        private IEnumerable<T> BuildDeactivatableTestItems<T>(int count = 5) where T : NamedId, IDeactivatable, new()
+        {
+            var nowTime = DateTime.UtcNow;
+
+            foreach (var item in this.BuildTestItems<T>(count))
+            {
+                item.CreatedDateTime = nowTime;
+                item.ModifiedDateTime = nowTime;
+
+                yield return item;
+            }
         }
 
         private SqlHelper BuildInsertSql(NamedEntityMeta entityMeta, string[] names)
