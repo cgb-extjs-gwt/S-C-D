@@ -33,12 +33,6 @@ namespace Gdc.Scd.Web.Server.Controllers
             this.serviceProvider = serviceProvider;
         }
 
-        //[HttpGet]
-        //public Task Export([FromUri]long id)
-        //{
-        //    return CreateReportAsync(id);
-        //}
-
         [HttpGet]
         public IHttpActionResult Export([FromUri]long id)
         {

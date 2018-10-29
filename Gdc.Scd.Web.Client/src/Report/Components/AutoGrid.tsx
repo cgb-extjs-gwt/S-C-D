@@ -128,7 +128,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
         url = Ext.urlAppend(url, Ext.urlEncode(filter, true));
 
         let p = getFromUri<any>(url);
-        handleRequest(p);
+        handleRequest(p).then(x => Ext.Msg.alert('Report', 'Your report in process...<br>Please wait while it finish'));
     }
 
     private onSearch(filter: any) {
