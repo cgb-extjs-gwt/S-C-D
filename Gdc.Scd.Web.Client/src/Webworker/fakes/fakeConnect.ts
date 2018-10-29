@@ -27,7 +27,7 @@
         else if (r > 0.15) {
             msg.type = 'APP.ALERT.REPORT';
             msg.text = 'Your report is prepared! Autodownload starting...'
-            //msg.url = 'http://jqueryui.com/resources/download/jquery-ui-1.12.1.zip';
+            msg.url = 'http://jqueryui.com/resources/download/jquery-ui-1.12.1.zip';
         }
         else {
             msg.type = 'APP.ALERT.LINK';
