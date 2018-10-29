@@ -55,17 +55,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
             var query = this.qualityGateQueryBuilder.BuildQulityGateApprovalQuery(history, historyValueId, costBlockFilter);
 
-            //InputLevelFilterParam inputLevelFilter = null;
-
-            //if (!historyValueId.HasValue)
-            //{
-            //    inputLevelFilter = new InputLevelFilterParam
-            //    {
-            //        CostElementId = history.Context.CostElementId,
-            //        MaxInputLevelId = history.Context.InputLevelId
-            //    };
-            //}
-
             var maxInputLevelId = historyValueId.HasValue ? null : history.Context.InputLevelId;
 
             var mapper = new CostBlockValueHistoryMapper(costBlockMeta, history.Context.CostElementId, maxInputLevelId)

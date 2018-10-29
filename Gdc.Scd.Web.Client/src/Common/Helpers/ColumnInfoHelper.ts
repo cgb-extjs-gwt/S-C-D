@@ -10,8 +10,6 @@ export const getDependecyColumnFromCostBlock = (costBlock: CostBlockMeta, costEl
     return buildNameColumnInfo(dependency);
 }
 
-//export const getDependecyColumns = (dependencies: NamedId[]) => dependencies.map(dependency => buildNameColumnInfo(dependency));
-
 export const getDependecyColumnFromMeta = (meta: CostMetaData, costBlockId: string, costElementId: string) => {
     const costBlock = findMeta(meta.costBlocks, costBlockId);
 

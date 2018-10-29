@@ -59,12 +59,6 @@ export const ApprovalValuesContainerComponent =
                     buildDataLoadUrl: data => {
                         const costBlockFilter = {};
 
-                        // for (const dependency of dependency) {
-                        //     costBlockFilter[dependency.id] = [
-                        //         data[`${dependency.id}Id`]
-                        //     ];
-                        // }
-
                         costBlockFilter[dependency.id] = [
                             data[`${dependency.id}Id`]
                         ]
