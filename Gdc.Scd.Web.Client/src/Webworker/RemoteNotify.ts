@@ -1,6 +1,6 @@
 ﻿import { WebworkerHelper } from "../Common/Helpers/WebworkerHelper";
 import { buildMvcUrl } from "../Common/Services/Ajax";
-import { APP_REMOTE_DEFAULT } from "../Layout/Actions/NotifyActions";
+import { APP_ALERT_DEFAULT } from "../Layout/Actions/AlertActions";
 
 /** 
  * HTML5 web workder task
@@ -33,7 +33,7 @@ const connect = (function () {
                 //important to split server answer to get valid json packages
                 let messages = batch.split('\n---\n');
 
-                //ok, parse json
+                //ok, parse json and post messages to main thread
 
                 for (let i = 0, len = messages.length; i < len; i++) {
 
@@ -46,11 +46,8 @@ const connect = (function () {
                     try {
                         let data = JSON.parse(s);
 
-                        //ignore 'hello' server answer
-                        //post only significant data
-
                         if (data.type !== '<HELLO>') {
-                            self.postMessage(data, null);
+                            self.postMessage(data, null); //ignore 'hello' server answer, post only significant data
                         }
                     }
                     catch (e) {
@@ -86,16 +83,41 @@ const connect = (function () {
 function fakeConnect() {
     setInterval(function () {
 
-        let type;
+        let msg: any = { type: '', text: '' };
+        let r = Math.random();
 
-        if (Math.random() > 0.3) {
-            type = 'APP.REMOTE.DEFAULT';
+        if (r > 0.85) {
+            msg.type = 'APP.ALERT.DEFAULT';
+            msg.text = 'Remote msg received'
+        }
+        else if (r > 0.67) {
+            msg.type = 'APP.ALERT.ERROR';
+            msg.text = 'Danger remote msg received'
+        }
+        else if (r > 0.55) {
+            msg.type = 'APP.ALERT.SUCCESS';
+            msg.text = 'Default remote msg received'
+        }
+        else if (r > 0.45) {
+            msg.type = 'APP.ALERT.INFO';
+            msg.text = 'Basic information remote msg received'
+        }
+        else if (r > 0.3) {
+            msg.type = 'APP.ALERT.WARNING';
+            msg.text = 'Warning remote message received'
+        }
+        else if (r > 0.15) {
+            msg.type = 'APP.ALERT.REPORT';
+            msg.text = 'Your report is prepared! Autodownload starting...'
+            //msg.url = 'http://jqueryui.com/resources/download/jquery-ui-1.12.1.zip';
         }
         else {
-           type = 'APP.REMOTE.REPORT';
+            msg.type = 'APP.ALERT.LINK';
+            msg.text = 'Your link to resource is prepared!'
+            msg.url = 'https://www.w3schools.com/howto/tryit.asp?filename=tryhow_js_alerts';
         }
 
-        self.postMessage({ type: type, text: new Date().getTime() }, null);
+        self.postMessage(msg, null);
     }, 5000);
 }
 
@@ -113,7 +135,7 @@ export function RemoteNotify(dispatch) {
                 d.type = d.type.toUpperCase();
             }
             else {
-                d.type = APP_REMOTE_DEFAULT; //unknown message prepare as default
+                d.type = APP_ALERT_DEFAULT; //unknown message prepare as default
             }
             dispatch(d);
         };
