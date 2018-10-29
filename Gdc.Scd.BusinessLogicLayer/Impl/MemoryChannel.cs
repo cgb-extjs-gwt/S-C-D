@@ -17,6 +17,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public void Create(string username)
         {
+            if (string.IsNullOrEmpty(username))
+            {
+                throw new ArgumentException("Invalid username");
+            }
             channels.TryAdd(username, new List<object>());
         }
 
