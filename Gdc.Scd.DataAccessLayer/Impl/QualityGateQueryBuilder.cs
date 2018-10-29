@@ -280,9 +280,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 ? costBlockMeta.DomainMeta.InputLevels
                 : costBlockMeta.DomainMeta.CostElements[historyContext.CostElementId].FilterInputLevels(options.MaxInputLevel);
 
-            var inputLevelFields = inputLevels.Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]);
+            var fields = inputLevels.Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]).ToList();
+            var dependencyField = costBlockMeta.GetDomainDependencyField(historyContext.CostElementId);
+            if (dependencyField != null)
+            {
+                fields.Add(dependencyField);
+            }
 
-            columns.AddRange(inputLevelFields.Concat(costBlockMeta.DependencyFields).SelectMany(field => new[]
+            columns.AddRange(fields.SelectMany(field => new[]
             {
                 new ColumnInfo(MetaConstants.IdFieldKey, field.ReferenceMeta.Name, this.BuildAlias(field.ReferenceMeta.Name, MetaConstants.IdFieldKey)),
                 new ColumnInfo(MetaConstants.NameFieldKey, field.ReferenceMeta.Name, this.BuildAlias(field.ReferenceMeta.Name, MetaConstants.NameFieldKey))

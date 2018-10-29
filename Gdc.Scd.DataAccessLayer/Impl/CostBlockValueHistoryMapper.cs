@@ -16,6 +16,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly string[] dependencyIds;
 
+        private readonly ReferenceFieldMeta dependencyField;
+
         public bool UseHistoryValueId { get; set; }
 
         public bool UseQualityGate { get; set; }
@@ -31,6 +33,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.inputLevelIds = inputLevels.Select(inputLevel => inputLevel.Id).ToArray();
 
             this.lastInputLevel = this.inputLevelIds.Last();
+
+            this.dependencyField = this.costBlockMeta.GetDomainDependencyField(costElementId);
         }
 
         public CostBlockValueHistory Map(IDataReader reader)
@@ -59,7 +63,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             item.LastInputLevel = item.InputLevels[this.lastInputLevel];
 
-            foreach (var dependencyField in this.costBlockMeta.DependencyFields)
+            if (this.dependencyField != null)
             {
                 item.Dependencies.Add(dependencyField.Name, new NamedId
                 {

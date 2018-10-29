@@ -52,7 +52,7 @@ namespace Gdc.Scd.Core.Meta.Entities
             return this.GetDomainInputLevelFields(this.DomainMeta.CostElements[costElementId]);
         }
 
-        public ReferenceFieldMeta GetDomainDependencyFields(string costElementId)
+        public ReferenceFieldMeta GetDomainDependencyField(string costElementId)
         {
             ReferenceFieldMeta dependencyField = null;
 
