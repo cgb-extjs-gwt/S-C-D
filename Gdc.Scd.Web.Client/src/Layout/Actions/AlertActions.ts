@@ -2,11 +2,11 @@
 
 export const APP_ALERT_DEFAULT = "APP.ALERT.DEFAULT";
 export const APP_ALERT_ERROR = "APP.ALERT.ERROR";
-export const APP_ALERT_SUCCESS = "APP.ALERT.SUCCESS";
 export const APP_ALERT_INFO = "APP.ALERT.INFO";
-export const APP_ALERT_WARNING = "APP.ALERT.WARNING";
-export const APP_ALERT_REPORT = "APP.ALERT.REPORT";
 export const APP_ALERT_LINK = "APP.ALERT.LINK";
+export const APP_ALERT_REPORT = "APP.ALERT.REPORT";
+export const APP_ALERT_SUCCESS = "APP.ALERT.SUCCESS";
+export const APP_ALERT_WARNING = "APP.ALERT.WARNING";
 
 export interface AlertAction extends Action<string> {
     text: string,
