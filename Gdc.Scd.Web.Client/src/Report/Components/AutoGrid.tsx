@@ -1,5 +1,7 @@
 ﻿import { Button, Column, Container, Grid, GridProps, NumberColumn, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
+import { handleRequest } from "../../Common/Helpers/RequestHelper";
+import { getFromUri } from "../../Common/Services/Ajax";
 import { AutoColumnModel } from "../Model/AutoColumnModel";
 import { AutoColumnType } from "../Model/AutoColumnType";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
@@ -55,10 +57,6 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
 
         return (
             <Container layout="fit">
-
-                <Container hidden={true}>
-                    <iframe ref="downloader"></iframe>
-                </Container>
 
                 <AutoFilter ref="filter" docked="right" hidden={!this.showFilter()} filter={this.props.filter} onSearch={this.onSearch} />
 
@@ -129,8 +127,8 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
 
         url = Ext.urlAppend(url, Ext.urlEncode(filter, true));
 
-        var ifr = this.refs['downloader'] as HTMLElement;
-        ifr.setAttribute('src', url);
+        let p = getFromUri<any>(url);
+        handleRequest(p);
     }
 
     private onSearch(filter: any) {

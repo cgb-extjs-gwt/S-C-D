@@ -1,5 +1,5 @@
 [assembly: WebActivatorEx.PreApplicationStartMethod(typeof(Gdc.Scd.Web.Server.App_Start.NinjectWebCommon), "Start")]
-[assembly: WebActivatorEx.ApplicationShutdownMethodAttribute(typeof(Gdc.Scd.Web.Server.App_Start.NinjectWebCommon), "Stop")]
+[assembly: WebActivatorEx.ApplicationShutdownMethod(typeof(Gdc.Scd.Web.Server.App_Start.NinjectWebCommon), "Stop")]
 
 namespace Gdc.Scd.Web.Server.App_Start
 {

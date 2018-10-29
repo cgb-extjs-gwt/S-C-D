@@ -1,11 +1,15 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using Gdc.Scd.BusinessLogicLayer.Dto.Report;
+﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
+using Gdc.Scd.BusinessLogicLayer.Entities.Alert;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Web.Server.Impl;
+using Ninject;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Hosting;
+using System.Web.Http;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
@@ -14,20 +18,39 @@ namespace Gdc.Scd.Web.Server.Controllers
     {
         private readonly IReportService service;
 
-        public ReportController(IReportService reportService)
+        private readonly INotifyChannel channel;
+
+        private readonly IKernel serviceProvider;
+
+        public ReportController(
+                IReportService reportService,
+                INotifyChannel channel,
+                IKernel serviceProvider
+            )
         {
             this.service = reportService;
+            this.channel = channel;
+            this.serviceProvider = serviceProvider;
+        }
+
+        //[HttpGet]
+        //public Task Export([FromUri]long id)
+        //{
+        //    return CreateReportAsync(id);
+        //}
+
+        [HttpGet]
+        public IHttpActionResult Export([FromUri]long id)
+        {
+            HostingEnvironment.QueueBackgroundWorkItem(ct => CreateReportAsync(id));
+            return Ok();
         }
 
         [HttpGet]
-        public Task<HttpResponseMessage> Export([FromUri]long id)
+        public HttpResponseMessage Load([FromUri]string key)
         {
-            return service.Excel(id, GetFilter())
-                          .ContinueWith(x =>
-                          {
-                              var res = x.Result;
-                              return this.ExcelContent(res.Data, res.FileName);
-                          });
+            var res = AppCache.Get(key) as FileStreamDto;
+            return res == null ? this.NotFoundContent() : this.ExcelContent(res.Data, res.FileName);
         }
 
         [HttpGet]
@@ -60,6 +83,17 @@ namespace Gdc.Scd.Web.Server.Controllers
                           });
         }
 
+        private async Task CreateReportAsync(long id)
+        {
+            var srv = serviceProvider.Get<IReportService>();
+
+            var report = await srv.Excel(id, GetFilter());
+            var key = Guid.NewGuid().ToString();
+
+            AppCache.Set(key, report);
+            channel.Send(TextAlert.Report("Your report is completed", DownloadLink(key)));
+        }
+
         private ReportFilterCollection GetFilter()
         {
             return new ReportFilterCollection(Request.GetQueryNameValuePairs());
@@ -68,6 +102,11 @@ namespace Gdc.Scd.Web.Server.Controllers
         private static bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 50;
+        }
+
+        public static string DownloadLink(string key)
+        {
+            return string.Concat("/api/report/load?key=", key);
         }
     }
 }

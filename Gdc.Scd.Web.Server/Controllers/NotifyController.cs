@@ -47,6 +47,8 @@ namespace Gdc.Scd.Web.Server.Controllers
 
                     Thread.Sleep(500);
                 }
+
+                context.Response.End();
             });
 
             t.Start();

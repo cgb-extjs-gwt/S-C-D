@@ -95,7 +95,6 @@ export function RemoteNotify(dispatch) {
             else {
                 d.type = APP_ALERT_DEFAULT; //unknown message prepare as default
             }
-            console.log(d);
             dispatch(d);
         };
     }
