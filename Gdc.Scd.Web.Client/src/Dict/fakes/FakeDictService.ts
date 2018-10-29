@@ -3,6 +3,7 @@ import { IDictService } from "../Services/IDictService";
 import { fakeAvailability } from "./FakeAvailability";
 import { fakeCountries } from "./FakeCountries";
 import { fakeDuration } from "./FakeDuration";
+import { fakePla } from "./FakePla";
 import { fakeReactTimeTypes } from "./FakeReactTimeTypes";
 import { fakeReactTypes } from "./FakeReactTypes";
 import { fakeServiceLocationTypes } from "./FakeServiceLocationTypes";
@@ -21,6 +22,10 @@ export class FakeDictService implements IDictService {
 
     public getWG(): Promise<NamedId[]> {
         return this.fromResult(fakeWG);
+    }
+
+    public getPla(): Promise<NamedId<string>[]> {
+        return this.fromResult(fakePla);
     }
 
     public getSog(): Promise<NamedId<string>[]> {

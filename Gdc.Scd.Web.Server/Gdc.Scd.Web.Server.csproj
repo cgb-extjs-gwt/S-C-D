@@ -230,6 +230,7 @@
     <Compile Include="Controllers\Dict\AvailabilityController.cs" />
     <Compile Include="Controllers\Dict\CountryController.cs" />
     <Compile Include="Controllers\Dict\DurationController.cs" />
+    <Compile Include="Controllers\Dict\PlaController.cs" />
     <Compile Include="Controllers\Dict\ReactionTimeController.cs" />
     <Compile Include="Controllers\Dict\ReactionTypeController.cs" />
     <Compile Include="Controllers\Dict\ServiceLocationController.cs" />
@@ -237,12 +238,12 @@
     <Compile Include="Controllers\Dict\WgController.cs" />
     <Compile Include="Controllers\Dict\YearController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\AppController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\Admin\RoleCodeController.cs" />
-    <Compile Include="Controllers\TableViewController.cs" />
     <Compile Include="Controllers\Admin\RoleController.cs" />
-    <Compile Include="Controllers\TableViewController.cs" />
     <Compile Include="Controllers\Admin\UserRoleController.cs" />
+    <Compile Include="Controllers\TableViewController.cs" />
     <Compile Include="DI\ScdNinjectDependencyResolver.cs" />
     <Compile Include="DI\ScdNinjectDependencyScope.cs" />
     <Compile Include="Entities\FilterInfo.cs" />
@@ -253,6 +254,9 @@
     </Compile>
     <Compile Include="Heplers\ApiControllerHelper.cs" />
     <Compile Include="Heplers\MimeTypes.cs" />
+    <Compile Include="Impl\PrincipalProvider.cs" />
+    <Compile Include="Impl\ScdAuthorizeAttribute.cs" />
+    <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -36,5 +36,44 @@ namespace Gdc.Scd.Web.Server
                 _firstRequest = false;
             }
         }
+
+        //TODO: Fake behavior
+#if DEBUG
+        private static bool isUsingFakeIdentity = System.Configuration.ConfigurationManager.AppSettings["UseFakeIdentity"] == "true";
+
+        protected void Application_PostAuthenticateRequest()
+        {
+            if (isUsingFakeIdentity)
+            {
+                this.Context.User = new FakePrincipal
+                {
+                    Identity = new FakeIIdentity
+                    {
+                        Name = "g02\\testUser1",
+                        IsAuthenticated = true
+                    }
+                };
+            }
+        }            
+
+        private class FakeIIdentity : System.Security.Principal.IIdentity
+        {
+            public string Name { get; set; }
+
+            public string AuthenticationType { get; set; }
+
+            public bool IsAuthenticated { get; set; }
+        }
+
+        private class FakePrincipal : System.Security.Principal.IPrincipal
+        {
+            public System.Security.Principal.IIdentity Identity { get; set; }
+
+            public bool IsInRole(string role)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+#endif
     }
 }

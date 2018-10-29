@@ -1,24 +1,19 @@
-﻿using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Core.Meta.Constants;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
     [Table("TaxAndDuties", Schema = MetaConstants.AtomSchema)]
-    public class TaxAndDutiesEntity : IDeactivatable, IIdentifiable
+    public class TaxAndDutiesEntity : IIdentifiable, IDeactivatable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
-
         
         public Country Country { get; set; }
 
-        [Column("Country")]
+        [Column(MetaConstants.CountryInputLevelName)]
         public long CountryId {get;set;}
 
         public double? TaxAndDuties { get; set; }

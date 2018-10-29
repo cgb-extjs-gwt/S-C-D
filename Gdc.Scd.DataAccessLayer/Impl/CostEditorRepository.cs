@@ -25,6 +25,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
 
+        public async Task<IEnumerable<EditItem>> GetEditItems(EditItemInfo editItemInfo, IDictionary<string, long[]> filter)
+        {
+            return await this.GetEditItems(editItemInfo, filter.Convert());
+        }
+
         public async Task<IEnumerable<EditItem>> GetEditItems(EditItemInfo editItemInfo, IDictionary<string, IEnumerable<object>> filter = null)
         {
             var costBlockMeta = (CostBlockEntityMeta)this.domainEnitiesMeta.GetEntityMeta(editItemInfo.EntityName, editItemInfo.Schema);
@@ -84,6 +89,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         (editItem, index) => this.BuildUpdateValueQuery(costBlockMeta, editItem, editItemInfo, index, filter)));
 
             return await this.repositorySet.ExecuteSqlAsync(query);
+        }
+
+        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo, IDictionary<string, long[]> filter)
+        {
+            return await this.UpdateValues(editItems, editItemInfo, filter.Convert());
         }
 
         private SqlHelper BuildUpdateValueQuery(

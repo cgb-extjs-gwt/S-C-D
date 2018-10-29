@@ -68,7 +68,6 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-green"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column text="Country" dataIndex="country" />
                         <Column text="SOG(Asset)" dataIndex="sog" />
                         <Column text="Availability" dataIndex="availability" />
                         <Column text="Year" dataIndex="year" />

@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("Pla", Schema = MetaConstants.InputLevelSchema)]
+    [Table(MetaConstants.PlaInputLevelName, Schema = MetaConstants.InputLevelSchema)]
     public class Pla : NamedId
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -15,6 +14,7 @@ namespace Gdc.Scd.Core.Entities
             set => base.Id = value;
         }
 
+        public string CodingPattern { get; set; }
         public List<Wg> WarrantyGroups { get; set; }
     }
 }

@@ -72,14 +72,18 @@ namespace Gdc.Scd.Core.Meta.Impl
         {
             if (costElementMeta.Dependency != null && costBlockEntity.DependencyFields[costElementMeta.Dependency.Id] == null)
             {
-                var dependencyNameField = new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String);
-                var dependencyEntity = new NamedEntityMeta(costElementMeta.Dependency.Id, dependencyNameField, MetaConstants.DependencySchema)
-                {
-                    StoreType = costElementMeta.Dependency.StoreType
-                };
+                var dependencyFullName = BaseEntityMeta.BuildFullName(costElementMeta.Dependency.Id, MetaConstants.DependencySchema);
+                var dependencyEntity = domainEnitiesMeta.Dependencies[dependencyFullName];
 
-                if (domainEnitiesMeta.Dependencies[dependencyEntity.FullName] == null)
+                if (dependencyEntity == null)
                 {
+                    var dependencyNameField = new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String);
+
+                    dependencyEntity = new NamedEntityMeta(costElementMeta.Dependency.Id, dependencyNameField, MetaConstants.DependencySchema)
+                    {
+                        StoreType = costElementMeta.Dependency.StoreType
+                    };
+
                     domainEnitiesMeta.Dependencies.Add(dependencyEntity);
                 }
 
@@ -90,14 +94,25 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private void BuildInputLevels(InputLevelMeta inputLevelMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta)
         {
-            var inputLevelNameField = new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String);
-            var inputLevelEntity = new NamedEntityMeta(inputLevelMeta.Id, inputLevelNameField, MetaConstants.InputLevelSchema)
-            {
-                StoreType = inputLevelMeta.StoreType
-            };
+            var inputLevelFullName = BaseEntityMeta.BuildFullName(inputLevelMeta.Id, MetaConstants.InputLevelSchema);
+            var inputLevelEntity = domainEnitiesMeta.InputLevels[inputLevelFullName];
 
-            if (domainEnitiesMeta.InputLevels[inputLevelEntity.FullName] == null)
+            if (inputLevelEntity == null)
             {
+                if (inputLevelMeta.Id == MetaConstants.CountryInputLevelName)
+                {
+                    inputLevelEntity = new CountryEntityMeta();
+                }
+                else
+                {
+                    var inputLevelNameField = new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String);
+
+                    inputLevelEntity = new NamedEntityMeta(inputLevelMeta.Id, inputLevelNameField, MetaConstants.InputLevelSchema)
+                    {
+                        StoreType = inputLevelMeta.StoreType
+                    };
+                }
+
                 domainEnitiesMeta.InputLevels.Add(inputLevelEntity);
             }
 

@@ -277,7 +277,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     {
                         ParamInfo = value as CommandParameterInfo ?? new CommandParameterInfo
                         {
-                            Name = $"{paramNamePrefix}{filterItem.Key}_{index++}",
+                            Name = $"{paramNamePrefix}{filterItem.Key.Alias ?? filterItem.Key.Name}_{index++}",
                             Value = value
                         }
                     });

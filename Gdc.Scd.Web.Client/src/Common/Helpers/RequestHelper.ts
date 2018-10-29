@@ -6,5 +6,6 @@ export const handleRequest = (promise: Promise<any>) => {
     return promise.then(hideMask).catch(error => { 
         hideMask();
         Ext.Msg.alert('Error', 'Request failed');
+        console.error(error);
     });
 }

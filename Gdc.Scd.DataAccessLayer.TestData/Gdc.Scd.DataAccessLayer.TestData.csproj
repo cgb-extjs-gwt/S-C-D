@@ -29,6 +29,11 @@
     <None Remove="Scripts\report-SW-Service-Price-List-detail.sql" />
     <None Remove="Scripts\report-SW-Service-Price-List.sql" />
     <None Remove="Scripts\reports.sql" />
+    <None Remove="Scripts\Report\report-Logistic-cost-calc-central.sql" />
+    <None Remove="Scripts\Report\report-logistic-cost-central.sql" />
+    <None Remove="Scripts\Report\report-logistic-cost-country.sql" />
+    <None Remove="Scripts\Report\report-Logistic-cost-input-central.sql" />
+    <None Remove="Scripts\Report\report-Logistic-cost-input-country.sql" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,27 +53,32 @@
     <EmbeddedResource Include="Scripts\matrix.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Scripts\report-calc-output-new-vs-old.sql" />
-    <EmbeddedResource Include="Scripts\report-calc-output-vs-FREEZE.sql" />
-    <EmbeddedResource Include="Scripts\report-calc-parameter-hw.sql" />
-    <EmbeddedResource Include="Scripts\report-calc-parameter-proactive.sql" />
-    <EmbeddedResource Include="Scripts\report-contract.sql" />
-    <EmbeddedResource Include="Scripts\report-flat-fee.sql" />
-    <EmbeddedResource Include="Scripts\report-hdd-retention-central.sql" />
-    <EmbeddedResource Include="Scripts\report-hdd-retention-country.sql" />
-    <EmbeddedResource Include="Scripts\report-hdd-retention-parameter.sql" />
-    <EmbeddedResource Include="Scripts\report-list.sql" />
-    <EmbeddedResource Include="Scripts\report-local-detailed.sql" />
-    <EmbeddedResource Include="Scripts\report-locap.sql" />
-    <EmbeddedResource Include="Scripts\report-logistic-cost-calc-country.sql" />
-    <EmbeddedResource Include="Scripts\report-po-standard-warranty.sql" />
-    <EmbeddedResource Include="Scripts\report-proactive.sql" />
-    <EmbeddedResource Include="Scripts\report-solution-pack-price-list-detail.sql" />
-    <EmbeddedResource Include="Scripts\report-solution-pack-price-list.sql" />
-    <EmbeddedResource Include="Scripts\report-solutionpack-proactive-costing.sql" />
-    <EmbeddedResource Include="Scripts\report-SW-Service-Price-List-detail.sql" />
-    <EmbeddedResource Include="Scripts\report-SW-Service-Price-List.sql" />
-    <EmbeddedResource Include="Scripts\reports.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-calc-output-new-vs-old.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-calc-output-vs-FREEZE.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-calc-parameter-hw.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-calc-parameter-proactive.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-contract.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-flat-fee.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-hdd-retention-central.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-hdd-retention-country.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-hdd-retention-parameter.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-list.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-local-detailed.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-locap.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-Logistic-cost-calc-central.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-logistic-cost-calc-country.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-logistic-cost-central.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-logistic-cost-country.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-Logistic-cost-input-central.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-Logistic-cost-input-country.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-po-standard-warranty.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-proactive.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-solution-pack-price-list-detail.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-solution-pack-price-list.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-solutionpack-proactive-costing.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-SW-Service-Price-List-detail.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-SW-Service-Price-List.sql" />
+    <EmbeddedResource Include="Scripts\Report\reports.sql" />
   </ItemGroup>
 
   <ItemGroup>

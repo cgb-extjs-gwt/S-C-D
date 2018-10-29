@@ -27,6 +27,7 @@ export class OwnApprovalCostElementsLayout extends BaseBundleLayout {
             <OwnApproveRejectContainerComponent 
                 bundleId={bundle.id} 
                 costBlockId={bundle.costBlock.id} 
+                costElementId={bundle.costElement.id}
                 onHandled={onHandled}
             />
         );

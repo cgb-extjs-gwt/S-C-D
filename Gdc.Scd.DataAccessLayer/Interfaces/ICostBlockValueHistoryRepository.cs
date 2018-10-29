@@ -14,7 +14,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
             long? historyValueId = null, 
             IDictionary<string, IEnumerable<object>> costBlockFilter = null);
 
-        Task<IEnumerable<HistoryItem>> GetHistory(HistoryContext historyContext, IDictionary<string, IEnumerable<object>> filter, QueryInfo queryInfo = null);
+        Task<IEnumerable<HistoryItem>> GetHistory(HistoryContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null);
 
         Task<int> Approve(CostBlockHistory history);
     }

@@ -4,6 +4,8 @@ import { NamedId } from "../../Common/States/CommonStates";
 import { get, post, buildMvcUrl } from "../../Common/Services/Ajax";
 import { QualityGateResult } from "../../QualityGate/States/QualityGateResult";
 import { CostMetaData } from "../../Common/States/CostMetaStates";
+import { getAppData } from "../../Layout/Services/AppService";
+import data from "../../Test/Home/data";
 
 export const COST_EDITOR_CONTROLLER_NAME = 'CostEditor';
 
@@ -25,8 +27,6 @@ export interface ApprovalOption {
     hasQualityGateErrors?: boolean
     qualityGateErrorExplanation?: string
 }
-
-export const getCostEditorData = () => get<CostMetaData>(COST_EDITOR_CONTROLLER_NAME, 'GetCostEditorData');
 
 export const getCostElementData = (context: Context) => get<CostElementData>(COST_EDITOR_CONTROLLER_NAME, 'GetCostElementData', context);
 

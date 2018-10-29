@@ -22,7 +22,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<IEnumerable<HistoryItem>> GetHistory(CostEditorContext context, long editItemId, QueryInfo queryInfo = null);
 
-        Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption);
+        Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter);
 
         Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
             CostBlockHistory history, 
