@@ -53,7 +53,9 @@ namespace Gdc.Scd.Web.Server.Controllers
                 var dictionary = new Dictionary<string, object>
                 {
                     [nameof(CostBlockValueHistory.Value)] = historyValue.Value,
-                    [nameof(historyValue.HistoryValueId)] = historyValue.HistoryValueId
+                    [nameof(historyValue.HistoryValueId)] = historyValue.HistoryValueId,
+                    [nameof(CostBlockValueHistory.IsPeriodError)] = historyValue.IsPeriodError,
+                    [nameof(CostBlockValueHistory.IsRegionError)] = historyValue.IsRegionError,
                 };
 
                 foreach (var dependency in historyValue.InputLevels.Concat(historyValue.Dependencies))

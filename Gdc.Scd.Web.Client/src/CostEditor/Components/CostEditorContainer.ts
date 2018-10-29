@@ -130,6 +130,7 @@ const costBlockTabMap = (
                 },
                 applicationId,
                 costBlockId: costBlock.costBlockId,
+                costElementId: costBlock.costElements.selectedItemId,
                 qualityGateErrors: costBlock.edit.saveErrors,
                 isEnableClear: hasChanges,
                 isEnableSave: hasChanges,
