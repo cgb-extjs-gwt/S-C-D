@@ -1,16 +1,5 @@
-IF OBJECT_ID('tempdb..#ShrinkLog') IS NOT NULL DROP PROC #ShrinkLog
-GO
-
-CREATE PROC #ShrinkLog
-AS
-    DBCC SHRINKFILE ('Scd_2_log', 1);
-    RETURN 0
-GO
 
 delete from SoftwareSolution.ServiceCostCalculation;
-
-exec #ShrinkLog;
-go
 
 insert into SoftwareSolution.ServiceCostCalculation(
     SogId,
@@ -25,9 +14,5 @@ insert into SoftwareSolution.ServiceCostCalculation(
          , Dependencies.Availability av
 );
 
-exec #ShrinkLog;
 go
 
-IF OBJECT_ID('tempdb..#ShrinkLog') IS NOT NULL DROP PROC #ShrinkLog
-
-GO

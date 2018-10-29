@@ -37,8 +37,6 @@ end;
 ALTER TABLE Hardware.ServiceCostCalculation CHECK CONSTRAINT ALL
 GO
 
-IF OBJECT_ID('tempdb..#ShrinkLog') IS NOT NULL DROP PROC #ShrinkLog
-
 ALTER DATABASE SCD_2 SET RECOVERY FULL
 GO 
 
