@@ -32,18 +32,23 @@ namespace Gdc.Scd.Web.Server
             }
         }
 
-//TODO: Fake behavior
+        //TODO: Fake behavior
 #if DEBUG
+        private static bool isUsingFakeIdentity = System.Configuration.ConfigurationManager.AppSettings["UseFakeIdentity"] == "true";
+
         protected void Application_PostAuthenticateRequest()
         {
-            this.Context.User = new FakePrincipal
+            if (isUsingFakeIdentity)
             {
-                Identity = new FakeIIdentity
+                this.Context.User = new FakePrincipal
                 {
-                    Name = "g02\\testUser1",
-                    IsAuthenticated = true
-                }
-            };
+                    Identity = new FakeIIdentity
+                    {
+                        Name = "g02\\testUser1",
+                        IsAuthenticated = true
+                    }
+                };
+            }
         }            
 
         private class FakeIIdentity : System.Security.Principal.IIdentity

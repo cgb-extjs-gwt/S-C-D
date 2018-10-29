@@ -22,7 +22,7 @@ namespace Gdc.Scd.Core.Meta.Entities
             {
                 yield return this.IdField;
 
-                var fields = this.InputLevelFields.Concat(this.DependencyFields).Concat(this.CostElementsFields);
+                var fields = this.CoordinateFields.Concat(this.CostElementsFields);
 
                 foreach (var field in fields)
                 {

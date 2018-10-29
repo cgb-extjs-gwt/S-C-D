@@ -24,7 +24,15 @@ export interface EditGridProps extends EditGridActions {
 
 export class EditGrid extends React.Component<EditGridProps> {
     private itemsMap = new Map<string, EditItem>();
-        
+
+    constructor(props: EditGridProps) {
+        super(props);
+
+        if (this.props.items) {
+            this.updateItemsMap(this.props.items) ;
+        }
+    }
+
     public shouldComponentUpdate(nextProps: EditGridProps) {
         let result = false;
 
@@ -46,11 +54,7 @@ export class EditGrid extends React.Component<EditGridProps> {
         }
 
         if (result && nextProps.items) {
-            this.itemsMap.clear();
-            
-            for (const item of nextProps.items) {
-                this.itemsMap.set(item.id, { ...item });
-            }
+            this.updateItemsMap(nextProps.items);
         }
 
         return result;
@@ -193,6 +197,14 @@ export class EditGrid extends React.Component<EditGridProps> {
             const editItems = records ? records.map(record => record.data) : [];
 
             onSelected(editItems);
+        }
+    }
+
+    private updateItemsMap(items: EditItem[]) {
+        this.itemsMap.clear();
+            
+        for (const item of items) {
+            this.itemsMap.set(item.id, { ...item });
         }
     }
 } 
