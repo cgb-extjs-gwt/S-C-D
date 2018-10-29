@@ -3,7 +3,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -14,16 +13,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public MemoryChannel()
         {
             channels = new ConcurrentDictionary<string, List<object>>(StringComparer.OrdinalIgnoreCase);
-            new Thread(Push).Start();
-        }
-
-        void Push()
-        {
-            while (true)
-            {
-                Send(new { current_time = DateTime.Now, value = Guid.NewGuid() });
-                Thread.Sleep(6000);
-            }
         }
 
         public void Create(string username)
