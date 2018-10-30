@@ -1,6 +1,6 @@
 import { DataInfo } from "../../Common/States/CommonStates";
 import { AutoGridModel } from "../Model/AutogridModel";
-import { HwCalcFilterModel } from "../Model/HwCalcFilterModel";
+import { HwCostFilterModel } from "../Model/HwCalcFilterModel";
 import { HwCalcListModel } from "../Model/HwCalcListModel";
 import { ReportModel } from "../Model/ReportModel";
 import { IReportService } from "../Services/IReportService";
@@ -17,7 +17,7 @@ export class FakeReportService implements IReportService {
         return this.getSchema();
     }
 
-    public getHwCost(filter: HwCalcFilterModel): Promise<DataInfo<HwCalcListModel>> {
+    public getHwCost(filter: HwCostFilterModel): Promise<DataInfo<HwCalcListModel>> {
         return this.fromResult({ items: fakeHwCost, total: fakeHwCost.length * 5 });
     }
 

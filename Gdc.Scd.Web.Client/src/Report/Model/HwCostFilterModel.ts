@@ -1,4 +1,4 @@
-﻿export interface HwCalcFilterModel {
+﻿export interface HwCostFilterModel {
     country?: string;
     wg?: string;
     availability?: string;

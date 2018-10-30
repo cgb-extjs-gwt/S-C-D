@@ -186,9 +186,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (filter != null)
             {
-                query = query.WhereIf(filter.Country.HasValue, x => x.Country.Id == filter.Country.Value)
-                             .WhereIf(filter.Sog.HasValue, x => x.Sog.Id == filter.Sog.Value)
-                             .WhereIf(filter.Year.HasValue, x => x.Year.Id == filter.Year.Value);
+                query = query.WhereIf(filter.Country.HasValue, x => x.Country == filter.Country.Value)
+                             .WhereIf(filter.Sog.HasValue, x => x.Sog == filter.Sog.Value)
+                             .WhereIf(filter.Year.HasValue, x => x.Year == filter.Year.Value);
             }
 
             var count = await query.GetCountAsync();
@@ -197,10 +197,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             var result = await query.Select(x => new SwProactiveCostDto
             {
-                Country = x.Country.Name,
-                Sog = x.Sog.Name,
-                SwDigit = x.SwDigit.Name,
-                Year = x.Year.Name,
+                Country = x.CountryRef.Name,
+                Sog = x.SogRef.Name,
+                SwDigit = x.SwDigitRef.Name,
+                Year = x.YearRef.Name,
 
                 ProActive = x.ProActive,
                 ProActive_Approved = x.ProActive_Approved

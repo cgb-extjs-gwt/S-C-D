@@ -2,14 +2,14 @@
 import * as React from "react";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { HwCalcFilter } from "./Components/HwCalcFilter";
-import { HwCalcFilterModel } from "./Model/HwCalcFilterModel";
+import { HwCostFilter } from "./Components/HwCostFilter";
+import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private grid: Grid;
 
-    private filter: HwCalcFilter;
+    private filter: HwCostFilter;
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
         pageSize: 25,
@@ -104,7 +104,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         return (
             <Container layout="fit">
 
-                <HwCalcFilter ref="filter" docked="right" onSearch={this.onSearch} />
+                <HwCostFilter ref="filter" docked="right" onSearch={this.onSearch} />
 
                 <Grid
                     ref="grid"
@@ -189,7 +189,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     public componentDidMount() {
         this.grid = this.refs.grid as Grid;
-        this.filter = this.refs.filter as HwCalcFilter;
+        this.filter = this.refs.filter as HwCostFilter;
     }
 
     private init() {
@@ -231,7 +231,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     }
 
-    private onSearch(filter: HwCalcFilterModel) {
+    private onSearch(filter: HwCostFilterModel) {
         this.reload();
     }
 

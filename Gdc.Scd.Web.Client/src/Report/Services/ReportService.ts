@@ -1,7 +1,7 @@
 import { get } from "../../Common/Services/Ajax";
 import { DataInfo } from "../../Common/States/CommonStates";
 import { AutoGridModel } from "../Model/AutogridModel";
-import { HwCalcFilterModel } from "../Model/HwCalcFilterModel";
+import { HwCostFilterModel } from "../Model/HwCalcFilterModel";
 import { HwCalcListModel } from "../Model/HwCalcListModel";
 import { ReportModel } from "../Model/ReportModel";
 import { IReportService } from "./IReportService";
@@ -13,7 +13,7 @@ export class ReportService implements IReportService {
 
     private controllerName: string = 'report';
 
-    public getHwCost(filter: HwCalcFilterModel): Promise<DataInfo<HwCalcListModel>> {
+    public getHwCost(filter: HwCostFilterModel): Promise<DataInfo<HwCalcListModel>> {
         throw new Error("Method not implemented.");
     }
 

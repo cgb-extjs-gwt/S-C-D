@@ -9,13 +9,21 @@ namespace Gdc.Scd.Core.Entities.Calculation
     {
         public long Id { get; set; }
 
-        public Country Country { get; set; }
+        public long Country { get; set; }
+        [ForeignKey("Country")]
+        public Country CountryRef { get; set; }
 
-        public Sog Sog { get; set; }
+        public long Sog { get; set; }
+        [ForeignKey("Sog")]
+        public Sog SogRef { get; set; }
 
-        public SwDigit SwDigit { get; set; }
+        public long SwDigit { get; set; }
+        [ForeignKey("SwDigit")]
+        public SwDigit SwDigitRef { get; set; }
 
-        public Year Year { get; set; }
+        public long Year { get; set; }
+        [ForeignKey("Year")]
+        public Year YearRef { get; set; }
 
         public double? ProActive { get; set; }
         public double? ProActive_Approved { get; set; }
