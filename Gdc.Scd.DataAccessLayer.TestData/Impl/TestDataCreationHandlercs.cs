@@ -1248,12 +1248,12 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var taxAndDuties = new ImportConfiguration
             {
                 Name = ImportSystems.AMBERROAD,
-                FilePath = @"C:\Users\BorisovaE\Desktop",
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Amber road",
                 FileName = "SCD_Duties_Taxes.csv",
                 ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
-                ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\amber",
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Amber road\processed",
                 Delimeter = ";",
                 HasHeader = true,
                 Culture = "de-DE"
@@ -1262,12 +1262,12 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var logistic = new ImportConfiguration
             {
                 Name = ImportSystems.LOGISTICS,
-                FilePath = @"C:\Users\BorisovaE\Desktop",
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Logistics",
                 FileName = "FeeCalculator-Upload_*.txt",
                 ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
-                ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\logistics",
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Logistics\processed",
                 Delimeter = "|",
                 HasHeader = true,
                 Culture = "de-DE"
@@ -1276,12 +1276,12 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var ebis_afr = new ImportConfiguration
             {
                 Name = ImportSystems.EBIS_AFR,
-                FilePath = @"C:\Users\BorisovaE\Desktop",
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS",
                 FileName = "SCD_FR_LOAD.csv",
                 ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
-                ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\ebis",
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
                 Delimeter = ";",
                 HasHeader = true,
                 Culture = "en-US"
@@ -1290,12 +1290,12 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var ebis_material_cost = new ImportConfiguration
             {
                 Name = ImportSystems.EBIS_MATERIAL_COST,
-                FilePath = @"C:\Users\BorisovaE\Desktop",
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS",
                 FileName = "SCD_MATCO_LOAD.csv",
                 ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
-                ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\ebis",
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
                 Delimeter = ";",
                 HasHeader = true,
                 Culture = "en-US"
@@ -1304,12 +1304,12 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var ebis_install_base = new ImportConfiguration
             {
                 Name = ImportSystems.EBIS_INSTALL_BASE,
-                FilePath = @"C:\Users\BorisovaE\Desktop",
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS",
                 FileName = "SCD_FQR_LOAD.csv",
                 ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
-                ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\ebis",
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
                 Delimeter = ";",
                 HasHeader = true,
                 Culture = "en-US"
