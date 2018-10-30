@@ -10,9 +10,12 @@ namespace Gdc.Scd.Import.Core.Dto
     public class InstallBaseDto
     {
         [ParseInfo(0)]
-        public string Wg { get; set; }
+        public string CountryCode { get; set; }
 
         [ParseInfo(1)]
+        public string Wg { get; set; }
+
+        [ParseInfo(2)]
         public double? InstallBase { get; set; }
     }
 }

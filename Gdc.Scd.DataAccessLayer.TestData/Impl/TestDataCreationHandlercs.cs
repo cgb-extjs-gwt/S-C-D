@@ -1712,14 +1712,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 CountryDigit = "TR"
             };
 
-            var egyptCG = new CountryGroup
-            {
-                Name = "Egypt",
-                RegionId = wemeiaRegion.Id,
-                LUTCode = "EGY",
-                CountryDigit = "ME"
-            };
-
             #endregion
 
             var countries = new Country[]
@@ -1783,7 +1775,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Country { Name = "Italy", SAPCountryCode = "ITL", ISO3CountryCode = "ITA", CountryGroup = italyCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = italyCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "San Marino", SAPCountryCode = "SMA", ISO3CountryCode = "SMR", CountryGroup = italyCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = italyCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Luxembourg", SAPCountryCode = "LUX", ISO3CountryCode = "LUX", CountryGroup = luxembourgCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = luxembourgCG.RegionId, AssignedToMultiVendor = false },
-                new Country { Name = "Egypt", SAPCountryCode = "EGY", ISO3CountryCode = "EGY", CountryGroup = egyptCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = egyptCG.RegionId, AssignedToMultiVendor = false },
+                new Country { Name = "Egypt", SAPCountryCode = "EGY", ISO3CountryCode = "EGY", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Afghanistan", SAPCountryCode = "AFG", ISO3CountryCode = "AFG", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Bahrain", SAPCountryCode = "BAH", ISO3CountryCode = "BHR", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Gaza Strip", SAPCountryCode = "", ISO3CountryCode = "", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },
