@@ -37,10 +37,10 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
                     }}
                 >
 
-
                     <SogField ref="sog" label="Asset(SOG):" />
                     <AvailabilityField ref="availability" label="Availability:" />
                     <YearField ref="year" label="Year:" />
+
                 </Container>
 
                 <Button text="Search" ui="action" width="85px" handler={this.onSearch} margin="20px auto" />
