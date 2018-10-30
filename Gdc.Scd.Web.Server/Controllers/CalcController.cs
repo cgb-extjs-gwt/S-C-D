@@ -27,37 +27,45 @@ namespace Gdc.Scd.Web.Api.Controllers
                 [FromUri]int limit = 50
             )
         {
-            if (!isRangeValid(start, limit))
+            if (!IsRangeValid(start, limit))
             {
                 return null;
             }
 
             return calcSrv.GetHardwareCost(filter, start, limit)
-                          .ContinueWith(x => new DataInfo<HwCostDto>
-                          {
-                              Items = x.Result.Item1,
-                              Total = x.Result.Item2
-                          });
+                          .ContinueWith(x => new DataInfo<HwCostDto> { Items = x.Result.Item1, Total = x.Result.Item2 });
         }
 
         [HttpGet]
-        public Task<DataInfo<SwCostDto>> GetSwCost(
+        public Task<DataInfo<SwMaintenanceCostDto>> GetSwCost(
                 [FromUri]SwFilterDto filter,
                 [FromUri]int start = 0,
                 [FromUri]int limit = 50
             )
         {
-            if (!isRangeValid(start, limit))
+            if (!IsRangeValid(start, limit))
             {
                 return null;
             }
 
             return calcSrv.GetSoftwareCost(filter, start, limit)
-                          .ContinueWith(x => new DataInfo<SwCostDto>
-                          {
-                              Items = x.Result.Item1,
-                              Total = x.Result.Item2
-                          });
+                          .ContinueWith(x => new DataInfo<SwMaintenanceCostDto> { Items = x.Result.Item1, Total = x.Result.Item2 });
+        }
+
+        [HttpGet]
+        public Task<DataInfo<SwProactiveCostDto>> GetSwProactiveCost(
+               [FromUri]SwFilterDto filter,
+               [FromUri]int start = 0,
+               [FromUri]int limit = 50
+           )
+        {
+            if (!IsRangeValid(start, limit))
+            {
+                return null;
+            }
+
+            return calcSrv.GetSoftwareProactiveCost(filter, start, limit)
+                          .ContinueWith(x => new DataInfo<SwProactiveCostDto> { Items = x.Result.Item1, Total = x.Result.Item2 });
         }
 
         [HttpPost]
@@ -74,7 +82,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             calcSrv.SaveHardwareCost(model);
         }
 
-        private bool isRangeValid(int start, int limit)
+        private bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 50;
         }

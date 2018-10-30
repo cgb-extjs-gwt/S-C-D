@@ -9,7 +9,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
     {
         Task<Tuple<HwCostDto[], int>> GetHardwareCost(HwFilterDto filter, int start, int limit);
 
-        Task<Tuple<SwCostDto[], int>> GetSoftwareCost(SwFilterDto filter, int start, int limit);
+        Task<Tuple<SwMaintenanceCostDto[], int>> GetSoftwareCost(SwFilterDto filter, int start, int limit);
+
+        Task<Tuple<SwProactiveCostDto[], int>> GetSoftwareProactiveCost(SwFilterDto filter, int start, int limit);
 
         void SaveHardwareCost(IEnumerable<HwCostManualDto> records);
     }

@@ -40,7 +40,6 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         let transferPrice: string = 'transferPrice';
         let maintenanceListPrice: string = 'maintenanceListPrice';
         let dealerPrice: string = 'dealerPrice';
-        let proActive: string = 'proActive';
 
         if (this.props.approved) {
             serviceSupport = 'serviceSupport_Approved';
@@ -48,7 +47,6 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
             transferPrice = 'transferPrice_Approved';
             maintenanceListPrice = 'maintenanceListPrice_Approved';
             dealerPrice = 'dealerPrice_Approved';
-            proActive = 'proActive_Approved';
         }
 
         return (

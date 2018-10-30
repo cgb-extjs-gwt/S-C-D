@@ -72,7 +72,8 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<CapabilityMatrixMaster>();
             Kernel.RegisterEntity<CapabilityMatrixRule>();
             Kernel.RegisterEntity<HardwareCalculationResult>();
-            Kernel.RegisterEntity<SoftwareCalculationResult>();
+            Kernel.RegisterEntity<SoftwareMaintenance>();
+            Kernel.RegisterEntity<SoftwareProactive>();
 
             /*---------reports----------*/
             Kernel.RegisterEntity<Report>();

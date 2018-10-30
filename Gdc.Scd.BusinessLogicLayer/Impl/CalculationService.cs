@@ -19,18 +19,22 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<CapabilityMatrix> matrixRepo;
 
-        private readonly IRepository<SoftwareCalculationResult> swRepo;
+        private readonly IRepository<SoftwareMaintenance> swMaintenanceRepo;
+
+        private readonly IRepository<SoftwareProactive> swProactiveRepo;
 
         public CalculationService(
                 IRepositorySet repositorySet,
                 IRepository<HardwareCalculationResult> hwRepo,
-                IRepository<SoftwareCalculationResult> swRepo,
+                IRepository<SoftwareMaintenance> swMaintenanceRepo,
+                IRepository<SoftwareProactive> swProactiveRepo,
                 IRepository<CapabilityMatrix> matrixRepo
             )
         {
             this.repositorySet = repositorySet;
             this.hwRepo = hwRepo;
-            this.swRepo = swRepo;
+            this.swMaintenanceRepo = swMaintenanceRepo;
+            this.swProactiveRepo = swProactiveRepo;
             this.matrixRepo = matrixRepo;
         }
 
@@ -50,6 +54,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             var count = await query.GetCountAsync(); //optimization! get count without join!!!
+
+            query = query.WithPaging(start, limit);
 
             var query2 = from m in query
                          join hw in hwRepo.GetAll() on m.Id equals hw.Id
@@ -129,31 +135,31 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                              DealerPrice_Approved = hw.DealerPrice_Approved
                          };
 
-            var result = await query2.PagingAsync(start, limit);
+            var result = await query2.GetAsync();
 
             return new Tuple<HwCostDto[], int>(result, count);
         }
 
-        public async Task<Tuple<SwCostDto[], int>> GetSoftwareCost(SwFilterDto filter, int start, int limit)
+        public async Task<Tuple<SwMaintenanceCostDto[], int>> GetSoftwareCost(SwFilterDto filter, int start, int limit)
         {
-            var query = swRepo.GetAll();
+            var query = swMaintenanceRepo.GetAll();
 
             if (filter != null)
             {
-                query = query.WhereIf(filter.Sog.HasValue, x => x.Sog.Id == filter.Sog.Value)
-                             .WhereIf(filter.Availability.HasValue, x => x.Availability.Id == filter.Availability.Value)
-                             .WhereIf(filter.Year.HasValue, x => x.Year.Id == filter.Year.Value);
+                query = query.WhereIf(filter.Sog.HasValue, x => x.Sog == filter.Sog.Value)
+                             .WhereIf(filter.Availability.HasValue, x => x.Availability == filter.Availability.Value)
+                             .WhereIf(filter.Year.HasValue, x => x.Year == filter.Year.Value);
             }
-
-            query = query.OrderBy(x => x.Id);
 
             var count = await query.GetCountAsync();
 
-            var result = await query.Select(x => new SwCostDto
+            query = query.WithPaging(start, limit);
+
+            var result = await query.Select(x => new SwMaintenanceCostDto
             {
-                Sog = x.Sog.Name,
-                Availability = x.Availability.Name,
-                Year = x.Year.Name,
+                Sog = x.SogRef.Name,
+                Availability = x.AvailabilityRef.Name,
+                Year = x.YearRef.Name,
 
                 DealerPrice = x.DealerPrice,
                 DealerPrice_Approved = x.DealerPrice_Approved,
@@ -168,13 +174,39 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 ServiceSupport_Approved = x.ServiceSupport_Approved,
 
                 TransferPrice = x.TransferPrice,
-                TransferPrice_Approved = x.TransferPrice_Approved,
+                TransferPrice_Approved = x.TransferPrice_Approved
+            }).GetAsync();
+
+            return new Tuple<SwMaintenanceCostDto[], int>(result, count);
+        }
+
+        public async Task<Tuple<SwProactiveCostDto[], int>> GetSoftwareProactiveCost(SwFilterDto filter, int start, int limit)
+        {
+            var query = swProactiveRepo.GetAll();
+
+            if (filter != null)
+            {
+                query = query.WhereIf(filter.Country.HasValue, x => x.Country.Id == filter.Country.Value)
+                             .WhereIf(filter.Sog.HasValue, x => x.Sog.Id == filter.Sog.Value)
+                             .WhereIf(filter.Year.HasValue, x => x.Year.Id == filter.Year.Value);
+            }
+
+            var count = await query.GetCountAsync();
+
+            query = query.WithPaging(start, limit);
+
+            var result = await query.Select(x => new SwProactiveCostDto
+            {
+                Country = x.Country.Name,
+                Sog = x.Sog.Name,
+                SwDigit = x.SwDigit.Name,
+                Year = x.Year.Name,
 
                 ProActive = x.ProActive,
                 ProActive_Approved = x.ProActive_Approved
-            }).PagingAsync(start, limit);
+            }).GetAsync();
 
-            return new Tuple<SwCostDto[], int>(result, count);
+            return new Tuple<SwProactiveCostDto[], int>(result, count);
         }
 
         public void SaveHardwareCost(IEnumerable<HwCostManualDto> records)

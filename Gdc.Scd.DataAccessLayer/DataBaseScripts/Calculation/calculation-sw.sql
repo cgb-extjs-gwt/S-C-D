@@ -190,7 +190,7 @@ CREATE VIEW SoftwareSolution.SwSpMaintenanceCostView as
     from SwSpMaintenanceCte4 m
 GO
 
-CREATE VIEW [SoftwareSolution].[ProActiveView] AS
+CREATE VIEW SoftwareSolution.ProActiveView AS
 with ProActiveCte as (
     select pro.Country,
            pro.Sog,
@@ -297,7 +297,9 @@ with ProActiveCte as (
     from ProActiveCte pro
 )
 select pro.*,
-       Hardware.CalcProActive(pro.Setup, pro.Service, pro.Year) as ProActiveCost,
-       Hardware.CalcProActive(pro.Setup_Approved, pro.Service_Approved, pro.Year) as ProActiveCost_Approved
+       Hardware.CalcProActive(pro.Setup, pro.Service, pro.Year) as ProActive,
+       Hardware.CalcProActive(pro.Setup_Approved, pro.Service_Approved, pro.Year) as ProActive_Approved
 from ProActiveCte2 pro
 GO
+
+
