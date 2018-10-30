@@ -32,7 +32,6 @@ begin
 end;
 
 ----------------------------------------------------------------------------------
-
 -- Enable all table constraints
 ALTER TABLE Hardware.ServiceCostCalculation CHECK CONSTRAINT ALL
 GO

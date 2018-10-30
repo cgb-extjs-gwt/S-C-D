@@ -65,5 +65,12 @@ namespace Gdc.Scd.Export.CdCs
                 return ConfigurationManager.AppSettings["CalculatiolToolInputFileName"];
             }
         }
+        public static string ProActiveWgList
+        {
+            get
+            {
+                return ConfigurationManager.AppSettings["ProActiveWgList"];
+            }
+        }
     }
 }

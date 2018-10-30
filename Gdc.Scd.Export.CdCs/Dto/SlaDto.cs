@@ -9,7 +9,6 @@ namespace Gdc.Scd.Export.CdCs
     public class SlaDto
     {
         public string FspCode { get; set; }
-        public string Country { get; set; }
         public string ServiceLocation { get; set; }
         public string Availability { get; set; }
         public string ReactionTime { get; set; }

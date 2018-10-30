@@ -48,6 +48,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<DataTable> ExecuteAsTableAsync(string sql, params DbParameter[] parameters);
 
+        DataTable ExecuteAsTable(string sql, params DbParameter[] parameters);
+
         Task<T> ExecuteScalarAsync<T>(string sql, params DbParameter[] parameters);
 
         void Replace<T>(T oldEntity, T newEntity) where T : class;
