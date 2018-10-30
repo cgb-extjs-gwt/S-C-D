@@ -49,17 +49,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             return result;
         }
 
-        public async Task<JsonArrayDto> ExecuteJsonAsync(string func, DbParameter[] parameters)
-        {
-            string sql;
-            JsonArrayDto result = new JsonArrayDto();
-
-            sql = SelectQuery(func, parameters);
-            result.Json = await _repo.ExecuteAsJsonAsync(sql, parameters);
-
-            return result;
-        }
-
         private static string CountQuery(string func, DbParameter[] parameters)
         {
             return new SqlStringBuilder()
@@ -82,9 +71,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         private static string SelectQuery(string func, DbParameter[] parameters, int start, int limit)
         {
             return new SqlStringBuilder()
-                   .Append("SELECT * FROM ").AppendFunc(func, parameters)
-                   .Append(" WHERE ROWNUM BETWEEN ").AppendValue(start).Append(" AND ").AppendValue(limit)
-                   .Build();
+                    .Append(@"SELECT * FROM(
+                                SELECT ROW_NUMBER() OVER (ORDER BY (SELECT 1)) as ROWNUM, tbl.* FROM ").AppendFunc(func, parameters).Append(" tbl")
+                    .Append(") T WHERE ROWNUM BETWEEN ").AppendValue(start + 1).Append(" AND ").AppendValue(start + limit)
+                    .Build();
         }
     }
 }

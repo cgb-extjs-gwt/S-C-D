@@ -30,14 +30,16 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
     private filter: AutoFilter;
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
-
+        pageSize: 25,
         proxy: {
             type: 'ajax',
             api: {
                 read: this.props.url
             },
             reader: {
-                type: 'json'
+                type: 'json',
+                rootProperty: 'items',
+                totalProperty: 'total'
             }
         }
     });
@@ -69,7 +71,8 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
                     ref="grid"
                     store={this.store}
                     width="100%"
-                    defaults={{ minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                    defaults={{ minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}
+                    plugins={['pagingtoolbar']}>
 
                     {this.props.columns.map((v, i) => {
 

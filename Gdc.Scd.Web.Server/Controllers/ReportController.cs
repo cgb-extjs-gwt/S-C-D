@@ -67,14 +67,18 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public Task<HttpResponseMessage> View([FromUri]long id)
+        public Task<HttpResponseMessage> View(
+                [FromUri]long id,
+                [FromUri]int start = 0,
+                [FromUri]int limit = 25
+            )
         {
-            return service.GetJsonArrayData(id, GetFilter(), 0, 0)
-                          .ContinueWith(x =>
-                          {
-                              var res = x.Result;
-                              return this.JsonContent(res.Json);
-                          });
+            if (!IsRangeValid(start, limit))
+            {
+                return null;
+            }
+            return service.GetJsonArrayData(id, GetFilter(), start, limit)
+                          .ContinueWith(x => this.JsonContent(x.Result.Json, x.Result.Total));
         }
 
         private async Task CreateReportAsync(long id)
