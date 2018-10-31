@@ -1,12 +1,14 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Constants;
+using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Web.Server;
+using Gdc.Scd.Web.Server.Impl;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Web.Server.Impl;
-using Gdc.Scd.Core.Constants;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
@@ -21,7 +23,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public Task<DataInfo<HwCostDto>> GetHwCost(
+        public Task<HttpResponseMessage> GetHwCost(
                 [FromUri]HwFilterDto filter,
                 [FromUri]int start = 0,
                 [FromUri]int limit = 50
@@ -32,9 +34,25 @@ namespace Gdc.Scd.Web.Api.Controllers
                 return null;
             }
 
-            return calcSrv.GetHardwareCost(filter, start, limit)
-                          .ContinueWith(x => new DataInfo<HwCostDto> { Items = x.Result.Item1, Total = x.Result.Item2 });
+            return calcSrv.GetHardwareCost2(filter, start, limit)
+                          .ContinueWith(x => this.JsonContent(x.Result.Json, x.Result.Total));
         }
+
+        //[HttpGet]
+        //public Task<DataInfo<HwCostDto>> GetHwCost(
+        //        [FromUri]HwFilterDto filter,
+        //        [FromUri]int start = 0,
+        //        [FromUri]int limit = 50
+        //    )
+        //{
+        //    if (!IsRangeValid(start, limit))
+        //    {
+        //        return null;
+        //    }
+
+        //    return calcSrv.GetHardwareCost(filter, start, limit)
+        //                  .ContinueWith(x => new DataInfo<HwCostDto> { Items = x.Result.Item1, Total = x.Result.Item2 });
+        //}
 
         [HttpGet]
         public Task<DataInfo<SwMaintenanceCostDto>> GetSwCost(

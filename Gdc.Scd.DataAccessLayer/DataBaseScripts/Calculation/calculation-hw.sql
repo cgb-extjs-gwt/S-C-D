@@ -1025,6 +1025,7 @@ RETURN
         select top(@limit) m.*
             from Matrix.Matrix m
             where m.Id > @lastid
+              and m.Denied = 0
               and (@cnt is null or m.CountryId = @cnt)
               and (@wg is null or m.WgId = @wg)
               and (@av is null or m.AvailabilityId = @av)
@@ -1032,7 +1033,6 @@ RETURN
               and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
               and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
               and (@loc is null or m.ServiceLocationId = @loc)
-
               order by m.Id
     )
     SELECT m.Id
@@ -1147,7 +1147,6 @@ RETURN
     LEFT JOIN Hardware.ProActiveView pro ON pro.Country = m.CountryId AND pro.Wg = m.WgId
 )
 GO
-
 
 CREATE FUNCTION Hardware.GetCostsFull(
     @cnt bigint,

@@ -55,27 +55,27 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
         const canEdit = this.canEdit();
 
-        let fieldServiceCost: string = 'fieldServiceCost';
-        let serviceSupport: string = 'serviceSupport';
-        let logistic: string = 'logistic';
-        let availabilityFee: string = 'availabilityFee';
-        let hddRetention: string = 'hddRetention';
-        let reinsurance: string = 'reinsurance';
-        let taxAndDutiesW: string = 'taxAndDutiesW';
-        let taxAndDutiesOow: string = 'taxAndDutiesOow';
-        let materialW: string = 'materialW';
-        let materialOow: string = 'materialOow';
-        let proActive: string = 'proActive';
-        let serviceTC: string = 'serviceTC';
-        let serviceTCManual: string = 'serviceTCManual';
-        let serviceTP: string = 'serviceTP';
-        let serviceTPManual: string = 'serviceTPManual';
-        let listPrice: string = 'listPrice';
-        let dealerDiscount: string = 'dealerDiscount';
-        let dealerPrice: string = 'dealerPrice';
-        let otherDirect: string = 'otherDirect';
-        let localServiceStandardWarranty: string = 'localServiceStandardWarranty';
-        let credits: string = 'credits';
+        let fieldServiceCost: string = 'FieldServiceCost';
+        let serviceSupport: string = 'ServiceSupport';
+        let logistic: string = 'Logistic';
+        let availabilityFee: string = 'AvailabilityFee';
+        let hddRetention: string = 'HddRetention';
+        let reinsurance: string = 'Reinsurance';
+        let taxAndDutiesW: string = 'TaxAndDutiesW';
+        let taxAndDutiesOow: string = 'TaxAndDutiesOow';
+        let materialW: string = 'MaterialW';
+        let materialOow: string = 'MaterialOow';
+        let proActive: string = 'ProActive';
+        let serviceTC: string = 'ServiceTC';
+        let serviceTCManual: string = 'ServiceTCManual';
+        let serviceTP: string = 'ServiceTP';
+        let serviceTPManual: string = 'ServiceTPManual';
+        let listPrice: string = 'ListPrice';
+        let dealerDiscount: string = 'DealerDiscount';
+        let dealerPrice: string = 'DealerPrice';
+        let otherDirect: string = 'OtherDirect';
+        let localServiceStandardWarranty: string = 'LocalServiceStandardWarranty';
+        let credits: string = 'Credits';
 
         if (this.props.approved) {
             fieldServiceCost = 'fieldServiceCost_Approved';
@@ -121,13 +121,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-green"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column text="Country" dataIndex="country" />
-                        <Column text="WG(Asset)" dataIndex="wg" />
-                        <Column text="Availability" dataIndex="availability" />
-                        <Column text="Duration" dataIndex="duration" />
-                        <Column text="Reaction type" dataIndex="reactionType" />
-                        <Column text="Reaction time" dataIndex="reactionTime" />
-                        <Column text="Service location" dataIndex="serviceLocation" />
+                        <Column text="Country" dataIndex="Country" />
+                        <Column text="WG(Asset)" dataIndex="Wg" />
+                        <Column text="Availability" dataIndex="Availability" />
+                        <Column text="Duration" dataIndex="Duration" />
+                        <Column text="Reaction type" dataIndex="ReactionType" />
+                        <Column text="Reaction time" dataIndex="ReactionTime" />
+                        <Column text="Service location" dataIndex="ServiceLocation" />
 
                     </Column>
 

@@ -1,5 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
+using Gdc.Scd.BusinessLogicLayer.Dto.Report;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.BusinessLogicLayer.Procedures;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.CapabilityMatrix;
 using Gdc.Scd.DataAccessLayer.Helpers;
@@ -36,6 +38,28 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.swMaintenanceRepo = swMaintenanceRepo;
             this.swProactiveRepo = swProactiveRepo;
             this.matrixRepo = matrixRepo;
+        }
+
+        public async Task<JsonArrayDto> GetHardwareCost2(HwFilterDto filter, int lasId, int limit)
+        {
+            var query = matrixRepo.GetAll();
+
+            if (filter != null)
+            {
+                query = query.WhereIf(filter.Country.HasValue, x => x.Country.Id == filter.Country.Value)
+                             .WhereIf(filter.Wg.HasValue, x => x.Wg.Id == filter.Wg.Value)
+                             .WhereIf(filter.Availability.HasValue, x => x.Availability.Id == filter.Availability.Value)
+                             .WhereIf(filter.Duration.HasValue, x => x.Duration.Id == filter.Duration.Value)
+                             .WhereIf(filter.ReactionType.HasValue, x => x.ReactionType.Id == filter.ReactionType.Value)
+                             .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTime.Id == filter.ReactionTime.Value)
+                             .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocation.Id == filter.ServiceLocation.Value);
+            }
+
+            var res = await new GetHwCost(repositorySet).ExecuteJsonAsync(filter, lasId, limit);
+
+            res.Total = await query.GetCountAsync();
+
+            return res;
         }
 
         public async Task<Tuple<HwCostDto[], int>> GetHardwareCost(HwFilterDto filter, int start, int limit)
