@@ -42,8 +42,10 @@ namespace Gdc.Scd.Import.Core.Impl
             _uploader = uploader;
         }
 
-        public void ImportData(ImportConfiguration configuration)
+        public bool ImportData(ImportConfiguration configuration)
         {
+            bool skipped = false;
+
             var downloadDto = new DownloadInfoDto {
                 File = configuration.FileName,
                 Path = configuration.FilePath,
@@ -96,8 +98,11 @@ namespace Gdc.Scd.Import.Core.Impl
             }
             else
             {
+                skipped = true;
                 _logger.Log(LogLevel.Info, ImportConstants.SKIP_UPLOADING);
             }
+
+            return skipped;
         }
 
         private bool ShouldUpload(Occurancy occurancy, DateTime modifiedDateTime, 

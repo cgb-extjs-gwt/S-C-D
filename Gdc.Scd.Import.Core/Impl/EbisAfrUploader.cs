@@ -65,11 +65,9 @@ namespace Gdc.Scd.Import.Core.Impl
                 if (afrDb == null)
                 {
                     afrDb = new Afr();
-                    afrDb.CreatedDateTime = modifiedDateTime;
                     afrDb.YearId = year.Id;
                     afrDb.WgId = wg.Id;
                 }
-                afrDb.ModifiedDateTime = modifiedDateTime;
                 afrDb.AFR = item.Afr;
                 batchList.Add(afrDb);
             }
@@ -77,7 +75,6 @@ namespace Gdc.Scd.Import.Core.Impl
             if (batchList.Any())
             {
                 _repositoryAfr.Save(batchList);
-                _repositorySet.Sync();
             }
 
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, batchList.Count);

@@ -64,11 +64,9 @@ namespace Gdc.Scd.Import.Core.Impl
                 if (materialCostDb == null)
                 {
                     materialCostDb = new MaterialCostInWarranty();
-                    materialCostDb.CreatedDateTime = modifiedDateTime;
                     materialCostDb.WgId = wg.Id;
                     materialCostDb.RegionId = region.Id;
                 }
-                materialCostDb.ModifiedDateTime = modifiedDateTime;
                 materialCostDb.MaterialCostWarranty = item.MaterialCost;
                 batchList.Add(materialCostDb);
             }
@@ -76,7 +74,6 @@ namespace Gdc.Scd.Import.Core.Impl
             if (batchList.Any())
             {
                 _repositoryMaterialCost.Save(batchList);
-                _repositorySet.Sync();
             }
 
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, batchList.Count);

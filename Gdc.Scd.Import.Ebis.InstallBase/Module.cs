@@ -20,8 +20,8 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
     {
         public override void Load()
         {
+            Bind(typeof(IRepository<Gdc.Scd.Core.Entities.InstallBase>)).To(typeof(ImportRepository<Gdc.Scd.Core.Entities.InstallBase>)).InSingletonScope();
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InSingletonScope();
-            Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InSingletonScope();
             Bind<ISqlRepository>().To<SqlRepository>().InSingletonScope();
             Bind<ILogger<LogLevel>>().To<Core.Impl.Logger>().InSingletonScope();
 

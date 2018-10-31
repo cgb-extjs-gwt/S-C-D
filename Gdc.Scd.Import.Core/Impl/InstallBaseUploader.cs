@@ -71,12 +71,10 @@ namespace Gdc.Scd.Import.Core.Impl
                     if (installBaseDb == null)
                     {
                         installBaseDb = new InstallBase();
-                        installBaseDb.CreatedDateTime = modifiedDateTime;
                         installBaseDb.CountryId = masterCountry.Id;
                         installBaseDb.WgId = wg.Id;
                         installBaseDb.PlaId = wg.PlaId;
                     }
-                    installBaseDb.ModifiedDateTime = modifiedDateTime;
                     installBaseDb.InstalledBaseCountry = item.InstallBase;
                     batchList.Add(installBaseDb);
                 }
@@ -85,7 +83,6 @@ namespace Gdc.Scd.Import.Core.Impl
             if (batchList.Any())
             {
                 _repositoryInstallBase.Save(batchList);
-                _repositorySet.Sync();
             }
 
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, batchList.Count);

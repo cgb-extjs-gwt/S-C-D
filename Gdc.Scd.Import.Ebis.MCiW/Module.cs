@@ -20,6 +20,7 @@ namespace Gdc.Scd.Import.Ebis.MCiW
     {
         public override void Load()
         {
+            Bind(typeof(IRepository<MaterialCostInWarranty>)).To(typeof(ImportRepository<MaterialCostInWarranty>)).InSingletonScope();
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InSingletonScope();
             Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InSingletonScope();
             Bind<ISqlRepository>().To<SqlRepository>().InSingletonScope();

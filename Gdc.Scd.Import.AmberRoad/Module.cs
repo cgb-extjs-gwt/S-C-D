@@ -20,6 +20,7 @@ namespace Gdc.Scd.Import.AmberRoad
     {
         public override void Load()
         {
+            Bind(typeof(IRepository<TaxAndDutiesEntity>)).To(typeof(ImportRepository<TaxAndDutiesEntity>)).InSingletonScope();
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InSingletonScope();
             Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InSingletonScope();
             Bind<ISqlRepository>().To<SqlRepository>().InSingletonScope();

@@ -37,7 +37,7 @@ namespace Gdc.Scd.Import.Core.Impl
         {
             var dbItemsTaxAndDuties = this._repositoryTaxAndDuties.GetAll().ToList();
             var dbItemsCountries = this._repositoryCountry.GetAll().Where(c => c.IsMaster).ToList();
-            var result = 0;
+            var batchList = new List<TaxAndDutiesEntity>();
 
             foreach (var item in items)
             {
@@ -74,9 +74,7 @@ namespace Gdc.Scd.Import.Core.Impl
                     foreach (var entity in taxAndDutyEntities)
                     {
                         entity.TaxAndDuties = item.AverageSumDutiesAndTaxes;
-                        entity.ModifiedDateTime = modifiedDateTime;
-                        this._repositoryTaxAndDuties.Save(entity);
-                        result++;
+                        batchList.Add(entity);
                     }
                 }
 
@@ -84,17 +82,17 @@ namespace Gdc.Scd.Import.Core.Impl
                 {
                     var entity = new TaxAndDutiesEntity();
                     entity.CountryId = country.Id;
-                    entity.CreatedDateTime = modifiedDateTime;
-                    entity.DeactivatedDateTime = null;
-                    entity.ModifiedDateTime = modifiedDateTime;
                     entity.TaxAndDuties = item.AverageSumDutiesAndTaxes;
-                    this._repositoryTaxAndDuties.Save(entity);
-                    result ++;
+                    batchList.Add(entity);
                 }
             }
 
-            this._repositorySet.Sync();
-            _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, result);
+            if (batchList.Any())
+            {
+                _repositoryTaxAndDuties.Save(batchList);
+            }
+
+            _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, batchList.Count);
         }
 
     }

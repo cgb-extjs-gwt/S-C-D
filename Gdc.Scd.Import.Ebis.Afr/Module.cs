@@ -20,6 +20,7 @@ namespace Gdc.Scd.Import.Ebis.Afr
     {
         public override void Load()
         {
+            Bind(typeof(IRepository<Gdc.Scd.Core.Entities.Afr>)).To(typeof(ImportRepository<Gdc.Scd.Core.Entities.Afr>)).InSingletonScope();
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InSingletonScope();
             Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InSingletonScope();
             Bind<ISqlRepository>().To<SqlRepository>().InSingletonScope();
