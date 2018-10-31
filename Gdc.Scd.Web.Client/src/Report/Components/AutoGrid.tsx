@@ -51,10 +51,10 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
 
     public render() {
 
-        let cfg = {} as GridProps;
+        let title = null;
 
         if (this.props.title) {
-            cfg.title = this.props.title;
+            title = <p>[&nbsp;{this.props.title}&nbsp;]</p>;
         }
 
         return (
@@ -63,11 +63,11 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
                 <AutoFilter ref="filter" docked="right" hidden={!this.showFilter()} filter={this.props.filter} onSearch={this.onSearch} />
 
                 <Toolbar docked="top">
+                    {title}
                     <Button iconCls="x-fa fa-download" text="Download" handler={this.onDownload} />
                 </Toolbar>
 
                 <Grid
-                    {...cfg}
                     ref="grid"
                     store={this.store}
                     width="100%"

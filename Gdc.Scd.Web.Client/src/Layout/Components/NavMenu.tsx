@@ -1,8 +1,7 @@
 import { TreeList } from '@extjs/ext-react';
 import * as React from 'react';
-import { buildComponentUrl } from "../../Common/Services/Ajax";
 import { MenuItem } from '../../Common/States/ExtStates';
-import { medium, large } from '../../responsiveFormulas';
+import { large, medium } from '../../responsiveFormulas';
 
 declare var Ext:any;
 
