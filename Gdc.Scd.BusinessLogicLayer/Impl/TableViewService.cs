@@ -13,14 +13,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     {
         private readonly ITableViewRepository tableViewRepository;
 
-        private readonly IUserRoleService userRoleService;
+        private readonly IUserService userService;
 
         private readonly DomainEnitiesMeta meta;
 
-        public TableViewService(ITableViewRepository tableViewRepository, IUserRoleService userRoleService, DomainEnitiesMeta meta)
+        public TableViewService(ITableViewRepository tableViewRepository, IUserService userService, DomainEnitiesMeta meta)
         {
             this.tableViewRepository = tableViewRepository;
-            this.userRoleService = userRoleService;
+            this.userService = userService;
             this.meta = meta;
         }
 
@@ -51,13 +51,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private IEnumerable<TableViewCostElementInfo> GetCostBlockInfo()
         {
-            var roles = this.userRoleService.GetCurrentUserRoles();
+            var user = this.userService.GetCurrentUser();
 
             foreach (var costBlock in this.meta.CostBlocks)
             {
                 var fieldNames =
                     (from costElement in costBlock.DomainMeta.CostElements
-                     where costElement.TableViewOption != null && roles.Any(role => costElement.TableViewOption.RoleNames.Contains(role.Name))
+                     where costElement.TableViewRoles != null && user.Roles.Any(role => costElement.TableViewRoles.Contains(role.Name))
                      select costElement.Id).ToArray();
 
                 if (fieldNames.Length > 0)

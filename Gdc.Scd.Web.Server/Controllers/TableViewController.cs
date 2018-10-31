@@ -2,10 +2,13 @@
 using System.Threading.Tasks;
 using System.Web.Http;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Web.Server.Impl;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
+    [ScdAuthorize(Permissions = new[] { PermissionConstants.TableView })]
     public class TableViewController : ApiController
     {
         private readonly ITableViewService tableViewService;

@@ -46,6 +46,7 @@ export interface CostElementProps extends SelectListFilter {
 export interface RegionProps {
   selectedList: SelectList<NamedId>
   name: string
+  isEnabled: boolean
 }
 
 export interface CostBlockProps {
@@ -194,6 +195,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
 
       result = (
           <ComboBoxField 
+              disabled={!region.isEnabled}
               label={region.name}
               displayField="name"
               valueField="id"

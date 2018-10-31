@@ -1,107 +1,109 @@
-ALTER INDEX IX_Matrix_AvailabilityId ON Matrix DISABLE;  
-ALTER INDEX IX_Matrix_DurationId ON Matrix DISABLE;  
-ALTER INDEX IX_Matrix_ReactionTimeId ON Matrix DISABLE;  
-ALTER INDEX IX_Matrix_ReactionTypeId ON Matrix DISABLE;  
-ALTER INDEX IX_Matrix_ServiceLocationId ON Matrix DISABLE;  
-ALTER INDEX IX_Matrix_CountryId ON Matrix DISABLE;  
-ALTER INDEX IX_Matrix_WgId ON Matrix DISABLE;  
+ALTER DATABASE SCD_2 SET RECOVERY SIMPLE
+GO 
+
+IF OBJECT_ID('tempdb..#Temp_SLA') IS NOT NULL DROP TABLE #Temp_SLA
+IF OBJECT_ID('tempdb..#Temp_Wg') IS NOT NULL DROP TABLE #Temp_Wg
+go
+
+ALTER INDEX IX_MatrixMaster_AvailabilityId    ON Matrix.MatrixMaster DISABLE;  
+ALTER INDEX IX_MatrixMaster_DurationId        ON Matrix.MatrixMaster DISABLE;  
+ALTER INDEX IX_MatrixMaster_ReactionTimeId    ON Matrix.MatrixMaster DISABLE;  
+ALTER INDEX IX_MatrixMaster_ReactionTypeId    ON Matrix.MatrixMaster DISABLE;  
+ALTER INDEX IX_MatrixMaster_ServiceLocationId ON Matrix.MatrixMaster DISABLE;  
+ALTER INDEX IX_MatrixMaster_WgId              ON Matrix.MatrixMaster DISABLE;  
 
 -- Disable all table constraints
-ALTER TABLE Matrix NOCHECK CONSTRAINT ALL
+ALTER TABLE Matrix.MatrixMaster NOCHECK CONSTRAINT ALL
 
-DELETE FROM Matrix;
+DELETE FROM Matrix.MatrixMaster;
 
-DBCC SHRINKDATABASE (Scd_2_3, 50);
+
 GO
 
-INSERT INTO Matrix (
-				CountryId, 
-				WgId, 
-				AvailabilityId, 
-				DurationId, 
-				ReactionTypeId, 
-				ReactionTimeId, 
-				ServiceLocationId, 
-				FujitsuGlobalPortfolio,
-				MasterPortfolio, 
-				CorePortfolio,
-				Denied) (
+SELECT av.Id AS av, 
+		dur.Id AS dur, 
+		rtype.Id AS reacttype, 
+		rtime.Id AS reacttime,
+		sv.Id AS srvloc,
+		gp AS FujitsuGlobalPortfolio,
+		mp AS MasterPortfolio,
+		cp AS CorePortfolio
+INTO #Temp_Sla
+FROM Dependencies.Availability AS av
+CROSS JOIN Dependencies.Duration AS dur
+CROSS JOIN Dependencies.ReactionType AS rtype
+CROSS JOIN Dependencies.ReactionTime AS rtime
+CROSS JOIN Dependencies.ServiceLocation AS sv
+CROSS JOIN (VALUES (0), (1)) glport(gp)
+CROSS JOIN (VALUES (0), (1)) mport(mp)
+CROSS JOIN (VALUES (0), (1)) cport(cp);
 
-	SELECT cnt.Id AS country, 
-		   wg.Id AS wg, 
-		   av.Id AS av, 
-		   dur.Id AS dur, 
-		   rtype.Id AS reacttype, 
-		   rtime.Id AS reacttime,
-		   sv.Id AS srvloc,
-		   0 AS FujitsuGlobalPortfolio,
-		   0 AS MasterPortfolio,
-		   0 AS CorePortfolio,
-		   0 AS Denied
-	FROM InputAtoms.Country cnt
-	CROSS JOIN InputAtoms.Wg AS wg
-	CROSS JOIN Dependencies.Availability AS av
-	CROSS JOIN Dependencies.Duration AS dur
-	CROSS JOIN Dependencies.ReactionType AS rtype
-	CROSS JOIN Dependencies.ReactionTime AS rtime
-	CROSS JOIN Dependencies.ServiceLocation AS sv
-    where cnt.IsMaster = 1
-);
+declare @rownum int = 1;
+declare @wg bigint;
+declare @flag bit = 1;
 
-DBCC SHRINKDATABASE (Scd_2_3, 50);
+SELECT ROW_NUMBER() over(order by Id) as rownum, Id
+INTO #Temp_Wg
+FROM InputAtoms.Wg
+
+while @flag = 1
+begin
+    set @flag = 0;
+    select @flag = 1, @wg = Id from #Temp_Wg where rownum = @rownum;
+    set @rownum = @rownum + 1;
+
+    if @flag = 0 break;
+
+    INSERT INTO Matrix.MatrixMaster (WgId, AvailabilityId, DurationId, ReactionTypeId, ReactionTimeId, ServiceLocationId, FujitsuGlobalPortfolio, MasterPortfolio, CorePortfolio, Denied) (
+
+            SELECT   @wg,
+		                sla.av, 
+		                sla.dur, 
+		                sla.reacttype, 
+		                sla.reacttime,
+		                sla.srvloc,
+		                sla.FujitsuGlobalPortfolio,
+		                sla.MasterPortfolio,
+		                sla.CorePortfolio,
+		                0
+            FROM #Temp_Sla sla
+    );
+
+    
+end;
+
+ALTER INDEX IX_MatrixMaster_AvailabilityId ON Matrix.MatrixMaster REBUILD;  
+
 GO
 
-INSERT INTO Matrix (
-				WgId, 
-				AvailabilityId, 
-				DurationId, 
-				ReactionTypeId, 
-				ReactionTimeId, 
-				ServiceLocationId, 
-				FujitsuGlobalPortfolio,
-				MasterPortfolio, 
-				CorePortfolio,
-				Denied) (
+ALTER INDEX IX_MatrixMaster_DurationId ON Matrix.MatrixMaster REBUILD;  
 
-	SELECT wg.Id AS wg, 
-		   av.Id AS av, 
-		   dur.Id AS dur, 
-		   rtype.Id AS reacttype, 
-		   rtime.Id AS reacttime,
-		   sv.Id AS srvloc,
-		   gp AS FujitsuGlobalPortfolio,
-		   mp AS MasterPortfolio,
-		   cp AS CorePortfolio,
-		   0 AS Denied
-	FROM InputAtoms.Wg AS wg
-	CROSS JOIN Dependencies.Availability AS av
-	CROSS JOIN Dependencies.Duration AS dur
-	CROSS JOIN Dependencies.ReactionType AS rtype
-	CROSS JOIN Dependencies.ReactionTime AS rtime
-	CROSS JOIN Dependencies.ServiceLocation AS sv
-	CROSS JOIN (VALUES (0), (1)) glport(gp)
-	CROSS JOIN (VALUES (0), (1)) mport(mp)
-	CROSS JOIN (VALUES (0), (1)) cport(cp)
-);
-
-DBCC SHRINKDATABASE (Scd_2_3, 50);
 GO
 
+ALTER INDEX IX_MatrixMaster_ReactionTimeId ON Matrix.MatrixMaster REBUILD;  
 
-ALTER INDEX IX_Matrix_AvailabilityId ON Matrix REBUILD;  
-ALTER INDEX IX_Matrix_DurationId ON Matrix REBUILD;  
-ALTER INDEX IX_Matrix_ReactionTimeId ON Matrix REBUILD;  
-ALTER INDEX IX_Matrix_ReactionTypeId ON Matrix REBUILD;  
-ALTER INDEX IX_Matrix_ServiceLocationId ON Matrix REBUILD;  
-ALTER INDEX IX_Matrix_CountryId ON Matrix REBUILD;  
-ALTER INDEX IX_Matrix_WgId ON Matrix REBUILD;  
+GO
+
+ALTER INDEX IX_MatrixMaster_ReactionTypeId ON Matrix.MatrixMaster REBUILD;  
+
+GO
+
+ALTER INDEX IX_MatrixMaster_ServiceLocationId ON Matrix.MatrixMaster REBUILD;  
+
+GO
+
+ALTER INDEX IX_MatrixMaster_WgId ON Matrix.MatrixMaster REBUILD;  
+
+GO
 
 -- Enable all table constraints
-ALTER TABLE Matrix CHECK CONSTRAINT ALL
-GO  
+ALTER TABLE Matrix.MatrixMaster CHECK CONSTRAINT ALL
 
-DBCC SHRINKDATABASE (Scd_2_3, 50);
 GO
 
+IF OBJECT_ID('tempdb..#Temp_SLA') IS NOT NULL DROP TABLE #Temp_SLA
+IF OBJECT_ID('tempdb..#Temp_Wg') IS NOT NULL DROP TABLE #Temp_Wg
 
+ALTER DATABASE SCD_2 SET RECOVERY FULL
+GO 
 

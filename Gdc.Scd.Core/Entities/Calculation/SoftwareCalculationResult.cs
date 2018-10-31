@@ -11,9 +11,6 @@ namespace Gdc.Scd.Core.Entities.Calculation
         public long Id { get; set; }
 
         [Required]
-        public Country Country { get; set; }
-
-        [Required]
         public Sog Sog { get; set; }
 
         [Required]

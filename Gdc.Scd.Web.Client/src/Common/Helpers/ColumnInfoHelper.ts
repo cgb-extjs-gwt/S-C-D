@@ -1,21 +1,19 @@
 import { CostBlockMeta, CostMetaData, InputLevelMeta } from "../States/CostMetaStates";
 import { ColumnInfo, ColumnType } from "../States/ColumnInfo";
 import { NamedId } from "../States/CommonStates";
-import { getDependencies } from "./MetaHelper";
+import { getDependency, findMeta } from "./MetaHelper";
 
 
-export const getDependecyColumnsFromCostBlock = (costBlock: CostBlockMeta) => {
-    const dependencies = getDependencies(costBlock);
+export const getDependecyColumnFromCostBlock = (costBlock: CostBlockMeta, costElementId: string) => {
+    const dependency = getDependency(costBlock, costElementId);
 
-    return dependencies.map(dependency => buildNameColumnInfo(dependency));
+    return buildNameColumnInfo(dependency);
 }
 
-export const getDependecyColumns = (dependencies: NamedId[]) => dependencies.map(dependency => buildNameColumnInfo(dependency));
+export const getDependecyColumnFromMeta = (meta: CostMetaData, costBlockId: string, costElementId: string) => {
+    const costBlock = findMeta(meta.costBlocks, costBlockId);
 
-export const getDependecyColumnsFromMeta = (meta: CostMetaData, costBlockId: string) => {
-    const costBlock = meta.costBlocks.find(item => item.id === costBlockId);
-
-    return getDependecyColumnsFromCostBlock(costBlock);
+    return getDependecyColumnFromCostBlock(costBlock, costElementId);
 }
 
 export const getInputLevelColumns = (costBlock: CostBlockMeta) => {

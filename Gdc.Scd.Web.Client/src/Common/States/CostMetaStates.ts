@@ -1,11 +1,15 @@
 import { NamedId } from "./CommonStates";
 
-export interface CostElementMeta extends NamedId {
+export interface UsingInfo {
+    isUsingCostEditor: boolean
+    isUsingTableView: boolean
+}
+
+export interface CostElementMeta extends NamedId, UsingInfo {
     dependency: NamedId
     description: string
     inputLevels: InputLevelMeta[]
     regionInput: NamedId
-    inputType: InputType
     typeOptions: {
         Type: FieldType
     }
@@ -14,18 +18,14 @@ export interface CostElementMeta extends NamedId {
 export interface CostBlockMeta extends NamedId {
     applicationIds: string[]
     costElements: CostElementMeta[]
+    isUsingCostEditor: boolean
+    isUsingTableView: boolean
 }
 
 export interface InputLevelMeta extends NamedId {
     levelNumer: number
-    isFilterLoading: boolean
-}
-
-export enum InputType {
-    Manually = 0,
-    Automatically = 1,
-    Reference = 2,
-    ManuallyAutomaticly = 3
+    hasFilter: boolean
+    filterName
 }
 
 export enum FieldType {
@@ -34,8 +34,12 @@ export enum FieldType {
     Flag = "Flag"
 }
 
-export interface CostMetaData{
-    applications: NamedId[]
+export interface ApplicationMeta extends NamedId, UsingInfo {
+
+}
+
+export interface CostMetaData {
+    applications: ApplicationMeta[]
     costBlocks: CostBlockMeta[]
 }
 

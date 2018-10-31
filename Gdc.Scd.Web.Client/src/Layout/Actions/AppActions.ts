@@ -1,22 +1,16 @@
 import { CommonAction } from "../../Common/Actions/CommonActions";
 import { Action } from "redux";
 import { CostMetaData } from "../../Common/States/CostMetaStates";
-import { getCostMetaData } from "../Services/AppService";
+import { getAppData } from "../Services/AppService";
 import { asyncAction } from "../../Common/Actions/AsyncAction";
+import { AppData } from "../States/AppStates";
 
 export const APP_PAGE_OPEN = 'APP.PAGE.OPEN';
-export const APP_LOADING = 'APP.LOADING';
-export const APP_ERROR = 'APP.ERROR';
 export const APP_PAGE_INIT = 'APP.PAGE.INIT';
-export const APP_LOAD_META = "APP.LOAD.META";
+export const APP_LOAD_DATA = "APP.LOAD.DATA";
 
 export interface OpenPageAction extends Action<string> {
     id: string
-    title: string
-}
-
-export interface ErrorAction extends Action<string> {
-    error: any
 }
 
 export interface PageInitAction<T = any> extends Action<string> {
@@ -28,24 +22,12 @@ export interface LoadingAction extends Action<string> {
     isLoading: boolean
 }
 
-export interface LoadingMetaDataAction extends Action<string>{
-    data: CostMetaData
+export interface LoadingAppDataAction extends CommonAction<AppData>{
 }
 
-export const openPage = (id: string, title: string) => (<OpenPageAction>{
+export const openPage = (id: string) => (<OpenPageAction>{
     type: APP_PAGE_OPEN,
-    id,
-    title
-})
-
-export const loading = (isLoading: boolean) => (<LoadingAction>{
-    type: APP_LOADING,
-    isLoading
-})
-
-export const error = error => (<ErrorAction>{
-    type: APP_ERROR,
-    error
+    id
 })
 
 export const pageInit = (pageId: string, data) => (<PageInitAction>{
@@ -54,16 +36,16 @@ export const pageInit = (pageId: string, data) => (<PageInitAction>{
     data
 })
 
-export const loadMetaData = (data: CostMetaData) => (<LoadingMetaDataAction>{
-    type: APP_LOAD_META,
+export const loadAppData = (data: AppData) => (<LoadingAppDataAction>{
+    type: APP_LOAD_DATA,
     data
 })
 
 export const loadMetaDataFromServer = () => asyncAction(
     dispatch => {
-        getCostMetaData().then(
+        getAppData().then(
             data => {
-                dispatch(loadMetaData(data));
+                dispatch(loadAppData(data));
             } 
         );
     }

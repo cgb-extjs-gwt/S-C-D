@@ -3,10 +3,13 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using Gdc.Scd.BusinessLogicLayer.Dto.Report;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Web.Server.Impl;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
+    [ScdAuthorize(Permissions = new[] { PermissionConstants.Report })]
     public class ReportController : ApiController
     {
         private readonly IReportService service;

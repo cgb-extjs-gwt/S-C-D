@@ -1,6 +1,14 @@
-﻿using Gdc.Scd.Core.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using Gdc.Scd.Core.Constants;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.Core.Enums;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Impl;
@@ -9,40 +17,12 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
     public class TestDataCreationHandlercs : IConfigureDatabaseHandler
     {
-        private const string CountryLevelId = "Country";
-
-        private const string PlaLevelId = "Pla";
-
         private const string ClusterRegionId = "ClusterRegion";
-
-        private const string RoleCodeKey = "RoleCode";
-
-        private const string ServiceLocationKey = "ServiceLocation";
-
-        private const string YearKey = "Year";
-
-        private const string ReactionTimeKey = "ReactionTime";
-
-        private const string ReactionTypeKey = "ReactionType";
-
-        private const string AvailabilityKey = "Availability";
-
-        private const string DurationKey = "Duration";
-
-        private const string ProActiveKey = "ProActive";
-
-        private const string ProActiveSlaKey = "ProActiveSla";
 
         private readonly DomainEnitiesMeta entityMetas;
 
@@ -61,8 +41,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             this.CreateClusterPlas();
             this.CreateServiceLocations();
-            this.CreateUsers();
-            this.CreateRoles();
+            this.CreateUserAndRoles();
             this.CreateReactionTimeTypeAvalability();
             this.CreateRegions();
             this.CreateCurrenciesAndExchangeRates();
@@ -72,6 +51,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateProActiveSla();
             this.CreateImportConfiguration();
             this.CreateRolecodes();
+            this.CreateSoftwereInputLevels();
 
             //report
             this.CreateReportColumnTypes();
@@ -79,33 +59,39 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             var queries = new List<SqlHelper>();
             queries.AddRange(this.BuildInsertCostBlockSql());
-            queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
+
+            queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
 
             queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
 
-            queries.AddRange(this.BuildFromFile(@"Scripts.reports.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-list.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-output-new-vs-old.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-output-vs-FREEZE.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-parameter-hw.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-calc-parameter-proactive.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-contract.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-flat-fee.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-hdd-retention-central.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-hdd-retention-country.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-hdd-retention-parameter.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-local-detailed.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-locap.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-logistic-cost-calc-country.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-po-standard-warranty.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-proactive.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-solution-pack-price-list-detail.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-solution-pack-price-list.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-solutionpack-proactive-costing.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-SW-Service-Price-List-detail.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.report-SW-Service-Price-List.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.reports.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-list.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-new-vs-old.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-vs-FREEZE.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-hw.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-contract.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-flat-fee.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-parameter.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-local-detailed.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-calc-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-calc-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-po-standard-warranty.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list-detail.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solutionpack-proactive-costing.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List-detail.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List.sql"));
 
             foreach (var query in queries)
             {
@@ -142,34 +128,164 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             repositorySet.Sync();
         }
 
-        private void CreateUsers()
+        private void CreateUserAndRoles()
         {
-            var repository = this.repositorySet.GetRepository<User>();
+            var costEditorPermission = new Permission { Name = PermissionConstants.CostEditor };
+            var tableViewPermission = new Permission { Name = PermissionConstants.TableView };
+            var approvalPermission = new Permission { Name = PermissionConstants.Approval };
+            var ownApprovalPermission = new Permission { Name = PermissionConstants.OwnApproval };
+            var portfolioPermission = new Permission { Name = PermissionConstants.Portfolio };
+            var reviewProcessPermission = new Permission { Name = PermissionConstants.ReviewProcess };
+            var reportPermission = new Permission { Name = PermissionConstants.Report };
+            var adminPermission = new Permission { Name = PermissionConstants.Admin };
+
+            var allPermissions = new List<Permission>
+            {
+                costEditorPermission,
+                tableViewPermission,
+                approvalPermission,
+                ownApprovalPermission,
+                portfolioPermission,
+                reviewProcessPermission,
+                reportPermission,
+                adminPermission
+            };
+
+            var allRolePermissions = allPermissions.Select(permission => new RolePermission { Permission = permission });
+
+            var adminRole = new Role
+            {
+                Name = "SCD Admin",
+                IsGlobal = true,
+                RolePermissions = allRolePermissions.ToList()
+            };
+
             var users = new List<User> {
-                new User { Name = "Test user 1", Login="g02\\testUser1", Email="testuser1@fujitsu.com" },
-                new User { Name = "Test user 2", Login="g03\\testUser2", Email="testuser2@fujitsu.com" },
-                new User { Name = "Test user 3", Login="g04\\testUser3", Email="testuser3@fujitsu.com" }
+                new User
+                {
+                    Name = "Test user 1",
+                    Login ="g02\\testUser1",
+                    Email ="testuser1@fujitsu.com",
+                    UserRoles = new List<UserRole>
+                    {
+                        new UserRole
+                        {
+                            Role = adminRole
+                        }
+                    }
+                },
+                new User
+                {
+                    Name = "Test user 2",
+                    Login ="g03\\testUser2",
+                    Email ="testuser2@fujitsu.com"
+                },
+                new User
+                {
+                    Name = "Test user 3",
+                    Login ="g04\\testUser3",
+                    Email ="testuser3@fujitsu.com"
+                }
             };
 
-            repository.Save(users);
-            this.repositorySet.Sync();
-        }
-
-        private void CreateRoles()
-        {
-            var repository = this.repositorySet.GetRepository<Role>();
-            var roles = new List<Role> {
-                new Role {Name = "SCD Admin", IsGlobal=true},
-                new Role {Name = "PRS PSM", IsGlobal=true },
-                new Role {Name = "Country key user", IsGlobal=false },
-                new Role {Name = "Country Finance Director", IsGlobal=false },
-                new Role {Name = "PRS Finance", IsGlobal=true },
-                new Role {Name = "Spares Logistics", IsGlobal=true },
-                new Role {Name = "GTS user", IsGlobal=true },
-                new Role {Name = "Guest", IsGlobal=true },
-                new Role {Name = "Opportunity Center", IsGlobal=true }
+            var roles = new List<Role>
+            {
+                adminRole,
+                new Role
+                {
+                    Name = "PRS PSM",
+                    IsGlobal = true,
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = tableViewPermission },
+                        new RolePermission { Permission = costEditorPermission },
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = approvalPermission },
+                        new RolePermission { Permission = ownApprovalPermission },
+                    }
+                },
+                new Role
+                {
+                    Name = "Country key user",
+                    IsGlobal = false,
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = costEditorPermission },
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = approvalPermission },
+                        new RolePermission { Permission = ownApprovalPermission },
+                        new RolePermission { Permission = reviewProcessPermission },
+                    }
+                },
+                new Role
+                {
+                    Name = "Country Finance Director",
+                    IsGlobal = false,
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = approvalPermission },
+                        new RolePermission { Permission = reviewProcessPermission },
+                    }
+                },
+                new Role
+                {
+                    Name = "PRS Finance",
+                    IsGlobal = true,
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = costEditorPermission },
+                        new RolePermission { Permission = tableViewPermission },
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = approvalPermission },
+                        new RolePermission { Permission = ownApprovalPermission },
+                        new RolePermission { Permission = reviewProcessPermission },
+                    }
+                },
+                new Role
+                {
+                    Name = "Spares Logistics",
+                    IsGlobal = true,
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = tableViewPermission },
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = reviewProcessPermission },
+                    }
+                },
+                new Role
+                {
+                    Name = "GTS user",
+                    IsGlobal = true,
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = tableViewPermission },
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = reviewProcessPermission },
+                    }
+                },
+                new Role
+                {
+                    Name = "Guest",
+                    IsGlobal = true,
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = reportPermission },
+                    }
+                },
+                new Role
+                {
+                    Name = "Opportunity Center",
+                    IsGlobal = true,
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = reportPermission },
+                    }
+                }
             };
-            repository.Save(roles);
+
+            this.repositorySet.GetRepository<Role>().Save(roles);
+            this.repositorySet.GetRepository<User>().Save(users);
             this.repositorySet.Sync();
         }
 
@@ -191,20 +307,70 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateTestItems<T>(int count = 5) where T : NamedId, new()
         {
-            var items = new List<T>();
-            var typeName = typeof(T).Name;
-
-
-            for (var i = 0; i < count; i++)
-            {
-                items.Add(new T
-                {
-                    Name = $"{typeName}_{i}"
-                });
-            }
+            var items = this.BuildTestItems<T>(count);
 
             this.repositorySet.GetRepository<T>().Save(items);
             this.repositorySet.Sync();
+        }
+
+        private void CreateSoftwereInputLevels()
+        {
+            var count = 5;
+            var sogs = this.BuildDeactivatableTestItems<Sog>(count).ToArray();
+            var plas = this.repositorySet.GetRepository<Pla>().GetAll().Take(count).ToArray();
+
+            for (var i = 0; i < count; i++)
+            {
+                sogs[i].PlaId = plas[i].Id;
+            }
+
+            this.repositorySet.GetRepository<Sog>().Save(sogs);
+            this.repositorySet.Sync();
+
+            var swDigit = this.BuildDeactivatableTestItems<SwDigit>(count).ToArray();
+            var sfabs = this.BuildDeactivatableTestItems<SFab>(count).ToArray();
+
+            for (var i = 0; i < count; i++)
+            {
+                swDigit[i].SogId = sogs[i].Id;
+                sfabs[i].PlaId = plas[i].Id;
+            }
+
+            this.repositorySet.GetRepository<SwDigit>().Save(swDigit);
+            this.repositorySet.GetRepository<SFab>().Save(sfabs);
+
+            var swLicences = this.BuildDeactivatableTestItems<SwLicense>();
+
+            this.repositorySet.GetRepository<SwLicense>().Save(swLicences);
+            this.repositorySet.Sync();
+        }
+
+        private IEnumerable<T> BuildTestItems<T>(int count = 5) where T : NamedId, new()
+        {
+            var typeName = typeof(T).Name;
+
+            for (var i = 0; i < count; i++)
+            {
+                var item = new T
+                {
+                    Name = $"{typeName}_{i}"
+                };
+
+                yield return item;
+            }
+        }
+
+        private IEnumerable<T> BuildDeactivatableTestItems<T>(int count = 5) where T : NamedId, IDeactivatable, new()
+        {
+            var nowTime = DateTime.UtcNow;
+
+            foreach (var item in this.BuildTestItems<T>(count))
+            {
+                item.CreatedDateTime = nowTime;
+                item.ModifiedDateTime = nowTime;
+
+                yield return item;
+            }
         }
 
         private SqlHelper BuildInsertSql(NamedEntityMeta entityMeta, string[] names)
@@ -230,24 +396,24 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             foreach (var costBlockMeta in this.entityMetas.CostBlocks)
             {
-                var referenceFields = costBlockMeta.InputLevelFields.Concat(costBlockMeta.DependencyFields).ToList();
+                var referenceFields = costBlockMeta.CoordinateFields.ToList();
                 var selectColumns =
                     referenceFields.Select(field => new ColumnInfo(field.ReferenceValueField, field.ReferenceMeta.Name, field.Name))
-                                   .ToList();
+                                   .ToList()
+                                   .AsEnumerable();
 
-                var insertFields = referenceFields.Select(field => field.Name).ToList();
+                var insertFields = referenceFields.Select(field => field.Name).ToArray();
 
                 var wgField = costBlockMeta.InputLevelFields[MetaConstants.WgInputLevelName];
-                var plaField = costBlockMeta.InputLevelFields[PlaLevelId];
+                var plaField = costBlockMeta.InputLevelFields[MetaConstants.PlaInputLevelName];
 
                 if (plaField != null && wgField != null)
                 {
                     selectColumns =
                         selectColumns.Select(
-                            field => field.TableName == plaField.Name
+                            column => column.TableName == plaField.Name
                                 ? new ColumnInfo($"{nameof(Pla)}{nameof(Wg.Id)}", MetaConstants.WgInputLevelName, plaField.Name)
-                                : field)
-                                    .ToList();
+                                : column);
 
                     referenceFields.Remove(plaField);
                 }
@@ -255,28 +421,54 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 var clusterRegionField = costBlockMeta.InputLevelFields[ClusterRegionId];
                 var countryField = costBlockMeta.InputLevelFields[MetaConstants.CountryInputLevelName];
 
-                if (clusterRegionField != null && countryField != null)
-                {
-                    selectColumns =
-                        selectColumns.Select(
-                            field => field.TableName == clusterRegionField.Name
-                                ? new ColumnInfo(nameof(Country.ClusterRegionId), MetaConstants.CountryInputLevelName, ClusterRegionId)
-                                : field)
-                                    .ToList();
+                ReferenceFieldMeta fromField = null;
 
-                    referenceFields.Remove(clusterRegionField);
+                if (countryField == null)
+                {
+                    fromField = referenceFields[0];
+
+                    referenceFields.RemoveAt(0);
+                }
+                else
+                {
+                    if (clusterRegionField != null)
+                    {
+                        selectColumns =
+                            selectColumns.Select(
+                                column => column.TableName == clusterRegionField.Name
+                                    ? new ColumnInfo(nameof(Country.ClusterRegionId), MetaConstants.CountryInputLevelName, ClusterRegionId)
+                                    : column);
+
+                        referenceFields.Remove(clusterRegionField);
+                    }
+
+                    fromField = countryField;
+
+                    referenceFields.Remove(countryField);
                 }
 
-                var selectQuery = Sql.Select(selectColumns.ToArray()).From(referenceFields[0].ReferenceMeta);
+                var joinQuery = Sql.Select(selectColumns.ToArray()).From(fromField.ReferenceMeta);
 
-                for (var i = 1; i < referenceFields.Count; i++)
+                foreach (var field in referenceFields)
                 {
-                    var referenceMeta = referenceFields[i].ReferenceMeta;
+                    var referenceMeta = field.ReferenceMeta;
 
-                    selectQuery = selectQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
+                    joinQuery = joinQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
                 }
 
-                yield return Sql.Insert(costBlockMeta, insertFields.ToArray()).Query(selectQuery);
+                SqlHelper query;
+
+                if (countryField == null)
+                {
+                    query = joinQuery;
+                }
+                else
+                {
+                    query = joinQuery.Where(
+                        SqlOperators.Equals(nameof(Country.IsMaster), "isMaster", true, MetaConstants.CountryInputLevelName));
+                }
+
+                yield return Sql.Insert(costBlockMeta, insertFields).Query(query);
             }
         }
 

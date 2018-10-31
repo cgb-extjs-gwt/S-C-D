@@ -32,7 +32,7 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
 
         public static T WhereNotDeleted<T>(this IWhereSqlHelper<T> query, CostBlockEntityMeta meta, IDictionary<string, IEnumerable<object>> filter, string tableName = null)
         {
-            return query.Where(BuildFilterConditionn(meta, filter));
+            return query.Where(BuildFilterConditionn(meta, filter, tableName));
         }
 
         public static T WhereNotDeleted<T>(this IWhereSqlHelper<T> query, CostBlockEntityMeta meta, string tableName = null)

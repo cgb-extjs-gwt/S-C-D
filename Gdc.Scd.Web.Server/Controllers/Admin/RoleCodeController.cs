@@ -6,9 +6,12 @@ using System.Data.SqlClient;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using Gdc.Scd.Web.Server.Impl;
+using Gdc.Scd.Core.Constants;
 
 namespace Gdc.Scd.Web.Server.Controllers.Admin
 {
+    [ScdAuthorize(Permissions = new[] { PermissionConstants.Admin })]
     public class RoleCodeController : BaseDomainController<RoleCode>
     {
         public RoleCodeController(IDomainService<RoleCode> domainService) : base(domainService) { }

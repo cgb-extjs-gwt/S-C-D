@@ -5,9 +5,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Web.Server.Impl;
+using Gdc.Scd.Core.Constants;
 
 namespace Gdc.Scd.Web.Api.Controllers
 {
+    [ScdAuthorize(Permissions = new[] { PermissionConstants.Report })]
     public class CalcController : ApiController
     {
         ICalculationService calcSrv;

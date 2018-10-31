@@ -9,6 +9,7 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
+using Gdc.Scd.DataAccessLayer.Helpers;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -84,7 +85,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var query = this.historyQueryBuilder.BuildSelectJoinApproveHistoryValueQuery(history, historyValueId, costBlockFilter);
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
-            var mapper = new CostBlockValueHistoryMapper(costBlockMeta)
+            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, history.Context.CostElementId)
             {
                 UseHistoryValueId = true
             };
@@ -92,10 +93,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return await this.repositorySet.ReadBySql(query, mapper.Map);
         }
 
-        public async Task<IEnumerable<HistoryItem>> GetHistory(
-            HistoryContext historyContext, 
-            IDictionary<string, IEnumerable<object>> filter,
-            QueryInfo queryInfo = null)
+        public async Task<IEnumerable<HistoryItem>> GetHistory(HistoryContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
 
@@ -140,7 +138,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             var costElement = this.domainMeta.GetCostElement(historyContext);
             var whereCondition =
-                ConditionHelper.AndStatic(filter, costBlockMeta.Name)
+                ConditionHelper.AndStatic(filter.Convert(), costBlockMeta.Name)
                                .And(SqlOperators.IsNotNull(costElement.Id, costBlockMeta.HistoryMeta.Name));
 
             var userIdColumn = new ColumnInfo(nameof(User.Id), nameof(User));

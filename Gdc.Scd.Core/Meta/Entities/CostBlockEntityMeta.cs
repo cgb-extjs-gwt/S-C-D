@@ -46,5 +46,43 @@ namespace Gdc.Scd.Core.Meta.Entities
 
             return approvedCostElement;
         }
+
+        public IEnumerable<ReferenceFieldMeta> GetDomainInputLevelFields(string costElementId)
+        {
+            return this.GetDomainInputLevelFields(this.DomainMeta.CostElements[costElementId]);
+        }
+
+        public ReferenceFieldMeta GetDomainDependencyField(string costElementId)
+        {
+            ReferenceFieldMeta dependencyField = null;
+
+            var costElement = this.DomainMeta.CostElements[costElementId];
+            if (costElement.Dependency != null)
+            {
+                dependencyField = this.DependencyFields[costElement.Dependency.Id];
+            }
+
+            return dependencyField;
+        }
+
+        public IEnumerable<ReferenceFieldMeta> GetDomainCoordinateFields(string costElementId)
+        {
+            var costElement = this.DomainMeta.CostElements[costElementId];
+            
+            foreach (var inputLevelField in this.GetDomainInputLevelFields(costElement))
+            {
+                yield return inputLevelField;
+            }
+
+            if (costElement.Dependency != null)
+            {
+                yield return this.DependencyFields[costElement.Dependency.Id];
+            }
+        }
+
+        private IEnumerable<ReferenceFieldMeta> GetDomainInputLevelFields(CostElementMeta costElement)
+        {
+            return costElement.InputLevels.Select(inputLevel => this.InputLevelFields[inputLevel.Id]);
+        }
     }
 }
