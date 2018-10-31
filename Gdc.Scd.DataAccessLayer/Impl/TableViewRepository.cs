@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.TableView;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
@@ -27,7 +28,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.sqlRepository = sqlRepository;
         }
 
-        public async Task<IEnumerable<TableViewRecord>> GetRecords(TableViewCostElementInfo[] costBlockInfos)
+        public async Task<IEnumerable<Record>> GetRecords(CostElementInfo[] costBlockInfos)
         {
             var coordinateFieldInfos = this.GetCoordinateFieldInfos(costBlockInfos);
             var columnInfo = this.BuildTableViewColumnInfo(costBlockInfos, coordinateFieldInfos);
@@ -35,7 +36,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             return await this.repositorySet.ReadBySql(recordsQuery, reader =>
             {
-                var record = new TableViewRecord();
+                var record = new Record();
 
                 foreach (var coordinate in columnInfo.CoordinateInfos)
                 {
@@ -63,65 +64,36 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
-        public async Task UpdateRecords(TableViewCostElementInfo[] costBlockInfos, IEnumerable<TableViewRecord> records)
+        public async Task UpdateRecords(IEnumerable<EditInfo> editInfos)
         {
             var queries = new List<SqlHelper>();
-            var fieldDictionary = costBlockInfos.ToDictionary(
-                info => info.Meta.Name, 
-                info => new
-                {
-                    QueryInfo = info,
-                    FieldsHashSet = new HashSet<string>(info.CostElementIds)
-                });
+            var paramIndex = 0;
 
-            var recordIndex = 0;
-
-            foreach (var record in records)
+            foreach (var editInfo in editInfos)
             {
-                var whereCondition = ConditionHelper.And(
-                    record.Coordinates.Select(
-                        keyValue => SqlOperators.Equals(keyValue.Key, $"{keyValue.Key}_{recordIndex}", keyValue.Value.Id)));
-
-                var groupedData =
-                    record.Data.Select(keyValue => new { Column = this.ParseColumnAlias(keyValue.Key), Value = keyValue.Value })
-                               .GroupBy(dataInfo => dataInfo.Column.TableName);
-
-                foreach (var data in groupedData)
+                foreach (var valueInfo in editInfo.ValueInfos)
                 {
-                    if (fieldDictionary.TryGetValue(data.Key, out var info))
-                    {
-                        foreach (var dataInfo in data)
-                        {
-                            if (!info.FieldsHashSet.Contains(dataInfo.Column.Name))
-                            {
-                                throw new Exception($"Invalid column {dataInfo.Column.Name} from table {dataInfo.Column.TableName}");
-                            }
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception($"Invalid table {data.Key}");
-                    }
+                    var updateColumns = valueInfo.Values.Select(costElementValue => new ValueUpdateColumnInfo(
+                        costElementValue.Key,
+                        costElementValue.Value,
+                        $"param_{paramIndex++}"));
 
-                    var updateColumns = data.Select(dataInfo => new ValueUpdateColumnInfo(
-                        dataInfo.Column.Name, 
-                        dataInfo.Value.Value, 
-                        $"{dataInfo.Column.TableName}_{dataInfo.Column.Name}_{queries.Count}"));
+                    var whereCondition = ConditionHelper.And(
+                        valueInfo.Coordinates.Select(
+                            coordinate => SqlOperators.Equals(coordinate.Key, $"param_{paramIndex++}", coordinate.Value)));
 
-                    var query = 
-                        Sql.Update(info.QueryInfo.Meta, updateColumns.ToArray())
+                    var query =
+                        Sql.Update(editInfo.Meta, updateColumns.ToArray())
                            .Where(whereCondition);
 
                     queries.Add(query);
                 }
-
-                recordIndex++;
             }
 
             await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
         }
 
-        public async Task<IDictionary<string, IEnumerable<NamedId>>> GetReferences(TableViewCostElementInfo[] costBlockInfos)
+        public async Task<IDictionary<string, IEnumerable<NamedId>>> GetReferences(CostElementInfo[] costBlockInfos)
         {
             var result = new Dictionary<string, IEnumerable<NamedId>>();
 
@@ -142,16 +114,82 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return result;
         }
 
-        public TableViewRecordInfo GetTableViewRecordInfo(TableViewCostElementInfo[] costBlockInfos)
+        public RecordInfo GetTableViewRecordInfo(CostElementInfo[] costBlockInfos)
         {
             var coordinateFieldInfos = this.GetCoordinateFieldInfos(costBlockInfos);
             var columnInfo = this.BuildTableViewColumnInfo(costBlockInfos, coordinateFieldInfos);
 
-            return new TableViewRecordInfo
+            return new RecordInfo
             {
                 Coordinates = columnInfo.CoordinateInfos.Select(this.CopyFieldInfo),
                 Data = columnInfo.DataInfos.Select(this.CopyFieldInfo)
             };
+        }
+
+        public IEnumerable<EditInfo> BuildEditInfos(CostElementInfo[] costBlockInfos, IEnumerable<Record> records)
+        {
+            var queries = new List<SqlHelper>();
+            var fieldDictionary = costBlockInfos.ToDictionary(
+                info => info.Meta.Name,
+                info => new
+                {
+                    Meta = info.Meta,
+                    FieldsHashSet = new HashSet<string>(info.CostElementIds)
+                });
+
+            var editInfoGroups =
+                records.SelectMany(
+                    record =>
+                        record.Data.Select(keyValue => new
+                        {
+                            record.Coordinates,
+                            EditFieldId = this.DeserializeCostElementId(keyValue.Key),
+                            Value = keyValue.Value.Value,
+                        }))
+                      .GroupBy(editInfo => editInfo.EditFieldId.CostBlockId);
+
+            foreach(var editInfoGroup in editInfoGroups)
+            {
+                if (fieldDictionary.TryGetValue(editInfoGroup.Key, out var info))
+                {
+                    foreach (var rawEditInfo in editInfoGroup)
+                    {
+                        if (!info.FieldsHashSet.Contains(rawEditInfo.EditFieldId.CostElementId))
+                        {
+                            throw new Exception($"Invalid cost element '{rawEditInfo.EditFieldId.CostElementId}' from costblock '{rawEditInfo.EditFieldId.CostBlockId}'");
+                        }
+                    }
+
+                    var valueInfos = new List<ValuesInfo>();
+
+                    foreach (var coordinateGroup in editInfoGroup.GroupBy(rawEditInfo => rawEditInfo.Coordinates))
+                    {
+                        foreach (var coordinate in coordinateGroup.Key)
+                        {
+                            if (!info.Meta.ContainsCoordinateField(coordinate.Key))
+                            {
+                                throw new Exception($"Invalid field '{coordinate.Key}' from costblock '{editInfoGroup.Key}'");
+                            }
+                        }
+
+                        valueInfos.Add(new ValuesInfo
+                        {
+                            Coordinates = coordinateGroup.Key.ToDictionary(coord => coord.Key, coord => coord.Value.Id),
+                            Values = coordinateGroup.ToDictionary(rawEditInfo => rawEditInfo.EditFieldId.CostElementId, rawEditInfo => rawEditInfo.Value)
+                        });
+                    }
+
+                    yield return new EditInfo
+                    {
+                        Meta = info.Meta,
+                        ValueInfos = valueInfos
+                    };
+                }
+                else
+                {
+                    throw new Exception($"Invalid table {editInfoGroup.Key}");
+                }
+            }
         }
 
         private FieldInfo CopyFieldInfo(FieldInfo fieldInfo)
@@ -165,7 +203,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         }
 
         private UnionSqlHelper BuildGetRecordsQuery(
-            TableViewCostElementInfo[] costBlockInfos, 
+            CostElementInfo[] costBlockInfos, 
             TableViewColumnInfo columnInfo, 
             IEnumerable<CoordinateFieldInfo> coordinateFieldInfos)
         {
@@ -249,7 +287,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private string BuildColumnAlias(BaseEntityMeta meta, string field)
         {
-            return $"{meta.Name}{AliasSeparator}{field}";
+            return this.SerializeCostElementId(meta.Name, field);
         }
 
         private string BuildCountColumnAlias(BaseEntityMeta meta, string field)
@@ -257,14 +295,19 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return this.BuildColumnAlias(meta, $"{field}_Count");
         }
 
-        private ColumnInfo ParseColumnAlias(string columnAlias)
+        private string SerializeCostElementId(string costBlockId, string costElementId)
         {
-            var values = columnAlias.Split(AliasSeparator);
-
-            return new ColumnInfo(values[1], values[0], columnAlias);
+            return $"{costBlockId}{AliasSeparator}{costElementId}";
         }
 
-        private TableViewColumnInfo BuildTableViewColumnInfo(IEnumerable<TableViewCostElementInfo> costBlockInfos, IEnumerable<CoordinateFieldInfo> coordinateFieldInfos)
+        private (string CostBlockId, string CostElementId) DeserializeCostElementId(string value)
+        {
+            var values = value.Split(AliasSeparator);
+
+            return (values[0], values[1]);
+        }
+
+        private TableViewColumnInfo BuildTableViewColumnInfo(IEnumerable<CostElementInfo> costBlockInfos, IEnumerable<CoordinateFieldInfo> coordinateFieldInfos)
         {
             var result = new TableViewColumnInfo();
 
@@ -304,7 +347,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return result;
         }
 
-        private IEnumerable<CoordinateFieldInfo> GetCoordinateFieldInfos(TableViewCostElementInfo[] costBlockInfos)
+        private IEnumerable<CoordinateFieldInfo> GetCoordinateFieldInfos(CostElementInfo[] costBlockInfos)
         {
             var coordinateLists = costBlockInfos.Select(info => info.Meta.CoordinateFields.Select(field => field.Name)).ToArray();
 
@@ -325,8 +368,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                     if (coordinateField != null)
                     {
-
-
                         yield return new CoordinateFieldInfo
                         {
                             Meta = costBlockInfo.Meta,

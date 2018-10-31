@@ -31,9 +31,9 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
         }
 
-        string ICostBlockIdentifier.ApplicationId => this.Schema;
+        public string ApplicationId => this.Schema;
 
-        string ICostBlockIdentifier.CostBlockId => this.Name;
+        public string CostBlockId => this.Name;
 
         public BaseCostBlockEntityMeta(string name, string shema = null)
             : base(name, shema)
