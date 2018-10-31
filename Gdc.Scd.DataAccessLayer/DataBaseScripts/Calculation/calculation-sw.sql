@@ -1,5 +1,13 @@
-﻿IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceCostView', 'V') IS NOT NULL
+﻿IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceCostView', 'U') IS NOT NULL
+  DROP TABLE SoftwareSolution.SwSpMaintenanceCostView;
+go
+
+IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceCostView', 'V') IS NOT NULL
   DROP VIEW SoftwareSolution.SwSpMaintenanceCostView;
+go
+
+IF OBJECT_ID('SoftwareSolution.ProActiveView', 'U') IS NOT NULL
+  DROP TABLE SoftwareSolution.ProActiveView;
 go
 
 IF OBJECT_ID('SoftwareSolution.ProActiveView', 'V') IS NOT NULL
@@ -8,6 +16,10 @@ go
 
 IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceView', 'V') IS NOT NULL
   DROP VIEW SoftwareSolution.SwSpMaintenanceView;
+go
+
+IF OBJECT_ID('InputAtoms.WgSogView', 'V') IS NOT NULL
+  DROP VIEW InputAtoms.WgSogView;
 go
 
 IF OBJECT_ID('SoftwareSolution.CalcDealerPrice') IS NOT NULL
@@ -68,6 +80,15 @@ as
 BEGIN
     return @reinsurance + @srvSupport;
 END
+GO
+
+CREATE VIEW InputAtoms.WgSogView as 
+    select wg.*
+         , sog.Name as Sog
+         , sog.Description as SogDescription
+    from InputAtoms.Wg wg
+    left join InputAtoms.Sog sog on sog.id = wg.SogId
+    where wg.DeactivatedDateTime is null
 GO
 
 CREATE VIEW [SoftwareSolution].[SwSpMaintenanceView] as

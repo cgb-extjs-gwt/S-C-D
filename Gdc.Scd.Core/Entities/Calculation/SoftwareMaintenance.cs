@@ -9,15 +9,15 @@ namespace Gdc.Scd.Core.Entities.Calculation
     {
         public long Id { get; set; }
 
-        public long Sog { get; set; }
+        public long? Sog { get; set; }
         [ForeignKey("Sog")]
         public Sog SogRef { get; set; }
 
-        public long Availability { get; set; }
+        public long? Availability { get; set; }
         [ForeignKey("Availability")]
         public Availability AvailabilityRef { get; set; }
 
-        public long Year { get; set; }
+        public long? Year { get; set; }
         [ForeignKey("Year")]
         public Year YearRef { get; set; }
 
