@@ -70,8 +70,7 @@ namespace Gdc.Scd.Import.Core.Impl
                             {
                                 case Enums.Format.Percentage:
                                     propValue = propValue.Replace("%", "").Trim();
-                                    double dblResult = 0.0;
-                                    if (Double.TryParse(propValue, style, culture, out dblResult))
+                                    if (Double.TryParse(propValue, style, culture, out var dblResult))
                                         value = dblResult;
                                     else
                                     {
@@ -79,14 +78,12 @@ namespace Gdc.Scd.Import.Core.Impl
                                     }
                                     break;
                                 case Enums.Format.Number:
-                                    int intResult = 0;
-                                    if (Int32.TryParse(propValue.Trim(), out intResult))
+                                    if (Int32.TryParse(propValue.Trim(), out var intResult))
                                         value = intResult;
                                     else
                                         _logger.Log(LogLevel.Warn, ImportConstants.PARSE_CANNOT_PARSE, propValue, typeof(Int32));
                                     break;
                                 case Enums.Format.None:
-                                    dblResult = 0;
                                     if (Double.TryParse(propValue.Trim(), style, culture, out dblResult))
                                         value = dblResult;
                                     else
