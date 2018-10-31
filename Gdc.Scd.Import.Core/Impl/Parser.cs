@@ -42,7 +42,7 @@ namespace Gdc.Scd.Import.Core.Impl
                 if (!String.IsNullOrEmpty(row))
                 {
                     var splittedRow = row.Split(info.Delimeter.ToCharArray());
-                    var entity = ParseRow(splittedRow);
+                    var entity = ParseRow(splittedRow, info.Culture);
                     entities.Add(entity);
                 }
             }
@@ -50,7 +50,7 @@ namespace Gdc.Scd.Import.Core.Impl
             return entities;
         }
 
-        private T ParseRow(string[] values)
+        private T ParseRow(string[] values, string inpCulture = "de-DE")
         {
             var entity = new T();
             foreach (PropertyInfo pi in typeof(T).GetProperties())
@@ -65,13 +65,12 @@ namespace Gdc.Scd.Import.Core.Impl
                         if (pi.PropertyType.IsNumericType())
                         {
                             var style = NumberStyles.Number | NumberStyles.AllowDecimalPoint;
-                            var culture = CultureInfo.CreateSpecificCulture("de-DE");
+                            var culture = CultureInfo.CreateSpecificCulture(inpCulture);
                             switch (parseInfoAttr.Format)
                             {
                                 case Enums.Format.Percentage:
                                     propValue = propValue.Replace("%", "").Trim();
-                                    double dblResult = 0.0;
-                                    if (Double.TryParse(propValue, style, culture, out dblResult))
+                                    if (Double.TryParse(propValue, style, culture, out var dblResult))
                                         value = dblResult;
                                     else
                                     {
@@ -79,16 +78,14 @@ namespace Gdc.Scd.Import.Core.Impl
                                     }
                                     break;
                                 case Enums.Format.Number:
-                                    int intResult = 0;
-                                    if (Int32.TryParse(propValue, out intResult))
-                                        value = Int32.Parse(propValue);
+                                    if (Int32.TryParse(propValue.Trim(), out var intResult))
+                                        value = intResult;
                                     else
                                         _logger.Log(LogLevel.Warn, ImportConstants.PARSE_CANNOT_PARSE, propValue, typeof(Int32));
                                     break;
                                 case Enums.Format.None:
-                                    dblResult = 0;
-                                    if (Double.TryParse(propValue, style, culture, out dblResult))
-                                        value = Double.Parse(propValue);
+                                    if (Double.TryParse(propValue.Trim(), style, culture, out dblResult))
+                                        value = dblResult;
                                     else
                                         _logger.Log(LogLevel.Warn, ImportConstants.PARSE_CANNOT_PARSE, propValue, typeof(Double));
                                     break;

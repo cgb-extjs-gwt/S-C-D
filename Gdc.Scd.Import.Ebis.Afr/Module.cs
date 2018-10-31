@@ -15,13 +15,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gdc.Scd.Import.AmberRoad
+namespace Gdc.Scd.Import.Ebis.Afr
 {
     public class Module : NinjectModule
     {
         public override void Load()
         {
-            Bind(typeof(IRepository<TaxAndDutiesEntity>)).To(typeof(ImportRepository<TaxAndDutiesEntity>)).InSingletonScope();
+            Bind(typeof(IRepository<Gdc.Scd.Core.Entities.Afr>)).To(typeof(ImportRepository<Gdc.Scd.Core.Entities.Afr>)).InSingletonScope();
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InSingletonScope();
             Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InSingletonScope();
             Bind<ISqlRepository>().To<SqlRepository>().InSingletonScope();
@@ -29,13 +29,14 @@ namespace Gdc.Scd.Import.AmberRoad
 
             Bind<IDownloader>().To<FileDownloader>().InSingletonScope();
             Bind(typeof(IParser<>)).To(typeof(Parser<>)).InSingletonScope();
-            Bind(typeof(IUploader<>)).To(typeof(AmberRoadUploader)).InSingletonScope();
-            Bind<IImportManager>().To<ImportManager<TaxAndDutiesDto>>().InSingletonScope();
+            Bind(typeof(IUploader<>)).To(typeof(EbisAfrUploader)).InSingletonScope();
+            Bind<IImportManager>().To<ImportManager<AfrDto>>().InSingletonScope();
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();
 
-            Kernel.RegisterEntity<Country>();
-            Kernel.RegisterEntity<TaxAndDutiesEntity>();
+            Kernel.RegisterEntity<Year>();
             Kernel.RegisterEntity<ImportConfiguration>();
+            Kernel.RegisterEntity<Wg>();
+            Kernel.RegisterEntity<Gdc.Scd.Core.Entities.Afr>();
         }
     }
 }

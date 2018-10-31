@@ -15,13 +15,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gdc.Scd.Import.AmberRoad
+namespace Gdc.Scd.Import.Ebis.MCiW
 {
     public class Module : NinjectModule
     {
         public override void Load()
         {
-            Bind(typeof(IRepository<TaxAndDutiesEntity>)).To(typeof(ImportRepository<TaxAndDutiesEntity>)).InSingletonScope();
+            Bind(typeof(IRepository<MaterialCostInWarranty>)).To(typeof(ImportRepository<MaterialCostInWarranty>)).InSingletonScope();
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InSingletonScope();
             Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InSingletonScope();
             Bind<ISqlRepository>().To<SqlRepository>().InSingletonScope();
@@ -29,13 +29,14 @@ namespace Gdc.Scd.Import.AmberRoad
 
             Bind<IDownloader>().To<FileDownloader>().InSingletonScope();
             Bind(typeof(IParser<>)).To(typeof(Parser<>)).InSingletonScope();
-            Bind(typeof(IUploader<>)).To(typeof(AmberRoadUploader)).InSingletonScope();
-            Bind<IImportManager>().To<ImportManager<TaxAndDutiesDto>>().InSingletonScope();
+            Bind(typeof(IUploader<>)).To(typeof(EbisMaterialCostUploader)).InSingletonScope();
+            Bind<IImportManager>().To<ImportManager<MaterialCostDto>>().InSingletonScope();
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();
 
-            Kernel.RegisterEntity<Country>();
-            Kernel.RegisterEntity<TaxAndDutiesEntity>();
+            Kernel.RegisterEntity<ClusterRegion>();
             Kernel.RegisterEntity<ImportConfiguration>();
+            Kernel.RegisterEntity<Wg>();
+            Kernel.RegisterEntity<MaterialCostInWarranty>();
         }
     }
 }
