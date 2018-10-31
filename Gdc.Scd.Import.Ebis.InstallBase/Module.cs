@@ -3,6 +3,7 @@ using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.Import.Core.DataAccess;
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Impl;
 using Gdc.Scd.Import.Core.Interfaces;
@@ -22,6 +23,7 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
         {
             Bind(typeof(IRepository<Gdc.Scd.Core.Entities.InstallBase>)).To(typeof(ImportRepository<Gdc.Scd.Core.Entities.InstallBase>)).InSingletonScope();
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InSingletonScope();
+            Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InSingletonScope();
             Bind<ISqlRepository>().To<SqlRepository>().InSingletonScope();
             Bind<ILogger<LogLevel>>().To<Core.Impl.Logger>().InSingletonScope();
 
@@ -32,6 +34,7 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();
 
             Kernel.RegisterEntity<Country>();
+            Kernel.RegisterEntity<CountryGroup>();
             Kernel.RegisterEntity<ImportConfiguration>();
             Kernel.RegisterEntity<Wg>();
             Kernel.RegisterEntity<Pla>();

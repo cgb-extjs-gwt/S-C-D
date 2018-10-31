@@ -1,11 +1,12 @@
 ﻿using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Impl;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gdc.Scd.DataAccessLayer.Impl
+namespace Gdc.Scd.Import.Core.DataAccess
 {
     public class ImportRepository<T> : EntityFrameworkRepository<T> 
         where T: class, IIdentifiable, IDeactivatable, new()
@@ -15,6 +16,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public ImportRepository(EntityFrameworkRepositorySet repositorySet)
             : base(repositorySet)
         {
+        }
+
+        public override void Save(T item)
+        {
+            var modifiedDateTime = DateTime.Now;
+            if (this.IsNewItem<T>(item))
+            {
+                item.CreatedDateTime = modifiedDateTime;
+                item.DeactivatedDateTime = null;
+            }
+            item.ModifiedDateTime = modifiedDateTime;
+            base.Save(item);
         }
 
         public override void Save(IEnumerable<T> items)
@@ -27,13 +40,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     foreach (var item in items)
                     {
                         count++;
-                        var modifiedDateTime = DateTime.Now;
-                        if (this.IsNewItem<T>(item))
-                        {
-                            item.CreatedDateTime = modifiedDateTime;
-                            item.DeactivatedDateTime = null;
-                        }
-                        item.ModifiedDateTime = modifiedDateTime;
                         this.Save(item);
                         if (count % BATCH_NUMBER == 0 && count > 0)
                         {
