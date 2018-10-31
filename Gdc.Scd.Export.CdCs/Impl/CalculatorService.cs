@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,17 +22,23 @@ namespace Gdc.Scd.Export.CdCs
             _repo = repo;
         }
 
-        public ServiceCostDto GetServiceCostsAsync(string country, SlaDto sla)
+        public ServiceCostDto GetServiceCosts(string country, SlaDto sla)
         {
             var data = ExecuteAsTable(Enums.Functions.GetServiceCostsBySla, FillParameters(country, sla));
             var row = data.Rows[0];
             return GetServiceCost(sla.FspCode, row);
         }
 
-        public List<ProActiveDto> GetProActiveCostsAsync(string country)
+        public List<ProActiveDto> GetProActiveCosts(string country)
         {
             var data = ExecuteAsTable(Enums.Functions.GetProActiveByCountryAndWg, FillProActiveParameters(country));
             return GetProActiveCost(data);
+        }
+
+        public List<HddRetentionDto> GetHddRetentionCosts()
+        {
+            var data = ExecuteAsTable(Enums.Functions.HddRetention, FillHddRetensionParameters());
+            return GetHddRetentionCost(data);
         }
 
         private DataTable ExecuteAsTable(string func, DbParameter[] parameters)
@@ -101,10 +108,35 @@ namespace Gdc.Scd.Export.CdCs
             return proList;
         }
 
+        private List<HddRetentionDto> GetHddRetentionCost(DataTable table)
+        {
+            var hddRetentionList = new List<HddRetentionDto>();
+
+            for(var rowIndex=0; rowIndex < table.Rows.Count; rowIndex++)
+            {
+                var row = table.Rows[rowIndex];
+
+                    var TransferPrice = Convert.ToDouble(row["TP"]);
+
+                    var hddRetentionDto = new HddRetentionDto
+                    {
+                        Wg = row.Field<string>("Wg"),
+                        WgName = row.Field<string>("WgDescription"),
+                        TransferPrice = Convert.ToDouble(row["TP"]),
+                        DealerPrice = Convert.ToDouble(row["DealerPrice"]),
+                        ListPrice = Convert.ToDouble(row["ListPrice"])
+                    };
+
+                    hddRetentionList.Add(hddRetentionDto);                
+            }
+
+            return hddRetentionList.OrderBy(x=>x.Wg).ToList();
+        }
+
         private string SelectTopQuery(string func, DbParameter[] parameters, int top = 1)
         {
             return new SqlStringBuilder()
-                   .Append("SELECT TOP(").AppendValue(top).Append(") * FROM ").AppendFunc(func, parameters)
+                   .Append("SELECT * FROM ").AppendFunc(func, parameters)
                    .Build();
         }
 
@@ -129,6 +161,13 @@ namespace Gdc.Scd.Export.CdCs
                 FillParameter("cnt", country),
                 FillParameter("wgList", Config.ProActiveWgList)
             };
+
+            return result;
+        }
+
+        private DbParameter[] FillHddRetensionParameters()
+        {
+            var result = new DbParameter[] { };
 
             return result;
         }

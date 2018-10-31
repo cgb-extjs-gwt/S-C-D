@@ -56,6 +56,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
             catch(Exception ex)
             {
                 Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
             }
             
         }
@@ -107,15 +108,18 @@ namespace Gdc.Scd.Export.CdCs.Impl
 
                 foreach (var sla in slaList)
                 {
-                    var costs = calcService.GetServiceCostsAsync(country, sla);
+                    var costs = calcService.GetServiceCosts(country, sla);
                     costsList.Add(costs);
                 }
 
-                var proActiveList = calcService.GetProActiveCostsAsync(country);
+                var proActiveList = calcService.GetProActiveCosts(country);
+
+                var hddRetention = calcService.GetHddRetentionCosts();
 
                 using (var workbook = new XLWorkbook(memoryStream))
                 using (var inputMctSheet = workbook.Worksheet(InputSheets.InputMctCdCsWGs))
                 using (var proActiveSheet = workbook.Worksheet(InputSheets.ProActiveOutput))
+                using (var hddRetentionSheet = workbook.Worksheet(InputSheets.HddRetention))
                 {
                     var range = inputMctSheet.RangeUsed();
                     for (var row = 2; row < range.RowCount(); row++)
@@ -128,7 +132,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     {
                         inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.CountryGroup).Value = country;
                         inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.FspCode).Value = cost.FspCode;
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTC).Value = cost.ServiceTC.ToString("0.00") + " " + "EUR";                      
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTC).Value = cost.ServiceTC.ToString("0.00") + " " + "EUR";
                         inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP).Value = cost.ServiceTP.ToString("0.00") + " " + "EUR";
                         inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear1).Value = cost.ServiceTP_MonthlyYear1.ToString("0.00") + " " + "EUR";
                         inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear2).Value = cost.ServiceTP_MonthlyYear2.ToString("0.00") + " " + "EUR";
@@ -139,7 +143,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     }
 
                     rowNum = 8;
-                    foreach(var pro in proActiveList)
+                    foreach (var pro in proActiveList)
                     {
                         proActiveSheet.Row(rowNum).Clear();
                         proActiveSheet.Cell(rowNum, ProActiveOutputColumns.Wg).Value = pro.Wg;
@@ -149,6 +153,25 @@ namespace Gdc.Scd.Export.CdCs.Impl
                         proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive4).Value = pro.ProActive4.ToString("0.00") + " " + "EUR";
                         proActiveSheet.Cell(rowNum, ProActiveOutputColumns.OneTimeTask).Value = pro.OneTimeTasks.ToString("0.00") + " " + "EUR";
                         rowNum++;
+                    }
+
+                    range = hddRetentionSheet.RangeUsed();
+                    for (var row = 4; row < range.RowCount(); row++)
+                    {
+                        range.Row(row).Clear();
+                    }
+
+                    rowNum = 4;
+
+                    foreach (var hdd in hddRetention)
+                    {
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.Wg).Value = hdd.Wg;
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.WgName).Value = hdd.WgName ?? string.Empty;
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.TP).Value = hdd.TransferPrice.ToString("0.00") + " " + "EUR";
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.DealerPrice).Value = hdd.DealerPrice.ToString("0.00") + " " + "EUR";
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.ListPrice).Value = hdd.ListPrice.ToString("0.00") + " " + "EUR";
+                        rowNum++;
+                        Debug.WriteLine(rowNum);
                     }
 
                     workbook.SaveAs(memoryStream);
