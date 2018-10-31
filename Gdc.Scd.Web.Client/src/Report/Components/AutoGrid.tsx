@@ -74,34 +74,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
                     defaults={{ minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}
                     plugins={['pagingtoolbar']}>
 
-                    {this.props.columns.map((v, i) => {
-
-                        switch (v.type) {
-
-                            case AutoColumnType.NUMBER:
-                                return (
-                                    <NumberColumn key={i} flex={v.flex || 1} text={v.text} dataIndex={v.name} />
-                                );
-
-                            case AutoColumnType.EURO:
-                                return (
-                                    <EuroStringColumn key={i} flex={v.flex || 1} text={v.text} dataIndex={v.name} />
-                                );
-
-                            case AutoColumnType.PERCENT:
-                                return (
-                                    <PercentColumn key={i} flex={v.flex || 1} text={v.text} dataIndex={v.name} />
-                                );
-
-                            case AutoColumnType.TEXT:
-                            default:
-                                return (
-                                    <Column key={i} flex={v.flex || 1} text={v.text} dataIndex={v.name} />
-                                );
-
-                        }
-                    })}
-
+                    {this.props.columns.map(this.createColumn)}
 
                 </Grid>
 
@@ -112,6 +85,31 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
     public componentDidMount() {
         this.grid = this.refs.grid as Grid;
         this.filter = this.refs.filter as AutoFilter;
+    }
+
+    private createColumn(m: AutoColumnModel, i: number) {
+        switch (m.type) {
+            case AutoColumnType.NUMBER:
+                return (
+                    <NumberColumn key={i} flex={m.flex || 1} text={m.text} dataIndex={m.name} />
+                );
+
+            case AutoColumnType.EURO:
+                return (
+                    <EuroStringColumn key={i} flex={m.flex || 1} text={m.text} dataIndex={m.name} />
+                );
+
+            case AutoColumnType.PERCENT:
+                return (
+                    <PercentColumn key={i} flex={m.flex || 1} text={m.text} dataIndex={m.name} />
+                );
+
+            case AutoColumnType.TEXT:
+            default:
+                return (
+                    <Column key={i} flex={m.flex || 1} text={m.text} dataIndex={m.name} />
+                );
+        }
     }
 
     private init() {
@@ -131,7 +129,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
         url = Ext.urlAppend(url, Ext.urlEncode(filter, true));
 
         let p = getFromUri<any>(url);
-        handleRequest(p).then(x => Ext.Msg.alert('Report', 'Your report in process...<br>Please wait while it finish'));
+        handleRequest(p).then(() => Ext.Msg.alert('Report', 'Your report in process...<br>Please wait while it finish'));
     }
 
     private onSearch(filter: any) {
