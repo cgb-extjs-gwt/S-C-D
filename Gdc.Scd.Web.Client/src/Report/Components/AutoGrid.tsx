@@ -88,27 +88,20 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
     }
 
     private createColumn(m: AutoColumnModel, i: number) {
+        let flex = m.flex || 1;
         switch (m.type) {
             case AutoColumnType.NUMBER:
-                return (
-                    <NumberColumn key={i} flex={m.flex || 1} text={m.text} dataIndex={m.name} />
-                );
+                return <NumberColumn key={i} flex={flex} text={m.text} dataIndex={m.name} />;
 
             case AutoColumnType.EURO:
-                return (
-                    <EuroStringColumn key={i} flex={m.flex || 1} text={m.text} dataIndex={m.name} />
-                );
+                return <EuroStringColumn key={i} flex={flex} text={m.text} dataIndex={m.name} />;
 
             case AutoColumnType.PERCENT:
-                return (
-                    <PercentColumn key={i} flex={m.flex || 1} text={m.text} dataIndex={m.name} />
-                );
+                return <PercentColumn key={i} flex={flex} text={m.text} dataIndex={m.name} />;
 
             case AutoColumnType.TEXT:
             default:
-                return (
-                    <Column key={i} flex={m.flex || 1} text={m.text} dataIndex={m.name} />
-                );
+                return <Column key={i} flex={flex} text={m.text} dataIndex={m.name} />;
         }
     }
 
