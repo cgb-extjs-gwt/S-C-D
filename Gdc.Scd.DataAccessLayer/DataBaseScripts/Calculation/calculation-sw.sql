@@ -271,7 +271,7 @@ with ProActiveCte as (
     from SoftwareSolution.ProActiveSw pro
     left join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = pro.SwDigit and fsp.SogId = pro.Sog
     left join Dependencies.ProActiveSla sla on sla.id = fsp.ProactiveSlaId
-    left join Dependencies.DurationToYearView dur on dur.DurID = fsp.DurationId
+    left join Dependencies.Duration dur on dur.Id = fsp.DurationId
 )
 , ProActiveCte2 as (
      select pro.Country,

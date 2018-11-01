@@ -8,9 +8,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface ICalculationService
     {
-        Task<Tuple<HwCostDto[], int>> GetHardwareCost(HwFilterDto filter, int start, int limit);
-
-        Task<JsonArrayDto> GetHardwareCost2(HwFilterDto filter, int lasId, int limit);
+        Task<JsonArrayDto> GetHardwareCost(HwFilterDto filter, int lasId, int limit);
 
         Task<Tuple<SwMaintenanceCostDto[], int>> GetSoftwareCost(SwFilterDto filter, int start, int limit);
 

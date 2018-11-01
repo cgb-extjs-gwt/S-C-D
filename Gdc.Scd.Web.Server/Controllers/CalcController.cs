@@ -34,25 +34,9 @@ namespace Gdc.Scd.Web.Api.Controllers
                 return null;
             }
 
-            return calcSrv.GetHardwareCost2(filter, start, limit)
+            return calcSrv.GetHardwareCost(filter, start, limit)
                           .ContinueWith(x => this.JsonContent(x.Result.Json, x.Result.Total));
         }
-
-        //[HttpGet]
-        //public Task<DataInfo<HwCostDto>> GetHwCost(
-        //        [FromUri]HwFilterDto filter,
-        //        [FromUri]int start = 0,
-        //        [FromUri]int limit = 50
-        //    )
-        //{
-        //    if (!IsRangeValid(start, limit))
-        //    {
-        //        return null;
-        //    }
-
-        //    return calcSrv.GetHardwareCost(filter, start, limit)
-        //                  .ContinueWith(x => new DataInfo<HwCostDto> { Items = x.Result.Item1, Total = x.Result.Item2 });
-        //}
 
         [HttpGet]
         public Task<DataInfo<SwMaintenanceCostDto>> GetSwCost(

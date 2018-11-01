@@ -46,8 +46,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateRegions();
             this.CreateCurrenciesAndExchangeRates();
             this.CreateCountries();
-            this.CreateDurations();
             this.CreateYearAvailability();
+            this.CreateDurations();
             this.CreateProActiveSla();
             this.CreateImportConfiguration();
             this.CreateRolecodes();
@@ -1415,7 +1415,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private Duration[] GetDurations()
         {
-            return new Duration[]
+            var years = repositorySet.GetRepository<Year>().GetAll().ToArray();
+            var durs = new Duration[]
             {
                 new Duration { Name = "1 Year", Value = 1, IsProlongation = false, ExternalName = "1 year" },
                 new Duration { Name = "2 Years", Value = 2, IsProlongation = false, ExternalName = "2 years"},
@@ -1424,6 +1425,14 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Duration { Name = "5 Years", Value = 5, IsProlongation = false, ExternalName = "5 years" },
                 new Duration { Name = "Prolongation", Value = 1, IsProlongation = true, ExternalName = "1 year (P)" }
             };
+
+            for (var i = 0; i < durs.Length; i++)
+            {
+                var dur = durs[i];
+                dur.Year = years.First(x => x.IsProlongation == dur.IsProlongation && x.Value == dur.Value);
+            }
+
+            return durs;
         }
 
         private string ReadText(string fn)

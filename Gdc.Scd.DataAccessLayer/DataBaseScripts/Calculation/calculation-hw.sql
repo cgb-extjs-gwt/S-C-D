@@ -1,11 +1,3 @@
-alter table Hardware.ServiceCostCalculation
-   drop column DealerPrice, DealerPrice_Approved;
-
-alter table Hardware.ServiceCostCalculation
-   add DealerPrice as (ListPrice - (ListPrice * DealerDiscount / 100)),
-       DealerPrice_Approved as (ListPrice_Approved - (ListPrice_Approved * DealerDiscount_Approved / 100));
-go
-
 IF OBJECT_ID('Hardware.GetCosts') IS NOT NULL
   DROP FUNCTION Hardware.GetCosts;
 go 
@@ -58,28 +50,12 @@ IF OBJECT_ID('Hardware.ServiceSupportCostView', 'V') IS NOT NULL
   DROP VIEW Hardware.ServiceSupportCostView;
 go
 
-IF OBJECT_ID('Hardware.HddFrByDurationView', 'V') IS NOT NULL
-  DROP VIEW Hardware.HddFrByDurationView;
-go
-
-IF OBJECT_ID('Hardware.HddRetByDurationView', 'V') IS NOT NULL
-  DROP VIEW Hardware.HddRetByDurationView;
-go
-
 IF OBJECT_ID('Atom.InstallBaseByCountryView', 'V') IS NOT NULL
   DROP VIEW Atom.InstallBaseByCountryView;
 go
 
-IF OBJECT_ID('Dependencies.DurationToYearView', 'V') IS NOT NULL
-  DROP VIEW Dependencies.DurationToYearView;
-go
-
 IF OBJECT_ID('Hardware.LogisticsCostView', 'V') IS NOT NULL
   DROP VIEW Hardware.LogisticsCostView;
-go
-
-IF OBJECT_ID('InputAtoms.CountryClusterRegionView', 'V') IS NOT NULL
-  DROP VIEW InputAtoms.CountryClusterRegionView;
 go
 
 IF OBJECT_ID('Hardware.ReinsuranceView', 'V') IS NOT NULL
@@ -109,10 +85,6 @@ go
 IF OBJECT_ID('InputAtoms.WgView', 'V') IS NOT NULL
   DROP VIEW InputAtoms.WgView;
 go
-
-IF OBJECT_ID('Hardware.CalcReinsuranceCost') IS NOT NULL
-  DROP FUNCTION Hardware.CalcReinsuranceCost;
-go 
 
 IF OBJECT_ID('Hardware.CalcLogisticCost') IS NOT NULL
   DROP FUNCTION Hardware.CalcLogisticCost;
@@ -455,14 +427,6 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION [Hardware].[CalcReinsuranceCost](@fee float, @upliftFactor float, @exchangeRate float)
-RETURNS float
-AS
-BEGIN
-    RETURN @fee * @upliftFactor * @exchangeRate
-END
-GO
-
 CREATE FUNCTION [Hardware].[CalcCredit](@materialCost float, @warrantyCost float)
 RETURNS float
 AS
@@ -470,6 +434,11 @@ BEGIN
 	RETURN @materialCost + @warrantyCost;
 END
 GO
+
+ALTER TABLE Hardware.HddRetention
+     ADD HddRet float,
+         HddRet_Approved float
+go
 
 CREATE VIEW [Hardware].[AvailabilityFeeView] as 
     select fee.Country,
@@ -596,16 +565,26 @@ CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as
     from AvFeeCte2 fee
 GO
 
-CREATE VIEW [Dependencies].[DurationToYearView] WITH SCHEMABINDING as 
-    select dur.Id as DurID,
-           dur.Name as DurName,
-           y.Id as YearID,
-           y.Name as YearName,
-           dur.Value,
-           dur.IsProlongation
-    from Dependencies.Duration dur
-    join Dependencies.Year y on dur.Value = y.Value and dur.IsProlongation = y.IsProlongation
-GO
+CREATE TRIGGER Hardware.HddRetentionUpdated
+ON Hardware.HddRetention
+After INSERT, UPDATE
+AS BEGIN
+
+    with cte as (
+        select    h.Wg as WgID
+                , h.Year as YearID
+                , sum(h.HddMaterialCost * h.HddFr / 100) over(partition by h.Wg, y.IsProlongation order by y.Value) as HddRet
+                , sum(h.HddMaterialCost_Approved * h.HddFr_Approved / 100) over(partition by h.Wg, y.IsProlongation order by y.Value) as HddRet_Approved
+        from Hardware.HddRetention h
+        join Dependencies.Year y on y.Id = h.Year
+    )
+    update h
+        set h.HddRet = c.HddRet, HddRet_Approved = c.HddRet_Approved
+    from Hardware.HddRetention h
+    join cte c on h.Wg = c.WgID and h.Year = c.YearID
+
+END
+go
 
 CREATE VIEW [Hardware].[FieldServiceCostView] AS
     SELECT  fsc.Country,
@@ -653,57 +632,13 @@ CREATE VIEW Atom.TaxAndDutiesVIEW as
     where DeactivatedDateTime is null
 GO
 
-CREATE VIEW [InputAtoms].[WgView] WITH SCHEMABINDING as
+CREATE VIEW InputAtoms.WgView WITH SCHEMABINDING as
     SELECT wg.Id, wg.Name, wg.IsMultiVendor, pla.Id as Pla, cpla.Id as ClusterPla
             from InputAtoms.Wg wg,
                  InputAtoms.Pla pla,
                  InputAtoms.ClusterPla cpla
             where wg.PlaId = pla.Id and cpla.id = pla.ClusterPlaId
 GO
-
-CREATE VIEW [Hardware].[HddFrByDurationView] WITH SCHEMABINDING as 
-     select wg.Id as WgID,
-            d.Id as DurID, 
-
-            (select sum(h.HddFr / 100) 
-                from Hardware.HddRetention h
-                JOIN Dependencies.Year y on y.Id = h.Year
-                where h.Wg = wg.Id
-                       and y.IsProlongation = d.IsProlongation
-                       and y.Value <= d.Value) as TotalFr, 
-
-            (select sum(h.HddFr_Approved / 100) 
-                from Hardware.HddRetention h
-                JOIN Dependencies.Year y on y.Id = h.Year
-                where h.Wg = wg.Id
-                       and y.IsProlongation = d.IsProlongation
-                       and y.Value <= d.Value) as TotalFr_Approved
-
-        from Dependencies.Duration d,
-             InputAtoms.Wg wg
-GO
-
-CREATE VIEW [Hardware].[HddRetByDurationView] WITH SCHEMABINDING as 
-     select wg.Id as WgID,
-            d.Id as DurID, 
-
-            (select sum(h.HddMaterialCost * h.HddFr / 100)
-                from Hardware.HddRetention h
-                JOIN Dependencies.Year y on y.Id = h.Year
-                where h.Wg = wg.Id
-                       and y.IsProlongation = d.IsProlongation
-                       and y.Value <= d.Value) as HddRet,
-
-            (select sum(h.HddMaterialCost_Approved * h.HddFr_Approved / 100)
-                from Hardware.HddRetention h
-                JOIN Dependencies.Year y on y.Id = h.Year
-                where h.Wg = wg.Id
-                       and y.IsProlongation = d.IsProlongation
-                       and y.Value <= d.Value) as HddRet_Approved
-
-     from Dependencies.Duration d,
-          InputAtoms.Wg wg
-go
 
 CREATE VIEW [Atom].[InstallBaseByCountryView] WITH SCHEMABINDING as
 
@@ -792,53 +727,6 @@ CREATE VIEW [Atom].[MarkupStandardWarantyView] as
     join Dependencies.ReactionTime_ReactionType_Avalability tta on tta.id = m.ReactionTimeTypeAvailability
 GO
 
-CREATE VIEW [InputAtoms].[CountryClusterRegionView] WITH SCHEMABINDING as
-    with cte (id, IsImeia, IsJapan, IsAsia, IsLatinAmerica, IsOceania, IsUnitedStates) as (
-        select cr.Id, 
-                (case UPPER(cr.Name)
-                    when 'EMEIA' then 1
-                    else 0
-                end),
-         
-                (case UPPER(cr.Name)
-                    when 'JAPAN' then 1
-                    else 0
-                end),
-         
-                (case UPPER(cr.Name)
-                    when 'ASIA' then 1
-                    else 0
-                end),
-         
-                    (case UPPER(cr.Name)
-                    when 'LATIN AMERICA' then 1
-                    else 0
-                end),
-         
-                (case UPPER(cr.Name)
-                    when 'OCEANIA' then 1
-                    else 0
-                end),
-         
-                (case UPPER(cr.Name)
-                    when 'UNITED STATES' then 1
-                    else 0
-                end)
-        from InputAtoms.ClusterRegion cr
-    )
-    select c.Id,
-           c.Name,
-           c.ClusterRegionId,
-           cr.IsAsia,
-           cr.IsImeia,
-           cr.IsJapan,
-           cr.IsLatinAmerica,
-           cr.IsOceania,
-           cr.IsUnitedStates
-    from InputAtoms.Country c
-    join cte cr on cr.Id = c.ClusterRegionId
-GO
-
 CREATE VIEW [Hardware].[ServiceSupportCostView] as
     select ssc.Country,
            
@@ -869,18 +757,16 @@ GO
 
 CREATE VIEW [Hardware].[ReinsuranceView] as
     SELECT r.Wg, 
-           dur.DurID as Duration,
+           r.Year,
            rta.AvailabilityId, 
            rta.ReactionTimeId,
 
-           Hardware.CalcReinsuranceCost(r.ReinsuranceFlatfee, r.ReinsuranceUpliftFactor / 100, er.Value) as Cost,
-           
-           Hardware.CalcReinsuranceCost(r.ReinsuranceFlatfee_Approved, r.ReinsuranceUpliftFactor_Approved / 100, er2.Value) as Cost_Approved
+           r.ReinsuranceFlatfee * r.ReinsuranceUpliftFactor / 100 * er.Value as Cost,
+
+           r.ReinsuranceFlatfee_Approved * r.ReinsuranceUpliftFactor_Approved / 100 * er2.Value as Cost_Approved
 
     FROM Hardware.Reinsurance r
     JOIN Dependencies.ReactionTime_Avalability rta on rta.Id = r.ReactionTimeAvailability
-    JOIN Dependencies.Year y on y.Id = r.Year
-    JOIN Dependencies.DurationToYearVIEW dur on dur.YearID = y.Id
     JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance
     JOIN [References].ExchangeRate er2 on er2.CurrencyId = r.CurrencyReinsurance_Approved
 GO
@@ -1118,7 +1004,7 @@ RETURN
 
     LEFT JOIN Atom.AfrYearView afr on afr.Wg = m.WgId
 
-    LEFT JOIN Hardware.HddRetByDurationView hdd on hdd.WgID = m.WgId AND hdd.DurID = m.DurationId
+    LEFT JOIN Hardware.HddRetention hdd on hdd.Wg = m.WgId AND hdd.Year = m.DurationId
 
     LEFT JOIN Atom.InstallBaseByCountryView ib on ib.Wg = m.WgId AND ib.Country = m.CountryId
 
@@ -1130,7 +1016,7 @@ RETURN
 
     LEFT JOIN Atom.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
 
-    LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Duration = m.DurationId AND r.AvailabilityId = m.AvailabilityId AND r.ReactionTimeId = m.ReactionTimeId
+    LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Year = m.DurationId AND r.AvailabilityId = m.AvailabilityId AND r.ReactionTimeId = m.ReactionTimeId
 
     LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId AND fsc.ReactionTypeId = m.ReactionTypeId AND fsc.ReactionTimeId = m.ReactionTimeId
 
@@ -1148,7 +1034,7 @@ RETURN
 )
 GO
 
-CREATE FUNCTION Hardware.GetCostsFull(
+CREATE FUNCTION [Hardware].[GetCostsFull](
     @cnt bigint,
     @wg bigint,
     @av bigint,
@@ -1171,10 +1057,6 @@ RETURN
         from Hardware.GetCalcMember(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @lastid, @limit) m
     )
     , CostCte2 as (
-        select m.*
-        from CostCte m
-    )
-    , CostCte3 as (
         select    m.*
 
                 , m.MaterialCostWarranty * m.AFR1 as mat1
@@ -1205,9 +1087,9 @@ RETURN
                 , m.Logistic1Year * m.AFR5 as Logistic5
                 , m.Logistic1Year * m.AFRP1 as Logistic1P
 
-        from CostCte2 m
+        from CostCte m
     )
-    , CostCte4 as (
+    , CostCte3 as (
         select    m.*
                 , Hardware.AddMarkup(m.FieldServiceCost1 + m.ServiceSupport + 1 + m.Logistic1 + m.Reinsurance, m.MarkupFactor, m.Markup) as OtherDirect1
                 , Hardware.AddMarkup(m.FieldServiceCost2 + m.ServiceSupport + 1 + m.Logistic2 + m.Reinsurance, m.MarkupFactor, m.Markup) as OtherDirect2
@@ -1223,9 +1105,9 @@ RETURN
                 , Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic5, m.TaxAndDutiesW, m.AFR5, m.AvailabilityFee, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) as LocalServiceStandardWarranty5
                 , Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic1P, m.TaxAndDutiesW, m.AFRP1, m.AvailabilityFee, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) as LocalServiceStandardWarranty1P
 
-        from CostCte3 m
+        from CostCte2 m
     )
-    , CostCte5 as (
+    , CostCte4 as (
         select m.*
              , m.mat1 + m.LocalServiceStandardWarranty1 as Credit1
              , m.mat2 + m.LocalServiceStandardWarranty2 as Credit2
@@ -1233,9 +1115,9 @@ RETURN
              , m.mat4 + m.LocalServiceStandardWarranty4 as Credit4
              , m.mat5 + m.LocalServiceStandardWarranty5 as Credit5
              , m.mat1P + m.LocalServiceStandardWarranty1P as Credit1P
-        from CostCte4 m
+        from CostCte3 m
     )
-    , CostCte6 as (
+    , CostCte5 as (
         select m.*
              , m.FieldServiceCost1 + m.ServiceSupport + m.mat1 + m.Logistic1 + m.TaxAndDutiesW + m.Reinsurance + m.AvailabilityFee - m.Credit1 as ServiceTC1
              , m.FieldServiceCost2 + m.ServiceSupport + m.mat2 + m.Logistic2 + m.TaxAndDutiesW + m.Reinsurance + m.AvailabilityFee - m.Credit2 as ServiceTC2
@@ -1243,9 +1125,9 @@ RETURN
              , m.FieldServiceCost4 + m.ServiceSupport + m.mat4 + m.Logistic4 + m.TaxAndDutiesW + m.Reinsurance + m.AvailabilityFee - m.Credit4 as ServiceTC4
              , m.FieldServiceCost5 + m.ServiceSupport + m.mat5 + m.Logistic5 + m.TaxAndDutiesW + m.Reinsurance + m.AvailabilityFee - m.Credit5 as ServiceTC5
              , m.FieldServiceCost1P + m.ServiceSupport + m.mat1P + m.Logistic1P + m.TaxAndDutiesW + m.Reinsurance + m.AvailabilityFee - m.Credit1P as ServiceTC1P
-        from CostCte5 m
+        from CostCte4 m
     )
-    , CostCte7 as (
+    , CostCte6 as (
         select m.*
              , Hardware.AddMarkup(m.ServiceTC1, m.MarkupFactor, m.Markup) as ServiceTP1
              , Hardware.AddMarkup(m.ServiceTC2, m.MarkupFactor, m.Markup) as ServiceTP2
@@ -1253,7 +1135,7 @@ RETURN
              , Hardware.AddMarkup(m.ServiceTC4, m.MarkupFactor, m.Markup) as ServiceTP4
              , Hardware.AddMarkup(m.ServiceTC5, m.MarkupFactor, m.Markup) as ServiceTP5
              , Hardware.AddMarkup(m.ServiceTC1P, m.MarkupFactor, m.Markup) as ServiceTP1P
-        from CostCte6 m
+        from CostCte5 m
     )    
     select m.Id
 
@@ -1300,7 +1182,7 @@ RETURN
          , m.ServiceTP5
          , m.ServiceTP1P
 
-       from CostCte7 m
+       from CostCte6 m
 )
 go
 

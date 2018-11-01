@@ -56,10 +56,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         const canEdit = this.canEdit();
 
         let fieldServiceCost: string = 'FieldServiceCost';
-        let serviceSupport: string = 'ServiceSupport';
+        let serviceSupport: string = 'ServiceSupportCost';
         let logistic: string = 'Logistic';
         let availabilityFee: string = 'AvailabilityFee';
-        let hddRetention: string = 'HddRetention';
+        let hddRetention: string = 'HddRet';
         let reinsurance: string = 'Reinsurance';
         let taxAndDutiesW: string = 'TaxAndDutiesW';
         let taxAndDutiesOow: string = 'TaxAndDutiesOow';
