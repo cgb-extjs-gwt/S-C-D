@@ -62,6 +62,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<ImportConfiguration>();
             Kernel.RegisterEntity<ProActiveDigit>();
             Kernel.RegisterEntity<AvailabilityFee>();
+            Kernel.RegisterEntity<CdCsConfiguration>();
             /*----------admin---------*/
             Kernel.RegisterEntity<AdminAvailabilityFee>();
             Kernel.RegisterEntity<RoleCode>();

@@ -10,22 +10,25 @@ using File = Microsoft.SharePoint.Client.File;
 using ClosedXML.Excel;
 using Gdc.Scd.Export.CdCs.Dto;
 using System.Diagnostics;
+using Gdc.Scd.Export.CdCs.Procedures;
+using System.Linq;
 
 namespace Gdc.Scd.Export.CdCs.Impl
 {
-    public class CdCsService
+    public static class CdCsService
     {
-        public NetworkCredential NetworkCredential { get; private set; }
-        public SpFileDownloader Downloader { get; private set; }
+        public static IKernel Kernel  { get; private set; }
+        public static NetworkCredential NetworkCredential { get; private set; }
+        public static SpFileDownloader Downloader { get; private set; }
 
-        public CdCsService()
+        static CdCsService()
         {
-            IKernel kernel = new StandardKernel(new Module());
+            Kernel = new StandardKernel(new Module());
             NetworkCredential = new NetworkCredential(Config.SpServiceAccount, Config.SpServicePassword, Config.SpServiceDomain);
             Downloader = new SpFileDownloader(NetworkCredential);
         }
 
-        public void DoThings()
+        public static void DoThings()
         {
             try
             {
@@ -49,9 +52,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
                 };
                 var downloadedcdCsFile = Downloader.DownloadData(cdCsFile);
 
-                var countries = new List<string>() { "China" };
-
-                FillCdCsAsync(downloadedcdCsFile, countries, slaList);
+                FillCdCsAsync(downloadedcdCsFile, slaList);
             }
             catch(Exception ex)
             {
@@ -61,7 +62,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
             
         }
 
-        private List<SlaDto> GetSlasFromFile(Stream inputFileStream)
+        private static List<SlaDto> GetSlasFromFile(Stream inputFileStream)
         {
             var slaList = new List<SlaDto>();
 
@@ -95,26 +96,34 @@ namespace Gdc.Scd.Export.CdCs.Impl
             return slaList;
         }
 
-        private void FillCdCsAsync(Stream cdCsFileStream, List<string> countries, List<SlaDto> slaList)
+        private static void FillCdCsAsync(Stream cdCsFileStream,  List<SlaDto> slaList)
         {
             var memoryStream = new MemoryStream();
             CopyStream(cdCsFileStream, memoryStream);
 
-            foreach (var country in countries)
+            var configHandler = Kernel.Get<ConfigHandler>();
+            var configList = configHandler.ReadAllConfiguration();
+
+            foreach (var config in configList)
             {
+                var country = config.Country.Name;
+                var currency = config.Country.Currency.Name;
+
                 var costsList = new List<ServiceCostDto>();
-                IKernel kernel = new StandardKernel(new Module());
-                var calcService = kernel.Get<CalculatorService>();
+               
+                var getServiceCostsBySla = Kernel.Get<GetServiceCostsBySla>();
+                var getProActiveCosts = Kernel.Get<GetProActiveCosts>();
+                var getHddRetentionCosts = Kernel.Get<GetHddRetentionCosts>();
 
                 foreach (var sla in slaList)
                 {
-                    var costs = calcService.GetServiceCosts(country, sla);
+                    var costs = getServiceCostsBySla.Execute(country, sla);
                     costsList.Add(costs);
                 }
 
-                var proActiveList = calcService.GetProActiveCosts(country);
+                var proActiveList = getProActiveCosts.Execute(country);
 
-                var hddRetention = calcService.GetHddRetentionCosts();
+                var hddRetention = getHddRetentionCosts.Execute();
 
                 using (var workbook = new XLWorkbook(memoryStream))
                 using (var inputMctSheet = workbook.Worksheet(InputSheets.InputMctCdCsWGs))
@@ -132,13 +141,13 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     {
                         inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.CountryGroup).Value = country;
                         inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.FspCode).Value = cost.FspCode;
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTC).Value = cost.ServiceTC.ToString("0.00") + " " + "EUR";
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP).Value = cost.ServiceTP.ToString("0.00") + " " + "EUR";
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear1).Value = cost.ServiceTP_MonthlyYear1.ToString("0.00") + " " + "EUR";
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear2).Value = cost.ServiceTP_MonthlyYear2.ToString("0.00") + " " + "EUR";
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear3).Value = cost.ServiceTP_MonthlyYear3.ToString("0.00") + " " + "EUR";
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear4).Value = cost.ServiceTP_MonthlyYear4.ToString("0.00") + " " + "EUR";
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear5).Value = cost.ServiceTP_MonthlyYear5.ToString("0.00") + " " + "EUR";
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTC).Value = FormatCostValue(cost.ServiceTC, format:"0.0000");
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP).Value = FormatCostValue(cost.ServiceTP, format: "0.0000"); 
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear1).Value = FormatCostValue(cost.ServiceTP_MonthlyYear1, format: "0.0000"); 
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear2).Value = FormatCostValue(cost.ServiceTP_MonthlyYear2, format: "0.0000"); 
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear3).Value = FormatCostValue(cost.ServiceTP_MonthlyYear3, format: "0.0000"); 
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear4).Value = FormatCostValue(cost.ServiceTP_MonthlyYear4, format: "0.0000"); 
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear5).Value = FormatCostValue(cost.ServiceTP_MonthlyYear5, format: "0.0000"); 
                         rowNum++;
                     }
 
@@ -147,11 +156,11 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     {
                         proActiveSheet.Row(rowNum).Clear();
                         proActiveSheet.Cell(rowNum, ProActiveOutputColumns.Wg).Value = pro.Wg;
-                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive6).Value = pro.ProActive6.ToString("0.00") + " " + "EUR";
-                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive7).Value = pro.ProActive7.ToString("0.00") + " " + "EUR";
-                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive3).Value = pro.ProActive3.ToString("0.00") + " " + "EUR";
-                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive4).Value = pro.ProActive4.ToString("0.00") + " " + "EUR";
-                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.OneTimeTask).Value = pro.OneTimeTasks.ToString("0.00") + " " + "EUR";
+                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive6).Value = FormatCostValue(pro.ProActive6, currency);
+                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive7).Value = FormatCostValue(pro.ProActive7, currency);
+                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive3).Value = FormatCostValue(pro.ProActive3, currency);
+                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive4).Value = FormatCostValue(pro.ProActive4, currency);
+                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.OneTimeTask).Value = FormatCostValue(pro.OneTimeTasks, currency);
                         rowNum++;
                     }
 
@@ -167,21 +176,20 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     {
                         hddRetentionSheet.Cell(rowNum, HddRetentionColumns.Wg).Value = hdd.Wg;
                         hddRetentionSheet.Cell(rowNum, HddRetentionColumns.WgName).Value = hdd.WgName ?? string.Empty;
-                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.TP).Value = hdd.TransferPrice.ToString("0.00") + " " + "EUR";
-                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.DealerPrice).Value = hdd.DealerPrice.ToString("0.00") + " " + "EUR";
-                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.ListPrice).Value = hdd.ListPrice.ToString("0.00") + " " + "EUR";
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.TP).Value = FormatCostValue(hdd.TransferPrice, currency);
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.DealerPrice).Value = FormatCostValue(hdd.DealerPrice, currency); 
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.ListPrice).Value = FormatCostValue(hdd.ListPrice, currency); 
                         rowNum++;
-                        Debug.WriteLine(rowNum);
                     }
 
                     workbook.SaveAs(memoryStream);
                     memoryStream.Seek(0, SeekOrigin.Begin);
 
-                    using (var ctx = new ClientContext(Config.CalculatiolToolWeb))
+                    using (var ctx = new ClientContext(config.FileWebUrl))
                     {
                         ctx.Credentials = NetworkCredential;
 
-                        File.SaveBinaryDirect(ctx, String.Format("{0}/{1} {2}", Config.CalculatiolToolFolder, country, Config.CalculatiolToolFileName), memoryStream, true);
+                        File.SaveBinaryDirect(ctx, String.Format("{0}/{1} {2}", config.FileFolderUrl, country, Config.CalculatiolToolFileName), memoryStream, true);
                     }
                 }
             }
@@ -189,7 +197,12 @@ namespace Gdc.Scd.Export.CdCs.Impl
             memoryStream.Dispose();
         }
 
-        private void CopyStream(Stream source, Stream destination)
+        private static string FormatCostValue(double value, string currency = "", string format = "0.00")
+        {
+            return value.ToString(format) + " " + currency;
+        }
+
+        private static void CopyStream(Stream source, Stream destination)
         {
             byte[] buffer = new byte[32768];
             int bytesRead;

@@ -10,8 +10,7 @@ namespace Gdc.Scd.Export.CdCs
     {
         static void Main(string[] args)
         {
-            var service = new CdCsService();
-            service.DoThings();
+            CdCsService.DoThings();
         }
     }
 }

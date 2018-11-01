@@ -1,12 +1,57 @@
-﻿using System;
+﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
+using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
+using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Gdc.Scd.Export.CdCs.Procedures
 {
-    class Common
+    public class CommonService
     {
+        private readonly IRepositorySet _repo;
+
+        public CommonService(IRepositorySet repo)
+        {
+            _repo = repo;
+        }
+
+        public DataTable ExecuteAsTable(string func, DbParameter[] parameters)
+        {
+            string sql;
+
+            sql = SelectTopQuery(func, parameters);
+
+            return _repo.ExecuteAsTable(sql, parameters);
+        }
+
+        private string SelectTopQuery(string func, DbParameter[] parameters, int top = 1)
+        {
+            return new SqlStringBuilder()
+                   .Append("SELECT * FROM ").AppendFunc(func, parameters)
+                   .Build();
+        }
+
+        public DbParameter FillParameter(string name, string value)
+        {
+            var builder = new DbParameterBuilder();
+
+            builder.WithName(name);
+
+            if (!string.IsNullOrEmpty(value))
+            {
+                builder.WithValue(value);
+            }
+            else
+            {
+                builder.WithNull();
+            }
+
+            return builder.Build();
+        }
     }
 }
