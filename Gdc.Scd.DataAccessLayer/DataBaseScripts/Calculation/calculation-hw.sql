@@ -1,3 +1,17 @@
+CREATE NONCLUSTERED INDEX ix_FieldServiceCost
+    ON [Hardware].[FieldServiceCost] ([Country],[Wg])
+    INCLUDE ([ServiceLocation],[ReactionTimeType],[RepairTime],[TravelTime],[LabourCost],[TravelCost],[PerformanceRate],[TimeAndMaterialShare])
+GO
+
+CREATE NONCLUSTERED INDEX ix_InstallBase
+    ON [Atom].[InstallBase] ([Country],[Wg])
+    INCLUDE ([Id],[Pla],[InstalledBaseCountry],[InstalledBaseCountry_Approved],[CreatedDateTime],[DeletedDateTime],[InstalledBaseCountryPla],[InstalledBaseCountryPla_Approved])
+GO
+
+CREATE NONCLUSTERED INDEX ix_ProActive
+    ON [Hardware].[ProActive] ([Country],[Wg])
+GO
+
 IF OBJECT_ID('Hardware.GetCosts') IS NOT NULL
   DROP FUNCTION Hardware.GetCosts;
 go 
@@ -435,6 +449,11 @@ BEGIN
 END
 GO
 
+ALTER TABLE Atom.InstallBase
+    ADD InstalledBaseCountryPla float,
+        InstalledBaseCountryPla_Approved float;
+GO
+
 ALTER TABLE Hardware.HddRetention
      ADD HddRet float,
          HddRet_Approved float
@@ -563,6 +582,38 @@ CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as
            Hardware.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) as Fee,
            Hardware.CalcAvailabilityFee(fee.CostPerKit_Approved, fee.MaxQty_Approved, fee.TISC_Approved, fee.YI_Approved, fee.Total_KC_MQ_IB_VENDOR_Approved) as Fee_Approved
     from AvFeeCte2 fee
+GO
+
+CREATE TRIGGER Atom.InstallBaseUpdated
+ON Atom.InstallBase
+After INSERT, UPDATE
+AS BEGIN
+
+    with InstallBasePlaCte (Country, Pla, totalIB)
+    as
+    (
+        select Country, Pla, sum(InstalledBaseCountry) as totalIB
+        from Atom.InstallBase 
+        where InstalledBaseCountry is not null
+        group by Country, Pla
+    )
+    , InstallBasePla_Approved_Cte (Country, Pla, totalIB)
+    as
+    (
+        select Country, Pla, sum(InstalledBaseCountry_Approved) as totalIB
+        from Atom.InstallBase 
+        where InstalledBaseCountry_Approved is not null
+        group by Country, Pla
+    )
+    update ib
+        set 
+            ib.InstalledBaseCountryPla = ibp.totalIB,
+            ib.InstalledBaseCountryPla_Approved = ibp2.totalIB
+    from Atom.InstallBase ib
+    LEFT JOIN InstallBasePlaCte ibp on ibp.Pla = ib.Pla and ibp.Country = ib.Country
+    LEFT JOIN InstallBasePla_Approved_Cte ibp2 on ibp2.Pla = ib.Pla and ibp2.Country = ib.Country
+
+END
 GO
 
 CREATE TRIGGER Hardware.HddRetentionUpdated
