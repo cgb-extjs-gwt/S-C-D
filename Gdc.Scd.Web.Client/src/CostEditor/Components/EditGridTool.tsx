@@ -6,6 +6,7 @@ import { HistoryValuesGridContainer } from './HistoryValuesGridContainer';
 import { ValueColumnProps, EditGrid, EditGridProps } from './EditGrid';
 import { QualityGateWindowContainer } from './QualityGateWindowContainer';
 import { SaveToolbar } from '../../Common/Components/SaveToolbar';
+import { SaveApprovalToollbar } from '../../Approval/Components/SaveApprovalToollbar';
 
 Ext.require([
     'Ext.grid.plugin.CellEditing', 
@@ -73,19 +74,13 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                     onSelected={this.onSelectGrid}
                 />
 
-                <SaveToolbar 
+                <SaveApprovalToollbar
                     isEnableClear={props.isEnableClear} 
                     isEnableSave={props.isEnableSave}
                     onCancel={() => this.props.onCleared()}
                     onSave={() => this.props.onSaving(false)}
-                >
-                    <Button 
-                        text="Save and send for approval" 
-                        flex={1} 
-                        disabled={!props.isEnableSave}
-                        handler={() => this.props.onSaving(true)}
-                    />
-                </SaveToolbar>
+                    onApproval={() => this.props.onSaving(true)}
+                />
 
                 {this.getHistoryWindow()}
 

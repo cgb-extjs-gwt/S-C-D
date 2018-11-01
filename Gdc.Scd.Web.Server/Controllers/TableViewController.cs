@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities.TableView;
@@ -26,9 +25,9 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        public void UpdateRecords(IEnumerable<Record> records, [FromUri]ApprovalOption approvalOption)
+        public async Task UpdateRecords(IEnumerable<Record> records, [FromUri]bool isApproving)
         {
-            this.tableViewService.UpdateRecords(records, approvalOption);
+            await this.tableViewService.UpdateRecords(records, isApproving);
         }
 
         [HttpGet]

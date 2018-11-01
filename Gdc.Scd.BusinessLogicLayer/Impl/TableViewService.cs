@@ -43,17 +43,28 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return await this.tableViewRepository.GetRecords(costBlockInfos);
         }
 
-        public void UpdateRecords(IEnumerable<Record> records, ApprovalOption approvalOption)
+        public async Task UpdateRecords(IEnumerable<Record> records, bool isApproving)
         {
             var costBlockInfos = this.GetCostBlockInfo().ToArray();
             var editInfos = this.tableViewRepository.BuildEditInfos(costBlockInfos, records).ToArray();
 
-            this.repositorySet.WithTransaction(async transaction => 
+            using (var transaction = this.repositorySet.GetTransaction())
             {
-                await this.tableViewRepository.UpdateRecords(editInfos);
+                try
+                {
+                    await this.tableViewRepository.UpdateRecords(editInfos);
 
-                await this.costBlockHistoryService.Save(editInfos, approvalOption);
-            });
+                    await this.costBlockHistoryService.Save(editInfos, new ApprovalOption { IsApproving = isApproving });
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+
+                    throw;
+                }
+            }
         }
 
         public async Task<TableViewInfo> GetTableViewInfo()

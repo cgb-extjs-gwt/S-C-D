@@ -38,25 +38,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return new EntityFrameworkTransaction(transaction);
         }
 
-        public void WithTransaction(Action<ITransaction> action)
-        {
-            using (var transaction = this.GetTransaction())
-            {
-                try
-                {
-                    action(transaction);
-
-                    transaction.Commit();
-                }
-                catch
-                {
-                    transaction.Rollback();
-
-                    throw;
-                }
-            }
-        }
-
         public IRepository<T> GetRepository<T>() where T : class, IIdentifiable, new()
         {
             return this.serviceProvider.Get<IRepository<T>>();

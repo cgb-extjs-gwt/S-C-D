@@ -327,7 +327,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                         foreach (var filterGroup in filterGroups)
                         {
                             var editItems =
-                                filterGroup.Select(info => new EditItem { Id = info.InputLevel.Value, Value = info.CostElementValue })
+                                filterGroup.Select(info => new EditItem { Id = info.InputLevel.Value, Value = info.CostElementValue.Value })
                                            .ToArray();
 
                             var filter = filterGroup.Key == null
@@ -347,8 +347,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 InputLevelMeta maxInputLevelMeta = null;
                 (string, long)? inputLevel = null;
 
-                var filter = new Dictionary<string, long>();
-
                 foreach (var coordinate in valuesInfo.Coordinates)
                 {
                     var inputLevelMeta = inputLevelMetas[coordinate.Key];
@@ -359,9 +357,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                             maxInputLevelMeta = inputLevelMeta;
                             inputLevel = (coordinate.Key, coordinate.Value);
                     }
-
-                    filter.Add(coordinate.Key, coordinate.Value);
                 }
+
+                var filter = new Dictionary<string, long>(valuesInfo.Coordinates);
+
+                filter.Remove(maxInputLevelMeta.Id);
 
                 return (valuesInfo.Values, filter, inputLevel.Value);
             }

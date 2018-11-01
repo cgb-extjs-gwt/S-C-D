@@ -1,10 +1,10 @@
 import * as React from "react";
-import { DynamicGridProps, DynamicGridActions } from "./Props/DynamicGridProps";
-import { DynamicGrid } from "./DynamicGrid";
+import { DynamicGrid, StoreDynamicGridProps,  } from "./DynamicGrid";
 import { ColumnInfo, FilterItem, ColumnType } from "../States/ColumnInfo";
 import { Model, StoreOperation, Store, StoreUpdateEventFn } from "../States/ExtStates";
 import { Container, Column } from "@extjs/ext-react";
 import { buildReferenceColumnRendered } from "../Helpers/GridHeper";
+import { DynamicGridActions, DynamicGridProps } from "./Props/DynamicGridProps";
 
 const CHECKED_DATA_INDEX = 'checked'
 const VALUE_DATA_INDEX = 'value'
@@ -32,44 +32,39 @@ type FilterDataItem = {
     renderFn: (value, record: Model) => any
 }
 
-export class AjaxDynamicGrid extends React.Component<AjaxDynamicGridProps> {
-    private store: Store
+export class AjaxDynamicGrid<T extends AjaxDynamicGridProps = AjaxDynamicGridProps> extends DynamicGrid<T & StoreDynamicGridProps> {
+    private ajaxStore: Store
     private filterDatas: Map<string, FilterDataItem>
-    private columns: ColumnInfo[]
+    private ajaxColumns: ColumnInfo[]
     private executeFiltrateFilters = true;
     private executeFillFilterData = true;
     private updatedRecords: Model[] = [];
 
-    public render() {
-        const { children, columns, flex } = this.props;
+    public componentWillReceiveProps(nextProps: T & StoreDynamicGridProps) {
+        const { columns } = nextProps;
 
         if (columns && columns.length > 0) {
-            this.initFilterData();
-            this.initStores();
-            this.initColumns();
+            const visibleColumns = this.getVisibleColumns(columns);
+
+            this.initFilterData(visibleColumns);
+            this.initStore(nextProps);
+            this.initColumns(visibleColumns);
         }
 
-        const props = {
-            ...this.props,
-            columns: this.columns || []
-        } as AjaxDynamicGridProps;
-
-        return (
-            <Container layout="vbox" flex={flex}>
-                <DynamicGrid 
-                    {...props} 
-                    store={this.store} 
-                    flex={1}
-                >
-                    {children}
-                </DynamicGrid>
-            </Container>
-        );
+        super.componentWillReceiveProps(nextProps);
     }
 
-    private initColumns() {
-        if (!this.columns) {
-            this.columns = this.getVisibleColumns().map(column => ({
+    protected getStore() {
+        return this.ajaxStore;
+    }
+
+    protected getColumns() {
+        return this.ajaxColumns;
+    }
+
+    private initColumns(visibleColumns: ColumnInfo[]) {
+        if (!this.ajaxColumns) {
+            this.ajaxColumns = visibleColumns.map(column => ({
                 ...column,
                 filter: column.filter || {
                     store: this.filterDatas.get(column.dataIndex).store,
@@ -80,9 +75,9 @@ export class AjaxDynamicGrid extends React.Component<AjaxDynamicGridProps> {
         }
     }
 
-    private initStores() {
-        if (!this.store) {
-            const { columns, apiUrls, onUpdateRecord, onUpdateRecordSet, onLoadData } = this.props;
+    private initStore(props: T) {
+        if (!this.ajaxStore) {
+            const { columns, apiUrls, onUpdateRecord, onUpdateRecordSet, onLoadData } = props;
 
             const fields = columns.map(column => ({ 
                 name: column.dataIndex, 
@@ -91,7 +86,7 @@ export class AjaxDynamicGrid extends React.Component<AjaxDynamicGridProps> {
                     : data => this.replaceNullValue(data[column.dataIndex])
             }));
 
-            this.store = Ext.create('Ext.data.Store', {
+            this.ajaxStore = Ext.create('Ext.data.Store', {
                 fields,
                 autoLoad: true,
                 pageSize: 0,
@@ -135,13 +130,13 @@ export class AjaxDynamicGrid extends React.Component<AjaxDynamicGridProps> {
         }
     }
 
-    private initFilterData() {
+    private initFilterData(visibleColumns: ColumnInfo[]) {
         if (!this.filterDatas) {
             this.filterDatas = new Map<string, FilterDataItem>();
 
             const defaultRender = (value, record: Model) => value;
 
-            this.getVisibleColumns().forEach(column => {
+            visibleColumns.forEach(column => {
                 const store = Ext.create('Ext.data.Store', {
                     fields: [ CHECKED_DATA_INDEX, VALUE_DATA_INDEX ],
                     sorters: [{
@@ -174,15 +169,13 @@ export class AjaxDynamicGrid extends React.Component<AjaxDynamicGridProps> {
         }
     }
 
-    private filtrateStore() {
-        const { columns } = this.props;
-
+    private filtrateStore(visibleColumns: ColumnInfo[]) {
         const records: Model[] = [];
 
-        this.store.filterBy(record => {
+        this.ajaxStore.filterBy(record => {
             let isVisible = true;
 
-            for (const column of this.getVisibleColumns()) {
+            for (const column of visibleColumns) {
                 const value = record.get(column.dataIndex);
                 const { store: filterStore, renderFn } = this.filterDatas.get(column.dataIndex);
 
@@ -220,7 +213,8 @@ export class AjaxDynamicGrid extends React.Component<AjaxDynamicGridProps> {
             this.executeFiltrateFilters = false;
 
             setTimeout(() => {
-                const records = this.filtrateStore();
+                const visibleColumns = this.getVisibleColumns(this.props.columns);
+                const records = this.filtrateStore(visibleColumns);
                 const dataSets = this.buildDataSets(records);
 
                 this.filterDatas.forEach((filterData, dataIndex) => {
@@ -249,7 +243,7 @@ export class AjaxDynamicGrid extends React.Component<AjaxDynamicGridProps> {
             setTimeout(() => {
                 const records: Model[] = [];
     
-                this.store.each(record => records.push(record), this, true);
+                this.ajaxStore.each(record => records.push(record), this, true);
                 
                 const dataSets = this.buildDataSets(records);
     
@@ -306,7 +300,7 @@ export class AjaxDynamicGrid extends React.Component<AjaxDynamicGridProps> {
         return value == null ? ' ' : value;
     }
 
-    private getVisibleColumns() {
-        return this.props.columns.filter(column => !column.isInvisible);
+    private getVisibleColumns(columns: ColumnInfo[]) {
+        return columns.filter(column => !column.isInvisible);
     }
 }
