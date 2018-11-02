@@ -54,6 +54,10 @@ IF OBJECT_ID('Hardware.GetCalcMember') IS NOT NULL
   DROP FUNCTION Hardware.GetCalcMember;
 go 
 
+IF OBJECT_ID('Hardware.GetCalcMember_Approved') IS NOT NULL
+  DROP FUNCTION Hardware.GetCalcMember_Approved;
+go 
+
 IF OBJECT_ID('Hardware.CalcFieldServiceCost') IS NOT NULL
   DROP FUNCTION Hardware.CalcFieldServiceCost;
 go 
@@ -77,10 +81,6 @@ go
 IF OBJECT_ID('Hardware.CalcLocSrvStandardWarranty') IS NOT NULL
   DROP FUNCTION Hardware.CalcLocSrvStandardWarranty;
 go 
-
-IF OBJECT_ID('Atom.AfrYearView', 'V') IS NOT NULL
-  DROP VIEW Atom.AfrYearView;
-go
 
 IF OBJECT_ID('Hardware.AvailabilityFeeCalcView', 'V') IS NOT NULL
   DROP VIEW Hardware.AvailabilityFeeCalcView;
@@ -174,6 +174,61 @@ IF OBJECT_ID('Hardware.CalcByDur') IS NOT NULL
   DROP FUNCTION Hardware.CalcByDur;
 go 
 
+IF OBJECT_ID('Atom.AfrYear', 'U') IS NOT NULL
+  DROP TABLE Atom.AfrYear;
+go
+
+CREATE TABLE Atom.AfrYear(
+    [Wg] [bigint] NOT NULL PRIMARY KEY CLUSTERED foreign key references InputAtoms.Wg(Id),
+    [AFR1] [float] NULL,
+    [AFR2] [float] NULL,
+    [AFR3] [float] NULL,
+    [AFR4] [float] NULL,
+    [AFR5] [float] NULL,
+    [AFRP1] [float] NULL,
+    [AFR1_Approved] [float] NULL,
+    [AFR2_Approved] [float] NULL,
+    [AFR3_Approved] [float] NULL,
+    [AFR4_Approved] [float] NULL,
+    [AFR5_Approved] [float] NULL,
+    [AFRP1_Approved] [float] NULL
+)
+GO
+
+IF OBJECT_ID('Atom.AFR_Updated', 'TR') IS NOT NULL
+  DROP TRIGGER Atom.AFR_Updated;
+go
+
+CREATE TRIGGER Atom.AFR_Updated
+ON Atom.AFR
+After INSERT, UPDATE
+AS BEGIN
+
+    delete from Atom.AfrYear;
+
+    insert into Atom.AfrYear(Wg, AFR1, AFR2, AFR3, AFR4, AFR5, AFRP1, AFR1_Approved, AFR2_Approved, AFR3_Approved, AFR4_Approved, AFR5_Approved, AFRP1_Approved)
+        select afr.Wg
+             , sum(case when y.IsProlongation = 0 and y.Value = 1 then afr.AFR / 100 end) as AFR1
+             , sum(case when y.IsProlongation = 0 and y.Value = 2 then afr.AFR / 100 end) as AFR2
+             , sum(case when y.IsProlongation = 0 and y.Value = 3 then afr.AFR / 100 end) as AFR3
+             , sum(case when y.IsProlongation = 0 and y.Value = 4 then afr.AFR / 100 end) as AFR4
+             , sum(case when y.IsProlongation = 0 and y.Value = 5 then afr.AFR / 100 end) as AFR5
+             , sum(case when y.IsProlongation = 1 and y.Value = 1 then afr.AFR / 100 end) as AFRP1
+             , sum(case when y.IsProlongation = 0 and y.Value = 1 then afr.AFR_Approved / 100 end) as AFR1_Approved
+             , sum(case when y.IsProlongation = 0 and y.Value = 2 then afr.AFR_Approved / 100 end) as AFR2_Approved
+             , sum(case when y.IsProlongation = 0 and y.Value = 3 then afr.AFR_Approved / 100 end) as AFR3_Approved
+             , sum(case when y.IsProlongation = 0 and y.Value = 4 then afr.AFR_Approved / 100 end) as AFR4_Approved
+             , sum(case when y.IsProlongation = 0 and y.Value = 5 then afr.AFR_Approved / 100 end) as AFR5_Approved
+             , sum(case when y.IsProlongation = 1 and y.Value = 1 then afr.AFR_Approved / 100 end) as AFRP1_Approved
+        from Atom.AFR afr, Dependencies.Year y 
+        where y.Id = afr.Year
+        group by afr.Wg
+END
+GO
+
+update Atom.AFR set AFR = AFR + 0
+GO
+
 CREATE FUNCTION Hardware.CalcByDur
 (
     @year int,
@@ -236,7 +291,6 @@ AS
 BEGIN
 	RETURN @setupCost + @yearCost * @dur;
 END
-
 GO
 
 CREATE FUNCTION [Hardware].[CalcYI](@grValue float, @deprMo float)
@@ -909,25 +963,35 @@ select pro.Country,
 from ProActiveCte pro
 GO
 
-CREATE VIEW [Atom].[AfrYearView] as
-        select afr.Wg
-             , sum(case when y.IsProlongation = 0 and y.Value = 1 then afr.AFR / 100 end) as AFR1
-             , sum(case when y.IsProlongation = 0 and y.Value = 2 then afr.AFR / 100 end) as AFR2
-             , sum(case when y.IsProlongation = 0 and y.Value = 3 then afr.AFR / 100 end) as AFR3
-             , sum(case when y.IsProlongation = 0 and y.Value = 4 then afr.AFR / 100 end) as AFR4
-             , sum(case when y.IsProlongation = 0 and y.Value = 5 then afr.AFR / 100 end) as AFR5
-             , sum(case when y.IsProlongation = 1 and y.Value = 1 then afr.AFR / 100 end) as AFRP1
-             , sum(case when y.IsProlongation = 0 and y.Value = 1 then afr.AFR_Approved / 100 end) as AFR1_Approved
-             , sum(case when y.IsProlongation = 0 and y.Value = 2 then afr.AFR_Approved / 100 end) as AFR2_Approved
-             , sum(case when y.IsProlongation = 0 and y.Value = 3 then afr.AFR_Approved / 100 end) as AFR3_Approved
-             , sum(case when y.IsProlongation = 0 and y.Value = 4 then afr.AFR_Approved / 100 end) as AFR4_Approved
-             , sum(case when y.IsProlongation = 0 and y.Value = 5 then afr.AFR_Approved / 100 end) as AFR5_Approved
-             , sum(case when y.IsProlongation = 1 and y.Value = 1 then afr.AFR_Approved / 100 end) as AFRP1_Approved
-        from Atom.AFR afr, Dependencies.Year y 
-        where y.Id = afr.Year
-        group by afr.Wg
+CREATE FUNCTION Matrix.GetBySla(
+    @cnt bigint,
+    @wg bigint,
+    @av bigint,
+    @dur bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc bigint,
+    @lastid bigint,
+    @limit int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+        select top(@limit) m.*
+            from Matrix.Matrix m
+            where m.Id > @lastid
+              and m.Denied = 0
+              and (@cnt is null or m.CountryId = @cnt)
+              and (@wg is null or m.WgId = @wg)
+              and (@av is null or m.AvailabilityId = @av)
+              and (@dur is null or m.DurationId = @dur)
+              and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
+              and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
+              and (@loc is null or m.ServiceLocationId = @loc)
+              order by m.Id
+)
 GO
-
 
 CREATE FUNCTION Hardware.GetCalcMember(
     @cnt bigint,
@@ -945,20 +1009,6 @@ RETURNS TABLE
 AS
 RETURN 
 (
-    with matrixCte as (
-        select top(@limit) m.*
-            from Matrix.Matrix m
-            where m.Id > @lastid
-              and m.Denied = 0
-              and (@cnt is null or m.CountryId = @cnt)
-              and (@wg is null or m.WgId = @wg)
-              and (@av is null or m.AvailabilityId = @av)
-              and (@dur is null or m.DurationId = @dur)
-              and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
-              and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
-              and (@loc is null or m.ServiceLocationId = @loc)
-              order by m.Id
-    )
     SELECT m.Id
 
         --SLA
@@ -1001,7 +1051,7 @@ RETURN
          , fsc.OnsiteHourlyRates 
        
          , case 
-             when ib.ibCnt <> 0 and ib.ib_Cnt_PLA <> 0 then ssc.[1stLevelSupportCosts] / ib.ibCnt + ssc.[2ndLevelSupportCosts] / ib.ib_Cnt_PLA
+             when ib.InstalledBaseCountry <> 0 and ib.InstalledBaseCountryPla <> 0 then ssc.[1stLevelSupportCosts] / ib.InstalledBaseCountry + ssc.[2ndLevelSupportCosts] / ib.InstalledBaseCountryPla
            end as ServiceSupport
        
          , lc.ExpressDelivery
@@ -1024,7 +1074,7 @@ RETURN
       
          , pro.Setup + pro.Service * dur.Value as ProActive
 
-    FROM matrixCte m
+    FROM Matrix.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @lastid, @limit) m
 
     INNER JOIN InputAtoms.Country c on c.id = m.CountryId
 
@@ -1040,7 +1090,137 @@ RETURN
 
     INNER JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
 
-    LEFT JOIN Atom.AfrYearView afr on afr.Wg = m.WgId
+    LEFT JOIN Atom.AfrYear afr on afr.Wg = m.WgId
+
+    LEFT JOIN Hardware.HddRetention hdd on hdd.Wg = m.WgId AND hdd.Year = m.DurationId
+
+    LEFT JOIN Atom.InstallBase ib on ib.Wg = m.WgId AND ib.Country = m.CountryId
+
+    LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.Wg = m.WgId
+
+    LEFT JOIN Atom.TaxAndDutiesView tax on tax.Country = m.CountryId
+
+    LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
+
+    LEFT JOIN Atom.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
+
+    LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Year = m.DurationId AND r.AvailabilityId = m.AvailabilityId AND r.ReactionTimeId = m.ReactionTimeId
+
+    LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId AND fsc.ReactionTypeId = m.ReactionTypeId AND fsc.ReactionTimeId = m.ReactionTimeId
+
+    LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTime = m.ReactionTimeId AND lc.ReactionType = m.ReactionTypeId
+
+    LEFT JOIN Atom.MarkupOtherCostsView moc on moc.Wg = m.WgId AND moc.Country = m.CountryId AND moc.ReactionTimeId = m.ReactionTimeId AND moc.ReactionTypeId = m.ReactionTypeId AND moc.AvailabilityId = m.AvailabilityId
+
+    LEFT JOIN Atom.MarkupStandardWarantyView msw on msw.Wg = m.WgId AND msw.Country = m.CountryId AND msw.ReactionTimeId = m.ReactionTimeId AND msw.ReactionTypeId = m.ReactionTypeId AND msw.AvailabilityId = m.AvailabilityId
+
+    LEFT JOIN Hardware.AvailabilityFeeCalcView af on af.Country = m.CountryId AND af.Wg = m.WgId
+
+    LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
+
+    LEFT JOIN Hardware.ProActiveView pro ON pro.Country = m.CountryId AND pro.Wg = m.WgId
+)
+GO
+
+CREATE FUNCTION Hardware.GetCalcMember_Approved(
+    @cnt bigint,
+    @wg bigint,
+    @av bigint,
+    @dur bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc bigint,
+
+    @lastid bigint,
+    @limit int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+    SELECT m.Id
+
+        --SLA
+
+         , c.Name as Country
+         , wg.Name as Wg
+         , dur.Name as Duration
+         , dur.Value as Year
+         , dur.IsProlongation
+         , av.Name as Availability
+         , rtime.Name as ReactionTime
+         , rtype.Name as ReactionType
+         , loc.Name as ServiceLocation
+
+         , afr.AFR1_Approved as AFR1
+         , afr.AFR2_Approved as AFR2
+         , afr.AFR3_Approved as AFR3
+         , afr.AFR4_Approved as AFR4
+         , afr.AFR5_Approved as AFR5
+         , afr.AFRP1_Approved as AFRP1
+       
+         , hdd.HddRet_Approved as HddRet
+       
+         , mcw.MaterialCostWarranty_Approved as MaterialCostWarranty
+       
+         , mco.MaterialCostOow_Approved as MaterialCostOow
+       
+         , mcw.MaterialCostWarranty_Approved * tax.TaxAndDuties_Approved as TaxAndDutiesW
+       
+         , mco.MaterialCostOow_Approved * tax.TaxAndDuties_Approved as TaxAndDutiesOow
+         
+         , coalesce(r.Cost_Approved, 0) as Reinsurance
+       
+         , fsc.LabourCost_Approved as LabourCost 
+         , fsc.TravelCost_Approved as TravelCost
+         , fsc.TimeAndMaterialShare as TimeAndMaterialShare
+         , fsc.PerformanceRate_Approved as PerformanceRate
+         , fsc.TravelTime_Approved as TravelTime
+         , fsc.RepairTime_Approved as RepairTime
+         , fsc.OnsiteHourlyRates_Approved as OnsiteHourlyRates
+       
+         , case 
+             when ib.InstalledBaseCountry_Approved <> 0 and ib.InstalledBaseCountryPla_Approved <> 0 
+                then ssc.[1stLevelSupportCosts_Approved] / ib.InstalledBaseCountry_Approved + ssc.[2ndLevelSupportCosts_Approved] / ib.InstalledBaseCountryPla_Approved
+           end as ServiceSupport
+       
+         , lc.ExpressDelivery_Approved as ExpressDelivery
+         , lc.HighAvailabilityHandling as HighAvailabilityHandling
+         , lc.StandardDelivery as StandardDelivery
+         , lc.StandardHandling as StandardHandling
+         , lc.ReturnDeliveryFactory_Approved as ReturnDeliveryFactory
+         , lc.TaxiCourierDelivery_Approved as TaxiCourierDelivery
+
+         , (case 
+                 when afEx.id is null then af.Fee_Approved
+                 else 0
+             end) as AvailabilityFee
+      
+         , moc.Markup_Approved as Markup
+         , moc.MarkupFactor_Approved as MarkupFactor
+      
+         , msw.MarkupFactorStandardWarranty_Approved as MarkupFactorStandardWarranty 
+         , msw.MarkupStandardWarranty_Approved as MarkupStandardWarranty
+      
+         , pro.Setup_Approved + pro.Service_Approved * dur.Value as ProActive
+
+    FROM Matrix.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @lastid, @limit) m
+
+    INNER JOIN InputAtoms.Country c on c.id = m.CountryId
+
+    INNER JOIN InputAtoms.Wg wg on wg.id = m.WgId
+
+    INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
+
+    INNER JOIN Dependencies.Duration dur on dur.id = m.DurationId
+
+    INNER JOIN Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
+
+    INNER JOIN Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
+
+    INNER JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
+
+    LEFT JOIN Atom.AfrYear afr on afr.Wg = m.WgId
 
     LEFT JOIN Hardware.HddRetention hdd on hdd.Wg = m.WgId AND hdd.Year = m.DurationId
 
