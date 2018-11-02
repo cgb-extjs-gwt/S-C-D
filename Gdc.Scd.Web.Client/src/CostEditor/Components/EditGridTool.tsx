@@ -26,7 +26,9 @@ export interface EditGridToolProps extends EditGridToolActions {
     flex?: number
     editGrid: EditGridProps
     qualityGateErrors: {[key: string]: any}[]
+    applicationId: string
     costBlockId: string
+    costElementId: string
 }
 
 export interface EditGridToolState {
@@ -87,7 +89,12 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
 
                 {this.getHistoryWindow()}
 
-                <QualityGateWindowContainer costBlockId={props.costBlockId} errors={props.qualityGateErrors} />
+                <QualityGateWindowContainer 
+                    applicationId={props.applicationId} 
+                    costBlockId={props.costBlockId} 
+                    costElementId={props.costElementId}
+                    errors={props.qualityGateErrors} 
+                />
             </Container>
         );
     }

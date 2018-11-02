@@ -10,11 +10,12 @@ export interface OwnApproveRejectActions {
 export interface OwnApproveRejectProps extends OwnApproveRejectActions {
     bundleId: number
     costBlockId: string
+    costElementId: string
 }
 
 export class OwnApproveRejectComponent extends React.Component<OwnApproveRejectProps> {
     public render() {
-        const { onApprove, onReject, bundleId, costBlockId } = this.props;
+        const { onApprove, onReject, bundleId, costBlockId, costElementId } = this.props;
 
         return (
             <Container flex={1} layout="vbox">
@@ -23,7 +24,7 @@ export class OwnApproveRejectComponent extends React.Component<OwnApproveRejectP
                     <Button text="Reject" handler={this.onReject} flex={1}/>
                 </Toolbar> 
 
-                <QualityGateWindowContainer bundleId={bundleId} costBlockId={costBlockId}/>
+                <QualityGateWindowContainer bundleId={bundleId} costBlockId={costBlockId} costElementId={costElementId}/>
             </Container>
         );
     }

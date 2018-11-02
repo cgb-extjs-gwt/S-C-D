@@ -37,7 +37,7 @@ namespace Gdc.Scd.Import.Core.Impl
         {
             var dbItemsTaxAndDuties = this._repositoryTaxAndDuties.GetAll().ToList();
             var dbItemsCountries = this._repositoryCountry.GetAll().Where(c => c.IsMaster).ToList();
-            var result = 0;
+            var batchList = new List<TaxAndDutiesEntity>();
 
             foreach (var item in items)
             {
@@ -74,10 +74,7 @@ namespace Gdc.Scd.Import.Core.Impl
                     foreach (var entity in taxAndDutyEntities)
                     {
                         entity.TaxAndDuties = item.AverageSumDutiesAndTaxes;
-                        entity.DeactivatedDateTime = null;
-                        entity.ModifiedDateTime = modifiedDateTime;
-                        this._repositoryTaxAndDuties.Save(entity);
-                        result++;
+                        batchList.Add(entity);
                     }
                 }
 
@@ -85,40 +82,18 @@ namespace Gdc.Scd.Import.Core.Impl
                 {
                     var entity = new TaxAndDutiesEntity();
                     entity.CountryId = country.Id;
-                    entity.CreatedDateTime = modifiedDateTime;
-                    entity.DeactivatedDateTime = null;
-                    entity.ModifiedDateTime = modifiedDateTime;
                     entity.TaxAndDuties = item.AverageSumDutiesAndTaxes;
-                    this._repositoryTaxAndDuties.Save(entity);
-                    result ++;
+                    batchList.Add(entity);
                 }
             }
 
-            this._repositorySet.Sync();
-            _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, result);
-        }
-
-        public int Deactivate(DateTime modifiedDateTime)
-        {
-            var dbItemsCountries = this._repositoryCountry.GetAll().Where(c => c.IsMaster).Select(c => c.Id).ToList();
-            var dbItemsTaxAndDuties = this._repositoryTaxAndDuties.GetAll().ToList();
-
-            var itemsToDeactivate = dbItemsTaxAndDuties.Where(entity => !dbItemsCountries.Contains(entity.CountryId)).ToList();
-            foreach (var item in itemsToDeactivate)
+            if (batchList.Any())
             {
-                _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATING_ENTITY, nameof(TaxAndDutiesEntity), item.CountryId);
-                item.DeactivatedDateTime = modifiedDateTime;
+                _repositoryTaxAndDuties.Save(batchList);
             }
 
-            if (itemsToDeactivate.Any())
-            {
-                this._repositoryTaxAndDuties.Save(itemsToDeactivate);
-                this._repositorySet.Sync();
-            }
-
-            return itemsToDeactivate.Count;
+            _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, batchList.Count);
         }
-
 
     }
 }

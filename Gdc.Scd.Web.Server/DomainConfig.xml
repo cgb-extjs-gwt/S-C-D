@@ -52,7 +52,7 @@
   </Applications>
   
   <Blocks>
-    <Block Name="AFR">
+    <!--<Block Name="AFR">
       <Applications>
         <Application>Atom</Application>
       </Applications>
@@ -68,17 +68,11 @@
               <Role>SCD Admin</Role>
             </Roles>
           </TableView>
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
-              <Role>PRS Finance</Role>
-            </Roles>
-          </CostEditor>
         </Element>
       </Elements>
-    </Block>
+    </Block>-->
 
-    <Block Name="InstallBase" Caption="Installed base">
+    <!--<Block Name="InstallBase" Caption="Installed base">
       <Applications>
         <Application>Atom</Application>
       </Applications>
@@ -87,11 +81,12 @@
           <CostEditor>
             <Roles>
               <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
       </Elements>
-    </Block>
+    </Block>-->
 
     <Block Name="MarkupOtherCosts" Caption="Markup other costs">
       <Applications>
@@ -103,6 +98,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -111,6 +107,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -127,6 +124,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -135,6 +133,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -151,6 +150,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -159,13 +159,14 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
       </Elements>
     </Block>
 
-    <Block Name="MaterialCostWarranty" Caption="Material cost iW" >
+    <!--<Block Name="MaterialCostWarranty" Caption="Material cost iW" >
       <Applications>
         <Application>Atom</Application>
       </Applications>
@@ -174,22 +175,16 @@
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
-          <!--<TableView>
+          --><!--<TableView>
             <Roles>
               <Role>PRS PSM</Role>  
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
             </Roles>
-          </TableView>-->
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
-              <Role>PRS Finance</Role>
-            </Roles>
-          </CostEditor>
+          </TableView>--><!--
         </Element>
       </Elements>
-    </Block>
+    </Block>-->
 
     <Block Name="MaterialCostOow" Caption="Material cost OOW">
       <Applications>
@@ -207,12 +202,6 @@
               <Role>SCD Admin</Role>
             </Roles>
           </TableView>-->
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
-              <Role>PRS Finance</Role>
-            </Roles>
-          </CostEditor>
         </Element>
       </Elements>
     </Block>
@@ -241,6 +230,11 @@
           <InputLevels>
             <InputLevel>RoleCode</InputLevel>
           </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
         </Element>
       </Elements>
     </Block>
@@ -261,17 +255,13 @@
               <Role>SCD Admin</Role>
             </Roles>
           </TableView>
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
-            </Roles>
-          </CostEditor>
         </Element>
         <Element Name="TravelTime" Caption="Travel Time (MTTT)" InputOption="Manually" Dependency="ServiceLocation">
           <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -281,6 +271,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -289,6 +280,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -297,6 +289,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -305,6 +298,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -329,6 +323,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -340,6 +335,7 @@
           <CostEditor>
             <Roles>
               <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -351,6 +347,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -369,6 +366,7 @@
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
               <Role>Spares Logistics</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -378,6 +376,7 @@
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
               <Role>Spares Logistics</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -387,6 +386,7 @@
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
               <Role>Spares Logistics</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -396,6 +396,7 @@
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
               <Role>Spares Logistics</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -405,6 +406,7 @@
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
               <Role>Spares Logistics</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -414,6 +416,7 @@
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
               <Role>Spares Logistics</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -435,6 +438,7 @@
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
               <Role>Spares Logistics</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -447,6 +451,7 @@
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
               <Role>Spares Logistics</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -459,6 +464,7 @@
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
               <Role>Spares Logistics</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -471,6 +477,7 @@
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
               <Role>Spares Logistics</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -483,6 +490,7 @@
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
               <Role>Spares Logistics</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -493,6 +501,7 @@
           <CostEditor>
             <Roles>
               <Role>Spares Logistics</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -503,6 +512,7 @@
           <CostEditor>
             <Roles>
               <Role>Spares Logistics</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -513,6 +523,7 @@
           <CostEditor>
             <Roles>
               <Role>Spares Logistics</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -524,6 +535,7 @@
           <CostEditor>
             <Roles>
               <Role>Spares Logistics</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -546,11 +558,6 @@
               <Role>SCD Admin</Role>
             </Roles>
           </TableView>
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
-            </Roles>
-          </CostEditor>
         </Element>
         <Element Name="HddMaterialCost" Caption="HDD Material Cost" InputOption="Manually" RegionInput="_none_">
           <InputLevels>
@@ -562,11 +569,6 @@
               <Role>SCD Admin</Role>
             </Roles>
           </TableView>
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
-            </Roles>
-          </CostEditor>
         </Element>
       </Elements>
     </Block>
@@ -587,11 +589,6 @@
               <Role>SCD Admin</Role>
             </Roles>
           </TableView>
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
-            </Roles>
-          </CostEditor>
         </Element>
         <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" RegionInput="_none_" Dependency="Year">
           <InputLevels>
@@ -603,11 +600,6 @@
               <Role>SCD Admin</Role>
             </Roles>
           </TableView>
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
-            </Roles>
-          </CostEditor>
         </Element>
         <Element Name="ReinsuranceUpliftFactor" Caption="Reinsurance uplift factor" InputOption="Manually" Dependency="ReactionTimeAvailability" RegionInput="_none_">
           <InputLevels>
@@ -619,11 +611,6 @@
               <Role>SCD Admin</Role>
             </Roles>
           </TableView>
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
-            </Roles>
-          </CostEditor>
         </Element>
       </Elements>
     </Block>
@@ -678,6 +665,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -686,6 +674,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -694,6 +683,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -709,18 +699,13 @@
               <Role>SCD Admin</Role>
             </Roles>
           </TableView>
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
-              <Role>PRS Finance</Role>
-            </Roles>
-          </CostEditor>
         </Element>
         <Element Name="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort" InputOption="Manually">
           <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -729,6 +714,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -737,6 +723,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -745,6 +732,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -767,6 +755,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -781,6 +770,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -795,6 +785,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -807,6 +798,7 @@
             <Roles>
               <Role>PRS Finance</Role>
               <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -821,6 +813,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -835,6 +828,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -849,6 +843,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -863,6 +858,7 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -882,6 +878,7 @@
           <CostEditor>
             <Roles>
               <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -892,6 +889,7 @@
           <CostEditor>
             <Roles>
               <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -906,6 +904,7 @@
           <CostEditor>
             <Roles>
               <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -920,6 +919,7 @@
           <CostEditor>
             <Roles>
               <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
           <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
@@ -935,6 +935,7 @@
           <CostEditor>
             <Roles>
               <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -949,6 +950,7 @@
           <CostEditor>
             <Roles>
               <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -963,6 +965,7 @@
           <CostEditor>
             <Roles>
               <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -977,6 +980,7 @@
           <CostEditor>
             <Roles>
               <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
         </Element>

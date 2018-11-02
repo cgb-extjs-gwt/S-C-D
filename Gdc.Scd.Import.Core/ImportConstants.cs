@@ -25,10 +25,12 @@ namespace Gdc.Scd.Import.Core
         public static string MOVE_FILE_END = "File was moved.";
         public static string UPDATE_PROCESSING_DATE = "Processing date was updated.";
         public static string UNKNOWN_COUNTRY = "Could not find Master Country {0} with Code {1}";
+        public static string UNKNOWN_COUNTRY_CODE = "Could not find Country Group with Country Code {0}";
+        public static string UNKNOWN_WARRANTY = "Could not find Warranty Group {0}";
+        public static string UNKNOWN_YEAR = "Could not find Year Dependency {0}";
         public static string EMPTY_COUNTRY = "Skip uploading for one record as country is empty";
         public static string DEACTIVATE_START = "Deactivation for {0} is started...";
         public static string DEACTIVATE_END = "Deactivation finished. {0} rows affected.";
-        public static string DEACTIVATING_ENTITY = "{0} with CountryId {1} is deactivated.";
         public static string UNKNOWN_PLA = "Skip upload {0}: {1} as PLA {2} does not exist";
         public static string NEW_WG = "Adding new WG {0}...";
         public static string UPDATE_WG = "Updating WG {0}...";

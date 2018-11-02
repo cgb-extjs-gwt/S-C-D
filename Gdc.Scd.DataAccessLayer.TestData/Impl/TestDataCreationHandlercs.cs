@@ -1,6 +1,14 @@
-﻿using Gdc.Scd.Core.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using Gdc.Scd.Core.Constants;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.Core.Enums;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Impl;
@@ -9,41 +17,12 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using Gdc.Scd.Core.Constants;
 
 namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 {
     public class TestDataCreationHandlercs : IConfigureDatabaseHandler
     {
-        private const string CountryLevelId = "Country";
-
-        private const string PlaLevelId = "Pla";
-
         private const string ClusterRegionId = "ClusterRegion";
-
-        private const string RoleCodeKey = "RoleCode";
-
-        private const string ServiceLocationKey = "ServiceLocation";
-
-        private const string YearKey = "Year";
-
-        private const string ReactionTimeKey = "ReactionTime";
-
-        private const string ReactionTypeKey = "ReactionType";
-
-        private const string AvailabilityKey = "Availability";
-
-        private const string DurationKey = "Duration";
-
-        private const string ProActiveKey = "ProActive";
-
-        private const string ProActiveSlaKey = "ProActiveSla";
 
         private readonly DomainEnitiesMeta entityMetas;
 
@@ -72,6 +51,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateProActiveSla();
             this.CreateImportConfiguration();
             this.CreateRolecodes();
+            this.CreateSoftwereInputLevels();
 
             //report
             this.CreateReportColumnTypes();
@@ -150,22 +130,34 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateUserAndRoles()
         {
-            var permissions =
-                typeof(PermissionConstants).GetFields(BindingFlags.Static | BindingFlags.Public)
-                                           .Select(field => new Permission
-                                           {
-                                               Name = field.GetValue(null).ToString()
-                                           })
-                                           .ToList();
+            var costEditorPermission = new Permission { Name = PermissionConstants.CostEditor };
+            var tableViewPermission = new Permission { Name = PermissionConstants.TableView };
+            var approvalPermission = new Permission { Name = PermissionConstants.Approval };
+            var ownApprovalPermission = new Permission { Name = PermissionConstants.OwnApproval };
+            var portfolioPermission = new Permission { Name = PermissionConstants.Portfolio };
+            var reviewProcessPermission = new Permission { Name = PermissionConstants.ReviewProcess };
+            var reportPermission = new Permission { Name = PermissionConstants.Report };
+            var adminPermission = new Permission { Name = PermissionConstants.Admin };
 
-            var adminRolePermissions = permissions.Select(permission => new RolePermission { Permission = permission });
-            var tableViewRolePermissions = adminRolePermissions.Where(rolePermission => rolePermission.Permission.Name != PermissionConstants.Admin);
-            var rolePermissions = tableViewRolePermissions.Where(rolePermission => rolePermission.Permission.Name != PermissionConstants.TableView);
+            var allPermissions = new List<Permission>
+            {
+                costEditorPermission,
+                tableViewPermission,
+                approvalPermission,
+                ownApprovalPermission,
+                portfolioPermission,
+                reviewProcessPermission,
+                reportPermission,
+                adminPermission
+            };
+
+            var allRolePermissions = allPermissions.Select(permission => new RolePermission { Permission = permission });
+
             var adminRole = new Role
             {
                 Name = "SCD Admin",
                 IsGlobal = true,
-                RolePermissions = adminRolePermissions.ToList()
+                RolePermissions = allRolePermissions.ToList()
             };
 
             var users = new List<User> {
@@ -203,49 +195,92 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 {
                     Name = "PRS PSM",
                     IsGlobal = true,
-                    RolePermissions = tableViewRolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = tableViewPermission },
+                        new RolePermission { Permission = costEditorPermission },
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = approvalPermission },
+                        new RolePermission { Permission = ownApprovalPermission },
+                    }
                 },
                 new Role
                 {
                     Name = "Country key user",
                     IsGlobal = false,
-                    RolePermissions = rolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = costEditorPermission },
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = approvalPermission },
+                        new RolePermission { Permission = ownApprovalPermission },
+                        new RolePermission { Permission = reviewProcessPermission },
+                    }
                 },
                 new Role
                 {
                     Name = "Country Finance Director",
                     IsGlobal = false,
-                    RolePermissions = rolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = approvalPermission },
+                        new RolePermission { Permission = reviewProcessPermission },
+                    }
                 },
                 new Role
                 {
                     Name = "PRS Finance",
                     IsGlobal = true,
-                    RolePermissions = tableViewRolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = costEditorPermission },
+                        new RolePermission { Permission = tableViewPermission },
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = approvalPermission },
+                        new RolePermission { Permission = ownApprovalPermission },
+                        new RolePermission { Permission = reviewProcessPermission },
+                    }
                 },
                 new Role
                 {
                     Name = "Spares Logistics",
                     IsGlobal = true,
-                    RolePermissions = rolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = tableViewPermission },
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = reviewProcessPermission },
+                    }
                 },
                 new Role
                 {
                     Name = "GTS user",
                     IsGlobal = true,
-                    RolePermissions = rolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = tableViewPermission },
+                        new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = reviewProcessPermission },
+                    }
                 },
                 new Role
                 {
                     Name = "Guest",
                     IsGlobal = true,
-                    RolePermissions = rolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = reportPermission },
+                    }
                 },
                 new Role
                 {
                     Name = "Opportunity Center",
                     IsGlobal = true,
-                    RolePermissions = rolePermissions.ToList()
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = reportPermission },
+                    }
                 }
             };
 
@@ -272,20 +307,70 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateTestItems<T>(int count = 5) where T : NamedId, new()
         {
-            var items = new List<T>();
-            var typeName = typeof(T).Name;
-
-
-            for (var i = 0; i < count; i++)
-            {
-                items.Add(new T
-                {
-                    Name = $"{typeName}_{i}"
-                });
-            }
+            var items = this.BuildTestItems<T>(count);
 
             this.repositorySet.GetRepository<T>().Save(items);
             this.repositorySet.Sync();
+        }
+
+        private void CreateSoftwereInputLevels()
+        {
+            var count = 5;
+            var sogs = this.BuildDeactivatableTestItems<Sog>(count).ToArray();
+            var plas = this.repositorySet.GetRepository<Pla>().GetAll().Take(count).ToArray();
+
+            for (var i = 0; i < count; i++)
+            {
+                sogs[i].PlaId = plas[i].Id;
+            }
+
+            this.repositorySet.GetRepository<Sog>().Save(sogs);
+            this.repositorySet.Sync();
+
+            var swDigit = this.BuildDeactivatableTestItems<SwDigit>(count).ToArray();
+            var sfabs = this.BuildDeactivatableTestItems<SFab>(count).ToArray();
+
+            for (var i = 0; i < count; i++)
+            {
+                swDigit[i].SogId = sogs[i].Id;
+                sfabs[i].PlaId = plas[i].Id;
+            }
+
+            this.repositorySet.GetRepository<SwDigit>().Save(swDigit);
+            this.repositorySet.GetRepository<SFab>().Save(sfabs);
+
+            var swLicences = this.BuildDeactivatableTestItems<SwLicense>();
+
+            this.repositorySet.GetRepository<SwLicense>().Save(swLicences);
+            this.repositorySet.Sync();
+        }
+
+        private IEnumerable<T> BuildTestItems<T>(int count = 5) where T : NamedId, new()
+        {
+            var typeName = typeof(T).Name;
+
+            for (var i = 0; i < count; i++)
+            {
+                var item = new T
+                {
+                    Name = $"{typeName}_{i}"
+                };
+
+                yield return item;
+            }
+        }
+
+        private IEnumerable<T> BuildDeactivatableTestItems<T>(int count = 5) where T : NamedId, IDeactivatable, new()
+        {
+            var nowTime = DateTime.UtcNow;
+
+            foreach (var item in this.BuildTestItems<T>(count))
+            {
+                item.CreatedDateTime = nowTime;
+                item.ModifiedDateTime = nowTime;
+
+                yield return item;
+            }
         }
 
         private SqlHelper BuildInsertSql(NamedEntityMeta entityMeta, string[] names)
@@ -311,24 +396,24 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             foreach (var costBlockMeta in this.entityMetas.CostBlocks)
             {
-                var referenceFields = costBlockMeta.InputLevelFields.Concat(costBlockMeta.DependencyFields).ToList();
+                var referenceFields = costBlockMeta.CoordinateFields.ToList();
                 var selectColumns =
                     referenceFields.Select(field => new ColumnInfo(field.ReferenceValueField, field.ReferenceMeta.Name, field.Name))
-                                   .ToList();
+                                   .ToList()
+                                   .AsEnumerable();
 
-                var insertFields = referenceFields.Select(field => field.Name).ToList();
+                var insertFields = referenceFields.Select(field => field.Name).ToArray();
 
                 var wgField = costBlockMeta.InputLevelFields[MetaConstants.WgInputLevelName];
-                var plaField = costBlockMeta.InputLevelFields[PlaLevelId];
+                var plaField = costBlockMeta.InputLevelFields[MetaConstants.PlaInputLevelName];
 
                 if (plaField != null && wgField != null)
                 {
                     selectColumns =
                         selectColumns.Select(
-                            field => field.TableName == plaField.Name
+                            column => column.TableName == plaField.Name
                                 ? new ColumnInfo($"{nameof(Pla)}{nameof(Wg.Id)}", MetaConstants.WgInputLevelName, plaField.Name)
-                                : field)
-                                    .ToList();
+                                : column);
 
                     referenceFields.Remove(plaField);
                 }
@@ -336,28 +421,54 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 var clusterRegionField = costBlockMeta.InputLevelFields[ClusterRegionId];
                 var countryField = costBlockMeta.InputLevelFields[MetaConstants.CountryInputLevelName];
 
-                if (clusterRegionField != null && countryField != null)
-                {
-                    selectColumns =
-                        selectColumns.Select(
-                            field => field.TableName == clusterRegionField.Name
-                                ? new ColumnInfo(nameof(Country.ClusterRegionId), MetaConstants.CountryInputLevelName, ClusterRegionId)
-                                : field)
-                                    .ToList();
+                ReferenceFieldMeta fromField = null;
 
-                    referenceFields.Remove(clusterRegionField);
+                if (countryField == null)
+                {
+                    fromField = referenceFields[0];
+
+                    referenceFields.RemoveAt(0);
+                }
+                else
+                {
+                    if (clusterRegionField != null)
+                    {
+                        selectColumns =
+                            selectColumns.Select(
+                                column => column.TableName == clusterRegionField.Name
+                                    ? new ColumnInfo(nameof(Country.ClusterRegionId), MetaConstants.CountryInputLevelName, ClusterRegionId)
+                                    : column);
+
+                        referenceFields.Remove(clusterRegionField);
+                    }
+
+                    fromField = countryField;
+
+                    referenceFields.Remove(countryField);
                 }
 
-                var selectQuery = Sql.Select(selectColumns.ToArray()).From(referenceFields[0].ReferenceMeta);
+                var joinQuery = Sql.Select(selectColumns.ToArray()).From(fromField.ReferenceMeta);
 
-                for (var i = 1; i < referenceFields.Count; i++)
+                foreach (var field in referenceFields)
                 {
-                    var referenceMeta = referenceFields[i].ReferenceMeta;
+                    var referenceMeta = field.ReferenceMeta;
 
-                    selectQuery = selectQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
+                    joinQuery = joinQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
                 }
 
-                yield return Sql.Insert(costBlockMeta, insertFields.ToArray()).Query(selectQuery);
+                SqlHelper query;
+
+                if (countryField == null)
+                {
+                    query = joinQuery;
+                }
+                else
+                {
+                    query = joinQuery.Where(
+                        SqlOperators.Equals(nameof(Country.IsMaster), "isMaster", true, MetaConstants.CountryInputLevelName));
+                }
+
+                yield return Sql.Insert(costBlockMeta, insertFields).Query(query);
             }
         }
 
@@ -1329,33 +1440,80 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var taxAndDuties = new ImportConfiguration
             {
                 Name = ImportSystems.AMBERROAD,
-                FilePath = @"C:\Users\BorisovaE\Desktop",
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Amber road",
                 FileName = "SCD_Duties_Taxes.csv",
                 ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
-                ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\amber",
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Amber road\processed",
                 Delimeter = ";",
-                HasHeader = true
+                HasHeader = true,
+                Culture = "de-DE"
             };
 
             var logistic = new ImportConfiguration
             {
                 Name = ImportSystems.LOGISTICS,
-                FilePath = @"C:\Users\BorisovaE\Desktop",
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Logistics",
                 FileName = "FeeCalculator-Upload_*.txt",
                 ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
-                ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\logistics",
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Logistics\processed",
                 Delimeter = "|",
-                HasHeader = true
+                HasHeader = true,
+                Culture = "de-DE"
+            };
+
+            var ebis_afr = new ImportConfiguration
+            {
+                Name = ImportSystems.EBIS_AFR,
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS",
+                FileName = "SCD_FR_LOAD.csv",
+                ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
+                ProcessedDateTime = null,
+                Occurancy = Core.Enums.Occurancy.PerMonth,
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
+                Delimeter = ";",
+                HasHeader = true,
+                Culture = "en-US"
+            };
+
+            var ebis_material_cost = new ImportConfiguration
+            {
+                Name = ImportSystems.EBIS_MATERIAL_COST,
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS",
+                FileName = "SCD_MATCO_LOAD.csv",
+                ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
+                ProcessedDateTime = null,
+                Occurancy = Core.Enums.Occurancy.PerMonth,
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
+                Delimeter = ";",
+                HasHeader = true,
+                Culture = "en-US"
+            };
+
+            var ebis_install_base = new ImportConfiguration
+            {
+                Name = ImportSystems.EBIS_INSTALL_BASE,
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS",
+                FileName = "SCD_FQR_LOAD.csv",
+                ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
+                ProcessedDateTime = null,
+                Occurancy = Core.Enums.Occurancy.PerMonth,
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
+                Delimeter = ";",
+                HasHeader = true,
+                Culture = "en-US"
             };
 
             this.repositorySet.GetRepository<ImportConfiguration>().Save(new List<ImportConfiguration>()
             {
                 taxAndDuties,
-                logistic
+                logistic,
+                ebis_afr,
+                ebis_install_base,
+                ebis_material_cost
             });
 
             this.repositorySet.Sync();
@@ -1746,14 +1904,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 CountryDigit = "TR"
             };
 
-            var egyptCG = new CountryGroup
-            {
-                Name = "Egypt",
-                RegionId = wemeiaRegion.Id,
-                LUTCode = "EGY",
-                CountryDigit = "ME"
-            };
-
             #endregion
 
             var countries = new Country[]
@@ -1817,7 +1967,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Country { Name = "Italy", SAPCountryCode = "ITL", ISO3CountryCode = "ITA", CountryGroup = italyCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = italyCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "San Marino", SAPCountryCode = "SMA", ISO3CountryCode = "SMR", CountryGroup = italyCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = italyCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Luxembourg", SAPCountryCode = "LUX", ISO3CountryCode = "LUX", CountryGroup = luxembourgCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = luxembourgCG.RegionId, AssignedToMultiVendor = false },
-                new Country { Name = "Egypt", SAPCountryCode = "EGY", ISO3CountryCode = "EGY", CountryGroup = egyptCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = egyptCG.RegionId, AssignedToMultiVendor = false },
+                new Country { Name = "Egypt", SAPCountryCode = "EGY", ISO3CountryCode = "EGY", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Afghanistan", SAPCountryCode = "AFG", ISO3CountryCode = "AFG", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Bahrain", SAPCountryCode = "BAH", ISO3CountryCode = "BHR", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Gaza Strip", SAPCountryCode = "", ISO3CountryCode = "", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },

@@ -84,7 +84,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                            new ColumnInfo(historyContext.InputLevelId, NewValuesTable),
                            new ColumnInfo(historyContext.InputLevelId, costBlockMeta.Name)))
                    .Join(costBlockMeta, MetaConstants.CountryInputLevelName, CountryTableAlias)
-                   .WhereNotDeleted(costBlockMeta, costBlockFilter);
+                   .WhereNotDeleted(costBlockMeta, costBlockFilter, costBlockMeta.Name);
 
             return this.BuildQualityGateQuery(historyContext, options);
         }
@@ -150,7 +150,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
             var costElementValueTableColumns = this.BuildCostElementValueTableColumns(history.Context, options, history.Context.CostElementId, costBlockMeta.Name);
             var costElementValueTableQuery =
-                Sql.Select(costElementValueTableColumns.ToArray())
+                Sql.SelectDistinct(costElementValueTableColumns.ToArray())
                    .From(costBlockMeta.HistoryMeta);
 
             return this.historyQueryBuilder.BuildJoinApproveHistoryValueQuery(
@@ -180,10 +180,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
 
             var checkColumns = this.BuildQualityGateQueryCheckColumns(costBlockMeta);
-            var innerColumns =
-                costBlockMeta.CoordinateFields.Select(field => new ColumnInfo(field.Name, InnerQualityGateTable))
-                                              .Concat(checkColumns.OfType<BaseColumnInfo>())
-                                              .ToList();
+            var domainCoordinateFields = costBlockMeta.GetDomainCoordinateFields(historyContext.CostElementId);
+            var innerColumns = 
+                domainCoordinateFields.Select(field => new ColumnInfo(field.Name, InnerQualityGateTable))
+                                      .Concat(checkColumns.OfType<BaseColumnInfo>())
+                                      .ToList();
 
             innerColumns.Add(new ColumnInfo(NewValueColumn, InnerQualityGateTable));
 
@@ -204,12 +205,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
 
             SqlHelper qualityQateResultQuery =
-                Sql.Select(columns.ToArray())
+                Sql.SelectDistinct(columns.ToArray())
                    .FromQuery(
                        Sql.Select(innerColumns.ToArray())
                           .FromQuery(this.BuildInnerQualityGateQuery(historyContext, options), InnerQualityGateTable),
                        ResultQualityGateTable)
-                   .Join(costBlockMeta.CoordinateFields.Select(field => new JoinInfo(costBlockMeta, field.Name, metaTableAlias: ResultQualityGateTable)));
+                   .Join(domainCoordinateFields.Select(field => new JoinInfo(costBlockMeta, field.Name, metaTableAlias: ResultQualityGateTable)));
 
             if (options.OnlyFailed)
             {
@@ -279,9 +280,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 ? costBlockMeta.DomainMeta.InputLevels
                 : costBlockMeta.DomainMeta.CostElements[historyContext.CostElementId].FilterInputLevels(options.MaxInputLevel);
 
-            var inputLevelFields = inputLevels.Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]);
+            var fields = inputLevels.Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]).ToList();
+            var dependencyField = costBlockMeta.GetDomainDependencyField(historyContext.CostElementId);
+            if (dependencyField != null)
+            {
+                fields.Add(dependencyField);
+            }
 
-            columns.AddRange(inputLevelFields.Concat(costBlockMeta.DependencyFields).SelectMany(field => new[]
+            columns.AddRange(fields.SelectMany(field => new[]
             {
                 new ColumnInfo(MetaConstants.IdFieldKey, field.ReferenceMeta.Name, this.BuildAlias(field.ReferenceMeta.Name, MetaConstants.IdFieldKey)),
                 new ColumnInfo(MetaConstants.NameFieldKey, field.ReferenceMeta.Name, this.BuildAlias(field.ReferenceMeta.Name, MetaConstants.NameFieldKey))
@@ -361,7 +367,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             string newValueColumnTable = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
-            var columns = costBlockMeta.CoordinateFields.Select(field => new ColumnInfo(field.Name, table)).ToList();
+            var columns = 
+                costBlockMeta.GetDomainCoordinateFields(historyContext.CostElementId)
+                             .Select(field => new ColumnInfo(field.Name, table))
+                             .ToList();
 
             columns.Add(new ColumnInfo(newValueColumn, newValueColumnTable ?? table, NewValueColumn));
 
@@ -381,7 +390,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         private SqlHelper BuildInnerQualityGateQuery(HistoryContext historyContext, QualityGateQueryOptions options)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
-            var coordinateColumns = costBlockMeta.CoordinateFields.Select(field => new ColumnInfo(field.Name, CostElementValuesTable));
+            var coordinateColumns = 
+                costBlockMeta.GetDomainCoordinateFields(historyContext.CostElementId)
+                             .Select(field => new ColumnInfo(field.Name, CostElementValuesTable));
 
             var columns = new List<BaseColumnInfo>(coordinateColumns)
             {

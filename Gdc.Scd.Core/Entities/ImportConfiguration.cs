@@ -27,5 +27,6 @@ namespace Gdc.Scd.Core.Entities
         public string ProcessedFilesPath { get; set; }
         public string Delimeter { get; set; }
         public bool HasHeader { get; set; }
+        public string Culture { get; set; }
     }
 }

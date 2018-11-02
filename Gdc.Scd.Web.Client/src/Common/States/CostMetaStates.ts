@@ -10,7 +10,6 @@ export interface CostElementMeta extends NamedId, UsingInfo {
     description: string
     inputLevels: InputLevelMeta[]
     regionInput: NamedId
-    inputType: InputType
     typeOptions: {
         Type: FieldType
     }
@@ -25,14 +24,8 @@ export interface CostBlockMeta extends NamedId {
 
 export interface InputLevelMeta extends NamedId {
     levelNumer: number
-    isFilterLoading: boolean
-}
-
-export enum InputType {
-    Manually = 0,
-    Automatically = 1,
-    Reference = 2,
-    ManuallyAutomaticly = 3
+    hasFilter: boolean
+    filterName
 }
 
 export enum FieldType {
@@ -45,7 +38,7 @@ export interface ApplicationMeta extends NamedId, UsingInfo {
 
 }
 
-export interface CostMetaData{
+export interface CostMetaData {
     applications: ApplicationMeta[]
     costBlocks: CostBlockMeta[]
 }

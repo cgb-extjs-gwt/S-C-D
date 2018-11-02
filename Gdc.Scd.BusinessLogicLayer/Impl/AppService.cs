@@ -6,6 +6,7 @@ using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Dto;
 using Gdc.Scd.Core.Meta.Entities;
 
@@ -57,7 +58,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var costBlockDtos = new List<CostBlockDto>();
             var userPermissions = new HashSet<string>(user.Permissions.Select(permission => permission.Name));
             var isAddingCostElement = costElementPermissions.Any(permission => userPermissions.Contains(permission));
-            var userIsAdmin = userPermissions.Contains(PermissionConstants.Admin);
 
             foreach (var costBlock in this.meta.CostBlocks)
             {
@@ -67,15 +67,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 foreach (var costElement in costBlock.CostElements)
                 {
+                    var isManualInput = costElement.InputType == InputType.Manually || costElement.InputType == InputType.ManualyAutomaticly;
                     var costElementDto = new CostElementDto
                     {
-                        IsUsingCostEditor = userIsAdmin || this.ContainsRole(costElement.CostEditorRoles, user),
-                        IsUsingTableView = this.ContainsRole(costElement.TableViewRoles, user)
+                        IsUsingCostEditor = isManualInput && this.ContainsRole(costElement.CostEditorRoles, user),
+                        IsUsingTableView = isManualInput && this.ContainsRole(costElement.TableViewRoles, user)
                     };
 
                     if (isAddingCostElement || costElementDto.IsUsingCostEditor || costElementDto.IsUsingTableView)
                     {
-                        this.Copy(costElement, costElementDto);
+                        costElementDto.InputLevels = this.BuildInputLevelDtos(costElement.InputLevels);
+
+                        this.Copy(costElement, costElementDto, nameof(CostElementDto.InputLevels));
 
                         costElementDtos.Add(costElementDto);
 
@@ -100,6 +103,33 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return this.BuildDomainMetaDto(this.meta, costBlockDtos);
+        }
+
+        private MetaCollection<InputLevelDto> BuildInputLevelDtos(IEnumerable<InputLevelMeta> inputLevelMetas)
+        {
+            var inputLevelDtos = new MetaCollection<InputLevelDto>();
+            var index = 0;
+
+            InputLevelMeta prevInputLevelMeta = null;
+
+            foreach (var inputLevelMeta in inputLevelMetas.OrderBy(x => x.LevelNumber))
+            {
+                var inputLevelDto = this.Copy<InputLevelDto>(inputLevelMeta, nameof(InputLevelDto.LevelNumber));
+
+                inputLevelDto.LevelNumber = index++;
+                
+                if (prevInputLevelMeta != null && prevInputLevelMeta.Id != MetaConstants.CountryInputLevelName)
+                {
+                    inputLevelDto.HasFilter = true;
+                    inputLevelDto.FilterName = prevInputLevelMeta.Name;
+                }
+
+                inputLevelDtos.Add(inputLevelDto);
+
+                prevInputLevelMeta = inputLevelMeta;
+            }
+
+            return inputLevelDtos;
         }
 
         private CostBlockDto BuildCostBlockDto(CostBlockMeta costBlock, IEnumerable<CostElementDto> costElementDtos, bool isUsingCostEditor, bool isUsingTableView)

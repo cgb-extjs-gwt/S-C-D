@@ -5,17 +5,21 @@ import { CommonState } from "../../Layout/States/AppStates";
 import { saveEditItemsToServer, resetErrors } from "../Actions/CostBlockActions";
 import { QualityGateErrorWindow } from "../../QualityGate/Components/QualityGateErrorWindow";
 
+export interface QualityGateWindowContainer extends QualityGateErrorContainerProps {
+    applicationId: string
+}
+
 export const QualityGateWindowContainer = 
-    connect<QualityGateErrorContainerProps, QualityGateErrorActions, QualityGateErrorContainerProps, CommonState>(
+    connect<QualityGateErrorContainerProps, QualityGateErrorActions, QualityGateWindowContainer, CommonState>(
         (state, props) => props,
-        (dispatch, { costBlockId, onSave, onCancel }) => ({
+        (dispatch, { applicationId, costBlockId, onSave, onCancel }) => ({
             onSave: (explanationMessage) => dispatch(
-                saveEditItemsToServer(costBlockId, { 
+                saveEditItemsToServer(applicationId, costBlockId, { 
                     qualityGateErrorExplanation: explanationMessage,
                     isApproving: true,
                     hasQualityGateErrors: true
                 })
             ),
-            onCancel: () => dispatch(resetErrors(costBlockId))
+            onCancel: () => dispatch(resetErrors(applicationId, costBlockId))
         })
     )(QualityGateErrorWindow)
