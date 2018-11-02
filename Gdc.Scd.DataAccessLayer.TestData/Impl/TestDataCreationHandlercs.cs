@@ -1449,33 +1449,80 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var taxAndDuties = new ImportConfiguration
             {
                 Name = ImportSystems.AMBERROAD,
-                FilePath = @"C:\Users\BorisovaE\Desktop",
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Amber road",
                 FileName = "SCD_Duties_Taxes.csv",
                 ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
-                ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\amber",
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Amber road\processed",
                 Delimeter = ";",
-                HasHeader = true
+                HasHeader = true,
+                Culture = "de-DE"
             };
 
             var logistic = new ImportConfiguration
             {
                 Name = ImportSystems.LOGISTICS,
-                FilePath = @"C:\Users\BorisovaE\Desktop",
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Logistics",
                 FileName = "FeeCalculator-Upload_*.txt",
                 ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
-                ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\logistics",
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Logistics\processed",
                 Delimeter = "|",
-                HasHeader = true
+                HasHeader = true,
+                Culture = "de-DE"
+            };
+
+            var ebis_afr = new ImportConfiguration
+            {
+                Name = ImportSystems.EBIS_AFR,
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS",
+                FileName = "SCD_FR_LOAD.csv",
+                ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
+                ProcessedDateTime = null,
+                Occurancy = Core.Enums.Occurancy.PerMonth,
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
+                Delimeter = ";",
+                HasHeader = true,
+                Culture = "en-US"
+            };
+
+            var ebis_material_cost = new ImportConfiguration
+            {
+                Name = ImportSystems.EBIS_MATERIAL_COST,
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS",
+                FileName = "SCD_MATCO_LOAD.csv",
+                ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
+                ProcessedDateTime = null,
+                Occurancy = Core.Enums.Occurancy.PerMonth,
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
+                Delimeter = ";",
+                HasHeader = true,
+                Culture = "en-US"
+            };
+
+            var ebis_install_base = new ImportConfiguration
+            {
+                Name = ImportSystems.EBIS_INSTALL_BASE,
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS",
+                FileName = "SCD_FQR_LOAD.csv",
+                ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
+                ProcessedDateTime = null,
+                Occurancy = Core.Enums.Occurancy.PerMonth,
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
+                Delimeter = ";",
+                HasHeader = true,
+                Culture = "en-US"
             };
 
             this.repositorySet.GetRepository<ImportConfiguration>().Save(new List<ImportConfiguration>()
             {
                 taxAndDuties,
-                logistic
+                logistic,
+                ebis_afr,
+                ebis_install_base,
+                ebis_material_cost
             });
 
             this.repositorySet.Sync();
@@ -1866,14 +1913,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 CountryDigit = "TR"
             };
 
-            var egyptCG = new CountryGroup
-            {
-                Name = "Egypt",
-                RegionId = wemeiaRegion.Id,
-                LUTCode = "EGY",
-                CountryDigit = "ME"
-            };
-
             #endregion
 
             var countries = new Country[]
@@ -1937,7 +1976,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Country { Name = "Italy", SAPCountryCode = "ITL", ISO3CountryCode = "ITA", CountryGroup = italyCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = italyCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "San Marino", SAPCountryCode = "SMA", ISO3CountryCode = "SMR", CountryGroup = italyCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = italyCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Luxembourg", SAPCountryCode = "LUX", ISO3CountryCode = "LUX", CountryGroup = luxembourgCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = luxembourgCG.RegionId, AssignedToMultiVendor = false },
-                new Country { Name = "Egypt", SAPCountryCode = "EGY", ISO3CountryCode = "EGY", CountryGroup = egyptCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = egyptCG.RegionId, AssignedToMultiVendor = false },
+                new Country { Name = "Egypt", SAPCountryCode = "EGY", ISO3CountryCode = "EGY", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Afghanistan", SAPCountryCode = "AFG", ISO3CountryCode = "AFG", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Bahrain", SAPCountryCode = "BAH", ISO3CountryCode = "BHR", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Gaza Strip", SAPCountryCode = "", ISO3CountryCode = "", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },

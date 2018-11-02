@@ -59,10 +59,14 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<SwDigitLicense>();
             Kernel.RegisterEntity<HwFspCodeTranslation>();
             Kernel.RegisterEntity<SwFspCodeTranslation>();
-            Kernel.RegisterEntity<TaxAndDutiesEntity>();
             Kernel.RegisterEntity<ImportConfiguration>();
             Kernel.RegisterEntity<ProActiveDigit>();
+            /*----------cost block entities---------*/
             Kernel.RegisterEntity<AvailabilityFee>();
+            Kernel.RegisterEntity<TaxAndDutiesEntity>();
+            Kernel.RegisterEntity<Afr>();
+            Kernel.RegisterEntity<InstallBase>();
+            Kernel.RegisterEntity<MaterialCostInWarranty>();
             /*----------admin---------*/
             Kernel.RegisterEntity<AdminAvailabilityFee>();
             Kernel.RegisterEntity<RoleCode>();
