@@ -1,3 +1,11 @@
+ALTER TABLE Hardware.ManualCost
+   DROP COLUMN DealerPrice, DealerPrice_Approved;
+
+ALTER TABLE Hardware.ManualCost
+   ADD DealerPrice as (ListPrice - (ListPrice * DealerDiscount / 100)),
+       DealerPrice_Approved as (ListPrice_Approved - (ListPrice_Approved * DealerDiscount_Approved / 100));
+GO
+
 ALTER TABLE Atom.InstallBase
     ADD InstalledBaseCountryPla float,
         InstalledBaseCountryPla_Approved float;

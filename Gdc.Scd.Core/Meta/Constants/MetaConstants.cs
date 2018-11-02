@@ -30,7 +30,7 @@
 
         public const string WgInputLevelName = "Wg";
 
-        public const string CalculationTable = "ServiceCostCalculation";
+        public const string ManualCostTable = "ManualCost";
 
         public const string HardwareSchema = "Hardware";
 

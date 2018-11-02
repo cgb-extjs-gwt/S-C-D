@@ -19,18 +19,22 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<CapabilityMatrix> matrixRepo;
 
+        private readonly IRepository<HardwareManualCost> hwManualRepo;
+
         private readonly IRepository<SoftwareMaintenance> swMaintenanceRepo;
 
         private readonly IRepository<SoftwareProactive> swProactiveRepo;
 
         public CalculationService(
                 IRepositorySet repositorySet,
+                IRepository<HardwareManualCost> hwManualRepo,
                 IRepository<SoftwareMaintenance> swMaintenanceRepo,
                 IRepository<SoftwareProactive> swProactiveRepo,
                 IRepository<CapabilityMatrix> matrixRepo
             )
         {
             this.repositorySet = repositorySet;
+            this.hwManualRepo = hwManualRepo;
             this.swMaintenanceRepo = swMaintenanceRepo;
             this.swProactiveRepo = swProactiveRepo;
             this.matrixRepo = matrixRepo;
@@ -131,10 +135,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var recordsId = records.Select(x => x.Id);
 
-            var entities = hwRepo.GetAll()
-                              .Where(x => recordsId.Contains(x.Id))
-                              .Select(x => new { Hw = x, Country = x.Matrix.Country })
-                              .ToDictionary(x => x.Hw.Id, y => y);
+            var entities = (from m in matrixRepo.GetAll().Where(x => recordsId.Contains(x.Id))
+                            from hw in hwManualRepo.GetAll().Where(x => x.Id == m.Id).DefaultIfEmpty()
+                            select new
+                            {
+                                Matrix = m,
+                                m.Country,
+                                Manual = hw
+                            })
+                           .ToDictionary(x => x.Matrix.Id, y => y);
 
             if (entities.Count == 0)
             {
@@ -155,22 +164,23 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                     var e = entities[rec.Id];
                     var country = e.Country;
-                    var hw = e.Hw;
+                    var m = e.Matrix;
+                    var hwManual = e.Manual ?? new HardwareManualCost { Matrix = m }; //create new if does not exist
 
                     if (country.CanOverrideTransferCostAndPrice)
                     {
-                        hw.ServiceTCManual = rec.ServiceTC;
-                        hw.ServiceTPManual = rec.ServiceTP;
+                        hwManual.ServiceTC = rec.ServiceTC;
+                        hwManual.ServiceTP = rec.ServiceTP;
                         //
-                        hwRepo.Save(hw);
+                        hwManualRepo.Save(hwManual);
                     }
 
                     if (country.CanStoreListAndDealerPrices)
                     {
-                        hw.ListPrice = rec.ListPrice;
-                        hw.DealerDiscount = rec.DealerDiscount;
+                        hwManual.ListPrice = rec.ListPrice;
+                        hwManual.DealerDiscount = rec.DealerDiscount;
                         //
-                        hwRepo.Save(hw);
+                        hwManualRepo.Save(hwManual);
                     }
                 }
 
