@@ -8,17 +8,37 @@ ALTER TABLE Hardware.HddRetention
          HddRet_Approved float
 go
 
-CREATE NONCLUSTERED INDEX ix_FieldServiceCost
+CREATE NONCLUSTERED INDEX ix_Hardware_FieldServiceCost
     ON [Hardware].[FieldServiceCost] ([Country],[Wg])
     INCLUDE ([ServiceLocation],[ReactionTimeType],[RepairTime],[TravelTime],[LabourCost],[TravelCost],[PerformanceRate],[TimeAndMaterialShare])
 GO
 
-CREATE NONCLUSTERED INDEX ix_InstallBase
+CREATE NONCLUSTERED INDEX ix_Atom_InstallBase
     ON [Atom].[InstallBase] ([Country],[Wg])
     INCLUDE ([InstalledBaseCountry],[InstalledBaseCountry_Approved],[InstalledBaseCountryPla],[InstalledBaseCountryPla_Approved])
 GO
 
-CREATE NONCLUSTERED INDEX ix_ProActive
+CREATE NONCLUSTERED INDEX ix_Hardware_AvailabilityFee
+    ON [Hardware].[AvailabilityFee] (Country, Wg)
+    INCLUDE ([InstalledBaseHighAvailability],[CostPerKit],[CostPerKitJapanBuy],[MaxQty],[JapanBuy],[InstalledBaseHighAvailability_Approved],[CostPerKit_Approved],[CostPerKitJapanBuy_Approved],[MaxQty_Approved])
+GO
+
+CREATE NONCLUSTERED INDEX ix_Hardware_LogisticsCosts
+    ON [Hardware].[LogisticsCosts] (Country, Wg, ReactionTimeType)
+    INCLUDE ([StandardHandling],[HighAvailabilityHandling],[StandardDelivery],[ExpressDelivery],[TaxiCourierDelivery],[ReturnDeliveryFactory],[StandardHandling_Approved],[HighAvailabilityHandling_Approved],[StandardDelivery_Approved],[ExpressDelivery_Approved],[TaxiCourierDelivery_Approved],[ReturnDeliveryFactory_Approved])
+GO
+
+CREATE NONCLUSTERED INDEX ix_Atom_MarkupOtherCosts
+    ON [Atom].[MarkupOtherCosts] ([Country],[Wg], ReactionTimeTypeAvailability)
+    INCLUDE (MarkupFactor, MarkupFactor_Approved, Markup, Markup_Approved)
+GO
+
+CREATE NONCLUSTERED INDEX ix_Atom_MarkupStandardWaranty
+    ON [Atom].[MarkupStandardWaranty] ([Country],[Wg], [ReactionTimeTypeAvailability])
+    INCLUDE ([MarkupFactorStandardWarranty],[MarkupStandardWarranty])
+GO
+
+CREATE NONCLUSTERED INDEX ix_Hardware_ProActive
     ON [Hardware].[ProActive] ([Country],[Wg])
 GO
 
