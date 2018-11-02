@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
-using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.TableView;
 using Gdc.Scd.Web.Server.Impl;
 
 namespace Gdc.Scd.Web.Server.Controllers
@@ -19,15 +19,15 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<TableViewRecord>> GetRecords()
+        public async Task<IEnumerable<Record>> GetRecords()
         {
             return await this.tableViewService.GetRecords();
         }
 
         [HttpPost]
-        public async Task UpdateRecords(IEnumerable<TableViewRecord> records)
+        public async Task UpdateRecords(IEnumerable<Record> records, [FromUri]bool isApproving)
         {
-            await this.tableViewService.UpdateRecords(records);
+            await this.tableViewService.UpdateRecords(records, isApproving);
         }
 
         [HttpGet]

@@ -37,33 +37,6 @@ namespace Gdc.Scd.Import.Core.Impl
             this._logger = logger;
         }
 
-
-        public int Deactivate(DateTime modifiedDateTime)
-        {
-            var deactivatedWgs = _repositoryWg.GetAll().Where(wg => wg.IsDeactivatedInLogistic && wg.DeactivatedDateTime.HasValue);
-            var deactivatedAvailabilityFees = new List<AvailabilityFee>();
-            //TODO: Run Mechanism that deactivate other cost elements
-            foreach (var wg in deactivatedWgs)
-            {
-                var availabilityFee = _availabilityFeeRepo.GetAll().Where(af => af.WgId == wg.Id && !af.DeactivatedDateTime.HasValue);
-                foreach (var af in availabilityFee)
-                {
-                    af.DeactivatedDateTime = modifiedDateTime;
-                    af.ModifiedDateTime = modifiedDateTime;
-                    _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATING_ENTITY, $"Availability Fee with WG {wg.Name}", af.CountryId);
-                    deactivatedAvailabilityFees.Add(af);
-                }
-            }
-
-            if (deactivatedAvailabilityFees.Any())
-            {
-                _availabilityFeeRepo.Save(deactivatedAvailabilityFees);
-                _repositorySet.Sync();
-            }
-
-            return deactivatedAvailabilityFees.Count;
-        }
-
         public void Upload(IEnumerable<LogisticsDto> items, DateTime modifiedDateTime)
         {
             UpdateWg(items, modifiedDateTime);

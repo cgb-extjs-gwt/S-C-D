@@ -31,6 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.EntityFrameworkCore, Version=2.0.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60" />
+    <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.5.10\lib\net45\NLog.dll</HintPath>
     </Reference>
@@ -50,15 +52,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\ParseInfoAttribute.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="DataAccess\ImportRepository.cs" />
+    <Compile Include="Dto\AfrDto.cs" />
     <Compile Include="Dto\DownloadInfoDto.cs" />
+    <Compile Include="Dto\InstallBaseDto.cs" />
     <Compile Include="Dto\LogisticsDto.cs" />
+    <Compile Include="Dto\MaterialCostDto.cs" />
     <Compile Include="Dto\ParseInfoDto.cs" />
     <Compile Include="Dto\TaxAndDutiesDto.cs" />
     <Compile Include="Enums\Format.cs" />
     <Compile Include="Impl\AmberRoadUploader.cs" />
     <Compile Include="Impl\DataBaseConfigHandler.cs" />
+    <Compile Include="Impl\EbisAfrUploader.cs" />
+    <Compile Include="Impl\EbisMaterialCostUploader.cs" />
     <Compile Include="Impl\FileDownloader.cs" />
     <Compile Include="Impl\ImportManager.cs" />
+    <Compile Include="Impl\InstallBaseUploader.cs" />
     <Compile Include="Impl\Logger.cs" />
     <Compile Include="Impl\LogisticUploader.cs" />
     <Compile Include="Impl\Parser.cs" />

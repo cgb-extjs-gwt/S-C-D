@@ -9,6 +9,6 @@ namespace Gdc.Scd.Import.Core.Interfaces
 {
     public interface IImportManager
     {
-        void ImportData(ImportConfiguration configuration);
+        bool ImportData(ImportConfiguration configuration);
     }
 }

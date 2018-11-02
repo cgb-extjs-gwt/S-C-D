@@ -71,30 +71,31 @@ namespace Gdc.Scd.Web.Server.Controllers
         // TODO: Need return DataInfo object, otherwise live scrol don't work. See BaseDomainController method GetBy.
         [HttpGet]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.CostEditor })]
-        public async Task<IEnumerable<HistoryItem>> GetHistory(
+        public async Task<IEnumerable<HistoryItem>> GetCostEditorHistory(
             [System.Web.Http.FromUri]CostEditorContext context,
             [System.Web.Http.FromUri]long editItemId,
             [System.Web.Http.FromUri]int? start,
             [System.Web.Http.FromUri]int? limit,
             [System.Web.Http.FromUri]string sort = null)
         {
-            QueryInfo queryInfo = null;
+            var queryInfo = this.GetQueryInfo(start, limit, sort);
 
-            if (start.HasValue || limit.HasValue || sort != null)
-            {
-                queryInfo = new QueryInfo
-                {
-                    Skip = start,
-                    Take = limit
-                };
+            return await this.costBlockHistoryService.GetHistoryItems(context, editItemId, queryInfo);
+        }
 
-                if (sort != null)
-                {
-                    queryInfo.Sort = JsonConvert.DeserializeObject<SortInfo[]>(sort).FirstOrDefault();
-                }
-            }
+        // TODO: Need return DataInfo object, otherwise live scrol don't work. See BaseDomainController method GetBy.
+        [HttpGet]
+        [ScdAuthorize(Permissions = new[] { PermissionConstants.TableView })]
+        public async Task<IEnumerable<HistoryItem>> GetTableViewHistory(
+            [System.Web.Http.FromUri]CostElementIdentifier costElementId,
+            [System.Web.Http.FromUri]IDictionary<string, long> coordinates,
+            [System.Web.Http.FromUri]int? start,
+            [System.Web.Http.FromUri]int? limit,
+            [System.Web.Http.FromUri]string sort = null)
+        {
+            var queryInfo = this.GetQueryInfo(start, limit, sort);
 
-            return await this.costBlockHistoryService.GetHistory(context, editItemId, queryInfo);
+            return await this.costBlockHistoryService.GetHistoryItems(costElementId, coordinates, queryInfo);
         }
 
         [HttpPost]
@@ -120,6 +121,27 @@ namespace Gdc.Scd.Web.Server.Controllers
         public async Task<QualityGateResultDto> SendForApproval([System.Web.Http.FromUri]long historyId, [System.Web.Http.FromUri]string qualityGateErrorExplanation = null)
         {
             return await this.costBlockHistoryService.SendForApproval(historyId, qualityGateErrorExplanation);
+        }
+
+        private QueryInfo GetQueryInfo(int? start, int? limit, string sort)
+        {
+            QueryInfo queryInfo = null;
+
+            if (start.HasValue || limit.HasValue || sort != null)
+            {
+                queryInfo = new QueryInfo
+                {
+                    Skip = start,
+                    Take = limit
+                };
+
+                if (sort != null)
+                {
+                    queryInfo.Sort = JsonConvert.DeserializeObject<SortInfo[]>(sort).FirstOrDefault();
+                }
+            }
+
+            return queryInfo;
         }
     }
 }

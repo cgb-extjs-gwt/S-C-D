@@ -52,7 +52,7 @@
   </Applications>
   
   <Blocks>
-    <Block Name="AFR">
+    <!--<Block Name="AFR">
       <Applications>
         <Application>Atom</Application>
       </Applications>
@@ -70,9 +70,9 @@
           </TableView>
         </Element>
       </Elements>
-    </Block>
+    </Block>-->
 
-    <Block Name="InstallBase" Caption="Installed base">
+    <!--<Block Name="InstallBase" Caption="Installed base">
       <Applications>
         <Application>Atom</Application>
       </Applications>
@@ -86,7 +86,7 @@
           </CostEditor>
         </Element>
       </Elements>
-    </Block>
+    </Block>-->
 
     <Block Name="MarkupOtherCosts" Caption="Markup other costs">
       <Applications>
@@ -166,7 +166,7 @@
       </Elements>
     </Block>
 
-    <Block Name="MaterialCostWarranty" Caption="Material cost iW" >
+    <!--<Block Name="MaterialCostWarranty" Caption="Material cost iW" >
       <Applications>
         <Application>Atom</Application>
       </Applications>
@@ -175,16 +175,16 @@
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
-          <!--<TableView>
+          --><!--<TableView>
             <Roles>
               <Role>PRS PSM</Role>  
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
             </Roles>
-          </TableView>-->
+          </TableView>--><!--
         </Element>
       </Elements>
-    </Block>
+    </Block>-->
 
     <Block Name="MaterialCostOow" Caption="Material cost OOW">
       <Applications>
