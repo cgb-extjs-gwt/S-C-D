@@ -129,67 +129,66 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public void SaveHardwareCost(IEnumerable<HwCostManualDto> records)
         {
-            throw new System.NotImplementedException();
-            //var recordsId = records.Select(x => x.Id);
+            var recordsId = records.Select(x => x.Id);
 
-            //var entities = hwRepo.GetAll()
-            //                  .Where(x => recordsId.Contains(x.Id))
-            //                  .Select(x => new { Hw = x, Country = x.Matrix.Country })
-            //                  .ToDictionary(x => x.Hw.Id, y => y);
+            var entities = hwRepo.GetAll()
+                              .Where(x => recordsId.Contains(x.Id))
+                              .Select(x => new { Hw = x, Country = x.Matrix.Country })
+                              .ToDictionary(x => x.Hw.Id, y => y);
 
-            //if (entities.Count == 0)
-            //{
-            //    return;
-            //}
+            if (entities.Count == 0)
+            {
+                return;
+            }
 
-            //ITransaction transaction = null;
-            //try
-            //{
-            //    transaction = repositorySet.GetTransaction();
+            ITransaction transaction = null;
+            try
+            {
+                transaction = repositorySet.GetTransaction();
 
-            //    foreach (var rec in records)
-            //    {
-            //        if (!entities.ContainsKey(rec.Id))
-            //        {
-            //            continue;
-            //        }
+                foreach (var rec in records)
+                {
+                    if (!entities.ContainsKey(rec.Id))
+                    {
+                        continue;
+                    }
 
-            //        var e = entities[rec.Id];
-            //        var country = e.Country;
-            //        var hw = e.Hw;
+                    var e = entities[rec.Id];
+                    var country = e.Country;
+                    var hw = e.Hw;
 
-            //        if (country.CanOverrideTransferCostAndPrice)
-            //        {
-            //            hw.ServiceTCManual = rec.ServiceTC;
-            //            hw.ServiceTPManual = rec.ServiceTP;
-            //            //
-            //            hwRepo.Save(hw);
-            //        }
+                    if (country.CanOverrideTransferCostAndPrice)
+                    {
+                        hw.ServiceTCManual = rec.ServiceTC;
+                        hw.ServiceTPManual = rec.ServiceTP;
+                        //
+                        hwRepo.Save(hw);
+                    }
 
-            //        if (country.CanStoreListAndDealerPrices)
-            //        {
-            //            hw.ListPrice = rec.ListPrice;
-            //            hw.DealerDiscount = rec.DealerDiscount;
-            //            //
-            //            hwRepo.Save(hw);
-            //        }
-            //    }
+                    if (country.CanStoreListAndDealerPrices)
+                    {
+                        hw.ListPrice = rec.ListPrice;
+                        hw.DealerDiscount = rec.DealerDiscount;
+                        //
+                        hwRepo.Save(hw);
+                    }
+                }
 
-            //    repositorySet.Sync();
-            //    transaction.Commit();
-            //}
-            //catch
-            //{
-            //    transaction.Rollback();
-            //    throw;
-            //}
-            //finally
-            //{
-            //    if (transaction != null)
-            //    {
-            //        transaction.Dispose();
-            //    }
-            //}
+                repositorySet.Sync();
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+            finally
+            {
+                if (transaction != null)
+                {
+                    transaction.Dispose();
+                }
+            }
         }
     }
 }
