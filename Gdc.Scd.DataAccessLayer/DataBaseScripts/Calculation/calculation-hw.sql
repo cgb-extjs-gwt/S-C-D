@@ -978,18 +978,18 @@ RETURNS TABLE
 AS
 RETURN 
 (
-        select top(@limit) m.*
-            from Matrix.Matrix m
-            where m.Id > @lastid
-              and m.Denied = 0
-              and (@cnt is null or m.CountryId = @cnt)
-              and (@wg is null or m.WgId = @wg)
-              and (@av is null or m.AvailabilityId = @av)
-              and (@dur is null or m.DurationId = @dur)
-              and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
-              and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
-              and (@loc is null or m.ServiceLocationId = @loc)
-              order by m.Id
+    select top(@limit) m.*
+        from Matrix.Matrix m
+        where m.Id > @lastid
+            and m.Denied = 0
+            and (@cnt is null or m.CountryId = @cnt)
+            and (@wg is null or m.WgId = @wg)
+            and (@av is null or m.AvailabilityId = @av)
+            and (@dur is null or m.DurationId = @dur)
+            and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
+            and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
+            and (@loc is null or m.ServiceLocationId = @loc)
+            order by m.Id
 )
 GO
 
