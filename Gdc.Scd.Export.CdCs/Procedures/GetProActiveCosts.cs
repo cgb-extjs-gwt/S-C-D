@@ -40,10 +40,11 @@ namespace Gdc.Scd.Export.CdCs.Procedures
 
             foreach (var wg in Config.ProActiveWgList.Split(','))
             {
-                var pro3 = table.Select("ProActiveModel = 3 AND Wg = '" + wg + "'").FirstOrDefault();
-                var pro4 = table.Select("ProActiveModel = 4 AND Wg = '" + wg + "'").FirstOrDefault();
-                var pro6 = table.Select("ProActiveModel = 6 AND Wg = '" + wg + "'").FirstOrDefault();
-                var pro7 = table.Select("ProActiveModel = 7 AND Wg = '" + wg + "'").FirstOrDefault();
+                var pro3 = table?.Select("ProActiveModel = 3 AND Wg = '" + wg + "'").FirstOrDefault();
+                var pro4 = table?.Select("ProActiveModel = 4 AND Wg = '" + wg + "'").FirstOrDefault();
+                var pro6 = table?.Select("ProActiveModel = 6 AND Wg = '" + wg + "'").FirstOrDefault();
+                var pro7 = table?.Select("ProActiveModel = 7 AND Wg = '" + wg + "'").FirstOrDefault();
+                var oneTime = table?.Select("Wg = '" + wg + "'").FirstOrDefault();
 
                 var proActiveCost = new ProActiveDto
                 {
@@ -52,7 +53,7 @@ namespace Gdc.Scd.Export.CdCs.Procedures
                     ProActive4 = pro4 != null ? pro4.Field<double>("Cost") : 0,
                     ProActive6 = pro6 != null ? pro6.Field<double>("Cost") : 0,
                     ProActive7 = pro7 != null ? pro7.Field<double>("Cost") : 0,
-                    OneTimeTasks = 0  
+                    OneTimeTasks = oneTime != null ? oneTime.Field<double>("OneTimeTasks") : 0
                 };
                 proList.Add(proActiveCost);
             }

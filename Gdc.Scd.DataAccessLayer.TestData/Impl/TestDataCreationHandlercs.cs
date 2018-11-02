@@ -56,6 +56,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             //report
             this.CreateReportColumnTypes();
             this.CreateReportFilterTypes();
+            this.CreateCdCsConfiguration();
 
             var queries = new List<SqlHelper>();
             queries.AddRange(this.BuildInsertCostBlockSql());
@@ -92,7 +93,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solutionpack-proactive-costing.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List-detail.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List.sql"));
-
+            queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.split-string.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-hdd-retention.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-servicecosts.sql"));
             foreach (var query in queries)
             {
                 this.repositorySet.ExecuteSql(query);

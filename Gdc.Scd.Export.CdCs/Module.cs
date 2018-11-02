@@ -20,6 +20,8 @@ namespace Gdc.Scd.Export.CdCs
         {
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InSingletonScope();
             Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InSingletonScope();
+            Bind<ILogger<LogLevel>>().To<Import.Core.Impl.Logger>().InSingletonScope();
+
 
             Bind(typeof(GetServiceCostsBySla)).ToSelf();
             Bind(typeof(GetProActiveCosts)).ToSelf();

@@ -12,6 +12,8 @@ using Gdc.Scd.Export.CdCs.Dto;
 using System.Diagnostics;
 using Gdc.Scd.Export.CdCs.Procedures;
 using System.Linq;
+using NLog;
+using Gdc.Scd.Core.Interfaces;
 
 namespace Gdc.Scd.Export.CdCs.Impl
 {
@@ -20,18 +22,22 @@ namespace Gdc.Scd.Export.CdCs.Impl
         public static IKernel Kernel  { get; private set; }
         public static NetworkCredential NetworkCredential { get; private set; }
         public static SpFileDownloader Downloader { get; private set; }
+        public static ILogger<LogLevel> Logger { get; private set; }
 
         static CdCsService()
         {
             Kernel = new StandardKernel(new Module());
             NetworkCredential = new NetworkCredential(Config.SpServiceAccount, Config.SpServicePassword, Config.SpServiceDomain);
             Downloader = new SpFileDownloader(NetworkCredential);
+            Logger = Kernel.Get<ILogger<LogLevel>>();
         }
 
         public static void DoThings()
         {
             try
             {
+                Logger.Log(LogLevel.Info, CdCsMessages.START_PROCESS);
+                Logger.Log(LogLevel.Info, CdCsMessages.READ_SLA_FILE);
                 var inputFile = new SpFileDto
                 {
                     WebUrl = Config.CalculatiolToolWeb,
@@ -40,9 +46,9 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     FileName = Config.CalculatiolToolInputFileName
                 };
                 var downloadedInputFile = Downloader.DownloadData(inputFile);
-
+                Logger.Log(LogLevel.Info, CdCsMessages.PARSE_SLA_FILE);
                 var slaList = GetSlasFromFile(downloadedInputFile);
-
+                Logger.Log(LogLevel.Info, CdCsMessages.READ_TEMPLATE);
                 var cdCsFile = new SpFileDto
                 {
                     WebUrl = Config.CalculatiolToolWeb,
@@ -51,13 +57,14 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     FileName = Config.CalculatiolToolFileName
                 };
                 var downloadedcdCsFile = Downloader.DownloadData(cdCsFile);
-
+                Logger.Log(LogLevel.Info, CdCsMessages.WRITE_COUNTRY_COSTS);
                 FillCdCsAsync(downloadedcdCsFile, slaList);
+                Logger.Log(LogLevel.Info, CdCsMessages.END_PROCESS);
             }
             catch(Exception ex)
             {
-                Debug.WriteLine(ex.Message);
-                Debug.WriteLine(ex.StackTrace);
+                Logger.Log(LogLevel.Fatal, ex, CdCsMessages.UNEXPECTED_ERROR);
+                Fujitsu.GDC.ErrorNotification.Logger.Error(CdCsMessages.UNEXPECTED_ERROR, ex, null, null);
             }
             
         }
@@ -100,31 +107,33 @@ namespace Gdc.Scd.Export.CdCs.Impl
         {
             var memoryStream = new MemoryStream();
             CopyStream(cdCsFileStream, memoryStream);
-
+            Logger.Log(LogLevel.Info, CdCsMessages.READ_CONFIGURATION);
             var configHandler = Kernel.Get<ConfigHandler>();
             var configList = configHandler.ReadAllConfiguration();
+
+            var getHddRetentionCosts = Kernel.Get<GetHddRetentionCosts>();
+            Logger.Log(LogLevel.Info, CdCsMessages.READ_HDD_RETENTION);
+            var hddRetention = getHddRetentionCosts.Execute();
 
             foreach (var config in configList)
             {
                 var country = config.Country.Name;
                 var currency = config.Country.Currency.Name;
-
+                Logger.Log(LogLevel.Info, CdCsMessages.READ_COUNTRY_COSTS, country);
                 var costsList = new List<ServiceCostDto>();
                
                 var getServiceCostsBySla = Kernel.Get<GetServiceCostsBySla>();
                 var getProActiveCosts = Kernel.Get<GetProActiveCosts>();
-                var getHddRetentionCosts = Kernel.Get<GetHddRetentionCosts>();
-
+               
+                Logger.Log(LogLevel.Info, CdCsMessages.READ_SERVICE);
                 foreach (var sla in slaList)
                 {
                     var costs = getServiceCostsBySla.Execute(country, sla);
                     costsList.Add(costs);
                 }
-
+                Logger.Log(LogLevel.Info, CdCsMessages.READ_PROACTIVE);
                 var proActiveList = getProActiveCosts.Execute(country);
-
-                var hddRetention = getHddRetentionCosts.Execute();
-
+               
                 using (var workbook = new XLWorkbook(memoryStream))
                 using (var inputMctSheet = workbook.Worksheet(InputSheets.InputMctCdCsWGs))
                 using (var proActiveSheet = workbook.Worksheet(InputSheets.ProActiveOutput))
@@ -135,7 +144,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     {
                         range.Row(row).Clear();
                     }
-
+                    Logger.Log(LogLevel.Info, CdCsMessages.WRITE_SERVICE);
                     var rowNum = 2;
                     foreach (var cost in costsList)
                     {
@@ -150,7 +159,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
                         inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear5).Value = FormatCostValue(cost.ServiceTP_MonthlyYear5, format: "0.0000"); 
                         rowNum++;
                     }
-
+                    Logger.Log(LogLevel.Info, CdCsMessages.WRITE_PROACTIVE);
                     rowNum = 8;
                     foreach (var pro in proActiveList)
                     {
@@ -163,7 +172,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
                         proActiveSheet.Cell(rowNum, ProActiveOutputColumns.OneTimeTask).Value = FormatCostValue(pro.OneTimeTasks, currency);
                         rowNum++;
                     }
-
+                    Logger.Log(LogLevel.Info, CdCsMessages.WRITE_HDD_RETENTION);
                     range = hddRetentionSheet.RangeUsed();
                     for (var row = 4; row < range.RowCount(); row++)
                     {
@@ -184,7 +193,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
 
                     workbook.SaveAs(memoryStream);
                     memoryStream.Seek(0, SeekOrigin.Begin);
-
+                    Logger.Log(LogLevel.Info, CdCsMessages.UPLOAD_FILE);
                     using (var ctx = new ClientContext(config.FileWebUrl))
                     {
                         ctx.Credentials = NetworkCredential;

@@ -22,8 +22,8 @@ namespace Gdc.Scd.Export.CdCs.Procedures
         {
             var procName = Enums.Functions.GetServiceCostsBySla;
             var data = _service.ExecuteAsTable(procName, FillParameters(country, sla));
-            var row = data.Rows[0];
-            return GetServiceCost(sla.FspCode, row);
+            var row = data != null && data.Rows.Count > 0 ? data.Rows[0] : null;
+            return GetServiceCost(country, sla.FspCode, row);
         }
 
         private DbParameter[] FillParameters(string country, SlaDto sla)
@@ -41,14 +41,14 @@ namespace Gdc.Scd.Export.CdCs.Procedures
             return result;
         }
 
-        private ServiceCostDto GetServiceCost(string fspCode, DataRow row)
+        private ServiceCostDto GetServiceCost(string country, string fspCode, DataRow row)
         {
             var serviceCost = new ServiceCostDto
             {
-                Country = row.Field<string>("Country"),
+                Country = country,
                 FspCode = fspCode,
-                ServiceTC = row.Field<double>("ServiceTC"),
-                ServiceTP = row.Field<double>("ServiceTP"),
+                ServiceTC = row != null ? row.Field<double>("ServiceTC") : 0,
+                ServiceTP = row != null ? row.Field<double>("ServiceTP") : 0,
                 ServiceTP_MonthlyYear1 = 0,
                 ServiceTP_MonthlyYear2 = 0,
                 ServiceTP_MonthlyYear3 = 0,
@@ -56,7 +56,7 @@ namespace Gdc.Scd.Export.CdCs.Procedures
                 ServiceTP_MonthlyYear5 = 0
             };
 
-            var serviceTP_Str = row.Field<string>("ServiceTP_Str_Approved");
+            var serviceTP_Str = row != null ? row.Field<string>("ServiceTP_Str_Approved") : string.Empty;
             if (!String.IsNullOrEmpty(serviceTP_Str))
             {
                 var values = serviceTP_Str.Split(';');
