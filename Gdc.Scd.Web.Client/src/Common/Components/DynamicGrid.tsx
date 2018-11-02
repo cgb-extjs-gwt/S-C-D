@@ -11,18 +11,16 @@ export interface StoreDynamicGridProps extends DynamicGridProps {
     useStoreSync?: boolean
 }
 
-export class DynamicGrid<T extends StoreDynamicGridProps = StoreDynamicGridProps> extends React.Component<T> {
+export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGridProps, TState={}> extends React.Component<TProps, TState> {
     private saveToolbar: SaveToolbar
     private columnsMap = new Map<string, ColumnInfo>()
     private store: Store = this.getStore()
     private columns: ColumnInfo[] = this.getColumns()
 
-    constructor(props: T) {
+    constructor(props) {
         super(props);
 
-        this.state = {
-            hasChanges: false
-        };
+        this.onSelectionChange = this.onSelectionChange.bind(this);
     }
 
     public componentDidMount() {
@@ -35,7 +33,7 @@ export class DynamicGrid<T extends StoreDynamicGridProps = StoreDynamicGridProps
         this.removeStoreListeners();
     }
 
-    public componentWillReceiveProps(nextProps: T) {
+    public componentWillReceiveProps(nextProps: TProps) {
         const store = this.getStore();
 
         if (this.store != store) {
@@ -86,7 +84,7 @@ export class DynamicGrid<T extends StoreDynamicGridProps = StoreDynamicGridProps
                 columnLines={true} 
                 minHeight={minHeight}
                 minWidth={minWidth}
-                onSelect={onSelectionChange}
+                onSelectionchange={this.onSelectionChange}
                 flex={flex}
             >
                 {
@@ -100,6 +98,12 @@ export class DynamicGrid<T extends StoreDynamicGridProps = StoreDynamicGridProps
                 }
             </Grid>
         );
+    }
+
+    protected onSelectionChange(grid, records: Model[], selecting: boolean, selectionInfo){
+        const { onSelectionChange } = this.props;
+
+        onSelectionChange && onSelectionChange(grid, records);
     }
 
     protected getStore() {

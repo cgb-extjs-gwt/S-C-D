@@ -4,7 +4,6 @@ export interface Model<TData=any> {
     phantom: boolean
     set(fieldName: string, newValue, options?)
     get(fieldName: string)
-
 }
 
 export enum StoreOperation {

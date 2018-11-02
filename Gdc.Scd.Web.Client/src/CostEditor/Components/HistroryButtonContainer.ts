@@ -15,15 +15,16 @@ export interface HistoryValuesGridContainerProps {
 export const HistroryButtonContainer = 
     connect<HistoryButtonViewProps, {}, HistoryValuesGridContainerProps, CommonState>(
         (state, { editItemId, isEnabled, flex, windowPosition }) => {
-            const costEditorState = state.pages.costEditor;
-            const context = buildCostEditorContext(costEditorState);
-            const dataLoadUrl = buildGetHistoryUrl(context, editItemId);
-
             return {
-                dataLoadUrl: dataLoadUrl,
                 isEnabled,
                 flex,
-                windowPosition
+                windowPosition,
+                buidHistoryUrl: () => {
+                    const costEditorState = state.pages.costEditor;
+                    const context = buildCostEditorContext(costEditorState);
+                    
+                    return buildGetHistoryUrl(context, editItemId);
+                }
             }
         }
     )(HistoryButtonView);

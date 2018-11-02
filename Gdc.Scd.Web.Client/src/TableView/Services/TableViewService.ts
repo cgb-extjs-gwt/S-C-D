@@ -1,6 +1,7 @@
 import { buildMvcUrl, get, post } from "../../Common/Services/Ajax";
 import { TableViewInfo } from "../States/TableViewState";
 import { TableViewRecord } from "../States/TableViewRecord";
+import { CostElementIdentifier } from "../../Common/States/CostElementIdentifier";
 
 const TABLE_VIEW_CONTROLLER_NAME = 'TableView';
 

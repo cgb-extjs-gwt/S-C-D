@@ -6,21 +6,11 @@ import { QualityGateResult } from "../../QualityGate/States/QualityGateResult";
 import { CostMetaData } from "../../Common/States/CostMetaStates";
 import { getAppData } from "../../Layout/Services/AppService";
 import data from "../../Test/Home/data";
+import { Context } from "../../Common/States/Context";
 
 export const COST_EDITOR_CONTROLLER_NAME = 'CostEditor';
 
 const COST_BLOCK_HISTORY_CONTROLLER_NAME = 'CostBlockHistory';
-
-export interface Context {
-    applicationId: string
-    scopeId: string
-    regionInputId: string
-    costBlockId: string
-    costElementId: string
-    inputLevelId: string
-    costElementFilterIds: string[],
-    inputLevelFilterIds: string[]
-}
 
 export interface ApprovalOption {
     isApproving?: boolean
@@ -40,4 +30,4 @@ export const saveEditItems = (editItems: EditItem[], context: Context, approvalO
     post<any, QualityGateResult>(COST_EDITOR_CONTROLLER_NAME, 'UpdateValues', editItems, { ...context, ...approvalOption });
 
 export const buildGetHistoryUrl = (context: Context, editItemId: string) => 
-    buildMvcUrl(COST_BLOCK_HISTORY_CONTROLLER_NAME, 'GetHistory', { ...context, editItemId });
+    buildMvcUrl(COST_BLOCK_HISTORY_CONTROLLER_NAME, 'GetCostEditorHistory', { ...context, editItemId });
