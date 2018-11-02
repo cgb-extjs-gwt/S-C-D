@@ -26,9 +26,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             this.costBlockMeta = costBlockMeta;
 
+            var costElement = costBlockMeta.DomainMeta.CostElements[costElementId];
+
             var inputLevels = maxInputLevelId == null
-                ? costBlockMeta.DomainMeta.InputLevels
-                : costBlockMeta.DomainMeta.CostElements[costElementId].FilterInputLevels(maxInputLevelId);
+                ? costElement.InputLevels
+                : costElement.FilterInputLevels(maxInputLevelId);
 
             this.inputLevelIds = inputLevels.Select(inputLevel => inputLevel.Id).ToArray();
 

@@ -3,7 +3,7 @@ using Gdc.Scd.Core.Meta.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.Entities
 {
-    public class TableViewCostElementInfo
+    public class CostElementInfo
     {
         public CostBlockEntityMeta Meta { get; set; }
 

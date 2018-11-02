@@ -11,14 +11,14 @@ export interface SaveToolbarProps extends SaveToolbarActions {
     isEnableSave: boolean
 }
 
-export class SaveToolbar extends React.Component<SaveToolbarProps, SaveToolbarProps> {
-    constructor(props: SaveToolbarProps) {
+export class SaveToolbar<T extends SaveToolbarProps = SaveToolbarProps> extends React.Component<T, T> {
+    constructor(props: T) {
         super(props);
 
         this.state = props;
     }
 
-    public componentWillReceiveProps(nextProps: SaveToolbarProps) {
+    public componentWillReceiveProps(nextProps: T) {
         if (this.state.isEnableClear != nextProps.isEnableClear || 
             this.state.isEnableSave != nextProps.isEnableSave) {
             this.setState(nextProps);
@@ -26,7 +26,7 @@ export class SaveToolbar extends React.Component<SaveToolbarProps, SaveToolbarPr
     }
 
     public render() {
-        const { isEnableClear, isEnableSave } = this.state;
+        const { isEnableClear, isEnableSave, onCancel, onSave } = this.state;
         const { children } = this.props;
 
         return(
@@ -35,15 +35,15 @@ export class SaveToolbar extends React.Component<SaveToolbarProps, SaveToolbarPr
                     text="Cancel" 
                     flex={1} 
                     disabled={!isEnableClear}
-                    handler={() => this.showClearDialog()}
+                    handler={() => this.showClearDialog(onCancel)}
                 />
                 <Button 
                     text="Save" 
                     flex={1} 
                     disabled={!isEnableSave}
-                    handler={() => this.showSaveDialog(false)}
+                    handler={() => this.showSaveDialog(onSave)}
                 />
-                {children}
+                {...this.getChildren()}
             </Toolbar>
         );
     }
@@ -61,9 +61,11 @@ export class SaveToolbar extends React.Component<SaveToolbarProps, SaveToolbarPr
         this.enableSaveButton(isEnable);
     }
 
-    private showSaveDialog(forApproval: boolean) {
-        const { onSave } = this.props;
-    
+    protected getChildren() {
+        return [this.props.children];
+    }
+
+    protected showSaveDialog(onSave? : () => void) {
         Ext.Msg.confirm(
           'Saving changes', 
           'Do you want to save the changes?',
@@ -71,9 +73,7 @@ export class SaveToolbar extends React.Component<SaveToolbarProps, SaveToolbarPr
         );
     }
     
-    private showClearDialog() {
-        const { onCancel } = this.props;
-
+    protected showClearDialog(onCancel?: () => void) {
         Ext.Msg.confirm(
             'Clearing changes', 
             'Do you want to clear the changes?',

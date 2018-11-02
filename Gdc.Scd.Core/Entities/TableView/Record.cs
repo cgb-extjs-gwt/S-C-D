@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 
-namespace Gdc.Scd.Core.Entities
+namespace Gdc.Scd.Core.Entities.TableView
 {
-    public class TableViewRecord
+    public class Record
     {
         public Dictionary<string, NamedId> Coordinates { get; set; }
 
         public Dictionary<string, ValueCount> Data { get; set; }
 
-        public TableViewRecord()
+        public Record()
         {
             this.Coordinates = new Dictionary<string, NamedId>();
             this.Data = new Dictionary<string, ValueCount>();

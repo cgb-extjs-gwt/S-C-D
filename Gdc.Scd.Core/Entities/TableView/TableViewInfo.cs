@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace Gdc.Scd.Core.Entities
+namespace Gdc.Scd.Core.Entities.TableView
 {
     public class TableViewInfo
     {
-        public TableViewRecordInfo RecordInfo { get; set; }
+        public RecordInfo RecordInfo { get; set; }
 
         public IDictionary<string, IEnumerable<NamedId>> References { get; set; }
     }
