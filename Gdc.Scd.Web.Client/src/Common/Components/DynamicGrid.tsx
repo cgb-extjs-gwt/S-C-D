@@ -59,19 +59,6 @@ export class DynamicGrid<T extends StoreDynamicGridProps = StoreDynamicGridProps
                 this.columns = [];
             }
         }
-
-        // if (this.props.store != nextProps.store) {
-        //     this.removeStoreListeners();
-        //     this.addStoreListeners(nextProps.store);
-        // }
-
-        // if (this.props.columns != nextProps.columns) {
-        //     this.removeStoreListeners();
-        //     this.addStoreListeners(nextProps.store);
-        //     this.columnsMap.clear();
-
-        //     nextProps.columns.forEach(column => this.columnsMap.set(column.dataIndex, column));
-        // }
     }
 
     public render() {
