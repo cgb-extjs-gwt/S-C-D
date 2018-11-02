@@ -333,6 +333,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     var dataIndex = this.BuildColumnAlias(costBlockInfo.Meta, costElementId);
                     var dataColumnInfo = new DataColumnInfo
                     {
+                        ShemaId = costBlockInfo.Meta.Schema,
                         MetaId = costBlockInfo.Meta.Name,
                         FieldName = costElementId,
                         DataIndex = dataIndex,
