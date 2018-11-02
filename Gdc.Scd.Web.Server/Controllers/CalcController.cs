@@ -24,6 +24,7 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         [HttpGet]
         public Task<HttpResponseMessage> GetHwCost(
+                [FromUri]bool approved,
                 [FromUri]HwFilterDto filter,
                 [FromUri]int start = 0,
                 [FromUri]int limit = 50
@@ -34,7 +35,7 @@ namespace Gdc.Scd.Web.Api.Controllers
                 return null;
             }
 
-            return calcSrv.GetHardwareCost(filter, start, limit)
+            return calcSrv.GetHardwareCost(approved, filter, start, limit)
                           .ContinueWith(x => this.JsonContent(x.Result.Json, x.Result.Total));
         }
 

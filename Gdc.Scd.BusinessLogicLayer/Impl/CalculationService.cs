@@ -40,7 +40,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.matrixRepo = matrixRepo;
         }
 
-        public async Task<JsonArrayDto> GetHardwareCost(HwFilterDto filter, int lasId, int limit)
+        public async Task<JsonArrayDto> GetHardwareCost(bool approved, HwFilterDto filter, int lasId, int limit)
         {
             var query = matrixRepo.GetAll().Where(x => !x.Denied);
 
@@ -55,7 +55,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                              .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocation.Id == filter.ServiceLocation.Value);
             }
 
-            var res = await new GetHwCost(repositorySet).ExecuteJsonAsync(filter, lasId, limit);
+            var res = await new GetHwCost(repositorySet).ExecuteJsonAsync(approved, filter, lasId, limit);
 
             res.Total = await query.Select(x => x.Id).GetCountAsync();
 

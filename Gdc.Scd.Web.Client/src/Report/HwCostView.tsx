@@ -240,7 +240,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onBeforeLoad(s, operation) {
-        let filter = this.filter.getModel();
+        let filter = this.filter.getModel() as any;
+        filter.approved = this.props.approved;
         let params = Ext.apply({}, operation.getParams(), filter);
         operation.setParams(params);
     }

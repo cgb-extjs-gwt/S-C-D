@@ -19,11 +19,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             _repo = repo;
         }
 
-        public async Task<JsonArrayDto> ExecuteJsonAsync(HwFilterDto filter, int lastid, int limit)
+        public async Task<JsonArrayDto> ExecuteJsonAsync(bool approved, HwFilterDto filter, int lastid, int limit)
         {
             JsonArrayDto result = new JsonArrayDto();
 
-            var parameters = Prepare(filter, lastid, limit);
+            var parameters = Prepare(approved, filter, lastid, limit);
             string sql = new SqlStringBuilder().Append("SELECT * FROM ").AppendFunc(FN, parameters).Build();
 
             result.Json = await _repo.ExecuteAsJsonAsync(sql, parameters);
@@ -32,8 +32,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             return result;
         }
 
-        private static DbParameter[] Prepare(HwFilterDto filter, int lastid, int limit)
+        private static DbParameter[] Prepare(bool approved, HwFilterDto filter, int lastid, int limit)
         {
+            var pApproved = new DbParameterBuilder().WithName("approved").WithValue(approved);
             var pCnt = new DbParameterBuilder().WithName("cnt");
             var pWg = new DbParameterBuilder().WithName("wg");
             var pAv = new DbParameterBuilder().WithName("av");
@@ -56,6 +57,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             }
 
             return new DbParameter[] {
+                 pApproved.Build(),
                  pCnt.Build(),
                  pWg.Build(),
                  pAv.Build(),
