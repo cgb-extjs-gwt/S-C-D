@@ -139,11 +139,11 @@ CREATE VIEW SoftwareSolution.SwSpMaintenanceCostView as
         select  ssc.Wg
               , ssc.[1stLevelSupportCosts]
               , ssc.[1stLevelSupportCosts_Approved]
-              , ib.ibCnt
-              , ib.ibCnt_Approved
+              , ib.InstalledBaseCountry
+              , ib.InstalledBaseCountry_Approved
 
         from Hardware.ServiceSupportCostView ssc
-        join Atom.InstallBaseByCountryView ib on ib.Country = ssc.Country and ib.Wg = ssc.Wg
+        join Atom.InstallBase ib on ib.Country = ssc.Country and ib.Wg = ssc.Wg
         join InputAtoms.Country c on c.id = ssc.Country
 
         where c.ISO3CountryCode = 'DEU' --install base by Germany!
@@ -158,8 +158,8 @@ CREATE VIEW SoftwareSolution.SwSpMaintenanceCostView as
     )
     , SwSpMaintenanceCte2 as (
             select m.*
-                 , SoftwareSolution.CalcSrvSupportCost(m.[1stLevelSupportCosts], m.[2ndLevelSupportCosts], m.ibCnt, m.InstalledBaseSog) as ServiceSupport
-                 , SoftwareSolution.CalcSrvSupportCost(m.[1stLevelSupportCosts_Approved], m.[2ndLevelSupportCosts_Approved], m.ibCnt_Approved, m.InstalledBaseSog_Approved) as ServiceSupport_Approved
+                 , SoftwareSolution.CalcSrvSupportCost(m.[1stLevelSupportCosts], m.[2ndLevelSupportCosts], m.InstalledBaseCountry, m.InstalledBaseSog) as ServiceSupport
+                 , SoftwareSolution.CalcSrvSupportCost(m.[1stLevelSupportCosts_Approved], m.[2ndLevelSupportCosts_Approved], m.InstalledBaseCountry_Approved, m.InstalledBaseSog_Approved) as ServiceSupport_Approved
         from SwSpMaintenanceCte m
     )
     , SwSpMaintenanceCte3 as (
@@ -180,8 +180,8 @@ CREATE VIEW SoftwareSolution.SwSpMaintenanceCostView as
              , m.[1stLevelSupportCosts_Approved]
              , m.[2ndLevelSupportCosts]
              , m.[2ndLevelSupportCosts_Approved]
-             , m.ibCnt
-             , m.ibCnt_Approved
+             , m.InstalledBaseCountry
+             , m.InstalledBaseCountry_Approved
              , m.InstalledBaseSog
              , m.InstalledBaseSog_Approved
              , m.Reinsurance

@@ -1,3 +1,13 @@
+ALTER TABLE Atom.InstallBase
+    ADD InstalledBaseCountryPla float,
+        InstalledBaseCountryPla_Approved float;
+GO
+
+ALTER TABLE Hardware.HddRetention
+     ADD HddRet float,
+         HddRet_Approved float
+go
+
 CREATE NONCLUSTERED INDEX ix_FieldServiceCost
     ON [Hardware].[FieldServiceCost] ([Country],[Wg])
     INCLUDE ([ServiceLocation],[ReactionTimeType],[RepairTime],[TravelTime],[LabourCost],[TravelCost],[PerformanceRate],[TimeAndMaterialShare])
@@ -5,7 +15,7 @@ GO
 
 CREATE NONCLUSTERED INDEX ix_InstallBase
     ON [Atom].[InstallBase] ([Country],[Wg])
-    INCLUDE ([Id],[Pla],[InstalledBaseCountry],[InstalledBaseCountry_Approved],[CreatedDateTime],[DeletedDateTime],[InstalledBaseCountryPla],[InstalledBaseCountryPla_Approved])
+    INCLUDE ([InstalledBaseCountry],[InstalledBaseCountry_Approved],[InstalledBaseCountryPla],[InstalledBaseCountryPla_Approved])
 GO
 
 CREATE NONCLUSTERED INDEX ix_ProActive
@@ -62,10 +72,6 @@ go
 
 IF OBJECT_ID('Hardware.ServiceSupportCostView', 'V') IS NOT NULL
   DROP VIEW Hardware.ServiceSupportCostView;
-go
-
-IF OBJECT_ID('Atom.InstallBaseByCountryView', 'V') IS NOT NULL
-  DROP VIEW Atom.InstallBaseByCountryView;
 go
 
 IF OBJECT_ID('Hardware.LogisticsCostView', 'V') IS NOT NULL
@@ -449,16 +455,6 @@ BEGIN
 END
 GO
 
-ALTER TABLE Atom.InstallBase
-    ADD InstalledBaseCountryPla float,
-        InstalledBaseCountryPla_Approved float;
-GO
-
-ALTER TABLE Hardware.HddRetention
-     ADD HddRet float,
-         HddRet_Approved float
-go
-
 CREATE VIEW [Hardware].[AvailabilityFeeView] as 
     select fee.Country,
            fee.Wg,
@@ -689,35 +685,6 @@ CREATE VIEW InputAtoms.WgView WITH SCHEMABINDING as
                  InputAtoms.Pla pla,
                  InputAtoms.ClusterPla cpla
             where wg.PlaId = pla.Id and cpla.id = pla.ClusterPlaId
-GO
-
-CREATE VIEW [Atom].[InstallBaseByCountryView] WITH SCHEMABINDING as
-
-    with InstallBasePlaCte (Country, Pla, totalIB)
-    as
-    (
-        select Country, Pla, sum(InstalledBaseCountry) as totalIB
-        from Atom.InstallBase 
-        where InstalledBaseCountry is not null
-        group by Country, Pla
-    )
-    , InstallBasePla_Approved_Cte (Country, Pla, totalIB)
-    as
-    (
-        select Country, Pla, sum(InstalledBaseCountry_Approved) as totalIB
-        from Atom.InstallBase 
-        where InstalledBaseCountry_Approved is not null
-        group by Country, Pla
-    )
-    select ib.Wg,
-            ib.Country,
-            ib.InstalledBaseCountry as ibCnt,
-            ib.InstalledBaseCountry_Approved as ibCnt_Approved,
-            ibp.totalIB as ib_Cnt_PLA,
-            ibp2.totalIB as ib_Cnt_PLA_Approved
-    from Atom.InstallBase ib
-    LEFT JOIN InstallBasePlaCte ibp on ibp.Pla = ib.Pla and ibp.Country = ib.Country
-    LEFT JOIN InstallBasePla_Approved_Cte ibp2 on ibp2.Pla = ib.Pla and ibp2.Country = ib.Country
 GO
 
 CREATE VIEW [Hardware].[LogisticsCostView] AS
@@ -1057,7 +1024,7 @@ RETURN
 
     LEFT JOIN Hardware.HddRetention hdd on hdd.Wg = m.WgId AND hdd.Year = m.DurationId
 
-    LEFT JOIN Atom.InstallBaseByCountryView ib on ib.Wg = m.WgId AND ib.Country = m.CountryId
+    LEFT JOIN Atom.InstallBase ib on ib.Wg = m.WgId AND ib.Country = m.CountryId
 
     LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.Wg = m.WgId
 
