@@ -46,7 +46,8 @@ BEGIN
     begin
         return null;
     end
-    return @maintenance * (1 - @discount);END
+    return @maintenance * (1 - @discount);
+END
 GO
 
 CREATE FUNCTION [SoftwareSolution].[CalcMaintenanceListPrice] (@transfer float, @markup float)

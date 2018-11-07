@@ -696,8 +696,7 @@ After INSERT, UPDATE
 AS BEGIN
 
     with cte as (
-        select    h.Wg as WgID
-                , h.Year as YearID
+        select    h.Id
                 , sum(h.HddMaterialCost * h.HddFr / 100) over(partition by h.Wg, y.IsProlongation order by y.Value) as HddRet
                 , sum(h.HddMaterialCost_Approved * h.HddFr_Approved / 100) over(partition by h.Wg, y.IsProlongation order by y.Value) as HddRet_Approved
         from Hardware.HddRetention h
@@ -706,7 +705,7 @@ AS BEGIN
     update h
         set h.HddRet = c.HddRet, HddRet_Approved = c.HddRet_Approved
     from Hardware.HddRetention h
-    join cte c on h.Wg = c.WgID and h.Year = c.YearID
+    join cte c on c.Id = h.Id
 
 END
 go
