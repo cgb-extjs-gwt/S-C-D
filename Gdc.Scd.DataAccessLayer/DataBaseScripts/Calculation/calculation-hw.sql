@@ -697,10 +697,21 @@ AS BEGIN
 
     with cte as (
         select    h.Id
-                , sum(h.HddMaterialCost * h.HddFr / 100) over(partition by h.Wg, y.IsProlongation order by y.Value) as HddRet
-                , sum(h.HddMaterialCost_Approved * h.HddFr_Approved / 100) over(partition by h.Wg, y.IsProlongation order by y.Value) as HddRet_Approved
+                , h.Wg
+                , h.HddMaterialCost * h.HddFr / 100 as hddRetPerYear
+                , h.HddMaterialCost_Approved * h.HddFr_Approved / 100 as hddRetPerYear_Approved
+                , y.IsProlongation
+                , y.Value
         from Hardware.HddRetention h
         join Dependencies.Year y on y.Id = h.Year
+    )
+    , cte2 as (
+        select *
+        from cte c
+            cross apply(select sum(c2.hddRetPerYear) as HddRet, 
+                               sum(c2.hddRetPerYear_Approved) as HddRet_Approved
+                            from cte as c2
+                            where c2.Wg = c.Wg and c2.IsProlongation = c.IsProlongation and c2.Value <= c.Value) ca
     )
     update h
         set h.HddRet = c.HddRet, HddRet_Approved = c.HddRet_Approved

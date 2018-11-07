@@ -6,16 +6,16 @@ IF OBJECT_ID('Report.GetSwResultBySla2') IS NOT NULL
   DROP FUNCTION Report.GetSwResultBySla2;
 go 
 
+IF OBJECT_ID('Report.GetMatrixBySlaAll') IS NOT NULL
+  DROP FUNCTION Report.GetMatrixBySlaAll;
+go 
+
 IF OBJECT_ID('Report.GetMatrixBySla') IS NOT NULL
   DROP FUNCTION Report.GetMatrixBySla;
 go 
 
 IF OBJECT_ID('SoftwareSolution.ServiceCostCalculationView', 'V') IS NOT NULL
   DROP VIEW SoftwareSolution.ServiceCostCalculationView;
-go
-
-IF OBJECT_ID('Hardware.ServiceCostCalculationView', 'V') IS NOT NULL
-  DROP VIEW Hardware.ServiceCostCalculationView;
 go
 
 IF OBJECT_ID('dbo.MatrixView', 'V') IS NOT NULL
@@ -103,77 +103,6 @@ CREATE VIEW InputAtoms.WgSogView as
     where wg.DeactivatedDateTime is null
 GO
 
-CREATE VIEW Hardware.ServiceCostCalculationView AS
-    select sc.MatrixId
-         , sc.AvailabilityFee_Approved as AvailabilityFee
-         , sc.Credits_Approved as Credits
-         , sc.FieldServiceCost_Approved as FieldServiceCost
-         , sc.HddRetention_Approved as HddRetention
-         , sc.LocalServiceStandardWarranty_Approved as LocalServiceStandardWarranty
-         , sc.Logistic_Approved as Logistic
-         , sc.MaterialOow_Approved as MaterialOow
-         , sc.MaterialW_Approved as MaterialW
-         , sc.OtherDirect_Approved as OtherDirect
-         , sc.ProActive_Approved as ProActive
-         , sc.Reinsurance_Approved as Reinsurance
-         , sc.ServiceSupport_Approved as ServiceSupport
-
-         , coalesce(sc.ServiceTCManual_Approved, sc.ServiceTC_Approved) ServiceTC
-         , coalesce(sc.ServiceTPManual_Approved, sc.ServiceTP_Approved) ServiceTP
-
-         , sc.TaxAndDutiesOow_Approved as TaxAndDutiesOow
-         , sc.TaxAndDutiesW_Approved as TaxAndDutiesW
-
-         , sc.DealerPrice
-         , sc.ListPrice
-
-    from Hardware.ServiceCostCalculation sc
-GO
-
-CREATE VIEW MatrixView as 
-    select m.Id
-         , fsp.Name Fsp
-         , fsp.ServiceDescription as FspDescription
-         , m.CountryId
-         , cnt.Name as Country
-         , cnt.CountryGroup as CountryGroup
-         , m.WgId
-         , wg.Name as Wg
-         , m.AvailabilityId
-         , av.Name as Availability
-         , av.ExternalName as AvailabilityExt
-         , m.DurationId
-         , dur.Name as Duration
-         , dur.ExternalName as DurationExt
-         , dur.Value as DurationValue
-         , m.ReactionTimeId
-         , rtime.Name as ReactionTime
-         , rtime.ExternalName as ReactionTimeExt
-         , m.ReactionTypeId
-         , rtype.Name as ReactionType
-         , rtype.ExternalName as ReactionTypeExt
-         , m.ServiceLocationId
-         , loc.Name as ServiceLocation
-         , loc.ExternalName as ServiceLocationExt
-    from Matrix.Matrix m
-    join Hardware.ServiceCostCalculation sc on sc.MatrixId = m.Id
-    join InputAtoms.CountryView cnt on cnt.Id = m.CountryId
-    join InputAtoms.WgView wg on wg.id = m.WgId
-    join Dependencies.Availability av on av.Id= m.AvailabilityId
-    join Dependencies.Duration dur on dur.id = m.DurationId
-    join Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
-    join Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
-    join Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
-    left join Fsp.HwFspCodeTranslation fsp on fsp.CountryId = m.CountryId
-                                          and fsp.WgId = m.WgId
-                                          and fsp.AvailabilityId = m.AvailabilityId
-                                          and fsp.DurationId = m.DurationId
-                                          and fsp.ReactionTimeId = m.ReactionTimeId
-                                          and fsp.ReactionTypeId = m.ReactionTypeId
-                                          and fsp.ServiceLocationId = m.ServiceLocationId
-    where m.Denied = 0 
-GO
-
 CREATE FUNCTION Report.GetMatrixBySla
 (
     @cnt bigint,
@@ -188,8 +117,9 @@ RETURNS TABLE
 AS
 RETURN (
     select m.*
-    from MatrixView m
-    where m.CountryId = @cnt
+    from Matrix.Matrix m
+    where m.Denied = 0
+      and m.CountryId = @cnt
       and m.WgId = @wg
       and (@av is null or m.AvailabilityId = @av)
       and (@dur is null or m.DurationId = @dur)
@@ -199,7 +129,7 @@ RETURN (
 )
 GO
 
-CREATE FUNCTION Report.GetMatrixBySla2
+CREATE FUNCTION Report.GetMatrixBySlaAll
 (
     @cnt bigint,
     @wg bigint,
@@ -213,8 +143,9 @@ RETURNS TABLE
 AS
 RETURN (
     select m.*
-    from MatrixView m
-    where (@cnt is null or m.CountryId = @cnt)
+    from Matrix.Matrix m
+    where m.Denied = 0
+      and (@cnt is null or m.CountryId = @cnt)
       and (@wg is null or m.WgId = @wg)
       and (@av is null or m.AvailabilityId = @av)
       and (@dur is null or m.DurationId = @dur)
@@ -225,27 +156,26 @@ RETURN (
 GO
 
 CREATE view SoftwareSolution.ServiceCostCalculationView as
-    select  sc.YearId
+    select  sc.Year as YearId
           , y.Name as Year
           , y.Value as YearValue
-          , sc.AvailabilityId
+          , sc.Availability as AvailabilityId
           , av.Name as Availability
-          , sc.SogId
+          , sc.Sog as SogId
           , sog.Sog
           , sog.SogDescription
           , sog.Description
       
           , sc.DealerPrice_Approved as DealerPrice
           , sc.MaintenanceListPrice_Approved as MaintenanceListPrice
-          , sc.ProActive_Approved as ProActive
           , sc.Reinsurance_Approved as Reinsurance
           , sc.ServiceSupport_Approved as ServiceSupport
           , sc.TransferPrice_Approved as TransferPrice
 
-    from SoftwareSolution.ServiceCostCalculation sc
-    join Dependencies.Availability av on av.Id = sc.AvailabilityId
-    join Dependencies.Year y on y.id = sc.YearId
-    left join InputAtoms.WgSogView sog on sog.id = sc.SogId
+    from SoftwareSolution.SwSpMaintenanceCostView sc
+    join Dependencies.Availability av on av.Id = sc.Availability
+    join Dependencies.Year y on y.id = sc.Year
+    left join InputAtoms.WgSogView sog on sog.id = sc.Sog
 
 GO
 
