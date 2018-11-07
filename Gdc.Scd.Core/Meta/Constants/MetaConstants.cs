@@ -47,5 +47,7 @@
         public const string ReportSchema = "Report";
 
         public const string MatrixSchema = "Matrix";
+
+        public const string SpoolerSchema = "Spooler";
     }
 }
