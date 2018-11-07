@@ -1,5 +1,4 @@
 ﻿using Gdc.Scd.OperationResult;
-using OperationResult;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -66,11 +65,6 @@ namespace Gdc.Scd.Spooler
                 culture.DateTimeFormat.CalendarWeekRule,
                 culture.DateTimeFormat.FirstDayOfWeek);
         }
-
-        //static IEnumerable<dynamic> CheckJobsForLaunch(List<dynamic> activeJobInstances)
-        //{
-        //    throw new NotImplementedException();
-        //}
 
         static IEnumerable<IOperationResult> LaunchJobs(IEnumerable<dynamic> activeJobInstances)
         {
