@@ -1,10 +1,9 @@
 import { connect } from "react-redux";
-import NavMenu, { NavMenuProps, NavMenuActions } from "./NavMenu"
-import { CommonState } from "../States/AppStates";
-import { MenuItem } from "../../Common/States/ExtStates";
-import { buildComponentUrl } from "../../Common/Services/Ajax";
-import { openPage } from "../Actions/AppActions";
 import { withRouter } from 'react-router-dom';
+import { MenuItem } from "../../Common/States/ExtStates";
+import { openPage } from "../Actions/AppActions";
+import { CommonState } from "../States/AppStates";
+import NavMenu, { NavMenuActions, NavMenuProps } from "./NavMenu";
 
 export interface NavMenuContainerProps {
     history?, 

@@ -1,4 +1,4 @@
-﻿export class HwCalcListModel {
+﻿export class HwCostListModel {
     public id: string;
 
     public country: string;

@@ -45,6 +45,10 @@ export const get = <T=any>(controller: string, action: string, params = null) =>
     return requestMvc(controller, action, Methods.Get, params).then<T>(responseParse);
 }
 
+export const getFromUri = <T=any>(url: string) => {
+    return request(url, Methods.Get).then<T>(responseParse);
+}
+
 export const post = <TData, TResult=any>(controller: string, action: string, data: TData, params = null) => {
     return requestMvc(controller, action, Methods.Post, params, { jsonData: data }).then<TResult>(responseParse);
 }

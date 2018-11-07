@@ -28,40 +28,43 @@ export const ApprovalValuesContainerComponent =
                 dataLoadUrl = buildGetApproveBundleDetailUrl(approvalBundle.id);
 
                 const costBlock = meta.costBlocks.find(item => item.id === approvalBundle.costBlock.id);
-                const dependency = getDependency(costBlock, approvalBundle.costElement.id);
 
-                const dependencyColumn = buildNameColumnInfo(dependency);
-                const inputLevelColumns = getInputLevelColumns(costBlock);
-                const checkColumns = [
-                    { title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.CheckBox },
-                    { title: 'Country group error', dataIndex: `IsRegionError`, type: ColumnType.CheckBox }
-                ];
-                const otherColumns = [
-                    { title: 'Value', dataIndex: 'Value', type: ColumnType.Text },
-                ];
+                const otherColumns: ColumnInfo[] = []; 
+                const dependency = getDependency(costBlock, approvalBundle.costElement.id);
+                
+                if (dependency) {
+                    const dependencyColumn = buildNameColumnInfo(dependency);
+
+                    otherColumns.push(dependencyColumn);
+                }
+
+                otherColumns.push({ title: 'Value', dataIndex: 'Value', type: ColumnType.Text });
 
                 if(isCheckColumnsVisible) {
-                    otherColumns.push(...checkColumns);
+                    otherColumns.push({ title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.CheckBox });
+                    otherColumns.push({ title: 'Country group error', dataIndex: `IsRegionError`, type: ColumnType.CheckBox });
                 }
 
                 columns = [
                     buildNameColumnInfo(approvalBundle.inputLevel),
-                    dependencyColumn,
                     ...otherColumns
                 ]
+
+                const inputLevelColumns = getInputLevelColumns(costBlock, approvalBundle.costElement.id);
 
                 details = {
                     columns: [
                         ...inputLevelColumns,
-                        dependencyColumn,
                         ...otherColumns
                     ],
                     buildDataLoadUrl: data => {
                         const costBlockFilter = {};
 
-                        costBlockFilter[dependency.id] = [
-                            data[`${dependency.id}Id`]
-                        ]
+                        if (dependency) {
+                            costBlockFilter[dependency.id] = [
+                                data[`${dependency.id}Id`]
+                            ]
+                        }
 
                         return buildGetApproveBundleDetailUrl(approvalBundle.id, data.HistoryValueId, costBlockFilter);
                     }

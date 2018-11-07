@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.TableView;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -15,27 +16,55 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IUserService userService;
 
+        private readonly IRepositorySet repositorySet;
+
+        private readonly ICostBlockHistoryService costBlockHistoryService;
+
         private readonly DomainEnitiesMeta meta;
 
-        public TableViewService(ITableViewRepository tableViewRepository, IUserService userService, DomainEnitiesMeta meta)
+        public TableViewService(
+            ITableViewRepository tableViewRepository, 
+            IUserService userService, 
+            IRepositorySet repositorySet,
+            ICostBlockHistoryService costBlockHistoryService,
+            DomainEnitiesMeta meta)
         {
             this.tableViewRepository = tableViewRepository;
             this.userService = userService;
+            this.repositorySet = repositorySet;
+            this.costBlockHistoryService = costBlockHistoryService;
             this.meta = meta;
         }
 
-        public async Task<IEnumerable<TableViewRecord>> GetRecords()
+        public async Task<IEnumerable<Record>> GetRecords()
         {
             var costBlockInfos = this.GetCostBlockInfo().ToArray();
             
             return await this.tableViewRepository.GetRecords(costBlockInfos);
         }
 
-        public async Task UpdateRecords(IEnumerable<TableViewRecord> records)
+        public async Task UpdateRecords(IEnumerable<Record> records, bool isApproving)
         {
             var costBlockInfos = this.GetCostBlockInfo().ToArray();
+            var editInfos = this.tableViewRepository.BuildEditInfos(costBlockInfos, records).ToArray();
 
-            await this.tableViewRepository.UpdateRecords(costBlockInfos, records);
+            using (var transaction = this.repositorySet.GetTransaction())
+            {
+                try
+                {
+                    await this.tableViewRepository.UpdateRecords(editInfos);
+
+                    await this.costBlockHistoryService.Save(editInfos, new ApprovalOption { IsApproving = isApproving });
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+
+                    throw;
+                }
+            }
         }
 
         public async Task<TableViewInfo> GetTableViewInfo()
@@ -49,7 +78,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             };
         }
 
-        private IEnumerable<TableViewCostElementInfo> GetCostBlockInfo()
+        private IEnumerable<CostElementInfo> GetCostBlockInfo()
         {
             var user = this.userService.GetCurrentUser();
 
@@ -62,7 +91,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 if (fieldNames.Length > 0)
                 {
-                    yield return new TableViewCostElementInfo
+                    yield return new CostElementInfo
                     {
                         Meta = costBlock,
                         CostElementIds = fieldNames

@@ -2,10 +2,11 @@ import * as React from 'react';
 import { EditItem } from "../States/CostBlockStates";
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, Dialog, Container} from '@extjs/ext-react';
 import { NamedId } from '../../Common/States/CommonStates';
-import { HistoryValuesGridContainer } from './HistoryValuesGridContainer';
 import { ValueColumnProps, EditGrid, EditGridProps } from './EditGrid';
 import { QualityGateWindowContainer } from './QualityGateWindowContainer';
 import { SaveToolbar } from '../../Common/Components/SaveToolbar';
+import { SaveApprovalToollbar } from '../../Approval/Components/SaveApprovalToollbar';
+import { HistroryButtonContainer } from './HistroryButtonContainer';
 
 Ext.require([
     'Ext.grid.plugin.CellEditing', 
@@ -49,6 +50,14 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
     public render() {
         const props = this.props;
 
+        let isEnabledHistoryButton = false;
+        let editItem: string = null;
+
+        if (this.state.selectedItems.length == 1) {
+            isEnabledHistoryButton = true;
+            editItem = this.state.selectedItems[0].id;
+        }
+
         return (
             <Container layout="vbox" flex={props.flex}>
                 <Toolbar docked="top">
@@ -59,11 +68,11 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                         handler={props.onApplyFilters}
                     />
 
-                    <Button 
-                        text="History" 
+                    <HistroryButtonContainer 
+                        editItemId={editItem}
+                        isEnabled={isEnabledHistoryButton}
                         flex={1} 
-                        disabled={this.state.selectedItems.length != 1}
-                        handler={this.showHistoryWindow}
+                        windowPosition={{ left: '40%', top: '20%' }}
                     />
                 </Toolbar>
 
@@ -73,21 +82,13 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                     onSelected={this.onSelectGrid}
                 />
 
-                <SaveToolbar 
+                <SaveApprovalToollbar
                     isEnableClear={props.isEnableClear} 
                     isEnableSave={props.isEnableSave}
                     onCancel={() => this.props.onCleared()}
                     onSave={() => this.props.onSaving(false)}
-                >
-                    <Button 
-                        text="Save and send for approval" 
-                        flex={1} 
-                        disabled={!props.isEnableSave}
-                        handler={() => this.props.onSaving(true)}
-                    />
-                </SaveToolbar>
-
-                {this.getHistoryWindow()}
+                    onApproval={() => this.props.onSaving(true)}
+                />
 
                 <QualityGateWindowContainer 
                     applicationId={props.applicationId} 
@@ -97,44 +98,6 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                 />
             </Container>
         );
-    }
-
-
-    private getHistoryWindow() {
-        const { isVisibleHistoryWindow, selectedItems } = this.state;
-        const editItemId = selectedItems.length > 0 ? selectedItems[0].id : null;
-
-        return (
-            isVisibleHistoryWindow && selectedItems.length == 1 &&
-            <Dialog 
-                displayed={isVisibleHistoryWindow} 
-                title="History" 
-                closable 
-                maximizable
-                resizable={{
-                    dynamic: true,
-                    edges: 'all'
-                }}
-                minHeight="600"
-                minWidth="700"
-                onClose={this.closeHistoryWindow}
-                layout="fit"
-            >
-                <HistoryValuesGridContainer editItemId={editItemId} />
-            </Dialog>
-        );
-    }
-
-    private showHistoryWindow = () => {
-        this.setState({
-            isVisibleHistoryWindow: true
-        });
-    }
-
-    private closeHistoryWindow = () => {
-        this.setState({ 
-            isVisibleHistoryWindow: false 
-        });
     }
 
     private onSelectGrid = (items: EditItem[]) => {

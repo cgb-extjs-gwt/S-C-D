@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Gdc.Scd.Core.Entities
+namespace Gdc.Scd.Core.Entities.TableView
 {
-    public class TableViewRecordInfo
+    public class RecordInfo
     {
         public IEnumerable<FieldInfo> Coordinates { get; set; }
 

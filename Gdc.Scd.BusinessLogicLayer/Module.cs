@@ -29,6 +29,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<IActiveDirectoryService>().To<ActiveDirectoryService>().InRequestScope();
             Bind<ITableViewService>().To<TableViewService>().InRequestScope();
             Bind<IAppService>().To<AppService>().InRequestScope();
+            Bind<INotifyChannel>().To<MemoryChannel>().InSingletonScope();
 
             /*----------dictionaries-----------*/
             Kernel.RegisterEntity<ClusterRegion>();
@@ -75,8 +76,9 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<CapabilityMatrix>();
             Kernel.RegisterEntity<CapabilityMatrixMaster>();
             Kernel.RegisterEntity<CapabilityMatrixRule>();
-            Kernel.RegisterEntity<HardwareCalculationResult>();
-            Kernel.RegisterEntity<SoftwareCalculationResult>();
+            Kernel.RegisterEntity<HardwareManualCost>();
+            Kernel.RegisterEntity<SoftwareMaintenance>();
+            Kernel.RegisterEntity<SoftwareProactive>();
 
             /*---------reports----------*/
             Kernel.RegisterEntity<Report>();

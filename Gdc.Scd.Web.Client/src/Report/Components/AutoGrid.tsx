@@ -1,5 +1,7 @@
 ﻿import { Button, Column, Container, Grid, GridProps, NumberColumn, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
+import { handleRequest } from "../../Common/Helpers/RequestHelper";
+import { getFromUri } from "../../Common/Services/Ajax";
 import { AutoColumnModel } from "../Model/AutoColumnModel";
 import { AutoColumnType } from "../Model/AutoColumnType";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
@@ -28,14 +30,16 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
     private filter: AutoFilter;
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
-
+        pageSize: 25,
         proxy: {
             type: 'ajax',
             api: {
                 read: this.props.url
             },
             reader: {
-                type: 'json'
+                type: 'json',
+                rootProperty: 'items',
+                totalProperty: 'total'
             }
         }
     });
@@ -47,60 +51,30 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
 
     public render() {
 
-        let cfg = {} as GridProps;
+        let title = null;
 
         if (this.props.title) {
-            cfg.title = this.props.title;
+            title = <p>[&nbsp;{this.props.title}&nbsp;]</p>;
         }
 
         return (
             <Container layout="fit">
 
-                <Container hidden={true}>
-                    <iframe ref="downloader"></iframe>
-                </Container>
-
                 <AutoFilter ref="filter" docked="right" hidden={!this.showFilter()} filter={this.props.filter} onSearch={this.onSearch} />
 
                 <Toolbar docked="top">
+                    {title}
                     <Button iconCls="x-fa fa-download" text="Download" handler={this.onDownload} />
                 </Toolbar>
 
                 <Grid
-                    {...cfg}
                     ref="grid"
                     store={this.store}
                     width="100%"
-                    defaults={{ minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                    defaults={{ minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}
+                    plugins={['pagingtoolbar']}>
 
-                    {this.props.columns.map((v, i) => {
-
-                        switch (v.type) {
-
-                            case AutoColumnType.NUMBER:
-                                return (
-                                    <NumberColumn key={i} flex={v.flex || 1} text={v.text} dataIndex={v.name} />
-                                );
-
-                            case AutoColumnType.EURO:
-                                return (
-                                    <EuroStringColumn key={i} flex={v.flex || 1} text={v.text} dataIndex={v.name} />
-                                );
-
-                            case AutoColumnType.PERCENT:
-                                return (
-                                    <PercentColumn key={i} flex={v.flex || 1} text={v.text} dataIndex={v.name} />
-                                );
-
-                            case AutoColumnType.TEXT:
-                            default:
-                                return (
-                                    <Column key={i} flex={v.flex || 1} text={v.text} dataIndex={v.name} />
-                                );
-
-                        }
-                    })}
-
+                    {this.props.columns.map(this.createColumn)}
 
                 </Grid>
 
@@ -111,6 +85,24 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
     public componentDidMount() {
         this.grid = this.refs.grid as Grid;
         this.filter = this.refs.filter as AutoFilter;
+    }
+
+    private createColumn(m: AutoColumnModel, i: number) {
+        let flex = m.flex || 1;
+        switch (m.type) {
+            case AutoColumnType.NUMBER:
+                return <NumberColumn key={i} flex={flex} text={m.text} dataIndex={m.name} />;
+
+            case AutoColumnType.EURO:
+                return <EuroStringColumn key={i} flex={flex} text={m.text} dataIndex={m.name} />;
+
+            case AutoColumnType.PERCENT:
+                return <PercentColumn key={i} flex={flex} text={m.text} dataIndex={m.name} />;
+
+            case AutoColumnType.TEXT:
+            default:
+                return <Column key={i} flex={flex} text={m.text} dataIndex={m.name} />;
+        }
     }
 
     private init() {
@@ -129,8 +121,8 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
 
         url = Ext.urlAppend(url, Ext.urlEncode(filter, true));
 
-        var ifr = this.refs['downloader'] as HTMLElement;
-        ifr.setAttribute('src', url);
+        let p = getFromUri<any>(url);
+        handleRequest(p).then(() => Ext.Msg.alert('Report', 'Your report in process...<br>Please wait while it finish'));
     }
 
     private onSearch(filter: any) {

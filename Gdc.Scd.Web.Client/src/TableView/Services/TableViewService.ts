@@ -8,4 +8,5 @@ export const buildGetRecordsUrl = () => buildMvcUrl(TABLE_VIEW_CONTROLLER_NAME, 
 
 export const getTableViewInfo = () => get<TableViewInfo>(TABLE_VIEW_CONTROLLER_NAME, 'GetTableViewInfo')
 
-export const updateRecords = (records: TableViewRecord[]) => post<TableViewRecord[]>(TABLE_VIEW_CONTROLLER_NAME, 'UpdateRecords', records)
+export const updateRecords = (records: TableViewRecord[], isApproving: boolean) => 
+    post<TableViewRecord[]>(TABLE_VIEW_CONTROLLER_NAME, 'UpdateRecords', records, { isApproving })

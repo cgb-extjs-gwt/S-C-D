@@ -2,14 +2,14 @@
 import * as React from "react";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { SwCalcFilter } from "./Components/SwCalcFilter";
-import { SwCalcFilterModel } from "./Model/SwCalcFilterModel";
+import { SwCostFilter } from "./Components/SwCostFilter";
+import { SwCostFilterModel } from "./Model/SwCostFilterModel";
 
 export class SwCostView extends React.Component<CalcCostProps, any> {
 
     private grid: Grid;
 
-    private filter: SwCalcFilter;
+    private filter: SwCostFilter;
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
         pageSize: 25,
@@ -40,7 +40,6 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         let transferPrice: string = 'transferPrice';
         let maintenanceListPrice: string = 'maintenanceListPrice';
         let dealerPrice: string = 'dealerPrice';
-        let proActive: string = 'proActive';
 
         if (this.props.approved) {
             serviceSupport = 'serviceSupport_Approved';
@@ -48,13 +47,12 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
             transferPrice = 'transferPrice_Approved';
             maintenanceListPrice = 'maintenanceListPrice_Approved';
             dealerPrice = 'dealerPrice_Approved';
-            proActive = 'proActive_Approved';
         }
 
         return (
             <Container layout="fit">
 
-                <SwCalcFilter ref="filter" docked="right" onSearch={this.onSearch} />
+                <SwCostFilter ref="filter" docked="right" onSearch={this.onSearch} />
 
                 <Grid ref="grid" store={this.store} width="100%" plugins={['pagingtoolbar']}>
 
@@ -89,7 +87,6 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Transer price" dataIndex={transferPrice} />
                         <NumberColumn text="Maintenance list price" dataIndex={maintenanceListPrice} />
                         <NumberColumn text="Dealer reference price" dataIndex={dealerPrice} />
-                        <NumberColumn text="Pro active" dataIndex={proActive} />
 
                     </Column>
 
@@ -100,7 +97,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
     public componentDidMount() {
         this.grid = this.refs.grid as Grid;
-        this.filter = this.refs.filter as SwCalcFilter;
+        this.filter = this.refs.filter as SwCostFilter;
     }
 
     private init() {
@@ -110,7 +107,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         this.store.on('beforeload', this.onBeforeLoad);
     }
 
-    private onSearch(filter: SwCalcFilterModel) {
+    private onSearch(filter: SwCostFilterModel) {
         this.reload();
     }
 

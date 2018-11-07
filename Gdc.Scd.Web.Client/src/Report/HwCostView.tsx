@@ -2,14 +2,14 @@
 import * as React from "react";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { HwCalcFilter } from "./Components/HwCalcFilter";
-import { HwCalcFilterModel } from "./Model/HwCalcFilterModel";
+import { HwCostFilter } from "./Components/HwCostFilter";
+import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private grid: Grid;
 
-    private filter: HwCalcFilter;
+    private filter: HwCostFilter;
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
         pageSize: 25,
@@ -55,27 +55,27 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
         const canEdit = this.canEdit();
 
-        let fieldServiceCost: string = 'fieldServiceCost';
-        let serviceSupport: string = 'serviceSupport';
-        let logistic: string = 'logistic';
-        let availabilityFee: string = 'availabilityFee';
-        let hddRetention: string = 'hddRetention';
-        let reinsurance: string = 'reinsurance';
-        let taxAndDutiesW: string = 'taxAndDutiesW';
-        let taxAndDutiesOow: string = 'taxAndDutiesOow';
-        let materialW: string = 'materialW';
-        let materialOow: string = 'materialOow';
-        let proActive: string = 'proActive';
-        let serviceTC: string = 'serviceTC';
-        let serviceTCManual: string = 'serviceTCManual';
-        let serviceTP: string = 'serviceTP';
-        let serviceTPManual: string = 'serviceTPManual';
-        let listPrice: string = 'listPrice';
-        let dealerDiscount: string = 'dealerDiscount';
-        let dealerPrice: string = 'dealerPrice';
-        let otherDirect: string = 'otherDirect';
-        let localServiceStandardWarranty: string = 'localServiceStandardWarranty';
-        let credits: string = 'credits';
+        let fieldServiceCost: string = 'FieldServiceCost';
+        let serviceSupport: string = 'ServiceSupportCost';
+        let logistic: string = 'Logistic';
+        let availabilityFee: string = 'AvailabilityFee';
+        let hddRetention: string = 'HddRet';
+        let reinsurance: string = 'Reinsurance';
+        let taxAndDutiesW: string = 'TaxAndDutiesW';
+        let taxAndDutiesOow: string = 'TaxAndDutiesOow';
+        let materialW: string = 'MaterialW';
+        let materialOow: string = 'MaterialOow';
+        let proActive: string = 'ProActive';
+        let serviceTC: string = 'ServiceTC';
+        let serviceTCManual: string = 'ServiceTCManual';
+        let serviceTP: string = 'ServiceTP';
+        let serviceTPManual: string = 'ServiceTPManual';
+        let listPrice: string = 'ListPrice';
+        let dealerDiscount: string = 'DealerDiscount';
+        let dealerPrice: string = 'DealerPrice';
+        let otherDirect: string = 'OtherDirect';
+        let localServiceStandardWarranty: string = 'LocalServiceStandardWarranty';
+        let credits: string = 'Credits';
 
         if (this.props.approved) {
             fieldServiceCost = 'fieldServiceCost_Approved';
@@ -104,7 +104,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         return (
             <Container layout="fit">
 
-                <HwCalcFilter ref="filter" docked="right" onSearch={this.onSearch} />
+                <HwCostFilter ref="filter" docked="right" onSearch={this.onSearch} />
 
                 <Grid
                     ref="grid"
@@ -121,13 +121,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-green"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column text="Country" dataIndex="country" />
-                        <Column text="WG(Asset)" dataIndex="wg" />
-                        <Column text="Availability" dataIndex="availability" />
-                        <Column text="Duration" dataIndex="duration" />
-                        <Column text="Reaction type" dataIndex="reactionType" />
-                        <Column text="Reaction time" dataIndex="reactionTime" />
-                        <Column text="Service location" dataIndex="serviceLocation" />
+                        <Column text="Country" dataIndex="Country" />
+                        <Column text="WG(Asset)" dataIndex="Wg" />
+                        <Column text="Availability" dataIndex="Availability" />
+                        <Column text="Duration" dataIndex="Duration" />
+                        <Column text="Reaction type" dataIndex="ReactionType" />
+                        <Column text="Reaction time" dataIndex="ReactionTime" />
+                        <Column text="Service location" dataIndex="ServiceLocation" />
 
                     </Column>
 
@@ -189,7 +189,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     public componentDidMount() {
         this.grid = this.refs.grid as Grid;
-        this.filter = this.refs.filter as HwCalcFilter;
+        this.filter = this.refs.filter as HwCostFilter;
     }
 
     private init() {
@@ -231,7 +231,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     }
 
-    private onSearch(filter: HwCalcFilterModel) {
+    private onSearch(filter: HwCostFilterModel) {
         this.reload();
     }
 
@@ -240,7 +240,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onBeforeLoad(s, operation) {
-        let filter = this.filter.getModel();
+        let filter = this.filter.getModel() as any;
+        filter.approved = this.props.approved;
         let params = Ext.apply({}, operation.getParams(), filter);
         operation.setParams(params);
     }
