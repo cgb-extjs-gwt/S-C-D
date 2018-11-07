@@ -1,3 +1,5 @@
+ALTER DATABASE SCD_2 SET RECOVERY SIMPLE
+GO 
 
 declare @WorkTest char(1) = 'w'
 
@@ -95,3 +97,5 @@ DROP SCHEMA InputAtoms
 DROP SCHEMA "References" 
 DROP SCHEMA SoftwareSolution 
  
+ALTER DATABASE SCD_2 SET RECOVERY FULL
+GO 
