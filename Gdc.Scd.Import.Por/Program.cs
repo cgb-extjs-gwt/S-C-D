@@ -142,7 +142,7 @@ namespace Gdc.Scd.Import.Por
                 var lutCodes = PorService.LutCodesImporter.ImportData().ToList();
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, "Standard Warranties", lutCodes.Count);
 
-                var wgs = PorService.WgDomainService.GetAllActive().ToList();
+                var wgs = PorService.WgDomainService.GetAllActive().Where(wg => !wg.IsMultiVendor).ToList();
                 var hwModel = new HwFspCodeDto
                 {
                     HardwareCodes = otherHardwareCodes,
@@ -167,7 +167,7 @@ namespace Gdc.Scd.Import.Por
                 PorService.UploadHwFspCodes(hwModel, step);
                 step++;
 
-                //UPLOAD PROACTIVE DIGITS
+                //PROACTIVE DIGITS UPLOAD
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, "Software ProActive");
                 var swProActive = PorService.SwProActiveImporter.ImportData().ToList();
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, "Software ProActive", swProActive.Count);

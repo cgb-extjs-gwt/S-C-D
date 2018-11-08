@@ -5,7 +5,7 @@ using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("AvailabilityFee", Schema = MetaConstants.AtomSchema)]
+    [Table("AvailabilityFee", Schema = MetaConstants.HardwareSchema)]
     public class AvailabilityFee : IIdentifiable, IDeactivatable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

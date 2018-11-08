@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.Dto;
@@ -20,6 +21,10 @@ namespace Gdc.Scd.Import.Core.Impl
         private readonly IRepository<Wg> _repositoryWg;
         private readonly IRepository<AvailabilityFee> _availabilityFeeRepo;
         private readonly ILogger<LogLevel> _logger;
+        private List<Wg> _newlyAddedWgs = new List<Wg>();
+        private List<long> _deletedWgs = new List<long>();
+        private List<long> _allCountries;
+        private List<long> _multiVendorCountries;
 
         public LogisticUploader(IRepositorySet repositorySet, ILogger<LogLevel> logger)
         {
@@ -35,14 +40,19 @@ namespace Gdc.Scd.Import.Core.Impl
             this._repositoryCountry = this._repositorySet.GetRepository<Country>();
             this._availabilityFeeRepo = this._repositorySet.GetRepository<AvailabilityFee>();
             this._logger = logger;
+            this._allCountries = _repositoryCountry.GetAll().Where(c => c.IsMaster).Select(c => c.Id).ToList();
+            this._multiVendorCountries = _repositoryCountry.GetAll().Where(c => c.IsMaster && c.AssignedToMultiVendor).Select(c => c.Id).ToList();
         }
 
         public void Upload(IEnumerable<LogisticsDto> items, DateTime modifiedDateTime)
         {
             UpdateWg(items, modifiedDateTime);
-            //TODO: INCLUDE MECHANISM FOR UPDATING COST BLOCKS AFTER NEW WG WAS ADDED 
-            var result = UpdateLogistic(items, modifiedDateTime);
-            _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_AVAILABILITY_FEE_END, result);    
+            var updateSuccess = UpdateAvailabilityFee();
+            if (updateSuccess)
+            {
+                var result = UpdateLogistic(items, modifiedDateTime);
+                _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_AVAILABILITY_FEE_END, result);
+            }  
         }
 
         private void UpdateWg(IEnumerable<LogisticsDto> items, DateTime modifiedDateTime)
@@ -66,24 +76,26 @@ namespace Gdc.Scd.Import.Core.Impl
                             _logger.Log(LogLevel.Warn, ImportConstants.UNKNOWN_PLA, nameof(Wg), item.WgCode, item.Pla);
                             continue;
                         }
-                        //If Wg does not exist in the SCD database then create new
+                        //If Wg does not exist in the SCD database then create new 
                         if (wg == null)
                         {
                             item.PlaId = pla.Id;
 
                             _logger.Log(LogLevel.Info, ImportConstants.NEW_WG, item.WgCode);
-                            batchUpdate.Add(new Wg
+                            var newWg = new Wg
                             {
                                 CreatedDateTime = DateTime.Now,
                                 Description = item.WgDescription,
                                 PlaId = item.PlaId.Value,
                                 Name = item.WgCode,
                                 ExistsInLogisticsDb = true,
-                                IsMultiVendor = item.IsMultiVendor,
+                                WgType = item.IsMultiVendor ? WgType.MultiVendor : WgType.Logistics,
                                 ModifiedDateTime = DateTime.Now,
                                 IsSoftware = false,
                                 IsDeactivatedInLogistic = false
-                            });
+                            };
+                            batchUpdate.Add(newWg);
+                            this._newlyAddedWgs.Add(newWg);
                         }
 
                         //if WG is already exist in SCD Database
@@ -93,16 +105,15 @@ namespace Gdc.Scd.Import.Core.Impl
                             wg.DeactivatedDateTime = null;
                             wg.ModifiedDateTime = modifiedDateTime;
                             wg.ExistsInLogisticsDb = true;
-                            wg.IsMultiVendor = item.IsMultiVendor;
-                            //IF WG is Multi Vendor update description and PLA
-                            if (item.IsMultiVendor)
+
+                            //IF WG is Multi Vendor or Logistics update description and PLA
+                            if (wg.WgType == WgType.MultiVendor || wg.WgType == WgType.Logistics)
                             {
                                 wg.PlaId = pla.Id;
                                 wg.Description = item.WgDescription;
                             }
                             _logger.Log(LogLevel.Info, ImportConstants.UPDATE_WG, item.WgCode);
                             batchUpdate.Add(wg);
-
                         }
                         break;
                     case "d":
@@ -112,10 +123,11 @@ namespace Gdc.Scd.Import.Core.Impl
                             wg.ExistsInLogisticsDb = true;
                             wg.IsDeactivatedInLogistic = true;
                             wg.ModifiedDateTime = modifiedDateTime;
-                            if (wg.IsMultiVendor)
+                            if (wg.WgType == WgType.MultiVendor || wg.WgType == WgType.Logistics)
                                 wg.DeactivatedDateTime = modifiedDateTime;
                             _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATE_START, item.WgCode);
                             batchUpdate.Add(wg);
+                            this._deletedWgs.Add(wg.Id);
                         }
                         break;
                 }
@@ -126,16 +138,14 @@ namespace Gdc.Scd.Import.Core.Impl
                 _repositoryWg.Save(batchUpdate);
                 _repositorySet.Sync();
             }
+
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_WG_END, batchUpdate.Count);
         }
 
         private int UpdateLogistic(IEnumerable<LogisticsDto> items, DateTime modifiedDateTime)
         {
-            var countries = _repositoryCountry.GetAll().Where(c => c.IsMaster).Select(c => c.Id).ToList();
-            var multiVendorCountries = _repositoryCountry.GetAll().Where(c => c.IsMaster && c.AssignedToMultiVendor).Select(c => c.Id).ToList();
-            var wgs = _repositoryWg.GetAll().Where(wg => !wg.DeactivatedDateTime.HasValue).ToList();
             var result = 0;
-
+            var wgs = _repositoryWg.GetAll().Where(wg => !wg.DeactivatedDateTime.HasValue).ToList();
             foreach (var item in items)
             {
                 switch (item.Action.ToLower())
@@ -148,9 +158,9 @@ namespace Gdc.Scd.Import.Core.Impl
                             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_AVAILABILITY_FEE_START, wg.Name);
                             Func<AvailabilityFee, bool> pred = null;
                             if (item.IsMultiVendor)
-                                pred = af => af.WgId == wg.Id && multiVendorCountries.Contains(af.CountryId.Value);
+                                pred = af => af.WgId == wg.Id && _multiVendorCountries.Contains(af.CountryId.Value);
                             else
-                                pred = af => af.WgId == wg.Id && countries.Contains(af.CountryId.Value);
+                                pred = af => af.WgId == wg.Id && _allCountries.Contains(af.CountryId.Value);
 
                             var itemsToUpdate = _availabilityFeeRepo.GetAll().Where(pred).ToList();
                             var batchList = new List<AvailabilityFee>();
@@ -175,10 +185,69 @@ namespace Gdc.Scd.Import.Core.Impl
                         }
                         break;
                     case "d":
-                        continue;
+                        var deactivatedWg = _repositoryWg.GetAll().FirstOrDefault(w => w.Name.ToUpper() == item.WgCode.ToUpper());
+                        if (deactivatedWg != null && deactivatedWg.WgType != WgType.Por && deactivatedWg.DeactivatedDateTime.HasValue)
+                        {
+                            _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATING_AVAILABILITY_FEE, deactivatedWg.Name);
+                            var itemsToDeactivate = _availabilityFeeRepo.GetAll().Where(af => af.WgId == deactivatedWg.Id).ToList();
+                            foreach(var deactivatedItem in itemsToDeactivate)
+                            {
+                                if (!deactivatedItem.DeactivatedDateTime.HasValue)
+                                {
+                                    deactivatedItem.DeactivatedDateTime = DateTime.Now;
+                                    deactivatedItem.ModifiedDateTime = DateTime.Now;
+                                }
+                            }
+                            _availabilityFeeRepo.Save(itemsToDeactivate);
+                            _repositorySet.Sync();
+                        }
+                        break;
                 }
             }
 
+            return result;
+        }
+
+        private bool UpdateAvailabilityFee()
+        {
+            var result = true;
+            try
+            {
+                _logger.Log(LogLevel.Info, ImportConstants.UPDATE_AVAILABILITY_FEE_NEW_WG_START);
+                var addedCount = 0;
+                var wgs = _repositoryWg.GetAll().Where(wg => !wg.DeactivatedDateTime.HasValue).ToList();
+                foreach (var wg in this._newlyAddedWgs)
+                {
+                    var availabilityFees = new List<AvailabilityFee>();
+                    var dbWg = wgs.FirstOrDefault(w => w.Name.Equals(wg.Name, StringComparison.OrdinalIgnoreCase));
+                    var countries = wg.WgType == WgType.MultiVendor ? _multiVendorCountries : _allCountries;
+                    foreach (var country in countries)
+                    {
+                        if (dbWg != null)
+                            availabilityFees.Add(new AvailabilityFee
+                            {
+                                CountryId = country,
+                                WgId = dbWg.Id,
+                                CreatedDateTime = DateTime.Now,
+                                ModifiedDateTime = DateTime.Now,
+                                DeactivatedDateTime = null
+                            });
+                    }
+                    
+                    if (availabilityFees.Any())
+                    {
+                        _availabilityFeeRepo.Save(availabilityFees);
+                        _repositorySet.Sync();
+                        addedCount += availabilityFees.Count;
+                    }
+                }
+                _logger.Log(LogLevel.Info, ImportConstants.UPDATE_AVAILABILITY_FEE_NEW_WG_FINISH, addedCount);
+            }
+            catch(Exception ex)
+            {
+                _logger.Log(LogLevel.Error, ex, ImportConstants.UPDATE_AVAILABILITY_FEE_ERROR);
+                result = false;
+            }
             return result;
         }
     }

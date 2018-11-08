@@ -23,5 +23,7 @@ namespace Gdc.Scd.Core.Entities
         public Region Region { get; set; }
 
         public List<Country> Countries { get; set; }
+
+        public bool AutoUploadInstallBase { get; set; }
     }
 }

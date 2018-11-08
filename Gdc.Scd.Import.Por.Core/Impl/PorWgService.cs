@@ -101,6 +101,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         PlaId = pla.Id,
                         SFabId = sFab?.Id,
                         SogId = sog?.Id,
+                        IsMultiVendor = false,
                         ExistsInLogisticsDb = false,
                         IsDeactivatedInLogistic = false,
                         SCD_ServiceType = porWg.SCD_ServiceType,
