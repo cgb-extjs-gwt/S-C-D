@@ -85,10 +85,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-country.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-central.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-country.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-po-standard-warranty.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-proactive.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list-detail.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-po-standard-warranty.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list-detail.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solutionpack-proactive-costing.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List-detail.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List.sql"));
