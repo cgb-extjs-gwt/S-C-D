@@ -68,10 +68,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.reports.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-list.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-new-vs-old.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-vs-FREEZE.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-new-vs-old.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-vs-FREEZE.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-hw.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-proactive.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-contract.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-flat-fee.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-central.sql"));

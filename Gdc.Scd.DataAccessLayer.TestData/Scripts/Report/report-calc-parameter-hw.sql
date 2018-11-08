@@ -16,71 +16,64 @@ AS
 RETURN (
     with ReinsuranceCte as (
         select r.Wg
-             , r.Duration
+             , r.Year
              , SUM(CASE WHEN UPPER(rt.Name) = 'NBD' THEN r.Cost_Approved END) AS  ReinsuranceNBD
              , SUM(CASE WHEN UPPER(av.Name) = '24X7' THEN r.Cost_Approved END) AS Reinsurance27x7
         from Hardware.ReinsuranceView r
         join Dependencies.Availability av on av.Id = r.AvailabilityId 
         join Dependencies.ReactionTime rt on rt.id = r.ReactionTimeId
-        group by r.Wg, r.Duration
+        group by r.Wg, r.Year
     )
-    select 
-            m.Country
-          , wg.Description as WgDescription
-          , wg.Name as Wg
-          , wg.SogDescription
-          , wg.SCD_ServiceType
-          , null as Sla
-          , m.ServiceLocation as ServiceLocation
-          , m.ReactionTime
-          , m.ReactionType
-          , m.Availability
-          , c.Currency
-          , m.Fsp
-          , m.FspDescription
+    , CostCte as (
+            select 
+                m.Id
+              , c.Name as Country
+              , wg.Description as WgDescription
+              , wg.Name as Wg
+              , wg.SogDescription
+              , wg.SCD_ServiceType
+              , null as Sla
+              , loc.Name as ServiceLocation
+              , rtime.Name as ReactionTime
+              , rtype.Name as ReactionType
+              , av.Name as Availability
+              , c.Currency
 
-          --cost blocks
+             --FSP
+              , fsp.Name Fsp
+              , fsp.ServiceDescription as FspDescription
 
-          , fsc.LabourCost_Approved as LabourCost
-          , fsc.TravelCost_Approved as TravelCost
-          , null as PerformanceRateNbd
-          , fsc.TravelTime_Approved as TravelTime
-          , fsc.RepairTime_Approved as RepairTime
-          , fsc.OnsiteHourlyRates_Approved as OnsiteHourlyRate
-          , null as OohUplift
-          , null as Uplift
+              --cost blocks
 
-          , lc.StandardHandling_Approved as StandardHandling
-          , null as LogisticTransportcost
+              , fsc.LabourCost_Approved as LabourCost
+              , fsc.TravelCost_Approved as TravelCost
+              , null as PerformanceRateNbd
+              , fsc.TravelTime_Approved as TravelTime
+              , fsc.RepairTime_Approved as RepairTime
+              , fsc.OnsiteHourlyRates_Approved as OnsiteHourlyRate
+              , null as OohUplift
+              , null as Uplift
 
-          , null as FslFlatfee
+              , lc.StandardHandling_Approved as StandardHandling
+              , null as LogisticTransportcost
+
+              , null as FslFlatfee
       
-          , Hardware.CalcTaxAndDutiesWar(mcw.MaterialCostWarranty_Approved, tax.TaxAndDuties_Approved) as TaxAndDutiesW
-          , Hardware.CalcTaxAndDutiesWar(mco.MaterialCostOow_Approved, tax.TaxAndDuties_Approved) as TaxAndDutiesOow
+              , mcw.MaterialCostWarranty_Approved * tax.TaxAndDuties_Approved as TaxAndDutiesW
+              , mco.MaterialCostOow_Approved      * tax.TaxAndDuties_Approved as TaxAndDutiesOow
 
-          , null as Markup
-          , null as MarkupIndirect
-          , null as MarkupFactor
-          , null as MarkupBaseW
+              , null as Markup
+              , null as MarkupIndirect
+              , null as MarkupFactor
+              , null as MarkupBaseW
       
-          , afr.AFR1 as AFR1
-          , afr.AFR2 as AFR2
-          , afr.AFR3 as AFR3
-          , afr.AFR4 as AFR4
-          , afr.AFR5 as AFR5
+              , afr.AFR1_Approved as AFR1
+              , afr.AFR2_Approved as AFR2
+              , afr.AFR3_Approved as AFR3
+              , afr.AFR4_Approved as AFR4
+              , afr.AFR5_Approved as AFR5
 
-          , Hardware.CalcFieldServiceCost(
-                        fsc.TimeAndMaterialShare_Approved, 
-                        fsc.TravelCost_Approved, 
-                        fsc.LabourCost_Approved, 
-                        fsc.PerformanceRate_Approved, 
-                        fsc.TravelTime_Approved, 
-                        fsc.RepairTime_Approved, 
-                        fsc.OnsiteHourlyRates_Approved, 
-                        afr.AFR1
-                    ) as FieldServiceCost1  
-
-          , Hardware.CalcFieldServiceCost(
+              , Hardware.CalcFieldServiceCost(
                             fsc.TimeAndMaterialShare_Approved, 
                             fsc.TravelCost_Approved, 
                             fsc.LabourCost_Approved, 
@@ -88,103 +81,94 @@ RETURN (
                             fsc.TravelTime_Approved, 
                             fsc.RepairTime_Approved, 
                             fsc.OnsiteHourlyRates_Approved, 
-                            afr.AFR2
-                        ) as FieldServiceCost2
+                            1
+                        ) as FieldServicePerYear
 
-            , Hardware.CalcFieldServiceCost(
-                            fsc.TimeAndMaterialShare_Approved, 
-                            fsc.TravelCost_Approved, 
-                            fsc.LabourCost_Approved, 
-                            fsc.PerformanceRate_Approved, 
-                            fsc.TravelTime_Approved, 
-                            fsc.RepairTime_Approved, 
-                            fsc.OnsiteHourlyRates_Approved, 
-                            afr.AFR3
-                        ) as FieldServiceCost3
+              , null as '2ndLevelRatio'
+              , null as '2ndLevelSupportRate'
+              , ssc.[1stLevelSupportCosts]
+              , null as OohUpliftSsc
+           
+              , r.ReinsuranceNBD
+              , r.ReinsuranceNBD as ReinsuranceNBD_Oow
+              , r.Reinsurance27x7
+              , r.Reinsurance27x7 as Reinsurance27x7_Oow
+           
+              , null as MaterialPerIncident
+           
+              , mcw.MaterialCostWarranty_Approved as MaterialCostWarranty
+              , mco.MaterialCostOow_Approved as MaterialCostOow
+           
+              , null as OnSiteInterventions
+           
+              , dur.Value as Duration
+           
+              , null as CallRate
+              , null as GlobalProduct
+           
+              , null as DealerPrice
+              , null as ListPrice
+           
+              , null as SparesAvailability
+              , null as UsageFtsLogistics
+              , null as ReinsuranceCalcMode
+              , null as ReinsuranceContract
 
-            , Hardware.CalcFieldServiceCost(
-                            fsc.TimeAndMaterialShare_Approved, 
-                            fsc.TravelCost_Approved, 
-                            fsc.LabourCost_Approved, 
-                            fsc.PerformanceRate_Approved, 
-                            fsc.TravelTime_Approved, 
-                            fsc.RepairTime_Approved, 
-                            fsc.OnsiteHourlyRates_Approved, 
-                            afr.AFR4
-                        ) as FieldServiceCost4
+        from Report.GetMatrixBySlaCountry(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc) m
 
-            , Hardware.CalcFieldServiceCost(
-                            fsc.TimeAndMaterialShare_Approved, 
-                            fsc.TravelCost_Approved, 
-                            fsc.LabourCost_Approved, 
-                            fsc.PerformanceRate_Approved, 
-                            fsc.TravelTime_Approved, 
-                            fsc.RepairTime_Approved, 
-                            fsc.OnsiteHourlyRates_Approved, 
-                            afr.AFR5
-                        ) as FieldServiceCost5
+        JOIN InputAtoms.CountryView c on c.Id = m.CountryId
 
-            , null as '2ndLevelRatio'
-            , null as '2ndLevelSupportRate'
-            , ssc.[1stLevelSupportCosts]
-            , null as OohUpliftSsc
+        JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
 
-            , r.ReinsuranceNBD
-            , r.ReinsuranceNBD as ReinsuranceNBD_Oow
-            , r.Reinsurance27x7
-            , r.Reinsurance27x7 as Reinsurance27x7_Oow
+        JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
 
-            , null as MaterialPerIncident
+        INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 
-            , mcw.MaterialCostWarranty_Approved as MaterialCostWarranty
-            , mco.MaterialCostOow_Approved as MaterialCostOow
+        INNER JOIN Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
 
-            , null as OnSiteInterventions
+        INNER JOIN Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
 
-            , dur.Value as Duration
+        INNER JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
 
-            , null as CallRate
-            , null as GlobalProduct
+        LEFT JOIN Atom.AfrYear afr on afr.Wg = m.WgId
 
-            , null as DealerPrice
-            , null as ListPrice
+        --cost blocks
+        LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId 
+                                                AND fsc.Country = m.CountryId 
+                                                AND fsc.ServiceLocation = m.ServiceLocationId
+                                                AND fsc.ReactionTypeId = m.ReactionTypeId
+                                                AND fsc.ReactionTimeId = m.ReactionTimeId
 
-            , null as SparesAvailability
-            , null as UsageFtsLogistics
-            , null as ReinsuranceCalcMode
-            , null as ReinsuranceContract
+        LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = m.CountryId 
+                                            AND lc.Wg = m.WgId
+                                            AND lc.ReactionTime = m.ReactionTimeId
+                                            AND lc.ReactionType = m.ReactionTypeId
 
-    from Report.GetMatrixBySla(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc) m
+        LEFT JOIN Atom.TaxAndDutiesView tax on tax.Country = m.CountryId
 
-    JOIN InputAtoms.CountryView c on c.Id = m.CountryId
+        LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
-    JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
+        LEFT JOIN Atom.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
 
-    JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
+        LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.Wg = m.WgId
 
-    JOIN Atom.Afr5YearView afr on afr.Wg = m.WgId
+        LEFT JOIN ReinsuranceCte r on r.Wg = m.WgId and r.Year = m.DurationId
 
-    --cost blocks
-    JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId 
-                                            AND fsc.Country = m.CountryId 
-                                            AND fsc.ServiceLocation = m.ServiceLocationId
-                                            AND fsc.ReactionTypeId = m.ReactionTypeId
-                                            AND fsc.ReactionTimeId = m.ReactionTimeId
-
-    JOIN Hardware.LogisticsCostView lc on lc.Country = m.CountryId 
-                                        AND lc.Wg = m.WgId
-                                        AND lc.ReactionTime = m.ReactionTimeId
-                                        AND lc.ReactionType = m.ReactionTypeId
-
-    JOIN Atom.TaxAndDutiesView tax on tax.Country = m.CountryId
-
-    JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
-
-    JOIN Atom.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
-
-    JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.Wg = m.WgId
-
-    LEFT JOIN ReinsuranceCte r on r.Wg = m.WgId and r.Duration = m.DurationId
+        LEFT JOIN Fsp.HwFspCodeTranslation fsp on fsp.CountryId = m.CountryId
+                                    and fsp.WgId = m.WgId
+                                    and fsp.AvailabilityId = m.AvailabilityId
+                                    and fsp.DurationId = m.DurationId
+                                    and fsp.ReactionTimeId = m.ReactionTimeId
+                                    and fsp.ReactionTypeId = m.ReactionTypeId
+                                    and fsp.ServiceLocationId = m.ServiceLocationId
+    )
+    select    m.*
+            , m.FieldServicePerYear * m.AFR1 as FieldServiceCost1
+            , m.FieldServicePerYear * m.AFR2 as FieldServiceCost2
+            , m.FieldServicePerYear * m.AFR3 as FieldServiceCost3
+            , m.FieldServicePerYear * m.AFR4 as FieldServiceCost4
+            , m.FieldServicePerYear * m.AFR5 as FieldServiceCost5
+    from CostCte m
 )
 GO
 
