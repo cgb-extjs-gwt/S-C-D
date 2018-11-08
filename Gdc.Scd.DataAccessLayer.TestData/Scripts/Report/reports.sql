@@ -432,6 +432,13 @@ RETURN
          , m.ServiceLocationId
          , m.ServiceLocation
 
+         , m.StandardHandling
+         , m.HighAvailabilityHandling
+         , m.StandardDelivery
+         , m.ExpressDelivery
+         , m.TaxiCourierDelivery
+         , m.ReturnDeliveryFactory
+
          , m.AFR1 
          , m.AFR2 
          , m.AFR3 
