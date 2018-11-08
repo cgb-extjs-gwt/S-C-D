@@ -15,31 +15,27 @@ CREATE FUNCTION Report.CalcOutputNewVsOld
 RETURNS TABLE 
 AS
 RETURN (
-    with cte as (
-        select m.Country 
-             , wg.SogDescription as SogDescription
-             , m.Fsp
-             , wg.Description as WgDescription
-             , m.ServiceLocation
-             , m.ReactionTime
-             , wg.Name as Wg
+    select m.Id
+            , m.Country 
+            , wg.SogDescription as SogDescription
+            , m.Fsp
+            , wg.Description as WgDescription
+            , m.ServiceLocation
+            , m.ReactionTime
+            , wg.Name as Wg
          
-             , (m.Duration + ' ' + m.ServiceLocation) as ServiceProduct
+            , (m.Duration + ' ' + m.ServiceLocation) as ServiceProduct
             
-             , sc.LocalServiceStandardWarranty as StandardWarranty
-             , null as StandardWarrantyOld
+            , m.LocalServiceStandardWarranty as StandardWarranty
+            , null as StandardWarrantyOld
 
-             , wg.Sog
+            , wg.Sog
 
-        from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
-        join Hardware.ServiceCostCalculationView sc on sc.MatrixId = m.Id
-        join InputAtoms.WgSogView wg on wg.id = m.WgId
-    )
-    select sc.*
-         , (100 * (sc.StandardWarranty - sc.StandardWarrantyOld) / sc.StandardWarranty) as Bw
-    from cte as sc
+            , (100 * (m.LocalServiceStandardWarranty - null) / m.LocalServiceStandardWarranty) as Bw
+
+    from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
+    join InputAtoms.WgSogView wg on wg.id = m.WgId
 )
-
 GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CALCOUTPUT-NEW-VS-OLD');

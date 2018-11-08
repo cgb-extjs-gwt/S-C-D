@@ -62,6 +62,10 @@ IF OBJECT_ID('Hardware.GetCalcMember') IS NOT NULL
   DROP FUNCTION Hardware.GetCalcMember;
 go 
 
+IF OBJECT_ID('Matrix.GetBySla') IS NOT NULL
+  DROP FUNCTION Matrix.GetBySla;
+go 
+
 IF OBJECT_ID('Hardware.CalcFieldServiceCost') IS NOT NULL
   DROP FUNCTION Hardware.CalcFieldServiceCost;
 go 
@@ -658,6 +662,10 @@ CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as
     from AvFeeCte2 fee
 GO
 
+IF OBJECT_ID('Atom.InstallBaseUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Atom.InstallBaseUpdated;
+go
+
 CREATE TRIGGER Atom.InstallBaseUpdated
 ON Atom.InstallBase
 After INSERT, UPDATE
@@ -690,6 +698,10 @@ AS BEGIN
 END
 GO
 
+IF OBJECT_ID('Hardware.HddRetentionUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.HddRetentionUpdated;
+go
+
 CREATE TRIGGER Hardware.HddRetentionUpdated
 ON Hardware.HddRetention
 After INSERT, UPDATE
@@ -716,7 +728,7 @@ AS BEGIN
     update h
         set h.HddRet = c.HddRet, HddRet_Approved = c.HddRet_Approved
     from Hardware.HddRetention h
-    join cte c on c.Id = h.Id
+    join cte2 c on c.Id = h.Id
 
 END
 go
