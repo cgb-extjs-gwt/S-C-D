@@ -49,11 +49,11 @@ namespace Gdc.Scd.Export.CdCs.Procedures
                 var proActiveCost = new ProActiveDto
                 {
                     Wg = wg,
-                    ProActive3 = pro3 != null ? pro3.Field<double>("Cost") : 0,
-                    ProActive4 = pro4 != null ? pro4.Field<double>("Cost") : 0,
-                    ProActive6 = pro6 != null ? pro6.Field<double>("Cost") : 0,
-                    ProActive7 = pro7 != null ? pro7.Field<double>("Cost") : 0,
-                    OneTimeTasks = oneTime != null ? oneTime.Field<double>("OneTimeTasks") : 0
+                    ProActive3 = _service.CheckDoubleField(pro3, "Cost"),
+                    ProActive4 = _service.CheckDoubleField(pro4, "Cost"),
+                    ProActive6 = _service.CheckDoubleField(pro6, "Cost"),
+                    ProActive7 = _service.CheckDoubleField(pro7, "Cost"),
+                    OneTimeTasks = _service.CheckDoubleField(oneTime, "Cost")
                 };
                 proList.Add(proActiveCost);
             }

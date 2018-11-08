@@ -53,5 +53,14 @@ namespace Gdc.Scd.Export.CdCs.Procedures
 
             return builder.Build();
         }
+
+        public double CheckDoubleField(DataRow row, string fieldName)
+        {
+            if (row != null && row.Field<double?>(fieldName) != null)
+            {
+                return row.Field<double>(fieldName);
+            }
+            return 0;
+        }
     }
 }

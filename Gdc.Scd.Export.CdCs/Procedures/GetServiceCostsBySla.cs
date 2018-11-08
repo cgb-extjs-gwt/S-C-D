@@ -47,29 +47,16 @@ namespace Gdc.Scd.Export.CdCs.Procedures
             {
                 Country = country,
                 FspCode = fspCode,
-                ServiceTC = row != null ? row.Field<double>("ServiceTC") : 0,
-                ServiceTP = row != null ? row.Field<double>("ServiceTP") : 0,
-                ServiceTP_MonthlyYear1 = 0,
-                ServiceTP_MonthlyYear2 = 0,
-                ServiceTP_MonthlyYear3 = 0,
-                ServiceTP_MonthlyYear4 = 0,
-                ServiceTP_MonthlyYear5 = 0
+                ServiceTC = _service.CheckDoubleField(row, "ServiceTC"),
+                ServiceTP = _service.CheckDoubleField(row, "ServiceTP"),
+                ServiceTP_MonthlyYear1 = _service.CheckDoubleField(row, "ServiceTP1"),
+                ServiceTP_MonthlyYear2 = _service.CheckDoubleField(row, "ServiceTP2"),
+                ServiceTP_MonthlyYear3 = _service.CheckDoubleField(row, "ServiceTP3"),
+                ServiceTP_MonthlyYear4 = _service.CheckDoubleField(row, "ServiceTP4"),
+                ServiceTP_MonthlyYear5 = _service.CheckDoubleField(row, "ServiceTP5")
+
             };
-
-            var serviceTP_Str = row != null ? row.Field<string>("ServiceTP_Str_Approved") : string.Empty;
-            if (!String.IsNullOrEmpty(serviceTP_Str))
-            {
-                var values = serviceTP_Str.Split(';');
-                var valuesCount = 0;
-
-                serviceCost.ServiceTP_MonthlyYear1 = valuesCount > 0 ? Convert.ToDouble(values[0]) : 0;
-                serviceCost.ServiceTP_MonthlyYear2 = valuesCount > 1 ? Convert.ToDouble(values[1]) : 0;
-                serviceCost.ServiceTP_MonthlyYear3 = valuesCount > 2 ? Convert.ToDouble(values[2]) : 0;
-                serviceCost.ServiceTP_MonthlyYear4 = valuesCount > 3 ? Convert.ToDouble(values[3]) : 0;
-                serviceCost.ServiceTP_MonthlyYear5 = valuesCount > 4 ? Convert.ToDouble(values[4]) : 0;
-            }
-
             return serviceCost;
-        }
+        }     
     }
 }
