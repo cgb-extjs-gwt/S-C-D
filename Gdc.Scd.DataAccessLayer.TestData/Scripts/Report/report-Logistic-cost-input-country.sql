@@ -12,32 +12,22 @@ CREATE FUNCTION Report.LogisticCostInputCountry
 RETURNS TABLE 
 AS
 RETURN (
-    select c.Region
-         , c.Name as Country
-         , wg.Name as Wg
+    select Region
+         , Country
+         , Wg
 
-         , c.Currency as Currency
+         , Currency
 
-         , (time.Name + ' ' + type.Name) as ReactionType
+         , ReactionType
 
-         , l.StandardHandling_Approved as StandardHandling
-         , l.HighAvailabilityHandling_Approved as HighAvailabilityHandling
-         , l.StandardDelivery_Approved as StandardDelivery
-         , l.ExpressDelivery_Approved as ExpressDelivery
-         , l.TaxiCourierDelivery_Approved as TaxiCourierDelivery
-         , l.ReturnDeliveryFactory_Approved as ReturnDeliveryFactory
+         , StandardHandling
+         , HighAvailabilityHandling
+         , StandardDelivery
+         , ExpressDelivery
+         , TaxiCourierDelivery
+         , ReturnDeliveryFactory
 
-    FROM Hardware.LogisticsCosts l
-    join InputAtoms.CountryView c on c.Id = l.Country
-    join InputAtoms.WgSogView wg on wg.Id = l.Wg
-    JOIN Dependencies.ReactionTime_ReactionType rtt on rtt.Id = l.ReactionTimeType
-    JOIN Dependencies.ReactionTime time ON time.id = rtt.ReactionTimeId
-    JOIN Dependencies.ReactionType type ON type.Id = rtt.ReactionTypeId
-
-    where l.Country = @cnt
-      and (@wg is null or l.Wg = @wg)
-      and (@reactiontime is null or rtt.ReactionTimeId = @reactiontime)
-      and (@reactiontype is null or rtt.ReactionTypeId = @reactiontype)
+    FROM Report.LogisticCostInputCentral(coalesce(@cnt, -1), @wg, @reactiontime, @reactiontype)
 )
 
 GO
