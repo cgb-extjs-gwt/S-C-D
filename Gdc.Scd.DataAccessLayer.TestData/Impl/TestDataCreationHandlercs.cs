@@ -78,7 +78,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-country.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-parameter.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap-detailed.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap-detailed.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-calc-central.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-calc-country.sql"));
             //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-central.sql"));
