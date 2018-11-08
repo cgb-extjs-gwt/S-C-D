@@ -20,7 +20,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         public async Task<Stream> ExecuteExcelAsync(ReportSchemaDto schema, string func, DbParameter[] parameters)
         {
             var writer = new ReportExcelWriter(schema);
-            var sql = SelectAllQuery(func, parameters, 1000);
+            var sql = SelectAllQuery(func, parameters, 2000);
 
             await _repo.ReadBySql(sql, writer.WriteBody, parameters);
 
@@ -64,7 +64,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         private static string SelectAllQuery(string func, DbParameter[] parameters, int max)
         {
             return new SqlStringBuilder()
-                   .Append("SELECT * FROM ").AppendFunc(func, parameters)
+                   .Append("SELECT top(").AppendValue(max).Append(")* FROM ").AppendFunc(func, parameters)
                    .Build();
         }
 
