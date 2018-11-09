@@ -538,6 +538,14 @@ END
 GO
 
 CREATE VIEW [Hardware].[AvailabilityFeeView] as 
+    with WgCte as (
+        select wg.*
+             , case 
+                    when wg.WgType = 0 then 1
+                    else 0
+               end as IsMultiVendor
+        from InputAtoms.Wg wg
+    )
     select fee.Country,
            fee.Wg,
            wg.IsMultiVendor, 
@@ -575,7 +583,7 @@ CREATE VIEW [Hardware].[AvailabilityFeeView] as
             fee.MaxQty_Approved
 
     from Hardware.AvailabilityFee fee
-    JOIN InputAtoms.Wg wg on wg.Id = fee.Wg
+    JOIN WgCte wg on wg.Id = fee.Wg
     JOIN InputAtoms.Country c on c.Id = fee.Country
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 GO
@@ -736,7 +744,10 @@ go
 CREATE VIEW [Hardware].[FieldServiceCostView] AS
     SELECT  fsc.Country,
             fsc.Wg,
-            wg.IsMultiVendor,
+            case 
+                when wg.WgType = 0 then 1
+                else 0
+            end as IsMultiVendor,
             
             hr.OnsiteHourlyRates,
             hr.OnsiteHourlyRates_Approved,
@@ -780,11 +791,18 @@ CREATE VIEW Atom.TaxAndDutiesVIEW as
 GO
 
 CREATE VIEW InputAtoms.WgView WITH SCHEMABINDING as
-    SELECT wg.Id, wg.Name, wg.IsMultiVendor, pla.Id as Pla, cpla.Id as ClusterPla
-            from InputAtoms.Wg wg,
-                 InputAtoms.Pla pla,
-                 InputAtoms.ClusterPla cpla
-            where wg.PlaId = pla.Id and cpla.id = pla.ClusterPlaId
+    SELECT wg.Id, 
+           wg.Name, 
+           case 
+                when wg.WgType = 0 then 1
+                else 0
+            end as IsMultiVendor, 
+           pla.Id as Pla, 
+           cpla.Id as ClusterPla
+    from InputAtoms.Wg wg,
+            InputAtoms.Pla pla,
+            InputAtoms.ClusterPla cpla
+    where wg.PlaId = pla.Id and cpla.id = pla.ClusterPlaId
 GO
 
 CREATE VIEW [Hardware].[LogisticsCostView] AS
