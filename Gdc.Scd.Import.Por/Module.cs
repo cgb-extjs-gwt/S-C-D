@@ -26,7 +26,6 @@ namespace Gdc.Scd.Import.Por
 
             Bind(typeof(IDataImporter<>)).To(typeof(PorDataImporter<>)).InSingletonScope();
 
-            Bind<IPorSFabsService>().To<PorSFabService>();
             Bind<IPorSogService>().To<PorSogService>();
             Bind<IPorWgService>().To<PorWgService>();
             Bind<IPorSwDigitService>().To<PorSwDigitService>();

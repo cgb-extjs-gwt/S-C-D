@@ -12,7 +12,6 @@ namespace Gdc.Scd.Import.Por.Core.Interfaces
     {
         bool UploadSogs(IEnumerable<SCD2_ServiceOfferingGroups> sogs, 
             IEnumerable<Pla> plas,
-            IEnumerable<SFab> sFabs,
             DateTime modifiedDate, IEnumerable<string> softwareServiceTypes);
 
         bool DeactivateSogs(IEnumerable<SCD2_ServiceOfferingGroups> sogs, DateTime modifiedDatetime);

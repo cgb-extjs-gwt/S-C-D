@@ -38,7 +38,6 @@ namespace Gdc.Scd.Import.Por
         public static ImportService<SwDigit> DigitService { get; private set; }
         public static ImportService<SwLicense> LicenseService { get; private set; }
         public static DomainService<ProActiveDigit> ProActiveDigitService { get; set; }
-        public static IPorSFabsService SFabService { get; private set; }
         public static IPorSogService SogService { get; private set; }
         public static IPorWgService WgService { get; private set; }
         public static IPorSwDigitService SwDigitService { get; private set; }
@@ -80,7 +79,6 @@ namespace Gdc.Scd.Import.Por
             
 
             //SERVICES
-            SFabService = kernel.Get<IPorSFabsService>();
             SogService = kernel.Get<IPorSogService>();
             WgService = kernel.Get<IPorWgService>();
             SwDigitService = kernel.Get<IPorSwDigitService>();
@@ -91,38 +89,23 @@ namespace Gdc.Scd.Import.Por
             SoftwareProactiveService = kernel.Get<IPorSwProActiveService>();
         }
 
-        public static void UploadSFabs(List<SCD2_ServiceOfferingGroups> sogs, 
-            List<SCD2_WarrantyGroups> wgs, List<Pla> plas,
-            int step)
-        {
-            Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(SFab));
 
-            var sfabDictionary = FormatDataHelper.FillSFabDictionary(sogs, wgs);
-
-            var success = SFabService.UploadSFabs(sfabDictionary, plas, DateTime.Now);
-            if (success)
-                success = SFabService.DeactivateSFabs(sfabDictionary, DateTime.Now);
-
-            Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);
-        }
-
-
-        public static void UploadSogs(List<SFab> sFabs, List<Pla> plas, int step, 
+        public static void UploadSogs(List<Pla> plas, int step, 
             List<SCD2_ServiceOfferingGroups> sogs, string[] softwareServiceTypes)
         {
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(Sog));
-            var success = SogService.UploadSogs(sogs, plas, sFabs, DateTime.Now, softwareServiceTypes);
+            var success = SogService.UploadSogs(sogs, plas, DateTime.Now, softwareServiceTypes);
             if (success)
                 success = SogService.DeactivateSogs(sogs, DateTime.Now);
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);
         }
 
 
-        public static void UploadWgs(List<SFab> sFabs, List<Pla> plas, int step,
+        public static void UploadWgs(List<Pla> plas, int step,
             List<Sog> sogs, List<SCD2_WarrantyGroups> wgs, string[] softwareServiceTypes)
         {
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(Wg));
-            var success = WgService.UploadWgs(wgs, sFabs, sogs, plas, DateTime.Now, softwareServiceTypes);
+            var success = WgService.UploadWgs(wgs, sogs, plas, DateTime.Now, softwareServiceTypes);
             if (success)
                 success = WgService.DeactivateWgs(wgs, DateTime.Now);
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);

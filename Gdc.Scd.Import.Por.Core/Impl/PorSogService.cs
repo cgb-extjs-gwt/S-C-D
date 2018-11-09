@@ -65,7 +65,6 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public bool UploadSogs(IEnumerable<SCD2_ServiceOfferingGroups> sogs, 
             IEnumerable<Pla> plas,
-            IEnumerable<SFab> sFabs,
             DateTime modifiedDateTime, IEnumerable<string> softwareServiceTypes)
         {
             var result = true;
@@ -85,16 +84,12 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         continue;
                     }
 
-                    SFab sFab = sFabs.FirstOrDefault(fab =>
-                                fab.Name.Equals(porSog.FabGrp, StringComparison.OrdinalIgnoreCase));
-
                     updatedSogs.Add(new Sog
                     {
                         Alignment = porSog.Alignment,
                         Description = porSog.Service_Offering_Group_Name,
                         Name = porSog.Service_Offering_Group,
                         PlaId = pla.Id,
-                        SFabId = sFab?.Id,
                         SCD_ServiceType = porSog.SCD_ServiceType,
                         IsSoftware = ImportHelper.IsSoftware(porSog.SCD_ServiceType, softwareServiceTypes)
                     });

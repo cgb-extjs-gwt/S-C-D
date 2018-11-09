@@ -212,7 +212,7 @@
         <Application>Atom</Application>
       </Applications>
       <Elements>
-        <Element Name="TaxAndDuties" Caption="Tax &amp; duties" InputOption="ManualyAutomaticly">
+        <Element Name="TaxAndDuties" Caption="Tax &amp; duties" InputOption="Automaticly">
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Wg</InputLevel>

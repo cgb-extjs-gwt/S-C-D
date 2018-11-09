@@ -39,5 +39,10 @@ namespace Gdc.Scd.Import.Core
         public static string UPLOAD_WG_END = "WGs were uploaded. {0} rows affected.";
         public static string UPLOAD_AVAILABILITY_FEE_START = "Starting to Upload Availability Fee for WG {0}";
         public static string UPLOAD_AVAILABILITY_FEE_END = "Availability fees was uploaded. {0} rows affected.";
+        public static string UPDATE_AVAILABILITY_FEE_NEW_WG_START = "Starting update Availability Fee for new WGs";
+        public static string UPDATE_AVAILABILITY_FEE_NEW_WG_FINISH = "Availability Fee for new WGs was updated. {0} rows added";
+        public static string UPDATE_AVAILABILITY_FEE_ERROR = "Error while updating Availability Fee.";
+        public static string DEACTIVATING_AVAILABILITY_FEE = "Deactivating Availability Fee for WG {0}.";
+
     }
 }
