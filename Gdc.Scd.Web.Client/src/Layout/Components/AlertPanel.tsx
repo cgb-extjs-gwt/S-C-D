@@ -7,7 +7,8 @@ import { AlertAction, APP_ALERT_ERROR, APP_ALERT_INFO, APP_ALERT_LINK, APP_ALERT
 export class AlertPanel extends React.Component<ContainerProps, any> {
 
     state = {
-        items: new Array<AlertAction>()
+        items: new Array<AlertAction>(),
+        frames: new Array<ReportAction>()
     }
 
     public constructor(props: any) {
@@ -25,6 +26,9 @@ export class AlertPanel extends React.Component<ContainerProps, any> {
 
         return (
             <Container {...this.props} margin="0 0 5px 0" padding="20px" bottom="10px" right="10px" maxWidth="450px">
+                <Container hidden={true}>
+                    {this.state.frames.map(this.createFrame)}
+                </Container>
                 <div onClick={this.onCloseAlert}>
                     {items.map(this.createAlert)}
                     {hideAll}
@@ -58,6 +62,10 @@ export class AlertPanel extends React.Component<ContainerProps, any> {
         }
     }
 
+    private createFrame(model: ReportAction, index: number): JSX.Element {
+        return <iframe key={index} src={model.url}></iframe>;
+    }
+
     private textAlert(css: string, caption: string, text: string, index: number): JSX.Element {
         return (
             <div key={index} className={css}>
@@ -72,7 +80,6 @@ export class AlertPanel extends React.Component<ContainerProps, any> {
             <div key={index} className="alert success">
                 <span data-id={index} className="alert-close">&times;</span>
                 <strong>Success!</strong> {model.text}
-                <iframe className="alert-frame" src={model.url}></iframe>
             </div>
         );
     }
@@ -96,7 +103,11 @@ export class AlertPanel extends React.Component<ContainerProps, any> {
     }
 
     private onAlert(data: AlertAction) {
-        this.setState({ items: [...this.state.items, data] });
+        let s: any = { items: [...this.state.items, data] };
+        if (data.type == APP_ALERT_REPORT) {
+            s.frames = [...this.state.frames, data];
+        }
+        this.setState(s);
     }
 
     private onCloseAlert(e: any): void {
