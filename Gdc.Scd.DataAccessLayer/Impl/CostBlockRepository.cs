@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
@@ -192,11 +193,21 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         private GroupBySqlHelper BuildReferenceIdsQuery(ReferenceFieldMeta field)
         {
             var fieldQuery = Sql.Select(field.ReferenceValueField).From(field.ReferenceMeta);
+            var conditions = new List<ConditionHelper>();
 
-            return 
-                field.ReferenceMeta is DeactivatableEntityMeta deactivatableMeta
-                    ? fieldQuery.Where(SqlOperators.IsNull(deactivatableMeta.DeactivatedDateTimeField.Name))
-                    : fieldQuery;
+            if (field.ReferenceMeta is DeactivatableEntityMeta deactivatableMeta)
+            {
+                conditions.Add(SqlOperators.IsNull(deactivatableMeta.DeactivatedDateTimeField.Name));
+            }
+
+            if (field.Name == MetaConstants.WgInputLevelName)
+            {
+                conditions.Add(SqlOperators.Equals(nameof(Wg.WgType), "wgType", (int)WgType.Por));
+            }
+
+            return conditions.Count == 0
+                ? fieldQuery
+                : fieldQuery.Where(ConditionHelper.And(conditions));
         }
 
         private string BuildCostBlockReferenceIdsAlias(ReferenceFieldMeta field)
