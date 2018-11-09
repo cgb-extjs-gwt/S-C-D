@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.Dto;
@@ -37,7 +38,7 @@ namespace Gdc.Scd.Import.Core.Impl
 
         public void Upload(IEnumerable<AfrDto> items, DateTime modifiedDateTime)
         {
-            var wgs = _repositoryWg.GetAll().ToList();
+            var wgs = _repositoryWg.GetAll().Where(wg => wg.WgType == WgType.Por).ToList();
             var years = _repositoryYear.GetAll().ToList();
             var afrs = _repositoryAfr.GetAll().ToList();
 
