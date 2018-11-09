@@ -8,7 +8,6 @@ namespace Gdc.Scd.Import.Por.Core.Interfaces
     public interface IPorWgService
     {
         bool UploadWgs(IEnumerable<SCD2_WarrantyGroups> wgs,
-            IEnumerable<SFab> sFabs,
             IEnumerable<Sog> sogs,
             IEnumerable<Pla> plas,
             DateTime modifiedDateTime, IEnumerable<string> softwareServiceTypes);
