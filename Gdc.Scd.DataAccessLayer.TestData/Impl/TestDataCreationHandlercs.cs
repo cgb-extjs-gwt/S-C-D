@@ -13,7 +13,6 @@ using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
@@ -28,13 +27,16 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private readonly EntityFrameworkRepositorySet repositorySet;
 
+        private readonly ICostBlockRepository costBlockRepository;
+
         public TestDataCreationHandlercs(
-                DomainEnitiesMeta entityMetas,
-                EntityFrameworkRepositorySet repositorySet
-            )
+            DomainEnitiesMeta entityMetas,
+            EntityFrameworkRepositorySet repositorySet,
+            ICostBlockRepository costBlockRepository)
         {
             this.entityMetas = entityMetas;
             this.repositorySet = repositorySet;
+            this.costBlockRepository = costBlockRepository;
         }
 
         public void Handle()
@@ -57,8 +59,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateReportColumnTypes();
             this.CreateReportFilterTypes();
 
+            this.FillCostBlocks();
+
             var queries = new List<SqlHelper>();
-            queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
 
             queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
@@ -392,83 +395,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             return this.BuildInsertSql(entityMeta, names);
         }
 
-        private IEnumerable<SqlHelper> BuildInsertCostBlockSql()
+        private void FillCostBlocks()
         {
-            foreach (var costBlockMeta in this.entityMetas.CostBlocks)
+            foreach (var costBlock in this.entityMetas.CostBlocks)
             {
-                var referenceFields = costBlockMeta.CoordinateFields.ToList();
-                var selectColumns =
-                    referenceFields.Select(field => new ColumnInfo(field.ReferenceValueField, field.ReferenceMeta.Name, field.Name))
-                                   .ToList()
-                                   .AsEnumerable();
-
-                var insertFields = referenceFields.Select(field => field.Name).ToArray();
-
-                var wgField = costBlockMeta.InputLevelFields[MetaConstants.WgInputLevelName];
-                var plaField = costBlockMeta.InputLevelFields[MetaConstants.PlaInputLevelName];
-
-                if (plaField != null && wgField != null)
-                {
-                    selectColumns =
-                        selectColumns.Select(
-                            column => column.TableName == plaField.Name
-                                ? new ColumnInfo($"{nameof(Pla)}{nameof(Wg.Id)}", MetaConstants.WgInputLevelName, plaField.Name)
-                                : column);
-
-                    referenceFields.Remove(plaField);
-                }
-
-                var clusterRegionField = costBlockMeta.InputLevelFields[ClusterRegionId];
-                var countryField = costBlockMeta.InputLevelFields[MetaConstants.CountryInputLevelName];
-
-                ReferenceFieldMeta fromField = null;
-
-                if (countryField == null)
-                {
-                    fromField = referenceFields[0];
-
-                    referenceFields.RemoveAt(0);
-                }
-                else
-                {
-                    if (clusterRegionField != null)
-                    {
-                        selectColumns =
-                            selectColumns.Select(
-                                column => column.TableName == clusterRegionField.Name
-                                    ? new ColumnInfo(nameof(Country.ClusterRegionId), MetaConstants.CountryInputLevelName, ClusterRegionId)
-                                    : column);
-
-                        referenceFields.Remove(clusterRegionField);
-                    }
-
-                    fromField = countryField;
-
-                    referenceFields.Remove(countryField);
-                }
-
-                var joinQuery = Sql.Select(selectColumns.ToArray()).From(fromField.ReferenceMeta);
-
-                foreach (var field in referenceFields)
-                {
-                    var referenceMeta = field.ReferenceMeta;
-
-                    joinQuery = joinQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
-                }
-
-                SqlHelper query;
-
-                if (countryField == null)
-                {
-                    query = joinQuery;
-                }
-                else
-                {
-                    query = joinQuery.Where(
-                        SqlOperators.Equals(nameof(Country.IsMaster), "isMaster", true, MetaConstants.CountryInputLevelName));
-                }
-
-                yield return Sql.Insert(costBlockMeta, insertFields).Query(query);
+                this.costBlockRepository.UpdateByCoordinates(costBlock);
             }
         }
 

@@ -3,11 +3,11 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class SelectSqlHelper : SqlHelper, IFromSqlHelper<SelectJoinSqlHelper>
+    public class SelectFromSqlHelper : SqlHelper, IFromSqlHelper<SelectJoinSqlHelper>
     {
         private readonly FromSqlHepler fromSqlHelper;
 
-        public SelectSqlHelper(ISqlBuilder sqlBuilder) 
+        public SelectFromSqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
         {
             this.fromSqlHelper = new FromSqlHepler(sqlBuilder);
