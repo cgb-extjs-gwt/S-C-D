@@ -1,6 +1,6 @@
 ﻿import { Container, ContainerProps } from "@extjs/ext-react";
 import * as React from "react";
-import { buildComponentUrl } from "../../Common/Services/Ajax";
+import { AlertHelper } from "../../Common/Helpers/AlertHelper";
 import { RemoteNotify } from "../../Webworker/RemoteNotify";
 import { AlertAction, APP_ALERT_ERROR, APP_ALERT_INFO, APP_ALERT_LINK, APP_ALERT_REPORT, APP_ALERT_SUCCESS, APP_ALERT_WARNING, LinkAction, ReportAction } from "../Actions/AlertActions";
 
@@ -72,7 +72,7 @@ export class AlertPanel extends React.Component<ContainerProps, any> {
             <div key={index} className="alert success">
                 <span data-id={index} className="alert-close">&times;</span>
                 <strong>Success!</strong> {model.text}
-                <iframe className="alert-frame" src={buildComponentUrl(model.url)}></iframe>
+                <iframe className="alert-frame" src={model.url}></iframe>
             </div>
         );
     }
@@ -81,7 +81,7 @@ export class AlertPanel extends React.Component<ContainerProps, any> {
         return (
             <div key={index} className="alert success">
                 <span data-id={index} className="alert-close">&times;</span>
-                <strong>Success!</strong> <a href={buildComponentUrl(model.url)} target="_blank">{model.text} download...</a>
+                <strong>Success!</strong> <a href={model.url} target="_blank">{model.text} download...</a>
             </div>
         );
     }
@@ -92,6 +92,7 @@ export class AlertPanel extends React.Component<ContainerProps, any> {
         this.onCloseAlert = this.onCloseAlert.bind(this);
         //
         RemoteNotify(this.onAlert);
+        AlertHelper.init(this.onAlert);
     }
 
     private onAlert(data: AlertAction) {
