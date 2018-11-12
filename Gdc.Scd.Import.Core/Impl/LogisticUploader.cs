@@ -81,7 +81,7 @@ namespace Gdc.Scd.Import.Core.Impl
                         {
                             item.PlaId = pla.Id;
 
-                            _logger.Log(LogLevel.Info, ImportConstants.NEW_WG, item.WgCode);
+                            _logger.Log(LogLevel.Debug, ImportConstants.NEW_WG, item.WgCode);
                             var newWg = new Wg
                             {
                                 CreatedDateTime = DateTime.Now,
@@ -112,7 +112,7 @@ namespace Gdc.Scd.Import.Core.Impl
                                 wg.PlaId = pla.Id;
                                 wg.Description = item.WgDescription;
                             }
-                            _logger.Log(LogLevel.Info, ImportConstants.UPDATE_WG, item.WgCode);
+                            _logger.Log(LogLevel.Debug, ImportConstants.UPDATE_WG, item.WgCode);
                             batchUpdate.Add(wg);
                         }
                         break;
@@ -125,7 +125,7 @@ namespace Gdc.Scd.Import.Core.Impl
                             wg.ModifiedDateTime = modifiedDateTime;
                             if (wg.WgType == WgType.MultiVendor || wg.WgType == WgType.Logistics)
                                 wg.DeactivatedDateTime = modifiedDateTime;
-                            _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATE_START, item.WgCode);
+                            _logger.Log(LogLevel.Debug, ImportConstants.DEACTIVATE_START, item.WgCode);
                             batchUpdate.Add(wg);
                             this._deletedWgs.Add(wg.Id);
                         }
@@ -188,7 +188,7 @@ namespace Gdc.Scd.Import.Core.Impl
                         var deactivatedWg = _repositoryWg.GetAll().FirstOrDefault(w => w.Name.ToUpper() == item.WgCode.ToUpper());
                         if (deactivatedWg != null && deactivatedWg.WgType != WgType.Por && deactivatedWg.DeactivatedDateTime.HasValue)
                         {
-                            _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATING_AVAILABILITY_FEE, deactivatedWg.Name);
+                            _logger.Log(LogLevel.Debug, ImportConstants.DEACTIVATING_AVAILABILITY_FEE, deactivatedWg.Name);
                             var itemsToDeactivate = _availabilityFeeRepo.GetAll().Where(af => af.WgId == deactivatedWg.Id).ToList();
                             foreach(var deactivatedItem in itemsToDeactivate)
                             {

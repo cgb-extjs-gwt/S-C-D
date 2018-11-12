@@ -25,7 +25,7 @@ namespace Gdc.Scd.Import.Core
         public static string MOVE_FILE_END = "File was moved.";
         public static string UPDATE_PROCESSING_DATE = "Processing date was updated.";
         public static string UNKNOWN_COUNTRY = "Could not find Master Country {0} with Code {1}";
-        public static string UNKNOWN_COUNTRY_CODE = "Could not find Country Group with Country Code {0}";
+        public static string UNKNOWN_COUNTRY_CODE = "Country Group with Country Code {0} is either unknown or skipped from auto upload";
         public static string UNKNOWN_WARRANTY = "Could not find Warranty Group {0}";
         public static string UNKNOWN_YEAR = "Could not find Year Dependency {0}";
         public static string EMPTY_COUNTRY = "Skip uploading for one record as country is empty";
@@ -43,6 +43,14 @@ namespace Gdc.Scd.Import.Core
         public static string UPDATE_AVAILABILITY_FEE_NEW_WG_FINISH = "Availability Fee for new WGs was updated. {0} rows added";
         public static string UPDATE_AVAILABILITY_FEE_ERROR = "Error while updating Availability Fee.";
         public static string DEACTIVATING_AVAILABILITY_FEE = "Deactivating Availability Fee for WG {0}.";
-
+        public static string ADD_NEW_SFAB = "Adding new Sfab {0}...";
+        public static string UPDATE_SFAB = "Updating Sfab {0}...";
+        public static string UPLOAD_SFAB_END = "Uploading Sfabs finished. {0} rows affected.";
+        public static string DEACTIVATING_SFAB_START = "Deactivating SFabs...";
+        public static string DEACTIVATING_SFAB = "Deactivating SFab: {0}";
+        public static string DEACTIVATING_SFAB_END = "Deactivating SFabs finished. {0} rows affected.";
+        public static string UPDATING_WGS_AND_SOGS_START = "Starting updating WGs and Sogs...";
+        public static string UPDATING_ENTITY = "Updating {0}: {1}...";
+        public static string UPDATING_WGS_AND_SOGS_END = "WGs and SOGs were updated.";
     }
 }

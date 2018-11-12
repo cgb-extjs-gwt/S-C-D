@@ -38,6 +38,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Import.Ebis.Install
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Spooler", "Gdc.Scd.Spooler\Gdc.Scd.Spooler.csproj", "{C98A5155-A567-46C5-8D44-4F2568F41567}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Import.SfabImport", "Gdc.Scd.Import.SfabImport\Gdc.Scd.Import.SfabImport.csproj", "{8EF3BD31-B3E2-4BBC-A0D0-8E4C8728699F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,6 +106,10 @@ Global
 		{C98A5155-A567-46C5-8D44-4F2568F41567}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C98A5155-A567-46C5-8D44-4F2568F41567}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C98A5155-A567-46C5-8D44-4F2568F41567}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EF3BD31-B3E2-4BBC-A0D0-8E4C8728699F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EF3BD31-B3E2-4BBC-A0D0-8E4C8728699F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EF3BD31-B3E2-4BBC-A0D0-8E4C8728699F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EF3BD31-B3E2-4BBC-A0D0-8E4C8728699F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

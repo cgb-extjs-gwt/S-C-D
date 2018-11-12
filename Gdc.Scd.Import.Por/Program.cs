@@ -22,7 +22,7 @@ namespace Gdc.Scd.Import.Por
             try
             {
                 //CONFIGURATION
-                PorService.Logger.Log(LogLevel.Info, "Reading configuration...");
+                 PorService.Logger.Log(LogLevel.Info, "Reading configuration...");
                 var softwareServiceTypes = Config.SoftwareSolutionTypes;
                 var proactiveServiceTypes = Config.ProActiveServices;
                 var standardWarrantiesServiceTypes = Config.StandardWarrantyTypes;
@@ -195,7 +195,10 @@ namespace Gdc.Scd.Import.Por
                 };
 
                 PorService.UploadSwFspCodes(swModel, step);
+                step++;
 
+                //STEP 9: UPLOAD COST BLOCKS
+                PorService.UpdateCostBlocks(step);
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.END_PROCESS);
             }
 

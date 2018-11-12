@@ -6,6 +6,8 @@ using System.Xml.Linq;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
 using System.Web.Hosting;
+using System.Reflection;
+using System.IO;
 
 namespace Gdc.Scd.Core.Meta.Impl
 {
@@ -76,6 +78,8 @@ namespace Gdc.Scd.Core.Meta.Impl
         public DomainMeta Get()
         {
             var fileName = HostingEnvironment.MapPath("~/DomainConfig.xml");
+            if (String.IsNullOrEmpty(fileName))
+                fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "DomainConfig.xml");
             var doc = XDocument.Load(fileName);
 
             return this.BuilDomainMeta(doc.Root);

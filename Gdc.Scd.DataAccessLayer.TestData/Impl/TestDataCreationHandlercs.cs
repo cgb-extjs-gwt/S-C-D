@@ -1448,13 +1448,28 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 Culture = "en-US"
             };
 
+            var sfabs = new ImportConfiguration
+            {
+                Name = ImportSystems.SFABS,
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Software_Solution",
+                FileName = "SWSolution_WG to SFAB mapping.csv",
+                ImportMode = Core.Enums.ImportMode.Automatic,
+                ProcessedDateTime = null,
+                Occurancy = Core.Enums.Occurancy.PerWeek,
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Software_Solution\processed",
+                Delimeter = ";",
+                HasHeader = true,
+                Culture = "de-DE"
+            };
+
             this.repositorySet.GetRepository<ImportConfiguration>().Save(new List<ImportConfiguration>()
             {
                 taxAndDuties,
                 logistic,
                 ebis_afr,
                 ebis_install_base,
-                ebis_material_cost
+                ebis_material_cost,
+                sfabs
             });
 
             this.repositorySet.Sync();

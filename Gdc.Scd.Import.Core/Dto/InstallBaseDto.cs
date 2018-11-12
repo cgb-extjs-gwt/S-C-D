@@ -13,9 +13,12 @@ namespace Gdc.Scd.Import.Core.Dto
         public string CountryCode { get; set; }
 
         [ParseInfo(1)]
-        public string Wg { get; set; }
+        public string CountryGroup { get; set; }
 
         [ParseInfo(2)]
+        public string Wg { get; set; }
+
+        [ParseInfo(3)]
         public double? InstallBase { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Impl;
+using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
@@ -46,7 +47,7 @@ namespace Gdc.Scd.Import.Por
         public static IHwFspCodeTranslationService HardwareService { get; private set; }
         public static ISwFspCodeTranslationService SoftwareService { get; private set; }
         public static IPorSwProActiveService SoftwareProactiveService { get; private set; }
-
+        public static ICostBlockService CostBlockService { get; private set; }
 
         static PorService()
         {
@@ -87,6 +88,7 @@ namespace Gdc.Scd.Import.Por
             HardwareService = kernel.Get<IHwFspCodeTranslationService>();
             SoftwareService = kernel.Get<ISwFspCodeTranslationService>();
             SoftwareProactiveService = kernel.Get<IPorSwProActiveService>();
+            CostBlockService = kernel.Get<ICostBlockService>();
         }
 
 
@@ -142,14 +144,14 @@ namespace Gdc.Scd.Import.Por
 
         public static void RebuildSoftwareInfo(List<SwDigit> digits, IEnumerable<SCD2_SW_Overview> swInfodigits, int step)
         {
-            Logger.Log(LogLevel.Info, ImportConstantMessages.REBUILD_RELATIONSHIPS_START, step);
+            Logger.Log(LogLevel.Info, ImportConstantMessages.REBUILD_RELATIONSHIPS_START, step, nameof(SwDigit), nameof(SwLicense));
             var licenses = LicenseService.GetAllActive().ToList();
             var success = SwLicenseDigitService.UploadSwDigitAndLicenseRelation(licenses, digits, swInfodigits, DateTime.Now);
             if (!success)
             {
                 Logger.Log(LogLevel.Warn, ImportConstantMessages.REBUILD_FAILS, step);
             }
-            Logger.Log(LogLevel.Info, ImportConstantMessages.REBUILD_RELATIONSHIPS_ENDS, step);
+            Logger.Log(LogLevel.Info, ImportConstantMessages.REBUILD_RELATIONSHIPS_END, step);
         }
 
         public static void UploadHwFspCodes(HwFspCodeDto model, int step)
@@ -176,6 +178,21 @@ namespace Gdc.Scd.Import.Por
             var success = SoftwareService.UploadSoftware(model);
 
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);
+        }
+
+        public static void UpdateCostBlocks(int step)
+        {
+            try
+            {
+                Logger.Log(LogLevel.Info, ImportConstantMessages.UPDATE_COST_BLOCKS_START, step);
+                var updateTask = CostBlockService.UpdateByCoordinates();
+                updateTask.Wait();
+                Logger.Log(LogLevel.Info, ImportConstantMessages.UPDATE_COST_BLOCKS_END);
+            }
+            catch(Exception ex)
+            {
+                Logger.Log(LogLevel.Error, ex, ImportConstantMessages.UNEXPECTED_ERROR);
+            }
         }
     }
 }
