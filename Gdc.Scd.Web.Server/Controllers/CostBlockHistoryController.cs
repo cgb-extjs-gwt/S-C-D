@@ -1,18 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web.Mvc;
-using Gdc.Scd.BusinessLogicLayer.Interfaces;
+﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 using Gdc.Scd.Web.Server.Impl;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
-    public class CostBlockHistoryController : System.Web.Http.ApiController
+    public class CostBlockHistoryController : ApiController
     {
         private readonly ICostBlockHistoryService costBlockHistoryService;
 
@@ -23,7 +23,7 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         [HttpGet]
         [ScdAuthorize(Permissions = new [] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
-        public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles([System.Web.Http.FromUri]CostBlockHistoryFilter filter, [System.Web.Http.FromUri]CostBlockHistoryState state)
+        public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles([FromUri]CostBlockHistoryFilter filter, [FromUri]CostBlockHistoryState state)
         {
             return await this.costBlockHistoryService.GetApprovalBundles(filter, state);
         }
@@ -31,9 +31,9 @@ namespace Gdc.Scd.Web.Server.Controllers
         [HttpGet]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
         public async Task<IEnumerable<Dictionary<string, object>>> GetApproveBundleDetail(
-            [System.Web.Http.FromUri]long costBlockHistoryId,
-            [System.Web.Http.FromUri]long? historyValueId = null,
-            [System.Web.Http.FromUri]string costBlockFilter = null)
+            [FromUri]long costBlockHistoryId,
+            [FromUri]long? historyValueId = null,
+            [FromUri]string costBlockFilter = null)
         {
             Dictionary<string, IEnumerable<object>> filterDictionary = null;
 
@@ -72,11 +72,11 @@ namespace Gdc.Scd.Web.Server.Controllers
         [HttpGet]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.CostEditor })]
         public async Task<IEnumerable<HistoryItem>> GetCostEditorHistory(
-            [System.Web.Http.FromUri]CostEditorContext context,
-            [System.Web.Http.FromUri]long editItemId,
-            [System.Web.Http.FromUri]int? start,
-            [System.Web.Http.FromUri]int? limit,
-            [System.Web.Http.FromUri]string sort = null)
+            [FromUri]CostEditorContext context,
+            [FromUri]long editItemId,
+            [FromUri]int? start,
+            [FromUri]int? limit,
+            [FromUri]string sort = null)
         {
             var queryInfo = this.GetQueryInfo(start, limit, sort);
 
@@ -87,11 +87,11 @@ namespace Gdc.Scd.Web.Server.Controllers
         [HttpGet]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.TableView })]
         public async Task<IEnumerable<HistoryItem>> GetTableViewHistory(
-            [System.Web.Http.FromUri]CostElementIdentifier costElementId,
-            [System.Web.Http.FromUri]IDictionary<string, long> coordinates,
-            [System.Web.Http.FromUri]int? start,
-            [System.Web.Http.FromUri]int? limit,
-            [System.Web.Http.FromUri]string sort = null)
+            [FromUri]CostElementIdentifier costElementId,
+            [FromUri]IDictionary<string, long> coordinates,
+            [FromUri]int? start,
+            [FromUri]int? limit,
+            [FromUri]string sort = null)
         {
             var queryInfo = this.GetQueryInfo(start, limit, sort);
 
@@ -100,25 +100,25 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         [HttpPost]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
-        public async Task<ActionResult> Approve(long historyId)
+        public async Task<IHttpActionResult> Approve(long historyId)
         {
             await this.costBlockHistoryService.Approve(historyId);
 
-            return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
+            return Ok();
         }
 
         [HttpPost]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
-        public ActionResult Reject(long historyId, string message)
+        public IHttpActionResult Reject(long historyId, string message)
         {
             this.costBlockHistoryService.Reject(historyId, message);
 
-            return new HttpStatusCodeResult(System.Net.HttpStatusCode.OK);
+            return Ok();
         }
 
         [HttpGet]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
-        public async Task<QualityGateResultDto> SendForApproval([System.Web.Http.FromUri]long historyId, [System.Web.Http.FromUri]string qualityGateErrorExplanation = null)
+        public async Task<QualityGateResultDto> SendForApproval([FromUri]long historyId, [FromUri]string qualityGateErrorExplanation = null)
         {
             return await this.costBlockHistoryService.SendForApproval(historyId, qualityGateErrorExplanation);
         }

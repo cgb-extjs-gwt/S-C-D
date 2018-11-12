@@ -8,6 +8,7 @@ import { AutoFilterModel } from "../Model/AutoFilterModel";
 import { AutoFilter } from "./AutoFilter";
 import { EuroStringColumn } from "./EuroStringColumn";
 import { PercentColumn } from "./PercentColumn";
+import { AlertHelper } from "../../Common/Helpers/AlertHelper";
 
 export interface AutoGridProps {
 
@@ -114,6 +115,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
     }
 
     private onDownload() {
+
         let url = this.props.downloadUrl;
 
         let filter = this.filter.getModel() || {};
@@ -121,8 +123,17 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
 
         url = Ext.urlAppend(url, Ext.urlEncode(filter, true));
 
-        let p = getFromUri<any>(url);
-        handleRequest(p).then(() => Ext.Msg.alert('Report', 'Your report in process...<br>Please wait while it finish'));
+        AlertHelper.autoload(url);
+
+        //let url = this.props.downloadUrl;
+
+        //let filter = this.filter.getModel() || {};
+        //filter._dc = new Date().getTime();
+
+        //url = Ext.urlAppend(url, Ext.urlEncode(filter, true));
+
+        //let p = getFromUri<any>(url);
+        //handleRequest(p).then(() => Ext.Msg.alert('Report', 'Your report in process...<br>Please wait while it finish'));
     }
 
     private onSearch(filter: any) {

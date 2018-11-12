@@ -15,36 +15,36 @@ CREATE FUNCTION Report.LocapDetailed
 RETURNS TABLE 
 AS
 RETURN (
-    select m.Fsp
+select     m.Id
+         , m.Fsp
          , wg.Description as WgDescription
          , wg.Name as Wg
          , wg.SogDescription as SogDescription
          , m.ServiceLocation as ServiceLevel
          , m.ReactionTime
-         , m.DurationValue as ServicePeriod
+         , m.Year as ServicePeriod
          , wg.Sog as Sog
-         , Report.AsEuroSignStr(sc.ProActive + sc.ServiceTP) as Dcos
-         , Report.AsEuroSignStr(sc.ServiceTP) as ServiceTP
-         , sc.ListPrice
-         , sc.DealerPrice
+         , m.ProActive + m.ServiceTP as Dcos
+         , m.ServiceTP as ServiceTP
+         , m.ListPrice
+         , m.DealerPrice
          , m.Country
-         , sc.FieldServiceCost as FieldServiceCost
-         , sc.ServiceSupport as ServiceSupportCost 
-         , sc.MaterialOow as MaterialOow
-         , sc.MaterialW as MaterialW
-         , sc.TaxAndDutiesW as TaxAndDutiesW
-         , sc.Logistic as LogisticW
-         , sc.Logistic as LogisticOow
-         , sc.Reinsurance as Reinsurance
-         , sc.Reinsurance as ReinsuranceOow
-         , sc.OtherDirect as OtherDirect
-         , sc.Credits as Credits
+         , m.FieldServiceCost as FieldServiceCost
+         , m.ServiceSupportCost as ServiceSupportCost 
+         , m.MaterialOow as MaterialOow
+         , m.MaterialW as MaterialW
+         , m.TaxAndDutiesW as TaxAndDutiesW
+         , m.Logistic as LogisticW
+         , m.Logistic as LogisticOow
+         , m.Reinsurance as Reinsurance
+         , m.Reinsurance as ReinsuranceOow
+         , m.OtherDirect as OtherDirect
+         , m.Credits as Credits
          , null as IndirectCostOpex
          , null as ServiceType
          , null as PlausiCheck
          , null as PortfolioType
-    from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
-    join Hardware.ServiceCostCalculationView sc on sc.MatrixId = m.Id
+    from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
     join InputAtoms.WgSogView wg on wg.id = m.WgId
 )
 

@@ -67,32 +67,34 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
 
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.reports.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-list.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-new-vs-old.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-vs-FREEZE.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-hw.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-proactive.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-contract.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-flat-fee.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-central.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-country.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-parameter.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-local-detailed.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-calc-central.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-calc-country.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-central.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-country.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-central.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-country.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-po-standard-warranty.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-proactive.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list-detail.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solutionpack-proactive-costing.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List-detail.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.reports.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-list.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-new-vs-old.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-vs-FREEZE.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-hw.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-contract.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-flat-fee.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-parameter.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap-detailed.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-calc-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-calc-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-po-standard-warranty.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list-detail.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solutionpack-proactive-costing.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List-detail.sql"));
+
+
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.split-string.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-hdd-retention.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-proactive.sql"));
@@ -1296,9 +1298,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         },
                     }
                 },
-                new Pla { Name = "EPS MAINFRAME PRODUCTS"},
+                new Pla { Name = "EPS MAINFRAME PRODUCTS", CodingPattern = "EPSM"},
                 new Pla { Name = "RETAIL PRODUCTS", CodingPattern = "RETA"},
-                new Pla { Name = "UNIX SERVER", CodingPattern = "UNIX" }
+                new Pla { Name = "UNIX SERVER", CodingPattern = "UNIX" },
+                new Pla { Name = "UNASSIGNED", CodingPattern = "ZZZZ"}
             };
         }
 
@@ -1465,7 +1468,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 Name = ImportSystems.AMBERROAD,
                 FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Amber road",
                 FileName = "SCD_Duties_Taxes.csv",
-                ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
+                ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Amber road\processed",
@@ -1493,7 +1496,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 Name = ImportSystems.EBIS_AFR,
                 FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS",
                 FileName = "SCD_FR_LOAD.csv",
-                ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
+                ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
@@ -1507,7 +1510,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 Name = ImportSystems.EBIS_MATERIAL_COST,
                 FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS",
                 FileName = "SCD_MATCO_LOAD.csv",
-                ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
+                ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
@@ -1521,7 +1524,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 Name = ImportSystems.EBIS_INSTALL_BASE,
                 FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS",
                 FileName = "SCD_FQR_LOAD.csv",
-                ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
+                ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
@@ -1597,137 +1600,157 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Argentina",
                 RegionId = laRegion.Id,
-                LUTCode = "FUJ"
+                LUTCode = "FUJ",
+                AutoUploadInstallBase = false
             };
             var chinaCG = new CountryGroup
             {
                 Name = "China",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "CN"
+                CountryDigit = "CN",
+                AutoUploadInstallBase = false
             };
             var hongKongCG = new CountryGroup
             {
                 Name = "Hong Kong",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "HK"
+                CountryDigit = "HK",
+                AutoUploadInstallBase = false
             };
             var indonesiaCG = new CountryGroup
             {
                 Name = "Indonesia",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "IO"
+                CountryDigit = "IO",
+                AutoUploadInstallBase = false
             };
             var koreaCG = new CountryGroup
             {
                 Name = "Korea, South",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "KR"
+                CountryDigit = "KR",
+                AutoUploadInstallBase = false
             };
             var malaysiaCG = new CountryGroup
             {
                 Name = "Malaysia",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "MY"
+                CountryDigit = "MY",
+                AutoUploadInstallBase = false
             };
             var pilippinesCG = new CountryGroup
             {
                 Name = "Philippines",
                 RegionId = asiaRegion.Id,
-                LUTCode = "ASP"
+                LUTCode = "ASP",
+                AutoUploadInstallBase = false
             };
             var singaporeCG = new CountryGroup
             {
                 Name = "Singapore",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "SG"
+                CountryDigit = "SG",
+                AutoUploadInstallBase = false
             };
             var taiwanCG = new CountryGroup
             {
                 Name = "Taiwan",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "TW"
+                CountryDigit = "TW",
+                AutoUploadInstallBase = false
             };
             var thailandCG = new CountryGroup
             {
                 Name = "Thailand",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "TH"
+                CountryDigit = "TH",
+                AutoUploadInstallBase = false
             };
             var vietnamCG = new CountryGroup
             {
                 Name = "Vietnam",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "VN"
+                CountryDigit = "VN",
+                AutoUploadInstallBase = false
             };
             var austriaCG = new CountryGroup
             {
                 Name = "Austria",
                 RegionId = ceRegion.Id,
                 LUTCode = "OES",
-                CountryDigit = "AT"
+                CountryDigit = "AT",
+                AutoUploadInstallBase = false
             };
             var germanyCG = new CountryGroup
             {
                 Name = "Germany",
                 RegionId = ceRegion.Id,
                 LUTCode = "D",
-                CountryDigit = "DE"
+                CountryDigit = "DE",
+                AutoUploadInstallBase = false
             };
             var suisseCG = new CountryGroup
             {
                 Name = "Suisse",
                 RegionId = ceRegion.Id,
                 LUTCode = "SWZ",
-                CountryDigit = "CH"
+                CountryDigit = "CH",
+                AutoUploadInstallBase = false
             };
             var japanCG = new CountryGroup
             {
                 Name = "Japan",
                 RegionId = japanRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "JP"
+                CountryDigit = "JP",
+                AutoUploadInstallBase = false
             };
             var brazilCG = new CountryGroup
             {
                 Name = "Brazil",
                 RegionId = laRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "BR"
+                CountryDigit = "BR",
+                AutoUploadInstallBase = false
             };
             var chileCG = new CountryGroup
             {
                 Name = "Chile",
                 RegionId = laRegion.Id,
-                LUTCode = "FUJ"
+                LUTCode = "FUJ",
+                AutoUploadInstallBase = false
             };
             var colombiaCG = new CountryGroup
             {
                 Name = "Colombia",
                 RegionId = laRegion.Id,
-                LUTCode = "FUJ"
+                LUTCode = "FUJ",
+                AutoUploadInstallBase = false
             };
             var denmarkCG = new CountryGroup
             {
                 Name = "Denmark",
                 RegionId = nordicRegion.Id,
                 LUTCode = "DAN",
-                CountryDigit = "ND;DK"
+                CountryDigit = "ND;DK",
+                AutoUploadInstallBase = true
             };
             var finlandCG = new CountryGroup
             {
                 Name = "Finland",
                 RegionId = nordicRegion.Id,
                 LUTCode = "FIN",
-                CountryDigit = "ND;FI"
+                CountryDigit = "ND;FI",
+                AutoUploadInstallBase = true
             };
             var norwayCG = new CountryGroup
             {
@@ -1735,6 +1758,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 RegionId = nordicRegion.Id,
                 LUTCode = "NOR",
                 CountryDigit = "ND;NO",
+                AutoUploadInstallBase = true
             };
             var swedenCG = new CountryGroup
             {
@@ -1742,26 +1766,30 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 RegionId = nordicRegion.Id,
                 LUTCode = "SWD",
                 CountryDigit = "ND;SE",
+                AutoUploadInstallBase = true
             };
             var australiaCG = new CountryGroup
             {
                 Name = "Australia",
                 RegionId = oceaniaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "AU"
+                CountryDigit = "AU",
+                AutoUploadInstallBase = false
             };
             var newZealnadCG = new CountryGroup
             {
                 Name = "New Zealand",
                 RegionId = oceaniaRegion.Id,
                 LUTCode = "FUJ",
+                AutoUploadInstallBase = false
             };
             var ukCG = new CountryGroup
             {
                 Name = "UK",
                 RegionId = ukRegion.Id,
                 LUTCode = "GBR",
-                CountryDigit = "GB"
+                CountryDigit = "GB",
+                AutoUploadInstallBase = true
             };
             var mexicoCG = new CountryGroup
             {
@@ -1769,107 +1797,110 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 RegionId = usRegion.Id,
                 LUTCode = "FUJ",
                 CountryDigit = "MX",
+                AutoUploadInstallBase = false
             };
             var usCG = new CountryGroup
             {
                 Name = "United States",
                 RegionId = usRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "US"
+                CountryDigit = "US",
+                AutoUploadInstallBase = false
             };
             var belgiumCG = new CountryGroup
             {
                 Name = "Belgium",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "BEL",
-                CountryDigit = "BE"
+                CountryDigit = "BE",
+                AutoUploadInstallBase = true
             };
             var czechCG = new CountryGroup
             {
                 Name = "Czech Republic",
                 RegionId = eeraRegion.Id,
                 LUTCode = "CRE",
-                CountryDigit = "CZ"
-
+                CountryDigit = "CZ",
+                AutoUploadInstallBase = true
             };
             var franceCG = new CountryGroup
             {
                 Name = "France",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "FKR",
-                CountryDigit = "FR"
-
+                CountryDigit = "FR",
+                AutoUploadInstallBase = true
             };
             var greeceCG = new CountryGroup
             {
                 Name = "Greece",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "GRI",
-                CountryDigit = "GR"
-
+                CountryDigit = "GR",
+                AutoUploadInstallBase = true
             };
             var hungaryCG = new CountryGroup
             {
                 Name = "Hungary",
                 RegionId = wemeiaRegion.Id,
-                LUTCode = "HU"
-
+                LUTCode = "HU",
+                AutoUploadInstallBase = true
             };
             var indiaCG = new CountryGroup
             {
                 Name = "India",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "IND",
-                CountryDigit = "ID"
-
+                CountryDigit = "ID",
+                AutoUploadInstallBase = true
             };
             var israelCG = new CountryGroup
             {
                 Name = "Israel",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "ISR",
-                CountryDigit = "IL"
-
+                CountryDigit = "IL",
+                AutoUploadInstallBase = true
             };
             var italyCG = new CountryGroup
             {
                 Name = "Italy",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "ITL",
-                CountryDigit = "IT"
-
+                CountryDigit = "IT",
+                AutoUploadInstallBase = true
             };
             var luxembourgCG = new CountryGroup
             {
                 Name = "Luxembourg",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "LUX",
-                CountryDigit = "LU"
-
+                CountryDigit = "LU",
+                AutoUploadInstallBase = true
             };
             var mdeCG = new CountryGroup
             {
                 Name = "MDE",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "MDE",
-                CountryDigit = "ME"
-
+                CountryDigit = "ME",
+                AutoUploadInstallBase = true
             };
             var netherlandsCG = new CountryGroup
             {
                 Name = "Netherlands",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "NDL",
-                CountryDigit = "NL"
-
+                CountryDigit = "NL",
+                AutoUploadInstallBase = true
             };
             var noaCG = new CountryGroup
             {
                 Name = "NOA",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "NOA",
-                CountryDigit = "NA"
-
+                CountryDigit = "NA",
+                AutoUploadInstallBase = true
             };
             var polandCG = new CountryGroup
             {
@@ -1877,54 +1908,55 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "POL",
                 CountryDigit = "PL",
-
+                AutoUploadInstallBase = true
             };
             var portugalCG = new CountryGroup
             {
                 Name = "Portugal",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "POR",
-                CountryDigit = "PT"
-
+                CountryDigit = "PT",
+                AutoUploadInstallBase = true
             };
             var russiaCG = new CountryGroup
             {
                 Name = "Russia",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "RUS",
-                CountryDigit = "RU"
-
+                CountryDigit = "RU",
+                AutoUploadInstallBase = true
             };
             var seeCG = new CountryGroup
             {
                 Name = "SEE",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "SEE",
-                CountryDigit = "EE"
-
+                CountryDigit = "EE",
+                AutoUploadInstallBase = true
             };
             var southAfricaCG = new CountryGroup
             {
                 Name = "South Africa",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "RSA",
-                CountryDigit = "ZA"
-
+                CountryDigit = "ZA",
+                AutoUploadInstallBase = true
             };
             var spainCG = new CountryGroup
             {
                 Name = "Spain",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "SPA",
-                CountryDigit = "ES"
-
+                CountryDigit = "ES",
+                AutoUploadInstallBase = true
             };
             var turkeyCG = new CountryGroup
             {
                 Name = "Turkey",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "TRK",
-                CountryDigit = "TR"
+                CountryDigit = "TR",
+                AutoUploadInstallBase = true
             };
 
             #endregion

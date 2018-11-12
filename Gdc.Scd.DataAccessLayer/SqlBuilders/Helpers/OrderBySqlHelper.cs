@@ -8,7 +8,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
     public class OrderBySqlHelper : SqlHelper, IOrderBySqlHelper<UnionSqlHelper>, IQueryInfoSqlHelper
     {
-        public OrderBySqlHelper(ISqlBuilder sqlBuilder) 
+        public OrderBySqlHelper(ISqlBuilder sqlBuilder)
             : base(sqlBuilder)
         {
         }
@@ -50,6 +50,35 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             }
 
             return result;
+        }
+
+        public SqlHelper WithRownumPaging(QueryInfo queryInfo)
+        {
+            if (queryInfo == null)
+            {
+                return this;
+            }
+
+            if (queryInfo.Skip.HasValue || queryInfo.Take.HasValue)
+            {
+                int skip = queryInfo.Skip ?? 0;
+                int take = queryInfo.Take ?? 0;
+
+                var sb = new System.Text.StringBuilder();
+
+                var field = queryInfo.Sort.Property;
+                var dir = queryInfo.Sort.Direction;
+
+                sb.Append(@"select * from (select t.*, ROW_NUMBER() OVER (order by [").Append(field).Append("] ").Append(dir).Append(") AS rownum from (")
+                    .Append(ToSql())
+                    .Append(")t)T1 where rownum between ").Append(skip).Append(" and ").Append(take);
+
+                return new SqlHelper(new RawSqlBuilder(sb.ToString(), ToSqlBuilder().GetChildrenBuilders()));
+            }
+            else
+            {
+                return OrderBy(queryInfo.Sort.Direction, new ColumnInfo(queryInfo.Sort.Property));
+            }
         }
     }
 }

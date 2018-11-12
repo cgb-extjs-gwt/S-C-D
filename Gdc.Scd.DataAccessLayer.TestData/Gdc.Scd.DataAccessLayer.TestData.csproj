@@ -71,7 +71,7 @@
     <EmbeddedResource Include="Scripts\Report\report-hdd-retention-country.sql" />
     <EmbeddedResource Include="Scripts\Report\report-hdd-retention-parameter.sql" />
     <EmbeddedResource Include="Scripts\Report\report-list.sql" />
-    <EmbeddedResource Include="Scripts\Report\report-local-detailed.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-locap-detailed.sql" />
     <EmbeddedResource Include="Scripts\Report\report-locap.sql" />
     <EmbeddedResource Include="Scripts\Report\report-Logistic-cost-calc-central.sql" />
     <EmbeddedResource Include="Scripts\Report\report-logistic-cost-calc-country.sql" />

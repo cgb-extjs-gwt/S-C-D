@@ -34,7 +34,13 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public IHttpActionResult Export([FromUri]long id)
+        public Task<HttpResponseMessage> Export([FromUri]long id)
+        {
+            return service.Excel(id, GetFilter()).ContinueWith(x => this.ExcelContent(x.Result.Data, x.Result.FileName));
+        }
+
+        [HttpGet]
+        public IHttpActionResult ExportAsync([FromUri]long id)
         {
             HostingEnvironment.QueueBackgroundWorkItem(ct => CreateReportAsync(id));
             return Ok();

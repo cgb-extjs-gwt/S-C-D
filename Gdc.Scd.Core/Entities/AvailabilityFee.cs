@@ -5,8 +5,8 @@ using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("AvailabilityFee", Schema = MetaConstants.AtomSchema)]
-    public class AvailabilityFee : IIdentifiable, IDeactivatable
+    [Table("AvailabilityFee", Schema = MetaConstants.HardwareSchema)]
+    public class AvailabilityFee : IIdentifiable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
@@ -25,8 +25,11 @@ namespace Gdc.Scd.Core.Entities
         public double? StockValueMv { get; set; }
         public double? AverageContractDuration { get; set; }
         public double? CostPerKit { get; set; }
+        public double? CostPerKit_Approved { get; set; }
         public double? CostPerKitJapanBuy { get; set; }
+        public double? CostPerKitJapanBuy_Approved { get; set; }
         public double? MaxQty { get; set; }
+        public double? MaxQty_Approved { get; set; }
         public bool? JapanBuy { get; set; }
         public double? InstalledBaseHighAvailability_Approved { get; set; }
         public double? TotalLogisticsInfrastructureCost_Approved { get; set; }
@@ -35,8 +38,8 @@ namespace Gdc.Scd.Core.Entities
         public double? AverageContractDuration_Approved { get; set; }
         public bool? JapanBuy_Approved { get; set; }
 
-        public DateTime CreatedDateTime { get; set; }
-        public DateTime? DeactivatedDateTime { get; set; }
-        public DateTime ModifiedDateTime { get; set; }
+        public DateTime? CreatedDateTime { get; set; }
+        public DateTime? DeletedDateTime { get; set; }
+        public DateTime? ModifiedDateTime { get; set; }
     }
 }

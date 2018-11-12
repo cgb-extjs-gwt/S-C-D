@@ -31,7 +31,7 @@ const connect = (function () {
                 last_index = curr_index;
 
                 //important to split server answer to get valid json packages
-                let messages = batch.split('\n---\n');
+                let messages = batch.split('---');
 
                 //ok, parse json and post messages to main thread
 

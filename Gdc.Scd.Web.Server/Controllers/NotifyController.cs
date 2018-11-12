@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -30,7 +31,10 @@ namespace Gdc.Scd.Web.Server.Controllers
             var username = context.Username();
             channel.Create(username);
 
-            Send(context.Response, HELLO_MSG);
+            var response = context.Response;
+
+            ContentType(response);
+            Send(response, HELLO_MSG);
 
             Task t = new Task(() =>
             {
@@ -41,18 +45,26 @@ namespace Gdc.Scd.Web.Server.Controllers
                     var msg = channel.GetMessage(username);
                     if (msg != null)
                     {
-                        Send(context.Response, msg);
+                        Send(response, msg);
                         channel.RemoveMessage(username, msg);
                     }
 
                     Thread.Sleep(500);
                 }
 
-                context.Response.End();
+                response.End();
             });
 
             t.Start();
             return t;
+        }
+
+        private static void ContentType(HttpResponse resp)
+        {
+            resp.ContentType = MimeTypes.TEXT_PLAIN;
+            resp.Charset = "UTF-8";
+            resp.ContentEncoding = Encoding.UTF8;
+            resp.Flush();
         }
 
         private static void Send(HttpResponse resp, object value)
@@ -63,7 +75,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         private static void Send(HttpResponse resp, string value)
         {
             resp.Write(value);
-            resp.Write("\n---\n");
+            resp.Write("---");
             resp.Flush();
         }
     }

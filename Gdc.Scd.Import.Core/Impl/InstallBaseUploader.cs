@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.Dto;
@@ -39,7 +40,7 @@ namespace Gdc.Scd.Import.Core.Impl
 
         public void Upload(IEnumerable<InstallBaseDto> items, DateTime modifiedDateTime)
         {
-            var wgs = _repositoryWg.GetAll().ToList();
+            var wgs = _repositoryWg.GetAll().Where(wg => wg.WgType == WgType.Por).ToList();
             var countryGroups = _repositoryCountryGroup.GetAll().ToList();
             var countries = _repositoryCountry.GetAll().ToList();
             var installBase = _repositoryInstallBase.GetAll().ToList();
