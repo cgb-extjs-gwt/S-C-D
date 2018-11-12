@@ -10,7 +10,7 @@ CREATE FUNCTION Report.FlatFeeReport
 RETURNS TABLE 
 AS
 RETURN (
-    select    c.Name
+    select    c.Name as Country
             , c.CountryGroup
             , wg.Name as Wg
             , fee.Fee_Approved as Fee

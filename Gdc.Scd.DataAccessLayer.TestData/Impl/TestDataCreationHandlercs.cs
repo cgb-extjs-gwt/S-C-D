@@ -58,6 +58,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             //report
             this.CreateReportColumnTypes();
             this.CreateReportFilterTypes();
+            this.CreateCdCsConfiguration();
 
             this.FillCostBlocks();
 
@@ -69,33 +70,38 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
 
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.reports.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-list.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-new-vs-old.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-vs-FREEZE.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-hw.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-proactive.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-contract.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-flat-fee.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-central.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-country.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-parameter.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-local-detailed.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-calc-central.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-calc-country.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-central.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-country.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-central.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-country.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-po-standard-warranty.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-proactive.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list-detail.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solutionpack-proactive-costing.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List-detail.sql"));
-            //queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.reports.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-list.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-new-vs-old.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-vs-FREEZE.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-hw.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-contract.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-flat-fee.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-parameter.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap-detailed.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-calc-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-calc-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-central.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-country.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-po-standard-warranty.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list-detail.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solutionpack-proactive-costing.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List-detail.sql"));
 
+
+            queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.split-string.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-hdd-retention.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-servicecosts.sql"));
             foreach (var query in queries)
             {
                 this.repositorySet.ExecuteSql(query);
@@ -299,10 +305,20 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ProActiveSla { Name = "0", ExternalName = "none" },
                 new ProActiveSla { Name = "1", ExternalName = "with autocall" },
                 new ProActiveSla { Name = "2", ExternalName = "with 1x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
-                new ProActiveSla { Name = "3", ExternalName = "with 2x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
-                new ProActiveSla { Name = "4", ExternalName = "with 4x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
-                new ProActiveSla { Name = "6", ExternalName = "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)" },
-                new ProActiveSla { Name = "7", ExternalName = "with 4x System Health Check & Patch Information incl. onsite Technical Account Management (per year)" },
+                new ProActiveSla { Name = "3", ExternalName = "with 2x System Health Check & Patch Information incl. remote Technical Account Management (per year)",
+                    LocalPreparationShcRepetition =1, LocalRegularUpdateReadyRepetition=1, CentralExecutionShcReportRepetition=2, LocalRemoteShcCustomerBriefingRepetition=2
+                },
+                new ProActiveSla { Name = "4", ExternalName = "with 4x System Health Check & Patch Information incl. remote Technical Account Management (per year)",
+                    LocalPreparationShcRepetition =1, LocalRegularUpdateReadyRepetition=1, CentralExecutionShcReportRepetition=4, LocalRemoteShcCustomerBriefingRepetition=4
+                },
+                new ProActiveSla { Name = "6", ExternalName = "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+                    LocalPreparationShcRepetition =1, LocalRegularUpdateReadyRepetition=1, CentralExecutionShcReportRepetition=2, LocalRemoteShcCustomerBriefingRepetition=0,
+                    TravellingTimeRepetition=2, LocalOnsiteShcCustomerBriefingRepetition=4
+                },
+                new ProActiveSla { Name = "7", ExternalName = "with 4x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+                    LocalPreparationShcRepetition =1, LocalRegularUpdateReadyRepetition=1, CentralExecutionShcReportRepetition=4, LocalRemoteShcCustomerBriefingRepetition=0,
+                    TravellingTimeRepetition=2, LocalOnsiteShcCustomerBriefingRepetition=4
+                }
             });
 
             this.repositorySet.Sync();
@@ -2063,6 +2079,29 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             }
 
             this.repositorySet.GetRepository<Country>().Save(countries);
+            this.repositorySet.Sync();
+        }
+
+        private void CreateCdCsConfiguration()
+        {
+            var russiaConfig = new CdCsConfiguration()
+            {
+                CountryId = 41,
+                FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
+                FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Russia"
+            };
+            var germanyConfig = new CdCsConfiguration()
+            {
+                CountryId = 113,
+                FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
+                FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Germany"
+            };
+
+            this.repositorySet.GetRepository<CdCsConfiguration>().Save(new List<CdCsConfiguration>()
+            {
+                russiaConfig,
+                germanyConfig
+            });
             this.repositorySet.Sync();
         }
     }

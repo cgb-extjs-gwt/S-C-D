@@ -15,22 +15,22 @@ CREATE FUNCTION Report.Locap
 RETURNS TABLE 
 AS
 RETURN (
-    select m.Fsp
+    select m.Id
+         , m.Fsp
          , wg.Description as WgDescription
          , m.FspDescription as ServiceLevel
          , m.ReactionTime
-         , m.DurationValue as ServicePeriod
+         , m.Year as ServicePeriod
          , wg.Name as Wg
-         , (sc.ProActive + sc.ServiceTP) as Dcos
-         , sc.ServiceTP
+         , (m.ProActive + m.ServiceTP) as Dcos
+         , m.ServiceTP
          , m.Country
          , null as ServiceType
          , null as PlausiCheck
          , null as PortfolioType
          , null as ReleaseCreated
          , wg.Sog
-    from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
-    join Hardware.ServiceCostCalculationView sc on sc.MatrixId = m.Id
+    from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
     join InputAtoms.WgSogView wg on wg.id = m.WgId
 )
 GO

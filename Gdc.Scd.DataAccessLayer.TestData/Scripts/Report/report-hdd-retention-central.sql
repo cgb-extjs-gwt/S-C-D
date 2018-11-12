@@ -13,12 +13,13 @@ RETURN (
     select wg.Name as Wg
          , wg.Description as WgDescription
          , dur.Name as Duration
+         , hdd.HddRet_Approved as HddRet
          , null as TP
          , null as DealerPrice
          , null as ListPrice
-    from Hardware.HddRetByDurationView hdd
-    join InputAtoms.WgSogView wg on wg.Id = hdd.WgID
-    join Dependencies.Duration dur on dur.Id = hdd.DurID
+    from Hardware.HddRetention hdd
+    join InputAtoms.WgSogView wg on wg.Id = hdd.Wg
+    join Dependencies.Duration dur on dur.Id = hdd.Year
     where (@wg is null or wg.Id = @wg)
       and (@dur is null or dur.Id = @dur)
 )
@@ -36,6 +37,10 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Duration', 'Duration', 1, 1);
+
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'HddRet', 'HDD retention', 1, 1);
+
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'TP', 'Transfer Price', 1, 1);

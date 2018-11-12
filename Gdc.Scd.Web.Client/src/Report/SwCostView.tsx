@@ -41,14 +41,6 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         let maintenanceListPrice: string = 'maintenanceListPrice';
         let dealerPrice: string = 'dealerPrice';
 
-        if (this.props.approved) {
-            serviceSupport = 'serviceSupport_Approved';
-            reinsurance = 'reinsurance_Approved';
-            transferPrice = 'transferPrice_Approved';
-            maintenanceListPrice = 'maintenanceListPrice_Approved';
-            dealerPrice = 'dealerPrice_Approved';
-        }
-
         return (
             <Container layout="fit">
 
