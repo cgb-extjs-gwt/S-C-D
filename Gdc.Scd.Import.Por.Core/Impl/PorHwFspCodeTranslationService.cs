@@ -172,7 +172,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                                 CreatedDateTime = createdDateTime
                             };
 
-                            _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                            _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
                                             nameof(HwFspCodeTranslation), dbcode.Name);
 
                             updatedFspCodes.Add(dbcode);

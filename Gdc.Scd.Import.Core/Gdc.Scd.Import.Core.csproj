@@ -60,6 +60,7 @@
     <Compile Include="Dto\LogisticsDto.cs" />
     <Compile Include="Dto\MaterialCostDto.cs" />
     <Compile Include="Dto\ParseInfoDto.cs" />
+    <Compile Include="Dto\SFabDto.cs" />
     <Compile Include="Dto\TaxAndDutiesDto.cs" />
     <Compile Include="Enums\Format.cs" />
     <Compile Include="Impl\AmberRoadUploader.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Impl\Logger.cs" />
     <Compile Include="Impl\LogisticUploader.cs" />
     <Compile Include="Impl\Parser.cs" />
+    <Compile Include="Impl\SfabUploader.cs" />
     <Compile Include="ImportConstants.cs" />
     <Compile Include="Interfaces\IConfigHandler.cs" />
     <Compile Include="Interfaces\IDownloader.cs" />

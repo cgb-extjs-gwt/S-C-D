@@ -70,7 +70,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                             CreatedDateTime = model.CreatedDateTime
                         };
 
-                        _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY, nameof(ProActiveDigit), proActiveDigit.ID);
+                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY, nameof(ProActiveDigit), proActiveDigit.ID);
                         combinations.Add(proActiveDigitDb);
                     }
 

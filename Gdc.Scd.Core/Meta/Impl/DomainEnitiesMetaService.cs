@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
@@ -22,6 +24,17 @@ namespace Gdc.Scd.Core.Meta.Impl
         private const string IdFieldNameKey = "IdFieldName";
 
         private const string FaceFieldNameKey = "FaceFieldName";
+
+        private readonly IRegisteredEntitiesProvider registeredEntitiesProvider;
+
+        private readonly IDictionary<string, Type> deactivatableEntities;
+
+        public DomainEnitiesMetaService(IRegisteredEntitiesProvider registeredEntitiesProvider)
+        {
+            this.registeredEntitiesProvider = registeredEntitiesProvider;
+
+            this.deactivatableEntities = this.GetDeactivatableEntities();
+        }
 
         public DomainEnitiesMeta Get(DomainMeta domainMeta)
         {
@@ -77,12 +90,7 @@ namespace Gdc.Scd.Core.Meta.Impl
 
                 if (dependencyEntity == null)
                 {
-                    var dependencyNameField = new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String);
-
-                    dependencyEntity = new NamedEntityMeta(costElementMeta.Dependency.Id, dependencyNameField, MetaConstants.DependencySchema)
-                    {
-                        StoreType = costElementMeta.Dependency.StoreType
-                    };
+                    dependencyEntity = this.BuildCoordianteMeta(costElementMeta.Dependency.Id, MetaConstants.DependencySchema, costElementMeta.Dependency.StoreType);
 
                     domainEnitiesMeta.Dependencies.Add(dependencyEntity);
                 }
@@ -99,19 +107,9 @@ namespace Gdc.Scd.Core.Meta.Impl
 
             if (inputLevelEntity == null)
             {
-                if (inputLevelMeta.Id == MetaConstants.CountryInputLevelName)
-                {
-                    inputLevelEntity = new CountryEntityMeta();
-                }
-                else
-                {
-                    var inputLevelNameField = new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String);
-
-                    inputLevelEntity = new NamedEntityMeta(inputLevelMeta.Id, inputLevelNameField, MetaConstants.InputLevelSchema)
-                    {
-                        StoreType = inputLevelMeta.StoreType
-                    };
-                }
+                inputLevelEntity = inputLevelMeta.Id == MetaConstants.CountryInputLevelName
+                    ? new CountryEntityMeta() { StoreType = inputLevelMeta.StoreType }
+                    : this.BuildCoordianteMeta(inputLevelMeta.Id, MetaConstants.InputLevelSchema, inputLevelMeta.StoreType);
 
                 domainEnitiesMeta.InputLevels.Add(inputLevelEntity);
             }
@@ -224,6 +222,49 @@ namespace Gdc.Scd.Core.Meta.Impl
             var fields = fromCollection.Select(field => field.Clone()).Cast<T>();
 
             toCollection.AddRange(fields);
+        }
+
+        private NamedEntityMeta BuildCoordianteMeta(string name, string schema, StoreType storeType)
+        {
+            NamedEntityMeta result;
+
+            var fullName = BaseEntityMeta.BuildFullName(name, schema);
+
+            if (this.deactivatableEntities.TryGetValue(fullName, out var deactivatableEntity))
+            {
+                result = new DeactivatableEntityMeta(name, schema);
+            }
+            else
+            {
+                var nameField = new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String);
+
+                result = new NamedEntityMeta(name, nameField, schema);
+            }
+
+            result.StoreType = storeType;
+
+            return result;
+        }
+
+        private IDictionary<string, Type> GetDeactivatableEntities()
+        {
+            var deactivatableType = typeof(IDeactivatable);
+
+            return
+                this.registeredEntitiesProvider.GetRegisteredEntities()
+                                               .Where(type => deactivatableType.IsAssignableFrom(type))
+                                               .ToDictionary(this.GetEntityId);
+
+        }
+
+        private string GetEntityId(Type type)
+        {
+            var tableAttribute =
+                type.GetCustomAttributes(true)
+                    .Select(attr => attr as TableAttribute)
+                    .First(attr => attr != null);
+
+            return BaseEntityMeta.BuildFullName(tableAttribute.Name, tableAttribute.Schema);
         }
     }
 }
