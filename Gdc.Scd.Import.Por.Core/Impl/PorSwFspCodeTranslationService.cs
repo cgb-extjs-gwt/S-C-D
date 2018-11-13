@@ -77,7 +77,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                             continue;
                         }
 
-                        _logger.Log(LogLevel.Info, PorImportLoggingMessage.CHECKING_SW_PROACTIVE, digit.Name);
+                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.CHECKING_SW_PROACTIVE, digit.Name);
                         var proActive = model.ProActiveDigits.FirstOrDefault(d => d.DigitId.HasValue && d.DigitId == digit.Id);
 
                         var dbcode = new SwFspCodeTranslation
@@ -100,7 +100,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                             ProactiveSlaId = proActive == null ? null : proActive.ProActiveId
                         };
 
-                        _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
                                             nameof(SwFspCodeTranslation), dbcode.Name);
 
                         updatedFspCodes.Add(dbcode);

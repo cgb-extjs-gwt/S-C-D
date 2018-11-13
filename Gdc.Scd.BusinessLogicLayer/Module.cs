@@ -29,6 +29,8 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<IActiveDirectoryService>().To<ActiveDirectoryService>().InRequestScope();
             Bind<ITableViewService>().To<TableViewService>().InRequestScope();
             Bind<IAppService>().To<AppService>().InRequestScope();
+            Bind<ICostBlockService>().To<CostBlockService>().InRequestScope();
+            Bind<INotifyChannel>().To<MemoryChannel>().InSingletonScope();
 
             /*----------dictionaries-----------*/
             Kernel.RegisterEntity<ClusterRegion>();
@@ -58,10 +60,15 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<SwDigitLicense>();
             Kernel.RegisterEntity<HwFspCodeTranslation>();
             Kernel.RegisterEntity<SwFspCodeTranslation>();
-            Kernel.RegisterEntity<TaxAndDutiesEntity>();
             Kernel.RegisterEntity<ImportConfiguration>();
             Kernel.RegisterEntity<ProActiveDigit>();
+            /*----------cost block entities---------*/
             Kernel.RegisterEntity<AvailabilityFee>();
+            Kernel.RegisterEntity<TaxAndDutiesEntity>();
+            Kernel.RegisterEntity<Afr>();
+            Kernel.RegisterEntity<InstallBase>();
+            Kernel.RegisterEntity<MaterialCostInWarranty>();
+            Kernel.RegisterEntity<CdCsConfiguration>();
             /*----------admin---------*/
             Kernel.RegisterEntity<AdminAvailabilityFee>();
             Kernel.RegisterEntity<RoleCode>();
@@ -70,13 +77,15 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<CapabilityMatrix>();
             Kernel.RegisterEntity<CapabilityMatrixMaster>();
             Kernel.RegisterEntity<CapabilityMatrixRule>();
-            Kernel.RegisterEntity<HardwareCalculationResult>();
-            Kernel.RegisterEntity<SoftwareCalculationResult>();
+            Kernel.RegisterEntity<HardwareManualCost>();
+            Kernel.RegisterEntity<SoftwareMaintenance>();
+            Kernel.RegisterEntity<SoftwareProactive>();
 
             /*---------reports----------*/
             Kernel.RegisterEntity<Report>();
             Kernel.RegisterEntity<ReportColumn>();
             Kernel.RegisterEntity<ReportFilter>();
+            Kernel.RegisterEntity<JobsSchedule>();
         }
     }
 }

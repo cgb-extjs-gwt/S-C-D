@@ -1,25 +1,25 @@
 import { connect } from "react-redux";
 import { withRouter } from 'react-router-dom';
-import { LayoutProps, LayoutActions, ROOT_LAYOUT_ID, Layout, RouteItem } from "./Layout";
-import { CommonState, Role } from "../States/AppStates";
-import { loadMetaDataFromServer, openPage } from "../Actions/AppActions";
-import { MenuItem } from "../../Common/States/ExtStates";
+import AvailabilityFeeAdminGrid from "../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid";
+import CountryGrid from "../../Admin/Country/containers/CountryGrid";
+import RoleCodesGrid from "../../Admin/RoleCode/RoleCodesGrid";
+import UserRoleContainer from "../../Admin/UserRole/Containers/UserRoleContainer";
+import { WarrantyGroupGrid } from "../../Admin/WarrantyGroup/WarrantyGroupGrid";
+import { CapabilityMatrixView } from "../../CapabilityMatrix/CapabilityMatrixView";
+import { CapabilityMatrixEditView } from "../../CapabilityMatrix/index";
+import * as Permissions from "../../Common/Constants/Permissions";
 import { buildComponentUrl } from "../../Common/Services/Ajax";
-import { CostEditorContainer } from "../../CostEditor/Components/CostEditorContainer";
-import { TableViewContainer } from "../../TableView/Components/TableViewContainer";
+import { MenuItem } from "../../Common/States/ExtStates";
 import ApprovalCostElementsLayout from "../../CostApproval/Components/ApprovalCostElementsLayout";
 import { OwnApprovalCostElementsLayout } from "../../CostApproval/Components/OwnApprovalCostElementsLayout";
-import { CapabilityMatrixView } from "../../CapabilityMatrix/CapabilityMatrixView";
+import { CostEditorContainer } from "../../CostEditor/Components/CostEditorContainer";
 import { CalcResultView } from "../../Report/CalcResultView";
-import { ReportListView } from "../../Report/ReportListView";
-import CountryGrid from "../../Admin/Country/containers/CountryGrid";
-import AvailabilityFeeAdminGrid from "../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid";
-import WarrantyGroupGrid from "../../Admin/WarrantyGroup/WarrantyGroupGrid";
-import UserRoleContainer from "../../Admin/UserRole/Containers/UserRoleContainer";
 import { ReportView } from "../../Report/index";
-import * as Permissions from "../../Common/Constants/Permissions"
-import { CapabilityMatrixEditView } from "../../CapabilityMatrix/index";
-import { Dispatch } from "redux";
+import { ReportListView } from "../../Report/ReportListView";
+import { TableViewContainer } from "../../TableView/Components/TableViewContainer";
+import { loadMetaDataFromServer, openPage } from "../Actions/AppActions";
+import { CommonState, Role } from "../States/AppStates";
+import { Layout, LayoutActions, LayoutProps, RouteItem } from "./Layout";
 
 interface RouteMenuItem extends RouteItem {
     text?: string
@@ -42,7 +42,7 @@ const buildRouteMenuItems = () => <RouteMenuItem[]>[
     { path: '/capability-matrix', text: 'Portfolio', iconCls: 'x-fa fa-suitcase', component: CapabilityMatrixView, isMenuItem: true, permission: Permissions.PORTFOLIO, exact: true },
     { path: '/capability-matrix/edit', component: CapabilityMatrixEditView, permission: Permissions.PORTFOLIO },
     { path: '/report', text: 'Review process', iconCls: 'x-fa fa-balance-scale', component: CalcResultView, isMenuItem: true, permission: Permissions.REPORT, exact: true },
-    { path: '/report/all', text: 'Report', iconCls: 'x-fa fa-bar-chart', component: ReportListView, isMenuItem: true, permission: Permissions.REPORT, exact: true },
+    { path: '/report/all', text: 'Reports', iconCls: 'x-fa fa-bar-chart', component: ReportListView, isMenuItem: true, permission: Permissions.REPORT, exact: true },
     { path: '/report/:name', component: ReportView, exact: true, permission: Permissions.REPORT },
     {
         path: '/admin', 
@@ -56,7 +56,8 @@ const buildRouteMenuItems = () => <RouteMenuItem[]>[
             { path: '/admin/country-management', text: 'Country Management', iconCls: 'x-fa fa-globe', component: CountryGrid, isMenuItem: true, permission: Permissions.ADMIN }, 
             { path: '/admin/availability-fee', text: 'Availability Fee', iconCls: 'x-fa fa-cog', component: AvailabilityFeeAdminGrid, isMenuItem: true, permission: Permissions.ADMIN },
             { path: '/admin/warranty-group-management', text: 'Warranty groups', iconCls: 'x-fa fa-industry', component: WarrantyGroupGrid, isMenuItem: true, permission: Permissions.ADMIN },                       
-            { path: '/admin/user-role', text: 'User roles', iconCls: 'x-fa fa-users', component: UserRoleContainer, isMenuItem: true, permission: Permissions.ADMIN }
+            { path: '/admin/user-role', text: 'User roles', iconCls: 'x-fa fa-users', component: UserRoleContainer, isMenuItem: true, permission: Permissions.ADMIN },
+            { path: '/admin/role-code-management', text: 'Role codes', iconCls: 'x-fa fa-users', component: RoleCodesGrid, isMenuItem: false, permission: Permissions.ADMIN }
         ]
     }
 ]
@@ -160,6 +161,7 @@ const buildMapStateToProps = () => {
     let routes: RouteItem[] = [];
 
     return ({ app }: CommonState) => {
+
         if (app.userRoles != prevUserRoles) {
             prevUserRoles = app.userRoles;
 

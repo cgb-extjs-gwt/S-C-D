@@ -14,39 +14,16 @@ CREATE FUNCTION Report.Contract
 RETURNS TABLE 
 AS
 RETURN (
-    with cte as (
-        select @cnt as CountryId
-             , @wg as WgId
-             , m.AvailabilityId 
-             , m.ReactionTimeId 
-             , m.ReactionTypeId 
-             , m.ServiceLocationId
-             , sum(case when dur.Value = 1 then sc.ServiceTP_Approved end) as ServiceTP1
-             , sum(case when dur.Value = 2 then sc.ServiceTP_Approved end) as ServiceTP2
-             , sum(case when dur.Value = 3 then sc.ServiceTP_Approved end) as ServiceTP3
-             , sum(case when dur.Value = 4 then sc.ServiceTP_Approved end) as ServiceTP4
-             , sum(case when dur.Value = 5 then sc.ServiceTP_Approved end) as ServiceTP5
-        from Matrix.Matrix m
-        join Hardware.ServiceCostCalculation sc on sc.MatrixId = m.Id
-        join InputAtoms.Wg wg on wg.id = m.WgId and wg.DeactivatedDateTime is null
-        join Dependencies.Duration dur on dur.Id = m.DurationId and dur.IsProlongation = 0
-        where m.Denied = 0 
-            and m.CountryId = @cnt
-            and m.WgId = @wg
-            and (@av is null or m.AvailabilityId = @av)
-            and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
-            and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
-            and (@loc is null or m.ServiceLocationId = @loc)
-        group by m.AvailabilityId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId
-    )
-    select cnt.Name as Country
+    select 
+           m.Id
+         , m.Country
          , wg.Name as Wg
          , wg.Description as WgDescription
          , null as SLA
-         , loc.Name as ServiceLocation
-         , rtime.Name as ReactionTime
-         , rtype.Name as ReactionType
-         , av.Name as Availability
+         , m.ServiceLocation
+         , m.ReactionTime
+         , m.ReactionType
+         , m.Availability
 
          , m.ServiceTP1 AS ServiceTP1
          , m.ServiceTP2 AS ServiceTP2
@@ -64,13 +41,8 @@ RETURN (
          , null as PortfolioType
          , wg.Sog as Sog
 
-    from cte m
-    join InputAtoms.CountryView cnt on cnt.Id = m.CountryId
+    from Report.GetCostsFull(@cnt, @wg, @av, (select top(1) id from Dependencies.Duration where IsProlongation = 0 and Value = 5), @reactiontime, @reactiontype, @loc) m
     join InputAtoms.WgSogView wg on wg.id = m.WgId
-    join Dependencies.Availability av on av.Id= m.AvailabilityId
-    join Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
-    join Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
-    join Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
 )
 GO
 

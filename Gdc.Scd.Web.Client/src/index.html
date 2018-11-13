@@ -51,6 +51,77 @@
             min-width: 160px;
         }
 
+        .alert {
+            padding: 20px;
+            background-color: #f44336;
+            color: white;
+            opacity: 1;
+            transition: opacity 0.6s;
+            margin-bottom: 15px;
+        }
+
+        .alert.success {
+            background-color: #4CAF50;
+        }
+
+        .alert.info {
+            background-color: #2196F3;
+        }
+
+        .alert.warning {
+            background-color: #ff9800;
+        }
+
+        .alert a[href] {
+            color: white;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .alert-close {
+            margin-left: 15px;
+            color: white;
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .alert-close:hover {
+            color: black;
+        }
+
+        .alert-close-all {
+            color: #333;
+            cursor: pointer;
+            display: block;
+            text-align: center;
+        }
+
+        .alert-close-all:hover {
+            color: #999;
+        }
+
+        .alert-frame {
+            width: 1px;
+            height: 1px;
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            opacity: 0;
+        }
+
+        .alert-download {
+            border: none;
+            text-decoration: underline;
+            background: none;
+            color: white;
+            padding: 1px;
+            cursor: pointer;
+        }
+
         @media (min-width: 700px) {
             .matrix-edit-container > div {
                 width: 33%;

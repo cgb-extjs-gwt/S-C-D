@@ -1,4 +1,4 @@
-﻿import { Panel, TreeList } from "@extjs/ext-react";
+﻿import { Container, TreeList } from "@extjs/ext-react";
 import * as React from "react";
 import { buildComponentUrl } from "../Common/Services/Ajax";
 
@@ -181,11 +181,11 @@ export class ReportListView extends React.Component<any, any> {
 
     public render() {
         return (
-            <Panel title="SCD reports" padding="25px" scrollable={true}>
+            <Container padding="25px" scrollable={true}>
                 <div onClick={this.onOpenLink}>
                     <TreeList ref="treelist" store={this.store} width="100%" />
                 </div>
-            </Panel>
+            </Container>
         );
     }
 

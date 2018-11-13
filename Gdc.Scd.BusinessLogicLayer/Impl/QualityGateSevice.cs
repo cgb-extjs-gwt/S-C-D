@@ -83,9 +83,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var result = false;
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
+            var costElementMeta = costBlockMeta.DomainMeta.CostElements[context.CostElementId];
 
-            if (costBlockMeta.InputLevelFields[MetaConstants.WgInputLevelName] != null &&
-                costBlockMeta.InputLevelFields[MetaConstants.CountryInputLevelName] != null)
+            if (costElementMeta.InputLevels[MetaConstants.WgInputLevelName] != null &&
+                costElementMeta.InputLevels[MetaConstants.CountryInputLevelName] != null)
             {
                 var costElement = costBlockMeta.CostElementsFields[context.CostElementId] as SimpleFieldMeta;
                 if (costElement != null && costElement.Type == TypeCode.Double)

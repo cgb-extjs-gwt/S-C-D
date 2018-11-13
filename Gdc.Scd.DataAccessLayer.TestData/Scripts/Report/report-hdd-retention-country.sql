@@ -15,16 +15,18 @@ CREATE FUNCTION Report.HddRetentionByCountry
 RETURNS TABLE 
 AS
 RETURN (
-    select m.Country
-         , m.CountryGroup
+    select m.Id
+         , m.Country
+         , c.CountryGroup
          , wg.Name as Wg
          , wg.Description as WgDescription
          , m.Fsp
          , m.Fsp as TopFsp
      
-         , sc.ServiceTP
-         , sc.DealerPrice
-         , sc.ListPrice
+         , m.HddRet
+         , m.ServiceTP
+         , m.DealerPrice
+         , m.ListPrice
 
          , wg.Sog
 
@@ -34,8 +36,8 @@ RETURN (
          , m.ReactionType
          , m.ServiceLocation
 
-    from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
-    join Hardware.ServiceCostCalculationView sc on sc.MatrixId = m.Id
+    from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
+    join InputAtoms.CountryView c on c.id = m.CountryId
     join InputAtoms.WgSogView wg on wg.id = m.WgId
 )
 
@@ -57,6 +59,9 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Fsp', 'Support Pack Code', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'TopFsp', 'TopUp Code', 1, 1);
+
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'HddRet', 'HDD retention', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTP', 'Transfer Price', 1, 1);
 set @index = @index + 1;

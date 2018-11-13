@@ -48,7 +48,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 {
                     foreach (var deactivateItem in itemsToDeacivate)
                     {
-                        _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATED_ENTITY,
+                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.DEACTIVATED_ENTITY,
                             nameof(SwDigit), deactivateItem.Name);
                     }
                 }
@@ -90,7 +90,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                 foreach (var addedEntity in added)
                 {
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                    _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
                         nameof(SwLicense), addedEntity.Name);
                 }
 

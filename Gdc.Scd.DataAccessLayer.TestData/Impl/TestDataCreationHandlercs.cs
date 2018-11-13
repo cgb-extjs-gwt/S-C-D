@@ -13,7 +13,6 @@ using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
@@ -28,13 +27,16 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private readonly EntityFrameworkRepositorySet repositorySet;
 
+        private readonly ICostBlockRepository costBlockRepository;
+
         public TestDataCreationHandlercs(
-                DomainEnitiesMeta entityMetas,
-                EntityFrameworkRepositorySet repositorySet
-            )
+            DomainEnitiesMeta entityMetas,
+            EntityFrameworkRepositorySet repositorySet,
+            ICostBlockRepository costBlockRepository)
         {
             this.entityMetas = entityMetas;
             this.repositorySet = repositorySet;
+            this.costBlockRepository = costBlockRepository;
         }
 
         public void Handle()
@@ -46,8 +48,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateRegions();
             this.CreateCurrenciesAndExchangeRates();
             this.CreateCountries();
-            this.CreateDurations();
             this.CreateYearAvailability();
+            this.CreateDurations();
             this.CreateProActiveSla();
             this.CreateImportConfiguration();
             this.CreateRolecodes();
@@ -56,9 +58,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             //report
             this.CreateReportColumnTypes();
             this.CreateReportFilterTypes();
+            this.CreateCdCsConfiguration();
+
+            this.FillCostBlocks();
 
             var queries = new List<SqlHelper>();
-            queries.AddRange(this.BuildInsertCostBlockSql());
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
 
             queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
@@ -77,8 +81,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-central.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-country.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-parameter.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-local-detailed.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap-detailed.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-calc-central.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-calc-country.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-central.sql"));
@@ -87,12 +91,17 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-country.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-po-standard-warranty.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-proactive.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list-detail.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solution-pack-price-list-detail.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solutionpack-proactive-costing.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List-detail.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List-detail.sql"));
 
+
+            queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.split-string.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-hdd-retention.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-proactive.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-servicecosts.sql"));
             foreach (var query in queries)
             {
                 this.repositorySet.ExecuteSql(query);
@@ -296,10 +305,20 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ProActiveSla { Name = "0", ExternalName = "none" },
                 new ProActiveSla { Name = "1", ExternalName = "with autocall" },
                 new ProActiveSla { Name = "2", ExternalName = "with 1x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
-                new ProActiveSla { Name = "3", ExternalName = "with 2x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
-                new ProActiveSla { Name = "4", ExternalName = "with 4x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
-                new ProActiveSla { Name = "6", ExternalName = "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)" },
-                new ProActiveSla { Name = "7", ExternalName = "with 4x System Health Check & Patch Information incl. onsite Technical Account Management (per year)" },
+                new ProActiveSla { Name = "3", ExternalName = "with 2x System Health Check & Patch Information incl. remote Technical Account Management (per year)",
+                    LocalPreparationShcRepetition =1, LocalRegularUpdateReadyRepetition=1, CentralExecutionShcReportRepetition=2, LocalRemoteShcCustomerBriefingRepetition=2
+                },
+                new ProActiveSla { Name = "4", ExternalName = "with 4x System Health Check & Patch Information incl. remote Technical Account Management (per year)",
+                    LocalPreparationShcRepetition =1, LocalRegularUpdateReadyRepetition=1, CentralExecutionShcReportRepetition=4, LocalRemoteShcCustomerBriefingRepetition=4
+                },
+                new ProActiveSla { Name = "6", ExternalName = "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+                    LocalPreparationShcRepetition =1, LocalRegularUpdateReadyRepetition=1, CentralExecutionShcReportRepetition=2, LocalRemoteShcCustomerBriefingRepetition=0,
+                    TravellingTimeRepetition=2, LocalOnsiteShcCustomerBriefingRepetition=4
+                },
+                new ProActiveSla { Name = "7", ExternalName = "with 4x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
+                    LocalPreparationShcRepetition =1, LocalRegularUpdateReadyRepetition=1, CentralExecutionShcReportRepetition=4, LocalRemoteShcCustomerBriefingRepetition=0,
+                    TravellingTimeRepetition=2, LocalOnsiteShcCustomerBriefingRepetition=4
+                }
             });
 
             this.repositorySet.Sync();
@@ -318,17 +337,26 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var count = 5;
             var sogs = this.BuildDeactivatableTestItems<Sog>(count).ToArray();
             var plas = this.repositorySet.GetRepository<Pla>().GetAll().Take(count).ToArray();
+            var sfabs = this.BuildDeactivatableTestItems<SFab>(count).ToArray();
+
+            for (var i = 0; i < count; i++)
+            {
+                sfabs[i].PlaId = plas[i].Id;
+            }
+
+            this.repositorySet.GetRepository<SFab>().Save(sfabs);
+            this.repositorySet.Sync();
 
             for (var i = 0; i < count; i++)
             {
                 sogs[i].PlaId = plas[i].Id;
+                sogs[i].SFabId = sfabs[i].Id;
             }
 
             this.repositorySet.GetRepository<Sog>().Save(sogs);
             this.repositorySet.Sync();
 
             var swDigit = this.BuildDeactivatableTestItems<SwDigit>(count).ToArray();
-            var sfabs = this.BuildDeactivatableTestItems<SFab>(count).ToArray();
 
             for (var i = 0; i < count; i++)
             {
@@ -392,83 +420,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             return this.BuildInsertSql(entityMeta, names);
         }
 
-        private IEnumerable<SqlHelper> BuildInsertCostBlockSql()
+        private void FillCostBlocks()
         {
-            foreach (var costBlockMeta in this.entityMetas.CostBlocks)
+            foreach (var costBlock in this.entityMetas.CostBlocks)
             {
-                var referenceFields = costBlockMeta.CoordinateFields.ToList();
-                var selectColumns =
-                    referenceFields.Select(field => new ColumnInfo(field.ReferenceValueField, field.ReferenceMeta.Name, field.Name))
-                                   .ToList()
-                                   .AsEnumerable();
-
-                var insertFields = referenceFields.Select(field => field.Name).ToArray();
-
-                var wgField = costBlockMeta.InputLevelFields[MetaConstants.WgInputLevelName];
-                var plaField = costBlockMeta.InputLevelFields[MetaConstants.PlaInputLevelName];
-
-                if (plaField != null && wgField != null)
-                {
-                    selectColumns =
-                        selectColumns.Select(
-                            column => column.TableName == plaField.Name
-                                ? new ColumnInfo($"{nameof(Pla)}{nameof(Wg.Id)}", MetaConstants.WgInputLevelName, plaField.Name)
-                                : column);
-
-                    referenceFields.Remove(plaField);
-                }
-
-                var clusterRegionField = costBlockMeta.InputLevelFields[ClusterRegionId];
-                var countryField = costBlockMeta.InputLevelFields[MetaConstants.CountryInputLevelName];
-
-                ReferenceFieldMeta fromField = null;
-
-                if (countryField == null)
-                {
-                    fromField = referenceFields[0];
-
-                    referenceFields.RemoveAt(0);
-                }
-                else
-                {
-                    if (clusterRegionField != null)
-                    {
-                        selectColumns =
-                            selectColumns.Select(
-                                column => column.TableName == clusterRegionField.Name
-                                    ? new ColumnInfo(nameof(Country.ClusterRegionId), MetaConstants.CountryInputLevelName, ClusterRegionId)
-                                    : column);
-
-                        referenceFields.Remove(clusterRegionField);
-                    }
-
-                    fromField = countryField;
-
-                    referenceFields.Remove(countryField);
-                }
-
-                var joinQuery = Sql.Select(selectColumns.ToArray()).From(fromField.ReferenceMeta);
-
-                foreach (var field in referenceFields)
-                {
-                    var referenceMeta = field.ReferenceMeta;
-
-                    joinQuery = joinQuery.Join(referenceMeta.Schema, referenceMeta.Name, null, JoinType.Cross);
-                }
-
-                SqlHelper query;
-
-                if (countryField == null)
-                {
-                    query = joinQuery;
-                }
-                else
-                {
-                    query = joinQuery.Where(
-                        SqlOperators.Equals(nameof(Country.IsMaster), "isMaster", true, MetaConstants.CountryInputLevelName));
-                }
-
-                yield return Sql.Insert(costBlockMeta, insertFields).Query(query);
+                this.costBlockRepository.UpdateByCoordinates(costBlock);
             }
         }
 
@@ -586,75 +542,93 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     {
                         new Wg
                         {
-                            Name = "TC4"
+                            Name = "TC4",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "TC5"
+                            Name = "TC5",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "TC6"
+                            Name = "TC6",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "TC8"
+                            Name = "TC8",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "TC7"
+                            Name = "TC7",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U05"
+                            Name = "U05",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U11"
+                            Name = "U11",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U13"
+                            Name = "U13",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "WSJ"
+                            Name = "WSJ",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "WSN"
+                            Name = "WSN",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "WSS"
+                            Name = "WSS",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "WSW"
+                            Name = "WSW",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U02"
+                            Name = "U02",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U06"
+                            Name = "U06",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U07"
+                            Name = "U07",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U12"
+                            Name = "U12",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U14"
+                            Name = "U14",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "WRC"
+                            Name = "WRC",
+                            WgType = WgType.Por
                         },
                     }
                 },
@@ -666,43 +640,53 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     {
                         new Wg
                         {
-                            Name = "HMD"
+                            Name = "HMD",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "NB6"
+                            Name = "NB6",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "NB1"
+                            Name = "NB1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "NB2"
+                            Name = "NB2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "NB5"
+                            Name = "NB5",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "ND3"
+                            Name = "ND3",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "NC1"
+                            Name = "NC1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "NC3"
+                            Name = "NC3",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "NC9"
+                            Name = "NC9",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "TR7"
+                            Name = "TR7",
+                            WgType = WgType.Por
                         },
                     }
                 },
@@ -714,47 +698,58 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     {
                         new Wg
                         {
-                            Name = "DPE"
+                            Name = "DPE",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "DPH"
+                            Name = "DPH",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "DPM"
+                            Name = "DPM",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "DPX"
+                            Name = "DPX",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "IOA"
+                            Name = "IOA",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "IOB"
+                            Name = "IOB",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "IOC"
+                            Name = "IOC",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "MD1"
+                            Name = "MD1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PSN"
+                            Name = "PSN",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "SB2"
+                            Name = "SB2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "SB3"
+                            Name = "SB3",
+                            WgType = WgType.Por
                         },
                     }
                 },
@@ -766,283 +761,353 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     {
                         new Wg
                         {
-                            Name = "CD1"
+                            Name = "CD1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CD2"
+                            Name = "CD2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CE1"
+                            Name = "CE1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CE2"
+                            Name = "CE2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CD4"
+                            Name = "CD4",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CD5"
+                            Name = "CD5",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CD6"
+                            Name = "CD6",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CD7"
+                            Name = "CD7",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CDD"
+                            Name = "CDD",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CD8"
+                            Name = "CD8",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CD9"
+                            Name = "CD9",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C70"
+                            Name = "C70",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS8"
+                            Name = "CS8",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C74"
+                            Name = "C74",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C75"
+                            Name = "C75",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS7"
+                            Name = "CS7",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS1"
+                            Name = "CS1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS2"
+                            Name = "CS2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS3"
+                            Name = "CS3",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C16"
+                            Name = "C16",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C18"
+                            Name = "C18",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C33"
+                            Name = "C33",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS5"
+                            Name = "CS5",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS4"
+                            Name = "CS4",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS6"
+                            Name = "CS6",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS9"
+                            Name = "CS9",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C96"
+                            Name = "C96",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C97"
+                            Name = "C97",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C98"
+                            Name = "C98",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C71"
+                            Name = "C71",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C73"
+                            Name = "C73",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C80"
+                            Name = "C80",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C84"
+                            Name = "C84",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F58"
+                            Name = "F58",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F40"
+                            Name = "F40",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F48"
+                            Name = "F48",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F53"
+                            Name = "F53",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F54"
+                            Name = "F54",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F57"
+                            Name = "F57",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F41"
+                            Name = "F41",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F49"
+                            Name = "F49",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F42"
+                            Name = "F42",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F43"
+                            Name = "F43",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F44"
+                            Name = "F44",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F45"
+                            Name = "F45",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F50"
+                            Name = "F50",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F51"
+                            Name = "F51",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F52"
+                            Name = "F52",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F36"
+                            Name = "F36",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F46"
+                            Name = "F46",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F47"
+                            Name = "F47",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F56"
+                            Name = "F56",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F28"
+                            Name = "F28",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F29"
+                            Name = "F29",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F35"
+                            Name = "F35",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F55"
+                            Name = "F55",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S14"
+                            Name = "S14",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S17"
+                            Name = "S17",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S15"
+                            Name = "S15",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S16"
+                            Name = "S16",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S50"
+                            Name = "S50",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S51"
+                            Name = "S51",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S18"
+                            Name = "S18",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S35"
+                            Name = "S35",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S36"
+                            Name = "S36",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S37"
+                            Name = "S37",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S39"
+                            Name = "S39",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S40"
+                            Name = "S40",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S55"
+                            Name = "S55",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "VSH"
+                            Name = "VSH",
+                            WgType = WgType.Por
                         },
                     }
                 },
@@ -1054,237 +1119,295 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     {
                         new Wg
                         {
-                            Name = "MN1"
+                            Name = "MN1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "MN4"
+                            Name = "MN4",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PQ8"
+                            Name = "PQ8",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y01"
+                            Name = "Y01",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y15"
+                            Name = "Y15",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PX1"
+                            Name = "PX1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PY1"
+                            Name = "PY1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PY4"
+                            Name = "PY4",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y09"
+                            Name = "Y09",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y12"
+                            Name = "Y12",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "MN2"
+                            Name = "MN2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PX2"
+                            Name = "PX2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PX3"
+                            Name = "PX3",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PXS"
+                            Name = "PXS",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PY2"
+                            Name = "PY2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PY3"
+                            Name = "PY3",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "SD2"
+                            Name = "SD2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y03"
+                            Name = "Y03",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y17"
+                            Name = "Y17",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y21"
+                            Name = "Y21",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y32"
+                            Name = "Y32",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y06"
+                            Name = "Y06",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y13"
+                            Name = "Y13",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y28"
+                            Name = "Y28",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y30"
+                            Name = "Y30",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y31"
+                            Name = "Y31",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y37"
+                            Name = "Y37",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y38"
+                            Name = "Y38",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y39"
+                            Name = "Y39",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y40"
+                            Name = "Y40",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PX6"
+                            Name = "PX6",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PX8"
+                            Name = "PX8",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PRC"
+                            Name = "PRC",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "RTE"
+                            Name = "RTE",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y07"
+                            Name = "Y07",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y16"
+                            Name = "Y16",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y18"
+                            Name = "Y18",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y25"
+                            Name = "Y25",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y26"
+                            Name = "Y26",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y27"
+                            Name = "Y27",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y33"
+                            Name = "Y33",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y36"
+                            Name = "Y36",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S41"
+                            Name = "S41",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S42"
+                            Name = "S42",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S43"
+                            Name = "S43",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S44"
+                            Name = "S44",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S45"
+                            Name = "S45",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S46"
+                            Name = "S46",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S47"
+                            Name = "S47",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S48"
+                            Name = "S48",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S49"
+                            Name = "S49",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S52"
+                            Name = "S52",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S53"
+                            Name = "S53",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S54"
+                            Name = "S54",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PQ0"
+                            Name = "PQ0",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PQ5"
+                            Name = "PQ5",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PQ9"
+                            Name = "PQ9",
+                            WgType = WgType.Por
                         },
                     }
                 },
-                new Pla { Name = "EPS MAINFRAME PRODUCTS"},
+                new Pla { Name = "EPS MAINFRAME PRODUCTS", CodingPattern = "EPSM"},
                 new Pla { Name = "RETAIL PRODUCTS", CodingPattern = "RETA"},
-                new Pla { Name = "UNIX SERVER", CodingPattern = "UNIX" }
+                new Pla { Name = "UNIX SERVER", CodingPattern = "UNIX" },
+                new Pla { Name = "UNASSIGNED", CodingPattern = "ZZZZ"}
             };
         }
 
@@ -1415,7 +1538,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private Duration[] GetDurations()
         {
-            return new Duration[]
+            var years = repositorySet.GetRepository<Year>().GetAll().ToArray();
+            var durs = new Duration[]
             {
                 new Duration { Name = "1 Year", Value = 1, IsProlongation = false, ExternalName = "1 year" },
                 new Duration { Name = "2 Years", Value = 2, IsProlongation = false, ExternalName = "2 years"},
@@ -1424,6 +1548,14 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Duration { Name = "5 Years", Value = 5, IsProlongation = false, ExternalName = "5 years" },
                 new Duration { Name = "Prolongation", Value = 1, IsProlongation = true, ExternalName = "1 year (P)" }
             };
+
+            for (var i = 0; i < durs.Length; i++)
+            {
+                var dur = durs[i];
+                dur.Year = years.First(x => x.IsProlongation == dur.IsProlongation && x.Value == dur.Value);
+            }
+
+            return durs;
         }
 
         private string ReadText(string fn)
@@ -1440,33 +1572,95 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var taxAndDuties = new ImportConfiguration
             {
                 Name = ImportSystems.AMBERROAD,
-                FilePath = @"C:\Users\BorisovaE\Desktop",
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Amber road",
                 FileName = "SCD_Duties_Taxes.csv",
-                ImportMode = Core.Enums.ImportMode.ManualyAutomaticly,
+                ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
-                ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\amber",
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Amber road\processed",
                 Delimeter = ";",
-                HasHeader = true
+                HasHeader = true,
+                Culture = "de-DE"
             };
 
             var logistic = new ImportConfiguration
             {
                 Name = ImportSystems.LOGISTICS,
-                FilePath = @"C:\Users\BorisovaE\Desktop",
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\LogisticsCost",
                 FileName = "FeeCalculator-Upload_*.txt",
                 ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
-                ProcessedFilesPath = @"C:\Users\BorisovaE\Desktop\processed\logistics",
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\LogisticsCost\processed",
                 Delimeter = "|",
-                HasHeader = true
+                HasHeader = true,
+                Culture = "de-DE"
+            };
+
+            var ebis_afr = new ImportConfiguration
+            {
+                Name = ImportSystems.EBIS_AFR,
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS",
+                FileName = "SCD_FR_LOAD.csv",
+                ImportMode = Core.Enums.ImportMode.Automatic,
+                ProcessedDateTime = null,
+                Occurancy = Core.Enums.Occurancy.PerMonth,
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
+                Delimeter = ";",
+                HasHeader = true,
+                Culture = "en-US"
+            };
+
+            var ebis_material_cost = new ImportConfiguration
+            {
+                Name = ImportSystems.EBIS_MATERIAL_COST,
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS",
+                FileName = "SCD_MATCO_LOAD.csv",
+                ImportMode = Core.Enums.ImportMode.Automatic,
+                ProcessedDateTime = null,
+                Occurancy = Core.Enums.Occurancy.PerMonth,
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
+                Delimeter = ";",
+                HasHeader = true,
+                Culture = "en-US"
+            };
+
+            var ebis_install_base = new ImportConfiguration
+            {
+                Name = ImportSystems.EBIS_INSTALL_BASE,
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS",
+                FileName = "SCD_FQR_LOAD.csv",
+                ImportMode = Core.Enums.ImportMode.Automatic,
+                ProcessedDateTime = null,
+                Occurancy = Core.Enums.Occurancy.PerMonth,
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
+                Delimeter = ";",
+                HasHeader = true,
+                Culture = "en-US"
+            };
+
+            var sfabs = new ImportConfiguration
+            {
+                Name = ImportSystems.SFABS,
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Software_Solution",
+                FileName = "SWSolution_WG to SFAB mapping.csv",
+                ImportMode = Core.Enums.ImportMode.Automatic,
+                ProcessedDateTime = null,
+                Occurancy = Core.Enums.Occurancy.PerWeek,
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Software_Solution\processed",
+                Delimeter = ";",
+                HasHeader = true,
+                Culture = "de-DE"
             };
 
             this.repositorySet.GetRepository<ImportConfiguration>().Save(new List<ImportConfiguration>()
             {
                 taxAndDuties,
-                logistic
+                logistic,
+                ebis_afr,
+                ebis_install_base,
+                ebis_material_cost,
+                sfabs
             });
 
             this.repositorySet.Sync();
@@ -1527,137 +1721,157 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Argentina",
                 RegionId = laRegion.Id,
-                LUTCode = "FUJ"
+                LUTCode = "FUJ",
+                AutoUploadInstallBase = false
             };
             var chinaCG = new CountryGroup
             {
                 Name = "China",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "CN"
+                CountryDigit = "CN",
+                AutoUploadInstallBase = false
             };
             var hongKongCG = new CountryGroup
             {
                 Name = "Hong Kong",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "HK"
+                CountryDigit = "HK",
+                AutoUploadInstallBase = false
             };
             var indonesiaCG = new CountryGroup
             {
                 Name = "Indonesia",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "IO"
+                CountryDigit = "IO",
+                AutoUploadInstallBase = false
             };
             var koreaCG = new CountryGroup
             {
                 Name = "Korea, South",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "KR"
+                CountryDigit = "KR",
+                AutoUploadInstallBase = false
             };
             var malaysiaCG = new CountryGroup
             {
                 Name = "Malaysia",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "MY"
+                CountryDigit = "MY",
+                AutoUploadInstallBase = false
             };
             var pilippinesCG = new CountryGroup
             {
                 Name = "Philippines",
                 RegionId = asiaRegion.Id,
-                LUTCode = "ASP"
+                LUTCode = "ASP",
+                AutoUploadInstallBase = false
             };
             var singaporeCG = new CountryGroup
             {
                 Name = "Singapore",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "SG"
+                CountryDigit = "SG",
+                AutoUploadInstallBase = false
             };
             var taiwanCG = new CountryGroup
             {
                 Name = "Taiwan",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "TW"
+                CountryDigit = "TW",
+                AutoUploadInstallBase = false
             };
             var thailandCG = new CountryGroup
             {
                 Name = "Thailand",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "TH"
+                CountryDigit = "TH",
+                AutoUploadInstallBase = false
             };
             var vietnamCG = new CountryGroup
             {
                 Name = "Vietnam",
                 RegionId = asiaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "VN"
+                CountryDigit = "VN",
+                AutoUploadInstallBase = false
             };
             var austriaCG = new CountryGroup
             {
                 Name = "Austria",
                 RegionId = ceRegion.Id,
                 LUTCode = "OES",
-                CountryDigit = "AT"
+                CountryDigit = "AT",
+                AutoUploadInstallBase = false
             };
             var germanyCG = new CountryGroup
             {
                 Name = "Germany",
                 RegionId = ceRegion.Id,
                 LUTCode = "D",
-                CountryDigit = "DE"
+                CountryDigit = "DE",
+                AutoUploadInstallBase = false
             };
             var suisseCG = new CountryGroup
             {
                 Name = "Suisse",
                 RegionId = ceRegion.Id,
                 LUTCode = "SWZ",
-                CountryDigit = "CH"
+                CountryDigit = "CH",
+                AutoUploadInstallBase = false
             };
             var japanCG = new CountryGroup
             {
                 Name = "Japan",
                 RegionId = japanRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "JP"
+                CountryDigit = "JP",
+                AutoUploadInstallBase = false
             };
             var brazilCG = new CountryGroup
             {
                 Name = "Brazil",
                 RegionId = laRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "BR"
+                CountryDigit = "BR",
+                AutoUploadInstallBase = false
             };
             var chileCG = new CountryGroup
             {
                 Name = "Chile",
                 RegionId = laRegion.Id,
-                LUTCode = "FUJ"
+                LUTCode = "FUJ",
+                AutoUploadInstallBase = false
             };
             var colombiaCG = new CountryGroup
             {
                 Name = "Colombia",
                 RegionId = laRegion.Id,
-                LUTCode = "FUJ"
+                LUTCode = "FUJ",
+                AutoUploadInstallBase = false
             };
             var denmarkCG = new CountryGroup
             {
                 Name = "Denmark",
                 RegionId = nordicRegion.Id,
                 LUTCode = "DAN",
-                CountryDigit = "ND;DK"
+                CountryDigit = "ND;DK",
+                AutoUploadInstallBase = true
             };
             var finlandCG = new CountryGroup
             {
                 Name = "Finland",
                 RegionId = nordicRegion.Id,
                 LUTCode = "FIN",
-                CountryDigit = "ND;FI"
+                CountryDigit = "ND;FI",
+                AutoUploadInstallBase = true
             };
             var norwayCG = new CountryGroup
             {
@@ -1665,6 +1879,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 RegionId = nordicRegion.Id,
                 LUTCode = "NOR",
                 CountryDigit = "ND;NO",
+                AutoUploadInstallBase = true
             };
             var swedenCG = new CountryGroup
             {
@@ -1672,26 +1887,30 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 RegionId = nordicRegion.Id,
                 LUTCode = "SWD",
                 CountryDigit = "ND;SE",
+                AutoUploadInstallBase = true
             };
             var australiaCG = new CountryGroup
             {
                 Name = "Australia",
                 RegionId = oceaniaRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "AU"
+                CountryDigit = "AU",
+                AutoUploadInstallBase = false
             };
             var newZealnadCG = new CountryGroup
             {
                 Name = "New Zealand",
                 RegionId = oceaniaRegion.Id,
                 LUTCode = "FUJ",
+                AutoUploadInstallBase = false
             };
             var ukCG = new CountryGroup
             {
                 Name = "UK",
                 RegionId = ukRegion.Id,
                 LUTCode = "GBR",
-                CountryDigit = "GB"
+                CountryDigit = "GB",
+                AutoUploadInstallBase = true
             };
             var mexicoCG = new CountryGroup
             {
@@ -1699,107 +1918,110 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 RegionId = usRegion.Id,
                 LUTCode = "FUJ",
                 CountryDigit = "MX",
+                AutoUploadInstallBase = false
             };
             var usCG = new CountryGroup
             {
                 Name = "United States",
                 RegionId = usRegion.Id,
                 LUTCode = "FUJ",
-                CountryDigit = "US"
+                CountryDigit = "US",
+                AutoUploadInstallBase = false
             };
             var belgiumCG = new CountryGroup
             {
                 Name = "Belgium",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "BEL",
-                CountryDigit = "BE"
+                CountryDigit = "BE",
+                AutoUploadInstallBase = true
             };
             var czechCG = new CountryGroup
             {
                 Name = "Czech Republic",
                 RegionId = eeraRegion.Id,
                 LUTCode = "CRE",
-                CountryDigit = "CZ"
-
+                CountryDigit = "CZ",
+                AutoUploadInstallBase = true
             };
             var franceCG = new CountryGroup
             {
                 Name = "France",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "FKR",
-                CountryDigit = "FR"
-
+                CountryDigit = "FR",
+                AutoUploadInstallBase = true
             };
             var greeceCG = new CountryGroup
             {
                 Name = "Greece",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "GRI",
-                CountryDigit = "GR"
-
+                CountryDigit = "GR",
+                AutoUploadInstallBase = true
             };
             var hungaryCG = new CountryGroup
             {
                 Name = "Hungary",
                 RegionId = wemeiaRegion.Id,
-                LUTCode = "HU"
-
+                LUTCode = "HU",
+                AutoUploadInstallBase = true
             };
             var indiaCG = new CountryGroup
             {
                 Name = "India",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "IND",
-                CountryDigit = "ID"
-
+                CountryDigit = "ID",
+                AutoUploadInstallBase = true
             };
             var israelCG = new CountryGroup
             {
                 Name = "Israel",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "ISR",
-                CountryDigit = "IL"
-
+                CountryDigit = "IL",
+                AutoUploadInstallBase = true
             };
             var italyCG = new CountryGroup
             {
                 Name = "Italy",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "ITL",
-                CountryDigit = "IT"
-
+                CountryDigit = "IT",
+                AutoUploadInstallBase = true
             };
             var luxembourgCG = new CountryGroup
             {
                 Name = "Luxembourg",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "LUX",
-                CountryDigit = "LU"
-
+                CountryDigit = "LU",
+                AutoUploadInstallBase = true
             };
             var mdeCG = new CountryGroup
             {
                 Name = "MDE",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "MDE",
-                CountryDigit = "ME"
-
+                CountryDigit = "ME",
+                AutoUploadInstallBase = true
             };
             var netherlandsCG = new CountryGroup
             {
                 Name = "Netherlands",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "NDL",
-                CountryDigit = "NL"
-
+                CountryDigit = "NL",
+                AutoUploadInstallBase = true
             };
             var noaCG = new CountryGroup
             {
                 Name = "NOA",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "NOA",
-                CountryDigit = "NA"
-
+                CountryDigit = "NA",
+                AutoUploadInstallBase = true
             };
             var polandCG = new CountryGroup
             {
@@ -1807,62 +2029,55 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "POL",
                 CountryDigit = "PL",
-
+                AutoUploadInstallBase = true
             };
             var portugalCG = new CountryGroup
             {
                 Name = "Portugal",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "POR",
-                CountryDigit = "PT"
-
+                CountryDigit = "PT",
+                AutoUploadInstallBase = true
             };
             var russiaCG = new CountryGroup
             {
                 Name = "Russia",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "RUS",
-                CountryDigit = "RU"
-
+                CountryDigit = "RU",
+                AutoUploadInstallBase = true
             };
             var seeCG = new CountryGroup
             {
                 Name = "SEE",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "SEE",
-                CountryDigit = "EE"
-
+                CountryDigit = "EE",
+                AutoUploadInstallBase = true
             };
             var southAfricaCG = new CountryGroup
             {
                 Name = "South Africa",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "RSA",
-                CountryDigit = "ZA"
-
+                CountryDigit = "ZA",
+                AutoUploadInstallBase = true
             };
             var spainCG = new CountryGroup
             {
                 Name = "Spain",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "SPA",
-                CountryDigit = "ES"
-
+                CountryDigit = "ES",
+                AutoUploadInstallBase = true
             };
             var turkeyCG = new CountryGroup
             {
                 Name = "Turkey",
                 RegionId = wemeiaRegion.Id,
                 LUTCode = "TRK",
-                CountryDigit = "TR"
-            };
-
-            var egyptCG = new CountryGroup
-            {
-                Name = "Egypt",
-                RegionId = wemeiaRegion.Id,
-                LUTCode = "EGY",
-                CountryDigit = "ME"
+                CountryDigit = "TR",
+                AutoUploadInstallBase = true
             };
 
             #endregion
@@ -1928,7 +2143,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Country { Name = "Italy", SAPCountryCode = "ITL", ISO3CountryCode = "ITA", CountryGroup = italyCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = italyCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "San Marino", SAPCountryCode = "SMA", ISO3CountryCode = "SMR", CountryGroup = italyCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = italyCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Luxembourg", SAPCountryCode = "LUX", ISO3CountryCode = "LUX", CountryGroup = luxembourgCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = luxembourgCG.RegionId, AssignedToMultiVendor = false },
-                new Country { Name = "Egypt", SAPCountryCode = "EGY", ISO3CountryCode = "EGY", CountryGroup = egyptCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = egyptCG.RegionId, AssignedToMultiVendor = false },
+                new Country { Name = "Egypt", SAPCountryCode = "EGY", ISO3CountryCode = "EGY", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Afghanistan", SAPCountryCode = "AFG", ISO3CountryCode = "AFG", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Bahrain", SAPCountryCode = "BAH", ISO3CountryCode = "BHR", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Gaza Strip", SAPCountryCode = "", ISO3CountryCode = "", CountryGroup = mdeCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = mdeCG.RegionId, AssignedToMultiVendor = false },
@@ -2039,6 +2254,29 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             }
 
             this.repositorySet.GetRepository<Country>().Save(countries);
+            this.repositorySet.Sync();
+        }
+
+        private void CreateCdCsConfiguration()
+        {
+            var russiaConfig = new CdCsConfiguration()
+            {
+                CountryId = 41,
+                FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
+                FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Russia"
+            };
+            var germanyConfig = new CdCsConfiguration()
+            {
+                CountryId = 113,
+                FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
+                FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Germany"
+            };
+
+            this.repositorySet.GetRepository<CdCsConfiguration>().Save(new List<CdCsConfiguration>()
+            {
+                russiaConfig,
+                germanyConfig
+            });
             this.repositorySet.Sync();
         }
     }

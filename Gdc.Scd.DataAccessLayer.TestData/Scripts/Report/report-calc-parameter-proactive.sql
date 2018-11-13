@@ -23,7 +23,7 @@ RETURN
          , pro.LocalPreparationShcEffort_Approved as LocalPreparationShc
          , pro.TravellingTime_Approved as TravellingTime
          , pro.OnSiteHourlyRate_Approved as OnSiteHourlyRate
-         , 0 as CentralSetup
+         , null as CentralSetup
          , pro.CentralExecutionShcReportCost_Approved as CentralShc
 
          , wg.Sog

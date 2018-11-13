@@ -16,18 +16,11 @@ export const getDependecyColumnFromMeta = (meta: CostMetaData, costBlockId: stri
     return getDependecyColumnFromCostBlock(costBlock, costElementId);
 }
 
-export const getInputLevelColumns = (costBlock: CostBlockMeta) => {
-    const inputLevelColumnsMap = new Map<string, InputLevelMeta>();
+export const getInputLevelColumns = (costBlock: CostBlockMeta, costElementId: string) => {
+    const { inputLevels } = findMeta(costBlock.costElements, costElementId);
 
-    for (const costElement of costBlock.costElements) {
-        for (const inputLevel of costElement.inputLevels) {
-            inputLevelColumnsMap.set(inputLevel.id, inputLevel);
-        }
-    }
-
-    return Array.from(inputLevelColumnsMap.values())
-                .sort((inputLevel1, inputLevel2) => inputLevel1.levelNumer - inputLevel2.levelNumer)
-                .map(buildNameColumnInfo);
+    return inputLevels.sort((inputLevel1, inputLevel2) => inputLevel1.levelNumer - inputLevel2.levelNumer)
+                      .map(buildNameColumnInfo);
 }
 
 export const buildNameColumnInfo = (metaItem: NamedId) => (<ColumnInfo>{

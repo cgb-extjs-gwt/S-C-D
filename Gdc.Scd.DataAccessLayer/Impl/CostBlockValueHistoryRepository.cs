@@ -50,7 +50,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             var insertRelatedItemsQueries = new List<SqlHelper>();
 
-            foreach (var relatedMeta in costBlockMeta.InputLevelFields.Concat(costBlockMeta.DependencyFields))
+            foreach (var relatedMeta in costBlockMeta.CoordinateFields)
             {
                 var historyRelatedMeta = costBlockMeta.HistoryMeta.GetRelatedMetaByName(relatedMeta.Name);
                 var insertQuery = Sql.Insert(
@@ -152,7 +152,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 this.historyQueryBuilder.BuildJoinHistoryValueQuery(historyContext, selectQuery, options)
                                         .Join(nameof(User), SqlOperators.Equals(histroryEditUserIdColumn, userIdColumn))
                                         .Where(whereCondition)
-                                        .ByQueryInfo(queryInfo);
+                                        .WithRownumPaging(queryInfo);
 
             return await this.repositorySet.ReadBySql(query, reader => new HistoryItem
             {

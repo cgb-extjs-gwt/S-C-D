@@ -7,7 +7,7 @@ export interface AutoGridModel {
 
     name: string;
 
-    caption?: string;
+    title?: string;
 
     fields: AutoColumnModel[];
 

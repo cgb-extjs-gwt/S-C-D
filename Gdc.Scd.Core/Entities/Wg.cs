@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using Gdc.Scd.Core.Attributes;
+using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 
@@ -24,7 +25,9 @@ namespace Gdc.Scd.Core.Entities
 
         public RoleCode RoleCode { get; set; }
 
-        public bool IsMultiVendor { get; set; }
+        [MustCompare]
+        public WgType WgType { get; set; }
+
         public bool ExistsInLogisticsDb { get; set; }
         public bool IsDeactivatedInLogistic { get; set; }
 

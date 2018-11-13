@@ -32,9 +32,12 @@ namespace Gdc.Scd.Import.AmberRoad
             Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_START);
             var configuration = ConfigHandler.ReadConfiguration(ImportSystems.AMBERROAD);
             Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_END);
-            ImportManager.ImportData(configuration);
-            Logger.Log(LogLevel.Info, ImportConstants.UPDATING_CONFIGURATION);
-            ConfigHandler.UpdateImportResult(configuration, DateTime.Now);
+            var skipped = ImportManager.ImportData(configuration);
+            if (!skipped)
+            {
+                Logger.Log(LogLevel.Info, ImportConstants.UPDATING_CONFIGURATION);
+                ConfigHandler.UpdateImportResult(configuration, DateTime.Now);
+            }
             Logger.Log(LogLevel.Info, ImportConstants.END_PROCESS);
         }
     }

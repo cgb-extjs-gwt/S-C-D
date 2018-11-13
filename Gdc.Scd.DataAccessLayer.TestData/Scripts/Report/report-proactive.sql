@@ -15,8 +15,9 @@ CREATE FUNCTION Report.ProActive
 RETURNS TABLE 
 AS
 RETURN (
-    select m.Country
-            , m.CountryGroup
+    select    m.Id
+            , m.Country
+            , c.CountryGroup
             , null as InfSolution
             , m.Wg
             , m.Fsp
@@ -33,12 +34,12 @@ RETURN (
             , m.ReactionType
             , m.ServiceLocation
 
-            , Report.AsEuroStr(sc.ServiceTP - sc.ProActive) as ReActive
-            , Report.AsEuroStr(sc.ProActive) as ProActive
-            , Report.AsEuroStr(sc.ServiceTP) as ServiceTP
+            , m.ServiceTP - m.ProActive as ReActive
+            , m.ProActive
+            , m.ServiceTP
 
-    from Report.GetMatrixBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
-    join Hardware.ServiceCostCalculationView sc on sc.MatrixId = m.Id
+    from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
+    JOIN InputAtoms.CountryView c on c.Id = m.CountryId
     join Dependencies.Duration dur on dur.Id = m.DurationId
 )
 
@@ -65,11 +66,11 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Duration', 'Serice Period', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ReActive', 'Thereof ReActive cost (TP)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ReActive', 'Thereof ReActive cost (TP)', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ProActive', 'Thereof ProActive cost (TP)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ProActive', 'Thereof ProActive cost (TP)', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTP', 'Service TP (Full cost)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTP', 'Service TP (Full cost)', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceLocation', 'Service Level Description', 1, 1);

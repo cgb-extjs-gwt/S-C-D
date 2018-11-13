@@ -1,5 +1,4 @@
 import { connect, connectAdvanced } from "react-redux";
-import { AjaxDynamicGridProps, AjaxDynamicGridActions, AjaxDynamicGrid } from "../../Common/Components/AjaxDynamicGrid";
 import { CommonState } from "../../Layout/States/AppStates";
 import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
 import { findMeta } from "../../Common/Helpers/MetaHelper";
@@ -15,6 +14,7 @@ import { FieldInfo } from "../../Common/States/FieldInfo";
 import { Dispatch } from "redux";
 import { StoreOperation, Model } from "../../Common/States/ExtStates";
 import { isEqualCoordinates } from "../Helpers/TableViewHelper";
+import { TableView, TableViewProps, TableViewActions } from "./TableView";
 
 const mapToColumnInfo = (
     fieldIfnos: FieldInfo[],
@@ -132,7 +132,7 @@ const buildProps = (state: CommonState) => {
         coordinateColumns.forEach(column => filterDataIndexes.push(column.dataIndex));
     }
 
-    return <AjaxDynamicGridProps<TableViewRecord>>{
+    return <TableViewProps<TableViewRecord>>{
         columns,
         filterDataIndexes,
         apiUrls: {
@@ -141,57 +141,62 @@ const buildProps = (state: CommonState) => {
     };
 }
 
-const buildActions = (state: CommonState, dispatch: Dispatch) => (<AjaxDynamicGridActions<TableViewRecord>>{
-    init: () => !state.pages.tableView.info && handleRequest(
-        getTableViewInfo().then(
-            tableViewInfo => dispatch(loadTableViewInfo(tableViewInfo))
-        )
-    ),
-    onUpdateRecord: (store, record, operation, modifiedFieldNames) => {
-        switch (operation) {
-            case StoreOperation.Edit:
-                const [dataIndex] = modifiedFieldNames;
-                const tableViewRecord = record.data;
-                const countDataIndex = buildCountDataIndex(dataIndex);
-
-                if (record.get(countDataIndex) == 0) {
-                    record.data[countDataIndex] = 1;
-                }
-                break;
-        }
-    },
-    onUpdateRecordSet: (records, operation, dataIndex) => {
-        if (operation == StoreOperation.Edit) {
-            const tableViewRecords = records.map(rec => rec.data);
-
-            dispatch(editRecord(tableViewRecords, dataIndex));
-        }
-    },
-    onSave: () =>  handleRequest(
-        updateRecords(state.pages.tableView.editedRecords).then(
+const buildActions = (state: CommonState, dispatch: Dispatch) => { 
+    const buildSaveFn = (isApproving: boolean) => () =>  handleRequest(
+        updateRecords(state.pages.tableView.editedRecords, isApproving).then(
             () => dispatch(resetChanges())
         )
-    ),
-    onCancel: () => dispatch(resetChanges()),
-    onLoadData: (store, records) => {
-        const editRecords = state.pages.tableView.editedRecords;
-        if (editRecords && editRecords.length > 0) {
-            for (const editRecord of editRecords) {
-                const record = records.find(item => isEqualCoordinates(item.data, editRecord));
+    );
 
-                if (record) {
-                    Object.keys(editRecord.data).forEach(key => {
-                        record.set(key, editRecord.data[key].value);
-                    });
+    return <TableViewActions<TableViewRecord>>{
+        init: () => !state.pages.tableView.info && handleRequest(
+            getTableViewInfo().then(
+                tableViewInfo => dispatch(loadTableViewInfo(tableViewInfo))
+            )
+        ),
+        onUpdateRecord: (store, record, operation, modifiedFieldNames) => {
+            switch (operation) {
+                case StoreOperation.Edit:
+                    const [dataIndex] = modifiedFieldNames;
+                    const tableViewRecord = record.data;
+                    const countDataIndex = buildCountDataIndex(dataIndex);
+
+                    if (record.get(countDataIndex) == 0) {
+                        record.data[countDataIndex] = 1;
+                    }
+                    break;
+            }
+        },
+        onUpdateRecordSet: (records, operation, dataIndex) => {
+            if (operation == StoreOperation.Edit) {
+                const tableViewRecords = records.map(rec => rec.data);
+
+                dispatch(editRecord(tableViewRecords, dataIndex));
+            }
+        },
+        onSave: buildSaveFn(false),
+        onApprove: buildSaveFn(true),
+        onCancel: () => dispatch(resetChanges()),
+        onLoadData: (store, records) => {
+            const editRecords = state.pages.tableView.editedRecords;
+            if (editRecords && editRecords.length > 0) {
+                for (const editRecord of editRecords) {
+                    const record = records.find(item => isEqualCoordinates(item.data, editRecord));
+
+                    if (record) {
+                        Object.keys(editRecord.data).forEach(key => {
+                            record.set(key, editRecord.data[key].value);
+                        });
+                    }
                 }
             }
-        }
+        },
     }
-})
+}
 
-export const TableViewContainer = connectAdvanced<CommonState, AjaxDynamicGridProps, any>(
+export const TableViewContainer = connectAdvanced<CommonState, TableViewProps, any>(
     dispatch => state => ({
         ...buildProps(state),
         ...buildActions(state, dispatch)
     })
-)(AjaxDynamicGrid)
+)(TableView)

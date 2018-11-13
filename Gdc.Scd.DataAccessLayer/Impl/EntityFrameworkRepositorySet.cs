@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
-    public class EntityFrameworkRepositorySet : DbContext, IRepositorySet
+    public class EntityFrameworkRepositorySet : DbContext, IRepositorySet, IRegisteredEntitiesProvider
     {
         private readonly IKernel serviceProvider;
 
@@ -210,6 +210,20 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 cmd.AddParameters(parameters);
 
                 using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    return reader.MapToTable();
+                }
+            });
+        }
+
+        public DataTable ExecuteAsTable(string sql, params DbParameter[] parameters)
+        {
+            return WithCommand(cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                using (var reader =  cmd.ExecuteReader())
                 {
                     return reader.MapToTable();
                 }
