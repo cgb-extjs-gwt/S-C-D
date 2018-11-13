@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
@@ -16,6 +16,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 {
     public class CostBlockRepository : ICostBlockRepository
     {
+        private const string CoordinateTable = "#Coordinates";
+
         private readonly IRepositorySet repositorySet;
 
         public CostBlockRepository(IRepositorySet repositorySet)
@@ -39,169 +41,158 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private SqlHelper BuildUpdateByCoordinatesQuery(CostBlockEntityMeta meta)
         {
-            var selectIntoQueries = new List<SqlHelper>();
-            var dropTableQueries = new List<SqlHelper>();
-
-            foreach (var field in meta.CoordinateFields)
+            return Sql.Queries(new[] 
             {
-                var table = this.BuildCostBlockReferenceIdsAlias(field);
-
-                selectIntoQueries.Add(
-                    Sql.SelectDistinct(new ColumnInfo(field.Name, null, MetaConstants.IdFieldKey))
-                       .Into(table)
-                       .From(meta)
-                       .WhereNotDeleted(meta));
-
-                dropTableQueries.Add(Sql.DropTable(table));
-            }
-
-            var queries = new List<SqlHelper>(selectIntoQueries);
-
-            queries.Add(this.BuildCreateRowsCostBlockQuery(meta));
-            queries.Add(this.BuildDeleteRowsCostBlockQuery(meta));
-            queries.AddRange(dropTableQueries);
-
-            return Sql.Queries(queries);
+                this.BuildCoordinatesTableQuery(meta),
+                this.BuildCreateRowsCostBlockQuery(meta),
+                this.BuildDeleteRowsCostBlockQuery(meta),
+                Sql.DropTable(CoordinateTable)
+            });
         }
 
-        private SqlHelper BuildDeleteRowsCostBlockQuery(CostBlockEntityMeta meta)
+        private SqlHelper BuildCoordinatesTableQuery(CostBlockEntityMeta costBlockMeta)
         {
-            var deleteCondition =
-                ConditionHelper.OrBrackets(
-                    meta.CoordinateFields.Select(
-                        field =>
-                            SqlOperators.In(
-                                field.Name,
-                                Sql.Except(this.BuildCostBlockReferenceIdsQuery(field), this.BuildReferenceIdsQuery(field)))));
+            var coordinateFields = costBlockMeta.CoordinateFields.ToArray();
+            var costBlockRefMetas = new HashSet<BaseEntityMeta>(coordinateFields.Select(field => field.ReferenceMeta));
 
-            var condition = CostBlockQueryHelper.BuildNotDeletedCondition(meta).And(deleteCondition.ToSqlBuilder());
+            var referenceFieldInfos =
+                coordinateFields.Select(field => new
+                {
+                    Field = field,
+                    InnerFields =
+                        field.ReferenceMeta.AllFields.OfType<ReferenceFieldMeta>()
+                                                     .Where(innerField => costBlockRefMetas.Contains(innerField.ReferenceMeta))
+                                                     .ToArray()
+                }).ToArray();
+
+            var referenceFields = new List<ReferenceFieldMeta>();
+            var selectColumns = new List<ColumnInfo>();
+
+            var innerFieldInfos =
+                referenceFieldInfos.SelectMany(
+                    fieldInfo => fieldInfo.InnerFields.Select(
+                        innerField => new { fieldInfo.Field, InnerField = innerField }))
+                                   .ToArray();
+
+            var ignoreRefMetas = new HashSet<BaseEntityMeta>(
+                referenceFieldInfos.SelectMany(fieldInfo => fieldInfo.InnerFields)
+                                   .Select(field => field.ReferenceMeta));
+
+            foreach (var field in coordinateFields)
+            {
+                if (ignoreRefMetas.Contains(field.ReferenceMeta))
+                {
+                    var innerFieldInfo = innerFieldInfos.First(x => x.InnerField.ReferenceMeta == field.ReferenceMeta);
+
+                    selectColumns.Add(new ColumnInfo(innerFieldInfo.InnerField.Name, innerFieldInfo.Field.ReferenceMeta.Name, field.Name));
+                }
+                else
+                {
+                    referenceFields.Add(field);
+                    selectColumns.Add(new ColumnInfo(field.ReferenceValueField, field.Name, field.Name));
+                }
+            }
+
+            var fromField = referenceFields[0];
+
+            referenceFields.RemoveAt(0);
+
+            var selectQuery =
+                Sql.Select(selectColumns.ToArray())
+                   .Into(CoordinateTable)
+                   .FromQuery(
+                        this.BuildReferenceItemsQuery(fromField, costBlockMeta),
+                        fromField.ReferenceMeta.Name);
 
             return
-                Sql.Update(meta, new ValueUpdateColumnInfo(meta.DeletedDateField.Name, DateTime.UtcNow))
-                   .Where(condition);
+                referenceFields.Aggregate(
+                    selectQuery,
+                    (accumulateQuery, field) => this.BuildReferenceJoinQuery(accumulateQuery, field, costBlockMeta));
         }
 
         private SqlHelper BuildCreateRowsCostBlockQuery(CostBlockEntityMeta costBlockMeta)
         {
-            var referenceFields = costBlockMeta.CoordinateFields.ToList();
-            var selectColumns =
-                referenceFields.Select(field => new ColumnInfo(field.ReferenceValueField, field.Name, field.Name))
-                               .ToList()
-                               .AsEnumerable();
+            var coordinateFieldNames = costBlockMeta.CoordinateFields.Select(field => field.Name).ToArray();
 
-            var insertFields = referenceFields.Select(field => field.Name).ToArray();
-
-            var wgField = costBlockMeta.InputLevelFields[MetaConstants.WgInputLevelName];
-            var plaField = costBlockMeta.InputLevelFields[MetaConstants.PlaInputLevelName];
-
-            if (plaField != null && wgField != null)
-            {
-                selectColumns =
-                    selectColumns.Select(
-                        column => column.TableName == plaField.Name
-                            ? new ColumnInfo($"{nameof(Pla)}{nameof(Wg.Id)}", MetaConstants.WgInputLevelName, plaField.Name)
-                            : column);
-
-                referenceFields.Remove(plaField);
-            }
-
-            var clusterRegionField = costBlockMeta.InputLevelFields[MetaConstants.ClusterRegionInputLevel];
-            var countryField = costBlockMeta.InputLevelFields[MetaConstants.CountryInputLevelName];
-
-            ReferenceFieldMeta fromField = null;
-
-            if (countryField == null)
-            {
-                fromField = referenceFields[0];
-
-                referenceFields.RemoveAt(0);
-            }
-            else
-            {
-                if (clusterRegionField != null)
-                {
-                    selectColumns =
-                        selectColumns.Select(
-                            column => column.TableName == clusterRegionField.Name
-                                ? new ColumnInfo(nameof(Country.ClusterRegionId), MetaConstants.CountryInputLevelName, MetaConstants.ClusterRegionInputLevel)
-                                : column);
-
-                    referenceFields.Remove(clusterRegionField);
-                }
-
-                fromField = countryField;
-
-                referenceFields.Remove(countryField);
-            }
-
-            var selectQuery = 
-                Sql.Select(selectColumns.ToArray())
-                   .FromQuery(
-                        this.BuildNewReferenceItemsQuery(fromField), 
-                        fromField.ReferenceMeta.Name);
-
-            var joinQuery = referenceFields.Aggregate(selectQuery, this.BuildReferenceJoinQuery);
-
-            SqlHelper query;
-
-            if (countryField == null)
-            {
-                query = joinQuery;
-            }
-            else
-            {
-                query = joinQuery.Where(
-                    SqlOperators.Equals(nameof(Country.IsMaster), "isMaster", true, MetaConstants.CountryInputLevelName));
-            }
-
-            return Sql.Insert(costBlockMeta, insertFields).Query(query);
+            return
+                 Sql.Insert(costBlockMeta, coordinateFieldNames)
+                    .Query(
+                        Sql.Except(
+                            this.BuildSelectFromCoordinateTalbeQuery(costBlockMeta),
+                            this.BuildSelectFromCostBlockQuery(costBlockMeta)));
         }
 
-        private SelectJoinSqlHelper BuildReferenceJoinQuery(SelectJoinSqlHelper query, ReferenceFieldMeta field)
+        private SqlHelper BuildDeleteRowsCostBlockQuery(CostBlockEntityMeta costBlockMeta)
+        {
+            const string DelectedCoordinateTable = "DelectedCoordinate";
+
+            var condition =
+                ConditionHelper.And(
+                    costBlockMeta.CoordinateFields.Select(
+                        field => 
+                            SqlOperators.Equals(
+                                new ColumnInfo(field.Name, DelectedCoordinateTable), 
+                                new ColumnInfo(field.Name, costBlockMeta.Name))));
+
+            return
+                Sql.Update(costBlockMeta, new ValueUpdateColumnInfo(costBlockMeta.DeletedDateField.Name, DateTime.UtcNow))
+                   .FromQuery(
+                        Sql.Except(
+                            this.BuildSelectFromCostBlockQuery(costBlockMeta),
+                            this.BuildSelectFromCoordinateTalbeQuery(costBlockMeta)),
+                        DelectedCoordinateTable)
+                   .Where(condition);
+        }
+
+        private SelectJoinSqlHelper BuildSelectFromCoordinateTalbeQuery(CostBlockEntityMeta costBlockMeta)
+        {
+            return Sql.Select(costBlockMeta.CoordinateFields).From(CoordinateTable);
+        }
+
+        private GroupBySqlHelper BuildSelectFromCostBlockQuery(CostBlockEntityMeta costBlockMeta)
+        {
+            return Sql.Select(costBlockMeta.CoordinateFields).From(costBlockMeta).WhereNotDeleted(costBlockMeta);
+        }
+
+        private SelectJoinSqlHelper BuildReferenceJoinQuery(SelectJoinSqlHelper query, ReferenceFieldMeta field, CostBlockEntityMeta costBlockMeta)
         {
             var joinSubquery = new AliasSqlBuilder
             {
                 Alias = field.Name,
                 Query = new BracketsSqlBuilder
                 {
-                    Query = this.BuildNewReferenceItemsQuery(field).ToSqlBuilder()
+                    Query = this.BuildReferenceItemsQuery(field, costBlockMeta).ToSqlBuilder()
                 }
             };
 
             return query.Join(joinSubquery, (ISqlBuilder)null, JoinType.Cross);
         }
 
-        private GroupBySqlHelper BuildNewReferenceItemsQuery(ReferenceFieldMeta field)
+        private GroupBySqlHelper BuildReferenceItemsQuery(ReferenceFieldMeta field, CostBlockEntityMeta costBlockMeta)
         {
-            return
-                Sql.Select()
-                   .From(field.ReferenceMeta)
-                   .Where(
-                        SqlOperators.In(
-                            MetaConstants.IdFieldKey,
-                            Sql.Except(this.BuildReferenceIdsQuery(field), this.BuildCostBlockReferenceIdsQuery(field))));
-        }
+            var fieldQuery = Sql.Select().From(field.ReferenceMeta);
+            var conditions = new List<ConditionHelper>();
 
-        private SelectJoinSqlHelper BuildCostBlockReferenceIdsQuery(ReferenceFieldMeta field)
-        {
-            return 
-                Sql.Select(MetaConstants.IdFieldKey)
-                   .From(this.BuildCostBlockReferenceIdsAlias(field));
-        }
+            if (field.ReferenceMeta is DeactivatableEntityMeta deactivatableMeta)
+            {
+                conditions.Add(SqlOperators.IsNull(deactivatableMeta.DeactivatedDateTimeField.Name));
+            }
 
-        private GroupBySqlHelper BuildReferenceIdsQuery(ReferenceFieldMeta field)
-        {
-            var fieldQuery = Sql.Select(field.ReferenceValueField).From(field.ReferenceMeta);
+            switch(field.ReferenceMeta)
+            {
+                case WgEnityMeta wgMeta:
+                    conditions.Add(SqlOperators.Equals(wgMeta.WgTypeField.Name, "wgType", (int)WgType.Por));
+                    conditions.Add(SqlOperators.Equals(wgMeta.IsSoftwareField.Name, "isSoftware", costBlockMeta.Schema == MetaConstants.SoftwareSolutionSchema));
+                    break;
 
-            return 
-                field.ReferenceMeta is DeactivatableEntityMeta deactivatableMeta
-                    ? fieldQuery.Where(SqlOperators.IsNull(deactivatableMeta.DeactivatedDateTimeField.Name))
-                    : fieldQuery;
-        }
+                case CountryEntityMeta countryMeta:
+                    conditions.Add(SqlOperators.Equals(countryMeta.IsMasterField.Name, "isMaster", true));
+                    break;
+            }
 
-        private string BuildCostBlockReferenceIdsAlias(ReferenceFieldMeta field)
-        {
-            return $"#{field.ReferenceMeta.Name}_CostBlock";
+            return conditions.Count == 0
+                ? fieldQuery
+                : fieldQuery.Where(ConditionHelper.And(conditions));
         }
     }
 }

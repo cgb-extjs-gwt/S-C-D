@@ -21,7 +21,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.meta = meta;
         }
 
-        public async Task UpdateByCoordinates(IEnumerable<CostBlockEntityMeta> costBlockMetas)
+        public async Task UpdateByCoordinatesAsync(IEnumerable<CostBlockEntityMeta> costBlockMetas)
         {
             using (var transaction = this.repositorySet.GetTransaction())
             {
@@ -43,9 +43,36 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public async Task UpdateByCoordinates()
+        public void UpdateByCoordinates(IEnumerable<CostBlockEntityMeta> costBlockMetas)
         {
-            await this.UpdateByCoordinates(this.meta.CostBlocks);
+            using (var transaction = this.repositorySet.GetTransaction())
+            {
+                try
+                {
+                    foreach (var costBlockMeta in costBlockMetas)
+                    {
+                        this.costBlockRepository.UpdateByCoordinates(costBlockMeta);
+                    }
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+
+                    throw;
+                }
+            }
+        }
+
+        public async Task UpdateByCoordinatesAsync()
+        {
+            await this.UpdateByCoordinatesAsync(this.meta.CostBlocks);
+        }
+
+        public void UpdateByCoordinates()
+        {
+            this.UpdateByCoordinates(this.meta.CostBlocks);
         }
     }
 }

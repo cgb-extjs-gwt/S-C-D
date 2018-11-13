@@ -337,17 +337,26 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var count = 5;
             var sogs = this.BuildDeactivatableTestItems<Sog>(count).ToArray();
             var plas = this.repositorySet.GetRepository<Pla>().GetAll().Take(count).ToArray();
+            var sfabs = this.BuildDeactivatableTestItems<SFab>(count).ToArray();
+
+            for (var i = 0; i < count; i++)
+            {
+                sfabs[i].PlaId = plas[i].Id;
+            }
+
+            this.repositorySet.GetRepository<SFab>().Save(sfabs);
+            this.repositorySet.Sync();
 
             for (var i = 0; i < count; i++)
             {
                 sogs[i].PlaId = plas[i].Id;
+                sogs[i].SFabId = sfabs[i].Id;
             }
 
             this.repositorySet.GetRepository<Sog>().Save(sogs);
             this.repositorySet.Sync();
 
             var swDigit = this.BuildDeactivatableTestItems<SwDigit>(count).ToArray();
-            var sfabs = this.BuildDeactivatableTestItems<SFab>(count).ToArray();
 
             for (var i = 0; i < count; i++)
             {
@@ -533,75 +542,93 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     {
                         new Wg
                         {
-                            Name = "TC4"
+                            Name = "TC4",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "TC5"
+                            Name = "TC5",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "TC6"
+                            Name = "TC6",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "TC8"
+                            Name = "TC8",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "TC7"
+                            Name = "TC7",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U05"
+                            Name = "U05",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U11"
+                            Name = "U11",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U13"
+                            Name = "U13",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "WSJ"
+                            Name = "WSJ",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "WSN"
+                            Name = "WSN",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "WSS"
+                            Name = "WSS",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "WSW"
+                            Name = "WSW",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U02"
+                            Name = "U02",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U06"
+                            Name = "U06",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U07"
+                            Name = "U07",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U12"
+                            Name = "U12",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "U14"
+                            Name = "U14",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "WRC"
+                            Name = "WRC",
+                            WgType = WgType.Por
                         },
                     }
                 },
@@ -613,43 +640,53 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     {
                         new Wg
                         {
-                            Name = "HMD"
+                            Name = "HMD",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "NB6"
+                            Name = "NB6",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "NB1"
+                            Name = "NB1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "NB2"
+                            Name = "NB2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "NB5"
+                            Name = "NB5",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "ND3"
+                            Name = "ND3",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "NC1"
+                            Name = "NC1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "NC3"
+                            Name = "NC3",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "NC9"
+                            Name = "NC9",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "TR7"
+                            Name = "TR7",
+                            WgType = WgType.Por
                         },
                     }
                 },
@@ -661,47 +698,58 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     {
                         new Wg
                         {
-                            Name = "DPE"
+                            Name = "DPE",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "DPH"
+                            Name = "DPH",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "DPM"
+                            Name = "DPM",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "DPX"
+                            Name = "DPX",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "IOA"
+                            Name = "IOA",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "IOB"
+                            Name = "IOB",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "IOC"
+                            Name = "IOC",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "MD1"
+                            Name = "MD1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PSN"
+                            Name = "PSN",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "SB2"
+                            Name = "SB2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "SB3"
+                            Name = "SB3",
+                            WgType = WgType.Por
                         },
                     }
                 },
@@ -713,283 +761,353 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     {
                         new Wg
                         {
-                            Name = "CD1"
+                            Name = "CD1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CD2"
+                            Name = "CD2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CE1"
+                            Name = "CE1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CE2"
+                            Name = "CE2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CD4"
+                            Name = "CD4",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CD5"
+                            Name = "CD5",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CD6"
+                            Name = "CD6",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CD7"
+                            Name = "CD7",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CDD"
+                            Name = "CDD",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CD8"
+                            Name = "CD8",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CD9"
+                            Name = "CD9",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C70"
+                            Name = "C70",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS8"
+                            Name = "CS8",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C74"
+                            Name = "C74",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C75"
+                            Name = "C75",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS7"
+                            Name = "CS7",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS1"
+                            Name = "CS1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS2"
+                            Name = "CS2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS3"
+                            Name = "CS3",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C16"
+                            Name = "C16",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C18"
+                            Name = "C18",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C33"
+                            Name = "C33",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS5"
+                            Name = "CS5",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS4"
+                            Name = "CS4",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS6"
+                            Name = "CS6",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "CS9"
+                            Name = "CS9",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C96"
+                            Name = "C96",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C97"
+                            Name = "C97",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C98"
+                            Name = "C98",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C71"
+                            Name = "C71",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C73"
+                            Name = "C73",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C80"
+                            Name = "C80",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "C84"
+                            Name = "C84",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F58"
+                            Name = "F58",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F40"
+                            Name = "F40",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F48"
+                            Name = "F48",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F53"
+                            Name = "F53",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F54"
+                            Name = "F54",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F57"
+                            Name = "F57",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F41"
+                            Name = "F41",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F49"
+                            Name = "F49",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F42"
+                            Name = "F42",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F43"
+                            Name = "F43",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F44"
+                            Name = "F44",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F45"
+                            Name = "F45",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F50"
+                            Name = "F50",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F51"
+                            Name = "F51",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F52"
+                            Name = "F52",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F36"
+                            Name = "F36",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F46"
+                            Name = "F46",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F47"
+                            Name = "F47",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F56"
+                            Name = "F56",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F28"
+                            Name = "F28",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F29"
+                            Name = "F29",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F35"
+                            Name = "F35",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "F55"
+                            Name = "F55",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S14"
+                            Name = "S14",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S17"
+                            Name = "S17",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S15"
+                            Name = "S15",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S16"
+                            Name = "S16",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S50"
+                            Name = "S50",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S51"
+                            Name = "S51",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S18"
+                            Name = "S18",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S35"
+                            Name = "S35",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S36"
+                            Name = "S36",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S37"
+                            Name = "S37",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S39"
+                            Name = "S39",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S40"
+                            Name = "S40",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S55"
+                            Name = "S55",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "VSH"
+                            Name = "VSH",
+                            WgType = WgType.Por
                         },
                     }
                 },
@@ -1001,231 +1119,288 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     {
                         new Wg
                         {
-                            Name = "MN1"
+                            Name = "MN1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "MN4"
+                            Name = "MN4",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PQ8"
+                            Name = "PQ8",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y01"
+                            Name = "Y01",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y15"
+                            Name = "Y15",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PX1"
+                            Name = "PX1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PY1"
+                            Name = "PY1",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PY4"
+                            Name = "PY4",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y09"
+                            Name = "Y09",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y12"
+                            Name = "Y12",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "MN2"
+                            Name = "MN2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PX2"
+                            Name = "PX2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PX3"
+                            Name = "PX3",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PXS"
+                            Name = "PXS",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PY2"
+                            Name = "PY2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PY3"
+                            Name = "PY3",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "SD2"
+                            Name = "SD2",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y03"
+                            Name = "Y03",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y17"
+                            Name = "Y17",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y21"
+                            Name = "Y21",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y32"
+                            Name = "Y32",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y06"
+                            Name = "Y06",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y13"
+                            Name = "Y13",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y28"
+                            Name = "Y28",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y30"
+                            Name = "Y30",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y31"
+                            Name = "Y31",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y37"
+                            Name = "Y37",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y38"
+                            Name = "Y38",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y39"
+                            Name = "Y39",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y40"
+                            Name = "Y40",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PX6"
+                            Name = "PX6",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PX8"
+                            Name = "PX8",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PRC"
+                            Name = "PRC",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "RTE"
+                            Name = "RTE",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y07"
+                            Name = "Y07",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y16"
+                            Name = "Y16",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y18"
+                            Name = "Y18",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y25"
+                            Name = "Y25",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y26"
+                            Name = "Y26",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y27"
+                            Name = "Y27",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y33"
+                            Name = "Y33",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "Y36"
+                            Name = "Y36",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S41"
+                            Name = "S41",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S42"
+                            Name = "S42",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S43"
+                            Name = "S43",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S44"
+                            Name = "S44",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S45"
+                            Name = "S45",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S46"
+                            Name = "S46",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S47"
+                            Name = "S47",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S48"
+                            Name = "S48",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S49"
+                            Name = "S49",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S52"
+                            Name = "S52",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S53"
+                            Name = "S53",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "S54"
+                            Name = "S54",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PQ0"
+                            Name = "PQ0",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PQ5"
+                            Name = "PQ5",
+                            WgType = WgType.Por
                         },
                         new Wg
                         {
-                            Name = "PQ9"
+                            Name = "PQ9",
+                            WgType = WgType.Por
                         },
                     }
                 },

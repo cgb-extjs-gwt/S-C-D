@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("Sog", Schema = MetaConstants.InputLevelSchema)]
+    [Table(MetaConstants.SogInputLevel, Schema = MetaConstants.InputLevelSchema)]
     public class Sog : BaseWgSog, IDeactivatable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
