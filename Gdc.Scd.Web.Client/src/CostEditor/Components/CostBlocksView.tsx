@@ -233,14 +233,11 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
                 name={name}
                 checked={item.id === selectedCostElementId}
                 disabled={!isEnabled}
-                onCheck={
-                    radioField => {
-                        //HACK: onCheck event fired twice.
-                        if ((radioField as any).hasFocus) {
+                onChange={
+                    (btn: any, newValue, oldValue) => {
+                        if (btn.getChecked()) {
                             onSelected(item);
                         }
-
-                        return false;
                     }
                 }
             />
