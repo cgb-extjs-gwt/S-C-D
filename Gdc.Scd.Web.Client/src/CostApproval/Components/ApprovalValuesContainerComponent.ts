@@ -1,14 +1,11 @@
 import { connect } from "react-redux";
-import { ApprovalValuesProps, ApprovalValuesViewComponent, DetailsProps } from "./ApprovalValuesViewComponent";
-import { CommonState } from "../../Layout/States/AppStates";
-import * as CostApprovalService from "../Services/CostApprovalService"
-import { API_URL, buildMvcUrl } from "../../Common/Services/Ajax";
-import { NamedId } from "../../Common/States/CommonStates";
-import { buildGetApproveBundleDetailUrl } from "../Services/CostApprovalService";
-import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
-import { getInputLevelColumns, buildNameColumnInfo } from "../../Common/Helpers/ColumnInfoHelper";
-import { ApprovalBundle } from "../States/ApprovalBundle";
+import { buildNameColumnInfo, getInputLevelColumns } from "../../Common/Helpers/ColumnInfoHelper";
 import { getDependency } from "../../Common/Helpers/MetaHelper";
+import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
+import { CommonState } from "../../Layout/States/AppStates";
+import { buildGetApproveBundleDetailUrl } from "../Services/CostApprovalService";
+import { ApprovalBundle } from "../States/ApprovalBundle";
+import { ApprovalValuesProps, ApprovalValuesViewComponent, DetailsProps } from "./ApprovalValuesViewComponent";
 
 export interface ApprovalValuesContainerProps {
     approvalBundle: ApprovalBundle
@@ -41,8 +38,8 @@ export const ApprovalValuesContainerComponent =
                 otherColumns.push({ title: 'Value', dataIndex: 'Value', type: ColumnType.Text });
 
                 if (isCheckColumnsVisible) {
-                    otherColumns.push({ title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.CheckBox, isEditable: true });
-                    otherColumns.push({ title: 'Country group error', dataIndex: `IsRegionError`, type: ColumnType.CheckBox, isEditable: true });
+                    otherColumns.push({ title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.CheckBox });
+                    otherColumns.push({ title: 'Country group error', dataIndex: `IsRegionError`, type: ColumnType.CheckBox });
                 }
 
                 columns = [
