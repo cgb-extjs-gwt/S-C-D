@@ -185,8 +185,7 @@ namespace Gdc.Scd.Import.Por
             try
             {
                 Logger.Log(LogLevel.Info, ImportConstantMessages.UPDATE_COST_BLOCKS_START, step);
-                var updateTask = CostBlockService.UpdateByCoordinates();
-                updateTask.Wait();
+                CostBlockService.UpdateByCoordinates();
                 Logger.Log(LogLevel.Info, ImportConstantMessages.UPDATE_COST_BLOCKS_END);
             }
             catch(Exception ex)
