@@ -15,7 +15,7 @@ export interface ApprovalValuesContainerProps {
     isCheckColumnsVisible: boolean
 }
 
-export const ApprovalValuesContainerComponent = 
+export const ApprovalValuesContainerComponent =
     connect<ApprovalValuesProps, {}, ApprovalValuesContainerProps, CommonState>(
         (state, { approvalBundle, isCheckColumnsVisible }) => {
             const meta = state.app.appMetaData;
@@ -23,15 +23,15 @@ export const ApprovalValuesContainerComponent =
             let columns: ColumnInfo[];
             let dataLoadUrl: string;
             let details: DetailsProps;
-            
+
             if (meta) {
                 dataLoadUrl = buildGetApproveBundleDetailUrl(approvalBundle.id);
 
                 const costBlock = meta.costBlocks.find(item => item.id === approvalBundle.costBlock.id);
 
-                const otherColumns: ColumnInfo[] = []; 
+                const otherColumns: ColumnInfo[] = [];
                 const dependency = getDependency(costBlock, approvalBundle.costElement.id);
-                
+
                 if (dependency) {
                     const dependencyColumn = buildNameColumnInfo(dependency);
 
@@ -40,9 +40,9 @@ export const ApprovalValuesContainerComponent =
 
                 otherColumns.push({ title: 'Value', dataIndex: 'Value', type: ColumnType.Text });
 
-                if(isCheckColumnsVisible) {
-                    otherColumns.push({ title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.CheckBox });
-                    otherColumns.push({ title: 'Country group error', dataIndex: `IsRegionError`, type: ColumnType.CheckBox });
+                if (isCheckColumnsVisible) {
+                    otherColumns.push({ title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.CheckBox, isEditable: true });
+                    otherColumns.push({ title: 'Country group error', dataIndex: `IsRegionError`, type: ColumnType.CheckBox, isEditable: true });
                 }
 
                 columns = [
