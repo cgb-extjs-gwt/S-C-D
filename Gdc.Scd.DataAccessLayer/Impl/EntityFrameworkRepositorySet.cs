@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
-    public class EntityFrameworkRepositorySet : DbContext, IRepositorySet
+    public class EntityFrameworkRepositorySet : DbContext, IRepositorySet, IRegisteredEntitiesProvider
     {
         private readonly IKernel serviceProvider;
 

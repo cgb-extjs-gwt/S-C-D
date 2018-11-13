@@ -46,7 +46,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 {
                     foreach (var deactivateItem in itemsToDeacivate)
                     {
-                        _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATED_ENTITY,
+                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.DEACTIVATED_ENTITY,
                             nameof(Sog), deactivateItem.Name);
                     }
                 }
@@ -90,6 +90,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         Description = porSog.Service_Offering_Group_Name,
                         Name = porSog.Service_Offering_Group,
                         PlaId = pla.Id,
+                        FabGrp = porSog.FabGrp,
                         SCD_ServiceType = porSog.SCD_ServiceType,
                         IsSoftware = ImportHelper.IsSoftware(porSog.SCD_ServiceType, softwareServiceTypes)
                     });
@@ -99,7 +100,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                 foreach (var addedEntity in added)
                 {
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                    _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
                         nameof(Sog), addedEntity.Name);
                 }
 

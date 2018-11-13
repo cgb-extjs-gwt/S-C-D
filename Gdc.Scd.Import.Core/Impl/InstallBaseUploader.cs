@@ -41,7 +41,7 @@ namespace Gdc.Scd.Import.Core.Impl
         public void Upload(IEnumerable<InstallBaseDto> items, DateTime modifiedDateTime)
         {
             var wgs = _repositoryWg.GetAll().Where(wg => wg.WgType == WgType.Por).ToList();
-            var countryGroups = _repositoryCountryGroup.GetAll().ToList();
+            var countryGroups = _repositoryCountryGroup.GetAll().Where(cg => cg.AutoUploadInstallBase).ToList();
             var countries = _repositoryCountry.GetAll().ToList();
             var installBase = _repositoryInstallBase.GetAll().ToList();
 
@@ -49,7 +49,7 @@ namespace Gdc.Scd.Import.Core.Impl
 
             foreach (var item in items)
             {
-                if (String.IsNullOrEmpty(item.Wg) || item.Wg.Equals("-") || String.IsNullOrEmpty(item.CountryCode))
+                if (String.IsNullOrEmpty(item.Wg) || item.Wg.Equals("-") || String.IsNullOrEmpty(item.CountryGroup))
                     continue;
                 var wg = wgs.FirstOrDefault(w => w.Name.Equals(item.Wg, StringComparison.OrdinalIgnoreCase));
                 if (wg == null)
@@ -57,10 +57,10 @@ namespace Gdc.Scd.Import.Core.Impl
                     _logger.Log(LogLevel.Warn, ImportConstants.UNKNOWN_WARRANTY, item.Wg);
                     continue;
                 }
-                var countryGroup = countryGroups.FirstOrDefault(c => c.LUTCode.Equals(item.CountryCode, StringComparison.OrdinalIgnoreCase));
+                var countryGroup = countryGroups.FirstOrDefault(c => c.Name.Equals(item.CountryGroup, StringComparison.OrdinalIgnoreCase));
                 if (countryGroup == null)
                 {
-                    _logger.Log(LogLevel.Warn, ImportConstants.UNKNOWN_COUNTRY_CODE, item.CountryCode);
+                    _logger.Log(LogLevel.Warn, ImportConstants.UNKNOWN_COUNTRY_CODE, item.CountryGroup);
                     continue;
                 }
                 //getting master countries in country group
