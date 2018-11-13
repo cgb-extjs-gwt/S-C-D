@@ -77,30 +77,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         let localServiceStandardWarranty: string = 'LocalServiceStandardWarranty';
         let credits: string = 'Credits';
 
-        if (this.props.approved) {
-            fieldServiceCost = 'fieldServiceCost_Approved';
-            serviceSupport = 'serviceSupport_Approved';
-            logistic = 'logistic_Approved';
-            availabilityFee = 'availabilityFee_Approved';
-            hddRetention = 'hddRetention_Approved';
-            reinsurance = 'reinsurance_Approved';
-            taxAndDutiesW = 'taxAndDutiesW_Approved';
-            taxAndDutiesOow = 'taxAndDutiesOow_Approved';
-            materialW = 'materialW_Approved';
-            materialOow = 'materialOow_Approved';
-            proActive = 'proActive_Approved';
-            serviceTC = 'serviceTC_Approved';
-            serviceTCManual = 'serviceTCManual_Approved';
-            serviceTP = 'serviceTP_Approved';
-            serviceTPManual = 'serviceTPManual_Approved';
-            listPrice = 'listPrice_Approved';
-            dealerDiscount = 'dealerDiscount_Approved';
-            dealerPrice = 'dealerPrice_Approved';
-            otherDirect = 'otherDirect_Approved';
-            localServiceStandardWarranty = 'localServiceStandardWarranty_Approved';
-            credits = 'credits_Approved';
-        }
-
         return (
             <Container layout="fit">
 

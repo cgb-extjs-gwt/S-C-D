@@ -35,12 +35,6 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
 
     public render() {
 
-        let proActive: string = 'proActive';
-
-        if (this.props.approved) {
-            proActive = 'proActive_Approved';
-        }
-
         return (
             <Container layout="fit">
 
@@ -75,7 +69,7 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <NumberColumn text="Pro active" dataIndex={proActive} />
+                        <NumberColumn text="Pro active" dataIndex="proActive" />
 
                     </Column>
 

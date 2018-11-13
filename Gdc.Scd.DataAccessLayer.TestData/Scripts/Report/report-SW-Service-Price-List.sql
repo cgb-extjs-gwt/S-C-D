@@ -19,21 +19,18 @@ RETURN (
             , fsp.ServiceDescription as SpDescription
             , null as Sp
 
-            , av.Name as Availability
-            , y.Name as Year
-
             , sw.TransferPrice_Approved as TP
             , sw.DealerPrice_Approved as DealerPrice
             , sw.MaintenanceListPrice_Approved as ListPrice
 
-    from SoftwareSolution.ServiceCostCalculation sw
-    join InputAtoms.Sog sog on sog.id = sw.SogId
-    join Fsp.SwFspCodeTranslation fsp on fsp.SogId = sog.Id
-    join Dependencies.Availability av on av.Id = sw.AvailabilityId
-    join Dependencies.Year y on y.id = sw.YearId
-    where (@sog is null or sw.SogId = @sog)
-      and (@av is null or sw.AvailabilityId = @av)
-      and (@year is null or sw.YearId = @year)
+    from SoftwareSolution.SwSpMaintenanceCostView sw
+    join InputAtoms.Sog sog on sog.id = sw.Sog
+    left join Fsp.SwFspCodeTranslation fsp on fsp.AvailabilityId = sw.Availability
+                                          and fsp.DurationId = sw.Year
+                                          and fsp.SogId = sw.Sog
+    where (@sog is null or sw.Sog = @sog)
+      and (@av is null or sw.Availability = @av)
+      and (@year is null or sw.Year = @year)
 )
 
 GO
@@ -44,7 +41,7 @@ declare @index int = 0;
 delete from Report.ReportColumn where ReportId = @reportId;
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SogDescription', 'Software Product', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SogDescription', 'Infrastructure Solution', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Sog', 'Service Offering Group', 1, 1);
 set @index = @index + 1;
@@ -53,10 +50,6 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SpDescription', 'SW Service Description', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Sp', 'SW Service Short Description', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Availability', 'Availability', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Year', 'Year', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'TP', 'Transfer Price', 1, 1);

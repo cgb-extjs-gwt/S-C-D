@@ -6,6 +6,10 @@
 
   <ItemGroup>
     <None Remove="Scripts\availabilityFee.sql" />
+    <None Remove="Scripts\CD_CS\cd-cs-hdd-retention.sql" />
+    <None Remove="Scripts\CD_CS\cd-cs-proactive.sql" />
+    <None Remove="Scripts\CD_CS\cd-cs-servicecosts.sql" />
+    <None Remove="Scripts\CD_CS\split-string.sql" />
     <None Remove="Scripts\dropEverything.sql" />
     <None Remove="Scripts\matrix.sql" />
     <None Remove="Scripts\report-calc-output-new-vs-old.sql" />
@@ -49,6 +53,10 @@
     <EmbeddedResource Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Calculation\calculation-sw.sql" Link="Scripts\calculation-sw.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Scripts\CD_CS\cd-cs-hdd-retention.sql" />
+    <EmbeddedResource Include="Scripts\CD_CS\cd-cs-proactive.sql" />
+    <EmbeddedResource Include="Scripts\CD_CS\cd-cs-servicecosts.sql" />
+    <EmbeddedResource Include="Scripts\CD_CS\split-string.sql" />
     <EmbeddedResource Include="Scripts\dropEverything.sql" />
     <EmbeddedResource Include="Scripts\matrix.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
@@ -63,7 +71,7 @@
     <EmbeddedResource Include="Scripts\Report\report-hdd-retention-country.sql" />
     <EmbeddedResource Include="Scripts\Report\report-hdd-retention-parameter.sql" />
     <EmbeddedResource Include="Scripts\Report\report-list.sql" />
-    <EmbeddedResource Include="Scripts\Report\report-local-detailed.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-locap-detailed.sql" />
     <EmbeddedResource Include="Scripts\Report\report-locap.sql" />
     <EmbeddedResource Include="Scripts\Report\report-Logistic-cost-calc-central.sql" />
     <EmbeddedResource Include="Scripts\Report\report-logistic-cost-calc-country.sql" />

@@ -62,6 +62,10 @@ IF OBJECT_ID('Hardware.GetCalcMember') IS NOT NULL
   DROP FUNCTION Hardware.GetCalcMember;
 go 
 
+IF OBJECT_ID('Matrix.GetBySla') IS NOT NULL
+  DROP FUNCTION Matrix.GetBySla;
+go 
+
 IF OBJECT_ID('Hardware.CalcFieldServiceCost') IS NOT NULL
   DROP FUNCTION Hardware.CalcFieldServiceCost;
 go 
@@ -534,6 +538,14 @@ END
 GO
 
 CREATE VIEW [Hardware].[AvailabilityFeeView] as 
+    with WgCte as (
+        select wg.*
+             , case 
+                    when wg.WgType = 0 then 1
+                    else 0
+               end as IsMultiVendor
+        from InputAtoms.Wg wg
+    )
     select fee.Country,
            fee.Wg,
            wg.IsMultiVendor, 
@@ -571,7 +583,7 @@ CREATE VIEW [Hardware].[AvailabilityFeeView] as
             fee.MaxQty_Approved
 
     from Hardware.AvailabilityFee fee
-    JOIN InputAtoms.Wg wg on wg.Id = fee.Wg
+    JOIN WgCte wg on wg.Id = fee.Wg
     JOIN InputAtoms.Country c on c.Id = fee.Country
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 GO
@@ -658,6 +670,10 @@ CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as
     from AvFeeCte2 fee
 GO
 
+IF OBJECT_ID('Atom.InstallBaseUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Atom.InstallBaseUpdated;
+go
+
 CREATE TRIGGER Atom.InstallBaseUpdated
 ON Atom.InstallBase
 After INSERT, UPDATE
@@ -690,6 +706,10 @@ AS BEGIN
 END
 GO
 
+IF OBJECT_ID('Hardware.HddRetentionUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.HddRetentionUpdated;
+go
+
 CREATE TRIGGER Hardware.HddRetentionUpdated
 ON Hardware.HddRetention
 After INSERT, UPDATE
@@ -697,15 +717,26 @@ AS BEGIN
 
     with cte as (
         select    h.Id
-                , sum(h.HddMaterialCost * h.HddFr / 100) over(partition by h.Wg, y.IsProlongation order by y.Value) as HddRet
-                , sum(h.HddMaterialCost_Approved * h.HddFr_Approved / 100) over(partition by h.Wg, y.IsProlongation order by y.Value) as HddRet_Approved
+                , h.Wg
+                , h.HddMaterialCost * h.HddFr / 100 as hddRetPerYear
+                , h.HddMaterialCost_Approved * h.HddFr_Approved / 100 as hddRetPerYear_Approved
+                , y.IsProlongation
+                , y.Value
         from Hardware.HddRetention h
         join Dependencies.Year y on y.Id = h.Year
+    )
+    , cte2 as (
+        select *
+        from cte c
+            cross apply(select sum(c2.hddRetPerYear) as HddRet, 
+                               sum(c2.hddRetPerYear_Approved) as HddRet_Approved
+                            from cte as c2
+                            where c2.Wg = c.Wg and c2.IsProlongation = c.IsProlongation and c2.Value <= c.Value) ca
     )
     update h
         set h.HddRet = c.HddRet, HddRet_Approved = c.HddRet_Approved
     from Hardware.HddRetention h
-    join cte c on c.Id = h.Id
+    join cte2 c on c.Id = h.Id
 
 END
 go
@@ -713,7 +744,10 @@ go
 CREATE VIEW [Hardware].[FieldServiceCostView] AS
     SELECT  fsc.Country,
             fsc.Wg,
-            wg.IsMultiVendor,
+            case 
+                when wg.WgType = 0 then 1
+                else 0
+            end as IsMultiVendor,
             
             hr.OnsiteHourlyRates,
             hr.OnsiteHourlyRates_Approved,
@@ -757,11 +791,18 @@ CREATE VIEW Atom.TaxAndDutiesVIEW as
 GO
 
 CREATE VIEW InputAtoms.WgView WITH SCHEMABINDING as
-    SELECT wg.Id, wg.Name, wg.IsMultiVendor, pla.Id as Pla, cpla.Id as ClusterPla
-            from InputAtoms.Wg wg,
-                 InputAtoms.Pla pla,
-                 InputAtoms.ClusterPla cpla
-            where wg.PlaId = pla.Id and cpla.id = pla.ClusterPlaId
+    SELECT wg.Id, 
+           wg.Name, 
+           case 
+                when wg.WgType = 0 then 1
+                else 0
+            end as IsMultiVendor, 
+           pla.Id as Pla, 
+           cpla.Id as ClusterPla
+    from InputAtoms.Wg wg,
+            InputAtoms.Pla pla,
+            InputAtoms.ClusterPla cpla
+    where wg.PlaId = pla.Id and cpla.id = pla.ClusterPlaId
 GO
 
 CREATE VIEW [Hardware].[LogisticsCostView] AS

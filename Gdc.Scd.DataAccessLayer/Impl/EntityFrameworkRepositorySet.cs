@@ -216,6 +216,20 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
+        public DataTable ExecuteAsTable(string sql, params DbParameter[] parameters)
+        {
+            return WithCommand(cmd =>
+            {
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                using (var reader =  cmd.ExecuteReader())
+                {
+                    return reader.MapToTable();
+                }
+            });
+        }
+
         public Task<T> ExecuteScalarAsync<T>(string sql, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>
