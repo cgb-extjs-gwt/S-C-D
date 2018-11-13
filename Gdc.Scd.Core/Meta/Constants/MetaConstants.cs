@@ -51,5 +51,9 @@
         public const string ClusterRegionInputLevel = "ClusterRegion";
         
         public const string SpoolerSchema = "Spooler";
+
+        public const string SfabInputLevel = "Sfab";
+
+        public const string SogInputLevel = "Sog";
     }
 }
