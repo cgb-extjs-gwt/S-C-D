@@ -1,16 +1,12 @@
-﻿using Gdc.Scd.Core.Attributes;
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using Gdc.Scd.Core.Attributes;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("Sfab", Schema = MetaConstants.InputLevelSchema)]
+    [Table(MetaConstants.SfabInputLevel, Schema = MetaConstants.InputLevelSchema)]
     public class SFab : NamedId, IDeactivatable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

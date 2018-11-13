@@ -6,8 +6,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface ICostBlockService
     {
-        Task UpdateByCoordinates(IEnumerable<CostBlockEntityMeta> costBlockMetas);
+        Task UpdateByCoordinatesAsync(IEnumerable<CostBlockEntityMeta> costBlockMetas);
 
-        Task UpdateByCoordinates();
+        void UpdateByCoordinates(IEnumerable<CostBlockEntityMeta> costBlockMetas);
+
+        Task UpdateByCoordinatesAsync();
+
+        void UpdateByCoordinates();
     }
 }
