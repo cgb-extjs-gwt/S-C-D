@@ -35,10 +35,10 @@ export class QualityGateErrorView extends React.Component<QualityGateErrorProps,
         const store = this.buildStore();
 
         return (
-            <Container layout="vbox">
+            <Container layout="vbox" scrollable={true}>
                 <DynamicGrid store={store} columns={columns} minHeight={400}/>
                 
-                <FormPanel defaults={{labelAlign: 'left'}} flex={1} ref={form => this.explanationForm = form}>
+                <FormPanel defaults={{labelAlign: 'left'}} flex={1} ref={form => this.explanationForm = form} minHeight="100">
                     <TextField 
                         ref={textField => this.explanationTextField = textField}
                         required
