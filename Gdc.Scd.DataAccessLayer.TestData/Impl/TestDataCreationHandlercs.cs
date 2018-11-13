@@ -1586,12 +1586,12 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var logistic = new ImportConfiguration
             {
                 Name = ImportSystems.LOGISTICS,
-                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Logistics",
+                FilePath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\LogisticsCost",
                 FileName = "FeeCalculator-Upload_*.txt",
                 ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
                 Occurancy = Core.Enums.Occurancy.PerMonth,
-                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Logistics\processed",
+                ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\LogisticsCost\processed",
                 Delimeter = "|",
                 HasHeader = true,
                 Culture = "de-DE"
