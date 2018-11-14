@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
@@ -27,13 +28,9 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private readonly IRegisteredEntitiesProvider registeredEntitiesProvider;
 
-        private readonly IDictionary<string, Type> deactivatableEntities;
-
         public DomainEnitiesMetaService(IRegisteredEntitiesProvider registeredEntitiesProvider)
         {
             this.registeredEntitiesProvider = registeredEntitiesProvider;
-
-            this.deactivatableEntities = this.GetDeactivatableEntities();
         }
 
         public DomainEnitiesMeta Get(DomainMeta domainMeta)
@@ -46,6 +43,9 @@ namespace Gdc.Scd.Core.Meta.Impl
                 CostBlockHistory = costBlockHistory
             };
 
+            var entities = this.registeredEntitiesProvider.GetRegisteredEntities();
+            var metaFactory = new CoordinateMetaFactory(entities);
+
             foreach (var costBlockMeta in domainMeta.CostBlocks)
             {
                 foreach (var applicationId in costBlockMeta.ApplicationIds)
@@ -54,7 +54,7 @@ namespace Gdc.Scd.Core.Meta.Impl
 
                     foreach (var inputLevelMeta in costBlockMeta.InputLevels)
                     {
-                        this.BuildInputLevels(inputLevelMeta, costBlockEntity, domainEnitiesMeta);
+                        this.BuildInputLevels(inputLevelMeta, costBlockEntity, domainEnitiesMeta, metaFactory);
                     }
 
                     foreach (var costElementMeta in costBlockMeta.CostElements)
@@ -63,12 +63,12 @@ namespace Gdc.Scd.Core.Meta.Impl
 
                         if (costElementMeta.Dependency != null && costBlockEntity.DependencyFields[costElementMeta.Dependency.Id] == null)
                         {
-                            this.BuildDependencies(costElementMeta, costBlockEntity, domainEnitiesMeta);
+                            this.BuildDependencies(costElementMeta, costBlockEntity, domainEnitiesMeta, metaFactory);
                         }
 
                         if (costElementMeta.RegionInput != null && costBlockEntity.InputLevelFields[costElementMeta.RegionInput.Id] == null)
                         {
-                            this.BuildInputLevels(costElementMeta.RegionInput, costBlockEntity, domainEnitiesMeta);
+                            this.BuildInputLevels(costElementMeta.RegionInput, costBlockEntity, domainEnitiesMeta, metaFactory);
                         }
                     }
 
@@ -81,16 +81,16 @@ namespace Gdc.Scd.Core.Meta.Impl
             return domainEnitiesMeta;
         }
 
-        private void BuildDependencies(CostElementMeta costElementMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta)
+        private void BuildDependencies(CostElementMeta costElementMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta, CoordinateMetaFactory metaFactory)
         {
             if (costElementMeta.Dependency != null && costBlockEntity.DependencyFields[costElementMeta.Dependency.Id] == null)
             {
                 var dependencyFullName = BaseEntityMeta.BuildFullName(costElementMeta.Dependency.Id, MetaConstants.DependencySchema);
-                var dependencyEntity = domainEnitiesMeta.Dependencies[dependencyFullName];
+                var dependencyEntity = metaFactory.GetMeta(costElementMeta.Dependency.Id, MetaConstants.DependencySchema);
 
-                if (dependencyEntity == null)
+                if (!domainEnitiesMeta.Dependencies.Contains(dependencyEntity))
                 {
-                    dependencyEntity = this.BuildCoordianteMeta(costElementMeta.Dependency.Id, MetaConstants.DependencySchema, costElementMeta.Dependency.StoreType);
+                    dependencyEntity.StoreType = costElementMeta.Dependency.StoreType;
 
                     domainEnitiesMeta.Dependencies.Add(dependencyEntity);
                 }
@@ -100,16 +100,14 @@ namespace Gdc.Scd.Core.Meta.Impl
             }
         }
 
-        private void BuildInputLevels(InputLevelMeta inputLevelMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta)
+        private void BuildInputLevels(InputLevelMeta inputLevelMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta, CoordinateMetaFactory metaFactory)
         {
             var inputLevelFullName = BaseEntityMeta.BuildFullName(inputLevelMeta.Id, MetaConstants.InputLevelSchema);
-            var inputLevelEntity = domainEnitiesMeta.InputLevels[inputLevelFullName];
+            var inputLevelEntity = metaFactory.GetMeta(inputLevelMeta.Id, MetaConstants.InputLevelSchema);
 
-            if (inputLevelEntity == null)
+            if (!domainEnitiesMeta.InputLevels.Contains(inputLevelEntity))
             {
-                inputLevelEntity = inputLevelMeta.Id == MetaConstants.CountryInputLevelName
-                    ? new CountryEntityMeta() { StoreType = inputLevelMeta.StoreType }
-                    : this.BuildCoordianteMeta(inputLevelMeta.Id, MetaConstants.InputLevelSchema, inputLevelMeta.StoreType);
+                inputLevelEntity.StoreType = inputLevelMeta.StoreType;
 
                 domainEnitiesMeta.InputLevels.Add(inputLevelEntity);
             }
@@ -193,7 +191,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                 referenceField.IsNullOption = true;
             }
 
-            foreach (var field in costBlock.InputLevelFields.Concat(costBlock.DependencyFields))
+            foreach (var field in costBlock.CoordinateFields)
             {
                 var relatedItemHistoryMeta = (RelatedItemsHistoryEntityMeta)domainEnitiesMeta.GetEntityMeta(field.Name, MetaConstants.HistoryRelatedItemsSchema);
                 if (relatedItemHistoryMeta == null)
@@ -224,47 +222,70 @@ namespace Gdc.Scd.Core.Meta.Impl
             toCollection.AddRange(fields);
         }
 
-        private NamedEntityMeta BuildCoordianteMeta(string name, string schema, StoreType storeType)
+        private class CoordinateMetaFactory
         {
-            NamedEntityMeta result;
+            private readonly IDictionary<string, NamedEntityMeta> coordinateMetas;
 
-            var fullName = BaseEntityMeta.BuildFullName(name, schema);
-
-            if (this.deactivatableEntities.TryGetValue(fullName, out var deactivatableEntity))
+            public CoordinateMetaFactory(IEnumerable<Type> entities)
             {
-                result = new DeactivatableEntityMeta(name, schema);
-            }
-            else
-            {
-                var nameField = new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String);
-
-                result = new NamedEntityMeta(name, nameField, schema);
+                this.coordinateMetas = this.BuildCoordinateMetas(entities);
             }
 
-            result.StoreType = storeType;
+            public NamedEntityMeta GetMeta(string name, string schema)
+            {
+                var fullName = BaseEntityMeta.BuildFullName(name, schema);
 
-            return result;
-        }
+                if (!this.coordinateMetas.TryGetValue(fullName, out var meta))
+                {
+                    meta = new NamedEntityMeta(name, schema);
 
-        private IDictionary<string, Type> GetDeactivatableEntities()
-        {
-            var deactivatableType = typeof(IDeactivatable);
+                    this.coordinateMetas.Add(fullName, meta);
+                }
 
-            return
-                this.registeredEntitiesProvider.GetRegisteredEntities()
-                                               .Where(type => deactivatableType.IsAssignableFrom(type))
-                                               .ToDictionary(this.GetEntityId);
+                return meta;
+            }
 
-        }
+            private IDictionary<string, NamedEntityMeta> BuildCoordinateMetas(IEnumerable<Type> entities)
+            {
+                var plaMeta = new NamedEntityMeta(MetaConstants.PlaInputLevelName, MetaConstants.InputLevelSchema);
+                var sfabMeta = new NamedEntityMeta(MetaConstants.SfabInputLevel, MetaConstants.InputLevelSchema);
+                var sogMeta = new BaseWgSogEntityMeta(MetaConstants.SogInputLevel, MetaConstants.InputLevelSchema, plaMeta, sfabMeta);
+                var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta);
 
-        private string GetEntityId(Type type)
-        {
-            var tableAttribute =
-                type.GetCustomAttributes(true)
-                    .Select(attr => attr as TableAttribute)
-                    .First(attr => attr != null);
+                var clusterRegionMeta = new NamedEntityMeta(MetaConstants.ClusterRegionInputLevel, MetaConstants.InputLevelSchema);
+                var countryMeta = new CountryEntityMeta(clusterRegionMeta);
 
-            return BaseEntityMeta.BuildFullName(tableAttribute.Name, tableAttribute.Schema);
+                var customMetas = new []
+                {
+                    plaMeta,
+                    sfabMeta,
+                    sogMeta,
+                    wgMeta,
+                    clusterRegionMeta,
+                    countryMeta
+                };
+
+                var result = customMetas.ToDictionary(meta => BaseEntityMeta.BuildFullName(meta.Name, meta.Schema));
+
+                var deactivatableType = typeof(IDeactivatable);
+
+                foreach (var entityType in entities.Where(type => deactivatableType.IsAssignableFrom(type)))
+                {
+                    var tableAttribute =
+                        entityType.GetCustomAttributes(true)
+                                  .Select(attr => attr as TableAttribute)
+                                  .First(attr => attr != null);
+
+                    var fullName = BaseEntityMeta.BuildFullName(tableAttribute.Name, tableAttribute.Schema);
+
+                    if (!result.ContainsKey(fullName))
+                    {
+                        result[fullName] = new DeactivatableEntityMeta(tableAttribute.Name, tableAttribute.Schema);
+                    }
+                }
+
+                return result;
+            }
         }
     }
 }

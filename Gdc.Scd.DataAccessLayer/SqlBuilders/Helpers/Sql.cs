@@ -113,6 +113,13 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return Select(false, columns);
         }
 
+        public static SelectIntoSqlHelper Select(IEnumerable<FieldMeta> fields)
+        {
+            var fieldNames = fields.Select(field => field.Name).ToArray();
+
+            return Select(fieldNames);
+        }
+
         public static SelectIntoSqlHelper SelectDistinct()
         {
             return SelectDistinct(new BaseColumnInfo[0]);
@@ -128,6 +135,13 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         public static SelectIntoSqlHelper SelectDistinct(params BaseColumnInfo[] columns)
         {
             return Select(true, columns);
+        }
+
+        public static SelectIntoSqlHelper SelectDistinct(IEnumerable<FieldMeta> fields)
+        {
+            var fieldNames = fields.Select(field => field.Name).ToArray();
+
+            return SelectDistinct(fieldNames);
         }
 
         public static UpdateSqlHelper Update(string dataBase, string schema, string table, params BaseUpdateColumnInfo[] columns)
