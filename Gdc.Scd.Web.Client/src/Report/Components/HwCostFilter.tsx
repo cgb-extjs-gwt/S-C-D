@@ -59,7 +59,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
                 </Container>
 
-                <Button text="Search" ui="action" width="85px" handler={this.onSearch} margin="20px auto" />
+                <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="20px auto" />
 
             </Panel>
         );
