@@ -60,29 +60,35 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
     }
 
     loadUsers = () => {
-        this.store.load({
-            params: {
-                searchString: this.pickerField.getValue()
-            },
-            callback: function (records, operation, success) {
-                this.pickerField.collapse();
-                var userStore = this.pickerField.getStore();
-                userStore.removeAll();
-                if (records[0].data.total > 0) {
-                    this.setState({ disableSendButton: true });
-                    for (var i = 0; i < records[0].data.total; i++) {
-
-                        userStore.add([{
-                            name: records[0].data.items[i].name,
-                            item: records[0].data.items[i]
-                        }]);
-                    };
-                    this.pickerField.expand();
-                }
-
-            },
-            scope: this
-        });
+        let value = this.pickerField.getValue()
+        if (value && value.length > 2) {
+            this.store.load({
+                params: {
+                    searchString: value
+                },
+                callback: function (records, operation, success) {
+                    this.pickerField.collapse();
+                    var userStore = this.pickerField.getStore();
+                    userStore.removeAll();
+                    if (records[0].data.total > 0) {
+                        this.setState({ disableSendButton: true });
+                        for (var i = 0; i < records[0].data.total; i++) {
+                            userStore.add([{
+                                name: records[0].data.items[i].name,
+                                item: records[0].data.items[i]
+                            }]);
+                        };
+                        this.pickerField.expand();
+                    }
+                },
+                scope: this
+            });
+        }
+        else {
+            var userStore = this.pickerField.getStore();
+            userStore.removeAll();
+            this.pickerField.collapse();
+        }
     }
     getUserIdentity = () => {
         let user = this.pickerField.getValue();
