@@ -74,7 +74,7 @@ class AvailabilityFeeAdminGrid extends React.Component{
                     <Column text="Country" dataIndex="countryName" flex={1} />
                     <Column text="Reaction Time" dataIndex="reactionTimeName" flex={1} />
                     <Column text="Reaction Type" dataIndex="reactionTypeName" flex={1} />
-                    <Column text="Service Locator" dataIndex="serviceLocatorName" flex={1} />
+                    <Column text="Service Location" dataIndex="serviceLocatorName" flex={1} />
                     <CheckColumn text="Is Applicable" dataIndex="isApplicable" flex={1} />
 
                     <Toolbar docked="bottom">
