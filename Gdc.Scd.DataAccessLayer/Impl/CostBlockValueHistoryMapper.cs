@@ -18,7 +18,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public bool UseHistoryValueId { get; set; }
 
-        public bool UseQualityGate { get; set; }
+        public bool UsePeriodQualityGate { get; set; }
+
+        public bool UsetCountryGroupQualityGate { get; set; }
 
         public CostBlockValueHistoryMapper(CostBlockEntityMeta costBlockMeta, string costElementId, string maxInputLevelId = null)
         {
@@ -72,9 +74,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 });
             }
 
-            if (this.UseQualityGate)
+            if (this.UsePeriodQualityGate)
             {
                 item.IsPeriodError = reader.GetInt32(index++) == 0;
+            }
+
+            if (this.UsetCountryGroupQualityGate)
+            {
                 item.IsRegionError = reader.GetInt32(index++) == 0;
             }
 
