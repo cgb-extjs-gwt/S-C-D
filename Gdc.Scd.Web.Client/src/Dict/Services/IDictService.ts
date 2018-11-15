@@ -22,4 +22,6 @@ export interface IDictService {
     getReactionTimeTypes(): Promise<NamedId[]>;
 
     getServiceLocationTypes(): Promise<NamedId[]>;
+
+    getRoles(): Promise<NamedId[]>;
 }
