@@ -5,21 +5,16 @@ using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.TableView;
-using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
-    public interface ICostBlockHistoryService
+    public interface ICostBlockHistoryService : IReadingDomainService<CostBlockHistory>
     {
-        IQueryable<CostBlockHistory> GetHistories();
+        IQueryable<CostBlockHistory> GetByFilter(CostBlockHistoryFilter filter);
 
-        IQueryable<CostBlockHistory> GetHistories(CostBlockHistoryFilter filter);
+        IQueryable<CostBlockHistory> GetByFilter(CostBlockHistoryState state);
 
-        IQueryable<CostBlockHistory> GetHistories(CostBlockHistoryState state);
-
-        IQueryable<CostBlockHistory> GetHistories(CostBlockHistoryFilter filter, CostBlockHistoryState state);
-
-        Task<IEnumerable<Bundle>> GetApprovalBundles(CostBlockHistoryFilter filter, CostBlockHistoryState state);
+        IQueryable<CostBlockHistory> GetByFilter(CostBlockHistoryFilter filter, CostBlockHistoryState state);
 
         Task<IEnumerable<HistoryItem>> GetHistoryItems(CostEditorContext context, long editItemId, QueryInfo queryInfo = null);
 
@@ -29,20 +24,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task Save(IEnumerable<EditInfo> editInfos, ApprovalOption approvalOption);
 
-        Task<IEnumerable<BundleDetailGroup>> GetApproveBundleDetails(
-            CostBlockHistory history, 
-            long? historyValueId = null, 
-            IDictionary<string, IEnumerable<object>> costBlockFilter = null);
+        void Save(CostBlockHistory history, ApprovalOption approvalOption);
 
-        Task<IEnumerable<BundleDetailGroup>> GetApproveBundleDetails(
-            long costBlockHistoryId, 
-            long? historyValueId = null, 
-            IDictionary<string, IEnumerable<object>> costBlockFilter = null);
+        CostBlockHistory SaveAsApproved(long historyId);
 
-        Task Approve(long historyId);
-
-        Task<QualityGateResultDto> SendForApproval(long historyId, string qualityGateErrorExplanation = null);
-
-        void Reject(long historyId, string message = null);
+        CostBlockHistory SaveAsRejected(long historyId, string rejectedMessage);
     }
 }

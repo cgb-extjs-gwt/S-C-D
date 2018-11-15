@@ -9,10 +9,5 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
         Task<IEnumerable<BundleDetail>> Check(HistoryContext historyContext, IEnumerable<EditItem> editItems, IDictionary<string, long[]> costBlockFilter);
 
         Task<IEnumerable<BundleDetail>> Check(CostBlockHistory history, IDictionary<string, IEnumerable<object>> costBlockFilter = null);
-
-        Task<IEnumerable<BundleDetail>> GetApproveBundleDetailQualityGate(
-            CostBlockHistory history, 
-            long? historyValueId = null, 
-            IDictionary<string, IEnumerable<object>> costBlockFilter = null);
     }
 }

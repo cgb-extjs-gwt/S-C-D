@@ -1,14 +1,13 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.Core.Constants;
-using Gdc.Scd.Core.Dto;
-using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Web.BusinessLogicLayer.Entities;
-using Gdc.Scd.Web.Server.Impl;
-using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Constants;
+using Gdc.Scd.Core.Dto;
+using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Web.Server.Impl;
+using Newtonsoft.Json;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
@@ -19,34 +18,6 @@ namespace Gdc.Scd.Web.Server.Controllers
         public CostBlockHistoryController(ICostBlockHistoryService costBlockHistoryService)
         {
             this.costBlockHistoryService = costBlockHistoryService;
-        }
-
-        [HttpGet]
-        [ScdAuthorize(Permissions = new [] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
-        public async Task<IEnumerable<Bundle>> GetApprovalBundles([FromUri]CostBlockHistoryFilter filter, [FromUri]CostBlockHistoryState state)
-        {
-            return await this.costBlockHistoryService.GetApprovalBundles(filter, state);
-        }
-
-        [HttpGet]
-        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
-        public async Task<IEnumerable<BundleDetailGroup>> GetApproveBundleDetail(
-            [FromUri]long costBlockHistoryId,
-            [FromUri]long? historyValueId = null,
-            [FromUri]string costBlockFilter = null)
-        {
-            Dictionary<string, IEnumerable<object>> filterDictionary = null;
-
-            if (!string.IsNullOrEmpty(costBlockFilter))
-            {
-                filterDictionary =
-                    JsonConvert.DeserializeObject<Dictionary<string, long[]>>(costBlockFilter)
-                               .ToDictionary(
-                                    keyValue => keyValue.Key,
-                                    keyValue => keyValue.Value.Cast<object>());
-            }
-
-           return await this.costBlockHistoryService.GetApproveBundleDetails(costBlockHistoryId, historyValueId, filterDictionary);
         }
 
         // TODO: Need return DataInfo object, otherwise live scrol don't work. See BaseDomainController method GetBy.
@@ -77,31 +48,6 @@ namespace Gdc.Scd.Web.Server.Controllers
             var queryInfo = this.GetQueryInfo(start, limit, sort);
 
             return await this.costBlockHistoryService.GetHistoryItems(costElementId, coordinates, queryInfo);
-        }
-
-        [HttpPost]
-        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
-        public async Task<IHttpActionResult> Approve(long historyId)
-        {
-            await this.costBlockHistoryService.Approve(historyId);
-
-            return Ok();
-        }
-
-        [HttpPost]
-        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
-        public IHttpActionResult Reject(long historyId, string message)
-        {
-            this.costBlockHistoryService.Reject(historyId, message);
-
-            return Ok();
-        }
-
-        [HttpGet]
-        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
-        public async Task<QualityGateResultDto> SendForApproval([FromUri]long historyId, [FromUri]string qualityGateErrorExplanation = null)
-        {
-            return await this.costBlockHistoryService.SendForApproval(historyId, qualityGateErrorExplanation);
         }
 
         private QueryInfo GetQueryInfo(int? start, int? limit, string sort)

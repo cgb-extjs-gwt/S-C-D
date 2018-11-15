@@ -50,22 +50,5 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             return await this.repositorySet.ReadBySql(query, mapper.Map);
         }
-
-        public async Task<IEnumerable<BundleDetail>> GetApproveBundleDetailQualityGate(CostBlockHistory history, long? historyValueId = null, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
-        {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
-            var query = this.qualityGateQueryBuilder.BuildQulityGateApprovalQuery(history, true, historyValueId, costBlockFilter);
-
-            var maxInputLevelId = historyValueId.HasValue ? null : history.Context.InputLevelId;
-
-            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, history.Context.CostElementId, maxInputLevelId)
-            {
-                UsePeriodQualityGate = true,
-                UseHistoryValueId = true,
-                UsetCountryGroupQualityGate = true
-            };
-
-            return await this.repositorySet.ReadBySql(query, mapper.Map);
-        }
     }
 }

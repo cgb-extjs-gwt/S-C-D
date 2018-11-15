@@ -218,6 +218,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\Admin\AvailabilityFeeAdminController.cs" />
     <Compile Include="Controllers\Admin\UserController.cs" />
+    <Compile Include="Controllers\ApprovalController.cs" />
     <Compile Include="Controllers\BaseDomainController.cs" />
     <Compile Include="Controllers\CalcController.cs" />
     <Compile Include="Controllers\CapabilityMatrixController.cs" />
