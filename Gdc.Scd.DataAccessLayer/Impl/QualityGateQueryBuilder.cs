@@ -201,16 +201,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             var checkColumns = this.BuildQualityGateQueryCheckColumns(costBlockMeta, options);
             var domainCoordinateFields = costBlockMeta.GetDomainCoordinateFields(historyContext.CostElementId);
-            var innerColumns = 
+            var resultQualityGateTableColumns = 
                 domainCoordinateFields.Select(field => new ColumnInfo(field.Name, InnerQualityGateTable))
                                       .Concat(checkColumns.OfType<BaseColumnInfo>())
+                                      .Concat(this.BuildValueColumns(InnerQualityGateTable, options))
                                       .ToList();
-
-            innerColumns.Add(new ColumnInfo(NewValueColumn, InnerQualityGateTable));
 
             if (options.UseHistoryValueIdColumn)
             {
-                innerColumns.Add(new ColumnInfo(HistoryValueIdColumn, InnerQualityGateTable));
+                resultQualityGateTableColumns.Add(new ColumnInfo(HistoryValueIdColumn, InnerQualityGateTable));
             }
 
             var columns = this.BuildQualityGateQueryColumns(costBlockMeta, options, historyContext).OfType<BaseColumnInfo>();
@@ -227,7 +226,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             SqlHelper qualityQateResultQuery =
                 Sql.SelectDistinct(columns.ToArray())
                    .FromQuery(
-                       Sql.Select(innerColumns.ToArray())
+                       Sql.Select(resultQualityGateTableColumns.ToArray())
                           .FromQuery(this.BuildInnerQualityGateQuery(historyContext, options), InnerQualityGateTable),
                        ResultQualityGateTable)
                    .Join(domainCoordinateFields.Select(field => new JoinInfo(costBlockMeta, field.Name, metaTableAlias: ResultQualityGateTable)));
@@ -306,12 +305,22 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return checkColumns;
         }
 
+        private IEnumerable<ColumnInfo> BuildValueColumns(string table, QualityGateQueryOptions options)
+        {
+            yield return new ColumnInfo(NewValueColumn, table);
+            yield return new ColumnInfo(OldValueColumn, table);
+
+            if (options.UseCountryGroupCheck)
+            {
+                yield return new ColumnInfo(CountryGroupAvgColumn, ResultQualityGateTable);
+            }
+        }
+
         private List<ColumnInfo> BuildQualityGateQueryColumns(CostBlockEntityMeta costBlockMeta, QualityGateQueryOptions options, HistoryContext historyContext)
         {
-            var columns = new List<ColumnInfo>
-            {
-                new ColumnInfo(NewValueColumn, ResultQualityGateTable, this.BuildAlias(ResultQualityGateTable, NewValueColumn)),
-            };
+            var columns = this.BuildValueColumns(ResultQualityGateTable, options).ToList();
+
+            columns.ForEach(column => column.Alias = this.BuildAlias(column.TableName, column.Name));
 
             if (options.UseHistoryValueIdColumn)
             {

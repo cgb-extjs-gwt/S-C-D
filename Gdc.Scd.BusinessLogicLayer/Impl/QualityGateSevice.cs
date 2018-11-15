@@ -43,7 +43,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
             else
             {
-                result.Errors = Enumerable.Empty<CostBlockValueHistory>();
+                result.Errors = Enumerable.Empty<BundleDetail>();
             }
 
             return result;
@@ -59,7 +59,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
             else
             {
-                result.Errors = Enumerable.Empty<CostBlockValueHistory>();
+                result.Errors = Enumerable.Empty<BundleDetail>();
             }
 
             return result;

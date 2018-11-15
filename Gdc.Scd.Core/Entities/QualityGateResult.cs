@@ -5,7 +5,7 @@ namespace Gdc.Scd.Core.Entities
 {
     public class QualityGateResult
     {
-        public IEnumerable<CostBlockValueHistory> Errors { get; set; }
+        public IEnumerable<BundleDetail> Errors { get; set; }
 
         public bool HasErrors
         {

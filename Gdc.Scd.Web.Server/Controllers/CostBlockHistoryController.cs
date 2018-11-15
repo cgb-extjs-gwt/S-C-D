@@ -23,14 +23,14 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         [HttpGet]
         [ScdAuthorize(Permissions = new [] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
-        public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles([FromUri]CostBlockHistoryFilter filter, [FromUri]CostBlockHistoryState state)
+        public async Task<IEnumerable<Bundle>> GetApprovalBundles([FromUri]CostBlockHistoryFilter filter, [FromUri]CostBlockHistoryState state)
         {
             return await this.costBlockHistoryService.GetApprovalBundles(filter, state);
         }
 
         [HttpGet]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
-        public async Task<IEnumerable<Dictionary<string, object>>> GetApproveBundleDetail(
+        public async Task<IEnumerable<BundleDetailGroup>> GetApproveBundleDetail(
             [FromUri]long costBlockHistoryId,
             [FromUri]long? historyValueId = null,
             [FromUri]string costBlockFilter = null)
@@ -46,26 +46,7 @@ namespace Gdc.Scd.Web.Server.Controllers
                                     keyValue => keyValue.Value.Cast<object>());
             }
 
-            var historyValues = await this.costBlockHistoryService.GetApproveBundleDetail(costBlockHistoryId, historyValueId, filterDictionary);
-
-            return historyValues.Select(historyValue =>
-            {
-                var dictionary = new Dictionary<string, object>
-                {
-                    [nameof(CostBlockValueHistory.Value)] = historyValue.Value,
-                    [nameof(historyValue.HistoryValueId)] = historyValue.HistoryValueId,
-                    [nameof(CostBlockValueHistory.IsPeriodError)] = historyValue.IsPeriodError,
-                    [nameof(CostBlockValueHistory.IsRegionError)] = historyValue.IsRegionError,
-                };
-
-                foreach (var dependency in historyValue.InputLevels.Concat(historyValue.Dependencies))
-                {
-                    dictionary.Add($"{dependency.Key}Id", dependency.Value.Id);
-                    dictionary.Add($"{dependency.Key}Name", dependency.Value.Name);
-                }
-
-                return dictionary;
-            });
+           return await this.costBlockHistoryService.GetApproveBundleDetails(costBlockHistoryId, historyValueId, filterDictionary);
         }
 
         // TODO: Need return DataInfo object, otherwise live scrol don't work. See BaseDomainController method GetBy.

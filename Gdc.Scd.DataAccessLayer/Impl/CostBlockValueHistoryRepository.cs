@@ -78,7 +78,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
+        public async Task<IEnumerable<BundleDetail>> GetApproveBundleDetail(
             CostBlockHistory history, 
             long? historyValueId = null, 
             IDictionary<string, IEnumerable<object>> costBlockFilter = null)

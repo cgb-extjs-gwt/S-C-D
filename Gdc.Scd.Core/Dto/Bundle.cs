@@ -3,7 +3,7 @@ using Gdc.Scd.Core.Entities;
 
 namespace Gdc.Scd.Core.Dto
 {
-    public class ApprovalBundle
+    public class Bundle
     {
         public long Id { get; set; }
 

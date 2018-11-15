@@ -39,12 +39,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.dependencyField = this.costBlockMeta.GetDomainDependencyField(costElementId);
         }
 
-        public CostBlockValueHistory Map(IDataReader reader)
+        public BundleDetail Map(IDataReader reader)
         {
             var index = 0;
-            var item = new CostBlockValueHistory
+            var item = new BundleDetail
             {
-                Value = reader.GetValue(index++),
+                NewValue = reader.GetValue(index++),
+                OldValue = this.UsePeriodQualityGate ? reader.GetDouble(index++) : default(double?),
+                CountryGroupAvgValue = this.UsetCountryGroupQualityGate ? reader.GetDouble(index++) : default(double?),
                 InputLevels = new Dictionary<string, NamedId>(),
                 Dependencies = new Dictionary<string, NamedId>()
             };

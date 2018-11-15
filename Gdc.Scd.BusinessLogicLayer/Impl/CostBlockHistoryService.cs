@@ -79,7 +79,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return this.FilterHistories(this.GetHistories(state), filter);
         }
 
-        public async Task<IEnumerable<ApprovalBundle>> GetApprovalBundles(CostBlockHistoryFilter filter, CostBlockHistoryState state)
+        public async Task<IEnumerable<Bundle>> GetApprovalBundles(CostBlockHistoryFilter filter, CostBlockHistoryState state)
         {
             var histories = this.GetHistories(filter, state).ToArray();
             var historyInfos =
@@ -105,7 +105,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 regionCache.Add(historyInfoGroup.Key, regions.ToDictionary(region => region.Id));
             }
 
-            var historyDtos = new List<ApprovalBundle>();
+            var historyDtos = new List<Bundle>();
 
             foreach (var history in histories)
             {
@@ -115,7 +115,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     ? null 
                     : regionCache[costElement.RegionInput][history.Context.RegionInputId.Value];
 
-                var historyDto = new ApprovalBundle
+                var historyDto = new Bundle
                 {
                     Id = history.Id,
                     EditDate = history.EditDate,
@@ -252,33 +252,60 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
+        public async Task<IEnumerable<BundleDetailGroup>> GetApproveBundleDetails(
             CostBlockHistory history, 
             long? historyValueId = null, 
             IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
-            IEnumerable<CostBlockValueHistory> result;
+            IEnumerable<BundleDetail> bundleDetails;
 
             if (this.qualityGateSevice.IsUseCheck(history.Context))
             {
-                result = await this.qualityGateRepository.GetApproveBundleDetailQualityGate(history, historyValueId, costBlockFilter);
+                bundleDetails = await this.qualityGateRepository.GetApproveBundleDetailQualityGate(history, historyValueId, costBlockFilter);
             }
             else
             {
-                result = await this.costBlockValueHistoryRepository.GetApproveBundleDetail(history, historyValueId, costBlockFilter);
+                bundleDetails = await this.costBlockValueHistoryRepository.GetApproveBundleDetail(history, historyValueId, costBlockFilter);
             }
 
-            return result;
+            var bundleDetailGroups = bundleDetails.GroupBy(bundleDetail => new
+            {
+                bundleDetail.HistoryValueId,
+                LastInputLevelId = bundleDetail.LastInputLevel.Id,
+                bundleDetail.NewValue,
+                bundleDetail.OldValue,
+                bundleDetail.CountryGroupAvgValue,
+                bundleDetail.IsPeriodError,
+                bundleDetail.IsRegionError,
+            });
+
+            return
+                bundleDetailGroups.Select(bundleDetailGroup => new BundleDetailGroup
+                {
+                    HistoryValueId = bundleDetailGroup.Key.HistoryValueId,
+                    NewValue = bundleDetailGroup.Key.NewValue,
+                    OldValue = bundleDetailGroup.Key.OldValue,
+                    CountryGroupAvgValue = bundleDetailGroup.Key.CountryGroupAvgValue,
+                    IsPeriodError = bundleDetailGroup.Key.IsPeriodError,
+                    IsRegionError = bundleDetailGroup.Key.IsRegionError,
+                    LastInputLevel = bundleDetailGroup.Select(bundleDetail => bundleDetail.LastInputLevel).First(),
+                    Coordinates =
+                        bundleDetailGroup.SelectMany(bundleDetail => bundleDetail.InputLevels)
+                                         .Concat(bundleDetailGroup.SelectMany(bundleDetail => bundleDetail.Dependencies))
+                                         .GroupBy(keyValue => keyValue.Key, keyValue => keyValue.Value)
+                                         .SelectMany(coordIdGroup => coordIdGroup.GroupBy(item => item.Id).Select(group => group.First()))
+                                         .ToArray(),
+                });
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
+        public async Task<IEnumerable<BundleDetailGroup>> GetApproveBundleDetails(
             long costBlockHistoryId, 
             long? historyValueId = null, 
             IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
             var history = this.repositorySet.GetRepository<CostBlockHistory>().Get(costBlockHistoryId);
 
-            return await this.GetApproveBundleDetail(history, historyValueId, costBlockFilter);
+            return await this.GetApproveBundleDetails(history, historyValueId, costBlockFilter);
         }
 
         public async Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter)

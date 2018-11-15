@@ -19,7 +19,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         IQueryable<CostBlockHistory> GetHistories(CostBlockHistoryFilter filter, CostBlockHistoryState state);
 
-        Task<IEnumerable<ApprovalBundle>> GetApprovalBundles(CostBlockHistoryFilter filter, CostBlockHistoryState state);
+        Task<IEnumerable<Bundle>> GetApprovalBundles(CostBlockHistoryFilter filter, CostBlockHistoryState state);
 
         Task<IEnumerable<HistoryItem>> GetHistoryItems(CostEditorContext context, long editItemId, QueryInfo queryInfo = null);
 
@@ -29,12 +29,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task Save(IEnumerable<EditInfo> editInfos, ApprovalOption approvalOption);
 
-        Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
+        Task<IEnumerable<BundleDetailGroup>> GetApproveBundleDetails(
             CostBlockHistory history, 
             long? historyValueId = null, 
             IDictionary<string, IEnumerable<object>> costBlockFilter = null);
 
-        Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
+        Task<IEnumerable<BundleDetailGroup>> GetApproveBundleDetails(
             long costBlockHistoryId, 
             long? historyValueId = null, 
             IDictionary<string, IEnumerable<object>> costBlockFilter = null);
