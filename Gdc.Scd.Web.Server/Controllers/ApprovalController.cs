@@ -6,7 +6,6 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 using Gdc.Scd.Web.Server.Impl;
 using Newtonsoft.Json;
 
@@ -69,7 +68,7 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         [HttpGet]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
-        public async Task<QualityGateResultDto> SendForApproval([FromUri]long historyId, [FromUri]string qualityGateErrorExplanation = null)
+        public async Task<QualityGateResult> SendForApproval([FromUri]long historyId, [FromUri]string qualityGateErrorExplanation = null)
         {
             return await this.approvalService.SendForApproval(historyId, qualityGateErrorExplanation);
         }

@@ -2,12 +2,12 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
+using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -111,11 +111,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return historyDtos;
         }
 
-        public async Task<QualityGateResultDto> SendForApproval(long historyId, string qualityGateErrorExplanation = null)
+        public async Task<QualityGateResult> SendForApproval(long historyId, string qualityGateErrorExplanation = null)
         {
             var history = this.costBlockHistoryService.Get(historyId);
 
-            QualityGateResultDto qualityGateResult;
+            QualityGateResult qualityGateResult;
 
             var option = new ApprovalOption
             {
@@ -125,11 +125,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (string.IsNullOrWhiteSpace(qualityGateErrorExplanation))
             {
-                qualityGateResult = await this.qualityGateSevice.CheckAsQualityGateResultDto(history);
+                qualityGateResult = await this.qualityGateSevice.Check(history);
             }
             else
             {
-                qualityGateResult = new QualityGateResultDto();
+                qualityGateResult = new QualityGateResult();
             }
 
             if (!qualityGateResult.HasErrors)
@@ -187,34 +187,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 bundleDetails = await this.approvalRepository.GetApproveBundleDetail(history, historyValueId, costBlockFilter);
             }
 
-            var bundleDetailGroups = bundleDetails.GroupBy(bundleDetail => new
-            {
-                bundleDetail.HistoryValueId,
-                LastInputLevelId = bundleDetail.LastInputLevel.Id,
-                bundleDetail.NewValue,
-                bundleDetail.OldValue,
-                bundleDetail.CountryGroupAvgValue,
-                bundleDetail.IsPeriodError,
-                bundleDetail.IsRegionError,
-            });
-
-            return
-                bundleDetailGroups.Select(bundleDetailGroup => new BundleDetailGroup
-                {
-                    HistoryValueId = bundleDetailGroup.Key.HistoryValueId,
-                    NewValue = bundleDetailGroup.Key.NewValue,
-                    OldValue = bundleDetailGroup.Key.OldValue,
-                    CountryGroupAvgValue = bundleDetailGroup.Key.CountryGroupAvgValue,
-                    IsPeriodError = bundleDetailGroup.Key.IsPeriodError,
-                    IsRegionError = bundleDetailGroup.Key.IsRegionError,
-                    LastInputLevel = bundleDetailGroup.Select(bundleDetail => bundleDetail.LastInputLevel).First(),
-                    Coordinates =
-                        bundleDetailGroup.SelectMany(bundleDetail => bundleDetail.InputLevels)
-                                         .Concat(bundleDetailGroup.SelectMany(bundleDetail => bundleDetail.Dependencies))
-                                         .GroupBy(keyValue => keyValue.Key, keyValue => keyValue.Value)
-                                         .SelectMany(coordIdGroup => coordIdGroup.GroupBy(item => item.Id).Select(group => group.First()))
-                                         .ToArray(),
-                });
+            return bundleDetails.ToBundleDetailGroups();
         }
 
         public async Task<IEnumerable<BundleDetailGroup>> GetApproveBundleDetails(

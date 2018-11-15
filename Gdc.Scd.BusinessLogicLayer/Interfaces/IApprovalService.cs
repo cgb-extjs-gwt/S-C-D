@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
@@ -18,6 +17,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         void Reject(long historyId, string message = null);
 
-        Task<QualityGateResultDto> SendForApproval(long historyId, string qualityGateErrorExplanation = null);
+        Task<QualityGateResult> SendForApproval(long historyId, string qualityGateErrorExplanation = null);
     }
 }

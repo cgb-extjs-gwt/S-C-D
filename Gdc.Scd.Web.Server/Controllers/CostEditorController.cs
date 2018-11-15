@@ -7,7 +7,6 @@ using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
-using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 using Gdc.Scd.Web.Server.Impl;
 
 namespace Gdc.Scd.Web.Server.Controllers
@@ -47,7 +46,10 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<QualityGateResultDto> UpdateValues([System.Web.Http.FromBody]IEnumerable<EditItem> editItems, [System.Web.Http.FromUri]CostEditorContext context, [System.Web.Http.FromUri]ApprovalOption approvalOption)
+        public async Task<QualityGateResult> UpdateValues(
+            [System.Web.Http.FromBody]IEnumerable<EditItem> editItems, 
+            [System.Web.Http.FromUri]CostEditorContext context, 
+            [System.Web.Http.FromUri]ApprovalOption approvalOption)
         {
             return await this.costEditorService.UpdateValues(editItems, context, approvalOption);
         }

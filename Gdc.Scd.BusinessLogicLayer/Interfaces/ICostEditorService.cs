@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
@@ -16,6 +15,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context);
 
-        Task<QualityGateResultDto> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, ApprovalOption approvalOption);
+        Task<QualityGateResult> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, ApprovalOption approvalOption);
     }
 }
