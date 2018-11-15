@@ -18,8 +18,7 @@ export abstract class DictField extends React.Component<ComboBoxFieldProps, any>
     }
 
     public render() {
-        return (
-            <ComboBoxField
+        return <ComboBoxField
                 {...this.props}
                 ref={x => this.combo = x}
                 options={this.state.items}
@@ -27,8 +26,7 @@ export abstract class DictField extends React.Component<ComboBoxFieldProps, any>
                 displayField={NAME_FIELD}
                 queryMode="local"
                 clearable="true"
-            />
-        );
+            />;
     }
 
     public componentDidMount() {

@@ -2,16 +2,16 @@
 import * as React from "react";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
+import { buildComponentUrl } from "../Common/Services/Ajax";
 import { CountryField } from "../Dict/Components/CountryField";
 import { DictField } from "../Dict/Components/DictField";
+import { DictFactory } from "../Dict/Services/DictFactory";
+import { IDictService } from "../Dict/Services/IDictService";
 import { MultiSelect } from "./Components/MultiSelect";
 import { MultiSelectWg } from "./Components/MultiSelectWg";
 import { CapabilityMatrixEditModel } from "./Model/CapabilityMatrixEditModel";
 import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService";
 import { MatrixFactory } from "./Services/MatrixFactory";
-import { IDictService } from "../Dict/Services/IDictService";
-import { DictFactory } from "../Dict/Services/DictFactory";
-import { buildComponentUrl } from "../Common/Services/Ajax";
 
 const SELECT_MAX_HEIGHT: string = '260px';
 
