@@ -2,7 +2,7 @@ import { NamedId } from "../../Common/States/CommonStates";
 
 export interface BundleDetailGroup {
     historyValueId: number
-    wg: NamedId
+    lastInputLevel: NamedId
     newValue: number
     oldValue?: number
     countryGroupAvgValue?: number

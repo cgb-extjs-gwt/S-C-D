@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Grid, Column, Container, TextField, FormPanel, Toolbar, Button, Dialog } from "@extjs/ext-react";
-import { ColumnInfo } from "../../Common/States/ColumnInfo";
-import { DynamicGrid } from "../../Common/Components/DynamicGrid";
 import { EditItem } from "../../CostEditor/States/CostBlockStates";
+import { QualityGateGrid } from "../../QualityGate/Components/QualityGateGrid";
+import { CostElementMeta } from "../../Common/States/CostMetaStates";
 
 export interface CostBlockValueHistory {
     [key: string]: string | number, 
@@ -11,16 +11,18 @@ export interface CostBlockValueHistory {
 }
 
 export interface DetailsProps {
-    columns?: ColumnInfo[]
     buildDataLoadUrl?(data: CostBlockValueHistory): string
+    inputLevelId: string
 }
 
 export interface ApprovalValuesProps {
     dataLoadUrl?: string
-    columns?: ColumnInfo[]
+    costElement: CostElementMeta
+    inputLevelId: string
     id?: string
     details?: DetailsProps
     message?: string
+    hideCheckColumns?: boolean
 }
 
 interface ApprovalValuesState {
@@ -29,7 +31,7 @@ interface ApprovalValuesState {
 }
 
 export class ApprovalValuesViewComponent extends React.Component<ApprovalValuesProps, ApprovalValuesState> {
-    private readonly store;
+    private readonly storeConfig
 
     constructor(props: ApprovalValuesProps) {
         super(props);
@@ -39,11 +41,11 @@ export class ApprovalValuesViewComponent extends React.Component<ApprovalValuesP
             selectedRecords: []
         }
 
-        this.store = this.buildStore(props.columns, props.dataLoadUrl);
+        this.storeConfig = this.buildStoreConfig(props.dataLoadUrl);
     }
 
     public render() {
-        const { columns, id, message, children } = this.props;
+        const { id, message, children, costElement, hideCheckColumns, inputLevelId } = this.props;
         const { isVisibleDetailWindow } = this.state;
 
         return (
@@ -56,33 +58,31 @@ export class ApprovalValuesViewComponent extends React.Component<ApprovalValuesP
                     </Container>
                 }
 
-                <DynamicGrid 
-                    store={this.store} 
-                    columns={columns} 
+                <QualityGateGrid 
+                    costElement={costElement} 
+                    storeConfig={this.storeConfig} 
+                    hideCheckColumns={hideCheckColumns} 
+                    inputLevelId={inputLevelId}
                     minHeight={400}
-                    onSelectionChange={this.onSelectGrid}
                 >
-                    {
-                        <Toolbar docked="top">
-                            <Button 
-                                text="Details" 
-                                handler={this.onDetailButtonClick} 
-                                width={100} 
-                                disabled={this.state.selectedRecords.length != 1}
-                            />
-                        </Toolbar>
-                    }
-                </DynamicGrid>
-                
+                    <Toolbar docked="top">
+                        <Button 
+                            text="Details" 
+                            handler={this.onDetailButtonClick} 
+                            width={100} 
+                            disabled={this.state.selectedRecords.length != 1}
+                        />
+                    </Toolbar>
+                </QualityGateGrid>
+
                 { children }
                 {isVisibleDetailWindow && this.buildDetailWindow()}
             </Container>
         );
     }
 
-    private buildStore(columns: ColumnInfo[], dataLoadUrl: string) {
-        return Ext.create('Ext.data.Store', {
-            fields: columns.map(column => ({ name: column.dataIndex })),
+    private buildStoreConfig(dataLoadUrl: string) {
+        return {
             autoLoad: true,
             proxy: {
                 type: 'ajax',
@@ -91,7 +91,7 @@ export class ApprovalValuesViewComponent extends React.Component<ApprovalValuesP
                     type: 'json',
                 }
             }
-        });
+        };
     }
 
     private onSelectGrid = (grid, records: any[]) => {
@@ -106,9 +106,10 @@ export class ApprovalValuesViewComponent extends React.Component<ApprovalValuesP
 
     private buildDetailWindow() {
         const { isVisibleDetailWindow, selectedRecords } = this.state;
-        const { columns, buildDataLoadUrl } = this.props.details;
+        const { costElement, hideCheckColumns } = this.props;
+        const { buildDataLoadUrl, inputLevelId } = this.props.details;
         const dataLoadUrl = buildDataLoadUrl(selectedRecords[0].data);
-        const store = this.buildStore(columns, dataLoadUrl);
+        const storeConfig = this.buildStoreConfig(dataLoadUrl);
 
         return (
             <Dialog 
@@ -123,7 +124,13 @@ export class ApprovalValuesViewComponent extends React.Component<ApprovalValuesP
                 layout="fit"
                 onClose={this.closeDetailWindow}
             >
-                <DynamicGrid store={store} columns={columns} minHeight={600}/>
+                <QualityGateGrid 
+                    costElement={costElement} 
+                    storeConfig={storeConfig} 
+                    hideCheckColumns={hideCheckColumns} 
+                    inputLevelId={inputLevelId} 
+                    minHeight={600}
+                />
             </Dialog>
         );
     }

@@ -73,7 +73,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 });
             }
 
-            item.Wg = item.InputLevels[this.lastInputLevel];
+            item.LastInputLevel = item.InputLevels[this.lastInputLevel];
 
             if (this.dependencyField != null)
             {

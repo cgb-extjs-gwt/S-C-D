@@ -6,14 +6,16 @@ import { BundleDetailGroup } from "../States/QualityGateResult";
 import { Model } from "../../Common/States/ExtStates";
 import { CostElementMeta } from "../../Common/States/CostMetaStates";
 import { QualityGateGridProps, QualityGateGrid } from "./QualityGateGrid";
+import { WgInputLevel } from "../../Common/Constants/MetaConstants";
 
 export interface QualityGateErrorActions {
     onSave?(explanationMessage: string)
     onCancel?()
 }
 
-export interface QualityGateErrorProps extends QualityGateGridProps, QualityGateErrorActions {
-
+export interface QualityGateErrorProps extends QualityGateErrorActions {
+    errors?: BundleDetailGroup[]
+    costElement: CostElementMeta
 }
 
 interface QualityGateErrorState {
@@ -34,12 +36,12 @@ export class QualityGateErrorView extends React.Component<QualityGateErrorProps,
     }
 
     render() {
-        const { onCancel } = this.props;
+        const { onCancel, costElement, errors } = this.props;
         const { isValidExplanationForm } = this.state;
 
         return (
             <Container layout="vbox" scrollable={true}>
-                <QualityGateGrid {...this.props} />
+                <QualityGateGrid costElement={costElement} storeConfig={{ data: errors }} inputLevelId={WgInputLevel} flex={10}/>
                 
                 <FormPanel defaults={{labelAlign: 'left'}} flex={1} ref={form => this.explanationForm = form} minHeight="100">
                     <TextField 

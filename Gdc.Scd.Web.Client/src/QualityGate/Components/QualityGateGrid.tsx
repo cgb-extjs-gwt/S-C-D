@@ -5,8 +5,12 @@ import { BundleDetailGroup } from "../States/QualityGateResult";
 import { Model, Store } from "../../Common/States/ExtStates";
 
 export interface QualityGateGridProps {
-    errors?: BundleDetailGroup[]
-    costElement: CostElementMeta
+    costElement: CostElementMeta,
+    inputLevelId: string
+    storeConfig?,
+    hideCheckColumns?: boolean
+    minHeight?: number | string
+    flex?: number
 }
 
 export class QualityGateGrid extends React.PureComponent<QualityGateGridProps> {
@@ -21,17 +25,27 @@ export class QualityGateGrid extends React.PureComponent<QualityGateGridProps> {
     }
 
     public render() {
+        const { children, hideCheckColumns, inputLevelId, minHeight, flex } = this.props;
+        const inputLevelName = this.titleMap.get(inputLevelId);
+
         return(
-            <Grid store={this.store} columnLines={true} flex={10}>
-                <Column dataIndex="wg" text="Wg" renderer={this.rendererWgColumn} align="center" flex={1}/>
+            <Grid store={this.store} columnLines={true} flex={flex} minHeight={minHeight}>
+                <Column dataIndex="lastInputLevel" text={inputLevelName} renderer={this.rendererWgColumn} align="center" flex={1}/>
                 <Column dataIndex="coordinates" text="Info" renderer={this.rendererCoordinatesColumn} flex={5} >
                     <GridCell bodyCls="multiline-row" encodeHtml={false}/>
                 </Column>
                 <Column dataIndex="newValue" text="New value" align="center" flex={1}/>
                 <Column dataIndex="oldValue" text="Old value" align="center" flex={1}/>
                 <Column dataIndex="countryGroupAvgValue" text="Country group value" flex={1}/>
-                <CheckColumn dataIndex="isPeriodError" text="Previous value error" disabled={true} headerCheckbox={false} flex={1}/>
-                <CheckColumn dataIndex="isRegionError" text="Quality gate group error" disabled={true} headerCheckbox={false} flex={1}/>
+                {
+                    hideCheckColumns &&
+                    [
+                        <CheckColumn dataIndex="isPeriodError" text="Previous value error" disabled={true} headerCheckbox={false} flex={1}/>,
+                        <CheckColumn dataIndex="isRegionError" text="Quality gate group error" disabled={true} headerCheckbox={false} flex={1}/>
+                    ]
+                }
+                
+                {children}
             </Grid>
         );
     }
@@ -51,7 +65,7 @@ export class QualityGateGrid extends React.PureComponent<QualityGateGridProps> {
     }
 
     private buildStore() {
-        const { errors } = this.props;
+        const { storeConfig = {} } = this.props;
 
         return Ext.create('Ext.data.Store', {
             fields: [
@@ -66,7 +80,7 @@ export class QualityGateGrid extends React.PureComponent<QualityGateGridProps> {
                 'isPeriodError',
                 'isRegionError',
             ],
-            data: errors
+            ...storeConfig
         });
     }
 
@@ -87,6 +101,6 @@ export class QualityGateGrid extends React.PureComponent<QualityGateGridProps> {
     }
 
     private rendererWgColumn(value, { data }: Model<BundleDetailGroup>) {
-        return data.wg.name
+        return data.lastInputLevel.name
     } 
 }
