@@ -7,12 +7,11 @@ export class MultiSelectWg extends MultiSelect {
 
     public constructor(props: MultiSelectProps) {
         super(props);
-        this.init();
     }
 
     public render() {
 
-        let { width, height, maxHeight, title, itemTpl, store, selectable } = this.props;
+        let { width, height, maxHeight, title, selectable } = this.props;
 
         title = '<h4>' + title + '</h4>';
 
@@ -37,8 +36,8 @@ export class MultiSelectWg extends MultiSelect {
                     <Container>
                         <List
                             ref={x => this.lst = x}
-                            itemTpl={itemTpl}
-                            store={store}
+                            itemTpl="{name}"
+                            store={this.state.items}
                             height={height}
                             maxHeight={maxHeight}
                             selectable={selectable}
@@ -65,9 +64,7 @@ export class MultiSelectWg extends MultiSelect {
         this.filter('name', newValue);
     }
 
-
     private filter(key: string, val: string) {
-        let lst = this.lst as any;
-        lst.getStore().filter(key, val);
+        this.lst.getStore().filter(key, val);
     }
 }
