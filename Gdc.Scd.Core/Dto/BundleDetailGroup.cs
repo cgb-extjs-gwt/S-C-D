@@ -5,6 +5,6 @@ namespace Gdc.Scd.Core.Dto
 {
     public class BundleDetailGroup : BaseBundleDetail
     {
-        public IEnumerable<NamedId> Coordinates { get; set; }
+        public IDictionary<string, NamedId[]> Coordinates { get; set; }
     }
 }

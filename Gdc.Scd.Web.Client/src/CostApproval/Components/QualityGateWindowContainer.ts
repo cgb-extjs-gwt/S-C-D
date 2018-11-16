@@ -1,10 +1,10 @@
-import { QualityGateErrorContainerProps } from "../../QualityGate/Components/QualityGateErrorContainer";
 import { connect } from "react-redux";
+import { QualityGateErrorContainerProps } from "../../QualityGate/Components/QualityGateErrorContainer";
 import { QualityGateErrorActions } from "../../QualityGate/Components/QualityGateErrorView";
 import { CommonState } from "../../Layout/States/AppStates";
-import { COST_APPROVAL_QUALITY_GATE_ERROR_RESET, resetQualityGateErrors } from "../Actions/QualityGateActions";
-import { sendForApproval } from "../Services/CostApprovalService";
+import { resetQualityGateErrors } from "../Actions/QualityGateActions";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
+import { sendForApproval } from "../Services/CostApprovalService";
 import { QualityGateErrorWindow } from "../../QualityGate/Components/QualityGateErrorWindow";
 
 export interface QualityGateWindowContainerProps extends QualityGateErrorContainerProps {

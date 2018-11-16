@@ -312,7 +312,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             if (options.UseCountryGroupCheck)
             {
-                yield return new ColumnInfo(CountryGroupAvgColumn, ResultQualityGateTable);
+                yield return new ColumnInfo(CountryGroupAvgColumn, table);
             }
         }
 

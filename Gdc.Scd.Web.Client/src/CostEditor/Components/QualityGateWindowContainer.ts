@@ -3,14 +3,16 @@ import { QualityGateErrorProps, QualityGateErrorActions } from "../../QualityGat
 import { QualityGateErrorContainerProps } from "../../QualityGate/Components/QualityGateErrorContainer";
 import { CommonState } from "../../Layout/States/AppStates";
 import { saveEditItemsToServer, resetErrors } from "../Actions/CostBlockActions";
-import { QualityGateErrorWindow } from "../../QualityGate/Components/QualityGateErrorWindow";
+import { QualityGateErrorWindow, QualityGateErrorWindowProps } from "../../QualityGate/Components/QualityGateErrorWindow";
+import { Position } from "../../Common/States/ExtStates";
 
-export interface QualityGateWindowContainer extends QualityGateErrorContainerProps {
+export interface QualityGateWindowContainer extends QualityGateErrorWindowProps {
     applicationId: string
+    position?: Position
 }
 
 export const QualityGateWindowContainer = 
-    connect<QualityGateErrorContainerProps, QualityGateErrorActions, QualityGateWindowContainer, CommonState>(
+    connect<QualityGateErrorWindowProps, QualityGateErrorActions, QualityGateWindowContainer, CommonState>(
         (state, props) => props,
         (dispatch, { applicationId, costBlockId, onSave, onCancel }) => ({
             onSave: (explanationMessage) => dispatch(

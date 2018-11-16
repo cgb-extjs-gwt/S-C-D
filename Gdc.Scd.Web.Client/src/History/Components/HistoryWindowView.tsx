@@ -1,16 +1,10 @@
 import * as React from "react";
 import { HistoryValuesGridViewProps, HistoryValuesGridView } from "./HistoryValuesGridView";
 import { Dialog } from "@extjs/ext-react";
+import { Position } from "../../Common/States/ExtStates"
 
 export interface HistoryWindowViewActions {
     onClose?()
-}
-
-export interface Position {
-    top?: string | number
-    bottom?: string | number
-    left?: string | number
-    right?: string | number
 }
 
 export interface HistoryWindowViewProps extends HistoryValuesGridViewProps, HistoryWindowViewActions {

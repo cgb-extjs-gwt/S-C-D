@@ -3,7 +3,7 @@ import { CommonState } from "../../Layout/States/AppStates";
 import { buildCostEditorContext } from "../Helpers/CostEditorHelpers";
 import { buildGetHistoryUrl } from "../Services/CostEditorServices";
 import { HistoryButtonView, HistoryButtonViewProps } from "../../History/Components/HistoryButtonView";
-import { Position } from "../../History/Components/HistoryWindowView";
+import { Position } from "../../Common/States/ExtStates";
 
 export interface HistoryValuesGridContainerProps {
     editItemId: string,

@@ -56,3 +56,10 @@ export interface MenuItem {
     disabled?: boolean
     children?: MenuItem[]
 }
+
+export interface Position {
+    top?: string | number
+    bottom?: string | number
+    left?: string | number
+    right?: string | number
+}

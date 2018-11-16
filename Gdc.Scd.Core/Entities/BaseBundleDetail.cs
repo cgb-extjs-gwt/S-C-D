@@ -4,7 +4,7 @@
     {
         public long HistoryValueId { get; set; }
 
-        public NamedId LastInputLevel { get; set; }
+        public NamedId Wg { get; set; }
 
         public object NewValue { get; set; }
 

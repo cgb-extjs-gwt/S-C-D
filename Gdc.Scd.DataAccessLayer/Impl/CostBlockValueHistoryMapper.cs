@@ -45,11 +45,19 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var item = new BundleDetail
             {
                 NewValue = reader.GetValue(index++),
-                OldValue = this.UsePeriodQualityGate ? reader.GetDouble(index++) : default(double?),
-                CountryGroupAvgValue = this.UsetCountryGroupQualityGate ? reader.GetDouble(index++) : default(double?),
                 InputLevels = new Dictionary<string, NamedId>(),
                 Dependencies = new Dictionary<string, NamedId>()
             };
+
+            if (this.UsePeriodQualityGate)
+            {
+                item.OldValue = this.GetDouble(reader, index++);
+            }
+
+            if (this.UsetCountryGroupQualityGate)
+            {
+                item.CountryGroupAvgValue = this.GetDouble(reader, index++);
+            }
 
             if (this.UseHistoryValueId)
             {
@@ -65,7 +73,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 });
             }
 
-            item.LastInputLevel = item.InputLevels[this.lastInputLevel];
+            item.Wg = item.InputLevels[this.lastInputLevel];
 
             if (this.dependencyField != null)
             {
@@ -87,6 +95,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
 
             return item;
+        }
+
+        private double? GetDouble(IDataReader reader, int index)
+        {
+            return reader.IsDBNull(index) ? default(double?) : reader.GetDouble(index);
         }
     }
 }
