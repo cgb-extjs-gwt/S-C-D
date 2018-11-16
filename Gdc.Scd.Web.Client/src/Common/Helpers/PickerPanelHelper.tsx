@@ -13,6 +13,10 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
     private pickerField: ComboBoxField & any;
     private numberField: NumberField & any;
     private sendButton: Button & any;
+    
+    private typingTimer;                //timer identifier
+    private doneTypingInterval = 300;  //time in ms (0.3 seconds)
+
 
     private userList = [
 
@@ -62,27 +66,8 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
     loadUsers = () => {
         let value = this.pickerField.getValue()
         if (value && value.length > 2) {
-            this.store.load({
-                params: {
-                    searchString: value
-                },
-                callback: function (records, operation, success) {
-                    this.pickerField.collapse();
-                    var userStore = this.pickerField.getStore();
-                    userStore.removeAll();
-                    if (records[0].data.total > 0) {
-                        this.setState({ disableSendButton: true });
-                        for (var i = 0; i < records[0].data.total; i++) {
-                            userStore.add([{
-                                name: records[0].data.items[i].name,
-                                item: records[0].data.items[i]
-                            }]);
-                        };
-                        this.pickerField.expand();
-                    }
-                },
-                scope: this
-            });
+            clearTimeout(this.typingTimer);
+            this.typingTimer = setTimeout(()=>this.storeLoad(value), this.doneTypingInterval);
         }
         else {
             var userStore = this.pickerField.getStore();
@@ -90,6 +75,33 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
             this.pickerField.collapse();
         }
     }
+
+    storeLoad = (value) => {
+        this.store.load({
+            params: {
+                searchString: value
+            },
+            callback: function (records, operation, success) {
+                this.pickerField.collapse();
+                var userStore = this.store;
+                userStore.removeAll();
+                if (records[0].data.total > 0) {
+                    this.setState({ disableSendButton: true });
+                    for (var i = 0; i < records[0].data.total; i++) {
+                        userStore.add([{
+                            name: records[0].data.items[i].name,
+                            item: records[0].data.items[i]
+                        }]);
+                    };
+                    this.pickerField.setOptions(this.store.data.items.map(a => a.data));
+                    this.pickerField.expand();
+                }
+            },
+            scope: this
+        });
+    }
+
+
     getUserIdentity = () => {
         let user = this.pickerField.getValue();
         return user.email ? user : null;
@@ -98,19 +110,18 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
         const { value, onChange } = this.props;
         return (
                 <ComboBox
-                    ref={combobox => this.pickerField = combobox}
-                    store={this.store}
-                    label={value ? "User" : "Find user name"}
-                    displayField="name"
-                    valueField="item"
-                    queryMode="remote"
-                    labelAlign="placeholder"
-                    onKeyUp={() => this.loadUsers()}
-                    onChange={onChange}
-                    valueNotFoundText="no results"
-                    value={value && value}
-                    hideTrigger
-                    typeAhead
+                ref={combobox => this.pickerField = combobox}
+                options={this.store.data.items.map(a => a.data)}
+                label={value ? "User" : "Find user name"}
+                displayField="name"
+                valueField="item"
+                queryMode="remote"
+                labelAlign="placeholder"
+                onKeyUp={() => this.loadUsers()}
+                onChange={onChange}
+                valueNotFoundText="no results"
+                value={value && value}
+                hideTrigger  
                 />
         );
     }
