@@ -6,8 +6,10 @@ import { ReactionTimeService } from "../../Dict/Services/ReactionTimeService";
 import { ReactionTypeService } from "../../Dict/Services/ReactionTypeService";
 import { ServiceLocationService } from "../../Dict/Services/ServiceLocationService";
 import { WgService } from "../../Dict/Services/WgService";
+import { CountryGroupService } from "./CountryGroupService";
 import { IDictService } from "./IDictService";
 import { PlaService } from "./PlaService";
+import { RoleService } from "./RoleService";
 import { SogService } from "./SogService";
 import { YearService } from "./YearService";
 
@@ -17,7 +19,15 @@ export class DictService implements IDictService {
     }
 
     public getCountryGroups(): Promise<NamedId<string>[]> {
-        return this.getCountries();
+        return new CountryGroupService().getAll();
+    }
+
+    public getCountryGroupDigits(): Promise<NamedId<string>[]> {
+        return new CountryGroupService().getDigit();
+    }
+
+    public getCountryGroupLuts(): Promise<NamedId<string>[]> {
+        return new CountryGroupService().getLut();
     }
 
     public getWG(): Promise<NamedId<string>[]> {
@@ -54,5 +64,9 @@ export class DictService implements IDictService {
 
     public getServiceLocationTypes(): Promise<NamedId<string>[]> {
         return new ServiceLocationService().getAll();
+    }
+
+    public getRoles(): Promise<NamedId<string>[]> {
+        return new RoleService().getAll();
     }
 }

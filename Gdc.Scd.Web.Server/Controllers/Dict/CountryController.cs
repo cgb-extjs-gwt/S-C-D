@@ -1,5 +1,4 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
-using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using System.Linq;
@@ -17,6 +16,7 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
             this.domainService = domainService;
         }
 
+        [HttpGet]
         public Task<CountryDto2[]> GetAll()
         {
             return domainService.GetAll()
@@ -30,6 +30,15 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
                                       IsMaster = x.IsMaster,
                                   })
                                   .GetAsync();
+        }
+
+        [HttpGet]
+        public Task<string[]> Iso()
+        {
+            return domainService.GetAll()
+                                .Select(x => x.ISO3CountryCode)
+                                .Distinct()
+                                .GetAsync();
         }
 
         public class CountryDto2
