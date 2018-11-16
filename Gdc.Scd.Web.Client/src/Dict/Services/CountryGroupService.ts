@@ -15,6 +15,25 @@ export class CountryGroupService extends CacheDomainService<NamedId> {
     }
 
     private distinct(data: NamedId[], prop: string): NamedId[] {
-        throw new Error('not implemented');
+        let result = [];
+        if (data) {
+
+            let obj = {};
+
+            for (let i = 0, len = data.length; i < len; i++) {
+                let key = data[i][prop];
+                if (key) {
+                    obj[key] = '';
+                }
+            }
+
+            let uniqueKeys = Object.keys(obj).sort();
+
+            for (let i = 0, len = uniqueKeys.length; i < len; i++) {
+                let key = uniqueKeys[i];
+                result[i] = <NamedId>{ id: key, name: key };
+            }
+        }
+        return result;
     }
 }
