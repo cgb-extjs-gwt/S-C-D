@@ -10,6 +10,7 @@ import { IDictService } from "./IDictService";
 import { PlaService } from "./PlaService";
 import { SogService } from "./SogService";
 import { YearService } from "./YearService";
+import { RoleService } from "./RoleService";
 
 export class DictService implements IDictService {
     public getCountries(): Promise<NamedId<string>[]> {
@@ -54,5 +55,9 @@ export class DictService implements IDictService {
 
     public getServiceLocationTypes(): Promise<NamedId<string>[]> {
         return new ServiceLocationService().getAll();
+    }
+
+    public getRoles(): Promise<NamedId<string>[]> {
+        return new RoleService().getAll();
     }
 }
