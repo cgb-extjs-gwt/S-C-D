@@ -2,6 +2,8 @@
 
 export interface AccordionProps {
     title: React.ReactNode;
+    onExpand?: (me: any) => void;
+    onCollapse?: (me: any) => void;
 }
 
 export class Accordion extends React.Component<AccordionProps, any> {
@@ -24,13 +26,18 @@ export class Accordion extends React.Component<AccordionProps, any> {
     }
 
     private onHeaderClick() {
-        this.header.classList.toggle("accordion-active");
+        let cls = 'accordion-active';
 
-        let body = this.body;
-        if (body.style.maxHeight) {
-            body.style.maxHeight = null;
+        this.header.classList.toggle(cls);
+
+        if (this.header.classList.contains(cls)) {
+            if (this.props.onExpand) {
+                this.props.onExpand(this);
+            }
         } else {
-            body.style.maxHeight = body.scrollHeight + "px";
+            if (this.props.onCollapse) {
+                this.props.onCollapse(this);
+            }
         }
     }
 }

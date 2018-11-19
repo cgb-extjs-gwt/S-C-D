@@ -24,13 +24,22 @@ export class ApprovalBundleItemComponent extends React.Component<ApprovalBundleI
     public render() {
         const { bundle, children, isCheckColumnsVisible } = this.props;
 
-        return (
-            <Accordion title={this.getTitle()}>
-                <ApprovalValuesContainerComponent approvalBundle={bundle} isCheckColumnsVisible={isCheckColumnsVisible}>
-                    {children}
-                </ApprovalValuesContainerComponent>
-            </Accordion>
-        );
+        let approvalContainer = null;
+        if (this.state.isFirstExpand) {
+            approvalContainer = <ApprovalValuesContainerComponent approvalBundle={bundle} isCheckColumnsVisible={isCheckColumnsVisible}>
+                {children}
+            </ApprovalValuesContainerComponent>;
+        }
+
+        return <Accordion title={this.getTitle()} onExpand={this.onPanelExpanded}>
+            {approvalContainer}
+        </Accordion>;
+    }
+
+    private onPanelExpanded = () => {
+        if (!this.state.isFirstExpand) {
+            this.setState({ isFirstExpand: true })
+        }
     }
 
     private getTitle() {
