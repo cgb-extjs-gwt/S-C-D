@@ -145,34 +145,31 @@
         }
 
         .accordion {
-            background-color: #eee;
-            color: #444;
+            background-color: #025b80;
+            color: #fff;
             cursor: pointer;
-            padding: 18px;
+            padding: 18px 36px 18px 18px;
             width: 100%;
             border: none;
             text-align: left;
             outline: none;
-            font-size: 15px;
+            line-height: 21px;
+            font-size: 16px;
+            font-weight: 600;
             transition: 0.4s;
             box-sizing: border-box;
             position: relative;
         }
 
-        .accordion-active, .accordion:hover {
-            background-color: #ccc;
-        }
-
         .accordion:after {
             position: absolute;
             top: 50%;
-            right: 5px;
+            right: 15px;
             margin-top: -11px;
             content: '\002B';
-            color: #777;
+            color: #fff;
             font-size: 22px;
-            font-weight: 100;
-            float: right;
+            font-weight: 200;
         }
 
         .accordion-active:after {
@@ -186,11 +183,27 @@
             transition: max-height 0.2s ease-out;
         }
 
-        /*===================================================*/
+        /*===================pages=======================*/
+        
+        .approval-panel-title {
+            white-space: nowrap;
+            overflow: hidden;
+        }
 
         @media (min-width: 700px) {
             .matrix-edit-container > div {
                 width: 33%;
+            }
+
+        }
+
+        @media (min-width: 1000px) {
+            .approval-panel-title {
+                display: flex;
+            }
+
+            .approval-panel-title > div {
+                margin-right: 30px;
             }
         }
 
