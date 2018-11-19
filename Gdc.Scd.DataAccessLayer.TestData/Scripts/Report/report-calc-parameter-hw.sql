@@ -130,7 +130,7 @@ RETURN (
 
         INNER JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
 
-        LEFT JOIN Atom.AfrYear afr on afr.Wg = m.WgId
+        LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
         --cost blocks
         LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId 
@@ -144,11 +144,11 @@ RETURN (
                                             AND lc.ReactionTime = m.ReactionTimeId
                                             AND lc.ReactionType = m.ReactionTypeId
 
-        LEFT JOIN Atom.TaxAndDutiesView tax on tax.Country = m.CountryId
+        LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
 
-        LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
+        LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
-        LEFT JOIN Atom.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
+        LEFT JOIN Hardware.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
 
         LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.Wg = m.WgId
 
