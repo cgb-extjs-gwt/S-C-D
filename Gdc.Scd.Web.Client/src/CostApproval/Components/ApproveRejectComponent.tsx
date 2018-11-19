@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Container, Toolbar, Button, FormPanel, TextField } from "@extjs/ext-react";
+import { Container, Toolbar, Button, FormPanel, TextField, ContainerProps } from "@extjs/ext-react";
 
 export interface ApproveRejectActions {
     onApprove?();
@@ -27,48 +27,53 @@ export class ApproveRejectComponent extends React.Component<ApproveRejectActions
     public render() {
         const { isValidRejectForm, isVisibleRejectForm } = this.state;
 
-        return (
-            <Container layout="hbox">
-                {
-                    !isVisibleRejectForm &&
-                    <Toolbar flex={1}>
-                        <Button text="Approve" handler={this.onApprove} flex={1}/>
-                        <Button text="Reject" handler={this.onReject} flex={1}/>
-                    </Toolbar>
-                }
+        let formPanelProps: ContainerProps = {};
+        let formPanel = null;
 
-                {
-                    isVisibleRejectForm &&
-                    <FormPanel defaults={{labelAlign: 'left'}} flex={1} ref={form => this.rejectForm = form}>
-                        <TextField 
-                            ref={textField => this.rejectMessageTextField = textField}
-                            required
-                            placeholder="Please enter the reason for rejection"
-                            onChange={this.onRejectMessageTextFieldChange}
+        if (isVisibleRejectForm) {
+            formPanel =
+                <FormPanel defaults={{ labelAlign: 'left' }} flex={1} ref={form => this.rejectForm = form}>
+                    <TextField
+                        ref={textField => this.rejectMessageTextField = textField}
+                        required
+                        placeholder="Please enter the reason for rejection"
+                        onChange={this.onRejectMessageTextFieldChange}
+                    />
+                    <Toolbar docked="bottom">
+                        <Button
+                            text="Send back to requestor"
+                            handler={this.onSendBackToRequestor}
+                            flex={1}
+                            disabled={!isValidRejectForm}
                         />
-                        <Toolbar docked="bottom">
-                            <Button 
-                                text="Send back to requestor" 
-                                handler={this.onSendBackToRequestor} 
-                                flex={1} 
-                                disabled={!isValidRejectForm}
-                            />
-                            <Button text="Cancel" handler={this.onRejectCancel} flex={1}/>
-                        </Toolbar>
-                    </FormPanel>
-                }
+                        <Button text="Cancel" handler={this.onRejectCancel} flex={1} />
+                    </Toolbar>
+                </FormPanel>;
+        }
+        else {
+            formPanelProps = { minHeight: '100' };
+            formPanel =
+                <Toolbar flex={1}>
+                    <Button text="Approve" handler={this.onApprove} flex={1} />
+                    <Button text="Reject" handler={this.onReject} flex={1} />
+                </Toolbar>;
+        }
+
+        return (
+            <Container {...formPanelProps}>
+                {formPanel}
             </Container>
         );
     }
 
     private onReject = () => {
-        this.setState({isVisibleRejectForm: true})
+        this.setState({ isVisibleRejectForm: true })
     }
 
     private onApprove = () => {
         const { onApprove } = this.props;
-        
-        this.setState({isVisibleRejectForm: false});
+
+        this.setState({ isVisibleRejectForm: false });
 
         onApprove && onApprove();
     }
