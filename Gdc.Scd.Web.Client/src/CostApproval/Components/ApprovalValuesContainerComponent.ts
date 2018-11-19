@@ -1,21 +1,18 @@
 import { connect } from "react-redux";
-import { ApprovalValuesProps, ApprovalValuesViewComponent, DetailsProps } from "./ApprovalValuesViewComponent";
-import { CommonState } from "../../Layout/States/AppStates";
-import * as CostApprovalService from "../Services/CostApprovalService"
-import { API_URL, buildMvcUrl } from "../../Common/Services/Ajax";
-import { NamedId } from "../../Common/States/CommonStates";
-import { buildGetApproveBundleDetailUrl } from "../Services/CostApprovalService";
-import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
-import { getInputLevelColumns, buildNameColumnInfo } from "../../Common/Helpers/ColumnInfoHelper";
-import { ApprovalBundle } from "../States/ApprovalBundle";
+import { buildNameColumnInfo, getInputLevelColumns } from "../../Common/Helpers/ColumnInfoHelper";
 import { getDependency } from "../../Common/Helpers/MetaHelper";
+import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
+import { CommonState } from "../../Layout/States/AppStates";
+import { buildGetApproveBundleDetailUrl } from "../Services/CostApprovalService";
+import { ApprovalBundle } from "../States/ApprovalBundle";
+import { ApprovalValuesProps, ApprovalValuesViewComponent, DetailsProps } from "./ApprovalValuesViewComponent";
 
 export interface ApprovalValuesContainerProps {
     approvalBundle: ApprovalBundle
     isCheckColumnsVisible: boolean
 }
 
-export const ApprovalValuesContainerComponent = 
+export const ApprovalValuesContainerComponent =
     connect<ApprovalValuesProps, {}, ApprovalValuesContainerProps, CommonState>(
         (state, { approvalBundle, isCheckColumnsVisible }) => {
             const meta = state.app.appMetaData;
@@ -23,15 +20,15 @@ export const ApprovalValuesContainerComponent =
             let columns: ColumnInfo[];
             let dataLoadUrl: string;
             let details: DetailsProps;
-            
+
             if (meta) {
                 dataLoadUrl = buildGetApproveBundleDetailUrl(approvalBundle.id);
 
                 const costBlock = meta.costBlocks.find(item => item.id === approvalBundle.costBlock.id);
 
-                const otherColumns: ColumnInfo[] = []; 
+                const otherColumns: ColumnInfo[] = [];
                 const dependency = getDependency(costBlock, approvalBundle.costElement.id);
-                
+
                 if (dependency) {
                     const dependencyColumn = buildNameColumnInfo(dependency);
 
@@ -40,7 +37,7 @@ export const ApprovalValuesContainerComponent =
 
                 otherColumns.push({ title: 'Value', dataIndex: 'Value', type: ColumnType.Text });
 
-                if(isCheckColumnsVisible) {
+                if (isCheckColumnsVisible) {
                     otherColumns.push({ title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.CheckBox });
                     otherColumns.push({ title: 'Country group error', dataIndex: `IsRegionError`, type: ColumnType.CheckBox });
                 }

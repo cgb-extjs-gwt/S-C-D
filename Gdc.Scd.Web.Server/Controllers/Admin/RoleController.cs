@@ -6,7 +6,7 @@ using Gdc.Scd.Web.Server.Impl;
 namespace Gdc.Scd.Web.Server.Controllers.Admin
 {
     [ScdAuthorize(Permissions = new[] { PermissionConstants.Admin })]
-    public class RoleController : BaseDomainController<Role>
+    public class RoleController : ReadonlyDomainController<Role>
     {
         public RoleController(IDomainService<Role> domainService) : base(domainService) { }
     }

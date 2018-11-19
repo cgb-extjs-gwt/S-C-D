@@ -5,6 +5,10 @@ export interface IDictService {
 
     getCountryGroups(): Promise<NamedId[]>;
 
+    getCountryGroupDigits(): Promise<NamedId[]>;
+
+    getCountryGroupLuts(): Promise<NamedId[]>;
+
     getWG(): Promise<NamedId[]>;
 
     getPla(): Promise<NamedId[]>;
@@ -22,4 +26,6 @@ export interface IDictService {
     getReactionTimeTypes(): Promise<NamedId[]>;
 
     getServiceLocationTypes(): Promise<NamedId[]>;
+
+    getRoles(): Promise<NamedId[]>;
 }

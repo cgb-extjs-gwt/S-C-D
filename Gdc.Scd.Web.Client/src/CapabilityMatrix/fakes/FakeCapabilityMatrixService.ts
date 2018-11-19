@@ -1,19 +1,15 @@
-import { NamedId, DataInfo } from "../../Common/States/CommonStates";
+import { DataInfo, NamedId } from "../../Common/States/CommonStates";
+import { FakeDictService } from "../../Dict/fakes/FakeDictService";
 import { CapabilityMatrixEditModel } from "../Model/CapabilityMatrixEditModel";
+import { CapabilityMatrixFilterModel } from "../Model/CapabilityMatrixFilterModel";
 import { CapabilityMatrixListModel } from "../Model/CapabilityMatrixListModel";
 import { ICapabilityMatrixService } from "../Services/ICapabilityMatrixService";
-import { CapabilityMatrixFilterModel } from "../Model/CapabilityMatrixFilterModel";
 import { fakeAllowed } from "./FakeAllowed";
-import { fakeCountries } from "./FakeCountries";
-import { fakeWG } from "./FakeWG";
-import { fakeAvailability } from "./FakeAvailability";
-import { fakeDuration } from "./FakeDuration";
-import { fakeReactTypes } from "./FakeReactTypes";
-import { fakeReactTimeTypes } from "./FakeReactTimeTypes";
-import { fakeServiceLocationTypes } from "./FakeServiceLocationTypes";
 import { fakeDenied } from "./FakeDenied";
 
 export class FakeCapabilityMatrixService implements ICapabilityMatrixService {
+
+    private dictSrv: FakeDictService;
 
     public allowItem(row: CapabilityMatrixEditModel): Promise<any> {
         return this.saveItem(row, true);
@@ -28,31 +24,31 @@ export class FakeCapabilityMatrixService implements ICapabilityMatrixService {
     }
 
     public getCountries(): Promise<NamedId[]> {
-        return this.fromResult(fakeCountries);
+        return this.dictSrv.getCountries();
     }
 
     public getWG(): Promise<NamedId[]> {
-        return this.fromResult(fakeWG);
+        return this.dictSrv.getWG();
     }
 
     public getAvailabilityTypes(): Promise<NamedId[]> {
-        return this.fromResult(fakeAvailability);
+        return this.dictSrv.getAvailabilityTypes();
     }
 
     public getDurationTypes(): Promise<NamedId[]> {
-        return this.fromResult(fakeDuration);
+        return this.dictSrv.getDurationTypes();
     }
 
     public getReactTypes(): Promise<NamedId[]> {
-        return this.fromResult(fakeReactTypes);
+        return this.dictSrv.getReactionTypes();
     }
 
     public getReactionTimeTypes(): Promise<NamedId[]> {
-        return this.fromResult(fakeReactTimeTypes);
+        return this.dictSrv.getReactionTimeTypes();
     }
 
     public getServiceLocationTypes(): Promise<NamedId[]> {
-        return this.fromResult(fakeServiceLocationTypes);
+        return this.dictSrv.getServiceLocationTypes();
     }
 
     public getAllowed(filter: CapabilityMatrixFilterModel): Promise<DataInfo<CapabilityMatrixListModel>> {

@@ -4,9 +4,11 @@ import { NamedId } from "../../Common/States/CommonStates";
 import { IDictService } from "../../Dict/Services/IDictService";
 import { DictFactory } from "../Services/DictFactory";
 
+const NAME_FIELD: string = 'name';
+
 export abstract class DictField extends React.Component<ComboBoxFieldProps, any> {
 
-    private combo: ComboBoxField;
+    private combo: ComboBoxField & any;
 
     protected srv: IDictService;
 
@@ -16,22 +18,24 @@ export abstract class DictField extends React.Component<ComboBoxFieldProps, any>
     }
 
     public render() {
-        return (
-            <ComboBoxField
+        return <ComboBoxField
                 {...this.props}
-                ref="combo"
+                ref={x => this.combo = x}
                 options={this.state.items}
                 valueField="id"
-                displayField="name"
+                displayField={NAME_FIELD}
                 queryMode="local"
                 clearable="true"
-            />
-        );
+            />;
     }
 
     public componentDidMount() {
-        this.getItems().then(x => this.setState({ items: x }));
-        this.combo = this.refs.combo as ComboBoxField;
+        let store = this.combo.getStore() as any;
+        let sorters = store.getSorters();
+        sorters.remove(NAME_FIELD);
+        sorters.add(NAME_FIELD);
+
+        this.getItems().then(x => store.setData(x));
     }
 
     public getValue(): string {
@@ -40,11 +44,15 @@ export abstract class DictField extends React.Component<ComboBoxFieldProps, any>
 
     public getSelected(): string {
         let result: string = null;
-        let selected = (this.combo as any).getSelection();
+        let selected = this.combo.getSelection();
         if (selected) {
             result = selected.data.id;
         }
         return result;
+    }
+
+    public reset() {
+        this.combo.reset();
     }
 
     protected abstract getItems(): Promise<NamedId[]>;
