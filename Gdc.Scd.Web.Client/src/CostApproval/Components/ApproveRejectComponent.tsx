@@ -92,6 +92,6 @@ export class ApproveRejectComponent extends React.Component<ApproveRejectActions
     }
 
     private onRejectMessageTextFieldChange = (textField, newValue: string, oldValue: string) => {
-        this.setState({ isValidRejectForm: this.rejectForm.isValid() });
+        this.setState({ isValidRejectForm: !!this.rejectMessageTextField.getValue() });
     }
 }
