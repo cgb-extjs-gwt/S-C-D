@@ -1,4 +1,4 @@
-﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
+﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar, NumberCell, Editor, NumberField } from "@extjs/ext-react";
 import * as React from "react";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
@@ -7,7 +7,7 @@ import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
-    private grid: Grid;
+    private grid: Grid & any;
 
     private filter: HwCostFilter;
 
@@ -52,30 +52,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     public render() {
-
         const canEdit = this.canEdit();
-
-        let fieldServiceCost: string = 'FieldServiceCost';
-        let serviceSupport: string = 'ServiceSupportCost';
-        let logistic: string = 'Logistic';
-        let availabilityFee: string = 'AvailabilityFee';
-        let hddRetention: string = 'HddRet';
-        let reinsurance: string = 'Reinsurance';
-        let taxAndDutiesW: string = 'TaxAndDutiesW';
-        let taxAndDutiesOow: string = 'TaxAndDutiesOow';
-        let materialW: string = 'MaterialW';
-        let materialOow: string = 'MaterialOow';
-        let proActive: string = 'ProActive';
-        let serviceTC: string = 'ServiceTC';
-        let serviceTCManual: string = 'ServiceTCManual';
-        let serviceTP: string = 'ServiceTP';
-        let serviceTPManual: string = 'ServiceTPManual';
-        let listPrice: string = 'ListPrice';
-        let dealerDiscount: string = 'DealerDiscount';
-        let dealerPrice: string = 'DealerPrice';
-        let otherDirect: string = 'OtherDirect';
-        let localServiceStandardWarranty: string = 'LocalServiceStandardWarranty';
-        let credits: string = 'Credits';
 
         return (
             <Container layout="fit">
@@ -107,7 +84,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                     </Column>
 
-                    { /*cost block results*/}
+                    {/*cost block results*/}
 
                     <Column
                         isHeaderGroup={true}
@@ -116,17 +93,17 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <NumberColumn text="Field service cost" dataIndex={fieldServiceCost} />
-                        <NumberColumn text="Service support cost" dataIndex={serviceSupport} />
-                        <NumberColumn text="Logistic cost" dataIndex={logistic} />
-                        <NumberColumn text="Availability fee" dataIndex={availabilityFee} />
-                        <NumberColumn text="HDD retention" dataIndex={hddRetention} />
-                        <NumberColumn text="Reinsurance" dataIndex={reinsurance} />
-                        <NumberColumn text="Tax &amp; Duties iW period" dataIndex={taxAndDutiesW} />
-                        <NumberColumn text="Tax &amp; Duties OOW period" dataIndex={taxAndDutiesOow} />
-                        <NumberColumn text="Material cost iW period" dataIndex={materialW} />
-                        <NumberColumn text="Material cost OOW period" dataIndex={materialOow} />
-                        <NumberColumn text="Pro active" dataIndex={proActive} />
+                        <NumberColumn text="Field service cost" dataIndex="FieldServiceCost" />
+                        <NumberColumn text="Service support cost" dataIndex="ServiceSupportCost" />
+                        <NumberColumn text="Logistic cost" dataIndex="Logistic" />
+                        <NumberColumn text="Availability fee" dataIndex="AvailabilityFee" />
+                        <NumberColumn text="HDD retention" dataIndex="HddRetention" />
+                        <NumberColumn text="Reinsurance" dataIndex="Reinsurance" />
+                        <NumberColumn text="Tax &amp; Duties iW period" dataIndex="TaxAndDutiesW" />
+                        <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="TaxAndDutiesOow" />
+                        <NumberColumn text="Material cost iW period" dataIndex="MaterialW" />
+                        <NumberColumn text="Material cost OOW period" dataIndex="MaterialOow" />
+                        <NumberColumn text="Pro active" dataIndex="ProActive" />
 
                     </Column>
 
@@ -139,19 +116,21 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-yellow"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <NumberColumn text="Service TC(calc)" dataIndex={serviceTC} />
-                        <NumberColumn text="Service TC(manual)" dataIndex={serviceTCManual} editable={canEdit} />
+                        <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
+                        <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEdit}>
+                            <NumberField />
+                        </NumberColumn>
+                        {/*
+                        <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
+                        <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEdit} />
 
-                        <NumberColumn text="Service TP(calc)" dataIndex={serviceTP} />
-                        <NumberColumn text="Service TP(manual)" dataIndex={serviceTPManual} editable={canEdit} />
+                        <NumberColumn text="List price" dataIndex="ListPrice" editable={canEdit} />
+                        <NumberColumn text="Dealer discount" dataIndex="DealerDiscount" editable={canEdit} />
+                        <NumberColumn text="Dealer price" dataIndex="DealerPrice" />
 
-                        <NumberColumn text="List price" dataIndex={listPrice} editable={canEdit} />
-                        <NumberColumn text="Dealer discount" dataIndex={dealerDiscount} editable={canEdit} />
-                        <NumberColumn text="Dealer price" dataIndex={dealerPrice} />
-
-                        <NumberColumn text="Other direct cost" dataIndex={otherDirect} />
-                        <NumberColumn text="Local service standard warranty" dataIndex={localServiceStandardWarranty} />
-                        <NumberColumn text="Credits" dataIndex={credits} />
+                        <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
+                        <NumberColumn text="Local service standard warranty" dataIndex="LocalServiceStandardWarranty" />
+                        <NumberColumn text="Credits" dataIndex="Credits" />*/}
 
                     </Column>
 
@@ -166,6 +145,28 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     public componentDidMount() {
         this.grid = this.refs.grid as Grid;
         this.filter = this.refs.filter as HwCostFilter;
+
+        let cols = this.grid.getColumns();
+
+        for (let i = 0, len = cols.length; i < len; i++) {
+
+            if (!cols[i].getEditable()) {
+                continue;
+            }
+
+            //console.log('editable!');
+
+            let ed = cols[i].getEditor();
+
+            if (ed) {
+                console.log(ed);
+                ed.on('added', function () {
+                    console.log('added()');
+                });
+            }
+
+        }
+
     }
 
     private init() {
