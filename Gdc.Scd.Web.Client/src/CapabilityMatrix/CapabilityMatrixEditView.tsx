@@ -115,7 +115,15 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
     }
 
     private onDeny() {
-        ExtMsgHelper.confirm('Deny combinations', 'Do you want to save the changes?', this.denyCombination);
+        let m = this.getModel();
+        let isValid = m.countryId || m.isGlobalPortfolio || m.isMasterPortfolio || m.isCorePortfolio;
+
+        if (isValid) {
+            ExtMsgHelper.confirm('Deny combinations', 'Do you want to save the changes?', this.denyCombination);
+        }
+        else {
+            Ext.Msg.alert('Invalid input!', 'Please choose master or local portfolio!');
+        }
     }
 
     private onBack() {
