@@ -12,7 +12,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             var groups = bundleDetails.GroupBy(bundleDetail => new
             {
                 bundleDetail.HistoryValueId,
-                bundleDetail.LastInputLevel,
+                LastInputLevelId = bundleDetail.LastInputLevel.Id,
                 bundleDetail.NewValue,
                 bundleDetail.OldValue,
                 bundleDetail.CountryGroupAvgValue,
@@ -29,10 +29,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
                     CountryGroupAvgValue = bundleDetailGroup.Key.CountryGroupAvgValue,
                     IsPeriodError = bundleDetailGroup.Key.IsPeriodError,
                     IsRegionError = bundleDetailGroup.Key.IsRegionError,
-                    LastInputLevel = bundleDetailGroup.Key.LastInputLevel,
+                    LastInputLevel = bundleDetailGroup.Select(bundleDetail => bundleDetail.LastInputLevel).First(),
                     Coordinates =
-                        bundleDetailGroup.SelectMany(bundleDetail => bundleDetail.InputLevels)
-                                         .Where(inputLevel => inputLevel.Value != bundleDetailGroup.Key.LastInputLevel)
+                        bundleDetailGroup.SelectMany(bundleDetail => bundleDetail.InputLevels.Where(inputLevel => inputLevel.Value != bundleDetail.LastInputLevel))
                                          .Concat(bundleDetailGroup.SelectMany(bundleDetail => bundleDetail.Dependencies))
                                          .GroupBy(keyValue => keyValue.Key, keyValue => keyValue.Value)
                                          .ToDictionary(

@@ -3,15 +3,10 @@ import { Grid, Column, Container, TextField, FormPanel, Toolbar, Button, Dialog 
 import { EditItem } from "../../CostEditor/States/CostBlockStates";
 import { QualityGateGrid } from "../../QualityGate/Components/QualityGateGrid";
 import { CostElementMeta } from "../../Common/States/CostMetaStates";
-
-export interface CostBlockValueHistory {
-    [key: string]: string | number, 
-    HistoryValueId: number,
-    Value: string 
-}
+import { BundleDetailGroup } from "../../QualityGate/States/QualityGateResult";
 
 export interface DetailsProps {
-    buildDataLoadUrl?(data: CostBlockValueHistory): string
+    buildDataLoadUrl?(data: BundleDetailGroup): string
     inputLevelId: string
 }
 
@@ -27,7 +22,7 @@ export interface ApprovalValuesProps {
 
 interface ApprovalValuesState {
     isVisibleDetailWindow: boolean
-    selectedRecords: { data: CostBlockValueHistory }[]
+    selectedRecords: { data: BundleDetailGroup }[]
 }
 
 export class ApprovalValuesViewComponent extends React.Component<ApprovalValuesProps, ApprovalValuesState> {
@@ -64,6 +59,7 @@ export class ApprovalValuesViewComponent extends React.Component<ApprovalValuesP
                     hideCheckColumns={hideCheckColumns} 
                     inputLevelId={inputLevelId}
                     minHeight={400}
+                    onSelectionChange={this.onSelectGrid}
                 >
                     <Toolbar docked="top">
                         <Button 

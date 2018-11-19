@@ -30,14 +30,12 @@ export const ApprovalValuesContainerComponent =
                     inputLevelId: lastInputLevel.id,
                     buildDataLoadUrl: data => {
                         const costBlockFilter = {};
-    
-                        if (costElement.dependency) {
-                            costBlockFilter[costElement.dependency.id] = [
-                                data[`${costElement.dependency.id}Id`]
-                            ]
+
+                        for (const key of Object.keys(data.coordinates)) {
+                            costBlockFilter[key] = data.coordinates[key].map(item => item.id);
                         }
     
-                        return buildGetApproveBundleDetailUrl(approvalBundle.id, data.HistoryValueId, costBlockFilter);
+                        return buildGetApproveBundleDetailUrl(approvalBundle.id, data.historyValueId, costBlockFilter);
                     }
                 },
             }
