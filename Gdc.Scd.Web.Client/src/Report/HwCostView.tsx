@@ -7,6 +7,7 @@ import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwManualCostDialog } from "./Components/HwManualCostDialog";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 import { HwCostListModel } from "./Model/HwCostListModel";
+import { CountryService } from "../Dict/Services/CountryService";
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
@@ -279,8 +280,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         return !this.props.approved;
     }
 
-    private canEditRow(country: string) {
-        return true;
+    private canEditRow(country: string): boolean {
+        let result = false;
+        let cnt = new CountryService().findByName(country);
+        if (cnt) {
+            //result = cnt.
+        }
+        return result;
     }
 
     private toolbar() {
