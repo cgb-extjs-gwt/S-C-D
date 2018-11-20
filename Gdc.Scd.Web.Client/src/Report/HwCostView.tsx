@@ -1,10 +1,12 @@
-﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar, NumberCell, Editor, NumberField } from "@extjs/ext-react";
+﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
+import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { HwCostFilter } from "./Components/HwCostFilter";
-import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 import { HwManualCostDialog } from "./Components/HwManualCostDialog";
+import { HwCostFilterModel } from "./Model/HwCostFilterModel";
+import { HwCostListModel } from "./Model/HwCostListModel";
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
@@ -28,11 +30,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 type: 'json',
                 writeAllFields: true,
                 allowSingle: false,
-                idProperty: "id"
+                idProperty: "Id"
             },
             reader: {
                 type: 'json',
                 rootProperty: 'items',
+                idProperty: "Id",
                 totalProperty: 'total'
             }
         },
@@ -172,7 +175,11 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private editRecord() {
-        this.costDlg.show();
+        let rec = ExtDataviewHelper.getGridSelected<HwCostListModel>(this.grid)[0];
+        if (rec) {
+            this.costDlg.setModel(rec);
+            this.costDlg.show();
+        }
     }
 
     private cancelChanges() {
@@ -226,8 +233,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         this.setState(state);
     }
 
-    private onManualCostChange() {
-        console.log('onManualCostChange()');
+    private onManualCostChange(m: HwCostListModel) {
+        console.log('onManualCostChange()', m);
     }
 
     private pluginConf(): any {

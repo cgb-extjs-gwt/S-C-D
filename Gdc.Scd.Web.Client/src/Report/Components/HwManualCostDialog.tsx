@@ -1,8 +1,9 @@
-﻿import { Button, Dialog, NumberField, Toolbar, DialogProps } from '@extjs/ext-react';
+﻿import { Button, Dialog, DialogProps, NumberField, Toolbar } from '@extjs/ext-react';
 import * as React from 'react';
+import { HwCostListModel } from '../Model/HwCostListModel';
 
 interface HwManualCostDialogProps extends DialogProps {
-    onOk(): void;
+    onOk(model: HwCostListModel): void;
 }
 
 export class HwManualCostDialog extends React.Component<HwManualCostDialogProps, any> {
@@ -15,8 +16,9 @@ export class HwManualCostDialog extends React.Component<HwManualCostDialogProps,
 
     private dealerDiscount: NumberField & any;
 
+    private model: HwCostListModel;
+
     public state = {
-        isValid: false,
         showDialog: false
     };
 
@@ -43,29 +45,13 @@ export class HwManualCostDialog extends React.Component<HwManualCostDialogProps,
                 onHide={this.onCancel}
             >
 
-                <NumberField
-                    ref={x => this.serviceTC = x}
-                    label="Service TC"
-                    onChange={this.onValueChange}
-                />
-                <NumberField
-                    ref={x => this.serviceTP = x}
-                    label="Service TP"
-                    onChange={this.onValueChange}
-                />
-                <NumberField
-                    ref={x => this.listPrice = x}
-                    label="List price"
-                    onChange={this.onValueChange}
-                />
-                <NumberField
-                    ref={x => this.dealerDiscount = x}
-                    label="Dealer discount"
-                    onChange={this.onValueChange}
-                />
+                <NumberField ref={x => this.serviceTC = x} label="Service TC" />
+                <NumberField ref={x => this.serviceTP = x} label="Service TP" />
+                <NumberField ref={x => this.listPrice = x} label="List price" />
+                <NumberField ref={x => this.dealerDiscount = x} label="Dealer discount" />
 
                 <Toolbar docked="bottom">
-                    <Button text="Ok" handler={this.onOk} flex={1} disabled={!this.state.isValid} />
+                    <Button text="Ok" handler={this.onOk} flex={1} />
                     <Button text="Cancel" handler={this.onCancel} flex={1} />
                 </Toolbar>
 
@@ -74,32 +60,49 @@ export class HwManualCostDialog extends React.Component<HwManualCostDialogProps,
     }
 
     public reset() {
+        this.model = null;
+
         this.serviceTC.reset();
         this.serviceTP.reset();
         this.listPrice.reset();
         this.dealerDiscount.reset();
     }
 
+    public getModel(): HwCostListModel {
+        return {
+            ...this.model,
+            ServiceTCManual: this.serviceTC.getValue(),
+            ServiceTPManual: this.serviceTP.getValue(),
+            ListPrice: this.listPrice.getValue(),
+            DealerDiscount: this.dealerDiscount.getValue()
+        };
+    }
+
+    public setModel(m: HwCostListModel) {
+        if (m) {
+            this.model = { ...m };
+
+            this.serviceTC.setValue(m.ServiceTCManual);
+            this.serviceTP.setValue(m.ServiceTPManual);
+            this.listPrice.setValue(m.ListPrice);
+            this.dealerDiscount.setValue(m.DealerDiscount);
+        }
+        else {
+            this.reset();
+        }
+    }
+
     public show() {
-        this.reset();
         this.setState({ showDialog: true });
     }
 
     public hide() {
-        if (this.state.showDialog) {
-            this.setState({ showDialog: false });
-        }
+        this.setState({ showDialog: false });
     }
 
     private init() {
         this.onCancel = this.onCancel.bind(this);
         this.onOk = this.onOk.bind(this);
-        this.onValueChange = this.onValueChange.bind(this);
-    }
-
-    private onValueChange() {
-        let isValid = this.serviceTC.getValue() || this.serviceTP.getValue() || this.listPrice.getValue() || this.dealerDiscount.getValue();
-        this.setState({ isValid: isValid });
     }
 
     private onCancel() {
@@ -107,7 +110,7 @@ export class HwManualCostDialog extends React.Component<HwManualCostDialogProps,
     }
 
     private onOk() {
-        this.props.onOk();
+        this.props.onOk(this.getModel());
         this.hide();
     }
 }
