@@ -67,6 +67,8 @@
             min-width: 160px;
         }
 
+        /*=====================custom components========================*/
+
         .alert {
             padding: 20px;
             background-color: #f44336;
@@ -138,14 +140,78 @@
             cursor: pointer;
         }
 
+        .accordion-block {
+            margin: 5px 10px;
+        }
+
+        .accordion {
+            background-color: #025b80;
+            color: #fff;
+            cursor: pointer;
+            padding: 18px 36px 18px 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            line-height: 21px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: 0.4s;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .accordion:after {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            margin-top: -11px;
+            content: '\002B';
+            color: #fff;
+            font-size: 22px;
+            font-weight: 200;
+        }
+
         .x-tab .x-inner-el .x-body-el .x-text-el {
             white-space: inherit;
             font-size: 13px;
         }
 
+        .accordion-panel {
+            background-color: white;
+            display: none;
+            overflow: hidden;
+        }
+
+        .accordion-active:after {
+            content: "\2212";
+        }
+
+        .accordion-active + .accordion-panel {
+            display: block;
+        }
+
+        /*===================pages=======================*/
+        
+        .approval-panel-title {
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
         @media (min-width: 700px) {
             .matrix-edit-container > div {
                 width: 33%;
+            }
+
+        }
+
+        @media (min-width: 1000px) {
+            .approval-panel-title {
+                display: flex;
+            }
+
+            .approval-panel-title > div {
+                margin-right: 30px;
             }
         }
 

@@ -18,7 +18,7 @@ export class OwnApproveRejectComponent extends React.Component<OwnApproveRejectP
         const { onApprove, onReject, bundleId, costBlockId, costElementId } = this.props;
 
         return (
-            <Container flex={1} layout="vbox">
+            <Container flex={1} layout="vbox" minHeight="50">
                 <Toolbar flex={1}>
                     <Button text="Approve" handler={this.onApprove} flex={1}/>
                     <Button text="Reject" handler={this.onReject} flex={1}/>

@@ -1,8 +1,7 @@
+import { Button, Container, Dialog, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
-import { Grid, Column, Container, TextField, FormPanel, Toolbar, Button, Dialog } from "@extjs/ext-react";
-import { ColumnInfo } from "../../Common/States/ColumnInfo";
 import { DynamicGrid } from "../../Common/Components/DynamicGrid";
-import { EditItem } from "../../CostEditor/States/CostBlockStates";
+import { ColumnInfo } from "../../Common/States/ColumnInfo";
 
 export interface CostBlockValueHistory {
     [key: string]: string | number, 
@@ -47,7 +46,7 @@ export class ApprovalValuesViewComponent extends React.Component<ApprovalValuesP
         const { isVisibleDetailWindow } = this.state;
 
         return (
-            <Container layout="vbox">
+            <Container layout="vbox" minHeight={400}>
                 {
                     message != null &&
                     <Container padding="10">
