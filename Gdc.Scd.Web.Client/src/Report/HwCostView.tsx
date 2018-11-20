@@ -117,10 +117,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                         <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
-                        <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEdit}>
-                            <NumberField />
-                        </NumberColumn>
-                        {/*
+                        <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEdit} />
                         <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
                         <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEdit} />
 
@@ -130,7 +127,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
                         <NumberColumn text="Local service standard warranty" dataIndex="LocalServiceStandardWarranty" />
-                        <NumberColumn text="Credits" dataIndex="Credits" />*/}
+                        <NumberColumn text="Credits" dataIndex="Credits" />
 
                     </Column>
 
@@ -145,28 +142,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     public componentDidMount() {
         this.grid = this.refs.grid as Grid;
         this.filter = this.refs.filter as HwCostFilter;
-
-        let cols = this.grid.getColumns();
-
-        for (let i = 0, len = cols.length; i < len; i++) {
-
-            if (!cols[i].getEditable()) {
-                continue;
-            }
-
-            //console.log('editable!');
-
-            let ed = cols[i].getEditor();
-
-            if (ed) {
-                console.log(ed);
-                ed.on('added', function () {
-                    console.log('added()');
-                });
-            }
-
-        }
-
     }
 
     private init() {
