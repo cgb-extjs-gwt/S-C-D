@@ -40,7 +40,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             }
         },
         listeners: {
-            update: (store, record, operation, modifiedFieldNames, details, eOpts) => {
+            update: () => {
                 const changed = this.store.getUpdatedRecords().length;
                 this.toggleToolbar(changed == 0);
             }
@@ -234,7 +234,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onManualCostChange(m: HwCostListModel) {
-        console.log('onManualCostChange()', m);
+        let rec = this.store.findRecord('Id', m.Id);
+        if (rec) {
+            rec.set(m, { dirty: true });
+        }
     }
 
     private pluginConf(): any {
