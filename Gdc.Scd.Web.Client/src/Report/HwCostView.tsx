@@ -17,6 +17,26 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     private costDlg: HwManualCostDialog;
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
+
+        fields: [
+            {
+                name: 'DealerPriceCalc',
+                type: 'number',
+                convert: function (val, row) {
+                    let d = row.data;
+                    let result = null;
+                    if (d.ListPrice) {
+                        result = d.ListPrice;
+                        if (d.DealerDiscount) {
+                            result = result - (result * d.DealerDiscount / 100);
+                        }
+                    }
+                    return  result;
+                }
+            }
+        ],
+
+
         pageSize: 25,
         autoLoad: true,
 
@@ -135,7 +155,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                         <NumberColumn text="List price" dataIndex="ListPrice" />
                         <NumberColumn text="Dealer discount" dataIndex="DealerDiscount" />
-                        <NumberColumn text="Dealer price" dataIndex="DealerPrice" />
+                        <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
                         <NumberColumn text="Local service standard warranty" dataIndex="LocalServiceStandardWarranty" />
