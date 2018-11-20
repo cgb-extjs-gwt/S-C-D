@@ -4,12 +4,15 @@ import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
+import { HwManualCostDialog } from "./Components/HwManualCostDialog";
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private grid: Grid & any;
 
     private filter: HwCostFilter;
+
+    private costDlg: HwManualCostDialog;
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
         pageSize: 25,
@@ -42,6 +45,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     });
 
     public state = {
+        disableEditButton: true,
         disableSaveButton: true,
         disableCancelButton: true
     };
@@ -63,7 +67,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     ref="grid"
                     store={this.store}
                     width="100%"
-                    platformConfig={this.pluginConf()}>
+                    platformConfig={this.pluginConf()}
+                    selectable={{
+                        mode: 'single'
+                    }}
+                    onSelect={this.onGridSelect}
+                >
 
                     { /*dependencies*/}
 
@@ -117,12 +126,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                         <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
-                        <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEdit} />
+                        <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" />
                         <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
-                        <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEdit} />
+                        <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" />
 
-                        <NumberColumn text="List price" dataIndex="ListPrice" editable={canEdit} />
-                        <NumberColumn text="Dealer discount" dataIndex="DealerDiscount" editable={canEdit} />
+                        <NumberColumn text="List price" dataIndex="ListPrice" />
+                        <NumberColumn text="Dealer discount" dataIndex="DealerDiscount" />
                         <NumberColumn text="Dealer price" dataIndex="DealerPrice" />
 
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
@@ -134,6 +143,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 </Grid>
 
                 {this.toolbar()}
+
+                {this.manualCostDialog()}
 
             </Container>
         );
@@ -147,6 +158,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     private init() {
         this.onSearch = this.onSearch.bind(this);
         this.onBeforeLoad = this.onBeforeLoad.bind(this);
+        this.onGridSelect = this.onGridSelect.bind(this);
+        this.onManualCostChange = this.onManualCostChange.bind(this);
+        this.editRecord = this.editRecord.bind(this);
         this.cancelChanges = this.cancelChanges.bind(this);
         this.saveRecords = this.saveRecords.bind(this);
 
@@ -155,6 +169,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private toggleToolbar(disable: boolean) {
         this.setState({ disableSaveButton: disable, disableCancelButton: disable });
+    }
+
+    private editRecord() {
+        this.costDlg.show();
     }
 
     private cancelChanges() {
@@ -198,10 +216,23 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         operation.setParams(params);
     }
 
-    private pluginConf(): any {
+    private onGridSelect(view: Grid, record: any) {
+        let state = { disableEditButton: true }
 
-        let cfg: any = {
-            desktop: {
+        if (record) {
+            state.disableEditButton = !this.canEditRow(record.data.country);
+        }
+
+        this.setState(state);
+    }
+
+    private onManualCostChange() {
+        console.log('onManualCostChange()');
+    }
+
+    private pluginConf(): any {
+        return {
+            'desktop': {
                 plugins: {
                     gridpagingtoolbar: true
                 }
@@ -212,39 +243,44 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 }
             }
         };
-
-        if (this.canEdit()) {
-            cfg['desktop'].plugins['gridcellediting'] = true;
-            cfg['!desktop'].plugins['grideditable'] = true;
-        }
-
-        return cfg;
     }
 
     private canEdit() {
         return !this.props.approved;
     }
 
+    private canEditRow(country: string) {
+        return true;
+    }
+
     private toolbar() {
         if (this.canEdit()) {
-            return (
-                <Toolbar docked="bottom">
-                    <Button
-                        text="Cancel"
-                        flex={1}
-                        iconCls="x-fa fa-trash"
-                        handler={this.cancelChanges}
-                        disabled={this.state.disableCancelButton}
-                    />
-                    <Button
-                        text="Save"
-                        flex={1}
-                        iconCls="x-fa fa-save"
-                        handler={this.saveRecords}
-                        disabled={this.state.disableSaveButton}
-                    />
-                </Toolbar>
-            );
+            return <Toolbar docked="top">
+                <Button
+                    text="Edit"
+                    iconCls="x-fa fa-pencil"
+                    handler={this.editRecord}
+                    disabled={this.state.disableEditButton}
+                />
+                <Button
+                    text="Cancel"
+                    iconCls="x-fa fa-trash"
+                    handler={this.cancelChanges}
+                    disabled={this.state.disableCancelButton}
+                />
+                <Button
+                    text="Save"
+                    iconCls="x-fa fa-save"
+                    handler={this.saveRecords}
+                    disabled={this.state.disableSaveButton}
+                />
+            </Toolbar>;
+        }
+    }
+
+    private manualCostDialog() {
+        if (this.canEdit()) {
+            return <HwManualCostDialog ref={x => this.costDlg = x} title="Manual cost input" draggable={false} onOk={this.onManualCostChange} />
         }
     }
 }
