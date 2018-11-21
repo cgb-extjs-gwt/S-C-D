@@ -35,6 +35,10 @@ export class WarrantyGroupGrid extends React.Component<any> {
 
         autoLoad: true,
         pageSize: 0,
+        sorters: [{
+            property: 'name',
+            direction: 'ASC'
+        }],
         proxy: {
             type: 'ajax',
             writer: {

@@ -40,6 +40,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public Task DenyCombination(CapabilityMatrixRuleSetDto m)
         {
+            var isValid = m.CountryId.HasValue || m.IsGlobalPortfolio || m.IsMasterPortfolio || m.IsCorePortfolio;
+
+            if(!isValid)
+            {
+                throw new ArgumentException("No master or local portfolio specified!");
+            }
+
             return new AddMatrixRules(repositorySet).ExecuteAsync(m);
         }
 
