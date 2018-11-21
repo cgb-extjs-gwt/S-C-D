@@ -142,10 +142,11 @@
             top: 50%;
             right: 15px;
             margin-top: -11px;
-            content: '\002B';
             color: #fff;
             font-size: 22px;
-            font-weight: 200;
+            content: 'keyboard_arrow_down';
+            font-feature-settings: 'liga';
+            font-family: 'Material Icons';
         }
 
         .accordion-panel {
@@ -155,7 +156,7 @@
         }
 
         .accordion-active:after {
-            content: "\2212";
+            content: 'keyboard_arrow_up';
         }
 
         .accordion-active + .accordion-panel {
