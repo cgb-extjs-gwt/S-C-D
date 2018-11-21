@@ -144,7 +144,7 @@ CREATE VIEW SoftwareSolution.SwSpMaintenanceCostView as
               , ib.InstalledBaseCountry_Approved
 
         from Hardware.ServiceSupportCostView ssc
-        join Atom.InstallBase ib on ib.Country = ssc.Country and ib.Wg = ssc.Wg
+        join Hardware.InstallBase ib on ib.Country = ssc.Country and ib.Wg = ssc.Wg
         join InputAtoms.Country c on c.id = ssc.Country
 
         where c.ISO3CountryCode = 'DEU' --install base by Germany!

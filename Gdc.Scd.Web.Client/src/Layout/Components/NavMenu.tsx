@@ -24,7 +24,13 @@ const NavMenu: React.SFC<NavMenuProps> = ({
             ui="nav"
             cls="main-tree-nav"
             expanderFirst={false}
-            onItemClick={(tree, item) => onItemClick(item.node.data)}
+            expanderOnly={false}
+            onItemClick={(tree, item) => {
+                let d = item.node.data;
+                if (d.leaf) {
+                    onItemClick(d);
+                }
+            }}
             selection={selection}
             responsiveConfig={{
                 [medium]: {

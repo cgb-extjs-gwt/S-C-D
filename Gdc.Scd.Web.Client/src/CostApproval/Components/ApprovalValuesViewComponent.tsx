@@ -1,6 +1,6 @@
+import { Button, Container, Dialog, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
-import { Grid, Column, Container, TextField, FormPanel, Toolbar, Button, Dialog } from "@extjs/ext-react";
-import { EditItem } from "../../CostEditor/States/CostBlockStates";
+import { ColumnInfo } from "../../Common/States/ColumnInfo";
 import { QualityGateGrid } from "../../QualityGate/Components/QualityGateGrid";
 import { CostElementMeta } from "../../Common/States/CostMetaStates";
 import { BundleDetailGroup } from "../../QualityGate/States/QualityGateResult";
@@ -44,7 +44,7 @@ export class ApprovalValuesViewComponent extends React.Component<ApprovalValuesP
         const { isVisibleDetailWindow } = this.state;
 
         return (
-            <Container layout="vbox">
+            <Container layout="vbox" minHeight={400}>
                 {
                     message != null &&
                     <Container padding="10">

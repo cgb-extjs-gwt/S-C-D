@@ -300,5 +300,20 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             return columnNames.Select(name => new ColumnInfo { Name = name });
         }
+
+        public static SqlHelper AddDefault(string tableName, string columnName, string defaultValue, string schema = null, string database = null)
+        {
+            return new SqlHelper(new AlterTableSqlBuilder
+            {
+                Name = tableName,
+                Schema = schema,
+                DataBase = database,
+                Query= new AddDefaultSqlBuilder
+                {
+                    ColumnName= columnName,
+                    DefaultValue=defaultValue
+                }
+            });
+        }
     }
 }

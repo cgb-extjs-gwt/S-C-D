@@ -1,50 +1,63 @@
 ﻿export class HwCostListModel {
-    public id: string;
+    public Id: string;
 
-    public country: string;
+    public Country: string;
 
-    public wg: string;
+    public CanOverrideTransferCostAndPrice?: boolean;
 
-    public availability: string;
+    public CanStoreListAndDealerPrices?: boolean;
 
-    public duration: string;
+    public Wg: string;
 
-    public reactionType: string;
+    public Availability: string;
 
-    public reactionTime: string;
+    public Duration: string;
 
-    public serviceLocation: string;
+    public ReactionType: string;
 
-    public availabilityFee?: number;
+    public ReactionTime: string;
 
-    public credits?: number;
+    public ServiceLocation: string;
 
-    public fieldServiceCost?: number;
+    public FieldServiceCost?: number;
 
-    public hddRetention?: number;
+    public ServiceSupportCost?: number;
 
-    public localServiceStandardWarranty?: number;
+    public Logistic?: number;
 
-    public logistic?: number;
+    public AvailabilityFee?: number;
 
-    public materialOow?: number;
+    public HddRetention?: number;
 
-    public materialW?: number;
+    public Reinsurance?: number;
 
-    public otherDirect?: number;
+    public TaxAndDutiesW?: number;
 
-    public proActive?: number;
+    public TaxAndDutiesOow?: number;
 
-    public reinsurance?: number;
+    public MaterialW?: number;
 
-    public serviceSupport?: number;
+    public MaterialOow?: number;
 
-    public serviceTC?: number;
+    public ProActive?: number;
 
-    public serviceTP?: number;
+    public ServiceTC?: number;
 
-    public taxAndDutiesOow?: number;
+    public ServiceTCManual?: number;
 
-    public taxAndDutiesW?: number;
+    public ServiceTP?: number;
 
+    public ServiceTPManual?: number;
+
+    public ListPrice?: number;
+
+    public DealerDiscount?: number;
+
+    public DealerPrice?: number;
+
+    public OtherDirect?: number;
+
+    public LocalServiceStandardWarranty?: number;
+
+    public Credits?: number;
 }
