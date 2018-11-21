@@ -11,7 +11,7 @@ AS
 RETURN (
     select 
               sog.Description as SogDescription
-            , dig.Name as Digit
+            , null as Digit
             , fsp.Name
             , sog.Name as Sog
 
@@ -28,8 +28,7 @@ RETURN (
 
     from SoftwareSolution.SwSpMaintenanceCostView sw
     join InputAtoms.Sog sog on sog.id = sw.Sog
-    join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
-    join Fsp.SwFspCodeTranslation fsp on fsp.SogId = sw.Sog and fsp.SwDigitId = sw.SwDigit
+    join Fsp.SwFspCodeTranslation fsp on fsp.SogId = sw.Sog
     where (@sog is null or sw.Sog = @sog)
 )
 
