@@ -55,9 +55,9 @@ RETURN (
 
         JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
 
-        LEFT JOIN Atom.AfrYear afr on afr.Wg = m.WgId
+        LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
-        LEFT JOIN Atom.MaterialCostWarranty mc on mc.Wg = wg.Id
+        LEFT JOIN Hardware.MaterialCostWarranty mc on mc.Wg = wg.Id
 
         LEFT JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
     )

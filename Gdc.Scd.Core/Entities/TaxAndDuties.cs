@@ -5,7 +5,7 @@ using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("TaxAndDuties", Schema = MetaConstants.AtomSchema)]
+    [Table("TaxAndDuties", Schema = MetaConstants.HardwareSchema)]
     public class TaxAndDutiesEntity : IIdentifiable, IDeactivatable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

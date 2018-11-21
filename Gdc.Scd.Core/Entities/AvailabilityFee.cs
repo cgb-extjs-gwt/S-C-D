@@ -6,7 +6,7 @@ using Gdc.Scd.Core.Meta.Constants;
 namespace Gdc.Scd.Core.Entities
 {
     [Table("AvailabilityFee", Schema = MetaConstants.HardwareSchema)]
-    public class AvailabilityFee : IIdentifiable
+    public class AvailabilityFee : IIdentifiable, IDeactivatable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
@@ -38,8 +38,8 @@ namespace Gdc.Scd.Core.Entities
         public double? AverageContractDuration_Approved { get; set; }
         public bool? JapanBuy_Approved { get; set; }
 
-        public DateTime? CreatedDateTime { get; set; }
-        public DateTime? DeletedDateTime { get; set; }
-        public DateTime? ModifiedDateTime { get; set; }
+        public DateTime CreatedDateTime { get; set; }
+        public DateTime? DeactivatedDateTime { get; set; }
+        public DateTime ModifiedDateTime { get; set; }
     }
 }

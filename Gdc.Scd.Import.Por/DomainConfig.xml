@@ -48,13 +48,12 @@
   <Applications>
     <Application Name="Hardware"/>
     <Application Name="SoftwareSolution" Caption="Software &amp; Solution"/>
-    <Application Name="Atom"/>
   </Applications>
   
   <Blocks>
     <!--<Block Name="AFR">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="AFR" InputOption="ManualyAutomaticly" RegionInput="_none_" Dependency="Year">
@@ -74,7 +73,7 @@
 
     <!--<Block Name="InstallBase" Caption="Installed base">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="InstalledBaseCountry" Caption="Installed base country" InputOption="ManualyAutomaticly">
@@ -90,7 +89,7 @@
 
     <Block Name="MarkupOtherCosts" Caption="Markup other costs">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="MarkupFactor" Caption="Markup factor for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
@@ -116,7 +115,7 @@
 
     <Block Name="ProlongationMarkup" Caption="Prolongation markup">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
@@ -142,7 +141,7 @@
 
     <Block Name="MarkupStandardWaranty" Caption="Markup standard waranty">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
@@ -168,7 +167,7 @@
 
     <!--<Block Name="MaterialCostWarranty" Caption="Material cost iW" >
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="MaterialCostWarranty" Caption="Material cost iW" InputOption="ManualyAutomaticly" RegionInput="ClusterRegion">
@@ -188,7 +187,7 @@
 
     <Block Name="MaterialCostOow" Caption="Material cost OOW">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="ClusterRegion">
@@ -209,7 +208,7 @@
     <!--HARDCODED-->
     <!--<Block Name="TaxAndDuties" Caption="Tax &amp; duties">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="TaxAndDuties" Caption="Tax &amp; duties" InputOption="Automaticly">
@@ -223,7 +222,7 @@
 
     <Block Name="RoleCodeHourlyRates" Caption="Role Code Hourly Rates">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManualyAutomaticly" RegionInput="_none_">
