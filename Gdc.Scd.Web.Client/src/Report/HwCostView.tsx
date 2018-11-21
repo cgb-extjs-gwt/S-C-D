@@ -7,7 +7,6 @@ import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwManualCostDialog } from "./Components/HwManualCostDialog";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 import { HwCostListModel } from "./Model/HwCostListModel";
-import { CountryService } from "../Dict/Services/CountryService";
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
@@ -20,23 +19,21 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
 
         fields: [
+            'ListPrice', 'DealerDiscount',
             {
                 name: 'DealerPriceCalc',
-                type: 'number',
-                convert: function (val, row) {
-                    let d = row.data;
+                calculate: function (d) {
                     let result = null;
-                    if (d.ListPrice) {
+                    if (d && d.ListPrice) {
                         result = d.ListPrice;
                         if (d.DealerDiscount) {
                             result = result - (result * d.DealerDiscount / 100);
                         }
                     }
-                    return  result;
+                    return result;
                 }
             }
         ],
-
 
         pageSize: 25,
         autoLoad: true,
@@ -214,11 +211,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
             success: function (batch, options) {
                 //TODO: show successfull message box
-                this.setState({
-                    disableSaveButton: true,
-                    disableCancelButton: true
-                });
-                this.store.load();
+                this.reset();
+                this.reload();
             },
 
             failure: (batch, options) => {
@@ -238,6 +232,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onBeforeLoad(s, operation) {
+        this.reset();
+
         let filter = this.filter.getModel() as any;
         filter.approved = this.props.approved;
         let params = Ext.apply({}, operation.getParams(), filter);
@@ -248,7 +244,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         let state = { disableEditButton: true }
 
         if (record) {
-            state.disableEditButton = !this.canEditRow(record.data.country);
+            state.disableEditButton = !this.canEditRow(record.data);
         }
 
         this.setState(state);
@@ -280,13 +276,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         return !this.props.approved;
     }
 
-    private canEditRow(country: string): boolean {
-        let result = false;
-        let cnt = new CountryService().findByName(country);
-        if (cnt) {
-            //result = cnt.
-        }
-        return result;
+    private canEditRow(row: HwCostListModel): boolean {
+        return row.CanOverrideTransferCostAndPrice || row.CanStoreListAndDealerPrices;
     }
 
     private toolbar() {
@@ -318,5 +309,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         if (this.canEdit()) {
             return <HwManualCostDialog ref={x => this.costDlg = x} title="Manual cost input" draggable={false} onOk={this.onManualCostChange} />
         }
+    }
+
+    private reset() {
+        this.setState({
+            disableEditButton: true,
+            disableSaveButton: true,
+            disableCancelButton: true
+        });
     }
 }

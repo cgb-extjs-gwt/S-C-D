@@ -28,7 +28,14 @@ export class HwManualCostDialog extends React.Component<HwManualCostDialogProps,
     }
 
     public render() {
-        //const { isVisibleForm } = this.props;
+
+        let disableTC: boolean = true;
+        let disablePrice: boolean = true;
+
+        if (this.model) {
+            disableTC = !this.model.CanOverrideTransferCostAndPrice;
+            disablePrice = !this.model.CanStoreListAndDealerPrices;
+        }
 
         return (
             <Dialog
@@ -45,10 +52,10 @@ export class HwManualCostDialog extends React.Component<HwManualCostDialogProps,
                 onHide={this.onCancel}
             >
 
-                <NumberField ref={x => this.serviceTC = x} label="Service TC" />
-                <NumberField ref={x => this.serviceTP = x} label="Service TP" />
-                <NumberField ref={x => this.listPrice = x} label="List price" />
-                <NumberField ref={x => this.dealerDiscount = x} label="Dealer discount" />
+                <NumberField ref={x => this.serviceTC = x} label="Service TC" disabled={disableTC} />
+                <NumberField ref={x => this.serviceTP = x} label="Service TP" disabled={disableTC} />
+                <NumberField ref={x => this.listPrice = x} label="List price" disabled={disablePrice} />
+                <NumberField ref={x => this.dealerDiscount = x} label="Dealer discount" disabled={disablePrice} />
 
                 <Toolbar docked="bottom">
                     <Button text="Ok" handler={this.onOk} flex={1} />
@@ -82,8 +89,8 @@ export class HwManualCostDialog extends React.Component<HwManualCostDialogProps,
         if (m) {
             this.model = { ...m };
 
-            this.serviceTC.setValue(m.ServiceTCManual);
-            this.serviceTP.setValue(m.ServiceTPManual);
+            this.serviceTC.setValue(m.ServiceTCManual || m.ServiceTC);
+            this.serviceTP.setValue(m.ServiceTPManual || m.ServiceTP);
             this.listPrice.setValue(m.ListPrice);
             this.dealerDiscount.setValue(m.DealerDiscount);
         }

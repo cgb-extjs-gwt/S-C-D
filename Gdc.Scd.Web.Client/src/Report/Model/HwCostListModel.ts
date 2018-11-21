@@ -3,6 +3,10 @@
 
     public Country: string;
 
+    public CanOverrideTransferCostAndPrice?: boolean;
+
+    public CanStoreListAndDealerPrices?: boolean;
+
     public Wg: string;
 
     public Availability: string;
