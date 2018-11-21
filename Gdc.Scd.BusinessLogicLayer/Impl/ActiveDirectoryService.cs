@@ -88,17 +88,23 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 using (var user = new UserPrincipal(context))
                 {
-                    user.DisplayName = string.Format("*{0}*", search);
-                    var searcher = new PrincipalSearcher
-                    {
-                        QueryFilter = user,
-                    };
+                    var searchPrinciples = new List<UserPrincipal>();
+                    searchPrinciples.Add(new UserPrincipal(context) { Surname = string.Format("{0}*", search) });
+                    searchPrinciples.Add(new UserPrincipal(context) { GivenName = string.Format("{0}*", search) });                 
+
+                    var results = new List<UserPrincipal>();
+                    
                     try
                     {
-                        var results = searcher.FindAll().Cast<UserPrincipal>();
-                        if (results == null || results.Count() == 0)
+                        var searcher = new PrincipalSearcher();
+                        foreach (var item in searchPrinciples)
+                        {
+                            searcher = new PrincipalSearcher(item);
+                            results.AddRange(searcher.FindAll().Cast<UserPrincipal>());
+                        }
+                        if (results.Count() == 0)
                             return new List<UserPrincipal>();
-                        return results.Take(count).ToList();
+                        return results.GroupBy(u => u.Sid).Select(group => group.First()).Take(count).ToList();
                     }
                     catch (Exception)
                     {
