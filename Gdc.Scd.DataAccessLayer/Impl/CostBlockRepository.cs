@@ -55,59 +55,81 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var coordinateFields = costBlockMeta.CoordinateFields.ToArray();
             var costBlockRefMetas = new HashSet<BaseEntityMeta>(coordinateFields.Select(field => field.ReferenceMeta));
 
-            var referenceFieldInfos =
-                coordinateFields.Select(field => new
-                {
-                    Field = field,
-                    InnerFields =
-                        field.ReferenceMeta.AllFields.OfType<ReferenceFieldMeta>()
-                                                     .Where(innerField => costBlockRefMetas.Contains(innerField.ReferenceMeta))
-                                                     .ToArray()
-                }).ToArray();
+            var relatedFieldInfos =
+                coordinateFields.SelectMany(BuildRelatedFieldInfos)
+                                .GroupBy(info => info.RelatedField.ReferenceMeta)
+                                .ToDictionary(group => group.Key, group => group.First());
 
-            var referenceFields = new List<ReferenceFieldMeta>();
             var selectColumns = new List<ColumnInfo>();
+            var referenceMetas = new List<BaseEntityMeta>();
+            var joinInfos = new List<ReferenceJoinInfo>();
 
-            var innerFieldInfos =
-                referenceFieldInfos.SelectMany(
-                    fieldInfo => fieldInfo.InnerFields.Select(
-                        innerField => new { fieldInfo.Field, InnerField = innerField }))
-                                   .ToArray();
-
-            var ignoreRefMetas = new HashSet<BaseEntityMeta>(
-                referenceFieldInfos.SelectMany(fieldInfo => fieldInfo.InnerFields)
-                                   .Select(field => field.ReferenceMeta));
-
-            foreach (var field in coordinateFields)
+            foreach (var coordinateField in coordinateFields)
             {
-                if (ignoreRefMetas.Contains(field.ReferenceMeta))
+                if (relatedFieldInfos.TryGetValue(coordinateField.ReferenceMeta, out var relatedFieldInfo))
                 {
-                    var innerFieldInfo = innerFieldInfos.First(x => x.InnerField.ReferenceMeta == field.ReferenceMeta);
+                    selectColumns.Add(new ColumnInfo(relatedFieldInfo.RelatedField.Name, relatedFieldInfo.RelatedMeta.Name, coordinateField.Name));
 
-                    selectColumns.Add(new ColumnInfo(innerFieldInfo.InnerField.Name, innerFieldInfo.Field.ReferenceMeta.Name, field.Name));
+                    var cycleCheckCollection = new HashSet<BaseEntityMeta>();
+                    var relatedMeta = relatedFieldInfo.RelatedMeta;
+
+                    while (!cycleCheckCollection.Contains(relatedMeta) && relatedFieldInfos.TryGetValue(relatedMeta, out relatedFieldInfo))
+                    {
+                        cycleCheckCollection.Add(relatedMeta);
+
+                        if (joinInfos.All(joinInfo => joinInfo.ReferenceMeta != relatedFieldInfo.RelatedMeta))
+                        {
+                            joinInfos.Add(new ReferenceJoinInfo
+                            {
+                                ReferenceMeta = relatedFieldInfo.RelatedField.ReferenceMeta,
+                                InnerJoinInfo = new JoinInfo(relatedFieldInfo.RelatedMeta, relatedFieldInfo.RelatedField.Name)
+                            });
+                        }
+
+                        relatedMeta = relatedFieldInfo.RelatedMeta;
+                    }
                 }
                 else
                 {
-                    referenceFields.Add(field);
-                    selectColumns.Add(new ColumnInfo(field.ReferenceValueField, field.Name, field.Name));
+                    referenceMetas.Add(coordinateField.ReferenceMeta);
+                    selectColumns.Add(new ColumnInfo(coordinateField.ReferenceValueField, coordinateField.ReferenceMeta.Name, coordinateField.Name));
                 }
             }
 
-            var fromField = referenceFields[0];
-
-            referenceFields.RemoveAt(0);
-
+            var fromMeta = referenceMetas[0];
             var selectQuery =
                 Sql.Select(selectColumns.ToArray())
                    .Into(CoordinateTable)
                    .FromQuery(
-                        this.BuildReferenceItemsQuery(fromField, costBlockMeta),
-                        fromField.ReferenceMeta.Name);
+                        this.BuildReferenceItemsQuery(fromMeta, costBlockMeta),
+                        fromMeta.Name);
 
             return
-                referenceFields.Aggregate(
-                    selectQuery,
-                    (accumulateQuery, field) => this.BuildReferenceJoinQuery(accumulateQuery, field, costBlockMeta));
+                referenceMetas.Skip(1)
+                              .Select(meta => new ReferenceJoinInfo { ReferenceMeta = meta })
+                              .Concat(joinInfos)
+                              .Aggregate(
+                                  selectQuery,
+                                  (accumulateQuery, joinInfo) => this.BuildReferenceJoinQuery(accumulateQuery, joinInfo, costBlockMeta));
+
+            IEnumerable<(ReferenceFieldMeta RelatedField, BaseEntityMeta RelatedMeta)> BuildRelatedFieldInfos(FieldMeta field)
+            {
+                if (field is ReferenceFieldMeta refField)
+                {
+                    foreach (var innerField in refField.ReferenceMeta.AllFields)
+                    {
+                        switch (innerField)
+                        {
+                            case ReferenceFieldMeta innerRefField:
+                                if (costBlockRefMetas.Contains(innerRefField.ReferenceMeta))
+                                {
+                                    yield return (innerRefField, refField.ReferenceMeta);
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
         }
 
         private SqlHelper BuildCreateRowsCostBlockQuery(CostBlockEntityMeta costBlockMeta)
@@ -154,31 +176,50 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return Sql.Select(costBlockMeta.CoordinateFields).From(costBlockMeta).WhereNotDeleted(costBlockMeta);
         }
 
-        private SelectJoinSqlHelper BuildReferenceJoinQuery(SelectJoinSqlHelper query, ReferenceFieldMeta field, CostBlockEntityMeta costBlockMeta)
+        private SelectJoinSqlHelper BuildReferenceJoinQuery(SelectJoinSqlHelper query, ReferenceJoinInfo referenceJoinInfo, CostBlockEntityMeta costBlockMeta)
         {
             var joinSubquery = new AliasSqlBuilder
             {
-                Alias = field.Name,
+                Alias = referenceJoinInfo.ReferenceMeta.Name,
                 Query = new BracketsSqlBuilder
                 {
-                    Query = this.BuildReferenceItemsQuery(field, costBlockMeta).ToSqlBuilder()
+                    Query = this.BuildReferenceItemsQuery(referenceJoinInfo.ReferenceMeta, costBlockMeta).ToSqlBuilder()
                 }
             };
 
-            return query.Join(joinSubquery, (ISqlBuilder)null, JoinType.Cross);
+            ConditionHelper joinCondition;
+            JoinType joinType;
+
+            if (referenceJoinInfo.InnerJoinInfo == null)
+            {
+                joinType = JoinType.Cross;
+                joinCondition = null;
+            }
+            else
+            {
+                var referenceField = 
+                    (ReferenceFieldMeta)referenceJoinInfo.InnerJoinInfo.Meta.GetField(referenceJoinInfo.InnerJoinInfo.ReferenceFieldName);
+
+                joinType = JoinType.Inner;
+                joinCondition = SqlOperators.Equals(
+                    new ColumnInfo(referenceField.Name, referenceJoinInfo.InnerJoinInfo.Meta.Name),
+                    new ColumnInfo(referenceField.ReferenceValueField, referenceField.ReferenceMeta.Name));
+            }
+
+            return query.Join(joinSubquery, joinCondition, joinType);
         }
 
-        private GroupBySqlHelper BuildReferenceItemsQuery(ReferenceFieldMeta field, CostBlockEntityMeta costBlockMeta)
+        private GroupBySqlHelper BuildReferenceItemsQuery(BaseEntityMeta referenceMeta, CostBlockEntityMeta costBlockMeta)
         {
-            var fieldQuery = Sql.Select().From(field.ReferenceMeta);
+            var fieldQuery = Sql.Select().From(referenceMeta);
             var conditions = new List<ConditionHelper>();
 
-            if (field.ReferenceMeta is DeactivatableEntityMeta deactivatableMeta)
+            if (referenceMeta is DeactivatableEntityMeta deactivatableMeta)
             {
                 conditions.Add(SqlOperators.IsNull(deactivatableMeta.DeactivatedDateTimeField.Name));
             }
 
-            switch(field.ReferenceMeta)
+            switch(referenceMeta)
             {
                 case WgEnityMeta wgMeta:
                     conditions.Add(SqlOperators.Equals(wgMeta.WgTypeField.Name, "wgType", (int)WgType.Por));
@@ -193,6 +234,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return conditions.Count == 0
                 ? fieldQuery
                 : fieldQuery.Where(ConditionHelper.And(conditions));
+        }
+
+        private class ReferenceJoinInfo
+        {
+            public BaseEntityMeta ReferenceMeta { get; set; }
+
+            public JoinInfo InnerJoinInfo { get; set; }
         }
     }
 }

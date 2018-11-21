@@ -6,8 +6,6 @@
     <InputLevel Name="Pla" Caption="PLA"/>
     <InputLevel Name="Sfab" Caption="SFAB"/>
     <InputLevel Name="Sog" Caption="SOG"/>
-    <InputLevel Name="SwDigit" Caption="SW Level (Digit)"/>
-    <InputLevel Name="SwLicense" Caption="SW License"/>
     <InputLevel Name="Wg" Caption="WG"/>
     <InputLevel Name="RoleCode" Caption="Role Code"/>
     
@@ -749,7 +747,6 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -764,7 +761,6 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -779,7 +775,6 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -807,7 +802,6 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -822,7 +816,6 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -837,7 +830,6 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -852,7 +844,6 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -898,8 +889,6 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-            <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -913,8 +902,6 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-            <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -929,8 +916,6 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-            <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -944,8 +929,6 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-            <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -959,8 +942,6 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-            <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -974,8 +955,6 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-            <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
           <CostEditor>
             <Roles>
