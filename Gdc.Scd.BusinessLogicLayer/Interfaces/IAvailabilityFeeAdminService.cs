@@ -6,7 +6,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface IAvailabilityFeeAdminService
     {
-        List<AdminAvailabilityFeeDto> GetAllCombinations(int pageNumber, int limit, out int totalCount);
+        List<AdminAvailabilityFeeDto> GetAllCombinations(int pageNumber, int limit, out int totalCount, AdminAvailabilityFeeFilterDto filter = null);
 
         void ApplyAvailabilityFeeForSelectedCombination(AdminAvailabilityFee model);
 

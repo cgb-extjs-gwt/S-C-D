@@ -88,14 +88,18 @@ CLOSE statement_cursor
 DEALLOCATE statement_cursor
 
 DROP SCHEMA "Admin"
-DROP SCHEMA Atom
 DROP SCHEMA Dependencies 
+DROP SCHEMA Fsp
 DROP SCHEMA Hardware 
 DROP SCHEMA History 
 DROP SCHEMA History_RelatedItems 
-DROP SCHEMA InputAtoms 
+DROP SCHEMA Import
+DROP SCHEMA InputAtoms
+DROP SCHEMA Matrix
 DROP SCHEMA "References" 
-DROP SCHEMA SoftwareSolution 
+DROP SCHEMA Report
+DROP SCHEMA SoftwareSolution
+DROP SCHEMA Spooler
  
 ALTER DATABASE SCD_2 SET RECOVERY FULL
 GO 

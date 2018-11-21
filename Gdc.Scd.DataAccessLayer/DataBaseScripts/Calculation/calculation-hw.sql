@@ -6,7 +6,7 @@ ALTER TABLE Hardware.ManualCost
        DealerPrice_Approved as (ListPrice_Approved - (ListPrice_Approved * DealerDiscount_Approved / 100));
 GO
 
-ALTER TABLE Atom.InstallBase
+ALTER TABLE Hardware.InstallBase
     ADD InstalledBaseCountryPla float,
         InstalledBaseCountryPla_Approved float;
 GO
@@ -22,7 +22,7 @@ CREATE NONCLUSTERED INDEX ix_Hardware_FieldServiceCost
 GO
 
 CREATE NONCLUSTERED INDEX ix_Atom_InstallBase
-    ON [Atom].[InstallBase] ([Country],[Wg])
+    ON [Hardware].[InstallBase] ([Country],[Wg])
     INCLUDE ([InstalledBaseCountry],[InstalledBaseCountry_Approved],[InstalledBaseCountryPla],[InstalledBaseCountryPla_Approved])
 GO
 
@@ -37,12 +37,12 @@ CREATE NONCLUSTERED INDEX ix_Hardware_LogisticsCosts
 GO
 
 CREATE NONCLUSTERED INDEX ix_Atom_MarkupOtherCosts
-    ON [Atom].[MarkupOtherCosts] ([Country],[Wg], ReactionTimeTypeAvailability)
+    ON [Hardware].[MarkupOtherCosts] ([Country],[Wg], ReactionTimeTypeAvailability)
     INCLUDE (MarkupFactor, MarkupFactor_Approved, Markup, Markup_Approved)
 GO
 
 CREATE NONCLUSTERED INDEX ix_Atom_MarkupStandardWaranty
-    ON [Atom].[MarkupStandardWaranty] ([Country],[Wg], [ReactionTimeTypeAvailability])
+    ON [Hardware].[MarkupStandardWaranty] ([Country],[Wg], [ReactionTimeTypeAvailability])
     INCLUDE ([MarkupFactorStandardWarranty],[MarkupStandardWarranty])
 GO
 
@@ -118,16 +118,16 @@ IF OBJECT_ID('Hardware.ProActiveView', 'V') IS NOT NULL
   DROP VIEW Hardware.ProActiveView;
 go
 
-IF OBJECT_ID('Atom.MarkupOtherCostsView', 'V') IS NOT NULL
-  DROP VIEW Atom.MarkupOtherCostsView;
+IF OBJECT_ID('Hardware.MarkupOtherCostsView', 'V') IS NOT NULL
+  DROP VIEW Hardware.MarkupOtherCostsView;
 go
 
-IF OBJECT_ID('Atom.MarkupStandardWarantyView', 'V') IS NOT NULL
-  DROP VIEW Atom.MarkupStandardWarantyView;
+IF OBJECT_ID('Hardware.MarkupStandardWarantyView', 'V') IS NOT NULL
+  DROP VIEW Hardware.MarkupStandardWarantyView;
 go
 
-IF OBJECT_ID('Atom.TaxAndDutiesView', 'V') IS NOT NULL
-  DROP VIEW Atom.TaxAndDutiesView;
+IF OBJECT_ID('Hardware.TaxAndDutiesView', 'V') IS NOT NULL
+  DROP VIEW Hardware.TaxAndDutiesView;
 go
 
 IF OBJECT_ID('InputAtoms.WgView', 'V') IS NOT NULL
@@ -182,11 +182,11 @@ IF OBJECT_ID('Hardware.CalcByDur') IS NOT NULL
   DROP FUNCTION Hardware.CalcByDur;
 go 
 
-IF OBJECT_ID('Atom.AfrYear', 'U') IS NOT NULL
-  DROP TABLE Atom.AfrYear;
+IF OBJECT_ID('Hardware.AfrYear', 'U') IS NOT NULL
+  DROP TABLE Hardware.AfrYear;
 go
 
-CREATE TABLE Atom.AfrYear(
+CREATE TABLE Hardware.AfrYear(
     [Wg] [bigint] NOT NULL PRIMARY KEY CLUSTERED foreign key references InputAtoms.Wg(Id),
     [AFR1] [float] NULL,
     [AFR2] [float] NULL,
@@ -203,18 +203,18 @@ CREATE TABLE Atom.AfrYear(
 )
 GO
 
-IF OBJECT_ID('Atom.AFR_Updated', 'TR') IS NOT NULL
-  DROP TRIGGER Atom.AFR_Updated;
+IF OBJECT_ID('Hardware.AFR_Updated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.AFR_Updated;
 go
 
-CREATE TRIGGER Atom.AFR_Updated
-ON Atom.AFR
+CREATE TRIGGER Hardware.AFR_Updated
+ON Hardware.AFR
 After INSERT, UPDATE
 AS BEGIN
 
-    delete from Atom.AfrYear;
+    delete from Hardware.AfrYear;
 
-    insert into Atom.AfrYear(Wg, AFR1, AFR2, AFR3, AFR4, AFR5, AFRP1, AFR1_Approved, AFR2_Approved, AFR3_Approved, AFR4_Approved, AFR5_Approved, AFRP1_Approved)
+    insert into Hardware.AfrYear(Wg, AFR1, AFR2, AFR3, AFR4, AFR5, AFRP1, AFR1_Approved, AFR2_Approved, AFR3_Approved, AFR4_Approved, AFR5_Approved, AFRP1_Approved)
         select afr.Wg
              , sum(case when y.IsProlongation = 0 and y.Value = 1 then afr.AFR / 100 end) as AFR1
              , sum(case when y.IsProlongation = 0 and y.Value = 2 then afr.AFR / 100 end) as AFR2
@@ -228,13 +228,13 @@ AS BEGIN
              , sum(case when y.IsProlongation = 0 and y.Value = 4 then afr.AFR_Approved / 100 end) as AFR4_Approved
              , sum(case when y.IsProlongation = 0 and y.Value = 5 then afr.AFR_Approved / 100 end) as AFR5_Approved
              , sum(case when y.IsProlongation = 1 and y.Value = 1 then afr.AFR_Approved / 100 end) as AFRP1_Approved
-        from Atom.AFR afr, Dependencies.Year y 
+        from Hardware.AFR afr, Dependencies.Year y 
         where y.Id = afr.Year
         group by afr.Wg
 END
 GO
 
-update Atom.AFR set AFR = AFR + 0
+update Hardware.AFR set AFR = AFR + 0
 GO
 
 CREATE FUNCTION Hardware.CalcByDur
@@ -670,12 +670,12 @@ CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as
     from AvFeeCte2 fee
 GO
 
-IF OBJECT_ID('Atom.InstallBaseUpdated', 'TR') IS NOT NULL
-  DROP TRIGGER Atom.InstallBaseUpdated;
+IF OBJECT_ID('Hardware.InstallBaseUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.InstallBaseUpdated;
 go
 
-CREATE TRIGGER Atom.InstallBaseUpdated
-ON Atom.InstallBase
+CREATE TRIGGER Hardware.InstallBaseUpdated
+ON Hardware.InstallBase
 After INSERT, UPDATE
 AS BEGIN
 
@@ -683,7 +683,7 @@ AS BEGIN
     as
     (
         select Country, Pla, sum(InstalledBaseCountry) as totalIB
-        from Atom.InstallBase 
+        from Hardware.InstallBase 
         where InstalledBaseCountry is not null
         group by Country, Pla
     )
@@ -691,7 +691,7 @@ AS BEGIN
     as
     (
         select Country, Pla, sum(InstalledBaseCountry_Approved) as totalIB
-        from Atom.InstallBase 
+        from Hardware.InstallBase 
         where InstalledBaseCountry_Approved is not null
         group by Country, Pla
     )
@@ -699,7 +699,7 @@ AS BEGIN
         set 
             ib.InstalledBaseCountryPla = ibp.totalIB,
             ib.InstalledBaseCountryPla_Approved = ibp2.totalIB
-    from Atom.InstallBase ib
+    from Hardware.InstallBase ib
     LEFT JOIN InstallBasePlaCte ibp on ibp.Pla = ib.Pla and ibp.Country = ib.Country
     LEFT JOIN InstallBasePla_Approved_Cte ibp2 on ibp2.Pla = ib.Pla and ibp2.Country = ib.Country
 
@@ -778,15 +778,15 @@ CREATE VIEW [Hardware].[FieldServiceCostView] AS
     JOIN InputAtoms.Country c on c.Id = fsc.Country
     JOIN InputAtoms.Wg on wg.Id = fsc.Wg
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = fsc.ReactionTimeType
-    LEFT JOIN Atom.RoleCodeHourlyRates hr on hr.RoleCode = wg.RoleCodeId
+    LEFT JOIN Hardware.RoleCodeHourlyRates hr on hr.RoleCode = wg.RoleCodeId
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 GO
 
-CREATE VIEW Atom.TaxAndDutiesVIEW as
+CREATE VIEW Hardware.TaxAndDutiesVIEW as
     select Country,
            (TaxAndDuties / 100) as TaxAndDuties, 
            (TaxAndDuties_Approved / 100) as TaxAndDuties_Approved 
-    from Atom.TaxAndDuties
+    from Hardware.TaxAndDuties
     where DeactivatedDateTime is null
 GO
 
@@ -835,7 +835,7 @@ CREATE VIEW [Hardware].[LogisticsCostView] AS
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 GO
 
-CREATE VIEW [Atom].[MarkupOtherCostsView] as 
+CREATE VIEW [Hardware].[MarkupOtherCostsView] as 
     select   m.Country
            , m.Wg
            , tta.ReactionTimeId
@@ -845,11 +845,11 @@ CREATE VIEW [Atom].[MarkupOtherCostsView] as
            , m.Markup_Approved
            , (m.MarkupFactor / 100) as MarkupFactor
            , (m.MarkupFactor_Approved / 100) as MarkupFactor_Approved
-    from Atom.MarkupOtherCosts m
+    from Hardware.MarkupOtherCosts m
     join Dependencies.ReactionTime_ReactionType_Avalability tta on tta.id = m.ReactionTimeTypeAvailability
 GO
 
-CREATE VIEW [Atom].[MarkupStandardWarantyView] as 
+CREATE VIEW [Hardware].[MarkupStandardWarantyView] as 
     select m.Country,
            m.Wg,
            tta.ReactionTimeId,
@@ -859,7 +859,7 @@ CREATE VIEW [Atom].[MarkupStandardWarantyView] as
            (m.MarkupFactorStandardWarranty_Approved / 100) as MarkupFactorStandardWarranty_Approved,
            m.MarkupStandardWarranty,
            m.MarkupStandardWarranty_Approved
-    from Atom.MarkupStandardWaranty m
+    from Hardware.MarkupStandardWaranty m
     join Dependencies.ReactionTime_ReactionType_Avalability tta on tta.id = m.ReactionTimeTypeAvailability
 GO
 
@@ -1160,19 +1160,19 @@ RETURN
 
     INNER JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
 
-    LEFT JOIN Atom.AfrYear afr on afr.Wg = m.WgId
+    LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
     LEFT JOIN Hardware.HddRetention hdd on hdd.Wg = m.WgId AND hdd.Year = m.DurationId
 
-    LEFT JOIN Atom.InstallBase ib on ib.Wg = m.WgId AND ib.Country = m.CountryId
+    LEFT JOIN Hardware.InstallBase ib on ib.Wg = m.WgId AND ib.Country = m.CountryId
 
     LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.Wg = m.WgId
 
-    LEFT JOIN Atom.TaxAndDutiesView tax on tax.Country = m.CountryId
+    LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
 
-    LEFT JOIN Atom.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
+    LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
-    LEFT JOIN Atom.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
+    LEFT JOIN Hardware.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
 
     LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Year = m.DurationId AND r.AvailabilityId = m.AvailabilityId AND r.ReactionTimeId = m.ReactionTimeId
 
@@ -1180,9 +1180,9 @@ RETURN
 
     LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTime = m.ReactionTimeId AND lc.ReactionType = m.ReactionTypeId
 
-    LEFT JOIN Atom.MarkupOtherCostsView moc on moc.Wg = m.WgId AND moc.Country = m.CountryId AND moc.ReactionTimeId = m.ReactionTimeId AND moc.ReactionTypeId = m.ReactionTypeId AND moc.AvailabilityId = m.AvailabilityId
+    LEFT JOIN Hardware.MarkupOtherCostsView moc on moc.Wg = m.WgId AND moc.Country = m.CountryId AND moc.ReactionTimeId = m.ReactionTimeId AND moc.ReactionTypeId = m.ReactionTypeId AND moc.AvailabilityId = m.AvailabilityId
 
-    LEFT JOIN Atom.MarkupStandardWarantyView msw on msw.Wg = m.WgId AND msw.Country = m.CountryId AND msw.ReactionTimeId = m.ReactionTimeId AND msw.ReactionTypeId = m.ReactionTypeId AND msw.AvailabilityId = m.AvailabilityId
+    LEFT JOIN Hardware.MarkupStandardWarantyView msw on msw.Wg = m.WgId AND msw.Country = m.CountryId AND msw.ReactionTimeId = m.ReactionTimeId AND msw.ReactionTypeId = m.ReactionTypeId AND msw.AvailabilityId = m.AvailabilityId
 
     LEFT JOIN Hardware.AvailabilityFeeCalcView af on af.Country = m.CountryId AND af.Wg = m.WgId
 

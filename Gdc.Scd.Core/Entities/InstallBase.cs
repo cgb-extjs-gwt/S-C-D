@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("InstallBase", Schema = MetaConstants.AtomSchema)]
+    [Table("InstallBase", Schema = MetaConstants.HardwareSchema)]
     public class InstallBase : IIdentifiable, IDeactivatable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

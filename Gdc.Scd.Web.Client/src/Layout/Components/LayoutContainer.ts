@@ -1,6 +1,6 @@
 import { connect } from "react-redux";
 import { withRouter } from 'react-router-dom';
-import AvailabilityFeeAdminGrid from "../../Admin/AvailabilityFee/AvailabilityFeeAdminGrid";
+import AvailabilityFeeGrid from "../../Admin/AvailabilityFee/AvailabilityFeeGrid";
 import { CountryGrid } from "../../Admin/Country/CountryGrid";
 import RoleCodesGrid from "../../Admin/RoleCode/RoleCodesGrid";
 import UserRoleContainer from "../../Admin/UserRole/Containers/UserRoleContainer";
@@ -54,7 +54,7 @@ const buildRouteMenuItems = () => <RouteMenuItem[]>[
         permission: Permissions.ADMIN,
         children: [
             { path: '/admin/country-management', text: 'Country Management', iconCls: 'x-fa fa-globe', component: CountryGrid, isMenuItem: true, permission: Permissions.ADMIN }, 
-            { path: '/admin/availability-fee', text: 'Availability Fee', iconCls: 'x-fa fa-cog', component: AvailabilityFeeAdminGrid, isMenuItem: true, permission: Permissions.ADMIN },
+            { path: '/admin/availability-fee', text: 'Availability Fee', iconCls: 'x-fa fa-cog', component: AvailabilityFeeGrid, isMenuItem: true, permission: Permissions.ADMIN },
             { path: '/admin/warranty-group-management', text: 'Warranty groups', iconCls: 'x-fa fa-industry', component: WarrantyGroupGrid, isMenuItem: true, permission: Permissions.ADMIN },                       
             { path: '/admin/user-role', text: 'User roles', iconCls: 'x-fa fa-users', component: UserRoleContainer, isMenuItem: true, permission: Permissions.ADMIN },
             { path: '/admin/role-code-management', text: 'Role codes', iconCls: 'x-fa fa-users', component: RoleCodesGrid, isMenuItem: false, permission: Permissions.ADMIN }
