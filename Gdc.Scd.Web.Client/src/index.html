@@ -38,33 +38,9 @@
             color: rgba(17, 17, 17, 0.54);
         }
 
-        .calc-cost-result-green .x-header-el,
-        .calc-cost-result-blue .x-header-el,
-        .calc-cost-result-yellow .x-header-el {
-            color: #333 !important;
-            border-color: #d1d1d1 !important;
-        }
-
-        .calc-cost-result-green .x-header-el {
-            background: rgb(198, 224, 180) !important;
-        }
-
-        .calc-cost-result-blue .x-header-el {
-            background: rgb(217, 225, 242) !important;
-        }
-
-        .calc-cost-result-yellow .x-header-el {
-            background: rgb(255, 230, 153) !important;
-        }
-
-        .matrix-edit-container {
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        .matrix-edit-container > div {
-            width: 50%;
-            min-width: 160px;
+        .x-tab .x-inner-el .x-body-el .x-text-el {
+            white-space: inherit;
+            font-size: 13px;
         }
 
         /*=====================custom components========================*/
@@ -172,11 +148,6 @@
             font-weight: 200;
         }
 
-        .x-tab .x-inner-el .x-body-el .x-text-el {
-            white-space: inherit;
-            font-size: 13px;
-        }
-
         .accordion-panel {
             background-color: white;
             display: none;
@@ -198,11 +169,39 @@
             overflow: hidden;
         }
 
+        .calc-cost-result-green .x-header-el,
+        .calc-cost-result-blue .x-header-el,
+        .calc-cost-result-yellow .x-header-el {
+            color: #333 !important;
+            border-color: #d1d1d1 !important;
+        }
+
+        .calc-cost-result-green .x-header-el {
+            background: rgb(198, 224, 180) !important;
+        }
+
+        .calc-cost-result-blue .x-header-el {
+            background: rgb(217, 225, 242) !important;
+        }
+
+        .calc-cost-result-yellow .x-header-el {
+            background: rgb(255, 230, 153) !important;
+        }
+
+        .matrix-edit-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .matrix-edit-container > div {
+            width: 50%;
+            min-width: 160px;
+        }
+
         @media (min-width: 700px) {
             .matrix-edit-container > div {
                 width: 33%;
             }
-
         }
 
         @media (min-width: 1000px) {
