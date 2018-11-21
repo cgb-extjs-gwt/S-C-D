@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Dto;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.TableView;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
@@ -43,7 +45,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return await this.tableViewRepository.GetRecords(costBlockInfos);
         }
 
-        public async Task UpdateRecords(IEnumerable<Record> records, bool isApproving)
+        public async Task UpdateRecords(IEnumerable<Record> records, ApprovalOption approvalOption)
         {
             var costBlockInfos = this.GetCostBlockInfo().ToArray();
             var editInfos = this.tableViewRepository.BuildEditInfos(costBlockInfos, records).ToArray();
@@ -54,7 +56,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     await this.tableViewRepository.UpdateRecords(editInfos);
 
-                    await this.costBlockHistoryService.Save(editInfos, new ApprovalOption { IsApproving = isApproving });
+                    await this.SaveHistory(editInfos, approvalOption);
 
                     transaction.Commit();
                 }
@@ -78,6 +80,26 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             };
         }
 
+        public async Task<IEnumerable<HistoryItem>> GetHistoryItems(CostElementIdentifier costElementId, IDictionary<string, long> coordinates, QueryInfo queryInfo = null)
+        {
+            var historyContext = new HistoryContext
+            {
+                ApplicationId = costElementId.ApplicationId,
+                CostBlockId = costElementId.CostBlockId,
+                CostElementId = costElementId.CostElementId
+            };
+
+            var costBlockMeta = this.meta.GetCostBlockEntityMeta(historyContext);
+            var inputLevels = this.GetInputLevels(costBlockMeta);
+            var coordinateInfo = this.BuildCoordinateInfo(coordinates, inputLevels);
+
+            historyContext.InputLevelId = coordinateInfo.InputLevel.Id;
+
+            var filter = coordinateInfo.Filter.ToDictionary(keyValue => keyValue.Key, keyValue => new[] { keyValue.Value });
+
+            return await this.costBlockHistoryService.GetHistoryItems(historyContext, filter, queryInfo);
+        }
+
         private IEnumerable<CostElementInfo> GetCostBlockInfo()
         {
             var user = this.userService.GetCurrentUser();
@@ -98,6 +120,88 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     };
                 }
             }
+        }
+
+        private async Task SaveHistory(IEnumerable<EditInfo> editInfos, ApprovalOption approvalOption)
+        {
+            foreach (var editInfo in editInfos)
+            {
+                var inputLevelMetas = this.GetInputLevels(editInfo.Meta);
+
+                var costElementGroups =
+                    editInfo.ValueInfos.Select(info => new
+                                        {
+                                            CostElementValues = info.Values,
+                                            CoordinateIfno = this.BuildCoordinateInfo(info.Coordinates, inputLevelMetas)
+                                        })
+                                       .SelectMany(info => info.CostElementValues.Select(costElemenValue => new
+                                       {
+                                           CostElementValue = costElemenValue,
+                                           info.CoordinateIfno.Filter,
+                                           info.CoordinateIfno.InputLevel
+                                       }))
+                                       .GroupBy(info => info.CostElementValue.Key);
+
+                foreach (var costElementGroup in costElementGroups)
+                {
+                    foreach (var inputLevelGroup in costElementGroup.GroupBy(info => info.InputLevel.Id))
+                    {
+                        var context = new CostEditorContext
+                        {
+                            ApplicationId = editInfo.Meta.ApplicationId,
+                            CostBlockId = editInfo.Meta.CostBlockId,
+                            InputLevelId = inputLevelGroup.Key,
+                            CostElementId = costElementGroup.Key
+                        };
+
+                        var filterGroups = inputLevelGroup.GroupBy(info => info.Filter.Count == 0 ? null : info.Filter);
+
+                        foreach (var filterGroup in filterGroups)
+                        {
+                            var editItems =
+                                filterGroup.Select(info => new EditItem { Id = info.InputLevel.Value, Value = info.CostElementValue.Value })
+                                           .ToArray();
+
+                            var filter = filterGroup.Key == null
+                                ? new Dictionary<string, long[]>()
+                                : filterGroup.Key.ToDictionary(keyValue => keyValue.Key, keyValue => new[] { keyValue.Value });
+
+                            await this.costBlockHistoryService.Save(context, editItems, approvalOption, filter);
+                        }
+                    }
+                }
+            }
+        }
+
+        private (IDictionary<string, long> Filter, (string Id, long Value) InputLevel) BuildCoordinateInfo(
+            IDictionary<string, long> coordinates,
+            IDictionary<string, InputLevelMeta> inputLevelMetas)
+        {
+            InputLevelMeta maxInputLevelMeta = null;
+            (string, long)? inputLevel = null;
+
+            foreach (var coordinate in coordinates)
+            {
+                var inputLevelMeta = inputLevelMetas[coordinate.Key];
+
+                if (inputLevelMeta != null &&
+                    (maxInputLevelMeta == null || maxInputLevelMeta.LevelNumber < inputLevelMeta.LevelNumber))
+                {
+                    maxInputLevelMeta = inputLevelMeta;
+                    inputLevel = (coordinate.Key, coordinate.Value);
+                }
+            }
+
+            var filter = new Dictionary<string, long>(coordinates);
+
+            filter.Remove(maxInputLevelMeta.Id);
+
+            return (filter, inputLevel.Value);
+        }
+
+        private IDictionary<string, InputLevelMeta> GetInputLevels(CostBlockEntityMeta meta)
+        {
+            return meta.DomainMeta.InputLevels.ToDictionary(inputLevel => inputLevel.Id);
         }
     }
 }

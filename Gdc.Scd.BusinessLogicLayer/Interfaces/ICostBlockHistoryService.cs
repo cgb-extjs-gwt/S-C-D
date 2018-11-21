@@ -16,13 +16,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         IQueryable<CostBlockHistory> GetByFilter(CostBlockHistoryFilter filter, CostBlockHistoryState state);
 
-        Task<IEnumerable<HistoryItem>> GetHistoryItems(CostEditorContext context, long editItemId, QueryInfo queryInfo = null);
+        //Task<IEnumerable<HistoryItem>> GetHistoryItems(CostEditorContext context, long editItemId, QueryInfo queryInfo = null);
 
-        Task<IEnumerable<HistoryItem>> GetHistoryItems(CostElementIdentifier costElementId, IDictionary<string, long> coordinates, QueryInfo queryInfo = null);
+        //Task<IEnumerable<HistoryItem>> GetHistoryItems(CostElementIdentifier costElementId, IDictionary<string, long> coordinates, QueryInfo queryInfo = null);
 
-        Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter);
+        Task<IEnumerable<HistoryItem>> GetHistoryItems(HistoryContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null);
 
-        Task Save(IEnumerable<EditInfo> editInfos, ApprovalOption approvalOption);
+        Task Save(HistoryContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter);
+
+        //Task Save(IEnumerable<EditInfo> editInfos, ApprovalOption approvalOption);
 
         void Save(CostBlockHistory history, ApprovalOption approvalOption);
 

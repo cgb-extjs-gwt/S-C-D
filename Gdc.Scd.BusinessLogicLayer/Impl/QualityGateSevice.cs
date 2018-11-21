@@ -37,10 +37,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (this.IsUseCheck(context))
             {
-                var historyContext = HistoryContext.Build(context);
                 var filter = this.costBlockFilterBuilder.BuildFilter(context);
 
-                var bundleDetails = await this.qualityGateRepository.Check(historyContext, editItems, filter);
+                var bundleDetails = await this.qualityGateRepository.Check(context, editItems, filter);
 
                 result.Errors = bundleDetails.ToBundleDetailGroups();
             }

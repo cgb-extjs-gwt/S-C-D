@@ -222,7 +222,7 @@
     <Compile Include="Controllers\BaseDomainController.cs" />
     <Compile Include="Controllers\CalcController.cs" />
     <Compile Include="Controllers\CapabilityMatrixController.cs" />
-    <Compile Include="Controllers\CostBlockHistoryController.cs" />
+    <Compile Include="Controllers\_CostBlockHistoryController.cs" />
     <Compile Include="Controllers\CostEditorController.cs" />
     <Compile Include="Controllers\Admin\CountryManagementController.cs" />
     <Compile Include="Controllers\Dict\AvailabilityController.cs" />
@@ -259,6 +259,7 @@
     <Compile Include="Heplers\HttpHelper.cs" />
     <Compile Include="Heplers\JsonHelper.cs" />
     <Compile Include="Heplers\MimeTypes.cs" />
+    <Compile Include="Heplers\QueryInfoHelper.cs" />
     <Compile Include="Impl\PrincipalProvider.cs" />
     <Compile Include="Impl\ScdAuthorizeAttribute.cs" />
     <Compile Include="Module.cs" />

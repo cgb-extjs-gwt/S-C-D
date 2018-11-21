@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -137,6 +138,20 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return checkResult;
+        }
+
+        public async Task<IEnumerable<HistoryItem>> GetHistoryItems(CostEditorContext context, long editItemId, QueryInfo queryInfo = null)
+        {
+            var userCountries = this.userService.GetCurrentUserCountries();
+            var filter = this.costBlockFilterBuilder.BuildFilter(context, userCountries);
+            var region = this.meta.GetCostElement(context).RegionInput;
+
+            if (region == null || region.Id != context.InputLevelId)
+            {
+                filter.Add(context.InputLevelId, new long[] { editItemId });
+            }
+
+            return await this.historySevice.GetHistoryItems(context, filter, queryInfo);
         }
 
         private EditItemInfo GetEditItemInfo(CostEditorContext context)
