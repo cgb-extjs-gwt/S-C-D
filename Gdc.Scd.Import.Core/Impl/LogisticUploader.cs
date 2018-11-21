@@ -171,7 +171,7 @@ namespace Gdc.Scd.Import.Core.Impl
                                 else
                                     itemToUpdate.CostPerKit = item.CostPerKit;
                                 itemToUpdate.MaxQty = item.MaxQty;
-                                itemToUpdate.DeletedDateTime = null;
+                                itemToUpdate.DeactivatedDateTime = null;
                                 itemToUpdate.ModifiedDateTime = modifiedDateTime;
                                 batchList.Add(itemToUpdate);
                             }
@@ -192,9 +192,9 @@ namespace Gdc.Scd.Import.Core.Impl
                             var itemsToDeactivate = _availabilityFeeRepo.GetAll().Where(af => af.WgId == deactivatedWg.Id).ToList();
                             foreach(var deactivatedItem in itemsToDeactivate)
                             {
-                                if (!deactivatedItem.DeletedDateTime.HasValue)
+                                if (!deactivatedItem.DeactivatedDateTime.HasValue)
                                 {
-                                    deactivatedItem.DeletedDateTime = DateTime.Now;
+                                    deactivatedItem.DeactivatedDateTime = DateTime.Now;
                                     deactivatedItem.ModifiedDateTime = DateTime.Now;
                                 }
                             }
@@ -230,7 +230,7 @@ namespace Gdc.Scd.Import.Core.Impl
                                 WgId = dbWg.Id,
                                 CreatedDateTime = DateTime.Now,
                                 ModifiedDateTime = DateTime.Now,
-                                DeletedDateTime = null
+                                DeactivatedDateTime = null
                             });
                     }
                     

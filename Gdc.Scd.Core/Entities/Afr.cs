@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("AFR", Schema = MetaConstants.AtomSchema)]
+    [Table("AFR", Schema = MetaConstants.HardwareSchema)]
     public class Afr : IIdentifiable, IDeactivatable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

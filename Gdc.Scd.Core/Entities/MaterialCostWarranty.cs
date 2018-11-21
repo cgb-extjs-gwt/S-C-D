@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("MaterialCostWarranty", Schema = MetaConstants.AtomSchema)]
+    [Table("MaterialCostWarranty", Schema = MetaConstants.HardwareSchema)]
     public class MaterialCostInWarranty : IIdentifiable, IDeactivatable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

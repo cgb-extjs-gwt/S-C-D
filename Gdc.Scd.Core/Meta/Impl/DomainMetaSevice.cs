@@ -25,8 +25,6 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string CostAtomListNodeName = "Atoms";
 
-        private const string CostAtomNodeName = "Atom";
-
         private const string CostBlockListNodeName = "Blocks";
 
         private const string CostBlockNodeName = "Block";
