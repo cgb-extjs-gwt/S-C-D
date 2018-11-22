@@ -64,8 +64,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 var costElement = this.GetCostElement(context);
                 var filterValues = context.CostElementFilterIds;
-
-                filter.Add(costElement.Dependency.Id, filterValues);
+                if (costElement.Dependency != null)
+                    filter.Add(costElement.Dependency.Id, filterValues);
             }
 
             if (context.InputLevelFilterIds != null)
