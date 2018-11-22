@@ -7,70 +7,21 @@ import { Model } from "../../Common/States/ExtStates";
 import { CostElementMeta } from "../../Common/States/CostMetaStates";
 import { QualityGateGridProps, QualityGateGrid } from "./QualityGateGrid";
 import { WgInputLevel } from "../../Common/Constants/MetaConstants";
+import { QualityGateToolbarActions, QualityGateToolbar } from "./QualityGateToolbar";
 
-export interface QualityGateErrorActions {
-    onSave?(explanationMessage: string)
-    onCancel?()
-}
-
-export interface QualityGateErrorProps extends QualityGateErrorActions {
+export interface QualityGateErrorProps extends QualityGateToolbarActions {
     errors?: BundleDetailGroup[]
     costElement: CostElementMeta
 }
 
-interface QualityGateErrorState {
-    isValidExplanationForm: boolean
-}
-
-export class QualityGateErrorView extends React.Component<QualityGateErrorProps, QualityGateErrorState> {
-
-    private explanationTextField
-    private explanationForm
-
-    constructor(props: QualityGateErrorProps){ 
-        super(props);
-
-        this.state = {
-            isValidExplanationForm: false
-        };
-    }
-
+export class QualityGateErrorView extends React.Component<QualityGateErrorProps> {
     render() {
-        const { onCancel, costElement, errors } = this.props;
-        const { isValidExplanationForm } = this.state;
-
+        const { onSave, onCancel, costElement, errors } = this.props;
         return (
             <Container layout="vbox" scrollable={true}>
                 <QualityGateGrid costElement={costElement} storeConfig={{ data: errors }} inputLevelId={WgInputLevel} flex={10}/>
-                
-                <FormPanel defaults={{labelAlign: 'left'}} flex={1} ref={form => this.explanationForm = form} minHeight="100">
-                    <TextField 
-                        ref={textField => this.explanationTextField = textField}
-                        required
-                        placeholder="Please enter the reason"
-                        onChange={this.onExplanationTextFieldChange}
-                    />
-                    <Toolbar docked="bottom">
-                        <Button 
-                            text="Save" 
-                            handler={this.onSave} 
-                            flex={1} 
-                            disabled={!isValidExplanationForm}
-                        />
-                        <Button text="Cancel" handler={onCancel} flex={1}/>
-                    </Toolbar>
-                </FormPanel>
+                <QualityGateToolbar onSave={onSave} onCancel={onCancel} flex={1}/>
             </Container>
         );
-    }
-
-    private onExplanationTextFieldChange = (textField, newValue: string, oldValue: string) => {
-        this.setState({ isValidExplanationForm: this.explanationForm.isValid() });
-    }
-
-    private onSave = () => {
-        const { onSave } = this.props;
-
-        onSave && onSave(this.explanationTextField.getValue());
     }
 }

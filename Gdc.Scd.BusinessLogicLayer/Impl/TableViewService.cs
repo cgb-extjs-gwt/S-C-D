@@ -61,9 +61,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 foreach(var editItemContext in editItemContexts)
                 {
-                    var qualityGateResult = await this.qualityGateSevice.Check(editItemContext.EditItems, editItemContext.Context, editItemContext.Filter);
-
-                    checkResult.QualityGateResults.Add(editItemContext.Context.CostBlockId, qualityGateResult);
+                    checkResult.Items.Add(new QualityGateResultSetItem
+                    {
+                        CostElementIdentifier = new CostElementIdentifier
+                        {
+                            ApplicationId = editItemContext.Context.ApplicationId,
+                            CostBlockId = editItemContext.Context.CostBlockId,
+                            CostElementId = editItemContext.Context.CostElementId,
+                        },
+                        QualityGateResult = await this.qualityGateSevice.Check(editItemContext.EditItems, editItemContext.Context, editItemContext.Filter)
+                    });
                 }
             }
 

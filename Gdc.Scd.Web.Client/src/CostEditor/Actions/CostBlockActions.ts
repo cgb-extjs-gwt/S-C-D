@@ -6,10 +6,10 @@ import { EditItem, CostElementData } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { buildCostEditorContext, findCostElementByState, findInputeLevelByState, findCostBlockByState } from "../Helpers/CostEditorHelpers";
 import { CommonState } from "../../Layout/States/AppStates";
-import { ApprovalOption } from "../Services/CostEditorServices";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { QualityGateResult } from "../../QualityGate/States/QualityGateResult";
 import { findMeta } from "../../Common/Helpers/MetaHelper";
+import { ApprovalOption } from "../../QualityGate/States/ApprovalOption";
 
 export const COST_EDITOR_SELECT_COST_BLOCK = 'COST_EDITOR.SELECT.COST_BLOCK';
 export const COST_BLOCK_INPUT_SELECT_REGIONS = 'COST_BLOCK_INPUT.SELECT.REGIONS';

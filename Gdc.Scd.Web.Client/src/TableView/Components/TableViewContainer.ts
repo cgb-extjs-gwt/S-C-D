@@ -7,7 +7,7 @@ import { CostBlockMeta, FieldType, CostElementMeta, CostMetaData } from "../../C
 import { buildGetRecordsUrl, getTableViewInfo, updateRecords, buildGetHistoryUrl } from "../Services/TableViewService";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { CommonAction } from "../../Common/Actions/CommonActions";
-import { loadTableViewInfo, editRecord, resetChanges } from "../Actions/TableViewActions";
+import { loadTableViewInfo, editRecord, resetChanges, saveTableViewToServer } from "../Actions/TableViewActions";
 import { TableViewInfo } from "../States/TableViewState";
 import { TableViewRecord } from "../States/TableViewRecord";
 import { FieldInfo } from "../../Common/States/FieldInfo";
@@ -169,11 +169,7 @@ const buildProps = (state: CommonState) => {
 }
 
 const buildActions = (state: CommonState, dispatch: Dispatch) => { 
-    const buildSaveFn = (isApproving: boolean) => () =>  handleRequest(
-        updateRecords(state.pages.tableView.editedRecords, isApproving).then(
-            () => dispatch(resetChanges())
-        )
-    );
+    const buildSaveFn = (isApproving: boolean) => () => saveTableViewToServer({ isApproving: isApproving });
 
     return <TableViewActions>{
         init: () => !state.pages.tableView.info && handleRequest(

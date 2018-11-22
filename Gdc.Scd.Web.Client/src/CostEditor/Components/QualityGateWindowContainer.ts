@@ -1,10 +1,11 @@
 import { connect } from "react-redux";
-import { QualityGateErrorProps, QualityGateErrorActions } from "../../QualityGate/Components/QualityGateErrorView";
+import { QualityGateErrorProps, } from "../../QualityGate/Components/QualityGateErrorView";
 import { QualityGateErrorContainerProps } from "../../QualityGate/Components/QualityGateErrorContainer";
 import { CommonState } from "../../Layout/States/AppStates";
 import { saveEditItemsToServer, resetErrors } from "../Actions/CostBlockActions";
 import { QualityGateErrorWindow, QualityGateErrorWindowProps } from "../../QualityGate/Components/QualityGateErrorWindow";
 import { Position } from "../../Common/States/ExtStates";
+import { QualityGateToolbarActions } from "../../QualityGate/Components/QualityGateToolbar";
 
 export interface QualityGateWindowContainer extends QualityGateErrorWindowProps {
     applicationId: string
@@ -12,7 +13,7 @@ export interface QualityGateWindowContainer extends QualityGateErrorWindowProps 
 }
 
 export const QualityGateWindowContainer = 
-    connect<QualityGateErrorWindowProps, QualityGateErrorActions, QualityGateWindowContainer, CommonState>(
+    connect<QualityGateErrorWindowProps, QualityGateToolbarActions, QualityGateWindowContainer, CommonState>(
         (state, props) => props,
         (dispatch, { applicationId, costBlockId, onSave, onCancel }) => ({
             onSave: (explanationMessage) => dispatch(
