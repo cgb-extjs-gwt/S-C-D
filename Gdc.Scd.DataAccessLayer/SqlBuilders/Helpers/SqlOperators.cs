@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.DataAccessLayer.Entities;
+﻿using System.Collections.Generic;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
@@ -167,6 +168,21 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             };
 
             return IsNotNull(column);
+        }
+
+        public static ConditionHelper In(string column, ISqlBuilder valuesQuery, string table = null)
+        {
+            return new ConditionHelper(new InSqlBuilder
+            {
+                Table = table,
+                Column = column,
+                Values = new[] { valuesQuery }
+            });
+        }
+
+        public static ConditionHelper In(string column, SqlHelper valuesQuery, string table = null)
+        {
+            return In(column, valuesQuery.ToSqlBuilder(), table);
         }
 
         public static T BinaryOperator<T>(ISqlBuilder leftOperand, ISqlBuilder rightOperand)

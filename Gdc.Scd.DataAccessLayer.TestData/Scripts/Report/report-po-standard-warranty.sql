@@ -14,47 +14,88 @@ CREATE FUNCTION Report.PoStandardWarrantyMaterial
 RETURNS TABLE 
 AS
 RETURN (
-    select 
-            m.CountryGroup
-          , c.LUTCode
-          , wg.Name as Wg
-          , wg.Description as WgDescription
-          , pla.Name as Pla
-          , (m.Duration + ' ' + m.ServiceLocation) as ServiceLevel
-          , m.ReactionTime
-          , m.ReactionType
-          , m.Availability
+    with cte as (
+        select 
+                m.Id
+              , c.CountryGroup
+              , c.LUTCode
+              , wg.Name as Wg
+              , wg.Description as WgDescription
+              , pla.Name as Pla
+              , dur.Value as Year
+              , dur.IsProlongation
+              , (dur.Name + ' ' + loc.Name) as ServiceLevel
+              , rtime.Name as ReactionTime
+              , rtype.Name as ReactionType
+              , av.Name    as Availability
 
-          , sc.MaterialW_Approved as MaterialW
+              , mc.MaterialCostWarranty_Approved as MaterialCostWarranty
 
-          , mc.MaterialCostWarranty_Approved as MaterialCostWarranty
+              , afr.AFR1_Approved as AFR1
+              , afr.AFR2_Approved as AFR2
+              , afr.AFR3_Approved as AFR3
+              , afr.AFR4_Approved as AFR4
+              , afr.AFR5_Approved as AFR5
 
-          , afr.AFR1 as AFR1
-          , afr.AFR2 as AFR2
-          , afr.AFR3 as AFR3
-          , afr.AFR4 as AFR4
-          , afr.AFR5 as AFR5
+              , null as SparesAvailability
 
-          , null as SparesAvailability
+        from Report.GetMatrixBySlaCountry(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc) m
 
-    from Report.GetMatrixBySla(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc) m
+        JOIN InputAtoms.CountryView c on c.Id = m.CountryId
 
-    JOIN Hardware.ServiceCostCalculation sc on sc.MatrixId = m.Id
+        JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
 
-    JOIN InputAtoms.CountryView c on c.Id = m.CountryId
+        JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
 
-    JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
+        JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 
-    JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
+        JOIN Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
 
-    JOIN Atom.Afr5YearView afr on afr.Wg = m.WgId
+        JOIN Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
 
-    JOIN Atom.MaterialCostWarranty mc on mc.Wg = wg.Id
+        JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
 
-    LEFT JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
+        LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
+        LEFT JOIN Hardware.MaterialCostWarranty mc on mc.Wg = wg.Id
+
+        LEFT JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
+    )
+    , cte2 as (
+        select    
+              m.*
+
+            , m.MaterialCostWarranty * m.AFR1 as mat1
+            , m.MaterialCostWarranty * m.AFR2 as mat2
+            , m.MaterialCostWarranty * m.AFR3 as mat3
+            , m.MaterialCostWarranty * m.AFR4 as mat4
+            , m.MaterialCostWarranty * m.AFR5 as mat5
+        from cte m
+    )
+    select    m.Id
+            , m.CountryGroup
+            , m.LUTCode
+            , m.Wg
+            , m.WgDescription
+            , m.Pla
+            , m.ServiceLevel
+            , m.ReactionTime
+            , m.ReactionType
+            , m.Availability
+
+            , Hardware.CalcByDur(m.Year, m.IsProlongation, m.mat1, m.mat2, m.mat3, m.mat4, m.mat5, 0) as MaterialW
+
+            , m.MaterialCostWarranty
+
+            , m.AFR1
+            , m.AFR2
+            , m.AFR3
+            , m.AFR4
+            , m.AFR5
+
+            , m.SparesAvailability
+    from cte2 m
 )
-
 GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'PO-STANDARD-WARRANTY-MATERIAL');

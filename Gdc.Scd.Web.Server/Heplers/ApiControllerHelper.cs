@@ -63,6 +63,11 @@ namespace Gdc.Scd.Web.Server
             return new HttpResponseMessage(HttpStatusCode.OK) { Content = content };
         }
 
+        public static HttpResponseMessage NotFoundContent(this ApiController ctrl)
+        {
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
+        }
+
         private static string WithDataInfo(string jsonArray, int total)
         {
             CheckJson(jsonArray);

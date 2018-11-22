@@ -15,7 +15,7 @@ namespace Gdc.Scd.DataAccessLayer
         public override void Load()
         {
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InRequestScope();
-            Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InRequestScope();
+            Bind<IRepositorySet, IRegisteredEntitiesProvider, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InRequestScope();
             Bind<ICostEditorRepository>().To<CostEditorRepository>().InRequestScope();
             Bind<ICostBlockValueHistoryRepository>().To<CostBlockValueHistoryRepository>().InRequestScope();
             Bind<ISqlRepository>().To<SqlRepository>().InRequestScope();
@@ -31,6 +31,7 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<ITableViewRepository>().To<TableViewRepository>().InRequestScope();
             Bind<IRepository<Role>>().To<RoleRepository>().InRequestScope();
             Bind<IUserRepository, IRepository<User>>().To<UserRepository>().InRequestScope();
+            Bind<ICostBlockRepository>().To<CostBlockRepository>().InRequestScope();
 
             Bind<BaseColumnMetaSqlBuilder<IdFieldMeta>>().To<IdColumnMetaSqlBuilder>().InTransientScope();
             Bind<BaseColumnMetaSqlBuilder<SimpleFieldMeta>>().To<SimpleColumnMetaSqlBuilder>().InTransientScope();

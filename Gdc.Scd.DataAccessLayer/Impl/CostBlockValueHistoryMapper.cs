@@ -14,8 +14,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly string[] inputLevelIds;
 
-        private readonly string[] dependencyIds;
-
         private readonly ReferenceFieldMeta dependencyField;
 
         public bool UseHistoryValueId { get; set; }

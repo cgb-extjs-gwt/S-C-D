@@ -12,5 +12,6 @@ namespace Gdc.Scd.Import.Core.Dto
         public string Delimeter { get; set; }
         public StreamReader Content { get; set; }
         public bool HasHeader { get; set; }
+        public string Culture { get; set; }
     }
 }

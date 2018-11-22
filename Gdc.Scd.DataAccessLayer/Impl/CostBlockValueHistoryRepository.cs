@@ -152,7 +152,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 this.historyQueryBuilder.BuildJoinHistoryValueQuery(historyContext, selectQuery, options)
                                         .Join(nameof(User), SqlOperators.Equals(histroryEditUserIdColumn, userIdColumn))
                                         .Where(whereCondition)
-                                        .ByQueryInfo(queryInfo);
+                                        .WithRownumPaging(queryInfo);
 
             return await this.repositorySet.ReadBySql(query, reader => new HistoryItem
             {

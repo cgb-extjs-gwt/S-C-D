@@ -43,7 +43,7 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
 
                 </Container>
 
-                <Button text="Search" ui="action" width="85px" handler={this.onSearch} margin="20px auto" />
+                <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="20px auto" />
 
             </Panel>
         );
@@ -53,41 +53,41 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
         switch (model.type) {
 
             case AutoFilterType.NUMBER:
-                return (<NumberField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+                return <NumberField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.WG:
-                return (<WgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+                return <WgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.SOG:
-                return (<SogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+                return <SogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.COUNTRY:
-                return (<CountryField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+                return <CountryField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.COUNTRYGROUP:
-                return (<CountryGroupField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+                return <CountryGroupField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.AVAILABILITY:
-                return (<AvailabilityField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+                return <AvailabilityField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.DURATION:
-                return (<DurationField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+                return <DurationField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.YEAR:
-                return (<YearField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+                return <YearField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.REACTIONTIME:
-                return (<ReactionTimeField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+                return <ReactionTimeField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.REACTIONTYPE:
-                return (<ReactionTypeField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+                return <ReactionTypeField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.SERVICELOCATION:
-                return (<ServiceLocationField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+                return <ServiceLocationField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.TEXT:
             default:
-                return (<TextField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />);
+                return <TextField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
         }
     }
 

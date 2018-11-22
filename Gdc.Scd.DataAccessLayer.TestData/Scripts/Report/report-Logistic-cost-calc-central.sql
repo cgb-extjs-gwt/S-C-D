@@ -15,33 +15,29 @@ CREATE FUNCTION Report.LogisticCostCalcCentral
 RETURNS TABLE 
 AS
 RETURN (
-    select c.Region
-         , c.Name as Country
-         , m.Wg
+    select    m.Id
+            , c.Region
+            , c.Name as Country
+            , m.Wg
 
-         , m.ServiceLocation as ServiceLevel
-         , m.ReactionTime
-         , m.ReactionType
-         , m.Duration
-         , m.Availability
+            , m.ServiceLocation as ServiceLevel
+            , m.ReactionTime
+            , m.ReactionType
+            , m.Duration
+            , m.Availability
 
-         , sc.ServiceTC
-         , l.StandardHandling_Approved as Handling
-         , sc.TaxAndDutiesW
-         , sc.TaxAndDutiesOow
+            , coalesce(m.ServiceTCManual, m.ServiceTC) as ServiceTC
+            , m.StandardHandling as Handling
+            , m.TaxAndDutiesW
+            , m.TaxAndDutiesOow
 
-         , sc.Logistic as LogisticW
-         , null as LogisticOow
+            , m.Logistic as LogisticW
+            , null as LogisticOow
 
-         , sc.AvailabilityFee as Fee
+            , m.AvailabilityFee as Fee
 
-    from Report.GetMatrixBySla2(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
-    join Hardware.ServiceCostCalculationView sc on sc.MatrixId = m.Id
+    from Report.GetCostsFull(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
     join InputAtoms.CountryView c on c.Id = m.CountryId
-    join Hardware.LogisticsCostView l on l.Country = m.CountryId
-                                     and l.Wg = m.WgId
-                                     and l.ReactionTime = m.ReactionTimeId
-                                     and l.ReactionType = m.ReactionTypeId
 )
 
 GO

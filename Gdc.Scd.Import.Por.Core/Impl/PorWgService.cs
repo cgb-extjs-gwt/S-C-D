@@ -38,7 +38,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 //select all that is not coming from POR and was not already deactivated in SCD and also either does not
                 //exists in Logistic DB or was already deactivated there
                 var itemsToDeacivate = this.GetAll()
-                                          .Where(w => !w.IsMultiVendor && !porItems.Contains(w.Name.ToLower())
+                                          .Where(w => w.WgType == Scd.Core.Enums.WgType.Por && !porItems.Contains(w.Name.ToLower())
                                                     && !w.DeactivatedDateTime.HasValue && (!w.ExistsInLogisticsDb || w.IsDeactivatedInLogistic)).ToList();
 
                 var deactivated = this.Deactivate(itemsToDeacivate, modifiedDatetime);
@@ -47,7 +47,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 {
                     foreach (var deactivateItem in itemsToDeacivate)
                     {
-                        _logger.Log(LogLevel.Info, PorImportLoggingMessage.DEACTIVATED_ENTITY,
+                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.DEACTIVATED_ENTITY,
                             nameof(Wg), deactivateItem.Name);
                     }
                 }
@@ -65,7 +65,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         }
 
         public bool UploadWgs(IEnumerable<SCD2_WarrantyGroups> wgs, 
-            IEnumerable<SFab> sFabs, IEnumerable<Sog> sogs, 
+            IEnumerable<Sog> sogs, 
             IEnumerable<Pla> plas, DateTime modifiedDateTime, 
             IEnumerable<string> softwareServiceTypes)
         {
@@ -86,9 +86,6 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         continue;
                     }
 
-                    SFab sFab = sFabs.FirstOrDefault(fab =>
-                                fab.Name.Equals(porWg.FabGrp, StringComparison.OrdinalIgnoreCase));
-
                     Sog sog = sogs.FirstOrDefault(wg => wg.Name.Equals(porWg.SOG, StringComparison.OrdinalIgnoreCase));
                     if (sog == null && !String.IsNullOrEmpty(porWg.SOG))
                         _logger.Log(LogLevel.Warn, PorImportLoggingMessage.SOG_NOT_EXISTS, porWg.SOG);
@@ -99,8 +96,9 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         Description = porWg.Warranty_Group_Name,
                         Name = porWg.Warranty_Group,
                         PlaId = pla.Id,
-                        SFabId = sFab?.Id,
                         SogId = sog?.Id,
+                        FabGrp = porWg.FabGrp,
+                        WgType = Scd.Core.Enums.WgType.Por,
                         ExistsInLogisticsDb = false,
                         IsDeactivatedInLogistic = false,
                         SCD_ServiceType = porWg.SCD_ServiceType,
@@ -112,7 +110,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                 foreach (var addedEntity in added)
                 {
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                    _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
                         nameof(Wg), addedEntity.Name);
                 }
 

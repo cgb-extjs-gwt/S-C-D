@@ -4,8 +4,6 @@
     {
         public const string InputLevelSchema = "InputAtoms";
 
-        public const string AtomSchema = "Atom";
-
         public const string DependencySchema = "Dependencies";
 
         public const string HistorySchema = "History";
@@ -30,7 +28,7 @@
 
         public const string WgInputLevelName = "Wg";
 
-        public const string CalculationTable = "ServiceCostCalculation";
+        public const string ManualCostTable = "ManualCost";
 
         public const string HardwareSchema = "Hardware";
 
@@ -47,5 +45,13 @@
         public const string ReportSchema = "Report";
 
         public const string MatrixSchema = "Matrix";
+
+        public const string ClusterRegionInputLevel = "ClusterRegion";
+        
+        public const string SpoolerSchema = "Spooler";
+
+        public const string SfabInputLevel = "Sfab";
+
+        public const string SogInputLevel = "Sog";
     }
 }

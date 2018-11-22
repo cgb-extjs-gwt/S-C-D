@@ -22,7 +22,7 @@ namespace Gdc.Scd.Import.Por
             try
             {
                 //CONFIGURATION
-                PorService.Logger.Log(LogLevel.Info, "Reading configuration...");
+                 PorService.Logger.Log(LogLevel.Info, "Reading configuration...");
                 var softwareServiceTypes = Config.SoftwareSolutionTypes;
                 var proactiveServiceTypes = Config.ProActiveServices;
                 var standardWarrantiesServiceTypes = Config.StandardWarrantyTypes;
@@ -53,21 +53,16 @@ namespace Gdc.Scd.Import.Por
                 var plas = PorService.PlaService.GetAll().ToList();
                 int step = 1;
 
-                //STEP 1: UPLOADING SFABs
-                PorService.UploadSFabs(porSogs, porWGs, plas, step);
+                //STEP 1: UPLOADING SOGs
+                PorService.UploadSogs(plas, step, porSogs, softwareServiceTypes);
                 step++;
 
-                //STEP 2: UPLOADING SOGs
-                var sFabs = PorService.SFabDomainService.GetAllActive().ToList();
-                PorService.UploadSogs(sFabs, plas, step, porSogs, softwareServiceTypes);
-                step++;
-
-                //STEP 3: UPLOAD WGs
+                //STEP 2: UPLOAD WGs
                 var sogs = PorService.SogDomainService.GetAllActive().ToList();
-                PorService.UploadWgs(sFabs, plas, step, sogs, porWGs, softwareServiceTypes);
+                PorService.UploadWgs(plas, step, sogs, porWGs, softwareServiceTypes);
                 step++;
 
-                //STEP 4: UPLOAD SOFTWARE DIGITS 
+                //STEP 3: UPLOAD SOFTWARE DIGITS 
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, "Software Info");
                 var porSoftware = PorService.SoftwareImporter.ImportData()
                     .Where(sw => sw.Service_Code_Status == "50" && sw.SCD_Relevant == "x")
@@ -79,12 +74,12 @@ namespace Gdc.Scd.Import.Por
                 var rebuildRelationships = PorService.UploadSoftwareDigits(porSoftware, sogs, swInfo, step);
                 step++;
 
-                //STEP 5: UPLOAD SOFTWARE LICENCE
+                //STEP 4: UPLOAD SOFTWARE LICENCE
                 var swLicensesInfo = swInfo.SwLicenses.Select(sw => sw.Value).ToList();
                 rebuildRelationships = rebuildRelationships && PorService.UploadSoftwareLicense(swLicensesInfo, step);
                 step++;
 
-                //STEP6: REBUILD RELATIONSHIPS BETWEEN SOFTWARE LICENSES AND DIGITS
+                //STEP 5: REBUILD RELATIONSHIPS BETWEEN SOFTWARE LICENSES AND DIGITS
                 var digits = PorService.DigitService.GetAllActive().ToList();
                 if (rebuildRelationships)
                 {
@@ -93,7 +88,7 @@ namespace Gdc.Scd.Import.Por
                 }
                 
 
-                //STEP 7: UPLOAD FSP CODES AND TRANSLATIONS
+                //STEP 6: UPLOAD FSP CODES AND TRANSLATIONS
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, "FSP codes Translation");
 
                 var fspcodes = PorService.FspCodesImporter.ImportData()
@@ -142,7 +137,7 @@ namespace Gdc.Scd.Import.Por
                 var lutCodes = PorService.LutCodesImporter.ImportData().ToList();
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, "Standard Warranties", lutCodes.Count);
 
-                var wgs = PorService.WgDomainService.GetAllActive().ToList();
+                var wgs = PorService.WgDomainService.GetAllActive().Where(wg => wg.WgType == Scd.Core.Enums.WgType.Por).ToList();
                 var hwModel = new HwFspCodeDto
                 {
                     HardwareCodes = otherHardwareCodes,
@@ -167,7 +162,7 @@ namespace Gdc.Scd.Import.Por
                 PorService.UploadHwFspCodes(hwModel, step);
                 step++;
 
-                //UPLOAD PROACTIVE DIGITS
+                //STEP 7: PROACTIVE DIGITS UPLOAD
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, "Software ProActive");
                 var swProActive = PorService.SwProActiveImporter.ImportData().ToList();
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, "Software ProActive", swProActive.Count);
@@ -184,7 +179,7 @@ namespace Gdc.Scd.Import.Por
                 PorService.UploadSwProactiveInfo(proActiveDigitModel, step);
                 step++;
 
-                //STEP 9: UPLOAD SOFTWARE
+                //STEP 8: UPLOAD SOFTWARE
                 var proActiveDigits = PorService.ProActiveDigitService.GetAll().ToList();
 
                 var swModel = new SwFspCodeDto
@@ -200,7 +195,10 @@ namespace Gdc.Scd.Import.Por
                 };
 
                 PorService.UploadSwFspCodes(swModel, step);
+                step++;
 
+                //STEP 9: UPLOAD COST BLOCKS
+                PorService.UpdateCostBlocks(step);
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.END_PROCESS);
             }
 

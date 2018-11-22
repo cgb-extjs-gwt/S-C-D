@@ -10,11 +10,13 @@ namespace Gdc.Scd.Core.Entities
         [MustCompare(true, IsIgnoreCase = true)]
         public string Alignment { get; set; }
 
+        [MustCompare(true, IsIgnoreCase = true)]
+        public string FabGrp { get; set; }
+
         [MustCompare(true)]
         public long PlaId { get; set; }
         public Pla Pla { get; set; }
 
-        [MustCompare(true)]
         public long? SFabId { get; set; }
         public SFab SFab { get; set; }
 

@@ -1,8 +1,7 @@
-import { CommonAction } from "../../Common/Actions/CommonActions";
 import { Action } from "redux";
-import { CostMetaData } from "../../Common/States/CostMetaStates";
-import { getAppData } from "../Services/AppService";
 import { asyncAction } from "../../Common/Actions/AsyncAction";
+import { CommonAction } from "../../Common/Actions/CommonActions";
+import { getAppData } from "../Services/AppService";
 import { AppData } from "../States/AppStates";
 
 export const APP_PAGE_OPEN = 'APP.PAGE.OPEN';
@@ -22,7 +21,7 @@ export interface LoadingAction extends Action<string> {
     isLoading: boolean
 }
 
-export interface LoadingAppDataAction extends CommonAction<AppData>{
+export interface LoadingAppDataAction extends CommonAction<AppData> {
 }
 
 export const openPage = (id: string) => (<OpenPageAction>{
@@ -32,7 +31,7 @@ export const openPage = (id: string) => (<OpenPageAction>{
 
 export const pageInit = (pageId: string, data) => (<PageInitAction>{
     type: APP_PAGE_INIT,
-    pageId, 
+    pageId,
     data
 })
 
@@ -46,7 +45,7 @@ export const loadMetaDataFromServer = () => asyncAction(
         getAppData().then(
             data => {
                 dispatch(loadAppData(data));
-            } 
+            }
         );
     }
 )

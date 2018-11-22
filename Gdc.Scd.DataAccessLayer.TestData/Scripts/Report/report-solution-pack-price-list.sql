@@ -17,13 +17,13 @@ RETURN (
             , fsp.ServiceDescription as SpDescription
             , null as Sp
 
-            , null as TP
-            , SoftwareSolution.CalcDealerPrice(sw.MaintenanceListPrice_Approved, sw.DiscountDealerPrice_Approved) as DealerPrice
+            , sw.TransferPrice_Approved as TP
+            , sw.DealerPrice_Approved as DealerPrice
             , sw.MaintenanceListPrice as ListPrice
 
-    from SoftwareSolution.SwSpMaintenanceView sw
+    from SoftwareSolution.SwSpMaintenanceCostView sw
     join InputAtoms.Sog sog on sog.id = sw.Sog
-    join Fsp.SwFspCodeTranslation fsp on fsp.SogId = sw.Sog and fsp.SwDigitId = sw.SwDigit
+    join Fsp.SwFspCodeTranslation fsp on fsp.SogId = sw.Sog
     where (@sog is null or sw.Sog = @sog)
 )
 

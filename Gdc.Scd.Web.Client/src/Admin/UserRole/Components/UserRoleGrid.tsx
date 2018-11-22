@@ -1,6 +1,5 @@
-﻿import * as React from 'react';
-import { Grid, Column, Toolbar, Button, GridCell } from '@extjs/ext-react';
-import { UserRoleDialog } from './UserRoleDialog'
+﻿import { Button, Column, Grid, GridCell, Toolbar } from '@extjs/ext-react';
+import * as React from 'react';
 
 interface UserRoleGridProps {
     store

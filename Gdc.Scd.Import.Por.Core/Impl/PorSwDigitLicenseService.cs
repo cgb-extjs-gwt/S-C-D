@@ -59,7 +59,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         var newCombination = combinations.FirstOrDefault(swd => swd.SwDigitId == digit.Id && swd.SwLicenseId == license.Id);
                         if (newCombination == null)
                         {
-                            _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADDING_SWDIGIT_SWLICENSE, license.Name, digit.Name);
+                            _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDING_SWDIGIT_SWLICENSE, license.Name, digit.Name);
                             combinations.Add(new SwDigitLicense { SwDigitId = digit.Id, SwLicenseId = license.Id, CreatedDateTime = created });
                         }
                     }

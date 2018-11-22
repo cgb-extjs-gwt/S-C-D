@@ -1,17 +1,40 @@
 ﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
+import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { HwCalcFilter } from "./Components/HwCalcFilter";
-import { HwCalcFilterModel } from "./Model/HwCalcFilterModel";
+import { HwCostFilter } from "./Components/HwCostFilter";
+import { HwManualCostDialog } from "./Components/HwManualCostDialog";
+import { HwCostFilterModel } from "./Model/HwCostFilterModel";
+import { HwCostListModel } from "./Model/HwCostListModel";
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
-    private grid: Grid;
+    private grid: Grid & any;
 
-    private filter: HwCalcFilter;
+    private filter: HwCostFilter;
+
+    private costDlg: HwManualCostDialog;
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
+
+        fields: [
+            'ListPrice', 'DealerDiscount',
+            {
+                name: 'DealerPriceCalc',
+                calculate: function (d) {
+                    let result = null;
+                    if (d && d.ListPrice) {
+                        result = d.ListPrice;
+                        if (d.DealerDiscount) {
+                            result = result - (result * d.DealerDiscount / 100);
+                        }
+                    }
+                    return result;
+                }
+            }
+        ],
+
         pageSize: 25,
         autoLoad: true,
 
@@ -25,16 +48,17 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 type: 'json',
                 writeAllFields: true,
                 allowSingle: false,
-                idProperty: "id"
+                idProperty: "Id"
             },
             reader: {
                 type: 'json',
                 rootProperty: 'items',
+                idProperty: "Id",
                 totalProperty: 'total'
             }
         },
         listeners: {
-            update: (store, record, operation, modifiedFieldNames, details, eOpts) => {
+            update: () => {
                 const changed = this.store.getUpdatedRecords().length;
                 this.toggleToolbar(changed == 0);
             }
@@ -42,6 +66,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     });
 
     public state = {
+        disableEditButton: true,
         disableSaveButton: true,
         disableCancelButton: true
     };
@@ -52,65 +77,23 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     public render() {
-
         const canEdit = this.canEdit();
-
-        let fieldServiceCost: string = 'fieldServiceCost';
-        let serviceSupport: string = 'serviceSupport';
-        let logistic: string = 'logistic';
-        let availabilityFee: string = 'availabilityFee';
-        let hddRetention: string = 'hddRetention';
-        let reinsurance: string = 'reinsurance';
-        let taxAndDutiesW: string = 'taxAndDutiesW';
-        let taxAndDutiesOow: string = 'taxAndDutiesOow';
-        let materialW: string = 'materialW';
-        let materialOow: string = 'materialOow';
-        let proActive: string = 'proActive';
-        let serviceTC: string = 'serviceTC';
-        let serviceTCManual: string = 'serviceTCManual';
-        let serviceTP: string = 'serviceTP';
-        let serviceTPManual: string = 'serviceTPManual';
-        let listPrice: string = 'listPrice';
-        let dealerDiscount: string = 'dealerDiscount';
-        let dealerPrice: string = 'dealerPrice';
-        let otherDirect: string = 'otherDirect';
-        let localServiceStandardWarranty: string = 'localServiceStandardWarranty';
-        let credits: string = 'credits';
-
-        if (this.props.approved) {
-            fieldServiceCost = 'fieldServiceCost_Approved';
-            serviceSupport = 'serviceSupport_Approved';
-            logistic = 'logistic_Approved';
-            availabilityFee = 'availabilityFee_Approved';
-            hddRetention = 'hddRetention_Approved';
-            reinsurance = 'reinsurance_Approved';
-            taxAndDutiesW = 'taxAndDutiesW_Approved';
-            taxAndDutiesOow = 'taxAndDutiesOow_Approved';
-            materialW = 'materialW_Approved';
-            materialOow = 'materialOow_Approved';
-            proActive = 'proActive_Approved';
-            serviceTC = 'serviceTC_Approved';
-            serviceTCManual = 'serviceTCManual_Approved';
-            serviceTP = 'serviceTP_Approved';
-            serviceTPManual = 'serviceTPManual_Approved';
-            listPrice = 'listPrice_Approved';
-            dealerDiscount = 'dealerDiscount_Approved';
-            dealerPrice = 'dealerPrice_Approved';
-            otherDirect = 'otherDirect_Approved';
-            localServiceStandardWarranty = 'localServiceStandardWarranty_Approved';
-            credits = 'credits_Approved';
-        }
 
         return (
             <Container layout="fit">
 
-                <HwCalcFilter ref="filter" docked="right" onSearch={this.onSearch} />
+                <HwCostFilter ref="filter" docked="right" onSearch={this.onSearch} />
 
                 <Grid
                     ref="grid"
                     store={this.store}
                     width="100%"
-                    platformConfig={this.pluginConf()}>
+                    platformConfig={this.pluginConf()}
+                    selectable={{
+                        mode: 'single'
+                    }}
+                    onSelect={this.onGridSelect}
+                >
 
                     { /*dependencies*/}
 
@@ -121,17 +104,17 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-green"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column text="Country" dataIndex="country" />
-                        <Column text="WG(Asset)" dataIndex="wg" />
-                        <Column text="Availability" dataIndex="availability" />
-                        <Column text="Duration" dataIndex="duration" />
-                        <Column text="Reaction type" dataIndex="reactionType" />
-                        <Column text="Reaction time" dataIndex="reactionTime" />
-                        <Column text="Service location" dataIndex="serviceLocation" />
+                        <Column text="Country" dataIndex="Country" />
+                        <Column text="WG(Asset)" dataIndex="Wg" />
+                        <Column text="Availability" dataIndex="Availability" />
+                        <Column text="Duration" dataIndex="Duration" />
+                        <Column text="Reaction type" dataIndex="ReactionType" />
+                        <Column text="Reaction time" dataIndex="ReactionTime" />
+                        <Column text="Service location" dataIndex="ServiceLocation" />
 
                     </Column>
 
-                    { /*cost block results*/}
+                    {/*cost block results*/}
 
                     <Column
                         isHeaderGroup={true}
@@ -140,17 +123,17 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <NumberColumn text="Field service cost" dataIndex={fieldServiceCost} />
-                        <NumberColumn text="Service support cost" dataIndex={serviceSupport} />
-                        <NumberColumn text="Logistic cost" dataIndex={logistic} />
-                        <NumberColumn text="Availability fee" dataIndex={availabilityFee} />
-                        <NumberColumn text="HDD retention" dataIndex={hddRetention} />
-                        <NumberColumn text="Reinsurance" dataIndex={reinsurance} />
-                        <NumberColumn text="Tax &amp; Duties iW period" dataIndex={taxAndDutiesW} />
-                        <NumberColumn text="Tax &amp; Duties OOW period" dataIndex={taxAndDutiesOow} />
-                        <NumberColumn text="Material cost iW period" dataIndex={materialW} />
-                        <NumberColumn text="Material cost OOW period" dataIndex={materialOow} />
-                        <NumberColumn text="Pro active" dataIndex={proActive} />
+                        <NumberColumn text="Field service cost" dataIndex="FieldServiceCost" />
+                        <NumberColumn text="Service support cost" dataIndex="ServiceSupportCost" />
+                        <NumberColumn text="Logistic cost" dataIndex="Logistic" />
+                        <NumberColumn text="Availability fee" dataIndex="AvailabilityFee" />
+                        <NumberColumn text="HDD retention" dataIndex="HddRetention" />
+                        <NumberColumn text="Reinsurance" dataIndex="Reinsurance" />
+                        <NumberColumn text="Tax &amp; Duties iW period" dataIndex="TaxAndDutiesW" />
+                        <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="TaxAndDutiesOow" />
+                        <NumberColumn text="Material cost iW period" dataIndex="MaterialW" />
+                        <NumberColumn text="Material cost OOW period" dataIndex="MaterialOow" />
+                        <NumberColumn text="Pro active" dataIndex="ProActive" />
 
                     </Column>
 
@@ -163,19 +146,18 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-yellow"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <NumberColumn text="Service TC(calc)" dataIndex={serviceTC} />
-                        <NumberColumn text="Service TC(manual)" dataIndex={serviceTCManual} editable={canEdit} />
+                        <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
+                        <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" />
+                        <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
+                        <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" />
 
-                        <NumberColumn text="Service TP(calc)" dataIndex={serviceTP} />
-                        <NumberColumn text="Service TP(manual)" dataIndex={serviceTPManual} editable={canEdit} />
+                        <NumberColumn text="List price" dataIndex="ListPrice" />
+                        <NumberColumn text="Dealer discount" dataIndex="DealerDiscount" />
+                        <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
-                        <NumberColumn text="List price" dataIndex={listPrice} editable={canEdit} />
-                        <NumberColumn text="Dealer discount" dataIndex={dealerDiscount} editable={canEdit} />
-                        <NumberColumn text="Dealer price" dataIndex={dealerPrice} />
-
-                        <NumberColumn text="Other direct cost" dataIndex={otherDirect} />
-                        <NumberColumn text="Local service standard warranty" dataIndex={localServiceStandardWarranty} />
-                        <NumberColumn text="Credits" dataIndex={credits} />
+                        <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
+                        <NumberColumn text="Local service standard warranty" dataIndex="LocalServiceStandardWarranty" />
+                        <NumberColumn text="Credits" dataIndex="Credits" />
 
                     </Column>
 
@@ -183,18 +165,23 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                 {this.toolbar()}
 
+                {this.manualCostDialog()}
+
             </Container>
         );
     }
 
     public componentDidMount() {
         this.grid = this.refs.grid as Grid;
-        this.filter = this.refs.filter as HwCalcFilter;
+        this.filter = this.refs.filter as HwCostFilter;
     }
 
     private init() {
         this.onSearch = this.onSearch.bind(this);
         this.onBeforeLoad = this.onBeforeLoad.bind(this);
+        this.onGridSelect = this.onGridSelect.bind(this);
+        this.onManualCostChange = this.onManualCostChange.bind(this);
+        this.editRecord = this.editRecord.bind(this);
         this.cancelChanges = this.cancelChanges.bind(this);
         this.saveRecords = this.saveRecords.bind(this);
 
@@ -203,6 +190,14 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private toggleToolbar(disable: boolean) {
         this.setState({ disableSaveButton: disable, disableCancelButton: disable });
+    }
+
+    private editRecord() {
+        let rec = ExtDataviewHelper.getGridSelected<HwCostListModel>(this.grid)[0];
+        if (rec) {
+            this.costDlg.setModel(rec);
+            this.costDlg.show();
+        }
     }
 
     private cancelChanges() {
@@ -216,11 +211,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
             success: function (batch, options) {
                 //TODO: show successfull message box
-                this.setState({
-                    disableSaveButton: true,
-                    disableCancelButton: true
-                });
-                this.store.load();
+                this.reset();
+                this.reload();
             },
 
             failure: (batch, options) => {
@@ -231,7 +223,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     }
 
-    private onSearch(filter: HwCalcFilterModel) {
+    private onSearch(filter: HwCostFilterModel) {
         this.reload();
     }
 
@@ -240,15 +232,34 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onBeforeLoad(s, operation) {
-        let filter = this.filter.getModel();
+        this.reset();
+
+        let filter = this.filter.getModel() as any;
+        filter.approved = this.props.approved;
         let params = Ext.apply({}, operation.getParams(), filter);
         operation.setParams(params);
     }
 
-    private pluginConf(): any {
+    private onGridSelect(view: Grid, record: any) {
+        let state = { disableEditButton: true }
 
-        let cfg: any = {
-            desktop: {
+        if (record) {
+            state.disableEditButton = !this.canEditRow(record.data);
+        }
+
+        this.setState(state);
+    }
+
+    private onManualCostChange(m: HwCostListModel) {
+        let rec = this.store.findRecord('Id', m.Id);
+        if (rec) {
+            rec.set(m, { dirty: true });
+        }
+    }
+
+    private pluginConf(): any {
+        return {
+            'desktop': {
                 plugins: {
                     gridpagingtoolbar: true
                 }
@@ -259,39 +270,52 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 }
             }
         };
-
-        if (this.canEdit()) {
-            cfg['desktop'].plugins['gridcellediting'] = true;
-            cfg['!desktop'].plugins['grideditable'] = true;
-        }
-
-        return cfg;
     }
 
     private canEdit() {
         return !this.props.approved;
     }
 
+    private canEditRow(row: HwCostListModel): boolean {
+        return row.CanOverrideTransferCostAndPrice || row.CanStoreListAndDealerPrices;
+    }
+
     private toolbar() {
         if (this.canEdit()) {
-            return (
-                <Toolbar docked="bottom">
-                    <Button
-                        text="Cancel"
-                        flex={1}
-                        iconCls="x-fa fa-trash"
-                        handler={this.cancelChanges}
-                        disabled={this.state.disableCancelButton}
-                    />
-                    <Button
-                        text="Save"
-                        flex={1}
-                        iconCls="x-fa fa-save"
-                        handler={this.saveRecords}
-                        disabled={this.state.disableSaveButton}
-                    />
-                </Toolbar>
-            );
+            return <Toolbar docked="top">
+                <Button
+                    text="Edit"
+                    iconCls="x-fa fa-pencil"
+                    handler={this.editRecord}
+                    disabled={this.state.disableEditButton}
+                />
+                <Button
+                    text="Cancel"
+                    iconCls="x-fa fa-trash"
+                    handler={this.cancelChanges}
+                    disabled={this.state.disableCancelButton}
+                />
+                <Button
+                    text="Save"
+                    iconCls="x-fa fa-save"
+                    handler={this.saveRecords}
+                    disabled={this.state.disableSaveButton}
+                />
+            </Toolbar>;
         }
+    }
+
+    private manualCostDialog() {
+        if (this.canEdit()) {
+            return <HwManualCostDialog ref={x => this.costDlg = x} title="Manual cost input" draggable={false} onOk={this.onManualCostChange} />
+        }
+    }
+
+    private reset() {
+        this.setState({
+            disableEditButton: true,
+            disableSaveButton: true,
+            disableCancelButton: true
+        });
     }
 }

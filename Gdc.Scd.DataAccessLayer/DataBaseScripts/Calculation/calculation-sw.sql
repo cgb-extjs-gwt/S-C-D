@@ -1,6 +1,26 @@
-﻿IF OBJECT_ID('SoftwareSolution.GetCalcResult') IS NOT NULL
-  DROP FUNCTION SoftwareSolution.GetCalcResult;
-go 
+﻿IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceCostView', 'U') IS NOT NULL
+  DROP TABLE SoftwareSolution.SwSpMaintenanceCostView;
+go
+
+IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceCostView', 'V') IS NOT NULL
+  DROP VIEW SoftwareSolution.SwSpMaintenanceCostView;
+go
+
+IF OBJECT_ID('SoftwareSolution.ProActiveView', 'U') IS NOT NULL
+  DROP TABLE SoftwareSolution.ProActiveView;
+go
+
+IF OBJECT_ID('SoftwareSolution.ProActiveView', 'V') IS NOT NULL
+  DROP VIEW SoftwareSolution.ProActiveView;
+go
+
+IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceView', 'V') IS NOT NULL
+  DROP VIEW SoftwareSolution.SwSpMaintenanceView;
+go
+
+IF OBJECT_ID('InputAtoms.WgSogView', 'V') IS NOT NULL
+  DROP VIEW InputAtoms.WgSogView;
+go
 
 IF OBJECT_ID('SoftwareSolution.CalcDealerPrice') IS NOT NULL
   DROP FUNCTION SoftwareSolution.CalcDealerPrice;
@@ -18,14 +38,6 @@ IF OBJECT_ID('SoftwareSolution.CalcTransferPrice') IS NOT NULL
   DROP FUNCTION SoftwareSolution.CalcTransferPrice;
 go 
 
-IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceView', 'V') IS NOT NULL
-  DROP VIEW SoftwareSolution.SwSpMaintenanceView;
-go
-
-IF OBJECT_ID('SoftwareSolution.ProActiveView', 'V') IS NOT NULL
-  DROP VIEW SoftwareSolution.ProActiveView;
-go
-
 CREATE FUNCTION [SoftwareSolution].[CalcDealerPrice] (@maintenance float, @discount float)
 returns float
 as
@@ -34,7 +46,8 @@ BEGIN
     begin
         return null;
     end
-    return @maintenance * (1 - @discount);END
+    return @maintenance * (1 - @discount);
+END
 GO
 
 CREATE FUNCTION [SoftwareSolution].[CalcMaintenanceListPrice] (@transfer float, @markup float)
@@ -70,12 +83,19 @@ BEGIN
 END
 GO
 
+CREATE VIEW InputAtoms.WgSogView as 
+    select wg.*
+         , sog.Name as Sog
+         , sog.Description as SogDescription
+    from InputAtoms.Wg wg
+    left join InputAtoms.Sog sog on sog.id = wg.SogId
+    where wg.DeactivatedDateTime is null
+GO
+
 CREATE VIEW [SoftwareSolution].[SwSpMaintenanceView] as
     SELECT ssm.Pla,
            ssm.Sog,
            ssm.Sfab,
-           ssm.SwDigit,
-           ssm.SwLicense,
            ya.YearId as Year,
            ya.AvailabilityId as Availability,
            
@@ -113,12 +133,86 @@ CREATE VIEW [SoftwareSolution].[SwSpMaintenanceView] as
     LEFT JOIN [References].ExchangeRate er2 on er2.CurrencyId = ssm.CurrencyReinsurance_Approved
 GO
 
-CREATE VIEW [SoftwareSolution].[ProActiveView] AS
-with ProActiveCte as 
-(
+CREATE VIEW SoftwareSolution.SwSpMaintenanceCostView as
+    with GermanyServiceCte as (
+        select  ssc.Wg
+              , ssc.[1stLevelSupportCosts]
+              , ssc.[1stLevelSupportCosts_Approved]
+              , ib.InstalledBaseCountry
+              , ib.InstalledBaseCountry_Approved
+
+        from Hardware.ServiceSupportCostView ssc
+        join Hardware.InstallBase ib on ib.Country = ssc.Country and ib.Wg = ssc.Wg
+        join InputAtoms.Country c on c.id = ssc.Country
+
+        where c.ISO3CountryCode = 'DEU' --install base by Germany!
+    )
+    , SwSpMaintenanceCte as (
+        select m.*
+             , cte.*
+             , wg.SogId
+        from SoftwareSolution.SwSpMaintenanceView m 
+        left join InputAtoms.WgSogView wg on wg.SogId = m.Sog
+        left join GermanyServiceCte cte on m.Sog = wg.Id
+    )
+    , SwSpMaintenanceCte2 as (
+            select m.*
+                 , SoftwareSolution.CalcSrvSupportCost(m.[1stLevelSupportCosts], m.[2ndLevelSupportCosts], m.InstalledBaseCountry, m.InstalledBaseSog) as ServiceSupport
+                 , SoftwareSolution.CalcSrvSupportCost(m.[1stLevelSupportCosts_Approved], m.[2ndLevelSupportCosts_Approved], m.InstalledBaseCountry_Approved, m.InstalledBaseSog_Approved) as ServiceSupport_Approved
+        from SwSpMaintenanceCte m
+    )
+    , SwSpMaintenanceCte3 as (
+        select m.*
+             , SoftwareSolution.CalcTransferPrice(m.Reinsurance, m.ServiceSupport) as TransferPrice
+             , SoftwareSolution.CalcTransferPrice(m.Reinsurance_Approved, m.ServiceSupport_Approved) as TransferPrice_Approved
+         from SwSpMaintenanceCte2 m
+    )
+    , SwSpMaintenanceCte4 as (
+        select m.Sog
+             , m.Pla
+             , m.Sfab
+             , m.Availability
+             , m.Year
+             , m.[1stLevelSupportCosts]
+             , m.[1stLevelSupportCosts_Approved]
+             , m.[2ndLevelSupportCosts]
+             , m.[2ndLevelSupportCosts_Approved]
+             , m.InstalledBaseCountry
+             , m.InstalledBaseCountry_Approved
+             , m.InstalledBaseSog
+             , m.InstalledBaseSog_Approved
+             , m.Reinsurance
+             , m.Reinsurance_Approved
+             , m.DiscountDealerPrice
+             , m.DiscountDealerPrice_Approved
+             , m.ServiceSupport
+             , m.ServiceSupport_Approved
+             , m.TransferPrice
+             , m.TransferPrice_Approved
+        
+            , (case 
+                    when m.MaintenanceListPrice is null then SoftwareSolution.CalcMaintenanceListPrice(m.TransferPrice, m.MarkupForProductMargin)
+                    else m.MaintenanceListPrice
+                end) as MaintenanceListPrice
+        
+            ,(case 
+                    when m.MaintenanceListPrice_Approved is null then SoftwareSolution.CalcMaintenanceListPrice(m.TransferPrice_Approved, m.MarkupForProductMargin_Approved)
+                    else m.MaintenanceListPrice_Approved
+               end) as MaintenanceListPrice_Approved 
+
+        from SwSpMaintenanceCte3 m
+    )
+    select m.*
+         , DealerPrice = SoftwareSolution.CalcDealerPrice(m.MaintenanceListPrice, m.DiscountDealerPrice)
+         , DealerPrice_Approved = SoftwareSolution.CalcDealerPrice(m.MaintenanceListPrice_Approved, m.DiscountDealerPrice_Approved)
+    from SwSpMaintenanceCte4 m
+GO
+
+CREATE VIEW SoftwareSolution.ProActiveView AS
+with ProActiveCte as (
     select pro.Country,
            pro.Sog,
-           pro.SwDigit,
+           dur.Value as Year,
 
            (pro.LocalRemoteAccessSetupPreparationEffort * pro.OnSiteHourlyRate) as LocalRemoteAccessSetup,
            (pro.LocalRemoteAccessSetupPreparationEffort_Approved * pro.OnSiteHourlyRate_Approved) as LocalRemoteAccessSetup_Approved,
@@ -170,163 +264,56 @@ with ProActiveCte as
             sla.CentralExecutionShcReportRepetition) as CentralExecutionReport_Approved
 
     from SoftwareSolution.ProActiveSw pro
-    left join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = pro.SwDigit and fsp.SogId = pro.Sog
+    left join Fsp.SwFspCodeTranslation fsp on fsp.SogId = pro.Sog
     left join Dependencies.ProActiveSla sla on sla.id = fsp.ProactiveSlaId
+    left join Dependencies.Duration dur on dur.Id = fsp.DurationId
 )
-select pro.Country,
-       pro.Sog,
-       pro.SwDigit,
+, ProActiveCte2 as (
+     select pro.Country,
+            pro.Sog,
+            pro.Year,
 
-        pro.LocalPreparation,
-        pro.LocalPreparation_Approved,
+            pro.LocalPreparation,
+            pro.LocalPreparation_Approved,
 
-        pro.LocalRegularUpdate,
-        pro.LocalRegularUpdate_Approved,
+            pro.LocalRegularUpdate,
+            pro.LocalRegularUpdate_Approved,
 
-        pro.LocalRemoteCustomerBriefing,
-        pro.LocalRemoteCustomerBriefing_Approved,
+            pro.LocalRemoteCustomerBriefing,
+            pro.LocalRemoteCustomerBriefing_Approved,
 
-        pro.LocalOnsiteCustomerBriefing,
-        pro.LocalOnsiteCustomerBriefing_Approved,
+            pro.LocalOnsiteCustomerBriefing,
+            pro.LocalOnsiteCustomerBriefing_Approved,
 
-        pro.Travel,
-        pro.Travel_Approved,
+            pro.Travel,
+            pro.Travel_Approved,
 
-        pro.CentralExecutionReport,
-        pro.CentralExecutionReport_Approved,
+            pro.CentralExecutionReport,
+            pro.CentralExecutionReport_Approved,
 
-        pro.LocalRemoteAccessSetup as Setup,
-        pro.LocalRemoteAccessSetup_Approved  as Setup_Approved,
+            pro.LocalRemoteAccessSetup as Setup,
+            pro.LocalRemoteAccessSetup_Approved  as Setup_Approved,
 
-       (pro.LocalPreparation + 
-        pro.LocalRegularUpdate + 
-        pro.LocalRemoteCustomerBriefing +
-        pro.LocalOnsiteCustomerBriefing +
-        pro.Travel +
-        pro.CentralExecutionReport) as Service,
+           (pro.LocalPreparation + 
+            pro.LocalRegularUpdate + 
+            pro.LocalRemoteCustomerBriefing +
+            pro.LocalOnsiteCustomerBriefing +
+            pro.Travel +
+            pro.CentralExecutionReport) as Service,
        
-       (pro.LocalPreparation_Approved + 
-        pro.LocalRegularUpdate_Approved + 
-        pro.LocalRemoteCustomerBriefing_Approved +
-        pro.LocalOnsiteCustomerBriefing_Approved +
-        pro.Travel_Approved +
-        pro.CentralExecutionReport_Approved) as Service_Approved
+           (pro.LocalPreparation_Approved + 
+            pro.LocalRegularUpdate_Approved + 
+            pro.LocalRemoteCustomerBriefing_Approved +
+            pro.LocalOnsiteCustomerBriefing_Approved +
+            pro.Travel_Approved +
+            pro.CentralExecutionReport_Approved) as Service_Approved
 
-from ProActiveCte pro
-GO
-
-CREATE FUNCTION [SoftwareSolution].[GetCalcResult](
-    @cnt bigint,
-    @sog bigint,
-    @av bigint,
-    @year bigint
+    from ProActiveCte pro
 )
-RETURNS TABLE
-AS
-RETURN 
-    with cte as
-    (
-        select  ib.Country,
-                m.Sog,
-                m.Year,
-                m.Availability,
-
-                m.MaintenanceListPrice,
-                m.MaintenanceListPrice_Approved,
-
-                m.MarkupForProductMargin,
-                m.MarkupForProductMargin_Approved,
-
-                m.Reinsurance,
-                m.Reinsurance_Approved,
-
-                m.DiscountDealerPrice,
-                m.DiscountDealerPrice_Approved,
-
-                SoftwareSolution.CalcSrvSupportCost(
-                    ssc.[1stLevelSupportCosts],
-                    m.[2ndLevelSupportCosts],
-                    ib.ibCnt,
-                    m.InstalledBaseSog
-                ) as ServiceSupport,
-                SoftwareSolution.CalcSrvSupportCost(
-                    ssc.[1stLevelSupportCosts_Approved],
-                    m.[2ndLevelSupportCosts_Approved],
-                    ib.ibCnt_Approved,
-                    m.InstalledBaseSog_Approved
-                ) as ServiceSupport_Approved
-
-        FROM SoftwareSolution.SwSpMaintenanceView m,
-             Hardware.ServiceSupportCostView ssc,
-             Atom.InstallBaseByCountryView ib
-
-        WHERE       (@sog is null or m.Sog = @sog)
-                AND (@cnt is null or ib.Country = @cnt)
-                AND (@av is null or m.Availability = @av)
-                AND (@year is null or m.Year = @year)
-    )
-    , cte2 as
-    (
-        select calc.*,
-
-               SoftwareSolution.CalcTransferPrice(Reinsurance, ServiceSupport) as TransferPrice,
-               SoftwareSolution.CalcTransferPrice(Reinsurance_Approved, ServiceSupport_Approved) as TransferPrice_Approved
-        from cte as calc
-    )
-    , cte3 as 
-    (
-        select calc.Country,
-               calc.Sog,
-               calc.Year,
-               calc.Availability,
-
-               calc.DiscountDealerPrice,
-               calc.DiscountDealerPrice_Approved,
-
-               calc.Reinsurance,
-               calc.Reinsurance_Approved,
-
-               calc.ServiceSupport,
-               calc.ServiceSupport_Approved,
-
-               calc.TransferPrice,
-               calc.TransferPrice_Approved,
-
-               (case 
-                    when calc.MaintenanceListPrice is null then SoftwareSolution.CalcMaintenanceListPrice(calc.TransferPrice, calc.MarkupForProductMargin)
-                    else calc.MaintenanceListPrice
-                end) as MaintenanceListPrice,
-               (case 
-                    when calc.MaintenanceListPrice_Approved is null then SoftwareSolution.CalcMaintenanceListPrice(calc.TransferPrice_Approved, calc.MarkupForProductMargin_Approved)
-                    else calc.MaintenanceListPrice_Approved
-                end) as MaintenanceListPrice_Approved
-
-        from cte2 as calc
-    )
-    select calc.Country,
-           calc.Sog,
-           calc.Year,
-           calc.Availability,
-
-           calc.Reinsurance,
-           calc.Reinsurance_Approved,
-
-           calc.ServiceSupport,
-           calc.ServiceSupport_Approved,
-
-           calc.TransferPrice,
-           calc.TransferPrice_Approved,
-
-           calc.MaintenanceListPrice,
-           calc.MaintenanceListPrice_Approved,
-
-           SoftwareSolution.CalcDealerPrice(calc.MaintenanceListPrice, calc.DiscountDealerPrice) as DealerPrice,
-           SoftwareSolution.CalcDealerPrice(calc.MaintenanceListPrice_Approved, calc.DiscountDealerPrice_Approved) as DealerPrice_Approved,
-
-           Hardware.CalcProActive(pro.Setup, pro.Service, y.Value) as ProActive,
-           Hardware.CalcProActive(pro.Setup_Approved, pro.Service_Approved, y.Value) as ProActive_Approved
-
-    from cte3 as calc
-    left join Dependencies.Year y on y.id = calc.Year
-    left join SoftwareSolution.ProActiveView pro on pro.Country = calc.Country and pro.Sog = calc.Sog
+select pro.*,
+       Hardware.CalcProActive(pro.Setup, pro.Service, pro.Year) as ProActive,
+       Hardware.CalcProActive(pro.Setup_Approved, pro.Service_Approved, pro.Year) as ProActive_Approved
+from ProActiveCte2 pro
 GO
+
+

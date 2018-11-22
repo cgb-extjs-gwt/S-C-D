@@ -5,4 +5,8 @@ export class CountryService extends CacheDomainService<NamedId> {
     constructor() {
         super('country');
     }
+
+    public iso(): Promise<string[]> {
+        return this.getFromUrl<string>('iso');
+    }
 }

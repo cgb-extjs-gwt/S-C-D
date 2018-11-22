@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace Gdc.Scd.Web.Server.Controllers
@@ -23,12 +24,12 @@ namespace Gdc.Scd.Web.Server.Controllers
             this.domainService = domainService;
         }
 
-        public virtual IEnumerable<T> GetAll()
+        public virtual Task<T[]> GetAll()
         {
-            return this.domainService.GetAll();
+            return this.domainService.GetAll().GetAsync();
         }
 
-        public virtual DataInfo<T> GetBy(int start, int limit, string sort = null, string filter = null)
+        public virtual async Task<DataInfo<T>> GetBy(int start, int limit, string sort = null, string filter = null)
         {
             var allItems = this.domainService.GetAll();
             var query = allItems.Skip(start).Take(limit);
@@ -40,14 +41,14 @@ namespace Gdc.Scd.Web.Server.Controllers
 
             return new DataInfo<T>
             {
-                Items = query.ToArray(),
-                Total = this.Filter(allItems, filterInfos).Count()
+                Items = await query.GetAsync(),
+                Total = await this.Filter(allItems, filterInfos).GetCountAsync()
             };
         }
 
-        public virtual T Get(long id)
+        public virtual Task<T> Get(long id)
         {
-            return this.domainService.Get(id);
+            return this.domainService.GetAll().Where(x => x.Id == id).GetFirstOrDefaultAsync();
         }
 
         [HttpPost]

@@ -2,14 +2,14 @@
 import * as React from "react";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { SwCalcFilter } from "./Components/SwCalcFilter";
-import { SwCalcFilterModel } from "./Model/SwCalcFilterModel";
+import { SwCostFilter } from "./Components/SwCostFilter";
+import { SwCostFilterModel } from "./Model/SwCostFilterModel";
 
 export class SwCostView extends React.Component<CalcCostProps, any> {
 
     private grid: Grid;
 
-    private filter: SwCalcFilter;
+    private filter: SwCostFilter;
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
         pageSize: 25,
@@ -34,27 +34,10 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     }
 
     public render() {
-
-        let serviceSupport: string = 'serviceSupport';
-        let reinsurance: string = 'reinsurance';
-        let transferPrice: string = 'transferPrice';
-        let maintenanceListPrice: string = 'maintenanceListPrice';
-        let dealerPrice: string = 'dealerPrice';
-        let proActive: string = 'proActive';
-
-        if (this.props.approved) {
-            serviceSupport = 'serviceSupport_Approved';
-            reinsurance = 'reinsurance_Approved';
-            transferPrice = 'transferPrice_Approved';
-            maintenanceListPrice = 'maintenanceListPrice_Approved';
-            dealerPrice = 'dealerPrice_Approved';
-            proActive = 'proActive_Approved';
-        }
-
         return (
             <Container layout="fit">
 
-                <SwCalcFilter ref="filter" docked="right" onSearch={this.onSearch} />
+                <SwCostFilter ref="filter" docked="right" onSearch={this.onSearch} />
 
                 <Grid ref="grid" store={this.store} width="100%" plugins={['pagingtoolbar']}>
 
@@ -84,12 +67,11 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <NumberColumn text="Service support cost" dataIndex={serviceSupport} />
-                        <NumberColumn text="Reinsurance" dataIndex={reinsurance} />
-                        <NumberColumn text="Transer price" dataIndex={transferPrice} />
-                        <NumberColumn text="Maintenance list price" dataIndex={maintenanceListPrice} />
-                        <NumberColumn text="Dealer reference price" dataIndex={dealerPrice} />
-                        <NumberColumn text="Pro active" dataIndex={proActive} />
+                        <NumberColumn text="Service support cost"   dataIndex="serviceSupport" />
+                        <NumberColumn text="Reinsurance"            dataIndex="reinsurance" />
+                        <NumberColumn text="Transer price"          dataIndex="transferPrice" />
+                        <NumberColumn text="Maintenance list price" dataIndex="maintenanceListPrice" />
+                        <NumberColumn text="Dealer reference price" dataIndex="dealerPrice" />
 
                     </Column>
 
@@ -100,7 +82,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
     public componentDidMount() {
         this.grid = this.refs.grid as Grid;
-        this.filter = this.refs.filter as SwCalcFilter;
+        this.filter = this.refs.filter as SwCostFilter;
     }
 
     private init() {
@@ -110,7 +92,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         this.store.on('beforeload', this.onBeforeLoad);
     }
 
-    private onSearch(filter: SwCalcFilterModel) {
+    private onSearch(filter: SwCostFilterModel) {
         this.reload();
     }
 

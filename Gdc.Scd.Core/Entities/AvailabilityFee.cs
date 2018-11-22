@@ -5,7 +5,7 @@ using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("AvailabilityFee", Schema = MetaConstants.AtomSchema)]
+    [Table("AvailabilityFee", Schema = MetaConstants.HardwareSchema)]
     public class AvailabilityFee : IIdentifiable, IDeactivatable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -25,8 +25,11 @@ namespace Gdc.Scd.Core.Entities
         public double? StockValueMv { get; set; }
         public double? AverageContractDuration { get; set; }
         public double? CostPerKit { get; set; }
+        public double? CostPerKit_Approved { get; set; }
         public double? CostPerKitJapanBuy { get; set; }
+        public double? CostPerKitJapanBuy_Approved { get; set; }
         public double? MaxQty { get; set; }
+        public double? MaxQty_Approved { get; set; }
         public bool? JapanBuy { get; set; }
         public double? InstalledBaseHighAvailability_Approved { get; set; }
         public double? TotalLogisticsInfrastructureCost_Approved { get; set; }

@@ -3,6 +3,12 @@
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="DomainConfig.xml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="6.0.4" />
@@ -12,7 +18,6 @@
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Web" />
   </ItemGroup>
 
 </Project>

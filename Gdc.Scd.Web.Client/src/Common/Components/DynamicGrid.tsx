@@ -184,7 +184,7 @@ export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGrid
 
         switch(column.type) {
             case ColumnType.CheckBox:
-                return (<CheckColumn {...columnOption} disabled={!column.isEditable}/>);
+                return (<CheckColumn {...columnOption} disabled={!column.isEditable} headerCheckbox={column.isEditable} />);
 
             default:
                 let editor = null;

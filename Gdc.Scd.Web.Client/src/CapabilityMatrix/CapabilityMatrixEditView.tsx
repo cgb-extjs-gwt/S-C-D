@@ -1,7 +1,12 @@
-﻿import { Button, CheckBoxField, ComboBoxField, Container } from "@extjs/ext-react";
+﻿import { Button, CheckBoxField, Container } from "@extjs/ext-react";
 import * as React from "react";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
+import { buildComponentUrl } from "../Common/Services/Ajax";
+import { CountryField } from "../Dict/Components/CountryField";
+import { DictField } from "../Dict/Components/DictField";
+import { DictFactory } from "../Dict/Services/DictFactory";
+import { IDictService } from "../Dict/Services/IDictService";
 import { MultiSelect } from "./Components/MultiSelect";
 import { MultiSelectWg } from "./Components/MultiSelectWg";
 import { CapabilityMatrixEditModel } from "./Model/CapabilityMatrixEditModel";
@@ -9,15 +14,14 @@ import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService";
 import { MatrixFactory } from "./Services/MatrixFactory";
 
 const SELECT_MAX_HEIGHT: string = '260px';
-const ID_PROP = 'id';
 
 export class CapabilityMatrixEditView extends React.Component<any, any> {
 
-    private country: ComboBoxField & any;
+    private country: DictField;
 
     private wg: MultiSelect;
 
-    private avail: MultiSelect;
+    private av: MultiSelect;
 
     private dur: MultiSelect;
 
@@ -27,13 +31,19 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
 
     private srvloc: MultiSelect;
 
-    private globPort: CheckBoxField;
+    private globPort: CheckBoxField & any;
 
-    private masterPort: CheckBoxField;
+    private masterPort: CheckBoxField & any;
 
-    private corePort: CheckBoxField;
+    private corePort: CheckBoxField & any;
 
     private srv: ICapabilityMatrixService;
+
+    private dictSrv: IDictService;
+
+    public state = {
+        isPortfolio: true
+    };
 
     public constructor(props: any) {
         super(props);
@@ -44,48 +54,45 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
         return (
             <Container layout="vbox" padding="10px" scrollable="true">
 
-                <ComboBoxField
-                    ref="country"
+                <CountryField
+                    ref={x => this.country = x}
                     width="250px"
                     label="Country:"
                     labelAlign="left"
                     labelWidth="80px"
-                    options={this.state.countries}
-                    displayField="name"
-                    valueField="id"
-                    queryMode="local"
                     clearable="true"
                     onChange={this.onCountryChange}
                 />
 
                 <div className="matrix-edit-container">
                     <div>
-                        <MultiSelectWg ref="wg" maxHeight="204px" title="Asset(WG)" itemTpl="{name}" store={this.state.warrantyGroups} />
+                        <MultiSelectWg ref={x => this.wg = x} maxHeight="204px" title="Asset(WG)" store={this.dictSrv.getWG} />
                     </div>
                     <div>
-                        <MultiSelect ref="availability" maxHeight={SELECT_MAX_HEIGHT} title="Availability" itemTpl="{name}" store={this.state.availabilityTypes} />
+                        <MultiSelect ref={x => this.av = x} maxHeight={SELECT_MAX_HEIGHT} title="Availability" store={this.dictSrv.getAvailabilityTypes} />
                     </div>
                     <div>
-                        <MultiSelect ref="duration" maxHeight={SELECT_MAX_HEIGHT} title="Duration" itemTpl="{name}" store={this.state.durationTypes} />
+                        <MultiSelect ref={x => this.dur = x} maxHeight={SELECT_MAX_HEIGHT} title="Duration" store={this.dictSrv.getDurationTypes} />
                     </div>
                     <div>
-                        <MultiSelect ref="reactType" maxHeight={SELECT_MAX_HEIGHT} title="Reaction type" itemTpl="{name}" store={this.state.reactTypes} />
+                        <MultiSelect ref={x => this.reacttype = x} maxHeight={SELECT_MAX_HEIGHT} title="Reaction type" store={this.dictSrv.getReactionTypes} />
                     </div>
                     <div>
-                        <MultiSelect ref="reactTime" maxHeight={SELECT_MAX_HEIGHT} title="Reaction time" itemTpl="{name}" store={this.state.reactionTimeTypes} />
+                        <MultiSelect ref={x => this.reacttime = x} maxHeight={SELECT_MAX_HEIGHT} title="Reaction time" store={this.dictSrv.getReactionTimeTypes} />
                     </div>
                     <div>
-                        <MultiSelect ref="srvLoc" maxHeight={SELECT_MAX_HEIGHT} title="Service location" itemTpl="{name}" store={this.state.serviceLocationTypes} />
+                        <MultiSelect ref={x => this.srvloc = x} maxHeight={SELECT_MAX_HEIGHT} title="Service location" store={this.dictSrv.getServiceLocationTypes} />
                     </div>
                 </div>
 
                 <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio }} margin="15px 0">
-                    <CheckBoxField ref="globPort" boxLabel="Fujitsu global portfolio" />
-                    <CheckBoxField ref="masterPort" boxLabel="Master portfolio" />
-                    <CheckBoxField ref="corePort" boxLabel="Core portfolio" />
+                    <CheckBoxField ref={x => this.globPort = x} boxLabel="Fujitsu global portfolio" />
+                    <CheckBoxField ref={x => this.masterPort = x} boxLabel="Master portfolio" />
+                    <CheckBoxField ref={x => this.corePort = x} boxLabel="Core portfolio" />
                 </Container>
 
                 <Container>
+                    <Button iconCls="x-fa fa-arrow-left" text="back to Portfolio" handler={this.onBack} />
                     <Button text="Deny combinations" ui="decline" padding="0 10px 0 0" handler={this.onDeny} />
                 </Container>
 
@@ -93,56 +100,14 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
         );
     }
 
-    public componentDidMount() {
-        Promise.all([
-            this.srv.getCountries(),
-            this.srv.getWG(),
-            this.srv.getAvailabilityTypes(),
-            this.srv.getDurationTypes(),
-            this.srv.getReactTypes(),
-            this.srv.getReactionTimeTypes(),
-            this.srv.getServiceLocationTypes()
-        ]).then(x => {
-            this.setState({
-                countries: x[0],
-                warrantyGroups: x[1],
-                availabilityTypes: x[2],
-                durationTypes: x[3],
-                reactTypes: x[4],
-                reactionTimeTypes: x[5],
-                serviceLocationTypes: x[6]
-            });
-        });
-        //
-        this.country = this.refs['country'] as ComboBoxField;
-        this.wg = this.refs['wg'] as MultiSelect;
-        this.avail = this.refs['availability'] as MultiSelect;
-        this.dur = this.refs['duration'] as MultiSelect;
-        this.reacttype = this.refs['reactType'] as MultiSelect;
-        this.reacttime = this.refs['reactTime'] as MultiSelect;
-        this.srvloc = this.refs['srvLoc'] as MultiSelect;
-        this.globPort = this.refs['globPort'] as CheckBoxField;
-        this.masterPort = this.refs['masterPort'] as CheckBoxField;
-        this.corePort = this.refs['corePort'] as CheckBoxField;
-    }
-
     private init() {
         this.srv = MatrixFactory.getMatrixService();
+        this.dictSrv = DictFactory.getDictService();
         //
         this.onCountryChange = this.onCountryChange.bind(this);
         this.onDeny = this.onDeny.bind(this);
+        this.onBack = this.onBack.bind(this);
         this.denyCombination = this.denyCombination.bind(this);
-        //
-        this.state = {
-            isPortfolio: true,
-            countries: [],
-            warrantyGroups: [],
-            availabilityTypes: [],
-            durationTypes: [],
-            reactTypes: [],
-            reactionTimeTypes: [],
-            serviceLocationTypes: []
-        };
     }
 
     private onCountryChange(combo, newVal, oldVal) {
@@ -150,12 +115,24 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
     }
 
     private onDeny() {
-        ExtMsgHelper.confirm('Deny combinations', 'Do you want to save the changes?', this.denyCombination);
+        let m = this.getModel();
+        let isValid = m.countryId || m.isGlobalPortfolio || m.isMasterPortfolio || m.isCorePortfolio;
+
+        if (isValid) {
+            ExtMsgHelper.confirm('Deny combinations', 'Do you want to save the changes?', this.denyCombination);
+        }
+        else {
+            Ext.Msg.alert('Invalid input!', 'Please choose master or local portfolio!');
+        }
+    }
+
+    private onBack() {
+        this.props.history.push(buildComponentUrl('/capability-matrix'));
     }
 
     private denyCombination() {
         let p = this.srv.denyItem(this.getModel());
-        handleRequest(p);
+        handleRequest(p).then(() => this.reset());
     }
 
     private setPortfolio(val: boolean) {
@@ -168,48 +145,15 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
             isMasterPortfolio: this.isMasterPortfolio(),
             isCorePortfolio: this.isCorePortfolio(),
 
-            countryId: this.getCountry(),
+            countryId: this.country.getSelected(),
 
-            wgs: this.getWg(),
-            availabilities: this.getAvailability(),
-            durations: this.getDuration(),
-            reactionTypes: this.getReactType(),
-            reactionTimes: this.getReactTime(),
-            serviceLocations: this.getServiceLocation()
+            wgs: this.wg.getSelectedKeys(),
+            availabilities: this.av.getSelectedKeys(),
+            durations: this.dur.getSelectedKeys(),
+            reactionTypes: this.reacttype.getSelectedKeys(),
+            reactionTimes: this.reacttime.getSelectedKeys(),
+            serviceLocations: this.srvloc.getSelectedKeys()
         }
-    }
-
-    private getWg(): string[] {
-        return this.wg.getSelectedKeys(ID_PROP);
-    }
-
-    private getAvailability(): string[] {
-        return this.avail.getSelectedKeys(ID_PROP);
-    }
-
-    private getDuration(): string[] {
-        return this.dur.getSelectedKeys(ID_PROP);
-    }
-
-    private getReactType(): string[] {
-        return this.reacttype.getSelectedKeys(ID_PROP);
-    }
-
-    private getReactTime(): string[] {
-        return this.reacttime.getSelectedKeys(ID_PROP);
-    }
-
-    private getServiceLocation(): string[] {
-        return this.srvloc.getSelectedKeys(ID_PROP);
-    }
-
-    private getCountry(): string {
-        let result: string = null;
-        let selected = this.country.getSelection();
-        if (selected) {
-            result = selected.data.id;
-        }
-        return result;
     }
 
     private isGlobalPortfolio(): boolean {
@@ -226,5 +170,19 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
 
     private isPortfolio(cb: CheckBoxField): boolean {
         return this.state.isPortfolio ? (cb as any).getChecked() : false;
+    }
+
+    private reset() {
+        this.country.reset();
+        this.wg.reset();
+        this.av.reset();
+        this.dur.reset();
+        this.reacttype.reset();
+        this.reacttime.reset();
+        this.srvloc.reset();
+        //
+        this.globPort.reset();
+        this.masterPort.reset();
+        this.corePort.reset();
     }
 }

@@ -1,11 +1,11 @@
 ﻿import { DataInfo } from "../../Common/States/CommonStates";
 import { AutoGridModel } from "../Model/AutogridModel";
-import { HwCalcFilterModel } from "../Model/HwCalcFilterModel";
-import { HwCalcListModel } from "../Model/HwCalcListModel";
+import { HwCostFilterModel } from "../Model/HwCostFilterModel";
+import { HwCostListModel } from "../Model/HwCostListModel";
 import { ReportModel } from "../Model/ReportModel";
 
 export interface IReportService {
-    getHwCost(filter: HwCalcFilterModel): Promise<DataInfo<HwCalcListModel>>;
+    getHwCost(filter: HwCostFilterModel): Promise<DataInfo<HwCostListModel>>;
 
     getSchema(id: string): Promise<AutoGridModel>;
 

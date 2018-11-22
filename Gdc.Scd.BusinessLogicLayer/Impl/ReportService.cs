@@ -61,7 +61,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var func = r.Report.SqlFunc;
             var parameters = r.FillParameters(filter);
 
-            return new GetReport(repositorySet).ExecuteJsonAsync(func, parameters);
+            return new GetReport(repositorySet).ExecuteJsonAsync(func, start, limit, parameters);
         }
 
         public ReportDto[] GetReports()

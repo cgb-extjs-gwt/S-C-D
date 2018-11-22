@@ -1,11 +1,7 @@
-import { CostEditorState } from "../States/CostEditorStates";
-import { CostBlockState, EditItem, CostElementData } from "../States/CostBlockStates";
+import { buildMvcUrl, get, post } from "../../Common/Services/Ajax";
 import { NamedId } from "../../Common/States/CommonStates";
-import { get, post, buildMvcUrl } from "../../Common/Services/Ajax";
 import { QualityGateResult } from "../../QualityGate/States/QualityGateResult";
-import { CostMetaData } from "../../Common/States/CostMetaStates";
-import { getAppData } from "../../Layout/Services/AppService";
-import data from "../../Test/Home/data";
+import { CostElementData, EditItem } from "../States/CostBlockStates";
 import { Context } from "../../Common/States/Context";
 
 export const COST_EDITOR_CONTROLLER_NAME = 'CostEditor';
