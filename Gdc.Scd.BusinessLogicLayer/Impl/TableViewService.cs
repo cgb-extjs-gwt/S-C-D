@@ -38,6 +38,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.userService = userService;
             this.repositorySet = repositorySet;
             this.costBlockHistoryService = costBlockHistoryService;
+            this.qualityGateSevice = qualityGateSevice;
             this.meta = meta;
         }
 
@@ -159,11 +160,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                             CoordinateIfno = this.BuildCoordinateInfo(info.Coordinates, inputLevelMetas)
                                         })
                                        .SelectMany(info => info.CostElementValues.Select(costElemenValue => new
-                                       {
-                                           CostElementValue = costElemenValue,
-                                           info.CoordinateIfno.Filter,
-                                           info.CoordinateIfno.InputLevel
-                                       }))
+                                        {
+                                            CostElementValue = costElemenValue,
+                                            info.CoordinateIfno.Filter,
+                                            info.CoordinateIfno.InputLevel
+                                        }))
                                        .GroupBy(info => info.CostElementValue.Key);
 
                 foreach (var costElementGroup in costElementGroups)
