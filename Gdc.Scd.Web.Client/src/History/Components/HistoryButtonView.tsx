@@ -1,13 +1,13 @@
 import * as React from "react";
 import { HistoryWindowView, HistoryWindowViewProps } from "./HistoryWindowView";
-import { HistoryValuesGridViewProps } from "./HistoryValuesGridView";
 import { Container, Button } from "@extjs/ext-react";
 import { Position } from "../../Common/States/ExtStates";
 
-export interface HistoryButtonViewProps extends HistoryValuesGridViewProps {
+export interface HistoryButtonViewProps {
     isEnabled: boolean
     flex: number
     windowPosition?: Position
+    buidHistoryUrl?(): string
 }
 
 export interface HistoryButtonViewState {
@@ -24,14 +24,7 @@ export class HistoryButtonView extends React.Component<HistoryButtonViewProps, H
     }
 
     public render() {
-        const { dataLoadUrl, isEnabled, flex, windowPosition } = this.props;
-
-        const windowProps: HistoryWindowViewProps = {
-            dataLoadUrl,
-            isVisible: this.state.isVisibleWindow,
-            onClose: this.closeHistoryWindow,
-            position: windowPosition
-        };
+        const { isEnabled, flex } = this.props;
 
         return (
             <Container flex={flex} layout={{type: 'vbox', align: 'center'}} >
@@ -43,13 +36,28 @@ export class HistoryButtonView extends React.Component<HistoryButtonViewProps, H
 
                 {
                     this.state.isVisibleWindow &&
-                    <HistoryWindowView {...windowProps} />
+                    this.buildHistoryWindow()
                 }
             </Container>
         );
     }
 
-    private showHistoryWindow= () => {
+    private buildHistoryWindow() {
+        const { windowPosition, buidHistoryUrl } = this.props;
+
+        const windowProps: HistoryWindowViewProps = {
+            isVisible: this.state.isVisibleWindow,
+            onClose: this.closeHistoryWindow,
+            position: windowPosition,
+            dataLoadUrl: buidHistoryUrl()
+        };
+
+        return (
+            <HistoryWindowView {...windowProps} />
+        );
+    }
+
+    private showHistoryWindow = () => {
         this.setState({
             isVisibleWindow: true
         });

@@ -15,6 +15,8 @@ import { Dispatch } from "redux";
 import { StoreOperation, Model } from "../../Common/States/ExtStates";
 import { isEqualCoordinates } from "../Helpers/TableViewHelper";
 import { TableView, TableViewProps, TableViewActions } from "./TableView";
+import { buildGetTableViewHistoryUrl } from "../../History/Sevices/HistoryService";
+import { CostElementIdentifier } from "../../Common/States/CostElementIdentifier";
 
 const mapToColumnInfo = (
     fieldIfnos: FieldInfo[],
@@ -105,9 +107,29 @@ const buildCountColumns = (costBlock: CostBlockMeta, fieldInfo: FieldInfo) => (<
 
 const buildCountDataIndex = (dataIndex: string) => `${dataIndex}_Count`
 
+const buildHistotyDataLoadUrl = (tableViewInfo: TableViewInfo, [selection]: Model<TableViewRecord>[], selectedDataIndex: string) => {
+    const costElementField = 
+        tableViewInfo.recordInfo.data.find(fieldInfo => fieldInfo.dataIndex == selectedDataIndex);
+
+    const costElementId: CostElementIdentifier = {
+        applicationId: costElementField.applicationId,
+        costBlockId: costElementField.metaId,
+        costElementId: costElementField.fieldName
+    };
+
+    const coordinates = {};
+
+    for (const key of Object.keys(selection.data.coordinates)) {
+        coordinates[key] = selection.data.coordinates[key].id;
+    }
+    
+    return buildGetTableViewHistoryUrl(costElementId, coordinates);
+}
+
 const buildProps = (state: CommonState) => {
     let readUrl: string;
     let updateUrl: string;
+    let buildHistotyUrl: ([selection]: Model<TableViewRecord>[], selectedDataIndex: string) => string
     
     const columns = [];
     const filterDataIndexes = [];
@@ -130,14 +152,20 @@ const buildProps = (state: CommonState) => {
         columns.push(...countColumns, ...coordinateColumns, ...costElementColumns);
 
         coordinateColumns.forEach(column => filterDataIndexes.push(column.dataIndex));
+
+        buildHistotyUrl = (selection, selectedDataIndex) => buildHistotyDataLoadUrl(tableViewInfo, selection, selectedDataIndex);
+    }
+    else {
+        buildHistotyUrl = () => '';
     }
 
-    return <TableViewProps<TableViewRecord>>{
+    return <TableViewProps>{
         columns,
         filterDataIndexes,
         apiUrls: {
             read: readUrl
-        }
+        },
+        buildHistotyDataLoadUrl: buildHistotyUrl
     };
 }
 
@@ -148,7 +176,7 @@ const buildActions = (state: CommonState, dispatch: Dispatch) => {
         )
     );
 
-    return <TableViewActions<TableViewRecord>>{
+    return <TableViewActions>{
         init: () => !state.pages.tableView.info && handleRequest(
             getTableViewInfo().then(
                 tableViewInfo => dispatch(loadTableViewInfo(tableViewInfo))

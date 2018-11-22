@@ -2,21 +2,11 @@ import { buildMvcUrl, get, post } from "../../Common/Services/Ajax";
 import { NamedId } from "../../Common/States/CommonStates";
 import { QualityGateResult } from "../../QualityGate/States/QualityGateResult";
 import { CostElementData, EditItem } from "../States/CostBlockStates";
+import { Context } from "../../Common/States/Context";
 
 export const COST_EDITOR_CONTROLLER_NAME = 'CostEditor';
 
 const COST_BLOCK_HISTORY_CONTROLLER_NAME = 'CostBlockHistory';
-
-export interface Context {
-    applicationId: string
-    scopeId: string
-    regionInputId: string
-    costBlockId: string
-    costElementId: string
-    inputLevelId: string
-    costElementFilterIds: string[],
-    inputLevelFilterIds: string[]
-}
 
 export interface ApprovalOption {
     isApproving?: boolean

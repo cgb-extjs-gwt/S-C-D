@@ -3,10 +3,10 @@ import { Action } from "redux";
 import { asyncAction } from "../../Common/Actions/AsyncAction";
 import { Dispatch } from "react-redux";
 import { CommonState } from "../../Layout/States/AppStates";
-import { Context } from "../Services/CostEditorServices";
 import { UsingInfo, CostBlockMeta, CostMetaData } from "../../Common/States/CostMetaStates";
 import { SelectList } from "../../Common/States/CommonStates";
 import { CostBlockState, CostElementState, InputLevelState } from "../States/CostBlockStates";
+import { Context } from "../../Common/States/Context";
 
 export const findApplication = (state: CostEditorState, applicationId = state.applications.selectedItemId) => 
     state.applications.list.find(app => app.id == applicationId)

@@ -1,8 +1,9 @@
 import { ColumnInfo } from "../../States/ColumnInfo";
+import { Model } from "../../States/ExtStates";
 
 export interface DynamicGridActions {
     init?()
-    onSelectionChange?(grid, records: any[])
+    onSelectionChange?(grid, records: Model[])
     onCancel?()
     onSave?()
 }

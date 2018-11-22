@@ -32,13 +32,14 @@ type FilterDataItem = {
     renderFn: (value, record: Model) => any
 }
 
-export class AjaxDynamicGrid<T extends AjaxDynamicGridProps = AjaxDynamicGridProps> extends DynamicGrid<T & StoreDynamicGridProps> {
+export class AjaxDynamicGrid<T extends AjaxDynamicGridProps = AjaxDynamicGridProps, TState={}> extends DynamicGrid<T & StoreDynamicGridProps, TState> {
     private ajaxStore: Store
     private filterDatas: Map<string, FilterDataItem>
-    private ajaxColumns: ColumnInfo[]
     private executeFiltrateFilters = true;
     private executeFillFilterData = true;
     private updatedRecords: Model[] = [];
+
+    protected ajaxColumns: ColumnInfo[]
 
     public componentWillReceiveProps(nextProps: T & StoreDynamicGridProps) {
         const { columns } = nextProps;
