@@ -31,13 +31,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
 
-        public async Task<QualityGateResult> Check(IEnumerable<EditItem> editItems, CostEditorContext context)
+        public async Task<QualityGateResult> Check(IEnumerable<EditItem> editItems, HistoryContext context, IDictionary<string, long[]> coordinateFilter)
         {
             var result = new QualityGateResult();
 
             if (this.IsUseCheck(context))
             {
-                var filter = this.costBlockFilterBuilder.BuildFilter(context);
+                var regionFilter = this.costBlockFilterBuilder.BuildRegionFilter(context);
+                var filter = regionFilter.Concat(coordinateFilter).ToDictionary(keyValue => keyValue.Key, keyValue => keyValue.Value);
 
                 var bundleDetails = await this.qualityGateRepository.Check(context, editItems, filter);
 

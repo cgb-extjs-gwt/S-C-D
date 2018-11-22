@@ -11,7 +11,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
     {
         Task<IEnumerable<Record>> GetRecords();
 
-        Task UpdateRecords(IEnumerable<Record> records, ApprovalOption approvalOption);
+        Task<QualityGateResultSet> UpdateRecords(IEnumerable<Record> records, ApprovalOption approvalOption);
 
         Task<TableViewInfo> GetTableViewInfo();
 

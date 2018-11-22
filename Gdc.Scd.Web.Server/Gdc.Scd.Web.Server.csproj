@@ -222,7 +222,6 @@
     <Compile Include="Controllers\BaseDomainController.cs" />
     <Compile Include="Controllers\CalcController.cs" />
     <Compile Include="Controllers\CapabilityMatrixController.cs" />
-    <Compile Include="Controllers\_CostBlockHistoryController.cs" />
     <Compile Include="Controllers\CostEditorController.cs" />
     <Compile Include="Controllers\Admin\CountryManagementController.cs" />
     <Compile Include="Controllers\Dict\AvailabilityController.cs" />

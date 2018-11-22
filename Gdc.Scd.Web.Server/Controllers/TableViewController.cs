@@ -29,9 +29,9 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        public async Task UpdateRecords(IEnumerable<Record> records, [FromUri]ApprovalOption approvalOption)
+        public async Task<QualityGateResultSet> UpdateRecords(IEnumerable<Record> records, [FromUri]ApprovalOption approvalOption)
         {
-            await this.tableViewService.UpdateRecords(records, approvalOption);
+            return await this.tableViewService.UpdateRecords(records, approvalOption);
         }
 
         [HttpGet]

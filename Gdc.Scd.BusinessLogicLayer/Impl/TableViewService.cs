@@ -22,6 +22,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly ICostBlockHistoryService costBlockHistoryService;
 
+        private readonly IQualityGateSevice qualityGateSevice;
+
         private readonly DomainEnitiesMeta meta;
 
         public TableViewService(
@@ -29,6 +31,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             IUserService userService, 
             IRepositorySet repositorySet,
             ICostBlockHistoryService costBlockHistoryService,
+            IQualityGateSevice qualityGateSevice,
             DomainEnitiesMeta meta)
         {
             this.tableViewRepository = tableViewRepository;
@@ -45,28 +48,49 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return await this.tableViewRepository.GetRecords(costBlockInfos);
         }
 
-        public async Task UpdateRecords(IEnumerable<Record> records, ApprovalOption approvalOption)
+        public async Task<QualityGateResultSet> UpdateRecords(IEnumerable<Record> records, ApprovalOption approvalOption)
         {
             var costBlockInfos = this.GetCostBlockInfo().ToArray();
             var editInfos = this.tableViewRepository.BuildEditInfos(costBlockInfos, records).ToArray();
+            var editItemContexts = this.BuildEditItemContexts(editInfos).ToArray();
 
-            using (var transaction = this.repositorySet.GetTransaction())
+            var checkResult = new QualityGateResultSet();
+
+            if (approvalOption.IsApproving && !approvalOption.HasQualityGateErrors)
             {
-                try
+                foreach(var editItemContext in editItemContexts)
                 {
-                    await this.tableViewRepository.UpdateRecords(editInfos);
+                    var qualityGateResult = await this.qualityGateSevice.Check(editItemContext.EditItems, editItemContext.Context, editItemContext.Filter);
 
-                    await this.SaveHistory(editInfos, approvalOption);
-
-                    transaction.Commit();
-                }
-                catch
-                {
-                    transaction.Rollback();
-
-                    throw;
+                    checkResult.QualityGateResults.Add(editItemContext.Context.CostBlockId, qualityGateResult);
                 }
             }
+
+            if (!checkResult.HasErrors)
+            {
+                using (var transaction = this.repositorySet.GetTransaction())
+                {
+                    try
+                    {
+                        await this.tableViewRepository.UpdateRecords(editInfos);
+
+                        foreach(var editItemContext in editItemContexts)
+                        {
+                            await this.costBlockHistoryService.Save(editItemContext.Context, editItemContext.EditItems, approvalOption, editItemContext.Filter);
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+
+                        throw;
+                    }
+                }
+            }
+
+            return checkResult;
         }
 
         public async Task<TableViewInfo> GetTableViewInfo()
@@ -122,7 +146,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        private async Task SaveHistory(IEnumerable<EditInfo> editInfos, ApprovalOption approvalOption)
+        private IEnumerable<(HistoryContext Context, EditItem[] EditItems, Dictionary<string, long[]> Filter)> BuildEditItemContexts(IEnumerable<EditInfo> editInfos)
         {
             foreach (var editInfo in editInfos)
             {
@@ -146,7 +170,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     foreach (var inputLevelGroup in costElementGroup.GroupBy(info => info.InputLevel.Id))
                     {
-                        var context = new CostEditorContext
+                        var context = new HistoryContext
                         {
                             ApplicationId = editInfo.Meta.ApplicationId,
                             CostBlockId = editInfo.Meta.CostBlockId,
@@ -166,7 +190,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                 ? new Dictionary<string, long[]>()
                                 : filterGroup.Key.ToDictionary(keyValue => keyValue.Key, keyValue => new[] { keyValue.Value });
 
-                            await this.costBlockHistoryService.Save(context, editItems, approvalOption, filter);
+                            yield return (context, editItems, filter);
                         }
                     }
                 }

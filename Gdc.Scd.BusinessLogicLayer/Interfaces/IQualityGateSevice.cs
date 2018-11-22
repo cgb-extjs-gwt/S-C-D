@@ -7,7 +7,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface IQualityGateSevice
     {
-        Task<QualityGateResult> Check(IEnumerable<EditItem> editItems, CostEditorContext context);
+        Task<QualityGateResult> Check(IEnumerable<EditItem> editItems, HistoryContext context, IDictionary<string, long[]> filter);
 
         Task<QualityGateResult> Check(CostBlockHistory history);
 

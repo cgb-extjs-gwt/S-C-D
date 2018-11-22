@@ -105,7 +105,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (approvalOption.IsApproving && !approvalOption.HasQualityGateErrors)
             {
-                checkResult = await this.qualityGateSevice.Check(editItems, context);
+                var filter = this.costBlockFilterBuilder.BuildCoordinateFilter(context);
+
+                checkResult = await this.qualityGateSevice.Check(editItems, context, filter);
             }
             else
             {
