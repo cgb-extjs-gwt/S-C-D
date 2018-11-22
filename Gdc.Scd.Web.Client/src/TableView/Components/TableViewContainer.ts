@@ -4,7 +4,7 @@ import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
 import { findMeta } from "../../Common/Helpers/MetaHelper";
 import { NamedId } from "../../Common/States/CommonStates";
 import { CostBlockMeta, FieldType, CostElementMeta, CostMetaData } from "../../Common/States/CostMetaStates";
-import { buildGetRecordsUrl, getTableViewInfo, updateRecords } from "../Services/TableViewService";
+import { buildGetRecordsUrl, getTableViewInfo, updateRecords, buildGetHistoryUrl } from "../Services/TableViewService";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { CommonAction } from "../../Common/Actions/CommonActions";
 import { loadTableViewInfo, editRecord, resetChanges } from "../Actions/TableViewActions";
@@ -15,7 +15,6 @@ import { Dispatch } from "redux";
 import { StoreOperation, Model } from "../../Common/States/ExtStates";
 import { isEqualCoordinates } from "../Helpers/TableViewHelper";
 import { TableView, TableViewProps, TableViewActions } from "./TableView";
-import { buildGetTableViewHistoryUrl } from "../../History/Sevices/HistoryService";
 import { CostElementIdentifier } from "../../Common/States/CostElementIdentifier";
 
 const mapToColumnInfo = (
@@ -123,7 +122,7 @@ const buildHistotyDataLoadUrl = (tableViewInfo: TableViewInfo, [selection]: Mode
         coordinates[key] = selection.data.coordinates[key].id;
     }
     
-    return buildGetTableViewHistoryUrl(costElementId, coordinates);
+    return buildGetHistoryUrl(costElementId, coordinates);
 }
 
 const buildProps = (state: CommonState) => {

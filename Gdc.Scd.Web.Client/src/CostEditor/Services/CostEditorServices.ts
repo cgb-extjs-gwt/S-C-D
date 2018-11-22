@@ -26,4 +26,4 @@ export const saveEditItems = (editItems: EditItem[], context: Context, approvalO
     post<any, QualityGateResult>(COST_EDITOR_CONTROLLER_NAME, 'UpdateValues', editItems, { ...context, ...approvalOption });
 
 export const buildGetHistoryUrl = (context: Context, editItemId: string) => 
-    buildMvcUrl(COST_BLOCK_HISTORY_CONTROLLER_NAME, 'GetCostEditorHistory', { ...context, editItemId });
+    buildMvcUrl(COST_EDITOR_CONTROLLER_NAME, 'GetHistory', { ...context, editItemId });

@@ -11,3 +11,6 @@ export const getTableViewInfo = () => get<TableViewInfo>(TABLE_VIEW_CONTROLLER_N
 
 export const updateRecords = (records: TableViewRecord[], isApproving: boolean) => 
     post<TableViewRecord[]>(TABLE_VIEW_CONTROLLER_NAME, 'UpdateRecords', records, { isApproving })
+
+export const buildGetHistoryUrl = (costElementId: CostElementIdentifier, coordinates: { [key: string]: number }) => 
+    buildMvcUrl(TABLE_VIEW_CONTROLLER_NAME, 'GetHistory', { ...costElementId, ...coordinates });
