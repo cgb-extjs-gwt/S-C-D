@@ -24,12 +24,28 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             JsonArrayDto result = new JsonArrayDto();
 
             var parameters = Prepare(approved, filter, lastid, limit);
-            string sql = new SqlStringBuilder().Append("SELECT * FROM ").AppendFunc(FN, parameters).Build();
+            var sql = GetSql(approved, parameters);
 
             result.Json = await _repo.ExecuteAsJsonAsync(sql, parameters);
             result.Total = 1000;
 
             return result;
+        }
+
+        private static string GetSql(bool approved, DbParameter[] parameters)
+        {
+            if (approved)
+            {
+                return new SqlStringBuilder().Append("SELECT * FROM ").AppendFunc(FN, parameters).Build();
+            }
+            else
+            {
+                return new SqlStringBuilder()
+                    .Append("SELECT cnt.CanOverrideTransferCostAndPrice, cnt.CanStoreListAndDealerPrices, c.* ")
+                    .Append("FROM ").AppendFunc(FN, parameters).Append(" c ")
+                    .Append("JOIN InputAtoms.Country cnt ON cnt.Name = c.Country")
+                    .Build();
+            }
         }
 
         private static DbParameter[] Prepare(bool approved, HwFilterDto filter, int lastid, int limit)

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
-using System.Web.Hosting;
-using System.Reflection;
-using System.IO;
 
 namespace Gdc.Scd.Core.Meta.Impl
 {
@@ -22,10 +20,6 @@ namespace Gdc.Scd.Core.Meta.Impl
         private const string TypeAttributeName = "Type";
 
         private const string DefaultNodeName = "Default";
-
-        private const string CostAtomListNodeName = "Atoms";
-
-        private const string CostAtomNodeName = "Atom";
 
         private const string CostBlockListNodeName = "Blocks";
 
@@ -77,10 +71,9 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         public DomainMeta Get()
         {
-            var fileName = HostingEnvironment.MapPath("~/DomainConfig.xml");
-            if (String.IsNullOrEmpty(fileName))
-                fileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "DomainConfig.xml");
-            var doc = XDocument.Load(fileName);
+            var assembly = Assembly.GetExecutingAssembly();
+            var stream = assembly.GetManifestResourceStream($"{assembly.GetName().Name}.DomainConfig.xml");
+            var doc = XDocument.Load(stream);
 
             return this.BuilDomainMeta(doc.Root);
         }

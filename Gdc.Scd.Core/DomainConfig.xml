@@ -6,8 +6,6 @@
     <InputLevel Name="Pla" Caption="PLA"/>
     <InputLevel Name="Sfab" Caption="SFAB"/>
     <InputLevel Name="Sog" Caption="SOG"/>
-    <InputLevel Name="SwDigit" Caption="SW Level (Digit)"/>
-    <InputLevel Name="SwLicense" Caption="SW License"/>
     <InputLevel Name="Wg" Caption="WG"/>
     <InputLevel Name="RoleCode" Caption="Role Code"/>
     
@@ -48,13 +46,12 @@
   <Applications>
     <Application Name="Hardware"/>
     <Application Name="SoftwareSolution" Caption="Software &amp; Solution"/>
-    <Application Name="Atom"/>
   </Applications>
   
   <Blocks>
-    <!--<Block Name="AFR">
+    <Block Name="AFR">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="AFR" InputOption="ManualyAutomaticly" RegionInput="_none_" Dependency="Year">
@@ -70,11 +67,11 @@
           </TableView>
         </Element>
       </Elements>
-    </Block>-->
+    </Block>
 
-    <!--<Block Name="InstallBase" Caption="Installed base">
+    <Block Name="InstallBase" Caption="Installed base">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="InstalledBaseCountry" Caption="Installed base country" InputOption="ManualyAutomaticly">
@@ -86,11 +83,11 @@
           </CostEditor>
         </Element>
       </Elements>
-    </Block>-->
+    </Block>
 
     <Block Name="MarkupOtherCosts" Caption="Markup other costs">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="MarkupFactor" Caption="Markup factor for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
@@ -116,7 +113,7 @@
 
     <Block Name="ProlongationMarkup" Caption="Prolongation markup">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
@@ -142,7 +139,7 @@
 
     <Block Name="MarkupStandardWaranty" Caption="Markup standard waranty">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
@@ -166,42 +163,42 @@
       </Elements>
     </Block>
 
-    <!--<Block Name="MaterialCostWarranty" Caption="Material cost iW" >
+   <Block Name="MaterialCostWarranty" Caption="Material cost iW" >
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="MaterialCostWarranty" Caption="Material cost iW" InputOption="ManualyAutomaticly" RegionInput="ClusterRegion">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
-          --><!--<TableView>
+          <TableView>
             <Roles>
               <Role>PRS PSM</Role>  
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
             </Roles>
-          </TableView>--><!--
+          </TableView>
         </Element>
       </Elements>
-    </Block>-->
+    </Block>
 
     <Block Name="MaterialCostOow" Caption="Material cost OOW">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="ClusterRegion">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
-          <!--<TableView>
+          <TableView>
             <Roles>
               <Role>PRS PSM</Role>  
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
             </Roles>
-          </TableView>-->
+          </TableView>
         </Element>
       </Elements>
     </Block>
@@ -209,7 +206,7 @@
     <!--HARDCODED-->
     <!--<Block Name="TaxAndDuties" Caption="Tax &amp; duties">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="TaxAndDuties" Caption="Tax &amp; duties" InputOption="Automaticly">
@@ -223,7 +220,7 @@
 
     <Block Name="RoleCodeHourlyRates" Caption="Role Code Hourly Rates">
       <Applications>
-        <Application>Atom</Application>
+        <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManualyAutomaticly" RegionInput="_none_">
@@ -615,46 +612,6 @@
       </Elements>
     </Block>
 
-    <!--<Block Name="TaxDutiesIW" Caption="Tax &amp; Duties iW">
-      <Applications>
-        <Application>Hardware</Application>
-      </Applications>
-      <Elements>
-        <Element Name="TaxDuties" Caption="Tax &amp; Duties" InputOption="Reference"/>
-        <Element Name="MaterialCostWarranty" Caption="Material cost iW" InputOption="Reference"/>
-      </Elements>
-    </Block>
-
-    <Block Name="TaxDutiesOOW" Caption="Tax &amp; Duties OOW">
-      <Applications>
-        <Application>Hardware</Application>
-      </Applications>
-      <Elements>
-        <Element Name="TaxDuties" Caption="Tax &amp; Duties" InputOption="Reference"/>
-        <Element Name="MaterialCostsOOW" Caption="Material costs OOW" InputOption="Reference"/>
-      </Elements>
-    </Block>
-
-    <Block Name="MaterialCostOwwPeriod" Caption="Material Cost OOW period">
-      <Applications>
-        <Application>Hardware</Application>
-      </Applications>
-      <Elements>
-        <Element Name="AFR" InputOption="Reference"/>
-        <Element Name="MaterialCostWarranty" Caption="Material cost iW" InputOption="Reference"/>
-      </Elements>
-    </Block>
-
-    <Block Name="MaterialCostIwPeriod" Caption="Material Cost iW period">
-      <Applications>
-        <Application>Hardware</Application>
-      </Applications>
-      <Elements>
-        <Element Name="AFR" InputOption="Reference"/>
-        <Element Name="MaterialCostsWarranty" Caption="Material costs in warranty" InputOption="Reference"/>
-      </Elements>
-    </Block>-->
-
     <Block Name="ProActive" Caption="ProActive">
       <Applications>
         <Application>Hardware</Application>
@@ -749,7 +706,6 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -764,7 +720,6 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -779,7 +734,6 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -807,7 +761,6 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -822,7 +775,6 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -837,7 +789,6 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -852,7 +803,6 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -898,8 +848,6 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-            <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -913,8 +861,6 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-            <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -929,8 +875,6 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-            <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -944,8 +888,6 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-            <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -959,8 +901,6 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-            <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -974,8 +914,6 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-            <InputLevel>SwLicense</InputLevel>  
           </InputLevels>
           <CostEditor>
             <Roles>

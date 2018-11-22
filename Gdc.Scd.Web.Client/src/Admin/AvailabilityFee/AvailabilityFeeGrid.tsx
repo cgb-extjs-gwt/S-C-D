@@ -1,10 +1,14 @@
 import * as React from 'react';
-import { Grid, Column, CheckColumn, Toolbar, Button } from '@extjs/ext-react';
+import { Grid, Column, CheckColumn, Toolbar, Button, Container } from '@extjs/ext-react';
 import { buildMvcUrl } from "../../Common/Services/Ajax";
+import { FilterPanel } from "./AvailabilityFeeFilterPanel";
+import { AvailabilityFeeFilterModel } from "./AvailabilityFeeFilterModel";
 
 const CONTROLLER_NAME = 'AvailabilityFeeAdmin';
 
 class AvailabilityFeeAdminGrid extends React.Component{
+
+    private filter: FilterPanel;
 
     state = {
         disableSaveButton: true
@@ -51,6 +55,11 @@ class AvailabilityFeeAdminGrid extends React.Component{
         }
     });
 
+    public constructor(props: any) {
+        super(props);
+        this.init();
+    }
+
     saveRecords = () => {
 
         this.store.sync({
@@ -70,7 +79,19 @@ class AvailabilityFeeAdminGrid extends React.Component{
     }
 
     render(){
-        return (<Grid title={ 'Availability Fee Settings' } store={ this.store } cls="filter-grid" columnLines= {true} plugins={['pagingtoolbar']} >
+        return (
+            <Container scrollable={true} >
+
+                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} />
+
+                <Grid
+                    title={'Availability Fee Settings'}
+                    store={this.store}
+                    cls="filter-grid"
+                    columnLines={true}
+                    width="100%"
+                    height="100%"
+                    plugins={['pagingtoolbar']} >
                     <Column text="Country" dataIndex="countryName" flex={1} />
                     <Column text="Reaction Time" dataIndex="reactionTimeName" flex={1} />
                     <Column text="Reaction Type" dataIndex="reactionTypeName" flex={1} />
@@ -78,15 +99,45 @@ class AvailabilityFeeAdminGrid extends React.Component{
                     <CheckColumn text="Is Applicable" dataIndex="isApplicable" flex={1} />
 
                     <Toolbar docked="bottom">
-                        <Button 
-                            text="Save" 
-                            flex = {1} 
-                            handler = { this.saveRecords }
-                            iconCls = "x-fa fa-save"
-                            disabled = { this.state.disableSaveButton }
+                        <Button
+                            text="Save"
+                            flex={1}
+                            handler={this.saveRecords}
+                            iconCls="x-fa fa-save"
+                            disabled={this.state.disableSaveButton}
                         />
                     </Toolbar>
-                </Grid>);
+                </Grid>
+            </Container>
+           );
+    }
+
+    public componentDidMount() {
+        this.filter = this.refs.filter as FilterPanel;
+        //
+        this.reload();
+    }
+
+    private init() {
+        this.onSearch = this.onSearch.bind(this);
+        this.onBeforeLoad = this.onBeforeLoad.bind(this);
+        //
+        this.store.on('beforeload', this.onBeforeLoad);
+    }
+
+    private onSearch(filter: AvailabilityFeeFilterModel) {
+        this.reload();
+    }
+
+    private reload() {
+        this.store.currentPage = 1
+        this.store.load();
+    }
+
+    private onBeforeLoad(s, operation) {
+        let filter = this.filter.getModel();
+        let params = Ext.apply({}, operation.getParams(), filter);
+        operation.setParams(params); 
     }
 }
 

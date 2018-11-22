@@ -20,24 +20,30 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
         }
 
         [HttpGet]
-        public DataInfo<AdminAvailabilityFeeViewDto> GetAll(int page = 1, int start = 0, int limit = 25)
+        public DataInfo<AdminAvailabilityFeeViewDto> GetAll([FromUri] AdminAvailabilityFeeFilterDto filter, [FromUri] int page = 1, [FromUri] int start = 0, [FromUri] int limit = 25)
         {
             int totalCount;
-            var allAvailabilityFeeCombinations = availabilityFeeAdminService.GetAllCombinations(page, limit, out totalCount);
-            var mappedCombinations = allAvailabilityFeeCombinations.Select(af => new AdminAvailabilityFeeViewDto
-            {
-                CountryId = af.CountryId,
-                CountryName = af.CountryName,
-                ReactionTimeId = af.ReactionTimeId,
-                ReactionTimeName = af.ReactionTimeName,
-                ReactionTypeId = af.ReactionTypeId,
-                ReactionTypeName = af.ReactionTypeName,
-                ServiceLocatorId = af.ServiceLocatorId,
-                ServiceLocatorName = af.ServiceLocatorName,
-                IsApplicable = af.Id.HasValue,
-                InnerId = af.Id ?? 0
-            }).ToList();
+            var allAvailabilityFeeCombinations = availabilityFeeAdminService.GetAllCombinations(page, limit, out totalCount, filter);
 
+            var mappedCombinations = new List<AdminAvailabilityFeeViewDto>();
+
+            if (allAvailabilityFeeCombinations != null)
+            {
+                mappedCombinations = allAvailabilityFeeCombinations.Select(af => new AdminAvailabilityFeeViewDto
+                {
+                    CountryId = af.CountryId,
+                    CountryName = af.CountryName,
+                    ReactionTimeId = af.ReactionTimeId,
+                    ReactionTimeName = af.ReactionTimeName,
+                    ReactionTypeId = af.ReactionTypeId,
+                    ReactionTypeName = af.ReactionTypeName,
+                    ServiceLocatorId = af.ServiceLocatorId,
+                    ServiceLocatorName = af.ServiceLocatorName,
+                    IsApplicable = af.Id.HasValue,
+                    InnerId = af.Id ?? 0
+                }).ToList();
+            }
+            
             var model = new DataInfo<AdminAvailabilityFeeViewDto>()
             {
                 Items = mappedCombinations,

@@ -40,9 +40,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public List<AdminAvailabilityFeeDto> GetAllCombinations(int pageNumber, int limit, out int totalCount)
+        public List<AdminAvailabilityFeeDto> GetAllCombinations(int pageNumber, int limit, out int totalCount, AdminAvailabilityFeeFilterDto filter = null)
         {
-            return new AvailabilityFeeAdmin(_repositorySet).Execute(pageNumber, limit, out totalCount);
+            return new AvailabilityFeeAdmin(_repositorySet).Execute(pageNumber, limit, out totalCount, filter);
         }
 
         public void RemoveCombination(long id)

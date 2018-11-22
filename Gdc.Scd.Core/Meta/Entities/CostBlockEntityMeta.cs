@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gdc.Scd.Core.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,7 +13,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public CreatedDateTimeFieldMeta CreatedDateField { get; set; } = new CreatedDateTimeFieldMeta();
 
-        public SimpleFieldMeta DeletedDateField { get; set; } = new SimpleFieldMeta("DeletedDateTime", TypeCode.DateTime) { IsNullOption = true };
+        public SimpleFieldMeta DeletedDateField { get; set; } = new SimpleFieldMeta(nameof(IDeactivatable.DeactivatedDateTime), TypeCode.DateTime) { IsNullOption = true };
 
         public CostBlockMeta DomainMeta { get; }
 

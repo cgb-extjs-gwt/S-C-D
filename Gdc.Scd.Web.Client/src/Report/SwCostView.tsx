@@ -34,13 +34,6 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     }
 
     public render() {
-
-        let serviceSupport: string = 'serviceSupport';
-        let reinsurance: string = 'reinsurance';
-        let transferPrice: string = 'transferPrice';
-        let maintenanceListPrice: string = 'maintenanceListPrice';
-        let dealerPrice: string = 'dealerPrice';
-
         return (
             <Container layout="fit">
 
@@ -74,11 +67,11 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <NumberColumn text="Service support cost" dataIndex={serviceSupport} />
-                        <NumberColumn text="Reinsurance" dataIndex={reinsurance} />
-                        <NumberColumn text="Transer price" dataIndex={transferPrice} />
-                        <NumberColumn text="Maintenance list price" dataIndex={maintenanceListPrice} />
-                        <NumberColumn text="Dealer reference price" dataIndex={dealerPrice} />
+                        <NumberColumn text="Service support cost"   dataIndex="serviceSupport" />
+                        <NumberColumn text="Reinsurance"            dataIndex="reinsurance" />
+                        <NumberColumn text="Transer price"          dataIndex="transferPrice" />
+                        <NumberColumn text="Maintenance list price" dataIndex="maintenanceListPrice" />
+                        <NumberColumn text="Dealer reference price" dataIndex="dealerPrice" />
 
                     </Column>
 

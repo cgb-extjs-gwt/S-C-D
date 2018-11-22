@@ -86,8 +86,6 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             {
                 foreach (var joinInfo in joinInfos)
                 {
-                    var sqlBuilder = joinHelper.Join(joinInfo.Meta, joinInfo.ReferenceFieldName, joinInfo.JoinedTableAlias);
-
                     joinHelper = new JoinSqlHelper(
                         joinHelper.Join(joinInfo.Meta, joinInfo.ReferenceFieldName, joinInfo.JoinedTableAlias, joinInfo.MetaTableAlias));
                 }

@@ -248,12 +248,11 @@ namespace Gdc.Scd.Core.Meta.Impl
             private IDictionary<string, NamedEntityMeta> BuildCoordinateMetas(IEnumerable<Type> entities)
             {
                 var plaMeta = new NamedEntityMeta(MetaConstants.PlaInputLevelName, MetaConstants.InputLevelSchema);
-                var sfabMeta = new NamedEntityMeta(MetaConstants.SfabInputLevel, MetaConstants.InputLevelSchema);
+                var sfabMeta = new SFabEntityMeta(plaMeta);
                 var sogMeta = new BaseWgSogEntityMeta(MetaConstants.SogInputLevel, MetaConstants.InputLevelSchema, plaMeta, sfabMeta);
-                var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta);
-
                 var clusterRegionMeta = new NamedEntityMeta(MetaConstants.ClusterRegionInputLevel, MetaConstants.InputLevelSchema);
                 var countryMeta = new CountryEntityMeta(clusterRegionMeta);
+                var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta);
 
                 var customMetas = new []
                 {

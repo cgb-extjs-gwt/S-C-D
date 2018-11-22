@@ -34,7 +34,6 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
     }
 
     public render() {
-
         return (
             <Container layout="fit">
 

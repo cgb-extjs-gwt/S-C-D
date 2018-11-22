@@ -45,23 +45,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public void UpdateByCoordinates(IEnumerable<CostBlockEntityMeta> costBlockMetas)
         {
-            using (var transaction = this.repositorySet.GetTransaction())
+            foreach (var costBlockMeta in costBlockMetas)
             {
-                try
-                {
-                    foreach (var costBlockMeta in costBlockMetas)
-                    {
-                        this.costBlockRepository.UpdateByCoordinates(costBlockMeta);
-                    }
-
-                    transaction.Commit();
-                }
-                catch
-                {
-                    transaction.Rollback();
-
-                    throw;
-                }
+                this.costBlockRepository.UpdateByCoordinates(costBlockMeta);
+                
             }
         }
 

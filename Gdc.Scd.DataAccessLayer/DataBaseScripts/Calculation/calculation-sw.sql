@@ -96,8 +96,6 @@ CREATE VIEW [SoftwareSolution].[SwSpMaintenanceView] as
     SELECT ssm.Pla,
            ssm.Sog,
            ssm.Sfab,
-           ssm.SwDigit,
-           ssm.SwLicense,
            ya.YearId as Year,
            ya.AvailabilityId as Availability,
            
@@ -144,7 +142,7 @@ CREATE VIEW SoftwareSolution.SwSpMaintenanceCostView as
               , ib.InstalledBaseCountry_Approved
 
         from Hardware.ServiceSupportCostView ssc
-        join Atom.InstallBase ib on ib.Country = ssc.Country and ib.Wg = ssc.Wg
+        join Hardware.InstallBase ib on ib.Country = ssc.Country and ib.Wg = ssc.Wg
         join InputAtoms.Country c on c.id = ssc.Country
 
         where c.ISO3CountryCode = 'DEU' --install base by Germany!
@@ -173,8 +171,6 @@ CREATE VIEW SoftwareSolution.SwSpMaintenanceCostView as
         select m.Sog
              , m.Pla
              , m.Sfab
-             , m.SwDigit
-             , m.SwLicense
              , m.Availability
              , m.Year
              , m.[1stLevelSupportCosts]
@@ -216,8 +212,6 @@ CREATE VIEW SoftwareSolution.ProActiveView AS
 with ProActiveCte as (
     select pro.Country,
            pro.Sog,
-           pro.SwDigit,
-
            dur.Value as Year,
 
            (pro.LocalRemoteAccessSetupPreparationEffort * pro.OnSiteHourlyRate) as LocalRemoteAccessSetup,
@@ -270,15 +264,13 @@ with ProActiveCte as (
             sla.CentralExecutionShcReportRepetition) as CentralExecutionReport_Approved
 
     from SoftwareSolution.ProActiveSw pro
-    left join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = pro.SwDigit and fsp.SogId = pro.Sog
+    left join Fsp.SwFspCodeTranslation fsp on fsp.SogId = pro.Sog
     left join Dependencies.ProActiveSla sla on sla.id = fsp.ProactiveSlaId
     left join Dependencies.Duration dur on dur.Id = fsp.DurationId
 )
 , ProActiveCte2 as (
      select pro.Country,
             pro.Sog,
-            pro.SwDigit,
-    
             pro.Year,
 
             pro.LocalPreparation,

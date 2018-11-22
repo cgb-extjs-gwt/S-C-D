@@ -23,7 +23,7 @@ RETURN (
 
     from SoftwareSolution.SwSpMaintenanceCostView sw
     join InputAtoms.Sog sog on sog.id = sw.Sog
-    join Fsp.SwFspCodeTranslation fsp on fsp.SogId = sw.Sog and fsp.SwDigitId = sw.SwDigit
+    join Fsp.SwFspCodeTranslation fsp on fsp.SogId = sw.Sog
     where (@sog is null or sw.Sog = @sog)
 )
 
