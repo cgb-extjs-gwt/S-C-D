@@ -14,7 +14,7 @@ export interface QualtityGateTab {
 }
 
 export interface QualtityGateSetProps extends QualityGateToolbarActions {
-    tabs: QualtityGateTab[]
+    tabs?: QualtityGateTab[]
 }
 
 export class QualtityGateSetView extends React.Component<QualtityGateSetProps> {

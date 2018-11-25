@@ -1,13 +1,14 @@
 import { connect } from "react-redux";
 import { QualityGateToolbarActions } from "../../QualityGate/Components/QualityGateToolbar";
 import { CommonState } from "../../Layout/States/AppStates";
-import { QualtityGateSetProps, QualtityGateTab } from "./QualtityGateSetView";
+import { QualtityGateTab, QualtityGateSetView } from "./QualtityGateSetView";
 import { getCostBlock, getCostElement } from "../../Common/Helpers/MetaHelper";
-import { saveTableViewToServer } from "../Actions/TableViewActions";
+import { saveTableViewToServer, resetQualityCheckResult } from "../Actions/TableViewActions";
+import { QualityGateSetWindow, QualityGateSetWindowProps } from "./QualityGateSetWindow";
 
-export const QualtityGateSetContainer =
-    connect<QualtityGateSetProps, QualityGateToolbarActions, QualityGateToolbarActions, CommonState>(
-        ({ app: { appMetaData }, pages: { tableView } }) => {
+export const QualtityGateSetWindowContainer =
+    connect<QualityGateSetWindowProps, QualityGateToolbarActions, QualityGateSetWindowProps, CommonState>(
+        ({ app: { appMetaData }, pages: { tableView } }, { position }) => {
             const { qualityGateResultSet, info: { recordInfo } } = tableView;
 
             const tabs: QualtityGateTab[] = [];
@@ -37,16 +38,17 @@ export const QualtityGateSetContainer =
                 }
             }
 
-            return <QualtityGateSetProps>{
-                tabs
+            return <QualityGateSetWindowProps>{
+                tabs,
+                position
             }
         },
-        (dispatch, { onCancel, onSave }) => ({
-            onCancel: onCancel,
+        dispatch => ({
             onSave: explanationMessage => saveTableViewToServer({ 
                 hasQualityGateErrors: true, 
                 isApproving: true,
                 qualityGateErrorExplanation: explanationMessage
-            })
+            }),
+            onCancel: () => dispatch(resetQualityCheckResult())
         })
-    )
+    )(QualityGateSetWindow)

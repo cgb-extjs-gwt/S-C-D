@@ -5,6 +5,7 @@ import { AjaxDynamicGridActions, AjaxDynamicGridProps, AjaxDynamicGrid } from ".
 import { HistoryButtonView, HistoryButtonViewProps } from "../../History/Components/HistoryButtonView";
 import { Model } from "../../Common/States/ExtStates";
 import { TableViewRecord } from "../States/TableViewRecord";
+import { QualtityGateSetWindowContainer } from "./QualtityGateSetWindowContainer";
 
 export interface TableViewActions extends AjaxDynamicGridActions<TableViewRecord> {
     onApprove?()
@@ -49,6 +50,7 @@ export class TableView extends AjaxDynamicGrid<TableViewProps, TableViewState> {
                     flex={1}
                     buidHistoryUrl={() => buildHistotyDataLoadUrl(selection, selectedDataIndex)}
                 />
+                <QualtityGateSetWindowContainer/>
             </SaveApprovalToollbar>
         );
     }
