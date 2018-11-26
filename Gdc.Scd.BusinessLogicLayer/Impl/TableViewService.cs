@@ -53,6 +53,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     {
                         record.AdditionalData.Add("Wg.PLA", wg.Pla.Name);
                         record.AdditionalData.Add("Wg.Description", wg.Description);
+                        record.AdditionalData.Add("Wg.ResponsiblePerson", wg.ResponsiblePerson);
                     }
                 }
             }
