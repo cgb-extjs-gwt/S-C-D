@@ -30,13 +30,72 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Calculation
         {
             long wg = 1;
 
-            var hdd1 = new HddRetention { HddRet = 9.0648957, HddRet_Approved = 9.0648957, HddFr = 4.071, HddFr_Approved = 4.071, HddMaterialCost = 222.67, HddMaterialCost_Approved = 222.67, Wg = wg, Year = GetYear(1) };
-            var hdd2 = new HddRetention { HddRet = 18.132018099999996, HddRet_Approved = 18.132018099999996, HddFr = 4.072, HddFr_Approved = 4.072, HddMaterialCost = 222.67, HddMaterialCost_Approved = 222.67, Wg = wg, Year = GetYear(2) };
-            var hdd3 = new HddRetention { HddRet = 27.201367199999996, HddRet_Approved = 27.201367199999996, HddFr = 4.073, HddFr_Approved = 4.073, HddMaterialCost = 222.67, HddMaterialCost_Approved = 222.67, Wg = wg, Year = GetYear(3) };
-            var hdd4 = new HddRetention { HddRet = 36.272943, HddRet_Approved = 36.272943, HddFr = 4.074, HddFr_Approved = 4.074, HddMaterialCost = 222.67, HddMaterialCost_Approved = 222.67, Wg = wg, Year = GetYear(4) };
-            var hdd5 = new HddRetention { HddRet = 45.3467455, HddRet_Approved = 45.3467455, HddFr = 4.075, HddFr_Approved = 4.075, HddMaterialCost = 222.67, HddMaterialCost_Approved = 222.67, Wg = wg, Year = GetYear(5) };
-
-            var hddp = new HddRetention { HddRet = 8.9742541, HddRet_Approved = 8.9742541, HddFr = 4.039, HddFr_Approved = 4.039, HddMaterialCost = 222.19, HddMaterialCost_Approved = 222.19, Wg = wg, Year = GetYear(1, true) };
+            var hdd1 = new HddRetention
+            {
+                HddRet = 9.0648957,
+                HddRet_Approved = 9.0648957,
+                HddFr = 4.071,
+                HddFr_Approved = 4.071,
+                HddMaterialCost = 222.67,
+                HddMaterialCost_Approved = 222.67,
+                Wg = wg,
+                Year = GetYear(1)
+            };
+            var hdd2 = new HddRetention
+            {
+                HddRet = 18.132018099999996,
+                HddRet_Approved = 18.132018099999996,
+                HddFr = 4.072,
+                HddFr_Approved = 4.072,
+                HddMaterialCost = 222.67,
+                HddMaterialCost_Approved = 222.67,
+                Wg = wg,
+                Year = GetYear(2)
+            };
+            var hdd3 = new HddRetention
+            {
+                HddRet = 27.201367199999996,
+                HddRet_Approved = 27.201367199999996,
+                HddFr = 4.073,
+                HddFr_Approved = 4.073,
+                HddMaterialCost = 222.67,
+                HddMaterialCost_Approved = 222.67,
+                Wg = wg,
+                Year = GetYear(3)
+            };
+            var hdd4 = new HddRetention
+            {
+                HddRet = 36.272943,
+                HddRet_Approved = 36.272943,
+                HddFr = 4.074,
+                HddFr_Approved = 4.074,
+                HddMaterialCost = 222.67,
+                HddMaterialCost_Approved = 222.67,
+                Wg = wg,
+                Year = GetYear(4)
+            };
+            var hdd5 = new HddRetention
+            {
+                HddRet = 45.3467455,
+                HddRet_Approved = 45.3467455,
+                HddFr = 4.075,
+                HddFr_Approved = 4.075,
+                HddMaterialCost = 222.67,
+                HddMaterialCost_Approved = 222.67,
+                Wg = wg,
+                Year = GetYear(5)
+            };
+            var hddp = new HddRetention
+            {
+                HddRet = 8.9742541,
+                HddRet_Approved = 8.9742541,
+                HddFr = 4.039,
+                HddFr_Approved = 4.039,
+                HddMaterialCost = 222.19,
+                HddMaterialCost_Approved = 222.19,
+                Wg = wg,
+                Year = GetYear(1, true)
+            };
 
             SetHddRet(hdd1);
             SetHddRet(hdd2);
