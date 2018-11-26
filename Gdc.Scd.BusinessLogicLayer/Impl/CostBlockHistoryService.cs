@@ -59,7 +59,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return await this.costBlockValueHistoryRepository.GetHistory(historyContext, filter, queryInfo);
         }
 
-        public async Task Save(HistoryContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter)
+        public async Task Save(HistoryContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter, EditorType editorType)
         {
             if (approvalOption.HasQualityGateErrors && string.IsNullOrWhiteSpace(approvalOption.QualityGateErrorExplanation))
             {
@@ -79,7 +79,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 EditItemCount = editItemArray.Length,
                 IsDifferentValues = isDifferentValues, 
                 HasQualityGateErrors = approvalOption.HasQualityGateErrors,
-                QualityGateErrorExplanation = approvalOption.QualityGateErrorExplanation
+                QualityGateErrorExplanation = approvalOption.QualityGateErrorExplanation,
+                EditorType = editorType
             };
 
             this.Save(history, approvalOption);

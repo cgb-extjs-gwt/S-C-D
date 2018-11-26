@@ -9,7 +9,7 @@ export interface QualityGateSetWindowProps extends QualtityGateSetProps {
 
 export class QualityGateSetWindow extends React.Component<QualityGateSetWindowProps> {
     public render() {
-        const { tabs, position = {} } = this.props;
+        const { tabs, position = {}, onCancel, onSave } = this.props;
         const hasErrors = tabs && tabs.length > 0;
 
         return (
@@ -28,7 +28,7 @@ export class QualityGateSetWindow extends React.Component<QualityGateSetWindowPr
                 closeAction="destroy"
                 {...position}
             >
-                <QualtityGateSetView {...this.props} />
+                <QualtityGateSetView tabs={tabs} onSave={onSave} onCancel={onCancel}/>
             </Dialog>
         );
     }

@@ -69,7 +69,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                             CostBlockId = editItemContext.Context.CostBlockId,
                             CostElementId = editItemContext.Context.CostElementId,
                         },
-                        QualityGateResult = await this.qualityGateSevice.Check(editItemContext.EditItems, editItemContext.Context, editItemContext.Filter)
+                        QualityGateResult = await this.qualityGateSevice.Check(editItemContext.EditItems, editItemContext.Context, editItemContext.Filter, EditorType.TableView)
                     });
                 }
             }
@@ -84,7 +84,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                         foreach(var editItemContext in editItemContexts)
                         {
-                            await this.costBlockHistoryService.Save(editItemContext.Context, editItemContext.EditItems, approvalOption, editItemContext.Filter);
+                            await this.costBlockHistoryService.Save(editItemContext.Context, editItemContext.EditItems, approvalOption, editItemContext.Filter, EditorType.TableView);
                         }
 
                         transaction.Commit();

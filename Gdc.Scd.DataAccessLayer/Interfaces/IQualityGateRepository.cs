@@ -6,8 +6,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
     public interface IQualityGateRepository
     {
-        Task<IEnumerable<BundleDetail>> Check(HistoryContext historyContext, IEnumerable<EditItem> editItems, IDictionary<string, long[]> costBlockFilter);
+        Task<IEnumerable<BundleDetail>> Check(HistoryContext historyContext, IEnumerable<EditItem> editItems, IDictionary<string, long[]> costBlockFilter, bool useCountryGroupCheck);
 
-        Task<IEnumerable<BundleDetail>> Check(CostBlockHistory history, IDictionary<string, IEnumerable<object>> costBlockFilter = null);
+        Task<IEnumerable<BundleDetail>> Check(CostBlockHistory history, bool useCountryGroupCheck, IDictionary<string, IEnumerable<object>> costBlockFilter = null);
     }
 }

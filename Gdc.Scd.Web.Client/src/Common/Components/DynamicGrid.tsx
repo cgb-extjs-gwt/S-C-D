@@ -103,7 +103,7 @@ export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGrid
     protected onSelectionChange(grid, records: Model[], selecting: boolean, selectionInfo){
         const { onSelectionChange } = this.props;
 
-        onSelectionChange && onSelectionChange(grid, records);
+        onSelectionChange && onSelectionChange(grid, records, selecting, selectionInfo);
     }
 
     protected getStore() {

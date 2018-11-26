@@ -10,6 +10,6 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<IEnumerable<BundleDetail>> GetApproveBundleDetail(CostBlockHistory history, long? historyValueId = null, IDictionary<string, IEnumerable<object>> costBlockFilter = null);
 
-        Task<IEnumerable<BundleDetail>> GetApproveBundleDetailQualityGate(CostBlockHistory history, long? historyValueId = null, IDictionary<string, IEnumerable<object>> costBlockFilter = null);
+        Task<IEnumerable<BundleDetail>> GetApproveBundleDetailQualityGate(CostBlockHistory history, bool userCountyGroupCheck, long? historyValueId = null, IDictionary<string, IEnumerable<object>> costBlockFilter = null);
     }
 }

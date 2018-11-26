@@ -25,27 +25,27 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
 
-        public async Task<IEnumerable<BundleDetail>> Check(HistoryContext historyContext, IEnumerable<EditItem> editItems, IDictionary<string, long[]> costBlockFilter)
+        public async Task<IEnumerable<BundleDetail>> Check(HistoryContext historyContext, IEnumerable<EditItem> editItems, IDictionary<string, long[]> costBlockFilter, bool userCountyGroupCheck)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
-            var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(historyContext, editItems, costBlockFilter.Convert(), true);
+            var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(historyContext, editItems, costBlockFilter.Convert(), userCountyGroupCheck);
             var mapper = new CostBlockValueHistoryMapper(costBlockMeta, historyContext.CostElementId)
             {
                 UsePeriodQualityGate = true,
-                UsetCountryGroupQualityGate = true
+                UsetCountryGroupQualityGate = userCountyGroupCheck
             };
 
             return await this.repositorySet.ReadBySql(query, mapper.Map);
         }
 
-        public async Task<IEnumerable<BundleDetail>> Check(CostBlockHistory history, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
+        public async Task<IEnumerable<BundleDetail>> Check(CostBlockHistory history, bool userCountyGroupCheck, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
-            var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(history, true, costBlockFilter);
+            var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(history, userCountyGroupCheck, costBlockFilter);
             var mapper = new CostBlockValueHistoryMapper(costBlockMeta, history.Context.CostElementId)
             {
                 UsePeriodQualityGate = true,
-                UsetCountryGroupQualityGate = true
+                UsetCountryGroupQualityGate = userCountyGroupCheck
             };
 
             return await this.repositorySet.ReadBySql(query, mapper.Map);

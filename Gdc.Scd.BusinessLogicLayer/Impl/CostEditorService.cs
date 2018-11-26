@@ -107,7 +107,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 var filter = this.costBlockFilterBuilder.BuildCoordinateFilter(context);
 
-                checkResult = await this.qualityGateSevice.Check(editItems, context, filter);
+                checkResult = await this.qualityGateSevice.Check(editItems, context, filter, EditorType.CostEditor);
             }
             else
             {
@@ -126,7 +126,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     {
                         var result = await this.costEditorRepository.UpdateValues(editItems, editItemInfo, filter);
 
-                        await this.historySevice.Save(context, editItems, approvalOption, filter);
+                        await this.historySevice.Save(context, editItems, approvalOption, filter, EditorType.CostEditor);
 
                         transaction.Commit();
                     }

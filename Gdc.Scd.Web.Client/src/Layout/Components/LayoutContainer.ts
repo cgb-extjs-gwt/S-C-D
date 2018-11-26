@@ -16,10 +16,10 @@ import { CostEditorContainer } from "../../CostEditor/Components/CostEditorConta
 import { CalcResultView } from "../../Report/CalcResultView";
 import { ReportView } from "../../Report/index";
 import { ReportListView } from "../../Report/ReportListView";
-import { TableViewContainer } from "../../TableView/Components/TableViewContainer";
 import { loadMetaDataFromServer, openPage } from "../Actions/AppActions";
 import { CommonState, Role } from "../States/AppStates";
 import { Layout, LayoutActions, LayoutProps, RouteItem } from "./Layout";
+import { TableViewContainer } from "../../TableView/Components/TableViewContainer";
 
 interface RouteMenuItem extends RouteItem {
     text?: string

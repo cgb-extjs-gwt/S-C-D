@@ -1,17 +1,14 @@
 import * as React from "react";
-import { SaveApprovalToollbar } from "../../Approval/Components/SaveApprovalToollbar";
-import { SaveToolbar } from "../../Common/Components/SaveToolbar";
-import { AjaxDynamicGridActions, AjaxDynamicGridProps, AjaxDynamicGrid } from "../../Common/Components/AjaxDynamicGrid";
-import { HistoryButtonView, HistoryButtonViewProps } from "../../History/Components/HistoryButtonView";
+import { AjaxDynamicGridActions } from "../../Common/Components/AjaxDynamicGrid";
+import { Container, Toolbar } from "@extjs/ext-react";
+import { ColumnInfo } from "../../Common/States/ColumnInfo";
+import { TableViewGridContainer } from "./TableViewGridContainer";
+import { QualtityGateSetWindowContainer } from "./QualtityGateSetWindowContainer";
+import { HistoryButtonView } from "../../History/Components/HistoryButtonView";
 import { Model } from "../../Common/States/ExtStates";
 import { TableViewRecord } from "../States/TableViewRecord";
-import { QualtityGateSetWindowContainer } from "./QualtityGateSetWindowContainer";
 
-export interface TableViewActions extends AjaxDynamicGridActions<TableViewRecord> {
-    onApprove?()
-}
-
-export interface TableViewProps extends AjaxDynamicGridProps<TableViewRecord>, TableViewActions {
+export interface TableViewProps {
     buildHistotyDataLoadUrl(selection: Model<TableViewRecord>[], selectedDataIndex: string): string
 }
 
@@ -21,7 +18,7 @@ export interface TableViewState {
     isEnableHistoryButton: boolean
 }
 
-export class TableView extends AjaxDynamicGrid<TableViewProps, TableViewState> {
+export class TableView extends React.Component<TableViewProps, TableViewState> {
     constructor(props) {
         super(props)
 
@@ -32,42 +29,44 @@ export class TableView extends AjaxDynamicGrid<TableViewProps, TableViewState> {
         };
     }
 
-    protected getSaveToolbar(hasChanges: boolean, ref: (toolbar: SaveToolbar) => void) {
+    public render() {
         const { selection, selectedDataIndex, isEnableHistoryButton } = this.state;
         const { buildHistotyDataLoadUrl } = this.props;
-        
+
         return (
-            <SaveApprovalToollbar 
-                ref={ref}
-                isEnableClear={hasChanges} 
-                isEnableSave={hasChanges}
-                onCancel={this.onCancel}
-                onSave={this.onSave}
-                onApproval={this.onApproval}
-            >
-                <HistoryButtonView  
-                    isEnabled={isEnableHistoryButton}
-                    flex={1}
-                    buidHistoryUrl={() => buildHistotyDataLoadUrl(selection, selectedDataIndex)}
-                />
-                <QualtityGateSetWindowContainer/>
-            </SaveApprovalToollbar>
+            <Container layout="fit">
+                <Toolbar docked="top">
+                    <HistoryButtonView  
+                        isEnabled={isEnableHistoryButton}
+                        flex={1}
+                        buidHistoryUrl={() => buildHistotyDataLoadUrl(selection, selectedDataIndex)}
+                    />
+                    <QualtityGateSetWindowContainer/>
+                </Toolbar>
+
+                <TableViewGridContainer onSelectionChange={this.onSelectionChange} />
+            </Container>
         );
     }
 
-    protected onSelectionChange(grid, records: Model<TableViewRecord>[], selecting: boolean, selectionInfo) {
-        const column = selectionInfo.startCell.column;
+    protected onSelectionChange = (grid, records: Model<TableViewRecord>[], selecting: boolean, selectionInfo) => {
+        // const { startCell } = selectionInfo;
 
-        this.setState({
-            selection: records,
-            selectedDataIndex: column.getDataIndex(),
-            isEnableHistoryButton: !!column.getEditable()
-        });
+        // if (startCell) {
+        //     const column = selectionInfo.startCell.column;
 
-        super.onSelectionChange(grid, records, selecting, selectionInfo);
-    }
-
-    private onApproval = () => {
-        this.saveWithCallback(this.props.onApprove);
+        //     this.setState({
+        //         selection: records,
+        //         selectedDataIndex: column.getDataIndex(),
+        //         isEnableHistoryButton: !!column.getEditable()
+        //     });
+        // } 
+        // else {
+        //     this.setState({
+        //         selection: [],
+        //         selectedDataIndex: null,
+        //         isEnableHistoryButton: false
+        //     });
+        // }
     }
 }

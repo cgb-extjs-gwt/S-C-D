@@ -22,7 +22,7 @@ export interface QualityGateResultSetItem {
 
 export interface QualityGateResultSet {
     items: QualityGateResultSetItem[]
-    hasErros: boolean
+    hasErrors: boolean
 }
 
 export interface TableViewState {

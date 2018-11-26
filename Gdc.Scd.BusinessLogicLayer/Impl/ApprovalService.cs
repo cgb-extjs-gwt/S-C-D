@@ -178,9 +178,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             IEnumerable<BundleDetail> bundleDetails;
 
-            if (this.qualityGateSevice.IsUseCheck(history.Context))
+            var qulityGateOption = this.qualityGateSevice.GetQualityGateOption(history.Context, history.EditorType);
+
+            if (this.qualityGateSevice.IsUseCheck(qulityGateOption))
             {
-                bundleDetails = await this.approvalRepository.GetApproveBundleDetailQualityGate(history, historyValueId, costBlockFilter);
+                bundleDetails = await this.approvalRepository.GetApproveBundleDetailQualityGate(history, qulityGateOption.IsCountyCheck, historyValueId, costBlockFilter);
             }
             else
             {

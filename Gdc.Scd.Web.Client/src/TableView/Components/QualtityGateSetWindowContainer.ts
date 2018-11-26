@@ -9,18 +9,18 @@ import { QualityGateSetWindow, QualityGateSetWindowProps } from "./QualityGateSe
 export const QualtityGateSetWindowContainer =
     connect<QualityGateSetWindowProps, QualityGateToolbarActions, QualityGateSetWindowProps, CommonState>(
         ({ app: { appMetaData }, pages: { tableView } }, { position }) => {
-            const { qualityGateResultSet, info: { recordInfo } } = tableView;
-
+            const { qualityGateResultSet, info } = tableView;
             const tabs: QualtityGateTab[] = [];
 
-            if (qualityGateResultSet && qualityGateResultSet.hasErros) {
+            if (qualityGateResultSet && qualityGateResultSet.hasErrors) {
+                const { recordInfo } = info;
+
                 for (const item of qualityGateResultSet.items) {
                     if (item.qualityGateResult.hasErrors) {
                         const { applicationId, costBlockId, costElementId } = item.costElementIdentifier;
                         
                         const fieldInfos = recordInfo.data.filter(
                             fieldInfo => 
-                                fieldInfo.applicationId == applicationId &&
                                 fieldInfo.metaId == costBlockId &&
                                 fieldInfo.fieldName == costElementId
                         );
