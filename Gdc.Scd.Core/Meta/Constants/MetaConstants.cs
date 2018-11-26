@@ -53,5 +53,7 @@
         public const string SfabInputLevel = "Sfab";
 
         public const string SogInputLevel = "Sog";
+
+        public const string SwDigitInputLevel = "SwDigit";
     }
 }

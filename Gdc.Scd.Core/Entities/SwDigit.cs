@@ -7,7 +7,7 @@ using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("SwDigit", Schema = MetaConstants.InputLevelSchema)]
+    [Table(MetaConstants.SwDigitInputLevel, Schema = MetaConstants.InputLevelSchema)]
     public class SwDigit : NamedId, IDeactivatable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
