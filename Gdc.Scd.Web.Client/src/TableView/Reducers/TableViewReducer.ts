@@ -30,7 +30,8 @@ const editRecord: Reducer<TableViewState, EditRecordAction> = (state, action) =>
                 ...editedRecords, 
                 {
                     coordinates: actionRecord.coordinates,
-                    data: changedData
+                    data: changedData,
+                    additionalData: actionRecord.additionalData
                 }
             ];
         }
@@ -43,7 +44,8 @@ const editRecord: Reducer<TableViewState, EditRecordAction> = (state, action) =>
                             data: { 
                                 ...record.data, 
                                 ...changedData
-                            }
+                            },
+                            additionalData: actionRecord.additionalData
                         }
                         : record
             );
