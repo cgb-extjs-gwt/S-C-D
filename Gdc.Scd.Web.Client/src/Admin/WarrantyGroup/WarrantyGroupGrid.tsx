@@ -1,4 +1,4 @@
-﻿import { Button, CheckBoxField, Column, ComboBoxField, Grid, Toolbar } from '@extjs/ext-react';
+﻿import { Button, CheckBoxField, Column, ComboBoxField, Grid, Toolbar, TextField } from '@extjs/ext-react';
 import * as React from 'react';
 import { buildComponentUrl, buildMvcUrl } from "../../Common/Services/Ajax";
 
@@ -30,6 +30,14 @@ export class WarrantyGroupGrid extends React.Component<any> {
                     if (row.data.roleCodeId == 0)
                         return false;
                     return true;
+                }
+            },
+            {
+                name: 'responsiblePerson', type: 'string',
+                convert: function(val, row) {
+                    if (!val)
+                        return " ";
+                    return val;
                 }
             }],
 
@@ -222,6 +230,9 @@ export class WarrantyGroupGrid extends React.Component<any> {
                 />
 
                 {this.getRoleCodeColumn()}
+                <Column text="Responsible Person" dataIndex="responsiblePerson" flex={1} label="Responsible Person" labelAlign="placeholder" editable >
+                    <TextField />
+                </Column>
                 <Toolbar docked="top">
                     <CheckBoxField boxLabel="Show only WGs with no Role code" onChange={(chkBox, newValue, oldValue) => this.filterOnChange(chkBox, newValue, oldValue)} />
                 </Toolbar>
