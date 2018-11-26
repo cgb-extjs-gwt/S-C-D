@@ -51,7 +51,8 @@ export const saveTableViewToServer = (approvalOption: ApprovalOption) => asyncAc
             updateRecords(state.pages.tableView.editedRecords, approvalOption).then(
                 qualityGateResultSet => {
                     if (qualityGateResultSet.hasErrors) {
-                        dispatch(loadQualityCheckResult(qualityGateResultSet));
+                        console.log('updateRecords(qualityGateResultSet.hasErrors)');
+                        //dispatch(loadQualityCheckResult(qualityGateResultSet));
                     }
                     else {
                         dispatch(resetQualityCheckResult());
