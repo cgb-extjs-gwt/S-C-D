@@ -3,10 +3,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.TableView;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -39,8 +41,23 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public async Task<IEnumerable<Record>> GetRecords()
         {
             var costBlockInfos = this.GetCostBlockInfo().ToArray();
-            
-            return await this.tableViewRepository.GetRecords(costBlockInfos);
+            var records = await this.tableViewRepository.GetRecords(costBlockInfos);
+
+            var wgs = repositorySet.GetRepository<Wg>().GetAll().Include(x => x.Pla);
+            foreach(var record in records)
+            {
+                if (record.Coordinates.TryGetValue("Wg", out NamedId wgCoordinate))
+                {
+                    var wg = wgs.Where(x => x.Name == wgCoordinate.Name).FirstOrDefault();
+                    if (wg != null)
+                    {
+                        record.AdditionalData.Add("Wg.PLA", wg.Pla.Name);
+                        record.AdditionalData.Add("Wg.Description", wg.Description);
+                    }
+                }
+            }
+
+            return records;
         }
 
         public async Task UpdateRecords(IEnumerable<Record> records, bool isApproving)
