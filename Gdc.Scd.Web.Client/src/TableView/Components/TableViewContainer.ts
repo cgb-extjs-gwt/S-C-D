@@ -103,6 +103,17 @@ const buildCountColumns = (costBlock: CostBlockMeta, fieldInfo: FieldInfo) => (<
     mappingFn: record => record.data[fieldInfo.dataIndex].count
 })
 
+const buildAdditionalColumns = (title, dataIndex) => {
+    return <ColumnInfo<TableViewRecord>>{
+        title: title,
+        dataIndex: dataIndex,
+        type: ColumnType.Text,
+        mappingFn: record => record.additionalData[dataIndex]
+    }
+}
+
+    
+
 const buildCountDataIndex = (dataIndex: string) => `${dataIndex}_Count`
 
 const buildProps = (state: CommonState) => {
@@ -119,6 +130,13 @@ const buildProps = (state: CommonState) => {
 
         const costBlockCache = new Map<string, CostBlockMeta>();
         const coordinateColumns = mapToColumnInfo(tableViewInfo.recordInfo.coordinates, meta, costBlockCache, buildCoordinateColumn);
+
+        const wgAdditionalColumns = [
+            buildAdditionalColumns("WG Full name", "Wg.Description"),
+            buildAdditionalColumns("PLA", "Wg.PLA"),
+            buildAdditionalColumns("Responsible Person", "Wg.ResponsiblePerson")
+        ]
+
         const costElementColumns = mapToColumnInfo(
             tableViewInfo.recordInfo.data, 
             meta, 
@@ -127,7 +145,7 @@ const buildProps = (state: CommonState) => {
         
         const countColumns = mapToColumnInfo(tableViewInfo.recordInfo.data, meta, costBlockCache, buildCountColumns);
 
-        columns.push(...countColumns, ...coordinateColumns, ...costElementColumns);
+        columns.push(...countColumns, ...coordinateColumns, ...wgAdditionalColumns, ...costElementColumns);
 
         coordinateColumns.forEach(column => filterDataIndexes.push(column.dataIndex));
     }

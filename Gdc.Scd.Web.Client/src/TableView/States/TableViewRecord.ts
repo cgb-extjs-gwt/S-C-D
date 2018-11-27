@@ -8,4 +8,9 @@ export interface TableViewRecord {
             count: number,
         } 
     }
+    additionalData: {
+        [key: string]: {
+            value
+        }
+    }
 }
