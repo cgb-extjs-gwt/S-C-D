@@ -15,6 +15,7 @@ export class SaveApprovalToollbar extends SaveToolbar<SaveApprovalToollbarProps>
         const { isEnableSave, onApproval } = this.state;
 
         return [                
+            this.props.children,
             <Button 
                 key="approval"
                 text="Save and send for approval" 

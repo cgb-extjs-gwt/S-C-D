@@ -25,7 +25,6 @@ export class TableViewGrid extends AjaxDynamicGrid<TableViewGridProps> {
                 onSave={this.onSave}
                 onApproval={this.onApproval}
             >
-                <QualtityGateSetWindowContainer/>
             </SaveApprovalToollbar>
         );
     }

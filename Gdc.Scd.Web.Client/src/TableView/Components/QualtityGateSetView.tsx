@@ -26,9 +26,9 @@ export class QualtityGateSetView extends React.Component<QualtityGateSetProps> {
                 <TabPanel tabBar={{layout: { pack: 'left' }}} flex={10}>
                     {
                         tabs.map(({ title, key, costElement, errors }) => (
-                            <Container title={title}>
+                            <Container key={key}  title={title}>
                                 <QualityGateGrid
-                                    key={key} 
+                                    
                                     costElement={costElement} 
                                     storeConfig={{ data: errors }} 
                                     inputLevelId={WgInputLevel} 
