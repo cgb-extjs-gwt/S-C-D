@@ -28,7 +28,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Calculation
         [TestCase(TestName = "Check Hdd retention calc trigger")]
         public void Hdd_Retention_Trigger_Test()
         {
-            long wg = 1;
+            long wg = 3;
 
             var hdd1 = new HddRetention
             {
@@ -105,6 +105,10 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Calculation
             SetHddRet(hddp);
 
             ctx.SaveChanges();
+
+            Dispose();
+
+            Init();
 
             AssertHddRet(hdd1);
             AssertHddRet(hdd2);
