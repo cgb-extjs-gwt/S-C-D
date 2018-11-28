@@ -55,7 +55,7 @@ export class AjaxDynamicGrid<T extends AjaxDynamicGridProps = AjaxDynamicGridPro
         super.componentWillReceiveProps(nextProps);
     }
 
-    protected getStore() {
+    protected getStore(): any {
         return this.ajaxStore;
     }
 
