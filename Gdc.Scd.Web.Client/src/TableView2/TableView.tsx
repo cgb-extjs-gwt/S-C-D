@@ -5,11 +5,11 @@ import { CostMetaData } from "../Common/States/CostMetaStates";
 import { StoreOperation } from "../Common/States/ExtStates";
 import { TableViewRecord } from "../TableView/States/TableViewRecord";
 import { QualityGateResultSet, TableViewInfo } from "../TableView/States/TableViewState";
+import { TableViewErrorDialog } from "./Components/TableViewErrorDialog";
 import { TableViewGrid } from "./Components/TableViewGrid";
 import { TableViewGridHelper } from "./Helpers/TableViewGridHelper";
 import { ITableViewService } from "./Services/ITableViewService";
 import { TableViewFactory } from "./Services/TableViewFactory";
-import { TableViewErrorDialog } from "./Components/TableViewErrorDialog";
 
 export interface TableViewState {
     meta: CostMetaData;
