@@ -1,9 +1,11 @@
 ﻿import { buildMvcUrl } from "../../Common/Services/Ajax";
 import { CostMetaData } from "../../Common/States/CostMetaStates";
-import { getTableViewInfo } from "../../TableView/Services/TableViewService";
-import { TableViewInfo } from "../../TableView/States/TableViewState";
-import { ITableViewService } from "./ITableViewService";
 import { AppService } from "../../Layout/Services/AppService";
+import { ApprovalOption } from "../../QualityGate/States/ApprovalOption";
+import { getTableViewInfo, updateRecords } from "../../TableView/Services/TableViewService";
+import { TableViewRecord } from "../../TableView/States/TableViewRecord";
+import { QualityGateResultSet, TableViewInfo } from "../../TableView/States/TableViewState";
+import { ITableViewService } from "./ITableViewService";
 
 export class TableViewService implements ITableViewService {
 
@@ -30,4 +32,7 @@ export class TableViewService implements ITableViewService {
         return buildMvcUrl(this.controllerName, 'GetRecords');
     }
 
+    public updateRecords(records: TableViewRecord[], approvalOption: ApprovalOption): Promise<QualityGateResultSet> {
+        return updateRecords(records, approvalOption);
+    }
 }

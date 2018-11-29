@@ -1,11 +1,13 @@
 ﻿import * as React from "react";
+import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { CostMetaData } from "../Common/States/CostMetaStates";
-import { TableViewGrid } from "./Components/TableViewGrid";
+import { StoreOperation } from "../Common/States/ExtStates";
+import { TableViewRecord } from "../TableView/States/TableViewRecord";
 import { TableViewInfo } from "../TableView/States/TableViewState";
+import { TableViewGrid } from "./Components/TableViewGrid";
 import { TableViewGridHelper } from "./Helpers/TableViewGridHelper";
 import { ITableViewService } from "./Services/ITableViewService";
 import { TableViewFactory } from "./Services/TableViewFactory";
-import { StoreOperation } from "../Common/States/ExtStates";
 
 export interface TableViewState {
     meta: CostMetaData;
@@ -18,7 +20,7 @@ export class TableView extends React.Component<any, TableViewState> {
 
     private srv: ITableViewService;
 
-    private editedRecords: [];
+    private editedRecords: Array<TableViewRecord>;
 
     public state: TableViewState;
 
@@ -42,9 +44,10 @@ export class TableView extends React.Component<any, TableViewState> {
                     {...TableViewGridHelper.buildGridProps(url, schema, meta)}
                     ref={x => this.grid = x}
                     onApprove={this.onApprove}
+                    onCancel={this.onCancel}
+                    onSave={this.onSave}
                     onUpdateRecord={this.onUpdateRecord}
                     onUpdateRecordSet={this.onUpdateRecordSet}
-                    onCancel={this.onCancel}
                 />;
             }
         }
@@ -65,14 +68,24 @@ export class TableView extends React.Component<any, TableViewState> {
     private init() {
         this.srv = TableViewFactory.getTableViewService();
         //
+        this.reset();
         this.onApprove = this.onApprove.bind(this);
+        this.onCancel = this.onCancel.bind(this);
+        this.onSave = this.onSave.bind(this);
         this.onUpdateRecord = this.onUpdateRecord.bind(this);
         this.onUpdateRecordSet = this.onUpdateRecordSet.bind(this);
-        this.onCancel = this.onCancel.bind(this);
     }
 
     private onApprove() {
-        console.log('onApprove()');
+        this.save(true);
+    }
+
+    private onCancel() {
+        this.reset();
+    }
+
+    private onSave() {
+        this.save(false);
     }
 
     private onUpdateRecord(store, record, operation, modifiedFieldNames) {
@@ -94,52 +107,63 @@ export class TableView extends React.Component<any, TableViewState> {
         }
     }
 
-    private onCancel() {
-        this.resetChanges();
+    private save(isApproving: boolean) {
+        let p = this.srv.updateRecords(this.editedRecords, { isApproving: isApproving })
+            .then(x => {
+
+                if (x.hasErrors) {
+                    //dispatch(loadQualityCheckResult(x));
+                }
+                else {
+                    //dispatch(resetQualityCheckResult());
+                    //dispatch(resetChanges());
+                }
+            })
+
+        handleRequest(p);
     }
 
-    private editRecord (state, action) {
-        //let editedRecords = this.editedRecords;
+    private editRecord(records: TableViewRecord[], index: number) {
+        let recs = this.editedRecords;
 
-        //action.records.forEach(actionRecord => {
-        //    const recordIndex = editedRecords.findIndex(editRecord => TableViewGridHelper.isEqualCoordinates(editRecord, actionRecord));
+        records.forEach(actionRecord => {
+            const recordIndex = recs.findIndex(editRecord => TableViewGridHelper.isEqualCoordinates(editRecord, actionRecord));
 
-        //    const changedData = {
-        //        [action.dataIndex]: actionRecord.data[action.dataIndex]
-        //    };
+            const changedData = {
+                [index]: actionRecord.data[index]
+            };
 
-        //    if (recordIndex == -1) {
-        //        editedRecords = [
-        //            ...editedRecords,
-        //            {
-        //                coordinates: actionRecord.coordinates,
-        //                data: changedData,
-        //                additionalData: actionRecord.additionalData
-        //            }
-        //        ];
-        //    }
-        //    else {
-        //        editedRecords = editedRecords.map(
-        //            (record, index) =>
-        //                index == recordIndex
-        //                    ? {
-        //                        coordinates: actionRecord.coordinates,
-        //                        data: {
-        //                            ...record.data,
-        //                            ...changedData
-        //                        },
-        //                        additionalData: actionRecord.additionalData
-        //                    }
-        //                    : record
-        //        );
-        //    }
-        //});
+            if (recordIndex == -1) {
+                recs = [
+                    ...recs,
+                    {
+                        coordinates: actionRecord.coordinates,
+                        data: changedData,
+                        additionalData: actionRecord.additionalData
+                    }
+                ];
+            }
+            else {
+                recs = recs.map(
+                    (record, index) =>
+                        index == recordIndex
+                            ? {
+                                coordinates: actionRecord.coordinates,
+                                data: {
+                                    ...record.data,
+                                    ...changedData
+                                },
+                                additionalData: actionRecord.additionalData
+                            }
+                            : record
+                );
+            }
+        });
 
-        //this.editedRecords = editedRecords;
+        this.editedRecords = recs;
     }
 
-    private resetChanges() {
+    private reset() {
         this.editedRecords = [];
     }
-
 }
