@@ -9,6 +9,7 @@ import { TableViewGrid } from "./Components/TableViewGrid";
 import { TableViewGridHelper } from "./Helpers/TableViewGridHelper";
 import { ITableViewService } from "./Services/ITableViewService";
 import { TableViewFactory } from "./Services/TableViewFactory";
+import { TableViewErrorDialog } from "./Components/TableViewErrorDialog";
 
 export interface TableViewState {
     meta: CostMetaData;
@@ -18,6 +19,8 @@ export interface TableViewState {
 export class TableView extends React.Component<any, TableViewState> {
 
     private grid: TableViewGrid;
+
+    private dlg: TableViewErrorDialog;
 
     private srv: ITableViewService;
 
@@ -51,6 +54,7 @@ export class TableView extends React.Component<any, TableViewState> {
                         onUpdateRecord={this.onUpdateRecord}
                         onUpdateRecordSet={this.onUpdateRecordSet}
                     />
+                    <TableViewErrorDialog ref={x => this.dlg = x} title="Quality gate errors" />
                 </Container>;
             }
         }
@@ -128,7 +132,7 @@ export class TableView extends React.Component<any, TableViewState> {
     }
 
     private showQualityError(d: QualityGateResultSet) {
-
+        this.dlg.show();
     }
 
 }
