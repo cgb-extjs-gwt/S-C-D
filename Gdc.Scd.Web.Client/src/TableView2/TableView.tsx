@@ -3,7 +3,7 @@ import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { CostMetaData } from "../Common/States/CostMetaStates";
 import { StoreOperation } from "../Common/States/ExtStates";
 import { TableViewRecord } from "../TableView/States/TableViewRecord";
-import { TableViewInfo } from "../TableView/States/TableViewState";
+import { TableViewInfo, QualityGateResultSet } from "../TableView/States/TableViewState";
 import { TableViewGrid } from "./Components/TableViewGrid";
 import { TableViewGridHelper } from "./Helpers/TableViewGridHelper";
 import { ITableViewService } from "./Services/ITableViewService";
@@ -20,7 +20,7 @@ export class TableView extends React.Component<any, TableViewState> {
 
     private srv: ITableViewService;
 
-    private editedRecords: Array<TableViewRecord>;
+    private editRecords: Array<TableViewRecord>;
 
     public state: TableViewState;
 
@@ -101,18 +101,19 @@ export class TableView extends React.Component<any, TableViewState> {
 
     private onUpdateRecordSet(records, operation, dataIndex) {
         if (operation === StoreOperation.Edit) {
-            const tableViewRecords = records.map(rec => rec.data);
-
-            this.editRecord(tableViewRecords, dataIndex);
+            this.editRecords = TableViewGridHelper.refreshEditRecords(this.editRecords, records.map(rec => rec.data), dataIndex);
         }
     }
 
-    private save(isApproving: boolean) {
-        let p = this.srv.updateRecords(this.editedRecords, { isApproving: isApproving })
-            .then(x => {
+    private reset() {
+        this.editRecords = [];
+    }
 
+    private save(isApproving: boolean) {
+        let p = this.srv.updateRecords(this.editRecords, { isApproving: isApproving })
+            .then(x => {
                 if (x.hasErrors) {
-                    //dispatch(loadQualityCheckResult(x));
+                    this.showQualityError(x);
                 }
                 else {
                     //dispatch(resetQualityCheckResult());
@@ -123,47 +124,8 @@ export class TableView extends React.Component<any, TableViewState> {
         handleRequest(p);
     }
 
-    private editRecord(records: TableViewRecord[], index: number) {
-        let recs = this.editedRecords;
+    private showQualityError(d: QualityGateResultSet) {
 
-        records.forEach(actionRecord => {
-            const recordIndex = recs.findIndex(editRecord => TableViewGridHelper.isEqualCoordinates(editRecord, actionRecord));
-
-            const changedData = {
-                [index]: actionRecord.data[index]
-            };
-
-            if (recordIndex == -1) {
-                recs = [
-                    ...recs,
-                    {
-                        coordinates: actionRecord.coordinates,
-                        data: changedData,
-                        additionalData: actionRecord.additionalData
-                    }
-                ];
-            }
-            else {
-                recs = recs.map(
-                    (record, index) =>
-                        index == recordIndex
-                            ? {
-                                coordinates: actionRecord.coordinates,
-                                data: {
-                                    ...record.data,
-                                    ...changedData
-                                },
-                                additionalData: actionRecord.additionalData
-                            }
-                            : record
-                );
-            }
-        });
-
-        this.editedRecords = recs;
     }
 
-    private reset() {
-        this.editedRecords = [];
-    }
 }

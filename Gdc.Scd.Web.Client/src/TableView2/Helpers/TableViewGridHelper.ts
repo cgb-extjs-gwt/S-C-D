@@ -50,6 +50,51 @@ export class TableViewGridHelper {
     ): boolean {
         return Object.keys(coord1).every(key => coord1[key].id === coord2[key].id);
     }
+
+    public static refreshEditRecords(
+        oldRecords: TableViewRecord[],
+        newRecords: TableViewRecord[],
+        index: number
+    ): TableViewRecord[] {
+
+        let recs = oldRecords;
+
+        newRecords.forEach(actionRecord => {
+            const recordIndex = recs.findIndex(editRecord => TableViewGridHelper.isEqualCoordinates(editRecord, actionRecord));
+
+            const changedData = {
+                [index]: actionRecord.data[index]
+            };
+
+            if (recordIndex == -1) {
+                recs = [
+                    ...recs,
+                    {
+                        coordinates: actionRecord.coordinates,
+                        data: changedData,
+                        additionalData: actionRecord.additionalData
+                    }
+                ];
+            }
+            else {
+                recs = recs.map(
+                    (record, index) =>
+                        index == recordIndex
+                            ? {
+                                coordinates: actionRecord.coordinates,
+                                data: {
+                                    ...record.data,
+                                    ...changedData
+                                },
+                                additionalData: actionRecord.additionalData
+                            }
+                            : record
+                );
+            }
+        });
+
+        return recs;
+    }
 }
 
 const mapToColumnInfo = (
