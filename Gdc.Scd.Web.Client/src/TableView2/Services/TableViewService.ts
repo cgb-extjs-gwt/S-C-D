@@ -1,13 +1,19 @@
-﻿import { getTableViewInfo } from "../../TableView/Services/TableViewService";
-import { ITableViewService } from "./ITableViewService";
+﻿import { buildMvcUrl } from "../../Common/Services/Ajax";
+import { CostMetaData } from "../../Common/States/CostMetaStates";
+import { getTableViewInfo } from "../../TableView/Services/TableViewService";
 import { TableViewInfo } from "../../TableView/States/TableViewState";
-import { buildMvcUrl } from "../../Common/Services/Ajax";
+import { ITableViewService } from "./ITableViewService";
+import { AppService } from "../../Layout/Services/AppService";
 
 export class TableViewService implements ITableViewService {
 
     private static schema: any; // schema promise cache
 
     private controllerName: string = 'TableView';
+
+    public getMeta(): Promise<CostMetaData> {
+        return new AppService().getCostMetaData();
+    }
 
     public getSchema(): Promise<TableViewInfo> {
         let p = TableViewService.schema;

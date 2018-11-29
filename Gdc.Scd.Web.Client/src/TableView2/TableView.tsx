@@ -1,20 +1,21 @@
 ﻿import * as React from "react";
+import { CostMetaData } from "../Common/States/CostMetaStates";
 import { TableViewGrid } from "../TableView/Components/TableViewGrid";
+import { TableViewInfo } from "../TableView/States/TableViewState";
 import { TableViewGridHelper } from "./Helpers/TableViewGridHelper";
 import { ITableViewService } from "./Services/ITableViewService";
 import { TableViewFactory } from "./Services/TableViewFactory";
 
-export class TableView extends React.Component<any, any> {
+export interface TableViewState {
+    meta: CostMetaData;
+    schema: TableViewInfo
+}
+
+export class TableView extends React.Component<any, TableViewState> {
 
     private srv: ITableViewService;
 
-    public state = {
-
-        schema: null,
-
-        costMetaData: null
-
-    }
+    public state: TableViewState;
 
     constructor(props: any) {
         super(props);
@@ -27,18 +28,15 @@ export class TableView extends React.Component<any, any> {
 
         if (this.state) {
 
+            let meta = this.state.meta;
             let schema = this.state.schema;
-            let meta = this.state.costMetaData;
+            let url = this.srv.getUrl();
 
-            if (schema && meta) {
+            console.log('schema:', schema);
+            console.log('meta:', meta);
 
-                let url = this.srv.getUrl();
-
-                grid = <TableViewGrid
-                    {...TableViewGridHelper.buildGridProps(url, schema, meta)}
-                    store={null}// stub
-                />;
-
+            if (meta && schema) {
+                grid = <TableViewGrid {...TableViewGridHelper.buildGridProps(url, schema, meta)} />;
             }
         }
 
@@ -46,7 +44,13 @@ export class TableView extends React.Component<any, any> {
     }
 
     public componentDidMount() {
-        this.srv.getSchema().then(x => this.setState({ schema: x, costMetaData: null }));
+        Promise.all([
+            this.srv.getMeta(),
+            this.srv.getSchema()
+        ]).then(x => this.setState({
+            meta: x[0],
+            schema: x[1]
+        }));
     }
 
     private init() {
