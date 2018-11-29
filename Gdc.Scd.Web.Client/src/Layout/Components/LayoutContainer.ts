@@ -16,10 +16,11 @@ import { CostEditorContainer } from "../../CostEditor/Components/CostEditorConta
 import { CalcResultView } from "../../Report/CalcResultView";
 import { ReportView } from "../../Report/index";
 import { ReportListView } from "../../Report/ReportListView";
+import { TableViewContainer } from "../../TableView/Components/TableViewContainer";
+import { TableView } from "../../TableView2";
 import { loadMetaDataFromServer, openPage } from "../Actions/AppActions";
 import { CommonState, Role } from "../States/AppStates";
 import { Layout, LayoutActions, LayoutProps, RouteItem } from "./Layout";
-import { TableViewContainer } from "../../TableView/Components/TableViewContainer";
 
 interface RouteMenuItem extends RouteItem {
     text?: string
@@ -37,6 +38,7 @@ export interface LayoutContainerProps {
 const buildRouteMenuItems = () => <RouteMenuItem[]>[
     { path: '/input-cost-elements', text: 'Input Cost Elements', iconCls: 'x-fa fa-info', component: CostEditorContainer, isMenuItem: true, permission: Permissions.COST_EDITOR },
     { path: '/table-view', text: 'Table View', iconCls: 'x-fa fa-info', component: TableViewContainer, isMenuItem: true, permission: Permissions.TABLE_VIEW },
+    { path: '/table-view2', text: 'Table View - x', iconCls: 'x-fa fa-table', component: TableView, isMenuItem: true, permission: Permissions.TABLE_VIEW },
     { path: '/cost-approval', text: 'Approve cost elements', iconCls: 'x-fa fa-check-square-o', component: ApprovalCostElementsLayout, isMenuItem: true, permission: Permissions.APPROVAL },
     { path: '/own-cost-approval', text: 'Own approve cost elements', iconCls: 'x-fa fa-check-square-o', component: OwnApprovalCostElementsLayout, isMenuItem: true, permission: Permissions.OWN_APPROVAL },
     { path: '/capability-matrix', text: 'Portfolio', iconCls: 'x-fa fa-suitcase', component: CapabilityMatrixView, isMenuItem: true, permission: Permissions.PORTFOLIO, exact: true },

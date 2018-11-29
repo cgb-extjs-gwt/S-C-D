@@ -16,7 +16,6 @@ export class QualityGateSetWindow extends React.Component<QualityGateSetWindowPr
         console.log('QualityGateSetWindow', hasErrors);
 
         return (
-            hasErrors &&
             <Modal displayed={hasErrors} title="QualityGateSetWindow">
                 <div>
                     <h1>QualityGateSetWindow content</h1>

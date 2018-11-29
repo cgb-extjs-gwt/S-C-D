@@ -1,11 +1,8 @@
 import * as React from "react";
 import { SaveApprovalToollbar } from "../../Approval/Components/SaveApprovalToollbar";
+import { AjaxDynamicGrid, AjaxDynamicGridActions, AjaxDynamicGridProps } from "../../Common/Components/AjaxDynamicGrid";
 import { SaveToolbar } from "../../Common/Components/SaveToolbar";
-import { AjaxDynamicGridActions, AjaxDynamicGridProps, AjaxDynamicGrid } from "../../Common/Components/AjaxDynamicGrid";
-import { HistoryButtonView, HistoryButtonViewProps } from "../../History/Components/HistoryButtonView";
-import { Model } from "../../Common/States/ExtStates";
 import { TableViewRecord } from "../States/TableViewRecord";
-import { QualtityGateSetWindowContainer } from "./QualtityGateSetWindowContainer";
 
 export interface TableViewGridActions extends AjaxDynamicGridActions<TableViewRecord> {
     onApprove?()
