@@ -131,7 +131,8 @@ export class TableView extends React.Component<any, TableViewState> {
         handleRequest(p);
     }
 
-    private showQualityError(d: QualityGateResultSet) {
+    private showQualityError(err: QualityGateResultSet) {
+        this.dlg.setModel(err);
         this.dlg.show();
     }
 

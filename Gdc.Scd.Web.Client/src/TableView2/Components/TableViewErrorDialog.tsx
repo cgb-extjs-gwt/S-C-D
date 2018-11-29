@@ -1,9 +1,15 @@
 import * as React from "react";
 import { Dialog, DialogProps } from "@extjs/ext-react";
+import { QualityGateResultSet } from "../../TableView/States/TableViewState";
 
-export interface TableViewErrorDialogProps extends DialogProps { }
+export interface TableViewErrorDialogProps extends DialogProps {
+    //onOk(message: string): void;
+    //onCancel(): void;
+}
 
 export class TableViewErrorDialog extends React.Component<TableViewErrorDialogProps, any> {
+
+    private dlg: Dialog & any;
 
     public state = {
         showDialog: false
@@ -17,6 +23,7 @@ export class TableViewErrorDialog extends React.Component<TableViewErrorDialogPr
     public render() {
         return <Dialog
             {...this.props}
+            ref={x => this.dlg = x}
             displayed={this.state.showDialog}
             closable
             closeAction="hide"
@@ -37,11 +44,15 @@ export class TableViewErrorDialog extends React.Component<TableViewErrorDialogPr
     }
 
     public show() {
-        this.setState({ showDialog: true });
+        this.dlg.show();
     }
 
     public hide() {
         this.setState({ showDialog: false });
+    }
+
+    public setModel(m: QualityGateResultSet) {
+        console.log(m);
     }
 
     private init() {
