@@ -39,6 +39,17 @@ export class TableViewGridHelper {
             store: null
         } as TableViewGridProps2;
     }
+
+    public static buildCountDataIndex(dataIndex: string): string {
+        return buildCountDataIndex(dataIndex);
+    }
+
+    public static isEqualCoordinates(
+        { coordinates: coord1 }: TableViewRecord,
+        { coordinates: coord2 }: TableViewRecord
+    ): boolean {
+        return Object.keys(coord1).every(key => coord1[key].id === coord2[key].id);
+    }
 }
 
 const mapToColumnInfo = (

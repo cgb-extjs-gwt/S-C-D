@@ -4,11 +4,8 @@ import { AjaxDynamicGrid, AjaxDynamicGridActions, AjaxDynamicGridProps } from ".
 import { SaveToolbar } from "../../Common/Components/SaveToolbar";
 import { TableViewRecord } from "../../TableView/States/TableViewRecord";
 
-export interface TableViewGridActions extends AjaxDynamicGridActions<TableViewRecord> {
-    onApprove?()
-}
-
-export interface TableViewGridProps extends AjaxDynamicGridProps<TableViewRecord>, TableViewGridActions {
+export interface TableViewGridProps extends AjaxDynamicGridProps<TableViewRecord> {
+    onApprove(): void;
 }
 
 export class TableViewGrid extends AjaxDynamicGrid<TableViewGridProps> {
@@ -20,25 +17,26 @@ export class TableViewGrid extends AjaxDynamicGrid<TableViewGridProps> {
 
     protected getSaveToolbar(hasChanges: boolean, ref: (toolbar: SaveToolbar) => void) {
         return (
-            <SaveApprovalToollbar 
+            <SaveApprovalToollbar
                 ref={ref}
-                isEnableClear={hasChanges} 
+                isEnableClear={hasChanges}
                 isEnableSave={hasChanges}
                 onCancel={this.onCancel}
                 onSave={this.onSave}
-                onApproval={this.onApproval}
+                onApproval={this.onApprove}
             >
             </SaveApprovalToollbar>
         );
     }
 
     private init() {
+        this.onApprove = this.onApprove.bind(this);
         //hack!!!
         //TODO: remove, refactor!
-        this.componentWillReceiveProps(this.props); 
+        this.componentWillReceiveProps(this.props);
     }
 
-    private onApproval = () => {
+    private onApprove() {
         this.saveWithCallback(this.props.onApprove);
     }
 }

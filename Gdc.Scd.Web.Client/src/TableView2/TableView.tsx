@@ -5,6 +5,7 @@ import { TableViewInfo } from "../TableView/States/TableViewState";
 import { TableViewGridHelper } from "./Helpers/TableViewGridHelper";
 import { ITableViewService } from "./Services/ITableViewService";
 import { TableViewFactory } from "./Services/TableViewFactory";
+import { StoreOperation } from "../Common/States/ExtStates";
 
 export interface TableViewState {
     meta: CostMetaData;
@@ -17,9 +18,11 @@ export class TableView extends React.Component<any, TableViewState> {
 
     private srv: ITableViewService;
 
+    private editedRecords: [];
+
     public state: TableViewState;
 
-    constructor(props: any) {
+    public constructor(props: any) {
         super(props);
         this.init();
     }
@@ -35,7 +38,14 @@ export class TableView extends React.Component<any, TableViewState> {
             let url = this.srv.getUrl();
 
             if (meta && schema) {
-                grid = <TableViewGrid ref={x => this.grid = x} {...TableViewGridHelper.buildGridProps(url, schema, meta)} />;
+                grid = <TableViewGrid
+                    {...TableViewGridHelper.buildGridProps(url, schema, meta)}
+                    ref={x => this.grid = x}
+                    onApprove={this.onApprove}
+                    onUpdateRecord={this.onUpdateRecord}
+                    onUpdateRecordSet={this.onUpdateRecordSet}
+                    onCancel={this.onCancel}
+                />;
             }
         }
 
@@ -54,6 +64,82 @@ export class TableView extends React.Component<any, TableViewState> {
 
     private init() {
         this.srv = TableViewFactory.getTableViewService();
+        //
+        this.onApprove = this.onApprove.bind(this);
+        this.onUpdateRecord = this.onUpdateRecord.bind(this);
+        this.onUpdateRecordSet = this.onUpdateRecordSet.bind(this);
+        this.onCancel = this.onCancel.bind(this);
+    }
+
+    private onApprove() {
+        console.log('onApprove()');
+    }
+
+    private onUpdateRecord(store, record, operation, modifiedFieldNames) {
+        if (operation === StoreOperation.Edit) {
+            const [dataIndex] = modifiedFieldNames;
+            const countDataIndex = TableViewGridHelper.buildCountDataIndex(dataIndex);
+
+            if (record.get(countDataIndex) == 0) {
+                record.data[countDataIndex] = 1;
+            }
+        }
+    }
+
+    private onUpdateRecordSet(records, operation, dataIndex) {
+        if (operation === StoreOperation.Edit) {
+            const tableViewRecords = records.map(rec => rec.data);
+
+            this.editRecord(tableViewRecords, dataIndex);
+        }
+    }
+
+    private onCancel() {
+        this.resetChanges();
+    }
+
+    private editRecord (state, action) {
+        //let editedRecords = this.editedRecords;
+
+        //action.records.forEach(actionRecord => {
+        //    const recordIndex = editedRecords.findIndex(editRecord => TableViewGridHelper.isEqualCoordinates(editRecord, actionRecord));
+
+        //    const changedData = {
+        //        [action.dataIndex]: actionRecord.data[action.dataIndex]
+        //    };
+
+        //    if (recordIndex == -1) {
+        //        editedRecords = [
+        //            ...editedRecords,
+        //            {
+        //                coordinates: actionRecord.coordinates,
+        //                data: changedData,
+        //                additionalData: actionRecord.additionalData
+        //            }
+        //        ];
+        //    }
+        //    else {
+        //        editedRecords = editedRecords.map(
+        //            (record, index) =>
+        //                index == recordIndex
+        //                    ? {
+        //                        coordinates: actionRecord.coordinates,
+        //                        data: {
+        //                            ...record.data,
+        //                            ...changedData
+        //                        },
+        //                        additionalData: actionRecord.additionalData
+        //                    }
+        //                    : record
+        //        );
+        //    }
+        //});
+
+        //this.editedRecords = editedRecords;
+    }
+
+    private resetChanges() {
+        this.editedRecords = [];
     }
 
 }
