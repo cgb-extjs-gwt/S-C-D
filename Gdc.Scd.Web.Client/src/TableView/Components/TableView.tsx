@@ -1,10 +1,12 @@
-import { Container, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
-import { Model } from "../../Common/States/ExtStates";
-import { HistoryButtonView } from "../../History/Components/HistoryButtonView";
-import { TableViewRecord } from "../States/TableViewRecord";
+import { AjaxDynamicGridActions } from "../../Common/Components/AjaxDynamicGrid";
+import { Container, Toolbar } from "@extjs/ext-react";
+import { ColumnInfo } from "../../Common/States/ColumnInfo";
 import { TableViewGridContainer } from "./TableViewGridContainer";
 import { QualtityGateSetWindowContainer } from "./QualtityGateSetWindowContainer";
+import { HistoryButtonView } from "../../History/Components/HistoryButtonView";
+import { Model } from "../../Common/States/ExtStates";
+import { TableViewRecord } from "../States/TableViewRecord";
 
 export interface TableViewProps {
     buildHistotyDataLoadUrl(selection: Model<TableViewRecord>[], selectedDataIndex: string): string
@@ -34,20 +36,15 @@ export class TableView extends React.Component<TableViewProps, TableViewState> {
         return (
             <Container layout="fit">
                 <Toolbar docked="top">
-                    <HistoryButtonView
+                    <HistoryButtonView  
                         isEnabled={isEnableHistoryButton}
                         flex={1}
                         buidHistoryUrl={() => buildHistotyDataLoadUrl(selection, selectedDataIndex)}
                     />
+                    <QualtityGateSetWindowContainer/>
                 </Toolbar>
 
                 <TableViewGridContainer onSelectionChange={this.onSelectionChange} />
-
-
-                <Container width="0px" height="0px">
-                    <QualtityGateSetWindowContainer />
-                </Container>
-
             </Container>
         );
     }
