@@ -19,37 +19,39 @@ const editRecord: Reducer<TableViewState, EditRecordAction> = (state, action) =>
     let editedRecords = state.editedRecords;
 
     action.records.forEach(actionRecord => {
-        const recordIndex = editedRecords.findIndex(editRecord => isEqualCoordinates(editRecord,  actionRecord));
+        const recordIndex = editedRecords.findIndex(editRecord => isEqualCoordinates(editRecord, actionRecord));
 
-        const changedData = { 
+        const changedData = {
             [action.dataIndex]: actionRecord.data[action.dataIndex]
         };
 
         if (recordIndex == -1) {
             editedRecords = [
-                ...editedRecords, 
+                ...editedRecords,
                 {
                     coordinates: actionRecord.coordinates,
-                    data: changedData
+                    data: changedData,
+                    additionalData: actionRecord.additionalData
                 }
             ];
         }
         else {
             editedRecords = editedRecords.map(
-                (record, index) => 
-                    index == recordIndex 
+                (record, index) =>
+                    index == recordIndex
                         ? {
                             coordinates: actionRecord.coordinates,
-                            data: { 
-                                ...record.data, 
+                            data: {
+                                ...record.data,
                                 ...changedData
-                            }
+                            },
+                            additionalData: actionRecord.additionalData
                         }
                         : record
             );
         }
     });
-    
+
     return {
         ...state,
         editedRecords
@@ -72,7 +74,7 @@ const resetQualityCheckResult: Reducer<TableViewState> = state => ({
 })
 
 export const tableViewReducer: Reducer<TableViewState, Action<string>> = (state = init(), action) => {
-    switch(action.type) {
+    switch (action.type) {
         case TABLE_VIEW_LOAD_INFO:
             return loadInfo(state, action as CommonAction<TableViewInfo>);
 

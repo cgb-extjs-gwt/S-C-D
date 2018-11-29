@@ -1,9 +1,10 @@
-﻿import * as React from "react";
+﻿import { Container } from "@extjs/ext-react";
+import * as React from "react";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { CostMetaData } from "../Common/States/CostMetaStates";
 import { StoreOperation } from "../Common/States/ExtStates";
 import { TableViewRecord } from "../TableView/States/TableViewRecord";
-import { TableViewInfo, QualityGateResultSet } from "../TableView/States/TableViewState";
+import { QualityGateResultSet, TableViewInfo } from "../TableView/States/TableViewState";
 import { TableViewGrid } from "./Components/TableViewGrid";
 import { TableViewGridHelper } from "./Helpers/TableViewGridHelper";
 import { ITableViewService } from "./Services/ITableViewService";
@@ -31,7 +32,7 @@ export class TableView extends React.Component<any, TableViewState> {
 
     public render() {
 
-        let grid = null;
+        let el = null;
 
         if (this.state) {
 
@@ -40,19 +41,21 @@ export class TableView extends React.Component<any, TableViewState> {
             let url = this.srv.getUrl();
 
             if (meta && schema) {
-                grid = <TableViewGrid
-                    {...TableViewGridHelper.buildGridProps(url, schema, meta)}
-                    ref={x => this.grid = x}
-                    onApprove={this.onApprove}
-                    onCancel={this.onCancel}
-                    onSave={this.onSave}
-                    onUpdateRecord={this.onUpdateRecord}
-                    onUpdateRecordSet={this.onUpdateRecordSet}
-                />;
+                el = <Container layout="fit">
+                    <TableViewGrid
+                        {...TableViewGridHelper.buildGridProps(url, schema, meta)}
+                        ref={x => this.grid = x}
+                        onApprove={this.onApprove}
+                        onCancel={this.onCancel}
+                        onSave={this.onSave}
+                        onUpdateRecord={this.onUpdateRecord}
+                        onUpdateRecordSet={this.onUpdateRecordSet}
+                    />
+                </Container>;
             }
         }
 
-        return grid;
+        return el;
     }
 
     public componentDidMount() {
