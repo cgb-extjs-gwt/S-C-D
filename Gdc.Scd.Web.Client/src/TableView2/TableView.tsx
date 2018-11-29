@@ -1,6 +1,6 @@
 ﻿import * as React from "react";
 import { CostMetaData } from "../Common/States/CostMetaStates";
-import { TableViewGrid } from "../TableView/Components/TableViewGrid";
+import { TableViewGrid } from "./Components/TableViewGrid";
 import { TableViewInfo } from "../TableView/States/TableViewState";
 import { TableViewGridHelper } from "./Helpers/TableViewGridHelper";
 import { ITableViewService } from "./Services/ITableViewService";
@@ -12,6 +12,8 @@ export interface TableViewState {
 }
 
 export class TableView extends React.Component<any, TableViewState> {
+
+    private grid: TableViewGrid;
 
     private srv: ITableViewService;
 
@@ -32,11 +34,8 @@ export class TableView extends React.Component<any, TableViewState> {
             let schema = this.state.schema;
             let url = this.srv.getUrl();
 
-            console.log('schema:', schema);
-            console.log('meta:', meta);
-
             if (meta && schema) {
-                grid = <TableViewGrid {...TableViewGridHelper.buildGridProps(url, schema, meta)} />;
+                grid = <TableViewGrid ref={x => this.grid = x} {...TableViewGridHelper.buildGridProps(url, schema, meta)} />;
             }
         }
 

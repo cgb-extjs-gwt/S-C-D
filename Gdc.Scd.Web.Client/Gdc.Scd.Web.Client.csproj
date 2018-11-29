@@ -16,4 +16,8 @@
     <None Remove="node_modules\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="src\TableView2\Components\" />
+  </ItemGroup>
+
 </Project>
