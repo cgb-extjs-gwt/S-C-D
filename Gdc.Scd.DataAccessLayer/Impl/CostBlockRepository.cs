@@ -221,7 +221,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             switch(referenceMeta)
             {
                 case WgEnityMeta wgMeta:
-                    conditions.Add(SqlOperators.Equals(wgMeta.WgTypeField.Name, "wgType", (int)WgType.Por));
+                    if (costBlockMeta.Name != MetaConstants.AvailabilityFeeCostBlock)
+                    {
+                        conditions.Add(SqlOperators.Equals(wgMeta.WgTypeField.Name, "wgType", (int)WgType.Por));
+                    }
+
                     conditions.Add(SqlOperators.Equals(wgMeta.IsSoftwareField.Name, "isSoftware", costBlockMeta.Schema == MetaConstants.SoftwareSolutionSchema));
                     break;
 
