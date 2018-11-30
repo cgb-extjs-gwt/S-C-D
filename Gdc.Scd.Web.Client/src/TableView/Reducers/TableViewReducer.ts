@@ -1,9 +1,8 @@
-import { Reducer, Action } from "redux";
-import { TABLE_VIEW_LOAD_INFO, TABLE_VIEW_EDIT_RECORD, EditRecordAction, TABLE_VIEW_RESET_CHANGES, TABLE_VIEW_LOAD_QUALITY_CHECK_RESULT, TABLE_VIEW_RESET_QUALITY_CHECK_RESULT } from "../Actions/TableViewActions";
-import { TableViewState, TableViewInfo, QualityGateResultSet } from "../States/TableViewState";
+import { Action, Reducer } from "redux";
 import { CommonAction } from "../../Common/Actions/CommonActions";
-import { TableViewRecord } from "../States/TableViewRecord";
+import { EditRecordAction, TABLE_VIEW_EDIT_RECORD, TABLE_VIEW_LOAD_INFO, TABLE_VIEW_LOAD_QUALITY_CHECK_RESULT, TABLE_VIEW_RESET_CHANGES, TABLE_VIEW_RESET_QUALITY_CHECK_RESULT } from "../Actions/TableViewActions";
 import { isEqualCoordinates } from "../Helpers/TableViewHelper";
+import { QualityGateResultSet, TableViewInfo, TableViewState } from "../States/TableViewState";
 
 const init = () => (<TableViewState>{
     info: null,

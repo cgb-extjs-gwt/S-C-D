@@ -98,29 +98,28 @@ export class TableViewGridHelper {
         return recs;
     }
 
-    public static buildErrorTabs(m: QualityGateResultSet, appMetaData: CostMetaData): QualtityGateTab[] {
+    public static buildErrorTabs(m: QualityGateResultSet, schema: TableViewInfo, meta: CostMetaData): QualtityGateTab[] {
 
         let tabs: QualtityGateTab[] = [];
 
-        const { recordInfo } = info;
+        const { recordInfo } = schema;
 
         for (const item of m.items) {
             if (item.qualityGateResult.hasErrors) {
                 const { applicationId, costBlockId, costElementId } = item.costElementIdentifier;
-                    const fieldInfos = recordInfo.data.filter(
-                        fieldInfo =>
-                            fieldInfo.metaId == costBlockId &&
-                            fieldInfo.fieldName == costElementId
-                    );
-                    const costBlock = getCostBlock(appMetaData, costBlockId);
-                    const costElement = getCostElement(costBlock, costElementId);
-                    tabs.push(...fieldInfos.map(fieldInfo => <QualtityGateTab>{
-                        key: `${applicationId}_${costBlockId}_${costElementId}`,
-                        title: `${costBlock.name} ${costElement.name}`,
-                        costElement,
-                        errors: item.qualityGateResult.errors
-                    }));
-                }
+                const fieldInfos = recordInfo.data.filter(
+                    fieldInfo =>
+                        fieldInfo.metaId == costBlockId &&
+                        fieldInfo.fieldName == costElementId
+                );
+                const costBlock = getCostBlock(meta, costBlockId);
+                const costElement = getCostElement(costBlock, costElementId);
+                tabs.push(...fieldInfos.map(fieldInfo => <QualtityGateTab>{
+                    key: `${applicationId}_${costBlockId}_${costElementId}`,
+                    title: `${costBlock.name} ${costElement.name}`,
+                    costElement,
+                    errors: item.qualityGateResult.errors
+                }));
             }
         }
 

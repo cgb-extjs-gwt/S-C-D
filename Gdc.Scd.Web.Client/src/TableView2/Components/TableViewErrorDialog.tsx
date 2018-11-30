@@ -1,6 +1,5 @@
-import * as React from "react";
 import { Dialog, DialogProps } from "@extjs/ext-react";
-import { QualityGateResultSet } from "../../TableView/States/TableViewState";
+import * as React from "react";
 import { QualtityGateSetView, QualtityGateTab } from "../../TableView/Components/QualtityGateSetView";
 
 export interface TableViewErrorDialogProps extends DialogProps {
@@ -42,6 +41,7 @@ export class TableViewErrorDialog extends React.Component<TableViewErrorDialogPr
     }
 
     public display(errs: QualtityGateTab[]) {
+        console.log(errs);
         this.setModel(errs);
         this.show();
     }
