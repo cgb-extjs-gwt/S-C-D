@@ -30,6 +30,10 @@ export class DictService implements IDictService {
         return new CountryGroupService().getLut();
     }
 
+    public getCountryGroupIsoCode(): Promise<NamedId<string>[]> {
+        return new CountryGroupService().getIsoCode();
+    }
+
     public getWG(): Promise<NamedId<string>[]> {
         return new WgService().getAll();
     }

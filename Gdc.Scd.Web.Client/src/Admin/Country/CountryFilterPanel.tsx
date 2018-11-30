@@ -5,6 +5,7 @@ import { DictField } from "../../Dict/Components/DictField";
 import { CountryGroupField } from "../../Dict/Components/CountryGroupField";
 import { CountryGroupLutField } from "../../Dict/Components/CountryGroupLutField";
 import { CountryGroupDigitField } from "../../Dict/Components/CountryGroupDigitField";
+import { CountryGroupIsoCodeField } from "../../Dict/Components/CountryGroupIsoCodeField";
 
 import { CountryFilterModel } from "./CountryFilterModel";
 
@@ -50,7 +51,8 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
                     <CountryGroupField ref={x => this.group = x} label="Group:"/>
                     <CountryGroupLutField ref={x => this.lut = x} label="LUT:" />
                     <CountryGroupDigitField ref={x => this.digit = x} label="Digit:" />
-
+                    <CountryGroupIsoCodeField ref={x => this.iso = x} label="ISO Code:" />
+                    
                 </Container>
 
                 <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ padding: '3px 0' }}>
@@ -70,7 +72,7 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
             group: this.group.getSelected(),
             lut: this.lut.getSelectedValue(),
             digit: this.digit.getSelectedValue(),
-            iso: null,
+            iso: this.iso.getSelectedValue(),
 
             isMaster: this.getChecked(this.isMaster),
             storeListAndDealer: this.getChecked(this.storeListAndDealer),
