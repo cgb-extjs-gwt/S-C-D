@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Web.Http;
+using Gdc.Scd.BusinessLogicLayer.Dto;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Dto;
@@ -19,10 +20,9 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
         }
 
         [HttpGet]
-        public DataInfo<CountryDto> GetAll(int page = 1, int start = 0, int limit = 50)
+        public DataInfo<CountryDto> GetAll([FromUri] AdminCountryFilterDto filter, [FromUri] int page = 1, [FromUri] int start = 0, int limit = 50)
         {
-            int totalCount;
-            var countries = _countryAdminService.GetAll(page, limit, out totalCount);
+            var countries = _countryAdminService.GetAll(page, limit, out int totalCount, filter);
 
             var model = new DataInfo<CountryDto>()
             {

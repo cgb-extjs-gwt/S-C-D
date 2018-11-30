@@ -5,7 +5,7 @@ using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
-    public class SwDigitEnityMeta : NamedEntityMeta
+    public class SwDigitEnityMeta : DeactivatableEntityMeta
     {
         public ReferenceFieldMeta SogField { get; }
 
@@ -19,7 +19,12 @@ namespace Gdc.Scd.Core.Meta.Entities
         {
             get
             {
-                yield return this.SogField;              
+                yield return this.SogField;
+
+                foreach (var field in base.AllFields)
+                {
+                    yield return field;
+                }
             }
         }
     }

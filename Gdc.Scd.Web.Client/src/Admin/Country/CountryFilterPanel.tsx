@@ -1,27 +1,32 @@
 ﻿import { Button, CheckBoxField, Container, Panel, PanelProps } from "@extjs/ext-react";
 import * as React from "react";
-import { CountryField } from "../../Dict/Components/CountryField";
+
 import { DictField } from "../../Dict/Components/DictField";
-import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
-import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
-import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
-import { AvailabilityFeeFilterModel } from "./AvailabilityFeeFilterModel";
+import { CountryGroupField } from "../../Dict/Components/CountryGroupField";
+import { CountryGroupLutField } from "../../Dict/Components/CountryGroupLutField";
+import { CountryGroupDigitField } from "../../Dict/Components/CountryGroupDigitField";
+
+import { CountryFilterModel } from "./CountryFilterModel";
 
 export interface FilterPanelProps extends PanelProps {
-    onSearch(filter: AvailabilityFeeFilterModel): void;
+    onSearch(filter: CountryFilterModel): void;
 }
 
 export class FilterPanel extends React.Component<FilterPanelProps, any> {
 
-    private country: DictField;
+    private group: DictField;
 
-    private reacttype: DictField;
+    private lut: DictField;
 
-    private reacttime: DictField;
+    private digit: DictField;
 
-    private srvloc: DictField;
+    private iso: DictField;
 
-    private isApplicable: CheckBoxField;
+    private isMaster: CheckBoxField;
+
+    private storeListAndDealer: CheckBoxField;
+
+    private overrideTCandTP: CheckBoxField;
 
     public constructor(props: any) {
         super(props);
@@ -42,15 +47,16 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
                     }}
                 >
 
-                    <CountryField ref={x => this.country = x} label="Country:"/>
-                    <ReactionTypeField ref={x => this.reacttype = x} label="Reaction type:" />
-                    <ReactionTimeField ref={x => this.reacttime = x} label="Reaction time:" />
-                    <ServiceLocationField ref={x => this.srvloc = x} label="Service location:" />
+                    <CountryGroupField ref={x => this.group = x} label="Group:"/>
+                    <CountryGroupLutField ref={x => this.lut = x} label="LUT:" />
+                    <CountryGroupDigitField ref={x => this.digit = x} label="Digit:" />
 
                 </Container>
 
                 <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ padding: '3px 0' }}>
-                    <CheckBoxField ref={x => this.isApplicable = x} boxLabel="Is Applicable" />
+                    <CheckBoxField ref={x => this.isMaster = x} boxLabel="Is Master" />
+                    <CheckBoxField ref={x => this.storeListAndDealer = x} boxLabel="Store List and Dealer Prices" />
+                    <CheckBoxField ref={x => this.overrideTCandTP = x} boxLabel="Override TC and TP" />
                 </Container>
 
                 <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="20px auto" />
@@ -59,14 +65,16 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
         );
     }
 
-    public getModel(): AvailabilityFeeFilterModel {
+    public getModel(): CountryFilterModel {
         return {
-            country: this.country.getSelected(),
-            reactionType: this.reacttype.getSelected(),
-            reactionTime: this.reacttime.getSelected(),
-            serviceLocation: this.srvloc.getSelected(),
+            group: this.group.getSelected(),
+            lut: this.lut.getSelectedValue(),
+            digit: this.digit.getSelectedValue(),
+            iso: null,
 
-            isApplicable: this.getChecked(this.isApplicable)
+            isMaster: this.getChecked(this.isMaster),
+            storeListAndDealer: this.getChecked(this.storeListAndDealer),
+            overrideTCandTP: this.getChecked(this.overrideTCandTP)
         };
     }
 

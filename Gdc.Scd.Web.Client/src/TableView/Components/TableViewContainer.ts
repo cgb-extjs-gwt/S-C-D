@@ -178,7 +178,10 @@ const buildActions = (state: CommonState, dispatch: Dispatch) => {
                     const [dataIndex] = modifiedFieldNames;
                     const tableViewRecord = record.data;
                     const countDataIndex = buildCountDataIndex(dataIndex);
-
+                    if (dataIndex in record.data.coordinates || dataIndex in record.data.additionalData) {
+                        record.reject();
+                    }
+                    else
                     if (record.get(countDataIndex) == 0) {
                         record.data[countDataIndex] = 1;
                     }

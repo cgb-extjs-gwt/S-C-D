@@ -694,7 +694,133 @@
           </CostEditor>
         </Element>
       </Elements>
-    </Block> 
+    </Block>
+
+    <Block Name="ProActiveSw" Caption="ProActive">
+      <Applications>
+        <Application>SoftwareSolution</Application>
+      </Applications>
+      <Elements>
+        <Element Name="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort" InputOption="Manually">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>Country Finance Director</Role>
+              <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort" InputOption="Manually">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>Country Finance Director</Role>
+              <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="LocalPreparationShcEffort" Caption="Local preparation SHC effort" InputOption="Manually">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>Country Finance Director</Role>
+              <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="CentralExecutionShcReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sog</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>PRS Finance</Role>
+              <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort" InputOption="Manually">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>Country Finance Director</Role>
+              <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort" InputOption="Manually">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>Country Finance Director</Role>
+              <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>Country Finance Director</Role>
+              <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually">
+          <InputLevels>
+            <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>Country Finance Director</Role>
+              <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+      </Elements>
+    </Block>
     
     <Block Name="SwSpMaintenance" Caption="SW / SP Maintenance">
       <Applications>
@@ -806,125 +932,6 @@
           <CostEditor>
             <Roles>
               <Role>PRS PSM</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-      </Elements>
-    </Block>
- 
-   <Block Name="ProActiveSw" Caption="ProActive">
-      <Applications>
-        <Application>SoftwareSolution</Application>
-      </Applications>
-      <Elements>
-        <Element Name="LocalRemoteAccessSetupPreparationEffort" Caption="Local Remote-Access setup preparation effort" InputOption="Manually">
-          <InputLevels>
-            <InputLevel>Country</InputLevel>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sog</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>Country Finance Director</Role>
-              <Role>Country key user</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="LocalRegularUpdateReadyEffort" Caption="Local regular update ready for service effort" InputOption="Manually">
-          <InputLevels>
-            <InputLevel>Country</InputLevel>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sog</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>Country Finance Director</Role>
-              <Role>Country key user</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="LocalPreparationShcEffort" Caption="Local preparation SHC effort" InputOption="Manually">
-          <InputLevels>
-            <InputLevel>Country</InputLevel>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sog</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>Country Finance Director</Role>
-              <Role>Country key user</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="CentralExecutionShcReportCost" Caption="Central execution SHC &amp; report cost" InputOption="Manually" RegionInput="_none_">
-          <InputLevels>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sog</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>PRS Finance</Role>
-              <Role>PRS PSM</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="LocalRemoteShcCustomerBriefingEffort" Caption="Local remote SHC customer briefing effort" InputOption="Manually">
-          <InputLevels>
-            <InputLevel>Country</InputLevel>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sog</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>Country Finance Director</Role>
-              <Role>Country key user</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="LocalOnSiteShcCustomerBriefingEffort" Caption="Local on-site SHC customer briefing effort" InputOption="Manually">
-          <InputLevels>
-            <InputLevel>Country</InputLevel>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sog</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>Country Finance Director</Role>
-              <Role>Country key user</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="TravellingTime" Caption="Travelling Time (MTTT)" InputOption="Manually">
-          <InputLevels>
-            <InputLevel>Country</InputLevel>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sog</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>Country Finance Director</Role>
-              <Role>Country key user</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually">
-          <InputLevels>
-            <InputLevel>Country</InputLevel>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sog</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>Country Finance Director</Role>
-              <Role>Country key user</Role>
               <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
