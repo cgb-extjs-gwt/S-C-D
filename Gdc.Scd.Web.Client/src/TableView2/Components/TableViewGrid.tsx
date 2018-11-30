@@ -1,6 +1,6 @@
 import * as React from "react";
 import { SaveApprovalToollbar } from "../../Approval/Components/SaveApprovalToollbar";
-import { AjaxDynamicGrid, AjaxDynamicGridActions, AjaxDynamicGridProps } from "../../Common/Components/AjaxDynamicGrid";
+import { AjaxDynamicGrid, AjaxDynamicGridProps } from "../../Common/Components/AjaxDynamicGrid";
 import { SaveToolbar } from "../../Common/Components/SaveToolbar";
 import { TableViewRecord } from "../../TableView/States/TableViewRecord";
 
