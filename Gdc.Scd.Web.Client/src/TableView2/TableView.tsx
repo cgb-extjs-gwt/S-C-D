@@ -85,7 +85,6 @@ export class TableView extends React.Component<any, TableViewState> {
         this.onUpdateRecordSet = this.onUpdateRecordSet.bind(this);
     }
 
-
     private onCancel() {
         this.reset();
     }
