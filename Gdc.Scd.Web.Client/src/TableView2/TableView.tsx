@@ -1,4 +1,4 @@
-﻿import { Container } from "@extjs/ext-react";
+﻿import { Container, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { CostMetaData } from "../Common/States/CostMetaStates";
@@ -11,10 +11,12 @@ import { TableViewGridHelper } from "./Helpers/TableViewGridHelper";
 import { ITableViewService } from "./Services/ITableViewService";
 import { TableViewFactory } from "./Services/TableViewFactory";
 import { ApprovalOption } from "../QualityGate/States/ApprovalOption";
+import { HistoryButtonView } from "../History/Components/HistoryButtonView";
 
 export interface TableViewState {
     meta: CostMetaData;
-    schema: TableViewInfo
+    schema: TableViewInfo;
+    enableHistory: boolean;
 }
 
 export class TableView extends React.Component<any, TableViewState> {
@@ -42,10 +44,20 @@ export class TableView extends React.Component<any, TableViewState> {
 
             let meta = this.state.meta;
             let schema = this.state.schema;
+            let enableHistory = this.state.enableHistory;
             let url = this.srv.getUrl();
 
             if (meta && schema) {
                 el = <Container layout="fit">
+
+                    <Toolbar docked="top">
+                        <HistoryButtonView
+                            isEnabled={enableHistory}
+                            flex={1}
+                            //buidHistoryUrl={() => buildHistotyDataLoadUrl(selection, selectedDataIndex)}
+                        />
+                    </Toolbar>
+
                     <TableViewGrid
                         {...TableViewGridHelper.buildGridProps(url, schema, meta)}
                         ref={x => this.grid = x}
@@ -55,7 +67,9 @@ export class TableView extends React.Component<any, TableViewState> {
                         onUpdateRecord={this.onUpdateRecord}
                         onUpdateRecordSet={this.onUpdateRecordSet}
                     />
+
                     <TableViewErrorDialog ref={x => this.dlg = x} title="Quality gate errors" onForceSave={this.onForceSave} onCancel={this.onCancel} />
+
                 </Container>;
             }
         }
