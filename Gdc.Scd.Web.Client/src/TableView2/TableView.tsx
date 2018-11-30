@@ -143,8 +143,7 @@ export class TableView extends React.Component<any, TableViewState> {
     }
 
     private showQualityError(err: QualityGateResultSet) {
-        this.dlg.setModel(err);
-        this.dlg.show();
+        this.dlg.display(TableViewGridHelper.buildErrorTabs(err, this.state.meta));
     }
 
 }

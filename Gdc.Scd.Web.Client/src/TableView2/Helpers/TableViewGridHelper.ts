@@ -1,16 +1,18 @@
-﻿import { findMeta } from "../../Common/Helpers/MetaHelper";
+﻿import { findMeta, getCostBlock, getCostElement } from "../../Common/Helpers/MetaHelper";
 import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
 import { NamedId } from "../../Common/States/CommonStates";
 import { CostBlockMeta, CostMetaData, FieldType } from "../../Common/States/CostMetaStates";
 import { FieldInfo } from "../../Common/States/FieldInfo";
 import { TableViewGridProps } from "../../TableView/Components/TableViewGrid";
 import { TableViewRecord } from "../../TableView/States/TableViewRecord";
-import { TableViewInfo } from "../../TableView/States/TableViewState";
+import { TableViewInfo, QualityGateResultSet } from "../../TableView/States/TableViewState";
 import { StoreDynamicGridProps } from "../../Common/Components/DynamicGrid";
+import { QualtityGateTab } from "../../TableView/Components/QualtityGateSetView";
 
 export interface TableViewGridProps2 extends TableViewGridProps, StoreDynamicGridProps { }
 
 export class TableViewGridHelper {
+
     public static buildGridProps(readUrl: string, schema: TableViewInfo, meta: CostMetaData): TableViewGridProps2 {
 
         let columns = [];
@@ -95,6 +97,36 @@ export class TableViewGridHelper {
 
         return recs;
     }
+
+    public static buildErrorTabs(m: QualityGateResultSet, appMetaData: CostMetaData): QualtityGateTab[] {
+
+        let tabs: QualtityGateTab[] = [];
+
+        const { recordInfo } = info;
+
+        for (const item of m.items) {
+            if (item.qualityGateResult.hasErrors) {
+                const { applicationId, costBlockId, costElementId } = item.costElementIdentifier;
+                    const fieldInfos = recordInfo.data.filter(
+                        fieldInfo =>
+                            fieldInfo.metaId == costBlockId &&
+                            fieldInfo.fieldName == costElementId
+                    );
+                    const costBlock = getCostBlock(appMetaData, costBlockId);
+                    const costElement = getCostElement(costBlock, costElementId);
+                    tabs.push(...fieldInfos.map(fieldInfo => <QualtityGateTab>{
+                        key: `${applicationId}_${costBlockId}_${costElementId}`,
+                        title: `${costBlock.name} ${costElement.name}`,
+                        costElement,
+                        errors: item.qualityGateResult.errors
+                    }));
+                }
+            }
+        }
+
+        return tabs;
+    }
+
 }
 
 const mapToColumnInfo = (
