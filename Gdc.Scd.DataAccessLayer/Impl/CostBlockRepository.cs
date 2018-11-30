@@ -76,7 +76,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     {
                         cycleCheckCollection.Add(relatedMeta);
 
-                        if (joinInfos.All(joinInfo => joinInfo.ReferenceMeta != relatedFieldInfo.RelatedMeta))
+                        if (joinInfos.All(joinInfo => joinInfo.ReferenceMeta != relatedFieldInfo.RelatedField.ReferenceMeta))
                         {
                             joinInfos.Add(new ReferenceJoinInfo
                             {

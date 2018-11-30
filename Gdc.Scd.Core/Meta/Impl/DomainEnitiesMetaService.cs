@@ -255,12 +255,12 @@ namespace Gdc.Scd.Core.Meta.Impl
                 var countryMeta = new CountryEntityMeta(clusterRegionMeta);
                 var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta);
 
-                var customMetas = new []
+                var customMetas = new[]
                 {
-                    plaMeta,
-                    sfabMeta,
-                    sogMeta,
                     swDigitMeta,
+                    sogMeta,
+                    sfabMeta,
+                    plaMeta,
                     wgMeta,
                     clusterRegionMeta,
                     countryMeta

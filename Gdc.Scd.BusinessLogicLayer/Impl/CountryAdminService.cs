@@ -30,12 +30,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             if (filter != null)
             {
                 result = result.Where(x =>
-                    filter.Group != null ? x.CountryGroupId == filter.Group : true &&
-                    filter.Lut != null ? x.CountryGroup.LUTCode==filter.Lut : true &&
-                    filter.Digit != null ? x.CountryGroup.CountryDigit == filter.Digit : true &&
-                    filter.IsMaster != null ? x.IsMaster==true : true &&
-                    filter.StoreListAndDealer != null ? x.CanStoreListAndDealerPrices == filter.StoreListAndDealer : true &&
-                    filter.OverrideTCandTP != null ? x.CanOverrideTransferCostAndPrice == filter.OverrideTCandTP : true
+                    (filter.Group != null ? x.CountryGroupId == filter.Group : true) &&
+                    (filter.Lut != null ? x.CountryGroup.LUTCode == filter.Lut : true) &&
+                    (filter.Digit != null ? x.CountryGroup.CountryDigit == filter.Digit : true) &&
+                    (filter.IsMaster != null ? x.IsMaster == filter.IsMaster : true) &&
+                    (filter.StoreListAndDealer != null ? x.CanStoreListAndDealerPrices == filter.StoreListAndDealer : true) &&
+                    (filter.OverrideTCandTP != null ? x.CanOverrideTransferCostAndPrice == filter.OverrideTCandTP : true)
                 );
             }
 
