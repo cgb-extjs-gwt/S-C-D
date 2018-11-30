@@ -131,18 +131,17 @@ export class TableView extends React.Component<any, TableViewState> {
         let p = this.srv.updateRecords(this.editRecords, cfg)
             .then(x => {
                 if (x.hasErrors) {
-                    this.showQualityError(x);
+                    this.showError(x);
                 }
                 else {
-                    //dispatch(resetQualityCheckResult());
-                    //dispatch(resetChanges());
+                    this.reset();
                 }
             })
 
         handleRequest(p);
     }
 
-    private showQualityError(err: QualityGateResultSet) {
+    private showError(err: QualityGateResultSet) {
         this.dlg.display(TableViewGridHelper.buildErrorTabs(err, this.state.schema, this.state.meta));
     }
 

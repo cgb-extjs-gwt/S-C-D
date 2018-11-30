@@ -24,10 +24,6 @@ export class TableViewErrorDialog extends React.Component<TableViewErrorDialogPr
         this.init();
     }
 
-    public componentWillReceiveProps() {
-        this.toolbar.reset(); //clear form
-    }
-
     public render() {
         return <Dialog
             {...this.props}
@@ -67,6 +63,7 @@ export class TableViewErrorDialog extends React.Component<TableViewErrorDialogPr
     }
 
     public setModel(m: QualtityGateTab[]) {
+        this.toolbar.reset(); //clear form
         this.setState({ tabs: m || [] });
     }
 
@@ -76,7 +73,7 @@ export class TableViewErrorDialog extends React.Component<TableViewErrorDialogPr
     }
 
     private createTab({ title, costElement, errors }, index) {
-        return <Container key={index} title={title}>
+        return <Container key={index} title={title} scrollable={true}>
             <TableViewErrorGrid
                 store={errors}
                 minHeight="450"
