@@ -47,6 +47,6 @@ export class QualtityGateSetView extends React.Component<QualtityGateSetProps> {
     }
 
     public componentWillReceiveProps() {
-        this.toolbar.reset();
+        this.toolbar.reset(); //clear form
     }
 }

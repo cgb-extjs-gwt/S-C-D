@@ -48,7 +48,7 @@ export class TableView extends React.Component<any, TableViewState> {
                     <TableViewGrid
                         {...TableViewGridHelper.buildGridProps(url, schema, meta)}
                         ref={x => this.grid = x}
-                        onApprove={this.onApprove}
+                        onApprove={this.onSaveAndApprove}
                         onCancel={this.onCancel}
                         onSave={this.onSave}
                         onUpdateRecord={this.onUpdateRecord}
@@ -76,17 +76,14 @@ export class TableView extends React.Component<any, TableViewState> {
         this.srv = TableViewFactory.getTableViewService();
         //
         this.reset();
-        this.onApprove = this.onApprove.bind(this);
         this.onCancel = this.onCancel.bind(this);
         this.onForceSave = this.onForceSave.bind(this);
         this.onSave = this.onSave.bind(this);
+        this.onSaveAndApprove = this.onSaveAndApprove.bind(this);
         this.onUpdateRecord = this.onUpdateRecord.bind(this);
         this.onUpdateRecordSet = this.onUpdateRecordSet.bind(this);
     }
 
-    private onApprove() {
-        this.save(true);
-    }
 
     private onCancel() {
         this.reset();
@@ -98,6 +95,10 @@ export class TableView extends React.Component<any, TableViewState> {
 
     private onSave() {
         this.save(false);
+    }
+
+    private onSaveAndApprove() {
+        this.save(true);
     }
 
     private onUpdateRecord(store, record, operation, modifiedFieldNames) {
