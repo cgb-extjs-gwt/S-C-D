@@ -1,6 +1,8 @@
-import { Dialog, DialogProps } from "@extjs/ext-react";
+import { Container, Dialog, DialogProps, TabPanel } from "@extjs/ext-react";
 import * as React from "react";
-import { QualtityGateSetView, QualtityGateTab } from "../../TableView/Components/QualtityGateSetView";
+import { QualityGateToolbar } from "../../QualityGate/Components/QualityGateToolbar";
+import { QualtityGateTab } from "../../TableView/Components/QualtityGateSetView";
+import { TableViewErrorGrid } from "./TableViewErrorGrid";
 
 export interface TableViewErrorDialogProps extends DialogProps {
     onForceSave(message: string): void;
@@ -11,6 +13,8 @@ export class TableViewErrorDialog extends React.Component<TableViewErrorDialogPr
 
     private dlg: Dialog & any;
 
+    private toolbar: QualityGateToolbar;
+
     public state = {
         tabs: []
     };
@@ -18,6 +22,10 @@ export class TableViewErrorDialog extends React.Component<TableViewErrorDialogPr
     public constructor(props: TableViewErrorDialogProps) {
         super(props);
         this.init();
+    }
+
+    public componentWillReceiveProps() {
+        this.toolbar.reset(); //clear form
     }
 
     public render() {
@@ -36,7 +44,12 @@ export class TableViewErrorDialog extends React.Component<TableViewErrorDialogPr
             minWidth="60%"
             layout="fit"
         >
-            <QualtityGateSetView tabs={this.state.tabs} onSave={this.onSave} onCancel={this.onCancel} />
+            <Container layout="vbox">
+                <TabPanel tabBar={{ layout: { pack: 'left' } }} flex={10}>
+                    {this.state.tabs.map(this.createTab)}
+                </TabPanel>
+                <QualityGateToolbar ref={x => this.toolbar = x} onSave={this.onSave} onCancel={this.onCancel} flex={1} />
+            </Container>
         </Dialog>;
     }
 
@@ -60,6 +73,17 @@ export class TableViewErrorDialog extends React.Component<TableViewErrorDialogPr
     private init() {
         this.onCancel = this.onCancel.bind(this);
         this.onSave = this.onSave.bind(this);
+    }
+
+    private createTab({ title, costElement, errors }, index) {
+        return <Container key={index} title={title}>
+            <TableViewErrorGrid
+                store={errors}
+                minHeight="450"
+                costElement={costElement}
+                flex={1}
+            />
+        </Container>
     }
 
     private onCancel() {
