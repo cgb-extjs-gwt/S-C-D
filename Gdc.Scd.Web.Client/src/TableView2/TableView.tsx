@@ -2,7 +2,7 @@
 import * as React from "react";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { CostMetaData } from "../Common/States/CostMetaStates";
-import { StoreOperation } from "../Common/States/ExtStates";
+import { StoreOperation, Model } from "../Common/States/ExtStates";
 import { TableViewRecord } from "../TableView/States/TableViewRecord";
 import { QualityGateResultSet, TableViewInfo } from "../TableView/States/TableViewState";
 import { TableViewErrorDialog } from "./Components/TableViewErrorDialog";
@@ -54,7 +54,7 @@ export class TableView extends React.Component<any, TableViewState> {
                         <HistoryButtonView
                             isEnabled={enableHistory}
                             flex={1}
-                            //buidHistoryUrl={() => buildHistotyDataLoadUrl(selection, selectedDataIndex)}
+                        //buidHistoryUrl={() => buildHistotyDataLoadUrl(selection, selectedDataIndex)}
                         />
                     </Toolbar>
 
@@ -66,6 +66,7 @@ export class TableView extends React.Component<any, TableViewState> {
                         onSave={this.onSave}
                         onUpdateRecord={this.onUpdateRecord}
                         onUpdateRecordSet={this.onUpdateRecordSet}
+                        onSelectionChange={this.onGridSelectionChange}
                     />
 
                     <TableViewErrorDialog ref={x => this.dlg = x} title="Quality gate errors" onForceSave={this.onForceSave} onCancel={this.onCancel} />
@@ -97,6 +98,7 @@ export class TableView extends React.Component<any, TableViewState> {
         this.onSaveAndApprove = this.onSaveAndApprove.bind(this);
         this.onUpdateRecord = this.onUpdateRecord.bind(this);
         this.onUpdateRecordSet = this.onUpdateRecordSet.bind(this);
+        this.onGridSelectionChange = this.onGridSelectionChange.bind(this);
     }
 
     private onCancel() {
@@ -134,6 +136,33 @@ export class TableView extends React.Component<any, TableViewState> {
         if (operation === StoreOperation.Edit) {
             this.editRecords = TableViewGridHelper.refreshEditRecords(this.editRecords, records.map(rec => rec.data), dataIndex);
         }
+    }
+
+    protected onGridSelectionChange(
+        grid,
+        records: Model<TableViewRecord>[],
+        selecting: boolean,
+        selectionInfo
+    ) {
+
+         //const { startCell } = selectionInfo;
+
+         //if (startCell) {
+         //    const column = selectionInfo.startCell.column;
+
+         //    this.setState({
+         //        //selection: records,
+         //        //selectedDataIndex: column.getDataIndex(),
+         //        enableHistory: !!column.getEditable()
+         //    });
+         //} 
+         //else {
+         //    this.setState({
+         //        //selection: [],
+         //        //selectedDataIndex: null,
+         //        enableHistory: false
+         //    });
+         //}
     }
 
     private reset() {
