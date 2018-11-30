@@ -42,6 +42,7 @@ export class QualtityGateSetView extends React.Component<QualtityGateSetProps> {
     private createTab({ title, costElement, errors }, index) {
         return <Container key={index} title={title}>
             <QualityGateGrid
+                minHeight="450"
                 costElement={costElement}
                 storeConfig={{ data: errors }}
                 inputLevelId={WgInputLevel}

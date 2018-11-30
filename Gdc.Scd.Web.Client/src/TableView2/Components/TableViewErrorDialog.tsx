@@ -41,7 +41,6 @@ export class TableViewErrorDialog extends React.Component<TableViewErrorDialogPr
     }
 
     public display(errs: QualtityGateTab[]) {
-        console.log(errs);
         this.setModel(errs);
         this.show();
     }
