@@ -54,7 +54,7 @@ export class TableView extends React.Component<any, TableViewState> {
                         onUpdateRecord={this.onUpdateRecord}
                         onUpdateRecordSet={this.onUpdateRecordSet}
                     />
-                    <TableViewErrorDialog ref={x => this.dlg = x} title="Quality gate errors" />
+                    <TableViewErrorDialog ref={x => this.dlg = x} title="Quality gate errors" onForceSave={this.onForceSave} onCancel={this.onCancel} />
                 </Container>;
             }
         }
@@ -78,6 +78,7 @@ export class TableView extends React.Component<any, TableViewState> {
         this.reset();
         this.onApprove = this.onApprove.bind(this);
         this.onCancel = this.onCancel.bind(this);
+        this.onForceSave = this.onForceSave.bind(this);
         this.onSave = this.onSave.bind(this);
         this.onUpdateRecord = this.onUpdateRecord.bind(this);
         this.onUpdateRecordSet = this.onUpdateRecordSet.bind(this);
@@ -89,6 +90,10 @@ export class TableView extends React.Component<any, TableViewState> {
 
     private onCancel() {
         this.reset();
+    }
+
+    private onForceSave(msg: string) {
+        console.log('onForceSave()', msg);
     }
 
     private onSave() {
