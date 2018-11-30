@@ -21,24 +21,17 @@ export class QualtityGateSetView extends React.Component<QualtityGateSetProps> {
 
     private toolbar: QualityGateToolbar;
 
+    public componentWillReceiveProps() {
+        this.toolbar.reset(); //clear form
+    }
+
     public render() {
         const { tabs, onSave, onCancel } = this.props;
 
         return (
             <Container layout="vbox">
                 <TabPanel tabBar={{ layout: { pack: 'left' } }} flex={10}>
-                    {
-                        tabs.map(({ title, key, costElement, errors }) => (
-                            <Container key={key} title={title}>
-                                <QualityGateGrid
-                                    costElement={costElement}
-                                    storeConfig={{ data: errors }}
-                                    inputLevelId={WgInputLevel}
-                                    flex={1}
-                                />
-                            </Container>
-                        ))
-                    }
+                    {tabs.map(this.createTab)}
                 </TabPanel>
 
                 <QualityGateToolbar ref={x => this.toolbar = x} onSave={onSave} onCancel={onCancel} flex={1} />
@@ -46,7 +39,15 @@ export class QualtityGateSetView extends React.Component<QualtityGateSetProps> {
         );
     }
 
-    public componentWillReceiveProps() {
-        this.toolbar.reset(); //clear form
+    private createTab({ title, costElement, errors }, index) {
+        return <Container key={index} title={title}>
+            <QualityGateGrid
+                costElement={costElement}
+                storeConfig={{ data: errors }}
+                inputLevelId={WgInputLevel}
+                flex={1}
+            />
+        </Container>
     }
+
 }
