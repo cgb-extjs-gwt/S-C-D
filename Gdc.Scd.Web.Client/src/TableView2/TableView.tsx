@@ -10,6 +10,7 @@ import { TableViewGrid } from "./Components/TableViewGrid";
 import { TableViewGridHelper } from "./Helpers/TableViewGridHelper";
 import { ITableViewService } from "./Services/ITableViewService";
 import { TableViewFactory } from "./Services/TableViewFactory";
+import { ApprovalOption } from "../QualityGate/States/ApprovalOption";
 
 export interface TableViewState {
     meta: CostMetaData;
@@ -90,15 +91,19 @@ export class TableView extends React.Component<any, TableViewState> {
     }
 
     private onForceSave(msg: string) {
-        console.log('onForceSave()', msg);
+        this.save({
+            hasQualityGateErrors: true,
+            isApproving: true,
+            qualityGateErrorExplanation: msg
+        });
     }
 
     private onSave() {
-        this.save(false);
+        this.save({ isApproving: false });
     }
 
     private onSaveAndApprove() {
-        this.save(true);
+        this.save({ isApproving: true });
     }
 
     private onUpdateRecord(store, record, operation, modifiedFieldNames) {
@@ -122,8 +127,8 @@ export class TableView extends React.Component<any, TableViewState> {
         this.editRecords = [];
     }
 
-    private save(isApproving: boolean) {
-        let p = this.srv.updateRecords(this.editRecords, { isApproving: isApproving })
+    private save(cfg: ApprovalOption) {
+        let p = this.srv.updateRecords(this.editRecords, cfg)
             .then(x => {
                 if (x.hasErrors) {
                     this.showQualityError(x);
