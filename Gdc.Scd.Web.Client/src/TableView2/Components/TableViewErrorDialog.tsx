@@ -36,14 +36,15 @@ export class TableViewErrorDialog extends React.Component<TableViewErrorDialogPr
                 dynamic: true,
                 edges: 'all'
             }}
-            minHeight="50%"
             minWidth="60%"
             layout="vbox"
         >
-            <TabPanel tabBar={{ layout: { pack: 'left' } }} flex={10}>
-                {this.state.tabs.map(this.createTab)}
-            </TabPanel>
-            <QualityGateToolbar ref={x => this.toolbar = x} onSave={this.onSave} onCancel={this.onCancel} flex={1} />
+            <Container layout="vbox" minHeight="600" height="100%">
+                <TabPanel tabBar={{ layout: { pack: 'left' } }} flex={10}>
+                    {this.state.tabs.map(this.createTab)}
+                </TabPanel>
+                <QualityGateToolbar ref={x => this.toolbar = x} onSave={this.onSave} onCancel={this.onCancel} flex={1} />
+            </Container>
         </Dialog>;
     }
 
@@ -75,8 +76,8 @@ export class TableViewErrorDialog extends React.Component<TableViewErrorDialogPr
             <TableViewErrorGrid
                 store={errors}
                 minHeight="450"
+                height="450"
                 costElement={costElement}
-                flex={1}
             />
         </Container>
     }
