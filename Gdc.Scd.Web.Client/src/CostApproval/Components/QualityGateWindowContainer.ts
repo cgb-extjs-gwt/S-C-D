@@ -22,9 +22,12 @@ export const QualityGateWindowContainer =
                 dispatch(resetQualityGateErrors());
                 
                 handleRequest(
-                    sendForApproval(bundleId, explanationMessage)
+                    sendForApproval(bundleId, explanationMessage).then(() => onSave && onSave(explanationMessage))
                 );
             },
-            onCancel: () => dispatch(resetQualityGateErrors())
+            onCancel: () => {
+                dispatch(resetQualityGateErrors());
+                onCancel && onCancel();
+            }
         })
     )(QualityGateErrorWindow)

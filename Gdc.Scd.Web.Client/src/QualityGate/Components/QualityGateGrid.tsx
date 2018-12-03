@@ -98,7 +98,7 @@ export class QualityGateGrid extends React.PureComponent<QualityGateGridProps> {
                 </div>`
         }
 
-        return result;
+        return result + ' ';
     }
 
     private rendererWgColumn(value, { data }: Model<BundleDetailGroup>) {

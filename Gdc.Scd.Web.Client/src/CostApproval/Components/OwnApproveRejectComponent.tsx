@@ -5,6 +5,7 @@ import { QualityGateWindowContainer } from "./QualityGateWindowContainer";
 export interface OwnApproveRejectActions {
     onApprove?()
     onReject?()
+    onQualityGateHandled?()
 }
 
 export interface OwnApproveRejectProps extends OwnApproveRejectActions {
@@ -24,7 +25,12 @@ export class OwnApproveRejectComponent extends React.Component<OwnApproveRejectP
                     <Button text="Reject" handler={this.onReject} flex={1}/>
                 </Toolbar> 
 
-                <QualityGateWindowContainer bundleId={bundleId} costBlockId={costBlockId} costElementId={costElementId}/>
+                <QualityGateWindowContainer 
+                    bundleId={bundleId} 
+                    costBlockId={costBlockId} 
+                    costElementId={costElementId}
+                    onSave={this.onQualityGateHandled}
+                />
             </Container>
         );
     }
@@ -39,5 +45,11 @@ export class OwnApproveRejectComponent extends React.Component<OwnApproveRejectP
         const { onReject } = this.props;
 
         onReject && onReject();
+    }
+
+    private onQualityGateHandled = () => {
+        const { onQualityGateHandled } = this.props;
+
+        return onQualityGateHandled && onQualityGateHandled();
     }
 }
