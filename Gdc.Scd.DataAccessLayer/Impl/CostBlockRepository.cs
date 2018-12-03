@@ -103,6 +103,19 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         this.BuildReferenceItemsQuery(fromMeta, costBlockMeta),
                         fromMeta.Name);
 
+            for (var i = 0; i < joinInfos.Count-1; i++)
+            {
+                for (var j = i + 1; j < joinInfos.Count; j++)
+                {
+                    if(joinInfos[i].InnerJoinInfo.Meta.Name == joinInfos[j].ReferenceMeta.Name)
+                    {
+                        var tmp = joinInfos[i];
+                        joinInfos[i] = joinInfos[j];
+                        joinInfos[j] = tmp;
+                    }
+                }
+            }
+
             return
                 referenceMetas.Skip(1)
                               .Select(meta => new ReferenceJoinInfo { ReferenceMeta = meta })

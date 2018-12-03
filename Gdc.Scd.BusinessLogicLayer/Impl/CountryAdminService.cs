@@ -33,7 +33,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     (filter.Group != null ? x.CountryGroupId == filter.Group : true) &&
                     (filter.Lut != null ? x.CountryGroup.LUTCode == filter.Lut : true) &&
                     (filter.Digit != null ? x.CountryGroup.CountryDigit == filter.Digit : true) &&
-                    (filter.IsoCode != null ? x.ISO3CountryCode == filter.IsoCode : true) &&
+                    (filter.Iso != null ? x.ISO3CountryCode == filter.Iso : true) &&
                     (filter.IsMaster != null ? x.IsMaster == filter.IsMaster : true) &&
                     (filter.StoreListAndDealer != null ? x.CanStoreListAndDealerPrices == filter.StoreListAndDealer : true) &&
                     (filter.OverrideTCandTP != null ? x.CanOverrideTransferCostAndPrice == filter.OverrideTCandTP : true)
