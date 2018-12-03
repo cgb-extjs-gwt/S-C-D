@@ -38,14 +38,12 @@ export class TableViewErrorDialog extends React.Component<TableViewErrorDialogPr
             }}
             minHeight="50%"
             minWidth="60%"
-            layout="fit"
+            layout="vbox"
         >
-            <Container layout="vbox">
-                <TabPanel tabBar={{ layout: { pack: 'left' } }} flex={10}>
-                    {this.state.tabs.map(this.createTab)}
-                </TabPanel>
-                <QualityGateToolbar ref={x => this.toolbar = x} onSave={this.onSave} onCancel={this.onCancel} flex={1} />
-            </Container>
+            <TabPanel tabBar={{ layout: { pack: 'left' } }} flex={10}>
+                {this.state.tabs.map(this.createTab)}
+            </TabPanel>
+            <QualityGateToolbar ref={x => this.toolbar = x} onSave={this.onSave} onCancel={this.onCancel} flex={1} />
         </Dialog>;
     }
 
