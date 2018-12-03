@@ -6,7 +6,7 @@
 
         public string Lut {get;set;}
         public string Digit {get;set;}
-        public long? IsoCode {get;set;}
+        public string IsoCode {get;set;}
 
         public bool? IsMaster {get;set;}
         public bool? StoreListAndDealer { get; set; }

@@ -7,6 +7,7 @@ import { ReactionTypeService } from "../../Dict/Services/ReactionTypeService";
 import { ServiceLocationService } from "../../Dict/Services/ServiceLocationService";
 import { WgService } from "../../Dict/Services/WgService";
 import { CountryGroupService } from "./CountryGroupService";
+import { CountryManagementService } from "./CountryManagementService";
 import { IDictService } from "./IDictService";
 import { PlaService } from "./PlaService";
 import { RoleService } from "./RoleService";
@@ -31,7 +32,7 @@ export class DictService implements IDictService {
     }
 
     public getCountryGroupIsoCode(): Promise<NamedId<string>[]> {
-        return new CountryGroupService().getIsoCode();
+        return new CountryManagementService().getIsoCode();
     }
 
     public getWG(): Promise<NamedId<string>[]> {
