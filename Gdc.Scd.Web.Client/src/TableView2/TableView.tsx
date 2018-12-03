@@ -2,7 +2,9 @@
 import * as React from "react";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { CostMetaData } from "../Common/States/CostMetaStates";
-import { StoreOperation, Model } from "../Common/States/ExtStates";
+import { Model, StoreOperation } from "../Common/States/ExtStates";
+import { HistoryButtonView } from "../History/Components/HistoryButtonView";
+import { ApprovalOption } from "../QualityGate/States/ApprovalOption";
 import { TableViewRecord } from "../TableView/States/TableViewRecord";
 import { QualityGateResultSet, TableViewInfo } from "../TableView/States/TableViewState";
 import { TableViewErrorDialog } from "./Components/TableViewErrorDialog";
@@ -10,8 +12,6 @@ import { TableViewGrid } from "./Components/TableViewGrid";
 import { TableViewGridHelper } from "./Helpers/TableViewGridHelper";
 import { ITableViewService } from "./Services/ITableViewService";
 import { TableViewFactory } from "./Services/TableViewFactory";
-import { ApprovalOption } from "../QualityGate/States/ApprovalOption";
-import { HistoryButtonView } from "../History/Components/HistoryButtonView";
 
 export interface TableViewState {
     meta: CostMetaData;
