@@ -327,9 +327,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 columns.Add(new ColumnInfo(HistoryValueIdColumn, ResultQualityGateTable));
             }
 
+            var costElement = costBlockMeta.DomainMeta.CostElements[historyContext.CostElementId];
             var inputLevels = options.MaxInputLevel == null
-                ? costBlockMeta.DomainMeta.InputLevels
-                : costBlockMeta.DomainMeta.CostElements[historyContext.CostElementId].FilterInputLevels(options.MaxInputLevel);
+                ? costElement.InputLevels
+                : costElement.FilterInputLevels(options.MaxInputLevel);
 
             var fields = inputLevels.Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]).ToList();
             var dependencyField = costBlockMeta.GetDomainDependencyField(historyContext.CostElementId);
