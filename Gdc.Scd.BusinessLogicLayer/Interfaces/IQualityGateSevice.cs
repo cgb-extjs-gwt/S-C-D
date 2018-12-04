@@ -1,21 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface IQualityGateSevice
     {
-        Task<QualityGateResult> Check(IEnumerable<EditItem> editItems, CostEditorContext context);
+        Task<QualityGateResult> Check(IEnumerable<EditItem> editItems, HistoryContext context, IDictionary<string, long[]> filter, EditorType editorType);
 
         Task<QualityGateResult> Check(CostBlockHistory history);
 
-        Task<QualityGateResultDto> CheckAsQualityGateResultDto(CostBlockHistory history);
+        QualityGateOption GetQualityGateOption(ICostElementIdentifier context, EditorType editorType);
 
-        Task<QualityGateResultDto> CheckAsQualityGateResultDto(IEnumerable<EditItem> editItems, CostEditorContext context);
-
-        bool IsUseCheck(ICostElementIdentifier context);
+        bool IsUseCheck(QualityGateOption option);
     }
 }

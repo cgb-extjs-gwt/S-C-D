@@ -3,7 +3,7 @@ import { CommonState } from "../../Layout/States/AppStates";
 import { buildCostEditorContext } from "../Helpers/CostEditorHelpers";
 import { buildGetHistoryUrl } from "../Services/CostEditorServices";
 import { HistoryButtonView, HistoryButtonViewProps } from "../../History/Components/HistoryButtonView";
-import { Position } from "../../History/Components/HistoryWindowView";
+import { Position } from "../../Common/States/ExtStates";
 
 export interface HistoryValuesGridContainerProps {
     editItemId: string,
@@ -15,15 +15,16 @@ export interface HistoryValuesGridContainerProps {
 export const HistroryButtonContainer = 
     connect<HistoryButtonViewProps, {}, HistoryValuesGridContainerProps, CommonState>(
         (state, { editItemId, isEnabled, flex, windowPosition }) => {
-            const costEditorState = state.pages.costEditor;
-            const context = buildCostEditorContext(costEditorState);
-            const dataLoadUrl = buildGetHistoryUrl(context, editItemId);
-
             return {
-                dataLoadUrl: dataLoadUrl,
                 isEnabled,
                 flex,
-                windowPosition
+                windowPosition,
+                buidHistoryUrl: () => {
+                    const costEditorState = state.pages.costEditor;
+                    const context = buildCostEditorContext(costEditorState);
+                    
+                    return buildGetHistoryUrl(context, editItemId);
+                }
             }
         }
     )(HistoryButtonView);

@@ -30,6 +30,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<ITableViewService>().To<TableViewService>().InRequestScope();
             Bind<IAppService>().To<AppService>().InRequestScope();
             Bind<ICostBlockService>().To<CostBlockService>().InRequestScope();
+            Bind<IApprovalService>().To<ApprovalService>().InRequestScope();
             Bind<INotifyChannel>().To<MemoryChannel>().InSingletonScope();
 
             /*----------dictionaries-----------*/

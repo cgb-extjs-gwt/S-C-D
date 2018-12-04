@@ -18,7 +18,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public bool UseHistoryValueId { get; set; }
 
-        public bool UseQualityGate { get; set; }
+        public bool UsePeriodQualityGate { get; set; }
+
+        public bool UsetCountryGroupQualityGate { get; set; }
 
         public CostBlockValueHistoryMapper(CostBlockEntityMeta costBlockMeta, string costElementId, string maxInputLevelId = null)
         {
@@ -37,15 +39,25 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.dependencyField = this.costBlockMeta.GetDomainDependencyField(costElementId);
         }
 
-        public CostBlockValueHistory Map(IDataReader reader)
+        public BundleDetail Map(IDataReader reader)
         {
             var index = 0;
-            var item = new CostBlockValueHistory
+            var item = new BundleDetail
             {
-                Value = reader.GetValue(index++),
+                NewValue = reader.GetValue(index++),
                 InputLevels = new Dictionary<string, NamedId>(),
                 Dependencies = new Dictionary<string, NamedId>()
             };
+
+            if (this.UsePeriodQualityGate)
+            {
+                item.OldValue = this.GetDouble(reader, index++);
+            }
+
+            if (this.UsetCountryGroupQualityGate)
+            {
+                item.CountryGroupAvgValue = this.GetDouble(reader, index++);
+            }
 
             if (this.UseHistoryValueId)
             {
@@ -72,13 +84,22 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 });
             }
 
-            if (this.UseQualityGate)
+            if (this.UsePeriodQualityGate)
             {
                 item.IsPeriodError = reader.GetInt32(index++) == 0;
+            }
+
+            if (this.UsetCountryGroupQualityGate)
+            {
                 item.IsRegionError = reader.GetInt32(index++) == 0;
             }
 
             return item;
+        }
+
+        private double? GetDouble(IDataReader reader, int index)
+        {
+            return reader.IsDBNull(index) ? default(double?) : reader.GetDouble(index);
         }
     }
 }

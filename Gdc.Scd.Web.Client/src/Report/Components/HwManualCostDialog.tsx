@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { HwCostListModel } from '../Model/HwCostListModel';
 
-interface HwManualCostDialogProps extends DialogProps {
+export interface HwManualCostDialogProps extends DialogProps {
     onOk(model: HwCostListModel): void;
 }
 

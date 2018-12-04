@@ -1,1 +1,2 @@
-export const CountryInputLevelName = "Country";
+export const CountryInputLevel = "Country";
+export const WgInputLevel = "Wg";

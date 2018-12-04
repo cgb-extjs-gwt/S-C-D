@@ -4,7 +4,6 @@ export interface Model<TData=any> {
     phantom: boolean
     set(fieldName: string, newValue, options?)
     get(fieldName: string)
-
 }
 
 export enum StoreOperation {
@@ -55,4 +54,11 @@ export interface MenuItem {
     leaf?: boolean
     disabled?: boolean
     children?: MenuItem[]
+}
+
+export interface Position {
+    top?: string | number
+    bottom?: string | number
+    left?: string | number
+    right?: string | number
 }

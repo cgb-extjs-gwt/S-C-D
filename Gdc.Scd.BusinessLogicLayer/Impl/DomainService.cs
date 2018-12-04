@@ -1,35 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
-    public class DomainService<T> : IDomainService<T> where T : class, IIdentifiable, new()
+    public class DomainService<T> : ReadingDomainService<T>, IDomainService<T> where T : class, IIdentifiable, new()
     {
-        protected readonly IRepositorySet repositorySet;
-        protected readonly IRepository<T> repository;
-
-        public DomainService(IRepositorySet repositorySet)
+        public DomainService(IRepositorySet repositorySet) 
+            : base(repositorySet)
         {
-            this.repositorySet = repositorySet;
-            this.repository = this.repositorySet.GetRepository<T>();
         }
 
-        public T Get(long id)
-        {
-            return this.repository.Get(id);
-        }
-
-        public IQueryable<T> GetAll()
-        {
-            return this.repository.GetAll();
-        }
-
-        public void Save(T item)
+        public virtual void Save(T item)
         {
             using (var transaction = this.repositorySet.GetTransaction())
             {
@@ -71,7 +55,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public void Delete(long id)
+        public virtual void Delete(long id)
         {
             using (var transaction = this.repositorySet.GetTransaction())
             {
@@ -91,12 +75,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        protected void InnerSave(T item)
+        protected virtual void InnerSave(T item)
         {
             this.repository.Save(item);
         }
 
-        protected void InnerDelete(long id)
+        protected virtual void InnerDelete(long id)
         {
             this.repository.Delete(id);
         }

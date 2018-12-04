@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Gdc.Scd.BusinessLogicLayer.Entities;
+using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -30,20 +32,23 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
 
-        public async Task<QualityGateResult> Check(IEnumerable<EditItem> editItems, CostEditorContext context)
+        public async Task<QualityGateResult> Check(IEnumerable<EditItem> editItems, HistoryContext context, IDictionary<string, long[]> coordinateFilter, EditorType editorType)
         {
             var result = new QualityGateResult();
+            var option = this.GetQualityGateOption(context, editorType);
 
-            if (this.IsUseCheck(context))
+            if (this.IsUseCheck(option))
             {
-                var historyContext = HistoryContext.Build(context);
-                var filter = this.costBlockFilterBuilder.BuildFilter(context);
+                var regionFilter = this.costBlockFilterBuilder.BuildRegionFilter(context);
+                var filter = regionFilter.Concat(coordinateFilter).ToDictionary(keyValue => keyValue.Key, keyValue => keyValue.Value);
 
-                result.Errors = await this.qualityGateRepository.Check(historyContext, editItems, filter);
+                var bundleDetails = await this.qualityGateRepository.Check(context, editItems, filter, option.IsCountyCheck);
+
+                result.Errors = bundleDetails.ToBundleDetailGroups();
             }
             else
             {
-                result.Errors = Enumerable.Empty<CostBlockValueHistory>();
+                result.Errors = Enumerable.Empty<BundleDetailGroup>();
             }
 
             return result;
@@ -52,83 +57,48 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public async Task<QualityGateResult> Check(CostBlockHistory history)
         {
             var result = new QualityGateResult();
+            var option = this.GetQualityGateOption(history.Context, history.EditorType);
 
-            if (this.IsUseCheck(history.Context))
+            if (this.IsUseCheck(option))
             {
-                result.Errors = await this.qualityGateRepository.Check(history);
+                var bundleDetails = await this.qualityGateRepository.Check(history, option.IsCountyCheck);
+
+                result.Errors = bundleDetails.ToBundleDetailGroups();
             }
             else
             {
-                result.Errors = Enumerable.Empty<CostBlockValueHistory>();
+                result.Errors = Enumerable.Empty<BundleDetailGroup>();
             }
 
             return result;
         }
 
-        public async Task<QualityGateResultDto> CheckAsQualityGateResultDto(CostBlockHistory history)
+        public QualityGateOption GetQualityGateOption(ICostElementIdentifier context, EditorType editorType)
         {
-            var qualityGateResult = await this.Check(history);
-
-            return this.BuildQualityGateResultDto(qualityGateResult);
-        }
-
-        public async Task<QualityGateResultDto> CheckAsQualityGateResultDto(IEnumerable<EditItem> editItems, CostEditorContext context)
-        {
-            var qualityGateResult = await this.Check(editItems, context);
-
-            return this.BuildQualityGateResultDto(qualityGateResult);
-        }
-
-        public bool IsUseCheck(ICostElementIdentifier context)
-        {
-            var result = false;
+            var option = new QualityGateOption();
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
             var costElementMeta = costBlockMeta.DomainMeta.CostElements[context.CostElementId];
 
-            if (costElementMeta.InputLevels[MetaConstants.WgInputLevelName] != null &&
-                costElementMeta.InputLevels[MetaConstants.CountryInputLevelName] != null)
+            if (costElementMeta.InputLevels[MetaConstants.WgInputLevelName] != null)
             {
                 var costElement = costBlockMeta.CostElementsFields[context.CostElementId] as SimpleFieldMeta;
                 if (costElement != null && costElement.Type == TypeCode.Double)
                 {
-                    result = true;
+                    option.IsPeriodCheck = true;
+
+                    if (editorType == EditorType.CostEditor)
+                    {
+                        option.IsCountyCheck = costElementMeta.InputLevels[MetaConstants.CountryInputLevelName] != null;
+                    }
                 }
             }
 
-            return result;
+            return option;
         }
 
-        private QualityGateResultDto BuildQualityGateResultDto(QualityGateResult qualityGateResult)
+        public bool IsUseCheck(QualityGateOption option)
         {
-            var errors = new List<IDictionary<string, object>>();
-
-            if (qualityGateResult.Errors != null)
-            {
-                foreach (var error in qualityGateResult.Errors)
-                {
-                    var errorDictionary = new Dictionary<string, object>
-                    {
-                        ["WarrantyGroupId"] = error.LastInputLevel.Id,
-                        ["WarrantyGroupName"] = error.LastInputLevel.Name,
-                        [nameof(error.IsPeriodError)] = error.IsPeriodError,
-                        [nameof(error.IsRegionError)] = error.IsRegionError
-                    };
-
-                    foreach (var dependency in error.Dependencies)
-                    {
-                        errorDictionary.Add($"{dependency.Key}Id", dependency.Value.Id);
-                        errorDictionary.Add($"{dependency.Key}Name", dependency.Value.Name);
-                    }
-
-                    errors.Add(errorDictionary);
-                }
-            }
-
-            return new QualityGateResultDto
-            {
-                HasErrors = qualityGateResult.HasErrors,
-                Errors = errors
-            };
+            return option.IsPeriodCheck;
         }
     }
 }

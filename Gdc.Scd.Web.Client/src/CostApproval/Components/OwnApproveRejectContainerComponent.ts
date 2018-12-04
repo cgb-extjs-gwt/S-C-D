@@ -9,14 +9,19 @@ import { handleRequest } from "../../Common/Helpers/RequestHelper";
 export const OwnApproveRejectContainerComponent = 
     connect<{}, OwnApproveRejectActions, ApproveRejectContainerProps, CommonState>(
         null,
-        (dispatch, { bundleId, onHandled }) => ({
+        (dispatch, { bundleId, onHandled = () => {} }) => ({
             onApprove: () => handleRequest(
-                    CostApprovalService.sendForApproval(bundleId).then(qualityGateResult => {
+                CostApprovalService.sendForApproval(bundleId).then(qualityGateResult => {
                     dispatch(loadQualityGateResult(qualityGateResult.errors))
+
+                    if (qualityGateResult.errors.length == 0) {
+                        onHandled();
+                    }
                 })
             ),
             onReject: () => handleRequest(
-                CostApprovalService.reject(bundleId).then(() => onHandled && onHandled())
-            )
+                CostApprovalService.reject(bundleId).then(() => onHandled())
+            ),
+            onQualityGateHandled: () => onHandled()
         })
     )(OwnApproveRejectComponent)
