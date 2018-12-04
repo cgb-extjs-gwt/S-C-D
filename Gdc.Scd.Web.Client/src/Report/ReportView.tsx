@@ -36,9 +36,7 @@ export class ReportView extends React.Component<any, AutoGridModel> {
         if (this.state) {
             let schema = this.state;
 
-            grid = (
-                <AutoGrid columns={schema.fields} filter={schema.filter} url={this.getUrl()} downloadUrl={this.getDownloadUrl()} title={schema.title} />
-            );
+            grid = <AutoGrid columns={schema.fields} filter={schema.filter} url={this.getUrl()} downloadUrl={this.getDownloadUrl()} title={schema.title} />;
         }
 
         return grid;

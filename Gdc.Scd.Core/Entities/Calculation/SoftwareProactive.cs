@@ -17,10 +17,6 @@ namespace Gdc.Scd.Core.Entities.Calculation
         [ForeignKey("Sog")]
         public Sog SogRef { get; set; }
 
-        public long? SwDigit { get; set; }
-        [ForeignKey("SwDigit")]
-        public SwDigit SwDigitRef { get; set; }
-
         public long? Year { get; set; }
         [ForeignKey("Year")]
         public Year YearRef { get; set; }

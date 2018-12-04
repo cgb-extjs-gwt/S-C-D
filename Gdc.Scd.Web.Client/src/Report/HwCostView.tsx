@@ -127,7 +127,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Service support cost" dataIndex="ServiceSupportCost" />
                         <NumberColumn text="Logistic cost" dataIndex="Logistic" />
                         <NumberColumn text="Availability fee" dataIndex="AvailabilityFee" />
-                        <NumberColumn text="HDD retention" dataIndex="HddRetention" />
+                        <NumberColumn text="HDD retention" dataIndex="HddRet" />
                         <NumberColumn text="Reinsurance" dataIndex="Reinsurance" />
                         <NumberColumn text="Tax &amp; Duties iW period" dataIndex="TaxAndDutiesW" />
                         <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="TaxAndDutiesOow" />

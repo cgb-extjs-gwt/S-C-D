@@ -121,7 +121,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 Country = x.CountryRef.Name,
                 Sog = x.SogRef.Name,
-                SwDigit = x.SwDigitRef.Name,
                 Year = x.YearRef.Name,
 
                 ProActive = x.ProActive,

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="1fb69716bcfb4f58832ebfb37d41e464" Name="Diagram1">
+        <EntityTypeShape EntityType="Scd_2_7Model.Permission" Width="1.5" PointX="9.75" PointY="103.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.Role" Width="1.5" PointX="5.75" PointY="94" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.RolePermission" Width="1.5" PointX="12" PointY="100" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.User" Width="1.5" PointX="5.75" PointY="96.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.UserRole" Width="1.5" PointX="8" PointY="79.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.Availability" Width="1.5" PointX="3.75" PointY="49" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.Duration" Width="1.5" PointX="17.75" PointY="78.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ProActiveSla" Width="1.5" PointX="14.75" PointY="81.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ReactionTime" Width="1.5" PointX="3.75" PointY="53.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ReactionTime_Avalability" Width="1.5" PointX="20.75" PointY="75.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ReactionTime_ReactionType" Width="1.5" PointX="3" PointY="88.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ReactionTime_ReactionType_Avalability" Width="1.5" PointX="6" PointY="53" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ReactionType" Width="1.5" PointX="3.75" PointY="57" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ServiceLocation" Width="1.5" PointX="3" PointY="91.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.Year" Width="1.5" PointX="5.25" PointY="83.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.Year_Availability" Width="1.5" PointX="7.5" PointY="83.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.HwFspCodeTranslation" Width="1.5" PointX="17" PointY="87" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.SwFspCodeTranslation" Width="1.5" PointX="12" PointY="89.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.AFR" Width="1.5" PointX="20" PointY="88.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.AfrYear" Width="1.5" PointX="17" PointY="98.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.AvailabilityFee" Width="1.5" PointX="23" PointY="87" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.FieldServiceCost" Width="1.5" PointX="5.25" PointY="68.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.HddRetention" Width="1.5" PointX="20" PointY="84.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.InstallBase" Width="1.5" PointX="8.25" PointY="69.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.LogisticsCost" Width="1.5" PointX="11.25" PointY="68.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ManualCost" Width="1.5" PointX="25.25" PointY="94.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.MarkupOtherCost" Width="1.5" PointX="8.25" PointY="64.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.MarkupStandardWaranty" Width="1.5" PointX="8.25" PointY="74.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.MaterialCostOow" Width="1.5" PointX="20" PointY="92.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.MaterialCostWarranty" Width="1.5" PointX="17" PointY="82.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ProActive" Width="1.5" PointX="5.25" PointY="61.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ProlongationMarkup" Width="1.5" PointX="5.25" PointY="75.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.Reinsurance" Width="1.5" PointX="23" PointY="81.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.RoleCodeHourlyRate" Width="1.5" PointX="14.75" PointY="95.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ServiceSupportCost" Width="1.5" PointX="3" PointY="63.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.TaxAndDuty" Width="1.5" PointX="3" PointY="95.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ClusterPla" Width="1.5" PointX="0.75" PointY="65.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ClusterRegion" Width="1.5" PointX="0.75" PointY="60.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.Country" Width="1.5" PointX="0.75" PointY="68.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.CountryGroup" Width="1.5" PointX="1.5" PointY="77.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.Pla" Width="1.5" PointX="3" PointY="69.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.Region" Width="1.5" PointX="1.5" PointY="81.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.RoleCode" Width="1.5" PointX="12.5" PointY="87.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.Sfab" Width="1.5" PointX="5.25" PointY="107.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.Sog" Width="1.5" PointX="7.5" PointY="87.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.SwDigit" Width="1.5" PointX="9.75" PointY="95.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.SwDigitLicense" Width="1.5" PointX="12" PointY="96.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.SwLicense" Width="1.5" PointX="9.75" PointY="99.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.Wg" Width="1.5" PointX="14.75" PointY="85.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.Matrix" Width="1.5" PointX="23" PointY="93.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.MatrixMaster" Width="1.5" PointX="20" PointY="78.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.MatrixRule" Width="1.5" PointX="20" PointY="96.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.Currency" Width="1.5" PointX="1.5" PointY="84.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ExchangeRate" Width="1.5" PointX="3.75" PointY="81.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ProActiveDigit" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ProActiveSw" Width="1.5" PointX="10.75" PointY="77.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.SwSpMaintenance" Width="1.5" PointX="9.75" PointY="86.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ReactionTimeAvailability" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ReactionTimeType" Width="1.5" PointX="2.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ReactionTimeTypeAvailability" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.YearAvailability" Width="1.5" PointX="4.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.AvailabilityFeeCalcView" Width="1.5" PointX="6.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.AvailabilityFeeView" Width="1.5" PointX="0.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.FieldServiceCostView" Width="1.5" PointX="2.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.HddRetByDurationView" Width="1.5" PointX="4.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.LogisticsCostView" Width="1.5" PointX="6.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.MarkupOtherCostsView" Width="1.5" PointX="8.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.MarkupStandardWarantyView" Width="1.5" PointX="8.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ProActiveView" Width="1.5" PointX="8.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ReinsuranceView" Width="1.5" PointX="10.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ServiceSupportCostView" Width="1.5" PointX="10.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.TaxAndDutiesVIEW" Width="1.5" PointX="10.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.CountryView" Width="1.5" PointX="10.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.WgSogView" Width="1.5" PointX="12.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.WgView" Width="1.5" PointX="0.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ProActiveView1" Width="1.5" PointX="2.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.ServiceCostCalculationView" Width="1.5" PointX="4.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.SwSpMaintenanceCostView" Width="1.5" PointX="12.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Scd_2_7Model.SwSpMaintenanceView" Width="1.5" PointX="12.75" PointY="13.75" IsExpanded="true" />
+        <AssociationConnector Association="Scd_2_7Model.FK_RolePermission_Permission_PermissionId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_RolePermission_Role_RoleId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_UserRole_Role_RoleId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_UserRole_User_UserId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_UserRole_Country_CountryId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HwFspCodeTranslation_Availability_AvailabilityId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Matrix_Availability_AvailabilityId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_MatrixMaster_Availability_AvailabilityId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_MatrixRule_Availability_AvailabilityId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_ReactionTime_Avalability_Availability_AvailabilityId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_ReactionTime_ReactionType_Avalability_Availability_AvailabilityId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SoftwareSolutionSwSpMaintenanceAvailability_DependenciesAvailability" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SwFspCodeTranslation_Availability_AvailabilityId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Year_Availability_Availability_AvailabilityId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Duration_Year_Id" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HwFspCodeTranslation_Duration_DurationId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Matrix_Duration_DurationId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_MatrixMaster_Duration_DurationId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_MatrixRule_Duration_DurationId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SwFspCodeTranslation_Duration_DurationId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HwFspCodeTranslation_ProActiveSla_ProactiveSlaId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SwFspCodeTranslation_ProActiveSla_ProactiveSlaId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HwFspCodeTranslation_ReactionTime_ReactionTimeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Matrix_ReactionTime_ReactionTimeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_MatrixMaster_ReactionTime_ReactionTimeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_MatrixRule_ReactionTime_ReactionTimeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_ReactionTime_Avalability_ReactionTime_ReactionTimeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_ReactionTime_ReactionType_Avalability_ReactionTime_ReactionTimeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_ReactionTime_ReactionType_ReactionTime_ReactionTimeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SwFspCodeTranslation_ReactionTime_ReactionTimeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareReinsuranceReactionTimeAvailability_DependenciesReactionTime_Avalability" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareFieldServiceCostReactionTimeType_DependenciesReactionTime_ReactionType" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareLogisticsCostsReactionTimeType_DependenciesReactionTime_ReactionType" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_ReactionTime_ReactionType_ReactionType_ReactionTypeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareMarkupOtherCostsReactionTimeTypeAvailability_DependenciesReactionTime_ReactionType_Avalability" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareMarkupStandardWarantyReactionTimeTypeAvailability_DependenciesReactionTime_ReactionType_Avalability" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareProlongationMarkupReactionTimeTypeAvailability_DependenciesReactionTime_ReactionType_Avalability" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_ReactionTime_ReactionType_Avalability_ReactionType_ReactionTypeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HwFspCodeTranslation_ReactionType_ReactionTypeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Matrix_ReactionType_ReactionTypeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_MatrixMaster_ReactionType_ReactionTypeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_MatrixRule_ReactionType_ReactionTypeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SwFspCodeTranslation_ReactionType_ReactionTypeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareFieldServiceCostServiceLocation_DependenciesServiceLocation" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HwFspCodeTranslation_ServiceLocation_ServiceLocationId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Matrix_ServiceLocation_ServiceLocationId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_MatrixMaster_ServiceLocation_ServiceLocationId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_MatrixRule_ServiceLocation_ServiceLocationId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SwFspCodeTranslation_ServiceLocation_ServiceLocationId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_AFR_Year_Year" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareHddRetentionYear_DependenciesYear" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareReinsuranceYear_DependenciesYear" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Year_Availability_Year_YearId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SoftwareSolutionSwSpMaintenanceYearAvailability_DependenciesYear_Availability" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HwFspCodeTranslation_Country_CountryId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HwFspCodeTranslation_Wg_WgId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SwFspCodeTranslation_Sog_SogId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SwFspCodeTranslation_SwDigit_SwDigitId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_AFR_Wg_Wg" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK__AfrYear__Wg__63D8CE75" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_AvailabilityFee_Country_Country" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_AvailabilityFee_Wg_Wg" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareFieldServiceCostCountry_InputAtomsCountry" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareFieldServiceCostPla_InputAtomsPla" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareFieldServiceCostWg_InputAtomsWg" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareHddRetentionWg_InputAtomsWg" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_InstallBase_Country_Country" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_InstallBase_Pla_Pla" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_InstallBase_Wg_Wg" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareLogisticsCostsCountry_InputAtomsCountry" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareLogisticsCostsPla_InputAtomsPla" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareLogisticsCostsWg_InputAtomsWg" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_ManualCost_Matrix_MatrixId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareMarkupOtherCostsCountry_InputAtomsCountry" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareMarkupOtherCostsPla_InputAtomsPla" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareMarkupOtherCostsWg_InputAtomsWg" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareMarkupStandardWarantyCountry_InputAtomsCountry" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareMarkupStandardWarantyPla_InputAtomsPla" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareMarkupStandardWarantyWg_InputAtomsWg" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareMaterialCostOowClusterRegion_InputAtomsClusterRegion" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareMaterialCostOowWg_InputAtomsWg" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_MaterialCostWarranty_ClusterRegion_ClusterRegion" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_MaterialCostWarranty_Wg_Wg" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareProActiveCountry_InputAtomsCountry" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareProActivePla_InputAtomsPla" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareProActiveWg_InputAtomsWg" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareProlongationMarkupCountry_InputAtomsCountry" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareProlongationMarkupPla_InputAtomsPla" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareProlongationMarkupWg_InputAtomsWg" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareReinsuranceCurrencyReinsurance_Approved_ReferencesCurrency" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareReinsuranceCurrencyReinsurance_ReferencesCurrency" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareReinsuranceWg_InputAtomsWg" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareRoleCodeHourlyRatesRoleCode_InputAtomsRoleCode" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareServiceSupportCostClusterPla_InputAtomsClusterPla" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareServiceSupportCostClusterRegion_InputAtomsClusterRegion" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_HardwareServiceSupportCostCountry_InputAtomsCountry" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_TaxAndDuties_Country_Country" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Pla_ClusterPla_ClusterPlaId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Country_ClusterRegion_ClusterRegionId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Region_ClusterRegion_ClusterRegionId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Country_CountryGroup_CountryGroupId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Country_Currency_CurrencyId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Country_Region_RegionId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Matrix_Country_CountryId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_MatrixRule_Country_CountryId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SoftwareSolutionProActiveSwCountry_InputAtomsCountry" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_CountryGroup_Region_RegionId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Sfab_Pla_PlaId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SoftwareSolutionProActiveSwPla_InputAtomsPla" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SoftwareSolutionSwSpMaintenancePla_InputAtomsPla" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Sog_Pla_PlaId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Wg_Pla_PlaId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Wg_RoleCode_RoleCodeId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SoftwareSolutionSwSpMaintenanceSfab_InputAtomsSfab" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Sog_Sfab_SFabId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Wg_Sfab_SFabId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SoftwareSolutionProActiveSwSog_InputAtomsSog" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SoftwareSolutionSwSpMaintenanceSog_InputAtomsSog" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SwDigit_Sog_SogId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Wg_Sog_SogId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SwDigitLicense_SwDigit_SwDigitId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SwDigitLicense_SwLicense_SwLicenseId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_Matrix_Wg_WgId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_MatrixMaster_Wg_WgId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_MatrixRule_Wg_WgId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_ExchangeRate_Currency_CurrencyId" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SoftwareSolutionSwSpMaintenanceCurrencyReinsurance_Approved_ReferencesCurrency" ManuallyRouted="false" />
+        <AssociationConnector Association="Scd_2_7Model.FK_SoftwareSolutionSwSpMaintenanceCurrencyReinsurance_ReferencesCurrency" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
