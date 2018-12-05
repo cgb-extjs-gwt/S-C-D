@@ -5,15 +5,15 @@ import { NamedId, PageName } from "../../Common/States/CommonStates";
 import { ItemSelectedAction, CommonAction, PageItemSelectedAction, PageCommonAction, PageAction, MultiItemSelectedAction, PageMultiItemSelectedAction } from '../../Common/Actions/CommonActions';
 import * as approvalActions from '../../CostApproval/Actions/CostApprovalFilterActions';
 import { ApprovalCostElementsLayoutState } from "../States/ApprovalCostElementsLayoutState";
-import { loadBundlesByFilter } from '../Actions/BundleListActions'
 import { ApprovalBundleState } from "../States/ApprovalBundleState";
 import { CostElementId, BundleFilterStates } from "../States/BundleFilterStates";
-import { Dispatch } from "redux";
+import { Dispatch, Action } from "redux";
 import { CostBlockMeta, CostElementMeta } from "../../Common/States/CostMetaStates";
 import { mapCostElements } from "../../Common/Helpers/MetaHelper";
 
 export interface FilterBundleContainerProps extends PageName {
     approvalBundleState: ApprovalBundleState
+    buildReloadBundlesAction(pageName: string, approvalBundleState: ApprovalBundleState): Action<string>
 }
 
 const getVisibleCostBlocks = (costBlocks: CostBlockMeta[], filter: BundleFilterStates) => costBlocks.filter(
@@ -85,7 +85,7 @@ const buildProps = (state: CommonState, { pageName }: FilterBundleContainerProps
     }
 }
 
-const buildActions = (state: CommonState, { pageName, approvalBundleState }: FilterBundleContainerProps, dispatch: Dispatch) => (<ApprovalFilterActions>{
+const buildActions = (state: CommonState, { pageName, approvalBundleState, buildReloadBundlesAction }: FilterBundleContainerProps, dispatch: Dispatch) => (<ApprovalFilterActions>{
     onApplicationSelect: (selectedAppId) => dispatch(<PageItemSelectedAction>{
         type: approvalActions.COST_APPROVAL_SELECT_APPLICATION,
         selectedItemId: selectedAppId,
@@ -169,7 +169,7 @@ const buildActions = (state: CommonState, { pageName, approvalBundleState }: Fil
         data: selectedDate,
         pageName
     }),
-    onApplyFilter: () => dispatch(loadBundlesByFilter(pageName, approvalBundleState))
+    onApplyFilter: () => dispatch(buildReloadBundlesAction(pageName, approvalBundleState))
 })
 
 export const FilterBundleContainer = connectAdvanced<CommonState, FilterApprovalProps, FilterBundleContainerProps>(

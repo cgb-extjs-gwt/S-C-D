@@ -15,6 +15,8 @@ export const reject = (historyId: number, message?: string) => post(CONTROLLER_N
 
 export const getBundles = (filter: BundleFilter, state: ApprovalBundleState) => post<BundleFilter, ApprovalBundle[]>(CONTROLLER_NAME, 'GetApprovalBundlesByFilter', filter, { state });
 
+export const getOwnBundles = (filter: BundleFilter, state: ApprovalBundleState) => post<BundleFilter, ApprovalBundle[]>(CONTROLLER_NAME, 'GetOwnApprovalBundlesByFilter', filter, { state });
+
 export const buildGetApproveBundleDetailUrl = (
     bundleId: number, 
     historyValueId?: number, 
