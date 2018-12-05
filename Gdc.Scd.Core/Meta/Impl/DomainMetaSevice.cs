@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
-using System.Web.Hosting;
 
 namespace Gdc.Scd.Core.Meta.Impl
 {
@@ -20,10 +20,6 @@ namespace Gdc.Scd.Core.Meta.Impl
         private const string TypeAttributeName = "Type";
 
         private const string DefaultNodeName = "Default";
-
-        private const string CostAtomListNodeName = "Atoms";
-
-        private const string CostAtomNodeName = "Atom";
 
         private const string CostBlockListNodeName = "Blocks";
 
@@ -63,14 +59,21 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string PeriodCoeffNodeName = "PeriodCoeff";
 
-        private readonly Regex idRegex = new Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled);
+        private const string TableViewNodeName = "TableView";
 
+        private const string CostEditorNodeName = "CostEditor";
+
+        private const string RoleListNodeName = "Roles";
+
+        private const string RoleNodeName = "Role";
+
+        private readonly Regex idRegex = new Regex(@"^[a-zA-Z0-9_]+$", RegexOptions.Compiled);
 
         public DomainMeta Get()
         {
-            var fileName = HostingEnvironment.MapPath("~/DomainConfig.xml");
-            //var fileName = "./DomainConfig.xml";
-            var doc = XDocument.Load(fileName);
+            var assembly = Assembly.GetExecutingAssembly();
+            var stream = assembly.GetManifestResourceStream($"{assembly.GetName().Name}.DomainConfig.xml");
+            var doc = XDocument.Load(stream);
 
             return this.BuilDomainMeta(doc.Root);
         }
@@ -145,7 +148,7 @@ namespace Gdc.Scd.Core.Meta.Impl
             if (inputTypeAttribute != null)
             {
                 InputType type;
-                Enum.TryParse<InputType>(inputTypeAttribute.Value, out type);
+                Enum.TryParse(inputTypeAttribute.Value, out type);
                 costElementMeta.InputType = type;
             }
 
@@ -157,10 +160,31 @@ namespace Gdc.Scd.Core.Meta.Impl
                             .ToDictionary(attr => attr.Name.ToString(), attr => attr.Value.ToString());
             }
 
+            costElementMeta.TableViewRoles = this.BuildRoles(node, TableViewNodeName);
+            costElementMeta.CostEditorRoles = this.BuildRoles(node, CostEditorNodeName);
+
             return costElementMeta;
         }
 
-        private MetaCollection<T> BuildItemCollectionByDomainInfo<T>(XElement node, string nodeItemName, DomainInfo<T> domainInfo) where T : BaseDomainMeta
+        private HashSet<string> BuildRoles(XElement node, string nodeName)
+        {
+            HashSet<string> result = null;
+
+            var attribute = node.Element(nodeName);
+            if (attribute != null)
+            {
+                var roles =
+                    attribute.Elements(RoleListNodeName)
+                                      .Elements(RoleNodeName)
+                                      .Select(roleNode => roleNode.Value);
+
+                result = new HashSet<string>(roles);
+            }
+
+            return result;
+        }
+
+        private MetaCollection<T> BuildItemCollectionByDomainInfo<T>(XElement node, string nodeItemName, DomainInfo<T> domainInfo) where T : BaseMeta
         {
             List<T> items = null;
 
@@ -178,7 +202,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                     : new MetaCollection<T>(items);
         }
 
-        private T BuildItemByDomainInfo<T>(XElement node, string attributeName, DomainInfo<T> domainInfo) where T : BaseDomainMeta
+        private T BuildItemByDomainInfo<T>(XElement node, string attributeName, DomainInfo<T> domainInfo) where T : BaseMeta
         {
             T result = null;
 
@@ -213,7 +237,7 @@ namespace Gdc.Scd.Core.Meta.Impl
             return description;
         }
 
-        private T BuildMeta<T>(XElement node) where T : BaseDomainMeta, new()
+        private T BuildMeta<T>(XElement node) where T : BaseMeta, new()
         {
             var nameAttr = node.Attribute(NameAttributeName);
             if (nameAttr == null)
@@ -267,7 +291,7 @@ namespace Gdc.Scd.Core.Meta.Impl
             };
         }
 
-        private T BuildMetaItem<T>(XElement node) where T : BaseDomainMeta, new()
+        private T BuildMetaItem<T>(XElement node) where T : BaseMeta, new()
         {
             var nameAttribute = node.Attribute(NameAttributeName);
             var captionAttribute = node.Attribute(CaptionAttributeName);
@@ -281,7 +305,7 @@ namespace Gdc.Scd.Core.Meta.Impl
             };
         }
 
-        private T BuildStoreTypedMeta<T>(XElement node) where T : BaseDomainMeta, IStoreTyped, new()
+        private T BuildStoreTypedMeta<T>(XElement node) where T : BaseMeta, IStoreTyped, new()
         {
             var meta = this.BuildMeta<T>(node);
 
@@ -294,7 +318,7 @@ namespace Gdc.Scd.Core.Meta.Impl
             return meta;
         }
 
-        private DomainInfo<T> BuildDomainInfo<T>(XElement listNode, string itemNodeName, IEnumerable<T> items) where T : BaseDomainMeta, new()
+        private DomainInfo<T> BuildDomainInfo<T>(XElement listNode, string itemNodeName, IEnumerable<T> items) where T : BaseMeta, new()
         {
             var domainInfo = new DomainInfo<T>();
 
@@ -313,14 +337,14 @@ namespace Gdc.Scd.Core.Meta.Impl
             return domainInfo;
         }
 
-        private DomainInfo<T> BuildDomainInfo<T>(XElement listNode, string itemNodeName) where T : BaseDomainMeta, new()
+        private DomainInfo<T> BuildDomainInfo<T>(XElement listNode, string itemNodeName) where T : BaseMeta, new()
         {
             var items = listNode.Elements(itemNodeName).Select(this.BuildMetaItem<T>);
 
             return this.BuildDomainInfo(listNode, itemNodeName, items);
         }
 
-        private DomainInfo<T> BuildStoreTypedDomainInfo<T>(XElement listNode, string itemNodeName) where T : BaseDomainMeta, IStoreTyped, new()
+        private DomainInfo<T> BuildStoreTypedDomainInfo<T>(XElement listNode, string itemNodeName) where T : BaseMeta, IStoreTyped, new()
         {
             var items = listNode.Elements(itemNodeName).Select(this.BuildStoreTypedMeta<T>);
 

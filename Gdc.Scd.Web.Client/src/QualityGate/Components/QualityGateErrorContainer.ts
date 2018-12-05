@@ -1,35 +1,25 @@
 import { connect } from "react-redux";
-import { QualityGateErrorProps, QualityGateErrorActions, QualityGateErrorView } from "./QualityGateErrorView";
+import { QualityGateErrorProps, QualityGateErrorView } from "./QualityGateErrorView";
 import { CommonState } from "../../Layout/States/AppStates";
-import { getDependecyColumnsFromMeta } from "../../Common/Helpers/ColumnInfoHelper";
+import { getDependecyColumnFromMeta } from "../../Common/Helpers/ColumnInfoHelper";
 import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
+import { BundleDetailGroup } from "../States/QualityGateResult";
+import { getCostElementByAppMeta } from "../../Common/Helpers/MetaHelper";
+import { QualityGateToolbarActions } from "./QualityGateToolbar";
 
-export interface QualityGateErrorContainerProps extends QualityGateErrorActions {
+export interface QualityGateErrorContainerProps extends QualityGateToolbarActions {
     costBlockId: string
-    errors?: {[key: string]: any}[]
+    costElementId: string
+    errors?: BundleDetailGroup[]
 }
 
 export const QualityGateErrorContainer = 
-    connect<QualityGateErrorProps, QualityGateErrorActions, QualityGateErrorContainerProps, CommonState>(
-        (state, { costBlockId, errors }) => {
-            const meta = state.app.appMetaData;
-            let columns: ColumnInfo[] = [];
-
-            if (meta) {
-                columns = [
-                    { title: 'Wg', dataIndex: `WarrantyGroupName`, type: ColumnType.Simple },
-                    ...getDependecyColumnsFromMeta(meta, costBlockId),
-                    { title: 'Period error', dataIndex: `IsPeriodError`, type: ColumnType.Checkbox },
-                    { title: 'Country group error', dataIndex: `IsRegionError`, type: ColumnType.Checkbox },
-                ];
-            }
-
-            return <QualityGateErrorProps> {
-                columns,
-                errors
-            };
-        },
-        (dispatch, { costBlockId, onSave, onCancel }) => ({
+    connect<QualityGateErrorProps, QualityGateToolbarActions, QualityGateErrorContainerProps, CommonState>(
+        ({ app: { appMetaData } }, { errors, costBlockId, costElementId }) => (<QualityGateErrorProps>{ 
+            errors,
+            costElement: getCostElementByAppMeta(appMetaData, costBlockId, costElementId)
+        }),
+        (dispatch, { onSave, onCancel }) => ({
             onSave: explanationMessage => onSave && onSave(explanationMessage),
             onCancel: () => onCancel && onCancel()
         })

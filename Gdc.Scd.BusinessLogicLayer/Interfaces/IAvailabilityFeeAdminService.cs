@@ -1,16 +1,12 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Entities;
-using Gdc.Scd.Core.Dto.AvailabilityFee;
+﻿using Gdc.Scd.BusinessLogicLayer.Dto.AvailabilityFee;
 using Gdc.Scd.Core.Entities;
-using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface IAvailabilityFeeAdminService
     {
-        List<AdminAvailabilityFeeDto> GetAllCombinations(int pageNumber, int limit, out int totalCount);
+        List<AdminAvailabilityFeeDto> GetAllCombinations(int pageNumber, int limit, out int totalCount, AdminAvailabilityFeeFilterDto filter = null);
 
         void ApplyAvailabilityFeeForSelectedCombination(AdminAvailabilityFee model);
 

@@ -6,10 +6,21 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
     public interface IQualityGateQueryBuilder
     {
-        SqlHelper BuildQualityGateQuery(HistoryContext historyContext, IEnumerable<EditItem> editItems, IDictionary<string, IEnumerable<object>> costBlockFilter);
+        SqlHelper BuildQualityGateQuery(
+            HistoryContext historyContext, 
+            IEnumerable<EditItem> editItems, 
+            IDictionary<string, IEnumerable<object>> costBlockFilter, 
+            bool useCountryGroupCheck);
 
-        SqlHelper BuildQualityGateQuery(CostBlockHistory history, IDictionary<string, IEnumerable<object>> costBlockFilter = null);
+        SqlHelper BuildQualityGateQuery(
+            CostBlockHistory history, 
+            bool useCountryGroupCheck, 
+            IDictionary<string, IEnumerable<object>> costBlockFilter = null);
 
-        SqlHelper BuildQulityGateApprovalQuery(CostBlockHistory history, long? historyValueId = null, IDictionary<string, IEnumerable<object>> costBlockFilter = null);
+        SqlHelper BuildQulityGateApprovalQuery(
+            CostBlockHistory history, 
+            bool useCountryGroupCheck, 
+            long? historyValueId = null, 
+            IDictionary<string, IEnumerable<object>> costBlockFilter = null);
     }
 }

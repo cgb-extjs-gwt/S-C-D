@@ -1,16 +1,10 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Entities;
+﻿using Gdc.Scd.BusinessLogicLayer.Dto.AvailabilityFee;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Text;
-using System.Threading.Tasks;
-using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Dto.AvailabilityFee;
-using Gdc.Scd.DataAccessLayer.Procedures;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -46,9 +40,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public List<AdminAvailabilityFeeDto> GetAllCombinations(int pageNumber, int limit, out int totalCount)
+        public List<AdminAvailabilityFeeDto> GetAllCombinations(int pageNumber, int limit, out int totalCount, AdminAvailabilityFeeFilterDto filter = null)
         {
-            return new AvailabilityFeeAdmin(_repositorySet).Execute(pageNumber, limit, out totalCount);
+            return new AvailabilityFeeAdmin(_repositorySet).Execute(pageNumber, limit, out totalCount, filter);
         }
 
         public void RemoveCombination(long id)

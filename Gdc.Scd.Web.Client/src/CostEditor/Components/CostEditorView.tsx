@@ -10,14 +10,12 @@ import {
     TabPanel
 } from '@extjs/ext-react';
 import { connect } from 'react-redux';
-import { CostEditorState, CostBlockMeta } from '../States/CostEditorStates';
-import { getCostEditorData } from '../Services/CostEditorServices';
+import { CostEditorState } from '../States/CostEditorStates';
 import { CostBlockState, EditItem, CheckItem, Filter } from '../States/CostBlockStates';
 import { 
     selectCostElement, 
     selectInputLevel, 
     getFilterItemsByInputLevelSelection, 
-    reloadFilterBySelectedRegion, 
     changeSelectionCostElementFilter, 
     changeSelectionInputLevelFilter, 
     resetCostElementFilter, 
@@ -37,30 +35,30 @@ Ext.require('Ext.MessageBox');
 export interface CostEditorActions {
     onInit?: () => void;
     onApplicationSelected?: (applicationId: string) => void;
-    onCostBlockSelected?: (costBlockId: string) => void;
-    onLoseChanges?: () => void
-    onCancelDataLose?: () => void
+    onCostBlockSelected?: (applicationId: string, costBlockId: string) => void;
     tabActions: {
-        onRegionSelected?: (regionId: string, costBlockId: string) => void
-        onCostElementSelected?: (costBlockId: string, costElementId: string) => void
-        onInputLevelSelected?: (costBlockId: string, costElementId: string, inputLevelId: string) => void
+        onRegionSelected?: (regionId: string, costBlockId: string, applicationId: string,) => void
+        onCostElementSelected?: (applicationId: string, costBlockId: string, costElementId: string) => void
+        onInputLevelSelected?: (applicationId: string, costBlockId: string, costElementId: string, inputLevelId: string) => void
         onCostElementFilterSelectionChanged?: (
+            applicationId: string,
             costBlockId: string,
             costElementId: string, 
             filterItemId: string,
             isSelected: boolean) => void
         onInputLevelFilterSelectionChanged?: (
+            applicationId: string,
             costBlockId: string,
             costElementId: string, 
             inputLevelId: string, 
             filterItemId: string,
             isSelected: boolean) => void
-        onCostElementFilterReseted?: (costBlockId: string, costElementId: string) => void
-        onInputLevelFilterReseted?: (costBlockId: string, costElementId: string, inputLevelId: string) => void
-        onEditItemsCleared?: (costBlockId: string) => void
-        onItemEdited?: (costBlockId: string, item: EditItem) => void
-        onEditItemsSaving?: (costBlockId: string, forApproval: boolean) => void
-        onApplyFilters?: (costBlockId: string) => void
+        onCostElementFilterReseted?: (applicationId: string, costBlockId: string, costElementId: string) => void
+        onInputLevelFilterReseted?: (applicationId: string, costBlockId: string, costElementId: string, inputLevelId: string) => void
+        onEditItemsCleared?: (applicationId: string, costBlockId: string) => void
+        onItemEdited?: (applicationId: string, costBlockId: string, item: EditItem) => void
+        onEditItemsSaving?: (applicationId: string, costBlockId: string, forApproval: boolean) => void
+        onApplyFilters?: (applicationId: string, costBlockId: string) => void
     }
 }
 
@@ -80,15 +78,6 @@ export class CostEditorView extends React.Component<CostEditorProps> {
     constructor(props: CostEditorProps){
         super(props);
         props.onInit && props.onInit();
-    }
-
-    public componentDidUpdate() {
-        const { isDataLossWarningDisplayed } = this.props;
-
-        if (isDataLossWarningDisplayed && !this.isShownDataLossWarning) {
-            this.showDataLossWarning();
-            this.isShownDataLossWarning = true;
-        }
     }
 
     public render() {
@@ -112,7 +101,7 @@ export class CostEditorView extends React.Component<CostEditorProps> {
                             costBlocks.list.findIndex(costBlock => costBlock.id === costBlocks.selectedItemId)
                         }
                         onActiveItemChange={
-                            (tabPanel, newValue, oldValue) => this.onActiveTabChange(tabPanel, newValue, oldValue)
+                            (tabPanel, newValue, oldValue) => this.onActiveTabChange(application.selectedItemId, tabPanel, newValue, oldValue)
                         }
                     >
                         {costBlocks.list.map(item => this.costBlockTab(item, costBlocks.selectedItemId))}
@@ -122,7 +111,7 @@ export class CostEditorView extends React.Component<CostEditorProps> {
         );
     }
 
-    private onActiveTabChange = (tabPanel, newValue, oldValue) => {
+    private onActiveTabChange = (applicationId: string, tabPanel, newValue, oldValue) => {
         const costBlocks = this.props.costBlocks.list;
 
         if (costBlocks && costBlocks.length > 0) {
@@ -134,7 +123,7 @@ export class CostEditorView extends React.Component<CostEditorProps> {
                     ? costBlocks[activeTabIndex].id 
                     : costBlocks[0].id;
 
-            onCostBlockSelected && onCostBlockSelected(selectedCostBlockId);
+            onCostBlockSelected && onCostBlockSelected(applicationId, selectedCostBlockId);
         }
     }
 
@@ -179,79 +168,63 @@ export class CostEditorView extends React.Component<CostEditorProps> {
             onEditItemsSaving,
             onApplyFilters
         } = this.props.tabActions;
+        
+        const applicationId = this.props.application.selectedItemId;
 
         return (
+           
             <Container key={costBlockTab.id} title={costBlockTab.name} layout="fit">
-                <CostBlockView 
-                    {...costBlockTab.costBlock} 
-                    onRegionSelected={
-                        regionId => 
-                            onRegionSelected && onRegionSelected(regionId, costBlockTab.id)
-                    } 
-                    onCostElementSelected={
-                        costElementId => 
-                            onCostElementSelected && onCostElementSelected(costBlockTab.id, costElementId)
-                    }
-                    onInputLevelSelected={
-                        (costElementId, inputLevelId) => 
-                            onInputLevelSelected && onInputLevelSelected(costBlockTab.id, costElementId, inputLevelId)
-                    }
-                    onCostElementFilterSelectionChanged={
-                        (costElementId, filterItemId, isSelected) =>
-                            onCostElementFilterSelectionChanged && 
-                            onCostElementFilterSelectionChanged(costBlockTab.id, costElementId, filterItemId, isSelected)
-                    }
-                    onInputLevelFilterSelectionChanged={
-                        (costElementId, inputLevelId, filterItemId, isSelected) =>
-                            onInputLevelFilterSelectionChanged && 
-                            onInputLevelFilterSelectionChanged(costElementId, costBlockTab.id, inputLevelId, filterItemId, isSelected)
-                    }
-                    onCostElementFilterReseted={
-                        costElementId => 
-                            onCostElementFilterReseted && 
-                            onCostElementFilterReseted(costBlockTab.id, costElementId)
-                    }
-                    onInputLevelFilterReseted={
-                        (costElementId, inputLevelId) =>
-                            onInputLevelFilterReseted && 
-                            onInputLevelFilterReseted(costBlockTab.id, costElementId, inputLevelId)
-                    }
-                    onEditItemsCleared={
-                        () => onEditItemsCleared && onEditItemsCleared(costBlockTab.id)
-                    }
-                    onItemEdited={
-                        item => onItemEdited && onItemEdited(costBlockTab.id, item)
-                    }
-                    onEditItemsSaving={
-                        forApproval => onEditItemsSaving && onEditItemsSaving(costBlockTab.id, forApproval)
-                    }
-                    onApplyFilters={
-                        () => onApplyFilters && onApplyFilters(costBlockTab.id)
-                    }
-                />
-            </Container>
-        );
-    }
-
-    private showDataLossWarning() {
-        const { onLoseChanges, onCancelDataLose } = this.props;
-        const me = this;
-
-        const messageBox = Ext.Msg.confirm(
-            'Warning', 
-            'You have unsaved changes. If you continue, you will lose changes. Continue?',
-            (buttonId: string) => {
-                switch(buttonId) {
-                    case 'yes':
-                        onLoseChanges && onLoseChanges();
-                        break;
-                    case 'no':
-                        onCancelDataLose && onCancelDataLose();
-                        break;
+                {
+                    costBlockTab.id == selectedCostBlockId &&
+                    <CostBlockView 
+                        {...costBlockTab.costBlock} 
+                        onRegionSelected={
+                            regionId => 
+                                onRegionSelected && onRegionSelected(regionId, costBlockTab.id, applicationId)
+                        } 
+                        onCostElementSelected={
+                            costElementId => 
+                                onCostElementSelected && onCostElementSelected(applicationId, costBlockTab.id, costElementId)
+                        }
+                        onInputLevelSelected={
+                            (costElementId, inputLevelId) => 
+                                onInputLevelSelected && onInputLevelSelected(applicationId, costBlockTab.id, costElementId, inputLevelId)
+                        }
+                        onCostElementFilterSelectionChanged={
+                            (costElementId, filterItemId, isSelected) =>
+                                onCostElementFilterSelectionChanged && 
+                                onCostElementFilterSelectionChanged(applicationId, costBlockTab.id, costElementId, filterItemId, isSelected)
+                        }
+                        onInputLevelFilterSelectionChanged={
+                            (costElementId, inputLevelId, filterItemId, isSelected) =>
+                                onInputLevelFilterSelectionChanged && 
+                                onInputLevelFilterSelectionChanged(applicationId, costElementId, costBlockTab.id, inputLevelId, filterItemId, isSelected)
+                        }
+                        onCostElementFilterReseted={
+                            costElementId => 
+                                onCostElementFilterReseted && 
+                                onCostElementFilterReseted(applicationId, costBlockTab.id, costElementId)
+                        }
+                        onInputLevelFilterReseted={
+                            (costElementId, inputLevelId) =>
+                                onInputLevelFilterReseted && 
+                                onInputLevelFilterReseted(applicationId, costBlockTab.id, costElementId, inputLevelId)
+                        }
+                        onEditItemsCleared={
+                            () => onEditItemsCleared && onEditItemsCleared(applicationId, costBlockTab.id)
+                        }
+                        onItemEdited={
+                            item => onItemEdited && onItemEdited(applicationId, costBlockTab.id, item)
+                        }
+                        onEditItemsSaving={
+                            forApproval => onEditItemsSaving && onEditItemsSaving(applicationId, costBlockTab.id, forApproval)
+                        }
+                        onApplyFilters={
+                            () => onApplyFilters && onApplyFilters(applicationId, costBlockTab.id)
+                        }
+                    />
                 }
-
-                me.isShownDataLossWarning = false
-            }
+            </Container>
         );
     }
 }

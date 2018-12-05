@@ -31,5 +31,7 @@ namespace Gdc.Scd.Core.Entities
         public bool HasQualityGateErrors { get; set; }
 
         public string QualityGateErrorExplanation { get; set; }
+
+        public EditorType EditorType { get; set; }
     }
 }

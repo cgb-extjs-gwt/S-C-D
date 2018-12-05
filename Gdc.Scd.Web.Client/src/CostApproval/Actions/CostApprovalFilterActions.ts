@@ -2,7 +2,7 @@ import { Action } from 'redux';
 import { asyncAction, AsyncAction } from "../../Common/Actions/AsyncAction";
 import * as service from "../Services/CostApprovalService";
 import { ItemSelectedAction } from "../../Common/Actions/CommonActions";
-import { openPage, pageInit, loadMetaData } from '../../Layout/Actions/AppActions';
+import { pageInit, loadAppData } from '../../Layout/Actions/AppActions';
 import { ElementWithParent } from '../../Common/States/CommonStates';
 
 export const COST_APPROVAL_SELECT_APPLICATION = "COST_APPROVAL_SELECT_APPLICATIONS";

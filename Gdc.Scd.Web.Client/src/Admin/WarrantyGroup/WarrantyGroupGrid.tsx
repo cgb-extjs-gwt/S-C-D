@@ -1,21 +1,11 @@
-﻿import * as React from 'react';
-import { FieldType } from "../../CostEditor/States/CostEditorStates";
-import { EditItem } from "../../CostEditor/States/CostBlockStates";
-import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, SelectionColumn, CheckBoxField } from '@extjs/ext-react';
-import { NamedId } from '../../Common/States/CommonStates';
-import { buildMvcUrl } from "../../Common/Services/Ajax";
-import { withRouter } from 'react-router';
-import { buildComponentUrl } from "../../Common/Services/Ajax";
+﻿import { Button, CheckBoxField, Column, ComboBoxField, Grid, Toolbar, TextField } from '@extjs/ext-react';
+import * as React from 'react';
+import { buildComponentUrl, buildMvcUrl } from "../../Common/Services/Ajax";
 
-const CONTROLLER_NAME = 'WarrantyGroup';
-const ROLECODE_CONTROLLER_NAME="RoleCode"
+const CONTROLLER_NAME = 'wg';
+const ROLECODE_CONTROLLER_NAME = "RoleCode";
 
-Ext.require([
-    'Ext.grid.plugin.Editable',
-    'Ext.grid.plugin.CellEditing',
-]);
-
-class WarrantyGroupGrid extends React.Component<any> {
+export class WarrantyGroupGrid extends React.Component<any> {
     state = {
         render: false,
         disableSaveButton: true,
@@ -24,28 +14,39 @@ class WarrantyGroupGrid extends React.Component<any> {
         selectedRecord: null
     };
 
-
-    store = Ext.create('Ext.data.Store', {
+    private store = Ext.create('Ext.data.Store', {
         fields: ['id', 'name',
             {
                 name: 'roleCodeId', type: 'int',
                 convert: function (val, row) {
                     if (!val)
-                        return '';                  
+                        return '';
                     return val;
                 }
             },
             {
                 name: 'roleCodeEmpty', type: 'bool',
                 convert: function (val, row) {
-                    if (row.data.roleCodeId==0)
+                    if (row.data.roleCodeId == 0)
                         return false;
                     return true;
+                }
+            },
+            {
+                name: 'responsiblePerson', type: 'string',
+                convert: function(val, row) {
+                    if (!val)
+                        return " ";
+                    return val;
                 }
             }],
 
         autoLoad: true,
         pageSize: 0,
+        sorters: [{
+            property: 'name',
+            direction: 'ASC'
+        }],
         proxy: {
             type: 'ajax',
             writer: {
@@ -71,11 +72,11 @@ class WarrantyGroupGrid extends React.Component<any> {
         }
     });
 
-    storeRoleCode = Ext.create('Ext.data.Store', {
-        fields: ['id','name'],
+    private storeRoleCode = Ext.create('Ext.data.Store', {
+        fields: ['id', 'name'],
         autoLoad: false,
         pageSize: 0,
-        sorters: [ {
+        sorters: [{
             property: 'Name',
             direction: 'ASC'
         }],
@@ -92,12 +93,12 @@ class WarrantyGroupGrid extends React.Component<any> {
             datachanged: (store) => {
                 this.setState({ render: true });
             }
-        }}
-    );
+        }
+    });
 
-    saveButtonHandler = (modifiedRecordsCount) => {
+    private saveButtonHandler(modifiedRecordsCount) {
         if (modifiedRecordsCount > 0) {
-            this.setState({ disableSaveButton: false, disableCancelButton:false });
+            this.setState({ disableSaveButton: false, disableCancelButton: false });
         }
         else {
             this.setState({ disableSaveButton: true, disableCancelButton: true });
@@ -135,7 +136,7 @@ class WarrantyGroupGrid extends React.Component<any> {
         this.store.load();
     }
 
-    selectRowHandler = (dataView, records, selected, selection) => {
+    private selectRowHandler(dataView, records, selected, selection) {
         if (records[0]) {
             this.setState({
                 selectedRecord: records[0],
@@ -147,28 +148,30 @@ class WarrantyGroupGrid extends React.Component<any> {
         }
     }
 
-    filterOnChange = (chkBox, newValue, oldValue) => {
+    private filterOnChange(chkBox, newValue, oldValue) {
         if (newValue)
-            this.store.filter('roleCodeEmpty', 'false');       
+            this.store.filter('roleCodeEmpty', 'false');
         else
             this.store.clearFilter();
     }
-
-    
 
     private getRoleCodeColumn() {
         let selectField;
         let renderer: (value, data: { data }) => string;
 
         selectField = (
-            <ComboBoxField              
+            <ComboBoxField
                 store={this.storeRoleCode}
                 valueField="id"
-                displayField="name"            
-                label="Select role code"
+                displayField="name"
+                placeholder="Select role code"
                 queryMode="local"
+                editable={false}
+                height="100%"
+                width="100%"
             />
         );
+
         renderer = (value, { data }) => {
             let result: string;
             if (this.state.render) {
@@ -177,7 +180,7 @@ class WarrantyGroupGrid extends React.Component<any> {
                     result = selectedItem.data.name;
                 } else
                     result = "";
-            }           
+            }
             return result;
         }
 
@@ -194,14 +197,14 @@ class WarrantyGroupGrid extends React.Component<any> {
         )
     }
 
-    render() {
+    public render() {
         if (!this.state.render) {
             this.storeRoleCode.load();
             return null;
         }
         return (
             <Grid
-                title={'Warranty groups'}
+                title="Warranty groups"
                 store={this.store}
                 cls="filter-grid"
                 columnLines={true}
@@ -218,8 +221,7 @@ class WarrantyGroupGrid extends React.Component<any> {
                             grideditable: true
                         }
                     }
-                }
-                }
+                }}
             >
                 <Column
                     text="WG"
@@ -228,6 +230,9 @@ class WarrantyGroupGrid extends React.Component<any> {
                 />
 
                 {this.getRoleCodeColumn()}
+                <Column text="Responsible Person" dataIndex="responsiblePerson" flex={1} label="Responsible Person" labelAlign="placeholder" editable >
+                    <TextField />
+                </Column>
                 <Toolbar docked="top">
                     <CheckBoxField boxLabel="Show only WGs with no Role code" onChange={(chkBox, newValue, oldValue) => this.filterOnChange(chkBox, newValue, oldValue)} />
                 </Toolbar>
@@ -257,5 +262,3 @@ class WarrantyGroupGrid extends React.Component<any> {
         )
     }
 }
-
-export default withRouter(WarrantyGroupGrid);

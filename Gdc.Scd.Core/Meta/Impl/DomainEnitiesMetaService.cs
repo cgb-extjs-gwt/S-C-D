@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
@@ -23,6 +26,13 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string FaceFieldNameKey = "FaceFieldName";
 
+        private readonly IRegisteredEntitiesProvider registeredEntitiesProvider;
+
+        public DomainEnitiesMetaService(IRegisteredEntitiesProvider registeredEntitiesProvider)
+        {
+            this.registeredEntitiesProvider = registeredEntitiesProvider;
+        }
+
         public DomainEnitiesMeta Get(DomainMeta domainMeta)
         {
             var costBlockHistory = new EntityMeta(MetaConstants.CostBlockHistoryTableName, MetaConstants.HistorySchema);
@@ -33,6 +43,9 @@ namespace Gdc.Scd.Core.Meta.Impl
                 CostBlockHistory = costBlockHistory
             };
 
+            var entities = this.registeredEntitiesProvider.GetRegisteredEntities();
+            var metaFactory = new CoordinateMetaFactory(entities);
+
             foreach (var costBlockMeta in domainMeta.CostBlocks)
             {
                 foreach (var applicationId in costBlockMeta.ApplicationIds)
@@ -41,7 +54,7 @@ namespace Gdc.Scd.Core.Meta.Impl
 
                     foreach (var inputLevelMeta in costBlockMeta.InputLevels)
                     {
-                        this.BuildInputLevels(inputLevelMeta, costBlockEntity, domainEnitiesMeta);
+                        this.BuildInputLevels(inputLevelMeta, costBlockEntity, domainEnitiesMeta, metaFactory);
                     }
 
                     foreach (var costElementMeta in costBlockMeta.CostElements)
@@ -50,12 +63,12 @@ namespace Gdc.Scd.Core.Meta.Impl
 
                         if (costElementMeta.Dependency != null && costBlockEntity.DependencyFields[costElementMeta.Dependency.Id] == null)
                         {
-                            this.BuildDependencies(costElementMeta, costBlockEntity, domainEnitiesMeta);
+                            this.BuildDependencies(costElementMeta, costBlockEntity, domainEnitiesMeta, metaFactory);
                         }
 
                         if (costElementMeta.RegionInput != null && costBlockEntity.InputLevelFields[costElementMeta.RegionInput.Id] == null)
                         {
-                            this.BuildInputLevels(costElementMeta.RegionInput, costBlockEntity, domainEnitiesMeta);
+                            this.BuildInputLevels(costElementMeta.RegionInput, costBlockEntity, domainEnitiesMeta, metaFactory);
                         }
                     }
 
@@ -68,18 +81,17 @@ namespace Gdc.Scd.Core.Meta.Impl
             return domainEnitiesMeta;
         }
 
-        private void BuildDependencies(CostElementMeta costElementMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta)
+        private void BuildDependencies(CostElementMeta costElementMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta, CoordinateMetaFactory metaFactory)
         {
             if (costElementMeta.Dependency != null && costBlockEntity.DependencyFields[costElementMeta.Dependency.Id] == null)
             {
-                var dependencyNameField = new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String);
-                var dependencyEntity = new NamedEntityMeta(costElementMeta.Dependency.Id, dependencyNameField, MetaConstants.DependencySchema)
-                {
-                    StoreType = costElementMeta.Dependency.StoreType
-                };
+                var dependencyFullName = BaseEntityMeta.BuildFullName(costElementMeta.Dependency.Id, MetaConstants.DependencySchema);
+                var dependencyEntity = metaFactory.GetMeta(costElementMeta.Dependency.Id, MetaConstants.DependencySchema);
 
-                if (domainEnitiesMeta.Dependencies[dependencyEntity.FullName] == null)
+                if (!domainEnitiesMeta.Dependencies.Contains(dependencyEntity))
                 {
+                    dependencyEntity.StoreType = costElementMeta.Dependency.StoreType;
+
                     domainEnitiesMeta.Dependencies.Add(dependencyEntity);
                 }
 
@@ -88,16 +100,15 @@ namespace Gdc.Scd.Core.Meta.Impl
             }
         }
 
-        private void BuildInputLevels(InputLevelMeta inputLevelMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta)
+        private void BuildInputLevels(InputLevelMeta inputLevelMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta, CoordinateMetaFactory metaFactory)
         {
-            var inputLevelNameField = new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String);
-            var inputLevelEntity = new NamedEntityMeta(inputLevelMeta.Id, inputLevelNameField, MetaConstants.InputLevelSchema)
-            {
-                StoreType = inputLevelMeta.StoreType
-            };
+            var inputLevelFullName = BaseEntityMeta.BuildFullName(inputLevelMeta.Id, MetaConstants.InputLevelSchema);
+            var inputLevelEntity = metaFactory.GetMeta(inputLevelMeta.Id, MetaConstants.InputLevelSchema);
 
-            if (domainEnitiesMeta.InputLevels[inputLevelEntity.FullName] == null)
+            if (!domainEnitiesMeta.InputLevels.Contains(inputLevelEntity))
             {
+                inputLevelEntity.StoreType = inputLevelMeta.StoreType;
+
                 domainEnitiesMeta.InputLevels.Add(inputLevelEntity);
             }
 
@@ -180,7 +191,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                 referenceField.IsNullOption = true;
             }
 
-            foreach (var field in costBlock.InputLevelFields.Concat(costBlock.DependencyFields))
+            foreach (var field in costBlock.CoordinateFields)
             {
                 var relatedItemHistoryMeta = (RelatedItemsHistoryEntityMeta)domainEnitiesMeta.GetEntityMeta(field.Name, MetaConstants.HistoryRelatedItemsSchema);
                 if (relatedItemHistoryMeta == null)
@@ -209,6 +220,73 @@ namespace Gdc.Scd.Core.Meta.Impl
             var fields = fromCollection.Select(field => field.Clone()).Cast<T>();
 
             toCollection.AddRange(fields);
+        }
+
+        private class CoordinateMetaFactory
+        {
+            private readonly IDictionary<string, NamedEntityMeta> coordinateMetas;
+
+            public CoordinateMetaFactory(IEnumerable<Type> entities)
+            {
+                this.coordinateMetas = this.BuildCoordinateMetas(entities);
+            }
+
+            public NamedEntityMeta GetMeta(string name, string schema)
+            {
+                var fullName = BaseEntityMeta.BuildFullName(name, schema);
+
+                if (!this.coordinateMetas.TryGetValue(fullName, out var meta))
+                {
+                    meta = new NamedEntityMeta(name, schema);
+
+                    this.coordinateMetas.Add(fullName, meta);
+                }
+
+                return meta;
+            }
+
+            private IDictionary<string, NamedEntityMeta> BuildCoordinateMetas(IEnumerable<Type> entities)
+            {
+                var plaMeta = new NamedEntityMeta(MetaConstants.PlaInputLevelName, MetaConstants.InputLevelSchema);
+                var sfabMeta = new SFabEntityMeta(plaMeta);
+                var sogMeta = new BaseWgSogEntityMeta(MetaConstants.SogInputLevel, MetaConstants.InputLevelSchema, plaMeta, sfabMeta);
+                var swDigitMeta = new SwDigitEnityMeta(sogMeta);
+                var clusterRegionMeta = new NamedEntityMeta(MetaConstants.ClusterRegionInputLevel, MetaConstants.InputLevelSchema);
+                var countryMeta = new CountryEntityMeta(clusterRegionMeta);
+                var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta);
+
+                var customMetas = new[]
+                {
+                    swDigitMeta,
+                    sogMeta,
+                    sfabMeta,
+                    plaMeta,
+                    wgMeta,
+                    clusterRegionMeta,
+                    countryMeta
+                };
+
+                var result = customMetas.ToDictionary(meta => BaseEntityMeta.BuildFullName(meta.Name, meta.Schema));
+
+                var deactivatableType = typeof(IDeactivatable);
+
+                foreach (var entityType in entities.Where(type => deactivatableType.IsAssignableFrom(type)))
+                {
+                    var tableAttribute =
+                        entityType.GetCustomAttributes(true)
+                                  .Select(attr => attr as TableAttribute)
+                                  .First(attr => attr != null);
+
+                    var fullName = BaseEntityMeta.BuildFullName(tableAttribute.Name, tableAttribute.Schema);
+
+                    if (!result.ContainsKey(fullName))
+                    {
+                        result[fullName] = new DeactivatableEntityMeta(tableAttribute.Name, tableAttribute.Schema);
+                    }
+                }
+
+                return result;
+            }
         }
     }
 }

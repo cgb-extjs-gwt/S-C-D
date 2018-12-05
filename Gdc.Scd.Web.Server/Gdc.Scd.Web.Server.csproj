@@ -38,8 +38,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -51,7 +51,6 @@
       <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.8\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.EntityFrameworkCore, Version=2.0.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60" />
     <Reference Include="Microsoft.Extensions.Caching.Abstractions, Version=2.1.2.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Caching.Abstractions.2.1.2\lib\netstandard2.0\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
     </Reference>
@@ -108,7 +107,9 @@
       <HintPath>..\packages\System.ComponentModel.Annotations.4.5.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
+    <Reference Include="System.DirectoryServices.Protocols" />
     <Reference Include="System.Memory, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.1\lib\netstandard2.0\System.Memory.dll</HintPath>
     </Reference>
@@ -116,6 +117,7 @@
     <Reference Include="System.Numerics.Vectors, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.1\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
@@ -123,12 +125,9 @@
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Abstractions" />
     <Reference Include="System.Web.Routing" />
-    <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -217,38 +216,55 @@
     <Compile Include="App_Start\Ninject.Web.Common.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\AvailabilityFeeAdminController.cs" />
+    <Compile Include="Controllers\Admin\AvailabilityFeeAdminController.cs" />
+    <Compile Include="Controllers\Admin\UserController.cs" />
+    <Compile Include="Controllers\ApprovalController.cs" />
     <Compile Include="Controllers\BaseDomainController.cs" />
+    <Compile Include="Controllers\CalcController.cs" />
     <Compile Include="Controllers\CapabilityMatrixController.cs" />
-    <Compile Include="Controllers\CostBlockHistoryController.cs" />
     <Compile Include="Controllers\CostEditorController.cs" />
-    <Compile Include="Controllers\CountryManagementController.cs" />
+    <Compile Include="Controllers\Admin\CountryManagementController.cs" />
     <Compile Include="Controllers\Dict\AvailabilityController.cs" />
     <Compile Include="Controllers\Dict\CountryController.cs" />
+    <Compile Include="Controllers\Dict\CountryGroupController.cs" />
     <Compile Include="Controllers\Dict\DurationController.cs" />
+    <Compile Include="Controllers\Dict\PlaController.cs" />
     <Compile Include="Controllers\Dict\ReactionTimeController.cs" />
     <Compile Include="Controllers\Dict\ReactionTypeController.cs" />
+    <Compile Include="Controllers\Dict\RegionController.cs" />
     <Compile Include="Controllers\Dict\ServiceLocationController.cs" />
+    <Compile Include="Controllers\Dict\SogController.cs" />
     <Compile Include="Controllers\Dict\WgController.cs" />
+    <Compile Include="Controllers\Dict\YearController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\RoleCodeController.cs" />
-    <Compile Include="Controllers\RoleController.cs" />
-    <Compile Include="Controllers\UserController.cs" />
-    <Compile Include="Controllers\UserRoleController.cs" />
-    <Compile Include="Controllers\WarrantyGroupController.cs" />
+    <Compile Include="Controllers\AppController.cs" />
+    <Compile Include="Controllers\NotifyController.cs" />
+    <Compile Include="Controllers\ReadonlyDomainController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
+    <Compile Include="Controllers\Admin\RoleCodeController.cs" />
+    <Compile Include="Controllers\Admin\RoleController.cs" />
+    <Compile Include="Controllers\Admin\UserRoleController.cs" />
+    <Compile Include="Controllers\TableViewController.cs" />
     <Compile Include="DI\ScdNinjectDependencyResolver.cs" />
     <Compile Include="DI\ScdNinjectDependencyScope.cs" />
-    <Compile Include="Entities\DataInfo.cs" />
     <Compile Include="Entities\FilterInfo.cs" />
     <Compile Include="Entities\QualityGateResultDto.cs" />
     <Compile Include="Entities\UpdateValuesParam.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Heplers\ApiControllerHelper.cs" />
+    <Compile Include="Heplers\AppCache.cs" />
+    <Compile Include="Heplers\HttpHelper.cs" />
+    <Compile Include="Heplers\JsonHelper.cs" />
+    <Compile Include="Heplers\MimeTypes.cs" />
+    <Compile Include="Heplers\QueryInfoHelper.cs" />
+    <Compile Include="Impl\PrincipalProvider.cs" />
+    <Compile Include="Impl\ScdAuthorizeAttribute.cs" />
+    <Compile Include="Module.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DomainConfig.xml" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="ApplicationInsights.config">
@@ -262,15 +278,12 @@
     </Content>
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Views\Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Areas\" />
-    <Folder Include="Content\" />
-    <Folder Include="Models\" />
-    <Folder Include="Scripts\" />
     <Folder Include="Views\Shared\" />
     <Folder Include="Views\Test\" />
   </ItemGroup>

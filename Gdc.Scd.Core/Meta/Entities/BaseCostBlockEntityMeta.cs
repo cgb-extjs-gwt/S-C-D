@@ -22,7 +22,7 @@ namespace Gdc.Scd.Core.Meta.Entities
             {
                 yield return this.IdField;
 
-                var fields = this.InputLevelFields.Concat(this.DependencyFields).Concat(this.CostElementsFields);
+                var fields = this.CoordinateFields.Concat(this.CostElementsFields);
 
                 foreach (var field in fields)
                 {
@@ -31,13 +31,18 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
         }
 
-        string ICostBlockIdentifier.ApplicationId => this.Schema;
+        public string ApplicationId => this.Schema;
 
-        string ICostBlockIdentifier.CostBlockId => this.Name;
+        public string CostBlockId => this.Name;
 
         public BaseCostBlockEntityMeta(string name, string shema = null)
             : base(name, shema)
         {
+        }
+
+        public bool ContainsCoordinateField(string fieldName)
+        {
+            return this.InputLevelFields[fieldName] != null || this.DependencyFields[fieldName] != null;
         }
     }
 }

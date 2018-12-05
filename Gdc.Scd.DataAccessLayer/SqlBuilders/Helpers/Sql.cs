@@ -11,7 +11,27 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
     public static class Sql
     {
+        public static SqlHelper DropTable(string tableName, string schema = null, string database = null)
+        {
+            return new SqlHelper(new DropTableSqlBuilder
+            {
+                Name = tableName,
+                Schema = schema,
+                DataBase = database
+            });
+        }
+
         public static SqlHelper With(ISqlBuilder query, params WithQuery[] withQueries)
+        {
+            return With(withQueries, query);
+        }
+
+        public static SqlHelper With(SqlHelper query, params WithQuery[] withQueries)
+        {
+            return With(query.ToSqlBuilder(), withQueries);
+        }
+
+        public static SqlHelper With(IEnumerable<WithQuery> withQueries, ISqlBuilder query)
         {
             return new SqlHelper(new WithSqlBuilder
             {
@@ -20,9 +40,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             });
         }
 
-        public static SqlHelper With(SqlHelper query, params WithQuery[] withQueries)
+        public static SqlHelper With(IEnumerable<WithQuery> withQueries, SqlHelper query)
         {
-            return With(query.ToSqlBuilder(), withQueries);
+            return With(withQueries, query.ToSqlBuilder());
         }
 
         public static SqlHelper Union(IEnumerable<ISqlBuilder> queries, bool all = false)
@@ -49,6 +69,20 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return new SqlHelper(query);
         }
 
+        public static SqlHelper Except(ISqlBuilder left, ISqlBuilder right)
+        {
+            return new SqlHelper(new ExceptSqlBuilder
+            {
+                Left = left,
+                Right = right
+            });
+        }
+
+        public static SqlHelper Except(SqlHelper left, SqlHelper right)
+        {
+            return Except(left.ToSqlBuilder(), right.ToSqlBuilder());
+        }
+
         public static SqlHelper Queries(IEnumerable<ISqlBuilder> queries)
         {
             return new SqlHelper(new SeveralQuerySqlBuilder { Queries = queries });
@@ -62,28 +96,52 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             });
         }
 
-        public static SelectSqlHelper Select(params BaseColumnInfo[] columns)
+        public static SelectIntoSqlHelper Select()
+        {
+            return Select(new BaseColumnInfo[0]);
+        }
+
+        public static SelectIntoSqlHelper Select(params BaseColumnInfo[] columns)
         {
             return Select(false, columns);
         }
 
-        public static SelectSqlHelper Select(params string[] columnNames)
+        public static SelectIntoSqlHelper Select(params string[] columnNames)
         {
             var columns = GetColumnInfos(columnNames).ToArray();
 
             return Select(false, columns);
         }
 
-        public static SelectSqlHelper SelectDistinct(params string[] columnNames)
+        public static SelectIntoSqlHelper Select(IEnumerable<FieldMeta> fields)
+        {
+            var fieldNames = fields.Select(field => field.Name).ToArray();
+
+            return Select(fieldNames);
+        }
+
+        public static SelectIntoSqlHelper SelectDistinct()
+        {
+            return SelectDistinct(new BaseColumnInfo[0]);
+        }
+
+        public static SelectIntoSqlHelper SelectDistinct(params string[] columnNames)
         {
             var columns = GetColumnInfos(columnNames).ToArray();
 
             return Select(true, columns);
         }
 
-        public static SelectSqlHelper SelectDistinct(params BaseColumnInfo[] columns)
+        public static SelectIntoSqlHelper SelectDistinct(params BaseColumnInfo[] columns)
         {
             return Select(true, columns);
+        }
+
+        public static SelectIntoSqlHelper SelectDistinct(IEnumerable<FieldMeta> fields)
+        {
+            var fieldNames = fields.Select(field => field.Name).ToArray();
+
+            return SelectDistinct(fieldNames);
         }
 
         public static UpdateSqlHelper Update(string dataBase, string schema, string table, params BaseUpdateColumnInfo[] columns)
@@ -179,15 +237,15 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return Delete(null, null, table);
         }
 
-        private static SelectSqlHelper Select(bool isDistinct, params BaseColumnInfo[] columns)
+        private static SelectIntoSqlHelper Select(bool isDistinct, params BaseColumnInfo[] columns)
         {
             var selectBuilder = new SelectSqlBuilder
             {
                 IsDistinct = isDistinct,
-                Columns = columns.Select(GetColumnSqlBuilder)
+                Columns = columns.Select(GetColumnSqlBuilder),
             };
 
-            return new SelectSqlHelper(selectBuilder);
+            return new SelectIntoSqlHelper(selectBuilder);
         }
 
         private static ISqlBuilder GetColumnSqlBuilder(BaseColumnInfo baseColumnInfo)
@@ -241,6 +299,21 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         private static IEnumerable<ColumnInfo> GetColumnInfos(IEnumerable<string> columnNames)
         {
             return columnNames.Select(name => new ColumnInfo { Name = name });
+        }
+
+        public static SqlHelper AddDefault(string tableName, string columnName, string defaultValue, string schema = null, string database = null)
+        {
+            return new SqlHelper(new AlterTableSqlBuilder
+            {
+                Name = tableName,
+                Schema = schema,
+                DataBase = database,
+                Query= new AddDefaultSqlBuilder
+                {
+                    ColumnName= columnName,
+                    DefaultValue=defaultValue
+                }
+            });
         }
     }
 }

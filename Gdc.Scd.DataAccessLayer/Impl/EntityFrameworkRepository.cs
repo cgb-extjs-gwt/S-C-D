@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.DataAccessLayer.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -27,9 +26,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return this.repositorySet.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public Task<IEnumerable<T>> GetAllAsync()
         {
-            return await this.repositorySet.Set<T>().ToArrayAsync();
+            return this.repositorySet.Set<T>()
+                                     .ToArrayAsync()
+                                     .ContinueWith(x => (IEnumerable<T>)x.Result);
         }
 
         public virtual void Save(T item)
@@ -87,9 +88,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             if (item != null)
             {
-                var entry = this.repositorySet.Entry(item);
-
-                entry.State = EntityState.Deleted;
+                if (!this.IsNewItem(item))
+                {
+                    var entry = this.repositorySet.Entry(item);
+                    entry.State = EntityState.Deleted;
+                }                  
             }
         }
 
@@ -102,19 +105,36 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             if (item != null)
             {
-                var set = this.repositorySet.Set<TItem>();
+                var entry = this.repositorySet.Entry(item);
 
-                if (this.IsNewItem(item))
+                if (entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
                 {
-                    set.Add(item);
-                }
-                else
-                {
-                    set.Update(item);
+                    var set = this.repositorySet.Set<TItem>();
+
+                    if (this.IsNewItem(item))
+                    {
+                        set.Add(item);
+                    }
+                    else
+                    {
+                        set.Update(item);
+                    }
                 }
             }
+        }
 
-            
+        public virtual void DeleteAll()
+        {
+            var tableName = GetTableName();
+            this.repositorySet.ExecuteSql($"TRUNCATE TABLE {tableName}");
+        }
+
+        private string GetTableName()
+        {
+            var mapping = this.repositorySet.Model.FindEntityType(typeof(T)).Relational();
+            var schema = mapping.Schema;
+            var tableName = mapping.TableName;
+            return $"[{schema}].[{tableName}]";
         }
     }
 }

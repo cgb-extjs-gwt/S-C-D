@@ -11,6 +11,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.3" />
     <PackageReference Include="NETStandard.Library" Version="2.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="6.0.4" />
     <PackageReference Include="Ninject" Version="3.3.4" />
     <PackageReference Include="Ninject.Web.Common" Version="3.3.1" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
@@ -25,9 +26,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="DataBaseScripts\Calculation\calculation.sql">
+    <None Update="DataBaseScripts\Calculation\calculation-hw.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DataBaseScripts\AvailabilityFee\" />
   </ItemGroup>
 
 </Project>

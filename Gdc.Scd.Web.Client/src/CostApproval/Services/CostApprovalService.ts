@@ -7,7 +7,7 @@ import { BundleFilter } from "../States/BundleFilter";
 import { ApprovalBundleState } from "../States/ApprovalBundleState";
 import { QualityGateResult } from "../../QualityGate/States/QualityGateResult";
 
-export const CONTROLLER_NAME = 'CostBlockHistory';
+export const CONTROLLER_NAME = 'Approval';
 
 export const approve = (historyId: number) => post(CONTROLLER_NAME, 'Approve', null, { historyId });
 

@@ -3,12 +3,8 @@ using System.Linq;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
-    public class CostBlockMeta : BaseDomainMeta
+    public class CostBlockMeta : BaseCostBlockMeta<CostElementMeta>
     {
-        public IEnumerable<string> ApplicationIds { get; set; }
-
-        public MetaCollection<CostElementMeta> CostElements { get; set; }
-
         public IEnumerable<InputLevelMeta> InputLevels
         {
             get
@@ -17,21 +13,6 @@ namespace Gdc.Scd.Core.Meta.Entities
                     this.CostElements.SelectMany(costElement => costElement.InputLevels)
                                      .Distinct()
                                      .OrderBy(inputLevel => inputLevel.LevelNumber);
-            }
-        }
-
-        public QualityGate QualityGate { get; set; }
-
-        public IEnumerable<InputLevelMeta> FilterInputLevels(string maxInputLevelId)
-        {
-            foreach (var inputLevel in this.InputLevels)
-            {
-                yield return inputLevel;
-
-                if (inputLevel.Id == maxInputLevelId)
-                {
-                    break;
-                }
             }
         }
     }

@@ -1,9 +1,9 @@
 import * as React from "react";
-import { Grid, SelectField, Column, Container, CheckBoxField, CheckColumn } from "@extjs/ext-react";
-import { FieldType } from "../States/CostEditorStates";
+import { Grid, SelectField, Column, Container, CheckBoxField, CheckColumn, NumberField } from "@extjs/ext-react";
 import { EditItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { large, small } from "../../responsiveFormulas";
+import { FieldType } from "../../Common/States/CostMetaStates";
 
 export interface ValueColumnProps {
     title: string
@@ -24,7 +24,15 @@ export interface EditGridProps extends EditGridActions {
 
 export class EditGrid extends React.Component<EditGridProps> {
     private itemsMap = new Map<string, EditItem>();
-        
+
+    constructor(props: EditGridProps) {
+        super(props);
+
+        if (this.props.items) {
+            this.updateItemsMap(this.props.items) ;
+        }
+    }
+
     public shouldComponentUpdate(nextProps: EditGridProps) {
         let result = false;
 
@@ -37,6 +45,7 @@ export class EditGrid extends React.Component<EditGridProps> {
                 const mapItem = this.itemsMap.get(item.id);
 
                 return (
+                    mapItem &&
                     mapItem.name == item.name && 
                     mapItem.value == item.value && 
                     mapItem.valueCount == item.valueCount
@@ -45,11 +54,7 @@ export class EditGrid extends React.Component<EditGridProps> {
         }
 
         if (result && nextProps.items) {
-            this.itemsMap.clear();
-            
-            for (const item of nextProps.items) {
-                this.itemsMap.set(item.id, { ...item });
-            }
+            this.updateItemsMap(nextProps.items);
         }
 
         return result;
@@ -146,7 +151,9 @@ export class EditGrid extends React.Component<EditGridProps> {
 
             case FieldType.Double:
                 column = (
-                    <Column {...columnOptions}/>
+                    <Column {...columnOptions}>
+                        <NumberField required validators={{type:"number", message:"Invalid value"}}/>
+                    </Column>
                 );
                 break;
 
@@ -190,6 +197,14 @@ export class EditGrid extends React.Component<EditGridProps> {
             const editItems = records ? records.map(record => record.data) : [];
 
             onSelected(editItems);
+        }
+    }
+
+    private updateItemsMap(items: EditItem[]) {
+        this.itemsMap.clear();
+            
+        for (const item of items) {
+            this.itemsMap.set(item.id, { ...item });
         }
     }
 } 

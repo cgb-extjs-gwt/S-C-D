@@ -19,15 +19,43 @@
         public const string AdminSchema = "Admin";
 
         public const string CountryInputLevelName = "Country";
+
+        public const string RegionLevel = "Region";
         
         public const string DefaultSchema = "dbo";
 
+        public const string PlaInputLevelName = "Pla";
+
         public const string WgInputLevelName = "Wg";
-        
-        public const string CalculationTable = "ServiceCostCalculation";
+
+        public const string ManualCostTable = "ManualCost";
 
         public const string HardwareSchema = "Hardware";
 
+        public const string FspCodeTranslationSchema = "Fsp";
+
         public const string ReferencesSchema = "References";
+
+        public const string PorSchema = "Por";
+
+        public const string SoftwareSolutionSchema = "SoftwareSolution";
+
+        public const string ImportSchema = "Import";
+
+        public const string ReportSchema = "Report";
+
+        public const string MatrixSchema = "Matrix";
+
+        public const string ClusterRegionInputLevel = "ClusterRegion";
+        
+        public const string SpoolerSchema = "Spooler";
+
+        public const string SfabInputLevel = "Sfab";
+
+        public const string SogInputLevel = "Sog";
+
+        public const string AvailabilityFeeCostBlock = "AvailabilityFee";
+
+        public const string SwDigitInputLevel = "SwDigit";
     }
 }

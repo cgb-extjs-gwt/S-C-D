@@ -1,4 +1,5 @@
 import { NamedId, SelectList } from "../../Common/States/CommonStates";
+import { BundleDetailGroup } from "../../QualityGate/States/QualityGateResult";
 
 
 export interface EditItem extends NamedId {
@@ -16,21 +17,15 @@ export interface Filter {
 
 export interface CostElementState extends Filter {
     costElementId: string
-    inputLevel: SelectList<InputLevelState>
+    inputLevels: SelectList<InputLevelState>
     region: SelectList<NamedId>
-    dataLoadingState: DataLoadingState
+    isDataLoaded: boolean
     referenceValues: NamedId<number>[]
-}
-
-export enum DataLoadingState {
-    None,
-    WithoutLoading,
-    Wait,
-    Loaded
 }
 
 export interface InputLevelState extends Filter {
     inputLevelId: string
+    isFilterLoaded: boolean
 }
 
 export interface CostElementData {
@@ -46,12 +41,11 @@ export interface CostBlockEditState {
         inputLevelItemIds: Set<string>
         costElementsItemIds: Set<string>
     }
-    saveErrors: { [key: string]: any }[]
+    saveErrors: BundleDetailGroup[]
 }
 
 export interface CostBlockState {
     costBlockId: string
-    costElement: SelectList<CostElementState>
-    visibleCostElementIds: string[]
+    costElements: SelectList<CostElementState>
     edit: CostBlockEditState
 }

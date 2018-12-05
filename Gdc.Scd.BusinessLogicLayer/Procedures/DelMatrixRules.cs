@@ -7,7 +7,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 {
     public class DelMatrixRules
     {
-        const string PROC_NAME = "DelMatrixRules";
+        const string PROC_NAME = "Matrix.DelRules";
 
         private readonly IRepositorySet repositorySet;
 
@@ -28,7 +28,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
         private DbParameter Prepare(long[] items)
         {
-            return new SqlParameterBuilder().WithName("@rules").WithListIdValue(items).Build();
+            return new DbParameterBuilder().WithName("@rules").WithListIdValue(items).Build();
         }
     }
 }

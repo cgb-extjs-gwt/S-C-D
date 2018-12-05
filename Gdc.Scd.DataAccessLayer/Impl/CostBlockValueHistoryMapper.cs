@@ -14,30 +14,50 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly string[] inputLevelIds;
 
+        private readonly ReferenceFieldMeta dependencyField;
+
         public bool UseHistoryValueId { get; set; }
 
-        public bool UseQualityGate { get; set; }
+        public bool UsePeriodQualityGate { get; set; }
 
-        public CostBlockValueHistoryMapper(CostBlockEntityMeta costBlockMeta, string maxInputLevelId = null)
+        public bool UsetCountryGroupQualityGate { get; set; }
+
+        public CostBlockValueHistoryMapper(CostBlockEntityMeta costBlockMeta, string costElementId, string maxInputLevelId = null)
         {
             this.costBlockMeta = costBlockMeta;
-            this.inputLevelIds = 
-                costBlockMeta.DomainMeta.FilterInputLevels(maxInputLevelId)
-                                        .Select(inputLevel => inputLevel.Id)
-                                        .ToArray();
+
+            var costElement = costBlockMeta.DomainMeta.CostElements[costElementId];
+
+            var inputLevels = maxInputLevelId == null
+                ? costElement.InputLevels
+                : costElement.FilterInputLevels(maxInputLevelId);
+
+            this.inputLevelIds = inputLevels.Select(inputLevel => inputLevel.Id).ToArray();
 
             this.lastInputLevel = this.inputLevelIds.Last();
+
+            this.dependencyField = this.costBlockMeta.GetDomainDependencyField(costElementId);
         }
 
-        public CostBlockValueHistory Map(IDataReader reader)
+        public BundleDetail Map(IDataReader reader)
         {
             var index = 0;
-            var item = new CostBlockValueHistory
+            var item = new BundleDetail
             {
-                Value = reader.GetValue(index++),
+                NewValue = reader.GetValue(index++),
                 InputLevels = new Dictionary<string, NamedId>(),
                 Dependencies = new Dictionary<string, NamedId>()
             };
+
+            if (this.UsePeriodQualityGate)
+            {
+                item.OldValue = this.GetDouble(reader, index++);
+            }
+
+            if (this.UsetCountryGroupQualityGate)
+            {
+                item.CountryGroupAvgValue = this.GetDouble(reader, index++);
+            }
 
             if (this.UseHistoryValueId)
             {
@@ -55,7 +75,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             item.LastInputLevel = item.InputLevels[this.lastInputLevel];
 
-            foreach (var dependencyField in this.costBlockMeta.DependencyFields)
+            if (this.dependencyField != null)
             {
                 item.Dependencies.Add(dependencyField.Name, new NamedId
                 {
@@ -64,13 +84,22 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 });
             }
 
-            if (this.UseQualityGate)
+            if (this.UsePeriodQualityGate)
             {
                 item.IsPeriodError = reader.GetInt32(index++) == 0;
+            }
+
+            if (this.UsetCountryGroupQualityGate)
+            {
                 item.IsRegionError = reader.GetInt32(index++) == 0;
             }
 
             return item;
+        }
+
+        private double? GetDouble(IDataReader reader, int index)
+        {
+            return reader.IsDBNull(index) ? default(double?) : reader.GetDouble(index);
         }
     }
 }

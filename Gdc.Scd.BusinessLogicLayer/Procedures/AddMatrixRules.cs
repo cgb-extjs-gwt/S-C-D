@@ -8,7 +8,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 {
     public class AddMatrixRules
     {
-        const string PROC_NAME = "AddMatrixRules";
+        const string PROC_NAME = "Matrix.AddRules";
 
         private readonly IRepositorySet repositorySet;
 
@@ -30,16 +30,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         private DbParameter[] Prepare(CapabilityMatrixRuleSetDto dto)
         {
             return new DbParameter[] {
-                new SqlParameterBuilder().WithName("@cnt").WithValue(dto.CountryId).Build(),
-                new SqlParameterBuilder().WithName("@wg").WithListIdValue(dto.Wgs).Build(),
-                new SqlParameterBuilder().WithName("@av").WithListIdValue(dto.Availabilities).Build(),
-                new SqlParameterBuilder().WithName("@dur").WithListIdValue(dto.Durations).Build(),
-                new SqlParameterBuilder().WithName("@rtype").WithListIdValue(dto.ReactionTypes).Build(),
-                new SqlParameterBuilder().WithName("@rtime").WithListIdValue(dto.ReactionTimes).Build(),
-                new SqlParameterBuilder().WithName("@loc").WithListIdValue(dto.ServiceLocations).Build(),
-                new SqlParameterBuilder().WithName("@globalPortfolio").WithValue(dto.IsGlobalPortfolio).Build(),
-                new SqlParameterBuilder().WithName("@masterPortfolio").WithValue(dto.IsMasterPortfolio).Build(),
-                new SqlParameterBuilder().WithName("@corePortfolio").WithValue(dto.IsCorePortfolio).Build()
+                new DbParameterBuilder().WithName("@cnt").WithValue(dto.CountryId).Build(),
+                new DbParameterBuilder().WithName("@wg").WithListIdValue(dto.Wgs).Build(),
+                new DbParameterBuilder().WithName("@av").WithListIdValue(dto.Availabilities).Build(),
+                new DbParameterBuilder().WithName("@dur").WithListIdValue(dto.Durations).Build(),
+                new DbParameterBuilder().WithName("@rtype").WithListIdValue(dto.ReactionTypes).Build(),
+                new DbParameterBuilder().WithName("@rtime").WithListIdValue(dto.ReactionTimes).Build(),
+                new DbParameterBuilder().WithName("@loc").WithListIdValue(dto.ServiceLocations).Build(),
+                new DbParameterBuilder().WithName("@globalPortfolio").WithValue(dto.IsGlobalPortfolio).Build(),
+                new DbParameterBuilder().WithName("@masterPortfolio").WithValue(dto.IsMasterPortfolio).Build(),
+                new DbParameterBuilder().WithName("@corePortfolio").WithValue(dto.IsCorePortfolio).Build()
             };
         }
     }

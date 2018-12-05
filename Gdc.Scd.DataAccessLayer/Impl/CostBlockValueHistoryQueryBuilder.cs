@@ -86,10 +86,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 new ColumnInfo(MetaConstants.IdFieldKey, costBlockMeta.HistoryMeta.Name, "HistoryValueId")
             };
-            selectColumns.AddRange(this.GetCoordinateColumns(costBlockMeta));
+
+            var domainCoordinateFields = costBlockMeta.GetDomainCoordinateFields(history.Context.CostElementId);
+
+            selectColumns.AddRange(this.GetCoordinateColumns(costBlockMeta, domainCoordinateFields));
 
             var selectQuery = this.BuildSelectHistoryValueQuery(history.Context, selectColumns);
-            var joinInfos = this.GetCoordinateJoinInfos(costBlockMeta).ToList();
+            var joinInfos = this.GetCoordinateJoinInfos(costBlockMeta, domainCoordinateFields).ToList();
 
             return this.BuildJoinApproveHistoryValueQuery(history, selectQuery, inputLevelJoinType, joinInfos, historyValueId, costBlockFilter);
         }
@@ -249,9 +252,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return ConditionHelper.And(conditions);
         }
 
-        private IEnumerable<ColumnInfo> GetCoordinateColumns(CostBlockEntityMeta costBlockMeta)
+        private IEnumerable<ColumnInfo> GetCoordinateColumns(CostBlockEntityMeta costBlockMeta, IEnumerable<ReferenceFieldMeta> domainCoordinateFields)
         {
-            foreach (var dependecyField in costBlockMeta.CoordinateFields)
+            foreach (var dependecyField in domainCoordinateFields)
             {
                 yield return new ColumnInfo(dependecyField.Name, costBlockMeta.Name);
                 yield return new ColumnInfo(
@@ -261,9 +264,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
         }
 
-        private IEnumerable<JoinInfo> GetCoordinateJoinInfos(CostBlockEntityMeta costBlockMeta)
+        private IEnumerable<JoinInfo> GetCoordinateJoinInfos(CostBlockEntityMeta costBlockMeta, IEnumerable<ReferenceFieldMeta> domainCoordinateFields)
         {
-            return costBlockMeta.CoordinateFields.Select(field => new JoinInfo
+            return domainCoordinateFields.Select(field => new JoinInfo
             {
                 Meta = costBlockMeta,
                 ReferenceFieldName = field.Name,

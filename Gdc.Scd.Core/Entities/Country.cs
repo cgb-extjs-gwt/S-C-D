@@ -13,14 +13,31 @@ namespace Gdc.Scd.Core.Entities
             set => base.Id = value;
         }
 
-        public bool CanOverrideListAndDealerPrices { get; set; }
+        public string ISO3CountryCode { get; set; }
 
-        public bool ShowDealerPrice { get; set; }
+        public string SAPCountryCode { get; set; }
+
+        public bool CanStoreListAndDealerPrices { get; set; }
 
         public bool CanOverrideTransferCostAndPrice { get; set; }
 
-        public ClusterRegion ClusterRegion { get; set; }
+        public bool IsMaster { get; set; }
 
-        public long ClusterRegionId { get; set; }
+        public string QualityGateGroup { get; set; }
+
+        public CountryGroup CountryGroup { get; set; }
+
+        public long? CountryGroupId { get; set; }
+
+        public long? RegionId { get; set; }
+        public Region Region { get; set; }
+
+        public ClusterRegion ClusterRegion { get; set; }
+        public long? ClusterRegionId { get; set; }
+
+        public Currency Currency { get; set; }
+        public long CurrencyId { get; set; }
+
+        public bool AssignedToMultiVendor { get; set; }
     }
 }

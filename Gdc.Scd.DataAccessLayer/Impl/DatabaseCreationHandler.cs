@@ -5,6 +5,7 @@ using System.Linq;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders;
 using Ninject;
 
@@ -33,7 +34,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 var entityInfos = this.GetEnityInfos(entities).ToArray();
                 var tableCommands = this.GetCreateTableCommands(entityInfos);
                 var constraintCommands = this.GetCreateConstraintCommands(entityInfos);
-                var commands = this.GetCreateSchemaCommands(entityInfos).Concat(tableCommands).Concat(constraintCommands);
+                var addDefaultCommands = this.GetAddDefaultCommands();
+                var commands = this.GetCreateSchemaCommands(entityInfos).Concat(tableCommands).Concat(constraintCommands).Concat(addDefaultCommands);
 
                 foreach (var command in commands)
                 {
@@ -88,7 +90,31 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         yield return sqlBuilder.Build(null);
                     }
                 }
+            }          
+        }
+
+        private IEnumerable<string> GetAddDefaultCommands()
+        {
+            var entities = repositorySet.GetRegisteredEntities();
+
+            foreach (var entity in entities)
+            {
+                if (typeof(IDeactivatable).IsAssignableFrom(entity))
+                {
+                    var tableAttr =
+                    entity.GetCustomAttributes(false)
+                              .Select(attr => attr as TableAttribute)
+                              .FirstOrDefault(attr => attr != null);
+
+                    yield return Sql.AddDefault(tableAttr.Name, nameof(IDeactivatable.CreatedDateTime), this.GetDefaultExpresstion(), tableAttr.Schema).ToSql();
+                    yield return Sql.AddDefault(tableAttr.Name, nameof(IDeactivatable.ModifiedDateTime), this.GetDefaultExpresstion(), tableAttr.Schema).ToSql();
+                }
             }
+        }
+
+        private string GetDefaultExpresstion()
+        {
+            return "GETUTCDATE()";
         }
 
         private IEnumerable<(string Schema, string Table)> GetEnityInfos(IEnumerable<Type> registeredEntities)

@@ -1,11 +1,13 @@
 import * as React from 'react';
-import { FieldType } from "../States/CostEditorStates";
 import { EditItem } from "../States/CostBlockStates";
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, Dialog, Container} from '@extjs/ext-react';
 import { NamedId } from '../../Common/States/CommonStates';
-import { HistoryValuesGridContainer } from './HistoryValuesGridContainer';
 import { ValueColumnProps, EditGrid, EditGridProps } from './EditGrid';
 import { QualityGateWindowContainer } from './QualityGateWindowContainer';
+import { SaveToolbar } from '../../Common/Components/SaveToolbar';
+import { SaveApprovalToollbar } from '../../Approval/Components/SaveApprovalToollbar';
+import { HistroryButtonContainer } from './HistroryButtonContainer';
+import { BundleDetailGroup } from '../../QualityGate/States/QualityGateResult';
 
 Ext.require([
     'Ext.grid.plugin.CellEditing', 
@@ -25,8 +27,10 @@ export interface EditGridToolProps extends EditGridToolActions {
     isEnableApplyFilters: boolean
     flex?: number
     editGrid: EditGridProps
-    qualityGateErrors: {[key: string]: any}[]
+    qualityGateErrors: BundleDetailGroup[]
+    applicationId: string
     costBlockId: string
+    costElementId: string
 }
 
 export interface EditGridToolState {
@@ -47,6 +51,14 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
     public render() {
         const props = this.props;
 
+        let isEnabledHistoryButton = false;
+        let editItem: string = null;
+
+        if (this.state.selectedItems.length == 1) {
+            isEnabledHistoryButton = true;
+            editItem = this.state.selectedItems[0].id;
+        }
+
         return (
             <Container layout="vbox" flex={props.flex}>
                 <Toolbar docked="top">
@@ -57,11 +69,11 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                         handler={props.onApplyFilters}
                     />
 
-                    <Button 
-                        text="History" 
+                    <HistroryButtonContainer 
+                        editItemId={editItem}
+                        isEnabled={isEnabledHistoryButton}
                         flex={1} 
-                        disabled={this.state.selectedItems.length != 1}
-                        handler={this.showHistoryWindow}
+                        windowPosition={{ left: '40%', top: '20%' }}
                     />
                 </Toolbar>
 
@@ -71,89 +83,23 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                     onSelected={this.onSelectGrid}
                 />
 
-                <Toolbar docked="bottom">
-                    <Button 
-                        text="Cancel" 
-                        flex={1} 
-                        disabled={!props.isEnableClear}
-                        handler={() => this.showClearDialog()}
-                    />
-                    <Button 
-                        text="Save" 
-                        flex={1} 
-                        disabled={!props.isEnableSave}
-                        handler={() => this.showSaveDialog(false)}
-                    />
-                    <Button 
-                        text="Save and send for approval" 
-                        flex={1} 
-                        disabled={!props.isEnableSave}
-                        handler={() => this.showSaveDialog(true)}
-                    />
-                </Toolbar>
+                <SaveApprovalToollbar
+                    isEnableClear={props.isEnableClear} 
+                    isEnableSave={props.isEnableSave}
+                    onCancel={() => this.props.onCleared()}
+                    onSave={() => this.props.onSaving(false)}
+                    onApproval={() => this.props.onSaving(true)}
+                />
 
-                {this.getHistoryWindow()}
-
-                <QualityGateWindowContainer costBlockId={props.costBlockId} errors={props.qualityGateErrors} />
+                <QualityGateWindowContainer 
+                    applicationId={props.applicationId} 
+                    costBlockId={props.costBlockId} 
+                    costElementId={props.costElementId}
+                    errors={props.qualityGateErrors} 
+                    position={{ left: '20%', top: '20%' }}
+                />
             </Container>
         );
-    }
-
-    private showSaveDialog(forApproval: boolean) {
-        const { onSaving } = this.props;
-    
-        Ext.Msg.confirm(
-          'Saving changes', 
-          'Do you want to save the changes?',
-          (buttonId: string) => onSaving && onSaving(forApproval)
-        );
-    }
-    
-    private showClearDialog() {
-        const { onCleared } = this.props;
-
-        Ext.Msg.confirm(
-            'Clearing changes', 
-            'Do you want to clear the changes?',
-            (buttonId: string) => onCleared && onCleared()
-        );
-    }
-
-    private getHistoryWindow() {
-        const { isVisibleHistoryWindow, selectedItems } = this.state;
-        const editItemId = selectedItems.length > 0 ? selectedItems[0].id : null;
-
-        return (
-            isVisibleHistoryWindow && selectedItems.length == 1 &&
-            <Dialog 
-                displayed={isVisibleHistoryWindow} 
-                title="History" 
-                closable 
-                maximizable
-                resizable={{
-                    dynamic: true,
-                    edges: 'all'
-                }}
-                minHeight="600"
-                minWidth="700"
-                onClose={this.closeHistoryWindow}
-                layout="fit"
-            >
-                <HistoryValuesGridContainer editItemId={editItemId} />
-            </Dialog>
-        );
-    }
-
-    private showHistoryWindow = () => {
-        this.setState({
-            isVisibleHistoryWindow: true
-        });
-    }
-
-    private closeHistoryWindow = () => {
-        this.setState({ 
-            isVisibleHistoryWindow: false 
-        });
     }
 
     private onSelectGrid = (items: EditItem[]) => {

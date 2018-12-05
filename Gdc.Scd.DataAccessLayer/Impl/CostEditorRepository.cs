@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
@@ -22,6 +23,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             this.repositorySet = repositorySet;
             this.domainEnitiesMeta = domainEnitiesMeta;
+        }
+
+        public async Task<IEnumerable<EditItem>> GetEditItems(EditItemInfo editItemInfo, IDictionary<string, long[]> filter)
+        {
+            return await this.GetEditItems(editItemInfo, filter.Convert());
         }
 
         public async Task<IEnumerable<EditItem>> GetEditItems(EditItemInfo editItemInfo, IDictionary<string, IEnumerable<object>> filter = null)
@@ -54,7 +60,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 Sql.Select(nameIdColumn, nameColumn, maxValueColumn, countColumn)
                    .From(costBlockMeta)
                    .Join(costBlockMeta, nameField.Name)
-                   .Where(this.BuildCostEditorWhereCondition(costBlockMeta, filter, costBlockMeta.Name))
+                   .WhereNotDeleted(costBlockMeta, filter, costBlockMeta.Name)
                    .GroupBy(nameColumn, nameIdColumn);
 
 
@@ -85,6 +91,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return await this.repositorySet.ExecuteSqlAsync(query);
         }
 
+        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo, IDictionary<string, long[]> filter)
+        {
+            return await this.UpdateValues(editItems, editItemInfo, filter.Convert());
+        }
+
         private SqlHelper BuildUpdateValueQuery(
             CostBlockEntityMeta meta,
             EditItem editItem,
@@ -110,26 +121,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 }
             };
 
-            return Sql.Update(editItemInfo.Schema, editItemInfo.EntityName, updateColumn)
-                      .Where(this.BuildCostEditorWhereCondition(meta, filter));
-        }
-
-        private ConditionHelper BuildCostEditorWhereCondition(CostBlockEntityMeta meta, IDictionary<string, IEnumerable<object>> filter, string tableName = null)
-        {
-            ConditionHelper result;
-
-            var notDeletedCondition = SqlOperators.IsNull(meta.DeletedDateField.Name, tableName);
-
-            if (filter != null && filter.Count > 0)
-            {
-                result = ConditionHelper.AndStatic(filter, tableName).And(notDeletedCondition);
-            }
-            else
-            {
-                result = notDeletedCondition;
-            }
-
-            return result;
+            return Sql.Update(editItemInfo.Schema, editItemInfo.EntityName, updateColumn).WhereNotDeleted(meta, filter);
         }
     }
 }
