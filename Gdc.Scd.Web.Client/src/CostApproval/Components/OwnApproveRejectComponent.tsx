@@ -21,7 +21,7 @@ export class OwnApproveRejectComponent extends React.Component<OwnApproveRejectP
         return (
             <Container flex={1} layout="vbox" minHeight="50">
                 <Toolbar flex={1}>
-                    <Button text="Approve" handler={this.onApprove} flex={1}/>
+                    <Button text="Send for approval" handler={this.onApprove} flex={1}/>
                     <Button text="Reject" handler={this.onReject} flex={1}/>
                 </Toolbar> 
 

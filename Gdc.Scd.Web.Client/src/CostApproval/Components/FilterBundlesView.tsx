@@ -116,7 +116,8 @@ class Filter extends React.Component<FilterApprovalProps>{
                         <Container margin="20px 0 0 0" layout={{type: 'hbox', align: 'center'}}>
                                         <Button disabled = { costElementsCheckBoxes ? false : true} 
                                         iconCls="x-fa fa-filter" 
-                                        text="Filter" ui = "action raised" 
+                                        text="Refresh" 
+                                        ui = "action raised" 
                                         handler = { this.props.onApplyFilter }
                                         />         
                         </Container>
