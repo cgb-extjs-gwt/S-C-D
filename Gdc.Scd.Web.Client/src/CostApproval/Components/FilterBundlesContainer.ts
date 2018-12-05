@@ -1,130 +1,180 @@
 import { CommonState } from "../../Layout/States/AppStates";
-import { connect } from "react-redux";
-import FilterBundlesView, { FilterApprovalProps, ApprovalFilterActions } from "./FilterBundlesView";
-import { SelectList, NamedId, ElementWithParent, PageName } from "../../Common/States/CommonStates";
-import { ItemSelectedAction, ItemWithParentSelectedAction, CommonAction, PageItemSelectedAction, PageCommonAction, PageItemWithParentSelectedAction, PageAction } from '../../Common/Actions/CommonActions';
+import { connectAdvanced } from "react-redux";
+import FilterBundlesView, { FilterApprovalProps, ApprovalFilterActions, CheckedCostBlock, CheckedCostElement, CheckedItem } from "./FilterBundlesView";
+import { NamedId, PageName } from "../../Common/States/CommonStates";
+import { ItemSelectedAction, CommonAction, PageItemSelectedAction, PageCommonAction, PageAction, MultiItemSelectedAction, PageMultiItemSelectedAction } from '../../Common/Actions/CommonActions';
 import * as approvalActions from '../../CostApproval/Actions/CostApprovalFilterActions';
 import { ApprovalCostElementsLayoutState } from "../States/ApprovalCostElementsLayoutState";
 import { loadBundlesByFilter } from '../Actions/BundleListActions'
 import { ApprovalBundleState } from "../States/ApprovalBundleState";
+import { CostElementId, BundleFilterStates } from "../States/BundleFilterStates";
+import { Dispatch } from "redux";
+import { CostBlockMeta, CostElementMeta } from "../../Common/States/CostMetaStates";
+import { mapCostElements } from "../../Common/Helpers/MetaHelper";
 
 export interface FilterBundleContainerProps extends PageName {
     approvalBundleState: ApprovalBundleState
 }
 
-export const FilterBundleContainer = connect<FilterApprovalProps, ApprovalFilterActions, FilterBundleContainerProps, CommonState>(
-    (state, { pageName }) => {
+const getVisibleCostBlocks = (costBlocks: CostBlockMeta[], filter: BundleFilterStates) => costBlocks.filter(
+    costBlockMeta => costBlockMeta.applicationIds.includes(filter.selectedApplicationId)
+)
 
-        //app meta data is not loaded yet
-        if (!state.app.appMetaData)
-        {
-            return <FilterApprovalProps>{ }
-        }
-        
+const isAllItemsChecked = (items: CheckedItem[]) => items.every(item => item.isChecked);
+
+const getPageState = (state: CommonState, pageName: string) => <ApprovalCostElementsLayoutState>state.pages[pageName];
+
+const sortByName = <T extends { name: string }>(items: T[]) => items.sort(
+    (item1, item2) => item1.name.localeCompare(item2.name)
+)
+
+const buildProps = (state: CommonState, { pageName }: FilterBundleContainerProps) => {
+    let props: FilterApprovalProps;
+
+    if (state.app.appMetaData) {
         const meta = state.app.appMetaData;
-        //const filter = state.pages.costApproval.filter;
-        const page = <ApprovalCostElementsLayoutState>state.pages[pageName];
-        const filter = page.filter;
+        const page = getPageState(state, pageName);
+        const { filter } = page;
 
-        const applications = {
-            selectedItemId: filter.selectedApplicationId,
-            list: meta.applications
+        const costBlocks: CheckedCostBlock[] =[];
+        const checkedCostBlockMetas: CostBlockMeta[] = [];
+        const visibleCostBlocks = getVisibleCostBlocks(meta.costBlocks, filter);
+
+        for (const costBlockMeta of visibleCostBlocks) {
+            const isCheckedCostBlock = filter.selectedCostBlockIds.includes(costBlockMeta.id);
+
+            costBlocks.push({
+                id: costBlockMeta.id,
+                name: costBlockMeta.name,
+                isChecked: isCheckedCostBlock
+            });
+
+            if (isCheckedCostBlock) {
+                checkedCostBlockMetas.push(costBlockMeta);
+            }
         }
 
-        //getting selected cost blocks from our state
-        const costBlocksMeta = meta.costBlocks.filter(costBlock => {
-            return costBlock.applicationIds.indexOf(filter.selectedApplicationId) > -1
-        });
-
-        //mapping selected costBlocks to our state
-        const defaultCostBlock = costBlocksMeta[0];
-
-        const costBlock: NamedId[] = costBlocksMeta.map(costBlock => <NamedId>{id: costBlock.id, name: costBlock.name });
-
-        //getting selected cost blocks
-        const selectedCostBlocks = filter.selectedCostBlockIds;
-
-        const costBlocks = {
-            selectedItemIds: selectedCostBlocks,
-            list: costBlock
-        }
-
-        //getting selected cost elements from our state
-        //using map/reduce as select many
-        const costElementsMeta: ElementWithParent[] = costBlocksMeta.filter(costBlock => selectedCostBlocks.indexOf(costBlock.id) > -1)
-                                .map(costBlock => ({
-                                    cbId: costBlock.id,
-                                    cbElems: costBlock.costElements
-                                }))
-                                .reduce((acc, elem) => {
-                                    return acc.concat(
-                                        {   cbId: elem.cbId, 
-                                            cbelems: [...elem.cbElems]
-                                        });
-                                }, [])
-                                .reduce((acc, elem) => {
-                                    return acc.concat(
-                                        ...elem.cbelems.map(e => { 
-                                            return {
-                                                parentId: elem.cbId, 
-                                                element: {id: e.id, name: e.name}
-                                            }})
-                                    )
-                                }, []);                         
-                                
-        const selectedCostElements = filter.selectedCostElementIds.map(item => item.element);
-                                   
-        const costElements = {
-            selectedItemIds: selectedCostElements,
-            list: costElementsMeta
-        }
+        const costElements = mapCostElements(
+            checkedCostBlockMetas, 
+            (costElementMeta, costBlockMeta) => (<CheckedCostElement>{
+                costBlockId: costBlockMeta.id,
+                costElementId: costElementMeta.id,
+                name: costElementMeta.name,
+                isChecked: !!filter.selectedCostElementIds.find(
+                    ({ costBlockId, costElementId }) => 
+                        costBlockMeta.id == costBlockId && costElementMeta.id == costElementId
+                )
+            })
+        )
 
         return <FilterApprovalProps>{
-            application: applications,
-            costBlocks: costBlocks,
-            costElements: costElements,
+            application: {
+                selectedItemId: filter.selectedApplicationId,
+                list: meta.applications
+            },
+            costBlocks: sortByName(costBlocks),
+            costElements: sortByName(costElements),
             startDate: filter.startDate || new Date(),
             endDate: filter.endDate || new Date(),
+            isAllCostBlocksChecked: isAllItemsChecked(costBlocks),
+            isAllCostElementsChecked: isAllItemsChecked(costElements)
         }
+
+    } else {
+        props = {};
+    }
+}
+
+const buildActions = (state: CommonState, { pageName, approvalBundleState }: FilterBundleContainerProps, dispatch: Dispatch) => (<ApprovalFilterActions>{
+    onApplicationSelect: (selectedAppId) => dispatch(<PageItemSelectedAction>{
+        type: approvalActions.COST_APPROVAL_SELECT_APPLICATION,
+        selectedItemId: selectedAppId,
+        pageName
+    }),
+    onCostBlockCheck: (selectedCostBlock) => dispatch(<PageItemSelectedAction>{
+        type: approvalActions.COST_APPROVAL_CHECK_COST_BLOCK,
+        selectedItemId: selectedCostBlock,
+        pageName
+    }),
+    onCostBlockUncheck: (selectedCostBlock) => dispatch(<PageItemSelectedAction>{
+        type: approvalActions.COST_APPROVAL_UNCHECK_COST_BLOCK,
+        selectedItemId: selectedCostBlock,
+        pageName
+    }),
+    onCostElementCheck: (costElementId, costBlockId) => dispatch(<PageCommonAction<CostElementId>>{
+        type: approvalActions.COST_APPROVAL_CHECK_COST_ELEMENT,
+        pageName,
+        data: {
+            costElementId,
+            costBlockId
+        }
+    }),
+    onCostElementUncheck: (costElementId, costBlockId) => dispatch(<PageCommonAction<CostElementId>>{
+        type: approvalActions.COST_APPROVAL_UNCHECK_COST_ELEMENT,
+        pageName,
+        data: {
+            costBlockId,
+            costElementId
+        }
+    }),
+    onShowAllCostBlocksCheck: isChecked => { 
+        let costBlockIds: string[];
+
+        if (isChecked) {
+            const { filter } = getPageState(state, pageName);
+
+            costBlockIds = getVisibleCostBlocks(state.app.appMetaData.costBlocks, filter).map(costBlock => costBlock.id);
+        } else {
+            costBlockIds = [];
+        }
+
+        dispatch(<PageMultiItemSelectedAction>{
+            type: approvalActions.COST_APPROVAL_CHECK_MULTI_COST_BLOCKS,
+            pageName,
+            selectedItemIds: costBlockIds
+        })
     },
-    (dispatch, { pageName, approvalBundleState }) => (<ApprovalFilterActions>{
-        onApplicationSelect: (selectedAppId) => dispatch(<PageItemSelectedAction>{
-            type: approvalActions.COST_APPROVAL_SELECT_APPLICATION,
-            selectedItemId: selectedAppId,
-            pageName
-        }),
-        onCostBlockCheck: (selectedCostBlock) => dispatch(<PageItemSelectedAction>{
-            type: approvalActions.COST_APPROVAL_CHECK_COST_BLOCK,
-            selectedItemId: selectedCostBlock,
-            pageName
-        }),
-        onCostBlockUncheck: (selectedCostBlock) => dispatch(<PageItemSelectedAction>{
-            type: approvalActions.COST_APPROVAL_UNCHECK_COST_BLOCK,
-            selectedItemId: selectedCostBlock,
-            pageName
-        }),
-        onCostElementCheck: (selectedCostElement, parentElementId) => dispatch(<PageItemWithParentSelectedAction>{
-            type: approvalActions.COST_APPROVAL_CHECK_COST_ELEMENT,
-            selectedItemId: selectedCostElement,
-            selectedItemParentId: parentElementId,
-            pageName
-        }),
-        onCostElementUncheck: (selectCostElement) => dispatch(<PageItemSelectedAction>{
-            type: approvalActions.COST_APPROVAL_UNCHECK_COST_ELEMENT,
-            selectedItemId: selectCostElement,
-            pageName
-        }),
-        onStartDateChange: (selectedDate) => dispatch(<PageCommonAction<Date>>{
-            type: approvalActions.COST_APPROVAL_SELECT_START_DATE,
-            data: selectedDate,
-            pageName
-        }),
-        onEndDateChange: (selectedDate) => dispatch(<PageCommonAction<Date>>{
-            type: approvalActions.COST_APPROVAL_SELECT_END_DATE,
-            data: selectedDate,
-            pageName
-        }),
-        onApplyFilter: () => dispatch(loadBundlesByFilter(pageName, approvalBundleState))
+    onShowAllCostCostElementsCheck: isChecked => {
+        let costElementIds: CostElementId[];
+
+        if (isChecked) {
+            const { filter } = getPageState(state, pageName);
+            const visibleCostBlocks = getVisibleCostBlocks(state.app.appMetaData.costBlocks, filter)
+
+            costElementIds = visibleCostBlocks.reduce<CostElementId[]>(
+                (acc, costBlock) => acc.concat(
+                    costBlock.costElements.map(costElement => (<CostElementId>{
+                        costBlockId: costBlock.id,
+                        costElementId: costElement.id
+                    }))
+                ), 
+                []);
+        } else {
+            costElementIds = [];
+        }
+
+        dispatch({
+            type: approvalActions.COST_APPROVAL_CHECK_MULTI_COST_ELEMENTS,
+            pageName,
+            data: costElementIds
+        })
+    },
+    onStartDateChange: (selectedDate) => dispatch(<PageCommonAction<Date>>{
+        type: approvalActions.COST_APPROVAL_SELECT_START_DATE,
+        data: selectedDate,
+        pageName
+    }),
+    onEndDateChange: (selectedDate) => dispatch(<PageCommonAction<Date>>{
+        type: approvalActions.COST_APPROVAL_SELECT_END_DATE,
+        data: selectedDate,
+        pageName
+    }),
+    onApplyFilter: () => dispatch(loadBundlesByFilter(pageName, approvalBundleState))
+})
+
+export const FilterBundleContainer = connectAdvanced<CommonState, FilterApprovalProps, FilterBundleContainerProps>(
+    dispatch => (state, ownProps) => ({
+        ...buildProps(state, ownProps),
+        ...buildActions(state, ownProps, dispatch)
     })
-    
 )(FilterBundlesView)

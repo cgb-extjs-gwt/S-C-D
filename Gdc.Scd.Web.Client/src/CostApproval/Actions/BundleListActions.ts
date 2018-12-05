@@ -21,9 +21,9 @@ export const loadBundlesByFilter = (pageName: string, approvalBundleState: Appro
                 const filter = <BundleFilter>{
                     dateTimeFrom: applyFilter.startDate || null,
                     dateTimeTo: applyFilter.endDate || null,
-                    applicationIds: applyFilter && applyFilter.selectedApplicationId ? [ applyFilter.selectedApplicationId ] : null,
+                    applicationIds: applyFilter.selectedApplicationId ? [ applyFilter.selectedApplicationId ] : null,
                     costBlockIds: applyFilter.selectedCostBlockIds || null,
-                    costElementIds: applyFilter.selectedCostElementIds ? applyFilter.selectedCostElementIds.map(el => el.element) : null
+                    costElementIds: applyFilter.selectedCostElementIds ? applyFilter.selectedCostElementIds.map(el => el.costElementId) : null
                 }
 
                 handleRequest(

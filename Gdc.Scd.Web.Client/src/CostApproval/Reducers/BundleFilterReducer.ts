@@ -7,12 +7,13 @@ import {
     COST_APPROVAL_UNCHECK_COST_ELEMENT,
     COST_APPROVAL_SELECT_START_DATE,
     COST_APPROVAL_SELECT_END_DATE, 
-    COST_APPROVAL_ON_INIT
+    COST_APPROVAL_ON_INIT,
+    COST_APPROVAL_CHECK_MULTI_COST_BLOCKS,
+    COST_APPROVAL_CHECK_MULTI_COST_ELEMENTS,
 } from '../Actions/CostApprovalFilterActions';
-import { BundleFilterStates } from '../States/BundleFilterStates'
+import { BundleFilterStates, CostElementId } from '../States/BundleFilterStates'
 import { PageInitAction, APP_PAGE_INIT, APP_LOAD_DATA, LoadingAppDataAction } from "../../Layout/Actions/AppActions";
-import { ItemSelectedAction, ItemWithParentSelectedAction, CommonAction } from "../../Common/Actions/CommonActions";
-import { ElementWithParent } from '../../Common/States/CommonStates';
+import { ItemSelectedAction, CommonAction, MultiItemSelectedAction } from "../../Common/Actions/CommonActions";
 import filter from "../Components/FilterBundlesView";
 
 const initialBundleFilterState = () => {
@@ -44,21 +45,15 @@ const selectApplication: Reducer<BundleFilterStates, ItemSelectedAction> = (stat
 
 const checkCostBlock: Reducer<BundleFilterStates, ItemSelectedAction> = (state, action) => {
     return {
-            ...state,
-            selectedCostBlockIds: state.selectedCostBlockIds.concat(action.selectedItemId)
+        ...state,
+        selectedCostBlockIds: state.selectedCostBlockIds.concat(action.selectedItemId)
     }
 }
 
-const checkCostElement: Reducer<BundleFilterStates, ItemWithParentSelectedAction> = (state, action) => {
+const checkCostElement: Reducer<BundleFilterStates, CommonAction<CostElementId>> = (state, { data }) => {
     return {
         ...state,
-        selectedCostElementIds: state.selectedCostElementIds.concat(
-            <ElementWithParent<string, string>>
-            {
-                element: action.selectedItemId, 
-                parentId: action.selectedItemParentId
-            }
-        )
+        selectedCostElementIds: state.selectedCostElementIds.concat(data)
     }
 }
 
@@ -66,19 +61,18 @@ const unCheckCostBlock: Reducer<BundleFilterStates, ItemSelectedAction> = (state
     return {
         ...state,
         selectedCostBlockIds: state.selectedCostBlockIds.filter(elem => elem !== action.selectedItemId),
-        selectedCostElementIds: state.selectedCostElementIds.filter(elem => elem.parentId != action.selectedItemId)
+        selectedCostElementIds: state.selectedCostElementIds.filter(elem => elem.costBlockId != action.selectedItemId)
     }
 }
 
-const unCheckCostElement: Reducer<BundleFilterStates, ItemSelectedAction> = (state, action) => {
+const unCheckCostElement: Reducer<BundleFilterStates, CommonAction<CostElementId>> = (state, { data: { costBlockId, costElementId } }) => {
     return {
         ...state,
-        selectedCostElementIds: state.selectedCostElementIds.filter(elem => elem.element != action.selectedItemId)
+        selectedCostElementIds: state.selectedCostElementIds.filter(elem => elem.costBlockId != costBlockId && elem.costElementId != costElementId)
     }
 }
 
 const selectStartDate: Reducer<BundleFilterStates, CommonAction<Date>> = (state, action) => {
-    console.log(action.data);
     return {
         ...state,
         startDate: action.data
@@ -101,13 +95,26 @@ const init: Reducer<BundleFilterStates, LoadingAppDataAction> = (state, { data }
         selectedApplicationId: applicationId,
         selectedCostBlockIds: [costBlock.id],
         selectedCostElementIds: [{
-            element: costBlock.costElements[0].id,
-            parentId: costBlock.id
+            costBlockId: costBlock.id,
+            costElementId: costBlock.costElements[0].id
         }]
     }
 
     return filter;
 }
+
+const checkMultiCostBlocks: Reducer<BundleFilterStates, MultiItemSelectedAction> = (state, { selectedItemIds }) => ({
+    ...state,
+    selectedCostBlockIds: selectedItemIds,
+    selectedCostElementIds: state.selectedCostElementIds.filter(
+        ({ costBlockId }) => selectedItemIds.includes(costBlockId)
+    )
+})
+
+const checkMultiCostElements: Reducer<BundleFilterStates, CommonAction<CostElementId[]>> = (state, action) => ({
+    ...state,
+    selectedCostElementIds: action.data
+})
 
 export const bundleFilterReducer: Reducer<BundleFilterStates, Action<string>> = (state = initialBundleFilterState(), action) => {
     switch(action.type){
@@ -116,17 +123,21 @@ export const bundleFilterReducer: Reducer<BundleFilterStates, Action<string>> = 
         case COST_APPROVAL_CHECK_COST_BLOCK:
             return checkCostBlock(state, <ItemSelectedAction>action);
         case COST_APPROVAL_CHECK_COST_ELEMENT:
-            return checkCostElement(state, <ItemWithParentSelectedAction>action);
+            return checkCostElement(state, <CommonAction<CostElementId>>action);
         case COST_APPROVAL_UNCHECK_COST_BLOCK:
             return unCheckCostBlock(state, <ItemSelectedAction>action);
         case COST_APPROVAL_UNCHECK_COST_ELEMENT:
-            return unCheckCostElement(state, <ItemSelectedAction>action);
+            return unCheckCostElement(state, <CommonAction<CostElementId>>action);
         case COST_APPROVAL_SELECT_START_DATE:
             return selectStartDate(state, <CommonAction<Date>>action);
         case COST_APPROVAL_SELECT_END_DATE:
             return selectEndDate(state, <CommonAction<Date>>action);
         case APP_LOAD_DATA:
             return init(state, <LoadingAppDataAction>action);
+        case COST_APPROVAL_CHECK_MULTI_COST_BLOCKS:
+            return checkMultiCostBlocks(state, <MultiItemSelectedAction>action);
+        case COST_APPROVAL_CHECK_MULTI_COST_ELEMENTS:
+            return checkMultiCostElements(state, <CommonAction<CostElementId[]>>action);
         default:
             return state;
     }

@@ -22,7 +22,14 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         [HttpGet]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
-        public async Task<IEnumerable<Bundle>> GetApprovalBundles([FromUri]CostBlockHistoryFilter filter, [FromUri]CostBlockHistoryState state)
+        public async Task<IEnumerable<Bundle>> GetApprovalBundles([FromUri]CostBlockHistoryState state, [FromUri]CostBlockHistoryFilter filter = null)
+        {
+            return await this.approvalService.GetApprovalBundles(filter, state);
+        }
+
+        [HttpPost]
+        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
+        public async Task<IEnumerable<Bundle>> GetApprovalBundlesByFilter(CostBlockHistoryFilter filter, [FromUri]CostBlockHistoryState state)
         {
             return await this.approvalService.GetApprovalBundles(filter, state);
         }
