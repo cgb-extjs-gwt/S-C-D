@@ -5,8 +5,9 @@
     <InputLevel Name="ClusterPla" Caption="Cluster Pla"/>
     <InputLevel Name="Pla" Caption="PLA"/>
     <InputLevel Name="Sfab" Caption="SFAB"/>
-    <InputLevel Name="Sog" Caption="SOG"/>
     <InputLevel Name="Wg" Caption="WG"/>
+    <InputLevel Name="Sog" Caption="SOG"/>
+    <InputLevel Name="SwDigit" Caption="SW Digit"/>
     <InputLevel Name="RoleCode" Caption="Role Code"/>
     
     <Default>
@@ -68,174 +69,7 @@
         </Element>
       </Elements>
     </Block>
-
-    <Block Name="InstallBase" Caption="Installed base">
-      <Applications>
-        <Application>Hardware</Application>
-      </Applications>
-      <Elements>
-        <Element Name="InstalledBaseCountry" Caption="Installed base country" InputOption="ManualyAutomaticly">
-          <CostEditor>
-            <Roles>
-              <Role>PRS Finance</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-      </Elements>
-    </Block>
-
-    <Block Name="MarkupOtherCosts" Caption="Markup other costs">
-      <Applications>
-        <Application>Hardware</Application>
-      </Applications>
-      <Elements>
-        <Element Name="MarkupFactor" Caption="Markup factor for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
-          <CostEditor>
-            <Roles>
-              <Role>Country Finance Director</Role>
-              <Role>Country key user</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
-          <CostEditor>
-            <Roles>
-              <Role>Country Finance Director</Role>
-              <Role>Country key user</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-      </Elements>
-    </Block>
-
-    <Block Name="ProlongationMarkup" Caption="Prolongation markup">
-      <Applications>
-        <Application>Hardware</Application>
-      </Applications>
-      <Elements>
-        <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
-          <CostEditor>
-            <Roles>
-              <Role>Country Finance Director</Role>
-              <Role>Country key user</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
-          <CostEditor>
-            <Roles>
-              <Role>Country Finance Director</Role>
-              <Role>Country key user</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-      </Elements>
-    </Block>
-
-    <Block Name="MarkupStandardWaranty" Caption="Markup standard waranty">
-      <Applications>
-        <Application>Hardware</Application>
-      </Applications>
-      <Elements>
-        <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
-          <CostEditor>
-            <Roles>
-              <Role>Country Finance Director</Role>
-              <Role>Country key user</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="MarkupStandardWarranty" Caption="Markup for standard warranty local cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
-          <CostEditor>
-            <Roles>
-              <Role>Country Finance Director</Role>
-              <Role>Country key user</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-      </Elements>
-    </Block>
-
-   <Block Name="MaterialCostWarranty" Caption="Material cost iW" >
-      <Applications>
-        <Application>Hardware</Application>
-      </Applications>
-      <Elements>
-        <Element Name="MaterialCostWarranty" Caption="Material cost iW" InputOption="ManualyAutomaticly" RegionInput="ClusterRegion">
-          <InputLevels>
-            <InputLevel>Wg</InputLevel>
-          </InputLevels>
-          <TableView>
-            <Roles>
-              <Role>PRS PSM</Role>  
-              <Role>PRS Finance</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </TableView>
-        </Element>
-      </Elements>
-    </Block>
-
-    <Block Name="MaterialCostOow" Caption="Material cost OOW">
-      <Applications>
-        <Application>Hardware</Application>
-      </Applications>
-      <Elements>
-        <Element Name="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="ClusterRegion">
-          <InputLevels>
-            <InputLevel>Wg</InputLevel>
-          </InputLevels>
-          <TableView>
-            <Roles>
-              <Role>PRS PSM</Role>  
-              <Role>PRS Finance</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </TableView>
-        </Element>
-      </Elements>
-    </Block>
-
-    <!--HARDCODED-->
-    <!--<Block Name="TaxAndDuties" Caption="Tax &amp; duties">
-      <Applications>
-        <Application>Hardware</Application>
-      </Applications>
-      <Elements>
-        <Element Name="TaxAndDuties" Caption="Tax &amp; duties" InputOption="Automaticly">
-          <InputLevels>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Wg</InputLevel>
-          </InputLevels>
-        </Element>
-      </Elements>
-    </Block>-->
-
-    <Block Name="RoleCodeHourlyRates" Caption="Role Code Hourly Rates">
-      <Applications>
-        <Application>Hardware</Application>
-      </Applications>
-      <Elements>
-        <Element Name="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManualyAutomaticly" RegionInput="_none_">
-          <InputLevels>
-            <InputLevel>RoleCode</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-      </Elements>
-    </Block>
-      
+    
     <Block Name="FieldServiceCost" Caption="Field Service Cost">
       <Applications>
         <Application>Hardware</Application>
@@ -539,7 +373,173 @@
       </Elements>
     </Block>
 
+    <Block Name="InstallBase" Caption="Installed base">
+      <Applications>
+        <Application>Hardware</Application>
+      </Applications>
+      <Elements>
+        <Element Name="InstalledBaseCountry" Caption="Installed base country" InputOption="ManualyAutomaticly">
+          <CostEditor>
+            <Roles>
+              <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+      </Elements>
+    </Block>
 
+    <Block Name="MarkupOtherCosts" Caption="Markup other costs">
+      <Applications>
+        <Application>Hardware</Application>
+      </Applications>
+      <Elements>
+        <Element Name="MarkupFactor" Caption="Markup factor for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+          <CostEditor>
+            <Roles>
+              <Role>Country Finance Director</Role>
+              <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+          <CostEditor>
+            <Roles>
+              <Role>Country Finance Director</Role>
+              <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+      </Elements>
+    </Block>
+
+    <Block Name="ProlongationMarkup" Caption="Prolongation markup">
+      <Applications>
+        <Application>Hardware</Application>
+      </Applications>
+      <Elements>
+        <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+          <CostEditor>
+            <Roles>
+              <Role>Country Finance Director</Role>
+              <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+          <CostEditor>
+            <Roles>
+              <Role>Country Finance Director</Role>
+              <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+      </Elements>
+    </Block>
+
+    <Block Name="MarkupStandardWaranty" Caption="Markup standard waranty">
+      <Applications>
+        <Application>Hardware</Application>
+      </Applications>
+      <Elements>
+        <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+          <CostEditor>
+            <Roles>
+              <Role>Country Finance Director</Role>
+              <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="MarkupStandardWarranty" Caption="Markup for standard warranty local cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+          <CostEditor>
+            <Roles>
+              <Role>Country Finance Director</Role>
+              <Role>Country key user</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+      </Elements>
+    </Block>
+
+   <Block Name="MaterialCostWarranty" Caption="Material cost iW" >
+      <Applications>
+        <Application>Hardware</Application>
+      </Applications>
+      <Elements>
+        <Element Name="MaterialCostWarranty" Caption="Material cost iW" InputOption="ManualyAutomaticly" RegionInput="ClusterRegion">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+          <TableView>
+            <Roles>
+              <Role>PRS PSM</Role>  
+              <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </TableView>
+        </Element>
+      </Elements>
+    </Block>
+
+    <Block Name="MaterialCostOow" Caption="Material cost OOW">
+      <Applications>
+        <Application>Hardware</Application>
+      </Applications>
+      <Elements>
+        <Element Name="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="ClusterRegion">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+          <TableView>
+            <Roles>
+              <Role>PRS PSM</Role>  
+              <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </TableView>
+        </Element>
+      </Elements>
+    </Block>
+
+    <!--HARDCODED-->
+    <!--<Block Name="TaxAndDuties" Caption="Tax &amp; duties">
+      <Applications>
+        <Application>Hardware</Application>
+      </Applications>
+      <Elements>
+        <Element Name="TaxAndDuties" Caption="Tax &amp; duties" InputOption="Automaticly">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+        </Element>
+      </Elements>
+    </Block>-->
+
+    <Block Name="RoleCodeHourlyRates" Caption="Role Code Hourly Rates">
+      <Applications>
+        <Application>Hardware</Application>
+      </Applications>
+      <Elements>
+        <Element Name="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManualyAutomaticly" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>RoleCode</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+      </Elements>
+    </Block>
+    
     <Block Name="HddRetention" Caption="HDD Retention">
       <Applications>
         <Application>Hardware</Application>
@@ -695,7 +695,7 @@
         </Element>
       </Elements>
     </Block>
-    
+
     <Block Name="ProActiveSw" Caption="ProActive">
       <Applications>
         <Application>SoftwareSolution</Application>
@@ -706,6 +706,7 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -720,6 +721,7 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -734,6 +736,7 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -761,6 +764,7 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -775,6 +779,7 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -789,6 +794,7 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -803,6 +809,7 @@
             <InputLevel>Country</InputLevel>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -814,7 +821,7 @@
         </Element>
       </Elements>
     </Block>
-  
+    
     <Block Name="SwSpMaintenance" Caption="SW / SP Maintenance">
       <Applications>
         <Application>SoftwareSolution</Application>
@@ -823,7 +830,7 @@
         <Element Name="2ndLevelSupportCosts" Caption="2nd level support costs" InputOption="Manually" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Pla</InputLevel>
-            <InputLevel>Sog</InputLevel>
+            <InputLevel>Sfab</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -834,7 +841,8 @@
         </Element>
         <Element Name="InstalledBaseSog" Caption="Installed base per SOG" InputOption="Automatically" RegionInput="_none_">
           <InputLevels>
-            <InputLevel>Sog</InputLevel>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -848,6 +856,7 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -861,6 +870,7 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -875,6 +885,7 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -888,6 +899,7 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -901,6 +913,7 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -914,6 +927,7 @@
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
             <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>

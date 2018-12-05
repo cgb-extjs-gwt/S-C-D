@@ -14,6 +14,10 @@ export class CountryGroupService extends CacheDomainService<NamedId> {
         return this.getAll().then(x => this.distinct(x, 'lutCode'));
     }
 
+    public getIsoCode(): Promise<NamedId[]> {
+        return this.getAll().then(x => this.distinct(x, 'isO3Code'));
+    }
+
     private distinct(data: NamedId[], prop: string): NamedId[] {
         let result = [];
         if (data) {

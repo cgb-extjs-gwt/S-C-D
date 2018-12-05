@@ -3,6 +3,12 @@ IF OBJECT_ID('dbo.GetAvailabilityFeeCoverageCombination') IS NOT NULL
 go
 
 CREATE PROCEDURE [dbo].[GetAvailabilityFeeCoverageCombination]
+	@cnt int=null,
+	@rtime int=null,
+	@rtype int=null,
+	@serloc int=null,
+	@isapp bit=null,
+
 	@pageSize int,
 	@pageNumber int,
 	@totalCount int OUTPUT
@@ -18,19 +24,21 @@ CREATE PROCEDURE [dbo].[GetAvailabilityFeeCoverageCombination]
 					sla.ReactionTypeName, sla.ReactionTypeId, 
 					sla.ServiceLocatorName, sla.ServiceLocatorId, af.Id
 				FROM
-					(SELECT c.[Name] AS CountryName, c.[Id] AS CountryId, 
+					(SELECT cnt.[Name] AS CountryName, cnt.[Id] AS CountryId, 
 							rtime.[Name] AS ReactionTimeName, rtime.Id AS ReactionTimeId,
 							rtype.[Name] AS ReactionTypeName, rtype.[Id] AS ReactionTypeId, 
-							sl.[Name] AS ServiceLocatorName, sl.Id AS ServiceLocatorId FROM
-							[InputAtoms].[Country] AS c CROSS JOIN 
-							[Dependencies].[ReactionTime] AS rtime CROSS JOIN
-							[Dependencies].[ReactionType] AS rtype CROSS JOIN
-							[Dependencies].[ServiceLocation] AS sl) sla
+							sl.[Name] AS ServiceLocatorName, sl.Id AS ServiceLocatorId 
+					 FROM
+							[InputAtoms].[Country] AS cnt 
+							CROSS JOIN (select * from [Dependencies].[ReactionTime] where (@rtime is null or Id=@rtime)) AS rtime 
+							CROSS JOIN (select * from [Dependencies].[ReactionType] where (@rtype is null or Id=@rtype)) AS rtype 
+							CROSS JOIN (select * from [Dependencies].[ServiceLocation] where (@serloc is null or Id=@serloc)) AS sl) sla
 							LEFT JOIN [Admin].[AvailabilityFee] af ON
-						sla.CountryId = af.[CountryId] AND 
-						sla.ReactionTimeId = af.[ReactionTimeId] AND
-						sla.ReactionTypeId = af.[ReactionTypeId] AND
-						sla.ServiceLocatorId = af.[ServiceLocationId]) AS temp
+								sla.CountryId = af.[CountryId] AND 
+								sla.ReactionTimeId = af.[ReactionTimeId] AND
+								sla.ReactionTypeId = af.[ReactionTypeId] AND
+								sla.ServiceLocatorId = af.[ServiceLocationId] 
+							where (@cnt is null or sla.CountryId=@cnt) and (@isapp is null or (@isapp=0 and af.Id is null) or (@isapp=1 and af.Id is not null))) AS temp
 
 		SET @totalCount = (SELECT COUNT(*) FROM #Temp_AFR)
 
@@ -46,8 +54,7 @@ CREATE PROCEDURE [dbo].[GetAvailabilityFeeCoverageCombination]
 						[ServiceLocatorName], [ServiceLocatorId], [Id]
 				FROM #Temp_AFR
 		) AS temp
-		WHERE temp.RowNum > @pageSize * (@pageNumber - 1) AND temp.RowNum <= @pageSize * @pageNumber
-			
+		WHERE temp.RowNum > @pageSize * (@pageNumber - 1) AND temp.RowNum <= @pageSize * @pageNumber		
     END
 go
 

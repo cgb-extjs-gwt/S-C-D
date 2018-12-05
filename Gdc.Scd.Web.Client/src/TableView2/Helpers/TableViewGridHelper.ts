@@ -28,7 +28,13 @@ export class TableViewGridHelper {
 
         const countColumns = mapToColumnInfo(schema.recordInfo.data, meta, costBlockCache, buildCountColumns);
 
-        columns.push(...countColumns, ...coordinateColumns, ...costElementColumns);
+        const wgAdditionalColumns = [
+            buildAdditionalColumns("WG Full name", "Wg.Description"),
+            buildAdditionalColumns("PLA", "Wg.PLA"),
+            buildAdditionalColumns("Responsible Person", "Wg.ResponsiblePerson")
+        ]
+
+        columns.push(...countColumns, ...coordinateColumns, ...wgAdditionalColumns, ...costElementColumns);
 
         coordinateColumns.forEach(column => filterDataIndexes.push(column.dataIndex));
 
@@ -216,3 +222,12 @@ const buildCountColumns = (costBlock: CostBlockMeta, fieldInfo: FieldInfo) => (<
 })
 
 const buildCountDataIndex = (dataIndex: string) => `${dataIndex}_Count`
+
+const buildAdditionalColumns = (title, dataIndex) => {
+    return <ColumnInfo<TableViewRecord>>{
+        title: title,
+        dataIndex: dataIndex,
+        type: ColumnType.Text,
+        mappingFn: record => record.additionalData[dataIndex]
+    }
+}

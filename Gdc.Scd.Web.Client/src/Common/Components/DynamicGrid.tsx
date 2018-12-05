@@ -263,7 +263,7 @@ export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGrid
             margin: '-5 10 10 10',
             style: 'border: 1px solid rgb(226, 226, 226);',
             columns: [
-                { xtype: 'checkcolumn', dataIndex: filter.checkedDataIndex, width: 70 },
+                { xtype: 'checkcolumn', dataIndex: filter.checkedDataIndex, width: 70, sortable: false },
                 { text: 'Value', dataIndex: filter.valueDataIndex, width: 200  }
             ]
         };

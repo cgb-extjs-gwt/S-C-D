@@ -125,8 +125,10 @@ export class TableView extends React.Component<any, TableViewState> {
         if (operation === StoreOperation.Edit) {
             const [dataIndex] = modifiedFieldNames;
             const countDataIndex = TableViewGridHelper.buildCountDataIndex(dataIndex);
-
-            if (record.get(countDataIndex) == 0) {
+            if (modifiedFieldNames[0] in record.data.additionalData || modifiedFieldNames[0] in record.data.coordinates) {
+                record.reject();
+            }
+            else if (record.get(countDataIndex) == 0) {
                 record.data[countDataIndex] = 1;
             }
         }

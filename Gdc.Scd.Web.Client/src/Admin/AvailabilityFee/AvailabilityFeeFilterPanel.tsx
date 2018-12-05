@@ -30,7 +30,7 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
 
     public render() {
         return (
-            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
+            <Panel title="Filter By" {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
 
                 <Container margin="10px 0"
                     defaults={{

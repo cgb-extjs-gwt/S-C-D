@@ -55,5 +55,7 @@
         public const string SogInputLevel = "Sog";
 
         public const string AvailabilityFeeCostBlock = "AvailabilityFee";
+
+        public const string SwDigitInputLevel = "SwDigit";
     }
 }
