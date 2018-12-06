@@ -162,24 +162,34 @@ export class EditGrid extends React.Component<EditGridProps> {
                     let result: string;
 
                     if (data.valueCount == 1) {
-                        result =  value ? 'true' : 'false';
+                        result = value ? 'true' : 'false';
                     } else {
                         result = this.getValueCountMessage(data);
                     }
 
                     return result;
-                }
+                };
+                let selectField = (<SelectField
+                    options={[
+                        { text: 'true', value: 1 },
+                        { text: 'false', value: 0 }
+                    ]}
+                    listeners={[
+                        {
+                            select: {
+                                element: 'element',
+                                fn: (element) => { console.log(element)}
+                            }}
+                    ]}
+                />);
+
 
                 column = (
                     <Column {...columnOptions}>
-                        <SelectField 
-                            options={[
-                                { text: 'true', value: 1 }, 
-                                { text: 'false', value: 0 }
-                            ]}
-                        />
+                        {selectField}
                     </Column>
                 );
+                
                 break;
         }
     
