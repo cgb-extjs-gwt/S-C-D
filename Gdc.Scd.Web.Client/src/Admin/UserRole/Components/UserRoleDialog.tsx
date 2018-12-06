@@ -119,8 +119,17 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, any> {
                     roleId: this.roleComboBox.getValue(),
                     countryId: this.countryComboBox.getValue()
                 });
-                store.add(newUser);
-                newUser.set({ id: 0 });
+                if (store.findBy(record => record.data.userId == newUser.data.userId &&
+                    record.data.roleId == newUser.data.roleId &&
+                    record.data.countryId == newUser.data.countryId)==-1) {
+                    store.add(newUser);
+                    newUser.set({ id: 0 });
+                }
+                else
+                {
+                    Ext.Msg.alert('Error', 'This user role already exists')
+                }
+                
             }
             saveRecords();
             onHideDialog();

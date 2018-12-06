@@ -4,6 +4,7 @@ import { ApprovalBundleState } from "../States/ApprovalBundleState";
 import { ApprovalBundle } from "../States/ApprovalBundle";
 import { OWN_COST_APPROVAL_PAGE } from "../Constants/CostApprovalConstants";
 import { OwnApproveRejectContainerComponent } from "./OwnApproveRejectContainerComponent"
+import { loadOwnBundlesByFilter } from '../Actions/BundleListActions';
 
 export class OwnApprovalCostElementsLayout extends BaseBundleLayout {
     protected isCheckColumnsVisible(): boolean {
@@ -31,5 +32,9 @@ export class OwnApprovalCostElementsLayout extends BaseBundleLayout {
                 onHandled={onHandled}
             />
         );
+    }
+
+    protected buildReloadBundlesAction(pageName: string, approvalBundleState: ApprovalBundleState) {
+        return loadOwnBundlesByFilter(pageName, approvalBundleState);
     }
 }

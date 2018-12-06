@@ -27,3 +27,14 @@ export const getLastInputLevel = (costElement: CostElementMeta) => {
 
     return inputLevels[inputLevels.length - 1];
 }
+
+export const mapCostElements = <T>(
+    costBlockMetas: CostBlockMeta[], 
+    mapFn: (costElement: CostElementMeta, costBlock: CostBlockMeta) => T
+) =>
+costBlockMetas.reduce<T[]>(
+    (acc, costBlock) => acc.concat(
+        ...costBlock.costElements.map(costElement => mapFn(costElement, costBlock)), 
+    ),
+    []
+)

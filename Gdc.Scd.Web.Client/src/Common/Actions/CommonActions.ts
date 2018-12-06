@@ -8,16 +8,16 @@ export interface ItemSelectedAction extends Action<string> {
     selectedItemId: string;
 }
 
+export interface MultiItemSelectedAction extends Action<string> {
+    selectedItemIds: string[];
+}
+
 export interface PageItemSelectedAction extends ItemSelectedAction, PageAction {
 
 }
 
-export interface ItemWithParentSelectedAction extends ItemSelectedAction{
-    selectedItemParentId: string
-}
+export interface PageMultiItemSelectedAction extends MultiItemSelectedAction, PageAction {
 
-export interface PageItemWithParentSelectedAction extends PageAction, ItemWithParentSelectedAction {
-    
 }
 
 export interface CommonAction<T = any> extends Action<string> {
