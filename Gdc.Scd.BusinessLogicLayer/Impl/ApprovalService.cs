@@ -25,6 +25,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IEmailService emailService;
 
+        private readonly IUserService userService;
+
         private readonly DomainMeta domainMeta;
 
         private readonly DomainEnitiesMeta domainEnitiesMeta;
@@ -37,6 +39,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             IQualityGateSevice qualityGateSevice,
             IApprovalRepository approvalRepository,
             IEmailService emailService,
+            IUserService userService,
             DomainMeta domainMeta, 
             DomainEnitiesMeta domainEnitiesMeta)
         {
@@ -46,6 +49,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.qualityGateSevice = qualityGateSevice;
             this.approvalRepository = approvalRepository;
             this.emailService = emailService;
+            this.userService = userService;
             this.domainMeta = domainMeta;
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
@@ -53,62 +57,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public async Task<IEnumerable<Bundle>> GetApprovalBundles(CostBlockHistoryFilter filter, CostBlockHistoryState state)
         {
             var histories = this.costBlockHistoryService.GetByFilter(filter, state).ToArray();
-            var historyInfos =
-                histories.Select(history => new
-                {
-                    History = history,
-                    RegionInput = this.domainMeta.GetCostElement(history.Context).RegionInput
-                });
 
-            var historyInfoGroups = historyInfos.Where(info => info.RegionInput != null).GroupBy(info => info.RegionInput);
+            return await this.GetApprovalBundles(histories);
+        }
 
-            var regionCache = new Dictionary<InputLevelMeta, Dictionary<long, NamedId>>();
+        public async Task<IEnumerable<Bundle>> GetOwnApprovalBundles(CostBlockHistoryFilter filter, CostBlockHistoryState state)
+        {
+            var user = this.userService.GetCurrentUser();
+            var histories = 
+                this.costBlockHistoryService.GetByFilter(filter, state)
+                                            .Where(history => history.EditUser.Id == user.Id)
+                                            .ToArray();
 
-            foreach (var historyInfoGroup in historyInfoGroups)
-            {
-                var regionIds =
-                    historyInfoGroup.Where(historyInfo => historyInfo.History.Context.RegionInputId.HasValue)
-                                    .Select(historyInfo => historyInfo.History.Context.RegionInputId.Value);
-
-                var entityMeta = this.domainEnitiesMeta.GetInputLevel(historyInfoGroup.Key.Id);
-                var regions = await this.sqlRepository.GetNameIdItems(entityMeta, entityMeta.IdField.Name, entityMeta.NameField.Name, regionIds);
-
-                regionCache.Add(historyInfoGroup.Key, regions.ToDictionary(region => region.Id));
-            }
-
-            var historyDtos = new List<Bundle>();
-
-            foreach (var history in histories)
-            {
-                var costBlock = this.domainMeta.CostBlocks[history.Context.CostBlockId];
-                var costElement = costBlock.CostElements[history.Context.CostElementId];
-                var regionInput = costElement.RegionInput == null
-                    ? null
-                    : regionCache[costElement.RegionInput][history.Context.RegionInputId.Value];
-
-                var historyDto = new Bundle
-                {
-                    Id = history.Id,
-                    EditDate = history.EditDate,
-                    EditUser = new NamedId
-                    {
-                        Id = history.EditUser.Id,
-                        Name = history.EditUser.Name
-                    },
-                    EditItemCount = history.EditItemCount,
-                    IsDifferentValues = history.IsDifferentValues,
-                    Application = MetaDto.Build(this.domainMeta.Applications[history.Context.ApplicationId]),
-                    CostBlock = MetaDto.Build(costBlock),
-                    CostElement = MetaDto.Build(costElement),
-                    InputLevel = MetaDto.Build(costElement.InputLevels[history.Context.InputLevelId]),
-                    RegionInput = regionInput,
-                    QualityGateErrorExplanation = history.QualityGateErrorExplanation
-                };
-
-                historyDtos.Add(historyDto);
-            }
-
-            return historyDtos;
+            return await this.GetApprovalBundles(histories);
         }
 
         public async Task<QualityGateResult> SendForApproval(long historyId, string qualityGateErrorExplanation = null)
@@ -200,6 +161,66 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var history = this.costBlockHistoryService.Get(costBlockHistoryId);
 
             return await this.GetApproveBundleDetails(history, historyValueId, costBlockFilter);
+        }
+
+        private async Task<IEnumerable<Bundle>> GetApprovalBundles(CostBlockHistory[] histories)
+        {
+            var historyInfos =
+                histories.Select(history => new
+                {
+                    History = history,
+                    RegionInput = this.domainMeta.GetCostElement(history.Context).RegionInput
+                });
+
+            var historyInfoGroups = historyInfos.Where(info => info.RegionInput != null).GroupBy(info => info.RegionInput);
+
+            var regionCache = new Dictionary<InputLevelMeta, Dictionary<long, NamedId>>();
+
+            foreach (var historyInfoGroup in historyInfoGroups)
+            {
+                var regionIds =
+                    historyInfoGroup.Where(historyInfo => historyInfo.History.Context.RegionInputId.HasValue)
+                                    .Select(historyInfo => historyInfo.History.Context.RegionInputId.Value);
+
+                var entityMeta = this.domainEnitiesMeta.GetInputLevel(historyInfoGroup.Key.Id);
+                var regions = await this.sqlRepository.GetNameIdItems(entityMeta, entityMeta.IdField.Name, entityMeta.NameField.Name, regionIds);
+
+                regionCache.Add(historyInfoGroup.Key, regions.ToDictionary(region => region.Id));
+            }
+
+            var historyDtos = new List<Bundle>();
+
+            foreach (var history in histories)
+            {
+                var costBlock = this.domainMeta.CostBlocks[history.Context.CostBlockId];
+                var costElement = costBlock.CostElements[history.Context.CostElementId];
+                var regionInput = costElement.RegionInput == null
+                    ? null
+                    : regionCache[costElement.RegionInput][history.Context.RegionInputId.Value];
+
+                var historyDto = new Bundle
+                {
+                    Id = history.Id,
+                    EditDate = history.EditDate,
+                    EditUser = new NamedId
+                    {
+                        Id = history.EditUser.Id,
+                        Name = history.EditUser.Name
+                    },
+                    EditItemCount = history.EditItemCount,
+                    IsDifferentValues = history.IsDifferentValues,
+                    Application = MetaDto.Build(this.domainMeta.Applications[history.Context.ApplicationId]),
+                    CostBlock = MetaDto.Build(costBlock),
+                    CostElement = MetaDto.Build(costElement),
+                    InputLevel = MetaDto.Build(costElement.InputLevels[history.Context.InputLevelId]),
+                    RegionInput = regionInput,
+                    QualityGateErrorExplanation = history.QualityGateErrorExplanation
+                };
+
+                historyDtos.Add(historyDto);
+            }
+
+            return historyDtos;
         }
     }
 }
