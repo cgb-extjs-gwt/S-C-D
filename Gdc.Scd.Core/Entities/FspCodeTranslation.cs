@@ -18,6 +18,8 @@ namespace Gdc.Scd.Core.Entities
 
         public string SecondSLA { get; set; }
 
+        public bool? IsStandardWarranty { get; set; }
+
         public DateTime CreatedDateTime { get; set; }
 
         public ServiceLocation ServiceLocation { get; set; }

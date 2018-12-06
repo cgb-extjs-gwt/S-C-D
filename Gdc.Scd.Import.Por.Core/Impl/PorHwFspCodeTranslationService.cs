@@ -62,8 +62,9 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         return mapping.Country_Group;
                     };
 
-                    var stdwResult = UploadCodes(model.StandardWarranties, getCountryCode, model.HwSla, model.Sla,
-                                                 model.CreationDate, model.ProactiveServiceTypes, false);
+
+                    var stdwResult = UploadStdws(model.StandardWarranties, getCountryCode, model.HwSla, model.Sla,
+                                                 model.CreationDate);
 
                     _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, stdwResult ? "0" : "-1");
 
@@ -80,6 +81,118 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             }
         }
 
+        private bool UploadStdws(IEnumerable<SCD2_v_SAR_new_codes> stdwCodes,
+            Func<SCD2_v_SAR_new_codes, string> getCountryCode, 
+            HwSlaDto stdwSla,
+            SlaDictsDto slaDto,
+            DateTime createdDateTime)
+        {
+            var result = true;
+            var updatedFspCodes = new List<HwFspCodeTranslation>();
+            try
+            {
+                foreach (var code in stdwCodes)
+                {
+                    if (String.IsNullOrEmpty(code.WG))
+                    {
+                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.EMPTY_WG, code.Service_Code);
+                        continue;
+                    }
+
+                    var wg = stdwSla.Wgs.FirstOrDefault(w => w.Name == code.WG);
+                    if (wg == null)
+                    {
+                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOW_WG, code.Service_Code, code.WG);
+                        continue;
+                    }
+
+                    var sla = code.MapFspCodeToSla(slaDto);
+
+                    if (sla == null)
+                    {
+                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_SLA_TRANSLATION, code.Service_Code);
+                        continue;
+                    }
+
+                    var countryCode = getCountryCode(code);
+
+                    if (String.IsNullOrEmpty(countryCode) || 
+                        !stdwSla.Countries.ContainsKey(countryCode))
+                    {
+                        var dbcode = new HwFspCodeTranslation
+                        {
+                            AvailabilityId = sla.Availability,
+                            DurationId = sla.Duration,
+                            ReactionTimeId = sla.ReactionTime,
+                            ReactionTypeId = sla.ReactionType,
+                            ServiceLocationId = sla.ServiceLocation,
+                            WgId = wg.Id,
+                            Name = code.Service_Code,
+                            SCD_ServiceType = code.SCD_ServiceType,
+                            SecondSLA = code.SecondSLA,
+                            ServiceDescription = code.SAP_Kurztext_Englisch,
+                            EKSAPKey = code.EKSchluesselSAP,
+                            EKKey = code.EKSchluessel,
+                            Status = code.VStatus,
+                            ProactiveSlaId = sla.ProActive,
+                            ServiceType = code.ServiceType,
+                            CreatedDateTime = createdDateTime,
+                            IsStandardWarranty = true
+                        };
+
+                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                                   nameof(HwFspCodeTranslation), dbcode.Name);
+
+                        updatedFspCodes.Add(dbcode);
+                    }
+
+                    else
+                    {
+                        foreach (var country in stdwSla.Countries[countryCode])
+                        {
+                            var dbcode = new HwFspCodeTranslation
+                            {
+                                AvailabilityId = sla.Availability,
+                                CountryId = country,
+                                DurationId = sla.Duration,
+                                ReactionTimeId = sla.ReactionTime,
+                                ReactionTypeId = sla.ReactionType,
+                                ServiceLocationId = sla.ServiceLocation,
+                                WgId = wg.Id,
+                                Name = code.Service_Code,
+                                SCD_ServiceType = code.SCD_ServiceType,
+                                SecondSLA = code.SecondSLA,
+                                ServiceDescription = code.SAP_Kurztext_Englisch,
+                                EKSAPKey = code.EKSchluesselSAP,
+                                EKKey = code.EKSchluessel,
+                                Status = code.VStatus,
+                                ProactiveSlaId = sla.ProActive,
+                                ServiceType = code.ServiceType,
+                                CreatedDateTime = createdDateTime,
+                                IsStandardWarranty = true
+                            };
+
+                            _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                                            nameof(HwFspCodeTranslation), dbcode.Name);
+
+                            updatedFspCodes.Add(dbcode);
+                        }
+                    }
+
+                   
+                }
+
+                this.Save(updatedFspCodes);
+
+                _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_END, updatedFspCodes.Count);
+                return result;
+            }
+
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
         private bool UploadCodes (IEnumerable<SCD2_v_SAR_new_codes> hardwareCodes,
             Func<SCD2_v_SAR_new_codes, string> getCountryCode,
             HwSlaDto hwSla,
@@ -169,7 +282,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                                 Status = code.VStatus,
                                 ProactiveSlaId = sla.ProActive,
                                 ServiceType = code.ServiceType,
-                                CreatedDateTime = createdDateTime
+                                CreatedDateTime = createdDateTime,
+                                IsStandardWarranty = false
                             };
 
                             _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
