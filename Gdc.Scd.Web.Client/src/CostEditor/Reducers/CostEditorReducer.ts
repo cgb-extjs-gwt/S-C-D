@@ -3,15 +3,15 @@ import { CostEditorState, ApplicationState } from "../States/CostEditorStates";
 import { COST_EDITOR_PAGE, COST_EDITOR_SELECT_APPLICATION } from "../Actions/CostEditorActions";
 import { CostBlockState, CostElementState, InputLevelState, CheckItem, EditItem, CostBlockEditState } from "../States/CostBlockStates";
 import { ItemSelectedAction } from "../../Common/Actions/CommonActions";
-import { NamedId } from "../../Common/States/CommonStates";
+import { NamedId, SelectList } from "../../Common/States/CommonStates";
 import { APP_PAGE_INIT, PageInitAction, LoadingAppDataAction, APP_LOAD_DATA } from "../../Layout/Actions/AppActions";
 import { CountryInputLevel } from "../../Common/Constants/MetaConstants";
 import { CostBlockMeta, InputLevelMeta, CostMetaData, UsingInfo, FieldType } from "../../Common/States/CostMetaStates";
-import { filterCostEditorItems, findCostBlockByState, findCostBlock, findApplication } from "../Helpers/CostEditorHelpers";
+import { filterCostEditorItems, findCostBlockByState, findCostBlock, findApplication, findCostElement } from "../Helpers/CostEditorHelpers";
 import { COST_BLOCK_INPUT_LOAD_COST_ELEMENT_DATA, CostBlockAction, CostElementAction, InputLevelAction, RegionSelectedAction, CostElementFilterSelectionChangedAction, InputLevelFilterSelectionChangedAction, CostElementDataLoadedAction, InputLevelFilterLoadedAction, EditItemsAction, ItemEditedAction, SaveEditItemsAction, COST_BLOCK_INPUT_SELECT_REGIONS, COST_BLOCK_INPUT_SELECT_COST_ELEMENT, COST_BLOCK_INPUT_SELECTION_CHANGE_COST_ELEMENT_FILTER, COST_BLOCK_INPUT_RESET_COST_ELEMENT_FILTER, COST_BLOCK_INPUT_SELECT_INPUT_LEVEL, COST_BLOCK_INPUT_SELECTION_CHANGE_INPUT_LEVEL_FILTER, COST_BLOCK_INPUT_RESET_INPUT_LEVEL_FILTER, COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER, COST_BLOCK_INPUT_LOAD_EDIT_ITEMS, COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS, COST_BLOCK_INPUT_EDIT_ITEM, COST_BLOCK_INPUT_SAVE_EDIT_ITEMS, COST_BLOCK_INPUT_APPLY_FILTERS, COST_BLOCK_INPUT_RESET_ERRORS, COST_EDITOR_SELECT_COST_BLOCK } from "../Actions/CostBlockActions";
 import { mapIf } from "../../Common/Helpers/CommonHelpers";
 import { changeSelecitonFilterItem, resetFilter, loadFilter } from "./FilterReducer";
-import { findMeta } from "../../Common/Helpers/MetaHelper";
+import { findMeta, getCostElement } from "../../Common/Helpers/MetaHelper";
 
 const createMap = <T extends NamedId>(array: T[]) => {
     const map = new Map<string, T>();
@@ -34,9 +34,7 @@ const buildCostBlockState = (costBlockMeta: CostBlockMeta) => (<CostBlockState>{
                     inputLevelId: inputLevel.id
                 }))
             },
-            isDataLoaded: costElementMeta.regionInput || 
-                            costElementMeta.dependency || 
-                            costElementMeta.typeOptions && costElementMeta.typeOptions.Type === FieldType.Reference
+            isDataLoaded: false
         }))
     },
     edit: {
@@ -239,14 +237,57 @@ const selectRegion = buildCostBlockChanger<RegionSelectedAction>(
     })
 )
 
+const setPreviousRegion = (
+    newCostElementId: string, 
+    costBlock: CostBlockState,
+    costBlockMeta: CostBlockMeta
+) => {
+    const oldCostElementId = costBlock.costElements.selectedItemId;
+
+    if (oldCostElementId) {
+        const oldCostElementMeta = getCostElement(costBlockMeta, oldCostElementId);
+        const newCostElementMeta = getCostElement(costBlockMeta, newCostElementId);
+
+        if (newCostElementMeta.id != oldCostElementMeta.id &&
+            newCostElementMeta.regionInput && 
+            newCostElementMeta.regionInput.id == oldCostElementMeta.regionInput.id) {
+            const oldCostElement = findCostElement(costBlock.costElements, oldCostElementId);
+
+            costBlock = {
+                ...costBlock,
+                costElements: {
+                    ...costBlock.costElements,
+                    list: mapIf(
+                        costBlock.costElements.list, 
+                        costElement => costElement.costElementId == newCostElementId,
+                        costElement => <CostElementState>{
+                            ...costElement,
+                            region: {
+                                ...costElement.region,
+                                selectedItemId: oldCostElement.region.selectedItemId
+                            }
+                        }
+                    )
+                }
+            }
+        } 
+    } 
+
+    return costBlock;
+}
+
 const selectCostElement = buildCostBlockChanger<CostElementAction>(
-    (costBlock, { costElementId }) => (<CostBlockState>{
-        ...costBlock, 
-        costElements: {
-            ...costBlock.costElements,
-            selectedItemId: costElementId
+    (costBlock, { costElementId, costBlockMeta }) => {
+        costBlock = setPreviousRegion(costElementId, costBlock, costBlockMeta);
+
+        return <CostBlockState>{
+            ...costBlock, 
+            costElements: {
+                ...costBlock.costElements,
+                selectedItemId: costElementId,
+            }
         }
-    })
+    }
 )
 
 const changeSelectionCostElementFilter = buildCostElementListItemChanger<CostElementFilterSelectionChangedAction>(
@@ -287,18 +328,36 @@ const resetInputLevelFilter = buildInputLevelFilterChanger(
     })
 )
 
-const loadCostElementData = buildCostElementListItemChanger<CostElementDataLoadedAction>(
-    (costElement, { costElementData }) => ({
-        ...costElement,
-        isDataLoaded: true,
-        region: {
-            ...costElement.region,
-            list: costElementData.regions && costElementData.regions.sort((region1, region2) => region1.name.localeCompare(region2.name)),
-            selectedItemId: costElementData.regions && costElementData.regions[0].id
-        },
-        filter: loadFilter(costElementData.filters),
-        referenceValues: costElementData.referenceValues
-    })
+const loadCostElementData = buildCostBlockChanger<CostElementDataLoadedAction>(
+    (costBlock, { costElementId, costBlockMeta, costElementData  }) => { 
+        costBlock = setPreviousRegion(costElementId, costBlock, costBlockMeta)
+
+        return <CostBlockState>{
+            ...costBlock,
+            costElements: {
+                ...costBlock.costElements,
+                list: mapIf(
+                    costBlock.costElements.list,
+                    costElement => costElement.costElementId == costElementId,
+                    costElement => (<CostElementState>{
+                        ...costElement,
+                        isDataLoaded: true,
+                        filter: loadFilter(costElementData.filters),
+                        referenceValues: costElementData.referenceValues,
+                        region: {
+                            ...costElement.region,
+                            list: 
+                                costElementData.regions && 
+                                costElementData.regions.sort((region1, region2) => region1.name.localeCompare(region2.name)),
+                            selectedItemId: 
+                                costElement.region && costElement.region.selectedItemId || 
+                                costElementData.regions && costElementData.regions[0].id
+                        },
+                    })
+                )
+            }
+        }
+    }
 )
 
 const loadLevelInputFilter = buildInputLevelFilterChanger<InputLevelFilterLoadedAction>(
