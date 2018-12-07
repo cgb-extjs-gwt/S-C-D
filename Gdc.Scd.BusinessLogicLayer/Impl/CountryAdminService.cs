@@ -24,12 +24,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public List<CountryDto> GetAll(int pageNumber, int limit, out int totalCount, AdminCountryFilterDto filter = null)
         {
-            var countries = _countryRepo.GetAll().OrderBy(c => c.Name).ToList();
-            
-            var result = countries.Skip((pageNumber - 1) * limit);
+            var countries = _countryRepo.GetAll();
+
             if (filter != null)
             {
-                result = result.Where(x =>
+                countries = countries.Where(x =>
+                    (filter.Country != null ? x.Id == filter.Country : true) &&
                     (filter.Group != null ? x.CountryGroupId == filter.Group : true) &&
                     (filter.Lut != null ? x.CountryGroup.LUTCode == filter.Lut : true) &&
                     (filter.Digit != null ? x.CountryGroup.CountryDigit == filter.Digit : true) &&
@@ -40,9 +40,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 );
             }
 
-            totalCount = result.Count();
+            totalCount = countries.Count();
 
-            return result.Select(c => new CountryDto
+            countries = countries.OrderBy(c => c.Name).Skip((pageNumber - 1) * limit);
+          
+            return countries.Select(c => new CountryDto
             {
                 CanOverrideTransferCostAndPrice = c.CanOverrideTransferCostAndPrice,
                 CanStoreListAndDealerPrices = c.CanStoreListAndDealerPrices,
@@ -51,7 +53,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 CountryName = c.Name,
                 LUTCode = c.CountryGroup.LUTCode ?? String.Empty,
                 ISO3Code = c.ISO3CountryCode ?? String.Empty,
-                IsMaster = c.IsMaster ? "TRUE" : "FALSE",
+                IsMaster = c.IsMaster,
                 QualityGroup = c.QualityGateGroup ?? String.Empty,
                 CountryId = c.Id
             }).OrderBy(x=>x.CountryName).ToList();

@@ -1,4 +1,5 @@
 ﻿export interface CountryFilterModel {
+    country?: string;
     group?: string;
     lut?: string;
     digit?: string;

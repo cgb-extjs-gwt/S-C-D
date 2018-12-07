@@ -238,6 +238,10 @@ export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGrid
                 change: (field, newValue: string, oldValue: string) => {
                     const filters = filter.store.getFilters();
 
+                    //if (searchFn) {
+                    //    filters.each(filter => filters.remove(filter));
+                    //}
+
                     if (searchFn) {
                         filters.remove(searchFn);
                     }

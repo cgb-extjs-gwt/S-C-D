@@ -106,15 +106,15 @@ export class CountryGrid extends React.Component {
                     columnLines={true}
                     width="100%"
                     height="100%"
-                    plugins={['pagingtoolbar', 'gridcellediting']}>
+                    plugins={['gridcellediting']}>
                 <Column text="Country" dataIndex="countryName" flex={1} />
                 <Column text="Group" dataIndex="countryGroup" flex={1} />
                 <Column text="LUT" dataIndex="lutCode" flex={1} renderer={this.renderer.bind(this)} />
                 <Column text="Digit" dataIndex="countryDigit" flex={1} renderer={this.renderer.bind(this)} />
                 <Column text="ISO Code" dataIndex="isO3Code" flex={1} renderer={this.renderer.bind(this)} />
-                <Column text="Is Master" dataIndex="isMaster" flex={1} />
+                <CheckColumn text="Is Master" dataIndex="isMaster" flex={1} disabled={true}/>
                 <CheckColumn text="Store List and Dealer Prices" dataIndex="canStoreListAndDealerPrices" flex={2} />
-                <CheckColumn text="Override TC and TP" dataIndex="canOverrideTransferCostAndPrice" flex={2} />
+                <CheckColumn text="Override TC and TP" dataIndex="canOverrideTransferCostAndPrice" flex={1} />
                 <Column text="Quality Group" dataIndex="qualityGroup" flex={1} editable
                     renderer={this.renderer.bind(this)} >
                     <TextField />
