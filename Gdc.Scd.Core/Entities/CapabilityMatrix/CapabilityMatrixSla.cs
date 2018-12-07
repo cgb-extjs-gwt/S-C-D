@@ -24,5 +24,7 @@ namespace Gdc.Scd.Core.Entities.CapabilityMatrix
 
         [Required]
         public ServiceLocation ServiceLocation { get; set; }
+
+        public bool Denied { get; set; }
     }
 }
