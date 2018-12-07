@@ -63,7 +63,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     };
 
 
-                    var stdwResult = UploadStdws(model.StandardWarranties, getCountryCode, model.HwSla, model.Sla,
+                     var stdwResult = UploadStdws(model.StandardWarranties, getCountryCode, model.HwSla, model.Sla,
                                                  model.CreationDate);
 
                     _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, stdwResult ? "0" : "-1");
@@ -93,17 +93,38 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             {
                 foreach (var code in stdwCodes)
                 {
-                    if (String.IsNullOrEmpty(code.WG))
+                    List<long> wgs = new List<long>();
+
+                    if (String.IsNullOrEmpty(code.WG) && String.IsNullOrEmpty(code.SOG))
                     {
-                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.EMPTY_WG, code.Service_Code);
+                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.EMPTY_SOG_WG, code.Service_Code);
                         continue;
                     }
 
-                    var wg = stdwSla.Wgs.FirstOrDefault(w => w.Name == code.WG);
-                    if (wg == null)
+                    //If FSP Code is binded to SOG
+                    if (String.IsNullOrEmpty(code.WG))
                     {
-                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOW_WG, code.Service_Code, code.WG);
-                        continue;
+                        var sog = stdwSla.Sogs.FirstOrDefault(s => s.Name == code.SOG);
+                        if (sog == null)
+                        {
+                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_SOG, code.Service_Code, code.SOG);
+                            continue;
+                        }
+
+                        wgs.AddRange(stdwSla.Wgs.Where(w => w.SogId == sog.Id).Select(w => w.Id));
+                    }
+
+                    //FSP Code is binded to WG
+                    else
+                    {
+                        var wg = stdwSla.Wgs.FirstOrDefault(w => w.Name == code.WG);
+                        if (wg == null)
+                        {
+                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOW_WG, code.Service_Code, code.WG);
+                            continue;
+                        }
+
+                        wgs.Add(wg.Id);
                     }
 
                     var sla = code.MapFspCodeToSla(slaDto);
@@ -119,46 +140,16 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     if (String.IsNullOrEmpty(countryCode) || 
                         !stdwSla.Countries.ContainsKey(countryCode))
                     {
-                        var dbcode = new HwFspCodeTranslation
-                        {
-                            AvailabilityId = sla.Availability,
-                            DurationId = sla.Duration,
-                            ReactionTimeId = sla.ReactionTime,
-                            ReactionTypeId = sla.ReactionType,
-                            ServiceLocationId = sla.ServiceLocation,
-                            WgId = wg.Id,
-                            Name = code.Service_Code,
-                            SCD_ServiceType = code.SCD_ServiceType,
-                            SecondSLA = code.SecondSLA,
-                            ServiceDescription = code.SAP_Kurztext_Englisch,
-                            EKSAPKey = code.EKSchluesselSAP,
-                            EKKey = code.EKSchluessel,
-                            Status = code.VStatus,
-                            ProactiveSlaId = sla.ProActive,
-                            ServiceType = code.ServiceType,
-                            CreatedDateTime = createdDateTime,
-                            IsStandardWarranty = true
-                        };
-
-                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
-                                   nameof(HwFspCodeTranslation), dbcode.Name);
-
-                        updatedFspCodes.Add(dbcode);
-                    }
-
-                    else
-                    {
-                        foreach (var country in stdwSla.Countries[countryCode])
+                        foreach (var wg in wgs)
                         {
                             var dbcode = new HwFspCodeTranslation
                             {
                                 AvailabilityId = sla.Availability,
-                                CountryId = country,
                                 DurationId = sla.Duration,
                                 ReactionTimeId = sla.ReactionTime,
                                 ReactionTypeId = sla.ReactionType,
                                 ServiceLocationId = sla.ServiceLocation,
-                                WgId = wg.Id,
+                                WgId = wg,
                                 Name = code.Service_Code,
                                 SCD_ServiceType = code.SCD_ServiceType,
                                 SecondSLA = code.SecondSLA,
@@ -173,9 +164,45 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                             };
 
                             _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
-                                            nameof(HwFspCodeTranslation), dbcode.Name);
+                                       nameof(HwFspCodeTranslation), dbcode.Name);
 
                             updatedFspCodes.Add(dbcode);
+                        }
+                    }
+
+                    else
+                    {
+                        foreach (var country in stdwSla.Countries[countryCode])
+                        {
+                            foreach (var wg in wgs)
+                            {
+                                var dbcode = new HwFspCodeTranslation
+                                {
+                                    AvailabilityId = sla.Availability,
+                                    CountryId = country,
+                                    DurationId = sla.Duration,
+                                    ReactionTimeId = sla.ReactionTime,
+                                    ReactionTypeId = sla.ReactionType,
+                                    ServiceLocationId = sla.ServiceLocation,
+                                    WgId = wg,
+                                    Name = code.Service_Code,
+                                    SCD_ServiceType = code.SCD_ServiceType,
+                                    SecondSLA = code.SecondSLA,
+                                    ServiceDescription = code.SAP_Kurztext_Englisch,
+                                    EKSAPKey = code.EKSchluesselSAP,
+                                    EKKey = code.EKSchluessel,
+                                    Status = code.VStatus,
+                                    ProactiveSlaId = sla.ProActive,
+                                    ServiceType = code.ServiceType,
+                                    CreatedDateTime = createdDateTime,
+                                    IsStandardWarranty = true
+                                };
+
+                                _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                                                nameof(HwFspCodeTranslation), dbcode.Name);
+
+                                updatedFspCodes.Add(dbcode);
+                            }
                         }
                     }
 

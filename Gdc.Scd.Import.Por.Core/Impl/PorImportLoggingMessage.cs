@@ -27,7 +27,6 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         public const string HANDLE_STANDARDWARRANTY = "Handling Standard Warranty";
         public const string ADDING_SWDIGIT_SWLICENSE = "Adding combination: SW License: {0}, SW Digit: {1}";
         public const string EMPTY_SOG_WG = "WG and SOG are empty for FSP Code {0} ";
-        public const string EMPTY_WG = "WG is empty for FSP Code {0} ";
         public const string UPLOAD_HW_CODES_START = "Uploading {0} is started...";
         public const string UPLOAD_HW_CODES_ENDS = "Uploading is ended. Code: {0}";
         public const string INCORRECT_SOFTWARE_FSPCODE_DIGIT_MAPPING = "Mapping between FSP Code {0} and Digit. ({1}) digits were found.";
