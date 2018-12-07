@@ -71,7 +71,6 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
         } = this.props;
 
         const editActions: EditGridToolActions = {
-            onApplyFilters: this.props.onApplyFilters,
             onCleared: this.props.onEditItemsCleared,
             onItemEdited: this.props.onItemEdited,
             onSaving: this.props.onEditItemsSaving

@@ -16,7 +16,6 @@ Ext.require([
 
 export interface EditGridToolActions {
     onItemEdited?(item: EditItem)
-    onApplyFilters?()
     onCleared?()
     onSaving?(forApproval: boolean)
 }
@@ -24,7 +23,6 @@ export interface EditGridToolActions {
 export interface EditGridToolProps extends EditGridToolActions {
     isEnableSave: boolean
     isEnableClear: boolean
-    isEnableApplyFilters: boolean
     flex?: number
     editGrid: EditGridProps
     qualityGateErrors: BundleDetailGroup[]
@@ -62,13 +60,6 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
         return (
             <Container layout="vbox" flex={props.flex}>
                 <Toolbar docked="top">
-                    <Button 
-                        text="Apply filters" 
-                        flex={1} 
-                        disabled={!props.isEnableApplyFilters}
-                        handler={props.onApplyFilters}
-                    />
-
                     <HistroryButtonContainer 
                         editItemId={editItem}
                         isEnabled={isEnabledHistoryButton}
