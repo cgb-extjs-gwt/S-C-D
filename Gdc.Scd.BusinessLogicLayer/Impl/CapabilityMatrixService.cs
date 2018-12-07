@@ -64,7 +64,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<Tuple<CapabilityMatrixDto[], int>> GetMasterAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
         {
-            var query = matrixMasterRepo.GetAll();
+            var query = matrixMasterRepo.GetAll().Where(x => x.MasterPortfolio || x.FujitsuGlobalPortfolio || x.CorePortfolio);
 
             if (filter != null)
             {
@@ -77,7 +77,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                              .WhereIf(filter.IsGlobalPortfolio.HasValue && filter.IsGlobalPortfolio.Value, x => x.FujitsuGlobalPortfolio)
                              .WhereIf(filter.IsMasterPortfolio.HasValue && filter.IsMasterPortfolio.Value, x => x.MasterPortfolio)
-                             .WhereIf(filter.IsCorePortfolio.HasValue && filter.IsCorePortfolio.Value, x => x.CorePortfolio);
+                             .WhereIf(filter.IsCorePortfolio.HasValue   && filter.IsCorePortfolio.Value  , x => x.CorePortfolio);
             }
 
             var count = await query.GetCountAsync();
