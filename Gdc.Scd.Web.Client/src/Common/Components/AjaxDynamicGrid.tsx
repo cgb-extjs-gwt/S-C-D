@@ -221,7 +221,7 @@ export class AjaxDynamicGrid<T extends AjaxDynamicGridProps = AjaxDynamicGridPro
 
                     filterData.store.each(record => allChecked = record.data.checked);
 
-                    if (allChecked) {
+                    if (allChecked && filterData.store.count() > 1) {
                         filterData.filteredDataSet = dataSets.get(dataIndex);
 
                         filterData.store.filterBy(

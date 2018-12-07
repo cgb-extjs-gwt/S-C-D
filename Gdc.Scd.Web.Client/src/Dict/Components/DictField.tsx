@@ -51,6 +51,15 @@ export abstract class DictField extends React.Component<ComboBoxFieldProps, any>
         return result;
     }
 
+    public getSelectedValue(): string {
+        let result: string = null;
+        let selected = this.combo.getSelection();
+        if (selected) {
+            result = selected.data.name;
+        }
+        return result;
+    }
+
     public reset() {
         this.combo.reset();
     }

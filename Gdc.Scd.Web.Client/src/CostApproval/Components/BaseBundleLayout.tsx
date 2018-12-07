@@ -4,6 +4,7 @@ import { FilterBundleContainer } from "./FilterBundlesContainer";
 import { ApprovalBundleListContainerComponent } from "./ApprovalBundleListContainerComponent";
 import { ApprovalBundle } from "../States/ApprovalBundle";
 import { ApprovalBundleState } from "../States/ApprovalBundleState";
+import { Action } from "redux";
 
 export abstract class BaseBundleLayout extends React.Component{
     public render(){
@@ -21,17 +22,24 @@ export abstract class BaseBundleLayout extends React.Component{
                 <ApprovalBundleListContainerComponent 
                     flex={2}
                     buildChildrenBundleItem={this.buildChildrenBundleItem}
+                    buildReloadBundlesAction={this.buildReloadBundlesAction}
                     approvalBundleState={approvalState}
                     pageName={pageName}
                     title={title}
                     isCheckColumnsVisible={isCheckColumnsVisible}
                 />
-                <FilterBundleContainer pageName={pageName} approvalBundleState={approvalState}/>
+                <FilterBundleContainer 
+                    pageName={pageName} 
+                    approvalBundleState={approvalState}
+                    buildReloadBundlesAction={this.buildReloadBundlesAction}
+                />
             </Container>
         );
     }
 
     protected abstract buildChildrenBundleItem(bundle: ApprovalBundle, onHandled: () => void): any
+
+    protected abstract buildReloadBundlesAction(pageName: string, approvalBundleState: ApprovalBundleState): Action<string>
 
     protected abstract getApprovalBundleState(): ApprovalBundleState
 

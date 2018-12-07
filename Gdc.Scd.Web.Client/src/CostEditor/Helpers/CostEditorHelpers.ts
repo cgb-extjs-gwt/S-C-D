@@ -5,7 +5,7 @@ import { Dispatch } from "react-redux";
 import { CommonState } from "../../Layout/States/AppStates";
 import { UsingInfo, CostBlockMeta, CostMetaData } from "../../Common/States/CostMetaStates";
 import { SelectList } from "../../Common/States/CommonStates";
-import { CostBlockState, CostElementState, InputLevelState } from "../States/CostBlockStates";
+import { CostBlockState, CostElementState, InputLevelState, CheckItem } from "../States/CostBlockStates";
 import { Context } from "../../Common/States/Context";
 
 export const findApplication = (state: CostEditorState, applicationId = state.applications.selectedItemId) => 
@@ -42,6 +42,14 @@ export const findInputeLevelByState = (state: CostEditorState, applicationId?: s
     return findInputLevel(inputLevels, inputeLevelId);
 }
 
+export const getCheckedItemIds = (items: CheckItem[]) => {
+    let ids: string[] = [];
+
+    items && items.forEach(item => item.isChecked && ids.push(item.id));
+
+    return ids;
+}
+
 export const buildCostEditorContext = (state: CostEditorState) => {
     const { id: applicationId, costBlocks } = findApplication(state);
     const costBlock = findCostBlock(costBlocks);
@@ -52,12 +60,23 @@ export const buildCostEditorContext = (state: CostEditorState) => {
     let inputLevelId: string = null;
     let regionInputId: string = null;
 
-    if (costElements.selectedItemId != null) {
-        const selectedCostElement = 
-            costElements.list.find(item => item.costElementId === costElements.selectedItemId);
+    if (costElements.selectedItemId == null) {
+        costElementFilterIds = [];
+        inputLevelFilterIds = [];
+    } else {
+        const selectedCostElement = findCostElement(costElements);
 
         regionInputId = selectedCostElement.region && selectedCostElement.region.selectedItemId;
         inputLevelId = selectedCostElement.inputLevels.selectedItemId;
+        costElementFilterIds = getCheckedItemIds(selectedCostElement.filter);
+
+        const inputLevel = findInputLevel(selectedCostElement.inputLevels);
+
+        if (inputLevel) {
+            inputLevelFilterIds = getCheckedItemIds(inputLevel.filter);
+        } else {
+            inputLevelFilterIds = [];
+        }
     }
 
     return <Context>{
@@ -66,8 +85,8 @@ export const buildCostEditorContext = (state: CostEditorState) => {
         regionInputId,
         costElementId: costElements.selectedItemId,
         inputLevelId,
-        costElementFilterIds: Array.from(costBlock.edit.appliedFilter.costElementsItemIds),
-        inputLevelFilterIds: Array.from(costBlock.edit.appliedFilter.inputLevelItemIds)
+        costElementFilterIds,
+        inputLevelFilterIds
     }
 }
 

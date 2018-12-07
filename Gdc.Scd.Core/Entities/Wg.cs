@@ -35,5 +35,6 @@ namespace Gdc.Scd.Core.Entities
         public DateTime? DeactivatedDateTime { get; set; }
         public DateTime ModifiedDateTime { get; set; }
 
+        public string ResponsiblePerson { get; set; }
     }
 }

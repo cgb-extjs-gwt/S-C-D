@@ -24,6 +24,5 @@ namespace Gdc.Scd.Core.Entities
         public string SCD_ServiceType { get; set; }
 
         public bool IsSoftware { get; set; }
-        public string ResponsiblePerson { get; set; }
     }
 }

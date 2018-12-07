@@ -8,7 +8,7 @@ import { TableViewRecord } from "../States/TableViewRecord";
 import { buildGetHistoryUrl } from "../Services/TableViewService";
 
 const buildHistotyDataLoadUrl = (tableViewInfo: TableViewInfo, [selection]: Model<TableViewRecord>[], selectedDataIndex: string) => {
-    const costElementField = 
+    const costElementField =
         tableViewInfo.recordInfo.data.find(fieldInfo => fieldInfo.dataIndex == selectedDataIndex);
 
     const costElementId: CostElementIdentifier = {
@@ -22,13 +22,13 @@ const buildHistotyDataLoadUrl = (tableViewInfo: TableViewInfo, [selection]: Mode
     for (const key of Object.keys(selection.data.coordinates)) {
         coordinates[key] = selection.data.coordinates[key].id;
     }
-    
+
     return buildGetHistoryUrl(costElementId, coordinates);
 }
 
 export const TableViewContainer = connect<TableViewProps, {}, {}, CommonState>(
     ({ pages: { tableView } }) => ({
-        buildHistotyDataLoadUrl: tableView.info 
+        buildHistotyDataLoadUrl: tableView.info
             ? (selection, selectedDataIndex) => buildHistotyDataLoadUrl(tableView.info, selection, selectedDataIndex)
             : () => ''
     })
