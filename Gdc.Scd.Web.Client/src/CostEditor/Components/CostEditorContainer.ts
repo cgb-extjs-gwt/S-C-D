@@ -26,18 +26,7 @@ import { CommonState } from "../../Layout/States/AppStates";
 import { InputLevelMeta, CostBlockMeta, FieldType } from "../../Common/States/CostMetaStates";
 import { filterCostEditorItems, findCostBlock, findApplication } from "../Helpers/CostEditorHelpers";
 import { findMeta } from "../../Common/Helpers/MetaHelper";
-
-const isSetContainsAllCheckedItems = (set: Set<string>, filterObj: Filter) => {
-    let result = true;
-
-    if (filterObj && filterObj.filter) {
-        const checkedItems = filterObj.filter.filter(item => item.isChecked);
-
-        result = checkedItems.length == set.size && checkedItems.every(item => set.has(item.id))
-    } 
-
-    return result
-}
+import { Dispatch } from "redux";
 
 const buildInputLevel = (
     costBlock: CostBlockState, 
@@ -134,8 +123,6 @@ const costBlockTabMap = (
                 qualityGateErrors: costBlock.edit.saveErrors,
                 isEnableClear: hasChanges,
                 isEnableSave: hasChanges,
-                isEnableApplyFilters: !isSetContainsAllCheckedItems(edit.appliedFilter.costElementsItemIds, selectedCostElement) ||
-                                      !isSetContainsAllCheckedItems(edit.appliedFilter.inputLevelItemIds, selectedInputLevel) 
             }
         }
 
@@ -171,6 +158,25 @@ const costBlockTabMap = (
         }
     }
 }
+
+const applyFilters = (() => { 
+    let invokeCount = 0;
+
+    return (applicationId: string, costBlockId: string, dispatch: Dispatch) => {
+        invokeCount++;
+
+        setTimeout(
+            () => { 
+                invokeCount--;
+
+                if (invokeCount == 0) {
+                    dispatch(applyFiltersWithReloading(applicationId, costBlockId))
+                }
+            },
+            1000
+        )
+    }
+})()
 
 export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},CommonState>(
     state => {
@@ -218,15 +224,19 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
             },
             onCostElementFilterSelectionChanged: (applicationId, costBlockId, costElementId, filterItemId, isSelected) => {
                 dispatch(changeSelectionCostElementFilter(applicationId, costBlockId, costElementId, filterItemId, isSelected));
+                applyFilters(applicationId, costBlockId, dispatch);
             },
             onInputLevelFilterSelectionChanged: (applicationId, costBlockId, costElementId, inputLevelId, filterItemId, isSelected) => {
                 dispatch(changeSelectionInputLevelFilter(applicationId, costBlockId, costElementId, inputLevelId, filterItemId, isSelected));
+                applyFilters(applicationId, costBlockId, dispatch);
             },
             onCostElementFilterReseted: (applicationId, costBlockId, costElementId) => {
                 dispatch(resetCostElementFilter(applicationId, costBlockId, costElementId));
+                applyFilters(applicationId, costBlockId, dispatch);
             },
             onInputLevelFilterReseted: (applicationId, costBlockId, costElementId, inputLevelId) => {
-                dispatch(resetInputLevelFilter(applicationId, costBlockId, costElementId, inputLevelId))
+                dispatch(resetInputLevelFilter(applicationId, costBlockId, costElementId, inputLevelId));
+                applyFilters(applicationId, costBlockId, dispatch);
             },
             onEditItemsCleared: (applicationId, costBlockId) => dispatch(clearEditItems(applicationId, costBlockId)),
             onItemEdited: (applicationId, costBlockId, item) => dispatch(editItem(applicationId, costBlockId, item)),

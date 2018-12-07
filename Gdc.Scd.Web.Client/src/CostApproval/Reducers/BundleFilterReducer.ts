@@ -68,7 +68,7 @@ const unCheckCostBlock: Reducer<BundleFilterStates, ItemSelectedAction> = (state
 const unCheckCostElement: Reducer<BundleFilterStates, CommonAction<CostElementId>> = (state, { data: { costBlockId, costElementId } }) => {
     return {
         ...state,
-        selectedCostElementIds: state.selectedCostElementIds.filter(elem => elem.costBlockId != costBlockId && elem.costElementId != costElementId)
+        selectedCostElementIds: state.selectedCostElementIds.filter(elem => elem.costBlockId != costBlockId || elem.costElementId != costElementId)
     }
 }
 

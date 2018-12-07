@@ -37,10 +37,6 @@ export interface CostElementData {
 export interface CostBlockEditState {
     originalItems: EditItem[],
     editedItems: EditItem[]
-    appliedFilter: {
-        inputLevelItemIds: Set<string>
-        costElementsItemIds: Set<string>
-    }
     saveErrors: BundleDetailGroup[]
 }
 
