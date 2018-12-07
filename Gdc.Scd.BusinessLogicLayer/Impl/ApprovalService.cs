@@ -194,7 +194,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 var costBlock = this.domainMeta.CostBlocks[history.Context.CostBlockId];
                 var costElement = costBlock.CostElements[history.Context.CostElementId];
-                var regionInput = costElement.RegionInput == null
+                var regionInput = costElement.RegionInput == null || !history.Context.RegionInputId.HasValue
                     ? null
                     : regionCache[costElement.RegionInput][history.Context.RegionInputId.Value];
 

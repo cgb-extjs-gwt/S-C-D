@@ -72,12 +72,21 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
             else
             {
-                var filter = new Dictionary<string, IEnumerable<object>>
-                {
-                    [idField] = ids.Cast<object>().ToArray()
-                };
+                var idArray = ids.Cast<object>().ToArray();
 
-                query = selectQuery.Where(filter);
+                if (idArray.Length > 0)
+                {
+                    var filter = new Dictionary<string, IEnumerable<object>>
+                    {
+                        [idField] = ids.Cast<object>().ToArray()
+                    };
+
+                    query = selectQuery.Where(filter);
+                }
+                else
+                {
+                    query = selectQuery;
+                }
             }
 
             return await this.repositorySet.ReadBySql(
