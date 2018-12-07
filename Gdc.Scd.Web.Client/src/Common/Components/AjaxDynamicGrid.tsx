@@ -178,9 +178,11 @@ export class AjaxDynamicGrid<T extends AjaxDynamicGridProps = AjaxDynamicGridPro
                 const value = record.get(column.dataIndex);
                 const { store: filterStore, renderFn } = this.filterDatas.get(column.dataIndex);
 
+                const checkedValues = filterStore.data.items.filter(item => item.data.checked).map(item => item.data.value);
+
                 filterStore.each(
                     ({ data: filterItem }) => {
-                        isVisible = renderFn(value, record) != filterItem.value || filterItem.checked
+                        isVisible = checkedValues.includes(renderFn(value, record))
 
                         return isVisible;
                     }

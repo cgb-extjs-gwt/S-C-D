@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Grid, SelectField, Column, Container, CheckBoxField, CheckColumn, NumberField } from "@extjs/ext-react";
+import { Grid, SelectField, Column, Container, CheckBoxField, CheckColumn, NumberField, ComboBoxField } from "@extjs/ext-react";
 import { EditItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { large, small } from "../../responsiveFormulas";
@@ -92,6 +92,11 @@ export class EditGrid extends React.Component<EditGridProps> {
 
         return Ext.create('Ext.data.Store', {
             data: Array.from(this.itemsMap.values()),
+            fields: ['id', 'name', 'valueCount',
+                {
+                    name: 'value',
+                    mapping: data => data.value == null ? ' ' : data.value
+                }],
             listeners: onItemEdited && {
                 update: (store, record, operation, modifiedFieldNames, details) => {
                     if (modifiedFieldNames[0] === 'name') {
@@ -162,24 +167,27 @@ export class EditGrid extends React.Component<EditGridProps> {
                     let result: string;
 
                     if (data.valueCount == 1) {
-                        result =  value ? 'true' : 'false';
+                        result = value ? 'true' : 'false';
                     } else {
                         result = this.getValueCountMessage(data);
                     }
 
                     return result;
-                }
+                };
+                let selectField = (<SelectField
+                    options={[
+                        { text: 'true', value: 1 },
+                        { text: 'false', value: 0 }
+                    ]}
+                />);
+
 
                 column = (
                     <Column {...columnOptions}>
-                        <SelectField 
-                            options={[
-                                { text: 'true', value: 1 }, 
-                                { text: 'false', value: 0 }
-                            ]}
-                        />
+                        {selectField}
                     </Column>
                 );
+                
                 break;
         }
     

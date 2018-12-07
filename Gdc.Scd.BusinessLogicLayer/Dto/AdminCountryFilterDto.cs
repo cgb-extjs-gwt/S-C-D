@@ -2,6 +2,7 @@
 {
     public class AdminCountryFilterDto
     {
+        public long? Country { get; set; }
         public long? Group {get;set;}
 
         public string Lut {get;set;}
