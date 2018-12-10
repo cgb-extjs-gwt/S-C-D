@@ -62,6 +62,8 @@ export class CapabilityMatrixView extends React.Component<any, any> {
 
     public render() {
 
+        let hasCountry = this.hasCountry();
+
         return (
             <Container scrollable={true}>
 
@@ -81,16 +83,19 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     title="Denied combinations"
                     selectable="multi"
                     plugins={['pagingtoolbar']}>
-                    <NullStringColumn flex="1" text="Country" dataIndex="country" />
+
+                    <NullStringColumn hidden={!hasCountry} flex="1" text="Country" dataIndex="country" />
+
                     <NullStringColumn flex="1" text="WG(Asset)" dataIndex="wg" />
                     <NullStringColumn flex="1" text="Availability" dataIndex="availability" />
                     <NullStringColumn flex="1" text="Duration" dataIndex="duration" />
                     <NullStringColumn flex="1" text="Reaction type" dataIndex="reactionType" />
                     <NullStringColumn flex="1" text="Reaction time" dataIndex="reactionTime" />
                     <NullStringColumn flex="1" text="Service location" dataIndex="serviceLocation" />
-                    <ReadonlyCheckColumn flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
-                    <ReadonlyCheckColumn flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
-                    <ReadonlyCheckColumn flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
+
+                    <ReadonlyCheckColumn hidden={hasCountry} flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
+                    <ReadonlyCheckColumn hidden={hasCountry} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
+                    <ReadonlyCheckColumn hidden={hasCountry} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
 
                 <Grid
@@ -102,16 +107,19 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     title="Allowed combinations"
                     selectable={false}
                     plugins={['pagingtoolbar']}>
-                    <NullStringColumn flex="1" text="Country" dataIndex="country" />
+
+                    <NullStringColumn hidden={!hasCountry} flex="1" text="Country" dataIndex="country" />
+
                     <NullStringColumn flex="1" text="WG(Asset)" dataIndex="wg" />
                     <NullStringColumn flex="1" text="Availability" dataIndex="availability" />
                     <NullStringColumn flex="1" text="Duration" dataIndex="duration" />
                     <NullStringColumn flex="1" text="Reaction type" dataIndex="reactionType" />
                     <NullStringColumn flex="1" text="Reaction time" dataIndex="reactionTime" />
                     <NullStringColumn flex="1" text="Service location" dataIndex="serviceLocation" />
-                    <ReadonlyCheckColumn flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
-                    <ReadonlyCheckColumn flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
-                    <ReadonlyCheckColumn flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
+
+                    <ReadonlyCheckColumn hidden={hasCountry} flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
+                    <ReadonlyCheckColumn hidden={hasCountry} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
+                    <ReadonlyCheckColumn hidden={hasCountry} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
 
             </Container>
@@ -161,6 +169,12 @@ export class CapabilityMatrixView extends React.Component<any, any> {
         handleRequest(p);
     }
 
+    private onBeforeLoad(s, operation) {
+        let filter = this.filter.getModel();
+        let params = Ext.apply({}, operation.getParams(), filter);
+        operation.setParams(params);
+    }
+
     private getDenySelected(): string[] {
         return ExtDataviewHelper.getGridSelected(this.denied, 'id');
     }
@@ -168,11 +182,16 @@ export class CapabilityMatrixView extends React.Component<any, any> {
     private reload() {
         this.denyStore.load();
         this.allowStore.load();
+
+        this.setState({ ___: new Date().getTime() }); //stub
     }
 
-    private onBeforeLoad(s, operation) {
-        let filter = this.filter.getModel();
-        let params = Ext.apply({}, operation.getParams(), filter);
-        operation.setParams(params);
+    private hasCountry(): boolean {
+        let result = false;
+        if (this.filter) {
+            let filter = this.filter.getModel();
+            result = !!(filter && filter.country);
+        }
+        return result;
     }
 }
