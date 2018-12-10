@@ -1,9 +1,7 @@
-import * as React from "react";
-import { DynamicGrid, StoreDynamicGridProps,  } from "./DynamicGrid";
-import { ColumnInfo, FilterItem, ColumnType } from "../States/ColumnInfo";
-import { Model, StoreOperation, Store, StoreUpdateEventFn } from "../States/ExtStates";
-import { Container, Column } from "@extjs/ext-react";
 import { buildReferenceColumnRendered } from "../Helpers/GridHeper";
+import { ColumnInfo, ColumnType, FilterItem } from "../States/ColumnInfo";
+import { Model, Store, StoreOperation, StoreUpdateEventFn } from "../States/ExtStates";
+import { DynamicGrid, StoreDynamicGridProps } from "./DynamicGrid";
 import { DynamicGridActions, DynamicGridProps } from "./Props/DynamicGridProps";
 
 const CHECKED_DATA_INDEX = 'checked'
@@ -55,7 +53,7 @@ export class AjaxDynamicGrid<T extends AjaxDynamicGridProps = AjaxDynamicGridPro
         super.componentWillReceiveProps(nextProps);
     }
 
-    protected getStore() {
+    protected getStore(): any {
         return this.ajaxStore;
     }
 
@@ -180,9 +178,11 @@ export class AjaxDynamicGrid<T extends AjaxDynamicGridProps = AjaxDynamicGridPro
                 const value = record.get(column.dataIndex);
                 const { store: filterStore, renderFn } = this.filterDatas.get(column.dataIndex);
 
+                const checkedValues = filterStore.data.items.filter(item => item.data.checked).map(item => item.data.value);
+
                 filterStore.each(
                     ({ data: filterItem }) => {
-                        isVisible = renderFn(value, record) != filterItem.value || filterItem.checked
+                        isVisible = checkedValues.includes(renderFn(value, record))
 
                         return isVisible;
                     }
@@ -223,7 +223,7 @@ export class AjaxDynamicGrid<T extends AjaxDynamicGridProps = AjaxDynamicGridPro
 
                     filterData.store.each(record => allChecked = record.data.checked);
 
-                    if (allChecked) {
+                    if (allChecked && filterData.store.count() > 1) {
                         filterData.filteredDataSet = dataSets.get(dataIndex);
 
                         filterData.store.filterBy(

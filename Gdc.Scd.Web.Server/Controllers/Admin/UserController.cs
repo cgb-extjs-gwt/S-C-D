@@ -51,7 +51,7 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
                     Name = user.DisplayName,
                     Login = user.Sid.Translate(typeof(NTAccount)).ToString(),
                     Email = user.EmailAddress
-                }).ToList();
+                }).OrderBy(x => x.Name).ToList();
 
             return new DataInfo<User> { Items = foundUsers, Total = foundUsers.Count() };
         }

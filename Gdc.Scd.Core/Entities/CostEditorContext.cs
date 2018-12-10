@@ -1,10 +1,10 @@
 ﻿namespace Gdc.Scd.Core.Entities
 {
-    public class CostEditorContext : CostElementIdentifier
+    public class CostEditorContext : HistoryContext
     {
-        public long? RegionInputId { get; set; }
+        //public long? RegionInputId { get; set; }
 
-        public string InputLevelId { get; set; }
+        //public string InputLevelId { get; set; }
 
         public long[] CostElementFilterIds { get; set; }
 

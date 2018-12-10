@@ -31,4 +31,9 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DataBaseScripts\AvailabilityFee\" />
+    <Folder Include="DataBaseScripts\Migrations\" />
+  </ItemGroup>
+
 </Project>

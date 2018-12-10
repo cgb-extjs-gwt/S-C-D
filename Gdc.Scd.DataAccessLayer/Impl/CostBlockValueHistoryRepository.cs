@@ -5,11 +5,10 @@ using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
-using Gdc.Scd.DataAccessLayer.Helpers;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -76,21 +75,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             };
 
             await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
-        }
-
-        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
-            CostBlockHistory history, 
-            long? historyValueId = null, 
-            IDictionary<string, IEnumerable<object>> costBlockFilter = null)
-        {
-            var query = this.historyQueryBuilder.BuildSelectJoinApproveHistoryValueQuery(history, historyValueId, costBlockFilter);
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
-            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, history.Context.CostElementId)
-            {
-                UseHistoryValueId = true
-            };
-
-            return await this.repositorySet.ReadBySql(query, mapper.Map);
         }
 
         public async Task<IEnumerable<HistoryItem>> GetHistory(HistoryContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null)
@@ -161,29 +145,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 EditUserId = reader.GetInt64(2),
                 EditUserName = reader.GetString(3)
             });
-        }
-
-        public async Task<int> Approve(CostBlockHistory history)
-        {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
-            var costElementField = costBlockMeta.CostElementsFields[history.Context.CostElementId];
-            var historyValueColumn = new ColumnSqlBuilder
-            {
-                Table = costBlockMeta.HistoryMeta.Name,
-                Name = costElementField.Name
-            };
-
-            var costElementColumn = new QueryUpdateColumnInfo(costElementField.Name, historyValueColumn, costBlockMeta.Name);
-            var costElementApprovedField = costBlockMeta.CostElementsApprovedFields[costElementField];
-            var costElementApprovedColumn = new QueryUpdateColumnInfo(costElementApprovedField.Name, historyValueColumn, costBlockMeta.Name);
-
-            var updateQuery =
-                Sql.Update(costBlockMeta, costElementColumn, costElementApprovedColumn)
-                   .From(costBlockMeta.HistoryMeta);
-
-            var query = this.historyQueryBuilder.BuildJoinApproveHistoryValueQuery(history, updateQuery);
-
-            return await this.repositorySet.ExecuteSqlAsync(query);
         }
 
         private string ToLowerFirstLetter(string value)

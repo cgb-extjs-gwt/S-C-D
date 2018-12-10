@@ -1,9 +1,8 @@
-import { Reducer, Action } from "redux";
-import { TABLE_VIEW_LOAD_INFO, TABLE_VIEW_EDIT_RECORD, EditRecordAction, TABLE_VIEW_RESET_CHANGES } from "../Actions/TableViewActions";
-import { TableViewState, TableViewInfo } from "../States/TableViewState";
+import { Action, Reducer } from "redux";
 import { CommonAction } from "../../Common/Actions/CommonActions";
-import { TableViewRecord } from "../States/TableViewRecord";
+import { EditRecordAction, TABLE_VIEW_EDIT_RECORD, TABLE_VIEW_LOAD_INFO, TABLE_VIEW_LOAD_QUALITY_CHECK_RESULT, TABLE_VIEW_RESET_CHANGES, TABLE_VIEW_RESET_QUALITY_CHECK_RESULT } from "../Actions/TableViewActions";
 import { isEqualCoordinates } from "../Helpers/TableViewHelper";
+import { QualityGateResultSet, TableViewInfo, TableViewState } from "../States/TableViewState";
 
 const init = () => (<TableViewState>{
     info: null,
@@ -19,37 +18,39 @@ const editRecord: Reducer<TableViewState, EditRecordAction> = (state, action) =>
     let editedRecords = state.editedRecords;
 
     action.records.forEach(actionRecord => {
-        const recordIndex = editedRecords.findIndex(editRecord => isEqualCoordinates(editRecord,  actionRecord));
+        const recordIndex = editedRecords.findIndex(editRecord => isEqualCoordinates(editRecord, actionRecord));
 
-        const changedData = { 
+        const changedData = {
             [action.dataIndex]: actionRecord.data[action.dataIndex]
         };
 
         if (recordIndex == -1) {
             editedRecords = [
-                ...editedRecords, 
+                ...editedRecords,
                 {
                     coordinates: actionRecord.coordinates,
-                    data: changedData
+                    data: changedData,
+                    additionalData: actionRecord.additionalData
                 }
             ];
         }
         else {
             editedRecords = editedRecords.map(
-                (record, index) => 
-                    index == recordIndex 
+                (record, index) =>
+                    index == recordIndex
                         ? {
                             coordinates: actionRecord.coordinates,
-                            data: { 
-                                ...record.data, 
+                            data: {
+                                ...record.data,
                                 ...changedData
-                            }
+                            },
+                            additionalData: actionRecord.additionalData
                         }
                         : record
             );
         }
     });
-    
+
     return {
         ...state,
         editedRecords
@@ -61,8 +62,18 @@ const resetChanges: Reducer<TableViewState> = state => ({
     editedRecords: []
 })
 
+const loadQualityCheckResult: Reducer<TableViewState, CommonAction<QualityGateResultSet>> = (state, action) => ({
+    ...state,
+    qualityGateResultSet: action.data
+})
+
+const resetQualityCheckResult: Reducer<TableViewState> = state => ({
+    ...state,
+    qualityGateResultSet: null
+})
+
 export const tableViewReducer: Reducer<TableViewState, Action<string>> = (state = init(), action) => {
-    switch(action.type) {
+    switch (action.type) {
         case TABLE_VIEW_LOAD_INFO:
             return loadInfo(state, action as CommonAction<TableViewInfo>);
 
@@ -71,6 +82,12 @@ export const tableViewReducer: Reducer<TableViewState, Action<string>> = (state 
 
         case TABLE_VIEW_RESET_CHANGES:
             return resetChanges(state, action);
+
+        case TABLE_VIEW_LOAD_QUALITY_CHECK_RESULT:
+            return loadQualityCheckResult(state, action as CommonAction<QualityGateResultSet>);
+
+        case TABLE_VIEW_RESET_QUALITY_CHECK_RESULT:
+            return resetQualityCheckResult(state, action);
 
         default:
             return state;

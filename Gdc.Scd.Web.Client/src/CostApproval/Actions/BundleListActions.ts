@@ -10,7 +10,9 @@ import { handleRequest } from "../../Common/Helpers/RequestHelper";
 
 export const COST_APPROVAL_LOAD_BUNDLES = "COST_APPROVAL.LOAD_BUNDLES";
 
-export const loadBundlesByFilter = (pageName: string, approvalBundleState: ApprovalBundleState) =>
+const buildLoadBundlesByFilterAction = (
+    getBundlesFn: (filter: BundleFilter, approvalBundleState: ApprovalBundleState) => Promise<ApprovalBundle[]>
+) => (pageName: string, approvalBundleState: ApprovalBundleState) =>
     asyncAction<CommonState>(
         (dispatch, getState) => {
             const state = getState();
@@ -21,13 +23,13 @@ export const loadBundlesByFilter = (pageName: string, approvalBundleState: Appro
                 const filter = <BundleFilter>{
                     dateTimeFrom: applyFilter.startDate || null,
                     dateTimeTo: applyFilter.endDate || null,
-                    applicationIds: applyFilter && applyFilter.selectedApplicationId ? [ applyFilter.selectedApplicationId ] : null,
+                    applicationIds: applyFilter.selectedApplicationId ? [ applyFilter.selectedApplicationId ] : null,
                     costBlockIds: applyFilter.selectedCostBlockIds || null,
-                    costElementIds: applyFilter.selectedCostElementIds ? applyFilter.selectedCostElementIds.map(el => el.element) : null
+                    costElementIds: applyFilter.selectedCostElementIds ? applyFilter.selectedCostElementIds.map(el => el.costElementId) : null
                 }
 
                 handleRequest(
-                    approvalService.getBundles(filter, approvalBundleState).then(bundles => dispatch(<PageCommonAction<ApprovalBundle[]>>{
+                    getBundlesFn(filter, approvalBundleState).then(bundles => dispatch(<PageCommonAction<ApprovalBundle[]>>{
                         type: COST_APPROVAL_LOAD_BUNDLES,
                         data: bundles,
                         pageName
@@ -36,3 +38,11 @@ export const loadBundlesByFilter = (pageName: string, approvalBundleState: Appro
             }
         }
     )
+
+export const loadBundlesByFilter = buildLoadBundlesByFilterAction(
+    (filter, approvalBundleState) => approvalService.getBundles(filter, approvalBundleState)
+)
+
+export const loadOwnBundlesByFilter = buildLoadBundlesByFilterAction(
+    (filter, approvalBundleState) => approvalService.getOwnBundles(filter, approvalBundleState)
+)

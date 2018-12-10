@@ -76,7 +76,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     {
                         cycleCheckCollection.Add(relatedMeta);
 
-                        if (joinInfos.All(joinInfo => joinInfo.ReferenceMeta != relatedFieldInfo.RelatedMeta))
+                        if (joinInfos.All(joinInfo => joinInfo.ReferenceMeta != relatedFieldInfo.RelatedField.ReferenceMeta))
                         {
                             joinInfos.Add(new ReferenceJoinInfo
                             {
@@ -102,6 +102,19 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                    .FromQuery(
                         this.BuildReferenceItemsQuery(fromMeta, costBlockMeta),
                         fromMeta.Name);
+
+            for (var i = 0; i < joinInfos.Count-1; i++)
+            {
+                for (var j = i + 1; j < joinInfos.Count; j++)
+                {
+                    if(joinInfos[i].InnerJoinInfo.Meta.Name == joinInfos[j].ReferenceMeta.Name)
+                    {
+                        var tmp = joinInfos[i];
+                        joinInfos[i] = joinInfos[j];
+                        joinInfos[j] = tmp;
+                    }
+                }
+            }
 
             return
                 referenceMetas.Skip(1)
@@ -221,7 +234,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             switch(referenceMeta)
             {
                 case WgEnityMeta wgMeta:
-                    conditions.Add(SqlOperators.Equals(wgMeta.WgTypeField.Name, "wgType", (int)WgType.Por));
+                    if (costBlockMeta.Name != MetaConstants.AvailabilityFeeCostBlock)
+                    {
+                        conditions.Add(SqlOperators.Equals(wgMeta.WgTypeField.Name, "wgType", (int)WgType.Por));
+                    }
+
                     conditions.Add(SqlOperators.Equals(wgMeta.IsSoftwareField.Name, "isSoftware", costBlockMeta.Schema == MetaConstants.SoftwareSolutionSchema));
                     break;
 

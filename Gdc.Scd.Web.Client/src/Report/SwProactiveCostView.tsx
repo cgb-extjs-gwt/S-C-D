@@ -53,7 +53,6 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
 
                         <Column text="Country" dataIndex="country" />
                         <Column text="SOG(Asset)" dataIndex="sog" />
-                        <Column text="Digit" dataIndex="swDigit" />
                         <Column text="Year" dataIndex="year" />
 
                     </Column>

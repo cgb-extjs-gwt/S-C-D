@@ -1,4 +1,5 @@
 import { NamedId, SelectList } from "../../Common/States/CommonStates";
+import { BundleDetailGroup } from "../../QualityGate/States/QualityGateResult";
 
 
 export interface EditItem extends NamedId {
@@ -36,11 +37,7 @@ export interface CostElementData {
 export interface CostBlockEditState {
     originalItems: EditItem[],
     editedItems: EditItem[]
-    appliedFilter: {
-        inputLevelItemIds: Set<string>
-        costElementsItemIds: Set<string>
-    }
-    saveErrors: { [key: string]: any }[]
+    saveErrors: BundleDetailGroup[]
 }
 
 export interface CostBlockState {

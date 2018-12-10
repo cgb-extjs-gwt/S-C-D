@@ -71,7 +71,6 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
         } = this.props;
 
         const editActions: EditGridToolActions = {
-            onApplyFilters: this.props.onApplyFilters,
             onCleared: this.props.onEditItemsCleared,
             onItemEdited: this.props.onItemEdited,
             onSaving: this.props.onEditItemsSaving
@@ -202,7 +201,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
                     queryMode="local"
                     store={regionStore}
                     selection={selectedRegion}
-                    onChange={(combobox, newValue, oldValue) => this.onRegionSelected(combobox, newValue, oldValue)}
+                    onChange={this.onRegionSelected}
                 />
             );
         }
@@ -210,7 +209,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
         return result
     }
 
-    private onRegionSelected(combobox, newValue: string, oldValue) {
+    private onRegionSelected = (combobox, newValue: string, oldValue) => {
         if (typeof newValue === 'number') {
             this.props.onRegionSelected(newValue); //reload view
         }

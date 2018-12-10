@@ -1,5 +1,5 @@
 export interface FieldInfo {
-    applicationId?: string
+    schemaId?: string
     metaId: string
     fieldName: string
     dataIndex: string

@@ -1,14 +1,23 @@
 import * as React from 'react';
-import { Grid, Column, CheckColumn, Toolbar, Button, TextField } from '@extjs/ext-react';
+import { Grid, Column, CheckColumn, Toolbar, Button, TextField, Container } from '@extjs/ext-react';
+import { FilterPanel } from "./CountryFilterPanel";
+import { CountryFilterModel } from "./CountryFilterModel";
 import { buildMvcUrl } from "../../Common/Services/Ajax";
 
 const CONTROLLER_NAME = 'CountryManagement';
 
 export class CountryGrid extends React.Component {
 
+    private filter: FilterPanel;
+
     state = {
         disableSaveButton: true
     };
+
+    public constructor(props: any) {
+        super(props);
+        this.init();
+    }
 
     renderer = (value) => value ? value : " ";
 
@@ -85,30 +94,70 @@ export class CountryGrid extends React.Component {
 
 
     render() {
-        return (<Grid title={'Country Settings'} store={this.store} cls="filter-grid" columnLines={true}
-            plugins={['pagingtoolbar', 'gridcellediting']}>
-            <Column text="Country" dataIndex="countryName" flex={1} />
-            <Column text="Group" dataIndex="countryGroup" flex={1} />
-            <Column text="LUT" dataIndex="lutCode" flex={1} renderer={this.renderer.bind(this)} />
-            <Column text="Digit" dataIndex="countryDigit" flex={1} renderer={this.renderer.bind(this)} />
-            <Column text="ISO Code" dataIndex="isO3Code" flex={1} renderer={this.renderer.bind(this)} />
-            <Column text="Is Master" dataIndex="isMaster" flex={1} />
-            <CheckColumn text="Store List and Dealer Prices" dataIndex="canStoreListAndDealerPrices" flex={2} />
-            <CheckColumn text="Override TC and TP" dataIndex="canOverrideTransferCostAndPrice" flex={2} />
-            <Column text="Quality Group" dataIndex="qualityGroup" flex={1} editable
-                renderer={this.renderer.bind(this)} >
-                <TextField />
-            </Column>
+        return (
+            <Container scrollable={true} >
 
-            <Toolbar docked="bottom">
-                <Button
-                    text="Save"
-                    flex={1}
-                    handler={this.saveRecords}
-                    iconCls="x-fa fa-save"
-                    disabled={this.state.disableSaveButton}
-                />
-            </Toolbar>
-        </Grid>);
+                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} />
+
+                <Grid
+                    title={'Country Settings'}
+                    store={this.store}
+                    cls="filter-grid"
+                    columnLines={true}
+                    width="100%"
+                    height="100%"
+                    plugins={['gridcellediting']}>
+                <Column text="Country" dataIndex="countryName" flex={1} />
+                <Column text="Group" dataIndex="countryGroup" flex={1} />
+                <Column text="LUT" dataIndex="lutCode" flex={1} renderer={this.renderer.bind(this)} />
+                <Column text="Digit" dataIndex="countryDigit" flex={1} renderer={this.renderer.bind(this)} />
+                <Column text="ISO Code" dataIndex="isO3Code" flex={1} renderer={this.renderer.bind(this)} />
+                <CheckColumn text="Is Master" dataIndex="isMaster" flex={1} disabled={true}/>
+                <CheckColumn text="Store List and Dealer Prices" dataIndex="canStoreListAndDealerPrices" flex={2} />
+                <CheckColumn text="Override TC and TP" dataIndex="canOverrideTransferCostAndPrice" flex={1} />
+                <Column text="Quality Group" dataIndex="qualityGroup" flex={1} editable
+                    renderer={this.renderer.bind(this)} >
+                    <TextField />
+                </Column>
+
+                <Toolbar docked="bottom">
+                    <Button
+                        text="Save"
+                        flex={1}
+                        handler={this.saveRecords}
+                        iconCls="x-fa fa-save"
+                        disabled={this.state.disableSaveButton}
+                    />
+                </Toolbar>
+                </Grid>
+            </Container>);
+    }
+
+    public componentDidMount() {
+        this.filter = this.refs.filter as FilterPanel;
+        //
+        this.reload();
+    }
+
+    private init() {
+        this.onSearch = this.onSearch.bind(this);
+        this.onBeforeLoad = this.onBeforeLoad.bind(this);
+        //
+        this.store.on('beforeload', this.onBeforeLoad);
+    }
+
+    private onSearch(filter: CountryFilterModel) {
+        this.reload();
+    }
+
+    private reload() {
+        this.store.currentPage = 1
+        this.store.load();
+    }
+
+    private onBeforeLoad(s, operation) {
+        let filter = this.filter.getModel();
+        let params = Ext.apply({}, operation.getParams(), filter);
+        operation.setParams(params);
     }
 }

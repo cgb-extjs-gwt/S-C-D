@@ -6,10 +6,11 @@ import { EditItem, CostElementData } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { buildCostEditorContext, findCostElementByState, findInputeLevelByState, findCostBlockByState } from "../Helpers/CostEditorHelpers";
 import { CommonState } from "../../Layout/States/AppStates";
-import { ApprovalOption } from "../Services/CostEditorServices";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { QualityGateResult } from "../../QualityGate/States/QualityGateResult";
-import { findMeta } from "../../Common/Helpers/MetaHelper";
+import { findMeta, getCostBlock } from "../../Common/Helpers/MetaHelper";
+import { ApprovalOption } from "../../QualityGate/States/ApprovalOption";
+import { CostBlockMeta } from "../../Common/States/CostMetaStates";
 
 export const COST_EDITOR_SELECT_COST_BLOCK = 'COST_EDITOR.SELECT.COST_BLOCK';
 export const COST_BLOCK_INPUT_SELECT_REGIONS = 'COST_BLOCK_INPUT.SELECT.REGIONS';
@@ -35,6 +36,7 @@ export interface CostBlockAction extends Action<string>  {
 
 export interface CostElementAction extends CostBlockAction {
     costElementId: string
+    costBlockMeta: CostBlockMeta
 }
 
 export interface FilterSelectionChangedAction extends CostBlockAction {
@@ -58,6 +60,7 @@ export interface InputLevelFilterSelectionChangedAction extends FilterSelectionC
 
 export interface CostElementDataLoadedAction extends CostElementAction {
     costElementData: CostElementData
+    costBlockMeta: CostBlockMeta
 }
 
 export interface InputLevelFilterLoadedAction extends InputLevelAction {
@@ -90,11 +93,12 @@ export const selectRegion = (applicationId: string, costBlockId: string, costEle
     costElementId
 })
 
-export const selectCostElement = (applicationId: string, costBlockId: string, costElementId: string) => (<CostElementAction>{
+export const selectCostElement = (applicationId: string, costElementId: string, costBlockMeta: CostBlockMeta) => (<CostElementAction>{
     type:  COST_BLOCK_INPUT_SELECT_COST_ELEMENT,
     applicationId,
-    costBlockId,
-    costElementId
+    costBlockId: costBlockMeta.id,
+    costElementId,
+    costBlockMeta
 })
 
 export const changeSelectionCostElementFilter = (
@@ -154,15 +158,16 @@ export const resetInputLevelFilter = (applicationId: string, costBlockId: string
 
 export const loadCostElementData = (
     applicationId: string,
-    costBlockId: string, 
     costElementId: string, 
+    costBlockMeta: CostBlockMeta,
     costElementData: CostElementData
 ) => (<CostElementDataLoadedAction>{
     type: COST_BLOCK_INPUT_LOAD_COST_ELEMENT_DATA,
     applicationId,
-    costBlockId, 
+    costBlockId: costBlockMeta.id, 
     costElementId,
-    costElementData
+    costElementData,
+    costBlockMeta
 })
 
 export const loadInputLevelFilter = (
@@ -222,16 +227,19 @@ export const resetErrors = (applicationId: string, costBlockId: string) => (<Cos
 export const getDataByCostElementSelection = (applicationId: string, costBlockId: string, costElementId: string) =>
     asyncAction<CommonState>(
         (dispatch, getState) => {
-            dispatch(selectCostElement(applicationId, costBlockId, costElementId));
+            const { app: { appMetaData } } = getState();
+            const costBlockMeta = getCostBlock(appMetaData, costBlockId);   
+
+            dispatch(selectCostElement(applicationId, costElementId, costBlockMeta));
 
             const state = getState().pages.costEditor
             const context = buildCostEditorContext(state);
             const costElement = findCostElementByState(state, applicationId, costBlockId, costElementId);
 
-            if (costElement.isDataLoaded) {
+            if (!costElement.isDataLoaded) {
                 handleRequest(
                     service.getCostElementData(context).then(
-                        data => dispatch(loadCostElementData(applicationId, costBlockId, costElementId, data))
+                        data => dispatch(loadCostElementData(applicationId, costElementId, costBlockMeta, data))
                     )
                 )
             }

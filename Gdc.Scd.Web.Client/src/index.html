@@ -33,6 +33,13 @@
             background-color: rgba(235, 235, 235, 0.979);
         }
 
+        .multiline-row {
+            overflow: auto !important;
+            white-space: normal !important;
+            text-overflow: ellipsis;
+            display: block;
+        }
+        
         .filter-grid .x-titlebar .x-title {
             font-size: 15px;
             color: rgba(17, 17, 17, 0.54);
@@ -41,6 +48,15 @@
         .x-tab .x-inner-el .x-body-el .x-text-el {
             white-space: inherit;
             font-size: 13px;
+        }
+
+        .x-grid .x-title-el {
+            font-weight: bold;
+        }
+
+        .checkbox-label-bold label.x-box-label-el {
+            font-weight: 900;
+            color: black;
         }
 
         /*=====================custom components========================*/
@@ -197,6 +213,10 @@
         .matrix-edit-container > div {
             width: 50%;
             min-width: 160px;
+        }
+
+        .x-gridcolumn .x-header-el .x-title-el .x-text-el {
+            white-space: normal;
         }
 
         @media (min-width: 700px) {

@@ -32,6 +32,7 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<IRepository<Role>>().To<RoleRepository>().InRequestScope();
             Bind<IUserRepository, IRepository<User>>().To<UserRepository>().InRequestScope();
             Bind<ICostBlockRepository>().To<CostBlockRepository>().InRequestScope();
+            Bind<IApprovalRepository>().To<ApprovalRepository>().InRequestScope();
 
             Bind<BaseColumnMetaSqlBuilder<IdFieldMeta>>().To<IdColumnMetaSqlBuilder>().InTransientScope();
             Bind<BaseColumnMetaSqlBuilder<SimpleFieldMeta>>().To<SimpleColumnMetaSqlBuilder>().InTransientScope();

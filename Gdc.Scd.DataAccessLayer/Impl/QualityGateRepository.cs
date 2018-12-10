@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
@@ -26,41 +25,27 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> Check(HistoryContext historyContext, IEnumerable<EditItem> editItems, IDictionary<string, long[]> costBlockFilter)
+        public async Task<IEnumerable<BundleDetail>> Check(HistoryContext historyContext, IEnumerable<EditItem> editItems, IDictionary<string, long[]> costBlockFilter, bool userCountyGroupCheck)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
-            var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(historyContext, editItems, costBlockFilter.Convert());
+            var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(historyContext, editItems, costBlockFilter.Convert(), userCountyGroupCheck);
             var mapper = new CostBlockValueHistoryMapper(costBlockMeta, historyContext.CostElementId)
             {
-                UseQualityGate = true,
+                UsePeriodQualityGate = true,
+                UsetCountryGroupQualityGate = userCountyGroupCheck
             };
 
             return await this.repositorySet.ReadBySql(query, mapper.Map);
         }
 
-        public async Task<IEnumerable<CostBlockValueHistory>> Check(CostBlockHistory history, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
+        public async Task<IEnumerable<BundleDetail>> Check(CostBlockHistory history, bool userCountyGroupCheck, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
-            var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(history, costBlockFilter);
+            var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(history, userCountyGroupCheck, costBlockFilter);
             var mapper = new CostBlockValueHistoryMapper(costBlockMeta, history.Context.CostElementId)
             {
-                UseQualityGate = true,
-            };
-
-            return await this.repositorySet.ReadBySql(query, mapper.Map);
-        }
-
-        public async Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetailQualityGate(CostBlockHistory history, long? historyValueId = null, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
-        {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
-            var query = this.qualityGateQueryBuilder.BuildQulityGateApprovalQuery(history, historyValueId, costBlockFilter);
-
-            var maxInputLevelId = historyValueId.HasValue ? null : history.Context.InputLevelId;
-
-            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, history.Context.CostElementId, maxInputLevelId)
-            {
-                UseQualityGate = true,
-                UseHistoryValueId = true
+                UsePeriodQualityGate = true,
+                UsetCountryGroupQualityGate = userCountyGroupCheck
             };
 
             return await this.repositorySet.ReadBySql(query, mapper.Map);

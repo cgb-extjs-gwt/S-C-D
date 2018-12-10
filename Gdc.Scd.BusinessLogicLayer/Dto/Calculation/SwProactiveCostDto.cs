@@ -6,8 +6,6 @@
 
         public string Sog { get; set; }
 
-        public string SwDigit { get; set; }
-
         public string Year { get; set; }
 
         public double? ProActive { get; set; }

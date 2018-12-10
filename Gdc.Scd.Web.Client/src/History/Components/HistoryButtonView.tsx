@@ -1,6 +1,7 @@
 import * as React from "react";
-import { HistoryWindowView, HistoryWindowViewProps, Position } from "./HistoryWindowView";
+import { HistoryWindowView, HistoryWindowViewProps } from "./HistoryWindowView";
 import { Container, Button } from "@extjs/ext-react";
+import { Position } from "../../Common/States/ExtStates";
 
 export interface HistoryButtonViewProps {
     isEnabled: boolean

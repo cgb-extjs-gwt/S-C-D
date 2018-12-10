@@ -198,7 +198,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 DataIndex = fieldInfo.DataIndex,
                 FieldName = fieldInfo.FieldName,
-                MetaId = fieldInfo.MetaId
+                MetaId = fieldInfo.MetaId,
+                ShemaId = fieldInfo.ShemaId
             };
         }
 

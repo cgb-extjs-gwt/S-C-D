@@ -3,10 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -99,17 +99,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             };
         }
 
-        public async Task<QualityGateResultDto> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, ApprovalOption approvalOption)
+        public async Task<QualityGateResult> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, ApprovalOption approvalOption)
         {
-            QualityGateResultDto checkResult;
+            QualityGateResult checkResult;
 
             if (approvalOption.IsApproving && !approvalOption.HasQualityGateErrors)
             {
-                checkResult = await this.qualityGateSevice.CheckAsQualityGateResultDto(editItems, context);
+                var filter = this.costBlockFilterBuilder.BuildCoordinateFilter(context);
+
+                checkResult = await this.qualityGateSevice.Check(editItems, context, filter, EditorType.CostEditor);
             }
             else
             {
-                checkResult = new QualityGateResultDto();
+                checkResult = new QualityGateResult();
             }
 
             if (!checkResult.HasErrors)
@@ -124,7 +126,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     {
                         var result = await this.costEditorRepository.UpdateValues(editItems, editItemInfo, filter);
 
-                        await this.historySevice.Save(context, editItems, approvalOption, filter);
+                        await this.historySevice.Save(context, editItems, approvalOption, filter, EditorType.CostEditor);
 
                         transaction.Commit();
                     }
@@ -138,6 +140,20 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return checkResult;
+        }
+
+        public async Task<IEnumerable<HistoryItem>> GetHistoryItems(CostEditorContext context, long editItemId, QueryInfo queryInfo = null)
+        {
+            var userCountries = this.userService.GetCurrentUserCountries();
+            var filter = this.costBlockFilterBuilder.BuildFilter(context, userCountries);
+            var region = this.meta.GetCostElement(context).RegionInput;
+
+            if (region == null || region.Id != context.InputLevelId)
+            {
+                filter.Add(context.InputLevelId, new long[] { editItemId });
+            }
+
+            return await this.historySevice.GetHistoryItems(context, filter, queryInfo);
         }
 
         private EditItemInfo GetEditItemInfo(CostEditorContext context)

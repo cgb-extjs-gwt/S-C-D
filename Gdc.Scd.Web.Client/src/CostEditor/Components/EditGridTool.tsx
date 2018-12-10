@@ -7,6 +7,7 @@ import { QualityGateWindowContainer } from './QualityGateWindowContainer';
 import { SaveToolbar } from '../../Common/Components/SaveToolbar';
 import { SaveApprovalToollbar } from '../../Approval/Components/SaveApprovalToollbar';
 import { HistroryButtonContainer } from './HistroryButtonContainer';
+import { BundleDetailGroup } from '../../QualityGate/States/QualityGateResult';
 
 Ext.require([
     'Ext.grid.plugin.CellEditing', 
@@ -15,7 +16,6 @@ Ext.require([
 
 export interface EditGridToolActions {
     onItemEdited?(item: EditItem)
-    onApplyFilters?()
     onCleared?()
     onSaving?(forApproval: boolean)
 }
@@ -23,10 +23,9 @@ export interface EditGridToolActions {
 export interface EditGridToolProps extends EditGridToolActions {
     isEnableSave: boolean
     isEnableClear: boolean
-    isEnableApplyFilters: boolean
     flex?: number
     editGrid: EditGridProps
-    qualityGateErrors: {[key: string]: any}[]
+    qualityGateErrors: BundleDetailGroup[]
     applicationId: string
     costBlockId: string
     costElementId: string
@@ -61,13 +60,6 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
         return (
             <Container layout="vbox" flex={props.flex}>
                 <Toolbar docked="top">
-                    <Button 
-                        text="Apply filters" 
-                        flex={1} 
-                        disabled={!props.isEnableApplyFilters}
-                        handler={props.onApplyFilters}
-                    />
-
                     <HistroryButtonContainer 
                         editItemId={editItem}
                         isEnabled={isEnabledHistoryButton}
@@ -95,6 +87,7 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                     costBlockId={props.costBlockId} 
                     costElementId={props.costElementId}
                     errors={props.qualityGateErrors} 
+                    position={{ left: '20%', top: '20%' }}
                 />
             </Container>
         );

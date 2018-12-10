@@ -17,7 +17,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.meta = meta;
         }
 
-        public IDictionary<string, long[]> BuildRegionFilter(CostEditorContext context, IEnumerable<Country> userCountries = null)
+        public IDictionary<string, long[]> BuildRegionFilter(HistoryContext context, IEnumerable<Country> userCountries = null)
         {
             var filter = new Dictionary<string, long[]>();
             var costBlock = this.meta.GetCostBlockEntityMeta(context);
@@ -56,16 +56,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return filter;
         }
 
-        public IDictionary<string, long[]> BuildFilter(CostEditorContext context, IEnumerable<Country> userCountries = null)
+        public IDictionary<string, long[]> BuildCoordinateFilter(CostEditorContext context)
         {
-            var filter = this.BuildRegionFilter(context, userCountries);
+            var filter = new Dictionary<string, long[]>();
 
             if (context.CostElementFilterIds != null)
             {
                 var costElement = this.GetCostElement(context);
                 var filterValues = context.CostElementFilterIds;
-
-                filter.Add(costElement.Dependency.Id, filterValues);
+                if (costElement.Dependency != null)
+                    filter.Add(costElement.Dependency.Id, filterValues);
             }
 
             if (context.InputLevelFilterIds != null)
@@ -83,6 +83,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return filter;
+        }
+
+        public IDictionary<string, long[]> BuildFilter(CostEditorContext context, IEnumerable<Country> userCountries = null)
+        {
+            var regionFilter = this.BuildRegionFilter(context, userCountries);
+            var coordinateFilter = this.BuildCoordinateFilter(context);
+
+            return regionFilter.Concat(coordinateFilter).ToDictionary(keyValue => keyValue.Key, keyValue => keyValue.Value);
         }
 
         private CostElementMeta GetCostElement(CostEditorContext context)

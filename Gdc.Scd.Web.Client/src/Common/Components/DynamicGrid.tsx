@@ -103,7 +103,7 @@ export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGrid
     protected onSelectionChange(grid, records: Model[], selecting: boolean, selectionInfo){
         const { onSelectionChange } = this.props;
 
-        onSelectionChange && onSelectionChange(grid, records);
+        onSelectionChange && onSelectionChange(grid, records, selecting, selectionInfo);
     }
 
     protected getStore() {
@@ -238,6 +238,10 @@ export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGrid
                 change: (field, newValue: string, oldValue: string) => {
                     const filters = filter.store.getFilters();
 
+                    //if (searchFn) {
+                    //    filters.each(filter => filters.remove(filter));
+                    //}
+
                     if (searchFn) {
                         filters.remove(searchFn);
                     }
@@ -263,7 +267,7 @@ export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGrid
             margin: '-5 10 10 10',
             style: 'border: 1px solid rgb(226, 226, 226);',
             columns: [
-                { xtype: 'checkcolumn', dataIndex: filter.checkedDataIndex, width: 70 },
+                { xtype: 'checkcolumn', dataIndex: filter.checkedDataIndex, width: 70, sortable: false },
                 { text: 'Value', dataIndex: filter.valueDataIndex, width: 200  }
             ]
         };

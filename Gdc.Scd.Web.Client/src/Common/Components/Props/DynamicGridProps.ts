@@ -3,7 +3,7 @@ import { Model } from "../../States/ExtStates";
 
 export interface DynamicGridActions {
     init?()
-    onSelectionChange?(grid, records: Model[])
+    onSelectionChange?(grid, records: Model[], selecting: boolean, selectionInfo)
     onCancel?()
     onSave?()
 }

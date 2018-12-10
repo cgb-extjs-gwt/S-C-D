@@ -4,45 +4,25 @@ using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Entities.TableView;
-using Gdc.Scd.Web.BusinessLogicLayer.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
-    public interface ICostBlockHistoryService
+    public interface ICostBlockHistoryService : IReadingDomainService<CostBlockHistory>
     {
-        IQueryable<CostBlockHistory> GetHistories();
+        IQueryable<CostBlockHistory> GetByFilter(CostBlockHistoryFilter filter);
 
-        IQueryable<CostBlockHistory> GetHistories(CostBlockHistoryFilter filter);
+        IQueryable<CostBlockHistory> GetByFilter(CostBlockHistoryState state);
 
-        IQueryable<CostBlockHistory> GetHistories(CostBlockHistoryState state);
+        IQueryable<CostBlockHistory> GetByFilter(CostBlockHistoryFilter filter, CostBlockHistoryState state);
 
-        IQueryable<CostBlockHistory> GetHistories(CostBlockHistoryFilter filter, CostBlockHistoryState state);
+        Task<IEnumerable<HistoryItem>> GetHistoryItems(HistoryContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null);
 
-        Task<IEnumerable<ApprovalBundle>> GetApprovalBundles(CostBlockHistoryFilter filter, CostBlockHistoryState state);
+        Task Save(HistoryContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter, EditorType editorType);
 
-        Task<IEnumerable<HistoryItem>> GetHistoryItems(CostEditorContext context, long editItemId, QueryInfo queryInfo = null);
+        void Save(CostBlockHistory history, ApprovalOption approvalOption);
 
-        Task<IEnumerable<HistoryItem>> GetHistoryItems(CostElementIdentifier costElementId, IDictionary<string, long> coordinates, QueryInfo queryInfo = null);
+        CostBlockHistory SaveAsApproved(long historyId);
 
-        Task Save(CostEditorContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter);
-
-        Task Save(IEnumerable<EditInfo> editInfos, ApprovalOption approvalOption);
-
-        Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
-            CostBlockHistory history, 
-            long? historyValueId = null, 
-            IDictionary<string, IEnumerable<object>> costBlockFilter = null);
-
-        Task<IEnumerable<CostBlockValueHistory>> GetApproveBundleDetail(
-            long costBlockHistoryId, 
-            long? historyValueId = null, 
-            IDictionary<string, IEnumerable<object>> costBlockFilter = null);
-
-        Task Approve(long historyId);
-
-        Task<QualityGateResultDto> SendForApproval(long historyId, string qualityGateErrorExplanation = null);
-
-        void Reject(long historyId, string message = null);
+        CostBlockHistory SaveAsRejected(long historyId, string rejectedMessage);
     }
 }
