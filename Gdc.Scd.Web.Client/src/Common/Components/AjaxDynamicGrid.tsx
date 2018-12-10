@@ -1,7 +1,9 @@
+import * as React from "react";
+import { DynamicGrid, StoreDynamicGridProps,  } from "./DynamicGrid";
+import { ColumnInfo, FilterItem, ColumnType } from "../States/ColumnInfo";
+import { Model, StoreOperation, Store, StoreUpdateEventFn } from "../States/ExtStates";
+import { Container, Column } from "@extjs/ext-react";
 import { buildReferenceColumnRendered } from "../Helpers/GridHeper";
-import { ColumnInfo, ColumnType, FilterItem } from "../States/ColumnInfo";
-import { Model, Store, StoreOperation, StoreUpdateEventFn } from "../States/ExtStates";
-import { DynamicGrid, StoreDynamicGridProps } from "./DynamicGrid";
 import { DynamicGridActions, DynamicGridProps } from "./Props/DynamicGridProps";
 
 const CHECKED_DATA_INDEX = 'checked'
