@@ -43,7 +43,7 @@ namespace Gdc.Scd.Spooler.JobLibraries.ExchangeRateJob
         /// <returns>Job name</returns>
         public string WhoAmI()
         {
-            return "Exchange Rate Job";
+            return "ExchangeRateJob";
         }
     }
 }
