@@ -17,19 +17,39 @@ ALTER TABLE Matrix.MatrixMaster NOCHECK CONSTRAINT ALL
 
 DELETE FROM Matrix.MatrixMaster;
 
+
 GO
 
-SELECT  av.Id AS av, 
-        dur.Id AS dur, 
-        rtype.Id AS reacttype, 
-        rtime.Id AS reacttime,
-        sv.Id AS srvloc
+with PortfolioCte as (
+    select *
+    from (VALUES 
+        ((1), (0), (0)),
+        ((1), (0), (0)),
+        ((1), (0), (0)),
+        ((0), (1), (0)),
+        ((0), (1), (0)),
+        ((0), (1), (0)),
+        ((0), (0), (1)),
+        ((0), (0), (1)),
+        ((0), (0), (1))
+    ) fmc(f, m, c)
+)
+SELECT av.Id AS av, 
+		dur.Id AS dur, 
+		rtype.Id AS reacttype, 
+		rtime.Id AS reacttime,
+		sv.Id AS srvloc
+        ,
+		p.f AS FujitsuGlobalPortfolio,
+		p.m AS MasterPortfolio,
+		p.c AS CorePortfolio
 INTO #Temp_Sla
 FROM Dependencies.Availability AS av
 CROSS JOIN Dependencies.Duration AS dur
 CROSS JOIN Dependencies.ReactionType AS rtype
 CROSS JOIN Dependencies.ReactionTime AS rtime
-CROSS JOIN Dependencies.ServiceLocation AS sv;
+CROSS JOIN Dependencies.ServiceLocation AS sv
+CROSS JOIN PortfolioCte p;
 
 declare @rownum int = 1;
 declare @wg bigint;
@@ -47,11 +67,22 @@ begin
 
     if @flag = 0 break;
 
-    INSERT INTO Matrix.MatrixMaster (WgId, AvailabilityId, DurationId, ReactionTypeId, ReactionTimeId, ServiceLocationId, FujitsuGlobalPortfolio, MasterPortfolio, CorePortfolio) (
+    INSERT INTO Matrix.MatrixMaster (WgId, AvailabilityId, DurationId, ReactionTypeId, ReactionTimeId, ServiceLocationId, FujitsuGlobalPortfolio, MasterPortfolio, CorePortfolio, Denied) (
 
-            SELECT @wg, sla.av, sla.dur, sla.reacttype, sla.reacttime, sla.srvloc, 1, 1, 1
+            SELECT   @wg,
+		                sla.av, 
+		                sla.dur, 
+		                sla.reacttype, 
+		                sla.reacttime,
+		                sla.srvloc,
+		                sla.FujitsuGlobalPortfolio,
+		                sla.MasterPortfolio,
+		                sla.CorePortfolio,
+		                0
             FROM #Temp_Sla sla
     );
+
+    
 end;
 
 ALTER INDEX IX_MatrixMaster_AvailabilityId ON Matrix.MatrixMaster REBUILD;  
