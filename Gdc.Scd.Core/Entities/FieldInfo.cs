@@ -2,7 +2,7 @@
 {
     public class FieldInfo
     {
-        public string ShemaId { get; set; }
+        public string SchemaId { get; set; }
 
         public string MetaId { get; set; }
 

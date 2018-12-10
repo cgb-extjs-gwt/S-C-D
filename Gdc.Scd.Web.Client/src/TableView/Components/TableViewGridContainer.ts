@@ -112,7 +112,6 @@ const buildProps = (state: CommonState) => {
     let buildHistotyUrl: ([selection]: Model<TableViewRecord>[], selectedDataIndex: string) => string
     
     const columns = [];
-    const filterDataIndexes = [];
     const tableViewInfo = state.pages.tableView.info;
     const meta = state.app.appMetaData;
 
@@ -130,13 +129,10 @@ const buildProps = (state: CommonState) => {
         const countColumns = mapToColumnInfo(tableViewInfo.recordInfo.data, meta, costBlockCache, buildCountColumns);
 
         columns.push(...countColumns, ...coordinateColumns, ...costElementColumns);
-
-        coordinateColumns.forEach(column => filterDataIndexes.push(column.dataIndex));
     }
 
     return <TableViewGridProps>{
         columns,
-        filterDataIndexes,
         apiUrls: {
             read: readUrl
         },
