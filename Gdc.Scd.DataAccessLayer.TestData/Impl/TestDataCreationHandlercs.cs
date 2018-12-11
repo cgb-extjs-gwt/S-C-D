@@ -41,7 +41,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         public void Handle()
         {
-            this.CreateClusterPlas();
+            this.CreatePlas();
             this.CreateServiceLocations();
             this.CreateUserAndRoles();
             this.CreateReactionTimeTypeAvalability();
@@ -528,16 +528,17 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                                .Select(x => new SqlHelper(new RawSqlBuilder() { RawSql = x }));
         }
 
-        private Pla[] GetPlas()
+        private void CreatePlas()
         {
-            var plaRepository = this.repositorySet.GetRepository<Pla>();
-
-            return new Pla[]
+            var clusterPlas = new List<ClusterPla>
             {
-                new Pla
+                new ClusterPla { Name = "CCD", Plas = new List<Pla>
+                {
+                    new Pla
                 {
                     Name = "DESKTOP AND WORKSTATION",
                     CodingPattern = "SME",
+
                     WarrantyGroups = new List<Wg>
                     {
                         new Wg
@@ -632,7 +633,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         },
                     }
                 },
-                new Pla
+                    new Pla
                 {
                     Name = "NOTEBOOK AND TABLET",
                     CodingPattern = "PSBM",
@@ -690,7 +691,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         },
                     }
                 },
-                new Pla
+                    new Pla
                 {
                     Name = "PERIPHERALS",
                     CodingPattern = "PSMO",
@@ -753,7 +754,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         },
                     }
                 },
-                new Pla
+                    new Pla { Name = "RETAIL PRODUCTS", CodingPattern = "RETA"}
+                }},
+                new ClusterPla { Name = "STORAGE", Plas = new List<Pla>
+                {
+                    new Pla
                 {
                     Name = "STORAGE PRODUCTS",
                     CodingPattern = "STOR",
@@ -1111,7 +1116,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         },
                     }
                 },
-                new Pla
+                } },
+                new ClusterPla { Name = "SERVER", Plas = new List<Pla>{
+                    new Pla
                 {
                     Name = "X86 / IA SERVER",
                     CodingPattern = "SSHI",
@@ -1404,37 +1411,19 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         },
                     }
                 },
-                new Pla { Name = "EPS MAINFRAME PRODUCTS", CodingPattern = "EPSM"},
-                new Pla { Name = "RETAIL PRODUCTS", CodingPattern = "RETA"},
-                new Pla { Name = "UNIX SERVER", CodingPattern = "UNIX" },
-                new Pla { Name = "UNASSIGNED", CodingPattern = "ZZZZ"}
+                    new Pla { Name = "UNIX SERVER", CodingPattern = "UNIX" }
+                } }
             };
-        }
-
-        private void CreateClusterPlas()
-        {
-            var plas = this.GetPlas();
-            var clusterPlas = new List<ClusterPla>();
-
-            ClusterPla clusterPla = null;
-
-            for (var i = 0; i < plas.Length; i++)
-            {
-                if (i % 2 == 0)
-                {
-                    clusterPla = new ClusterPla
-                    {
-                        Name = $"ClusterPla_{i}",
-                        Plas = new List<Pla>()
-                    };
-
-                    clusterPlas.Add(clusterPla);
-                }
-
-                clusterPla.Plas.Add(plas[i]);
-            }
 
             this.repositorySet.GetRepository<ClusterPla>().Save(clusterPlas);
+            this.repositorySet.Sync();
+
+            var plas = new Pla[]
+            {
+                new Pla { Name = "EPS MAINFRAME PRODUCTS", CodingPattern = "EPSM"},
+                new Pla { Name = "UNASSIGNED", CodingPattern = "ZZZZ"}
+            };
+            this.repositorySet.GetRepository<Pla>().Save(plas);
             this.repositorySet.Sync();
         }
 
