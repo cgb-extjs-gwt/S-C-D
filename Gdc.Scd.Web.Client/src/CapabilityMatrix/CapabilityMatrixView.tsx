@@ -62,7 +62,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
 
     public render() {
 
-        let hasCountry = this.hasCountry();
+        let isMasterPortfolio = this.IsMasterPortfolio();
 
         return (
             <Container scrollable={true}>
@@ -84,7 +84,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     selectable="multi"
                     plugins={['pagingtoolbar']}>
 
-                    <NullStringColumn hidden={!hasCountry} flex="1" text="Country" dataIndex="country" />
+                    <NullStringColumn hidden={!isMasterPortfolio} flex="1" text="Country" dataIndex="country" />
 
                     <NullStringColumn flex="1" text="WG(Asset)" dataIndex="wg" />
                     <NullStringColumn flex="1" text="Availability" dataIndex="availability" />
@@ -93,9 +93,9 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     <NullStringColumn flex="1" text="Reaction time" dataIndex="reactionTime" />
                     <NullStringColumn flex="1" text="Service location" dataIndex="serviceLocation" />
 
-                    <ReadonlyCheckColumn hidden={hasCountry} flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
-                    <ReadonlyCheckColumn hidden={hasCountry} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
-                    <ReadonlyCheckColumn hidden={hasCountry} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
+                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
+                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
+                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
 
                 <Grid
@@ -108,7 +108,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     selectable={false}
                     plugins={['pagingtoolbar']}>
 
-                    <NullStringColumn hidden={!hasCountry} flex="1" text="Country" dataIndex="country" />
+                    <NullStringColumn hidden={!isMasterPortfolio} flex="1" text="Country" dataIndex="country" />
 
                     <NullStringColumn flex="1" text="WG(Asset)" dataIndex="wg" />
                     <NullStringColumn flex="1" text="Availability" dataIndex="availability" />
@@ -117,9 +117,9 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     <NullStringColumn flex="1" text="Reaction time" dataIndex="reactionTime" />
                     <NullStringColumn flex="1" text="Service location" dataIndex="serviceLocation" />
 
-                    <ReadonlyCheckColumn hidden={hasCountry} flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
-                    <ReadonlyCheckColumn hidden={hasCountry} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
-                    <ReadonlyCheckColumn hidden={hasCountry} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
+                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
+                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
+                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
 
             </Container>
@@ -183,10 +183,10 @@ export class CapabilityMatrixView extends React.Component<any, any> {
         this.denyStore.load();
         this.allowStore.load();
 
-        this.setState({ ___: new Date().getTime() }); //stub
+        this.setState({ ___: new Date().getTime() }); //stub, re-paint ext grid
     }
 
-    private hasCountry(): boolean {
+    private IsMasterPortfolio(): boolean {
         let result = false;
         if (this.filter) {
             let filter = this.filter.getModel();
