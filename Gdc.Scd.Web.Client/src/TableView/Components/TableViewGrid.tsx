@@ -5,22 +5,22 @@ import { TableViewRecord } from "../States/TableViewRecord";
 import { SaveToolbar } from "../../Common/Components/SaveToolbar";
 import { SaveApprovalToollbar } from "../../Approval/Components/SaveApprovalToollbar";
 import { DynamicGrid } from "../../Common/Components/DynamicGrid";
+import { DynamicGridProps } from "../../Common/Components/Props/DynamicGridProps";
 
 export interface TableViewGridActions extends LocalDynamicGridActions<TableViewRecord> {
     onApprove?()
 }
 
-export interface TableViewGridProps extends AjaxDynamicGridProps<TableViewRecord>, TableViewGridActions {
+export interface TableViewGridProps extends DynamicGridProps, TableViewGridActions {
 }
 
 export class TableViewGrid extends React.Component<TableViewGridProps> {
     public render() {
+        const gridProps = this.props as AjaxDynamicGridProps
+
         return (
-            <AjaxDynamicGrid 
-                getSaveToolbar={this.getSaveToolbar}
-                {...this.props}
-            />
-        );
+            <AjaxDynamicGrid { ...gridProps } getSaveToolbar={this.getSaveToolbar} />
+        ); 
     }
 
     private getSaveToolbar = (
@@ -36,8 +36,7 @@ export class TableViewGrid extends React.Component<TableViewGridProps> {
                 onCancel={cancel}
                 onSave={save}
                 onApproval={() => saveWithCallback(this.props.onApprove)}
-            >
-            </SaveApprovalToollbar>
+            />
         );
     }
 }

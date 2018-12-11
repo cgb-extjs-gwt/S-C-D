@@ -16,5 +16,8 @@ export interface DynamicGridProps extends DynamicGridActions {
     minHeight?: number
     minWidth?: number
     flex?: number
+}
+
+export interface ToolbarDynamicGridProps extends DynamicGridProps {
     getSaveToolbar?(hasChanges: boolean, ref: (toolbar: SaveToolbar) => void, grid: DynamicGrid)
 }

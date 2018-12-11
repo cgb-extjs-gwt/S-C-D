@@ -4,9 +4,9 @@ import { ColumnInfo, ColumnType, FilterItem, ColumnFilter } from "../States/Colu
 import { SaveToolbar } from "./SaveToolbar";
 import { Model, StoreOperation, Store } from "../States/ExtStates";
 import { ReactNode } from "react-redux";
-import { DynamicGridProps } from "./Props/DynamicGridProps";
+import { DynamicGridProps, ToolbarDynamicGridProps } from "./Props/DynamicGridProps";
 
-export interface StoreDynamicGridProps extends DynamicGridProps {
+export interface StoreDynamicGridProps extends ToolbarDynamicGridProps {
     store: Store
     useStoreSync?: boolean
 }
@@ -16,12 +16,6 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
     private columnsMap = new Map<string, ColumnInfo>()
     private store: Store
     private columns: ColumnInfo[]
-
-    constructor(props) {
-        super(props);
-
-        this.onSelectionChange = this.onSelectionChange.bind(this);
-    }
 
     public componentDidMount() {
         const { init, store, columns } = this.props;
@@ -130,7 +124,7 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
         this.saveWithCallback(this.props.onSave);
     }
 
-    private onSelectionChange(grid, records: Model[], selecting: boolean, selectionInfo){
+    private onSelectionChange = (grid, records: Model[], selecting: boolean, selectionInfo) => {
         const { onSelectionChange } = this.props;
 
         onSelectionChange && onSelectionChange(grid, records, selecting, selectionInfo);

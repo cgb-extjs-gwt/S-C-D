@@ -3,7 +3,7 @@ import { Model, StoreOperation, Store, StoreUpdateEventFn } from "../States/ExtS
 import { FilterItem, ColumnInfo, ColumnType } from "../States/ColumnInfo";
 import { buildReferenceColumnRendered } from "../Helpers/GridHeper";
 import * as React from "react";
-import { DynamicGridProps } from "./Props/DynamicGridProps";
+import { ToolbarDynamicGridProps } from "./Props/DynamicGridProps";
 
 const CHECKED_DATA_INDEX = 'checked'
 const VALUE_DATA_INDEX = 'value'
@@ -21,7 +21,7 @@ export interface LocalDynamicGridActions<T=any> {
     onLoadData?(store: Store<T>, records: Model<T>[])
 }
 
-export interface LocalDynamicGridProps<T=any> extends DynamicGridProps, LocalDynamicGridActions<T>  {
+export interface LocalDynamicGridProps<T=any> extends ToolbarDynamicGridProps, LocalDynamicGridActions<T>  {
 }
 
 export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TData>=LocalDynamicGridProps<TData>> extends React.Component<TProps> {
