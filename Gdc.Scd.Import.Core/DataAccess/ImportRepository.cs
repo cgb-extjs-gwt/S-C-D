@@ -11,7 +11,7 @@ namespace Gdc.Scd.Import.Core.DataAccess
     public class ImportRepository<T> : EntityFrameworkRepository<T> 
         where T: class, IIdentifiable, IDeactivatable, new()
     {
-        private const int BATCH_NUMBER = 500;
+        private const int BATCH_NUMBER = 100;
 
         public ImportRepository(EntityFrameworkRepositorySet repositorySet)
             : base(repositorySet)
@@ -32,8 +32,6 @@ namespace Gdc.Scd.Import.Core.DataAccess
 
         public override void Save(IEnumerable<T> items)
         {
-            using (var transaction = this.repositorySet.GetTransaction())
-            {
                 try
                 {
                     int count = 0;
@@ -47,16 +45,11 @@ namespace Gdc.Scd.Import.Core.DataAccess
                         }
                     }
                     this.repositorySet.Sync();
-                    transaction.Commit();
                 }
                 catch (Exception ex)
                 {
-                    transaction.Rollback();
                     throw ex;
                 }
-
-            }
         }
-
     }
 }

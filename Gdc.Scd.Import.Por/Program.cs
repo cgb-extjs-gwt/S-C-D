@@ -91,10 +91,14 @@ namespace Gdc.Scd.Import.Por
                 //STEP 6: UPLOAD FSP CODES AND TRANSLATIONS
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, "FSP codes Translation");
 
+                //VStatus is ignored for STDWs 
                 var fspcodes = PorService.FspCodesImporter.ImportData()
-                                               .Where(fsp => fsp.VStatus == "50" &&
-                                                             allowedServiceTypes.Contains(fsp.SCD_ServiceType))
+                                               .Where(fsp => (fsp.VStatus == "50" &&
+                                                             allowedServiceTypes.Contains(fsp.SCD_ServiceType)) || 
+                                                             (standardWarrantiesServiceTypes.Contains(fsp.SCD_ServiceType)
+                                                             && fsp.Service_Code.Substring(11, 4).ToUpper().Equals("STDW")))
                                                .ToList();
+
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, "FSP codes Translation", fspcodes.Count);
 
                 
@@ -125,7 +129,6 @@ namespace Gdc.Scd.Import.Por
 
                     else if (standardWarrantiesServiceTypes.Contains(code.SCD_ServiceType))
                     {
-                        if (code.Service_Code.Substring(11, 4).ToUpper() == "STDW")
                             stdwCodes.Add(code);
                     }
 
