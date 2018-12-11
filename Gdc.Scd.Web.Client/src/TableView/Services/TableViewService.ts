@@ -15,4 +15,4 @@ export const updateRecords = (records: TableViewRecord[], approvalOption: Approv
     post<TableViewRecord[], QualityGateResultSet>(TABLE_VIEW_CONTROLLER_NAME, 'UpdateRecords', records, approvalOption)
 
 export const buildGetHistoryUrl = (costElementId: CostElementIdentifier, coordinates: { [key: string]: number }) => 
-    buildMvcUrl(TABLE_VIEW_CONTROLLER_NAME, 'GetHistory', { ...costElementId, ...coordinates });
+    buildMvcUrl(TABLE_VIEW_CONTROLLER_NAME, 'GetHistory', { costElementId, coordinates: JSON.stringify(coordinates) });

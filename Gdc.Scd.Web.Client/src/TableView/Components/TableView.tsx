@@ -1,5 +1,4 @@
 import * as React from "react";
-import { AjaxDynamicGridActions } from "../../Common/Components/AjaxDynamicGrid";
 import { Container, Toolbar } from "@extjs/ext-react";
 import { ColumnInfo } from "../../Common/States/ColumnInfo";
 import { TableViewGridContainer } from "./TableViewGridContainer";
@@ -39,9 +38,13 @@ export class TableView extends React.Component<TableViewProps, TableViewState> {
                     <HistoryButtonView  
                         isEnabled={isEnableHistoryButton}
                         flex={1}
-                        buidHistoryUrl={() => buildHistotyDataLoadUrl(selection, selectedDataIndex)}
+                        windowPosition={{
+                            top: '25%',
+                            left: '25%'
+                        }}
+                        buidHistoryUrl={() => buildHistotyDataLoadUrl && buildHistotyDataLoadUrl(selection, selectedDataIndex)}
                     />
-                    <QualtityGateSetWindowContainer/>
+                    <QualtityGateSetWindowContainer position={{ top: '25%', left: '25%'}}/>
                 </Toolbar>
 
                 <TableViewGridContainer onSelectionChange={this.onSelectionChange} />
@@ -50,23 +53,23 @@ export class TableView extends React.Component<TableViewProps, TableViewState> {
     }
 
     protected onSelectionChange = (grid, records: Model<TableViewRecord>[], selecting: boolean, selectionInfo) => {
-        // const { startCell } = selectionInfo;
+        const { startCell } = selectionInfo;
 
-        // if (startCell) {
-        //     const column = selectionInfo.startCell.column;
+         if (startCell) {
+            const column = selectionInfo.startCell.column;
 
-        //     this.setState({
-        //         selection: records,
-        //         selectedDataIndex: column.getDataIndex(),
-        //         isEnableHistoryButton: !!column.getEditable()
-        //     });
-        // } 
-        // else {
-        //     this.setState({
-        //         selection: [],
-        //         selectedDataIndex: null,
-        //         isEnableHistoryButton: false
-        //     });
-        // }
+            this.setState({
+                selection: records,
+                selectedDataIndex: column.getDataIndex(),
+                isEnableHistoryButton: !!column.getEditable()
+            });
+         } 
+         else {
+            this.setState({
+                selection: [],
+                selectedDataIndex: null,
+                isEnableHistoryButton: false
+            });
+         }
     }
 }

@@ -30,7 +30,7 @@ export const QualtityGateSetWindowContainer =
 
                         tabs.push(...fieldInfos.map(fieldInfo => <QualtityGateTab>{
                             key: `${applicationId}_${costBlockId}_${costElementId}`,
-                            title: `${costBlock.name} ${costElement.name}`,
+                            title: costElement.name,
                             costElement,
                             errors: item.qualityGateResult.errors
                         }));
@@ -44,11 +44,13 @@ export const QualtityGateSetWindowContainer =
             }
         },
         dispatch => ({
-            onSave: explanationMessage => saveTableViewToServer({ 
-                hasQualityGateErrors: true, 
-                isApproving: true,
-                qualityGateErrorExplanation: explanationMessage
-            }),
+            onSave: explanationMessage => dispatch(
+                saveTableViewToServer({ 
+                    hasQualityGateErrors: true, 
+                    isApproving: true,
+                    qualityGateErrorExplanation: explanationMessage
+                })
+            ),
             onCancel: () => dispatch(resetQualityCheckResult())
         })
     )(QualityGateSetWindow)

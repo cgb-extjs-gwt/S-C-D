@@ -9,6 +9,7 @@ using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.TableView;
 using Gdc.Scd.Web.Server.Heplers;
 using Gdc.Scd.Web.Server.Impl;
+using Newtonsoft.Json;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
@@ -44,14 +45,15 @@ namespace Gdc.Scd.Web.Server.Controllers
         [HttpGet]
         public async Task<IEnumerable<HistoryItem>> GetHistory(
             [FromUri]CostElementIdentifier costElementId,
-            [FromUri]IDictionary<string, long> coordinates,
+            [FromUri]string coordinates,
             [FromUri]int? start,
             [FromUri]int? limit,
             [FromUri]string sort = null)
         {
             var queryInfo = QueryInfoHelper.BuildQueryInfo(start, limit, sort);
+            var coordinatesDict = JsonConvert.DeserializeObject<Dictionary<string, long>>(coordinates);
 
-            return await this.tableViewService.GetHistoryItems(costElementId, coordinates, queryInfo);
+            return await this.tableViewService.GetHistoryItems(costElementId, coordinatesDict, queryInfo);
         }
     }
 }

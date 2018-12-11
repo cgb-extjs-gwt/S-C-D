@@ -18,13 +18,6 @@ export interface QualtityGateSetProps extends QualityGateToolbarActions {
 }
 
 export class QualtityGateSetView extends React.Component<QualtityGateSetProps> {
-
-    private toolbar: QualityGateToolbar;
-
-    public componentWillReceiveProps() {
-        this.toolbar.reset(); //clear form
-    }
-
     public render() {
         const { tabs, onSave, onCancel } = this.props;
 
@@ -34,7 +27,7 @@ export class QualtityGateSetView extends React.Component<QualtityGateSetProps> {
                     {tabs.map(this.createTab)}
                 </TabPanel>
 
-                <QualityGateToolbar ref={x => this.toolbar = x} onSave={onSave} onCancel={onCancel} flex={1} />
+                <QualityGateToolbar onSave={onSave} onCancel={onCancel} flex={1} />
             </Container>
         );
     }
