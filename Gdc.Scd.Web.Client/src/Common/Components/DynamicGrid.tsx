@@ -4,27 +4,24 @@ import { ColumnInfo, ColumnType, FilterItem, ColumnFilter } from "../States/Colu
 import { SaveToolbar } from "./SaveToolbar";
 import { Model, StoreOperation, Store } from "../States/ExtStates";
 import { ReactNode } from "react-redux";
-import { DynamicGridProps } from "./Props/DynamicGridProps";
+import { DynamicGridProps, ToolbarDynamicGridProps } from "./Props/DynamicGridProps";
 
-export interface StoreDynamicGridProps extends DynamicGridProps {
+export interface StoreDynamicGridProps extends ToolbarDynamicGridProps {
     store: Store
     useStoreSync?: boolean
 }
 
-export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGridProps, TState={}> extends React.Component<TProps, TState> {
+export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
     private saveToolbar: SaveToolbar
     private columnsMap = new Map<string, ColumnInfo>()
-    private store: Store = this.getStore()
-    private columns: ColumnInfo[] = this.getColumns()
-
-    constructor(props) {
-        super(props);
-
-        this.onSelectionChange = this.onSelectionChange.bind(this);
-    }
+    private store: Store
+    private columns: ColumnInfo[]
 
     public componentDidMount() {
-        const { init } = this.props;
+        const { init, store, columns } = this.props;
+
+        this.store = store;
+        this.columns = columns;
 
         init && init();
     }
@@ -33,17 +30,13 @@ export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGrid
         this.removeStoreListeners();
     }
 
-    public componentWillReceiveProps(nextProps: TProps) {
-        const store = this.getStore();
-
+    public componentWillReceiveProps({ store, columns }: StoreDynamicGridProps) {
         if (this.store != store) {
             this.removeStoreListeners();
             this.addStoreListeners(store);
 
             this.store = store;
         } 
-
-        const columns = this.getColumns();
 
         if (this.columns != columns) {
             this.columnsMap.clear();
@@ -60,7 +53,7 @@ export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGrid
     }
 
     public render() {
-        const { id, minHeight, minWidth, children, onSelectionChange, flex } = this.props;
+        const { id, minHeight, minWidth, children, onSelectionChange, flex, getSaveToolbar = this.getSaveToolbar } = this.props;
         const isEditable = this.columns && !!this.columns.find(column => column.isEditable);
         const hasChanges = this.hasChanges();
 
@@ -94,39 +87,13 @@ export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGrid
                 }
                 {children}
                 {
-                    isEditable && this.getSaveToolbar(hasChanges, this.toolbarRef)
+                    isEditable && getSaveToolbar(hasChanges, this.toolbarRef, this)
                 }
             </Grid>
         );
     }
 
-    protected onSelectionChange(grid, records: Model[], selecting: boolean, selectionInfo){
-        const { onSelectionChange } = this.props;
-
-        onSelectionChange && onSelectionChange(grid, records, selecting, selectionInfo);
-    }
-
-    protected getStore() {
-        return this.props.store;
-    }
-
-    protected getColumns() {
-        return this.props.columns;
-    }
-
-    protected getSaveToolbar(hasChanges: boolean, ref: (toolbar: SaveToolbar) => void) {
-        return (
-            <SaveToolbar 
-                ref={ref}
-                isEnableClear={hasChanges} 
-                isEnableSave={hasChanges}
-                onCancel={this.onCancel}
-                onSave={this.onSave}
-            />
-        );
-    }
-
-    protected onCancel = () => {
+    public cancel = () => {
         const { onCancel } = this.props;
 
         this.store.rejectChanges();
@@ -134,7 +101,7 @@ export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGrid
         onCancel && onCancel();
     }
 
-    protected saveWithCallback = (callback: () => void) => {
+    public saveWithCallback = (callback: () => void) => {
         const { useStoreSync } = this.props;
         const save = () => {
             callback && callback();
@@ -153,8 +120,26 @@ export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGrid
         }
     }
 
-    protected onSave = () => {
+    public save = () => {
         this.saveWithCallback(this.props.onSave);
+    }
+
+    private onSelectionChange = (grid, records: Model[], selecting: boolean, selectionInfo) => {
+        const { onSelectionChange } = this.props;
+
+        onSelectionChange && onSelectionChange(grid, records, selecting, selectionInfo);
+    }
+
+    private getSaveToolbar = (hasChanges: boolean, ref: (toolbar: SaveToolbar) => void, grid: DynamicGrid) => {
+        return (
+            <SaveToolbar 
+                ref={ref}
+                isEnableClear={hasChanges} 
+                isEnableSave={hasChanges}
+                onCancel={this.cancel}
+                onSave={this.save}
+            />
+        );
     }
 
     private toolbarRef = (toolbar: SaveToolbar) => {
@@ -237,6 +222,10 @@ export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGrid
             listeners: {
                 change: (field, newValue: string, oldValue: string) => {
                     const filters = filter.store.getFilters();
+
+                    //if (searchFn) {
+                    //    filters.each(filter => filters.remove(filter));
+                    //}
 
                     if (searchFn) {
                         filters.remove(searchFn);

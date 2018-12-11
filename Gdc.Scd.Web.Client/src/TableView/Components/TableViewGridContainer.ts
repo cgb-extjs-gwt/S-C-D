@@ -106,13 +106,21 @@ const buildCountColumns = (costBlock: CostBlockMeta, fieldInfo: FieldInfo) => (<
 
 const buildCountDataIndex = (dataIndex: string) => `${dataIndex}_Count`
 
+const buildAdditionalColumns = (title, dataIndex) => {
+    return <ColumnInfo<TableViewRecord>>{
+        title: title,
+        dataIndex: dataIndex,
+        type: ColumnType.Text,
+        mappingFn: record => record.additionalData[dataIndex]
+    }
+}
+
 const buildProps = (state: CommonState) => {
     let readUrl: string;
     let updateUrl: string;
     let buildHistotyUrl: ([selection]: Model<TableViewRecord>[], selectedDataIndex: string) => string
     
     const columns = [];
-    const filterDataIndexes = [];
     const tableViewInfo = state.pages.tableView.info;
     const meta = state.app.appMetaData;
 
@@ -129,14 +137,17 @@ const buildProps = (state: CommonState) => {
         
         const countColumns = mapToColumnInfo(tableViewInfo.recordInfo.data, meta, costBlockCache, buildCountColumns);
 
-        columns.push(...countColumns, ...coordinateColumns, ...costElementColumns);
+        const wgAdditionalColumns = [
+            buildAdditionalColumns("WG Full name", "Wg.Description"),
+            buildAdditionalColumns("PLA", "Wg.PLA"),
+            buildAdditionalColumns("Responsible Person", "Wg.ResponsiblePerson")
+        ]
 
-        coordinateColumns.forEach(column => filterDataIndexes.push(column.dataIndex));
+        columns.push(...countColumns, ...coordinateColumns, ...wgAdditionalColumns, ...costElementColumns);
     }
 
     return <TableViewGridProps>{
         columns,
-        filterDataIndexes,
         apiUrls: {
             read: readUrl
         },
@@ -159,7 +170,10 @@ const buildActions = (state: CommonState, dispatch: Dispatch) => {
                     const tableViewRecord = record.data;
                     const countDataIndex = buildCountDataIndex(dataIndex);
 
-                    if (record.get(countDataIndex) == 0) {
+                    if (dataIndex in record.data.additionalData || dataIndex in record.data.coordinates) {
+                        record.reject();
+                    }
+                    else if (record.get(countDataIndex) == 0) {
                         record.data[countDataIndex] = 1;
                     }
                     break;
@@ -203,15 +217,3 @@ export const TableViewGridContainer = connectAdvanced<CommonState, TableViewGrid
         onSelectionChange
     })
 )(TableViewGrid)
-
-// export const TableViewGridContainer = connect<any, any, TableViewGridContainerProps, any, CommonState>(
-//     state => ({ state }),
-//     dispatch => ({ dispatch }),
-//     ({ state }, { dispatch} , { onSelectionChange }) => { 
-//         return {
-//             ...buildProps(state),
-//             ...buildActions(state, dispatch),
-//             onSelectionChange,
-//         }
-//     }
-// )(TableViewGrid)

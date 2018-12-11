@@ -1,5 +1,5 @@
-import { Button, FormPanel, TextField, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
+import { Toolbar, Button, FormPanel, TextField } from "@extjs/ext-react";
 
 export interface QualityGateToolbarActions {
     onSave?(explanationMessage: string)
@@ -27,7 +27,7 @@ export class QualityGateToolbar extends React.Component<QualityGateToolbarProps,
     }
 
     public render() {
-        const { onCancel, flex } = this.props;
+        const { onSave, onCancel, flex } = this.props;
         const { isValidExplanationForm } = this.state;
 
         return (
@@ -49,10 +49,6 @@ export class QualityGateToolbar extends React.Component<QualityGateToolbarProps,
                 </Toolbar>
             </FormPanel>
         );
-    }
-
-    public reset() {
-        this.explanationTextField.reset();
     }
 
     private onExplanationTextFieldChange = (textField, newValue: string, oldValue: string) => {

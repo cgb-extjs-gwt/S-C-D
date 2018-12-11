@@ -1,5 +1,7 @@
 import { ColumnInfo } from "../../States/ColumnInfo";
 import { Model } from "../../States/ExtStates";
+import { SaveToolbar } from "../SaveToolbar";
+import { DynamicGrid } from "../DynamicGrid";
 
 export interface DynamicGridActions {
     init?()
@@ -14,4 +16,8 @@ export interface DynamicGridProps extends DynamicGridActions {
     minHeight?: number
     minWidth?: number
     flex?: number
+}
+
+export interface ToolbarDynamicGridProps extends DynamicGridProps {
+    getSaveToolbar?(hasChanges: boolean, ref: (toolbar: SaveToolbar) => void, grid: DynamicGrid)
 }

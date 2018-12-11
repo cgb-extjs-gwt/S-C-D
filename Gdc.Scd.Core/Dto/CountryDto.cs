@@ -15,7 +15,7 @@ namespace Gdc.Scd.Core.Dto
         public string QualityGroup { get; set; }
         public bool CanStoreListAndDealerPrices { get; set; }
         public bool CanOverrideTransferCostAndPrice { get; set; }
-        public string IsMaster { get; set; }
+        public bool IsMaster { get; set; }
         public string ISO3Code { get; set; }
         public long CountryId { get; set; }
     }

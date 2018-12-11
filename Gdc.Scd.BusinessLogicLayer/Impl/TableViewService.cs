@@ -6,6 +6,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.TableView;
+using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -27,12 +28,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly DomainEnitiesMeta meta;
 
+        private readonly IDomainService<Wg> wgService;
+
         public TableViewService(
             ITableViewRepository tableViewRepository, 
             IUserService userService, 
             IRepositorySet repositorySet,
             ICostBlockHistoryService costBlockHistoryService,
             IQualityGateSevice qualityGateSevice,
+            IDomainService<Wg> wgService,
             DomainEnitiesMeta meta)
         {
             this.tableViewRepository = tableViewRepository;
@@ -40,22 +44,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.repositorySet = repositorySet;
             this.costBlockHistoryService = costBlockHistoryService;
             this.qualityGateSevice = qualityGateSevice;
+            this.wgService = wgService;
             this.meta = meta;
         }
 
         public async Task<IEnumerable<Record>> GetRecords()
         {
             var costBlockInfos = this.GetCostBlockInfo().ToArray();
-
             var records = await this.tableViewRepository.GetRecords(costBlockInfos);
 
-            var wgs = repositorySet.GetRepository<Wg>().GetAll().Include(x => x.Pla);
-            foreach (var record in records)
+            if (costBlockInfos.All(info => info.Meta.InputLevelFields[MetaConstants.WgInputLevelName] != null))
             {
-                if (record.Coordinates.TryGetValue("Wg", out NamedId wgCoordinate))
+                var wgIds = records.Select(record => record.Coordinates[MetaConstants.WgInputLevelName].Id).ToArray();
+                var wgs = wgService.GetAll().Where(wg => wgIds.Contains(wg.Id)).Include(wg => wg.Pla).ToDictionary(wg => wg.Id);
+
+                foreach (var record in records)
                 {
-                    var wg = wgs.Where(x => x.Name == wgCoordinate.Name).FirstOrDefault();
-                    if (wg != null)
+                    if (record.Coordinates.TryGetValue(MetaConstants.WgInputLevelName, out var wgCoordinate) &&
+                        wgs.TryGetValue(wgCoordinate.Id, out var wg))
                     {
                         record.AdditionalData.Add("Wg.PLA", wg.Pla.Name);
                         record.AdditionalData.Add("Wg.Description", wg.Description);
