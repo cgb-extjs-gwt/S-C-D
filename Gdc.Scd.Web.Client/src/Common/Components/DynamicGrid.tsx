@@ -167,11 +167,12 @@ export class DynamicGrid<TProps extends StoreDynamicGridProps = StoreDynamicGrid
 
     private buildColumn(gridId: string, column: ColumnInfo) {
         const columnOption: any = {
-            key: `${gridId}_${column.dataIndex}`,
-            text: column.title, 
+            key: `${gridId}_${column.dataIndex}`,          
             dataIndex: column.dataIndex,
             flex: 1,
-            editable: column.isEditable
+            editable: column.isEditable,
+            text: column.title,
+            id: column.dataIndex.replace('.', '')
         };
 
         if (column.rendererFn) {

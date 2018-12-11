@@ -178,14 +178,14 @@ export class AjaxDynamicGrid<T extends AjaxDynamicGridProps = AjaxDynamicGridPro
                 const value = record.get(column.dataIndex);
                 const { store: filterStore, renderFn } = this.filterDatas.get(column.dataIndex);
 
-                const checkedValues = filterStore.data.items.filter(item => item.data.checked).map(item => item.data.value);
-
                 filterStore.each(
                     ({ data: filterItem }) => {
-                        isVisible = checkedValues.includes(renderFn(value, record))
+                        isVisible = renderFn(value, record) != filterItem.value || filterItem.checked
 
                         return isVisible;
-                    }
+                    },
+                    this,
+                    true
                 );
 
                 if (!isVisible) {
@@ -205,11 +205,11 @@ export class AjaxDynamicGrid<T extends AjaxDynamicGridProps = AjaxDynamicGridPro
 
     onUpdateFilterStore = (store, record, operation, modifiedFieldNames, dataIndex) => {
         if (operation == StoreOperation.Edit && modifiedFieldNames[0] == CHECKED_DATA_INDEX) {
-            this.filtreteFilters();
+            this.filtreteFilters(dataIndex);
         }
     }
 
-    private filtreteFilters() {
+    private filtreteFilters(dataIndex: string) {
         if (this.executeFiltrateFilters) {
             this.executeFiltrateFilters = false;
 
@@ -218,23 +218,34 @@ export class AjaxDynamicGrid<T extends AjaxDynamicGridProps = AjaxDynamicGridPro
                 const records = this.filtrateStore(visibleColumns);
                 const dataSets = this.buildDataSets(records);
 
+                const headerId = dataIndex.replace('.', '');
+                const headerIndex = dataIndex;
+                const headerText = visibleColumns.find(x => x.dataIndex == dataIndex).title;
+                this.setColumnHeaderText(headerId, headerText + "  &#8704;")
+                
                 this.filterDatas.forEach((filterData, dataIndex) => {
                     let allChecked = true;
 
                     filterData.store.each(record => allChecked = record.data.checked);
 
-                    if (allChecked && filterData.store.count() > 1) {
+                    if (allChecked && headerIndex == dataIndex) {
+                        this.setColumnHeaderText(headerId, headerText)
+                    }
+
+                    if (allChecked && headerIndex != dataIndex) {
                         filterData.filteredDataSet = dataSets.get(dataIndex);
 
-                        filterData.store.filterBy(
-                            record => filterData.filteredDataSet.has(record.data.value)
-                        );
+                        filterData.store.filterBy(record => filterData.filteredDataSet.has(record.data.value));
                     }
                 });
 
                 this.executeFiltrateFilters = true;
             });
         }
+    }
+
+    private setColumnHeaderText(headerId: string, text: string) {
+        Ext.getCmp(headerId).setText(text);
     }
 
     private fillFilterData() {
