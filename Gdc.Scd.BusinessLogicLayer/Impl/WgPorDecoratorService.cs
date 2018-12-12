@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
-    //Decorator for getting only wg from por
+    //Decorator for usage only wg from por
     public class WgPorDecoratorService : IWgPorService
     {
         private readonly IDomainService<Wg> origin;
@@ -18,6 +18,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public void Delete(long id)
         {
+            CheckType(Get(id));
             origin.Delete(id);
         }
 
@@ -33,12 +34,30 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public void Save(Wg item)
         {
+            CheckType(item);
             origin.Save(item);
         }
 
         public void Save(IEnumerable<Wg> items)
         {
+            CheckType(items);
             origin.Save(items);
+        }
+
+        private static void CheckType(IEnumerable<Wg> items)
+        {
+            foreach (var item in items)
+            {
+                CheckType(item);
+            }
+        }
+
+        private static void CheckType(Wg item)
+        {
+            if (item.WgType != WgType.Por)
+            {
+                throw new System.ArgumentException("Illegal wg type");
+            }
         }
     }
 }
