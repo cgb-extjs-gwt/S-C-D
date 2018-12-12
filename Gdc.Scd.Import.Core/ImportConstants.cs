@@ -28,6 +28,7 @@ namespace Gdc.Scd.Import.Core
         public static string UNKNOWN_COUNTRY_CODE = "Country Group with Country Code {0} is either unknown or skipped from auto upload";
         public static string UNKNOWN_WARRANTY = "Could not find Warranty Group {0}";
         public static string UNKNOWN_YEAR = "Could not find Year Dependency {0}";
+        public static string UNKNOWN_CURRENCY = "Could not find Currency Code {0}";
         public static string EMPTY_COUNTRY = "Skip uploading for one record as country is empty";
         public static string DEACTIVATE_START = "Deactivation for {0} is started...";
         public static string DEACTIVATE_END = "Deactivation finished. {0} rows affected.";
@@ -52,5 +53,7 @@ namespace Gdc.Scd.Import.Core
         public static string UPDATING_WGS_AND_SOGS_START = "Starting updating WGs and Sogs...";
         public static string UPDATING_ENTITY = "Updating {0}: {1}...";
         public static string UPDATING_WGS_AND_SOGS_END = "WGs and SOGs were updated.";
+        public static string ADD_EXCHANGE_RATE = "Exchanhe Rate for currency {0} was added.";
+        public static string UPDATE_EXCHANGE_RATE = "Exchanhe Rate for currency {0} was updated.";
     }
 }

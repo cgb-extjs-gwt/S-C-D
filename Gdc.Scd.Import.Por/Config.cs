@@ -57,7 +57,10 @@ namespace Gdc.Scd.Import.Por
         {
             get
             {
-                return HwServiceTypes.Union(ProActiveServices).Union(StandardWarrantyTypes).Union(SoftwareSolutionTypes).ToArray();
+                return HwServiceTypes
+                        .Union(ProActiveServices)
+                        .Union(SoftwareSolutionTypes)
+                        .ToArray();
             }
         }
     }

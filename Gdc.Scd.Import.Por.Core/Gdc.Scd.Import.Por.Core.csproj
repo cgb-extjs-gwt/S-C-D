@@ -94,6 +94,7 @@
     <Compile Include="Dto\HwSlaDto.cs" />
     <Compile Include="Dto\SlaDictsDto.cs" />
     <Compile Include="Dto\SlaDto.cs" />
+    <Compile Include="Dto\StdwSlaDto.cs" />
     <Compile Include="Dto\SwFspCodeDto.cs" />
     <Compile Include="Dto\SwProActiveDto.cs" />
     <Compile Include="Extensions\EntityExtensions.cs" />
