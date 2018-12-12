@@ -14,5 +14,6 @@ namespace Gdc.Scd.Core.Enums
         public const string EBIS_MATERIAL_COST = "EBIS_MATERIAL_COST";
         public const string EBIS_INSTALL_BASE = "EBIS_INSTALL_BASE";
         public const string SFABS = "SFABS";
+        public const string EXRATES = "EXCHANGE_RATES";
     }
 }

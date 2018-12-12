@@ -15,6 +15,7 @@ namespace Gdc.Scd.BusinessLogicLayer
         public override void Load()
         {
             Bind(typeof(IDomainService<>)).To(typeof(DomainService<>)).InRequestScope();
+            Bind<IWgPorService>().To<WgPorDecoratorService>().InRequestScope();
             Bind<ICostEditorService>().To<CostEditorService>().InRequestScope();
             Bind<ICapabilityMatrixService>().To<CapabilityMatrixService>().InRequestScope();
             Bind<ICalculationService>().To<CalculationService>().InRequestScope();

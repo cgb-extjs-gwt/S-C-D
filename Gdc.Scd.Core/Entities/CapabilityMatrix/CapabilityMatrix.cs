@@ -9,5 +9,7 @@ namespace Gdc.Scd.Core.Entities.CapabilityMatrix
     {
         [Required]
         public Country Country { get; set; }
+
+        public bool Denied { get; set; }
     }
 }

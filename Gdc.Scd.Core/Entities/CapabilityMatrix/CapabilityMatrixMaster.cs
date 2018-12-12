@@ -6,10 +6,10 @@ namespace Gdc.Scd.Core.Entities.CapabilityMatrix
     [Table("MatrixMaster", Schema = MetaConstants.MatrixSchema)]
     public class CapabilityMatrixMaster : CapabilityMatrixSla
     {
-        public bool FujitsuGlobalPortfolio { get; set; }
+        public bool DeniedFujitsu { get; set; }
 
-        public bool MasterPortfolio { get; set; }
+        public bool DeniedMaster { get; set; }
 
-        public bool CorePortfolio { get; set; }
+        public bool DeniedCore { get; set; }
     }
 }

@@ -18,5 +18,7 @@ namespace Gdc.Scd.Core.Entities
 
         public Wg Wg { get; set; }
         public long WgId { get; set; }
+
+        public bool? IsStandardWarranty { get; set; }
     }
 }
