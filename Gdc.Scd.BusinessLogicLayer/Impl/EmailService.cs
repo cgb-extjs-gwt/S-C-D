@@ -35,6 +35,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var mailMessage = new MailMessage
             {
                 From = new MailAddress("SCD_Admin@ts.fujitsu.com"),
+                IsBodyHtml = true,
                 Subject = "SCD: Approval was not granted",
                 Body = $"<b>Hello {recepient.Name},</br>Your values are not approved.</br>Reason for rejection:</b> {rejectionText}. <b>Approver’s name: </b> {approverName}"
             };
