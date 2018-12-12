@@ -41,7 +41,7 @@ const buildRouteMenuItems = () => <RouteMenuItem[]>[
     { path: '/own-cost-approval', text: 'Own approve cost elements', iconCls: 'x-fa fa-check-square-o', component: OwnApprovalCostElementsLayout, isMenuItem: true, permission: Permissions.OWN_APPROVAL },
     { path: '/capability-matrix', text: 'Portfolio', iconCls: 'x-fa fa-suitcase', component: CapabilityMatrixView, isMenuItem: true, permission: Permissions.PORTFOLIO, exact: true },
     { path: '/capability-matrix/edit', component: CapabilityMatrixEditView, permission: Permissions.PORTFOLIO },
-    { path: '/report', text: 'Review process', iconCls: 'x-fa fa-balance-scale', component: CalcResultView, isMenuItem: true, permission: Permissions.REPORT, exact: true },
+    { path: '/report', text: 'Calculation Result', iconCls: 'x-fa fa-calculator', component: CalcResultView, isMenuItem: true, permission: Permissions.REPORT, exact: true },
     { path: '/report/all', text: 'Reports', iconCls: 'x-fa fa-bar-chart', component: ReportListView, isMenuItem: true, permission: Permissions.REPORT, exact: true },
     { path: '/report/:name', component: ReportView, exact: true, permission: Permissions.REPORT },
     {
