@@ -37,7 +37,7 @@ declare @flag bit = 1;
 
 SELECT ROW_NUMBER() over(order by Id) as rownum, Id
 INTO #Temp_Wg
-FROM InputAtoms.Wg
+FROM InputAtoms.Wg where WgType = 1
 
 while @flag = 1
 begin

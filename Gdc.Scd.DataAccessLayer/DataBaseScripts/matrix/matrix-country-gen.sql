@@ -18,6 +18,9 @@ ALTER TABLE Matrix.Matrix NOCHECK CONSTRAINT ALL
 
 DELETE FROM Matrix.Matrix;
 
+with wgCte as (
+    SELECT Id FROM InputAtoms.Wg where WgType = 1
+)
 SELECT wg.Id AS wg, 
 		av.Id AS av, 
 		dur.Id AS dur, 
@@ -25,7 +28,7 @@ SELECT wg.Id AS wg,
 		rtime.Id AS reacttime,
 		sv.Id AS srvloc
 INTO #Temp_Sla
-FROM InputAtoms.Wg AS wg
+FROM wgCte wg
 CROSS JOIN Dependencies.Availability AS av
 CROSS JOIN Dependencies.Duration AS dur
 CROSS JOIN Dependencies.ReactionType AS rtype
