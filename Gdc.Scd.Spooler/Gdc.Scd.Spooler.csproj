@@ -78,11 +78,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="JobLibraries\ExampleJob\MyJob.cs" />
-    <Compile Include="JobLibraries\ExchangeRateJob\ExchangeRateJob.cs" />
-    <Compile Include="JobLibraries\ExchangeRateJob\ExchangeRateService.cs" />
-    <Compile Include="JobLibraries\ExchangeRateJob\ImportConstants.cs" />
-    <Compile Include="JobLibraries\ExchangeRateJob\Module.cs" />
-    <Compile Include="JobLibraries\ExchangeRateJob\Program.cs" />
     <Compile Include="JobsSchedule.cs">
       <DependentUpon>ScdDb.tt</DependentUpon>
     </Compile>
@@ -109,14 +104,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <Content Include="JobLibraries\ExchangeRateJob\NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Include="JobLibraries\ExchangeRateJob\App.config" />
-    <None Include="JobLibraries\ExchangeRateJob\NLog.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="JobLibraries\ExchangeRateJob\packages.config" />
     <None Include="packages.config" />
     <EntityDeploy Include="ScdDb.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
