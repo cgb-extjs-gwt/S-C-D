@@ -59,9 +59,9 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     public render(){
         return (
             <DynamicGrid 
+                {...this.props}              
                 store={this.store} 
-                columns={this.columns} 
-                {...this.props}
+                columns={this.columns}              
             />
         );
     }
@@ -194,7 +194,9 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
                         isVisible = renderFn(value, record) != filterItem.value || filterItem.checked
 
                         return isVisible;
-                    }
+                    },
+                    this,
+                    true
                 );
 
                 if (!isVisible) {
@@ -214,11 +216,11 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
 
     onUpdateFilterStore = (store, record, operation, modifiedFieldNames, dataIndex) => {
         if (operation == StoreOperation.Edit && modifiedFieldNames[0] == CHECKED_DATA_INDEX) {
-            this.filtreteFilters();
+            this.filtreteFilters(dataIndex);
         }
     }
 
-    private filtreteFilters() {
+    private filtreteFilters(dataIndex: string) {
         if (this.executeFiltrateFilters) {
             this.executeFiltrateFilters = false;
 
@@ -227,13 +229,26 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
                 const records = this.filtrateStore(visibleColumns);
                 const dataSets = this.buildDataSets(records);
 
+                const headerId = dataIndex.replace('.', '');
+                const headerIndex = dataIndex;
+                const headerText = visibleColumns.find(x => x.dataIndex == dataIndex).title;
+                const filterSymbol = "&#8704;"
+                this.setColumnHeaderText(headerId, headerText + "  " + filterSymbol);
+
                 this.filterDatas.forEach((filterData, dataIndex) => {
                     let allChecked = true;
 
                     filterData.store.each(record => allChecked = record.data.checked);
 
-                    if (allChecked && filterData.store.count() > 1) {
+                    if (allChecked && headerIndex == dataIndex) {
+                        this.setColumnHeaderText(headerId, headerText)
+                    }
+
+                    if (allChecked && headerIndex != dataIndex) {
                         filterData.filteredDataSet = dataSets.get(dataIndex);
+
+                        const filters = filterData.store.getFilters();
+                        filters.each(filter => filters.remove(filter));
 
                         filterData.store.filterBy(
                             record => filterData.filteredDataSet.has(record.data.value)
@@ -244,6 +259,10 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
                 this.executeFiltrateFilters = true;
             });
         }
+    }
+
+    private setColumnHeaderText(headerId: string, text: string) {
+        Ext.getCmp(headerId).setText(text);
     }
 
     private fillFilterData() {
