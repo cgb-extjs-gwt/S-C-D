@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
@@ -14,7 +13,7 @@ namespace Gdc.Scd.Core.Meta.Entities
         public SimpleFieldMeta ModifiedDateTimeField { get; }
 
         public DeactivatableEntityMeta(string name, string shema) 
-            : base(name, new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String), shema)
+            : base(name, shema)
         {
             this.CreatedDateTimeField = new SimpleFieldMeta(nameof(IDeactivatable.CreatedDateTime), TypeCode.DateTime);
             this.DeactivatedDateTimeField = new SimpleFieldMeta(nameof(IDeactivatable.DeactivatedDateTime), TypeCode.DateTime);

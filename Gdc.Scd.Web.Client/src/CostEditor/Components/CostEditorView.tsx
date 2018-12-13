@@ -15,7 +15,6 @@ import { CostBlockState, EditItem, CheckItem, Filter } from '../States/CostBlock
 import { 
     selectCostElement, 
     selectInputLevel, 
-    getFilterItemsByInputLevelSelection, 
     changeSelectionCostElementFilter, 
     changeSelectionInputLevelFilter, 
     resetCostElementFilter, 

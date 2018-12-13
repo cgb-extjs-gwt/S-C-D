@@ -11,11 +11,16 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public HashSet<string> CostEditorRoles { get; set; }
 
+        public IEnumerable<InputLevelMeta> SortInputLevel()
+        {
+            return this.InputLevels.OrderBy(inputLevel => inputLevel.LevelNumber);
+        }
+
         public InputLevelMeta GetPreviousInputLevel(string inputLevelId)
         {
             InputLevelMeta previousInputLevel = null;
 
-            foreach (var inputLevel in this.InputLevels)
+            foreach (var inputLevel in this.SortInputLevel())
             {
                 if (inputLevel.Id == inputLevelId)
                 {
@@ -30,7 +35,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public IEnumerable<InputLevelMeta> FilterInputLevels(string maxInputLevelId)
         {
-            foreach (var inputLevel in this.InputLevels.OrderBy(x => x.LevelNumber))
+            foreach (var inputLevel in this.SortInputLevel())
             {
                 yield return inputLevel;
 
@@ -39,6 +44,18 @@ namespace Gdc.Scd.Core.Meta.Entities
                     break;
                 }
             }
+        }
+
+        public bool HasInputLevelFilter(string inputLevelId)
+        {
+            var prevInputLevel = this.GetPreviousInputLevel(inputLevelId);
+
+            return this.HasInputLevelFilter(prevInputLevel);
+        }
+
+        public bool HasInputLevelFilter(InputLevelMeta prevInputLevel)
+        {
+            return prevInputLevel != null && this.RegionInput != prevInputLevel;
         }
     }
 }
