@@ -112,6 +112,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     await this.approvalRepository.Approve(history);
 
                     transaction.Commit();
+                    this.emailService.SendApprovalMail(history.EditUser);
                 }
                 catch
                 {
@@ -128,7 +129,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (message != null)
             {
-                this.emailService.SendEmail(history.EditUser, "SCD 2.0", message);
+                this.emailService.SendRejectedMail(history.EditUser, message, userService.GetCurrentUser().Name);
             }
         }
 

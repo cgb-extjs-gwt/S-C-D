@@ -42,12 +42,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var isValid = m.CountryId.HasValue || m.IsGlobalPortfolio || m.IsMasterPortfolio || m.IsCorePortfolio;
 
-            if(!isValid)
+            if (!isValid)
             {
                 throw new ArgumentException("No master or local portfolio specified!");
             }
 
-            return new AddMatrixRules(repositorySet).ExecuteAsync(m);
+            if (m.CountryId.HasValue)
+            {
+                return new AddMatrixRules(repositorySet).ExecuteAsync(m);
+            }
+            else
+            {
+                return new AddMatrixMasterRules(repositorySet).ExecuteAsync(m);
+            }
         }
 
         public Task<Tuple<CapabilityMatrixDto[], int>> GetAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
@@ -64,7 +71,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<Tuple<CapabilityMatrixDto[], int>> GetMasterAllowedCombinations(CapabilityMatrixFilterDto filter, int start, int limit)
         {
-            var query = matrixMasterRepo.GetAll().Where(x => !x.Denied);
+            var query = matrixMasterRepo.GetAll().Where(x => !x.DeniedFujitsu || !x.DeniedMaster || !x.DeniedCore);
 
             if (filter != null)
             {
@@ -74,9 +81,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                              .WhereIf(filter.ReactionType.HasValue, x => x.ReactionType.Id == filter.ReactionType.Value)
                              .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTime.Id == filter.ReactionTime.Value)
                              .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocation.Id == filter.ServiceLocation.Value)
-                             .WhereIf(filter.IsGlobalPortfolio.HasValue && filter.IsGlobalPortfolio.Value, x => x.FujitsuGlobalPortfolio)
-                             .WhereIf(filter.IsMasterPortfolio.HasValue && filter.IsMasterPortfolio.Value, x => x.MasterPortfolio)
-                             .WhereIf(filter.IsCorePortfolio.HasValue && filter.IsCorePortfolio.Value, x => x.CorePortfolio);
+
+                             .WhereIf(filter.IsGlobalPortfolio.HasValue && filter.IsGlobalPortfolio.Value, x => !x.DeniedFujitsu)
+                             .WhereIf(filter.IsMasterPortfolio.HasValue && filter.IsMasterPortfolio.Value, x => !x.DeniedMaster)
+                             .WhereIf(filter.IsCorePortfolio.HasValue && filter.IsCorePortfolio.Value, x => !x.DeniedCore);
             }
 
             var count = await query.GetCountAsync();
@@ -92,9 +100,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 ReactionTime = x.ReactionTime.Name,
                 ServiceLocation = x.ServiceLocation.Name,
 
-                IsGlobalPortfolio = x.FujitsuGlobalPortfolio,
-                IsMasterPortfolio = x.MasterPortfolio,
-                IsCorePortfolio = x.CorePortfolio
+                IsGlobalPortfolio = !x.DeniedFujitsu,
+                IsMasterPortfolio = !x.DeniedMaster,
+                IsCorePortfolio = !x.DeniedCore
             }).PagingAsync(start, limit);
 
             return new Tuple<CapabilityMatrixDto[], int>(result, count);
