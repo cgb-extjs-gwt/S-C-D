@@ -31,7 +31,8 @@ export interface InputLevelMeta extends NamedId {
 export enum FieldType {
     Reference = "Reference",
     Double = "Double",
-    Flag = "Flag"
+    Flag = "Flag",
+    Percent = "Percent"
 }
 
 export interface ApplicationMeta extends NamedId, UsingInfo {

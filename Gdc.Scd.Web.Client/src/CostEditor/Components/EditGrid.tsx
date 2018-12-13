@@ -174,20 +174,31 @@ export class EditGrid extends React.Component<EditGridProps> {
 
                     return result;
                 };
-                let selectField = (<SelectField
-                    options={[
-                        { text: 'true', value: 1 },
-                        { text: 'false', value: 0 }
-                    ]}
-                />);
-
 
                 column = (
                     <Column {...columnOptions}>
-                        {selectField}
+                        <SelectField
+                            options={[
+                                { text: 'true', value: 1 },
+                                { text: 'false', value: 0 }
+                            ]}
+                        />
                     </Column>
                 );
                 
+                break;
+
+            case FieldType.Percent:
+                column = (
+                    <Column
+                        {...columnOptions}
+                        renderer={value => 
+                            Ext.util.Format.number(value, '0.##%')
+                        }
+                    >
+                        <NumberField required validators={{ type: "number", message: "Invalid value" }} />
+                    </Column>
+                );
                 break;
         }
     
