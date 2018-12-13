@@ -865,10 +865,6 @@ GO
 
 CREATE VIEW [Hardware].[ServiceSupportCostView] as
     select ssc.Country,
-           
-           wg.Id as Wg,
-           wg.IsMultiVendor,
-           
            ssc.ClusterRegion,
            ssc.ClusterPla,
 
@@ -887,8 +883,8 @@ CREATE VIEW [Hardware].[ServiceSupportCostView] as
 
     from Hardware.ServiceSupportCost ssc
     join InputAtoms.Country c on c.Id = ssc.Country
-    join InputAtoms.WgView wg on wg.ClusterPla = ssc.ClusterPla
     left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+
 GO
 
 CREATE VIEW [Hardware].[ReinsuranceView] as
@@ -907,104 +903,107 @@ CREATE VIEW [Hardware].[ReinsuranceView] as
     JOIN [References].ExchangeRate er2 on er2.CurrencyId = r.CurrencyReinsurance_Approved
 GO
 
-CREATE VIEW [Hardware].[ProActiveView] AS
-with ProActiveCte as 
-(
-    select pro.Country,
-           pro.Wg,
+CREATE VIEW [Hardware].[ProActiveView] with schemabinding as 
+    with ProActiveCte as 
+    (
+        select pro.Country,
+               pro.Wg,
+               sla.Id as ProActiveSla,
+               (pro.LocalRemoteAccessSetupPreparationEffort * pro.OnSiteHourlyRate) as LocalRemoteAccessSetup,
+               (pro.LocalRemoteAccessSetupPreparationEffort_Approved * pro.OnSiteHourlyRate_Approved) as LocalRemoteAccessSetup_Approved,
 
-           (pro.LocalRemoteAccessSetupPreparationEffort * pro.OnSiteHourlyRate) as LocalRemoteAccessSetup,
-           (pro.LocalRemoteAccessSetupPreparationEffort_Approved * pro.OnSiteHourlyRate_Approved) as LocalRemoteAccessSetup_Approved,
+               (pro.LocalRegularUpdateReadyEffort * 
+                pro.OnSiteHourlyRate * 
+                sla.LocalRegularUpdateReadyRepetition) as LocalRegularUpdate,
 
-           (pro.LocalRegularUpdateReadyEffort * 
-            pro.OnSiteHourlyRate * 
-            sla.LocalRegularUpdateReadyRepetition) as LocalRegularUpdate,
+               (pro.LocalRegularUpdateReadyEffort_Approved * 
+                pro.OnSiteHourlyRate_Approved * 
+                sla.LocalRegularUpdateReadyRepetition) as LocalRegularUpdate_Approved,
 
-           (pro.LocalRegularUpdateReadyEffort_Approved * 
-            pro.OnSiteHourlyRate_Approved * 
-            sla.LocalRegularUpdateReadyRepetition) as LocalRegularUpdate_Approved,
+               (pro.LocalPreparationShcEffort * 
+                pro.OnSiteHourlyRate * 
+                sla.LocalPreparationShcRepetition) as LocalPreparation,
 
-           (pro.LocalPreparationShcEffort * 
-            pro.OnSiteHourlyRate * 
-            sla.LocalPreparationShcRepetition) as LocalPreparation,
+               (pro.LocalPreparationShcEffort_Approved * 
+                pro.OnSiteHourlyRate_Approved * 
+                sla.LocalPreparationShcRepetition) as LocalPreparation_Approved,
 
-           (pro.LocalPreparationShcEffort_Approved * 
-            pro.OnSiteHourlyRate_Approved * 
-            sla.LocalPreparationShcRepetition) as LocalPreparation_Approved,
+               (pro.LocalRemoteShcCustomerBriefingEffort * 
+                pro.OnSiteHourlyRate * 
+                sla.LocalRemoteShcCustomerBriefingRepetition) as LocalRemoteCustomerBriefing,
 
-           (pro.LocalRemoteShcCustomerBriefingEffort * 
-            pro.OnSiteHourlyRate * 
-            sla.LocalRemoteShcCustomerBriefingRepetition) as LocalRemoteCustomerBriefing,
+               (pro.LocalRemoteShcCustomerBriefingEffort_Approved * 
+                pro.OnSiteHourlyRate_Approved * 
+                sla.LocalRemoteShcCustomerBriefingRepetition) as LocalRemoteCustomerBriefing_Approved,
 
-           (pro.LocalRemoteShcCustomerBriefingEffort_Approved * 
-            pro.OnSiteHourlyRate_Approved * 
-            sla.LocalRemoteShcCustomerBriefingRepetition) as LocalRemoteCustomerBriefing_Approved,
+               (pro.LocalOnsiteShcCustomerBriefingEffort * 
+                pro.OnSiteHourlyRate * 
+                sla.LocalOnsiteShcCustomerBriefingRepetition) as LocalOnsiteCustomerBriefing,
 
-           (pro.LocalOnsiteShcCustomerBriefingEffort * 
-            pro.OnSiteHourlyRate * 
-            sla.LocalOnsiteShcCustomerBriefingRepetition) as LocalOnsiteCustomerBriefing,
+               (pro.LocalOnsiteShcCustomerBriefingEffort_Approved * 
+                pro.OnSiteHourlyRate_Approved * 
+                sla.LocalOnsiteShcCustomerBriefingRepetition) as LocalOnsiteCustomerBriefing_Approved,
 
-           (pro.LocalOnsiteShcCustomerBriefingEffort_Approved * 
-            pro.OnSiteHourlyRate_Approved * 
-            sla.LocalOnsiteShcCustomerBriefingRepetition) as LocalOnsiteCustomerBriefing_Approved,
+               (pro.TravellingTime * 
+                pro.OnSiteHourlyRate * 
+                sla.TravellingTimeRepetition) as Travel,
 
-           (pro.TravellingTime * 
-            pro.OnSiteHourlyRate * 
-            sla.TravellingTimeRepetition) as Travel,
+               (pro.TravellingTime_Approved * 
+                pro.OnSiteHourlyRate_Approved * 
+                sla.TravellingTimeRepetition) as Travel_Approved,
 
-           (pro.TravellingTime_Approved * 
-            pro.OnSiteHourlyRate_Approved * 
-            sla.TravellingTimeRepetition) as Travel_Approved,
+               (pro.CentralExecutionShcReportCost * 
+                sla.CentralExecutionShcReportRepetition) as CentralExecutionReport,
 
-           (pro.CentralExecutionShcReportCost * 
-            sla.CentralExecutionShcReportRepetition) as CentralExecutionReport,
+               (pro.CentralExecutionShcReportCost_Approved * 
+                sla.CentralExecutionShcReportRepetition) as CentralExecutionReport_Approved
 
-           (pro.CentralExecutionShcReportCost_Approved * 
-            sla.CentralExecutionShcReportRepetition) as CentralExecutionReport_Approved
+        from Hardware.ProActive pro, 
+             Dependencies.ProActiveSla sla
+    )
+    select  pro.Country,
+            pro.Wg,
+            pro.ProActiveSla,
 
-    from Hardware.ProActive pro
-    left join Fsp.HwFspCodeTranslation fsp on fsp.WgId = pro.Wg
-    left join Dependencies.ProActiveSla sla on sla.id = fsp.ProactiveSlaId
-)
-select pro.Country,
-       pro.Wg,
+            pro.LocalPreparation,
+            pro.LocalPreparation_Approved,
 
-        pro.LocalPreparation,
-        pro.LocalPreparation_Approved,
+            pro.LocalRegularUpdate,
+            pro.LocalRegularUpdate_Approved,
 
-        pro.LocalRegularUpdate,
-        pro.LocalRegularUpdate_Approved,
+            pro.LocalRemoteCustomerBriefing,
+            pro.LocalRemoteCustomerBriefing_Approved,
 
-        pro.LocalRemoteCustomerBriefing,
-        pro.LocalRemoteCustomerBriefing_Approved,
+            pro.LocalOnsiteCustomerBriefing,
+            pro.LocalOnsiteCustomerBriefing_Approved,
 
-        pro.LocalOnsiteCustomerBriefing,
-        pro.LocalOnsiteCustomerBriefing_Approved,
+            pro.Travel,
+            pro.Travel_Approved,
 
-        pro.Travel,
-        pro.Travel_Approved,
+            pro.CentralExecutionReport,
+            pro.CentralExecutionReport_Approved,
 
-        pro.CentralExecutionReport,
-        pro.CentralExecutionReport_Approved,
+           pro.LocalRemoteAccessSetup as Setup,
+           pro.LocalRemoteAccessSetup_Approved  as Setup_Approved,
 
-       pro.LocalRemoteAccessSetup as Setup,
-       pro.LocalRemoteAccessSetup_Approved  as Setup_Approved,
-
-       (pro.LocalPreparation + 
-        pro.LocalRegularUpdate + 
-        pro.LocalRemoteCustomerBriefing +
-        pro.LocalOnsiteCustomerBriefing +
-        pro.Travel +
-        pro.CentralExecutionReport) as Service,
+           (pro.LocalPreparation + 
+            pro.LocalRegularUpdate + 
+            pro.LocalRemoteCustomerBriefing +
+            pro.LocalOnsiteCustomerBriefing +
+            pro.Travel +
+            pro.CentralExecutionReport) as Service,
        
-       (pro.LocalPreparation_Approved + 
-        pro.LocalRegularUpdate_Approved + 
-        pro.LocalRemoteCustomerBriefing_Approved +
-        pro.LocalOnsiteCustomerBriefing_Approved +
-        pro.Travel_Approved +
-        pro.CentralExecutionReport_Approved) as Service_Approved
+           (pro.LocalPreparation_Approved + 
+            pro.LocalRegularUpdate_Approved + 
+            pro.LocalRemoteCustomerBriefing_Approved +
+            pro.LocalOnsiteCustomerBriefing_Approved +
+            pro.Travel_Approved +
+            pro.CentralExecutionReport_Approved) as Service_Approved
 
-from ProActiveCte pro
+    from ProActiveCte pro;
+
+
+
 GO
 
 CREATE FUNCTION Matrix.GetBySla(
@@ -1037,6 +1036,69 @@ RETURN
 )
 GO
 
+CREATE FUNCTION [Matrix].[FindBySla](
+    @cnt bigint,
+    @wg bigint,
+    @av bigint,
+    @dur bigint,
+    @rtime bigint,
+    @rtype bigint,
+    @loc bigint,
+    @pro bigint,
+    @limit int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+    with SlaCte as (
+        SELECT wg.Id as wg, av.Id as av, dur.id as dur, rtype.id as rtype, rtime.id as rtime, sv.id as loc, pro.id as proactive
+        FROM InputAtoms.Wg wg
+           , Dependencies.Availability av
+           , Dependencies.Duration dur
+           , Dependencies.ReactionType rtype
+           , Dependencies.ReactionTime rtime
+           , Dependencies.ServiceLocation sv
+           , Dependencies.ProActiveSla pro
+           , Matrix.MatrixRule mr
+        where wg.WgType = 1 
+          and wg.DeactivatedDateTime is null
+          and (@wg is null or wg.id = @wg)
+          and (@av is null or av.id = @av)
+          and (@dur is null or dur.id = @dur)
+          and (@rtime is null or rtime.id = @rtime)
+          and (@rtype is null or rtype.id = @rtype)
+          and (@loc is null or sv.id = @loc)
+          and (@pro is null or pro.id = @pro)
+    )
+    , cte as (
+        select wg, av, dur, rtype, rtime, loc, proactive from SlaCte
+        except
+        select wg, av, dur, rtype, rtime, loc, proactive 
+        from SlaCte sla, Matrix.MatrixRule mr
+        where mr.CountryId = @cnt
+
+            and (mr.WgId is null or sla.wg = mr.WgId)
+            and (mr.AvailabilityId is null or sla.av = mr.AvailabilityId)
+            and (mr.DurationId is null or sla.dur = mr.DurationId)
+            and (mr.ReactionTimeId is null or sla.rtime = mr.ReactionTimeId)
+            and (mr.ReactionTypeId is null or sla.rtype = mr.ReactionTypeId)
+            and (mr.ServiceLocationId is null or sla.loc = mr.ServiceLocationId)
+            and (mr.ProActiveSlaId is null or sla.proactive = mr.ProActiveSlaId)
+    )
+    select top(@limit) 
+            @cnt as CountryId
+          , wg as WgId
+          , av as AvailabilityId
+          , dur as DurationId
+          , rtime as ReactionTimeId
+          , rtype as ReactionTypeId
+          , loc as ServiceLocationId
+          , proactive as ProActiveSlaId
+     from cte
+)
+GO
+
 CREATE FUNCTION [Hardware].[GetCalcMember] (
     @approved bit,
     @cnt bigint,
@@ -1046,6 +1108,7 @@ CREATE FUNCTION [Hardware].[GetCalcMember] (
     @reactiontime bigint,
     @reactiontype bigint,
     @loc bigint,
+    @pro bigint,
     @lastid bigint,
     @limit int
 )
@@ -1053,7 +1116,7 @@ RETURNS TABLE
 AS
 RETURN 
 (
-    SELECT m.Id
+    SELECT -1 as Id
 
         --SLA
 
@@ -1066,6 +1129,7 @@ RETURN
          , rtime.Name as ReactionTime
          , rtype.Name as ReactionType
          , loc.Name as ServiceLocation
+         , prosla.ExternalName as ProActiveSla
 
          , case when @approved = 0 then afr.AFR1 else AFR1_Approved       end as AFR1 
          , case when @approved = 0 then afr.AFR2 else AFR2_Approved       end as AFR2 
@@ -1138,17 +1202,23 @@ RETURN
                 else (pro.Setup_Approved + pro.Service_Approved * dur.Value)
             end as ProActive
          
-         , case when @approved = 0 then man.ListPrice                      else man.ListPrice_Approved                    end as ListPrice                   
-         , case when @approved = 0 then man.DealerDiscount                 else man.DealerDiscount_Approved               end as DealerDiscount              
-         , case when @approved = 0 then man.DealerPrice                    else man.DealerPrice_Approved                  end as DealerPrice                 
-         , case when @approved = 0 then man.ServiceTC                      else man.ServiceTC_Approved                    end as ServiceTCManual                   
-         , case when @approved = 0 then man.ServiceTP                      else man.ServiceTP_Approved                    end as ServiceTPManual                   
+         --, case when @approved = 0 then man.ListPrice                      else man.ListPrice_Approved                    end as ListPrice                   
+         --, case when @approved = 0 then man.DealerDiscount                 else man.DealerDiscount_Approved               end as DealerDiscount              
+         --, case when @approved = 0 then man.DealerPrice                    else man.DealerPrice_Approved                  end as DealerPrice                 
+         --, case when @approved = 0 then man.ServiceTC                      else man.ServiceTC_Approved                    end as ServiceTCManual                   
+         --, case when @approved = 0 then man.ServiceTP                      else man.ServiceTP_Approved                    end as ServiceTPManual                   
 
-    FROM Matrix.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @lastid, @limit) m
+         , null as ListPrice        
+         , null as DealerDiscount   
+         , null as DealerPrice      
+         , null as ServiceTCManual  
+         , null as ServiceTPManual  
+
+    FROM Matrix.FindBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @limit) m
 
     INNER JOIN InputAtoms.Country c on c.id = m.CountryId
 
-    INNER JOIN InputAtoms.Wg wg on wg.id = m.WgId
+    INNER JOIN InputAtoms.WgView wg on wg.id = m.WgId
 
     INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 
@@ -1157,8 +1227,10 @@ RETURN
     INNER JOIN Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
 
     INNER JOIN Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
-
+   
     INNER JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
+
+    INNER JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
     LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
@@ -1166,7 +1238,7 @@ RETURN
 
     LEFT JOIN Hardware.InstallBase ib on ib.Wg = m.WgId AND ib.Country = m.CountryId
 
-    LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.Wg = m.WgId
+    LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg.ClusterPla
 
     LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
 
@@ -1188,9 +1260,7 @@ RETURN
 
     LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
 
-    LEFT JOIN Hardware.ProActiveView pro ON pro.Country = m.CountryId AND pro.Wg = m.WgId
-
-    LEFT JOIN Hardware.ManualCost man on man.MatrixId = m.Id
+    LEFT JOIN Hardware.ProActiveView pro ON  pro.Country= m.CountryId and pro.Wg= m.WgId and pro.ProActiveSla = m.ProActiveSlaId
 )
 GO
 
@@ -1203,6 +1273,7 @@ CREATE FUNCTION [Hardware].[GetCostsFull](
     @reactiontime bigint,
     @reactiontype bigint,
     @loc bigint,
+    @pro bigint,
     @lastid bigint,
     @limit int
 )
@@ -1215,7 +1286,7 @@ RETURN
                 , m.Year * m.ServiceSupport as ServiceSupportCost
                 , (1 - m.TimeAndMaterialShare) * (m.TravelCost + m.LabourCost + m.PerformanceRate) + m.TimeAndMaterialShare * (m.TravelTime + m.repairTime) * m.OnsiteHourlyRates + m.PerformanceRate as FieldServicePerYear
                 , m.StandardHandling + m.HighAvailabilityHandling + m.StandardDelivery + m.ExpressDelivery + m.TaxiCourierDelivery + m.ReturnDeliveryFactory as LogisticPerYear
-        from Hardware.GetCalcMember(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @lastid, @limit) m
+        from Hardware.GetCalcMember(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
     )
     , CostCte2 as (
         select    m.*
@@ -1318,6 +1389,7 @@ RETURN
          , m.Reinsurance
          , m.ProActive
          , m.ServiceSupportCost
+         , m.ProActiveSla
 
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.mat1, m.mat2, m.mat3, m.mat4, m.mat5, m.mat1P) as MaterialW
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.matO1, m.matO2, m.matO3, m.matO4, m.matO5, m.matO1P) as MaterialOow
@@ -1362,6 +1434,7 @@ CREATE FUNCTION [Hardware].[GetCosts](
     @reactiontime bigint,
     @reactiontype bigint,
     @loc bigint,
+    @pro bigint,
     @lastid bigint,
     @limit int
 )
@@ -1378,6 +1451,7 @@ RETURN
          , ReactionTime
          , ReactionType
          , ServiceLocation
+         , ProActiveSla
 
          , AvailabilityFee
          , HddRet
@@ -1403,5 +1477,5 @@ RETURN
          , ServiceTCManual
          , ServiceTPManual
 
-    from Hardware.GetCostsFull(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @lastid, @limit)
+    from Hardware.GetCostsFull(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit)
 )
