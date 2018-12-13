@@ -5,8 +5,7 @@ export enum ColumnType {
     Text,
     CheckBox,
     Numeric,
-    Reference,
-    Percent
+    Reference
 }
 
 export interface FilterItem {
