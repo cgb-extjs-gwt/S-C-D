@@ -31,6 +31,10 @@ export class FakeDictService implements IDictService {
         throw new Error("Method not implemented.");
     }
 
+    public getCountryQualityGroup(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
+
     public getWG(): Promise<NamedId[]> {
         return this.fromResult(fakeWG);
     }

@@ -24,6 +24,7 @@ export interface EditGridProps extends EditGridActions {
 
 export class EditGrid extends React.Component<EditGridProps> {
     private itemsMap = new Map<string, EditItem>();
+    private sorters;
 
     constructor(props: EditGridProps) {
         super(props);
@@ -97,6 +98,7 @@ export class EditGrid extends React.Component<EditGridProps> {
                     name: 'value',
                     mapping: data => data.value == null ? ' ' : data.value
                 }],
+            sorters: this.sorters,
             listeners: onItemEdited && {
                 update: (store, record, operation, modifiedFieldNames, details) => {
                     if (modifiedFieldNames[0] === 'name') {
@@ -110,6 +112,10 @@ export class EditGrid extends React.Component<EditGridProps> {
 
                         onItemEdited(record.data);
                     }
+                },
+
+                sort: (store) => {
+                    this.sorters = store.getSorters().items;
                 }
             }
         }); 
@@ -174,17 +180,15 @@ export class EditGrid extends React.Component<EditGridProps> {
 
                     return result;
                 };
-                let selectField = (<SelectField
-                    options={[
-                        { text: 'true', value: 1 },
-                        { text: 'false', value: 0 }
-                    ]}
-                />);
-
 
                 column = (
                     <Column {...columnOptions}>
-                        {selectField}
+                        <SelectField
+                            options={[
+                                { text: 'true', value: 1 },
+                                { text: 'false', value: 0 }
+                            ]}
+                        />
                     </Column>
                 );
                 
