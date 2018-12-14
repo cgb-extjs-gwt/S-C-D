@@ -1036,69 +1036,6 @@ RETURN
 )
 GO
 
-CREATE FUNCTION [Matrix].[FindBySla](
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
-    @rtime bigint,
-    @rtype bigint,
-    @loc bigint,
-    @pro bigint,
-    @limit int
-)
-RETURNS TABLE 
-AS
-RETURN 
-(
-    with SlaCte as (
-        SELECT wg.Id as wg, av.Id as av, dur.id as dur, rtype.id as rtype, rtime.id as rtime, sv.id as loc, pro.id as proactive
-        FROM InputAtoms.Wg wg
-           , Dependencies.Availability av
-           , Dependencies.Duration dur
-           , Dependencies.ReactionType rtype
-           , Dependencies.ReactionTime rtime
-           , Dependencies.ServiceLocation sv
-           , Dependencies.ProActiveSla pro
-           , Matrix.MatrixRule mr
-        where wg.WgType = 1 
-          and wg.DeactivatedDateTime is null
-          and (@wg is null or wg.id = @wg)
-          and (@av is null or av.id = @av)
-          and (@dur is null or dur.id = @dur)
-          and (@rtime is null or rtime.id = @rtime)
-          and (@rtype is null or rtype.id = @rtype)
-          and (@loc is null or sv.id = @loc)
-          and (@pro is null or pro.id = @pro)
-    )
-    , cte as (
-        select wg, av, dur, rtype, rtime, loc, proactive from SlaCte
-        except
-        select wg, av, dur, rtype, rtime, loc, proactive 
-        from SlaCte sla, Matrix.MatrixRule mr
-        where mr.CountryId = @cnt
-
-            and (mr.WgId is null or sla.wg = mr.WgId)
-            and (mr.AvailabilityId is null or sla.av = mr.AvailabilityId)
-            and (mr.DurationId is null or sla.dur = mr.DurationId)
-            and (mr.ReactionTimeId is null or sla.rtime = mr.ReactionTimeId)
-            and (mr.ReactionTypeId is null or sla.rtype = mr.ReactionTypeId)
-            and (mr.ServiceLocationId is null or sla.loc = mr.ServiceLocationId)
-            and (mr.ProActiveSlaId is null or sla.proactive = mr.ProActiveSlaId)
-    )
-    select top(@limit) 
-            @cnt as CountryId
-          , wg as WgId
-          , av as AvailabilityId
-          , dur as DurationId
-          , rtime as ReactionTimeId
-          , rtype as ReactionTypeId
-          , loc as ServiceLocationId
-          , proactive as ProActiveSlaId
-     from cte
-)
-GO
-
 CREATE FUNCTION [Hardware].[GetCalcMember] (
     @approved bit,
     @cnt bigint,
@@ -1116,7 +1053,7 @@ RETURNS TABLE
 AS
 RETURN 
 (
-    SELECT -1 as Id
+    SELECT m.Id
 
         --SLA
 
@@ -1214,7 +1151,7 @@ RETURN
          , null as ServiceTCManual  
          , null as ServiceTPManual  
 
-    FROM Matrix.FindBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @limit) m
+    FROM Matrix.FindBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
 
     INNER JOIN InputAtoms.Country c on c.id = m.CountryId
 

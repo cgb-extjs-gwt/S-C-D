@@ -9,7 +9,8 @@
         public long? Duration {get;set;}
         public long? ReactionType {get;set;}
         public long? ReactionTime {get;set;}
-        public long? ServiceLocation {get;set;}
+        public long? ServiceLocation { get; set; }
+        public long? ProActive { get; set; }
 
         public bool? IsGlobalPortfolio {get;set;}
         public bool? IsMasterPortfolio {get;set;}

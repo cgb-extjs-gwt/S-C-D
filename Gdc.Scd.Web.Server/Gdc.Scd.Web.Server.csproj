@@ -229,6 +229,7 @@
     <Compile Include="Controllers\Dict\CountryGroupController.cs" />
     <Compile Include="Controllers\Dict\DurationController.cs" />
     <Compile Include="Controllers\Dict\PlaController.cs" />
+    <Compile Include="Controllers\Dict\ProActiveController.cs" />
     <Compile Include="Controllers\Dict\ReactionTimeController.cs" />
     <Compile Include="Controllers\Dict\ReactionTypeController.cs" />
     <Compile Include="Controllers\Dict\RegionController.cs" />

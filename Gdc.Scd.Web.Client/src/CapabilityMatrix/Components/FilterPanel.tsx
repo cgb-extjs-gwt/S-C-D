@@ -9,6 +9,7 @@ import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
 import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
 import { WgField } from "../../Dict/Components/WgField";
 import { CapabilityMatrixFilterModel } from "../Model/CapabilityMatrixFilterModel";
+import { ProActiveField } from "../../Dict/Components/ProActiveField";
 
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: CapabilityMatrixFilterModel): void;
@@ -29,6 +30,8 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
     private reacttime: DictField;
 
     private srvloc: DictField;
+
+    private proactive: DictField;
 
     private globPort: CheckBoxField;
 
@@ -62,6 +65,7 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
                     <ReactionTypeField ref={x => this.reacttype = x} label="Reaction type:" />
                     <ReactionTimeField ref={x => this.reacttime = x} label="Reaction time:" />
                     <ServiceLocationField ref={x => this.srvloc = x} label="Service location:" />
+                    <ProActiveField ref={x => this.proactive = x} label="Pro active:" />
 
                 </Container>
 
@@ -86,6 +90,7 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
             reactionType: this.reacttype.getSelected(),
             reactionTime: this.reacttime.getSelected(),
             serviceLocation: this.srvloc.getSelected(),
+            proActive: this.proactive.getSelected(),
 
             isGlobalPortfolio: this.getChecked(this.globPort),
             isMasterPortfolio: this.getChecked(this.masterPort),

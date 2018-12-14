@@ -1,5 +1,4 @@
-import { DataInfo, NamedId } from "../../Common/States/CommonStates";
-import { FakeDictService } from "../../Dict/fakes/FakeDictService";
+import { DataInfo } from "../../Common/States/CommonStates";
 import { CapabilityMatrixEditModel } from "../Model/CapabilityMatrixEditModel";
 import { CapabilityMatrixFilterModel } from "../Model/CapabilityMatrixFilterModel";
 import { CapabilityMatrixListModel } from "../Model/CapabilityMatrixListModel";
@@ -8,8 +7,6 @@ import { fakeAllowed } from "./FakeAllowed";
 import { fakeDenied } from "./FakeDenied";
 
 export class FakeCapabilityMatrixService implements ICapabilityMatrixService {
-
-    private dictSrv: FakeDictService;
 
     public allowItem(row: CapabilityMatrixEditModel): Promise<any> {
         return this.saveItem(row, true);
@@ -21,34 +18,6 @@ export class FakeCapabilityMatrixService implements ICapabilityMatrixService {
 
     public denyItem(row: CapabilityMatrixEditModel): Promise<any> {
         return this.saveItem(row, false);
-    }
-
-    public getCountries(): Promise<NamedId[]> {
-        return this.dictSrv.getCountries();
-    }
-
-    public getWG(): Promise<NamedId[]> {
-        return this.dictSrv.getWG();
-    }
-
-    public getAvailabilityTypes(): Promise<NamedId[]> {
-        return this.dictSrv.getAvailabilityTypes();
-    }
-
-    public getDurationTypes(): Promise<NamedId[]> {
-        return this.dictSrv.getDurationTypes();
-    }
-
-    public getReactTypes(): Promise<NamedId[]> {
-        return this.dictSrv.getReactionTypes();
-    }
-
-    public getReactionTimeTypes(): Promise<NamedId[]> {
-        return this.dictSrv.getReactionTimeTypes();
-    }
-
-    public getServiceLocationTypes(): Promise<NamedId[]> {
-        return this.dictSrv.getServiceLocationTypes();
     }
 
     public getAllowed(filter: CapabilityMatrixFilterModel): Promise<DataInfo<CapabilityMatrixListModel>> {

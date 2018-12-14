@@ -29,5 +29,7 @@ export interface IDictService {
 
     getServiceLocationTypes(): Promise<NamedId[]>;
 
+    getProActive(): Promise<NamedId[]>;
+
     getRoles(): Promise<NamedId[]>;
 }

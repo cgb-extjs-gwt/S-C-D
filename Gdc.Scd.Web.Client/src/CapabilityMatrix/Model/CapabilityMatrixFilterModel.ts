@@ -6,6 +6,7 @@
     reactionType?: string;
     reactionTime?: string;
     serviceLocation?: string;
+    proActive?: string;
 
     isGlobalPortfolio?: boolean;
     isMasterPortfolio?: boolean;

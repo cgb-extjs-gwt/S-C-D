@@ -10,6 +10,7 @@
         public long[] ReactionTypes { get; set; }
         public long[] ReactionTimes { get; set; }
         public long[] ServiceLocations { get; set; }
+        public long[] ProActives { get; set; }
 
         public bool IsGlobalPortfolio { get; set; }
         public bool IsMasterPortfolio { get; set; }
