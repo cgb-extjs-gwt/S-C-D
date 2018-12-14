@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Grid, Column, CheckColumn, NumberField, TextField, SelectField, Toolbar, Button } from "@extjs/ext-react";
+import { Grid, Column, CheckColumn, NumberField, TextField, SelectField, Toolbar, Button, Container } from "@extjs/ext-react";
 import { ColumnInfo, ColumnType, FilterItem, ColumnFilter } from "../States/ColumnInfo";
 import { SaveToolbar } from "./SaveToolbar";
 import { Model, StoreOperation, Store } from "../States/ExtStates";
@@ -53,12 +53,12 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
     }
 
     public render() {
-        const { id, minHeight, minWidth, children, onSelectionChange, flex, getSaveToolbar = this.getSaveToolbar } = this.props;
+        const { id, minHeight, minWidth, children, onSelectionChange, flex, getSaveToolbar = this.getSaveToolbar, height, width } = this.props;
         const isEditable = this.columns && !!this.columns.find(column => column.isEditable);
         const hasChanges = this.hasChanges();
 
         const gridProps = isEditable 
-            ? {
+            ? {                
                 plugins: ['cellediting', 'selectionreplicator'],
                 selectable: {
                     rows: true,
@@ -71,14 +71,16 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
             : {};
 
         return (
+            <Container scrollable>
             <Grid 
-                {...gridProps}
-                store={this.store} 
-                columnLines={true} 
-                minHeight={minHeight}
-                minWidth={minWidth}
-                onSelectionchange={this.onSelectionChange}
-                flex={flex}
+                    {...gridProps}
+                    store={this.store}
+                    columnLines={true} 
+                    height={height}
+                    width={width}
+                    minHeight={minHeight}
+                    minWidth={minWidth}
+                    onSelectionchange={this.onSelectionChange}
             >
                 {
                     this.columns &&
@@ -90,6 +92,7 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
                     isEditable && getSaveToolbar(hasChanges, this.toolbarRef, this)
                 }
             </Grid>
+            </Container>
         );
     }
 
@@ -153,11 +156,16 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
     private buildColumn(gridId: string, column: ColumnInfo) {
         const columnOption: any = {
             key: `${gridId}_${column.dataIndex}`,
-            text: column.title, 
             dataIndex: column.dataIndex,
-            flex: 1,
-            editable: column.isEditable
+            flex: 2,
+            editable: column.isEditable,
+            text: column.title,
+            id: column.dataIndex.replace('.', '')
         };
+
+        if (column.flex) {
+            columnOption.flex = column.flex;
+        }
 
         if (column.rendererFn) {
             columnOption.renderer = column.rendererFn;
@@ -222,10 +230,6 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
             listeners: {
                 change: (field, newValue: string, oldValue: string) => {
                     const filters = filter.store.getFilters();
-
-                    //if (searchFn) {
-                    //    filters.each(filter => filters.remove(filter));
-                    //}
 
                     if (searchFn) {
                         filters.remove(searchFn);
