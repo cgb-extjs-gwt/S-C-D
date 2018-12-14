@@ -4,7 +4,7 @@ import * as service from "../Services/CostEditorServices";
 import { CostEditorState } from "../States/CostEditorStates";
 import { EditItem, CostElementData } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
-import { buildCostEditorContext, findCostElementByState, findInputeLevelByState, findCostBlockByState } from "../Helpers/CostEditorHelpers";
+import { buildCostEditorContext, findCostElementByState, findInputeLevelByState, findCostBlockByState, findInputLevel } from "../Helpers/CostEditorHelpers";
 import { CommonState } from "../../Layout/States/AppStates";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { QualityGateResult } from "../../QualityGate/States/QualityGateResult";
@@ -22,7 +22,8 @@ export const COST_BLOCK_INPUT_SELECTION_CHANGE_INPUT_LEVEL_FILTER = 'COST_BLOCK_
 export const COST_BLOCK_INPUT_RESET_INPUT_LEVEL_FILTER = 'COST_BLOCK_INPUT.RESET.INPUT_LEVEL_FILTER'
 export const COST_BLOCK_INPUT_LOAD_COST_ELEMENT_DATA = 'COST_BLOCK_INPUT.LOAD.COST_ELEMENT_DATA';
 export const COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER = 'COST_BLOCK_INPUT.LOAD.INPUT_LEVEL_FILTER';
-export const COST_BLOCK_INPUT_LOAD_EDIT_ITEMS = 'COST_BLOCK_INPUT.LOAD.EDIT_ITEMS';
+//export const COST_BLOCK_INPUT_LOAD_EDIT_ITEMS = 'COST_BLOCK_INPUT.LOAD.EDIT_ITEMS';
+export const COST_BLOCK_INPUT_EDIT_ITEMS_URL_CHANGED = 'COST_BLOCK_INPUT.EDIT_ITEMS_URL.CHANGED';
 export const COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS = 'COST_BLOCK_INPUT.CLEAR.EDIT_ITEMS';
 export const COST_BLOCK_INPUT_EDIT_ITEM = 'COST_BLOCK_INPUT.EDIT.ITEM';
 export const COST_BLOCK_INPUT_SAVE_EDIT_ITEMS = 'COST_BLOCK_INPUT.SAVE.EDIT_ITEMS';
@@ -67,8 +68,12 @@ export interface InputLevelFilterLoadedAction extends InputLevelAction {
     filterItems: NamedId[]
 }
 
-export interface EditItemsAction extends CostBlockAction {
-    editItems: EditItem[]
+// export interface EditItemsAction extends CostBlockAction {
+//     editItems: EditItem[]
+// }
+
+export interface EditItemUrlChangedAction extends CostBlockAction {
+    url: string
 }
 
 export interface ItemEditedAction extends CostBlockAction {
@@ -185,11 +190,18 @@ export const loadInputLevelFilter = (
     filterItems
 })
 
-export const loadEditItems = (applicationId: string, costBlockId: string, editItems: EditItem[]) => (<EditItemsAction>{
-    type: COST_BLOCK_INPUT_LOAD_EDIT_ITEMS,
+// export const loadEditItems = (applicationId: string, costBlockId: string, editItems: EditItem[]) => (<EditItemsAction>{
+//     type: COST_BLOCK_INPUT_LOAD_EDIT_ITEMS,
+//     applicationId,
+//     costBlockId,
+//     editItems
+// })
+
+export const editItemsUrlChanged = (applicationId: string, costBlockId: string, url: string) => (<EditItemUrlChangedAction>{
+    type: COST_BLOCK_INPUT_EDIT_ITEMS_URL_CHANGED,
     applicationId,
     costBlockId,
-    editItems
+    url
 })
 
 export const clearEditItems = (applicationId: string, costBlockId: string) => (<CostBlockAction>{
@@ -298,12 +310,55 @@ export const loadEditItemsByContext = () =>
             const { app: { appMetaData }, pages: { costEditor } } = getState();
             const context = buildCostEditorContext(costEditor);
             const costBlockMeta = findMeta(appMetaData.costBlocks, context.costBlockId);
-            const { regionInput } = findMeta(costBlockMeta.costElements, context.costElementId);
+            // const costElementMeta = findMeta(costBlockMeta.costElements, context.costElementId);
 
-            if (context.costElementId != null && context.inputLevelId != null && (!regionInput || context.regionInputId)) {
-                handleRequest(
-                    service.getEditItems(context).then(
-                        editItems => dispatch(loadEditItems(context.applicationId, context.costBlockId, editItems))
+            // if (context.costElementId != null && context.inputLevelId != null && (!costElementMeta.regionInput || context.regionInputId)) {
+            //     // handleRequest(
+            //     //     service.getEditItems(context).then(
+            //     //         editItems => dispatch(loadEditItems(context.applicationId, context.costBlockId, editItems))
+            //     //     )
+            //     // )
+
+                
+            //     dispatch(
+            //         editItemsUrlChanged(
+            //             context.applicationId, 
+            //             context.costBlockId,
+            //             service.buildGetEditItemsUrl(context)
+            //         )
+            //     )
+            // }
+
+            if (context.costElementId != null && context.inputLevelId != null) {
+                const costElementMeta = findMeta(costBlockMeta.costElements, context.costElementId);
+
+                if (!costElementMeta.regionInput || context.regionInputId) {
+                    if (costElementMeta.dependency != null) {
+                        const costElementState = findCostElementByState(costEditor);
+
+                        if (costElementState.filter != null) {
+                            const inputLevelMeta = findMeta(costElementMeta.inputLevels, context.inputLevelId);
+
+                            if (inputLevelMeta.hasFilter) {
+                                const inputLevelState = findInputLevel(costElementState.inputLevels);
+
+                                if (inputLevelState.filter != null) {
+                                    dispatchEditItemsUrlChanged();
+                                }
+                            } else {
+                                dispatchEditItemsUrlChanged();
+                            }
+                        }
+                    }
+                }
+            }
+
+            function dispatchEditItemsUrlChanged() {
+                dispatch(
+                    editItemsUrlChanged(
+                        context.applicationId, 
+                        context.costBlockId,
+                        service.buildGetEditItemsUrl(context)
                     )
                 )
             }

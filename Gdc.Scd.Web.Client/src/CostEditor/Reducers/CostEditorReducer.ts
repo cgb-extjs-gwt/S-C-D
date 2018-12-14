@@ -8,7 +8,7 @@ import { APP_PAGE_INIT, PageInitAction, LoadingAppDataAction, APP_LOAD_DATA } fr
 import { CountryInputLevel } from "../../Common/Constants/MetaConstants";
 import { CostBlockMeta, InputLevelMeta, CostMetaData, UsingInfo, FieldType } from "../../Common/States/CostMetaStates";
 import { filterCostEditorItems, findCostBlockByState, findCostBlock, findApplication, findCostElement } from "../Helpers/CostEditorHelpers";
-import { COST_BLOCK_INPUT_LOAD_COST_ELEMENT_DATA, CostBlockAction, CostElementAction, InputLevelAction, RegionSelectedAction, CostElementFilterSelectionChangedAction, InputLevelFilterSelectionChangedAction, CostElementDataLoadedAction, InputLevelFilterLoadedAction, EditItemsAction, ItemEditedAction, SaveEditItemsAction, COST_BLOCK_INPUT_SELECT_REGIONS, COST_BLOCK_INPUT_SELECT_COST_ELEMENT, COST_BLOCK_INPUT_SELECTION_CHANGE_COST_ELEMENT_FILTER, COST_BLOCK_INPUT_RESET_COST_ELEMENT_FILTER, COST_BLOCK_INPUT_SELECT_INPUT_LEVEL, COST_BLOCK_INPUT_SELECTION_CHANGE_INPUT_LEVEL_FILTER, COST_BLOCK_INPUT_RESET_INPUT_LEVEL_FILTER, COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER, COST_BLOCK_INPUT_LOAD_EDIT_ITEMS, COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS, COST_BLOCK_INPUT_EDIT_ITEM, COST_BLOCK_INPUT_SAVE_EDIT_ITEMS, COST_BLOCK_INPUT_APPLY_FILTERS, COST_BLOCK_INPUT_RESET_ERRORS, COST_EDITOR_SELECT_COST_BLOCK } from "../Actions/CostBlockActions";
+import { COST_BLOCK_INPUT_LOAD_COST_ELEMENT_DATA, CostBlockAction, CostElementAction, InputLevelAction, RegionSelectedAction, CostElementFilterSelectionChangedAction, InputLevelFilterSelectionChangedAction, CostElementDataLoadedAction, InputLevelFilterLoadedAction, ItemEditedAction, SaveEditItemsAction, COST_BLOCK_INPUT_SELECT_REGIONS, COST_BLOCK_INPUT_SELECT_COST_ELEMENT, COST_BLOCK_INPUT_SELECTION_CHANGE_COST_ELEMENT_FILTER, COST_BLOCK_INPUT_RESET_COST_ELEMENT_FILTER, COST_BLOCK_INPUT_SELECT_INPUT_LEVEL, COST_BLOCK_INPUT_SELECTION_CHANGE_INPUT_LEVEL_FILTER, COST_BLOCK_INPUT_RESET_INPUT_LEVEL_FILTER, COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER, COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS, COST_BLOCK_INPUT_EDIT_ITEM, COST_BLOCK_INPUT_SAVE_EDIT_ITEMS, COST_BLOCK_INPUT_APPLY_FILTERS, COST_BLOCK_INPUT_RESET_ERRORS, COST_EDITOR_SELECT_COST_BLOCK, EditItemUrlChangedAction, COST_BLOCK_INPUT_EDIT_ITEMS_URL_CHANGED } from "../Actions/CostBlockActions";
 import { mapIf } from "../../Common/Helpers/CommonHelpers";
 import { changeSelecitonFilterItem, resetFilter, loadFilter } from "./FilterReducer";
 import { findMeta, getCostElement } from "../../Common/Helpers/MetaHelper";
@@ -38,7 +38,8 @@ const buildCostBlockState = (costBlockMeta: CostBlockMeta) => (<CostBlockState>{
         }))
     },
     edit: {
-        originalItems: null,
+        //originalItems: null,
+        editItemsUrl: null,
         editedItems: [],
         isFiltersApplied: true,
         appliedFilter: {
@@ -304,12 +305,36 @@ const resetCostElementFilter = buildCostElementListItemChanger<CostElementAction
     })
 )
 
-const selectInputLevel = buildCostElementListItemChanger<InputLevelAction>(
-    (costElement, action) => ({
-        ...costElement,
-        inputLevels: {
-            ...costElement.inputLevels,
-            selectedItemId: action.inputLevelId
+// const selectInputLevel = buildCostElementListItemChanger<InputLevelAction>(
+//     (costElement, action) => ({
+//         ...costElement,
+//         inputLevels: {
+//             ...costElement.inputLevels,
+//             selectedItemId: action.inputLevelId
+//         }
+//     })
+// )
+
+const selectInputLevel = buildCostBlockChanger<InputLevelAction>(
+    (costBlock, action) => ({
+        ...costBlock,
+        edit: {
+            ...costBlock.edit,
+            editItemsUrl: null
+        },
+        costElements: {
+            ...costBlock.costElements,
+            list: mapIf(
+                costBlock.costElements.list,
+                costElement => costElement.costElementId == costBlock.costElements.selectedItemId,
+                costElement => ({
+                    ...costElement,
+                    inputLevels: {
+                        ...costElement.inputLevels,
+                        selectedItemId: action.inputLevelId
+                    }
+                })
+            )
         }
     })
 )
@@ -367,13 +392,24 @@ const loadLevelInputFilter = buildInputLevelFilterChanger<InputLevelFilterLoaded
     })
 )
 
-const loadEditItems = buildCostBlockChanger<EditItemsAction>(
+// const loadEditItems = buildCostBlockChanger<EditItemsAction>(
+//     (costBlock, action) => ({
+//         ...costBlock,
+//         edit: {
+//             ...costBlock.edit,
+//             editedItems: [],
+//             originalItems: action.editItems
+//         }
+//     })
+// )
+
+const editedItemsUrlChanged = buildCostBlockChanger<EditItemUrlChangedAction>(
     (costBlock, action) => ({
         ...costBlock,
         edit: {
             ...costBlock.edit,
             editedItems: [],
-            originalItems: action.editItems
+            editItemsUrl: action.url
         }
     })
 )
@@ -417,11 +453,11 @@ const saveEditItems = buildCostBlockChanger<SaveEditItemsAction>(
             : {
                 ...costBlock.edit,
                 editedItems: [],
-                originalItems: costBlock.edit.originalItems.map(
-                    origItem => 
-                        costBlock.edit.editedItems.find(editedItem => editedItem.id === origItem.id) || 
-                        origItem
-                ),
+                // originalItems: costBlock.edit.originalItems.map(
+                //     origItem => 
+                //         costBlock.edit.editedItems.find(editedItem => editedItem.id === origItem.id) || 
+                //         origItem
+                // ),
                 saveErrors: []
             };
 
@@ -522,8 +558,11 @@ export const costEditorReducer: Reducer<CostEditorState, Action<string>> = (stat
         case COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER:
             return loadLevelInputFilter(state, action)
 
-        case COST_BLOCK_INPUT_LOAD_EDIT_ITEMS:
-            return loadEditItems(state, action)
+        // case COST_BLOCK_INPUT_LOAD_EDIT_ITEMS:
+        //     return loadEditItems(state, action)
+
+        case COST_BLOCK_INPUT_EDIT_ITEMS_URL_CHANGED:
+            return editedItemsUrlChanged(state, action)
 
         case COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS:
             return clearEditItems(state, action)

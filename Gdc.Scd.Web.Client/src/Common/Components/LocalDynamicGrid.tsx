@@ -24,7 +24,7 @@ export interface LocalDynamicGridActions<T=any> {
 export interface LocalDynamicGridProps<T=any> extends ToolbarDynamicGridProps, LocalDynamicGridActions<T>  {
 }
 
-export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TData>=LocalDynamicGridProps<TData>> extends React.Component<TProps> {
+export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TData>=LocalDynamicGridProps<TData>> extends React.PureComponent<TProps> {
     private readonly dataStoreEvents = {
         load: this.onDataStoreLoad,
         update: this.onDataStoreUpdate,
@@ -32,23 +32,31 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
 
     private store: Store<TData>
     private filterDatas: Map<string, FilterDataItem>
-    private executeFiltrateFilters = true;
-    private executeFillFilterData = true;
-    private updatedRecords: Model[] = [];
+    private executeFiltrateFilters = true
+    private executeFillFilterData = true
+    private updatedRecords: Model[] = []
+    // private outerColumns: ColumnInfo[]
+    private innerColumns: ColumnInfo[]
 
-    protected columns: ColumnInfo[]
+    // public shouldComponentUpdate(nextProps: TProps) {
+    //     return this.props.columns != nextProps.columns
+    // }
 
-    public componentWillReceiveProps(nextProps: TProps) {
-        const { columns } = nextProps;
+    // public componentDidMount() {
+    //     this.init(this.props);
+    // }
 
-        if (columns && columns.length > 0) {
-            const visibleColumns = this.getVisibleColumns(columns);
+    // public componentWillReceiveProps(nextProps: TProps) {
+    //     // const { columns } = nextProps;
 
-            this.initFilterData(visibleColumns);
-            this.initStore(nextProps);
-            this.initColumns(visibleColumns);
-        }
-    }
+    //     // if (this.outerColumns != columns && columns && columns.length > 0) {
+    //     //     this.outerColumns = columns;
+
+    //     //     this.init(nextProps);
+    //     // }
+
+    //     this.init(nextProps);
+    // }
 
     public componentWillUnmount() {
         if (this.store) {
@@ -57,17 +65,28 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     }
 
     public render(){
+        this.init(this.props);
+
         return (
             <DynamicGrid 
                 {...this.props}
                 store={this.store} 
-                columns={this.columns} 
+                columns={this.innerColumns} 
             />
         );
     }
 
     public getStore() {
         return this.store;
+    }
+
+    protected init(props: TProps) {
+        const { columns = [] } = props;        
+        const visibleColumns = this.getVisibleColumns(columns);
+
+        this.initFilterData(visibleColumns);
+        this.initStore(props);
+        this.initColumns(visibleColumns);
     }
 
     protected buildDataStoreFields(columns: ColumnInfo[]) {
@@ -80,7 +99,7 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     }
 
     protected buildDataStore(props: TProps) {
-        const { columns } = props;
+        const { columns = [] } = props;
 
         return Ext.create('Ext.data.Store', {
             fields: this.buildDataStoreFields(columns)
@@ -88,8 +107,8 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     }
 
     private initColumns(visibleColumns: ColumnInfo[]) {
-        if (!this.columns) {
-            this.columns = visibleColumns.map(column => ({
+        // if (!this.innerColumns) {
+            this.innerColumns = visibleColumns.map(column => ({
                 ...column,
                 filter: column.filter || {
                     store: this.filterDatas.get(column.dataIndex).store,
@@ -97,15 +116,15 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
                     valueDataIndex: VALUE_DATA_INDEX
                 }
             }))
-        }
+        // }
     }
 
     private initStore(props: TProps) {
-        if (!this.store) {
+        // if (!this.store) {
             this.store = this.buildDataStore(props);
 
             this.forEachDataStoreEvents((eventName, handler) => this.store.on(eventName, handler, this));
-        }
+        // }
     }
 
     private forEachDataStoreEvents(fn: (eventName: string, handler: Function) => void) {
@@ -141,7 +160,7 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     }
 
     private initFilterData(visibleColumns: ColumnInfo[]) {
-        if (!this.filterDatas) {
+        // if (!this.filterDatas) {
             this.filterDatas = new Map<string, FilterDataItem>();
 
             const defaultRender = (value, record: Model) => value;
@@ -176,7 +195,7 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
                     filteredDataSet: new Set<any>()
                 });
             });
-        }
+        // }
     }
 
     private filtrateStore(visibleColumns: ColumnInfo[]) {

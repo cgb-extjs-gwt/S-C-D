@@ -12,8 +12,11 @@ export const getCostElementData = (context: Context) => get<CostElementData>(COS
 export const getLevelInputFilterItems = (context: Context) => 
     get<NamedId[]>(COST_EDITOR_CONTROLLER_NAME, 'GetInputLevelFilterItems', context);  
 
-export const getEditItems = (context: Context) => 
-    get<EditItem[]>(COST_EDITOR_CONTROLLER_NAME, 'GetEditItems', context); 
+// export const getEditItems = (context: Context) => 
+//     get<EditItem[]>(COST_EDITOR_CONTROLLER_NAME, 'GetEditItems', context); 
+
+export const buildGetEditItemsUrl = (context: Context) => 
+    buildMvcUrl(COST_EDITOR_CONTROLLER_NAME, 'GetEditItems', context);
 
 export const saveEditItems = (editItems: EditItem[], context: Context, approvalOption: ApprovalOption) =>
     post<any, QualityGateResult>(COST_EDITOR_CONTROLLER_NAME, 'UpdateValues', editItems, { ...context, ...approvalOption });

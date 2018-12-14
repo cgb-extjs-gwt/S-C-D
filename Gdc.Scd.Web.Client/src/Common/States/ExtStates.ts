@@ -20,6 +20,8 @@ export interface Collection<T=any> {
 
 export interface Store<T=any> {
     [key: string]: any
+    getProxy()
+    reload()
     getModifiedRecords(): Model<T>[]
     commitChanges()
     rejectChanges()

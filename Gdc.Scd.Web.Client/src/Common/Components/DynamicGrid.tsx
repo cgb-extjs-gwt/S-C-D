@@ -11,7 +11,7 @@ export interface StoreDynamicGridProps extends ToolbarDynamicGridProps {
     useStoreSync?: boolean
 }
 
-export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
+export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     private saveToolbar: SaveToolbar
     private columnsMap = new Map<string, ColumnInfo>()
     private store: Store
@@ -30,29 +30,31 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
         this.removeStoreListeners();
     }
 
-    public componentWillReceiveProps({ store, columns }: StoreDynamicGridProps) {
-        if (this.store != store) {
-            this.removeStoreListeners();
-            this.addStoreListeners(store);
+    // public componentWillReceiveProps({ store, columns }: StoreDynamicGridProps) {
+    //     if (this.store != store) {
+    //         this.removeStoreListeners();
+    //         this.addStoreListeners(store);
 
-            this.store = store;
-        } 
+    //         this.store = store;
+    //     } 
 
-        if (this.columns != columns) {
-            this.columnsMap.clear();
+    //     if (this.columns != columns) {
+    //         this.columnsMap.clear();
 
-            if (columns) {
-                columns.forEach(column => this.columnsMap.set(column.dataIndex, column));
+    //         if (columns) {
+    //             columns.forEach(column => this.columnsMap.set(column.dataIndex, column));
 
-                this.columns = columns;
-            }
-            else {
-                this.columns = [];
-            }
-        }
-    }
+    //             this.columns = columns;
+    //         }
+    //         else {
+    //             this.columns = [];
+    //         }
+    //     }
+    // }
 
     public render() {
+        this.init();
+
         const { id, minHeight, minWidth, children, onSelectionChange, flex, getSaveToolbar = this.getSaveToolbar } = this.props;
         const isEditable = this.columns && !!this.columns.find(column => column.isEditable);
         const hasChanges = this.hasChanges();
@@ -124,6 +126,30 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
         this.saveWithCallback(this.props.onSave);
     }
 
+    private init() {
+        const { store, columns } = this.props;
+
+        if (this.store != store) {
+            this.removeStoreListeners();
+            this.addStoreListeners(store);
+
+            this.store = store;
+        } 
+
+        if (this.columns != columns) {
+            this.columnsMap.clear();
+
+            if (columns) {
+                columns.forEach(column => this.columnsMap.set(column.dataIndex, column));
+
+                this.columns = columns;
+            }
+            else {
+                this.columns = [];
+            }
+        }
+    }
+
     private onSelectionChange = (grid, records: Model[], selecting: boolean, selectionInfo) => {
         const { onSelectionChange } = this.props;
 
@@ -165,6 +191,10 @@ export class DynamicGrid extends React.Component<StoreDynamicGridProps> {
 
         if (column.filter) {
             columnOption.menu = this.buildFilterMenu(column.filter);
+        }
+
+        if (column.extensible != null) {
+            columnOption.extensible = column.extensible;
         }
 
         switch(column.type) {

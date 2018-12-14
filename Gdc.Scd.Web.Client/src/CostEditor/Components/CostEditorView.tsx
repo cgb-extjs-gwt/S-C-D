@@ -12,20 +12,6 @@ import {
 import { connect } from 'react-redux';
 import { CostEditorState } from '../States/CostEditorStates';
 import { CostBlockState, EditItem, CheckItem, Filter } from '../States/CostBlockStates';
-import { 
-    selectCostElement, 
-    selectInputLevel, 
-    changeSelectionCostElementFilter, 
-    changeSelectionInputLevelFilter, 
-    resetCostElementFilter, 
-    resetInputLevelFilter, 
-    loadEditItemsByContext, 
-    clearEditItems, 
-    editItem, 
-    selectRegionWithReloading, 
-    applyFiltersWithReloading 
-} 
-from '../Actions/CostBlockActions';
 import { NamedId, SelectList } from '../../Common/States/CommonStates';
 import { CostBlockProps, CostBlockView } from './CostBlocksView';
 

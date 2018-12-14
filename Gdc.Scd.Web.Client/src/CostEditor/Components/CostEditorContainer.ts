@@ -113,9 +113,10 @@ const costBlockTabMap = (
                         type: selectedCostElementMeta.typeOptions ? selectedCostElementMeta.typeOptions.Type : FieldType.Double,
                         selectedItems: selectedCostElement.referenceValues
                     },
-                    items: edit.originalItems && edit.originalItems.map(originalItem => ({
-                        ...edit.editedItems.find(editedItem => editedItem.id === originalItem.id) || originalItem
-                    }))
+                    // items: edit.originalItems && edit.originalItems.map(originalItem => ({
+                    //     ...edit.editedItems.find(editedItem => editedItem.id === originalItem.id) || originalItem
+                    // }))
+                    url: costBlock.edit.editItemsUrl
                 },
                 applicationId,
                 costBlockId: costBlock.costBlockId,

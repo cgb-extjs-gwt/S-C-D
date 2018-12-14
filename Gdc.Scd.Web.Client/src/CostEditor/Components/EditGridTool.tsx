@@ -72,15 +72,18 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                     {...props.editGrid} 
                     onItemEdited={props.onItemEdited} 
                     onSelected={this.onSelectGrid}
+                    onApprove={() => this.props.onSaving(true)}
+                    onSave={() => this.props.onSaving(false)}
+                    onCancel={this.props.onCleared}
                 />
 
-                <SaveApprovalToollbar
+                {/* <SaveApprovalToollbar
                     isEnableClear={props.isEnableClear} 
                     isEnableSave={props.isEnableSave}
                     onCancel={() => this.props.onCleared()}
                     onSave={() => this.props.onSaving(false)}
                     onApproval={() => this.props.onSaving(true)}
-                />
+                /> */}
 
                 <QualityGateWindowContainer 
                     applicationId={props.applicationId} 
