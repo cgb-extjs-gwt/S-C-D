@@ -13,11 +13,11 @@ export const changeSelecitonFilterItem: Reducer<CheckItem[], FilterSelectionChan
 export const resetFilter = (state: CheckItem[]) => 
     state.map(filterItem => ({ 
         ...filterItem, 
-        isChecked: false 
+        isChecked: true 
     }))
 
 export const loadFilter = (filterItems: NamedId[]) => 
     filterItems && filterItems.map(filterItem => (<CheckItem>{
         ...filterItem,  
-        isChecked: false
+        isChecked: true
     }))

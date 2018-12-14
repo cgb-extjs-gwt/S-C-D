@@ -38,6 +38,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return new SqlHelper(this.whereHelper.Where(filter));
         }
 
+        public SqlHelper Where(IEnumerable<ConditionHelper> conditions)
+        {
+            return new SqlHelper(this.whereHelper.Where(conditions));
+        }
+
         public UpdateCommonSqlHelper Join(ISqlBuilder table, ISqlBuilder condition, JoinType type = JoinType.Inner)
         {
             return new UpdateCommonSqlHelper(this.joinSqlHelper.Join(table, condition, type));

@@ -26,11 +26,11 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string FaceFieldNameKey = "FaceFieldName";
 
-        private readonly IRegisteredEntitiesProvider registeredEntitiesProvider;
+        private readonly ICoordinateEntityMetaProvider[] coordinateEntityMetaProviders;
 
-        public DomainEnitiesMetaService(IRegisteredEntitiesProvider registeredEntitiesProvider)
+        public DomainEnitiesMetaService(ICoordinateEntityMetaProvider[] coordinateEntityMetaProviders)
         {
-            this.registeredEntitiesProvider = registeredEntitiesProvider;
+            this.coordinateEntityMetaProviders = coordinateEntityMetaProviders;
         }
 
         public DomainEnitiesMeta Get(DomainMeta domainMeta)
@@ -43,8 +43,8 @@ namespace Gdc.Scd.Core.Meta.Impl
                 CostBlockHistory = costBlockHistory
             };
 
-            var entities = this.registeredEntitiesProvider.GetRegisteredEntities();
-            var metaFactory = new CoordinateMetaFactory(entities);
+            var customCoordinateMetas = this.coordinateEntityMetaProviders.SelectMany(provider => provider.GetCoordinateEntityMetas());
+            var metaFactory = new CoordinateMetaFactory(customCoordinateMetas);
 
             foreach (var costBlockMeta in domainMeta.CostBlocks)
             {
@@ -226,9 +226,9 @@ namespace Gdc.Scd.Core.Meta.Impl
         {
             private readonly IDictionary<string, NamedEntityMeta> coordinateMetas;
 
-            public CoordinateMetaFactory(IEnumerable<Type> entities)
+            public CoordinateMetaFactory(IEnumerable<NamedEntityMeta> customCoordinateMetas)
             {
-                this.coordinateMetas = this.BuildCoordinateMetas(entities);
+                this.coordinateMetas = customCoordinateMetas.ToDictionary(meta => meta.FullName);
             }
 
             public NamedEntityMeta GetMeta(string name, string schema)
@@ -243,49 +243,6 @@ namespace Gdc.Scd.Core.Meta.Impl
                 }
 
                 return meta;
-            }
-
-            private IDictionary<string, NamedEntityMeta> BuildCoordinateMetas(IEnumerable<Type> entities)
-            {
-                var plaMeta = new NamedEntityMeta(MetaConstants.PlaInputLevelName, MetaConstants.InputLevelSchema);
-                var sfabMeta = new SFabEntityMeta(plaMeta);
-                var sogMeta = new BaseWgSogEntityMeta(MetaConstants.SogInputLevel, MetaConstants.InputLevelSchema, plaMeta, sfabMeta);
-                var swDigitMeta = new SwDigitEnityMeta(sogMeta);
-                var clusterRegionMeta = new NamedEntityMeta(MetaConstants.ClusterRegionInputLevel, MetaConstants.InputLevelSchema);
-                var countryMeta = new CountryEntityMeta(clusterRegionMeta);
-                var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta);
-
-                var customMetas = new[]
-                {
-                    swDigitMeta,
-                    sogMeta,
-                    sfabMeta,
-                    plaMeta,
-                    wgMeta,
-                    clusterRegionMeta,
-                    countryMeta
-                };
-
-                var result = customMetas.ToDictionary(meta => BaseEntityMeta.BuildFullName(meta.Name, meta.Schema));
-
-                var deactivatableType = typeof(IDeactivatable);
-
-                foreach (var entityType in entities.Where(type => deactivatableType.IsAssignableFrom(type)))
-                {
-                    var tableAttribute =
-                        entityType.GetCustomAttributes(true)
-                                  .Select(attr => attr as TableAttribute)
-                                  .First(attr => attr != null);
-
-                    var fullName = BaseEntityMeta.BuildFullName(tableAttribute.Name, tableAttribute.Schema);
-
-                    if (!result.ContainsKey(fullName))
-                    {
-                        result[fullName] = new DeactivatableEntityMeta(tableAttribute.Name, tableAttribute.Schema);
-                    }
-                }
-
-                return result;
             }
         }
     }

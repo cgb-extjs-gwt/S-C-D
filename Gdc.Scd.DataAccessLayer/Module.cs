@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.Core.Meta.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -41,8 +42,7 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<CreateTableMetaSqlBuilder>().To<CreateTableMetaSqlBuilder>().InTransientScope();
             Bind<DatabaseMetaSqlBuilder>().To<DatabaseMetaSqlBuilder>().InTransientScope();
             Bind<IConfigureApplicationHandler>().To<DatabaseCreationHandler>().InTransientScope();
-            Bind<IConfigureDatabaseHandler>().To<ViewConfigureHandler>().InTransientScope();
-            Bind<ICustomConfigureTableHandler>().To<ViewConfigureHandler>().InTransientScope();
+            Bind<IConfigureDatabaseHandler, ICustomConfigureTableHandler, ICoordinateEntityMetaProvider>().To<ViewConfigureHandler>().InTransientScope();
 
             Kernel.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(HistoryContext), nameof(CostBlockHistory.Context)));
             Kernel.RegisterEntityAsUnique<User>(nameof(User.Login));

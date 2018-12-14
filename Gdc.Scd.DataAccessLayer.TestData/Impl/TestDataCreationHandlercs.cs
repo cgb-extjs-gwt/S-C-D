@@ -11,8 +11,10 @@ using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.Core.Meta.Helpers;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
@@ -54,6 +56,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateImportConfiguration();
             this.CreateRolecodes();
             this.CreateSoftwereInputLevels();
+            this.CreateDisabledRows();
 
             //report
             this.CreateReportColumnTypes();
@@ -127,6 +130,58 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             }
 
             repositorySet.Sync();
+        }
+
+        private void CreateDisabledRows()
+        {
+            var baseDisabledType = typeof(BaseDisabledEntity);
+            var queries =
+                this.repositorySet.GetRegisteredEntities()
+                                  .Where(type => baseDisabledType.IsAssignableFrom(type))
+                                  .Select(type => new
+                                  {
+                                      EntityInfo = MetaHelper.GetEntityInfo(type),
+                                      ReferenceInfos =
+                                        type.GetProperties()
+                                            .Where(prop => !prop.PropertyType.IsPrimitive && prop.CanRead && prop.CanWrite)
+                                            .Select(prop => new
+                                            {
+                                                Column = $"{prop.Name}Id",
+                                                EntityInfo = MetaHelper.GetEntityInfo(prop.PropertyType)
+                                            })
+                                            .ToArray()
+                                  })
+                                  .Select(info =>
+                                  {
+                                      var selectExceptColumns = new List<BaseColumnInfo>(info.ReferenceInfos.Select(refInfo => new ColumnInfo(refInfo.Column, null, refInfo.Column)))
+                                      {
+                                          new QueryColumnInfo(new RawSqlBuilder{ RawSql = "1" }, nameof(BaseDisabledEntity.IsDisabled))
+                                      };
+
+                                      var insertColumns = selectExceptColumns.Select(column => column.Alias).ToArray();
+
+                                      var firstRefInfo = info.ReferenceInfos[0].EntityInfo;
+                                      var crossJoinColumns = info.ReferenceInfos.Select(refInfo => new ColumnInfo(MetaConstants.IdFieldKey, refInfo.EntityInfo.Name, refInfo.Column)).ToArray();
+                                      var crossJoinQuery =
+                                          info.ReferenceInfos.Skip(1)
+                                                             .Aggregate(
+                                                                 Sql.Select(crossJoinColumns).From(firstRefInfo.Name, firstRefInfo.Schema),
+                                                                 (acc, refInfo) => acc.Join(refInfo.EntityInfo.Schema, refInfo.EntityInfo.Name, null, JoinType.Cross));
+
+                                      var currentDataQuery =
+                                          Sql.Select(info.ReferenceInfos.Select(refInfo => refInfo.Column).ToArray())
+                                             .From(info.EntityInfo.Name, info.EntityInfo.Schema);
+
+                                      return
+                                          Sql.Insert(info.EntityInfo.Schema, info.EntityInfo.Name, insertColumns)
+                                             .Query(
+                                                Sql.Select(selectExceptColumns.ToArray())
+                                                   .FromQuery(
+                                                       Sql.Except(crossJoinQuery, currentDataQuery),
+                                                       "t"));
+                                  });
+
+            this.repositorySet.ExecuteSql(Sql.Queries(queries));
         }
 
         private void CreateDurations()
