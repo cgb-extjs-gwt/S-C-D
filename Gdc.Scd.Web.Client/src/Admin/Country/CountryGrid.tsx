@@ -108,7 +108,7 @@ export class CountryGrid extends React.Component {
                     height="100%"
                     plugins={['gridcellediting']}>
                 <Column text="Country" dataIndex="countryName" flex={1} />
-                <Column text="Group" dataIndex="countryGroup" flex={1} />
+                <Column text="Country Group" dataIndex="countryGroup" flex={1} />
                 <Column text="LUT" dataIndex="lutCode" flex={1} renderer={this.renderer.bind(this)} />
                 <Column text="Digit" dataIndex="countryDigit" flex={1} renderer={this.renderer.bind(this)} />
                 <Column text="ISO Code" dataIndex="isO3Code" flex={1} renderer={this.renderer.bind(this)} />
