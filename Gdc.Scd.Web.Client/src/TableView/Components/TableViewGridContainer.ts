@@ -149,6 +149,8 @@ const buildProps = (state: CommonState) => {
     }
 
     return <TableViewGridProps>{
+        width:"2200px",
+        height:"100%",
         columns,
         apiUrls: {
             read: readUrl
