@@ -10,6 +10,8 @@ namespace Gdc.Scd.Core
     {
         public override void Load()
         {
+            Bind<ICoordinateEntityMetaProvider>().To<CustomCoordinateMetaProvider>().InTransientScope();
+
             Bind<IDomainMetaSevice>().To<DomainMetaSevice>().InSingletonScope();
             Bind<IDomainEnitiesMetaService>().To<DomainEnitiesMetaService>().InSingletonScope();
 

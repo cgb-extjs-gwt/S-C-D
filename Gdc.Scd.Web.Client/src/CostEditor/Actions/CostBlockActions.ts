@@ -236,11 +236,14 @@ export const getDataByCostElementSelection = (applicationId: string, costBlockId
             const context = buildCostEditorContext(state);
             const costElement = findCostElementByState(state, applicationId, costBlockId, costElementId);
 
-            if (!costElement.isDataLoaded) {
+            if (costElement.isDataLoaded) {
+                dispatch(loadEditItemsByContext());
+            } else {
                 handleRequest(
-                    service.getCostElementData(context).then(
-                        data => dispatch(loadCostElementData(applicationId, costElementId, costBlockMeta, data))
-                    )
+                    service.getCostElementData(context).then(data => { 
+                        dispatch(loadCostElementData(applicationId, costElementId, costBlockMeta, data));
+                        dispatch(loadEditItemsByContext());
+                    })
                 )
             }
 
@@ -275,11 +278,16 @@ export const getFilterItemsByInputLevelSelection = (applicationId: string, costB
                     const context = buildCostEditorContext(costEditor);
                     
                     handleRequest(
-                        service.getLevelInputFilterItems(context).then(
-                            filterItems => dispatch(loadInputLevelFilter(applicationId, costBlockId, costElementId, inputLevelId, filterItems))
-                        )
+                        service.getLevelInputFilterItems(context).then(filterItems => {
+                            dispatch(loadInputLevelFilter(applicationId, costBlockId, costElementId, inputLevelId, filterItems));
+                            dispatch(loadEditItemsByContext());
+                        })
                     )
+                } else {
+                    dispatch(loadEditItemsByContext());
                 }
+            } else {
+                dispatch(loadEditItemsByContext());
             }
         }
     )

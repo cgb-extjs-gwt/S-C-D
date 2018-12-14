@@ -24,6 +24,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return new GroupBySqlHelper(this.whereHelper.Where(condition));
         }
 
+        public GroupBySqlHelper Where(IEnumerable<ConditionHelper> conditions)
+        {
+            return new GroupBySqlHelper(this.whereHelper.Where(conditions));
+        }
+
         public GroupBySqlHelper Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
         {
             return new GroupBySqlHelper(this.whereHelper.Where(filter, tableName));

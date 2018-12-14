@@ -57,5 +57,10 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             return new SqlHelper(this.whereHelper.Where(filter));
         }
+
+        public SqlHelper Where(IEnumerable<ConditionHelper> conditions)
+        {
+            return new SqlHelper(this.whereHelper.Where(conditions));
+        }
     }
 }

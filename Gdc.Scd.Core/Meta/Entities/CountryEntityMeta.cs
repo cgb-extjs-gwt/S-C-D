@@ -14,7 +14,7 @@ namespace Gdc.Scd.Core.Meta.Entities
         public SimpleFieldMeta IsMasterField { get; }
 
         public CountryEntityMeta(NamedEntityMeta clusterRegionMeta)
-            : base(MetaConstants.CountryInputLevelName, new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String), MetaConstants.InputLevelSchema)
+            : base(MetaConstants.CountryInputLevelName, MetaConstants.InputLevelSchema)
         {
             this.QualityGateGroupField = new SimpleFieldMeta(nameof(Country.QualityGateGroup), TypeCode.String);
             this.ClusterRegionField = ReferenceFieldMeta.Build(nameof(Country.ClusterRegionId), clusterRegionMeta);
