@@ -28,6 +28,7 @@ export abstract class DictField extends React.Component<ComboBoxFieldProps, any>
             displayField={this.nameField}
             queryMode="local"
             clearable="true"
+            forceSelection={true}
         />;
     }
 

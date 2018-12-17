@@ -29,7 +29,7 @@ const mapToColumnInfo = (
 
         costBlockCache.set(fieldInfo.metaId, costBlockMeta);
     }
-    
+
     return mapFn(costBlockMeta, fieldInfo);
 }) 
 
@@ -54,7 +54,8 @@ const buildCoordinateColumn = (costBlock: CostBlockMeta, fieldInfo: FieldInfo) =
     return <ColumnInfo<TableViewRecord>>{
         ...buildColumn(item, fieldInfo),
         type: ColumnType.Text,
-        mappingFn: (record: TableViewRecord) => record.coordinates[fieldInfo.dataIndex].name
+        mappingFn: (record: TableViewRecord) => record.coordinates[fieldInfo.dataIndex].name,
+        flex: 1
     };
 }
 
@@ -111,7 +112,8 @@ const buildAdditionalColumns = (title, dataIndex) => {
         title: title,
         dataIndex: dataIndex,
         type: ColumnType.Text,
-        mappingFn: record => record.additionalData[dataIndex]
+        mappingFn: record => record.additionalData[dataIndex],
+        flex: 3
     }
 }
 
@@ -147,6 +149,8 @@ const buildProps = (state: CommonState) => {
     }
 
     return <TableViewGridProps>{
+        width:"2200px",
+        height:"100%",
         columns,
         apiUrls: {
             read: readUrl

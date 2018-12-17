@@ -6,6 +6,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
@@ -58,19 +59,36 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 this.meta.GetCostElement(context)
                          .GetPreviousInputLevel(context.InputLevelId);
 
-            var userCountries = this.userService.GetCurrentUserCountries();
-            var filter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries);
-
-            return await this.sqlRepository.GetDistinctItems(context.CostBlockId, context.ApplicationId, previousInputLevel.Id, filter);
+            return await this.GetDistinctItems(context, previousInputLevel.Id);
         }
 
         public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context)
         {
-            var userCountries = this.userService.GetCurrentUserCountries();
-            var filter = this.costBlockFilterBuilder.BuildFilter(context, userCountries);
-            var editItemInfo = this.GetEditItemInfo(context);
+            IEnumerable<EditItem> editItems;
 
-            return await this.costEditorRepository.GetEditItems(editItemInfo, filter);
+            if (HasVisibleData())
+            {
+                var userCountries = this.userService.GetCurrentUserCountries();
+                var filter = this.costBlockFilterBuilder.BuildFilter(context, userCountries);
+                var editItemInfo = this.GetEditItemInfo(context);
+
+                editItems = await this.costEditorRepository.GetEditItems(editItemInfo, filter);
+            }
+            else
+            {
+                editItems = Enumerable.Empty<EditItem>();
+            }
+
+            return editItems;
+
+            bool HasVisibleData()
+            {
+                var costElement = this.meta.GetCostElement(context);
+
+                return
+                    (costElement.Dependency == null || (context.CostElementFilterIds != null && context.CostElementFilterIds.Length != 0)) &&
+                    (!costElement.HasInputLevelFilter(context.InputLevelId) || (context.InputLevelFilterIds != null && context.InputLevelFilterIds.Length != 0));
+            }
         }
 
         public async Task<IEnumerable<NamedId>> GetCostElementReferenceValues(CostEditorContext context)
@@ -80,7 +98,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var costBlock = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
             if (costBlock.CostElementsFields[context.CostElementId] is ReferenceFieldMeta field)
             {
-                referenceValues = await this.sqlRepository.GetNameIdItems(field.ReferenceMeta, field.ReferenceValueField, field.ReferenceFaceField);
+                referenceValues = await this.GetDistinctItems(context, costBlock, field);
             }
 
             return referenceValues;
@@ -156,6 +174,32 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return await this.historySevice.GetHistoryItems(context, filter, queryInfo);
         }
 
+        private async Task<IEnumerable<NamedId>> GetDistinctItems(CostEditorContext context, string referenceFieldName)
+        {
+            var meta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
+            var referenceField = (ReferenceFieldMeta)meta.GetField(referenceFieldName);
+
+            return await this.GetDistinctItems(context, meta, referenceField);
+        }
+
+        private async Task<IEnumerable<NamedId>> GetDistinctItems(CostEditorContext context, CostBlockEntityMeta meta, ReferenceFieldMeta referenceField)
+        {
+            var userCountries = this.userService.GetCurrentUserCountries();
+            var costBlockFilter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries).Convert();
+
+            Dictionary<string, IEnumerable<object>> referenctFilter = null;
+
+            if (referenceField.ReferenceMeta is DisabledEntityMeta disabledMeta)
+            {
+                referenctFilter = new Dictionary<string, IEnumerable<object>>
+                {
+                    [disabledMeta.IsDisabledField.Name] = new object[] { false }
+                };
+            }
+
+            return await this.sqlRepository.GetDistinctItems(meta, referenceField.Name, costBlockFilter, referenctFilter);
+        }
+
         private EditItemInfo GetEditItemInfo(CostEditorContext context)
         {
             return new EditItemInfo
@@ -173,9 +217,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (costElementMeta.Dependency != null)
             {
-                var filter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries);
-
-                filterItems = await this.sqlRepository.GetDistinctItems(context.CostBlockId, context.ApplicationId, costElementMeta.Dependency.Id, filter);
+                filterItems = await this.GetDistinctItems(context, costElementMeta.Dependency.Id);
             }
 
             return filterItems;

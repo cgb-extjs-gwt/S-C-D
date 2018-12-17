@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.Core.Meta.Helpers;
+using Gdc.Scd.Core.Meta.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
@@ -14,7 +15,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
-    public class ViewConfigureHandler : IConfigureDatabaseHandler, ICustomConfigureTableHandler
+    public class ViewConfigureHandler : IConfigureDatabaseHandler, ICustomConfigureTableHandler, ICoordinateEntityMetaProvider
     {
         private readonly IRepositorySet repositorySet;
 
@@ -71,10 +72,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
         }
 
+        IEnumerable<NamedEntityMeta> ICoordinateEntityMetaProvider.GetCoordinateEntityMetas()
+        {
+            return
+                this.combinedViewInfos.Where(this.IsDisabledEntity)
+                                      .Select(info => new DisabledEntityMeta(info.ViewName, info.Shema));
+        }
+
         private void CreateCombinedView(CombinedViewInfo viewInfo)
         {
-            var combinedEntityInfo = this.GetEntityInfo(viewInfo.CombinedType);
-            var combineEntity = new EntityMeta(combinedEntityInfo.Table, combinedEntityInfo.Schema);
+            var combinedEntityInfo = MetaHelper.GetEntityInfo(viewInfo.CombinedType);
+            var combineEntity = new EntityMeta(combinedEntityInfo.Name, combinedEntityInfo.Schema);
 
             combineEntity.Fields.Add(new IdFieldMeta());
 
@@ -95,16 +103,23 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 nameColumns.Add(columnSqlBuilder.Build(null));
             }
 
-            var query =
-                Sql.Select(
-                    new ColumnInfo(IdFieldMeta.DefaultId, combineEntity.Name, IdFieldMeta.DefaultId),
-                    new QueryColumnInfo(
-                        new RawSqlBuilder
-                        {
-                            RawSql = $"({string.Join(" + ' ' + ", nameColumns)})"
-                        },
-                        MetaConstants.NameFieldKey))
-                    .From(combineEntity);
+            var columns = new List<BaseColumnInfo>
+            {
+                new ColumnInfo(IdFieldMeta.DefaultId, combineEntity.Name, IdFieldMeta.DefaultId),
+                new QueryColumnInfo(
+                    new RawSqlBuilder
+                    {
+                        RawSql = $"({string.Join(" + ' ' + ", nameColumns)})"
+                    },
+                    MetaConstants.NameFieldKey)
+            };
+
+            if (this.IsDisabledEntity(viewInfo))
+            {
+                columns.Add(new ColumnInfo(nameof(BaseDisabledEntity.IsDisabled), combineEntity.Name));
+            }
+
+            var query = Sql.Select(columns.ToArray()).From(combineEntity);
 
             foreach (var referenceInfo in viewInfo.ReferenceInfos)
             {
@@ -121,37 +136,22 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.repositorySet.ExecuteSql(new SqlHelper(createViewQuery));
         }
 
-        private NamedEntityMeta BuildNamedMeta(Type type)
+        private bool IsDisabledEntity(CombinedViewInfo viewInfo)
         {
-            var info = this.GetEntityInfo(type);
-
-            return new NamedEntityMeta(info.Table, info.Schema);
+            return typeof(BaseDisabledEntity).IsAssignableFrom(viewInfo.CombinedType);
         }
 
-        private (string Table, string Schema) GetEntityInfo(Type type)
+        private NamedEntityMeta BuildNamedMeta(Type type)
         {
-            string table;
-            string schema;
+            var info = MetaHelper.GetEntityInfo(type);
 
-            var tableAttr = type.GetCustomAttributes(false).OfType<TableAttribute>().FirstOrDefault();
-            if (tableAttr == null)
-            {
-                table = type.Name;
-                schema = MetaConstants.DefaultSchema;
-            }
-            else
-            {
-                table = tableAttr.Name;
-                schema = tableAttr.Schema ?? MetaConstants.DefaultSchema;
-            }
-
-            return (Table: table, Schema: schema);
+            return new NamedEntityMeta(info.Name, info.Schema);
         }
 
         private ISqlBuilder BuildConstraint(Type type, BaseEntityMeta entityMeta, string foreignField)
         {
-            var entityInfo = this.GetEntityInfo(type);
-            var refMeta = new EntityMeta(entityInfo.Table, entityInfo.Schema);
+            var entityInfo = MetaHelper.GetEntityInfo(type);
+            var refMeta = new EntityMeta(entityInfo.Name, entityInfo.Schema);
             refMeta.Fields.Add(new IdFieldMeta());
 
             var constraintMeta = new EntityMeta(entityMeta.Name, entityMeta.Schema);
@@ -188,12 +188,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             public string ViewName { get; private set; }
 
+            public string Shema { get; private set; }
+
             public static CombinedViewInfo Build<TCombined>(string viewName, params ReferenceInfo[] referenceInfos)
             {
+                var combinedType = typeof(TCombined);
+                var entityInfo = MetaHelper.GetEntityInfo(combinedType);
+
                 return new CombinedViewInfo
                 {
-                    CombinedType = typeof(TCombined),
+                    CombinedType = combinedType,
                     ViewName = viewName,
+                    Shema = entityInfo.Schema,
                     ReferenceInfos = referenceInfos
                 };
             }

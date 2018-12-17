@@ -10,6 +10,8 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces
 
         TResult Where(ConditionHelper condition);
 
+        TResult Where(IEnumerable<ConditionHelper> conditions);
+
         TResult Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null);
 
         TResult Where(IDictionary<ColumnInfo, IEnumerable<object>> filter);

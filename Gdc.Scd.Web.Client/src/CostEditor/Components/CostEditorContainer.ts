@@ -216,11 +216,9 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
             },
             onCostElementSelected: (applicationId, costBlockId, costElementId) => {
                 dispatch(getDataByCostElementSelection(applicationId, costBlockId, costElementId));
-                dispatch(loadEditItemsByContext());
             },
             onInputLevelSelected: (applicationId, costBlockId, costElementId, inputLevelId) => {
                 dispatch(getFilterItemsByInputLevelSelection(applicationId, costBlockId, costElementId, inputLevelId));
-                dispatch(loadEditItemsByContext());
             },
             onCostElementFilterSelectionChanged: (applicationId, costBlockId, costElementId, filterItemId, isSelected) => {
                 dispatch(changeSelectionCostElementFilter(applicationId, costBlockId, costElementId, filterItemId, isSelected));

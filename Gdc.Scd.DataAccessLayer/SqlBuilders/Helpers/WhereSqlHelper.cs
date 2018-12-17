@@ -27,6 +27,24 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return this.Where(condition.ToSqlBuilder());
         }
 
+        public ISqlBuilder Where(IEnumerable<ConditionHelper> conditions)
+        {
+            ISqlBuilder result;
+
+            var conditionArray = conditions.ToArray();
+
+            if (conditionArray.Length == 0)
+            {
+                result = this.ToSqlBuilder();
+            }
+            else
+            {
+                result = this.Where(ConditionHelper.And(conditions));
+            }
+
+            return result;
+        }
+
         public ISqlBuilder Where(IDictionary<string, IEnumerable<object>> filter, string tableName = null)
         {
             var columnFilter = filter?.ToDictionary(

@@ -94,7 +94,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     <NullStringColumn flex="1" text="Service location" dataIndex="serviceLocation" />
                     <NullStringColumn flex="1" text="Pro active" dataIndex="proActive" />
 
-                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
+                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Fujitsu pricipal portfolio" dataIndex="isGlobalPortfolio" />
                     <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
                     <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
@@ -119,7 +119,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     <NullStringColumn flex="1" text="Service location" dataIndex="serviceLocation" />
                     <NullStringColumn flex="1" text="Pro active" dataIndex="proActive" />
 
-                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Fujitsu global portfolio" dataIndex="isGlobalPortfolio" />
+                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Fujitsu pricipal portfolio" dataIndex="isGlobalPortfolio" />
                     <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
                     <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
