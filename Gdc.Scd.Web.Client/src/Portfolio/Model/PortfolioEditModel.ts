@@ -1,4 +1,4 @@
-export class CapabilityMatrixEditModel {
+export class PortfolioEditModel {
     public countryId: string;
 
     public wgs: string[];

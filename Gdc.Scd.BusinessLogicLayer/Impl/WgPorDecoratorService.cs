@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
-    //Decorator for usage only wg from por
+    //Decorator for usage wg from por only
     public class WgPorDecoratorService : IWgPorService
     {
         private readonly IDomainService<Wg> origin;

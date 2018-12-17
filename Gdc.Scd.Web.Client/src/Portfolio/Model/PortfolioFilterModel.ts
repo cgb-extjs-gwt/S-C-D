@@ -1,4 +1,4 @@
-﻿export interface CapabilityMatrixFilterModel {
+﻿export interface PortfolioFilterModel {
     country?: string;
     wg?: string;
     availability?: string;

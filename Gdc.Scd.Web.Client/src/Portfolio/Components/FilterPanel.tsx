@@ -8,11 +8,11 @@ import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
 import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
 import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
 import { WgField } from "../../Dict/Components/WgField";
-import { CapabilityMatrixFilterModel } from "../Model/CapabilityMatrixFilterModel";
+import { PortfolioFilterModel } from "../Model/PortfolioFilterModel";
 import { ProActiveField } from "../../Dict/Components/ProActiveField";
 
 export interface FilterPanelProps extends PanelProps {
-    onSearch(filter: CapabilityMatrixFilterModel): void;
+    onSearch(filter: PortfolioFilterModel): void;
 }
 
 export class FilterPanel extends React.Component<FilterPanelProps, any> {
@@ -81,7 +81,7 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
         );
     }
 
-    public getModel(): CapabilityMatrixFilterModel {
+    public getModel(): PortfolioFilterModel {
         return {
             country: this.country.getSelected(),
             wg: this.wg.getSelected(),

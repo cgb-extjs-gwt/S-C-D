@@ -1,25 +1,18 @@
 ﻿import { Button, Container, Grid, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
-import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
-import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
-import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildComponentUrl, buildMvcUrl } from "../Common/Services/Ajax";
 import { FilterPanel } from "./Components/FilterPanel";
 import { NullStringColumn } from "./Components/NullStringColumn";
 import { ReadonlyCheckColumn } from "./Components/ReadonlyCheckColumn";
-import { CapabilityMatrixFilterModel } from "./Model/CapabilityMatrixFilterModel";
-import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService";
-import { MatrixFactory } from "./Services/MatrixFactory";
+import { PortfolioFilterModel } from "./Model/PortfolioFilterModel";
 
-export class CapabilityMatrixView extends React.Component<any, any> {
+export class PortfolioView extends React.Component<any, any> {
 
     private allowed: Grid;
 
     private denied: Grid;
 
     private filter: FilterPanel;
-
-    private srv: ICapabilityMatrixService;
 
     private allowStore: Ext.data.IStore = Ext.create('Ext.data.Store', {
         pageSize: 25,
@@ -28,7 +21,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
         proxy: {
             type: 'ajax',
             api: {
-                read: buildMvcUrl('capabilitymatrix', 'allowed')
+                read: buildMvcUrl('portfolio', 'allowed')
             },
             reader: {
                 type: 'json',
@@ -45,7 +38,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
         proxy: {
             type: 'ajax',
             api: {
-                read: buildMvcUrl('capabilitymatrix', 'denied')
+                read: buildMvcUrl('portfolio', 'denied')
             },
             reader: {
                 type: 'json',
@@ -71,7 +64,6 @@ export class CapabilityMatrixView extends React.Component<any, any> {
 
                 <Toolbar docked="top">
                     <Button iconCls="x-fa fa-edit" text="Edit" handler={this.onEdit} />
-                    <Button iconCls="x-fa fa-undo" text="Allow combinations" ui="confirm" handler={this.onAllow} />
                 </Toolbar>
 
                 <Grid
@@ -94,7 +86,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
                     <NullStringColumn flex="1" text="Service location" dataIndex="serviceLocation" />
                     <NullStringColumn flex="1" text="Pro active" dataIndex="proActive" />
 
-                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Fujitsu pricipal portfolio" dataIndex="isGlobalPortfolio" />
+                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Fujitsu principal portfolio" dataIndex="isGlobalPortfolio" />
                     <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
                     <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
@@ -137,9 +129,7 @@ export class CapabilityMatrixView extends React.Component<any, any> {
     }
 
     private init() {
-        this.srv = MatrixFactory.getMatrixService();
         this.onEdit = this.onEdit.bind(this);
-        this.onAllow = this.onAllow.bind(this);
         this.onSearch = this.onSearch.bind(this);
         this.onBeforeLoad = this.onBeforeLoad.bind(this);
         //
@@ -148,37 +138,17 @@ export class CapabilityMatrixView extends React.Component<any, any> {
     }
 
     private onEdit() {
-        this.props.history.push(buildComponentUrl('/capability-matrix/edit'));
+        this.props.history.push(buildComponentUrl('/portfolio/edit'));
     }
 
-    private onAllow() {
-        let selected = this.getDenySelected();
-        if (selected.length > 0) {
-            ExtMsgHelper.confirm(
-                'Allow combinations',
-                'Do you want to remove denied combination(s)?',
-                () => this.allowCombination(selected)
-            );
-        }
-    }
-
-    private onSearch(filter: CapabilityMatrixFilterModel) {
+    private onSearch(filter: PortfolioFilterModel) {
         this.reload();
-    }
-
-    private allowCombination(ids: string[]) {
-        var p = this.srv.allowItems(ids).then(x => this.reload());
-        handleRequest(p);
     }
 
     private onBeforeLoad(s, operation) {
         let filter = this.filter.getModel();
         let params = Ext.apply({}, operation.getParams(), filter);
         operation.setParams(params);
-    }
-
-    private getDenySelected(): string[] {
-        return ExtDataviewHelper.getGridSelected(this.denied, 'id');
     }
 
     private reload() {

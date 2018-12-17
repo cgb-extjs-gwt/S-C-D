@@ -240,6 +240,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\AppController.cs" />
     <Compile Include="Controllers\NotifyController.cs" />
+    <Compile Include="Controllers\PortfolioController.cs" />
     <Compile Include="Controllers\ReadonlyDomainController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\Admin\RoleCodeController.cs" />

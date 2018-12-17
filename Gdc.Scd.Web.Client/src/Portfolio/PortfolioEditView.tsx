@@ -9,13 +9,13 @@ import { DictFactory } from "../Dict/Services/DictFactory";
 import { IDictService } from "../Dict/Services/IDictService";
 import { MultiSelect } from "./Components/MultiSelect";
 import { MultiSelectWg } from "./Components/MultiSelectWg";
-import { CapabilityMatrixEditModel } from "./Model/CapabilityMatrixEditModel";
-import { ICapabilityMatrixService } from "./Services/ICapabilityMatrixService";
-import { MatrixFactory } from "./Services/MatrixFactory";
+import { PortfolioEditModel } from "./Model/PortfolioEditModel";
+import { IPortfolioService } from "./Services/IPortfolioService";
+import { MatrixFactory } from "./Services/PortfolioServiceFactory";
 
 const SELECT_MAX_HEIGHT: string = '260px';
 
-export class CapabilityMatrixEditView extends React.Component<any, any> {
+export class PortfolioEditView extends React.Component<any, any> {
 
     private country: DictField;
 
@@ -37,7 +37,7 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
 
     private corePort: CheckBoxField & any;
 
-    private srv: ICapabilityMatrixService;
+    private srv: IPortfolioService;
 
     private dictSrv: IDictService;
 
@@ -139,7 +139,7 @@ export class CapabilityMatrixEditView extends React.Component<any, any> {
         this.setState({ isPortfolio: val });
     }
 
-    private getModel(): CapabilityMatrixEditModel {
+    private getModel(): PortfolioEditModel {
         return {
             isGlobalPortfolio: this.isGlobalPortfolio(),
             isMasterPortfolio: this.isMasterPortfolio(),
