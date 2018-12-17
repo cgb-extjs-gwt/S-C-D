@@ -249,7 +249,7 @@ const setPreviousRegion = (
         const newCostElementMeta = getCostElement(costBlockMeta, newCostElementId);
 
         if (newCostElementMeta.id != oldCostElementMeta.id &&
-            newCostElementMeta.regionInput && 
+            newCostElementMeta.regionInput && oldCostElementMeta.regionInput &&
             newCostElementMeta.regionInput.id == oldCostElementMeta.regionInput.id) {
             const oldCostElement = findCostElement(costBlock.costElements, oldCostElementId);
 
