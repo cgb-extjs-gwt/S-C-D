@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Portfolio;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.BusinessLogicLayer.Procedures;
 using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -28,14 +29,36 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.principalRepo = principalRepo;
         }
 
-        public Task Allow(PortfolioRuleSetDto set)
+        public Task Allow(PortfolioRuleSetDto m)
         {
-            throw new NotImplementedException();
+            return ChangePortfolio(m, false);
         }
 
-        public Task Deny(PortfolioRuleSetDto set)
+        public Task Deny(PortfolioRuleSetDto m)
         {
-            throw new NotImplementedException();
+            return ChangePortfolio(m, true);
+        }
+
+        private Task ChangePortfolio(PortfolioRuleSetDto m, bool deny)
+        {
+            if (m == null)
+            {
+                throw new ArgumentNullException("Null portfolio!");
+            }
+
+            if (!m.IsValid())
+            {
+                throw new ArgumentException("No portfolio or SLA specified!");
+            }
+
+            if (m.IsLocalPortfolio())
+            {
+                return new ChangeLocalPortfolio(repositorySet).ExecuteAsync(m, deny);
+            }
+            else
+            {
+                return new ChangeMasterPortfolio(repositorySet).ExecuteAsync(m, deny);
+            }
         }
 
         public Task<Tuple<PortfolioDto[], int>> GetAllowed(PortfolioFilterDto filter, int start, int limit)
@@ -90,7 +113,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 IsGlobalPortfolio = x.IsGlobalPortfolio,
                 IsMasterPortfolio = x.IsMasterPortfolio,
-                IsCorePortfolio =   x.IsCorePortfolio
+                IsCorePortfolio = x.IsCorePortfolio
             }).PagingAsync(start, limit);
 
             return new Tuple<PortfolioDto[], int>(result, count);

@@ -7,11 +7,11 @@ export class PortfolioService implements IPortfolioService {
     private controllerName: string;
 
     public constructor() {
-        this.controllerName = 'capabilitymatrix';
+        this.controllerName = 'portfolio';
     }
 
     public allowItem(row: PortfolioEditModel): Promise<any> {
-        throw new Error('not implemented');
+        return post(this.controllerName, 'allow', row);
     }
 
     public denyItem(row: PortfolioEditModel) {

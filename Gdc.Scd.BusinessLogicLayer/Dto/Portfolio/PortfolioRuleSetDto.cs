@@ -15,5 +15,27 @@
         public bool IsGlobalPortfolio { get; set; }
         public bool IsMasterPortfolio { get; set; }
         public bool IsCorePortfolio { get; set; }
+
+        public bool IsLocalPortfolio()
+        {
+            return CountryId.HasValue;
+        }
+
+        public bool IsValid()
+        {
+            var valid = CountryId.HasValue || IsGlobalPortfolio || IsMasterPortfolio || IsCorePortfolio;
+
+            if (valid)
+            {
+                valid = 0 < Len(Wgs) + Len(Availabilities) + Len(Durations) + Len(ReactionTypes) + Len(ServiceLocations) + Len(ProActives);
+            }
+
+            return valid;
+        }
+
+        private static int Len(long[] arr)
+        {
+            return arr == null ? 0 : arr.Length;
+        }
     }
 }

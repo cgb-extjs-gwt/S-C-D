@@ -75,7 +75,7 @@ export class PortfolioEditView extends React.Component<any, any> {
                         <MultiSelect ref={x => this.srvloc = x} maxHeight={SELECT_MAX_HEIGHT} title="Service location" store={this.dictSrv.getServiceLocationTypes} />
                     </div>
                     <div>
-                        <MultiSelectProActive ref={x => this.proactive = x} maxHeight={SELECT_MAX_HEIGHT} title="Pro active" store={this.dictSrv.getProActive} />
+                        <MultiSelectProActive ref={x => this.proactive = x} maxHeight={SELECT_MAX_HEIGHT} title="ProActive" store={this.dictSrv.getProActive} />
                     </div>
                     <div className="portfolio-edit-small">
                         <div>
@@ -117,58 +117,62 @@ export class PortfolioEditView extends React.Component<any, any> {
         this.onAllow = this.onAllow.bind(this);
         this.onDeny = this.onDeny.bind(this);
         this.onBack = this.onBack.bind(this);
-        this.denyCombination = this.denyCombination.bind(this);
+        this.save = this.save.bind(this);
     }
 
     private onCountryChange(combo, newVal, oldVal) {
-        this.setPortfolio(!newVal);
+        this.setState({ isPortfolio: !newVal });
     }
 
     private onAllow() {
-        console.log('onAllow()');
+        this.showChangeDialog(false);
     }
 
     private onDeny() {
-        let m = this.getModel();
-        let isValid = m.countryId || m.isGlobalPortfolio || m.isMasterPortfolio || m.isCorePortfolio;
-
-        if (isValid) {
-            ExtMsgHelper.confirm('Deny combinations', 'Do you want to save the changes?', this.denyCombination);
-        }
-        else {
-            Ext.Msg.alert('Invalid input!', 'Please choose master or local portfolio!');
-        }
+        this.showChangeDialog(true);
     }
 
     private onBack() {
         this.props.history.push(buildComponentUrl('/portfolio'));
     }
 
-    private denyCombination() {
-        let p = this.srv.denyItem(this.getModel());
-        handleRequest(p).then(() => this.reset());
+    private showChangeDialog(deny: boolean) {
+        if (this.getModel().isValid()) {
+            let msg = deny ? 'Deny combinations' : 'Allow combinations';
+            ExtMsgHelper.confirm(msg, 'Do you want to save the changes?', () => this.save(deny));
+        }
+        else {
+            Ext.Msg.alert('Invalid input!', 'Please choose master or local portfolio and SLA!');
+        }
     }
 
-    private setPortfolio(val: boolean) {
-        this.setState({ isPortfolio: val });
+    private save(deny: boolean) {
+        let m = this.getModel();
+        if (m.isValid()) {
+
+            let p = deny ? this.srv.denyItem(m) : this.srv.allowItem(m);
+            handleRequest(p).then(() => this.reset());
+        }
     }
 
     private getModel(): PortfolioEditModel {
-        return {
-            isGlobalPortfolio: this.isGlobalPortfolio(),
-            isMasterPortfolio: this.isMasterPortfolio(),
-            isCorePortfolio: this.isCorePortfolio(),
+        let m = new PortfolioEditModel();
 
-            countryId: this.country.getSelected(),
+        m.isGlobalPortfolio = this.isGlobalPortfolio();
+        m.isMasterPortfolio = this.isMasterPortfolio();
+        m.isCorePortfolio = this.isCorePortfolio();
 
-            wgs: this.wg.getSelectedKeys(),
-            availabilities: this.av.getSelectedKeys(),
-            durations: this.dur.getSelectedKeys(),
-            reactionTypes: this.reacttype.getSelectedKeys(),
-            reactionTimes: this.reacttime.getSelectedKeys(),
-            serviceLocations: this.srvloc.getSelectedKeys(),
-            proActives: this.proactive.getSelectedKeys()
-        }
+        m.countryId = this.country.getSelected();
+
+        m.wgs = this.wg.getSelectedKeys();
+        m.availabilities = this.av.getSelectedKeys();
+        m.durations = this.dur.getSelectedKeys();
+        m.reactionTypes = this.reacttype.getSelectedKeys();
+        m.reactionTimes = this.reacttime.getSelectedKeys();
+        m.serviceLocations = this.srvloc.getSelectedKeys();
+        m.proActives = this.proactive.getSelectedKeys()
+
+        return m;
     }
 
     private isGlobalPortfolio(): boolean {
