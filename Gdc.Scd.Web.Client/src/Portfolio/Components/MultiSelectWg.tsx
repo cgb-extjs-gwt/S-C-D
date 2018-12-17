@@ -1,13 +1,9 @@
 ﻿import { CheckBoxField, Container, List, SearchField } from "@extjs/ext-react";
 import * as React from "react";
 import { PlaField } from "../../Dict/Components/PlaField";
-import { MultiSelect, MultiSelectProps } from "./MultiSelect";
+import { MultiSelect } from "./MultiSelect";
 
 export class MultiSelectWg extends MultiSelect {
-
-    public constructor(props: MultiSelectProps) {
-        super(props);
-    }
 
     public render() {
 

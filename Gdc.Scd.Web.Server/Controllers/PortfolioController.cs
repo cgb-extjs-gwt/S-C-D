@@ -54,7 +54,7 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         private bool IsRangeValid(int start, int limit)
         {
-            return start >= 0 && limit <= 50;
+            return start >= 0 && limit <= 100;
         }
 
         object OkResult()

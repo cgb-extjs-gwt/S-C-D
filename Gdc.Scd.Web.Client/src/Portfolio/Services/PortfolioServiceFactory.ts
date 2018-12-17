@@ -1,9 +1,9 @@
 ﻿import { IPortfolioService } from "./IPortfolioService"
 import { PortfolioService } from "./PortfolioService";
 
-export class MatrixFactory {
+export class PortfolioServiceFactory {
 
-    public static getMatrixService(): IPortfolioService {
+    public static getPortfolioService(): IPortfolioService {
         return new PortfolioService();
     }
 

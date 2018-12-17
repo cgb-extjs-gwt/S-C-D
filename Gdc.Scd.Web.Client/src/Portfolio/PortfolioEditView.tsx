@@ -11,7 +11,8 @@ import { MultiSelect } from "./Components/MultiSelect";
 import { MultiSelectWg } from "./Components/MultiSelectWg";
 import { PortfolioEditModel } from "./Model/PortfolioEditModel";
 import { IPortfolioService } from "./Services/IPortfolioService";
-import { MatrixFactory } from "./Services/PortfolioServiceFactory";
+import { PortfolioServiceFactory } from "./Services/PortfolioServiceFactory";
+import { MultiSelectProActive } from "./Components/MultiSelectProActive";
 
 const SELECT_MAX_HEIGHT: string = '260px';
 
@@ -30,6 +31,8 @@ export class PortfolioEditView extends React.Component<any, any> {
     private reacttime: MultiSelect;
 
     private srvloc: MultiSelect;
+
+    private proactive: MultiSelect;
 
     private globPort: CheckBoxField & any;
 
@@ -64,7 +67,7 @@ export class PortfolioEditView extends React.Component<any, any> {
                     onChange={this.onCountryChange}
                 />
 
-                <div className="matrix-edit-container">
+                <div className="portfolio-edit-container">
                     <div>
                         <MultiSelectWg ref={x => this.wg = x} maxHeight="204px" title="Asset(WG)" store={this.dictSrv.getWG} />
                     </div>
@@ -83,10 +86,13 @@ export class PortfolioEditView extends React.Component<any, any> {
                     <div>
                         <MultiSelect ref={x => this.srvloc = x} maxHeight={SELECT_MAX_HEIGHT} title="Service location" store={this.dictSrv.getServiceLocationTypes} />
                     </div>
+                    <div>
+                        <MultiSelectProActive ref={x => this.proactive = x} maxHeight={SELECT_MAX_HEIGHT} title="Pro active" store={this.dictSrv.getProActive} />
+                    </div>
                 </div>
 
                 <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio }} margin="15px 0">
-                    <CheckBoxField ref={x => this.globPort = x} boxLabel="Fujitsu global portfolio" />
+                    <CheckBoxField ref={x => this.globPort = x} boxLabel="Fujitsu principal portfolio" />
                     <CheckBoxField ref={x => this.masterPort = x} boxLabel="Master portfolio" />
                     <CheckBoxField ref={x => this.corePort = x} boxLabel="Core portfolio" />
                 </Container>
@@ -94,6 +100,7 @@ export class PortfolioEditView extends React.Component<any, any> {
                 <Container>
                     <Button iconCls="x-fa fa-arrow-left" text="back to Portfolio" handler={this.onBack} />
                     <Button text="Deny combinations" ui="decline" padding="0 10px 0 0" handler={this.onDeny} />
+                    <Button text="Allow combinations" ui="action" padding="0 10px 0 0" handler={this.onAllow} />
                 </Container>
 
             </Container>
@@ -101,10 +108,11 @@ export class PortfolioEditView extends React.Component<any, any> {
     }
 
     private init() {
-        this.srv = MatrixFactory.getMatrixService();
+        this.srv = PortfolioServiceFactory.getPortfolioService();
         this.dictSrv = DictFactory.getDictService();
         //
         this.onCountryChange = this.onCountryChange.bind(this);
+        this.onAllow = this.onAllow.bind(this);
         this.onDeny = this.onDeny.bind(this);
         this.onBack = this.onBack.bind(this);
         this.denyCombination = this.denyCombination.bind(this);
@@ -112,6 +120,10 @@ export class PortfolioEditView extends React.Component<any, any> {
 
     private onCountryChange(combo, newVal, oldVal) {
         this.setPortfolio(!newVal);
+    }
+
+    private onAllow() {
+        console.log('onAllow()');
     }
 
     private onDeny() {
@@ -127,7 +139,7 @@ export class PortfolioEditView extends React.Component<any, any> {
     }
 
     private onBack() {
-        this.props.history.push(buildComponentUrl('/capability-matrix'));
+        this.props.history.push(buildComponentUrl('/portfolio'));
     }
 
     private denyCombination() {
@@ -152,7 +164,8 @@ export class PortfolioEditView extends React.Component<any, any> {
             durations: this.dur.getSelectedKeys(),
             reactionTypes: this.reacttype.getSelectedKeys(),
             reactionTimes: this.reacttime.getSelectedKeys(),
-            serviceLocations: this.srvloc.getSelectedKeys()
+            serviceLocations: this.srvloc.getSelectedKeys(),
+            proActives: this.proactive.getSelectedKeys()
         }
     }
 
@@ -180,6 +193,7 @@ export class PortfolioEditView extends React.Component<any, any> {
         this.reacttype.reset();
         this.reacttime.reset();
         this.srvloc.reset();
+        this.proactive.reset();
         //
         this.globPort.reset();
         this.masterPort.reset();

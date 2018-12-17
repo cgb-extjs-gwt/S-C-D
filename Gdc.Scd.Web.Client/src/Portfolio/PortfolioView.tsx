@@ -8,37 +8,16 @@ import { PortfolioFilterModel } from "./Model/PortfolioFilterModel";
 
 export class PortfolioView extends React.Component<any, any> {
 
-    private allowed: Grid;
-
-    private denied: Grid;
-
     private filter: FilterPanel;
 
     private allowStore: Ext.data.IStore = Ext.create('Ext.data.Store', {
-        pageSize: 25,
+        pageSize: 100,
         autoLoad: true,
 
         proxy: {
             type: 'ajax',
             api: {
                 read: buildMvcUrl('portfolio', 'allowed')
-            },
-            reader: {
-                type: 'json',
-                rootProperty: 'items',
-                totalProperty: 'total'
-            }
-        }
-    });
-
-    private denyStore: Ext.data.IStore = Ext.create('Ext.data.Store', {
-        pageSize: 25,
-        autoLoad: true,
-
-        proxy: {
-            type: 'ajax',
-            api: {
-                read: buildMvcUrl('portfolio', 'denied')
             },
             reader: {
                 type: 'json',
@@ -67,37 +46,10 @@ export class PortfolioView extends React.Component<any, any> {
                 </Toolbar>
 
                 <Grid
-                    ref="denied"
-                    store={this.denyStore}
-                    width="100%"
-                    height="50%"
-                    minHeight="45%"
-                    title="Denied combinations"
-                    selectable="multi"
-                    plugins={['pagingtoolbar']}>
-
-                    <NullStringColumn hidden={!isMasterPortfolio} flex="1" text="Country" dataIndex="country" />
-
-                    <NullStringColumn flex="1" text="WG(Asset)" dataIndex="wg" />
-                    <NullStringColumn flex="1" text="Availability" dataIndex="availability" />
-                    <NullStringColumn flex="1" text="Duration" dataIndex="duration" />
-                    <NullStringColumn flex="1" text="Reaction type" dataIndex="reactionType" />
-                    <NullStringColumn flex="1" text="Reaction time" dataIndex="reactionTime" />
-                    <NullStringColumn flex="1" text="Service location" dataIndex="serviceLocation" />
-                    <NullStringColumn flex="1" text="Pro active" dataIndex="proActive" />
-
-                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Fujitsu principal portfolio" dataIndex="isGlobalPortfolio" />
-                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
-                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
-                </Grid>
-
-                <Grid
                     ref="allowed"
                     store={this.allowStore}
                     width="100%"
-                    height="50%"
-                    minHeight="45%"
-                    title="Allowed combinations"
+                    height="100%"
                     selectable={false}
                     plugins={['pagingtoolbar']}>
 
@@ -108,10 +60,10 @@ export class PortfolioView extends React.Component<any, any> {
                     <NullStringColumn flex="1" text="Duration" dataIndex="duration" />
                     <NullStringColumn flex="1" text="Reaction type" dataIndex="reactionType" />
                     <NullStringColumn flex="1" text="Reaction time" dataIndex="reactionTime" />
-                    <NullStringColumn flex="1" text="Service location" dataIndex="serviceLocation" />
-                    <NullStringColumn flex="1" text="Pro active" dataIndex="proActive" />
+                    <NullStringColumn flex="2" text="Service location" dataIndex="serviceLocation" />
+                    <NullStringColumn flex="2" text="Pro active" dataIndex="proActive" />
 
-                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Fujitsu pricipal portfolio" dataIndex="isGlobalPortfolio" />
+                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Fujitsu principal portfolio" dataIndex="isGlobalPortfolio" />
                     <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
                     <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
@@ -121,8 +73,6 @@ export class PortfolioView extends React.Component<any, any> {
     }
 
     public componentDidMount() {
-        this.allowed = this.refs.allowed as Grid;
-        this.denied = this.refs.denied as Grid;
         this.filter = this.refs.filter as FilterPanel;
         //
         this.reload();
@@ -131,10 +81,7 @@ export class PortfolioView extends React.Component<any, any> {
     private init() {
         this.onEdit = this.onEdit.bind(this);
         this.onSearch = this.onSearch.bind(this);
-        this.onBeforeLoad = this.onBeforeLoad.bind(this);
-        //
-        this.allowStore.on('beforeload', this.onBeforeLoad);
-        this.denyStore.on('beforeload', this.onBeforeLoad);
+        this.allowStore.on('beforeload', this.onBeforeLoad, this);
     }
 
     private onEdit() {
@@ -152,7 +99,6 @@ export class PortfolioView extends React.Component<any, any> {
     }
 
     private reload() {
-        this.denyStore.load();
         this.allowStore.load();
 
         this.setState({ ___: new Date().getTime() }); //stub, re-paint ext grid

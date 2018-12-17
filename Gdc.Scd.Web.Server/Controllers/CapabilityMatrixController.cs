@@ -1,13 +1,15 @@
-﻿using System.Threading.Tasks;
-using System.Web.Http;
-using Gdc.Scd.BusinessLogicLayer.Dto.CapabilityMatrix;
+﻿using Gdc.Scd.BusinessLogicLayer.Dto.CapabilityMatrix;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Web.Server.Impl;
+using System;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
+    [Obsolete("Use portfolio controller")]
     [ScdAuthorize(Permissions = new[] { PermissionConstants.Portfolio })]
     public class CapabilityMatrixController : ApiController
     {

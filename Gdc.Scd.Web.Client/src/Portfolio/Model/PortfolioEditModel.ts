@@ -13,6 +13,8 @@ export class PortfolioEditModel {
 
     public serviceLocations: string[];
 
+    public proActives: string[];
+
     public isGlobalPortfolio: boolean;
 
     public isMasterPortfolio: boolean;

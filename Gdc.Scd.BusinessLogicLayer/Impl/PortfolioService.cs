@@ -86,7 +86,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 ReactionType = x.ReactionType.Name,
                 ReactionTime = x.ReactionTime.Name,
                 ServiceLocation = x.ServiceLocation.Name,
-                ProActive = x.ProActiveSla.Name,
+                ProActive = x.ProActiveSla.ExternalName,
 
                 IsGlobalPortfolio = x.IsGlobalPortfolio,
                 IsMasterPortfolio = x.IsMasterPortfolio,
@@ -124,7 +124,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 ReactionType = x.ReactionType.Name,
                 ReactionTime = x.ReactionTime.Name,
                 ServiceLocation = x.ServiceLocation.Name,
-                ProActive = x.ProActiveSla.Name
+                ProActive = x.ProActiveSla.ExternalName
             }).PagingAsync(start, limit);
 
             return new Tuple<PortfolioDto[], int>(result, count);

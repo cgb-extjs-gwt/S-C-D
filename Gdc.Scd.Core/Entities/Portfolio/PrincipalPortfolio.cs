@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities.Portfolio
 {
-    [Table("PricipalPortfolio", Schema = MetaConstants.PortfolioSchema)]
+    [Table("PrincipalPortfolio", Schema = MetaConstants.PortfolioSchema)]
     public class PrincipalPortfolio : Portfolio
     {
         public bool IsCorePortfolio { get; set; }

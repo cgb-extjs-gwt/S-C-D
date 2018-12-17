@@ -25,6 +25,8 @@ export interface MultiSelectProps {
 
 export class MultiSelect extends React.Component<MultiSelectProps, any> {
 
+    protected nameField: string = '{name}';
+
     protected cb: CheckBoxField & any;
 
     protected lst: List & any;
@@ -74,7 +76,7 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
                     <Container>
                         <List
                             ref={x => this.lst = x}
-                            itemTpl="{name}"
+                            itemTpl={this.nameField}
                             store={this.state.items}
                             height={height}
                             maxHeight={maxHeight}

@@ -70,7 +70,7 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
                 </Container>
 
                 <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio, padding: '3px 0' }}>
-                    <CheckBoxField ref={x => this.globPort = x} boxLabel="Fujitsu pricipal portfolio" />
+                    <CheckBoxField ref={x => this.globPort = x} boxLabel="Fujitsu principal portfolio" />
                     <CheckBoxField ref={x => this.masterPort = x} boxLabel="Master portfolio" />
                     <CheckBoxField ref={x => this.corePort = x} boxLabel="Core portfolio" />
                 </Container>
