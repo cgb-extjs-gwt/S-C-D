@@ -72,22 +72,24 @@ export class PortfolioEditView extends React.Component<any, any> {
                         <MultiSelectWg ref={x => this.wg = x} maxHeight="204px" title="Asset(WG)" store={this.dictSrv.getWG} />
                     </div>
                     <div>
-                        <MultiSelect ref={x => this.av = x} maxHeight={SELECT_MAX_HEIGHT} title="Availability" store={this.dictSrv.getAvailabilityTypes} />
-                    </div>
-                    <div>
-                        <MultiSelect ref={x => this.dur = x} maxHeight={SELECT_MAX_HEIGHT} title="Duration" store={this.dictSrv.getDurationTypes} />
-                    </div>
-                    <div>
-                        <MultiSelect ref={x => this.reacttype = x} maxHeight={SELECT_MAX_HEIGHT} title="Reaction type" store={this.dictSrv.getReactionTypes} />
-                    </div>
-                    <div>
-                        <MultiSelect ref={x => this.reacttime = x} maxHeight={SELECT_MAX_HEIGHT} title="Reaction time" store={this.dictSrv.getReactionTimeTypes} />
-                    </div>
-                    <div>
                         <MultiSelect ref={x => this.srvloc = x} maxHeight={SELECT_MAX_HEIGHT} title="Service location" store={this.dictSrv.getServiceLocationTypes} />
                     </div>
                     <div>
                         <MultiSelectProActive ref={x => this.proactive = x} maxHeight={SELECT_MAX_HEIGHT} title="Pro active" store={this.dictSrv.getProActive} />
+                    </div>
+                    <div className="portfolio-edit-small">
+                        <div>
+                            <MultiSelect ref={x => this.av = x} maxHeight={SELECT_MAX_HEIGHT} title="Availability" store={this.dictSrv.getAvailabilityTypes} />
+                        </div>
+                        <div>
+                            <MultiSelect ref={x => this.dur = x} maxHeight={SELECT_MAX_HEIGHT} title="Duration" store={this.dictSrv.getDurationTypes} />
+                        </div>
+                        <div>
+                            <MultiSelect ref={x => this.reacttype = x} maxHeight={SELECT_MAX_HEIGHT} title="Reaction type" store={this.dictSrv.getReactionTypes} />
+                        </div>
+                        <div>
+                            <MultiSelect ref={x => this.reacttime = x} maxHeight={SELECT_MAX_HEIGHT} title="Reaction time" store={this.dictSrv.getReactionTimeTypes} />
+                        </div>
                     </div>
                 </div>
 
@@ -100,7 +102,7 @@ export class PortfolioEditView extends React.Component<any, any> {
                 <Container>
                     <Button iconCls="x-fa fa-arrow-left" text="back to Portfolio" handler={this.onBack} />
                     <Button text="Deny combinations" ui="decline" padding="0 10px 0 0" handler={this.onDeny} />
-                    <Button text="Allow combinations" ui="action" padding="0 10px 0 0" handler={this.onAllow} />
+                    <Button text="Allow combinations" padding="0 10px 0 0" handler={this.onAllow} />
                 </Container>
 
             </Container>
