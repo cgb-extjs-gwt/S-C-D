@@ -4,11 +4,14 @@ import { EditItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { large, small } from "../../responsiveFormulas";
 import { FieldType } from "../../Common/States/CostMetaStates";
+import { InputType } from "../../Common/States/CostMetaStates";
+
 
 export interface ValueColumnProps {
     title: string
     type: FieldType,
     selectedItems: NamedId<number>[]
+    inputType: InputType
 }
 
 export interface EditGridActions {
@@ -123,12 +126,13 @@ export class EditGrid extends React.Component<EditGridProps> {
 
     private getValueColumn(columProps: ValueColumnProps) {
         let column;
+        const readonly = columProps.inputType == InputType.AutomaticallyReadonly || columProps.inputType == InputType.Automatically;
 
         const columnOptions = {
             text: columProps.title,
             dataIndex: "value",
             flex: 1,
-            editable: true,
+            editable: !readonly,
             renderer: (value, { data }: { data: EditItem }) => {
                 return data.valueCount == 1 ? value : this.getValueCountMessage(data);
             }
@@ -195,13 +199,11 @@ export class EditGrid extends React.Component<EditGridProps> {
                 break;
 
             case FieldType.Percent:
+                columnOptions.renderer = (value, { data }) => {
+                    return data.valueCount == 1? Ext.util.Format.number(value, '0.##%'): this.getValueCountMessage(data);
+                }
                 column = (
-                    <Column
-                        {...columnOptions}
-                        renderer={value => 
-                            Ext.util.Format.number(value, '0.##%')
-                        }
-                    >
+                    <Column {...columnOptions}>
                         <NumberField required validators={{ type: "number", message: "Invalid value" }} />
                     </Column>
                 );
