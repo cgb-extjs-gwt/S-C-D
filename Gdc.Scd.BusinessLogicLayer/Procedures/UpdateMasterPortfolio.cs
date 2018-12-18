@@ -1,31 +1,32 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Portfolio;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
+using System;
 using System.Data.Common;
 using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Procedures
 {
-    public class ChangeLocalPortfolio
+    public class UpdateMasterPortfolio
     {
         const string PROC_NAME = "Matrix.AddRules";
 
         private readonly IRepositorySet repositorySet;
 
-        public ChangeLocalPortfolio(IRepositorySet repositorySet)
+        public UpdateMasterPortfolio(IRepositorySet repositorySet)
         {
             this.repositorySet = repositorySet;
         }
 
         public Task ExecuteAsync(PortfolioRuleSetDto dto, bool deny)
         {
-            if (dto.IsLocalPortfolio())
+            if (dto.CountryId.HasValue)
             {
                 return repositorySet.ExecuteProcAsync(PROC_NAME, Prepare(dto));
             }
             else
             {
-                throw new System.ArgumentException("Invalid country");
+                throw new ArgumentException("Invalid country");
             }
         }
 

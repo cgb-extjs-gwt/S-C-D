@@ -10,11 +10,11 @@ export class PortfolioService implements IPortfolioService {
         this.controllerName = 'portfolio';
     }
 
-    public allowItem(row: PortfolioEditModel): Promise<any> {
+    public allow(row: PortfolioEditModel): Promise<any> {
         return post(this.controllerName, 'allow', row);
     }
 
-    public denyItem(row: PortfolioEditModel) {
+    public deny(row: PortfolioEditModel) {
         return post(this.controllerName, 'deny', row);
     }
 }

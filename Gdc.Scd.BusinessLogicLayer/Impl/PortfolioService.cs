@@ -53,11 +53,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (m.IsLocalPortfolio())
             {
-                return new ChangeLocalPortfolio(repositorySet).ExecuteAsync(m, deny);
+                return new UpdateLocalPortfolio(repositorySet).ExecuteAsync(m, deny);
             }
             else
             {
-                return new ChangeMasterPortfolio(repositorySet).ExecuteAsync(m, deny);
+                return new UpdateMasterPortfolio(repositorySet).ExecuteAsync(m, deny);
             }
         }
 

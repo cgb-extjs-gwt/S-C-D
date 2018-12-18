@@ -149,8 +149,7 @@ export class PortfolioEditView extends React.Component<any, any> {
     private save(deny: boolean) {
         let m = this.getModel();
         if (m.isValid()) {
-
-            let p = deny ? this.srv.denyItem(m) : this.srv.allowItem(m);
+            let p = deny ? this.srv.deny(m) : this.srv.allow(m);
             handleRequest(p).then(() => this.reset());
         }
     }

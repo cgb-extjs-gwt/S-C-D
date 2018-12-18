@@ -30,36 +30,26 @@ namespace Gdc.Scd.Web.Server.Controllers
                 return null;
             }
 
-            return portfolioService.GetAllowed(filter, start, limit)
-                                   .ContinueWith(x => new DataInfo<PortfolioDto>
-                                   {
-                                       Items = x.Result.Item1,
-                                       Total = x.Result.Item2
-                                   });
+            return portfolioService
+                    .GetAllowed(filter, start, limit)
+                    .ContinueWith(x => new DataInfo<PortfolioDto> { Items = x.Result.Item1, Total = x.Result.Item2 });
         }
 
         [HttpPost]
-        public async Task<object> Allow([FromBody]PortfolioRuleSetDto m)
+        public Task Allow([FromBody]PortfolioRuleSetDto m)
         {
-            await portfolioService.Allow(m); //wait result, or error
-            return OkResult();
+            return portfolioService.Allow(m);
         }
 
         [HttpPost]
-        public async Task<object> Deny([FromBody]PortfolioRuleSetDto m)
+        public Task Deny([FromBody]PortfolioRuleSetDto m)
         {
-            await portfolioService.Deny(m); //wait result, or error
-            return OkResult();
+            return portfolioService.Deny(m);
         }
 
         private bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 100;
-        }
-
-        object OkResult()
-        {
-            return new { ok = true };
         }
     }
 }

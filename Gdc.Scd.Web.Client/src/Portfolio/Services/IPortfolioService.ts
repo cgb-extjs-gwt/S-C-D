@@ -1,8 +1,8 @@
 ﻿import { PortfolioEditModel } from "../Model/PortfolioEditModel";
 
 export interface IPortfolioService {
-    allowItem(row: PortfolioEditModel): Promise<any>;
+    allow(row: PortfolioEditModel): Promise<any>;
 
 
-    denyItem(row: PortfolioEditModel): Promise<any>;
+    deny(row: PortfolioEditModel): Promise<any>;
 }

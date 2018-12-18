@@ -3,11 +3,11 @@ import { IPortfolioService } from "../Services/IPortfolioService";
 
 export class FakeService implements IPortfolioService {
 
-    public allowItem(row: PortfolioEditModel): Promise<any> {
+    public allow(row: PortfolioEditModel): Promise<any> {
         return this.saveItem(row, true);
     }
 
-    public denyItem(row: PortfolioEditModel): Promise<any> {
+    public deny(row: PortfolioEditModel): Promise<any> {
         return this.saveItem(row, false);
     }
 

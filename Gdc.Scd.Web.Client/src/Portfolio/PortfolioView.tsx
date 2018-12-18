@@ -61,7 +61,7 @@ export class PortfolioView extends React.Component<any, any> {
                     <NullStringColumn flex="1" text="Reaction type" dataIndex="reactionType" />
                     <NullStringColumn flex="1" text="Reaction time" dataIndex="reactionTime" />
                     <NullStringColumn flex="2" text="Service location" dataIndex="serviceLocation" />
-                    <NullStringColumn flex="2" text="Pro active" dataIndex="proActive" />
+                    <NullStringColumn flex="2" text="ProActive" dataIndex="proActive" />
 
                     <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Fujitsu principal portfolio" dataIndex="isGlobalPortfolio" />
                     <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
