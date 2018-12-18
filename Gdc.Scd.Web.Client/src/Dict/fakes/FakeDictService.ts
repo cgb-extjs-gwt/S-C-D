@@ -16,6 +16,10 @@ export class FakeDictService implements IDictService {
         return this.fromResult(fakeCountries);
     }
 
+    public getMasterCountries(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
+
     public getCountryGroups(): Promise<NamedId<string>[]> {
         return this.getCountries();
     }
@@ -28,6 +32,10 @@ export class FakeDictService implements IDictService {
     }
 
     public getCountryGroupIsoCode(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
+
+    public getCountryQualityGroup(): Promise<NamedId<string>[]> {
         throw new Error("Method not implemented.");
     }
 

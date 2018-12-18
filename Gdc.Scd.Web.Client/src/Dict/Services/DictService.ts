@@ -17,6 +17,10 @@ import { YearService } from "./YearService";
 
 export class DictService implements IDictService {
     public getCountries(): Promise<NamedId<string>[]> {
+        return new CountryManagementService().getCountryNames();
+    }
+
+    public getMasterCountries(): Promise<NamedId<string>[]> {
         return new CountryService().getAll();
     }
 
@@ -33,7 +37,11 @@ export class DictService implements IDictService {
     }
 
     public getCountryGroupIsoCode(): Promise<NamedId<string>[]> {
-        return new CountryManagementService().getIsoCode();
+        return new CountryManagementService().getIsoCodes();
+    }
+
+    public getCountryQualityGroup(): Promise<NamedId<string>[]> {
+        return new CountryManagementService().getQualityGroups();
     }
 
     public getWG(): Promise<NamedId<string>[]> {

@@ -111,7 +111,8 @@ const costBlockTabMap = (
                     valueColumn: {
                         title: selectedCostElementMeta.name,
                         type: selectedCostElementMeta.typeOptions ? selectedCostElementMeta.typeOptions.Type : FieldType.Double,
-                        selectedItems: selectedCostElement.referenceValues
+                        selectedItems: selectedCostElement.referenceValues,
+                        inputType: selectedCostElementMeta.inputType
                     },
                     items: edit.originalItems && edit.originalItems.map(originalItem => ({
                         ...edit.editedItems.find(editedItem => editedItem.id === originalItem.id) || originalItem

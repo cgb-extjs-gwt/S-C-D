@@ -4,6 +4,7 @@
     lut?: string;
     digit?: string;
     iso?: string;
+    qualityGroup?: string;
 
     isMaster?: boolean;
     storeListAndDealer?: boolean;
