@@ -11,6 +11,8 @@ export interface IDictService {
 
     getCountryGroupIsoCode(): Promise<NamedId[]>;
 
+    getCountryQualityGroup(): Promise<NamedId[]>;
+
     getWG(): Promise<NamedId[]>;
 
     getPla(): Promise<NamedId[]>;

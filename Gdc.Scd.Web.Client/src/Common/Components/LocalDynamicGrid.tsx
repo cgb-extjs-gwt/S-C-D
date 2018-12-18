@@ -59,9 +59,9 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     public render(){
         return (
             <DynamicGrid 
+                columns={this.columns}   
                 {...this.props}              
-                store={this.store} 
-                columns={this.columns}              
+                store={this.store}                         
             />
         );
     }

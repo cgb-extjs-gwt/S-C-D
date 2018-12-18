@@ -4,11 +4,14 @@ import { EditItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { large, small } from "../../responsiveFormulas";
 import { FieldType } from "../../Common/States/CostMetaStates";
+import { InputType } from "../../Common/States/CostMetaStates";
+
 
 export interface ValueColumnProps {
     title: string
     type: FieldType,
     selectedItems: NamedId<number>[]
+    inputType: InputType
 }
 
 export interface EditGridActions {
@@ -24,6 +27,7 @@ export interface EditGridProps extends EditGridActions {
 
 export class EditGrid extends React.Component<EditGridProps> {
     private itemsMap = new Map<string, EditItem>();
+    private sorters;
 
     constructor(props: EditGridProps) {
         super(props);
@@ -97,6 +101,7 @@ export class EditGrid extends React.Component<EditGridProps> {
                     name: 'value',
                     mapping: data => data.value == null ? ' ' : data.value
                 }],
+            sorters: this.sorters,
             listeners: onItemEdited && {
                 update: (store, record, operation, modifiedFieldNames, details) => {
                     if (modifiedFieldNames[0] === 'name') {
@@ -110,6 +115,10 @@ export class EditGrid extends React.Component<EditGridProps> {
 
                         onItemEdited(record.data);
                     }
+                },
+
+                sort: (store) => {
+                    this.sorters = store.getSorters().items;
                 }
             }
         }); 
@@ -117,12 +126,13 @@ export class EditGrid extends React.Component<EditGridProps> {
 
     private getValueColumn(columProps: ValueColumnProps) {
         let column;
+        const readonly = columProps.inputType == InputType.AutomaticallyReadonly || columProps.inputType == InputType.Automatically;
 
         const columnOptions = {
             text: columProps.title,
             dataIndex: "value",
             flex: 1,
-            editable: true,
+            editable: !readonly,
             renderer: (value, { data }: { data: EditItem }) => {
                 return data.valueCount == 1 ? value : this.getValueCountMessage(data);
             }
@@ -189,13 +199,11 @@ export class EditGrid extends React.Component<EditGridProps> {
                 break;
 
             case FieldType.Percent:
+                columnOptions.renderer = (value, { data }) => {
+                    return data.valueCount == 1? Ext.util.Format.number(value, '0.##%'): this.getValueCountMessage(data);
+                }
                 column = (
-                    <Column
-                        {...columnOptions}
-                        renderer={value => 
-                            Ext.util.Format.number(value, '0.##%')
-                        }
-                    >
+                    <Column {...columnOptions}>
                         <NumberField required validators={{ type: "number", message: "Invalid value" }} />
                     </Column>
                 );

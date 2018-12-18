@@ -29,11 +29,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             if (filter != null)
             {
                 countries = countries.Where(x =>
-                    (filter.Country != null ? x.Id == filter.Country : true) &&
+                    (filter.Country != null ? x.Name == filter.Country : true) &&
                     (filter.Group != null ? x.CountryGroupId == filter.Group : true) &&
                     (filter.Lut != null ? x.CountryGroup.LUTCode == filter.Lut : true) &&
                     (filter.Digit != null ? x.CountryGroup.CountryDigit == filter.Digit : true) &&
                     (filter.Iso != null ? x.ISO3CountryCode == filter.Iso : true) &&
+                    (filter.QualityGroup != null ? x.QualityGateGroup == filter.QualityGroup : true) &&
                     (filter.IsMaster != null ? x.IsMaster == filter.IsMaster : true) &&
                     (filter.StoreListAndDealer != null ? x.CanStoreListAndDealerPrices == filter.StoreListAndDealer : true) &&
                     (filter.OverrideTCandTP != null ? x.CanOverrideTransferCostAndPrice == filter.OverrideTCandTP : true)
