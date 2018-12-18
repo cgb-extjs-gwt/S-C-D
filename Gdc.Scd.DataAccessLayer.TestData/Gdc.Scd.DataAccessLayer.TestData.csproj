@@ -33,6 +33,7 @@
     <None Remove="Scripts\report-SW-Service-Price-List-detail.sql" />
     <None Remove="Scripts\report-SW-Service-Price-List.sql" />
     <None Remove="Scripts\reports.sql" />
+    <None Remove="Scripts\Report\report-calc-parameter-hw.sql" />
     <None Remove="Scripts\Report\report-Logistic-cost-calc-central.sql" />
     <None Remove="Scripts\Report\report-logistic-cost-central.sql" />
     <None Remove="Scripts\Report\report-logistic-cost-country.sql" />
@@ -63,6 +64,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Scripts\Report\report-calc-output-new-vs-old.sql" />
     <EmbeddedResource Include="Scripts\Report\report-calc-output-vs-FREEZE.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-calc-parameter-hw-not-approved.sql" />
     <EmbeddedResource Include="Scripts\Report\report-calc-parameter-hw.sql" />
     <EmbeddedResource Include="Scripts\Report\report-calc-parameter-proactive.sql" />
     <EmbeddedResource Include="Scripts\Report\report-contract.sql" />

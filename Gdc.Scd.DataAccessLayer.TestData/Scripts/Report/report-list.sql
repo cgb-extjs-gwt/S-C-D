@@ -11,7 +11,8 @@
 ('HDD-Retention-parameter', 'HDD retention parameter', 0, 1, 'Report.HddRetentionParameter'),
 
 --Calculation Parameter Overview reports 
-('Calculation-Parameter-hw', 'Calculation Parameter Overview reports for HW maintenance cost elements', 1,  0, 'Report.CalcParameterHw'),
+('Calculation-Parameter-hw', 'Calculation Parameter Overview reports for HW maintenance cost elements (approved)', 1,  0, 'Report.CalcParameterHw'),
+('Calculation-Parameter-hw-not-approved', 'Calculation Parameter Overview reports for HW maintenance cost elements (not approved)', 1,  0, 'Report.CalcParameterHwNotApproved'),
 ('Calculation-Parameter-proactive', 'Calculation Parameter Overview reports for ProActive cost elements', 1,  0, 'Report.CalcParameterProActive'),
 
 --New vs. old reports 
