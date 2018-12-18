@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Procedures
 {
-    public class UpdateMasterPortfolio
+    public class UpdatePrincipalPortfolio
     {
         const string PROC_NAME = "Matrix.AddRules";
 
         private readonly IRepositorySet repositorySet;
 
-        public UpdateMasterPortfolio(IRepositorySet repositorySet)
+        public UpdatePrincipalPortfolio(IRepositorySet repositorySet)
         {
             this.repositorySet = repositorySet;
         }
@@ -39,7 +39,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                 new DbParameterBuilder().WithName("@dur").WithListIdValue(dto.Durations).Build(),
                 new DbParameterBuilder().WithName("@rtype").WithListIdValue(dto.ReactionTypes).Build(),
                 new DbParameterBuilder().WithName("@rtime").WithListIdValue(dto.ReactionTimes).Build(),
-                new DbParameterBuilder().WithName("@loc").WithListIdValue(dto.ServiceLocations).Build()
+                new DbParameterBuilder().WithName("@loc").WithListIdValue(dto.ServiceLocations).Build(),
+                new DbParameterBuilder().WithName("@pro").WithListIdValue(dto.ProActives).Build()
             };
         }
     }

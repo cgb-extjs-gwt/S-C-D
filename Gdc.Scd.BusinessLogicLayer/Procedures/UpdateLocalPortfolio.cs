@@ -9,7 +9,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 {
     public class UpdateLocalPortfolio
     {
-        const string PROC_NAME = "Matrix.AddRules";
+        const string PROC_DENY_PORTFOLIO = "Portfolio.DenyLocalPortfolio";
+        const string PROC_ALLOW_PORTFOLIO = "Portfolio.AllowLocalPortfolio";
 
         private readonly IRepositorySet repositorySet;
 
@@ -20,14 +21,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
         public Task ExecuteAsync(PortfolioRuleSetDto dto, bool deny)
         {
-            if (dto.IsLocalPortfolio())
-            {
-                return repositorySet.ExecuteProcAsync(PROC_NAME, Prepare(dto));
-            }
-            else
+            if (!dto.IsLocalPortfolio())
             {
                 throw new ArgumentException("Invalid country");
             }
+
+            var proc = deny ? PROC_DENY_PORTFOLIO : PROC_ALLOW_PORTFOLIO;
+
+            return repositorySet.ExecuteProcAsync(proc, Prepare(dto));
         }
 
         private DbParameter[] Prepare(PortfolioRuleSetDto dto)
@@ -39,7 +40,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                 new DbParameterBuilder().WithName("@dur").WithListIdValue(dto.Durations).Build(),
                 new DbParameterBuilder().WithName("@rtype").WithListIdValue(dto.ReactionTypes).Build(),
                 new DbParameterBuilder().WithName("@rtime").WithListIdValue(dto.ReactionTimes).Build(),
-                new DbParameterBuilder().WithName("@loc").WithListIdValue(dto.ServiceLocations).Build()
+                new DbParameterBuilder().WithName("@loc").WithListIdValue(dto.ServiceLocations).Build(),
+                new DbParameterBuilder().WithName("@pro").WithListIdValue(dto.ProActives).Build()
             };
         }
     }

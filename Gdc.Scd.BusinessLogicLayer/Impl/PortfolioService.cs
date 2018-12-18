@@ -31,15 +31,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public Task Allow(PortfolioRuleSetDto m)
         {
-            return ChangePortfolio(m, false);
+            return UpdatePortfolio(m, false);
         }
 
         public Task Deny(PortfolioRuleSetDto m)
         {
-            return ChangePortfolio(m, true);
+            return UpdatePortfolio(m, true);
         }
 
-        private Task ChangePortfolio(PortfolioRuleSetDto m, bool deny)
+        private Task UpdatePortfolio(PortfolioRuleSetDto m, bool deny)
         {
             if (m == null)
             {
@@ -57,7 +57,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
             else
             {
-                return new UpdateMasterPortfolio(repositorySet).ExecuteAsync(m, deny);
+                return new UpdatePrincipalPortfolio(repositorySet).ExecuteAsync(m, deny);
             }
         }
 

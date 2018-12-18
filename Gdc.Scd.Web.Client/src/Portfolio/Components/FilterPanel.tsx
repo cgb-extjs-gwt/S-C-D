@@ -65,7 +65,7 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
                     <ReactionTypeField ref={x => this.reacttype = x} label="Reaction type:" />
                     <ReactionTimeField ref={x => this.reacttime = x} label="Reaction time:" />
                     <ServiceLocationField ref={x => this.srvloc = x} label="Service location:" />
-                    <ProActiveField ref={x => this.proactive = x} label="Pro active:" />
+                    <ProActiveField ref={x => this.proactive = x} label="ProActive:" />
 
                 </Container>
 

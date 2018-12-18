@@ -25,6 +25,7 @@ namespace Gdc.Scd.Core.Entities.Portfolio
         [Required]
         public ServiceLocation ServiceLocation { get; set; }
 
+        [Required]
         public ProActiveSla ProActiveSla { get; set; }
     }
 }
