@@ -899,8 +899,8 @@ CREATE VIEW [Hardware].[ReinsuranceView] as
 
     FROM Hardware.Reinsurance r
     JOIN Dependencies.ReactionTime_Avalability rta on rta.Id = r.ReactionTimeAvailability
-    JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance
-    JOIN [References].ExchangeRate er2 on er2.CurrencyId = r.CurrencyReinsurance_Approved
+    LEFT JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance
+    LEFT JOIN [References].ExchangeRate er2 on er2.CurrencyId = r.CurrencyReinsurance_Approved
 GO
 
 CREATE VIEW [Hardware].[ProActiveView] with schemabinding as 
