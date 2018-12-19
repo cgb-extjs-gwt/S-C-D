@@ -222,22 +222,33 @@ BEGIN
             AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
             AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
     )
+    , PrincipleSlaCte as (
+
+        --find current principle portfolio
+
+        select WgId, AvailabilityId, DurationId, ReactionTypeId, ReactionTimeId, ServiceLocationId, ProActiveSlaId
+        FROM Portfolio.PrincipalPortfolio
+        WHERE   (@isEmptyWG = 1 or WgId in (select id from @wg))
+            AND (@isEmptyAv = 1 or AvailabilityId in (select id from @av))
+            AND (@isEmptyDur = 1 or DurationId in (select id from @dur))
+            AND (@isEmptyRTime = 1 or ReactionTimeId in (select id from @rtime))
+            AND (@isEmptyRType = 1 or ReactionTypeId in (select id from @rtype))
+            AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
+            AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
+    )
     INSERT INTO Portfolio.LocalPortfolio (CountryId, WgId, AvailabilityId, DurationId, ReactionTypeId, ReactionTimeId, ServiceLocationId, ProActiveSlaId)
-
-    --insert new portfolio only
-
-    SELECT @cnt, WG, Availability, Duration, ReactionType, ReactionTime, ServiceLocation, ProActive
-    FROM Portfolio.GenSla(@wg, @av, @dur, @rtype, @rtime, @loc, @pro) sla
-    LEFT JOIN ExistSlaCte ex on ex.WgId = sla.WG
-                            and ex.AvailabilityId = sla.Availability
-                            and ex.DurationId = sla.Duration
-                            and ex.ReactionTypeId = sla.ReactionType
-                            and ex.ReactionTimeId = sla.ReactionTime
-                            and ex.ServiceLocationId = sla.ServiceLocation
-                            and ex.ProActiveSlaId = sla.ProActive
+    SELECT @cnt, sla.WgId, sla.AvailabilityId, sla.DurationId, sla.ReactionTypeId, sla.ReactionTimeId, sla.ServiceLocationId, sla.ProActiveSlaId
+    FROM PrincipleSlaCte sla
+    LEFT JOIN ExistSlaCte ex on ex.WgId = sla.WgId
+                            and ex.AvailabilityId = sla.AvailabilityId
+                            and ex.DurationId = sla.DurationId
+                            and ex.ReactionTypeId = sla.ReactionTypeId
+                            and ex.ReactionTimeId = sla.ReactionTimeId
+                            and ex.ServiceLocationId = sla.ServiceLocationId
+                            and ex.ProActiveSlaId = sla.ProActiveSlaId
 
     where ex.Id is null; --exclude existing portfolio
-
+    
     -- Enable all table constraints
     ALTER TABLE Portfolio.LocalPortfolio CHECK CONSTRAINT ALL;
 
@@ -447,7 +458,7 @@ BEGIN
     --and set portfolio flag for master and core only
 
     set @masterPortfolio = case when @masterPortfolio = 1 then 1 else null end;
-    set @corePortfolio = case when @corePortfolio = 1 then 1 else null end;
+    set @corePortfolio   = case when @corePortfolio = 1 then 1 else null end;
 
     exec Portfolio.UpdatePrincipalPortfolio @wg, @av, @dur, @rtype, @rtime, @loc, @pro, null, @masterPortfolio, @corePortfolio;
 

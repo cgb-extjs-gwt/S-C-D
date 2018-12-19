@@ -1,5 +1,4 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Portfolio;
-using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using System.Data.Common;
@@ -19,37 +18,32 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             this.repositorySet = repositorySet;
         }
 
-        public async Task ExecuteAsync(PortfolioRuleSetDto dto, bool deny)
+        public Task ExecuteAsync(PortfolioRuleSetDto dto, bool deny)
         {
             var proc = deny ? PROC_DENY_PORTFOLIO : PROC_ALLOW_PORTFOLIO;
+            var valid = dto.IsGlobalPortfolio || dto.IsMasterPortfolio || dto.IsCorePortfolio;
 
-            if (dto.IsCorePortfolio)
+            if (!valid)
             {
-                await repositorySet.ExecuteProcAsync(proc, Prepare(PortfolioType.CorePortfolio, dto));
+                throw new System.ArgumentException("No portfolio specified");
             }
 
-            if (dto.IsMasterPortfolio)
-            {
-                await repositorySet.ExecuteProcAsync(proc, Prepare(PortfolioType.MasterPortfolio, dto));
-            }
-
-            if (dto.IsGlobalPortfolio)
-            {
-                await repositorySet.ExecuteProcAsync(proc, Prepare(PortfolioType.GlobalPortfolio, dto));
-            }
+            return repositorySet.ExecuteProcAsync(proc, Prepare(dto));
         }
 
-        private DbParameter[] Prepare(PortfolioType type, PortfolioRuleSetDto dto)
+        private DbParameter[] Prepare(PortfolioRuleSetDto dto)
         {
             return new DbParameter[] {
-                new DbParameterBuilder().WithName("@type").WithValue((byte)type).Build(),
                 new DbParameterBuilder().WithName("@wg").WithListIdValue(dto.Wgs).Build(),
                 new DbParameterBuilder().WithName("@av").WithListIdValue(dto.Availabilities).Build(),
                 new DbParameterBuilder().WithName("@dur").WithListIdValue(dto.Durations).Build(),
                 new DbParameterBuilder().WithName("@rtype").WithListIdValue(dto.ReactionTypes).Build(),
                 new DbParameterBuilder().WithName("@rtime").WithListIdValue(dto.ReactionTimes).Build(),
                 new DbParameterBuilder().WithName("@loc").WithListIdValue(dto.ServiceLocations).Build(),
-                new DbParameterBuilder().WithName("@pro").WithListIdValue(dto.ProActives).Build()
+                new DbParameterBuilder().WithName("@pro").WithListIdValue(dto.ProActives).Build(),
+                new DbParameterBuilder().WithName("@globalPortfolio").WithValue(dto.IsGlobalPortfolio).Build(),
+                new DbParameterBuilder().WithName("@masterPortfolio").WithValue(dto.IsMasterPortfolio).Build(),
+                new DbParameterBuilder().WithName("@corePortfolio").WithValue(dto.IsCorePortfolio).Build()
             };
         }
     }
