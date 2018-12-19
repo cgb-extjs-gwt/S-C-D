@@ -47,7 +47,7 @@ RETURN (
 
               , fsc.LabourCost_Approved as LabourCost
               , fsc.TravelCost_Approved as TravelCost
-              , null as PerformanceRateNbd
+              , fsc.PerformanceRate_Approved as PerformanceRate
               , fsc.TravelTime_Approved as TravelTime
               , fsc.RepairTime_Approved as RepairTime
               , fsc.OnsiteHourlyRates_Approved as OnsiteHourlyRate
@@ -210,7 +210,7 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'TravelCost', 'Travel cost', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'PerformanceRateNbd', 'Performance rate NBD', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'PerformanceRate', 'Performance rate', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'TravelTime', 'Travel time (MTTT)', 1, 1);
