@@ -31,7 +31,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
             this.currentRow = 2;
             this.workbook = new XLWorkbook();
-            this.worksheet = workbook.Worksheets.Add(schema.Name);
+
+            var sheetName = schema.Name;
+            if(sheetName.Length > 31)
+            {
+                sheetName = sheetName.Substring(0, 31); //ClosedXML limit
+            }
+
+            this.worksheet = workbook.Worksheets.Add(sheetName);
             //
             WriteHeader();
         }
