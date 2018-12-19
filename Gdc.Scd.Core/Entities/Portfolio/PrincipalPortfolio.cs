@@ -6,6 +6,10 @@ namespace Gdc.Scd.Core.Entities.Portfolio
     [Table("PrincipalPortfolio", Schema = MetaConstants.PortfolioSchema)]
     public class PrincipalPortfolio : Portfolio
     {
-        public PortfolioType PortfolioType { get; set; }
+        public bool IsGlobalPortfolio { get; set; }
+
+        public bool IsMasterPortfolio { get; set; }
+
+        public bool IsCorePortfolio { get; set; }
     }
 }

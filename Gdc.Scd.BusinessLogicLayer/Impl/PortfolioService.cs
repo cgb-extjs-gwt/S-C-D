@@ -73,11 +73,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public Task<Tuple<PortfolioDto[], int>> GetDenied(PortfolioFilterDto filter, int start, int limit)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<Tuple<PortfolioDto[], int>> GetPrincipalAllowed(PortfolioFilterDto filter, int start, int limit)
         {
             var query = principalRepo.GetAll();
@@ -91,10 +86,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                              .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTime.Id == filter.ReactionTime.Value)
                              .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocation.Id == filter.ServiceLocation.Value)
                              .WhereIf(filter.ProActive.HasValue, x => x.ProActiveSla.Id == filter.ProActive.Value)
-                             ;
-                             //.WhereIf(filter.IsGlobalPortfolio.HasValue && filter.IsGlobalPortfolio.Value, x => x.IsGlobalPortfolio)
-                             //.WhereIf(filter.IsMasterPortfolio.HasValue && filter.IsMasterPortfolio.Value, x => x.IsMasterPortfolio)
-                             //.WhereIf(filter.IsCorePortfolio.HasValue && filter.IsCorePortfolio.Value, x => x.IsCorePortfolio);
+                             .WhereIf(filter.IsGlobalPortfolio.HasValue && filter.IsGlobalPortfolio.Value, x => x.IsGlobalPortfolio)
+                             .WhereIf(filter.IsMasterPortfolio.HasValue && filter.IsMasterPortfolio.Value, x => x.IsMasterPortfolio)
+                             .WhereIf(filter.IsCorePortfolio.HasValue && filter.IsCorePortfolio.Value, x => x.IsCorePortfolio);
             }
 
             var count = await query.GetCountAsync();
@@ -111,9 +105,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 ServiceLocation = x.ServiceLocation.Name,
                 ProActive = x.ProActiveSla.ExternalName,
 
-                //IsGlobalPortfolio = x.IsGlobalPortfolio,
-                //IsMasterPortfolio = x.IsMasterPortfolio,
-                //IsCorePortfolio = x.IsCorePortfolio
+                IsGlobalPortfolio = x.IsGlobalPortfolio,
+                IsMasterPortfolio = x.IsMasterPortfolio,
+                IsCorePortfolio = x.IsCorePortfolio
             }).PagingAsync(start, limit);
 
             return new Tuple<PortfolioDto[], int>(result, count);

@@ -1,7 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Portfolio;
+using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
-using System;
 using System.Data.Common;
 using System.Threading.Tasks;
 
@@ -9,7 +9,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 {
     public class UpdatePrincipalPortfolio
     {
-        const string PROC_NAME = "Matrix.AddRules";
+        const string PROC_DENY_PORTFOLIO = "Portfolio.DenyPrincipalPortfolio";
+        const string PROC_ALLOW_PORTFOLIO = "Portfolio.AllowPrincipalPortfolio";
 
         private readonly IRepositorySet repositorySet;
 
@@ -18,22 +19,30 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             this.repositorySet = repositorySet;
         }
 
-        public Task ExecuteAsync(PortfolioRuleSetDto dto, bool deny)
+        public async Task ExecuteAsync(PortfolioRuleSetDto dto, bool deny)
         {
-            if (dto.CountryId.HasValue)
+            var proc = deny ? PROC_DENY_PORTFOLIO : PROC_ALLOW_PORTFOLIO;
+
+            if (dto.IsCorePortfolio)
             {
-                return repositorySet.ExecuteProcAsync(PROC_NAME, Prepare(dto));
+                await repositorySet.ExecuteProcAsync(proc, Prepare(PortfolioType.CorePortfolio, dto));
             }
-            else
+
+            if (dto.IsMasterPortfolio)
             {
-                throw new ArgumentException("Invalid country");
+                await repositorySet.ExecuteProcAsync(proc, Prepare(PortfolioType.MasterPortfolio, dto));
+            }
+
+            if (dto.IsGlobalPortfolio)
+            {
+                await repositorySet.ExecuteProcAsync(proc, Prepare(PortfolioType.GlobalPortfolio, dto));
             }
         }
 
-        private DbParameter[] Prepare(PortfolioRuleSetDto dto)
+        private DbParameter[] Prepare(PortfolioType type, PortfolioRuleSetDto dto)
         {
             return new DbParameter[] {
-                new DbParameterBuilder().WithName("@cnt").WithValue(dto.CountryId).Build(),
+                new DbParameterBuilder().WithName("@type").WithValue((byte)type).Build(),
                 new DbParameterBuilder().WithName("@wg").WithListIdValue(dto.Wgs).Build(),
                 new DbParameterBuilder().WithName("@av").WithListIdValue(dto.Availabilities).Build(),
                 new DbParameterBuilder().WithName("@dur").WithListIdValue(dto.Durations).Build(),
