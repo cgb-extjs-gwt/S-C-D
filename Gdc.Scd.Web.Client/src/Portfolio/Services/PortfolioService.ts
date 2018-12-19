@@ -3,7 +3,6 @@ import { PortfolioEditModel } from "../Model/PortfolioEditModel";
 import { IPortfolioService } from "./IPortfolioService";
 
 export class PortfolioService implements IPortfolioService {
-
     private controllerName: string;
 
     public constructor() {
@@ -16,5 +15,9 @@ export class PortfolioService implements IPortfolioService {
 
     public deny(row: PortfolioEditModel) {
         return post(this.controllerName, 'deny', row);
+    }
+
+    public denyById(ids: string[]): Promise<any> {
+        throw new Error("Method not implemented.");
     }
 }
