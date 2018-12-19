@@ -14,7 +14,7 @@ CREATE FUNCTION Report.CalcParameterHwNotApproved
 RETURNS TABLE 
 AS
 RETURN (
-        with ReinsuranceCte as (
+    with ReinsuranceCte as (
         select r.Wg
              , r.Year
              , SUM(CASE WHEN UPPER(rt.Name) = 'NBD' THEN r.Cost END) AS  ReinsuranceNBD
@@ -47,7 +47,7 @@ RETURN (
 
               , fsc.LabourCost as LabourCost
               , fsc.TravelCost as TravelCost
-              , null as PerformanceRateNbd
+              , fsc.PerformanceRate as PerformanceRate
               , fsc.TravelTime as TravelTime
               , fsc.RepairTime as RepairTime
               , fsc.OnsiteHourlyRates as OnsiteHourlyRate
@@ -210,7 +210,7 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'TravelCost', 'Travel cost', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'PerformanceRateNbd', 'Performance rate NBD', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'PerformanceRate', 'Performance rate', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'TravelTime', 'Travel time (MTTT)', 1, 1);
