@@ -24,7 +24,7 @@ GO
 select WgId, AvailabilityId, DurationId, ReactionTypeId, ReactionTimeId, ServiceLocationId, ProActiveSlaId
 INTO #Temp_SLA
 from Portfolio.PrincipalPortfolio
-where IsGlobalPortfolio = 1
+where PortfolioType = 2
 
 declare @rownum int = 1;
 declare @cnt bigint;
