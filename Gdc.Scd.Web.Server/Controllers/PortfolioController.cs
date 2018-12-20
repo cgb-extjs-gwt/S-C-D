@@ -47,9 +47,22 @@ namespace Gdc.Scd.Web.Server.Controllers
             return portfolioService.Deny(m);
         }
 
+        [HttpPost]
+        public Task DenyLocal([FromBody]LocalPortfolioDto m)
+        {
+            return portfolioService.Deny(m.CountryId, m.Items);
+        }
+
         private bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 100;
         }
+    }
+
+    public class LocalPortfolioDto
+    {
+        public long CountryId { get; set; }
+
+        public long[] Items { get; set; }
     }
 }

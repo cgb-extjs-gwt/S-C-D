@@ -39,26 +39,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return UpdatePortfolio(m, true);
         }
 
-        private Task UpdatePortfolio(PortfolioRuleSetDto m, bool deny)
+        public Task Deny(long countryId, long[] ids)
         {
-            if (m == null)
-            {
-                throw new ArgumentNullException("Null portfolio!");
-            }
-
-            if (!m.IsValid())
-            {
-                throw new ArgumentException("No portfolio or SLA specified!");
-            }
-
-            if (m.IsLocalPortfolio())
-            {
-                return new UpdateLocalPortfolio(repositorySet).ExecuteAsync(m, deny);
-            }
-            else
-            {
-                return new UpdatePrincipalPortfolio(repositorySet).ExecuteAsync(m, deny);
-            }
+            return new UpdateLocalPortfolio(repositorySet).DenyAsync(countryId, ids);
         }
 
         public Task<Tuple<PortfolioDto[], int>> GetAllowed(PortfolioFilterDto filter, int start, int limit)
@@ -147,5 +130,26 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new Tuple<PortfolioDto[], int>(result, count);
         }
 
+        private Task UpdatePortfolio(PortfolioRuleSetDto m, bool deny)
+        {
+            if (m == null)
+            {
+                throw new ArgumentNullException("Null portfolio!");
+            }
+
+            if (!m.IsValid())
+            {
+                throw new ArgumentException("No portfolio or SLA specified!");
+            }
+
+            if (m.IsLocalPortfolio())
+            {
+                return new UpdateLocalPortfolio(repositorySet).UpdateAsync(m, deny);
+            }
+            else
+            {
+                return new UpdatePrincipalPortfolio(repositorySet).UpdateAsync(m, deny);
+            }
+        }
     }
 }

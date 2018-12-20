@@ -10,7 +10,7 @@ export class FakeService implements IPortfolioService {
         return this.saveItem(row, false);
     }
 
-    public denyById(ids: string[]): Promise<any> {
+    public denyById(cnt: string, ids: string[]): Promise<any> {
         throw new Error("Method not implemented.");
     }
 

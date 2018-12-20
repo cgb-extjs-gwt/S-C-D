@@ -43,7 +43,7 @@ export class PortfolioView extends React.Component<any, any> {
 
     public render() {
 
-        let isMasterPortfolio = this.isMasterPortfolio();
+        let isLocalPortfolio = this.isLocalPortfolio();
 
         return (
             <Container scrollable={true}>
@@ -52,7 +52,7 @@ export class PortfolioView extends React.Component<any, any> {
 
                 <Toolbar docked="top">
                     <Button iconCls="x-fa fa-edit" text="Edit" handler={this.onEdit} />
-                    <Button iconCls="x-fa fa-undo" text="Deny combinations" ui="decline" handler={this.onDeny} />
+                    <Button iconCls="x-fa fa-undo" text="Deny combinations" ui="decline" disabled={!isLocalPortfolio} handler={this.onDeny} />
                 </Toolbar>
 
                 <Grid
@@ -63,7 +63,7 @@ export class PortfolioView extends React.Component<any, any> {
                     selectable="multi"
                     plugins={['pagingtoolbar']}>
 
-                    <NullStringColumn hidden={!isMasterPortfolio} flex="1" text="Country" dataIndex="country" />
+                    <NullStringColumn hidden={!isLocalPortfolio} flex="1" text="Country" dataIndex="country" />
 
                     <NullStringColumn flex="1" text="WG(Asset)" dataIndex="wg" />
                     <NullStringColumn flex="1" text="Availability" dataIndex="availability" />
@@ -73,9 +73,9 @@ export class PortfolioView extends React.Component<any, any> {
                     <NullStringColumn flex="2" text="Service location" dataIndex="serviceLocation" />
                     <NullStringColumn flex="2" text="ProActive" dataIndex="proActive" />
 
-                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Fujitsu principal portfolio" dataIndex="isGlobalPortfolio" />
-                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
-                    <ReadonlyCheckColumn hidden={isMasterPortfolio} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
+                    <ReadonlyCheckColumn hidden={isLocalPortfolio} flex="1" text="Fujitsu principal portfolio" dataIndex="isGlobalPortfolio" />
+                    <ReadonlyCheckColumn hidden={isLocalPortfolio} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
+                    <ReadonlyCheckColumn hidden={isLocalPortfolio} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
 
             </Container>
@@ -90,6 +90,7 @@ export class PortfolioView extends React.Component<any, any> {
     private init() {
         this.srv = PortfolioServiceFactory.getPortfolioService();
         this.onEdit = this.onEdit.bind(this);
+        this.onDeny = this.onDeny.bind(this);
         this.onSearch = this.onSearch.bind(this);
         this.store.on('beforeload', this.onBeforeLoad, this);
     }
@@ -99,13 +100,9 @@ export class PortfolioView extends React.Component<any, any> {
     }
 
     private onDeny() {
-        let selected = ExtDataviewHelper.getGridSelected<string>(this.grid, 'id');
-        if (selected.length > 0) {
-            ExtMsgHelper.confirm(
-                'Deny combinations',
-                'Do you want to remove combination(s)?',
-                () => this.denyCombination(selected)
-            );
+        let selected = this.getSelectedRows();
+        if (selected.length > 0 && this.isLocalPortfolio()) {
+            ExtMsgHelper.confirm('Deny combinations', 'Do you want to remove combination(s)?', () => this.denyCombination(selected));
         }
     }
 
@@ -120,7 +117,8 @@ export class PortfolioView extends React.Component<any, any> {
     }
 
     private denyCombination(ids: string[]) {
-        var p = this.srv.denyById(ids).then(x => this.reload());
+        let cnt = this.getSelectedCountry();
+        let p = this.srv.denyById(cnt, ids).then(x => this.reload());
         handleRequest(p);
     }
 
@@ -130,12 +128,20 @@ export class PortfolioView extends React.Component<any, any> {
         this.setState({ ___: new Date().getTime() }); //stub, re-paint ext grid
     }
 
-    private isMasterPortfolio(): boolean {
+    private isLocalPortfolio(): boolean {
         let result = false;
         if (this.filter) {
             let filter = this.filter.getModel();
             result = !!(filter && filter.country);
         }
         return result;
+    }
+
+    private getSelectedCountry() {
+        return this.filter.getModel().country;
+    }
+
+    private getSelectedRows(): string[] {
+        return ExtDataviewHelper.getGridSelected(this.grid, 'id');
     }
 }

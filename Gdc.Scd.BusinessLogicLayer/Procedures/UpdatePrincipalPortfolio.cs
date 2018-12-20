@@ -18,7 +18,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             this.repositorySet = repositorySet;
         }
 
-        public Task ExecuteAsync(PortfolioRuleSetDto dto, bool deny)
+        public Task UpdateAsync(PortfolioRuleSetDto dto, bool deny)
         {
             var proc = deny ? PROC_DENY_PORTFOLIO : PROC_ALLOW_PORTFOLIO;
             var valid = dto.IsGlobalPortfolio || dto.IsMasterPortfolio || dto.IsCorePortfolio;
