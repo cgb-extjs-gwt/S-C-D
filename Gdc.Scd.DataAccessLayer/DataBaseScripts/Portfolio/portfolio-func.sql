@@ -14,6 +14,10 @@ IF OBJECT_ID('Portfolio.DenyLocalPortfolio') IS NOT NULL
   DROP PROCEDURE Portfolio.DenyLocalPortfolio;
 go
 
+IF OBJECT_ID('Portfolio.DenyLocalPortfolioById') IS NOT NULL
+  DROP PROCEDURE Portfolio.DenyLocalPortfolioById;
+go
+
 IF OBJECT_ID('Portfolio.AllowLocalPortfolio') IS NOT NULL
   DROP PROCEDURE Portfolio.AllowLocalPortfolio;
 go
@@ -42,14 +46,14 @@ IF OBJECT_ID('Portfolio.GetListOrNull') IS NOT NULL
   DROP FUNCTION Portfolio.GetListOrNull;
 go
 
-IF TYPE_ID('dbo.ListID') IS NOT NULL
-  DROP Type dbo.ListID;
-go
+--IF TYPE_ID('dbo.ListID') IS NOT NULL
+--  DROP Type dbo.ListID;
+--go
 
-CREATE TYPE dbo.ListID AS TABLE(
-    id bigint NULL
-)
-go
+--CREATE TYPE dbo.ListID AS TABLE(
+--    id bigint NULL
+--)
+--go
 
 CREATE FUNCTION Portfolio.IsListEmpty(@list dbo.ListID readonly)
 RETURNS bit
@@ -178,6 +182,21 @@ BEGIN
         AND (@isEmptyRType = 1 or ReactionTypeId in (select id from @rtype))
         AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
         AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
+END
+go
+
+CREATE PROCEDURE Portfolio.DenyLocalPortfolioById
+    @cnt bigint,
+    @ids dbo.ListID readonly
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    DELETE FROM Portfolio.LocalPortfolio
+    WHERE   (CountryId = @cnt) 
+        AND (Id in (select Id from @ids));
+
 END
 go
 
