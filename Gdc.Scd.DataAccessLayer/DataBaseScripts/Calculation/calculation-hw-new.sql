@@ -62,8 +62,8 @@ IF OBJECT_ID('Hardware.GetCalcMember') IS NOT NULL
   DROP FUNCTION Hardware.GetCalcMember;
 go 
 
-IF OBJECT_ID('Matrix.GetBySla') IS NOT NULL
-  DROP FUNCTION Matrix.GetBySla;
+IF OBJECT_ID('Portfolio.GetBySla') IS NOT NULL
+  DROP FUNCTION Portfolio.GetBySla;
 go 
 
 IF OBJECT_ID('Hardware.CalcFieldServiceCost') IS NOT NULL
@@ -212,7 +212,7 @@ ON Hardware.AFR
 After INSERT, UPDATE
 AS BEGIN
 
-    delete from Hardware.AfrYear;
+    truncate table Hardware.AfrYear;
 
     insert into Hardware.AfrYear(Wg, AFR1, AFR2, AFR3, AFR4, AFR5, AFRP1, AFR1_Approved, AFR2_Approved, AFR3_Approved, AFR4_Approved, AFR5_Approved, AFRP1_Approved)
         select afr.Wg
@@ -799,10 +799,10 @@ CREATE VIEW InputAtoms.WgView WITH SCHEMABINDING as
             end as IsMultiVendor, 
            pla.Id as Pla, 
            cpla.Id as ClusterPla
-    from InputAtoms.Wg wg,
-            InputAtoms.Pla pla,
-            InputAtoms.ClusterPla cpla
-    where wg.PlaId = pla.Id and cpla.id = pla.ClusterPlaId
+    from InputAtoms.Wg wg
+    inner join InputAtoms.Pla pla on pla.id = wg.PlaId
+    inner join InputAtoms.ClusterPla cpla on cpla.id = pla.ClusterPlaId
+    where wg.WgType = 1 and wg.DeactivatedDateTime is null
 GO
 
 CREATE VIEW [Hardware].[LogisticsCostView] AS
@@ -1006,7 +1006,7 @@ CREATE VIEW [Hardware].[ProActiveView] with schemabinding as
 
 GO
 
-CREATE FUNCTION Matrix.GetBySla(
+CREATE FUNCTION Portfolio.GetBySla(
     @cnt bigint,
     @wg bigint,
     @av bigint,
@@ -1014,6 +1014,7 @@ CREATE FUNCTION Matrix.GetBySla(
     @reactiontime bigint,
     @reactiontype bigint,
     @loc bigint,
+    @pro bigint,
     @lastid bigint,
     @limit int
 )
@@ -1022,9 +1023,8 @@ AS
 RETURN 
 (
     select top(@limit) m.*
-        from Matrix.Matrix m
+        from Portfolio.LocalPortfolio m
         where m.Id > @lastid
-            and m.Denied = 0
             and (@cnt is null or m.CountryId = @cnt)
             and (@wg is null or m.WgId = @wg)
             and (@av is null or m.AvailabilityId = @av)
@@ -1032,6 +1032,7 @@ RETURN
             and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
             and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
             and (@loc is null or m.ServiceLocationId = @loc)
+            and (@pro is null or m.ProActiveSlaId = @pro)
             order by m.Id
 )
 GO

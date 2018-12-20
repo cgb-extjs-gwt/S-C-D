@@ -135,14 +135,15 @@ GO
 
 CREATE VIEW SoftwareSolution.SwSpMaintenanceCostView as
     with GermanyServiceCte as (
-        select  ssc.Wg
+        select  wg.Id
               , ssc.[1stLevelSupportCosts]
               , ssc.[1stLevelSupportCosts_Approved]
               , ib.InstalledBaseCountry
               , ib.InstalledBaseCountry_Approved
 
         from Hardware.ServiceSupportCostView ssc
-        join Hardware.InstallBase ib on ib.Country = ssc.Country and ib.Wg = ssc.Wg
+        join InputAtoms.WgView wg on wg.ClusterPla = ssc.ClusterPla
+        join Hardware.InstallBase ib on ib.Country = ssc.Country and ib.Wg = wg.Id
         join InputAtoms.Country c on c.id = ssc.Country
 
         where c.ISO3CountryCode = 'DEU' --install base by Germany!
