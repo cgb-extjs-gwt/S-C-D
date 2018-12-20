@@ -10,12 +10,17 @@ import { CountryGroupService } from "./CountryGroupService";
 import { CountryManagementService } from "./CountryManagementService";
 import { IDictService } from "./IDictService";
 import { PlaService } from "./PlaService";
+import { ProActiveService } from "./ProActiveService";
 import { RoleService } from "./RoleService";
 import { SogService } from "./SogService";
 import { YearService } from "./YearService";
 
 export class DictService implements IDictService {
     public getCountries(): Promise<NamedId<string>[]> {
+        return new CountryManagementService().getCountryNames();
+    }
+
+    public getMasterCountries(): Promise<NamedId<string>[]> {
         return new CountryService().getAll();
     }
 
@@ -32,7 +37,11 @@ export class DictService implements IDictService {
     }
 
     public getCountryGroupIsoCode(): Promise<NamedId<string>[]> {
-        return new CountryManagementService().getIsoCode();
+        return new CountryManagementService().getIsoCodes();
+    }
+
+    public getCountryQualityGroup(): Promise<NamedId<string>[]> {
+        return new CountryManagementService().getQualityGroups();
     }
 
     public getWG(): Promise<NamedId<string>[]> {
@@ -69,6 +78,10 @@ export class DictService implements IDictService {
 
     public getServiceLocationTypes(): Promise<NamedId<string>[]> {
         return new ServiceLocationService().getAll();
+    }
+
+    public getProActive(): Promise<NamedId<string>[]> {
+        return new ProActiveService().getAll();
     }
 
     public getRoles(): Promise<NamedId<string>[]> {

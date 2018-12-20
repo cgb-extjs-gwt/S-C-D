@@ -73,6 +73,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
 
+            queries.AddRange(this.BuildFromFile(@"Scripts.portfolio-func.sql"));
+
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.reports.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-list.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-new-vs-old.sql"));
@@ -276,7 +278,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     {
                         new RolePermission { Permission = costEditorPermission },
                         new RolePermission { Permission = reportPermission },
-                        new RolePermission { Permission = approvalPermission },
+                        new RolePermission { Permission = portfolioPermission },
                         new RolePermission { Permission = ownApprovalPermission },
                         new RolePermission { Permission = reviewProcessPermission },
                     }

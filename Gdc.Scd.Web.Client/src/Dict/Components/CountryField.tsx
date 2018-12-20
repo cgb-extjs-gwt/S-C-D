@@ -2,6 +2,6 @@
 
 export class CountryField extends DictField {
     public getItems() {
-        return this.srv.getCountries();
+        return this.srv.getMasterCountries();
     }
 }

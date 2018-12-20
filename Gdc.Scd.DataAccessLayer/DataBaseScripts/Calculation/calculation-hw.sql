@@ -865,10 +865,6 @@ GO
 
 CREATE VIEW [Hardware].[ServiceSupportCostView] as
     select ssc.Country,
-           
-           wg.Id as Wg,
-           wg.IsMultiVendor,
-           
            ssc.ClusterRegion,
            ssc.ClusterPla,
 
@@ -887,8 +883,8 @@ CREATE VIEW [Hardware].[ServiceSupportCostView] as
 
     from Hardware.ServiceSupportCost ssc
     join InputAtoms.Country c on c.Id = ssc.Country
-    join InputAtoms.WgView wg on wg.ClusterPla = ssc.ClusterPla
     left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+
 GO
 
 CREATE VIEW [Hardware].[ReinsuranceView] as
@@ -903,8 +899,8 @@ CREATE VIEW [Hardware].[ReinsuranceView] as
 
     FROM Hardware.Reinsurance r
     JOIN Dependencies.ReactionTime_Avalability rta on rta.Id = r.ReactionTimeAvailability
-    JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance
-    JOIN [References].ExchangeRate er2 on er2.CurrencyId = r.CurrencyReinsurance_Approved
+    LEFT JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance
+    LEFT JOIN [References].ExchangeRate er2 on er2.CurrencyId = r.CurrencyReinsurance_Approved
 GO
 
 CREATE VIEW [Hardware].[ProActiveView] AS
@@ -1148,7 +1144,7 @@ RETURN
 
     INNER JOIN InputAtoms.Country c on c.id = m.CountryId
 
-    INNER JOIN InputAtoms.Wg wg on wg.id = m.WgId
+    INNER JOIN InputAtoms.WgView wg on wg.id = m.WgId
 
     INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 
@@ -1157,7 +1153,7 @@ RETURN
     INNER JOIN Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
 
     INNER JOIN Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
-
+   
     INNER JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
 
     LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
@@ -1166,7 +1162,7 @@ RETURN
 
     LEFT JOIN Hardware.InstallBase ib on ib.Wg = m.WgId AND ib.Country = m.CountryId
 
-    LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.Wg = m.WgId
+    LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg.ClusterPla
 
     LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
 

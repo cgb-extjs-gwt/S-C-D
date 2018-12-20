@@ -31,4 +31,5 @@ export interface ColumnInfo<T=any> {
     mappingFn?(data: T): any
     editMappingFn?(data: Model<T>, dataIndex: string)
     rendererFn?(value, record: Model<T>): any
+    flex?: number
 }

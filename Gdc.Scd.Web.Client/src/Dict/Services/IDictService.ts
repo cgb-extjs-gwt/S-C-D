@@ -3,6 +3,8 @@
 export interface IDictService {
     getCountries(): Promise<NamedId[]>;
 
+    getMasterCountries(): Promise<NamedId<string>[]>;
+
     getCountryGroups(): Promise<NamedId[]>;
 
     getCountryGroupDigits(): Promise<NamedId[]>;
@@ -10,6 +12,8 @@ export interface IDictService {
     getCountryGroupLuts(): Promise<NamedId[]>;
 
     getCountryGroupIsoCode(): Promise<NamedId[]>;
+
+    getCountryQualityGroup(): Promise<NamedId[]>;
 
     getWG(): Promise<NamedId[]>;
 
@@ -28,6 +32,8 @@ export interface IDictService {
     getReactionTimeTypes(): Promise<NamedId[]>;
 
     getServiceLocationTypes(): Promise<NamedId[]>;
+
+    getProActive(): Promise<NamedId[]>;
 
     getRoles(): Promise<NamedId[]>;
 }

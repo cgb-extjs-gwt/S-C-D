@@ -39,11 +39,11 @@ export class QualityGateGrid extends React.PureComponent<QualityGateGridProps> {
                     <GridCell bodyCls="multiline-row" encodeHtml={false}/>
                 </Column>
                 <Column dataIndex="newValue" text="New value" align="center" flex={1}/>
-                <Column dataIndex="oldValue" text="Old value" align="center" flex={1}/>
-                <Column dataIndex="countryGroupAvgValue" text="Country group value" flex={1}/>
                 {
                     !hideCheckColumns &&
                     [
+                        <Column dataIndex="oldValue" text="Old value" align="center" flex={1} />,
+                        <Column dataIndex="countryGroupAvgValue" text="Quality gate group value" flex={1} />,
                         <CheckColumn key="isPeriodError" dataIndex="isPeriodError" text="Previous value error" disabled={true} headerCheckbox={false} flex={1}/>,
                         <CheckColumn key="isRegionError" dataIndex="isRegionError" text="Quality gate group error" disabled={true} headerCheckbox={false} flex={1}/>
                     ]
