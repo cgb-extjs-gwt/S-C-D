@@ -1,4 +1,4 @@
-import { CostBlockMeta, CostMetaData, InputLevelMeta, FieldType } from "../States/CostMetaStates";
+import { CostBlockMeta, CostMetaData, InputLevelMeta, FieldType, InputType } from "../States/CostMetaStates";
 import { ColumnInfo, ColumnType } from "../States/ColumnInfo";
 import { NamedId } from "../States/CommonStates";
 import { getDependency, findMeta, getSortedInputLevels } from "./MetaHelper";
@@ -33,6 +33,7 @@ export interface CostElementColumnOption<T=any> {
     title: string,
     dataIndex: string
     type: FieldType,
+    inputType: InputType
     references?: NamedId<number>[]
     mappingFn?(data: T): any
     editMappingFn?(data: Model<T>, dataIndex: string)
@@ -44,7 +45,8 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
     let referenceItems: Map<number, NamedId<number>>;
     let formatFn: (value, record?: Model<T>) => any;
 
-    const { title, type, dataIndex, references = [] } = option;
+    const { title, type, dataIndex, inputType, references = [] } = option;
+    const readonly = inputType == InputType.AutomaticallyReadonly || inputType == InputType.Automatically;
 
     switch (type) {
         case FieldType.Double:
@@ -89,7 +91,7 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
     return <ColumnInfo<T>>{
         title,
         dataIndex,
-        isEditable: true,
+        isEditable: !readonly,
         type: columnType,
         referenceItems,
         mappingFn,

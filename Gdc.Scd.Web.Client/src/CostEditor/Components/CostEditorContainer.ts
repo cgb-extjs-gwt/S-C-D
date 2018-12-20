@@ -114,9 +114,6 @@ const costBlockTabMap = (
                         selectedItems: selectedCostElement.referenceValues,
                         inputType: selectedCostElementMeta.inputType
                     },
-                    // items: edit.originalItems && edit.originalItems.map(originalItem => ({
-                    //     ...edit.editedItems.find(editedItem => editedItem.id === originalItem.id) || originalItem
-                    // }))
                     url: costBlock.edit.editItemsUrl
                 },
                 applicationId,

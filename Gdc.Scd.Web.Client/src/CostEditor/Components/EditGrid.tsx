@@ -3,7 +3,7 @@ import { Grid, SelectField, Column, Container, CheckBoxField, CheckColumn, Numbe
 import { EditItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { large, small } from "../../responsiveFormulas";
-import { FieldType } from "../../Common/States/CostMetaStates";
+import { FieldType, InputType } from "../../Common/States/CostMetaStates";
 import { ColumnInfo } from "../../Common/States/ColumnInfo";
 import { buildCostElementColumn } from "../../Common/Helpers/ColumnInfoHelper";
 import { SaveToolbar } from "../../Common/Components/SaveToolbar";
@@ -17,6 +17,7 @@ export interface ValueColumnProps {
     title: string
     type: FieldType,
     selectedItems: NamedId<number>[]
+    inputType: InputType
 }
 
 export interface EditGridActions {
@@ -72,6 +73,7 @@ export class EditGrid extends React.Component<EditGridProps> {
                 dataIndex: "value",
                 type: valueColumn.type,
                 references: valueColumn.selectedItems,
+                inputType: valueColumn.inputType,
                 getCountFn: ({ data }) => data.valueCount
             })
         ] as ColumnInfo[]

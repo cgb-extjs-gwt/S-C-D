@@ -86,24 +86,20 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     }
 
     private initColumns(visibleColumns: ColumnInfo[]) {
-        // if (!this.innerColumns) {
-            this.innerColumns = visibleColumns.map(column => ({
-                ...column,
-                filter: column.filter || {
-                    store: this.filterDatas.get(column.dataIndex).store,
-                    checkedDataIndex: CHECKED_DATA_INDEX,
-                    valueDataIndex: VALUE_DATA_INDEX
-                }
-            }))
-        // }
+        this.innerColumns = visibleColumns.map(column => ({
+            ...column,
+            filter: column.filter || {
+                store: this.filterDatas.get(column.dataIndex).store,
+                checkedDataIndex: CHECKED_DATA_INDEX,
+                valueDataIndex: VALUE_DATA_INDEX
+            }
+        }))
     }
 
     private initStore(props: TProps) {
-        // if (!this.store) {
-            this.store = this.buildDataStore(props);
+        this.store = this.buildDataStore(props);
 
-            this.forEachDataStoreEvents((eventName, handler) => this.store.on(eventName, handler, this));
-        // }
+        this.forEachDataStoreEvents((eventName, handler) => this.store.on(eventName, handler, this));
     }
 
     private forEachDataStoreEvents(fn: (eventName: string, handler: Function) => void) {

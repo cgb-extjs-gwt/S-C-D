@@ -34,11 +34,6 @@ const mapToColumnInfo = (
     return mapFn(costBlockMeta, fieldInfo);
 }) 
 
-// const buildColumn = (item: NamedId, fieldInfo: FieldInfo) => ({
-//     title: item.name,
-//     dataIndex: fieldInfo.dataIndex,
-// })
-
 const buildCoordinateColumn = (costBlock: CostBlockMeta, fieldInfo: FieldInfo) => { 
     let item: NamedId;
 
@@ -53,8 +48,6 @@ const buildCoordinateColumn = (costBlock: CostBlockMeta, fieldInfo: FieldInfo) =
     }
 
     return <ColumnInfo<TableViewRecord>>{
-        // //...buildColumn(item, fieldInfo),
-        // ...buildColumn(item, fieldInfo.dataIndex),
         title: item.name,
         dataIndex: fieldInfo.dataIndex,
         type: ColumnType.Text,
@@ -62,60 +55,6 @@ const buildCoordinateColumn = (costBlock: CostBlockMeta, fieldInfo: FieldInfo) =
         flex: 1
     };
 }
-
-// // const buildCostElementColumn = (costBlock: CostBlockMeta, fieldInfo: FieldInfo, state: TableViewInfo) => {
-// //     let type: ColumnType;
-// //     let referenceItems: Map<string, NamedId>;
-
-// //     const costElement = findMeta(costBlock.costElements, fieldInfo.fieldName);
-// //     const fieldType = costElement.typeOptions ? costElement.typeOptions.Type : FieldType.Double;
-
-// //     switch (fieldType) {
-// //         case FieldType.Double:
-// //             type = ColumnType.Numeric;
-// //             break;
-
-// //         case FieldType.Flag:
-// //             type = ColumnType.CheckBox;
-// //             break;
-
-// //         case FieldType.Reference:
-// //             type = ColumnType.Reference;
-// //             referenceItems = new Map<string, NamedId>();
-
-// //             state.references[fieldInfo.dataIndex].forEach(item => referenceItems.set(item.id, item));
-// //             break;
-// //     }
-
-// //     return <ColumnInfo<TableViewRecord>>{
-// //         ...buildColumn(costElement, fieldInfo),
-// //         isEditable: true,
-// //         type,
-// //         referenceItems,
-// //         mappingFn: record => record.data[fieldInfo.dataIndex].value,
-// //         editMappingFn: (record, dataIndex) => record.data.data[dataIndex].value = record.get(dataIndex),
-// //         rendererFn: (value, record) => {
-// //             const dataIndex = buildCountDataIndex(fieldInfo.dataIndex);
-// //             const count = record.get(dataIndex);
-
-// //             return count == 1 ? value : `(${count} values)`;
-// //         }
-// //     };
-// // }
-
-// const buildTableViewCostElementColumn = (
-//     costBlock: CostBlockMeta, 
-//     { dataIndex, fieldName: costElementId }: FieldInfo, 
-//     state: TableViewInfo
-// ) => buildCostElementColumn({
-//     costBlock,
-//     costElementId,
-//     dataIndex,
-//     references: state.references[dataIndex],
-//     mappingFn: record => record.data[dataIndex].value,
-//     editMappingFn: (record, dataIndex) => record.data.data[dataIndex].value = record.get(dataIndex),
-//     getCountFn: record => record.get(buildCountDataIndex(dataIndex))
-// })
 
 const buildTableViewCostElementColumn = (
     costBlock: CostBlockMeta, 
@@ -129,6 +68,7 @@ const buildTableViewCostElementColumn = (
         title: costElement.name,
         type: fieldType,
         dataIndex,
+        inputType: costElement.inputType,
         references: state.references[dataIndex],
         mappingFn: record => record.data[dataIndex].value,
         editMappingFn: (record, dataIndex) => record.data.data[dataIndex].value = record.get(dataIndex),
@@ -172,7 +112,6 @@ const buildProps = (state: CommonState) => {
             tableViewInfo.recordInfo.data, 
             meta, 
             costBlockCache, 
-            //(costBlock, fieldInfo) => buildCostElementColumn(costBlock, fieldInfo, tableViewInfo));
             (costBlock, fieldInfo) => buildTableViewCostElementColumn(costBlock, fieldInfo, tableViewInfo));
         
         const countColumns = mapToColumnInfo(tableViewInfo.recordInfo.data, meta, costBlockCache, buildCountColumns);
@@ -189,6 +128,7 @@ const buildProps = (state: CommonState) => {
     return <TableViewGridProps>{
         width:"2200px",
         height:"100%",
+        isScrollable: true,
         columns,
         apiUrls: {
             read: readUrl

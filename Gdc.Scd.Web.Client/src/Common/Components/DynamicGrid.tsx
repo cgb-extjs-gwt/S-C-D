@@ -33,7 +33,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     public render() {
         this.init();
 
-        const { id, minHeight, minWidth, children, onSelectionChange, flex, getSaveToolbar = this.getSaveToolbar } = this.props;
+        const { id, minHeight, minWidth, children, onSelectionChange, flex, height, width, isScrollable, getSaveToolbar = this.getSaveToolbar } = this.props;
         const isEditable = this.columns && !!this.columns.find(column => column.isEditable);
         const hasChanges = this.hasChanges();
 
@@ -50,17 +50,17 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
             }
             : {};
 
-        return (
-            <Container scrollable>
+        const grid = (
             <Grid 
-                    {...gridProps}
-                    store={this.store}
-                    columnLines={true} 
-                    height={height}
-                    width={width}
-                    minHeight={minHeight}
-                    minWidth={minWidth}
-                    onSelectionchange={this.onSelectionChange}
+                {...gridProps}
+                flex={flex}
+                store={this.store}
+                columnLines={true} 
+                height={height}
+                width={width}
+                minHeight={minHeight}
+                minWidth={minWidth}
+                onSelectionchange={this.onSelectionChange}
                 onColumnMenuCreated={this.onColumnMenuCreated}
             >
                 {
@@ -73,8 +73,15 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
                     isEditable && getSaveToolbar(hasChanges, this.toolbarRef, this)
                 }
             </Grid>
-            </Container>
-        );
+        )
+
+        return isScrollable 
+            ? (
+                <Container scrollable flex={flex}>
+                    { grid }
+                </Container>
+            )
+            : grid
     }
 
     public cancel = () => {
