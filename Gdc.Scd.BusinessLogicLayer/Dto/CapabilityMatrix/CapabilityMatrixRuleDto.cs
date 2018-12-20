@@ -18,8 +18,6 @@
 
         public string ServiceLocation { get; set; }
 
-        public string ProActive { get; set; }
-
         public bool IsGlobalPortfolio { get; set; }
 
         public bool IsMasterPortfolio { get; set; }
