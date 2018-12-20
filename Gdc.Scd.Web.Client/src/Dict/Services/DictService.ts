@@ -19,6 +19,10 @@ export class DictService implements IDictService {
         return new CountryManagementService().getCountryNames();
     }
 
+    public getMasterCountries(): Promise<NamedId<string>[]> {
+        return new CountryService().getAll();
+    }
+
     public getCountryGroups(): Promise<NamedId<string>[]> {
         return new CountryGroupService().getAll();
     }

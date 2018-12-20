@@ -3,6 +3,8 @@
 export interface IDictService {
     getCountries(): Promise<NamedId[]>;
 
+    getMasterCountries(): Promise<NamedId<string>[]>;
+
     getCountryGroups(): Promise<NamedId[]>;
 
     getCountryGroupDigits(): Promise<NamedId[]>;

@@ -1,8 +1,8 @@
-﻿IF OBJECT_ID('Report.CalcParameterHw') IS NOT NULL
-  DROP FUNCTION Report.CalcParameterHw;
+﻿IF OBJECT_ID('Report.CalcParameterHwNotApproved') IS NOT NULL
+  DROP FUNCTION Report.CalcParameterHwNotApproved;
 go 
 
-CREATE FUNCTION Report.CalcParameterHw
+CREATE FUNCTION Report.CalcParameterHwNotApproved
 (
     @cnt bigint,
     @wg bigint,
@@ -17,8 +17,8 @@ RETURN (
     with ReinsuranceCte as (
         select r.Wg
              , r.Year
-             , SUM(CASE WHEN UPPER(rt.Name) = 'NBD' THEN r.Cost_Approved END) AS  ReinsuranceNBD
-             , SUM(CASE WHEN UPPER(av.Name) = '24X7' THEN r.Cost_Approved END) AS Reinsurance27x7
+             , SUM(CASE WHEN UPPER(rt.Name) = 'NBD' THEN r.Cost END) AS  ReinsuranceNBD
+             , SUM(CASE WHEN UPPER(av.Name) = '24X7' THEN r.Cost END) AS Reinsurance27x7
         from Hardware.ReinsuranceView r
         join Dependencies.Availability av on av.Id = r.AvailabilityId 
         join Dependencies.ReactionTime rt on rt.id = r.ReactionTimeId
@@ -45,42 +45,42 @@ RETURN (
 
               --cost blocks
 
-              , fsc.LabourCost_Approved as LabourCost
-              , fsc.TravelCost_Approved as TravelCost
-              , fsc.PerformanceRate_Approved as PerformanceRate
-              , fsc.TravelTime_Approved as TravelTime
-              , fsc.RepairTime_Approved as RepairTime
-              , fsc.OnsiteHourlyRates_Approved as OnsiteHourlyRate
+              , fsc.LabourCost as LabourCost
+              , fsc.TravelCost as TravelCost
+              , fsc.PerformanceRate as PerformanceRate
+              , fsc.TravelTime as TravelTime
+              , fsc.RepairTime as RepairTime
+              , fsc.OnsiteHourlyRates as OnsiteHourlyRate
               , null as OohUplift
               , null as Uplift
 
-              , lc.StandardHandling_Approved as StandardHandling
+              , lc.StandardHandling as StandardHandling
               , null as LogisticTransportcost
 
               , null as FslFlatfee
       
-              , mcw.MaterialCostWarranty_Approved * tax.TaxAndDuties_Approved as TaxAndDutiesW
-              , mco.MaterialCostOow_Approved      * tax.TaxAndDuties_Approved as TaxAndDutiesOow
+              , mcw.MaterialCostWarranty * tax.TaxAndDuties as TaxAndDutiesW
+              , mco.MaterialCostOow      * tax.TaxAndDuties as TaxAndDutiesOow
 
               , null as Markup
               , null as MarkupIndirect
               , null as MarkupFactor
               , null as MarkupBaseW
       
-              , afr.AFR1_Approved as AFR1
-              , afr.AFR2_Approved as AFR2
-              , afr.AFR3_Approved as AFR3
-              , afr.AFR4_Approved as AFR4
-              , afr.AFR5_Approved as AFR5
+              , afr.AFR1 as AFR1
+              , afr.AFR2 as AFR2
+              , afr.AFR3 as AFR3
+              , afr.AFR4 as AFR4
+              , afr.AFR5 as AFR5
 
               , Hardware.CalcFieldServiceCost(
-                            fsc.TimeAndMaterialShare_Approved, 
-                            fsc.TravelCost_Approved, 
-                            fsc.LabourCost_Approved, 
-                            fsc.PerformanceRate_Approved, 
-                            fsc.TravelTime_Approved, 
-                            fsc.RepairTime_Approved, 
-                            fsc.OnsiteHourlyRates_Approved, 
+                            fsc.TimeAndMaterialShare, 
+                            fsc.TravelCost, 
+                            fsc.LabourCost, 
+                            fsc.PerformanceRate, 
+                            fsc.TravelTime, 
+                            fsc.RepairTime, 
+                            fsc.OnsiteHourlyRates, 
                             1
                         ) as FieldServicePerYear
 
@@ -96,8 +96,8 @@ RETURN (
            
               , null as MaterialPerIncident
            
-              , mcw.MaterialCostWarranty_Approved as MaterialCostWarranty
-              , mco.MaterialCostOow_Approved as MaterialCostOow
+              , mcw.MaterialCostWarranty as MaterialCostWarranty
+              , mco.MaterialCostOow as MaterialCostOow
            
               , null as OnSiteInterventions
            
@@ -172,7 +172,7 @@ RETURN (
 )
 GO
 
-declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CALCULATION-PARAMETER-HW');
+declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CALCULATION-PARAMETER-HW-NOT-APPROVED');
 declare @index int = 0;
 
 delete from Report.ReportColumn where ReportId = @reportId;
