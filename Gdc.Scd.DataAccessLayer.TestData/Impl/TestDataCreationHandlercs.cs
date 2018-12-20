@@ -278,7 +278,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     {
                         new RolePermission { Permission = costEditorPermission },
                         new RolePermission { Permission = reportPermission },
-                        new RolePermission { Permission = approvalPermission },
+                        new RolePermission { Permission = portfolioPermission },
                         new RolePermission { Permission = ownApprovalPermission },
                         new RolePermission { Permission = reviewProcessPermission },
                     }
