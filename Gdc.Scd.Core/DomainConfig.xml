@@ -534,6 +534,7 @@
         <Element Name="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManualyAutomaticly" RegionInput="_none_">
           <InputLevels>          
             <InputLevel>RoleCode</InputLevel>
+            <InputLevel>Country</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
