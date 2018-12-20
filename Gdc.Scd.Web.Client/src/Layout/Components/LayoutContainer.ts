@@ -5,6 +5,7 @@ import { CountryGrid } from "../../Admin/Country/CountryGrid";
 import RoleCodesGrid from "../../Admin/RoleCode/RoleCodesGrid";
 import UserRoleContainer from "../../Admin/UserRole/Containers/UserRoleContainer";
 import { WarrantyGroupGrid } from "../../Admin/WarrantyGroup/WarrantyGroupGrid";
+import { CapabilityMatrixEditView, CapabilityMatrixView } from "../../CapabilityMatrix";
 import * as Permissions from "../../Common/Constants/Permissions";
 import { buildComponentUrl } from "../../Common/Services/Ajax";
 import { MenuItem } from "../../Common/States/ExtStates";
@@ -40,6 +41,8 @@ const buildRouteMenuItems = () => <RouteMenuItem[]>[
     { path: '/own-cost-approval', text: 'Own approve cost elements', iconCls: 'x-fa fa-check-square-o', component: OwnApprovalCostElementsLayout, isMenuItem: true, permission: Permissions.OWN_APPROVAL },
     { path: '/portfolio', text: 'Portfolio', iconCls: 'x-fa fa-suitcase', component: PortfolioView, isMenuItem: true, permission: Permissions.PORTFOLIO, exact: true },
     { path: '/portfolio/edit', component: PortfolioEditView, permission: Permissions.PORTFOLIO },
+    { path: '/capability-matrix', text: 'Old portfolio', iconCls: 'x-fa fa-suitcase', component: CapabilityMatrixView, isMenuItem: true, permission: Permissions.PORTFOLIO, exact: true },
+    { path: '/capability-matrix/edit', component: CapabilityMatrixEditView, permission: Permissions.PORTFOLIO },
     { path: '/report', text: 'Calculation Result', iconCls: 'x-fa fa-calculator', component: CalcResultView, isMenuItem: true, permission: Permissions.REPORT, exact: true },
     { path: '/report/all', text: 'Reports', iconCls: 'x-fa fa-bar-chart', component: ReportListView, isMenuItem: true, permission: Permissions.REPORT, exact: true },
     { path: '/report/:name', component: ReportView, exact: true, permission: Permissions.REPORT },

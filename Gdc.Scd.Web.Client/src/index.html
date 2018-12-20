@@ -205,6 +205,16 @@
             background: rgb(255, 230, 153) !important;
         }
 
+        .matrix-edit-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .matrix-edit-container > div {
+            width: 50%;
+            min-width: 160px;
+        }
+
         .portfolio-edit-container, .portfolio-edit-small {
             display: flex;
             flex-wrap: wrap;
@@ -226,9 +236,14 @@
         }
 
         @media (min-width: 700px) {
+            .matrix-edit-container > div {
+                width: 33%;
+            }
+
             .portfolio-edit-container > div {
                 width: 33%;
             }
+
             .portfolio-edit-container > div.portfolio-edit-small {
                 width: 100%;
             }
@@ -241,6 +256,12 @@
 
             .approval-panel-title > div {
                 margin-right: 30px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .matrix-edit-container > div {
+                width: 16.6%;
             }
         }
 
