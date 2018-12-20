@@ -4,6 +4,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.CapabilityMatrix;
+using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System;
@@ -17,7 +18,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     {
         private readonly IRepositorySet repositorySet;
 
-        private readonly IRepository<CapabilityMatrix> matrixRepo;
+        private readonly IRepository<LocalPortfolio> portfolioRepo;
 
         private readonly IRepository<HardwareManualCost> hwManualRepo;
 
@@ -30,32 +31,34 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IRepository<HardwareManualCost> hwManualRepo,
                 IRepository<SoftwareMaintenance> swMaintenanceRepo,
                 IRepository<SoftwareProactive> swProactiveRepo,
-                IRepository<CapabilityMatrix> matrixRepo
+                IRepository<LocalPortfolio> portfolioRepo
             )
         {
             this.repositorySet = repositorySet;
             this.hwManualRepo = hwManualRepo;
             this.swMaintenanceRepo = swMaintenanceRepo;
             this.swProactiveRepo = swProactiveRepo;
-            this.matrixRepo = matrixRepo;
+            this.portfolioRepo = portfolioRepo;
         }
 
-        public async Task<JsonArrayDto> GetHardwareCost(bool approved, HwFilterDto filter, int lasId, int limit)
+        public async Task<JsonArrayDto> GetHardwareCost(bool approved, HwFilterDto filter, int lastId, int limit)
         {
-            var query = matrixRepo.GetAll().Where(x => !x.Denied);
 
-            if (filter != null)
+            if (filter == null || !filter.Country.HasValue)
             {
-                query = query.WhereIf(filter.Country.HasValue, x => x.Country.Id == filter.Country.Value)
-                             .WhereIf(filter.Wg.HasValue, x => x.Wg.Id == filter.Wg.Value)
-                             .WhereIf(filter.Availability.HasValue, x => x.Availability.Id == filter.Availability.Value)
-                             .WhereIf(filter.Duration.HasValue, x => x.Duration.Id == filter.Duration.Value)
-                             .WhereIf(filter.ReactionType.HasValue, x => x.ReactionType.Id == filter.ReactionType.Value)
-                             .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTime.Id == filter.ReactionTime.Value)
-                             .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocation.Id == filter.ServiceLocation.Value);
+                throw new ArgumentException("No country specified");
             }
 
-            var res = await new GetHwCost(repositorySet).ExecuteJsonAsync(approved, filter, lasId, limit);
+            var query = portfolioRepo.GetAll()
+                            .Where(x => x.Country.Id == filter.Country.Value)
+                            .WhereIf(filter.Wg.HasValue, x => x.Wg.Id == filter.Wg.Value)
+                            .WhereIf(filter.Availability.HasValue, x => x.Availability.Id == filter.Availability.Value)
+                            .WhereIf(filter.Duration.HasValue, x => x.Duration.Id == filter.Duration.Value)
+                            .WhereIf(filter.ReactionType.HasValue, x => x.ReactionType.Id == filter.ReactionType.Value)
+                            .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTime.Id == filter.ReactionTime.Value)
+                            .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocation.Id == filter.ServiceLocation.Value);
+
+            var res = await new GetHwCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
 
             res.Total = await query.Select(x => x.Id).GetCountAsync();
 
@@ -134,15 +137,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var recordsId = records.Select(x => x.Id);
 
-            var entities = (from m in matrixRepo.GetAll().Where(x => recordsId.Contains(x.Id))
-                            from hw in hwManualRepo.GetAll().Where(x => x.Id == m.Id).DefaultIfEmpty()
+            var entities = (from p in portfolioRepo.GetAll().Where(x => recordsId.Contains(x.Id))
+                            from hw in hwManualRepo.GetAll().Where(x => x.Id == p.Id).DefaultIfEmpty()
                             select new
                             {
-                                Matrix = m,
-                                m.Country,
+                                Portfolio = p,
+                                p.Country,
                                 Manual = hw
                             })
-                           .ToDictionary(x => x.Matrix.Id, y => y);
+                           .ToDictionary(x => x.Portfolio.Id, y => y);
 
             if (entities.Count == 0)
             {
@@ -163,8 +166,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                     var e = entities[rec.Id];
                     var country = e.Country;
-                    var m = e.Matrix;
-                    var hwManual = e.Manual ?? new HardwareManualCost { Matrix = m }; //create new if does not exist
+                    var p = e.Portfolio;
+                    var hwManual = e.Manual ?? new HardwareManualCost { LocalPortfolio = p }; //create new if does not exist
 
                     if (country.CanOverrideTransferCostAndPrice)
                     {
