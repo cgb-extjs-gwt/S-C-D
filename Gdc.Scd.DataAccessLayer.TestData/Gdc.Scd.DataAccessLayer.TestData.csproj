@@ -92,6 +92,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Portfolio\portfolio-func.sql" Link="Scripts\portfolio-func.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Ninject" Version="3.3.4" />
   </ItemGroup>
 

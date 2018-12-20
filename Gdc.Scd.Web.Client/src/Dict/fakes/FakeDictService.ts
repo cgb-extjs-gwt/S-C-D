@@ -75,6 +75,10 @@ export class FakeDictService implements IDictService {
         return this.fromResult(fakeServiceLocationTypes);
     }
 
+    public getProActive(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
+
     public getRoles(): Promise<NamedId<string>[]> {
         throw new Error("Method not implemented.");
     }

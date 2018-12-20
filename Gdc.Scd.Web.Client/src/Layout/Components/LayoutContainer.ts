@@ -5,21 +5,21 @@ import { CountryGrid } from "../../Admin/Country/CountryGrid";
 import RoleCodesGrid from "../../Admin/RoleCode/RoleCodesGrid";
 import UserRoleContainer from "../../Admin/UserRole/Containers/UserRoleContainer";
 import { WarrantyGroupGrid } from "../../Admin/WarrantyGroup/WarrantyGroupGrid";
-import { CapabilityMatrixView } from "../../CapabilityMatrix/CapabilityMatrixView";
-import { CapabilityMatrixEditView } from "../../CapabilityMatrix/index";
+import { CapabilityMatrixEditView, CapabilityMatrixView } from "../../CapabilityMatrix";
 import * as Permissions from "../../Common/Constants/Permissions";
 import { buildComponentUrl } from "../../Common/Services/Ajax";
 import { MenuItem } from "../../Common/States/ExtStates";
 import ApprovalCostElementsLayout from "../../CostApproval/Components/ApprovalCostElementsLayout";
 import { OwnApprovalCostElementsLayout } from "../../CostApproval/Components/OwnApprovalCostElementsLayout";
 import { CostEditorContainer } from "../../CostEditor/Components/CostEditorContainer";
+import { PortfolioEditView, PortfolioView } from "../../Portfolio/index";
 import { CalcResultView } from "../../Report/CalcResultView";
 import { ReportView } from "../../Report/index";
 import { ReportListView } from "../../Report/ReportListView";
+import { TableViewContainer } from "../../TableView/Components/TableViewContainer";
 import { loadMetaDataFromServer, openPage } from "../Actions/AppActions";
 import { CommonState, Role } from "../States/AppStates";
 import { Layout, LayoutActions, LayoutProps, RouteItem } from "./Layout";
-import { TableViewContainer } from "../../TableView/Components/TableViewContainer";
 
 interface RouteMenuItem extends RouteItem {
     text?: string
@@ -39,7 +39,9 @@ const buildRouteMenuItems = () => <RouteMenuItem[]>[
     { path: '/table-view', text: 'Central data input', iconCls: 'x-fa fa-table', component: TableViewContainer, isMenuItem: true, permission: Permissions.TABLE_VIEW },
     { path: '/cost-approval', text: 'Approve cost elements', iconCls: 'x-fa fa-check-square-o', component: ApprovalCostElementsLayout, isMenuItem: true, permission: Permissions.APPROVAL },
     { path: '/own-cost-approval', text: 'Own approve cost elements', iconCls: 'x-fa fa-check-square-o', component: OwnApprovalCostElementsLayout, isMenuItem: true, permission: Permissions.OWN_APPROVAL },
-    { path: '/capability-matrix', text: 'Portfolio', iconCls: 'x-fa fa-suitcase', component: CapabilityMatrixView, isMenuItem: true, permission: Permissions.PORTFOLIO, exact: true },
+    { path: '/portfolio', text: 'Portfolio', iconCls: 'x-fa fa-suitcase', component: PortfolioView, isMenuItem: true, permission: Permissions.PORTFOLIO, exact: true },
+    { path: '/portfolio/edit', component: PortfolioEditView, permission: Permissions.PORTFOLIO },
+    { path: '/capability-matrix', text: 'Old portfolio', iconCls: 'x-fa fa-suitcase', component: CapabilityMatrixView, isMenuItem: true, permission: Permissions.PORTFOLIO, exact: true },
     { path: '/capability-matrix/edit', component: CapabilityMatrixEditView, permission: Permissions.PORTFOLIO },
     { path: '/report', text: 'Calculation Result', iconCls: 'x-fa fa-calculator', component: CalcResultView, isMenuItem: true, permission: Permissions.REPORT, exact: true },
     { path: '/report/all', text: 'Reports', iconCls: 'x-fa fa-bar-chart', component: ReportListView, isMenuItem: true, permission: Permissions.REPORT, exact: true },
