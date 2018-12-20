@@ -22,7 +22,6 @@ export const COST_BLOCK_INPUT_SELECTION_CHANGE_INPUT_LEVEL_FILTER = 'COST_BLOCK_
 export const COST_BLOCK_INPUT_RESET_INPUT_LEVEL_FILTER = 'COST_BLOCK_INPUT.RESET.INPUT_LEVEL_FILTER'
 export const COST_BLOCK_INPUT_LOAD_COST_ELEMENT_DATA = 'COST_BLOCK_INPUT.LOAD.COST_ELEMENT_DATA';
 export const COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER = 'COST_BLOCK_INPUT.LOAD.INPUT_LEVEL_FILTER';
-//export const COST_BLOCK_INPUT_LOAD_EDIT_ITEMS = 'COST_BLOCK_INPUT.LOAD.EDIT_ITEMS';
 export const COST_BLOCK_INPUT_EDIT_ITEMS_URL_CHANGED = 'COST_BLOCK_INPUT.EDIT_ITEMS_URL.CHANGED';
 export const COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS = 'COST_BLOCK_INPUT.CLEAR.EDIT_ITEMS';
 export const COST_BLOCK_INPUT_EDIT_ITEM = 'COST_BLOCK_INPUT.EDIT.ITEM';
@@ -310,57 +309,39 @@ export const loadEditItemsByContext = () =>
             const { app: { appMetaData }, pages: { costEditor } } = getState();
             const context = buildCostEditorContext(costEditor);
             const costBlockMeta = findMeta(appMetaData.costBlocks, context.costBlockId);
-            // const costElementMeta = findMeta(costBlockMeta.costElements, context.costElementId);
-
-            // if (context.costElementId != null && context.inputLevelId != null && (!costElementMeta.regionInput || context.regionInputId)) {
-            //     // handleRequest(
-            //     //     service.getEditItems(context).then(
-            //     //         editItems => dispatch(loadEditItems(context.applicationId, context.costBlockId, editItems))
-            //     //     )
-            //     // )
-
-                
-            //     dispatch(
-            //         editItemsUrlChanged(
-            //             context.applicationId, 
-            //             context.costBlockId,
-            //             service.buildGetEditItemsUrl(context)
-            //         )
-            //     )
-            // }
 
             if (context.costElementId != null && context.inputLevelId != null) {
                 const costElementMeta = findMeta(costBlockMeta.costElements, context.costElementId);
 
+                let isDispatching: boolean = null;
+
                 if (!costElementMeta.regionInput || context.regionInputId) {
-                    if (costElementMeta.dependency != null) {
-                        const costElementState = findCostElementByState(costEditor);
+                    const costElementState = findCostElementByState(costEditor);
 
-                        if (costElementState.filter != null) {
-                            const inputLevelMeta = findMeta(costElementMeta.inputLevels, context.inputLevelId);
+                    isDispatching = costElementMeta.dependency == null || costElementState.filter != null;
 
-                            if (inputLevelMeta.hasFilter) {
-                                const inputLevelState = findInputLevel(costElementState.inputLevels);
+                    if (isDispatching !== false) {
+                        const inputLevelMeta = findMeta(costElementMeta.inputLevels, context.inputLevelId);
 
-                                if (inputLevelState.filter != null) {
-                                    dispatchEditItemsUrlChanged();
-                                }
-                            } else {
-                                dispatchEditItemsUrlChanged();
-                            }
+                        if (inputLevelMeta.hasFilter) {
+                            const inputLevelState = findInputLevel(costElementState.inputLevels);
+
+                            isDispatching = inputLevelState.filter != null;
+                        } else {
+                            isDispatching = true;
                         }
                     }
                 }
-            }
 
-            function dispatchEditItemsUrlChanged() {
-                dispatch(
-                    editItemsUrlChanged(
-                        context.applicationId, 
-                        context.costBlockId,
-                        service.buildGetEditItemsUrl(context)
+                if (isDispatching) {
+                    dispatch(
+                        editItemsUrlChanged(
+                            context.applicationId, 
+                            context.costBlockId,
+                            service.buildGetEditItemsUrl(context)
+                        )
                     )
-                )
+                }
             }
         }
     )

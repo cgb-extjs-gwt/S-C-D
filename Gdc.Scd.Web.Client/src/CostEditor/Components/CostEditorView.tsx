@@ -13,7 +13,7 @@ import { connect } from 'react-redux';
 import { CostEditorState } from '../States/CostEditorStates';
 import { CostBlockState, EditItem, CheckItem, Filter } from '../States/CostBlockStates';
 import { NamedId, SelectList } from '../../Common/States/CommonStates';
-import { CostBlockProps, CostBlockView } from './CostBlocksView';
+import { CostBlockProps, CostBlockView } from './CostBlockView';
 
 Ext.require('Ext.MessageBox');
 

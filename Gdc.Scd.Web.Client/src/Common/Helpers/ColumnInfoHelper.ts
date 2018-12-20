@@ -29,11 +29,6 @@ export const buildNameColumnInfo = (metaItem: NamedId) => (<ColumnInfo>{
     type: ColumnType.Text
 })
 
-// export const buildColumn = (item: NamedId, dataIndex: string) => ({
-//     title: item.name,
-//     dataIndex
-// })
-
 export interface CostElementColumnOption<T=any> {
     title: string,
     dataIndex: string
@@ -47,7 +42,7 @@ export interface CostElementColumnOption<T=any> {
 export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>) => {
     let columnType: ColumnType;
     let referenceItems: Map<number, NamedId<number>>;
-    let rendererFn: (value, record: Model<T>) => any;
+    let formatFn: (value, record?: Model<T>) => any;
 
     const { title, type, dataIndex, references = [] } = option;
 
@@ -57,7 +52,23 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
             break;
 
         case FieldType.Flag:
-            rendererFn = rendererFnBuilder(value => value ? 'true' : 'false');
+            columnType = ColumnType.Reference;
+            formatFn = (value: number) => {
+                let result: string;
+
+                switch(value) {
+                    case 0:
+                        return 'false';
+                    case 1:
+                        return 'true';
+                    default:
+                        return value;
+                }
+            }
+
+            referenceItems = new Map<number, NamedId<number>>();
+            referenceItems.set(0, { id: 0, name: 'false' });
+            referenceItems.set(1, { id: 1, name: 'true' });
             break;
 
         case FieldType.Reference:
@@ -69,7 +80,7 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
 
         case FieldType.Percent:
             columnType = ColumnType.Numeric;
-            rendererFn = rendererFnBuilder(value => Ext.util.Format.number(value, '0.##%'));
+            formatFn = value => Ext.util.Format.number(value, '0.##%');
             break;
     }
 
@@ -83,7 +94,7 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
         referenceItems,
         mappingFn,
         editMappingFn,
-        rendererFn: rendererFn || rendererFnBuilder()
+        rendererFn: rendererFnBuilder(formatFn)
     };
 
     function rendererFnBuilder(formatFn = value => value) {

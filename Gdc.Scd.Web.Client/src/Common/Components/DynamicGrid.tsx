@@ -30,28 +30,6 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
         this.removeStoreListeners();
     }
 
-    // public componentWillReceiveProps({ store, columns }: StoreDynamicGridProps) {
-    //     if (this.store != store) {
-    //         this.removeStoreListeners();
-    //         this.addStoreListeners(store);
-
-    //         this.store = store;
-    //     } 
-
-    //     if (this.columns != columns) {
-    //         this.columnsMap.clear();
-
-    //         if (columns) {
-    //             columns.forEach(column => this.columnsMap.set(column.dataIndex, column));
-
-    //             this.columns = columns;
-    //         }
-    //         else {
-    //             this.columns = [];
-    //         }
-    //     }
-    // }
-
     public render() {
         this.init();
 
@@ -81,6 +59,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
                 minWidth={minWidth}
                 onSelectionchange={this.onSelectionChange}
                 flex={flex}
+                onColumnMenuCreated={this.onColumnMenuCreated}
             >
                 {
                     this.columns &&
@@ -190,7 +169,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
         }
 
         if (column.filter) {
-            columnOption.menu = this.buildFilterMenu(column.filter);
+            columnOption.menu = ['-', this.buildColumnSearchField(column.filter)];
         }
 
         if (column.extensible != null) {
@@ -243,19 +222,32 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
         )
     }
 
-    private buildFilterMenu(filter: ColumnFilter) {
+    private onColumnMenuCreated = (grid, column, menu) => {
+        const dataIndex = column.getDataIndex();
+        const columnInfo = this.columnsMap.get(dataIndex);
+        const filterGridId = 'filterGrid';
+
+        if (columnInfo.filter) {
+            menu.on('beforeshow', () => {
+                menu.add(this.buildColumnFilterGrid(columnInfo.filter, filterGridId));
+            });
+
+            menu.on('hide', () => {
+                menu.remove(menu.queryById(filterGridId));
+            });
+        }
+    }
+
+    private buildColumnSearchField(filter: ColumnFilter) {
         let searchFn = null;
-        const searchField = {
+
+        return {
             xtype: 'textfield',
             label: 'Search',
             margin: '-15 10 10 10',
             listeners: {
                 change: (field, newValue: string, oldValue: string) => {
                     const filters = filter.store.getFilters();
-
-                    //if (searchFn) {
-                    //    filters.each(filter => filters.remove(filter));
-                    //}
 
                     if (searchFn) {
                         filters.remove(searchFn);
@@ -272,9 +264,12 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
                 }
             }
         };
+    }
 
-        const grid = {
+    private buildColumnFilterGrid(filter: ColumnFilter, id) {
+        return {
             xtype: 'grid',
+            id,
             columnLines: true,
             rowLines: true,
             store: filter.store,
@@ -286,8 +281,6 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
                 { text: 'Value', dataIndex: filter.valueDataIndex, width: 200  }
             ]
         };
-
-        return [ '-', searchField, grid];
     }
 
     private onUpdateStore = (store: Store, record: Model, operation: StoreOperation, modifiedFieldNames: string[], details) => {

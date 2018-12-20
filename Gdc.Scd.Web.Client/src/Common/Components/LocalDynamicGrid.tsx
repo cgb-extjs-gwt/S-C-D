@@ -24,7 +24,7 @@ export interface LocalDynamicGridActions<T=any> {
 export interface LocalDynamicGridProps<T=any> extends ToolbarDynamicGridProps, LocalDynamicGridActions<T>  {
 }
 
-export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TData>=LocalDynamicGridProps<TData>> extends React.PureComponent<TProps> {
+export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TData>=LocalDynamicGridProps<TData>> extends React.Component<TProps> {
     private readonly dataStoreEvents = {
         load: this.onDataStoreLoad,
         update: this.onDataStoreUpdate,
@@ -35,28 +35,7 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     private executeFiltrateFilters = true
     private executeFillFilterData = true
     private updatedRecords: Model[] = []
-    // private outerColumns: ColumnInfo[]
     private innerColumns: ColumnInfo[]
-
-    // public shouldComponentUpdate(nextProps: TProps) {
-    //     return this.props.columns != nextProps.columns
-    // }
-
-    // public componentDidMount() {
-    //     this.init(this.props);
-    // }
-
-    // public componentWillReceiveProps(nextProps: TProps) {
-    //     // const { columns } = nextProps;
-
-    //     // if (this.outerColumns != columns && columns && columns.length > 0) {
-    //     //     this.outerColumns = columns;
-
-    //     //     this.init(nextProps);
-    //     // }
-
-    //     this.init(nextProps);
-    // }
 
     public componentWillUnmount() {
         if (this.store) {
@@ -160,42 +139,40 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     }
 
     private initFilterData(visibleColumns: ColumnInfo[]) {
-        // if (!this.filterDatas) {
-            this.filterDatas = new Map<string, FilterDataItem>();
+        this.filterDatas = new Map<string, FilterDataItem>();
 
-            const defaultRender = (value, record: Model) => value;
+        const defaultRender = (value, record: Model) => value;
 
-            visibleColumns.forEach(column => {
-                const store = Ext.create('Ext.data.Store', {
-                    fields: [ CHECKED_DATA_INDEX, VALUE_DATA_INDEX ],
-                    sorters: [{
-                        property: VALUE_DATA_INDEX,
-                        direction: 'ASC'
-                    }],
-                    listeners: {
-                        update: (store, record, operation, modifiedFieldNames, details) => {
-                            this.onUpdateFilterStore(store, record, operation, modifiedFieldNames, column.dataIndex);
-                        }
+        visibleColumns.forEach(column => {
+            const store = Ext.create('Ext.data.Store', {
+                fields: [ CHECKED_DATA_INDEX, VALUE_DATA_INDEX ],
+                sorters: [{
+                    property: VALUE_DATA_INDEX,
+                    direction: 'ASC'
+                }],
+                listeners: {
+                    update: (store, record, operation, modifiedFieldNames, details) => {
+                        this.onUpdateFilterStore(store, record, operation, modifiedFieldNames, column.dataIndex);
                     }
-                });
-
-                let renderFn;
-
-                if (column.type === ColumnType.Reference) {
-                    renderFn = buildReferenceColumnRendered(column);
-                } 
-                else {
-                    renderFn = column.rendererFn ? column.rendererFn : defaultRender;
                 }
-
-                this.filterDatas.set(column.dataIndex, { 
-                    store, 
-                    renderFn,
-                    dataSet: new Set<any>(),
-                    filteredDataSet: new Set<any>()
-                });
             });
-        // }
+
+            let renderFn;
+
+            if (column.type === ColumnType.Reference) {
+                renderFn = buildReferenceColumnRendered(column);
+            } 
+            else {
+                renderFn = column.rendererFn ? column.rendererFn : defaultRender;
+            }
+
+            this.filterDatas.set(column.dataIndex, { 
+                store, 
+                renderFn,
+                dataSet: new Set<any>(),
+                filteredDataSet: new Set<any>()
+            });
+        });
     }
 
     private filtrateStore(visibleColumns: ColumnInfo[]) {
