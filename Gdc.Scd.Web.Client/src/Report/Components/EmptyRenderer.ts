@@ -1,3 +1,3 @@
 ﻿export function emptyRenderer(val, row) {
-    return val || Number.NaN;
+    return val || 'N/A';
 }

@@ -74,7 +74,7 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <NumberColumn text="ProActive" dataIndex="proActive" format="0.00##" />
+                        <Column text="ProActive" dataIndex="proActive" />
 
                     </Column>
 
