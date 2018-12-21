@@ -35,7 +35,6 @@ export interface CostElementData {
 }
 
 export interface CostBlockEditState {
-    //originalItems: EditItem[],
     editItemsUrl: string
     editedItems: EditItem[]
     saveErrors: BundleDetailGroup[]

@@ -67,10 +67,6 @@ export interface InputLevelFilterLoadedAction extends InputLevelAction {
     filterItems: NamedId[]
 }
 
-// export interface EditItemsAction extends CostBlockAction {
-//     editItems: EditItem[]
-// }
-
 export interface EditItemUrlChangedAction extends CostBlockAction {
     url: string
 }
@@ -188,13 +184,6 @@ export const loadInputLevelFilter = (
     inputLevelId,
     filterItems
 })
-
-// export const loadEditItems = (applicationId: string, costBlockId: string, editItems: EditItem[]) => (<EditItemsAction>{
-//     type: COST_BLOCK_INPUT_LOAD_EDIT_ITEMS,
-//     applicationId,
-//     costBlockId,
-//     editItems
-// })
 
 export const editItemsUrlChanged = (applicationId: string, costBlockId: string, url: string) => (<EditItemUrlChangedAction>{
     type: COST_BLOCK_INPUT_EDIT_ITEMS_URL_CHANGED,

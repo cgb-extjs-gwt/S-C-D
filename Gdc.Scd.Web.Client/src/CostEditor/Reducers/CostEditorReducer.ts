@@ -38,7 +38,6 @@ const buildCostBlockState = (costBlockMeta: CostBlockMeta) => (<CostBlockState>{
         }))
     },
     edit: {
-        //originalItems: null,
         editItemsUrl: null,
         editedItems: [],
         isFiltersApplied: true,
@@ -305,16 +304,6 @@ const resetCostElementFilter = buildCostElementListItemChanger<CostElementAction
     })
 )
 
-// const selectInputLevel = buildCostElementListItemChanger<InputLevelAction>(
-//     (costElement, action) => ({
-//         ...costElement,
-//         inputLevels: {
-//             ...costElement.inputLevels,
-//             selectedItemId: action.inputLevelId
-//         }
-//     })
-// )
-
 const selectInputLevel = buildCostBlockChanger<InputLevelAction>(
     (costBlock, action) => ({
         ...costBlock,
@@ -392,17 +381,6 @@ const loadLevelInputFilter = buildInputLevelFilterChanger<InputLevelFilterLoaded
     })
 )
 
-// const loadEditItems = buildCostBlockChanger<EditItemsAction>(
-//     (costBlock, action) => ({
-//         ...costBlock,
-//         edit: {
-//             ...costBlock.edit,
-//             editedItems: [],
-//             originalItems: action.editItems
-//         }
-//     })
-// )
-
 const editedItemsUrlChanged = buildCostBlockChanger<EditItemUrlChangedAction>(
     (costBlock, action) => ({
         ...costBlock,
@@ -453,11 +431,6 @@ const saveEditItems = buildCostBlockChanger<SaveEditItemsAction>(
             : {
                 ...costBlock.edit,
                 editedItems: [],
-                // originalItems: costBlock.edit.originalItems.map(
-                //     origItem => 
-                //         costBlock.edit.editedItems.find(editedItem => editedItem.id === origItem.id) || 
-                //         origItem
-                // ),
                 saveErrors: []
             };
 
@@ -557,9 +530,6 @@ export const costEditorReducer: Reducer<CostEditorState, Action<string>> = (stat
 
         case COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER:
             return loadLevelInputFilter(state, action)
-
-        // case COST_BLOCK_INPUT_LOAD_EDIT_ITEMS:
-        //     return loadEditItems(state, action)
 
         case COST_BLOCK_INPUT_EDIT_ITEMS_URL_CHANGED:
             return editedItemsUrlChanged(state, action)
