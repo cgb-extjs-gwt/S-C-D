@@ -5,6 +5,7 @@ import { Country } from "../Dict/Model/Country";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
+import { PercentColumn } from "./Components/PercentColumn";
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
@@ -17,7 +18,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             {
                 name: 'DealerPriceCalc',
                 calculate: function (d) {
-                    let result = null;
+                    let result: any = '';
                     if (d && d.ListPrice) {
                         result = d.ListPrice;
                         if (d.DealerDiscount) {
@@ -142,7 +143,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
                         <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
 
-                        <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
+                        <PercentColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
                         <NumberColumn text="Dealer discount" dataIndex="DealerDiscount" editable={canEditListPrice} />
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
