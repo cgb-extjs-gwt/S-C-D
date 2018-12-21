@@ -266,7 +266,7 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
 
     private fillFilterData() {
         if (this.executeFillFilterData) {
-            this.executeFillFilterData = true;
+            this.executeFillFilterData = false;
 
             setTimeout(() => {
                 const records: Model[] = [];
@@ -277,7 +277,7 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     
                 this.updateFilterData(dataSets);
 
-                this.executeFillFilterData = false;
+                this.executeFillFilterData = true;
             });
         }
     }
