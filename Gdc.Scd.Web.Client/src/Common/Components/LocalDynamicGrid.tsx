@@ -36,6 +36,7 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     private executeFillFilterData = true
     private updatedRecords: Model[] = []
     private innerColumns: ColumnInfo[]
+    private prevProps: TProps
 
     public componentWillUnmount() {
         if (this.store) {
@@ -44,7 +45,7 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     }
 
     public render(){
-        this.init(this.props);
+        this.init();
 
         return (
             <DynamicGrid 
@@ -55,17 +56,15 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
         );
     }
 
-    public getStore() {
-        return this.store;
-    }
-
-    protected init(props: TProps) {
-        const { columns = [] } = props;        
+    protected init() {
+        const { columns = [] } = this.props;        
         const visibleColumns = this.getVisibleColumns(columns);
 
         this.initFilterData(visibleColumns);
-        this.initStore(props);
+        this.initStore(this.props);
         this.initColumns(visibleColumns);
+
+        this.prevProps = this.props;
     }
 
     protected buildDataStoreFields(columns: ColumnInfo[]) {
@@ -85,6 +84,10 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
         });
     }
 
+    protected isUpdatingDataStore(prevProps: TProps, currentProps: TProps) {
+        return !prevProps || prevProps.columns != currentProps.columns;
+    }
+
     private initColumns(visibleColumns: ColumnInfo[]) {
         this.innerColumns = visibleColumns.map(column => ({
             ...column,
@@ -97,9 +100,13 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     }
 
     private initStore(props: TProps) {
-        this.store = this.buildDataStore(props);
+        if (this.isUpdatingDataStore(this.prevProps, props)) {
+            this.store = this.buildDataStore(props);
 
-        this.forEachDataStoreEvents((eventName, handler) => this.store.on(eventName, handler, this));
+            if (this.store) {
+                this.forEachDataStoreEvents((eventName, handler) => this.store.on(eventName, handler, this));
+            }
+        }
     }
 
     private forEachDataStoreEvents(fn: (eventName: string, handler: Function) => void) {

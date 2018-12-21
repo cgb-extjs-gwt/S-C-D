@@ -33,9 +33,8 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     public render() {
         this.init();
 
-        const { id, minHeight, minWidth, children, onSelectionChange, flex, height, width, isScrollable, getSaveToolbar = this.getSaveToolbar } = this.props;
+        const { flex, isScrollable, getSaveToolbar = this.getSaveToolbar } = this.props;
         const isEditable = this.columns && !!this.columns.find(column => column.isEditable);
-        const hasChanges = this.hasChanges();
 
         const gridProps = isEditable 
             ? {                
@@ -50,38 +49,17 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
             }
             : {};
 
-        const grid = (
-            <Grid 
-                {...gridProps}
-                flex={flex}
-                store={this.store}
-                columnLines={true} 
-                height={height}
-                width={width}
-                minHeight={minHeight}
-                minWidth={minWidth}
-                onSelectionchange={this.onSelectionChange}
-                onColumnMenuCreated={this.onColumnMenuCreated}
-            >
-                {
-                    this.columns &&
-                    this.columns.filter(column => !column.isInvisible)
-                                .map(column => this.buildColumn(id, column))
-                }
-                {children}
-                {
-                    isEditable && getSaveToolbar(hasChanges, this.toolbarRef, this)
-                }
-            </Grid>
-        )
+        const hasChanges = this.hasChanges();
+        const saveToolbar = isEditable && getSaveToolbar(hasChanges, this.toolbarRef, this)
 
         return isScrollable 
             ? (
-                <Container scrollable flex={flex}>
-                    { grid }
+                <Container scrollable flex={flex} layout="vbox">
+                    { this.buildGrid(gridProps) }
+                    { saveToolbar }
                 </Container>
             )
-            : grid
+            : this.buildGrid(gridProps, saveToolbar)
     }
 
     public cancel = () => {
@@ -113,6 +91,40 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
 
     public save = () => {
         this.saveWithCallback(this.props.onSave);
+    }
+
+    private buildGrid(gridProps, saveToolbar?) {
+        let grid;
+
+        if (this.store != null) {
+            const { id, minHeight, minWidth, children, onSelectionChange, flex, height, width } = this.props;
+            const isEditable = this.columns && !!this.columns.find(column => column.isEditable);
+    
+            grid = (
+                <Grid 
+                    {...gridProps}
+                    flex={flex}
+                    store={this.store}
+                    columnLines={true} 
+                    height={height}
+                    width={width}
+                    minHeight={minHeight}
+                    minWidth={minWidth}
+                    onSelectionchange={this.onSelectionChange}
+                    onColumnMenuCreated={this.onColumnMenuCreated}
+                >
+                    {
+                        this.columns &&
+                        this.columns.filter(column => !column.isInvisible)
+                                    .map(column => this.buildColumn(id, column))
+                    }
+                    {children}
+                    {saveToolbar}
+                </Grid>
+            )
+        }
+
+        return grid;
     }
 
     private init() {

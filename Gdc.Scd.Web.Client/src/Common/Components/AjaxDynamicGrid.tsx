@@ -12,27 +12,35 @@ export interface AjaxDynamicGridProps<T=any> extends LocalDynamicGridProps<T> {
 }
 
 export class AjaxDynamicGrid<T=any> extends LocalDynamicGrid<T, AjaxDynamicGridProps<T>> {
-    private apiUrls: ApiUrls
-
     protected buildDataStore(props: AjaxDynamicGridProps<T>) {
         const { columns, apiUrls } = props;
 
-        return Ext.create('Ext.data.Store', {
-            fields: this.buildDataStoreFields(columns),
-            autoLoad: true,
-            pageSize: 0,
-            proxy: {
-                type: 'ajax',
-                api: apiUrls,
-                reader: { 
-                    type: 'json',
-                },
-                writer: {
-                    type: 'json',
-                    writeAllFields: true,
-                    allowSingle: false
+        return apiUrls && apiUrls.read 
+            ?  Ext.create('Ext.data.Store', {
+                fields: this.buildDataStoreFields(columns),
+                autoLoad: true,
+                pageSize: 0,
+                proxy: {
+                    type: 'ajax',
+                    api: apiUrls,
+                    reader: { 
+                        type: 'json',
+                    },
+                    writer: {
+                        type: 'json',
+                        writeAllFields: true,
+                        allowSingle: false
+                    }
                 }
-            }
-        });
+            })
+            : null;
+    }
+
+    protected isUpdatingDataStore(prevProps: AjaxDynamicGridProps<T>, currentProps: AjaxDynamicGridProps<T>) {
+        return (
+            super.isUpdatingDataStore(prevProps, currentProps) || 
+            prevProps.apiUrls != currentProps.apiUrls
+        )
+             
     }
 }
