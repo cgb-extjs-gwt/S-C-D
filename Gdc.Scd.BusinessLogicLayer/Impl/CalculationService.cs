@@ -31,8 +31,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IRepository<HardwareManualCost> hwManualRepo,
                 IRepository<SoftwareMaintenance> swMaintenanceRepo,
                 IRepository<SoftwareProactive> swProactiveRepo,
-                IRepository<CapabilityMatrix> matrixRepo,
-                IUserService userService
+                IRepository<CapabilityMatrix> matrixRepo
             )
         {
             this.repositorySet = repositorySet;
