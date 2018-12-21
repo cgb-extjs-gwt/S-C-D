@@ -18,6 +18,7 @@ export interface DynamicGridProps extends DynamicGridActions {
     height?: string
     width?: string
     flex?: number
+    isScrollable?: boolean
 }
 
 export interface ToolbarDynamicGridProps extends DynamicGridProps {
