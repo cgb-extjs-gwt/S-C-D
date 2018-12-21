@@ -14,14 +14,16 @@ import { ProActiveService } from "./ProActiveService";
 import { RoleService } from "./RoleService";
 import { SogService } from "./SogService";
 import { YearService } from "./YearService";
+import { Country } from "../Model/Country";
 
 export class DictService implements IDictService {
     public getCountries(): Promise<NamedId<string>[]> {
         return new CountryManagementService().getCountryNames();
     }
 
-    public getMasterCountries(): Promise<NamedId<string>[]> {
-        return new CountryService().getAll();
+    public getMasterCountries(cache: boolean): Promise<Country[]> {
+        const srv = new CountryService();
+        return cache ? srv.getAll() : srv.loadAll();
     }
 
     public getCountryGroups(): Promise<NamedId<string>[]> {

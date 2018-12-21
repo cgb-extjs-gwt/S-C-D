@@ -1,4 +1,5 @@
 import { NamedId } from "../../Common/States/CommonStates";
+import { Country } from "../Model/Country";
 import { IDictService } from "../Services/IDictService";
 import { fakeAvailability } from "./FakeAvailability";
 import { fakeCountries } from "./FakeCountries";
@@ -16,7 +17,7 @@ export class FakeDictService implements IDictService {
         return this.fromResult(fakeCountries);
     }
 
-    public getMasterCountries(): Promise<NamedId<string>[]> {
+    public getMasterCountries(cache: boolean): Promise<Country[]> {
         throw new Error("Method not implemented.");
     }
 

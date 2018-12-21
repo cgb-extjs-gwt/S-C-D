@@ -4,12 +4,13 @@ import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
 import { CountryField } from "../../Dict/Components/CountryField";
 import { DictField } from "../../Dict/Components/DictField";
 import { DurationField } from "../../Dict/Components/DurationField";
+import { ProActiveField } from "../../Dict/Components/ProActiveField";
 import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
 import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
 import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
 import { WgField } from "../../Dict/Components/WgField";
+import { Country } from "../../Dict/Model/Country";
 import { HwCostFilterModel } from "../Model/HwCostFilterModel";
-import { ProActiveField } from "../../Dict/Components/ProActiveField";
 
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: HwCostFilterModel): void;
@@ -17,7 +18,7 @@ export interface FilterPanelProps extends PanelProps {
 
 export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
-    private country: DictField;
+    private country: CountryField;
 
     private wg: DictField;
 
@@ -53,7 +54,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                     }}
                 >
 
-                    <CountryField ref={x => this.country = x} label="Country:" onChange={this.onCountryChange} />
+                    <CountryField ref={x => this.country = x} label="Country:" cache={false} onChange={this.onCountryChange} />
                     <WgField ref={x => this.wg = x} label="Asset(WG):" />
                     <AvailabilityField ref={x => this.av = x} label="Availability:" />
                     <DurationField ref={x => this.dur = x} label="Duration:" />
@@ -81,6 +82,10 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
             serviceLocation: this.srvloc.getSelected(),
             proActive: this.proactive.getSelected()
         };
+    }
+
+    public getCountry(): Country {
+        return this.country.getSelectedModel();
     }
 
     private init() {
