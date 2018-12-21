@@ -41,28 +41,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.portfolioRepo = portfolioRepo;
         }
 
-        public async Task<JsonArrayDto> GetHardwareCost(bool approved, HwFilterDto filter, int lastId, int limit)
+        public Task<JsonArrayDto> GetHardwareCost(bool approved, HwFilterDto filter, int lastId, int limit)
         {
-
-            if (filter == null || !filter.Country.HasValue)
+            if (filter == null || filter.Country <= 0)
             {
                 throw new ArgumentException("No country specified");
             }
 
-            var query = portfolioRepo.GetAll()
-                            .Where(x => x.Country.Id == filter.Country.Value)
-                            .WhereIf(filter.Wg.HasValue, x => x.Wg.Id == filter.Wg.Value)
-                            .WhereIf(filter.Availability.HasValue, x => x.Availability.Id == filter.Availability.Value)
-                            .WhereIf(filter.Duration.HasValue, x => x.Duration.Id == filter.Duration.Value)
-                            .WhereIf(filter.ReactionType.HasValue, x => x.ReactionType.Id == filter.ReactionType.Value)
-                            .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTime.Id == filter.ReactionTime.Value)
-                            .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocation.Id == filter.ServiceLocation.Value);
-
-            var res = await new GetHwCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
-
-            res.Total = await query.Select(x => x.Id).GetCountAsync();
-
-            return res;
+            return new GetHwCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
         }
 
         public async Task<Tuple<SwMaintenanceCostDto[], int>> GetSoftwareCost(SwFilterDto filter, int start, int limit)

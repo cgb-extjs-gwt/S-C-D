@@ -36,7 +36,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         ],
 
         pageSize: 25,
-        autoLoad: true,
+        autoLoad: false,
 
         proxy: {
             type: 'ajax',
@@ -111,6 +111,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <Column text="Reaction type" dataIndex="ReactionType" />
                         <Column text="Reaction time" dataIndex="ReactionTime" />
                         <Column text="Service location" dataIndex="ServiceLocation" />
+                        <Column text="ProActive sla" dataIndex="ProActiveSla" />
 
                     </Column>
 
@@ -133,7 +134,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="TaxAndDutiesOow" />
                         <NumberColumn text="Material cost iW period" dataIndex="MaterialW" />
                         <NumberColumn text="Material cost OOW period" dataIndex="MaterialOow" />
-                        <NumberColumn text="Pro active" dataIndex="ProActive" />
+                        <NumberColumn text="ProActive" dataIndex="ProActive" />
 
                     </Column>
 

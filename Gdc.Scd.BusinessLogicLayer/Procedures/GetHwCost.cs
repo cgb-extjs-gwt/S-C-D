@@ -1,8 +1,9 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
 using Gdc.Scd.BusinessLogicLayer.Dto.Report;
-using Gdc.Scd.BusinessLogicLayer.Helpers;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
+using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 
@@ -10,7 +11,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 {
     public class GetHwCost
     {
-        private const string FN = "Hardware.GetCosts";
+        private const string PROC = "Hardware.SpGetCosts";
 
         private readonly IRepositorySet _repo;
 
@@ -24,28 +25,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             JsonArrayDto result = new JsonArrayDto();
 
             var parameters = Prepare(approved, filter, lastid, limit);
-            var sql = GetSql(approved, parameters);
 
-            result.Json = await _repo.ExecuteAsJsonAsync(sql, parameters);
-            result.Total = 1000;
+            result.Json = await _repo.ExecuteProcAsJsonAsync(PROC, parameters);
+            result.Total = GetTotal(parameters);
 
             return result;
-        }
-
-        private static string GetSql(bool approved, DbParameter[] parameters)
-        {
-            if (approved)
-            {
-                return new SqlStringBuilder().Append("SELECT * FROM ").AppendFunc(FN, parameters).Build();
-            }
-            else
-            {
-                return new SqlStringBuilder()
-                    .Append("SELECT cnt.CanOverrideTransferCostAndPrice, cnt.CanStoreListAndDealerPrices, c.* ")
-                    .Append("FROM ").AppendFunc(FN, parameters).Append(" c ")
-                    .Append("JOIN InputAtoms.Country cnt ON cnt.Name = c.Country")
-                    .Build();
-            }
         }
 
         private static DbParameter[] Prepare(bool approved, HwFilterDto filter, int lastid, int limit)
@@ -58,8 +42,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             var pReactiontime = new DbParameterBuilder().WithName("reactiontime");
             var pReactiontype = new DbParameterBuilder().WithName("reactiontype");
             var pLoc = new DbParameterBuilder().WithName("loc");
+            var pPro = new DbParameterBuilder().WithName("pro");
             var pLastid = new DbParameterBuilder().WithName("lastid").WithValue(lastid);
             var pLimit = new DbParameterBuilder().WithName("limit").WithValue(limit);
+            var pTotal = new DbParameterBuilder().WithName("total").WithType(DbType.Int32).WithDirection(ParameterDirection.Output);
 
             if (filter != null)
             {
@@ -70,6 +56,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                 pReactiontype.WithValue(filter.ReactionType);
                 pReactiontime.WithValue(filter.ReactionTime);
                 pLoc.WithValue(filter.ServiceLocation);
+                pPro.WithValue(filter.ProActive);
             }
 
             return new DbParameter[] {
@@ -81,9 +68,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                  pReactiontime.Build(),
                  pReactiontype.Build(),
                  pLoc.Build(),
+                 pPro.Build(),
                  pLastid.Build(),
-                 pLimit.Build()
+                 pLimit.Build(),
+                 pTotal.Build()
             };
+        }
+
+        private static int GetTotal(DbParameter[] parameters)
+        {
+            return parameters[11].GetInt32();
         }
     }
 }

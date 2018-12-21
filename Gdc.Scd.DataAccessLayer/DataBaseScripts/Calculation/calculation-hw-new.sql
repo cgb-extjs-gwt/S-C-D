@@ -46,6 +46,10 @@ CREATE NONCLUSTERED INDEX ix_Atom_MarkupStandardWaranty
     INCLUDE ([MarkupFactorStandardWarranty],[MarkupStandardWarranty])
 GO
 
+IF OBJECT_ID('Hardware.SpGetCosts') IS NOT NULL
+  DROP PROCEDURE Hardware.SpGetCosts;
+go
+
 CREATE NONCLUSTERED INDEX ix_Hardware_ProActive
     ON [Hardware].[ProActive] ([Country],[Wg])
 GO
@@ -1090,7 +1094,7 @@ CREATE VIEW [Hardware].[ProActiveView] with schemabinding as
 
 GO
 
-CREATE FUNCTION Portfolio.GetBySla(
+CREATE FUNCTION [Portfolio].[GetBySla](
     @cnt bigint,
     @wg bigint,
     @av bigint,
@@ -1106,18 +1110,20 @@ RETURNS TABLE
 AS
 RETURN 
 (
-    select top(@limit) m.*
-        from Portfolio.LocalPortfolio m
-        where m.Id > @lastid
-            and (@cnt is null or m.CountryId = @cnt)
-            and (@wg is null or m.WgId = @wg)
-            and (@av is null or m.AvailabilityId = @av)
-            and (@dur is null or m.DurationId = @dur)
-            and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
-            and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
-            and (@loc is null or m.ServiceLocationId = @loc)
-            and (@pro is null or m.ProActiveSlaId = @pro)
-            order by m.Id
+    with SlaCte as (
+        select ROW_NUMBER() over(order by m.Id) as rownum,
+               m.*
+            from Portfolio.LocalPortfolio m
+            where   (@cnt is null or m.CountryId = @cnt)
+                and (@wg is null or m.WgId = @wg)
+                and (@av is null or m.AvailabilityId = @av)
+                and (@dur is null or m.DurationId = @dur)
+                and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
+                and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
+                and (@loc is null or m.ServiceLocationId = @loc)
+                and (@pro is null or m.ProActiveSlaId = @pro)
+    )
+    select top(@limit) * from SlaCte where rownum > @lastid
 )
 GO
 
@@ -1524,3 +1530,40 @@ RETURN
 
     from Hardware.GetCostsFull(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit)
 )
+
+go
+
+CREATE PROCEDURE Hardware.SpGetCosts
+    @approved bit,
+    @cnt bigint,
+    @wg bigint,
+    @av bigint,
+    @dur bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc bigint,
+    @pro bigint,
+    @lastid bigint,
+    @limit int,
+    @total int output
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    select @total = COUNT(id)
+    from Portfolio.LocalPortfolio m
+    where   (@cnt is null           or m.CountryId = @cnt)
+        and (@wg is null            or m.WgId = @wg)
+        and (@av is null            or m.AvailabilityId = @av)
+        and (@dur is null           or m.DurationId = @dur)
+        and (@reactiontime is null  or m.ReactionTimeId = @reactiontime)
+        and (@reactiontype is null  or m.ReactionTypeId = @reactiontype)
+        and (@loc is null           or m.ServiceLocationId = @loc)
+        and (@pro is null           or m.ProActiveSlaId = @pro)
+
+    select * from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit)
+    order by Id
+
+END
+go

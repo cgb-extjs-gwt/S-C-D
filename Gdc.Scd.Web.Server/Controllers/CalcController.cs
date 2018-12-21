@@ -30,9 +30,11 @@ namespace Gdc.Scd.Web.Api.Controllers
                 [FromUri]int limit = 50
             )
         {
-            if (!IsRangeValid(start, limit))
+            if (filter == null ||
+                filter.Country <= 0 ||
+                !IsRangeValid(start, limit))
             {
-                return null;
+                throw this.NotFoundException();
             }
 
             return calcSrv.GetHardwareCost(approved, filter, start, limit)
@@ -48,7 +50,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         {
             if (!IsRangeValid(start, limit))
             {
-                return null;
+                throw this.NotFoundException();
             }
 
             return calcSrv.GetSoftwareCost(filter, start, limit)
@@ -64,7 +66,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         {
             if (!IsRangeValid(start, limit))
             {
-                return null;
+                throw this.NotFoundException();
             }
 
             return calcSrv.GetSoftwareProactiveCost(filter, start, limit)
