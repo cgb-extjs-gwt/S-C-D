@@ -4,6 +4,7 @@
     <InputLevel Name="ClusterRegion" Caption="Region"/>
     <InputLevel Name="ClusterPla" Caption="Cluster Pla"/>
     <InputLevel Name="Pla" Caption="PLA"/>
+    <InputLevel Name="CentralContractGroup" Caption="Central Contract Group" HideFilter = "true"/>
     <InputLevel Name="Sfab" Caption="SFAB"/>
     <InputLevel Name="Wg" Caption="WG"/>
     <InputLevel Name="Sog" Caption="SOG"/>
@@ -13,6 +14,7 @@
     <Default>
       <InputLevel>Country</InputLevel>
       <InputLevel>Pla</InputLevel>
+      <InputLevel>CentralContractGroup</InputLevel>
       <InputLevel>Wg</InputLevel>
     </Default>
   </InputLevels>

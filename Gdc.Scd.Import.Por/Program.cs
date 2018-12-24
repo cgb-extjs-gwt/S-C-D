@@ -22,7 +22,7 @@ namespace Gdc.Scd.Import.Por
             try
             {
                 //CONFIGURATION
-                 PorService.Logger.Log(LogLevel.Info, "Reading configuration...");
+                PorService.Logger.Log(LogLevel.Info, "Reading configuration...");
                 var softwareServiceTypes = Config.SoftwareSolutionTypes;
                 var proactiveServiceTypes = Config.ProActiveServices;
                 var standardWarrantiesServiceTypes = Config.StandardWarrantyTypes;

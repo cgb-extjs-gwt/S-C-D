@@ -74,6 +74,7 @@ namespace Gdc.Scd.Import.Core.Impl
                         installBaseDb = new InstallBase();
                         installBaseDb.CountryId = masterCountry.Id;
                         installBaseDb.WgId = wg.Id;
+                        installBaseDb.CentralContractGroupId = wg.CentralContractGroupId;
                         installBaseDb.PlaId = wg.PlaId;
                     }
                     installBaseDb.InstalledBaseCountry = item.InstallBase;

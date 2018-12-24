@@ -36,5 +36,8 @@ namespace Gdc.Scd.Core.Entities
         public DateTime ModifiedDateTime { get; set; }
 
         public string ResponsiblePerson { get; set; }
+
+        public CentralContractGroup CentralContactGroup { get; set; }
+        public long? CentralContractGroupId { get; set; }
     }
 }
