@@ -69,6 +69,10 @@ IF OBJECT_ID('Portfolio.GetBySla') IS NOT NULL
   DROP FUNCTION Portfolio.GetBySla;
 go 
 
+IF OBJECT_ID('Portfolio.GetBySlaPaging') IS NOT NULL
+  DROP FUNCTION Portfolio.GetBySlaPaging;
+go 
+
 IF OBJECT_ID('Hardware.CalcFieldServiceCost') IS NOT NULL
   DROP FUNCTION Hardware.CalcFieldServiceCost;
 go 
@@ -755,7 +759,8 @@ AS BEGIN
 END
 go
 
---select * from [References].ExchangeRate
+exec Hardware.UpdateAvailabilityFee;
+go
 
 IF OBJECT_ID('Hardware.InstallBaseUpdated', 'TR') IS NOT NULL
   DROP TRIGGER Hardware.InstallBaseUpdated;
@@ -1089,11 +1094,36 @@ CREATE VIEW [Hardware].[ProActiveView] with schemabinding as
 
     from ProActiveCte pro;
 
-
-
 GO
 
 CREATE FUNCTION [Portfolio].[GetBySla](
+    @cnt bigint,
+    @wg bigint,
+    @av bigint,
+    @dur bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc bigint,
+    @pro bigint
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+    select m.*
+        from Portfolio.LocalPortfolio m
+        where   m.CountryId = @cnt
+            and (@wg is null or m.WgId = @wg)
+            and (@av is null or m.AvailabilityId = @av)
+            and (@dur is null or m.DurationId = @dur)
+            and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
+            and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
+            and (@loc is null or          m.ServiceLocationId = @loc)
+            and (@pro is null or          m.ProActiveSlaId = @pro)
+)
+GO
+
+CREATE FUNCTION [Portfolio].[GetBySlaPaging](
     @cnt bigint,
     @wg bigint,
     @av bigint,
@@ -1133,7 +1163,7 @@ RETURN
     )
     select top(@limit) * from SlaCte where rownum > @lastid
 )
-GO
+go
 
 CREATE FUNCTION [Hardware].[GetCalcMember] (
     @approved bit,
@@ -1266,7 +1296,7 @@ RETURN
          , man.ServiceTC      as ServiceTCManual                   
          , man.ServiceTP      as ServiceTPManual                   
 
-    FROM Portfolio.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
+    FROM Portfolio.GetBySlaPaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
 
     INNER JOIN InputAtoms.Country c on c.id = m.CountryId
 

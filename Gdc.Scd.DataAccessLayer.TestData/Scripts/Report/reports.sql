@@ -18,14 +18,6 @@ IF OBJECT_ID('Report.GetSwResultBySla2') IS NOT NULL
   DROP FUNCTION Report.GetSwResultBySla2;
 go 
 
-IF OBJECT_ID('Report.GetMatrixBySlaCountry') IS NOT NULL
-  DROP FUNCTION Report.GetMatrixBySlaCountry;
-go 
-
-IF OBJECT_ID('Report.GetMatrixBySla') IS NOT NULL
-  DROP FUNCTION Report.GetMatrixBySla;
-go 
-
 IF OBJECT_ID('SoftwareSolution.ServiceCostCalculationView', 'V') IS NOT NULL
   DROP VIEW SoftwareSolution.ServiceCostCalculationView;
 go
@@ -70,49 +62,6 @@ CREATE VIEW InputAtoms.WgSogView as
     where wg.DeactivatedDateTime is null
 GO
 
-CREATE FUNCTION [Report].[GetMatrixBySla]
-(
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @loc bigint
-)
-RETURNS TABLE 
-AS
-RETURN (
-    select m.*
-    from Matrix.Matrix m
-    where m.Denied = 0
-      and (@cnt is null or m.CountryId = @cnt)
-      and (@wg is null or m.WgId = @wg)
-      and (@av is null or m.AvailabilityId = @av)
-      and (@dur is null or m.DurationId = @dur)
-      and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
-      and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
-      and (@loc is null or m.ServiceLocationId = @loc)
-)
-GO
-
-CREATE FUNCTION [Report].[GetMatrixBySlaCountry]
-(
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @loc bigint
-)
-RETURNS TABLE 
-AS
-RETURN (
-    select * from Report.GetMatrixBySla(coalesce(@cnt, -1), @wg, @av, @dur, @reactiontime, @reactiontype, @loc)
-)
-GO
-
 CREATE view SoftwareSolution.ServiceCostCalculationView as
     select  sc.Year as YearId
           , y.Name as Year
@@ -154,14 +103,15 @@ RETURN (
 )
 GO
 
-CREATE FUNCTION [Report].[GetCalcMember] (
+CREATE FUNCTION Report.GetCalcMember (
     @cnt bigint,
     @wg bigint,
     @av bigint,
     @dur bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint
+    @loc bigint,
+    @pro bigint
 )
 RETURNS TABLE 
 AS
@@ -169,43 +119,46 @@ RETURN
 (
     SELECT m.Id
 
-        --FSP
+         --FSP
          , fsp.Name Fsp
          , fsp.ServiceDescription as FspDescription
 
         --SLA
-         , m.CountryId
-         , c.Name as Country
-         , m.WgId
-         , wg.Name as Wg
-         , m.DurationId
-         , dur.Name as Duration
-         , dur.Value as Year
-         , dur.IsProlongation
-         , m.AvailabilityId
-         , av.Name as Availability
-         , m.ReactionTimeId
-         , rtime.Name as ReactionTime
-         , m.ReactionTypeId
-         , rtype.Name as ReactionType
-         , m.ServiceLocationId
-         , loc.Name as ServiceLocation
 
-         , AFR1_Approved       as AFR1 
-         , AFR2_Approved       as AFR2 
-         , afr.AFR3_Approved   as AFR3 
-         , afr.AFR4_Approved   as AFR4 
-         , afr.AFR5_Approved   as AFR5 
-         , afr.AFRP1_Approved  as AFRP1
+         , m.CountryId          
+         , c.Name               as Country
+         , m.WgId
+         , wg.Name              as Wg
+         , m.DurationId
+         , dur.Name             as Duration
+         , dur.Value            as Year
+         , dur.IsProlongation   as IsProlongation
+         , m.AvailabilityId
+         , av.Name              as Availability
+         , m.ReactionTimeId
+         , rtime.Name           as ReactionTime
+         , m.ReactionTypeId
+         , rtype.Name           as ReactionType
+         , m.ServiceLocationId
+         , loc.Name             as ServiceLocation
+         , m.ProActiveSlaId
+         , prosla.ExternalName  as ProActiveSla
+
+         , afr.AFR1_Approved    as AFR1 
+         , afr.AFR2_Approved    as AFR2 
+         , afr.AFR3_Approved    as AFR3 
+         , afr.AFR4_Approved    as AFR4 
+         , afr.AFR5_Approved    as AFR5 
+         , afr.AFRP1_Approved   as AFRP1
        
-         , hdd.HddRet_Approved                  as HddRet              
+         , hdd.HddRet_Approved  as HddRet              
          
          , mcw.MaterialCostWarranty_Approved    as MaterialCostWarranty
          , mco.MaterialCostOow_Approved         as MaterialCostOow     
 
          , mcw.MaterialCostWarranty_Approved * tax.TaxAndDuties_Approved as TaxAndDutiesW
 
-         , mco.MaterialCostOow_Approved * tax.TaxAndDuties_Approved as TaxAndDutiesOow
+         , mco.MaterialCostOow_Approved * tax.TaxAndDuties_Approved      as TaxAndDutiesOow
 
          , r.Cost_Approved                      as Reinsurance
          , fsc.LabourCost_Approved              as LabourCost             
@@ -215,7 +168,7 @@ RETURN
          , fsc.TravelTime_Approved              as TravelTime             
          , fsc.RepairTime_Approved              as RepairTime             
          , fsc.OnsiteHourlyRates_Approved       as OnsiteHourlyRates      
-         
+           
          , ssc.[1stLevelSupportCosts_Approved]  as [1stLevelSupportCosts] 
          , ssc.[2ndLevelSupportCosts_Approved]  as [2ndLevelSupportCosts] 
          , ib.InstalledBaseCountry_Approved     as InstalledBaseCountry    
@@ -224,7 +177,7 @@ RETURN
          , case 
                 when ib.InstalledBaseCountry_Approved <> 0 and ib.InstalledBaseCountryPla_Approved <> 0 
                 then ssc.[1stLevelSupportCosts_Approved] / ib.InstalledBaseCountry_Approved + ssc.[2ndLevelSupportCosts_Approved] / ib.InstalledBaseCountryPla_Approved
-            end  as ServiceSupport
+            end as ServiceSupport
          
          , lc.ExpressDelivery_Approved          as ExpressDelivery         
          , lc.HighAvailabilityHandling_Approved as HighAvailabilityHandling
@@ -233,8 +186,7 @@ RETURN
          , lc.ReturnDeliveryFactory_Approved    as ReturnDeliveryFactory   
          , lc.TaxiCourierDelivery_Approved      as TaxiCourierDelivery     
 
-         , case 
-                 when afEx.id is null then af.Fee_Approved
+         , case when afEx.id is null then af.Fee_Approved
                  else 0
            end as AvailabilityFee
 
@@ -242,20 +194,33 @@ RETURN
          , moc.MarkupFactor_Approved                 as MarkupFactor                
          , msw.MarkupFactorStandardWarranty_Approved as MarkupFactorStandardWarranty
          , msw.MarkupStandardWarranty_Approved       as MarkupStandardWarranty      
-         
-         , pro.Setup_Approved + pro.Service_Approved * dur.Value as ProActive
-         
-         , man.ListPrice_Approved                    as ListPrice                   
-         , man.DealerDiscount_Approved               as DealerDiscount              
-         , man.DealerPrice_Approved                  as DealerPrice                 
-         , man.ServiceTC_Approved                    as ServiceTCManual                   
-         , man.ServiceTP_Approved                    as ServiceTPManual                   
 
-    FROM Report.GetMatrixBySlaCountry(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
+
+         , pro.LocalRemoteAccessSetupPreparationEffort_Approved * pro.OnSiteHourlyRate_Approved as LocalRemoteAccessSetup
+
+         , pro.LocalRegularUpdateReadyEffort_Approved * pro.OnSiteHourlyRate_Approved * prosla.LocalRegularUpdateReadyRepetition as LocalRegularUpdate
+
+         , pro.LocalPreparationShcEffort_Approved * pro.OnSiteHourlyRate_Approved * prosla.LocalPreparationShcRepetition as LocalPreparation
+
+         , pro.LocalRemoteShcCustomerBriefingEffort_Approved * pro.OnSiteHourlyRate_Approved * prosla.LocalRemoteShcCustomerBriefingRepetition as LocalRemoteCustomerBriefing
+
+         , pro.LocalOnSiteShcCustomerBriefingEffort_Approved * pro.OnSiteHourlyRate_Approved * prosla.LocalOnsiteShcCustomerBriefingRepetition as LocalOnsiteCustomerBriefing
+
+         , pro.TravellingTime_Approved * pro.OnSiteHourlyRate_Approved * prosla.TravellingTimeRepetition as Travel
+
+         , pro.CentralExecutionShcReportCost_Approved * prosla.CentralExecutionShcReportRepetition as CentralExecutionReport
+
+         , man.ListPrice      as ListPrice                   
+         , man.DealerDiscount as DealerDiscount              
+         , man.DealerPrice    as DealerPrice                 
+         , man.ServiceTC      as ServiceTCManual                   
+         , man.ServiceTP      as ServiceTPManual                   
+
+    FROM Portfolio.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
 
     INNER JOIN InputAtoms.Country c on c.id = m.CountryId
 
-    INNER JOIN InputAtoms.Wg wg on wg.id = m.WgId
+    INNER JOIN InputAtoms.WgView wg on wg.id = m.WgId
 
     INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 
@@ -264,8 +229,10 @@ RETURN
     INNER JOIN Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
 
     INNER JOIN Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
-
+   
     INNER JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
+
+    INNER JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
     LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
@@ -273,7 +240,7 @@ RETURN
 
     LEFT JOIN Hardware.InstallBase ib on ib.Wg = m.WgId AND ib.Country = m.CountryId
 
-    LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.Wg = m.WgId
+    LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg.ClusterPla
 
     LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
 
@@ -291,21 +258,22 @@ RETURN
 
     LEFT JOIN Hardware.MarkupStandardWarantyView msw on msw.Wg = m.WgId AND msw.Country = m.CountryId AND msw.ReactionTimeId = m.ReactionTimeId AND msw.ReactionTypeId = m.ReactionTypeId AND msw.AvailabilityId = m.AvailabilityId
 
-    LEFT JOIN Hardware.AvailabilityFeeCalcView af on af.Country = m.CountryId AND af.Wg = m.WgId
+    LEFT JOIN Hardware.AvailabilityFeeCalc af on af.Country = m.CountryId AND af.Wg = m.WgId
 
     LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
 
-    LEFT JOIN Hardware.ProActiveView pro ON pro.Country = m.CountryId AND pro.Wg = m.WgId
+    LEFT JOIN Hardware.ProActive pro ON  pro.Country= m.CountryId and pro.Wg= m.WgId
 
-    LEFT JOIN Hardware.ManualCost man on man.MatrixId = m.Id
+    LEFT JOIN Hardware.ManualCost man on man.PortfolioId = m.Id
 
     LEFT JOIN Fsp.HwFspCodeTranslation fsp on fsp.CountryId = m.CountryId
-                                        and fsp.WgId = m.WgId
-                                        and fsp.AvailabilityId = m.AvailabilityId
-                                        and fsp.DurationId = m.DurationId
-                                        and fsp.ReactionTimeId = m.ReactionTimeId
-                                        and fsp.ReactionTypeId = m.ReactionTypeId
-                                        and fsp.ServiceLocationId = m.ServiceLocationId
+                                   and fsp.WgId = m.WgId
+                                   and fsp.AvailabilityId = m.AvailabilityId
+                                   and fsp.DurationId = m.DurationId
+                                   and fsp.ReactionTimeId = m.ReactionTimeId
+                                   and fsp.ReactionTypeId = m.ReactionTypeId
+                                   and fsp.ServiceLocationId = m.ServiceLocationId
+                                   and fsp.ProactiveSlaId = m.ProActiveSlaId
 )
 GO
 
@@ -316,7 +284,8 @@ CREATE FUNCTION Report.GetCostsFull(
     @dur bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint
+    @loc bigint,
+    @pro bigint
 )
 RETURNS TABLE 
 AS
@@ -325,9 +294,14 @@ RETURN
     with CostCte as (
         select    m.*
                 , m.Year * m.ServiceSupport as ServiceSupportCost
+
                 , (1 - m.TimeAndMaterialShare) * (m.TravelCost + m.LabourCost + m.PerformanceRate) + m.TimeAndMaterialShare * (m.TravelTime + m.repairTime) * m.OnsiteHourlyRates + m.PerformanceRate as FieldServicePerYear
+
                 , m.StandardHandling + m.HighAvailabilityHandling + m.StandardDelivery + m.ExpressDelivery + m.TaxiCourierDelivery + m.ReturnDeliveryFactory as LogisticPerYear
-        from Report.GetCalcMember(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
+                
+                , m.LocalRemoteAccessSetup + m.Year * (m.LocalPreparation + m.LocalRegularUpdate + m.LocalRemoteCustomerBriefing + m.LocalOnsiteCustomerBriefing + m.Travel + m.CentralExecutionReport) as ProActive
+       
+        from Report.GetCalcMember(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
     )
     , CostCte2 as (
         select    m.*
@@ -415,22 +389,25 @@ RETURN
          , m.Fsp
          , m.FspDescription
 
+         --SLA
          , m.CountryId
          , m.Country
          , m.WgId
          , m.Wg
+         , m.AvailabilityId
+         , m.Availability
          , m.DurationId
          , m.Duration
          , m.Year
          , m.IsProlongation
-         , m.AvailabilityId
-         , m.Availability
          , m.ReactionTimeId
          , m.ReactionTime
          , m.ReactionTypeId
          , m.ReactionType
          , m.ServiceLocationId
          , m.ServiceLocation
+         , m.ProActiveSlaId
+         , m.ProActiveSla
 
          , m.StandardHandling
          , m.HighAvailabilityHandling
@@ -488,16 +465,17 @@ RETURN
 
        from CostCte6 m
 )
-GO
+go
 
-CREATE FUNCTION [Report].[GetCosts](
+CREATE FUNCTION Report.GetCosts(
     @cnt bigint,
     @wg bigint,
     @av bigint,
     @dur bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint
+    @loc bigint,
+    @pro bigint
 )
 RETURNS TABLE 
 AS
@@ -524,6 +502,8 @@ RETURN
          , ReactionType
          , ServiceLocationId
          , ServiceLocation
+         , ProActiveSlaId
+         , ProActiveSla
 
          , AvailabilityFee
          , HddRet
@@ -548,5 +528,9 @@ RETURN
          , coalesce(ServiceTCManual, ServiceTC) ServiceTC
          , coalesce(ServiceTPManual, ServiceTP) ServiceTP
 
-    from Report.GetCostsFull(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc)
+    from Report.GetCostsFull(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro)
 )
+
+go
+
+
