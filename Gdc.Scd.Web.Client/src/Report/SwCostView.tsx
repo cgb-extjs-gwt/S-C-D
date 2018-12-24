@@ -2,7 +2,7 @@
 import * as React from "react";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { emptyRenderer } from "./Components/EmptyRenderer";
+import { moneyRenderer } from "./Components/GridRenderer";
 import { SwCostFilter } from "./Components/SwCostFilter";
 import { SwCostFilterModel } from "./Model/SwCostFilterModel";
 
@@ -14,11 +14,11 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
         fields: [
-            { name: 'serviceSupport', type: 'number', allowNull: true, convert: emptyRenderer },
-            { name: 'reinsurance', type: 'number', allowNull: true, convert: emptyRenderer },
-            { name: 'transferPrice', type: 'number', allowNull: true, convert: emptyRenderer },
-            { name: 'maintenanceListPrice', type: 'number', allowNull: true, convert: emptyRenderer },
-            { name: 'dealerPrice', type: 'number', allowNull: true, convert: emptyRenderer }
+            { name: 'serviceSupport', type: 'number', allowNull: true, convert: moneyRenderer },
+            { name: 'reinsurance', type: 'number', allowNull: true, convert: moneyRenderer },
+            { name: 'transferPrice', type: 'number', allowNull: true, convert: moneyRenderer },
+            { name: 'maintenanceListPrice', type: 'number', allowNull: true, convert: moneyRenderer },
+            { name: 'dealerPrice', type: 'number', allowNull: true, convert: moneyRenderer }
         ],
 
         pageSize: 25,
@@ -76,11 +76,11 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <NumberColumn text="Service support cost" dataIndex="serviceSupport" />
-                        <NumberColumn text="Reinsurance" dataIndex="reinsurance" />
-                        <NumberColumn text="Transer price" dataIndex="transferPrice" />
-                        <NumberColumn text="Maintenance list price" dataIndex="maintenanceListPrice" />
-                        <NumberColumn text="Dealer reference price" dataIndex="dealerPrice" />
+                        <Column text="Service support cost" dataIndex="serviceSupport" />
+                        <Column text="Reinsurance" dataIndex="reinsurance" />
+                        <Column text="Transer price" dataIndex="transferPrice" />
+                        <Column text="Maintenance list price" dataIndex="maintenanceListPrice" />
+                        <Column text="Dealer reference price" dataIndex="dealerPrice" />
 
                     </Column>
 

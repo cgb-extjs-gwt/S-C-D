@@ -3,11 +3,13 @@ import * as React from "react";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
 import { CalcCostProps } from "./Components/CalcCostProps";
+import { moneyRenderer, percentRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
-import { PercentColumn } from "./Components/PercentColumn";
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
+
+    private grid: Grid & any;
 
     private filter: HwCostFilter;
 
@@ -81,6 +83,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 <HwCostFilter ref={x => this.filter = x} docked="right" onSearch={this.onSearch} />
 
                 <Grid
+                    ref={x => this.grid = x}
                     store={this.store}
                     width="100%"
                     platformConfig={this.pluginConf()}
@@ -113,7 +116,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Cost block results"
                         dataIndex=""
                         cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
 
                         <NumberColumn text="Field service cost" dataIndex="FieldServiceCost" />
                         <NumberColumn text="Service support cost" dataIndex="ServiceSupportCost" />
@@ -136,15 +139,15 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Resulting costs"
                         dataIndex=""
                         cls="calc-cost-result-yellow"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
 
                         <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
                         <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
                         <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
                         <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
 
-                        <PercentColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
-                        <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice} />
+                        <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
+                        <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />

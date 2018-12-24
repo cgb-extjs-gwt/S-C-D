@@ -1,8 +1,8 @@
-﻿import { Column, Container, Grid, NumberColumn } from "@extjs/ext-react";
+﻿import { Column, Container, Grid } from "@extjs/ext-react";
 import * as React from "react";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { emptyRenderer } from "./Components/EmptyRenderer";
+import { moneyRenderer, stringRenderer } from "./Components/GridRenderer";
 import { SwProactiveCostFilter } from "./Components/SwProactiveCostFilter";
 import { SwCostFilterModel } from "./Model/SwCostFilterModel";
 
@@ -15,12 +15,12 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
 
         fields: [
-            { name: 'year', convert: emptyRenderer },
-            { name: 'proActive', type: 'number', allowNull: true, convert: emptyRenderer }
+            { name: 'year', convert: stringRenderer },
+            { name: 'proActive', type: 'number', allowNull: true, convert: moneyRenderer }
         ],
 
         pageSize: 25,
-        autoLoad: true,
+        autoLoad: false,
 
         proxy: {
             type: 'ajax',
