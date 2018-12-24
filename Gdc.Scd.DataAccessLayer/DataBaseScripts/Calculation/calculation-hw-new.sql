@@ -1,9 +1,8 @@
 ALTER TABLE Hardware.ManualCost
-   DROP COLUMN DealerPrice, DealerPrice_Approved;
+   DROP COLUMN DealerPrice;
 
 ALTER TABLE Hardware.ManualCost
-   ADD DealerPrice as (ListPrice - (ListPrice * DealerDiscount / 100)),
-       DealerPrice_Approved as (ListPrice_Approved - (ListPrice_Approved * DealerDiscount_Approved / 100));
+   ADD DealerPrice as (ListPrice - (ListPrice * DealerDiscount / 100));
 GO
 
 ALTER TABLE Hardware.InstallBase
@@ -1111,8 +1110,17 @@ AS
 RETURN 
 (
     with SlaCte as (
-        select ROW_NUMBER() over(order by m.Id) as rownum,
-               m.*
+        select ROW_NUMBER() over(
+                    order by m.CountryId
+                           , m.WgId
+                           , m.AvailabilityId
+                           , m.DurationId
+                           , m.ReactionTimeId
+                           , m.ReactionTypeId
+                           , m.ServiceLocationId
+                           , m.ProActiveSlaId
+                ) as rownum
+             , m.*
             from Portfolio.LocalPortfolio m
             where   (@cnt is null or m.CountryId = @cnt)
                 and (@wg is null or m.WgId = @wg)
@@ -1120,8 +1128,8 @@ RETURN
                 and (@dur is null or m.DurationId = @dur)
                 and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
                 and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
-                and (@loc is null or m.ServiceLocationId = @loc)
-                and (@pro is null or m.ProActiveSlaId = @pro)
+                and (@loc is null or          m.ServiceLocationId = @loc)
+                and (@pro is null or          m.ProActiveSlaId = @pro)
     )
     select top(@limit) * from SlaCte where rownum > @lastid
 )
@@ -1252,11 +1260,11 @@ RETURN
                 else pro.CentralExecutionShcReportCost_Approved * prosla.CentralExecutionShcReportRepetition 
             end as CentralExecutionReport
 
-         , case when @approved = 0 then man.ListPrice                      else man.ListPrice_Approved                    end as ListPrice                   
-         , case when @approved = 0 then man.DealerDiscount                 else man.DealerDiscount_Approved               end as DealerDiscount              
-         , case when @approved = 0 then man.DealerPrice                    else man.DealerPrice_Approved                  end as DealerPrice                 
-         , case when @approved = 0 then man.ServiceTC                      else man.ServiceTC_Approved                    end as ServiceTCManual                   
-         , case when @approved = 0 then man.ServiceTP                      else man.ServiceTP_Approved                    end as ServiceTPManual                   
+         , man.ListPrice      as ListPrice                   
+         , man.DealerDiscount as DealerDiscount              
+         , man.DealerPrice    as DealerPrice                 
+         , man.ServiceTC      as ServiceTCManual                   
+         , man.ServiceTP      as ServiceTPManual                   
 
     FROM Portfolio.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
 

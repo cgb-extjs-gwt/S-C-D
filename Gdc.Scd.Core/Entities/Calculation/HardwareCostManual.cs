@@ -15,20 +15,14 @@ namespace Gdc.Scd.Core.Entities.Calculation
         public LocalPortfolio LocalPortfolio { get; set; }
 
         public double? ServiceTC { get; set; }
-        public double? ServiceTC_Approved { get; set; }
 
         public double? ServiceTP { get; set; }
-        public double? ServiceTP_Approved { get; set; }
 
         public double? ListPrice { get; set; }
-        public double? ListPrice_Approved { get; set; }
 
         public double? DealerDiscount { get; set; }
-        public double? DealerDiscount_Approved { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public double? DealerPrice { get; private set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double? DealerPrice_Approved { get; private set; }
     }
 }

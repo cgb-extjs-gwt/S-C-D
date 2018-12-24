@@ -144,7 +144,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
 
                         <PercentColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
-                        <NumberColumn text="Dealer discount" dataIndex="DealerDiscount" editable={canEditListPrice} />
+                        <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice} />
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
@@ -236,7 +236,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private canEdit(): boolean {
-        return !this.props.approved;
+        return this.props.approved;
     }
 
     private canEditListPrice(): boolean {
