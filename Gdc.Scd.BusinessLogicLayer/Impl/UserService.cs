@@ -3,7 +3,6 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {

@@ -25,6 +25,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<SoftwareProactive> swProactiveRepo;
 
+
         public CalculationService(
                 IRepositorySet repositorySet,
                 IRepository<HardwareManualCost> hwManualRepo,
@@ -37,7 +38,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.hwManualRepo = hwManualRepo;
             this.swMaintenanceRepo = swMaintenanceRepo;
             this.swProactiveRepo = swProactiveRepo;
-            this.matrixRepo = matrixRepo;
+            this.matrixRepo = matrixRepo;     
         }
 
         public async Task<JsonArrayDto> GetHardwareCost(bool approved, HwFilterDto filter, int lasId, int limit)
@@ -56,7 +57,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             var res = await new GetHwCost(repositorySet).ExecuteJsonAsync(approved, filter, lasId, limit);
-
+            
             res.Total = await query.Select(x => x.Id).GetCountAsync();
 
             return res;
