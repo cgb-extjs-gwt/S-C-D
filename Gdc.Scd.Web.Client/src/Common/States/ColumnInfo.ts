@@ -24,9 +24,10 @@ export interface ColumnInfo<T=any> {
     title: string
     type: ColumnType
     isEditable?: boolean
-    referenceItems?: Map<string, NamedId>
+    referenceItems?: Map<number, NamedId<number>>
     isInvisible?: boolean
     filter?: ColumnFilter
+    extensible?: boolean
     mappingFn?(data: T): any
     editMappingFn?(data: Model<T>, dataIndex: string)
     rendererFn?(value, record: Model<T>): any

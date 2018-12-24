@@ -20,7 +20,7 @@ import {
     selectCostBlock, 
 } 
 from "../Actions/CostBlockActions";
-import { SelectListFilter, RegionProps, CostElementProps } from "./CostBlocksView";
+import { SelectListFilter, RegionProps, CostElementProps } from "./CostBlockView";
 import { EditGridToolProps } from "./EditGridTool";
 import { CommonState } from "../../Layout/States/AppStates";
 import { InputLevelMeta, CostBlockMeta, FieldType } from "../../Common/States/CostMetaStates";
@@ -114,9 +114,7 @@ const costBlockTabMap = (
                         selectedItems: selectedCostElement.referenceValues,
                         inputType: selectedCostElementMeta.inputType
                     },
-                    items: edit.originalItems && edit.originalItems.map(originalItem => ({
-                        ...edit.editedItems.find(editedItem => editedItem.id === originalItem.id) || originalItem
-                    }))
+                    url: costBlock.edit.editItemsUrl
                 },
                 applicationId,
                 costBlockId: costBlock.costBlockId,
