@@ -32,23 +32,11 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
 
     private store: Store<TData>
     private filterDatas: Map<string, FilterDataItem>
-    private executeFiltrateFilters = true;
-    private executeFillFilterData = true;
-    private updatedRecords: Model[] = [];
-
-    protected columns: ColumnInfo[]
-
-    public componentWillReceiveProps(nextProps: TProps) {
-        const { columns } = nextProps;
-
-        if (columns && columns.length > 0) {
-            const visibleColumns = this.getVisibleColumns(columns);
-
-            this.initFilterData(visibleColumns);
-            this.initStore(nextProps);
-            this.initColumns(visibleColumns);
-        }
-    }
+    private executeFiltrateFilters = true
+    private executeFillFilterData = true
+    private updatedRecords: Model[] = []
+    private innerColumns: ColumnInfo[]
+    private prevProps: TProps
 
     public componentWillUnmount() {
         if (this.store) {
@@ -57,17 +45,26 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     }
 
     public render(){
+        this.init();
+
         return (
             <DynamicGrid 
                 {...this.props}
                 store={this.store} 
-                columns={this.columns} 
+                columns={this.innerColumns} 
             />
         );
     }
 
-    public getStore() {
-        return this.store;
+    protected init() {
+        const { columns = [] } = this.props;        
+        const visibleColumns = this.getVisibleColumns(columns);
+
+        this.initFilterData(visibleColumns);
+        this.initStore(this.props);
+        this.initColumns(visibleColumns);
+
+        this.prevProps = this.props;
     }
 
     protected buildDataStoreFields(columns: ColumnInfo[]) {
@@ -80,31 +77,35 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     }
 
     protected buildDataStore(props: TProps) {
-        const { columns } = props;
+        const { columns = [] } = props;
 
         return Ext.create('Ext.data.Store', {
             fields: this.buildDataStoreFields(columns)
         });
     }
 
+    protected isUpdatingDataStore(prevProps: TProps, currentProps: TProps) {
+        return !prevProps || prevProps.columns != currentProps.columns;
+    }
+
     private initColumns(visibleColumns: ColumnInfo[]) {
-        if (!this.columns) {
-            this.columns = visibleColumns.map(column => ({
-                ...column,
-                filter: column.filter || {
-                    store: this.filterDatas.get(column.dataIndex).store,
-                    checkedDataIndex: CHECKED_DATA_INDEX,
-                    valueDataIndex: VALUE_DATA_INDEX
-                }
-            }))
-        }
+        this.innerColumns = visibleColumns.map(column => ({
+            ...column,
+            filter: column.filter || {
+                store: this.filterDatas.get(column.dataIndex).store,
+                checkedDataIndex: CHECKED_DATA_INDEX,
+                valueDataIndex: VALUE_DATA_INDEX
+            }
+        }))
     }
 
     private initStore(props: TProps) {
-        if (!this.store) {
+        if (this.isUpdatingDataStore(this.prevProps, props)) {
             this.store = this.buildDataStore(props);
 
-            this.forEachDataStoreEvents((eventName, handler) => this.store.on(eventName, handler, this));
+            if (this.store) {
+                this.forEachDataStoreEvents((eventName, handler) => this.store.on(eventName, handler, this));
+            }
         }
     }
 
@@ -141,42 +142,40 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     }
 
     private initFilterData(visibleColumns: ColumnInfo[]) {
-        if (!this.filterDatas) {
-            this.filterDatas = new Map<string, FilterDataItem>();
+        this.filterDatas = new Map<string, FilterDataItem>();
 
-            const defaultRender = (value, record: Model) => value;
+        const defaultRender = (value, record: Model) => value;
 
-            visibleColumns.forEach(column => {
-                const store = Ext.create('Ext.data.Store', {
-                    fields: [ CHECKED_DATA_INDEX, VALUE_DATA_INDEX ],
-                    sorters: [{
-                        property: VALUE_DATA_INDEX,
-                        direction: 'ASC'
-                    }],
-                    listeners: {
-                        update: (store, record, operation, modifiedFieldNames, details) => {
-                            this.onUpdateFilterStore(store, record, operation, modifiedFieldNames, column.dataIndex);
-                        }
+        visibleColumns.forEach(column => {
+            const store = Ext.create('Ext.data.Store', {
+                fields: [ CHECKED_DATA_INDEX, VALUE_DATA_INDEX ],
+                sorters: [{
+                    property: VALUE_DATA_INDEX,
+                    direction: 'ASC'
+                }],
+                listeners: {
+                    update: (store, record, operation, modifiedFieldNames, details) => {
+                        this.onUpdateFilterStore(store, record, operation, modifiedFieldNames, column.dataIndex);
                     }
-                });
-
-                let renderFn;
-
-                if (column.type === ColumnType.Reference) {
-                    renderFn = buildReferenceColumnRendered(column);
-                } 
-                else {
-                    renderFn = column.rendererFn ? column.rendererFn : defaultRender;
                 }
-
-                this.filterDatas.set(column.dataIndex, { 
-                    store, 
-                    renderFn,
-                    dataSet: new Set<any>(),
-                    filteredDataSet: new Set<any>()
-                });
             });
-        }
+
+            let renderFn;
+
+            if (column.type === ColumnType.Reference) {
+                renderFn = buildReferenceColumnRendered(column);
+            } 
+            else {
+                renderFn = column.rendererFn ? column.rendererFn : defaultRender;
+            }
+
+            this.filterDatas.set(column.dataIndex, { 
+                store, 
+                renderFn,
+                dataSet: new Set<any>(),
+                filteredDataSet: new Set<any>()
+            });
+        });
     }
 
     private filtrateStore(visibleColumns: ColumnInfo[]) {
@@ -194,7 +193,9 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
                         isVisible = renderFn(value, record) != filterItem.value || filterItem.checked
 
                         return isVisible;
-                    }
+                    },
+                    this,
+                    true
                 );
 
                 if (!isVisible) {
@@ -214,11 +215,11 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
 
     onUpdateFilterStore = (store, record, operation, modifiedFieldNames, dataIndex) => {
         if (operation == StoreOperation.Edit && modifiedFieldNames[0] == CHECKED_DATA_INDEX) {
-            this.filtreteFilters();
+            this.filtreteFilters(dataIndex);
         }
     }
 
-    private filtreteFilters() {
+    private filtreteFilters(dataIndex: string) {
         if (this.executeFiltrateFilters) {
             this.executeFiltrateFilters = false;
 
@@ -227,13 +228,26 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
                 const records = this.filtrateStore(visibleColumns);
                 const dataSets = this.buildDataSets(records);
 
+                const headerId = dataIndex.replace('.', '');
+                const headerIndex = dataIndex;
+                const headerText = visibleColumns.find(x => x.dataIndex == dataIndex).title;
+                const filterSymbol = "&#8704;"
+                this.setColumnHeaderText(headerId, headerText + "  " + filterSymbol);
+
                 this.filterDatas.forEach((filterData, dataIndex) => {
                     let allChecked = true;
 
                     filterData.store.each(record => allChecked = record.data.checked);
 
-                    if (allChecked && filterData.store.count() > 1) {
+                    if (allChecked && headerIndex == dataIndex) {
+                        this.setColumnHeaderText(headerId, headerText)
+                    }
+
+                    if (allChecked && headerIndex != dataIndex) {
                         filterData.filteredDataSet = dataSets.get(dataIndex);
+
+                        const filters = filterData.store.getFilters();
+                        filters.each(filter => filters.remove(filter));
 
                         filterData.store.filterBy(
                             record => filterData.filteredDataSet.has(record.data.value)
@@ -246,9 +260,13 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
         }
     }
 
+    private setColumnHeaderText(headerId: string, text: string) {
+        Ext.getCmp(headerId).setText(text);
+    }
+
     private fillFilterData() {
         if (this.executeFillFilterData) {
-            this.executeFillFilterData = true;
+            this.executeFillFilterData = false;
 
             setTimeout(() => {
                 const records: Model[] = [];
@@ -259,7 +277,7 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     
                 this.updateFilterData(dataSets);
 
-                this.executeFillFilterData = false;
+                this.executeFillFilterData = true;
             });
         }
     }

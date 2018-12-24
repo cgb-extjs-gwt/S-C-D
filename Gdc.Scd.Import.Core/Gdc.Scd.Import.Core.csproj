@@ -56,6 +56,7 @@
     <Compile Include="DataAccess\ImportRepository.cs" />
     <Compile Include="Dto\AfrDto.cs" />
     <Compile Include="Dto\DownloadInfoDto.cs" />
+    <Compile Include="Dto\ExchangeRateDto.cs" />
     <Compile Include="Dto\InstallBaseDto.cs" />
     <Compile Include="Dto\LogisticsDto.cs" />
     <Compile Include="Dto\MaterialCostDto.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Impl\DataBaseConfigHandler.cs" />
     <Compile Include="Impl\EbisAfrUploader.cs" />
     <Compile Include="Impl\EbisMaterialCostUploader.cs" />
+    <Compile Include="Impl\ExRatesUploader.cs" />
     <Compile Include="Impl\FileDownloader.cs" />
     <Compile Include="Impl\ImportManager.cs" />
     <Compile Include="Impl\InstallBaseUploader.cs" />

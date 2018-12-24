@@ -12,7 +12,7 @@ export interface TableViewRecordInfo {
 export interface TableViewInfo {
     recordInfo: TableViewRecordInfo
     filters: { [key: string]: NamedId[] }
-    references: { [key: string]: NamedId[] }
+    references: { [key: string]: NamedId<number>[] }
 }
 
 export interface QualityGateResultSetItem {

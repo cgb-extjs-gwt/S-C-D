@@ -38,18 +38,37 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return await this.GetDistinctItems(entityName, schema, referenceFieldName, filter.Convert());
         }
 
-        public async Task<IEnumerable<NamedId>> GetDistinctItems(string entityName, string schema, string referenceFieldName, IDictionary<string, IEnumerable<object>> filter = null)
+        public async Task<IEnumerable<NamedId>> GetDistinctItems(
+            string entityName,
+            string schema,
+            string referenceFieldName,
+            IDictionary<string, IEnumerable<object>> entityFilter = null,
+            IDictionary<string, IEnumerable<object>> referenceFilter = null)
         {
             var meta = this.domainEnitiesMeta.GetEntityMeta(entityName, schema);
+
+            return await this.GetDistinctItems(meta, referenceFieldName, entityFilter, referenceFilter);
+        }
+
+        public async Task<IEnumerable<NamedId>> GetDistinctItems(
+            BaseEntityMeta meta, 
+            string referenceFieldName, 
+            IDictionary<string, IEnumerable<object>> entityFilter = null,
+            IDictionary<string, IEnumerable<object>> referenceFilter = null)
+        {
             var referenceField = (ReferenceFieldMeta)meta.GetField(referenceFieldName);
+            var conditions = 
+                BuildCondition(entityFilter, meta.Name).Concat(BuildCondition(referenceFilter, referenceField.ReferenceMeta.Name));
+
+            var idColumn = new ColumnInfo(referenceField.ReferenceValueField, referenceField.ReferenceMeta.Name);
+            var nameColumn = new ColumnInfo(referenceField.ReferenceFaceField, referenceField.ReferenceMeta.Name);
 
             var query =
-                Sql.SelectDistinct(
-                    new ColumnInfo(referenceField.ReferenceValueField, referenceField.ReferenceMeta.Name),
-                    new ColumnInfo(referenceField.ReferenceFaceField, referenceField.ReferenceMeta.Name))
+                Sql.SelectDistinct(idColumn, nameColumn)
                    .From(meta)
                    .Join(meta, referenceField.Name)
-                   .Where(filter, meta.Name);
+                   .Where(conditions)
+                   .OrderBy(SortDirection.Asc, nameColumn);
 
             return await this.repositorySet.ReadBySql(
                 query,
@@ -58,6 +77,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     Id = reader.GetInt64(0),
                     Name = reader.GetString(1)
                 });
+
+            IEnumerable<ConditionHelper> BuildCondition(IDictionary<string, IEnumerable<object>> filter, string tableName)
+            {
+                if (filter != null && filter.Count > 0)
+                {
+                    yield return ConditionHelper.AndStatic(filter, tableName, tableName);
+                }
+            }
         }
 
         public async Task<IEnumerable<NamedId>> GetNameIdItems(BaseEntityMeta entityMeta, string idField, string nameField, IEnumerable<long> ids = null)

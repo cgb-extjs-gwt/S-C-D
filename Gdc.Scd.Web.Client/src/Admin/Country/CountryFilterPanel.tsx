@@ -1,13 +1,12 @@
-﻿import { Button, CheckBoxField, Container, Panel, PanelProps, RadioField, ContainerField } from "@extjs/ext-react";
+﻿import { Button, CheckBoxField, Container, ContainerField, Panel, PanelProps, RadioField } from "@extjs/ext-react";
 import * as React from "react";
-
-import { DictField } from "../../Dict/Components/DictField";
-import { CountryField } from "../../Dict/Components/CountryField";
-import { CountryGroupField } from "../../Dict/Components/CountryGroupField";
-import { CountryGroupLutField } from "../../Dict/Components/CountryGroupLutField";
 import { CountryGroupDigitField } from "../../Dict/Components/CountryGroupDigitField";
+import { CountryGroupField } from "../../Dict/Components/CountryGroupField";
 import { CountryGroupIsoCodeField } from "../../Dict/Components/CountryGroupIsoCodeField";
-
+import { CountryGroupLutField } from "../../Dict/Components/CountryGroupLutField";
+import { CountryNameField } from "../../Dict/Components/CountryNameField";
+import { CountryQualityGroupField } from "../../Dict/Components/CountryQualityGroupField";
+import { DictField } from "../../Dict/Components/DictField";
 import { CountryFilterModel } from "./CountryFilterModel";
 
 export interface FilterPanelProps extends PanelProps {
@@ -25,6 +24,8 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
     private digit: DictField;
 
     private iso: DictField;
+
+    private qualityGroup: DictField;
 
     private isMaster: RadioField;
 
@@ -54,11 +55,12 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
                         queryMode: 'local',
                         clearable: 'true'
                     }}>
-                    <CountryField ref={x => this.country = x} label="Country:" />
+                    <CountryNameField ref={x => this.country = x} label="Country:" />
                     <CountryGroupField ref={x => this.group = x} label="Group:" />
                     <CountryGroupLutField ref={x => this.lut = x} label="LUT:" />
                     <CountryGroupDigitField ref={x => this.digit = x} label="Digit:" />
-                    <CountryGroupIsoCodeField ref={x => this.iso = x} label="ISO Code:" />                
+                    <CountryGroupIsoCodeField ref={x => this.iso = x} label="ISO Code:" />        
+                    <CountryQualityGroupField ref={x => this.qualityGroup = x} label="Quality Group:" />        
                 </Container>
 
                 <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ padding: '3px 0' }}>
@@ -89,11 +91,12 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
         let isMasterValue = (this.isMaster as any).getValues()['isMaster']
 
         return {
-            country: this.country.getSelected(),
+            country: this.country.getSelectedValue(),
             group: this.group.getSelected(),
             lut: this.lut.getSelectedValue(),
             digit: this.digit.getSelectedValue(),
             iso: this.iso.getSelectedValue(),
+            qualityGroup: this.qualityGroup.getSelectedValue(),
 
             isMaster: this.getCheckedRadio(this.isMaster, 'isMaster'),
             storeListAndDealer: this.getCheckedRadio(this.storeListAndDealer, 'storeListAndDealer'),

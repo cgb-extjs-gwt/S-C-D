@@ -17,14 +17,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             this.repositorySet = repositorySet;
         }
 
-        public void Execute(CapabilityMatrixRuleSetDto dto)
-        {
-            repositorySet.ExecuteProc(PROC_NAME, Prepare(dto));
-        }
-
         public Task ExecuteAsync(CapabilityMatrixRuleSetDto dto)
         {
-            return repositorySet.ExecuteProcAsync(PROC_NAME, Prepare(dto));
+            if (dto.CountryId.HasValue)
+            {
+                return repositorySet.ExecuteProcAsync(PROC_NAME, Prepare(dto));
+            }
+            else
+            {
+                throw new System.ArgumentException("Invalid country");
+            }
         }
 
         private DbParameter[] Prepare(CapabilityMatrixRuleSetDto dto)
@@ -36,10 +38,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                 new DbParameterBuilder().WithName("@dur").WithListIdValue(dto.Durations).Build(),
                 new DbParameterBuilder().WithName("@rtype").WithListIdValue(dto.ReactionTypes).Build(),
                 new DbParameterBuilder().WithName("@rtime").WithListIdValue(dto.ReactionTimes).Build(),
-                new DbParameterBuilder().WithName("@loc").WithListIdValue(dto.ServiceLocations).Build(),
-                new DbParameterBuilder().WithName("@globalPortfolio").WithValue(dto.IsGlobalPortfolio).Build(),
-                new DbParameterBuilder().WithName("@masterPortfolio").WithValue(dto.IsMasterPortfolio).Build(),
-                new DbParameterBuilder().WithName("@corePortfolio").WithValue(dto.IsCorePortfolio).Build()
+                new DbParameterBuilder().WithName("@loc").WithListIdValue(dto.ServiceLocations).Build()
             };
         }
     }

@@ -83,7 +83,7 @@ namespace Gdc.Scd.Import.Core.Impl
 
             if (batchList.Any())
             {
-                _repositoryInstallBase.Save(batchList);
+                  _repositoryInstallBase.Save(batchList);
             }
 
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, batchList.Count);

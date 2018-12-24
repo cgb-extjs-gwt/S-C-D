@@ -20,7 +20,7 @@ import {
     selectCostBlock, 
 } 
 from "../Actions/CostBlockActions";
-import { SelectListFilter, RegionProps, CostElementProps } from "./CostBlocksView";
+import { SelectListFilter, RegionProps, CostElementProps } from "./CostBlockView";
 import { EditGridToolProps } from "./EditGridTool";
 import { CommonState } from "../../Layout/States/AppStates";
 import { InputLevelMeta, CostBlockMeta, FieldType } from "../../Common/States/CostMetaStates";
@@ -111,11 +111,10 @@ const costBlockTabMap = (
                     valueColumn: {
                         title: selectedCostElementMeta.name,
                         type: selectedCostElementMeta.typeOptions ? selectedCostElementMeta.typeOptions.Type : FieldType.Double,
-                        selectedItems: selectedCostElement.referenceValues
+                        selectedItems: selectedCostElement.referenceValues,
+                        inputType: selectedCostElementMeta.inputType
                     },
-                    items: edit.originalItems && edit.originalItems.map(originalItem => ({
-                        ...edit.editedItems.find(editedItem => editedItem.id === originalItem.id) || originalItem
-                    }))
+                    url: costBlock.edit.editItemsUrl
                 },
                 applicationId,
                 costBlockId: costBlock.costBlockId,
@@ -216,11 +215,9 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
             },
             onCostElementSelected: (applicationId, costBlockId, costElementId) => {
                 dispatch(getDataByCostElementSelection(applicationId, costBlockId, costElementId));
-                dispatch(loadEditItemsByContext());
             },
             onInputLevelSelected: (applicationId, costBlockId, costElementId, inputLevelId) => {
                 dispatch(getFilterItemsByInputLevelSelection(applicationId, costBlockId, costElementId, inputLevelId));
-                dispatch(loadEditItemsByContext());
             },
             onCostElementFilterSelectionChanged: (applicationId, costBlockId, costElementId, filterItemId, isSelected) => {
                 dispatch(changeSelectionCostElementFilter(applicationId, costBlockId, costElementId, filterItemId, isSelected));

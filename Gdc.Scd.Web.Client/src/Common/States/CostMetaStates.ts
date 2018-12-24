@@ -13,6 +13,7 @@ export interface CostElementMeta extends NamedId, UsingInfo {
     typeOptions: {
         Type: FieldType
     }
+    inputType: InputType
 }
 
 export interface CostBlockMeta extends NamedId {
@@ -31,7 +32,16 @@ export interface InputLevelMeta extends NamedId {
 export enum FieldType {
     Reference = "Reference",
     Double = "Double",
-    Flag = "Flag"
+    Flag = "Flag",
+    Percent = "Percent"
+}
+
+export enum InputType {
+    Manually = 0,
+    Automatically = 1,
+    Reference = 2,
+    ManualyAutomaticly = 3,
+    AutomaticallyReadonly = 4
 }
 
 export interface ApplicationMeta extends NamedId, UsingInfo {

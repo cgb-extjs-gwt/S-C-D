@@ -6,7 +6,6 @@ using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Dto;
 using Gdc.Scd.Core.Meta.Entities;
 
@@ -68,15 +67,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 foreach (var costElement in costBlock.CostElements)
                 {
                     var isManualInput = costElement.InputType == InputType.Manually || costElement.InputType == InputType.ManualyAutomaticly;
+                    var isReadonly = costElement.InputType == InputType.AutomaticallyReadonly;
+
                     var costElementDto = new CostElementDto
                     {
-                        IsUsingCostEditor = isManualInput && this.ContainsRole(costElement.CostEditorRoles, user),
+                        IsUsingCostEditor = (isManualInput || isReadonly) && this.ContainsRole(costElement.CostEditorRoles, user),
                         IsUsingTableView = isManualInput && this.ContainsRole(costElement.TableViewRoles, user)
                     };
 
                     if (isAddingCostElement || costElementDto.IsUsingCostEditor || costElementDto.IsUsingTableView)
                     {
-                        costElementDto.InputLevels = this.BuildInputLevelDtos(costElement.InputLevels);
+                        costElementDto.InputLevels = this.BuildInputLevelDtos(costElement);
 
                         this.Copy(costElement, costElementDto, nameof(CostElementDto.InputLevels));
 
@@ -105,28 +106,26 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return this.BuildDomainMetaDto(this.meta, costBlockDtos);
         }
 
-        private MetaCollection<InputLevelDto> BuildInputLevelDtos(IEnumerable<InputLevelMeta> inputLevelMetas)
+        private MetaCollection<InputLevelDto> BuildInputLevelDtos(CostElementMeta costElementMeta)
         {
             var inputLevelDtos = new MetaCollection<InputLevelDto>();
             var index = 0;
 
-            InputLevelMeta prevInputLevelMeta = null;
-
-            foreach (var inputLevelMeta in inputLevelMetas.OrderBy(x => x.LevelNumber))
+            foreach (var inputLevelMeta in costElementMeta.InputLevels)
             {
                 var inputLevelDto = this.Copy<InputLevelDto>(inputLevelMeta, nameof(InputLevelDto.LevelNumber));
 
                 inputLevelDto.LevelNumber = index++;
-                
-                if (prevInputLevelMeta != null && prevInputLevelMeta.Id != MetaConstants.CountryInputLevelName)
+
+                var prevInputLevelMeta = costElementMeta.GetPreviousInputLevel(inputLevelMeta.Id);
+
+                if (costElementMeta.HasInputLevelFilter(prevInputLevelMeta))
                 {
                     inputLevelDto.HasFilter = true;
                     inputLevelDto.FilterName = prevInputLevelMeta.Name;
                 }
 
                 inputLevelDtos.Add(inputLevelDto);
-
-                prevInputLevelMeta = inputLevelMeta;
             }
 
             return inputLevelDtos;

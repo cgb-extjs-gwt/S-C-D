@@ -3,199 +3,97 @@ import { Grid, SelectField, Column, Container, CheckBoxField, CheckColumn, Numbe
 import { EditItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { large, small } from "../../responsiveFormulas";
-import { FieldType } from "../../Common/States/CostMetaStates";
+import { FieldType, InputType } from "../../Common/States/CostMetaStates";
+import { ColumnInfo } from "../../Common/States/ColumnInfo";
+import { buildCostElementColumn } from "../../Common/Helpers/ColumnInfoHelper";
+import { SaveToolbar } from "../../Common/Components/SaveToolbar";
+import { SaveApprovalToollbar } from "../../Approval/Components/SaveApprovalToollbar";
+import { StoreUpdateEventFn } from "../../Common/States/ExtStates";
+import { DynamicGrid } from "../../Common/Components/DynamicGrid";
+import { AjaxDynamicGrid, ApiUrls, AjaxDynamicGridProps } from "../../Common/Components/AjaxDynamicGrid";
+import { objectPropsEqual } from "../../Common/Helpers/CommonHelpers";
 
 export interface ValueColumnProps {
     title: string
     type: FieldType,
     selectedItems: NamedId<number>[]
+    inputType: InputType
 }
 
 export interface EditGridActions {
     onItemEdited?(item: EditItem)
     onSelected?(items: EditItem[])
+    onApprove?()
+    onCancel?()
+    onSave?()
 }
 
 export interface EditGridProps extends EditGridActions {
     nameColumnTitle: string
     valueColumn: ValueColumnProps
-    items: EditItem[]
+    url: string
 }
 
 export class EditGrid extends React.Component<EditGridProps> {
-    private itemsMap = new Map<string, EditItem>();
-
-    constructor(props: EditGridProps) {
-        super(props);
-
-        if (this.props.items) {
-            this.updateItemsMap(this.props.items) ;
-        }
-    }
-
     public shouldComponentUpdate(nextProps: EditGridProps) {
-        let result = false;
-
-        const { items } = nextProps;
-
-        if (!items || items.length != this.itemsMap.size) {
-            result = true;
-        } else {
-            result = !items.every(item => { 
-                const mapItem = this.itemsMap.get(item.id);
-
-                return (
-                    mapItem &&
-                    mapItem.name == item.name && 
-                    mapItem.value == item.value && 
-                    mapItem.valueCount == item.valueCount
-                );
-            });
-        }
-
-        if (result && nextProps.items) {
-            this.updateItemsMap(nextProps.items);
-        }
-
-        return result;
-    }
-
-    public render() {
-        const { nameColumnTitle, valueColumn } = this.props;
-        const store = this.buildStore();
-
         return (
-            <Grid 
-                flex={1}
-                store={store} 
-                shadow 
-                columnLines={true}
-                plugins={['cellediting', 'selectionreplicator']}
-                selectable={{
-                    rows: true,
-                    cells: true,
-                    columns: true,
-                    drag: true,
-                    extensible: 'y',
-                }}
-                onSelectionchange={this.onSelected}
-            >
-                <Column text={nameColumnTitle} dataIndex="name" flex={1} extensible={false} />
-                {this.getValueColumn(valueColumn)}
-            </Grid>
+            !objectPropsEqual(this.props, nextProps, 'url', 'nameColumnTitle') ||
+            !objectPropsEqual(this.props.valueColumn, nextProps.valueColumn)
         );
     }
 
-    private buildStore() {
-        const { items, onItemEdited } = this.props;
-        const me = this;
+    public render() {
+        const { url, valueColumn, nameColumnTitle } = this.props;
+        const columns = this.buildColumnInfos(nameColumnTitle, valueColumn);
 
-        return Ext.create('Ext.data.Store', {
-            data: Array.from(this.itemsMap.values()),
-            fields: ['id', 'name', 'valueCount',
-                {
-                    name: 'value',
-                    mapping: data => data.value == null ? ' ' : data.value
-                }],
-            listeners: onItemEdited && {
-                update: (store, record, operation, modifiedFieldNames, details) => {
-                    if (modifiedFieldNames[0] === 'name') {
-                        record.reject();
-                    } else {
-                        const item = record.data as EditItem;
-
-                        me.itemsMap.set(item.id, item);
-                        
-                        record.set('valueCount', 1);
-
-                        onItemEdited(record.data);
-                    }
-                }
-            }
-        }); 
+        return (
+            url &&
+            <AjaxDynamicGrid 
+                flex={1}
+                columns={columns} 
+                apiUrls={{ read: url }}
+                getSaveToolbar={this.getSaveToolbar}
+                onSelectionChange={this.onSelected}
+                onUpdateRecord={this.onUpdateRecord}
+                onCancel={this.onCancel}
+                onSave={this.onSave}
+            />
+        );
     }
 
-    private getValueColumn(columProps: ValueColumnProps) {
-        let column;
-
-        const columnOptions = {
-            text: columProps.title,
-            dataIndex: "value",
-            flex: 1,
-            editable: true,
-            renderer: (value, { data }: { data: EditItem }) => {
-                return data.valueCount == 1 ? value : this.getValueCountMessage(data);
-            }
-        };
-    
-        switch (columProps.type) {
-            case FieldType.Reference:
-                columnOptions.renderer = (value, { data }) => {
-                    let result: string;
-
-                    if (data.valueCount == 1) {
-                        const selectedItem = columProps.selectedItems.find(item => item.id == data.value);
-
-                        result = selectedItem.name;
-                    } else {
-                        result = this.getValueCountMessage(data);
-                    }
-
-                    return result;
-                }
-
-                column = (
-                    <Column {...columnOptions}>
-                        <SelectField 
-                            options={
-                                columProps.selectedItems.map(item => ({text: item.name, value: item.id}))
-                        }/>
-                    </Column>
-                );
-                break;
-
-            case FieldType.Double:
-                column = (
-                    <Column {...columnOptions}>
-                        <NumberField required validators={{type:"number", message:"Invalid value"}}/>
-                    </Column>
-                );
-                break;
-
-            case FieldType.Flag:
-                columnOptions.renderer = (value, { data }) => {
-                    let result: string;
-
-                    if (data.valueCount == 1) {
-                        result = value ? 'true' : 'false';
-                    } else {
-                        result = this.getValueCountMessage(data);
-                    }
-
-                    return result;
-                };
-                let selectField = (<SelectField
-                    options={[
-                        { text: 'true', value: 1 },
-                        { text: 'false', value: 0 }
-                    ]}
-                />);
-
-
-                column = (
-                    <Column {...columnOptions}>
-                        {selectField}
-                    </Column>
-                );
-                
-                break;
-        }
-    
-        return column;
+    private buildColumnInfos(nameColumnTitle: string, valueColumn: ValueColumnProps) {
+        return [
+            { 
+                title: nameColumnTitle, 
+                dataIndex: "name", 
+                extensible: false 
+            },
+            buildCostElementColumn<EditItem>({
+                title: valueColumn.title,
+                dataIndex: "value",
+                type: valueColumn.type,
+                references: valueColumn.selectedItems,
+                inputType: valueColumn.inputType,
+                getCountFn: ({ data }) => data.valueCount
+            })
+        ] as ColumnInfo[]
     }
 
-    private getValueCountMessage(editItem: EditItem) {
-        return `(${editItem.valueCount} values)`
+    private getSaveToolbar = (
+        hasChanges: boolean, 
+        ref: (toolbar: SaveToolbar) => void, 
+        { cancel, save, saveWithCallback }: DynamicGrid
+    ) => {
+        return (
+            <SaveApprovalToollbar 
+                ref={ref}
+                isEnableClear={hasChanges} 
+                isEnableSave={hasChanges}
+                onCancel={cancel}
+                onSave={save}
+                onApproval={() => saveWithCallback(this.props.onApprove)}
+            />
+        );
     }
 
     private onSelected = (grid, records: { data: EditItem }[]) => {
@@ -208,11 +106,31 @@ export class EditGrid extends React.Component<EditGridProps> {
         }
     }
 
-    private updateItemsMap(items: EditItem[]) {
-        this.itemsMap.clear();
-            
-        for (const item of items) {
-            this.itemsMap.set(item.id, { ...item });
+    private onUpdateRecord: StoreUpdateEventFn<EditItem> = (store, record, operation, modifiedFieldNames, details) => {
+        const { onItemEdited } = this.props;
+
+        if (modifiedFieldNames) {
+            if (modifiedFieldNames[0] === 'name') {
+                record.reject();
+            } else {
+                const item = record.data as EditItem;
+    
+                record.set('valueCount', 1);
+    
+                onItemEdited(record.data);
+            }
         }
     }
-} 
+
+    private onSave = () => {
+        const { onSave } = this.props;
+
+        onSave && onSave();
+    }
+
+    private onCancel = () => {
+        const { onCancel } = this.props;
+
+        onCancel && onCancel();
+    }
+}
