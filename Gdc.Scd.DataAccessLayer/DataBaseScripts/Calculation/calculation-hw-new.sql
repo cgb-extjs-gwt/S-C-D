@@ -244,6 +244,63 @@ GO
 update Hardware.AFR set AFR = AFR + 0
 GO
 
+IF OBJECT_ID('Fsp.HwStandardWarranty', 'U') IS NOT NULL
+  DROP TABLE Fsp.HwStandardWarranty;
+go
+
+CREATE TABLE Fsp.HwStandardWarranty(
+    [Wg] [bigint] NOT NULL foreign key references InputAtoms.Wg(Id),
+    [Country] [bigint] NULL foreign key references InputAtoms.Country(Id),
+    [Duration] [bigint] NOT NULL foreign key references Dependencies.Duration(Id)
+)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_HwStandardWarranty_Wg] ON Fsp.HwStandardWarranty
+(
+	[Wg] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_HwStandardWarranty_Country] ON Fsp.HwStandardWarranty
+(
+	[Country] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
+IF OBJECT_ID('Fsp.HwFspCodeTranslation_Updated', 'TR') IS NOT NULL
+  DROP TRIGGER Fsp.HwFspCodeTranslation_Updated;
+go
+
+CREATE TRIGGER Fsp.HwFspCodeTranslation_Updated
+ON Fsp.HwFspCodeTranslation
+After INSERT, UPDATE
+AS BEGIN
+
+    truncate table Fsp.HwStandardWarranty;
+
+    insert into Fsp.HwStandardWarranty(Wg, Country, Duration)
+        select WgId, CountryId, max(DurationId) as DurationId
+        from Fsp.HwFspCodeTranslation fsp
+        where fsp.IsStandardWarranty = 1 
+        group by WgId, CountryId, DurationId;
+END
+GO
+
+IF OBJECT_ID('Fsp.HwStandardWarrantyView', 'V') IS NOT NULL
+  DROP VIEW Fsp.HwStandardWarrantyView;
+go
+
+CREATE VIEW Fsp.HwStandardWarrantyView AS
+    SELECT std.Wg, std.Country, std.Duration, dur.Name, dur.IsProlongation, dur.Value as DurationValue
+    FROM fsp.HwStandardWarranty std
+    INNER JOIN Dependencies.Duration dur on dur.Id = std.Duration
+
+GO
+
+update Fsp.HwFspCodeTranslation set Name = Name;
+GO
+
+
 CREATE FUNCTION Hardware.CalcByDur
 (
     @year int,
@@ -1197,6 +1254,8 @@ RETURN
          , loc.Name             as ServiceLocation
          , prosla.ExternalName  as ProActiveSla
 
+         , case when stdw.DurationValue is not null then stdw.DurationValue  else stdw2.DurationValue end as StdWarranty
+
          , case when @approved = 0 then afr.AFR1  else AFR1_Approved       end as AFR1 
          , case when @approved = 0 then afr.AFR2  else AFR2_Approved       end as AFR2 
          , case when @approved = 0 then afr.AFR3  else afr.AFR3_Approved   end as AFR3 
@@ -1313,6 +1372,9 @@ RETURN
     INNER JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
 
     INNER JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
+
+    LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId --find local standard warranty portfolio
+    LEFT JOIN Fsp.HwStandardWarrantyView stdw2 on stdw2.Wg = m.WgId and stdw2.Country is null    --find principle standard warranty portfolio, if local does not exist
 
     LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
