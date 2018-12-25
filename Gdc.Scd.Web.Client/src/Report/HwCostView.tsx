@@ -3,7 +3,7 @@ import * as React from "react";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { moneyRenderer, percentRenderer } from "./Components/GridRenderer";
+import { moneyRenderer, percentRenderer, yearRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 
@@ -106,6 +106,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <Column text="Reaction time" dataIndex="ReactionTime" />
                         <Column text="Service location" dataIndex="ServiceLocation" />
                         <Column text="ProActive sla" dataIndex="ProActiveSla" />
+                        <Column text="Standard warranty duration" dataIndex="StdWarranty" renderer={yearRenderer} flex="0.5" />
 
                     </Column>
 
