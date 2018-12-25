@@ -1,9 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
-using Gdc.Scd.BusinessLogicLayer.Dto.Report;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
 using Gdc.Scd.Core.Entities.Calculation;
-using Gdc.Scd.Core.Entities.CapabilityMatrix;
 using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -41,7 +39,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.portfolioRepo = portfolioRepo;
         }
 
-        public Task<JsonArrayDto> GetHardwareCost(bool approved, HwFilterDto filter, int lastId, int limit)
+        public Task<(string json, int total)> GetHardwareCost(bool approved, HwFilterDto filter, int lastId, int limit)
         {
             if (filter == null || filter.Country <= 0)
             {
@@ -51,7 +49,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new GetHwCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
         }
 
-        public async Task<Tuple<SwMaintenanceCostDto[], int>> GetSoftwareCost(SwFilterDto filter, int start, int limit)
+        public async Task<(SwMaintenanceCostDto[] items, int total)> GetSoftwareCost(SwFilterDto filter, int start, int limit)
         {
             var query = swMaintenanceRepo.GetAll();
 
@@ -88,10 +86,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 TransferPrice_Approved = x.TransferPrice_Approved
             }).GetAsync();
 
-            return new Tuple<SwMaintenanceCostDto[], int>(result, count);
+            return (result, count);
         }
 
-        public async Task<Tuple<SwProactiveCostDto[], int>> GetSoftwareProactiveCost(SwFilterDto filter, int start, int limit)
+        public async Task<(SwProactiveCostDto[] items, int total)> GetSoftwareProactiveCost(SwFilterDto filter, int start, int limit)
         {
             var query = swProactiveRepo.GetAll();
 
@@ -116,7 +114,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 ProActive_Approved = x.ProActive_Approved
             }).GetAsync();
 
-            return new Tuple<SwProactiveCostDto[], int>(result, count);
+            return (result, count);
         }
 
         public void SaveHardwareCost(IEnumerable<HwCostManualDto> records)

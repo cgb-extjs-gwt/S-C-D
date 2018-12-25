@@ -32,7 +32,7 @@ namespace Gdc.Scd.Web.Server.Controllers
 
             return portfolioService
                     .GetAllowed(filter, start, limit)
-                    .ContinueWith(x => new DataInfo<PortfolioDto> { Items = x.Result.Item1, Total = x.Result.Item2 });
+                    .ContinueWith(x => new DataInfo<PortfolioDto> { Items = x.Result.items, Total = x.Result.total });
         }
 
         [HttpPost]

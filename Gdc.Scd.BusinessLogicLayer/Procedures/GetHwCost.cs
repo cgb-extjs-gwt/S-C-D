@@ -1,5 +1,4 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
-using Gdc.Scd.BusinessLogicLayer.Dto.Report;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
@@ -20,16 +19,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             _repo = repo;
         }
 
-        public async Task<JsonArrayDto> ExecuteJsonAsync(bool approved, HwFilterDto filter, int lastid, int limit)
+        public async Task<(string json, int total)> ExecuteJsonAsync(bool approved, HwFilterDto filter, int lastid, int limit)
         {
-            JsonArrayDto result = new JsonArrayDto();
-
             var parameters = Prepare(approved, filter, lastid, limit);
 
-            result.Json = await _repo.ExecuteProcAsJsonAsync(PROC, parameters);
-            result.Total = GetTotal(parameters);
+            var json = await _repo.ExecuteProcAsJsonAsync(PROC, parameters);
+            var total = GetTotal(parameters);
 
-            return result;
+            return (json, total);
         }
 
         private static DbParameter[] Prepare(bool approved, HwFilterDto filter, int lastid, int limit)

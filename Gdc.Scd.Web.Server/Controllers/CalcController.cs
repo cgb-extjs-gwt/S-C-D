@@ -38,7 +38,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             }
 
             return calcSrv.GetHardwareCost(approved, filter, start, limit)
-                          .ContinueWith(x => this.JsonContent(x.Result.Json, x.Result.Total));
+                          .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
         }
 
         [HttpGet]
@@ -54,7 +54,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             }
 
             return calcSrv.GetSoftwareCost(filter, start, limit)
-                          .ContinueWith(x => new DataInfo<SwMaintenanceCostDto> { Items = x.Result.Item1, Total = x.Result.Item2 });
+                          .ContinueWith(x => new DataInfo<SwMaintenanceCostDto> { Items = x.Result.items, Total = x.Result.total });
         }
 
         [HttpGet]
@@ -70,7 +70,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             }
 
             return calcSrv.GetSoftwareProactiveCost(filter, start, limit)
-                          .ContinueWith(x => new DataInfo<SwProactiveCostDto> { Items = x.Result.Item1, Total = x.Result.Item2 });
+                          .ContinueWith(x => new DataInfo<SwProactiveCostDto> { Items = x.Result.items, Total = x.Result.total });
         }
 
         [HttpPost]
