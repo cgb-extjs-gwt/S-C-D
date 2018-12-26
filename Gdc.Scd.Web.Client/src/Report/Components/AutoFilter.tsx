@@ -4,6 +4,7 @@ import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
 import { CountryField } from "../../Dict/Components/CountryField";
 import { CountryGroupField } from "../../Dict/Components/CountryGroupField";
 import { DurationField } from "../../Dict/Components/DurationField";
+import { ProActiveField } from "../../Dict/Components/ProActiveField";
 import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
 import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
 import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
@@ -81,6 +82,9 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
 
             case AutoFilterType.REACTIONTYPE:
                 return <ReactionTypeField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+
+            case AutoFilterType.PROACTIVE:
+                return <ProActiveField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.SERVICELOCATION:
                 return <ServiceLocationField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;

@@ -9,4 +9,4 @@ alter table Hardware.ManualCost
 alter table Hardware.ManualCost
     drop column ListPrice_Approved;
 
-
+insert into Report.ReportFilterType (MultiSelect, Name) values (1, 'proactive');

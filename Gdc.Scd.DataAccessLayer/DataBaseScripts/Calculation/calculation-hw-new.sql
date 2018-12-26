@@ -1192,24 +1192,57 @@ CREATE FUNCTION [Portfolio].[GetBySlaPaging](
     @lastid bigint,
     @limit int
 )
-RETURNS TABLE 
+RETURNS @tbl TABLE 
+            (   
+                [rownum] [int] NOT NULL,
+                [Id] [bigint] NOT NULL,
+                [CountryId] [bigint] NOT NULL,
+                [WgId] [bigint] NOT NULL,
+                [AvailabilityId] [bigint] NOT NULL,
+                [DurationId] [bigint] NOT NULL,
+                [ReactionTimeId] [bigint] NOT NULL,
+                [ReactionTypeId] [bigint] NOT NULL,
+                [ServiceLocationId] [bigint] NOT NULL,
+                [ProActiveSlaId] [bigint] NOT NULL
+            )
 AS
-RETURN 
-(
-    with SlaCte as (
-        select ROW_NUMBER() over(
-                    order by m.CountryId
-                           , m.WgId
-                           , m.AvailabilityId
-                           , m.DurationId
-                           , m.ReactionTimeId
-                           , m.ReactionTypeId
-                           , m.ServiceLocationId
-                           , m.ProActiveSlaId
-                ) as rownum
-             , m.*
+BEGIN
+
+    if @limit > 0
+        begin
+            with SlaCte as (
+                select ROW_NUMBER() over(
+                            order by m.CountryId
+                                   , m.WgId
+                                   , m.AvailabilityId
+                                   , m.DurationId
+                                   , m.ReactionTimeId
+                                   , m.ReactionTypeId
+                                   , m.ServiceLocationId
+                                   , m.ProActiveSlaId
+                        ) as rownum
+                     , m.*
+                    from Portfolio.LocalPortfolio m
+                    where   (m.CountryId = @cnt)
+                        and (@wg is null or m.WgId = @wg)
+                        and (@av is null or m.AvailabilityId = @av)
+                        and (@dur is null or m.DurationId = @dur)
+                        and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
+                        and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
+                        and (@loc is null or          m.ServiceLocationId = @loc)
+                        and (@pro is null or          m.ProActiveSlaId = @pro)
+            )
+            insert @tbl
+            select top(@limit)
+                    rownum, Id, CountryId, WgId, AvailabilityId, DurationId, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProActiveSlaId
+            from SlaCte where rownum > @lastid
+        end
+    else
+        begin
+            insert @tbl
+            select -1 as rownum, Id, CountryId, WgId, AvailabilityId, DurationId, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProActiveSlaId
             from Portfolio.LocalPortfolio m
-            where   (@cnt is null or m.CountryId = @cnt)
+            where   (m.CountryId = @cnt)
                 and (@wg is null or m.WgId = @wg)
                 and (@av is null or m.AvailabilityId = @av)
                 and (@dur is null or m.DurationId = @dur)
@@ -1217,9 +1250,20 @@ RETURN
                 and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
                 and (@loc is null or          m.ServiceLocationId = @loc)
                 and (@pro is null or          m.ProActiveSlaId = @pro)
-    )
-    select top(@limit) * from SlaCte where rownum > @lastid
-)
+
+             order by m.CountryId
+                    , m.WgId
+                    , m.AvailabilityId
+                    , m.DurationId
+                    , m.ReactionTimeId
+                    , m.ReactionTypeId
+                    , m.ServiceLocationId
+                    , m.ProActiveSlaId;
+
+        end
+
+    RETURN;
+END;
 go
 
 CREATE FUNCTION [Hardware].[GetCalcMember] (
@@ -1243,15 +1287,23 @@ RETURN
 
         --SLA
 
+         , m.CountryId          
          , c.Name               as Country
+         , m.WgId
          , wg.Name              as Wg
+         , m.DurationId
          , dur.Name             as Duration
          , dur.Value            as Year
          , dur.IsProlongation   as IsProlongation
+         , m.AvailabilityId
          , av.Name              as Availability
+         , m.ReactionTimeId
          , rtime.Name           as ReactionTime
+         , m.ReactionTypeId
          , rtype.Name           as ReactionType
+         , m.ServiceLocationId
          , loc.Name             as ServiceLocation
+         , m.ProActiveSlaId
          , prosla.ExternalName  as ProActiveSla
 
          , case when stdw.DurationValue is not null then stdw.DurationValue 

@@ -1530,7 +1530,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "reactiontime" , MultiSelect = true },
                 new ReportFilterType { Name = "reactiontype" , MultiSelect = true },
                 new ReportFilterType { Name = "servicelocation" , MultiSelect = true },
-                new ReportFilterType { Name = "year" , MultiSelect = true }
+                new ReportFilterType { Name = "year" , MultiSelect = true },
+                new ReportFilterType { Name = "proactive" , MultiSelect = true }
             };
 
             var repository = this.repositorySet.GetRepository<ReportFilterType>();

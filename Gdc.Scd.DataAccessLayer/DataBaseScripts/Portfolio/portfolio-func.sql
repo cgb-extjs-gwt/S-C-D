@@ -55,6 +55,14 @@ go
 --)
 --go
 
+DROP INDEX [IX_LocalPortfolio_Country_Wg] ON [Portfolio].[LocalPortfolio]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_LocalPortfolio_Country_Wg]
+ON [Portfolio].[LocalPortfolio] ([CountryId],[WgId])
+INCLUDE ([AvailabilityId],[DurationId],[ProActiveSlaId],[ReactionTimeId],[ReactionTypeId],[ServiceLocationId])
+GO
+
 CREATE FUNCTION Portfolio.IsListEmpty(@list dbo.ListID readonly)
 RETURNS bit
 AS
