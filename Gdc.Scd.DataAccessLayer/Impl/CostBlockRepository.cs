@@ -24,29 +24,41 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.repositorySet = repositorySet;
         }
 
-        public async Task<int> UpdateByCoordinatesAsync(CostBlockEntityMeta meta)
+        public async Task<int> UpdateByCoordinatesAsync(CostBlockEntityMeta meta,
+            IEnumerable<UpdateQueryOption> updateOptions = null)
         {
             var query = this.BuildUpdateByCoordinatesQuery(meta);
 
             return await this.repositorySet.ExecuteSqlAsync(query);
         }
 
-        public void UpdateByCoordinates(CostBlockEntityMeta meta)
+        public void UpdateByCoordinates(CostBlockEntityMeta meta,
+            IEnumerable<UpdateQueryOption> updateOptions = null)
         {
-            var query = this.BuildUpdateByCoordinatesQuery(meta);
-
+            var query = this.BuildUpdateByCoordinatesQuery(meta, updateOptions);
             this.repositorySet.ExecuteSql(query);
         }
 
-        private SqlHelper BuildUpdateByCoordinatesQuery(CostBlockEntityMeta meta)
+        private SqlHelper BuildUpdateByCoordinatesQuery(CostBlockEntityMeta meta,
+            IEnumerable<UpdateQueryOption> updateOptions = null)
         {
-            return Sql.Queries(new[] 
+            List<SqlHelper> queries = new List<SqlHelper>();
+
+            if (updateOptions != null && updateOptions.Any())
+            {
+                queries.AddRange(this.BuildAllUpdateCostBlockQueriesByCoordinates(meta, updateOptions));
+                queries.AddRange(this.BuildAllUpdateCostBlockQueriesByCoordinates(meta.HistoryMeta, updateOptions, "Hist"));
+            }
+
+            queries.AddRange(new[]
             {
                 this.BuildCoordinatesTableQuery(meta),
                 this.BuildCreateRowsCostBlockQuery(meta),
                 this.BuildDeleteRowsCostBlockQuery(meta),
                 Sql.DropTable(CoordinateTable)
             });
+
+            return Sql.Queries(queries.ToArray());
         }
 
         private SqlHelper BuildCoordinatesTableQuery(CostBlockEntityMeta costBlockMeta)
@@ -154,6 +166,65 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         Sql.Except(
                             this.BuildSelectFromCoordinateTalbeQuery(costBlockMeta),
                             this.BuildSelectFromCostBlockQuery(costBlockMeta)));
+        }
+
+        /// <summary>
+        /// Returns all UPDATE queries for Cost Block if any of coordinate is changed
+        /// </summary>
+        /// <param name="costBlockMeta">Cost Block info</param>
+        /// <param name="updateOptions">Updated coordinates with old and new values</param>
+        /// <returns></returns>
+        private SqlHelper[] BuildAllUpdateCostBlockQueriesByCoordinates(BaseCostBlockEntityMeta costBlockMeta,
+            IEnumerable<UpdateQueryOption> updateOptions, string prefix = "")
+        {
+            List<SqlHelper> queries = new List<SqlHelper>();
+
+            var index = 1;
+            var updateQueries = updateOptions.Select(opt => 
+                                {
+                                    var query = this.BuildUpdateCostBlockByChangedCoordinatesQuery(costBlockMeta, opt, index, prefix);
+                                    index++;
+                                    return query;
+                                }).Where(q => q != null);
+
+            queries.AddRange(updateQueries);
+
+            return queries.ToArray();
+        }
+
+        private string BuildParamName(int index, string columnName, bool oldCoordinates, string prefix = "")
+        {
+            var paramName = oldCoordinates ? $"Old{columnName}{index}" : $"New{columnName}{index}";
+            return $"{prefix}{paramName}";
+        }
+
+        private SqlHelper BuildUpdateCostBlockByChangedCoordinatesQuery(BaseCostBlockEntityMeta costBlockMeta, 
+            UpdateQueryOption updateOptions, int index, string prefix = "")
+        {
+            var costBlockCoordinates = new HashSet<string>(costBlockMeta.CoordinateFields.Select(c => c.Name).ToArray());
+            var changedCoordinates = new HashSet<string>(updateOptions.NewCoordinates.Keys);
+
+            if (changedCoordinates.IsSubsetOf(costBlockCoordinates))
+            {
+                var condition = ConditionHelper.And(
+                    updateOptions.OldCoordinates.Select(
+                        field => 
+                        {
+                            var paramName = BuildParamName(index, field.Key, true, prefix);
+                            return SqlOperators.Equals(field.Key, paramName, field.Value);
+                        }));
+
+                var updatedColumns = updateOptions.NewCoordinates
+                                    .Select(field =>
+                                    {
+                                        var paramName = BuildParamName(index, field.Key, false, prefix);
+                                        return new ValueUpdateColumnInfo(field.Key, field.Value, paramName);
+                                    }).ToArray();
+
+                return Sql.Update(costBlockMeta, updatedColumns).Where(condition);
+            }
+
+            return null;
         }
 
         private SqlHelper BuildDeleteRowsCostBlockQuery(CostBlockEntityMeta costBlockMeta)
