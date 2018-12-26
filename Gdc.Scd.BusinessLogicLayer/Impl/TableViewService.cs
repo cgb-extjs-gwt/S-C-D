@@ -131,8 +131,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             return new TableViewInfo
             {
-                RecordInfo = this.tableViewRepository.GetTableViewRecordInfo(costBlockInfos),
-                References = await this.tableViewRepository.GetReferences(costBlockInfos)
+                RecordInfo = this.tableViewRepository.GetRecordInfo(costBlockInfos),
+                References = await this.tableViewRepository.GetReferences(costBlockInfos),
+                DependencyItems = await this.tableViewRepository.GetDependencyItems(costBlockInfos)
             };
         }
 
