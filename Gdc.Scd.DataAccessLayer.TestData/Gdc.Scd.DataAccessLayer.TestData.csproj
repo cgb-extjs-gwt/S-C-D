@@ -11,7 +11,6 @@
     <None Remove="Scripts\CD_CS\cd-cs-servicecosts.sql" />
     <None Remove="Scripts\CD_CS\split-string.sql" />
     <None Remove="Scripts\dropEverything.sql" />
-    <None Remove="Scripts\matrix.sql" />
     <None Remove="Scripts\report-calc-output-new-vs-old.sql" />
     <None Remove="Scripts\report-calc-output-vs-FREEZE.sql" />
     <None Remove="Scripts\report-calc-parameter-hw.sql" />
@@ -59,9 +58,6 @@
     <EmbeddedResource Include="Scripts\CD_CS\cd-cs-servicecosts.sql" />
     <EmbeddedResource Include="Scripts\CD_CS\split-string.sql" />
     <EmbeddedResource Include="Scripts\dropEverything.sql" />
-    <EmbeddedResource Include="Scripts\matrix.sql">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
     <EmbeddedResource Include="Scripts\Report\report-calc-output-new-vs-old.sql" />
     <EmbeddedResource Include="Scripts\Report\report-calc-output-vs-FREEZE.sql" />
     <EmbeddedResource Include="Scripts\Report\report-calc-parameter-hw-not-approved.sql" />

@@ -27,9 +27,9 @@ namespace Gdc.Scd.Core.Entities
         public double? InstalledBaseCountry_Approved { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double InstalledBaseCountryPla { get; set; }
+        public double? InstalledBaseCountryPla { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double InstalledBaseCountryPla_Approved { get; set; }
+        public double? InstalledBaseCountryPla_Approved { get; set; }
 
         public DateTime CreatedDateTime { get; set; }
         public DateTime? DeactivatedDateTime { get; set; }
