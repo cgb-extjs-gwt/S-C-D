@@ -1618,13 +1618,24 @@ RETURN
     select m.Id
 
          --SLA
+
+         , m.CountryId
          , m.Country
+         , m.WgId
          , m.Wg
+         , m.AvailabilityId
          , m.Availability
+         , m.DurationId
          , m.Duration
+         , m.Year
+         , m.IsProlongation
+         , m.ReactionTimeId
          , m.ReactionTime
+         , m.ReactionTypeId
          , m.ReactionType
+         , m.ServiceLocationId
          , m.ServiceLocation
+         , m.ProActiveSlaId
          , m.ProActiveSla
 
          , m.StdWarranty
