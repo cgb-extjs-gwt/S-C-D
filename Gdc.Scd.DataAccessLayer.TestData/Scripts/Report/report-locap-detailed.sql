@@ -10,7 +10,8 @@ CREATE FUNCTION Report.LocapDetailed
     @dur bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint
+    @loc bigint,
+    @pro bigint
 )
 RETURNS TABLE 
 AS
@@ -24,6 +25,7 @@ select     m.Id
          , m.ReactionTime
          , m.Year as ServicePeriod
          , wg.Sog as Sog
+         , m.ProActiveSla
          , m.ProActive + m.ServiceTP as Dcos
          , m.ServiceTP as ServiceTP
          , m.ListPrice
@@ -44,7 +46,7 @@ select     m.Id
          , null as ServiceType
          , null as PlausiCheck
          , null as PortfolioType
-    from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
+    from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
     join InputAtoms.WgSogView wg on wg.id = m.WgId
 )
 
@@ -70,6 +72,8 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServicePeriod', 'Service Period', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Sog', 'SOG', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ProActiveSla', 'ProActive SLA', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'Dcos', 'Service DCOS', 1, 1);
 set @index = @index + 1;
@@ -127,4 +131,6 @@ set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 11, 'reactiontype', 'Reaction type');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 12, 'loc', 'Service location');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 14, 'pro', 'ProActive');
 
