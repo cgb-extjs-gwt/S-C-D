@@ -40,13 +40,13 @@ CREATE NONCLUSTERED INDEX ix_Atom_MarkupStandardWaranty
     INCLUDE ([MarkupFactorStandardWarranty],[MarkupStandardWarranty])
 GO
 
-IF OBJECT_ID('Hardware.SpGetCosts') IS NOT NULL
-  DROP PROCEDURE Hardware.SpGetCosts;
-go
-
 CREATE NONCLUSTERED INDEX ix_Hardware_ProActive
     ON [Hardware].[ProActive] ([Country],[Wg])
 GO
+
+IF OBJECT_ID('Hardware.SpGetCosts') IS NOT NULL
+  DROP PROCEDURE Hardware.SpGetCosts;
+go
 
 IF OBJECT_ID('Hardware.GetCosts') IS NOT NULL
   DROP FUNCTION Hardware.GetCosts;
