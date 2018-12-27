@@ -1,20 +1,17 @@
 ﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
-import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { buildMvcUrl } from "../Common/Services/Ajax";
+import { Country } from "../Dict/Model/Country";
 import { CalcCostProps } from "./Components/CalcCostProps";
+import { moneyRenderer, percentRenderer, yearRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
-import { HwManualCostDialog } from "./Components/HwManualCostDialog";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
-import { HwCostListModel } from "./Model/HwCostListModel";
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private grid: Grid & any;
 
     private filter: HwCostFilter;
-
-    private costDlg: HwManualCostDialog;
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
 
@@ -23,7 +20,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             {
                 name: 'DealerPriceCalc',
                 calculate: function (d) {
-                    let result = null;
+                    let result: any = '';
                     if (d && d.ListPrice) {
                         result = d.ListPrice;
                         if (d.DealerDiscount) {
@@ -36,7 +33,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         ],
 
         pageSize: 25,
-        autoLoad: true,
+        autoLoad: false,
 
         proxy: {
             type: 'ajax',
@@ -66,9 +63,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     });
 
     public state = {
-        disableEditButton: true,
         disableSaveButton: true,
-        disableCancelButton: true
+        disableCancelButton: true,
+        selectedCountry: null
     };
 
     public constructor(props: CalcCostProps) {
@@ -77,22 +74,19 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     public render() {
-        const canEdit = this.canEdit();
+        const canEditTC: boolean = this.canEditTC();
+        const canEditListPrice: boolean = this.canEditListPrice();
 
         return (
             <Container layout="fit">
 
-                <HwCostFilter ref="filter" docked="right" onSearch={this.onSearch} />
+                <HwCostFilter ref={x => this.filter = x} docked="right" onSearch={this.onSearch} />
 
                 <Grid
-                    ref="grid"
+                    ref={x => this.grid = x}
                     store={this.store}
                     width="100%"
                     platformConfig={this.pluginConf()}
-                    selectable={{
-                        mode: 'single'
-                    }}
-                    onSelect={this.onGridSelect}
                 >
 
                     { /*dependencies*/}
@@ -111,6 +105,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <Column text="Reaction type" dataIndex="ReactionType" />
                         <Column text="Reaction time" dataIndex="ReactionTime" />
                         <Column text="Service location" dataIndex="ServiceLocation" />
+                        <Column text="ProActive sla" dataIndex="ProActiveSla" />
+                        <Column text="Standard warranty duration" dataIndex="StdWarranty" renderer={yearRenderer} flex="0.5" />
 
                     </Column>
 
@@ -121,7 +117,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Cost block results"
                         dataIndex=""
                         cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
 
                         <NumberColumn text="Field service cost" dataIndex="FieldServiceCost" />
                         <NumberColumn text="Service support cost" dataIndex="ServiceSupportCost" />
@@ -133,7 +129,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="TaxAndDutiesOow" />
                         <NumberColumn text="Material cost iW period" dataIndex="MaterialW" />
                         <NumberColumn text="Material cost OOW period" dataIndex="MaterialOow" />
-                        <NumberColumn text="Pro active" dataIndex="ProActive" />
+                        <NumberColumn text="ProActive" dataIndex="ProActive" />
 
                     </Column>
 
@@ -144,15 +140,15 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Resulting costs"
                         dataIndex=""
                         cls="calc-cost-result-yellow"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
 
                         <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
-                        <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" />
+                        <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
                         <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
-                        <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" />
+                        <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
 
-                        <NumberColumn text="List price" dataIndex="ListPrice" />
-                        <NumberColumn text="Dealer discount" dataIndex="DealerDiscount" />
+                        <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
+                        <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
@@ -165,39 +161,20 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                 {this.toolbar()}
 
-                {this.manualCostDialog()}
-
             </Container>
         );
     }
 
-    public componentDidMount() {
-        this.grid = this.refs.grid as Grid;
-        this.filter = this.refs.filter as HwCostFilter;
-    }
-
     private init() {
         this.onSearch = this.onSearch.bind(this);
-        this.onBeforeLoad = this.onBeforeLoad.bind(this);
-        this.onGridSelect = this.onGridSelect.bind(this);
-        this.onManualCostChange = this.onManualCostChange.bind(this);
-        this.editRecord = this.editRecord.bind(this);
         this.cancelChanges = this.cancelChanges.bind(this);
         this.saveRecords = this.saveRecords.bind(this);
 
-        this.store.on('beforeload', this.onBeforeLoad);
+        this.store.on('beforeload', this.onBeforeLoad, this);
     }
 
     private toggleToolbar(disable: boolean) {
         this.setState({ disableSaveButton: disable, disableCancelButton: disable });
-    }
-
-    private editRecord() {
-        let rec = ExtDataviewHelper.getGridSelected<HwCostListModel>(this.grid)[0];
-        if (rec) {
-            this.costDlg.setModel(rec);
-            this.costDlg.show();
-        }
     }
 
     private cancelChanges() {
@@ -233,32 +210,15 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private onBeforeLoad(s, operation) {
         this.reset();
-
+        //
         let filter = this.filter.getModel() as any;
         filter.approved = this.props.approved;
         let params = Ext.apply({}, operation.getParams(), filter);
         operation.setParams(params);
     }
 
-    private onGridSelect(view: Grid, record: any) {
-        let state = { disableEditButton: true }
-
-        if (record) {
-            state.disableEditButton = !this.canEditRow(record.data);
-        }
-
-        this.setState(state);
-    }
-
-    private onManualCostChange(m: HwCostListModel) {
-        let rec = this.store.findRecord('Id', m.Id);
-        if (rec) {
-            rec.set(m, { dirty: true });
-        }
-    }
-
     private pluginConf(): any {
-        return {
+        let cfg: any = {
             'desktop': {
                 plugins: {
                     gridpagingtoolbar: true
@@ -270,25 +230,40 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 }
             }
         };
+
+        if (this.canEdit()) {
+            cfg['desktop'].plugins.gridcellediting = true;
+            cfg['!desktop'].plugins.grideditable = true;
+        }
+
+        return cfg;
     }
 
-    private canEdit() {
-        return !this.props.approved;
+    private canEdit(): boolean {
+        return this.props.approved;
     }
 
-    private canEditRow(row: HwCostListModel): boolean {
-        return row.CanOverrideTransferCostAndPrice || row.CanStoreListAndDealerPrices;
+    private canEditListPrice(): boolean {
+        let result: boolean = this.canEdit();
+        if (result) {
+            const cnt: Country = this.state.selectedCountry;
+            result = cnt && cnt.canStoreListAndDealerPrices;
+        }
+        return result;
+    }
+
+    private canEditTC(): boolean {
+        let result: boolean = this.canEdit();
+        if (result) {
+            const cnt: Country = this.state.selectedCountry;
+            result = cnt && cnt.canOverrideTransferCostAndPrice;
+        }
+        return result;
     }
 
     private toolbar() {
         if (this.canEdit()) {
             return <Toolbar docked="top">
-                <Button
-                    text="Edit"
-                    iconCls="x-fa fa-pencil"
-                    handler={this.editRecord}
-                    disabled={this.state.disableEditButton}
-                />
                 <Button
                     text="Cancel"
                     iconCls="x-fa fa-trash"
@@ -305,17 +280,11 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         }
     }
 
-    private manualCostDialog() {
-        if (this.canEdit()) {
-            return <HwManualCostDialog ref={x => this.costDlg = x} title="Manual cost input" draggable={false} onOk={this.onManualCostChange} />
-        }
-    }
-
     private reset() {
         this.setState({
-            disableEditButton: true,
+            disableCancelButton: true,
             disableSaveButton: true,
-            disableCancelButton: true
+            selectedCountry: this.filter.getCountry()
         });
     }
 }

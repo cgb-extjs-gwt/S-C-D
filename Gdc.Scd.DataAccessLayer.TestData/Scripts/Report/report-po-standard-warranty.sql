@@ -9,7 +9,8 @@ CREATE FUNCTION Report.PoStandardWarrantyMaterial
     @av bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint
+    @loc bigint,
+    @pro bigint
 )
 RETURNS TABLE 
 AS
@@ -28,8 +29,13 @@ RETURN (
               , rtime.Name as ReactionTime
               , rtype.Name as ReactionType
               , av.Name    as Availability
+              , prosla.ExternalName as ProActiveSla
 
-              , mc.MaterialCostWarranty_Approved as MaterialCostWarranty
+              , case when stdw.DurationValue is not null then stdw.DurationValue 
+                    when stdw2.DurationValue is not null then stdw2.DurationValue 
+                 end as StdWarranty
+
+              , mcw.MaterialCostWarranty_Approved as MaterialCostWarranty
 
               , afr.AFR1_Approved as AFR1
               , afr.AFR2_Approved as AFR2
@@ -39,7 +45,7 @@ RETURN (
 
               , null as SparesAvailability
 
-        from Report.GetMatrixBySlaCountry(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc) m
+        from Portfolio.GetBySla(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc, @pro) m
 
         JOIN InputAtoms.CountryView c on c.Id = m.CountryId
 
@@ -55,9 +61,14 @@ RETURN (
 
         JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
 
+        JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
+
+        LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId --find local standard warranty portfolio
+        LEFT JOIN Fsp.HwStandardWarrantyView stdw2 on stdw2.Wg = m.WgId and stdw2.Country is null    --find principle standard warranty portfolio, if local does not exist
+
         LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
-        LEFT JOIN Hardware.MaterialCostWarranty mc on mc.Wg = wg.Id
+        LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
         LEFT JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
     )
@@ -65,11 +76,11 @@ RETURN (
         select    
               m.*
 
-            , m.MaterialCostWarranty * m.AFR1 as mat1
-            , m.MaterialCostWarranty * m.AFR2 as mat2
-            , m.MaterialCostWarranty * m.AFR3 as mat3
-            , m.MaterialCostWarranty * m.AFR4 as mat4
-            , m.MaterialCostWarranty * m.AFR5 as mat5
+                , case when m.StdWarranty >= 1 then m.MaterialCostWarranty * m.AFR1 else 0 end as mat1
+                , case when m.StdWarranty >= 2 then m.MaterialCostWarranty * m.AFR2 else 0 end as mat2
+                , case when m.StdWarranty >= 3 then m.MaterialCostWarranty * m.AFR3 else 0 end as mat3
+                , case when m.StdWarranty >= 4 then m.MaterialCostWarranty * m.AFR4 else 0 end as mat4
+                , case when m.StdWarranty >= 5 then m.MaterialCostWarranty * m.AFR5 else 0 end as mat5
         from cte m
     )
     select    m.Id
@@ -82,6 +93,7 @@ RETURN (
             , m.ReactionTime
             , m.ReactionType
             , m.Availability
+            , m.ProActiveSla
 
             , Hardware.CalcByDur(m.Year, m.IsProlongation, m.mat1, m.mat2, m.mat3, m.mat4, m.mat5, 0) as MaterialW
 
@@ -122,6 +134,9 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Availability', 'Availability', 1, 1);
 set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ProActiveSla', 'ProActive SLA', 1, 1);
+
+set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'MaterialW', 'Material Price', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'MaterialCostWarranty', 'Material Cost', 1, 1);
@@ -155,3 +170,5 @@ set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 11, 'reactiontype', 'Reaction type');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 12, 'loc', 'Service location');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 14, 'pro', 'ProActive');

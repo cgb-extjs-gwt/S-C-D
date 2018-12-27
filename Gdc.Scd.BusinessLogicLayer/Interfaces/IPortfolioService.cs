@@ -1,5 +1,4 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Portfolio;
-using System;
 using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
@@ -12,6 +11,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task Deny(long countryId, long[] ids);
 
-        Task<Tuple<PortfolioDto[], int>> GetAllowed(PortfolioFilterDto filter, int start, int limit);
+        Task<(PortfolioDto[] items, int total)> GetAllowed(PortfolioFilterDto filter, int start, int limit);
     }
 }

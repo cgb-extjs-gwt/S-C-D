@@ -9,7 +9,8 @@ CREATE FUNCTION Report.Contract
     @av bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint
+    @loc bigint,
+    @pro bigint
 )
 RETURNS TABLE 
 AS
@@ -24,6 +25,7 @@ RETURN (
          , m.ReactionTime
          , m.ReactionType
          , m.Availability
+         , m.ProActiveSla
 
          , m.ServiceTP1 AS ServiceTP1
          , m.ServiceTP2 AS ServiceTP2
@@ -37,11 +39,11 @@ RETURN (
          , m.ServiceTP4 / 12 AS ServiceTPMonthly4
          , m.ServiceTP5 / 12 AS ServiceTPMonthly5
 
-         , null as WarrantyLevel
+         , m.StdWarranty as WarrantyLevel
          , null as PortfolioType
          , wg.Sog as Sog
 
-    from Report.GetCostsFull(@cnt, @wg, @av, (select top(1) id from Dependencies.Duration where IsProlongation = 0 and Value = 5), @reactiontime, @reactiontype, @loc) m
+    from Hardware.GetCostsFull(1, @cnt, @wg, @av, (select top(1) id from Dependencies.Duration where IsProlongation = 0 and Value = 5), @reactiontime, @reactiontype, @loc, @pro, 0, -1) m
     join InputAtoms.WgSogView wg on wg.id = m.WgId
 )
 GO
@@ -66,6 +68,8 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ReactionType', 'Reaction Type', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Availability', 'Availability', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ProActiveSla', 'ProActive SLA', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTP1', 'Service Tranfer Price yearly - year1', 1, 1);
@@ -110,4 +114,6 @@ set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 11, 'reactiontype', 'Reaction type');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 12, 'loc', 'Service location');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 14, 'pro', 'ProActive');
 

@@ -4,10 +4,12 @@ import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
 import { CountryField } from "../../Dict/Components/CountryField";
 import { DictField } from "../../Dict/Components/DictField";
 import { DurationField } from "../../Dict/Components/DurationField";
+import { ProActiveField } from "../../Dict/Components/ProActiveField";
 import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
 import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
 import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
 import { WgField } from "../../Dict/Components/WgField";
+import { Country } from "../../Dict/Model/Country";
 import { HwCostFilterModel } from "../Model/HwCostFilterModel";
 
 export interface FilterPanelProps extends PanelProps {
@@ -16,11 +18,11 @@ export interface FilterPanelProps extends PanelProps {
 
 export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
-    private country: DictField;
+    private country: CountryField;
 
     private wg: DictField;
 
-    private avail: DictField;
+    private av: DictField;
 
     private dur: DictField;
 
@@ -30,12 +32,15 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
     private srvloc: DictField;
 
+    private proactive: DictField;
+
     public constructor(props: any) {
         super(props);
         this.init();
     }
 
     public render() {
+        let valid = this.state && this.state.valid;
         return (
             <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
 
@@ -49,46 +54,47 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                     }}
                 >
 
-                    <CountryField ref="country" label="Country:" />
-                    <WgField ref="wg" label="Asset(WG):" />
-                    <AvailabilityField ref="availability" label="Availability:" />
-                    <DurationField ref="duration" label="Duration:" />
-                    <ReactionTypeField ref="reactType" label="Reaction type:" />
-                    <ReactionTimeField ref="reactTime" label="Reaction time:" />
-                    <ServiceLocationField ref="srvLoc" label="Service location:" />
+                    <CountryField ref={x => this.country = x} label="Country:" cache={false} onChange={this.onCountryChange} />
+                    <WgField ref={x => this.wg = x} label="Asset(WG):" />
+                    <AvailabilityField ref={x => this.av = x} label="Availability:" />
+                    <DurationField ref={x => this.dur = x} label="Duration:" />
+                    <ReactionTypeField ref={x => this.reacttype = x} label="Reaction type:" />
+                    <ReactionTimeField ref={x => this.reacttime = x} label="Reaction time:" />
+                    <ServiceLocationField ref={x => this.srvloc = x} label="Service location:" />
+                    <ProActiveField ref={x => this.proactive = x} label="ProActive:" />
 
                 </Container>
 
-                <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="20px auto" />
+                <Button text="Search" ui="action" minWidth="85px" margin="20px auto" disabled={!valid} handler={this.onSearch} />
 
             </Panel>
         );
-    }
-
-    public componentDidMount() {
-        this.country = this.refs.country as DictField;
-        this.wg = this.refs.wg as DictField;
-        this.avail = this.refs.availability as DictField;
-        this.dur = this.refs.duration as DictField;
-        this.reacttype = this.refs.reactType as DictField;
-        this.reacttime = this.refs.reactTime as DictField;
-        this.srvloc = this.refs.srvLoc as DictField;
     }
 
     public getModel(): HwCostFilterModel {
         return {
             country: this.country.getSelected(),
             wg: this.wg.getSelected(),
-            availability: this.avail.getSelected(),
+            availability: this.av.getSelected(),
             duration: this.dur.getSelected(),
             reactionType: this.reacttype.getSelected(),
             reactionTime: this.reacttime.getSelected(),
             serviceLocation: this.srvloc.getSelected(),
+            proActive: this.proactive.getSelected()
         };
     }
 
+    public getCountry(): Country {
+        return this.country.getSelectedModel();
+    }
+
     private init() {
+        this.onCountryChange = this.onCountryChange.bind(this);
         this.onSearch = this.onSearch.bind(this);
+    }
+
+    private onCountryChange() {
+        this.setState({ valid: !!this.country.getSelected() });
     }
 
     private onSearch() {

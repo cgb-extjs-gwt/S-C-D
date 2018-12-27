@@ -6,4 +6,5 @@
     reactionType?: string;
     reactionTime?: string;
     serviceLocation?: string;
+    proActive?: string;
 }

@@ -5,6 +5,7 @@ IF OBJECT_ID('tempdb..#Temp_SLA') IS NOT NULL DROP TABLE #Temp_SLA
 IF OBJECT_ID('tempdb..#Temp_Cnt') IS NOT NULL DROP TABLE #Temp_Cnt
 GO
 
+ALTER INDEX IX_LocalPortfolio_Country_Wg        ON Portfolio.LocalPortfolio DISABLE;  
 ALTER INDEX IX_LocalPortfolio_AvailabilityId    ON Portfolio.LocalPortfolio DISABLE;  
 ALTER INDEX IX_LocalPortfolio_DurationId        ON Portfolio.LocalPortfolio DISABLE;  
 ALTER INDEX IX_LocalPortfolio_ReactionTimeId    ON Portfolio.LocalPortfolio DISABLE;  
@@ -73,6 +74,9 @@ ALTER INDEX IX_LocalPortfolio_WgId ON Portfolio.LocalPortfolio REBUILD;
 GO  
 
 ALTER INDEX IX_LocalPortfolio_ProActiveSlaId ON Portfolio.LocalPortfolio REBUILD;  
+GO
+
+ALTER INDEX IX_LocalPortfolio_Country_Wg ON Portfolio.LocalPortfolio REBUILD;  
 GO
 
 -- Enable all table constraints

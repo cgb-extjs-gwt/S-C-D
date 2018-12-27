@@ -1,7 +1,8 @@
-﻿import { Column, Container, Grid, NumberColumn } from "@extjs/ext-react";
+﻿import { Column, Container, Grid } from "@extjs/ext-react";
 import * as React from "react";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
+import { moneyRenderer, stringRenderer } from "./Components/GridRenderer";
 import { SwProactiveCostFilter } from "./Components/SwProactiveCostFilter";
 import { SwCostFilterModel } from "./Model/SwCostFilterModel";
 
@@ -12,8 +13,14 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
     private filter: SwProactiveCostFilter;
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
+
+        fields: [
+            { name: 'year', convert: stringRenderer },
+            { name: 'proActive', type: 'number', allowNull: true, convert: moneyRenderer }
+        ],
+
         pageSize: 25,
-        autoLoad: true,
+        autoLoad: false,
 
         proxy: {
             type: 'ajax',
@@ -37,9 +44,9 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
         return (
             <Container layout="fit">
 
-                <SwProactiveCostFilter ref="filter" docked="right" onSearch={this.onSearch} />
+                <SwProactiveCostFilter ref={x => this.filter = x} docked="right" onSearch={this.onSearch} />
 
-                <Grid ref="grid" store={this.store} width="100%" plugins={['pagingtoolbar']}>
+                <Grid ref={x => this.grid = x} store={this.store} width="100%" plugins={['pagingtoolbar']}>
 
                     { /*dependencies*/}
 
@@ -67,7 +74,7 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <NumberColumn text="Pro active" dataIndex="proActive" />
+                        <Column text="ProActive" dataIndex="proActive" />
 
                     </Column>
 
@@ -76,16 +83,9 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
         );
     }
 
-    public componentDidMount() {
-        this.grid = this.refs.grid as Grid;
-        this.filter = this.refs.filter as SwProactiveCostFilter;
-    }
-
     private init() {
         this.onSearch = this.onSearch.bind(this);
-        this.onBeforeLoad = this.onBeforeLoad.bind(this);
-
-        this.store.on('beforeload', this.onBeforeLoad);
+        this.store.on('beforeload', this.onBeforeLoad, this);
     }
 
     private onSearch(filter: SwCostFilterModel) {
@@ -97,7 +97,8 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onBeforeLoad(s, operation) {
-        let filter = this.filter.getModel();
+        let filter = this.filter.getModel() as any;
+        filter.approved = this.props.approved;
         let params = Ext.apply({}, operation.getParams(), filter);
         operation.setParams(params);
     }

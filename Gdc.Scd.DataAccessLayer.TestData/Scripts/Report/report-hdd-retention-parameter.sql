@@ -10,19 +10,19 @@ CREATE FUNCTION Report.HddRetentionParameter
 RETURNS TABLE 
 AS
 RETURN (
-select 
-       wg.Name as Wg
-     , wg.Description as WgDescription
-     , y.Name as Year
-     , hdd.HddFr_Approved as HddFr
-     , hdd.HddMaterialCost_Approved as HddMaterialCost
+    select 
+           wg.Name as Wg
+         , wg.Description as WgDescription
+         , y.Name as Year
+         , hdd.HddFr_Approved as HddFr
+         , hdd.HddMaterialCost_Approved as HddMaterialCost
 
-from Hardware.HddRetention hdd
-join InputAtoms.WgSogView wg on wg.Id = hdd.Wg
-join Dependencies.Year y on y.Id = hdd.Year
+    from Hardware.HddRetention hdd
+    join InputAtoms.WgSogView wg on wg.Id = hdd.Wg
+    join Dependencies.Year y on y.Id = hdd.Year
 
-where (@wg is null or wg.Id = @wg)
-  and (@year is null or hdd.Year = @year)
+    where (@wg is null or wg.Id = @wg)
+      and (@year is null or hdd.Year = @year)
 )
 
 GO
