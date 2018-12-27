@@ -1,15 +1,22 @@
-alter table Hardware.ManualCost
-    drop column DealerPrice_Approved;
-alter table Hardware.ManualCost
-    drop column DealerDiscount_Approved;
-alter table Hardware.ManualCost
-    drop column ServiceTC_Approved;
-alter table Hardware.ManualCost
-    drop column ServiceTP_Approved;
-alter table Hardware.ManualCost
-    drop column ListPrice_Approved;
+CREATE TABLE [Hardware].[ManualCost](
+	[PortfolioId] [bigint] NOT NULL,
+	[DealerDiscount] [float] NULL,
+	[ListPrice] [float] NULL,
+	[ServiceTC] [float] NULL,
+	[ServiceTP] [float] NULL,
+	[DealerPrice]  AS ([ListPrice]-([ListPrice]*[DealerDiscount])/(100)),
+PRIMARY KEY CLUSTERED 
+(
+	[PortfolioId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
 
-go
+GO
+
+ALTER TABLE [Hardware].[ManualCost]  WITH CHECK ADD FOREIGN KEY([PortfolioId])
+REFERENCES [Portfolio].[LocalPortfolio] ([Id])
+ON DELETE CASCADE
+GO
 
 insert into Report.ReportFilterType (MultiSelect, Name) values (1, 'proactive');
 
