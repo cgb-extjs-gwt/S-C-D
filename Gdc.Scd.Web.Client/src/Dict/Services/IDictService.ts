@@ -6,6 +6,8 @@ export interface IDictService {
 
     getMasterCountries(cache: boolean): Promise<Country[]>;
 
+    getUserCountries(cache: boolean): Promise<Country[]>;
+
     getCountryGroups(): Promise<NamedId[]>;
 
     getCountryGroupDigits(): Promise<NamedId[]>;
