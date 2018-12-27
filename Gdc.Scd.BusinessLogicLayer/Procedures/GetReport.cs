@@ -27,7 +27,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             return writer.GetData();
         }
 
-        public async Task<JsonArrayDto> ExecuteJsonAsync(
+        public async Task<(string json, int total)> ExecuteJsonAsync(
                 string func,
                 int start,
                 int limit,
@@ -35,18 +35,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             )
         {
             string sql;
-            JsonArrayDto result = new JsonArrayDto();
 
             sql = CountQuery(func, parameters);
 
-            result.Total = await _repo.ExecuteScalarAsync<int>(sql, parameters);
+            var total = await _repo.ExecuteScalarAsync<int>(sql, parameters);
 
             parameters = parameters.Copy();
             sql = SelectQuery(func, parameters, start, limit);
 
-            result.Json = await _repo.ExecuteAsJsonAsync(sql, parameters);
+            var json = await _repo.ExecuteAsJsonAsync(sql, parameters);
 
-            return result;
+            return (json, total);
         }
 
         private static string CountQuery(string func, DbParameter[] parameters)
