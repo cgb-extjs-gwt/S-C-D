@@ -673,11 +673,11 @@ CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as
                    sum(fee.IsMultiVendor * fee.IB) as Total_IB_MVS,
                    sum(fee.IsMultiVendor * fee.IB_Approved) as Total_IB_MVS_Approved,
 
-                   sum(fee.IsMultiVendor * fee.CostPerKit / fee.MaxQty * fee.IB) as Total_KC_MQ_IB_MVS,
-                   sum(fee.IsMultiVendor * fee.CostPerKit_Approved / fee.MaxQty_Approved * fee.IB_Approved) as Total_KC_MQ_IB_MVS_Approved,
+                   sum(case when fee.MaxQty = 0          then 0 else fee.IsMultiVendor * fee.CostPerKit / fee.MaxQty * fee.IB end) as Total_KC_MQ_IB_MVS,
+                   sum(case when fee.MaxQty_Approved = 0 then 0 else fee.IsMultiVendor * fee.CostPerKit_Approved / fee.MaxQty_Approved * fee.IB_Approved end) as Total_KC_MQ_IB_MVS_Approved,
 
-                   sum((1 - fee.IsMultiVendor) * fee.CostPerKit / fee.MaxQty * fee.IB) as Total_KC_MQ_IB_FTS,
-                   sum((1 - fee.IsMultiVendor) * fee.CostPerKit_Approved / fee.MaxQty_Approved * fee.IB_Approved) as Total_KC_MQ_IB_FTS_Approved
+                   sum(case when fee.MaxQty = 0          then 0 else (1 - fee.IsMultiVendor) * fee.CostPerKit / fee.MaxQty * fee.IB end) as Total_KC_MQ_IB_FTS,
+                   sum(case when fee.MaxQty_Approved = 0 then 0 else (1 - fee.IsMultiVendor) * fee.CostPerKit_Approved / fee.MaxQty_Approved * fee.IB_Approved end) as Total_KC_MQ_IB_FTS_Approved
 
             from Hardware.AvailabilityFeeVIEW fee
             group by fee.Country 
@@ -727,6 +727,7 @@ CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as
            Hardware.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) as Fee,
            Hardware.CalcAvailabilityFee(fee.CostPerKit_Approved, fee.MaxQty_Approved, fee.TISC_Approved, fee.YI_Approved, fee.Total_KC_MQ_IB_VENDOR_Approved) as Fee_Approved
     from AvFeeCte2 fee
+
 GO
 
 IF OBJECT_ID('Hardware.AvailabilityFeeCalc', 'U') IS NOT NULL
