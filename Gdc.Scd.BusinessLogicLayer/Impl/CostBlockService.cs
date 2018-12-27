@@ -56,12 +56,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task UpdateByCoordinatesAsync(IEnumerable<UpdateQueryOption> updateOptions = null)
         {
-            await this.UpdateByCoordinatesAsync(this.meta.CostBlocks);
+            await this.UpdateByCoordinatesAsync(this.meta.CostBlocks, updateOptions);
         }
 
         public void UpdateByCoordinates(IEnumerable<UpdateQueryOption> updateOptions = null)
         {
-            this.UpdateByCoordinates(this.meta.CostBlocks);
+            this.UpdateByCoordinates(this.meta.CostBlocks, updateOptions);
         }
     }
 }

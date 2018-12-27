@@ -13,5 +13,7 @@ namespace Gdc.Scd.Import.CentralContractGroup
         public static string UNEXPECTED_ERROR = "Central Contract Group Import completed unsuccessfully. Please find details below.";
         public static string CONFIG_READ_START = "Reading configuration...";
         public static string CONFIG_READ_END = "Reading configuration is completed...";
+        public static string UPDATE_COST_BLOCKS_START = "Updating Cost Blocks...";
+        public static string UPDATE_COST_BLOCKS_END = "Updating Cost Blocks is completed.";
     }
 }

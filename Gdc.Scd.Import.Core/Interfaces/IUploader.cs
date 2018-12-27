@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace Gdc.Scd.Import.Core.Interfaces
 {
     public interface IUploader<in T>
     {
-        void Upload(IEnumerable<T> items, DateTime modifiedDateTime);
+        void Upload(IEnumerable<T> items, DateTime modifiedDateTime, 
+            List<UpdateQueryOption> updateOption = null);
     }
 }

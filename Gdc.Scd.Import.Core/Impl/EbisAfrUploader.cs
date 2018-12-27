@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Interfaces;
@@ -36,7 +37,8 @@ namespace Gdc.Scd.Import.Core.Impl
             this._logger = logger;
         }
 
-        public void Upload(IEnumerable<AfrDto> items, DateTime modifiedDateTime)
+        public void Upload(IEnumerable<AfrDto> items, DateTime modifiedDateTime,
+            List<UpdateQueryOption> updateOption = null)
         {
             var wgs = _repositoryWg.GetAll().Where(wg => wg.WgType == WgType.Por).ToList();
             var years = _repositoryYear.GetAll().ToList();

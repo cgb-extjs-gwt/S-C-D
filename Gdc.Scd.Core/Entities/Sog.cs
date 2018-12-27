@@ -1,10 +1,12 @@
-﻿using Gdc.Scd.Core.Interfaces;
+﻿using Gdc.Scd.Core.Attributes;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities
 {
+    [MustUpdateCoordinate(MetaConstants.SogInputLevel)]
     [Table(MetaConstants.SogInputLevel, Schema = MetaConstants.InputLevelSchema)]
     public class Sog : BaseWgSog, IDeactivatable
     {

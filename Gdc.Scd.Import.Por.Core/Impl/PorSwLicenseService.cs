@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using Gdc.Scd.Import.Por.Core.Interfaces;
@@ -66,7 +67,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         }
 
         public bool UploadSwLicense(IEnumerable<SCD2_SW_Overview> swInfo,
-            DateTime modifiedDateTime)
+            DateTime modifiedDateTime, List<UpdateQueryOption> updateOptions)
         {
             var result = true;
 
@@ -86,7 +87,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     });
                 }
 
-                var added = this.AddOrActivate(updatedSwLicenses, modifiedDateTime);
+                var added = this.AddOrActivate(updatedSwLicenses, modifiedDateTime, updateOptions);
 
                 foreach (var addedEntity in added)
                 {

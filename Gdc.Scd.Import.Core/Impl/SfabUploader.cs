@@ -1,5 +1,7 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Constants;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Interfaces;
@@ -34,11 +36,12 @@ namespace Gdc.Scd.Import.Core.Impl
             this._repositorySog = this._repositorySet.GetRepository<Sog>();
             this._logger = logger;
         }
-        public void Upload(IEnumerable<SFabDto> items, DateTime modifiedDateTime)
+        public void Upload(IEnumerable<SFabDto> items, DateTime modifiedDateTime, 
+            List<UpdateQueryOption> updateOption = null)
         {
             UploadSfabs(items, modifiedDateTime);
             DeactivateSfabs(items, modifiedDateTime);
-            UpdateWgsAndSogs(items, modifiedDateTime);
+            UpdateWgsAndSogs(items, modifiedDateTime, updateOption);
         }
 
         public void UploadSfabs(IEnumerable<SFabDto> items, DateTime modifiedDateTime)
@@ -116,7 +119,8 @@ namespace Gdc.Scd.Import.Core.Impl
             _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATING_SFAB_END, notActiveSfabs.Count);
         }
 
-        public void UpdateWgsAndSogs(IEnumerable<SFabDto> items, DateTime modifiedDateTime)
+        public void UpdateWgsAndSogs(IEnumerable<SFabDto> items, DateTime modifiedDateTime,
+            List<UpdateQueryOption> updateOption)
         {
             _logger.Log(LogLevel.Info, ImportConstants.UPDATING_WGS_AND_SOGS_START);
             var sfabs = _repositorySfab.GetAll().Where(sf => !sf.DeactivatedDateTime.HasValue).ToList();
@@ -140,14 +144,50 @@ namespace Gdc.Scd.Import.Core.Impl
                         _logger.Log(LogLevel.Warn, ImportConstants.UNKNOWN_WARRANTY, item.WarrantyGroup);
                         continue;
                     }
-                    wg.SFabId = dbSfab.Id;
-                    AddEntry<Wg>(updatedWgs, wg);
+
+                    if (wg.SFabId != dbSfab.Id)
+                    {
+                        if (wg.SFabId.HasValue)
+                        {
+                            updateOption.Add(
+                                new UpdateQueryOption(
+                                    new Dictionary<string, long>
+                                    {
+                                        [MetaConstants.WgInputLevelName] = wg.Id,
+                                        [MetaConstants.SfabInputLevel] = wg.SFabId.Value
+                                    },
+                                    new Dictionary<string, long>
+                                    {
+                                        [MetaConstants.WgInputLevelName] = wg.Id,
+                                        [MetaConstants.SfabInputLevel] = dbSfab.Id
+                                    }));
+                        }
+
+                        wg.SFabId = dbSfab.Id;
+                        AddEntry<Wg>(updatedWgs, wg);
+                    }
 
                     if (wg.SogId != null)
                     {
                         var sog = sogs.FirstOrDefault(s => s.Id == wg.SogId);
-                        if (sog != null)
+                        if (sog != null && sog.SFabId != dbSfab.Id)
                         {
+                            if (sog.SFabId.HasValue)
+                            {
+                                updateOption.Add(
+                                new UpdateQueryOption(
+                                    new Dictionary<string, long>
+                                    {
+                                        [MetaConstants.SogInputLevel] = sog.Id,
+                                        [MetaConstants.SfabInputLevel] = sog.SFabId.Value
+                                    },
+                                    new Dictionary<string, long>
+                                    {
+                                        [MetaConstants.SogInputLevel] = sog.Id,
+                                        [MetaConstants.SfabInputLevel] = dbSfab.Id
+                                    }));
+                            }
+
                             sog.SFabId = dbSfab.Id;
                             AddEntry<Sog>(updatedSogs, sog);
                         }

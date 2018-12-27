@@ -24,6 +24,7 @@ namespace Gdc.Scd.Import.Por
     {
         public override void Load()
         {
+            Bind<IRepository<SwDigit>>().To<SwDigitRepository>().InSingletonScope();
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InSingletonScope();
             Bind<IRepositorySet, EntityFrameworkRepositorySet, IRegisteredEntitiesProvider>().To<EntityFrameworkRepositorySet>().InSingletonScope();
             Bind<FrieseEntities>().ToSelf().InSingletonScope();
@@ -64,7 +65,6 @@ namespace Gdc.Scd.Import.Por
             Kernel.RegisterEntity<Pla>();
             Kernel.RegisterEntity<CentralContractGroup>();
             Kernel.RegisterEntity<Sog>();
-            Kernel.RegisterEntity<CentralContractGroup>();
             Kernel.RegisterEntity<Wg>();
             Kernel.RegisterEntity<SwDigit>();
             Kernel.RegisterEntity<SwDigitLicense>();

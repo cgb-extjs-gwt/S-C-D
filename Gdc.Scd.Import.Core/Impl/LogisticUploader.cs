@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Interfaces;
@@ -46,7 +47,8 @@ namespace Gdc.Scd.Import.Core.Impl
             this._multiVendorCountries = _repositoryCountry.GetAll().Where(c => c.IsMaster && c.AssignedToMultiVendor).Select(c => c.Id).ToList();
         }
 
-        public void Upload(IEnumerable<LogisticsDto> items, DateTime modifiedDateTime)
+        public void Upload(IEnumerable<LogisticsDto> items, DateTime modifiedDateTime, 
+            List<UpdateQueryOption> updateOption = null)
         {
             UpdateWg(items, modifiedDateTime);
             var updateSuccess = UpdateAvailabilityFee();

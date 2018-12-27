@@ -14,5 +14,7 @@ namespace Gdc.Scd.Import.SfabImport
         public static string CONFIG_READ_START = "Reading configuration...";
         public static string CONFIG_READ_END = "Reading configuration is completed...";
         public static string UPDATING_CONFIGURATION = "Updating Configuration...";
+        public static string UPDATE_COST_BLOCKS_START = "Updating Cost Blocks...";
+        public static string UPDATE_COST_BLOCKS_END = "Updating Cost Blocks is completed.";
     }
 }

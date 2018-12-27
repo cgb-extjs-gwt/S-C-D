@@ -80,6 +80,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj">
+      <Project>{785FE9D5-3140-46BF-AF1B-EB3764397A44}</Project>
+      <Name>Gdc.Scd.BusinessLogicLayer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj">
       <Project>{F587C0F8-3F2F-4F50-9EA2-2D8C74D8330B}</Project>
       <Name>Gdc.Scd.Core</Name>

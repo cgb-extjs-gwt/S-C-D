@@ -1,5 +1,7 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Constants;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Interfaces;
@@ -33,10 +35,11 @@ namespace Gdc.Scd.Import.Core.Impl
             this._logger = logger;
         }
 
-        public void Upload(IEnumerable<CentralContractGroupDto> items, DateTime modifiedDateTime)
+        public void Upload(IEnumerable<CentralContractGroupDto> items, DateTime modifiedDateTime,
+            List<UpdateQueryOption> updateOption = null)
         {
             UploadCentralContractGroup(items, modifiedDateTime);
-            UpdateWgs(items, modifiedDateTime);
+            UpdateWgs(items, modifiedDateTime, updateOption);
         }
 
         private void UploadCentralContractGroup(IEnumerable<CentralContractGroupDto> items, DateTime modifiedDateTime)
@@ -82,7 +85,8 @@ namespace Gdc.Scd.Import.Core.Impl
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_CCG_END, newCentralContractGroups.Count);
         }
 
-        private void UpdateWgs(IEnumerable<CentralContractGroupDto> items, DateTime modifiedDateTime)
+        private void UpdateWgs(IEnumerable<CentralContractGroupDto> items, DateTime modifiedDateTime,
+            List<UpdateQueryOption> updateOption)
         {
             _logger.Log(LogLevel.Info, ImportConstants.UPDATING_WGS);
             var wgs = _repositoryWg.GetAll().ToList();
@@ -108,7 +112,21 @@ namespace Gdc.Scd.Import.Core.Impl
                     }
 
                     if (wg.CentralContractGroupId != dbCcg.Id)
+                    {
+                        updateOption.Add(
+                                new UpdateQueryOption(
+                                    new Dictionary<string, long>
+                                    {
+                                        [MetaConstants.WgInputLevelName] = wg.Id,
+                                        [MetaConstants.CentralContractGroupInputLevel] = wg.CentralContractGroupId.Value
+                                    },
+                                    new Dictionary<string, long>
+                                    {
+                                        [MetaConstants.WgInputLevelName] = wg.Id,
+                                        [MetaConstants.CentralContractGroupInputLevel] = dbCcg.Id
+                                    }));
                         wg.CentralContractGroupId = dbCcg.Id;
+                    }
 
                     CollectionHelper.AddEntry<Wg>(updatedWgs, wg, _logger);
                 }

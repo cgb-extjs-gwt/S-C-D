@@ -22,6 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Microsoft.EntityFrameworkCore">
+      <HintPath>..\Gdc.Scd.Import.Core\bin\Debug\Microsoft.EntityFrameworkCore.dll</HintPath>
+    </Reference>
     <Reference Include="System.Configuration" />
   </ItemGroup>
 

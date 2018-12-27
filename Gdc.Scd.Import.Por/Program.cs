@@ -12,6 +12,7 @@ using Gdc.Scd.Import.Por.Core.Interfaces;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using Gdc.Scd.Import.Por.Core.Impl;
 using Gdc.Scd.Import.Por.Core.Dto;
+using Gdc.Scd.Core.Meta.Entities;
 
 namespace Gdc.Scd.Import.Por
 {
@@ -201,7 +202,7 @@ namespace Gdc.Scd.Import.Por
                 step++;
 
                 //STEP 9: UPLOAD COST BLOCKS
-                PorService.UpdateCostBlocks(step);
+                 PorService.UpdateCostBlocks(step, PorService.UpdateQueryOptions);
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.END_PROCESS);
             }
 

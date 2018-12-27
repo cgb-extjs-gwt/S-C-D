@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Interfaces;
 using NLog;
@@ -42,7 +43,8 @@ namespace Gdc.Scd.Import.Core.Impl
             _uploader = uploader;
         }
 
-        public bool ImportData(ImportConfiguration configuration)
+        public bool ImportData(ImportConfiguration configuration, 
+            List<UpdateQueryOption> updateOptions = null)
         {
             bool skipped = false;
 
@@ -84,7 +86,7 @@ namespace Gdc.Scd.Import.Core.Impl
                 if (entities != null && entities.Any())
                 {
                     _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_START);
-                    _uploader.Upload(entities, DateTime.Now);
+                    _uploader.Upload(entities, DateTime.Now, updateOptions);
                     _logger.Log(LogLevel.Info, ImportConstants.MOVE_FILE_START, configuration.ProcessedFilesPath);
                     _downloader.MoveFile(downloadDto);
                     _logger.Log(LogLevel.Info, ImportConstants.MOVE_FILE_END);
