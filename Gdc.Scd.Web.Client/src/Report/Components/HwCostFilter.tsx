@@ -11,14 +11,16 @@ import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField
 import { WgField } from "../../Dict/Components/WgField";
 import { Country } from "../../Dict/Model/Country";
 import { HwCostFilterModel } from "../Model/HwCostFilterModel";
+import { UserCountryField } from "../../Dict/Components/UserCountryField";
 
 export interface FilterPanelProps extends PanelProps {
+    checkAccess: boolean;
     onSearch(filter: HwCostFilterModel): void;
 }
 
 export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
-    private country: CountryField;
+    private cnt: CountryField;
 
     private wg: DictField;
 
@@ -41,6 +43,16 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
     public render() {
         let valid = this.state && this.state.valid;
+
+        let countryField;
+
+        if (this.props.checkAccess) {
+            countryField = <UserCountryField ref={x => this.cnt = x} label="Country:" cache={false} onChange={this.onCountryChange} />;
+        }
+        else {
+            countryField = <CountryField ref={x => this.cnt = x} label="Country:" cache={false} onChange={this.onCountryChange} />;
+        }
+
         return (
             <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
 
@@ -54,7 +66,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                     }}
                 >
 
-                    <CountryField ref={x => this.country = x} label="Country:" cache={false} onChange={this.onCountryChange} />
+                    {countryField}
                     <WgField ref={x => this.wg = x} label="Asset(WG):" />
                     <AvailabilityField ref={x => this.av = x} label="Availability:" />
                     <DurationField ref={x => this.dur = x} label="Duration:" />
@@ -73,7 +85,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
     public getModel(): HwCostFilterModel {
         return {
-            country: this.country.getSelected(),
+            country: this.cnt.getSelected(),
             wg: this.wg.getSelected(),
             availability: this.av.getSelected(),
             duration: this.dur.getSelected(),
@@ -85,7 +97,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
     }
 
     public getCountry(): Country {
-        return this.country.getSelectedModel();
+        return this.cnt.getSelectedModel();
     }
 
     private init() {
@@ -94,7 +106,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
     }
 
     private onCountryChange() {
-        this.setState({ valid: !!this.country.getSelected() });
+        this.setState({ valid: !!this.cnt.getSelected() });
     }
 
     private onSearch() {

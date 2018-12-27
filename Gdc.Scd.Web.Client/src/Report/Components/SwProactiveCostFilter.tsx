@@ -5,8 +5,10 @@ import { DictField } from "../../Dict/Components/DictField";
 import { SogField } from "../../Dict/Components/SogField";
 import { YearField } from "../../Dict/Components/YearField";
 import { SwCostFilterModel } from "../Model/SwCostFilterModel";
+import { UserCountryField } from "../../Dict/Components/UserCountryField";
 
 export interface FilterPanelProps extends PanelProps {
+    checkAccess: boolean;
     onSearch(filter: SwCostFilterModel): void;
 }
 
@@ -24,6 +26,16 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
     }
 
     public render() {
+
+        let countryField;
+
+        if (this.props.checkAccess) {
+            countryField = <UserCountryField ref={x => this.cnt = x} label="Country:" />;
+        }
+        else {
+            countryField = <CountryField ref={x => this.cnt = x} label="Country:" />
+        }
+
         return (
             <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
 
@@ -37,9 +49,9 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
                     }}
                 >
 
-                    <CountryField ref="cnt" label="Country:" />
-                    <SogField ref="sog" label="Asset(SOG):" />
-                    <YearField ref="year" label="Year:" />
+                    {countryField}
+                    <SogField ref={x => this.sog = x} label="Asset(SOG):" />
+                    <YearField ref={x => this.year = x} label="Year:" />
 
                 </Container>
 
@@ -47,12 +59,6 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
 
             </Panel>
         );
-    }
-
-    public componentDidMount() {
-        this.cnt = this.refs.cnt as DictField;
-        this.sog = this.refs.sog as DictField;
-        this.year = this.refs.year as DictField;
     }
 
     public getModel(): SwCostFilterModel {

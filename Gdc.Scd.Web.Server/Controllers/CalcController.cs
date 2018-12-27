@@ -17,9 +17,15 @@ namespace Gdc.Scd.Web.Api.Controllers
     {
         ICalculationService calcSrv;
 
-        public CalcController(ICalculationService calculationService)
+        IUserService userSrv;
+
+        public CalcController(
+                ICalculationService calcSrv,
+                IUserService userSrv
+            )
         {
-            this.calcSrv = calculationService;
+            this.calcSrv = calcSrv;
+            this.userSrv = userSrv;
         }
 
         [HttpGet]
@@ -101,16 +107,12 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         private bool HasAccess()
         {
-            return false;
+            return this.userSrv.GetCurrentUser().IsGlobal;
         }
 
         private bool HasAccess(bool approved)
         {
-            if (approved)
-            {
-                return true;
-            }
-            return approved;
+            return approved ? true : userSrv.GetCurrentUser().IsGlobal;
         }
 
         private bool HasAccess(bool approved, long countryId)
@@ -119,7 +121,9 @@ namespace Gdc.Scd.Web.Api.Controllers
             {
                 return true;
             }
-            return approved;
+
+            var usr = userSrv.GetCurrentUser();
+            return userSrv.HasCountryAccess(usr, countryId);
         }
     }
 }

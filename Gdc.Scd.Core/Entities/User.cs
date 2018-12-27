@@ -44,5 +44,20 @@ namespace Gdc.Scd.Core.Entities
                 return permissions;
             }
         }
+
+        [NotMapped]
+        public bool IsGlobal
+        {
+            get
+            {
+                var roles = this.Roles;
+                if (roles != null)
+                {
+                    return roles.Any(x => x.IsGlobal);
+                }
+
+                return false;
+            }
+        }
     }
 }

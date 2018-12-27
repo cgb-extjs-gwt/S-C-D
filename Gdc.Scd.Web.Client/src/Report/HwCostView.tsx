@@ -80,7 +80,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         return (
             <Container layout="fit">
 
-                <HwCostFilter ref={x => this.filter = x} docked="right" onSearch={this.onSearch} />
+                <HwCostFilter ref={x => this.filter = x} docked="right" onSearch={this.onSearch} checkAccess={!this.props.approved} />
 
                 <Grid
                     ref={x => this.grid = x}
