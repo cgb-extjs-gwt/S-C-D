@@ -24,72 +24,102 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         [HttpGet]
         public Task<HttpResponseMessage> GetHwCost(
-                [FromUri]bool approved,
                 [FromUri]HwFilterDto filter,
+                [FromUri]bool approved = true,
                 [FromUri]int start = 0,
                 [FromUri]int limit = 50
             )
         {
-            if (filter == null ||
-                filter.Country <= 0 ||
-                !IsRangeValid(start, limit))
+            if (filter != null &&
+                filter.Country > 0 &&
+                IsRangeValid(start, limit) &&
+                HasAccess(approved, filter.Country))
             {
-                throw this.NotFoundException();
+                return calcSrv.GetHardwareCost(approved, filter, start, limit)
+                              .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
             }
-
-            return calcSrv.GetHardwareCost(approved, filter, start, limit)
-                          .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
+            throw this.NotFoundException();
         }
 
         [HttpGet]
         public Task<DataInfo<SwMaintenanceCostDto>> GetSwCost(
                 [FromUri]SwFilterDto filter,
+                [FromUri]bool approved = true,
                 [FromUri]int start = 0,
                 [FromUri]int limit = 50
             )
         {
-            if (!IsRangeValid(start, limit))
+            if (IsRangeValid(start, limit) &&
+                HasAccess(approved))
             {
-                throw this.NotFoundException();
+                return calcSrv.GetSoftwareCost(approved, filter, start, limit)
+                              .ContinueWith(x => new DataInfo<SwMaintenanceCostDto> { Items = x.Result.items, Total = x.Result.total });
             }
-
-            return calcSrv.GetSoftwareCost(filter, start, limit)
-                          .ContinueWith(x => new DataInfo<SwMaintenanceCostDto> { Items = x.Result.items, Total = x.Result.total });
+            throw this.NotFoundException();
         }
 
         [HttpGet]
         public Task<DataInfo<SwProactiveCostDto>> GetSwProactiveCost(
                [FromUri]SwFilterDto filter,
+               [FromUri]bool approved = true,
                [FromUri]int start = 0,
                [FromUri]int limit = 50
            )
         {
-            if (!IsRangeValid(start, limit))
+            if (filter != null &&
+                IsRangeValid(start, limit) &&
+                HasAccess(approved, filter.Country.GetValueOrDefault()))
             {
-                throw this.NotFoundException();
+                return calcSrv.GetSoftwareProactiveCost(approved, filter, start, limit)
+                              .ContinueWith(x => new DataInfo<SwProactiveCostDto> { Items = x.Result.items, Total = x.Result.total });
             }
-
-            return calcSrv.GetSoftwareProactiveCost(filter, start, limit)
-                          .ContinueWith(x => new DataInfo<SwProactiveCostDto> { Items = x.Result.items, Total = x.Result.total });
+            throw this.NotFoundException();
         }
 
         [HttpPost]
         public void SaveHwCost([FromBody]IEnumerable<HwCostDto> records)
         {
-            var model = records.Select(x => new HwCostManualDto
+            if (HasAccess())
             {
-                Id = x.Id,
-                ServiceTC = x.ServiceTCManual,
-                ServiceTP = x.ServiceTPManual,
-                ListPrice = x.ListPrice,
-                DealerDiscount = x.DealerDiscount
-            });
-            calcSrv.SaveHardwareCost(model);
+                var model = records.Select(x => new HwCostManualDto
+                {
+                    Id = x.Id,
+                    ServiceTC = x.ServiceTCManual,
+                    ServiceTP = x.ServiceTPManual,
+                    ListPrice = x.ListPrice,
+                    DealerDiscount = x.DealerDiscount
+                });
+                calcSrv.SaveHardwareCost(model);
+            }
+            throw this.NotFoundException();
         }
 
         private bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 50;
+        }
+
+        private bool HasAccess()
+        {
+            return false;
+        }
+
+        private bool HasAccess(bool approved)
+        {
+            if (approved)
+            {
+                return true;
+            }
+            return approved;
+        }
+
+        private bool HasAccess(bool approved, long countryId)
+        {
+            if (approved)
+            {
+                return true;
+            }
+            return approved;
         }
     }
 }

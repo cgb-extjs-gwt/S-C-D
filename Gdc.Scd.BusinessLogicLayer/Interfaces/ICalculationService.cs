@@ -8,9 +8,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
     {
         Task<(string json, int total)> GetHardwareCost(bool approved, HwFilterDto filter, int lasId, int limit);
 
-        Task<(SwMaintenanceCostDto[] items, int total)> GetSoftwareCost(SwFilterDto filter, int start, int limit);
+        Task<(SwMaintenanceCostDto[] items, int total)> GetSoftwareCost(bool approved, SwFilterDto filter, int start, int limit);
 
-        Task<(SwProactiveCostDto[] items, int total)> GetSoftwareProactiveCost(SwFilterDto filter, int start, int limit);
+        Task<(SwProactiveCostDto[] items, int total)> GetSoftwareProactiveCost(bool approved, SwFilterDto filter, int start, int limit);
 
         void SaveHardwareCost(IEnumerable<HwCostManualDto> records);
     }
