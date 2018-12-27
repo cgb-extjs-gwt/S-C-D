@@ -1,4 +1,8 @@
-﻿IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceCostView', 'V') IS NOT NULL
+﻿IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceCostView', 'U') IS NOT NULL
+  DROP TABLE SoftwareSolution.SwSpMaintenanceCostView;
+go
+
+IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceCostView', 'V') IS NOT NULL
   DROP VIEW SoftwareSolution.SwSpMaintenanceCostView;
 go
 
