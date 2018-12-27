@@ -51,26 +51,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public async Task<IEnumerable<Record>> GetRecords()
         {
             var costBlockInfos = this.GetCostBlockInfo().ToArray();
-            var records = await this.tableViewRepository.GetRecords(costBlockInfos);
 
-            if (costBlockInfos.All(info => info.Meta.InputLevelFields[MetaConstants.WgInputLevelName] != null))
-            {
-                var wgIds = records.Select(record => record.Coordinates[MetaConstants.WgInputLevelName].Id).ToArray();
-                var wgs = wgService.GetAll().Where(wg => wgIds.Contains(wg.Id)).Include(wg => wg.Pla).ToDictionary(wg => wg.Id);
-
-                foreach (var record in records)
-                {
-                    if (record.Coordinates.TryGetValue(MetaConstants.WgInputLevelName, out var wgCoordinate) &&
-                        wgs.TryGetValue(wgCoordinate.Id, out var wg))
-                    {
-                        record.AdditionalData.Add("Wg.PLA", wg.Pla.Name);
-                        record.AdditionalData.Add("Wg.Description", wg.Description);
-                        record.AdditionalData.Add("Wg.ResponsiblePerson", wg.ResponsiblePerson);
-                    }
-                }
-            }
-
-            return records;
+            return await this.tableViewRepository.GetRecords(costBlockInfos);
         }
 
         public async Task<QualityGateResultSet> UpdateRecords(IEnumerable<Record> records, ApprovalOption approvalOption)
@@ -131,8 +113,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             return new TableViewInfo
             {
-                RecordInfo = this.tableViewRepository.GetRecordInfo(costBlockInfos),
-                References = await this.tableViewRepository.GetReferences(costBlockInfos),
+                RecordInfo = await this.tableViewRepository.GetRecordInfo(costBlockInfos),
+                CostBlockReferences = await this.tableViewRepository.GetReferences(costBlockInfos),
                 DependencyItems = await this.tableViewRepository.GetDependencyItems(costBlockInfos)
             };
         }

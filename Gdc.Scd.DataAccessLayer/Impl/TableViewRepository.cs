@@ -30,40 +30,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<IEnumerable<Record>> GetRecords(CostElementInfo[] costElementInfos)
         {
-            //var coordinateFieldInfos = this.GetCoordinateFieldInfos(costBlockInfos);
             var coordinateMetas = this.GetCoordinateMetas(costElementInfos);
             var dependencyItems = await this.GetDependencyItems(costElementInfos);
             var queryInfo = this.BuildQueryInfo(costElementInfos, coordinateMetas, dependencyItems);
             var recordsQuery = this.BuildGetRecordsQuery(queryInfo);
-
-            //return await this.repositorySet.ReadBySql(recordsQuery, reader =>
-            //{
-            //    var record = new Record();
-
-            //    foreach (var coordinate in queryInfo.CoordinateInfos)
-            //    {
-            //        record.Coordinates.Add(
-            //            coordinate.Id.Alias,
-            //            new NamedId
-            //            {
-            //                Id = (long)reader[coordinate.Id.Alias],
-            //                Name = (string)reader[coordinate.Name.Alias]
-            //            });
-            //    }
-
-            //    foreach (var data in queryInfo.DataInfos)
-            //    {
-            //        record.Data.Add(
-            //            data.Value.Alias,
-            //            new ValueCount
-            //            {
-            //                Value = reader[data.Value.Alias],
-            //                Count = (int)reader[data.Count.Alias],
-            //            });
-            //    }
-
-            //    return record;
-            //});
 
             return await this.repositorySet.ReadBySql(recordsQuery, reader =>
             {
@@ -78,6 +48,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                             Id = (long)reader[coordinateInfo.IdColumn],
                             Name = (string)reader[coordinateInfo.NameColumn]
                         });
+
+                    foreach (var additionalInfo in coordinateInfo.AdditionalDataInfos)
+                    {
+                        record.AdditionalData.Add(
+                            additionalInfo.Data.DataIndex,
+                            (string)reader[additionalInfo.Data.DataIndex]);
+                    }
                 }
 
                 foreach (var costBlockInfo in queryInfo.DataInfos)
@@ -127,26 +104,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
         }
 
-        //public async Task<IDictionary<string, IEnumerable<NamedId>>> GetReferences(CostElementInfo[] costElementInfo)
-        //{
-        //    var result = new Dictionary<string, IEnumerable<NamedId>>();
-
-        //    foreach (var costBlockInfo in costElementInfo)
-        //    {
-        //        foreach (var costElementId in costBlockInfo.CostElementIds)
-        //        {
-        //            if (costBlockInfo.Meta.CostElementsFields[costElementId] is ReferenceFieldMeta field)
-        //            {
-        //                var items = await this.sqlRepository.GetNameIdItems(field.ReferenceMeta, field.ReferenceValueField, field.ReferenceFaceField);
-
-        //                result.Add(field.ReferenceMeta.Name, items);
-        //            }
-        //        }
-        //    }
-
-        //    return result;
-        //}
-
         public async Task<IDictionary<string, ReferenceSet>> GetReferences(CostElementInfo[] costElementInfo)
         {
             var result = new Dictionary<string, ReferenceSet>();
@@ -179,18 +136,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return result;
         }
 
-        //public RecordInfo GetRecordInfo(CostElementInfo[] costBlockInfos)
-        //{
-        //    var coordinateFieldInfos = this.GetCoordinateFieldInfos(costBlockInfos);
-        //    var columnInfo = this.BuildTableViewColumnInfo(costBlockInfos, coordinateFieldInfos);
-
-        //    return new RecordInfo
-        //    {
-        //        Coordinates = columnInfo.CoordinateInfos.Select(this.CopyFieldInfo),
-        //        Data = columnInfo.DataInfos.Select(this.CopyFieldInfo)
-        //    };
-        //}
-
         public async Task<RecordInfo> GetRecordInfo(CostElementInfo[] costElementInfos)
         {
             var coordinateMetas = this.GetCoordinateMetas(costElementInfos);
@@ -201,16 +146,21 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 queryInfo.DataInfos.SelectMany(
                     costBlockInfo => costBlockInfo.CostElementInfos.Select(costElementInfo => costBlockInfo.BuildDataInfo(costElementInfo)));
 
+            var additionalData =
+                queryInfo.CoordinateInfos.SelectMany(
+                    coordinateInfo => coordinateInfo.AdditionalDataInfos.Select(additionalDataInfo => additionalDataInfo.Data));
+
             return new RecordInfo
             {
                 Coordinates = coordinateMetas.Select(meta => meta.Name).ToArray(),
-                Data = dataInfos.ToArray()
+                Data = dataInfos.ToArray(),
+                AdditionalData = additionalData.ToArray()
             };
         }
 
-        public async Task<IDictionary<string, IEnumerable<NamedId>>> GetDependencyItems(CostElementInfo[] costElementInfos)
+        public async Task<IDictionary<string, IDictionary<long, NamedId>>> GetDependencyItems(CostElementInfo[] costElementInfos)
         {
-            var result = new Dictionary<string, IEnumerable<NamedId>>();
+            var result = new Dictionary<string, IDictionary<long, NamedId>>();
 
             foreach (var costElementInfo in costElementInfos)
             {
@@ -221,7 +171,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     {
                         var items = await this.sqlRepository.GetNameIdItems(dependecyField.ReferenceMeta, dependecyField.ReferenceValueField, dependecyField.ReferenceFaceField);
 
-                        result.Add(dependecyField.ReferenceMeta.Name, items);
+                        result.Add(dependecyField.ReferenceMeta.Name, items.ToDictionary(item => item.Id));
                     }
                 }
             }
@@ -229,10 +179,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return result;
         }
 
-        public IEnumerable<EditInfo> BuildEditInfos(CostElementInfo[] costBlockInfos, IEnumerable<Record> records)
+        public IEnumerable<EditInfo> BuildEditInfos(CostElementInfo[] costElementInfos, IEnumerable<Record> records)
         {
             var queries = new List<SqlHelper>();
-            var fieldDictionary = costBlockInfos.ToDictionary(
+            var fieldDictionary = costElementInfos.ToDictionary(
                 info => info.Meta.Name,
                 info => new
                 {
@@ -265,9 +215,34 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                     var valueInfos = new List<ValuesInfo>();
 
-                    foreach (var coordinateGroup in editInfoGroup.GroupBy(rawEditInfo => rawEditInfo.Coordinates))
+                    var coordinateGroups = editInfoGroup.GroupBy(rawEditInfo => 
                     {
-                        foreach (var coordinate in coordinateGroup.Key)
+                        string dependencyId = null;
+                        long? dependencyItemId = null;
+
+                        if (rawEditInfo.EditFieldId.DependencyItemId.HasValue)
+                        {
+                            var dependencyField = info.Meta.GetDomainDependencyField(rawEditInfo.EditFieldId.CostElementId);
+                            if (dependencyField == null)
+                            {
+                                throw new Exception($"Invalid dependency '{rawEditInfo.EditFieldId.CostElementId}' from costblock '{rawEditInfo.EditFieldId.CostBlockId}'");
+                            }
+
+                            dependencyId = dependencyField.Name;
+                            dependencyItemId = rawEditInfo.EditFieldId.DependencyItemId;
+                        }
+
+                        return new
+                        {
+                            rawEditInfo.Coordinates,
+                            DependencyId = dependencyId,
+                            DependencyItemId = dependencyItemId
+                        };
+                    });
+
+                    foreach (var coordinateGroup in coordinateGroups)
+                    {
+                        foreach (var coordinate in coordinateGroup.Key.Coordinates)
                         {
                             if (!info.Meta.ContainsCoordinateField(coordinate.Key))
                             {
@@ -275,9 +250,16 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                             }
                         }
 
+                        var coordinates = coordinateGroup.Key.Coordinates.ToDictionary(coord => coord.Key, coord => coord.Value.Id);
+
+                        if (coordinateGroup.Key.DependencyItemId.HasValue)
+                        {
+                            coordinates.Add(coordinateGroup.Key.DependencyId, coordinateGroup.Key.DependencyItemId.Value);
+                        }
+
                         valueInfos.Add(new ValuesInfo
                         {
-                            Coordinates = coordinateGroup.Key.ToDictionary(coord => coord.Key, coord => coord.Value.Id),
+                            Coordinates = coordinates,
                             Values = coordinateGroup.ToDictionary(rawEditInfo => rawEditInfo.EditFieldId.CostElementId, rawEditInfo => rawEditInfo.Value)
                         });
                     }
@@ -294,100 +276,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 }
             }
         }
-
-        private DataInfo CopyFieldInfo(DataInfo fieldInfo)
-        {
-            return new DataInfo
-            {
-                DataIndex = fieldInfo.DataIndex,
-                CostElementId = fieldInfo.CostElementId,
-                CostBlockId = fieldInfo.CostBlockId,
-                ApplicationId = fieldInfo.ApplicationId
-            };
-        }
-
-        //private UnionSqlHelper BuildGetRecordsQuery(
-        //    CostElementInfo[] costElementInfos, 
-        //    QueryInfo columnInfo, 
-        //    IEnumerable<CoordinateFieldInfo> coordinateFieldInfos)
-        //{
-        //    var coordinateDictionary = coordinateFieldInfos.ToDictionary(info => info.CoordinateField.Name);
-
-        //    var costBlockQueryInfos = costElementInfos.Select(info => new
-        //    {
-        //        FromMeta = info.Meta,
-        //        SelectColumns = info.CostElementIds.SelectMany(costElementId => new[] 
-        //        {
-        //            SqlFunctions.Max(costElementId, info.Meta.Name, costElementId) as BaseColumnInfo,
-        //            SqlFunctions.Count(
-        //                costElementId, 
-        //                true,
-        //                info.Meta.Name, 
-        //                this.BuildCountColumnAlias(info.Meta, costElementId)) as BaseColumnInfo
-        //        }),
-        //        GroupByColumns = info.Meta.CoordinateFields.Where(field => coordinateDictionary.ContainsKey(field.Name))
-        //                                                   .Select(field => new ColumnInfo(field.Name, info.Meta.Name))
-        //                                                   .ToArray()
-        //    });
-
-        //    var costBlockQueries = costBlockQueryInfos.Select(info => new
-        //    {
-        //        Meta = info.FromMeta,
-        //        Query = Sql.Select(info.SelectColumns.Concat(info.GroupByColumns).ToArray())
-        //                   .From(info.FromMeta)
-        //                   .WhereNotDeleted(info.FromMeta)
-        //                   .GroupBy(info.GroupByColumns)
-        //                   .ToSqlBuilder()
-        //    }).ToArray();
-
-        //    var columns =
-        //        columnInfo.CoordinateInfos.SelectMany(coordinate => new[] { coordinate.Id, coordinate.Name })
-        //                                  .Concat(columnInfo.CostBlockInfos.SelectMany(data => new[] { data.Value, data.Count }))
-        //                                  .ToArray();
-
-        //    var firstQuery = costBlockQueries[0];
-        //    var joinQuery = Sql.Select(columns).FromQuery(firstQuery.Query, firstQuery.Meta.Name);
-        //    var joinedCostBlocks = new List<CostBlockEntityMeta> { firstQuery.Meta };
-
-        //    for (var index = 1; index < costBlockQueries.Length; index++)
-        //    {
-        //        var costBlockQuery = costBlockQueries[index];
-        //        var conditions = new List<ConditionHelper>();
-
-        //        foreach (var coordinateField in costBlockQuery.Meta.CoordinateFields)
-        //        {
-        //            var conditionMeta = joinedCostBlocks.FirstOrDefault(
-        //                joinedCostBlock => 
-        //                    coordinateDictionary.ContainsKey(coordinateField.Name) && 
-        //                    joinedCostBlock.ContainsCoordinateField(coordinateField.Name));
-
-        //            if (conditionMeta != null)
-        //            {
-        //                conditions.Add(SqlOperators.Equals(
-        //                    new ColumnInfo(coordinateField.Name, conditionMeta.Name),
-        //                    new ColumnInfo(coordinateField.Name, costBlockQuery.Meta.Name)));
-        //            }
-        //        }
-
-        //        var query = new AliasSqlBuilder
-        //        {
-        //            Alias = costBlockQuery.Meta.Name,
-        //            Query = new BracketsSqlBuilder
-        //            {
-        //                Query = costBlockQuery.Query
-        //            }
-        //        };
-
-        //        joinQuery = joinQuery.Join(query, ConditionHelper.And(conditions));
-
-        //        joinedCostBlocks.Add(costBlockQuery.Meta);
-        //    }
-
-        //    var joinInfos = coordinateDictionary.Values.Select(info => new JoinInfo(info.Meta, info.CoordinateField.Name));
-        //    var orderByColumns = columnInfo.CoordinateInfos.Select(info => info.Name).ToArray();
-
-        //    return joinQuery.Join(joinInfos).OrderBy(SortDirection.Asc, orderByColumns);
-        //}
 
         private UnionSqlHelper BuildGetRecordsQuery(QueryInfo queryInfo)
         {
@@ -432,11 +320,31 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             var coordinateIdColumns = new List<ColumnInfo>();
             var coordinateNameColumns = new List<ColumnInfo>();
+            var additionalColumns = new List<ColumnInfo>();
+            var additionalJoinInfos = new List<JoinInfo>();
 
             foreach (var info in queryInfo.CoordinateInfos)
             {
                 coordinateIdColumns.Add(new ColumnInfo(info.CoordinateMeta.IdField.Name, info.CoordinateMeta.Name, info.IdColumn));
                 coordinateNameColumns.Add(new ColumnInfo(info.CoordinateMeta.NameField.Name, info.CoordinateMeta.Name, info.NameColumn));
+
+                foreach (var additionalDataInfo in info.AdditionalDataInfos)
+                {
+                    switch (additionalDataInfo.Field)
+                    {
+                        case SimpleFieldMeta simpleField:
+                            additionalColumns.Add(new ColumnInfo(simpleField.Name, info.CoordinateMeta.Name, additionalDataInfo.Data.DataIndex));
+                            break;
+
+                        case ReferenceFieldMeta referenceField:
+                            additionalColumns.Add(new ColumnInfo(referenceField.ReferenceFaceField, referenceField.ReferenceMeta.Name, additionalDataInfo.Data.DataIndex));
+                            additionalJoinInfos.Add(new JoinInfo(info.CoordinateMeta, referenceField.Name));
+                            break;
+
+                        default:
+                            throw new NotImplementedException($"Support of type '{additionalDataInfo.Field.GetType()}' not implemented");
+                    }
+                }
             }
 
             var dataColumns = queryInfo.DataInfos.SelectMany(costBlockInfo => costBlockInfo.CostElementInfos.SelectMany(costElementInfo => new[] 
@@ -445,7 +353,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 new ColumnInfo(costElementInfo.CountColumn, costBlockInfo.Alias)
             }));
 
-            var columns = coordinateIdColumns.Concat(coordinateNameColumns).Concat(dataColumns).ToArray();
+            var columns = coordinateIdColumns.Concat(coordinateNameColumns).Concat(dataColumns).Concat(additionalColumns).ToArray();
 
             var firstQuery = costBlockQueries[0];
             var joinQuery = Sql.Select(columns).FromQuery(firstQuery.Query, firstQuery.From.Alias);
@@ -472,20 +380,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 joinQuery = joinQuery.Join(query, ConditionHelper.And(conditions));
             }
 
-            var joinInfos = queryInfo.CoordinateInfos.Select(info => new JoinInfo(firstQuery.From.Meta, info.CoordinateMeta.Name, null, firstQuery.From.Alias));
+            var joinInfos = 
+                queryInfo.CoordinateInfos.Select(info => new JoinInfo(firstQuery.From.Meta, info.CoordinateMeta.Name, null, firstQuery.From.Alias))
+                                         .Concat(additionalJoinInfos);
 
             return joinQuery.Join(joinInfos).OrderBy(SortDirection.Asc, coordinateNameColumns.ToArray());
         }
-
-        //private string BuildColumnAlias(BaseEntityMeta meta, string costElementId, long? dependencyItemId = null)
-        //{
-        //    return this.SerializeDataId(meta.Name, costElementId, dependencyItemId);
-        //}
-
-        //private string BuildCountColumnAlias(BaseEntityMeta meta, string costElementId, long? dependencyItemId = null)
-        //{
-        //    return this.BuildColumnAlias(meta, $"{costElementId}_Count", dependencyItemId);
-        //}
 
         private static string SerializeDataIndex(string costBlockId, string costElementId, long? dependencyItemId = null)
         {
@@ -517,198 +417,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private QueryInfo BuildQueryInfo(
             CostElementInfo[] costElementInfos, 
-            IEnumerable<NamedEntityMeta> coordinateMetas, 
-            IDictionary<string, IEnumerable<NamedId>> dependencyItems)
+            IEnumerable<NamedEntityMeta> coordinateMetas,
+            IDictionary<string, IDictionary<long, NamedId>> dependencyItems)
         {
-            ////var result = new QueryInfo();
-
-            ////foreach (var info in coordinateFieldInfos)
-            ////{
-            ////    var coordinateColumnInfo = new CoordinateColumnInfo
-            ////    {
-            ////        //MetaId = info.Meta.Name,
-            ////        //FieldName = info.CoordinateField.Name,
-            ////        //DataIndex = info.CoordinateField.Name,
-            ////        Id = new ColumnInfo(info.CoordinateField.ReferenceValueField, info.CoordinateField.ReferenceMeta.Name, info.CoordinateField.Name),
-            ////        Name = new ColumnInfo(info.CoordinateField.ReferenceFaceField, info.CoordinateField.ReferenceMeta.Name, $"{info.CoordinateField.Name}_Face")
-            ////    };
-
-            ////    result.CoordinateInfos.Add(coordinateColumnInfo);
-            ////}
-
-            ////////foreach (var costBlockInfo in costBlockInfos)
-            ////////{
-            ////////    foreach (var costElementId in costBlockInfo.CostElementIds)
-            ////////    {
-            ////////        var countAlias = this.BuildCountColumnAlias(costBlockInfo.Meta, costElementId);
-            ////////        var dataIndex = this.BuildColumnAlias(costBlockInfo.Meta, costElementId);
-            ////////        var dataColumnInfo = new DataColumnInfo
-            ////////        {
-            ////////            SchemaId = costBlockInfo.Meta.Schema,
-            ////////            MetaId = costBlockInfo.Meta.Name,
-            ////////            FieldName = costElementId,
-            ////////            DataIndex = dataIndex,
-            ////////            Value = new ColumnInfo(costElementId, costBlockInfo.Meta.Name, dataIndex),
-            ////////            Count = new ColumnInfo(countAlias, costBlockInfo.Meta.Name, countAlias)
-            ////////        };
-
-            ////////        result.DataInfos.Add(dataColumnInfo);
-            ////////    }
-            ////////}
-
-            //////foreach (var costElementInfo in costElementInfos)
-            //////{
-            //////    var costBlockQueryInfo = new CostBlockQueryInfo
-            //////    {
-            //////        Meta = costElementInfo.Meta,
-            //////        CostElementInfos = new List<BaseCostElementQueryInfo>()
-            //////    };
-
-            //////    foreach (var costElementId in costElementInfo.CostElementIds)
-            //////    {
-            //////        BaseCostElementQueryInfo costElementQueryInfo;
-
-            //////        var dependencyField = costElementInfo.Meta.GetDomainDependencyField(costElementId);
-            //////        if (dependencyField == null)
-            //////        {
-            //////            costElementQueryInfo = new CostElementQueryInfo
-            //////            {
-            //////                CostElementId = costElementId,
-            //////                DataColumnInfo = BuildDataColumnInfo(costElementInfo.Meta, costElementId, costElementId)
-            //////            };
-            //////        }
-            //////        else
-            //////        {
-            //////            costElementQueryInfo = new CostElementDependencyQueryInfo
-            //////            {
-            //////                CostElementId = costElementId,
-            //////                DependencyField = dependencyField,
-            //////                DependencyItemInfos = 
-            //////                    dependencyItems[dependencyField.ReferenceMeta.Name].Select(item => new DependencyItemQueryInfo
-            //////                    {
-            //////                        DependencyItemId = item.Id,
-            //////                        DataColumnInfo = BuildDataColumnInfo(costElementInfo.Meta, dependencyField.ReferenceMeta.Name, costElementId, item.Id)
-            //////                    }).ToArray()
-            //////            };
-            //////        }
-
-            //////        costBlockQueryInfo.CostElementInfos.Add(costElementQueryInfo);
-            //////    }
-
-            //////    result.DataInfos.Add(costBlockQueryInfo);
-            //////}
-
-            ////foreach (var costElementInfo in costElementInfos)
-            ////{
-            ////    var dependencyGroups =
-            ////        costElementInfo.CostElementIds.Select(costElementId => new { CostElementId = costElementId, DependencyField = costElementInfo.Meta.GetDomainDependencyField(costElementId) })
-            ////                                      .GroupBy(info => info.DependencyField?.ReferenceMeta);
-
-            ////    foreach(var dependencyGroup in dependencyGroups)
-            ////    {
-            ////        IEnumerable<BaseCostElementQueryInfo> costElementQueryInfos;
-            ////        string alias;
-
-            ////        if (dependencyGroup.Key == null)
-            ////        {
-            ////            alias = costElementInfo.Meta.Name;
-
-            ////            costElementQueryInfos = dependencyGroup.Select(info => new CostElementQueryInfo
-            ////            {
-            ////                CostElementId = info.CostElementId,
-            ////                DataColumnInfo = BuildDataColumnInfo(costElementInfo.Meta, info.CostElementId, info.CostElementId)
-            ////            });
-            ////        }
-            ////        else
-            ////        {
-            ////            alias = $"{costElementInfo.Meta.Name}_{dependencyGroup.Key.Name}";
-
-            ////            costElementQueryInfos = dependencyGroup.Select(info => new CostElementDependencyQueryInfo
-            ////            {
-            ////                CostElementId = info.CostElementId,
-            ////                DependencyField = info.DependencyField,
-            ////                DependencyItemInfos =
-            ////                    dependencyItems[info.DependencyField.ReferenceMeta.Name].Select(item => new DependencyItemQueryInfo
-            ////                    {
-            ////                        DependencyItemId = item.Id,
-            ////                        DataColumnInfo = BuildDataColumnInfo(costElementInfo.Meta, info.DependencyField.ReferenceMeta.Name, info.CostElementId, item.Id)
-            ////                    }).ToArray()
-            ////            });
-            ////        }
-
-            ////        result.DataInfos.Add(new CostBlockQueryInfo
-            ////        {
-            ////            Alias = alias,
-            ////            Meta = costElementInfo.Meta,
-            ////            CostElementInfos = costElementQueryInfos.ToArray()
-            ////        });
-            ////    }
-            ////}
-
-            //var result = new QueryInfo
-            //{
-            //    CoordinateFields = new HashSet<string>(this.GetCoordinateFieldNames(costElementInfos)),
-            //    DataInfos = new List<CostBlockQueryInfo>()
-            //};
-
-            //foreach (var costElementInfo in costElementInfos)
-            //{
-            //    var dependencyGroups =
-            //        costElementInfo.CostElementIds.Select(costElementId => new { CostElementId = costElementId, DependencyField = costElementInfo.Meta.GetDomainDependencyField(costElementId) })
-            //                                      .GroupBy(info => info.DependencyField?.ReferenceMeta);
-
-            //    foreach (var dependencyGroup in dependencyGroups)
-            //    {
-            //        if (dependencyGroup.Key == null)
-            //        {
-            //            result.DataInfos.Add(new CostBlockQueryInfo
-            //            {
-            //                TableAlias = costElementInfo.Meta.Name,
-            //                Meta = costElementInfo.Meta,
-            //                CostElementInfos = 
-            //                    dependencyGroup.Select(info => BuildDataColumnInfo(costElementInfo.Meta, info.CostElementId, info.CostElementId))
-            //                                   .ToArray()
-            //            });
-            //        }
-            //        else
-            //        {
-            //            foreach(var info in dependencyGroup)
-            //            {
-            //                foreach(var item in dependencyItems[info.DependencyField.ReferenceMeta.Name])
-            //                {
-            //                    var alias = $"{costElementInfo.Meta.Name}_{dependencyGroup.Key.Name}_{item.Id}";
-
-            //                    result.DataInfos.Add(new CostBlockQueryInfo
-            //                    {
-            //                        TableAlias = alias,
-            //                        Meta = costElementInfo.Meta,
-            //                        WhereCondition = SqlOperators.Equals(info.CostElementId, "dependencyItemId", item.Id, alias),
-            //                        DependencyItemId = item.Id,
-            //                        CostElementInfos = new[]
-            //                        {
-            //                            BuildDataColumnInfo(costElementInfo.Meta, info.DependencyField.ReferenceMeta.Name, info.CostElementId, item.Id)
-            //                        }
-            //                    });
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-
-            //return result;
-
-            //DataColumnInfo BuildDataColumnInfo(CostBlockEntityMeta meta, string costElementId, long? dependendyItemId = null)
-            //{
-            //    var countAlias = this.BuildCountColumnAlias(meta, costElementId, dependendyItemId);
-            //    var dataIndex = this.BuildColumnAlias(meta, costElementId, dependendyItemId);
-
-            //    return new DataColumnInfo
-            //    {
-            //        Value = new ColumnInfo(costElementId, meta.Name, dataIndex),
-            //        Count = new ColumnInfo(countAlias, meta.Name, countAlias)
-            //    };
-            //}
-
             var result = new QueryInfo
             {
                 DataInfos = new List<CostBlockQueryInfo>(),
@@ -716,8 +427,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 {
                     CoordinateMeta = meta,
                     IdColumn = $"{meta.Name}_Id",
-                    NameColumn = $"{meta.Name}_Name"
-
+                    NameColumn = $"{meta.Name}_Name",
+                    AdditionalDataInfos = this.BuildAdditionalDataInfos(meta)
                 }).ToList()
             };
 
@@ -747,7 +458,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     }
                     else
                     {
-                        foreach (var item in dependencyItems[dependencyGroup.Key.Name])
+                        foreach (var item in dependencyItems[dependencyGroup.Key.Name].Values.OrderBy(x => x.Name))
                         {
                             var costElementQueryInfos =
                                 dependencyGroup.Select(
@@ -782,57 +493,55 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     CountColumn = $"{meta.Name}_{name}_count"
                 };
             }
-
-            //T BuildCostBlockQueryInfo<T>(CostBlockEntityMeta meta, IEnumerable<string> costElementIds, string namePostfix) where T : CostBlockQueryInfo, new()
-            //{
-            //    var costElInfos = costElementIds.Select(costElementId => new DataColumnInfo
-            //    {
-            //        ValueColumn = $"{meta.Name}_{costElementId}_value",
-            //        CountColumn = $"{meta.Name}_{costElementId}_count"
-            //    });
-
-            //    return new T
-            //    {
-            //        Meta = meta,
-            //        CostElementInfos =
-            //            dependencyGroup.Select(costElementId => BuildDataColumnInfo(costElementInfo.Meta, costElementId))
-            //                            .ToArray()
-            //    };
-            //}
         }
 
-        //private IEnumerable<CoordinateFieldInfo> GetCoordinateFieldInfos(CostElementInfo[] costBlockInfos)
-        //{
-        //    var coordinateLists = costBlockInfos.Select(info => info.Meta.CoordinateFields.Select(field => field.Name)).ToArray();
+        private IEnumerable<AdditionalDataInfo> BuildAdditionalDataInfos(NamedEntityMeta coordinateMeta)
+        {
+            IEnumerable<AdditionalDataInfo> result;
 
-        //    var fieldNames = coordinateLists[0];
+            switch (coordinateMeta)
+            {
+                case WgEnityMeta wgMeta:
+                    result = new[]
+                    {
+                        new AdditionalDataInfo
+                        {
+                            Field = wgMeta.PlaField,
+                            Data = new AdditionalData
+                            {
+                                DataIndex = "Pla",
+                                Title = "PLA"
+                            }
+                        },
+                        new AdditionalDataInfo
+                        {
+                            Field = wgMeta.DescriptionField,
+                            Data = new AdditionalData
+                            {
+                                DataIndex = wgMeta.DescriptionField.Name,
+                                Title = "WG Full name"
+                            }
+                        },
+                        new AdditionalDataInfo
+                        {
+                            Field = wgMeta.ResponsiblePersonField,
+                            Data = new AdditionalData
+                            {
+                                DataIndex = wgMeta.ResponsiblePersonField.Name,
+                                Title = "Responsible Person"
+                            }
+                        },
+                    };
+                    break;
 
-        //    for (var index = 1; index < coordinateLists.Length; index++)
-        //    {
-        //        fieldNames = fieldNames.Intersect(coordinateLists[index]);
-        //    }
+                default:
+                    result = Enumerable.Empty<AdditionalDataInfo>();
+                    break;
 
-        //    foreach (var fieldName in fieldNames)
-        //    {
-        //        ReferenceFieldMeta coordinateField;
+            }
 
-        //        foreach (var costBlockInfo in costBlockInfos)
-        //        {
-        //            coordinateField = (ReferenceFieldMeta)costBlockInfo.Meta.GetField(fieldName);
-
-        //            if (coordinateField != null)
-        //            {
-        //                yield return new CoordinateFieldInfo
-        //                {
-        //                    Meta = costBlockInfo.Meta,
-        //                    CoordinateField = coordinateField
-        //                };
-
-        //                break;
-        //            }
-        //        }
-        //    }
-        //}
+            return result;
+        }
 
         private IEnumerable<NamedEntityMeta> GetCoordinateMetas(CostElementInfo[] costElementInfos)
         {
@@ -850,26 +559,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return metas;
         }
 
-        //private class CoordinateFieldInfo
-        //{
-        //    public CostBlockEntityMeta Meta { get; set; }
+        private class AdditionalDataInfo
+        {
+            public FieldMeta Field { get; set; }
 
-        //    public ReferenceFieldMeta CoordinateField { get; set; }
-        //}
-
-        //private class CoordinateColumnInfo : FieldInfo
-        //{
-        //    public ColumnInfo Id { get; set; }
-
-        //    public ColumnInfo Name { get; set; }
-        //}
-
-        //private class DataColumnInfo : DataInfo
-        //{
-        //    public ColumnInfo Value { get; set; }
-
-        //    public ColumnInfo Count { get; set; }
-        //}
+            public AdditionalData Data { get; set; }
+        }
 
         private class CoordinateColumnInfo 
         {
@@ -878,6 +573,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             public string IdColumn { get; set; }
 
             public string NameColumn { get; set; }
+
+            public IEnumerable<AdditionalDataInfo> AdditionalDataInfos { get; set; }
         }
 
         private class DataColumnInfo
@@ -890,42 +587,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             public string CountColumn { get; set; }
         }
-
-        //////private class BaseCostElementQueryInfo
-        //////{
-        //////    public string CostElementId { get; set; }
-        //////}
-
-        //////private class CostElementQueryInfo : BaseCostElementQueryInfo
-        //////{
-        //////    public DataColumnInfo DataColumnInfo { get; set; }
-        //////}
-
-        //////private class DependencyItemQueryInfo
-        //////{
-        //////    public long DependencyItemId { get; set; }
-
-        //////    public DataColumnInfo DataColumnInfo { get; set; }
-        //////}
-
-        //////private class CostElementDependencyQueryInfo : BaseCostElementQueryInfo
-        //////{
-        //////    public ReferenceFieldMeta DependencyField { get; set; }
-
-        //////    public IEnumerable<DependencyItemQueryInfo> DependencyItemInfos { get; set; }
-        //////}
-
-        ////private class CostElementQueryInfo
-        ////{
-        ////    public string CostElementId { get; set; }
-
-        ////    public DataColumnInfo DataColumnInfo { get; set; }
-        ////}
-
-        //private class BaseCostBlockQueryInfo
-        //{
-        //    public CostBlockEntityMeta Meta { get; set; }
-        //}
 
         private class CostBlockQueryInfo
         {
@@ -973,64 +634,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
         }
 
-        //private class CostBlockQueryInfo
-        //{
-        //    public CostBlockEntityMeta Meta { get; set; }
-
-        //    public IEnumerable<DataColumnInfo> CostElementInfos { get; set; }
-
-        //    public BaseEntityMeta DependencyMeta { get; set; }
-        //}
-
-
-        //private class CostBlockQueryInfo
-        //{
-        //    public CostBlockEntityMeta Meta { get; set; }
-
-        //    public string TableAlias { get; set; }
-
-        //    //public IEnumerable<BaseCostElementQueryInfo> CostElementInfos { get; set; }
-
-        //    public ConditionHelper WhereCondition { get; set; }
-
-        //    public long? DependencyItemId { get; set; }
-
-        //    //public IEnumerable<CostElementQueryInfo> CostElementInfos { get; set; }
-
-        //    public IEnumerable<DataColumnInfo> CostElementInfos { get; set; }
-        //}
-
-        //private class CostElementDataInfo
-        //{
-        //    public IDictionary<string, DependencyItemInfo> CostElements { get; set; }
-        //}
-
-        //private class TableViewColumnInfo
-        //{
-        //    public List<CoordinateColumnInfo> CoordinateInfos { get; private set; }
-
-        //    public List<DataColumnInfo> DataInfos { get; private set; }
-
-        //    public TableViewColumnInfo()
-        //    {
-        //        this.CoordinateInfos = new List<CoordinateColumnInfo>();
-        //        this.DataInfos = new List<DataColumnInfo>();
-        //    }
-        //}
-
         private class QueryInfo
         {
             public List<CoordinateColumnInfo> CoordinateInfos { get; set; }
 
-            //public HashSet<string> CoordinateFields { get; set; }
-
             public List<CostBlockQueryInfo> DataInfos { get; set; }
-
-            //public QueryInfo()
-            //{
-            //    //this.CoordinateInfos = new List<CoordinateColumnInfo>();
-            //    this.DataInfos = new List<CostBlockQueryInfo>();
-            //}
         }
     }
 }
