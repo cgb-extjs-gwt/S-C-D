@@ -115,9 +115,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 inputLevelDto.LevelNumber = index++;
 
-                var prevInputLevelMeta = costElementMeta.GetPreviousInputLevel(inputLevelMeta.Id);
+                var prevInputLevelMeta = costElementMeta.GetFilterInputLevel(inputLevelMeta.Id);
 
-                if (costElementMeta.HasInputLevelFilter(prevInputLevelMeta))
+                if (costElementMeta.HasInputLevelFilter(prevInputLevelMeta) && !inputLevelDto.HideFilter)
                 {
                     inputLevelDto.HasFilter = true;
                     inputLevelDto.FilterName = prevInputLevelMeta.Name;

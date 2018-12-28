@@ -2,10 +2,12 @@
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
-    public class InputLevelMeta : BaseMeta, IStoreTyped
+    public class InputLevelMeta : BaseMeta, IStoreTyped, IFilterable
     {
         public StoreType StoreType { get; set; }
 
         public int LevelNumber { get; set; }
+
+        public bool HideFilter { get; set; }
     }
 }

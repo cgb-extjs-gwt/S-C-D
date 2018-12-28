@@ -71,7 +71,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             if (context.InputLevelFilterIds != null)
             {
                 var costElement = this.GetCostElement(context);
-                var previousInputLevel = costElement.GetPreviousInputLevel(context.InputLevelId);
+                var previousInputLevel = costElement.GetFilterInputLevel(context.InputLevelId);
 
                 if (previousInputLevel != null &&
                     (costElement.RegionInput == null || costElement.RegionInput.Id != previousInputLevel.Id))
