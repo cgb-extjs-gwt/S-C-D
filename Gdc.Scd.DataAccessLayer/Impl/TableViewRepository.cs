@@ -46,14 +46,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         new NamedId
                         {
                             Id = (long)reader[coordinateInfo.IdColumn],
-                            Name = (string)reader[coordinateInfo.NameColumn]
+                            Name = reader[coordinateInfo.NameColumn] as string
                         });
 
                     foreach (var additionalInfo in coordinateInfo.AdditionalDataInfos)
                     {
                         record.AdditionalData.Add(
                             additionalInfo.Data.DataIndex,
-                            (string)reader[additionalInfo.Data.DataIndex]);
+                            reader[additionalInfo.Data.DataIndex] as string);
                     }
                 }
 
@@ -162,18 +162,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var result = new Dictionary<string, IDictionary<long, NamedId>>();
 
-            foreach (var costElementInfo in costElementInfos)
-            {
-                foreach (var costElementId in costElementInfo.CostElementIds)
-                {
-                    var dependecyField = costElementInfo.Meta.GetDomainDependencyField(costElementId);
-                    if (dependecyField != null)
-                    {
-                        var items = await this.sqlRepository.GetNameIdItems(dependecyField.ReferenceMeta, dependecyField.ReferenceValueField, dependecyField.ReferenceFaceField);
+            var dependecyFields =
+                costElementInfos.SelectMany(info => info.CostElementIds.Select(info.Meta.GetDomainDependencyField))
+                                .Where(dependecyField => dependecyField != null)
+                                .GroupBy(dependecyField => dependecyField.ReferenceMeta)
+                                .Select(group => group.First());
 
-                        result.Add(dependecyField.ReferenceMeta.Name, items.ToDictionary(item => item.Id));
-                    }
-                }
+            foreach (var dependecyField in dependecyFields)
+            {
+                var items = await this.sqlRepository.GetNameIdItems(dependecyField.ReferenceMeta, dependecyField.ReferenceValueField, dependecyField.ReferenceFaceField);
+
+                result.Add(dependecyField.ReferenceMeta.Name, items.ToDictionary(item => item.Id));
             }
 
             return result;
@@ -285,9 +284,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                 if (costBlockInfo is DependencyItemCostBlockQueryInfo dependencyItemQueryInfo)
                 {
+                    var parameterName = $"{dependencyItemQueryInfo.DependecyField.Name}_{dependencyItemQueryInfo.DependencyItemId}";
+                    var parameter = new CommandParameterInfo(parameterName, dependencyItemQueryInfo.DependencyItemId);
+
                     filter = new Dictionary<string, IEnumerable<object>>
                     {
-                        [dependencyItemQueryInfo.DependecyField.Name] = new object[] { dependencyItemQueryInfo.DependencyItemId }
+                        [dependencyItemQueryInfo.DependecyField.Name] = new object[] { parameter }
                     };
                 }
 
@@ -609,7 +611,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             protected virtual string GetDataIndex(DataColumnInfo dataColumnInfo)
             {
-                return SerializeDataIndex(this.Meta.ApplicationId, dataColumnInfo.CostElementId);
+                return SerializeDataIndex(this.Meta.CostBlockId, dataColumnInfo.CostElementId);
             }
         }
 
@@ -630,7 +632,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             protected override string GetDataIndex(DataColumnInfo dataColumnInfo)
             {
-                return SerializeDataIndex(this.Meta.ApplicationId, dataColumnInfo.CostElementId, this.DependencyItemId);
+                return SerializeDataIndex(this.Meta.CostBlockId, dataColumnInfo.CostElementId, this.DependencyItemId);
             }
         }
 
