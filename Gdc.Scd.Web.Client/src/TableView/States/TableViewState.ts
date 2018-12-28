@@ -1,18 +1,36 @@
 import { NamedId } from "../../Common/States/CommonStates";
-import { FieldInfo } from "../../Common/States/FieldInfo";
 import { TableViewRecord } from "./TableViewRecord";
 import { QualityGateResult } from "../../QualityGate/States/QualityGateResult";
 import { CostElementIdentifier } from "../../Common/States/CostElementIdentifier";
 
+export interface DataInfo extends CostElementIdentifier {
+    dependencyItemId?: number
+    dataIndex: string
+}
+
 export interface TableViewRecordInfo {
-    coordinates: FieldInfo[]
-    data: FieldInfo[]
+    coordinates: string[]
+    data: DataInfo[]
+    additionalData: {
+        dataIndex: string
+        title: string
+    }[]
 }
 
 export interface TableViewInfo {
     recordInfo: TableViewRecordInfo
-    filters: { [key: string]: NamedId[] }
-    references: { [key: string]: NamedId<number>[] }
+    costBlockReferences: { 
+        [costBlockId: string]: {
+            references: { 
+                [costElementId: string]: NamedId<number>[] 
+            }
+        }
+    }
+    dependencyItems: {
+        [costElementId: string]: {
+            [dependencyItemId: number]: NamedId<number>
+        }
+    }
 }
 
 export interface QualityGateResultSetItem {

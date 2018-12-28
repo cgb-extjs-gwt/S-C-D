@@ -20,9 +20,9 @@ export const QualtityGateSetWindowContainer =
                         const { applicationId, costBlockId, costElementId } = item.costElementIdentifier;
                         
                         const fieldInfos = recordInfo.data.filter(
-                            fieldInfo => 
-                                fieldInfo.metaId == costBlockId &&
-                                fieldInfo.fieldName == costElementId
+                            dataInfo => 
+                                dataInfo.costBlockId == costBlockId &&
+                                dataInfo.costElementId == costElementId
                         );
 
                         const costBlock = getCostBlock(appMetaData, costBlockId);

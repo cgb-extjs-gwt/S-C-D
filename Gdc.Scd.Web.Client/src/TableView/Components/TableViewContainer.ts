@@ -6,16 +6,12 @@ import { TableViewInfo } from "../States/TableViewState";
 import { Model } from "../../Common/States/ExtStates";
 import { TableViewRecord } from "../States/TableViewRecord";
 import { buildGetHistoryUrl } from "../Services/TableViewService";
+import { CostMetaData } from "../../Common/States/CostMetaStates";
+import { getCostElementByAppMeta } from "../../Common/Helpers/MetaHelper";
 
-const buildHistotyDataLoadUrl = (tableViewInfo: TableViewInfo, [selection]: Model<TableViewRecord>[], selectedDataIndex: string) => {
+const buildHistotyDataLoadUrl = (meta: CostMetaData, tableViewInfo: TableViewInfo, [selection]: Model<TableViewRecord>[], selectedDataIndex: string) => {
     const costElementField =
         tableViewInfo.recordInfo.data.find(fieldInfo => fieldInfo.dataIndex == selectedDataIndex);
-
-    const costElementId: CostElementIdentifier = {
-        applicationId: costElementField.schemaId,
-        costBlockId: costElementField.metaId,
-        costElementId: costElementField.fieldName
-    };
 
     const coordinates = {};
 
@@ -23,13 +19,19 @@ const buildHistotyDataLoadUrl = (tableViewInfo: TableViewInfo, [selection]: Mode
         coordinates[key] = selection.data.coordinates[key].id;
     }
 
-    return buildGetHistoryUrl(costElementId, coordinates);
+    if (costElementField.dependencyItemId != null) {
+        const costElement = getCostElementByAppMeta(meta, costElementField.costBlockId, costElementField.costElementId);
+
+        coordinates[costElement.dependency.id] = costElementField.dependencyItemId;
+    }
+
+    return buildGetHistoryUrl(costElementField, coordinates);
 }
 
 export const TableViewContainer = connect<TableViewProps, {}, {}, CommonState>(
-    ({ pages: { tableView } }) => ({
+    ({ app: { appMetaData },  pages: { tableView } }) => ({
         buildHistotyDataLoadUrl: tableView.info
-            ? (selection, selectedDataIndex) => buildHistotyDataLoadUrl(tableView.info, selection, selectedDataIndex)
+            ? (selection, selectedDataIndex) => buildHistotyDataLoadUrl(appMetaData, tableView.info, selection, selectedDataIndex)
             : () => ''
     })
 )(TableView)

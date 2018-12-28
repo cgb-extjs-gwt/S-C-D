@@ -22,14 +22,16 @@ export interface ColumnFilter {
 export interface ColumnInfo<T=any> {
     dataIndex: string
     title: string
-    type: ColumnType
+    type?: ColumnType
     isEditable?: boolean
     referenceItems?: Map<number, NamedId<number>>
     isInvisible?: boolean
     filter?: ColumnFilter
     extensible?: boolean
+    flex?: number
+    columns?: ColumnInfo<T>[]
+    width?: string | number
     mappingFn?(data: T): any
     editMappingFn?(data: Model<T>, dataIndex: string)
     rendererFn?(value, record: Model<T>): any
-    flex?: number
 }

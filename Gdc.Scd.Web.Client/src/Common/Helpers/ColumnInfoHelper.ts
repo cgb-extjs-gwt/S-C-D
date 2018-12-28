@@ -2,7 +2,6 @@ import { CostBlockMeta, CostMetaData, InputLevelMeta, FieldType, InputType } fro
 import { ColumnInfo, ColumnType } from "../States/ColumnInfo";
 import { NamedId } from "../States/CommonStates";
 import { getDependency, findMeta, getSortedInputLevels } from "./MetaHelper";
-import { FieldInfo } from "../States/FieldInfo";
 import { Model } from "../States/ExtStates";
 
 export const getDependecyColumnFromCostBlock = (costBlock: CostBlockMeta, costElementId: string) => {
@@ -35,6 +34,7 @@ export interface CostElementColumnOption<T=any> {
     type: FieldType,
     inputType: InputType
     references?: NamedId<number>[]
+    width?: string | number
     mappingFn?(data: T): any
     editMappingFn?(data: Model<T>, dataIndex: string)
     getCountFn?(data: Model<T>): number
@@ -86,11 +86,12 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
             break;
     }
 
-    const { mappingFn, editMappingFn, getCountFn } = option;
+    const { width, mappingFn, editMappingFn, getCountFn } = option;
 
     return <ColumnInfo<T>>{
         title,
         dataIndex,
+        width,
         isEditable: !readonly,
         type: columnType,
         referenceItems,
