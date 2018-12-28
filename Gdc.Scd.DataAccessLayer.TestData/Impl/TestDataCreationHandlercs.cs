@@ -68,6 +68,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var queries = new List<SqlHelper>();
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
 
+            queries.AddRange(this.BuildFromFile(@"Scripts.country.sql"));
+
             queries.AddRange(this.BuildFromFile(@"Scripts.portfolio-func.sql"));
 
             queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));

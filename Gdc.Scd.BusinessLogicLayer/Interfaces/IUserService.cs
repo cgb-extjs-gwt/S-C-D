@@ -11,8 +11,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         bool HasRole(string userLogin, params string[] roleNames);
 
-        bool HasCountryAccess(User user, long countryId);
-
         IQueryable<Country> GetCurrentUserCountries();
     }
 }

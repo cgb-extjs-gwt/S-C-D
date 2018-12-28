@@ -67,16 +67,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     .Select(userRole => userRole.Country);
         }
 
-        public bool HasCountryAccess(User user, long countryId)
-        {
-            if (user.IsGlobal)
-            {
-                return true;
-            }
-
-            return GetCurrentUserCountries().Any(x => x.Id == countryId);
-        }
-
         private IQueryable<Role> GetUserRoles(string userLogin)
         {
             return

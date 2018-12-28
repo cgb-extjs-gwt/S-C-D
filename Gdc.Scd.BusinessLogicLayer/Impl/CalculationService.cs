@@ -153,11 +153,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return (result, count);
         }
 
-        public void SaveHardwareCost(IEnumerable<HwCostManualDto> records)
+        public void SaveHardwareCost(long countryId, IEnumerable<HwCostManualDto> records)
         {
             var recordsId = records.Select(x => x.Id);
 
-            var entities = (from p in portfolioRepo.GetAll().Where(x => recordsId.Contains(x.Id))
+            var entities = (from p in portfolioRepo.GetAll().Where(x => x.Country.Id == countryId && recordsId.Contains(x.Id))
                             from hw in hwManualRepo.GetAll().Where(x => x.Id == p.Id).DefaultIfEmpty()
                             select new
                             {

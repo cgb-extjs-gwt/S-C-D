@@ -1,6 +1,7 @@
 ﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
-import { buildMvcUrl } from "../Common/Services/Ajax";
+import { handleRequest } from "../Common/Helpers/RequestHelper";
+import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { moneyRenderer, percentRenderer, yearRenderer } from "./Components/GridRenderer";
@@ -38,14 +39,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         proxy: {
             type: 'ajax',
             api: {
-                read: buildMvcUrl('calc', 'gethwcost'),
-                update: buildMvcUrl('calc', 'savehwcost')
-            },
-            writer: {
-                type: 'json',
-                writeAllFields: true,
-                allowSingle: false,
-                idProperty: "Id"
+                read: buildMvcUrl('calc', 'gethwcost')
             },
             reader: {
                 type: 'json',
@@ -183,21 +177,17 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private saveRecords() {
-        this.store.sync({
-            scope: this,
+        let recs = this.store.getModifiedRecords().map(x => x.getData());
+        let cnt = this.state.selectedCountry;
 
-            success: function (batch, options) {
-                //TODO: show successfull message box
-                this.reset();
-                this.reload();
-            },
-
-            failure: (batch, options) => {
-                //TODO: show error
-                this.store.rejectChanges();
-            }
-        });
-
+        if (recs && cnt) {
+            let me = this;
+            let p = post('calc', 'savehwcost', { items: recs, countryId: cnt.id }).then(() => {
+                me.reset();
+                me.reload();
+            });
+            handleRequest(p);
+        }
     }
 
     private onSearch(filter: HwCostFilterModel) {
@@ -231,7 +221,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             }
         };
 
-        if (this.canEdit()) {
+        if (this.approved()) {
             cfg['desktop'].plugins.gridcellediting = true;
             cfg['!desktop'].plugins.grideditable = true;
         }
@@ -239,12 +229,16 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         return cfg;
     }
 
-    private canEdit(): boolean {
+    private approved() {
         return this.props.approved;
     }
 
+    private canEdit(): boolean {
+        return this.canEditListPrice() || this.canEditTC();
+    }
+
     private canEditListPrice(): boolean {
-        let result: boolean = this.canEdit();
+        let result: boolean = this.approved();
         if (result) {
             const cnt: Country = this.state.selectedCountry;
             result = cnt && cnt.canStoreListAndDealerPrices;
@@ -253,7 +247,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private canEditTC(): boolean {
-        let result: boolean = this.canEdit();
+        let result: boolean = this.approved();
         if (result) {
             const cnt: Country = this.state.selectedCountry;
             result = cnt && cnt.canOverrideTransferCostAndPrice;

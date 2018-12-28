@@ -12,6 +12,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<(SwProactiveCostDto[] items, int total)> GetSoftwareProactiveCost(bool approved, SwFilterDto filter, int start, int limit);
 
-        void SaveHardwareCost(IEnumerable<HwCostManualDto> records);
+        void SaveHardwareCost(long countryId, IEnumerable<HwCostManualDto> records);
     }
 }

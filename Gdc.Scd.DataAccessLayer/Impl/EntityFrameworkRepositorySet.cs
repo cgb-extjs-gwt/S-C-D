@@ -99,6 +99,34 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
+        public Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<DbDataReader, T> mapFunc, params DbParameter[] parameters)
+        {
+            return WithCommand(async cmd =>
+            {
+
+                cmd.CommandText = sql;
+                cmd.AddParameters(parameters);
+
+                var reader = await cmd.ExecuteReaderAsync();
+
+                if (reader.HasRows)
+                {
+                    var result = new List<T>(25);
+                    while (await reader.ReadAsync())
+                    {
+                        result.Add(mapFunc(reader));
+                    }
+                    return (IEnumerable<T>)result;
+                }
+                else
+                {
+                    return new T[0];
+                }
+
+            });
+        }
+
+
         public int ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null)
         {
             var dbParams = this.GetDbParameters(parameters);
@@ -223,7 +251,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 cmd.CommandText = sql;
                 cmd.AddParameters(parameters);
 
-                using (var reader =  cmd.ExecuteReader())
+                using (var reader = cmd.ExecuteReader())
                 {
                     return reader.MapToTable();
                 }

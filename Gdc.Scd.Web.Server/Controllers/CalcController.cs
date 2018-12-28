@@ -4,7 +4,6 @@ using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Web.Server;
 using Gdc.Scd.Web.Server.Impl;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -17,15 +16,15 @@ namespace Gdc.Scd.Web.Api.Controllers
     {
         ICalculationService calcSrv;
 
-        IUserService userSrv;
+        ICountryUserService userCountrySrv;
 
         public CalcController(
                 ICalculationService calcSrv,
-                IUserService userSrv
+                ICountryUserService userCountrySrv
             )
         {
             this.calcSrv = calcSrv;
-            this.userSrv = userSrv;
+            this.userCountrySrv = userCountrySrv;
         }
 
         [HttpGet]
@@ -82,11 +81,11 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
-        public void SaveHwCost([FromBody]IEnumerable<HwCostDto> records)
+        public void SaveHwCost([FromBody]SaveCostManualDto m)
         {
-            if (HasAccess())
+            if (HasAccess(m.CountryId))
             {
-                var model = records.Select(x => new HwCostManualDto
+                var items = m.Items.Select(x => new HwCostManualDto
                 {
                     Id = x.Id,
                     ServiceTC = x.ServiceTCManual,
@@ -94,9 +93,12 @@ namespace Gdc.Scd.Web.Api.Controllers
                     ListPrice = x.ListPrice,
                     DealerDiscount = x.DealerDiscount
                 });
-                calcSrv.SaveHardwareCost(model);
+                calcSrv.SaveHardwareCost(m.CountryId, items);
             }
-            throw this.NotFoundException();
+            else
+            {
+                throw this.NotFoundException();
+            }
         }
 
         private bool IsRangeValid(int start, int limit)
@@ -104,9 +106,9 @@ namespace Gdc.Scd.Web.Api.Controllers
             return start >= 0 && limit <= 50;
         }
 
-        private bool HasAccess()
+        private bool HasAccess(long countryId)
         {
-            return this.userSrv.GetCurrentUser().IsGlobal;
+            return userCountrySrv.HasCountryAccess(countryId);
         }
 
         private bool HasAccess(bool approved, long countryId)
@@ -116,8 +118,14 @@ namespace Gdc.Scd.Web.Api.Controllers
                 return true;
             }
 
-            var usr = userSrv.GetCurrentUser();
-            return userSrv.HasCountryAccess(usr, countryId);
+            return userCountrySrv.HasCountryAccess(countryId);
         }
+    }
+
+    public class SaveCostManualDto
+    {
+        public long CountryId { get; set; }
+
+        public HwCostDto[] Items { get; set; }
     }
 }
