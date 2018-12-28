@@ -47,8 +47,7 @@ namespace Gdc.Scd.Import.Core.Impl
             this._multiVendorCountries = _repositoryCountry.GetAll().Where(c => c.IsMaster && c.AssignedToMultiVendor).Select(c => c.Id).ToList();
         }
 
-        public void Upload(IEnumerable<LogisticsDto> items, DateTime modifiedDateTime, 
-            List<UpdateQueryOption> updateOption = null)
+        public IEnumerable<UpdateQueryOption> Upload(IEnumerable<LogisticsDto> items, DateTime modifiedDateTime)
         {
             UpdateWg(items, modifiedDateTime);
             var updateSuccess = UpdateAvailabilityFee();
@@ -56,7 +55,9 @@ namespace Gdc.Scd.Import.Core.Impl
             {
                 var result = UpdateLogistic(items, modifiedDateTime);
                 _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_AVAILABILITY_FEE_END, result);
-            }  
+            }
+
+            return new List<UpdateQueryOption>();
         }
 
         private void UpdateWg(IEnumerable<LogisticsDto> items, DateTime modifiedDateTime)

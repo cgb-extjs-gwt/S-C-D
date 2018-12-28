@@ -20,7 +20,6 @@ namespace Gdc.Scd.Import.SfabImport
         public static IImportManager ImportManager { get; set; }
         public static ILogger<LogLevel> Logger { get; private set; }
         public static ICostBlockService CostBlockService { get; private set; }
-        public static List<UpdateQueryOption> UpdateOptions { get; set; }
 
         static SFabService()
         {
@@ -29,7 +28,6 @@ namespace Gdc.Scd.Import.SfabImport
             ImportManager = kernel.Get<IImportManager>();
             Logger = kernel.Get<ILogger<LogLevel>>();
             CostBlockService = kernel.Get<ICostBlockService>();
-            UpdateOptions = new List<UpdateQueryOption>();
         }
 
         public static void UploadSfabs()
@@ -38,11 +36,11 @@ namespace Gdc.Scd.Import.SfabImport
             Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_START);
             var configuration = ConfigHandler.ReadConfiguration(ImportSystems.SFABS);
             Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_END);
-            var skipped = ImportManager.ImportData(configuration, UpdateOptions);
+            var result = ImportManager.ImportData(configuration);
 
-            if (!skipped)
+            if (!result.Skipped)
             {
-                UpdateCostBlocks(UpdateOptions);
+                UpdateCostBlocks(result.UpdateOptions);
                 Logger.Log(LogLevel.Info, ImportConstants.UPDATING_CONFIGURATION);
                 ConfigHandler.UpdateImportResult(configuration, DateTime.Now);
             }

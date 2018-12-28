@@ -36,12 +36,11 @@ namespace Gdc.Scd.Import.Core.Impl
             this._repositorySog = this._repositorySet.GetRepository<Sog>();
             this._logger = logger;
         }
-        public void Upload(IEnumerable<SFabDto> items, DateTime modifiedDateTime, 
-            List<UpdateQueryOption> updateOption = null)
+        public IEnumerable<UpdateQueryOption> Upload(IEnumerable<SFabDto> items, DateTime modifiedDateTime)
         {
             UploadSfabs(items, modifiedDateTime);
             DeactivateSfabs(items, modifiedDateTime);
-            UpdateWgsAndSogs(items, modifiedDateTime, updateOption);
+            return UpdateWgsAndSogs(items, modifiedDateTime);
         }
 
         public void UploadSfabs(IEnumerable<SFabDto> items, DateTime modifiedDateTime)
@@ -119,8 +118,7 @@ namespace Gdc.Scd.Import.Core.Impl
             _logger.Log(LogLevel.Info, ImportConstants.DEACTIVATING_SFAB_END, notActiveSfabs.Count);
         }
 
-        public void UpdateWgsAndSogs(IEnumerable<SFabDto> items, DateTime modifiedDateTime,
-            List<UpdateQueryOption> updateOption)
+        public IEnumerable<UpdateQueryOption> UpdateWgsAndSogs(IEnumerable<SFabDto> items, DateTime modifiedDateTime)
         {
             _logger.Log(LogLevel.Info, ImportConstants.UPDATING_WGS_AND_SOGS_START);
             var sfabs = _repositorySfab.GetAll().Where(sf => !sf.DeactivatedDateTime.HasValue).ToList();
@@ -129,6 +127,7 @@ namespace Gdc.Scd.Import.Core.Impl
             var uploadedSfabs = items.Select(i => i.Sfab).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             var updatedWgs = new Dictionary<string, Wg>();
             var updatedSogs = new Dictionary<string, Sog>();
+            var updateOption = new List<UpdateQueryOption>();
 
             foreach (var item in items)
             {
@@ -208,6 +207,7 @@ namespace Gdc.Scd.Import.Core.Impl
             }
 
             _logger.Log(LogLevel.Info, ImportConstants.UPDATING_WGS_AND_SOGS_END);
+            return updateOption;
         }
 
         private void AddEntry<T>(Dictionary<string, T> collection, T item) where T: NamedId

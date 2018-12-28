@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("CentralContractGroup", Schema = MetaConstants.InputLevelSchema)]
+    [Table(MetaConstants.CentralContractGroupInputLevel, Schema = MetaConstants.InputLevelSchema)]
     public class CentralContractGroup : NamedId
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

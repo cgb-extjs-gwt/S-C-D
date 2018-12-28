@@ -31,8 +31,8 @@ namespace Gdc.Scd.Import.ExchangeRates
             Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_START);
             var configuration = ConfigHandler.ReadConfiguration(ImportSystems.EXRATES);
             Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_END);
-            var skipped = ImportManager.ImportData(configuration);
-            if (!skipped)
+            var result = ImportManager.ImportData(configuration);
+            if (!result.Skipped)
             {
                 Logger.Log(LogLevel.Info, ImportConstants.UPDATING_CONFIGURATION);
                 ConfigHandler.UpdateImportResult(configuration, DateTime.Now);

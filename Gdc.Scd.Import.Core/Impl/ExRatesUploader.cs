@@ -34,8 +34,7 @@ namespace Gdc.Scd.Import.Core.Impl
             this._logger = logger;
         }
 
-        public void Upload(IEnumerable<ExchangeRateDto> items, DateTime modifiedDateTime,
-            List<UpdateQueryOption> updateOption = null)
+        public IEnumerable<UpdateQueryOption> Upload(IEnumerable<ExchangeRateDto> items, DateTime modifiedDateTime)
         {
             var currencies = _repositoryCurrency.GetAll().ToList();
             var exRates = _repositoryExchangeRate.GetAll().ToList();
@@ -72,6 +71,7 @@ namespace Gdc.Scd.Import.Core.Impl
             }
 
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, batchList.Count);
+            return new List<UpdateQueryOption>();
         } 
     }
 }

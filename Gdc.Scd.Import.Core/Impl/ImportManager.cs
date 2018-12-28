@@ -43,10 +43,9 @@ namespace Gdc.Scd.Import.Core.Impl
             _uploader = uploader;
         }
 
-        public bool ImportData(ImportConfiguration configuration, 
-            List<UpdateQueryOption> updateOptions = null)
+        public ImportResultDto ImportData(ImportConfiguration configuration)
         {
-            bool skipped = false;
+            var importResult = new ImportResultDto();
 
             var downloadDto = new DownloadInfoDto {
                 File = configuration.FileName,
@@ -86,7 +85,7 @@ namespace Gdc.Scd.Import.Core.Impl
                 if (entities != null && entities.Any())
                 {
                     _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_START);
-                    _uploader.Upload(entities, DateTime.Now, updateOptions);
+                    importResult.UpdateOptions = _uploader.Upload(entities, DateTime.Now);
                     _logger.Log(LogLevel.Info, ImportConstants.MOVE_FILE_START, configuration.ProcessedFilesPath);
                     _downloader.MoveFile(downloadDto);
                     _logger.Log(LogLevel.Info, ImportConstants.MOVE_FILE_END);
@@ -100,11 +99,11 @@ namespace Gdc.Scd.Import.Core.Impl
             }
             else
             {
-                skipped = true;
+                importResult.Skipped = true;
                 _logger.Log(LogLevel.Info, ImportConstants.SKIP_UPLOADING);
             }
 
-            return skipped;
+            return importResult;
         }
 
         private bool ShouldUpload(Occurancy occurancy, DateTime modifiedDateTime, 

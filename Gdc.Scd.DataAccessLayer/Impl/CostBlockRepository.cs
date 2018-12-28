@@ -27,7 +27,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public async Task<int> UpdateByCoordinatesAsync(CostBlockEntityMeta meta,
             IEnumerable<UpdateQueryOption> updateOptions = null)
         {
-            var query = this.BuildUpdateByCoordinatesQuery(meta);
+            var query = this.BuildUpdateByCoordinatesQuery(meta, updateOptions);
 
             return await this.repositorySet.ExecuteSqlAsync(query);
         }
@@ -179,13 +179,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             List<SqlHelper> queries = new List<SqlHelper>();
 
-            var index = 1;
-            var updateQueries = updateOptions.Select(opt => 
-                                {
-                                    var query = this.BuildUpdateCostBlockByChangedCoordinatesQuery(costBlockMeta, opt, index, prefix);
-                                    index++;
-                                    return query;
-                                }).Where(q => q != null);
+            var updateQueries = updateOptions.Select((opt, index) => this.BuildUpdateCostBlockByChangedCoordinatesQuery(costBlockMeta, opt, index, prefix))
+                                                                                                            .Where(q => q != null);
 
             queries.AddRange(updateQueries);
 
@@ -201,7 +196,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         private SqlHelper BuildUpdateCostBlockByChangedCoordinatesQuery(BaseCostBlockEntityMeta costBlockMeta, 
             UpdateQueryOption updateOptions, int index, string prefix = "")
         {
-            var costBlockCoordinates = new HashSet<string>(costBlockMeta.CoordinateFields.Select(c => c.Name).ToArray());
+            var costBlockCoordinates = new HashSet<string>(costBlockMeta.CoordinateFields.Select(c => c.Name));
             var changedCoordinates = new HashSet<string>(updateOptions.NewCoordinates.Keys);
 
             if (changedCoordinates.IsSubsetOf(costBlockCoordinates))

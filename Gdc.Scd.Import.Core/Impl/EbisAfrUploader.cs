@@ -37,8 +37,7 @@ namespace Gdc.Scd.Import.Core.Impl
             this._logger = logger;
         }
 
-        public void Upload(IEnumerable<AfrDto> items, DateTime modifiedDateTime,
-            List<UpdateQueryOption> updateOption = null)
+        public IEnumerable<UpdateQueryOption> Upload(IEnumerable<AfrDto> items, DateTime modifiedDateTime)
         {
             var wgs = _repositoryWg.GetAll().Where(wg => wg.WgType == WgType.Por).ToList();
             var years = _repositoryYear.GetAll().ToList();
@@ -81,6 +80,7 @@ namespace Gdc.Scd.Import.Core.Impl
             }
 
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, batchList.Count);
+            return new List<UpdateQueryOption>();
         }
     }
 }

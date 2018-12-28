@@ -34,8 +34,7 @@ namespace Gdc.Scd.Import.Core.Impl
             this._logger = logger;
         }
 
-        public void Upload(IEnumerable<TaxAndDutiesDto> items, DateTime modifiedDateTime,
-            List<UpdateQueryOption> updateOption = null)
+        public IEnumerable<UpdateQueryOption> Upload(IEnumerable<TaxAndDutiesDto> items, DateTime modifiedDateTime)
         {
             var dbItemsTaxAndDuties = this._repositoryTaxAndDuties.GetAll().ToList();
             var dbItemsCountries = this._repositoryCountry.GetAll().Where(c => c.IsMaster).ToList();
@@ -95,6 +94,7 @@ namespace Gdc.Scd.Import.Core.Impl
             }
 
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, batchList.Count);
+            return new List<UpdateQueryOption>();
         }
 
     }

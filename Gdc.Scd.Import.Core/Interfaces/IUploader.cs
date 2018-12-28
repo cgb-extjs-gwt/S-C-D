@@ -10,7 +10,6 @@ namespace Gdc.Scd.Import.Core.Interfaces
 {
     public interface IUploader<in T>
     {
-        void Upload(IEnumerable<T> items, DateTime modifiedDateTime, 
-            List<UpdateQueryOption> updateOption = null);
+        IEnumerable<UpdateQueryOption> Upload(IEnumerable<T> items, DateTime modifiedDateTime);
     }
 }

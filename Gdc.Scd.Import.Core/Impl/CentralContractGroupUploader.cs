@@ -35,11 +35,10 @@ namespace Gdc.Scd.Import.Core.Impl
             this._logger = logger;
         }
 
-        public void Upload(IEnumerable<CentralContractGroupDto> items, DateTime modifiedDateTime,
-            List<UpdateQueryOption> updateOption = null)
+        public IEnumerable<UpdateQueryOption> Upload(IEnumerable<CentralContractGroupDto> items, DateTime modifiedDateTime)
         {
             UploadCentralContractGroup(items, modifiedDateTime);
-            UpdateWgs(items, modifiedDateTime, updateOption);
+            return UpdateWgs(items, modifiedDateTime);
         }
 
         private void UploadCentralContractGroup(IEnumerable<CentralContractGroupDto> items, DateTime modifiedDateTime)
@@ -85,10 +84,10 @@ namespace Gdc.Scd.Import.Core.Impl
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_CCG_END, newCentralContractGroups.Count);
         }
 
-        private void UpdateWgs(IEnumerable<CentralContractGroupDto> items, DateTime modifiedDateTime,
-            List<UpdateQueryOption> updateOption)
+        private IEnumerable<UpdateQueryOption> UpdateWgs(IEnumerable<CentralContractGroupDto> items, DateTime modifiedDateTime)
         {
             _logger.Log(LogLevel.Info, ImportConstants.UPDATING_WGS);
+            var updateOption = new List<UpdateQueryOption>();
             var wgs = _repositoryWg.GetAll().ToList();
             var centralContractGroups = _repositoryCentralContractGroup.GetAll().ToList();
 
@@ -139,6 +138,7 @@ namespace Gdc.Scd.Import.Core.Impl
             }
 
             _logger.Log(LogLevel.Info, ImportConstants.UPDATING_WGS);
+            return updateOption;
         }
     }
 }
