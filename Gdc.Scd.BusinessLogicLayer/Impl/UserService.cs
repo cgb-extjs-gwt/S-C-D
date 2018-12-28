@@ -49,11 +49,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var principal = this.principalProvider.GetCurrenctPrincipal();
 
+            var userHasGlobalRole = this.GetAll()
+                    .Where(user => user.Login == principal.Identity.Name)
+                    .SelectMany(user => user.UserRoles)
+                    .Where(userRole => userRole.Role.IsGlobal).Any();
+
+            if (userHasGlobalRole)
+            {
+                return Enumerable.Empty<Country>().AsQueryable();
+            }
+
             return
                 this.GetAll()
                     .Where(user => user.Login == principal.Identity.Name)
                     .SelectMany(user => user.UserRoles)
-                    .Where(userRole => userRole.Role.IsGlobal && userRole.Country != null)
+                    .Where(userRole => userRole.Country != null)
                     .Select(userRole => userRole.Country);
         }
 

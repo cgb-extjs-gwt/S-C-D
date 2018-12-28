@@ -2,7 +2,7 @@
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
-using Gdc.Scd.Core.Entities.CapabilityMatrix;
+using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Ninject.Modules;
@@ -17,7 +17,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind(typeof(IDomainService<>)).To(typeof(DomainService<>)).InRequestScope();
             Bind<IWgPorService>().To<WgPorDecoratorService>().InRequestScope();
             Bind<ICostEditorService>().To<CostEditorService>().InRequestScope();
-            Bind<ICapabilityMatrixService>().To<CapabilityMatrixService>().InRequestScope();
+            Bind<IPortfolioService>().To<PortfolioService>().InRequestScope();
             Bind<ICalculationService>().To<CalculationService>().InRequestScope();
             Bind<IReportService>().To<ReportService>().InRequestScope();
             Bind<IUserService>().To<UserService>().InRequestScope();
@@ -77,9 +77,8 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<RoleCode>();
 
             /*---------domain business logic------------*/
-            Kernel.RegisterEntity<CapabilityMatrix>();
-            Kernel.RegisterEntity<CapabilityMatrixMaster>();
-            Kernel.RegisterEntity<CapabilityMatrixRule>();
+            Kernel.RegisterEntity<LocalPortfolio>();
+            Kernel.RegisterEntity<PrincipalPortfolio>();
             Kernel.RegisterEntity<HardwareManualCost>();
             Kernel.RegisterEntity<SoftwareMaintenance>();
             Kernel.RegisterEntity<SoftwareProactive>();

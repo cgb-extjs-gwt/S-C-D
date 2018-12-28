@@ -10,7 +10,8 @@ CREATE FUNCTION Report.LogisticCostCalcCountry
     @dur bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint
+    @loc bigint,
+    @pro bigint
 )
 RETURNS TABLE 
 AS
@@ -25,6 +26,7 @@ RETURN (
          , ReactionType
          , Duration
          , Availability
+         , ProActiveSla
 
          , ServiceTC
          , Handling
@@ -36,7 +38,7 @@ RETURN (
 
          , Fee
 
-    from Report.LogisticCostCalcCentral(coalesce(@cnt, -1), @wg, @av, @dur, @reactiontime, @reactiontype, @loc)
+    from Report.LogisticCostCalcCentral(coalesce(@cnt, -1), @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro)
 )
 
 GO
@@ -63,6 +65,8 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Duration', 'Duration', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Availability', 'Availability', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ProActiveSla', 'ProActive SLA', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTC', 'Transport cost', 1, 1);
@@ -97,4 +101,6 @@ set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 11, 'reactiontype', 'Reaction type');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 12, 'loc', 'Service location');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 14, 'pro', 'ProActive');
 

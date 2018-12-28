@@ -46,6 +46,8 @@
 
         public const string MatrixSchema = "Matrix";
 
+        public const string PortfolioSchema = "Portfolio";
+
         public const string ClusterRegionInputLevel = "ClusterRegion";
         
         public const string SpoolerSchema = "Spooler";

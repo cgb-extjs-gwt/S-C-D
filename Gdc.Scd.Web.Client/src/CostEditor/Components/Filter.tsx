@@ -2,6 +2,8 @@ import * as React from 'react';
 import { Grid, CheckColumn, Column, Toolbar, Button } from '@extjs/ext-react';
 import { CheckItem } from '../States/CostBlockStates';
 import { NamedId } from '../../Common/States/CommonStates';
+import { Store } from '../../Common/States/ExtStates';
+import { objectPropsEqual } from '../../Common/Helpers/CommonHelpers';
 
 export interface FilterActions {
     onSelectionChanged?: (item: NamedId, isSelected: boolean) => void
@@ -16,46 +18,69 @@ export interface FilterProps extends FilterActions {
     height?: string
 }
 
-export const Filter: React.StatelessComponent<FilterProps> = ({ 
-    title, 
-    items, 
-    flex, 
-    valueColumnText,
-    height,
-    onSelectionChanged,
-    onReset
-}) => {
-    
-    const store = Ext.create('Ext.data.Store', {
-        data: items && items.slice(),
-        listeners: {
-          update: onSelectionChanged && 
-                  ((store, record, operation, modifiedFieldNames, details) => 
-                    onSelectionChanged(record.data, record.data.isChecked))
+export class Filter extends React.Component<FilterProps> {
+    private readonly store: Store<CheckItem>
+
+    constructor(props: FilterProps) {
+        super(props);
+
+        const { items, onSelectionChanged } = props;
+
+        this.store = Ext.create('Ext.data.Store', {
+            data: items && items.slice(),
+            listeners: {
+              update: this.onSelectionChanged
+            }
+        });
+    }
+
+    public shouldComponentUpdate(nextProps: FilterProps) {
+        return !objectPropsEqual(this.props, nextProps, 'title', 'valueColumnText', 'items', 'flex', 'height');
+    }
+
+    public componentWillReceiveProps(nextProps: FilterProps) {
+        if (this.props.items != nextProps.items) {
+            this.store.loadData(nextProps.items || []);            
         }
-    });
+    }
 
-    return (
-        <Grid 
-            title={title || ''} 
-            store={store} 
-            flex={flex} 
-            shadow
-            cls="filter-grid"
-            height={height}
-            columnLines={true}
-        >
-            <CheckColumn width="70" dataIndex="isChecked"/>
-            <Column text={valueColumnText || ''}  dataIndex="name" flex={1}/>
+    public render() {
+        const { title, flex, valueColumnText, height, onReset, items } = this.props;
+    
+        return (
+            <Grid 
+                title={title || ''} 
+                store={this.store} 
+                flex={flex} 
+                shadow
+                cls="filter-grid"
+                height={height}
+                columnLines={true}
+            >
+                <CheckColumn width="70" dataIndex="isChecked"/>
+                <Column text={valueColumnText || ''}  dataIndex="name" flex={1}/>
+    
+                <Toolbar docked="bottom">
+                    <Button 
+                        text="Reset" 
+                        flex={1} 
+                        handler={this.onReset}
+                        disabled={!items || items.findIndex(item => item.isChecked) === -1}
+                    />
+                </Toolbar>
+            </Grid>
+        );
+    }
 
-            <Toolbar docked="bottom">
-                <Button 
-                    text="Reset" 
-                    flex={1} 
-                    handler={() => onReset && onReset()}
-                    disabled={!items || items.findIndex(item => item.isChecked) === -1}
-                />
-            </Toolbar>
-        </Grid>
-    );
+    private onReset = () => {
+        const { onReset } = this.props;
+
+        onReset && onReset();
+    }
+
+    private onSelectionChanged = (store, record, operation, modifiedFieldNames, details) => {
+        const { onSelectionChanged } = this.props;
+
+        onSelectionChanged && onSelectionChanged(record.data, record.data.isChecked);
+    }
 }

@@ -57,7 +57,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="AFR" InputOption="ManualyAutomaticly" RegionInput="_none_" Dependency="Year">
+        <Element Name="AFR"  Caption="AFR (%)" InputOption="ManualyAutomaticly" RegionInput="_none_" Dependency="Year">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -126,7 +126,8 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="TimeAndMaterialShare" Caption="Time and material share" InputOption="Manually">
+        <Element Name="TimeAndMaterialShare" Caption="Time and material share (%)" InputOption="Manually">
+          <TypeOption Type="Percent"/>
           <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
@@ -327,7 +328,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="Automatically" RegionInput="_none_">
+        <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="AutomaticallyReadonly" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -338,7 +339,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="Automatically" RegionInput="_none_">
+        <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="AutomaticallyReadonly" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -349,7 +350,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="MaxQty" Caption="MaxQty" InputOption="Automatically" RegionInput="_none_">
+        <Element Name="MaxQty" Caption="MaxQty" InputOption="AutomaticallyReadonly" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -396,7 +397,8 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="MarkupFactor" Caption="Markup factor for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+        <Element Name="MarkupFactor" Caption="Markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+          <TypeOption Type="Percent"/>
           <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
@@ -422,7 +424,8 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+        <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+          <TypeOption Type="Percent"/>
           <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
@@ -448,7 +451,8 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+        <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+          <TypeOption Type="Percent"/>
           <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
@@ -529,8 +533,8 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManualyAutomaticly" RegionInput="_none_">
-          <InputLevels>
+        <Element Name="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManualyAutomaticly">
+          <InputLevels>                    
             <InputLevel>RoleCode</InputLevel>
           </InputLevels>
           <CostEditor>
@@ -547,7 +551,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="HddFr" Caption="HDD FR" InputOption="Manually" Dependency="Year" RegionInput="_none_">
+        <Element Name="HddFr" Caption="HDD FR (%)" InputOption="Manually" Dependency="Year" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -600,7 +604,7 @@
             </Roles>
           </TableView>
         </Element>
-        <Element Name="ReinsuranceUpliftFactor" Caption="Reinsurance uplift factor" InputOption="Manually" Dependency="ReactionTimeAvailability" RegionInput="_none_">
+        <Element Name="ReinsuranceUpliftFactor" Caption="Reinsurance uplift factor (%)" InputOption="Manually" Dependency="ReactionTimeAvailability" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -896,7 +900,8 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="MarkupForProductMarginSwLicenseListPrice" Caption="Markup for Product Margin of SW License List Price" InputOption="Manually" Dependency="Availability" RegionInput="_none_">
+        <Element Name="MarkupForProductMarginSwLicenseListPrice" Caption="Markup for Product Margin of SW License List Price (%)" InputOption="Manually" Dependency="Availability" RegionInput="_none_">
+          <TypeOption Type="Percent"/>
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
@@ -910,7 +915,8 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="ShareSwSpMaintenanceListPrice" Caption="Share SW/SP Maintenance List Price" InputOption="Manually" Dependency="Availability" RegionInput="_none_">
+        <Element Name="ShareSwSpMaintenanceListPrice" Caption="Share SW/SP Maintenance List Price (%)" InputOption="Manually" Dependency="Availability" RegionInput="_none_">
+          <TypeOption Type="Percent"/>
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
@@ -925,6 +931,7 @@
           </CostEditor>
         </Element>
         <Element Name="DiscountDealerPrice" Caption="Discount to Dealer price in %" InputOption="Manually" RegionInput="_none_">
+          <TypeOption Type="Percent"/>
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>

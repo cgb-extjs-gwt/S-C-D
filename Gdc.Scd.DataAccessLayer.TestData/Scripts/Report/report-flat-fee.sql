@@ -15,7 +15,7 @@ RETURN (
             , wg.Name as Wg
             , fee.Fee_Approved as Fee
 
-    from Hardware.AvailabilityFeeCalcView fee
+    from Hardware.AvailabilityFeeCalc fee
     join InputAtoms.CountryView c on c.Id = fee.Country
     join InputAtoms.WgView wg on wg.id = fee.Wg
 

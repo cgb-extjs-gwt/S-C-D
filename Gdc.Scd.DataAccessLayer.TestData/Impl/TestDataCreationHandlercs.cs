@@ -69,7 +69,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var queries = new List<SqlHelper>();
             queries.AddRange(this.BuildFromFile(@"Scripts.availabilityFee.sql"));
 
-            queries.AddRange(this.BuildFromFile(@"Scripts.matrix.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.portfolio-func.sql"));
 
             queries.AddRange(this.BuildFromFile(@"Scripts.calculation-hw.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.calculation-sw.sql"));
@@ -78,6 +78,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-list.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-new-vs-old.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-vs-FREEZE.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-hw-not-approved.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-hw.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-proactive.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-contract.sql"));
@@ -100,7 +101,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-solutionpack-proactive-costing.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List-detail.sql"));
-
 
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.split-string.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-hdd-retention.sql"));
@@ -277,7 +277,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     {
                         new RolePermission { Permission = costEditorPermission },
                         new RolePermission { Permission = reportPermission },
-                        new RolePermission { Permission = approvalPermission },
+                        new RolePermission { Permission = portfolioPermission },
                         new RolePermission { Permission = ownApprovalPermission },
                         new RolePermission { Permission = reviewProcessPermission },
                     }
@@ -1756,7 +1756,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "reactiontime" , MultiSelect = true },
                 new ReportFilterType { Name = "reactiontype" , MultiSelect = true },
                 new ReportFilterType { Name = "servicelocation" , MultiSelect = true },
-                new ReportFilterType { Name = "year" , MultiSelect = true }
+                new ReportFilterType { Name = "year" , MultiSelect = true },
+                new ReportFilterType { Name = "proactive" , MultiSelect = true }
             };
 
             var repository = this.repositorySet.GetRepository<ReportFilterType>();

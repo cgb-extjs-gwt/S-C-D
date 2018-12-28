@@ -33,8 +33,16 @@ export class CountryManagementService extends CacheDomainService<NamedId> {
         super('countrymanagement');
     }
 
-    public getIsoCode(): Promise<NamedId[]> {
+    public getCountryNames(): Promise<NamedId[]> {
+        return this.getAll().then(x => this.distinct(x, 'countryName'));
+    }
+
+    public getIsoCodes(): Promise<NamedId[]> {
         return this.getAll().then(x => this.distinct(x, 'isO3Code'));
+    }
+
+    public getQualityGroups(): Promise<NamedId[]> {
+        return this.getAll().then(x => this.distinct(x, 'qualityGroup'));
     }
 
     private distinct(data: any, prop: string): NamedId[] {

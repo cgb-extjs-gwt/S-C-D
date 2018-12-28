@@ -56,12 +56,23 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 maxValueColumn = SqlFunctions.Max(editItemInfo.ValueField, costBlockMeta.Name);
             }
 
+            var orderByInfo = new OrderByInfo
+            {
+                Direction = SortDirection.Asc,
+                SqlBuilder = new ColumnSqlBuilder
+                {
+                    Table = nameColumn.TableName,
+                    Name = nameColumn.Name
+                }
+            };
+
             var query = 
                 Sql.Select(nameIdColumn, nameColumn, maxValueColumn, countColumn)
                    .From(costBlockMeta)
                    .Join(costBlockMeta, nameField.Name)
                    .WhereNotDeleted(costBlockMeta, filter, costBlockMeta.Name)
-                   .GroupBy(nameColumn, nameIdColumn);
+                   .GroupBy(nameColumn, nameIdColumn)
+                   .OrderBy(orderByInfo);
 
 
             return await this.repositorySet.ReadBySql(query, reader => 

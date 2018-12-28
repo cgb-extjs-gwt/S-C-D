@@ -1,7 +1,10 @@
 ﻿import { NamedId } from "../../Common/States/CommonStates";
+import { Country } from "../Model/Country";
 
 export interface IDictService {
-    getCountries(): Promise<NamedId[]>;
+    getCountries(): Promise<NamedId<string>[]>;
+
+    getMasterCountries(cache: boolean): Promise<Country[]>;
 
     getCountryGroups(): Promise<NamedId[]>;
 
@@ -10,6 +13,8 @@ export interface IDictService {
     getCountryGroupLuts(): Promise<NamedId[]>;
 
     getCountryGroupIsoCode(): Promise<NamedId[]>;
+
+    getCountryQualityGroup(): Promise<NamedId[]>;
 
     getWG(): Promise<NamedId[]>;
 
@@ -28,6 +33,8 @@ export interface IDictService {
     getReactionTimeTypes(): Promise<NamedId[]>;
 
     getServiceLocationTypes(): Promise<NamedId[]>;
+
+    getProActive(): Promise<NamedId[]>;
 
     getRoles(): Promise<NamedId[]>;
 }

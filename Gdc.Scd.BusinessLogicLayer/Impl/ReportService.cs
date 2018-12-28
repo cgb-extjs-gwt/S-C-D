@@ -8,6 +8,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -40,22 +41,20 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.filterRepo = filterRepo;
         }
 
-        public async Task<FileStreamDto> Excel(long reportId, ReportFilterCollection filter)
+        public async Task<(Stream data, string fileName)> Excel(long reportId, ReportFilterCollection filter)
         {
             var r = GetSchemas().GetSchema(reportId);
             var func = r.Report.SqlFunc;
             var parameters = r.FillParameters(filter);
             var schema = r.AsSchemaDto();
 
-            var result = new FileStreamDto();
+            var fn = FileNameHelper.Excel(schema.Name);
+            var d = await new GetReport(repositorySet).ExecuteExcelAsync(schema, func, parameters);
 
-            result.FileName = FileNameHelper.Excel(schema.Name);
-            result.Data = await new GetReport(repositorySet).ExecuteExcelAsync(schema, func, parameters);
-
-            return result;
+            return (d, fn);
         }
 
-        public Task<JsonArrayDto> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit)
+        public Task<(string json, int total)> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit)
         {
             var r = GetSchemas().GetSchema(reportId);
             var func = r.Report.SqlFunc;

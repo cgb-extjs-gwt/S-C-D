@@ -5,8 +5,6 @@ namespace Gdc.Scd.Core.Meta.Entities
 {
     public class CostElementMeta : BaseCostElementMeta<InputLevelMeta>
     {
-        public InputType InputType { get; set; }
-
         public HashSet<string> TableViewRoles { get; set; }
 
         public HashSet<string> CostEditorRoles { get; set; }

@@ -11,6 +11,7 @@
     DURATION = 'duration',
     REACTIONTIME = 'reactiontime',
     REACTIONTYPE = 'reactiontype',
+    PROACTIVE = 'proactive',
     SERVICELOCATION = 'servicelocation',
     YEAR = 'year'
 

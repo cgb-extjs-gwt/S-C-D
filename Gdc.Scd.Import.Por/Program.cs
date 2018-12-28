@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Import.Por.Core.DataAccessLayer;
+using Gdc.Scd.Import.Por.Core.Dto;
 using NLog;
 using System;
 using System.Collections.Generic;

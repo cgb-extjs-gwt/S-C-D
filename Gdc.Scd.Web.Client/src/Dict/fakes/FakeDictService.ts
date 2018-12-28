@@ -1,4 +1,5 @@
 import { NamedId } from "../../Common/States/CommonStates";
+import { Country } from "../Model/Country";
 import { IDictService } from "../Services/IDictService";
 import { fakeAvailability } from "./FakeAvailability";
 import { fakeCountries } from "./FakeCountries";
@@ -16,6 +17,10 @@ export class FakeDictService implements IDictService {
         return this.fromResult(fakeCountries);
     }
 
+    public getMasterCountries(cache: boolean): Promise<Country[]> {
+        throw new Error("Method not implemented.");
+    }
+
     public getCountryGroups(): Promise<NamedId<string>[]> {
         return this.getCountries();
     }
@@ -28,6 +33,10 @@ export class FakeDictService implements IDictService {
     }
 
     public getCountryGroupIsoCode(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
+
+    public getCountryQualityGroup(): Promise<NamedId<string>[]> {
         throw new Error("Method not implemented.");
     }
 
@@ -65,6 +74,10 @@ export class FakeDictService implements IDictService {
 
     public getServiceLocationTypes(): Promise<NamedId[]> {
         return this.fromResult(fakeServiceLocationTypes);
+    }
+
+    public getProActive(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
     }
 
     public getRoles(): Promise<NamedId<string>[]> {
