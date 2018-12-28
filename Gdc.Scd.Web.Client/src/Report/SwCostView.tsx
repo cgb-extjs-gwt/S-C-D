@@ -22,7 +22,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         ],
 
         pageSize: 25,
-        autoLoad: true,
+        autoLoad: false,
 
         proxy: {
             type: 'ajax',

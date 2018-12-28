@@ -55,8 +55,7 @@ namespace Gdc.Scd.Web.Api.Controllers
                 [FromUri]int limit = 50
             )
         {
-            if (IsRangeValid(start, limit) &&
-                HasAccess(approved))
+            if (IsRangeValid(start, limit))
             {
                 return calcSrv.GetSoftwareCost(approved, filter, start, limit)
                               .ContinueWith(x => new DataInfo<SwMaintenanceCostDto> { Items = x.Result.items, Total = x.Result.total });
@@ -108,11 +107,6 @@ namespace Gdc.Scd.Web.Api.Controllers
         private bool HasAccess()
         {
             return this.userSrv.GetCurrentUser().IsGlobal;
-        }
-
-        private bool HasAccess(bool approved)
-        {
-            return approved ? true : userSrv.GetCurrentUser().IsGlobal;
         }
 
         private bool HasAccess(bool approved, long countryId)

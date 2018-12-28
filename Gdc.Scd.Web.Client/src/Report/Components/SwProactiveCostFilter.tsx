@@ -27,13 +27,15 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
 
     public render() {
 
+        let valid = this.state && this.state.valid;
+
         let countryField;
 
         if (this.props.checkAccess) {
-            countryField = <UserCountryField ref={x => this.cnt = x} label="Country:" />;
+            countryField = <UserCountryField ref={x => this.cnt = x} label="Country:" onChange={this.onCountryChange} />;
         }
         else {
-            countryField = <CountryField ref={x => this.cnt = x} label="Country:" />
+            countryField = <CountryField ref={x => this.cnt = x} label="Country:" onChange={this.onCountryChange} />
         }
 
         return (
@@ -55,7 +57,7 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
 
                 </Container>
 
-                <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="20px auto" />
+                <Button text="Search" ui="action" minWidth="85px" margin="20px auto" disabled={!valid} handler={this.onSearch} />
 
             </Panel>
         );
@@ -70,7 +72,12 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
     }
 
     private init() {
+        this.onCountryChange = this.onCountryChange.bind(this);
         this.onSearch = this.onSearch.bind(this);
+    }
+
+    private onCountryChange() {
+        this.setState({ valid: !!this.cnt.getSelected() });
     }
 
     private onSearch() {

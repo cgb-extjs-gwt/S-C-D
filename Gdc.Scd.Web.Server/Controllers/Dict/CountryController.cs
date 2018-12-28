@@ -11,25 +11,36 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
     {
         private readonly IDomainService<Country> domainService;
 
-        public CountryController(IDomainService<Country> domainService)
+        private readonly IUserService userSrv;
+
+        public CountryController(
+                IDomainService<Country> domainService,
+                IUserService userSrv
+            )
         {
             this.domainService = domainService;
+            this.userSrv = userSrv;
         }
 
         [HttpGet]
         public Task<CountryDto2[]> GetAll()
         {
-            return domainService.GetAll()
-                                  .Where(x => x.IsMaster)
-                                  .Select(x => new CountryDto2
-                                  {
-                                      Id = x.Id,
-                                      Name = x.Name,
-                                      CanOverrideTransferCostAndPrice = x.CanOverrideTransferCostAndPrice,
-                                      CanStoreListAndDealerPrices = x.CanStoreListAndDealerPrices,
-                                      IsMaster = x.IsMaster,
-                                  })
-                                  .GetAsync();
+            var query = domainService.GetAll().Where(x => x.IsMaster);
+            return AsDto(query);
+        }
+
+        [HttpGet]
+        public Task<CountryDto2[]> Usr()
+        {
+            if (userSrv.GetCurrentUser().IsGlobal)
+            {
+                return GetAll();
+            }
+            else
+            {
+                var query = userSrv.GetCurrentUserCountries().Where(x => x.IsMaster);
+                return AsDto(query);
+            }
         }
 
         [HttpGet]
@@ -39,6 +50,19 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
                                 .Select(x => x.ISO3CountryCode)
                                 .Distinct()
                                 .GetAsync();
+        }
+
+        private Task<CountryDto2[]> AsDto(IQueryable<Country> query)
+        {
+            return query.Select(x => new CountryDto2
+            {
+                Id = x.Id,
+                Name = x.Name,
+                CanOverrideTransferCostAndPrice = x.CanOverrideTransferCostAndPrice,
+                CanStoreListAndDealerPrices = x.CanStoreListAndDealerPrices,
+                IsMaster = x.IsMaster,
+            })
+                        .GetAsync();
         }
 
         public class CountryDto2

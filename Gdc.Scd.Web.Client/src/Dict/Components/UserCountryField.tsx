@@ -1,5 +1,5 @@
-﻿import { DictField } from "./DictField";
-import { Country } from "../Model/Country";
+﻿import { Country } from "../Model/Country";
+import { DictField } from "./DictField";
 
 export class UserCountryField extends DictField {
     public getItems() {
