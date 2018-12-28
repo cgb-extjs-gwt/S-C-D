@@ -21,7 +21,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.meta = meta;
         }
 
-        public async Task UpdateByCoordinatesAsync(IEnumerable<CostBlockEntityMeta> costBlockMetas)
+        public async Task UpdateByCoordinatesAsync(IEnumerable<CostBlockEntityMeta> costBlockMetas,
+                        IEnumerable<UpdateQueryOption> updateOptions = null)
         {
             using (var transaction = this.repositorySet.GetTransaction())
             {
@@ -29,7 +30,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     foreach (var costBlockMeta in costBlockMetas)
                     {
-                        await this.costBlockRepository.UpdateByCoordinatesAsync(costBlockMeta);
+                        await this.costBlockRepository.UpdateByCoordinatesAsync(costBlockMeta, updateOptions);
                     }
 
                     transaction.Commit();
@@ -43,23 +44,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public void UpdateByCoordinates(IEnumerable<CostBlockEntityMeta> costBlockMetas)
+        public void UpdateByCoordinates(IEnumerable<CostBlockEntityMeta> costBlockMetas, 
+            IEnumerable<UpdateQueryOption> updateOptions = null)
         {
             foreach (var costBlockMeta in costBlockMetas)
             {
-                this.costBlockRepository.UpdateByCoordinates(costBlockMeta);
+                this.costBlockRepository.UpdateByCoordinates(costBlockMeta, updateOptions);
                 
             }
         }
 
-        public async Task UpdateByCoordinatesAsync()
+        public async Task UpdateByCoordinatesAsync(IEnumerable<UpdateQueryOption> updateOptions = null)
         {
-            await this.UpdateByCoordinatesAsync(this.meta.CostBlocks);
+            await this.UpdateByCoordinatesAsync(this.meta.CostBlocks, updateOptions);
         }
 
-        public void UpdateByCoordinates()
+        public void UpdateByCoordinates(IEnumerable<UpdateQueryOption> updateOptions = null)
         {
-            this.UpdateByCoordinates(this.meta.CostBlocks);
+            this.UpdateByCoordinates(this.meta.CostBlocks, updateOptions);
         }
     }
 }

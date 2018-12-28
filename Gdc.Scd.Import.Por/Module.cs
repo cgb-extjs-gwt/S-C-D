@@ -15,6 +15,7 @@ using Gdc.Scd.Import.Por.Core.Interfaces;
 using Ninject;
 using Ninject.Modules;
 using NLog;
+using System;
 using System.Collections.Generic;
 
 namespace Gdc.Scd.Import.Por
@@ -23,6 +24,7 @@ namespace Gdc.Scd.Import.Por
     {
         public override void Load()
         {
+            Bind<IRepository<SwDigit>>().To<SwDigitRepository>().InSingletonScope();
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InSingletonScope();
             Bind<IRepositorySet, EntityFrameworkRepositorySet, IRegisteredEntitiesProvider>().To<EntityFrameworkRepositorySet>().InSingletonScope();
             Bind<FrieseEntities>().ToSelf().InSingletonScope();
@@ -41,7 +43,7 @@ namespace Gdc.Scd.Import.Por
             Bind<ISwFspCodeTranslationService>().To<PorSwFspCodeTranslationService>();
             Bind<IPorSwProActiveService>().To<PorSwProActiveService>();
             Bind<ICostBlockService>().To<CostBlockService>();
-
+            Bind<ICoordinateEntityMetaProvider>().To<CustomCoordinateMetaProvider>();
             //Comparators
             Bind(typeof(IEqualityComparer<>)).To(typeof(PorEqualityComparer<>));
 
@@ -61,8 +63,8 @@ namespace Gdc.Scd.Import.Por
             }).InSingletonScope();
 
             Kernel.RegisterEntity<Pla>();
+            Kernel.RegisterEntity<CentralContractGroup>();
             Kernel.RegisterEntity<Sog>();
-            Kernel.RegisterEntity<SFab>();
             Kernel.RegisterEntity<Wg>();
             Kernel.RegisterEntity<SwDigit>();
             Kernel.RegisterEntity<SwDigitLicense>();

@@ -20,12 +20,13 @@ namespace Gdc.Scd.Core.Meta.Impl
         public IEnumerable<NamedEntityMeta> GetCoordinateEntityMetas()
         {
             var plaMeta = new NamedEntityMeta(MetaConstants.PlaInputLevelName, MetaConstants.InputLevelSchema);
+            var centralContractGroupMeta = new NamedEntityMeta(MetaConstants.CentralContractGroupInputLevel, MetaConstants.InputLevelSchema);
             var sfabMeta = new SFabEntityMeta(plaMeta);
             var sogMeta = new BaseWgSogEntityMeta(MetaConstants.SogInputLevel, MetaConstants.InputLevelSchema, plaMeta, sfabMeta);
             var swDigitMeta = new SwDigitEnityMeta(sogMeta);
             var clusterRegionMeta = new NamedEntityMeta(MetaConstants.ClusterRegionInputLevel, MetaConstants.InputLevelSchema);
             var countryMeta = new CountryEntityMeta(clusterRegionMeta);
-            var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta);
+            var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta, centralContractGroupMeta);
 
             var customMetas = new[]
             {
@@ -33,6 +34,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                     sogMeta,
                     sfabMeta,
                     plaMeta,
+                    centralContractGroupMeta,
                     wgMeta,
                     clusterRegionMeta,
                     countryMeta

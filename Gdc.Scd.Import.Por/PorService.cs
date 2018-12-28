@@ -2,6 +2,7 @@
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using Gdc.Scd.Import.Por.Core.Dto;
 using Gdc.Scd.Import.Por.Core.Impl;
@@ -48,6 +49,7 @@ namespace Gdc.Scd.Import.Por
         public static ISwFspCodeTranslationService SoftwareService { get; private set; }
         public static IPorSwProActiveService SoftwareProactiveService { get; private set; }
         public static ICostBlockService CostBlockService { get; private set; }
+        public static List<UpdateQueryOption> UpdateQueryOptions { get; private set; }
 
         static PorService()
         {
@@ -89,6 +91,8 @@ namespace Gdc.Scd.Import.Por
             SoftwareService = kernel.Get<ISwFspCodeTranslationService>();
             SoftwareProactiveService = kernel.Get<IPorSwProActiveService>();
             CostBlockService = kernel.Get<ICostBlockService>();
+
+            UpdateQueryOptions = new List<UpdateQueryOption>();
         }
 
 
@@ -96,7 +100,7 @@ namespace Gdc.Scd.Import.Por
             List<SCD2_ServiceOfferingGroups> sogs, string[] softwareServiceTypes)
         {
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(Sog));
-            var success = SogService.UploadSogs(sogs, plas, DateTime.Now, softwareServiceTypes);
+            var success = SogService.UploadSogs(sogs, plas, DateTime.Now, softwareServiceTypes, UpdateQueryOptions);
             if (success)
                 success = SogService.DeactivateSogs(sogs, DateTime.Now);
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);
@@ -107,7 +111,7 @@ namespace Gdc.Scd.Import.Por
             List<Sog> sogs, List<SCD2_WarrantyGroups> wgs, string[] softwareServiceTypes)
         {
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(Wg));
-            var success = WgService.UploadWgs(wgs, sogs, plas, DateTime.Now, softwareServiceTypes);
+            var success = WgService.UploadWgs(wgs, sogs, plas, DateTime.Now, softwareServiceTypes, UpdateQueryOptions);
             if (success)
                 success = WgService.DeactivateWgs(wgs, DateTime.Now);
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);
@@ -119,7 +123,7 @@ namespace Gdc.Scd.Import.Por
             int step)
         {
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(SwDigit));
-            var success = SwDigitService.UploadSwDigits(swInfo.SwDigits, sogs, DateTime.Now);
+            var success = SwDigitService.UploadSwDigits(swInfo.SwDigits, sogs, DateTime.Now, UpdateQueryOptions);
             if (success)
             {
                 success = SwDigitService.Deactivate(swInfo.SwDigits, DateTime.Now);
@@ -132,7 +136,7 @@ namespace Gdc.Scd.Import.Por
         public static bool UploadSoftwareLicense(List<SCD2_SW_Overview> swLicensesInfo, int step)
         {
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(SwLicense));
-            var success = SwLicenseService.UploadSwLicense(swLicensesInfo, DateTime.Now);
+            var success = SwLicenseService.UploadSwLicense(swLicensesInfo, DateTime.Now, UpdateQueryOptions);
             if (success)
             {
                 success = SwLicenseService.Deactivate(swLicensesInfo, DateTime.Now);
@@ -180,12 +184,12 @@ namespace Gdc.Scd.Import.Por
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);
         }
 
-        public static void UpdateCostBlocks(int step)
+        public static void UpdateCostBlocks(int step, IEnumerable<UpdateQueryOption> updateOptions)
         {
             try
             {
                 Logger.Log(LogLevel.Info, ImportConstantMessages.UPDATE_COST_BLOCKS_START, step);
-                CostBlockService.UpdateByCoordinates();
+                CostBlockService.UpdateByCoordinates(updateOptions);
                 Logger.Log(LogLevel.Info, ImportConstantMessages.UPDATE_COST_BLOCKS_END);
             }
             catch(Exception ex)
