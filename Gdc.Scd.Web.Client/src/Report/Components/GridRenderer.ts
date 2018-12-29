@@ -1,5 +1,9 @@
 ﻿const N_A = 'N/A';
 
+export function emptyRenderer(val, row) {
+    return isEmpty(val) ? '' : val;
+}
+
 export function stringRenderer(val, row) {
     return isEmpty(val) ? N_A : val;
 }

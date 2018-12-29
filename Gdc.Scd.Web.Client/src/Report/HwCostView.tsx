@@ -4,7 +4,7 @@ import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { moneyRenderer, percentRenderer, yearRenderer } from "./Components/GridRenderer";
+import { moneyRenderer, percentRenderer, yearRenderer, emptyRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 
@@ -17,7 +17,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
 
         fields: [
-            'ListPrice', 'DealerDiscount',
+            'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail',
             {
                 name: 'DealerPriceCalc',
                 calculate: function (d) {
@@ -26,6 +26,21 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         result = d.ListPrice;
                         if (d.DealerDiscount) {
                             result = result - (result * d.DealerDiscount / 100);
+                        }
+                    }
+                    return result;
+                }
+            },
+            {
+                name: 'ChangeUserCalc',
+                calculate: function (d) {
+                    let result: string = '';
+                    if (d) {
+                        if (d.ChangeUserName) {
+                            result += d.ChangeUserName;
+                        }
+                        if (d.ChangeUserEmail) {
+                            result += '[' + d.ChangeUserEmail + ']';
                         }
                     }
                     return result;
@@ -145,6 +160,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
+                        <Column flex="2" text="Change user" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
+
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
                         <NumberColumn text="Local service standard warranty" dataIndex="LocalServiceStandardWarranty" />
                         <NumberColumn text="Credits" dataIndex="Credits" />
@@ -222,8 +239,17 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         };
 
         if (this.approved()) {
-            cfg['desktop'].plugins.gridcellediting = true;
             cfg['!desktop'].plugins.grideditable = true;
+            const desktop = cfg['desktop'];
+            desktop.plugins.gridcellediting = true;
+            desktop.plugins.selectionreplicator = true;
+            desktop.selectable = {
+                rows: true,
+                cells: true,
+                columns: false,
+                drag: true,
+                extensible: 'y',
+            };
         }
 
         return cfg;

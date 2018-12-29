@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
+using Gdc.Scd.Core.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,6 +13,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<(SwProactiveCostDto[] items, int total)> GetSoftwareProactiveCost(bool approved, SwFilterDto filter, int start, int limit);
 
-        void SaveHardwareCost(long countryId, IEnumerable<HwCostManualDto> records);
+        void SaveHardwareCost(User changeUser, long countryId, IEnumerable<HwCostManualDto> records);
     }
 }

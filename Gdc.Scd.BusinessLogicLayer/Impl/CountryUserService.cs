@@ -1,7 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System.Linq;
@@ -17,40 +16,36 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<Country> cntRepo;
 
-        private readonly IPrincipalProvider principal;
-
         private readonly IUserService userSrv;
 
         public CountryUserService(
-                IPrincipalProvider principal,
                 IUserService userSrv,
                 IRepository<Country> cntRepo,
                 IRepositorySet repo
             )
         {
-            this.principal = principal;
             this.userSrv = userSrv;
             this.cntRepo = cntRepo;
         }
 
-        public Task<UserCountryDto[]> GetAll()
+        public Task<UserCountryDto[]> GetAll(User usr)
         {
-            return Select(GET_CNT_FN, Login, false);
+            return Select(GET_CNT_FN, usr.Login, false);
         }
 
-        public Task<UserCountryDto[]> GetMasterCountries()
+        public Task<UserCountryDto[]> GetMasterCountries(User usr)
         {
-            return Select(GET_CNT_FN, Login, true);
+            return Select(GET_CNT_FN, usr.Login, true);
         }
 
-        public Task<UserCountryDto[]> GetUserCountries()
+        public Task<UserCountryDto[]> GetUserCountries(User usr)
         {
-            return Select(GET_USER_CNT_FN, Login, false);
+            return Select(GET_USER_CNT_FN, usr.Login, false);
         }
 
-        public Task<UserCountryDto[]> GetUserMasterCountries()
+        public Task<UserCountryDto[]> GetUserMasterCountries(User usr)
         {
-            return Select(GET_USER_CNT_FN, Login, true);
+            return Select(GET_USER_CNT_FN, usr.Login, true);
         }
 
         public Task<UserCountryDto[]> Select(string fn, string login, bool master)
@@ -75,24 +70,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                         .GetAsync();
         }
 
-        public bool HasCountryAccess(long countryId)
+        public bool HasCountryAccess(User usr, long countryId)
         {
-            var user = userSrv.GetCurrentUser();
-
-            if (user.IsGlobal)
+            if (usr.IsGlobal)
             {
                 return true;
             }
 
+            //TODO: remove user service, use user parameter
             return userSrv.GetCurrentUserCountries().Any(x => x.Id == countryId);
-        }
-
-        private string Login
-        {
-            get
-            {
-                return principal.GetCurrenctPrincipal().Identity.Name;
-            }
         }
     }
 }

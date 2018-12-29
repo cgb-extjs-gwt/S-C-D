@@ -14,9 +14,9 @@ namespace Gdc.Scd.Web.Api.Controllers
     [ScdAuthorize(Permissions = new[] { PermissionConstants.Report })]
     public class CalcController : ApiController
     {
-        ICalculationService calcSrv;
+        private readonly ICalculationService calcSrv;
 
-        ICountryUserService userCountrySrv;
+        private readonly ICountryUserService userCountrySrv;
 
         public CalcController(
                 ICalculationService calcSrv,
@@ -93,7 +93,7 @@ namespace Gdc.Scd.Web.Api.Controllers
                     ListPrice = x.ListPrice,
                     DealerDiscount = x.DealerDiscount
                 });
-                calcSrv.SaveHardwareCost(m.CountryId, items);
+                calcSrv.SaveHardwareCost(this.CurrentUser(), m.CountryId, items);
             }
             else
             {
@@ -108,7 +108,7 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         private bool HasAccess(long countryId)
         {
-            return userCountrySrv.HasCountryAccess(countryId);
+            return userCountrySrv.HasCountryAccess(this.CurrentUser(), countryId);
         }
 
         private bool HasAccess(bool approved, long countryId)
@@ -118,7 +118,7 @@ namespace Gdc.Scd.Web.Api.Controllers
                 return true;
             }
 
-            return userCountrySrv.HasCountryAccess(countryId);
+            return userCountrySrv.HasCountryAccess(this.CurrentUser(), countryId);
         }
     }
 

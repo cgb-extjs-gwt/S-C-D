@@ -26,13 +26,13 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
         [HttpGet]
         public Task<UserCountryDto[]> GetAll()
         {
-            return userCntSrv.GetMasterCountries();
+            return userCntSrv.GetMasterCountries(this.CurrentUser());
         }
 
         [HttpGet]
         public Task<UserCountryDto[]> Usr()
         {
-            return userCntSrv.GetUserMasterCountries();
+            return userCntSrv.GetUserMasterCountries(this.CurrentUser());
         }
 
         [HttpGet]

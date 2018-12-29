@@ -14,6 +14,11 @@ namespace Gdc.Scd.Core.Entities.Calculation
 
         public LocalPortfolio LocalPortfolio { get; set; }
 
+        //ChangeUserId hack for correct save
+        //TODO: remove ChangeUserId
+        public long? ChangeUserId { get; set; }
+        public User ChangeUser { get; set; }
+
         public double? ServiceTC { get; set; }
 
         public double? ServiceTP { get; set; }

@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.DataAccessLayer.Helpers;
@@ -153,7 +154,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return (result, count);
         }
 
-        public void SaveHardwareCost(long countryId, IEnumerable<HwCostManualDto> records)
+        public void SaveHardwareCost(User changeUser, long countryId, IEnumerable<HwCostManualDto> records)
         {
             var recordsId = records.Select(x => x.Id);
 
@@ -193,6 +194,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     {
                         hwManual.ServiceTC = rec.ServiceTC;
                         hwManual.ServiceTP = rec.ServiceTP;
+                        hwManual.ChangeUser = changeUser;
                         //
                         hwManualRepo.Save(hwManual);
                     }
@@ -201,6 +203,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     {
                         hwManual.ListPrice = rec.ListPrice;
                         hwManual.DealerDiscount = rec.DealerDiscount;
+                        hwManual.ChangeUser = changeUser;
                         //
                         hwManualRepo.Save(hwManual);
                     }
