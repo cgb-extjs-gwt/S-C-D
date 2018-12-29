@@ -160,7 +160,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
-                        <Column flex="2" text="Change user" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
+                        <Column flex="2" minWidth="250" text="Change user" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
 
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
                         <NumberColumn text="Local service standard warranty" dataIndex="LocalServiceStandardWarranty" />
