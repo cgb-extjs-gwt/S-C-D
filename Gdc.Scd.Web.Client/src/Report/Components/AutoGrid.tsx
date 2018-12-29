@@ -60,7 +60,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
         return (
             <Container layout="fit">
 
-                <AutoFilter ref="filter" docked="right" hidden={!this.showFilter()} filter={this.props.filter} onSearch={this.onSearch} />
+                <AutoFilter ref="filter" docked="right" hidden={!this.showFilter()} filter={this.props.filter} onSearch={this.onSearch} scrollable={true} />
 
                 <Toolbar docked="top">
                     {title}
