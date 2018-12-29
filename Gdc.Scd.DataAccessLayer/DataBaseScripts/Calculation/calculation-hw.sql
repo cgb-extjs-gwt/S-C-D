@@ -120,6 +120,10 @@ IF OBJECT_ID('Hardware.ProActiveView', 'V') IS NOT NULL
   DROP VIEW Hardware.ProActiveView;
 go
 
+IF OBJECT_ID('Hardware.ManualCostView', 'V') IS NOT NULL
+  DROP VIEW Hardware.ManualCostView;
+go
+
 IF OBJECT_ID('Hardware.MarkupOtherCostsView', 'V') IS NOT NULL
   DROP VIEW Hardware.MarkupOtherCostsView;
 go
@@ -1143,7 +1147,14 @@ CREATE VIEW [Hardware].[ProActiveView] with schemabinding as
             pro.CentralExecutionReport_Approved) as Service_Approved
 
     from ProActiveCte pro;
+GO
 
+CREATE VIEW [Hardware].[ManualCostView] as
+    select man.*
+         , u.Name  as ChangeUserName
+         , u.Email as ChangeUserEmail
+    from Hardware.ManualCost man
+    left join dbo.[User] u on u.Id = man.ChangeUserId
 GO
 
 CREATE FUNCTION [Portfolio].[GetBySla](
@@ -1388,11 +1399,13 @@ RETURN
                 else pro.CentralExecutionShcReportCost_Approved * prosla.CentralExecutionShcReportRepetition 
             end as CentralExecutionReport
 
-         , man.ListPrice      as ListPrice                   
-         , man.DealerDiscount as DealerDiscount              
-         , man.DealerPrice    as DealerPrice                 
-         , man.ServiceTC      as ServiceTCManual                   
-         , man.ServiceTP      as ServiceTPManual                   
+         , man.ListPrice       as ListPrice                   
+         , man.DealerDiscount  as DealerDiscount              
+         , man.DealerPrice     as DealerPrice                 
+         , man.ServiceTC       as ServiceTCManual                   
+         , man.ServiceTP       as ServiceTPManual                   
+         , man.ChangeUserName  as ChangeUserName
+         , man.ChangeUserEmail as ChangeUserEmail
 
     FROM Portfolio.GetBySlaPaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
 
@@ -1445,7 +1458,7 @@ RETURN
 
     LEFT JOIN Hardware.ProActive pro ON  pro.Country= m.CountryId and pro.Wg= m.WgId
 
-    LEFT JOIN Hardware.ManualCost man on man.PortfolioId = m.Id
+    LEFT JOIN Hardware.ManualCostView man on man.PortfolioId = m.Id
 )
 GO
 
@@ -1676,6 +1689,8 @@ RETURN
          , m.DealerPrice
          , m.ServiceTCManual
          , m.ServiceTPManual
+         , m.ChangeUserName
+         , m.ChangeUserEmail
 
        from CostCte6 m
 )
@@ -1734,9 +1749,12 @@ RETURN
          , DealerPrice
          , ServiceTCManual
          , ServiceTPManual
+         , ChangeUserName
+         , ChangeUserEmail
 
     from Hardware.GetCostsFull(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit)
 )
+
 go
 
 CREATE PROCEDURE Hardware.SpGetCosts
