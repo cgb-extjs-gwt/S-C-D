@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Interfaces;
@@ -20,6 +21,7 @@ namespace Gdc.Scd.Import.Core.Impl
         private readonly IRepository<Pla> _repositoryPla;
         private readonly IRepository<Wg> _repositoryWg;
         private readonly IRepository<AvailabilityFee> _availabilityFeeRepo;
+        private readonly IRepository<CentralContractGroup> _centralContractGroupRepo;
         private readonly ILogger<LogLevel> _logger;
         private List<Wg> _newlyAddedWgs = new List<Wg>();
         private List<long> _deletedWgs = new List<long>();
@@ -39,12 +41,13 @@ namespace Gdc.Scd.Import.Core.Impl
             this._repositoryWg = this._repositorySet.GetRepository<Wg>();
             this._repositoryCountry = this._repositorySet.GetRepository<Country>();
             this._availabilityFeeRepo = this._repositorySet.GetRepository<AvailabilityFee>();
+            this._centralContractGroupRepo = this._repositorySet.GetRepository<CentralContractGroup>();
             this._logger = logger;
             this._allCountries = _repositoryCountry.GetAll().Where(c => c.IsMaster).Select(c => c.Id).ToList();
             this._multiVendorCountries = _repositoryCountry.GetAll().Where(c => c.IsMaster && c.AssignedToMultiVendor).Select(c => c.Id).ToList();
         }
 
-        public void Upload(IEnumerable<LogisticsDto> items, DateTime modifiedDateTime)
+        public IEnumerable<UpdateQueryOption> Upload(IEnumerable<LogisticsDto> items, DateTime modifiedDateTime)
         {
             UpdateWg(items, modifiedDateTime);
             var updateSuccess = UpdateAvailabilityFee();
@@ -52,7 +55,9 @@ namespace Gdc.Scd.Import.Core.Impl
             {
                 var result = UpdateLogistic(items, modifiedDateTime);
                 _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_AVAILABILITY_FEE_END, result);
-            }  
+            }
+
+            return new List<UpdateQueryOption>();
         }
 
         private void UpdateWg(IEnumerable<LogisticsDto> items, DateTime modifiedDateTime)
@@ -63,6 +68,8 @@ namespace Gdc.Scd.Import.Core.Impl
             var batchUpdate = new List<Wg>();
 
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_WG_START);
+            var defaultCentralContractGroup = this._centralContractGroupRepo.GetAll().FirstOrDefault(ccg => ccg.Name == "NA");
+
             foreach (var item in items)
             {
                 var wg = wgs.FirstOrDefault(w => w.Name.Equals(item.WgCode));
@@ -87,6 +94,7 @@ namespace Gdc.Scd.Import.Core.Impl
                                 CreatedDateTime = DateTime.Now,
                                 Description = item.WgDescription,
                                 PlaId = item.PlaId.Value,
+                                CentralContractGroupId = defaultCentralContractGroup?.Id,
                                 Name = item.WgCode,
                                 ExistsInLogisticsDb = true,
                                 WgType = item.IsMultiVendor ? WgType.MultiVendor : WgType.Logistics,

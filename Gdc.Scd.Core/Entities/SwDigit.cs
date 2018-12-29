@@ -7,6 +7,7 @@ using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
+    [MustUpdateCoordinate(MetaConstants.SwDigitInputLevel)]
     [Table(MetaConstants.SwDigitInputLevel, Schema = MetaConstants.InputLevelSchema)]
     public class SwDigit : NamedId, IDeactivatable
     {
@@ -21,8 +22,16 @@ namespace Gdc.Scd.Core.Entities
         public string Description { get; set; }
 
         [MustCompare]
+        [MustUpdateCoordinate(MetaConstants.SogInputLevel)]
         public long SogId { get; set; }
         public Sog Sog { get; set; }
+
+        [NotMapped]
+        [MustUpdateCoordinate(MetaConstants.PlaInputLevelName)]
+        public long? PlaId
+        {
+            get { return this.Sog?.PlaId; }
+        }
 
         public DateTime CreatedDateTime { get; set; }
         public DateTime? DeactivatedDateTime { get; set; }

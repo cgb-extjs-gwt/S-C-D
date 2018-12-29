@@ -57,7 +57,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var previousInputLevel =
                 this.meta.GetCostElement(context)
-                         .GetPreviousInputLevel(context.InputLevelId);
+                         .GetFilterInputLevel(context.InputLevelId);
 
             return await this.GetDistinctItems(context, previousInputLevel.Id);
         }

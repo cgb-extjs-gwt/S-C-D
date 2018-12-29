@@ -1,4 +1,6 @@
 ﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.Import.Core.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,6 @@ namespace Gdc.Scd.Import.Core.Interfaces
 {
     public interface IImportManager
     {
-        bool ImportData(ImportConfiguration configuration);
+        ImportResultDto ImportData(ImportConfiguration configuration);
     }
 }

@@ -7,6 +7,7 @@ using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
+    [MustUpdateCoordinate(MetaConstants.WgInputLevelName)]
     [Table(MetaConstants.WgInputLevelName, Schema = MetaConstants.InputLevelSchema)]
     public class Wg : BaseWgSog, IDeactivatable
     {
@@ -36,5 +37,9 @@ namespace Gdc.Scd.Core.Entities
         public DateTime ModifiedDateTime { get; set; }
 
         public string ResponsiblePerson { get; set; }
+
+        public CentralContractGroup CentralContactGroup { get; set; }
+
+        public long? CentralContractGroupId { get; set; }
     }
 }

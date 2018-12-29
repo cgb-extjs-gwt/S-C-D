@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using Gdc.Scd.Import.Por.Core.Interfaces;
@@ -67,7 +68,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         public bool UploadWgs(IEnumerable<SCD2_WarrantyGroups> wgs, 
             IEnumerable<Sog> sogs, 
             IEnumerable<Pla> plas, DateTime modifiedDateTime, 
-            IEnumerable<string> softwareServiceTypes)
+            IEnumerable<string> softwareServiceTypes, List<UpdateQueryOption> updateOptions)
         {
             var result = true;
             _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(Wg));
@@ -75,6 +76,9 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
             try
             {
+                var defaultCentralContractGroup = this.repositorySet.GetRepository<CentralContractGroup>()
+                                                    .GetAll().FirstOrDefault(ccg => ccg.Name == "NA");
+
                 foreach (var porWg in wgs)
                 {
                     var pla = plas.FirstOrDefault(p => p.Name.Equals(porWg.Warranty_PLA, StringComparison.OrdinalIgnoreCase));
@@ -97,6 +101,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         Name = porWg.Warranty_Group,
                         PlaId = pla.Id,
                         SogId = sog?.Id,
+                        CentralContractGroupId = defaultCentralContractGroup?.Id,
                         FabGrp = porWg.FabGrp,
                         WgType = Scd.Core.Enums.WgType.Por,
                         ExistsInLogisticsDb = false,
@@ -106,7 +111,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     });
                 }
 
-                var added = this.AddOrActivate(updatedWgs, modifiedDateTime);
+                var added = this.AddOrActivate(updatedWgs, modifiedDateTime, updateOptions);
 
                 foreach (var addedEntity in added)
                 {

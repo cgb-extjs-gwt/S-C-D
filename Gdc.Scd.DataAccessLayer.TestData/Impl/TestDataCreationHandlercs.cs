@@ -43,6 +43,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         public void Handle()
         {
+            this.CreateCentralContractGroup();
             this.CreatePlas();
             this.CreateServiceLocations();
             this.CreateUserAndRoles();
@@ -585,8 +586,69 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                                .Select(x => new SqlHelper(new RawSqlBuilder() { RawSql = x }));
         }
 
+        private void CreateCentralContractGroup()
+        {
+            var repository = this.repositorySet.GetRepository<CentralContractGroup>();
+
+            repository.Save(new List<CentralContractGroup>
+            {
+                new CentralContractGroup {Name = "NA", Description = "UNASSIGNED" },
+                new CentralContractGroup {Name = "CG350", Description = "CENTRICSTOR" },
+                new CentralContractGroup {Name = "CG110", Description = "CLIENTS ENTRY" },
+                new CentralContractGroup {Name = "CG130", Description = "CLIENTS HIGHEND" },
+                new CentralContractGroup {Name = "CG120", Description = "CLIENTS MIDRANGE" },
+                new CentralContractGroup {Name = "CG100", Description = "CLIENTS SUBENTRY/ SWAP / EXCHANGE" },
+                new CentralContractGroup {Name = "CG041", Description = "DISPLAY W/O ODM" },
+                new CentralContractGroup {Name = "CG270", Description = "ENTERPRISE SERVER HIGHEND" },
+                new CentralContractGroup {Name = "CG260", Description = "ENTERPRISE SERVER MIDRANGE" },
+                new CentralContractGroup {Name = "CG050", Description = "PERIPHERALS" },
+                new CentralContractGroup {Name = "CG070", Description = "PRINTER" },
+                new CentralContractGroup {Name = "CG510", Description = "RETAIL PRODUCTS ENTRY" },
+                new CentralContractGroup {Name = "CG040", Description = "DISPLAYS" },
+                new CentralContractGroup {Name = "CG500", Description = "RETAIL SUBENTRY/ SWAP / EXCHANGE" },
+                new CentralContractGroup {Name = "CG060", Description = "SECURITY DEVICES" },
+                new CentralContractGroup {Name = "CG200", Description = "SERVER  SUBENTRY/ SWAP / EXCHANGE" },
+                new CentralContractGroup {Name = "CG210", Description = "SERVER ENTRY" },
+                new CentralContractGroup {Name = "CG220", Description = "SERVER MIDRANGE" },
+                new CentralContractGroup {Name = "CG230", Description = "SERVER HIGHEND" },
+                new CentralContractGroup {Name = "CG320", Description = "STORAGE MIDRANGE" },
+                new CentralContractGroup {Name = "CG310", Description = "STORAGE ENTRY" },
+                new CentralContractGroup {Name = "CG330", Description = "STORAGE HIGHEND" },
+                new CentralContractGroup {Name = "CG540", Description = "THIRD PARTY VENDORS" },
+
+            });
+
+            this.repositorySet.Sync();
+        }
+
         private void CreatePlas()
         {
+            var repository = this.repositorySet.GetRepository<CentralContractGroup>();
+
+            var na = repository.GetAll().First(c => c.Name == "NA").Id;
+            var centricStor = repository.GetAll().First(c => c.Name == "CG350").Id;
+            var clientsEntry = repository.GetAll().First(c => c.Name == "CG110").Id;
+            var clientsHighend = repository.GetAll().First(c => c.Name == "CG130").Id;
+            var clientsMidrange = repository.GetAll().First(c => c.Name == "CG120").Id;
+            var clientsSubentry = repository.GetAll().First(c => c.Name == "CG100").Id;
+            var displayODM = repository.GetAll().First(c => c.Name == "CG041").Id;
+            var enterpriseServerHighend = repository.GetAll().First(c => c.Name == "CG270").Id;
+            var enterpriseServerMidrange = repository.GetAll().First(c => c.Name == "CG260").Id;
+            var peripherals = repository.GetAll().First(c => c.Name == "CG050").Id;
+            var pribter = repository.GetAll().First(c => c.Name == "CG070").Id;
+            var retailProducts = repository.GetAll().First(c => c.Name == "CG510").Id;
+            var displays = repository.GetAll().First(c => c.Name == "CG040").Id;
+            var retailSubentry = repository.GetAll().First(c => c.Name == "CG500").Id;
+            var securityDevices = repository.GetAll().First(c => c.Name == "CG060").Id;
+            var serverSubentry = repository.GetAll().First(c => c.Name == "CG200").Id;
+            var serverEntry = repository.GetAll().First(c => c.Name == "CG210").Id;
+            var serverMidrange = repository.GetAll().First(c => c.Name == "CG220").Id;
+            var serverHighend = repository.GetAll().First(c => c.Name == "CG230").Id;
+            var storageMidrange = repository.GetAll().First(c => c.Name == "CG320").Id;
+            var storageEntry = repository.GetAll().First(c => c.Name == "CG310").Id;
+            var storageHighend = repository.GetAll().First(c => c.Name == "CG330").Id;
+            var thirdPartyVendors = repository.GetAll().First(c => c.Name == "CG540").Id;
+
             var clusterPlas = new List<ClusterPla>
             {
                 new ClusterPla { Name = "CCD", Plas = new List<Pla>
@@ -601,92 +663,110 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new Wg
                         {
                             Name = "TC4",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsEntry
                         },
                         new Wg
                         {
                             Name = "TC5",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsHighend
                         },
                         new Wg
                         {
                             Name = "TC6",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsHighend
                         },
                         new Wg
                         {
                             Name = "TC8",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsEntry
                         },
                         new Wg
                         {
                             Name = "TC7",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsEntry
                         },
                         new Wg
                         {
                             Name = "U05",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsEntry
                         },
                         new Wg
                         {
                             Name = "U11",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsHighend
                         },
                         new Wg
                         {
                             Name = "U13",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsHighend
                         },
                         new Wg
                         {
                             Name = "WSJ",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsMidrange
                         },
                         new Wg
                         {
                             Name = "WSN",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsHighend
                         },
                         new Wg
                         {
                             Name = "WSS",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsHighend
                         },
                         new Wg
                         {
                             Name = "WSW",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsMidrange
                         },
                         new Wg
                         {
                             Name = "U02",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsMidrange
                         },
                         new Wg
                         {
                             Name = "U06",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsEntry
                         },
                         new Wg
                         {
                             Name = "U07",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsMidrange
                         },
                         new Wg
                         {
                             Name = "U12",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsMidrange
                         },
                         new Wg
                         {
                             Name = "U14",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsEntry
                         },
                         new Wg
                         {
                             Name = "WRC",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsHighend
                         },
                     }
                 },
@@ -699,52 +779,62 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new Wg
                         {
                             Name = "HMD",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = peripherals
                         },
                         new Wg
                         {
                             Name = "NB6",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsMidrange
                         },
                         new Wg
                         {
                             Name = "NB1",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsMidrange
                         },
                         new Wg
                         {
                             Name = "NB2",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsMidrange
                         },
                         new Wg
                         {
                             Name = "NB5",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsMidrange
                         },
                         new Wg
                         {
                             Name = "ND3",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsMidrange
                         },
                         new Wg
                         {
                             Name = "NC1",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsHighend
                         },
                         new Wg
                         {
                             Name = "NC3",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsHighend
                         },
                         new Wg
                         {
                             Name = "NC9",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsMidrange
                         },
                         new Wg
                         {
                             Name = "TR7",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsMidrange
                         },
                     }
                 },
@@ -757,57 +847,68 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new Wg
                         {
                             Name = "DPE",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = displays
                         },
                         new Wg
                         {
                             Name = "DPH",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = displays
                         },
                         new Wg
                         {
                             Name = "DPM",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = displays
                         },
                         new Wg
                         {
                             Name = "DPX",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = displayODM
                         },
                         new Wg
                         {
                             Name = "IOA",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = peripherals
                         },
                         new Wg
                         {
                             Name = "IOB",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = peripherals
                         },
                         new Wg
                         {
                             Name = "IOC",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = peripherals
                         },
                         new Wg
                         {
                             Name = "MD1",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = peripherals
                         },
                         new Wg
                         {
                             Name = "PSN",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = securityDevices
                         },
                         new Wg
                         {
                             Name = "SB2",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsEntry
                         },
                         new Wg
                         {
                             Name = "SB3",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = clientsEntry
                         },
                     }
                 },
@@ -824,352 +925,422 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new Wg
                         {
                             Name = "CD1",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "CD2",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "CE1",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "CE2",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "CD4",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "CD5",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "CD6",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "CD7",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "CDD",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = na
                         },
                         new Wg
                         {
                             Name = "CD8",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "CD9",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "C70",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = centricStor
                         },
                         new Wg
                         {
                             Name = "CS8",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "C74",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "C75",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "CS7",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageMidrange
                         },
                         new Wg
                         {
                             Name = "CS1",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "CS2",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "CS3",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "C16",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = centricStor
                         },
                         new Wg
                         {
                             Name = "C18",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = centricStor
                         },
                         new Wg
                         {
                             Name = "C33",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = centricStor
                         },
                         new Wg
                         {
                             Name = "CS5",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "CS4",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "CS6",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageMidrange
                         },
                         new Wg
                         {
                             Name = "CS9",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = na
                         },
                         new Wg
                         {
                             Name = "C96",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "C97",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "C98",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "C71",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageMidrange
                         },
                         new Wg
                         {
                             Name = "C73",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageMidrange
                         },
                         new Wg
                         {
                             Name = "C80",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageMidrange
                         },
                         new Wg
                         {
                             Name = "C84",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageMidrange
                         },
                         new Wg
                         {
                             Name = "F58",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F40",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F48",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F53",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F54",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F57",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "F41",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F49",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F42",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F43",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F44",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F45",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F50",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F51",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F52",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F36",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "F46",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F47",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F56",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "F28",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageMidrange
                         },
                         new Wg
                         {
                             Name = "F29",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "F35",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "F55",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageHighend
                         },
                         new Wg
                         {
                             Name = "S14",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "S17",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "S15",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "S16",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "S50",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "S51",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "S18",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "S35",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "S36",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageMidrange
                         },
                         new Wg
                         {
                             Name = "S37",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageMidrange
                         },
                         new Wg
                         {
                             Name = "S39",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "S40",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "S55",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "VSH",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = na
                         },
                     }
                 },
@@ -1184,287 +1355,344 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new Wg
                         {
                             Name = "MN1",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "MN4",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "PQ8",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = enterpriseServerHighend
                         },
                         new Wg
                         {
                             Name = "Y01",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverHighend
                         },
                         new Wg
                         {
                             Name = "Y15",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "PX1",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "PY1",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "PY4",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "Y09",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "Y12",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "MN2",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "PX2",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "PX3",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "PXS",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "PY2",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "PY3",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "SD2",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = na
                         },
                         new Wg
                         {
                             Name = "Y03",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y17",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y21",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y32",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y06",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y13",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y28",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y30",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y31",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y37",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y38",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y39",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y40",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "PX6",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "PX8",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverHighend
                         },
                         new Wg
                         {
                             Name = "PRC",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "RTE",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y07",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y16",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "Y18",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y25",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y26",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y27",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y33",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "Y36",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverMidrange
                         },
                         new Wg
                         {
                             Name = "S41",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "S42",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "S43",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "S44",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "S45",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "S46",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "S47",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "S48",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "S49",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = serverEntry
                         },
                         new Wg
                         {
                             Name = "S52",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "S53",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "S54",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = storageEntry
                         },
                         new Wg
                         {
                             Name = "PQ0",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = enterpriseServerHighend
                         },
                         new Wg
                         {
                             Name = "PQ5",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = enterpriseServerHighend
                         },
                         new Wg
                         {
                             Name = "PQ9",
-                            WgType = WgType.Por
+                            WgType = WgType.Por,
+                            CentralContractGroupId = enterpriseServerHighend
                         },
                     }
                 },

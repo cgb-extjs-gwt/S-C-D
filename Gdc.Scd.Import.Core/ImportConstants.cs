@@ -47,6 +47,9 @@ namespace Gdc.Scd.Import.Core
         public static string ADD_NEW_SFAB = "Adding new Sfab {0}...";
         public static string UPDATE_SFAB = "Updating Sfab {0}...";
         public static string UPLOAD_SFAB_END = "Uploading Sfabs finished. {0} rows affected.";
+        public static string ADD_NEW_CCG = "Adding new Central Contract Group {0}...";
+        public static string UPDATE_CCG = "Updating Central Contract Group {0}...";
+        public static string UPLOAD_CCG_END = "Uploading Central Contract Groups finished. {0} rows affected.";
         public static string DEACTIVATING_SFAB_START = "Deactivating SFabs...";
         public static string DEACTIVATING_SFAB = "Deactivating SFab: {0}";
         public static string DEACTIVATING_SFAB_END = "Deactivating SFabs finished. {0} rows affected.";
@@ -55,5 +58,7 @@ namespace Gdc.Scd.Import.Core
         public static string UPDATING_WGS_AND_SOGS_END = "WGs and SOGs were updated.";
         public static string ADD_EXCHANGE_RATE = "Exchanhe Rate for currency {0} was added.";
         public static string UPDATE_EXCHANGE_RATE = "Exchanhe Rate for currency {0} was updated.";
+        public static string UPDATING_WGS = "Starting updating WGs...";
+        public static string UPDATING_WGS_END = "WGs were updated.";
     }
 }
