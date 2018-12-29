@@ -46,7 +46,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         return (
             <Container layout="fit">
 
-                <SwCostFilter ref="filter" docked="right" onSearch={this.onSearch} />
+                <SwCostFilter ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} />
 
                 <Grid ref="grid" store={this.store} width="100%" plugins={['pagingtoolbar']}>
 
