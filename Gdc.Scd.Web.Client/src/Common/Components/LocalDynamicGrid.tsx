@@ -37,6 +37,7 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     private updatedRecords: Model[] = []
     private innerColumns: ColumnInfo[]
     private prevProps: TProps
+    private lastLevelVisibleColumns: ColumnInfo[]
 
     public componentWillUnmount() {
         if (this.store) {
@@ -58,12 +59,15 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
 
     protected init() {
         const { columns = [] } = this.props;        
-        const visibleColumns = this.getVisibleColumns(columns);
+        
+        if (!this.prevProps || this.prevProps.columns != columns) {
+            this.lastLevelVisibleColumns = this.getLastLevelVisibleColumns(columns);
+            this.initFilterData(this.lastLevelVisibleColumns);
+            this.innerColumns = this.getInnerColumns(columns);
+        }
 
-        this.initFilterData(visibleColumns);
-        this.initStore(this.props);
-        this.initColumns(visibleColumns);
-
+        this.initStore(this.props, this.lastLevelVisibleColumns);
+        
         this.prevProps = this.props;
     }
 
@@ -76,11 +80,9 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
         }));
     }
 
-    protected buildDataStore(props: TProps) {
-        const { columns = [] } = props;
-
+    protected buildDataStore(props: TProps, visibleColumns: ColumnInfo[]) {
         return Ext.create('Ext.data.Store', {
-            fields: this.buildDataStoreFields(columns)
+            fields: this.buildDataStoreFields(visibleColumns)
         });
     }
 
@@ -88,20 +90,35 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
         return !prevProps || prevProps.columns != currentProps.columns;
     }
 
-    private initColumns(visibleColumns: ColumnInfo[]) {
-        this.innerColumns = visibleColumns.map(column => ({
-            ...column,
-            filter: column.filter || {
-                store: this.filterDatas.get(column.dataIndex).store,
-                checkedDataIndex: CHECKED_DATA_INDEX,
-                valueDataIndex: VALUE_DATA_INDEX
+    private getInnerColumns(columns: ColumnInfo[]) {
+        return columns.map(column => {
+            let innerColumn: ColumnInfo;
+
+            if (!column.isInvisible) {
+                if (column.columns) {
+                    innerColumn = {
+                        ...column,
+                        columns: this.getInnerColumns(column.columns)
+                    }
+                } else {
+                    innerColumn = {
+                        ...column,
+                        filter: column.filter || {
+                            store: this.filterDatas.get(column.dataIndex).store,
+                            checkedDataIndex: CHECKED_DATA_INDEX,
+                            valueDataIndex: VALUE_DATA_INDEX
+                        }
+                    };
+                }
             }
-        }))
+
+            return innerColumn;
+        });
     }
 
-    private initStore(props: TProps) {
+    private initStore(props: TProps, visibleColumns: ColumnInfo[]) {
         if (this.isUpdatingDataStore(this.prevProps, props)) {
-            this.store = this.buildDataStore(props);
+            this.store = this.buildDataStore(props, visibleColumns);
 
             if (this.store) {
                 this.forEachDataStoreEvents((eventName, handler) => this.store.on(eventName, handler, this));
@@ -224,24 +241,26 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
             this.executeFiltrateFilters = false;
 
             setTimeout(() => {
-                const visibleColumns = this.getVisibleColumns(this.props.columns);
+                const visibleColumns = this.getLastLevelVisibleColumns(this.props.columns);
                 const records = this.filtrateStore(visibleColumns);
                 const dataSets = this.buildDataSets(records);
 
                 const headerId = dataIndex.replace('.', '');
                 const headerIndex = dataIndex;
                 const headerText = visibleColumns.find(x => x.dataIndex == dataIndex).title;
-                const filterSymbol = "&#8704;"
-                this.setColumnHeaderText(headerId, headerText + "  " + filterSymbol);
+                //TODO: Breaks editing
+                // const filterSymbol = "&#8704;"
+                // this.setColumnHeaderText(headerId, headerText + "  " + filterSymbol);
 
                 this.filterDatas.forEach((filterData, dataIndex) => {
                     let allChecked = true;
 
                     filterData.store.each(record => allChecked = record.data.checked);
 
-                    if (allChecked && headerIndex == dataIndex) {
-                        this.setColumnHeaderText(headerId, headerText)
-                    }
+                    //TODO: Breaks editing
+                    // if (allChecked && headerIndex == dataIndex) {
+                    //     this.setColumnHeaderText(headerId, headerText)
+                    // }
 
                     if (allChecked && headerIndex != dataIndex) {
                         filterData.filteredDataSet = dataSets.get(dataIndex);
@@ -259,10 +278,11 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
             });
         }
     }
-
-    private setColumnHeaderText(headerId: string, text: string) {
-        Ext.getCmp(headerId).setText(text);
-    }
+    
+    //TODO: Breaks editing
+    // private setColumnHeaderText(headerId: string, text: string) {
+    //     Ext.getCmp(headerId).setText(text);
+    // }
 
     private fillFilterData() {
         if (this.executeFillFilterData) {
@@ -328,7 +348,19 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
         return value == null ? ' ' : value;
     }
 
-    private getVisibleColumns(columns: ColumnInfo[]) {
-        return columns.filter(column => !column.isInvisible);
+    private getLastLevelVisibleColumns(columns: ColumnInfo[]) {
+        const result: ColumnInfo[] = [];
+
+        for (let column of columns) {
+            if (!column.isInvisible) {
+                if (column.columns) {
+                    result.push(...this.getLastLevelVisibleColumns(column.columns));
+                } else {
+                    result.push(column);
+                }
+            }
+        }
+
+        return result;
     }
 }

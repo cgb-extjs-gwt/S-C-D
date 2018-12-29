@@ -6,7 +6,7 @@
 
         public string InputLevelId { get; set; }
 
-        public static HistoryContext Build(CostEditorContext context)
+        public static HistoryContext Build(HistoryContext context)
         {
             return new HistoryContext
             {

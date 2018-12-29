@@ -5,6 +5,7 @@ import { SaveToolbar } from "./SaveToolbar";
 import { Model, StoreOperation, Store } from "../States/ExtStates";
 import { ReactNode } from "react-redux";
 import { DynamicGridProps, ToolbarDynamicGridProps } from "./Props/DynamicGridProps";
+import { objectPropsEqual } from "../Helpers/CommonHelpers";
 
 export interface StoreDynamicGridProps extends ToolbarDynamicGridProps {
     store: Store
@@ -33,7 +34,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     public render() {
         this.init();
 
-        const { flex, isScrollable, getSaveToolbar = this.getSaveToolbar } = this.props;
+        const { id, flex, getSaveToolbar = this.getSaveToolbar, height, width, minWidth, minHeight, children } = this.props;
         const isEditable = this.columns && !!this.columns.find(column => column.isEditable);
 
         const gridProps = isEditable 
@@ -50,16 +51,31 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
             : {};
 
         const hasChanges = this.hasChanges();
-        const saveToolbar = isEditable && getSaveToolbar(hasChanges, this.toolbarRef, this)
 
-        return isScrollable 
-            ? (
-                <Container scrollable flex={flex} layout="vbox">
-                    { this.buildGrid(gridProps) }
-                    { saveToolbar }
-                </Container>
-            )
-            : this.buildGrid(gridProps, saveToolbar)
+        return (
+            this.store 
+                ? <Grid 
+                    {...gridProps}
+                    flex={flex}
+                    store={this.store}
+                    columnLines={true} 
+                    height={height}
+                    width={width}
+                    minHeight={minHeight}
+                    minWidth={minWidth}
+                    onSelectionchange={this.onSelectionChange}
+                    onColumnMenuCreated={this.onColumnMenuCreated}
+                >
+                    {
+                        this.columns &&
+                        this.columns.filter(column => !column.isInvisible)
+                                    .map(column => this.buildColumn(id, column))
+                    }
+                    {children}
+                    {isEditable && getSaveToolbar(hasChanges, this.toolbarRef, this)}
+                </Grid>
+                : <div/>
+        )
     }
 
     public cancel = () => {
@@ -93,40 +109,6 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
         this.saveWithCallback(this.props.onSave);
     }
 
-    private buildGrid(gridProps, saveToolbar?) {
-        let grid;
-
-        if (this.store != null) {
-            const { id, minHeight, minWidth, children, onSelectionChange, flex, height, width } = this.props;
-            const isEditable = this.columns && !!this.columns.find(column => column.isEditable);
-    
-            grid = (
-                <Grid 
-                    {...gridProps}
-                    flex={flex}
-                    store={this.store}
-                    columnLines={true} 
-                    height={height}
-                    width={width}
-                    minHeight={minHeight}
-                    minWidth={minWidth}
-                    onSelectionchange={this.onSelectionChange}
-                    onColumnMenuCreated={this.onColumnMenuCreated}
-                >
-                    {
-                        this.columns &&
-                        this.columns.filter(column => !column.isInvisible)
-                                    .map(column => this.buildColumn(id, column))
-                    }
-                    {children}
-                    {saveToolbar}
-                </Grid>
-            )
-        }
-
-        return grid;
-    }
-
     private init() {
         const { store, columns } = this.props;
 
@@ -141,13 +123,23 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
             this.columnsMap.clear();
 
             if (columns) {
-                columns.forEach(column => this.columnsMap.set(column.dataIndex, column));
+                this.runByEachColumn(columns, column => this.columnsMap.set(column.dataIndex, column));
 
                 this.columns = columns;
             }
             else {
                 this.columns = [];
             }
+        }
+    }
+
+    private runByEachColumn(columns: ColumnInfo[], fn: (column) => void) {
+        for (const column of columns) {
+            fn(column);
+
+            if (column.columns) {
+                this.runByEachColumn(column.columns, fn);
+            } 
         }
     }
 
@@ -178,14 +170,52 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     }
 
     private buildColumn(gridId: string, column: ColumnInfo) {
+        const columnOption = this.buildColumnOption(gridId, column);
+
+        switch(column.type) {
+            case ColumnType.CheckBox:
+                return (<CheckColumn {...columnOption} />);
+
+            default:
+                let editor = null;
+
+                if (column.isEditable) {
+                    switch (column.type) {
+                        case ColumnType.Reference:
+                            editor = (<SelectField options={this.getReferenceEditorOptions(column)} />)
+                            break;
+
+                        case ColumnType.Numeric:
+                            editor = (<NumberField required validators={{ type:"number", message:"Invalid value" }}/>);
+                            break;
+                        
+                        case ColumnType.Text:
+                            editor = (<TextField />);
+                            break;
+                    }
+                }
+
+                return (
+                    <Column {...columnOption}>
+                        {editor}
+                    </Column>
+                );
+        }
+    }
+
+    private buildColumnOption(gridId: string, column: ColumnInfo) {
         const columnOption: any = {
             key: `${gridId}_${column.dataIndex}`,
             dataIndex: column.dataIndex,
-            flex: 2,
             editable: column.isEditable,
             text: column.title,
-            id: column.dataIndex.replace('.', '')
+            width: column.width
         };
+
+        //TODO: Breaks editing
+        // if (column.dataIndex != null) {
+        //     columnOption.id = column.dataIndex.replace(/\./g, '');
+        // }
 
         if (column.flex) {
             columnOption.flex = column.flex;
@@ -203,26 +233,27 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
             columnOption.extensible = column.extensible;
         }
 
+        if (column.columns) {
+            columnOption.columns = column.columns.map(col => this.buildInnerColumn(gridId, col))
+        }
+
         switch(column.type) {
             case ColumnType.CheckBox:
-                return (<CheckColumn {...columnOption} disabled={!column.isEditable} headerCheckbox={column.isEditable} />);
+                columnOption.disabled = !column.isEditable;
+                columnOption.headerCheckbox = column.isEditable;
+                break;
 
             default:
                 let editor = null;
 
                 if (column.isEditable) {
                     switch (column.type) {
-                        case ColumnType.Numeric:
-                            editor = (<NumberField required validators={{ type:"number", message:"Invalid value" }}/>);
-                            break;
-                        
-                        case ColumnType.Text:
-                            editor = (<TextField />);
-                            break;
-        
                         case ColumnType.Reference:
-                            editor = this.getReferenceEditor(column);
-                            const getReferenceName = value => value == ' ' ? value : column.referenceItems.get(value).name;
+                            const getReferenceName = 
+                                value => 
+                                    value == null ||  value == ' ' 
+                                        ? ' ' 
+                                        : column.referenceItems.get(value).name;
 
                             columnOption.renderer = column.rendererFn 
                                 ? (value, record) => column.rendererFn(getReferenceName(value), record) 
@@ -230,23 +261,57 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
                             break;
                     }
                 }
-
-                return (
-                    <Column {...columnOption}>
-                        {editor}
-                    </Column>
-                );
+                break;
         }
+
+        return columnOption;
     }
 
-    private getReferenceEditor(column: ColumnInfo) {
-        const options = 
-            Array.from(column.referenceItems.values())
-                 .map(item => ({ text: item.name, value: item.id }));
+    private buildInnerColumn(gridId: string, column: ColumnInfo) {
+        const columnOption = this.buildColumnOption(gridId, column);
 
-        return (
-            <SelectField options={options} />
-        )
+        switch(column.type) {
+            case ColumnType.CheckBox:
+                columnOption.xtype = 'checkcolumn'
+                break;
+
+            default:
+                if (column.isEditable) {
+                    switch (column.type) {
+                        case ColumnType.Reference:
+                            columnOption.editor = {
+                                xtype: 'selectfield',
+                                options: this.getReferenceEditorOptions(column)
+                            };
+                            break;
+
+                        case ColumnType.Numeric:
+                            columnOption.editor = {
+                                xtype: 'numberfield',
+                                required: true,
+                                validators: { 
+                                    type:"number", 
+                                    message:"Invalid value" 
+                                }
+                            }
+                            break;
+                        
+                        case ColumnType.Text:
+                            columnOption.editor = {
+                                xtype: 'textfield',
+                            };
+                            break;
+                    }
+                }
+                break;
+        } 
+
+        return columnOption;
+    }
+
+    private getReferenceEditorOptions(column: ColumnInfo) {
+        return Array.from(column.referenceItems.values())        
+                    .map(item => ({ text: item.name, value: item.id }));
     }
 
     private onColumnMenuCreated = (grid, column, menu) => {

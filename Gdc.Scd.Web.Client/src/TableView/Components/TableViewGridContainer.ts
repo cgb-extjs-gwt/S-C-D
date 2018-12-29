@@ -1,16 +1,15 @@
 import { connect, connectAdvanced } from "react-redux";
 import { CommonState } from "../../Layout/States/AppStates";
 import { ColumnInfo, ColumnType } from "../../Common/States/ColumnInfo";
-import { findMeta } from "../../Common/Helpers/MetaHelper";
+import { findMeta, getCostElementByAppMeta } from "../../Common/Helpers/MetaHelper";
 import { NamedId } from "../../Common/States/CommonStates";
-import { CostBlockMeta, FieldType, CostElementMeta, CostMetaData } from "../../Common/States/CostMetaStates";
+import { CostBlockMeta, FieldType, CostElementMeta, CostMetaData, InputLevelMeta } from "../../Common/States/CostMetaStates";
 import { buildGetRecordsUrl, getTableViewInfo, updateRecords, buildGetHistoryUrl } from "../Services/TableViewService";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { CommonAction } from "../../Common/Actions/CommonActions";
 import { loadTableViewInfo, editRecord, resetChanges, saveTableViewToServer } from "../Actions/TableViewActions";
-import { TableViewInfo } from "../States/TableViewState";
+import { TableViewInfo, DataInfo } from "../States/TableViewState";
 import { TableViewRecord } from "../States/TableViewRecord";
-import { FieldInfo } from "../../Common/States/FieldInfo";
 import { Dispatch } from "redux";
 import { StoreOperation, Model } from "../../Common/States/ExtStates";
 import { isEqualCoordinates } from "../Helpers/TableViewHelper";
@@ -18,86 +17,10 @@ import { CostElementIdentifier } from "../../Common/States/CostElementIdentifier
 import { TableViewGridActions, TableViewGrid, TableViewGridProps } from "./TableViewGrid";
 import { buildCostElementColumn } from "../../Common/Helpers/ColumnInfoHelper";
 
-const mapToColumnInfo = (
-    fieldIfnos: FieldInfo[],
-    meta: CostMetaData,
-    costBlockCache: Map<string, CostBlockMeta>,
-    mapFn: (costBlock: CostBlockMeta, fieldInfo: FieldInfo) => ColumnInfo<TableViewRecord>
-) => fieldIfnos.map(fieldInfo => {
-    let costBlockMeta = costBlockCache.get(fieldInfo.metaId);
-    if (!costBlockMeta) {
-        costBlockMeta = findMeta(meta.costBlocks, fieldInfo.metaId);
-
-        costBlockCache.set(fieldInfo.metaId, costBlockMeta);
-    }
-
-    return mapFn(costBlockMeta, fieldInfo);
-}) 
-
-const buildCoordinateColumn = (costBlock: CostBlockMeta, fieldInfo: FieldInfo) => { 
-    let item: NamedId;
-
-    for (const { dependency, inputLevels } of costBlock.costElements) {
-        const items = dependency ? [dependency, ...inputLevels] : inputLevels;
-
-        item = items.find(x => x.id == fieldInfo.fieldName);
-
-        if (item) {
-            break;    
-        }
-    }
-
-    return <ColumnInfo<TableViewRecord>>{
-        title: item.name,
-        dataIndex: fieldInfo.dataIndex,
-        type: ColumnType.Text,
-        mappingFn: (record: TableViewRecord) => record.coordinates[fieldInfo.dataIndex].name,
-        flex: 1
-    };
-}
-
-const buildTableViewCostElementColumn = (
-    costBlock: CostBlockMeta, 
-    { dataIndex, fieldName: costElementId }: FieldInfo, 
-    state: TableViewInfo
-) => {
-    const costElement = findMeta(costBlock.costElements, costElementId);
-    const fieldType = costElement.typeOptions ? costElement.typeOptions.Type : FieldType.Double;
-
-    return buildCostElementColumn<TableViewRecord>({
-        title: costElement.name,
-        type: fieldType,
-        dataIndex,
-        inputType: costElement.inputType,
-        references: state.references[dataIndex],
-        mappingFn: record => record.data[dataIndex].value,
-        editMappingFn: (record, dataIndex) => record.data.data[dataIndex].value = record.get(dataIndex),
-        getCountFn: record => record.get(buildCountDataIndex(dataIndex))
-    });
-}
-
-const buildCountColumns = (costBlock: CostBlockMeta, fieldInfo: FieldInfo) => (<ColumnInfo<TableViewRecord>>{
-    isInvisible: true,
-    dataIndex: buildCountDataIndex(fieldInfo.dataIndex),
-    mappingFn: record => record.data[fieldInfo.dataIndex].count
-})
-
-const buildCountDataIndex = (dataIndex: string) => `${dataIndex}_Count`
-
-const buildAdditionalColumns = (title, dataIndex) => {
-    return <ColumnInfo<TableViewRecord>>{
-        title: title,
-        dataIndex: dataIndex,
-        type: ColumnType.Text,
-        mappingFn: record => record.additionalData[dataIndex],
-        flex: 3
-    }
-}
-
 const buildProps = (() => {
     let oldMeta: CostMetaData
     let oldTableViewInfo: TableViewInfo;
-    let oldProps = buildTableViewGridProps(oldTableViewInfo, oldMeta);
+    let oldProps = buildGridProps(oldTableViewInfo, oldMeta);
 
     return (state: CommonState) => {
         let newResult: TableViewGridProps;
@@ -108,7 +31,7 @@ const buildProps = (() => {
         if (oldMeta == newMeta && oldTableViewInfo == newTableViewInfo) {
             newResult = oldProps;
         } else {
-            newResult = oldProps = buildTableViewGridProps(newTableViewInfo, newMeta);
+            newResult = oldProps = buildGridProps(newTableViewInfo, newMeta);
             oldMeta = newMeta;
             oldTableViewInfo = newTableViewInfo;
         }
@@ -116,7 +39,7 @@ const buildProps = (() => {
         return newResult;
     }
 
-    function buildTableViewGridProps (tableViewInfo: TableViewInfo, meta: CostMetaData) {
+    function buildGridProps (tableViewInfo: TableViewInfo, meta: CostMetaData) {
         let readUrl: string;
         
         const columns = [];
@@ -124,23 +47,11 @@ const buildProps = (() => {
         if (tableViewInfo && meta) {
             readUrl = buildGetRecordsUrl();
 
-            const costBlockCache = new Map<string, CostBlockMeta>();
-            const coordinateColumns = mapToColumnInfo(tableViewInfo.recordInfo.coordinates, meta, costBlockCache, buildCoordinateColumn);
-            const costElementColumns = mapToColumnInfo(
-                tableViewInfo.recordInfo.data, 
-                meta, 
-                costBlockCache, 
-                (costBlock, fieldInfo) => buildTableViewCostElementColumn(costBlock, fieldInfo, tableViewInfo));
-            
-            const countColumns = mapToColumnInfo(tableViewInfo.recordInfo.data, meta, costBlockCache, buildCountColumns);
-
-            const wgAdditionalColumns = [
-                buildAdditionalColumns("WG Full name", "Wg.Description"),
-                buildAdditionalColumns("PLA", "Wg.PLA"),
-                buildAdditionalColumns("Responsible Person", "Wg.ResponsiblePerson")
-            ]
-
-            columns.push(...countColumns, ...coordinateColumns, ...wgAdditionalColumns, ...costElementColumns);
+            columns.push(
+                ...buildCoordinateColumns(tableViewInfo.recordInfo.coordinates),
+                ...buildAdditionalColumns(),
+                ...buildCostElementColumns()
+            );
         }
 
         return <TableViewGridProps>{
@@ -149,31 +60,124 @@ const buildProps = (() => {
                 read: readUrl
             },
         };
+
+        function buildCoordinateColumns (coordinateIds: string[]) { 
+            const coordinateIdSet = new Set<string>(coordinateIds);
+            const inputLevelMap = new Map<string, InputLevelMeta>();
+        
+            for (const { inputLevels } of meta.costBlocks[0].costElements) {
+                for (const inputLevel of inputLevels){
+                    if (coordinateIdSet.has(inputLevel.id)){
+                        inputLevelMap.set(inputLevel.id, inputLevel);
+                    }
+        
+                    if (inputLevelMap.size == coordinateIds.length) {
+                        return coordinateIds.map(coordinateId => (<ColumnInfo<TableViewRecord>>{
+                            title: inputLevelMap.get(coordinateId).name,
+                            dataIndex: coordinateId,
+                            type: ColumnType.Text,
+                            width: 100,
+                            mappingFn: (record: TableViewRecord) => record.coordinates[coordinateId].name,
+                        }))
+                    }
+                }
+            }
+        }
+
+        function buildCostElementColumns () {
+            const columns: ColumnInfo<TableViewRecord>[] = [];
+            const topColumns = new Map<string, Map<string, ColumnInfo<TableViewRecord>>>();
+        
+            for (const dataInfo of tableViewInfo.recordInfo.data) {
+                const { dependencyItemId, costBlockId, costElementId } = dataInfo;
+                const costElement = getCostElementByAppMeta(meta, costBlockId, costElementId);
+        
+                if (dependencyItemId == null) {
+                    columns.push(buildColumn(costElement.name, dataInfo, costElement))
+                } else {
+                    let costBlockColumns = topColumns.get(costBlockId);
+                    if (!costBlockColumns) {
+                        costBlockColumns = new Map<string, ColumnInfo<TableViewRecord>>();
+                        
+                        topColumns.set(costBlockId, costBlockColumns);
+                    }
+        
+                    let column = costBlockColumns.get(costElementId);
+                    if (!column) {
+                        column = <ColumnInfo<TableViewRecord>>{
+                            title: costElement.name,
+                            dataIndex: costElement.id,
+                            columns: []
+                        }
+        
+                        columns.push(column);
+        
+                        costBlockColumns.set(costElementId, column);
+                    } 
+        
+                    const title = tableViewInfo.dependencyItems[costElement.dependency.id][dependencyItemId].name;
+                    const subColumn = buildColumn(title, dataInfo, costElement);
+        
+                    column.columns.push(subColumn);
+                }
+            }
+        
+            return columns;
+
+            function buildColumn(title: string, { costBlockId, dataIndex }: DataInfo, costElement: CostElementMeta) {
+                const fieldType = costElement.typeOptions ? costElement.typeOptions.Type : FieldType.Double;
+                const references = fieldType == FieldType.Reference 
+                    ? tableViewInfo.costBlockReferences[costBlockId].references[costElement.id] 
+                    : null
+        
+                return buildCostElementColumn<TableViewRecord>({
+                    title,
+                    dataIndex,
+                    references,
+                    type: fieldType,
+                    inputType: costElement.inputType,
+                    width: 100,
+                    mappingFn: record => record.data[dataIndex].value,
+                    editMappingFn: (record, dataIndex) => record.data.data[dataIndex].value = record.get(dataIndex),
+                    getCountFn: record => record.data.data[dataIndex].count
+                })
+            }
+        }
+
+        function buildAdditionalColumns() {
+            return tableViewInfo.recordInfo.additionalData.map(({ title, dataIndex }) => (<ColumnInfo<TableViewRecord>>{
+                title: title,
+                dataIndex: dataIndex,
+                type: ColumnType.Text,
+                width: 150,
+                mappingFn: record => record.additionalData[dataIndex],
+            }));
+        }
     }
 })()
 
 const buildActions = (() => {
     let oldActions: TableViewGridActions;
     let oldTableViewInfo: TableViewInfo | {} = {};
-    let oldTableViewRecords: TableViewRecord[] = [];
+    let editRecords: TableViewRecord[];
     
     return (state: CommonState, dispatch: Dispatch) => {
         let newActions: TableViewGridActions;
         const newTableViewInfo = state.pages.tableView.info;
-        const newTableViewRecords = state.pages.tableView.editedRecords;
 
-        if (oldTableViewInfo == newTableViewInfo && oldTableViewRecords == newTableViewRecords) {
+        editRecords = state.pages.tableView.editedRecords;
+
+        if (oldTableViewInfo == newTableViewInfo) {
             newActions = oldActions;
         } else {
-            newActions = oldActions = buildTableViewGridActions(newTableViewInfo, newTableViewRecords, dispatch);
+            newActions = oldActions = buildTableViewGridActions(newTableViewInfo, dispatch);
             oldTableViewInfo = newTableViewInfo;
-            oldTableViewRecords = newTableViewRecords;
         }
         
         return newActions;
     }
 
-    function buildTableViewGridActions (tableViewInfo: TableViewInfo, editRecords: TableViewRecord[], dispatch: Dispatch) { 
+    function buildTableViewGridActions (tableViewInfo: TableViewInfo, dispatch: Dispatch) { 
         const buildSaveFn = (isApproving: boolean) => () => dispatch(saveTableViewToServer({ isApproving: isApproving }));
 
         return <TableViewGridActions>{
@@ -187,13 +191,16 @@ const buildActions = (() => {
                     case StoreOperation.Edit:
                         const [dataIndex] = modifiedFieldNames;
                         const tableViewRecord = record.data;
-                        const countDataIndex = buildCountDataIndex(dataIndex);
 
                         if (dataIndex in record.data.additionalData || dataIndex in record.data.coordinates) {
                             record.reject();
                         }
-                        else if (record.get(countDataIndex) == 0) {
-                            record.data[countDataIndex] = 1;
+                        else {
+                            const valueCount = record.data.data[dataIndex];
+
+                            if (valueCount.count == 0) {
+                                valueCount.count = 1;
+                            }
                         }
                         break;
                 }
@@ -225,14 +232,39 @@ const buildActions = (() => {
     }
 })()
 
+const buildPropsActions = (() => { 
+    let oldProps: TableViewGridProps;
+    let oldActions: TableViewGridActions;
+    let oldPropsActions: TableViewGridProps;
+    let oldOnSelectionChange: Function;
+
+    return (dispatch: Dispatch, state: CommonState, { onSelectionChange }: TableViewGridContainerProps) => {
+        let propsActions: TableViewGridProps;
+        const props = buildProps(state);
+        const actions = buildActions(state, dispatch);
+
+        if (oldProps == props && oldActions == actions && oldOnSelectionChange == onSelectionChange) {
+            propsActions = oldPropsActions;
+        } else {
+            oldProps = props;
+            oldActions = actions;
+            oldOnSelectionChange = onSelectionChange;
+
+            oldPropsActions = propsActions = <TableViewGridProps>{
+                ...props,
+                ...actions,
+                onSelectionChange
+            }
+        }
+
+        return propsActions;
+    }
+})()
+
 export interface TableViewGridContainerProps {
     onSelectionChange?(grid, records: Model[], selecting: boolean, selectionInfo)
 }
 
 export const TableViewGridContainer = connectAdvanced<CommonState, TableViewGridProps, TableViewGridContainerProps>(
-    dispatch => (state, { onSelectionChange }) => ({
-        ...buildProps(state),
-        ...buildActions(state, dispatch),
-        onSelectionChange
-    })
+    dispatch => (state, ownProps) => buildPropsActions(dispatch, state, ownProps)
 )(TableViewGrid)

@@ -8,9 +8,11 @@ import { DynamicGrid } from "../../Common/Components/DynamicGrid";
 import { DynamicGridProps } from "../../Common/Components/Props/DynamicGridProps";
 import { ColumnInfo } from "../../Common/States/ColumnInfo";
 import { objectPropsEqual } from "../../Common/Helpers/CommonHelpers";
+import { Model } from "../../Common/States/ExtStates";
 
 export interface TableViewGridActions extends LocalDynamicGridActions<TableViewRecord> {
     onApprove?()
+    onSelectionChange?(grid, records: Model[], selecting: boolean, selectionInfo)
 }
 
 export interface TableViewGridProps extends TableViewGridActions {
@@ -25,9 +27,6 @@ export class TableViewGrid extends React.PureComponent<TableViewGridProps> {
         return (
             <AjaxDynamicGrid 
                 { ...gridProps } 
-                width="2200px"
-                height="100%"
-                isScrollable={true}
                 getSaveToolbar={this.getSaveToolbar} 
             />
         ); 

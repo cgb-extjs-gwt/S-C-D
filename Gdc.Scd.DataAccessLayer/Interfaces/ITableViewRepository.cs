@@ -12,9 +12,11 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task UpdateRecords(IEnumerable<EditInfo> editInfos);
 
-        Task<IDictionary<string, IEnumerable<NamedId>>> GetReferences(CostElementInfo[] costBlockInfos);
+        Task<IDictionary<string, ReferenceSet>> GetReferences(CostElementInfo[] costBlockInfos);
 
-        RecordInfo GetTableViewRecordInfo(CostElementInfo[] costBlockInfos);
+        Task<IDictionary<string, IDictionary<long, NamedId>>> GetDependencyItems(CostElementInfo[] costBlockInfos);
+
+        Task<RecordInfo> GetRecordInfo(CostElementInfo[] costBlockInfos);
 
         IEnumerable<EditInfo> BuildEditInfos(CostElementInfo[] costBlockInfos, IEnumerable<Record> records);
     }
