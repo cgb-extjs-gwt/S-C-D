@@ -112,7 +112,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     await this.approvalRepository.Approve(history);
 
                     transaction.Commit();
-                    this.emailService.SendApprovalMail(history.EditUser);
+
+                    try
+                    {
+                        this.emailService.SendApprovalMail(history.EditUser);
+                    }
+                    catch
+                    {
+                        // TODO: Need to add logging
+                    }
                 }
                 catch
                 {

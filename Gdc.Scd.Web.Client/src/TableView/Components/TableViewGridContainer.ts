@@ -159,25 +159,25 @@ const buildProps = (() => {
 const buildActions = (() => {
     let oldActions: TableViewGridActions;
     let oldTableViewInfo: TableViewInfo | {} = {};
-    let oldTableViewRecords: TableViewRecord[] = [];
+    let editRecords: TableViewRecord[];
     
     return (state: CommonState, dispatch: Dispatch) => {
         let newActions: TableViewGridActions;
         const newTableViewInfo = state.pages.tableView.info;
-        const newTableViewRecords = state.pages.tableView.editedRecords;
 
-        if (oldTableViewInfo == newTableViewInfo && oldTableViewRecords == newTableViewRecords) {
+        editRecords = state.pages.tableView.editedRecords;
+
+        if (oldTableViewInfo == newTableViewInfo) {
             newActions = oldActions;
         } else {
-            newActions = oldActions = buildTableViewGridActions(newTableViewInfo, newTableViewRecords, dispatch);
+            newActions = oldActions = buildTableViewGridActions(newTableViewInfo, dispatch);
             oldTableViewInfo = newTableViewInfo;
-            oldTableViewRecords = newTableViewRecords;
         }
         
         return newActions;
     }
 
-    function buildTableViewGridActions (tableViewInfo: TableViewInfo, editRecords: TableViewRecord[], dispatch: Dispatch) { 
+    function buildTableViewGridActions (tableViewInfo: TableViewInfo, dispatch: Dispatch) { 
         const buildSaveFn = (isApproving: boolean) => () => dispatch(saveTableViewToServer({ isApproving: isApproving }));
 
         return <TableViewGridActions>{
@@ -232,14 +232,39 @@ const buildActions = (() => {
     }
 })()
 
+const buildPropsActions = (() => { 
+    let oldProps: TableViewGridProps;
+    let oldActions: TableViewGridActions;
+    let oldPropsActions: TableViewGridProps;
+    let oldOnSelectionChange: Function;
+
+    return (dispatch: Dispatch, state: CommonState, { onSelectionChange }: TableViewGridContainerProps) => {
+        let propsActions: TableViewGridProps;
+        const props = buildProps(state);
+        const actions = buildActions(state, dispatch);
+
+        if (oldProps == props && oldActions == actions && oldOnSelectionChange == onSelectionChange) {
+            propsActions = oldPropsActions;
+        } else {
+            oldProps = props;
+            oldActions = actions;
+            oldOnSelectionChange = onSelectionChange;
+
+            oldPropsActions = propsActions = <TableViewGridProps>{
+                ...props,
+                ...actions,
+                onSelectionChange
+            }
+        }
+
+        return propsActions;
+    }
+})()
+
 export interface TableViewGridContainerProps {
     onSelectionChange?(grid, records: Model[], selecting: boolean, selectionInfo)
 }
 
 export const TableViewGridContainer = connectAdvanced<CommonState, TableViewGridProps, TableViewGridContainerProps>(
-    dispatch => (state, { onSelectionChange }) => ({
-        ...buildProps(state),
-        ...buildActions(state, dispatch),
-        onSelectionChange
-    })
+    dispatch => (state, ownProps) => buildPropsActions(dispatch, state, ownProps)
 )(TableViewGrid)

@@ -66,7 +66,8 @@ export class EditGrid extends React.Component<EditGridProps> {
             { 
                 title: nameColumnTitle, 
                 dataIndex: "name", 
-                extensible: false 
+                extensible: false,
+                flex: 1, 
             },
             buildCostElementColumn<EditItem>({
                 title: valueColumn.title,
@@ -74,6 +75,7 @@ export class EditGrid extends React.Component<EditGridProps> {
                 type: valueColumn.type,
                 references: valueColumn.selectedItems,
                 inputType: valueColumn.inputType,
+                flex: 1,
                 getCountFn: ({ data }) => data.valueCount
             })
         ] as ColumnInfo[]

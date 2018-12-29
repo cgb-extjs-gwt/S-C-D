@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Grid, Column, GridCell, CheckColumn } from "@extjs/ext-react";
+import { Grid, Column, GridCell, CheckColumn, RendererCell } from "@extjs/ext-react";
 import { CostElementMeta } from "../../Common/States/CostMetaStates";
 import { BundleDetailGroup } from "../States/QualityGateResult";
 import { Model, Store } from "../../Common/States/ExtStates";
@@ -35,15 +35,21 @@ export class QualityGateGrid extends React.PureComponent<QualityGateGridProps> {
         return(
             <Grid store={this.store} columnLines={true} flex={flex} minHeight={minHeight} onSelectionChange={onSelectionChange}>
                 <Column dataIndex="lastInputLevel" text={inputLevelName} renderer={this.rendererWgColumn} align="center" flex={1}/>
-                <Column dataIndex="coordinates" text="Info" renderer={this.rendererCoordinatesColumn} flex={5} >
-                    <GridCell bodyCls="multiline-row" encodeHtml={false}/>
+                <Column dataIndex="coordinates" text="Info" flex={5} >
+                    <RendererCell 
+                        renderer={(value, { data }: Model<BundleDetailGroup>) => 
+                            <div style={{whiteSpace: 'normal'}}>
+                                {Object.keys(data.coordinates).map(key => this.buildBundleDetail(key, data))}
+                            </div>
+                        }
+                    />
                 </Column>
                 <Column dataIndex="newValue" text="New value" align="center" flex={1}/>
                 {
                     !hideCheckColumns &&
                     [
-                        <Column dataIndex="oldValue" text="Old value" align="center" flex={1} />,
-                        <Column dataIndex="countryGroupAvgValue" text="Quality gate group value" flex={1} />,
+                        <Column key="oldValue" dataIndex="oldValue" text="Old value" align="center" flex={1} />,
+                        <Column key="countryGroupAvgValue" dataIndex="countryGroupAvgValue" text="Quality gate group value" flex={1} />,
                         <CheckColumn key="isPeriodError" dataIndex="isPeriodError" text="Previous value error" disabled={true} headerCheckbox={false} flex={1}/>,
                         <CheckColumn key="isRegionError" dataIndex="isRegionError" text="Quality gate group error" disabled={true} headerCheckbox={false} flex={1}/>
                     ]
@@ -51,6 +57,18 @@ export class QualityGateGrid extends React.PureComponent<QualityGateGridProps> {
                 
                 {children}
             </Grid>
+        );
+    }
+
+    private buildBundleDetail(key: string, bundleDetail: BundleDetailGroup) {
+        const names = bundleDetail.coordinates[key].map(item => Ext.util.Format.htmlEncode(item.name));
+        const title = this.titleMap.get(key);
+
+        return (
+            <div style={{paddingBottom: '4px' }}>
+                <span style={{fontWeight: 'bold'}}>{title}: </span> 
+                {Ext.htmlDecode(names.join(', '))}
+            </div>
         );
     }
 
@@ -83,22 +101,6 @@ export class QualityGateGrid extends React.PureComponent<QualityGateGridProps> {
             ],
             ...storeConfig
         });
-    }
-
-    private rendererCoordinatesColumn = (value, { data }: Model<BundleDetailGroup>) => {
-        let result = '';
-
-        for (const key of Object.keys(data.coordinates)) {
-            const names = data.coordinates[key].map(item => Ext.util.Format.htmlEncode(item.name));
-            const title = this.titleMap.get(key);
-
-            result += `
-                <div style="padding-bottom: 4px;">
-                    <span style="font-weight: bold;">${title}:</span> ${names.join(', ')}
-                </div>`
-        }
-
-        return result + ' ';
     }
 
     private rendererWgColumn(value, { data }: Model<BundleDetailGroup>) {

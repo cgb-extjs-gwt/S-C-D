@@ -5,6 +5,7 @@ import { SaveToolbar } from "./SaveToolbar";
 import { Model, StoreOperation, Store } from "../States/ExtStates";
 import { ReactNode } from "react-redux";
 import { DynamicGridProps, ToolbarDynamicGridProps } from "./Props/DynamicGridProps";
+import { objectPropsEqual } from "../Helpers/CommonHelpers";
 
 export interface StoreDynamicGridProps extends ToolbarDynamicGridProps {
     store: Store
@@ -33,7 +34,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     public render() {
         this.init();
 
-        const { id, flex, isScrollable, getSaveToolbar = this.getSaveToolbar, height, width, minWidth, minHeight, children } = this.props;
+        const { id, flex, getSaveToolbar = this.getSaveToolbar, height, width, minWidth, minHeight, children } = this.props;
         const isEditable = this.columns && !!this.columns.find(column => column.isEditable);
 
         const gridProps = isEditable 
@@ -180,6 +181,10 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
 
                 if (column.isEditable) {
                     switch (column.type) {
+                        case ColumnType.Reference:
+                            editor = (<SelectField options={this.getReferenceEditorOptions(column)} />)
+                            break;
+
                         case ColumnType.Numeric:
                             editor = (<NumberField required validators={{ type:"number", message:"Invalid value" }}/>);
                             break;
@@ -207,9 +212,10 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
             width: column.width
         };
 
-        if (column.dataIndex != null) {
-            columnOption.id = column.dataIndex.replace(/\./g, '');
-        }
+        //TODO: Breaks editing
+        // if (column.dataIndex != null) {
+        //     columnOption.id = column.dataIndex.replace(/\./g, '');
+        // }
 
         if (column.flex) {
             columnOption.flex = column.flex;
@@ -243,7 +249,6 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
                 if (column.isEditable) {
                     switch (column.type) {
                         case ColumnType.Reference:
-                            editor = this.getReferenceEditor(column);
                             const getReferenceName = 
                                 value => 
                                     value == null ||  value == ' ' 
@@ -273,6 +278,13 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
             default:
                 if (column.isEditable) {
                     switch (column.type) {
+                        case ColumnType.Reference:
+                            columnOption.editor = {
+                                xtype: 'selectfield',
+                                options: this.getReferenceEditorOptions(column)
+                            };
+                            break;
+
                         case ColumnType.Numeric:
                             columnOption.editor = {
                                 xtype: 'numberfield',
@@ -297,14 +309,9 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
         return columnOption;
     }
 
-    private getReferenceEditor(column: ColumnInfo) {
-        const options = 
-            Array.from(column.referenceItems.values())
-                 .map(item => ({ text: item.name, value: item.id }));
-
-        return (
-            <SelectField options={options} />
-        )
+    private getReferenceEditorOptions(column: ColumnInfo) {
+        return Array.from(column.referenceItems.values())        
+                    .map(item => ({ text: item.name, value: item.id }));
     }
 
     private onColumnMenuCreated = (grid, column, menu) => {

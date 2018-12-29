@@ -35,6 +35,7 @@ export interface CostElementColumnOption<T=any> {
     inputType: InputType
     references?: NamedId<number>[]
     width?: string | number
+    flex?: number
     mappingFn?(data: T): any
     editMappingFn?(data: Model<T>, dataIndex: string)
     getCountFn?(data: Model<T>): number
@@ -86,7 +87,7 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
             break;
     }
 
-    const { width, mappingFn, editMappingFn, getCountFn } = option;
+    const { width, flex, mappingFn, editMappingFn, getCountFn } = option;
 
     return <ColumnInfo<T>>{
         title,
@@ -95,6 +96,7 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
         isEditable: !readonly,
         type: columnType,
         referenceItems,
+        flex,
         mappingFn,
         editMappingFn,
         rendererFn: rendererFnBuilder(formatFn)

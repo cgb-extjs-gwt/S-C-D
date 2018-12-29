@@ -1,4 +1,5 @@
 import { LocalDynamicGrid, LocalDynamicGridProps } from "./LocalDynamicGrid";
+import { ColumnInfo } from "../States/ColumnInfo";
 
 export interface ApiUrls {
     read: string
@@ -12,12 +13,12 @@ export interface AjaxDynamicGridProps<T=any> extends LocalDynamicGridProps<T> {
 }
 
 export class AjaxDynamicGrid<T=any> extends LocalDynamicGrid<T, AjaxDynamicGridProps<T>> {
-    protected buildDataStore(props: AjaxDynamicGridProps<T>) {
+    protected buildDataStore(props: AjaxDynamicGridProps<T>, visibleColumns: ColumnInfo[]) {
         const { columns, apiUrls } = props;
 
         return apiUrls && apiUrls.read 
             ?  Ext.create('Ext.data.Store', {
-                fields: this.buildDataStoreFields(columns),
+                fields: this.buildDataStoreFields(visibleColumns),
                 autoLoad: true,
                 pageSize: 0,
                 proxy: {

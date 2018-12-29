@@ -124,8 +124,20 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             if (approvalOption.IsApproving && !approvalOption.HasQualityGateErrors)
             {
                 var filter = this.costBlockFilterBuilder.BuildCoordinateFilter(context);
+                var editContext = new EditContext
+                {
+                    Context = context,
+                    EditItemSets = new[] 
+                    {
+                        new EditItemSet
+                        {
+                            EditItems = editItems,
+                            CoordinateFilter = filter
+                        }
+                    }
+                };
 
-                checkResult = await this.qualityGateSevice.Check(editItems, context, filter, EditorType.CostEditor);
+                checkResult = await this.qualityGateSevice.Check(editContext, EditorType.CostEditor);
             }
             else
             {

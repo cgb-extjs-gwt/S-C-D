@@ -32,17 +32,22 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
 
-        public async Task<QualityGateResult> Check(IEnumerable<EditItem> editItems, HistoryContext context, IDictionary<string, long[]> coordinateFilter, EditorType editorType)
+        public async Task<QualityGateResult> Check(EditContext editContext, EditorType editorType)
         {
             var result = new QualityGateResult();
-            var option = this.GetQualityGateOption(context, editorType);
+            var option = this.GetQualityGateOption(editContext.Context, editorType);
 
             if (this.IsUseCheck(option))
             {
-                var regionFilter = this.costBlockFilterBuilder.BuildRegionFilter(context);
-                var filter = regionFilter.Concat(coordinateFilter).ToDictionary(keyValue => keyValue.Key, keyValue => keyValue.Value);
+                var regionFilter = this.costBlockFilterBuilder.BuildRegionFilter(editContext.Context);
+                var bundleDetails = new List<BundleDetail>();
 
-                var bundleDetails = await this.qualityGateRepository.Check(context, editItems, filter, option.IsCountyCheck);
+                foreach (var editItemSet in editContext.EditItemSets)
+                {
+                    var filter = regionFilter.Concat(editItemSet.CoordinateFilter).ToDictionary(keyValue => keyValue.Key, keyValue => keyValue.Value);
+
+                    bundleDetails.AddRange(await this.qualityGateRepository.Check(editContext.Context, editItemSet.EditItems, filter, option.IsCountyCheck));
+                }
 
                 result.Errors = bundleDetails.ToBundleDetailGroups();
             }
