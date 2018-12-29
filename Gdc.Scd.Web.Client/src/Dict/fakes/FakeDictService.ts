@@ -9,6 +9,7 @@ import { fakeReactTimeTypes } from "./FakeReactTimeTypes";
 import { fakeReactTypes } from "./FakeReactTypes";
 import { fakeServiceLocationTypes } from "./FakeServiceLocationTypes";
 import { fakeSog } from "./FakeSog";
+import { fakeUserCountries } from "./FakeUserCountries";
 import { fakeWG } from "./FakeWG";
 import { fakeYears } from "./FakeYear";
 
@@ -19,6 +20,12 @@ export class FakeDictService implements IDictService {
 
     public getMasterCountries(cache: boolean): Promise<Country[]> {
         throw new Error("Method not implemented.");
+    }
+
+    public getUserCountries(cache: boolean): Promise<Country[]> {
+        var json = JSON.stringify(fakeUserCountries);
+        var data = JSON.parse(json);
+        return this.fromResult(data as Country[]);
     }
 
     public getCountryGroups(): Promise<NamedId<string>[]> {

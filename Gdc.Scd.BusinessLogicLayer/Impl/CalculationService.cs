@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.DataAccessLayer.Helpers;
@@ -49,7 +50,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new GetHwCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
         }
 
-        public async Task<(SwMaintenanceCostDto[] items, int total)> GetSoftwareCost(SwFilterDto filter, int start, int limit)
+        public async Task<(SwMaintenanceCostDto[] items, int total)> GetSoftwareCost(
+                bool approved,
+                SwFilterDto filter,
+                int start,
+                int limit
+            )
         {
             var query = swMaintenanceRepo.GetAll();
 
@@ -64,32 +70,48 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             query = query.WithPaging(start, limit);
 
-            var result = await query.Select(x => new SwMaintenanceCostDto
+            IQueryable<SwMaintenanceCostDto> selectQuery;
+
+            if (approved)
             {
-                Sog = x.SogRef.Name,
-                Availability = x.AvailabilityRef.Name,
-                Year = x.YearRef.Name,
+                selectQuery = query.Select(x => new SwMaintenanceCostDto
+                {
+                    Sog = x.SogRef.Name,
+                    Availability = x.AvailabilityRef.Name,
+                    Year = x.YearRef.Name,
+                    DealerPrice = x.DealerPrice_Approved,
+                    MaintenanceListPrice = x.MaintenanceListPrice_Approved,
+                    Reinsurance = x.Reinsurance_Approved,
+                    ServiceSupport = x.ServiceSupport_Approved,
+                    TransferPrice = x.TransferPrice_Approved
+                });
+            }
+            else
+            {
+                selectQuery = query.Select(x => new SwMaintenanceCostDto
+                {
+                    Sog = x.SogRef.Name,
+                    Availability = x.AvailabilityRef.Name,
+                    Year = x.YearRef.Name,
+                    DealerPrice = x.DealerPrice,
+                    MaintenanceListPrice = x.MaintenanceListPrice,
+                    Reinsurance = x.Reinsurance,
+                    ServiceSupport = x.ServiceSupport,
+                    TransferPrice = x.TransferPrice
+                });
+            }
 
-                DealerPrice = x.DealerPrice,
-                DealerPrice_Approved = x.DealerPrice_Approved,
-
-                MaintenanceListPrice = x.MaintenanceListPrice,
-                MaintenanceListPrice_Approved = x.MaintenanceListPrice_Approved,
-
-                Reinsurance = x.Reinsurance,
-                Reinsurance_Approved = x.Reinsurance_Approved,
-
-                ServiceSupport = x.ServiceSupport,
-                ServiceSupport_Approved = x.ServiceSupport_Approved,
-
-                TransferPrice = x.TransferPrice,
-                TransferPrice_Approved = x.TransferPrice_Approved
-            }).GetAsync();
+            var result = await selectQuery.GetAsync();
 
             return (result, count);
         }
 
-        public async Task<(SwProactiveCostDto[] items, int total)> GetSoftwareProactiveCost(SwFilterDto filter, int start, int limit)
+        public async Task<(SwProactiveCostDto[] items, int total)> GetSoftwareProactiveCost(
+                bool approved,
+                SwFilterDto filter,
+                int start,
+                int limit
+            )
         {
             var query = swProactiveRepo.GetAll();
 
@@ -104,24 +126,39 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             query = query.WithPaging(start, limit);
 
-            var result = await query.Select(x => new SwProactiveCostDto
-            {
-                Country = x.CountryRef.Name,
-                Sog = x.SogRef.Name,
-                Year = x.YearRef.Name,
+            IQueryable<SwProactiveCostDto> selectQuery;
 
-                ProActive = x.ProActive,
-                ProActive_Approved = x.ProActive_Approved
-            }).GetAsync();
+            if (approved)
+            {
+                selectQuery = query.Select(x => new SwProactiveCostDto
+                {
+                    Country = x.CountryRef.Name,
+                    Sog = x.SogRef.Name,
+                    Year = x.YearRef.Name,
+                    ProActive = x.ProActive_Approved
+                });
+            }
+            else
+            {
+                selectQuery = query.Select(x => new SwProactiveCostDto
+                {
+                    Country = x.CountryRef.Name,
+                    Sog = x.SogRef.Name,
+                    Year = x.YearRef.Name,
+                    ProActive = x.ProActive
+                });
+            }
+
+            var result = await selectQuery.GetAsync();
 
             return (result, count);
         }
 
-        public void SaveHardwareCost(IEnumerable<HwCostManualDto> records)
+        public void SaveHardwareCost(User changeUser, long countryId, IEnumerable<HwCostManualDto> records)
         {
             var recordsId = records.Select(x => x.Id);
 
-            var entities = (from p in portfolioRepo.GetAll().Where(x => recordsId.Contains(x.Id))
+            var entities = (from p in portfolioRepo.GetAll().Where(x => x.Country.Id == countryId && recordsId.Contains(x.Id))
                             from hw in hwManualRepo.GetAll().Where(x => x.Id == p.Id).DefaultIfEmpty()
                             select new
                             {
@@ -157,6 +194,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     {
                         hwManual.ServiceTC = rec.ServiceTC;
                         hwManual.ServiceTP = rec.ServiceTP;
+                        hwManual.ChangeUser = changeUser;
                         //
                         hwManualRepo.Save(hwManual);
                     }
@@ -165,6 +203,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     {
                         hwManual.ListPrice = rec.ListPrice;
                         hwManual.DealerDiscount = rec.DealerDiscount;
+                        hwManual.ChangeUser = changeUser;
                         //
                         hwManualRepo.Save(hwManual);
                     }

@@ -28,6 +28,11 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return source.Provider.CreateQuery<TEntity>(resultExpression);
         }
 
+        public static IQueryable<TSource> FromSql<TSource>(this IQueryable<TSource> source, string sql, params object[] parameters) where TSource : class
+        {
+            return RelationalQueryableExtensions.FromSql(source, new RawSqlString(sql), parameters);
+        }
+
         public static Task<TSource[]> GetAsync<TSource>(this IQueryable<TSource> source)
         {
             return EntityFrameworkQueryableExtensions.ToArrayAsync(source);

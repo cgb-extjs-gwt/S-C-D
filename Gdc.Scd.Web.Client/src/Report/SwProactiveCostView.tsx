@@ -44,7 +44,7 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
         return (
             <Container layout="fit">
 
-                <SwProactiveCostFilter ref={x => this.filter = x} docked="right" onSearch={this.onSearch} />
+                <SwProactiveCostFilter ref={x => this.filter = x} docked="right" onSearch={this.onSearch} checkAccess={!this.props.approved} scrollable={true}/>
 
                 <Grid ref={x => this.grid = x} store={this.store} width="100%" plugins={['pagingtoolbar']}>
 

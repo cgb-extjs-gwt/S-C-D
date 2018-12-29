@@ -14,7 +14,7 @@ export class CalcResultView extends React.Component<any, any> {
                 <TabPanel flex="1" tabBar={{ layout: { pack: 'left' } }}>
 
                     <Container title="Hardware<br>service costs" layout="fit">
-                        <HwCostView approved={false}/>
+                        <HwCostView approved={false} />
                     </Container>
 
                     <Container title="Hardware<br>service costs<br>(approved)" layout="fit">

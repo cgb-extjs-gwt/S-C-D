@@ -48,7 +48,7 @@ export class PortfolioView extends React.Component<any, any> {
         return (
             <Container scrollable={true}>
 
-                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} />
+                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} />
 
                 <Toolbar docked="top">
                     <Button iconCls="x-fa fa-edit" text="Edit" handler={this.onEdit} />

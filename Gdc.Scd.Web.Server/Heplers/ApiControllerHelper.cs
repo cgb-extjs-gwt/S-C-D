@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.Core.Entities;
+﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -8,6 +9,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Mvc;
 
 namespace Gdc.Scd.Web.Server
 {
@@ -15,6 +17,12 @@ namespace Gdc.Scd.Web.Server
     {
         private static readonly string DATAINFO_ITEMS = nameof(DataInfo<int>.Items).ToLower();
         private static readonly string DATAINFO_TOTAL = nameof(DataInfo<int>.Total).ToLower();
+
+        public static User CurrentUser(this ApiController ctrl)
+        {
+            var userService = (IUserService)DependencyResolver.Current.GetService(typeof(IUserService));
+            return userService.GetCurrentUser();
+        }
 
         public static HttpResponseMessage ExcelContent(
                 this ApiController ctrl,

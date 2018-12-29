@@ -206,6 +206,7 @@ export default class RoleCodesContainer extends React.Component {
                     storeUser={this.storeUser}
                     roles={this.state.roles}
                     countries={this.state.countries}
+                    scrollable={true}
                 />
                 <UserRoleGrid
                     store={this.store}

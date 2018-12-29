@@ -10,6 +10,7 @@
     <None Remove="Scripts\CD_CS\cd-cs-proactive.sql" />
     <None Remove="Scripts\CD_CS\cd-cs-servicecosts.sql" />
     <None Remove="Scripts\CD_CS\split-string.sql" />
+    <None Remove="Scripts\country.sql" />
     <None Remove="Scripts\dropEverything.sql" />
     <None Remove="Scripts\report-calc-output-new-vs-old.sql" />
     <None Remove="Scripts\report-calc-output-vs-FREEZE.sql" />
@@ -57,6 +58,7 @@
     <EmbeddedResource Include="Scripts\CD_CS\cd-cs-proactive.sql" />
     <EmbeddedResource Include="Scripts\CD_CS\cd-cs-servicecosts.sql" />
     <EmbeddedResource Include="Scripts\CD_CS\split-string.sql" />
+    <EmbeddedResource Include="Scripts\country.sql" />
     <EmbeddedResource Include="Scripts\dropEverything.sql" />
     <EmbeddedResource Include="Scripts\Report\report-calc-output-new-vs-old.sql" />
     <EmbeddedResource Include="Scripts\Report\report-calc-output-vs-FREEZE.sql" />

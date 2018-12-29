@@ -9,6 +9,5 @@
         public string Year { get; set; }
 
         public double? ProActive { get; set; }
-        public double? ProActive_Approved { get; set; }
     }
 }

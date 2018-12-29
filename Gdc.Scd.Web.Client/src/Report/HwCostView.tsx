@@ -1,9 +1,10 @@
 ﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
-import { buildMvcUrl } from "../Common/Services/Ajax";
+import { handleRequest } from "../Common/Helpers/RequestHelper";
+import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { moneyRenderer, percentRenderer, yearRenderer } from "./Components/GridRenderer";
+import { moneyRenderer, percentRenderer, yearRenderer, emptyRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 
@@ -16,7 +17,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
 
         fields: [
-            'ListPrice', 'DealerDiscount',
+            'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail',
             {
                 name: 'DealerPriceCalc',
                 calculate: function (d) {
@@ -25,6 +26,21 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         result = d.ListPrice;
                         if (d.DealerDiscount) {
                             result = result - (result * d.DealerDiscount / 100);
+                        }
+                    }
+                    return result;
+                }
+            },
+            {
+                name: 'ChangeUserCalc',
+                calculate: function (d) {
+                    let result: string = '';
+                    if (d) {
+                        if (d.ChangeUserName) {
+                            result += d.ChangeUserName;
+                        }
+                        if (d.ChangeUserEmail) {
+                            result += '[' + d.ChangeUserEmail + ']';
                         }
                     }
                     return result;
@@ -38,14 +54,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         proxy: {
             type: 'ajax',
             api: {
-                read: buildMvcUrl('calc', 'gethwcost'),
-                update: buildMvcUrl('calc', 'savehwcost')
-            },
-            writer: {
-                type: 'json',
-                writeAllFields: true,
-                allowSingle: false,
-                idProperty: "Id"
+                read: buildMvcUrl('calc', 'gethwcost')
             },
             reader: {
                 type: 'json',
@@ -80,7 +89,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         return (
             <Container layout="fit">
 
-                <HwCostFilter ref={x => this.filter = x} docked="right" onSearch={this.onSearch} />
+                <HwCostFilter ref={x => this.filter = x} docked="right" onSearch={this.onSearch} checkAccess={!this.props.approved} scrollable={true} />
 
                 <Grid
                     ref={x => this.grid = x}
@@ -151,6 +160,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
+                        <Column flex="2" minWidth="250" text="Change user" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
+
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
                         <NumberColumn text="Local service standard warranty" dataIndex="LocalServiceStandardWarranty" />
                         <NumberColumn text="Credits" dataIndex="Credits" />
@@ -183,21 +194,17 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private saveRecords() {
-        this.store.sync({
-            scope: this,
+        let recs = this.store.getModifiedRecords().map(x => x.getData());
+        let cnt = this.state.selectedCountry;
 
-            success: function (batch, options) {
-                //TODO: show successfull message box
-                this.reset();
-                this.reload();
-            },
-
-            failure: (batch, options) => {
-                //TODO: show error
-                this.store.rejectChanges();
-            }
-        });
-
+        if (recs && cnt) {
+            let me = this;
+            let p = post('calc', 'savehwcost', { items: recs, countryId: cnt.id }).then(() => {
+                me.reset();
+                me.reload();
+            });
+            handleRequest(p);
+        }
     }
 
     private onSearch(filter: HwCostFilterModel) {
@@ -231,20 +238,33 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             }
         };
 
-        if (this.canEdit()) {
-            cfg['desktop'].plugins.gridcellediting = true;
+        if (this.approved()) {
             cfg['!desktop'].plugins.grideditable = true;
+            const desktop = cfg['desktop'];
+            desktop.plugins.gridcellediting = true;
+            desktop.plugins.selectionreplicator = true;
+            desktop.selectable = {
+                rows: true,
+                cells: true,
+                columns: false,
+                drag: true,
+                extensible: 'y',
+            };
         }
 
         return cfg;
     }
 
-    private canEdit(): boolean {
+    private approved() {
         return this.props.approved;
     }
 
+    private canEdit(): boolean {
+        return this.canEditListPrice() || this.canEditTC();
+    }
+
     private canEditListPrice(): boolean {
-        let result: boolean = this.canEdit();
+        let result: boolean = this.approved();
         if (result) {
             const cnt: Country = this.state.selectedCountry;
             result = cnt && cnt.canStoreListAndDealerPrices;
@@ -253,7 +273,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private canEditTC(): boolean {
-        let result: boolean = this.canEdit();
+        let result: boolean = this.approved();
         if (result) {
             const cnt: Country = this.state.selectedCountry;
             result = cnt && cnt.canOverrideTransferCostAndPrice;
