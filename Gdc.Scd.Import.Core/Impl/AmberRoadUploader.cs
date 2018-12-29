@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Interfaces;
@@ -33,7 +34,7 @@ namespace Gdc.Scd.Import.Core.Impl
             this._logger = logger;
         }
 
-        public void Upload(IEnumerable<TaxAndDutiesDto> items, DateTime modifiedDateTime)
+        public IEnumerable<UpdateQueryOption> Upload(IEnumerable<TaxAndDutiesDto> items, DateTime modifiedDateTime)
         {
             var dbItemsTaxAndDuties = this._repositoryTaxAndDuties.GetAll().ToList();
             var dbItemsCountries = this._repositoryCountry.GetAll().Where(c => c.IsMaster).ToList();
@@ -93,6 +94,7 @@ namespace Gdc.Scd.Import.Core.Impl
             }
 
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, batchList.Count);
+            return new List<UpdateQueryOption>();
         }
 
     }

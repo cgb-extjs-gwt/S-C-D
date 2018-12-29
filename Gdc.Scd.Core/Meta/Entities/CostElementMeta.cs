@@ -14,11 +14,14 @@ namespace Gdc.Scd.Core.Meta.Entities
             return this.InputLevels.OrderBy(inputLevel => inputLevel.LevelNumber);
         }
 
-        public InputLevelMeta GetPreviousInputLevel(string inputLevelId)
+        public InputLevelMeta GetFilterInputLevel(string inputLevelId)
         {
             InputLevelMeta previousInputLevel = null;
+            var currentFilter = this.SortInputLevel().FirstOrDefault(f => f.Id == inputLevelId);
+            if (currentFilter == null || currentFilter.HideFilter)
+                return null;
 
-            foreach (var inputLevel in this.SortInputLevel())
+            foreach (var inputLevel in this.SortInputLevel().Where(f => !f.HideFilter))
             {
                 if (inputLevel.Id == inputLevelId)
                 {
@@ -28,8 +31,12 @@ namespace Gdc.Scd.Core.Meta.Entities
                 previousInputLevel = inputLevel;
             }
 
+            if (previousInputLevel != null && previousInputLevel == this.RegionInput)
+                return null;
+
             return previousInputLevel;
         }
+  
 
         public IEnumerable<InputLevelMeta> FilterInputLevels(string maxInputLevelId)
         {
@@ -46,14 +53,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public bool HasInputLevelFilter(string inputLevelId)
         {
-            var prevInputLevel = this.GetPreviousInputLevel(inputLevelId);
-
-            return this.HasInputLevelFilter(prevInputLevel);
-        }
-
-        public bool HasInputLevelFilter(InputLevelMeta prevInputLevel)
-        {
-            return prevInputLevel != null && this.RegionInput != prevInputLevel;
+            return this.GetFilterInputLevel(inputLevelId) != null;
         }
     }
 }

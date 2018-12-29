@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Por.Core.Extensions;
 using System;
@@ -48,7 +49,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             return result;
         }
 
-        public List<T> AddOrActivate(IEnumerable<T> itemsToUpdate, DateTime modifiedDate,
+        public List<T> AddOrActivate(IEnumerable<T> itemsToUpdate, DateTime modifiedDate, 
+            List<UpdateQueryOption> updateOptions,
             Expression<Func<T, bool>> predicate = null)
         {
             List<T> batch = new List<T>();
@@ -74,7 +76,11 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     //if something was changed update in the database
                     if (!_comparer.Equals(dbItem, item))
                     {
-                        item.CopyModifiedValues<T>(dbItem, modifiedDate);
+                        var coordinatesToUpdate = item.GetUpdatedCoordinates(dbItem);
+                        if (coordinatesToUpdate != null)
+                            updateOptions.Add(coordinatesToUpdate);
+
+                        item.CopyModifiedValues(dbItem, modifiedDate);                       
                         batch.Add(dbItem);
                     }
 

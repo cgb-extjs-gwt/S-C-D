@@ -51,6 +51,8 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string InputTypeAttributeName = "InputOption";
 
+        private const string FilterAttributeName = "HideFilter";
+
         private const string TypeOptionNodeName = "TypeOption";
 
         private const string QualityGateNodeName = "QualityGate";
@@ -259,8 +261,8 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private DomainInfo<InputLevelMeta> BuildInputLevelDomainInfo(XElement node)
         {
-            var inputLevels = this.BuildStoreTypedDomainInfo<InputLevelMeta>(node, InputLevelNodeName);
-
+            var inputLevels = this.BuildStoreTypedFilterableDomainInfo<InputLevelMeta>(node, InputLevelNodeName);
+            
             var index = 0;
 
             foreach(var inputLevel in inputLevels.Items)
@@ -318,6 +320,21 @@ namespace Gdc.Scd.Core.Meta.Impl
             return meta;
         }
 
+        private T BuildStoreTypedFilterable<T>(XElement node) where T : BaseMeta, IStoreTyped, IFilterable, new()
+        {
+            var element = BuildStoreTypedMeta<T>(node);
+
+            var filterAttr = node.Attribute(FilterAttributeName);
+            element.HideFilter = false;
+            if (filterAttr != null)
+            {
+                if (bool.TryParse(filterAttr.Value, out bool filterValue))
+                    element.HideFilter = filterValue;
+            }
+
+            return element;
+        }
+
         private DomainInfo<T> BuildDomainInfo<T>(XElement listNode, string itemNodeName, IEnumerable<T> items) where T : BaseMeta, new()
         {
             var domainInfo = new DomainInfo<T>();
@@ -350,6 +367,14 @@ namespace Gdc.Scd.Core.Meta.Impl
 
             return this.BuildDomainInfo(listNode, itemNodeName, items);
         }
+
+        private DomainInfo<T> BuildStoreTypedFilterableDomainInfo<T>(XElement listNode, string itemNodeName) 
+            where T : BaseMeta, IStoreTyped, IFilterable, new()
+        {
+            var items = listNode.Elements(itemNodeName).Select(this.BuildStoreTypedFilterable<T>);
+
+            return this.BuildDomainInfo(listNode, itemNodeName, items);
+        } 
 
         private void CheckId(string id)
         {

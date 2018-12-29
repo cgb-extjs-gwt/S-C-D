@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Core.Attributes;
+using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
@@ -14,6 +15,7 @@ namespace Gdc.Scd.Core.Entities
         public string FabGrp { get; set; }
 
         [MustCompare(true)]
+        [MustUpdateCoordinate(MetaConstants.PlaInputLevelName)]
         public long PlaId { get; set; }
         public Pla Pla { get; set; }
 

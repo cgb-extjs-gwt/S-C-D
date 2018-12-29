@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using System;
 using System.Collections.Generic;
