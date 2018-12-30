@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Interfaces;
 
-namespace Gdc.Scd.BusinessLogicLayer.Impl
+namespace Gdc.Scd.DataAccessLayer.Impl
 {
     public class CostBlockFilterBuilder : ICostBlockFilterBuilder
     {
@@ -91,6 +91,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var coordinateFilter = this.BuildCoordinateFilter(context);
 
             return regionFilter.Concat(coordinateFilter).ToDictionary(keyValue => keyValue.Key, keyValue => keyValue.Value);
+        }
+
+        public IDictionary<string, IEnumerable<object>> BuildCoordinateItemsFilter(BaseEntityMeta coordinateMeta)
+        {
+            Dictionary<string, IEnumerable<object>> filter = null;
+
+            if (coordinateMeta is DisabledEntityMeta disabledMeta)
+            {
+                filter = new Dictionary<string, IEnumerable<object>>
+                {
+                    [disabledMeta.IsDisabledField.Name] = new object[] { false }
+                };
+            }
+
+            return filter;
         }
 
         private CostElementMeta GetCostElement(CostEditorContext context)
