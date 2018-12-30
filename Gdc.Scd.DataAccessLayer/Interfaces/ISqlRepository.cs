@@ -27,6 +27,10 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
             IDictionary<string, IEnumerable<object>> entityFilter = null,
             IDictionary<string, IEnumerable<object>> referenceFilter = null);
 
-        Task<IEnumerable<NamedId>> GetNameIdItems(BaseEntityMeta entityMeta, string idField, string nameField, IEnumerable<long> ids = null);
+        Task<IEnumerable<NamedId>> GetNameIdItems(BaseEntityMeta entityMeta, string idField, string nameField);
+
+        Task<IEnumerable<NamedId>> GetNameIdItems(BaseEntityMeta entityMeta, string idField, string nameField, IDictionary<string, IEnumerable<object>> filter);
+
+        Task<IEnumerable<NamedId>> GetNameIdItems(BaseEntityMeta entityMeta, string idField, string nameField, IEnumerable<long> ids);
     }
 }

@@ -198,18 +198,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var userCountries = this.userService.GetCurrentUserCountries();
             var costBlockFilter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries).Convert();
+            var referenceFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(referenceField.ReferenceMeta);
 
-            Dictionary<string, IEnumerable<object>> referenctFilter = null;
-
-            if (referenceField.ReferenceMeta is DisabledEntityMeta disabledMeta)
-            {
-                referenctFilter = new Dictionary<string, IEnumerable<object>>
-                {
-                    [disabledMeta.IsDisabledField.Name] = new object[] { false }
-                };
-            }
-
-            return await this.sqlRepository.GetDistinctItems(meta, referenceField.Name, costBlockFilter, referenctFilter);
+            return await this.sqlRepository.GetDistinctItems(meta, referenceField.Name, costBlockFilter, referenceFilter);
         }
 
         private EditItemInfo GetEditItemInfo(CostEditorContext context)

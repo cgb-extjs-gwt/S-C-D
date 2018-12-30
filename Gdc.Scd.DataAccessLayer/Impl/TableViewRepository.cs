@@ -22,10 +22,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly ISqlRepository sqlRepository;
 
-        public TableViewRepository(IRepositorySet repositorySet, ISqlRepository sqlRepository)
+        private readonly ICostBlockFilterBuilder costBlockFilterBuilder;
+
+        public TableViewRepository(IRepositorySet repositorySet, ISqlRepository sqlRepository, ICostBlockFilterBuilder costBlockFilterBuilder)
         {
             this.repositorySet = repositorySet;
             this.sqlRepository = sqlRepository;
+            this.costBlockFilterBuilder = costBlockFilterBuilder;
         }
 
         public async Task<IEnumerable<Record>> GetRecords(CostElementInfo[] costElementInfos)
@@ -170,7 +173,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             foreach (var dependecyField in dependecyFields)
             {
-                var items = await this.sqlRepository.GetNameIdItems(dependecyField.ReferenceMeta, dependecyField.ReferenceValueField, dependecyField.ReferenceFaceField);
+                var filter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(dependecyField.ReferenceMeta);
+                var items = await this.sqlRepository.GetNameIdItems(dependecyField.ReferenceMeta, dependecyField.ReferenceValueField, dependecyField.ReferenceFaceField, filter);
 
                 result.Add(dependecyField.ReferenceMeta.Name, items.ToDictionary(item => item.Id));
             }
