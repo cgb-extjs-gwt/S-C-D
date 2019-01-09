@@ -1039,11 +1039,13 @@ insert into Portfolio.PrincipalPortfolio(
               , ServiceLocationId
               , ProActiveSlaId
               , IsGlobalPortfolio
+              , IsMasterPortfolio
+              , IsCorePortfolio
             )
-    select sla.WgId, sla.AvailabilityId, dur.Id, sla.ReactionTimeId, sla.ReactionTypeId, sla.ServiceLocationId, sla.ProActiveSlaId, 1
+    select sla.WgId, sla.AvailabilityId, dur.Id, sla.ReactionTimeId, sla.ReactionTypeId, sla.ServiceLocationId, sla.ProActiveSlaId, 1, 0, 0
     from SlaCte sla
         , Dependencies.Duration dur
-    where (dur.IsProlongation = 0 and dur.Value in (3,4,5)) or (dur.IsProlongation = 1 and dur.Value = 1);
+    where (dur.IsProlongation = 0 and dur.Value in (3,4,5)) or (dur.IsProlongation = 1 and dur.Value = 1) ;
 
 ALTER INDEX IX_PrincipalPortfolio_AvailabilityId ON Portfolio.PrincipalPortfolio REBUILD;  
 
