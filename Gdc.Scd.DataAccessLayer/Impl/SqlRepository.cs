@@ -87,27 +87,41 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
         }
 
-        public async Task<IEnumerable<NamedId>> GetNameIdItems(BaseEntityMeta entityMeta, string idField, string nameField, IEnumerable<long> ids = null)
+        public async Task<IEnumerable<NamedId>> GetNameIdItems(BaseEntityMeta entityMeta, string idField, string nameField)
+        {
+            return await this.GetNameIdItems(entityMeta, idField, nameField, (IDictionary<string, IEnumerable<object>>)null);
+        }
+
+        public async Task<IEnumerable<NamedId>> GetNameIdItems(BaseEntityMeta entityMeta, string idField, string nameField, IEnumerable<long> ids)
+        {
+            Dictionary<string, IEnumerable<object>> filter = null;
+
+            if (ids != null)
+            {
+                filter = new Dictionary<string, IEnumerable<object>>
+                {
+                    [idField] = ids.Cast<object>().ToArray()
+                };
+            }
+
+            return await this.GetNameIdItems(entityMeta, idField, nameField, filter);
+        }
+
+        public async Task<IEnumerable<NamedId>> GetNameIdItems(BaseEntityMeta entityMeta, string idField, string nameField, IDictionary<string, IEnumerable<object>> filter)
         {
             SqlHelper query;
 
             var selectQuery = Sql.Select(idField, nameField).From(entityMeta);
 
-            if (ids == null)
+            if (filter == null)
             {
                 query = selectQuery;
             }
             else
             {
-                var idArray = ids.Cast<object>().ToArray();
 
-                if (idArray.Length > 0)
+                if (filter.Count > 0)
                 {
-                    var filter = new Dictionary<string, IEnumerable<object>>
-                    {
-                        [idField] = ids.Cast<object>().ToArray()
-                    };
-
                     query = selectQuery.Where(filter);
                 }
                 else

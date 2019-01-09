@@ -57,7 +57,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var previousInputLevel =
                 this.meta.GetCostElement(context)
-                         .GetPreviousInputLevel(context.InputLevelId);
+                         .GetFilterInputLevel(context.InputLevelId);
 
             return await this.GetDistinctItems(context, previousInputLevel.Id);
         }
@@ -124,8 +124,20 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             if (approvalOption.IsApproving && !approvalOption.HasQualityGateErrors)
             {
                 var filter = this.costBlockFilterBuilder.BuildCoordinateFilter(context);
+                var editContext = new EditContext
+                {
+                    Context = context,
+                    EditItemSets = new[] 
+                    {
+                        new EditItemSet
+                        {
+                            EditItems = editItems,
+                            CoordinateFilter = filter
+                        }
+                    }
+                };
 
-                checkResult = await this.qualityGateSevice.Check(editItems, context, filter, EditorType.CostEditor);
+                checkResult = await this.qualityGateSevice.Check(editContext, EditorType.CostEditor);
             }
             else
             {
@@ -186,18 +198,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var userCountries = this.userService.GetCurrentUserCountries();
             var costBlockFilter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries).Convert();
+            var referenceFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(referenceField.ReferenceMeta);
 
-            Dictionary<string, IEnumerable<object>> referenctFilter = null;
-
-            if (referenceField.ReferenceMeta is DisabledEntityMeta disabledMeta)
-            {
-                referenctFilter = new Dictionary<string, IEnumerable<object>>
-                {
-                    [disabledMeta.IsDisabledField.Name] = new object[] { false }
-                };
-            }
-
-            return await this.sqlRepository.GetDistinctItems(meta, referenceField.Name, costBlockFilter, referenctFilter);
+            return await this.sqlRepository.GetDistinctItems(meta, referenceField.Name, costBlockFilter, referenceFilter);
         }
 
         private EditItemInfo GetEditItemInfo(CostEditorContext context)

@@ -3,7 +3,6 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -13,7 +12,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IUserRepository userRepository;
 
-        public UserService(IRepositorySet repositorySet, IPrincipalProvider principalProvider, IUserRepository userRepository) 
+        public UserService(IRepositorySet repositorySet, IPrincipalProvider principalProvider, IUserRepository userRepository)
             : base(repositorySet)
         {
             this.principalProvider = principalProvider;
@@ -24,7 +23,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var principal = this.principalProvider.GetCurrenctPrincipal();
 
-            return 
+            return
                 this.userRepository.GetAllWithRoles()
                                    .FirstOrDefault(user => user.Login == principal.Identity.Name);
         }
@@ -40,7 +39,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public bool HasRole(string userLogin, params string[] roleNames)
         {
-            return 
+            return
                 this.GetUserRoles(userLogin)
                     .Select(role => role.Name)
                     .Any(roleName => roleNames.Contains(roleName));

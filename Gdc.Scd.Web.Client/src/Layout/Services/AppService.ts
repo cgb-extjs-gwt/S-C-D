@@ -31,4 +31,8 @@ export class AppService {
         return this.getAppData().then(x => x.userRoles);
     }
 
+    public hasGlobalRole(): Promise<boolean> {
+        return this.getRoles().then(x => x.some(y => y.isGlobal));
+    }
+
 }

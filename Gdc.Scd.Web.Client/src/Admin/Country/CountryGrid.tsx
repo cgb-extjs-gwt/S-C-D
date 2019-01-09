@@ -97,7 +97,7 @@ export class CountryGrid extends React.Component {
         return (
             <Container scrollable={true} >
 
-                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} />
+                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} />
 
                 <Grid
                     title={'Country Settings'}

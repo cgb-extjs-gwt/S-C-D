@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Import.Por.Core.DataAccessLayer;
+using Gdc.Scd.Import.Por.Core.Dto;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -7,11 +8,9 @@ using System.Linq;
 using Ninject;
 using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.Import.Por.Models;
-using Gdc.Scd.Core.Entities.CapabilityMatrix;
 using Gdc.Scd.Import.Por.Core.Interfaces;
-using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using Gdc.Scd.Import.Por.Core.Impl;
-using Gdc.Scd.Import.Por.Core.Dto;
+using Gdc.Scd.Core.Meta.Entities;
 
 namespace Gdc.Scd.Import.Por
 {
@@ -22,7 +21,7 @@ namespace Gdc.Scd.Import.Por
             try
             {
                 //CONFIGURATION
-                 PorService.Logger.Log(LogLevel.Info, "Reading configuration...");
+                PorService.Logger.Log(LogLevel.Info, "Reading configuration...");
                 var softwareServiceTypes = Config.SoftwareSolutionTypes;
                 var proactiveServiceTypes = Config.ProActiveServices;
                 var standardWarrantiesServiceTypes = Config.StandardWarrantyTypes;
@@ -201,7 +200,7 @@ namespace Gdc.Scd.Import.Por
                 step++;
 
                 //STEP 9: UPLOAD COST BLOCKS
-                PorService.UpdateCostBlocks(step);
+                 PorService.UpdateCostBlocks(step, PorService.UpdateQueryOptions);
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.END_PROCESS);
             }
 

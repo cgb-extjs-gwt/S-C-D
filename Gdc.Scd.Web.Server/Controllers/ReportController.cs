@@ -36,7 +36,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         [HttpGet]
         public Task<HttpResponseMessage> Export([FromUri]long id)
         {
-            return service.Excel(id, GetFilter()).ContinueWith(x => this.ExcelContent(x.Result.Data, x.Result.FileName));
+            return service.Excel(id, GetFilter()).ContinueWith(x => this.ExcelContent(x.Result.data, x.Result.fileName));
         }
 
         [HttpGet]
@@ -84,7 +84,7 @@ namespace Gdc.Scd.Web.Server.Controllers
                 return null;
             }
             return service.GetJsonArrayData(id, GetFilter(), start, limit)
-                          .ContinueWith(x => this.JsonContent(x.Result.Json, x.Result.Total));
+                          .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
         }
 
         private async Task CreateReportAsync(long id)

@@ -52,11 +52,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\ParseInfoAttribute.cs" />
+    <Compile Include="CollectionHelper.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="DataAccess\ImportRepository.cs" />
     <Compile Include="Dto\AfrDto.cs" />
+    <Compile Include="Dto\CentralContractGroupDto.cs" />
     <Compile Include="Dto\DownloadInfoDto.cs" />
     <Compile Include="Dto\ExchangeRateDto.cs" />
+    <Compile Include="Dto\ImportResultDto.cs" />
     <Compile Include="Dto\InstallBaseDto.cs" />
     <Compile Include="Dto\LogisticsDto.cs" />
     <Compile Include="Dto\MaterialCostDto.cs" />
@@ -65,10 +68,12 @@
     <Compile Include="Dto\TaxAndDutiesDto.cs" />
     <Compile Include="Enums\Format.cs" />
     <Compile Include="Impl\AmberRoadUploader.cs" />
+    <Compile Include="Impl\CentralContractGroupUploader.cs" />
     <Compile Include="Impl\DataBaseConfigHandler.cs" />
     <Compile Include="Impl\EbisAfrUploader.cs" />
     <Compile Include="Impl\EbisMaterialCostUploader.cs" />
     <Compile Include="Impl\ExRatesUploader.cs" />
+    <Compile Include="Impl\FileConfigHandler.cs" />
     <Compile Include="Impl\FileDownloader.cs" />
     <Compile Include="Impl\ImportManager.cs" />
     <Compile Include="Impl\InstallBaseUploader.cs" />

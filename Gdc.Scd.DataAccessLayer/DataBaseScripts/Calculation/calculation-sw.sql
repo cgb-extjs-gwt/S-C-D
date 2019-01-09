@@ -135,14 +135,15 @@ GO
 
 CREATE VIEW SoftwareSolution.SwSpMaintenanceCostView as
     with GermanyServiceCte as (
-        select  ssc.Wg
+        select  wg.Id
               , ssc.[1stLevelSupportCosts]
               , ssc.[1stLevelSupportCosts_Approved]
               , ib.InstalledBaseCountry
               , ib.InstalledBaseCountry_Approved
 
         from Hardware.ServiceSupportCostView ssc
-        join Hardware.InstallBase ib on ib.Country = ssc.Country and ib.Wg = ssc.Wg
+        join InputAtoms.WgView wg on wg.ClusterPla = ssc.ClusterPla
+        join Hardware.InstallBase ib on ib.Country = ssc.Country and ib.Wg = wg.Id
         join InputAtoms.Country c on c.id = ssc.Country
 
         where c.ISO3CountryCode = 'DEU' --install base by Germany!
@@ -209,111 +210,111 @@ CREATE VIEW SoftwareSolution.SwSpMaintenanceCostView as
 GO
 
 CREATE VIEW SoftwareSolution.ProActiveView AS
-with ProActiveCte as (
-    select pro.Country,
-           pro.Sog,
-           dur.Value as Year,
+    with ProActiveCte as (
+        select pro.Country,
+               pro.Sog,
+               dur.Value as Year,
 
-           (pro.LocalRemoteAccessSetupPreparationEffort * pro.OnSiteHourlyRate) as LocalRemoteAccessSetup,
-           (pro.LocalRemoteAccessSetupPreparationEffort_Approved * pro.OnSiteHourlyRate_Approved) as LocalRemoteAccessSetup_Approved,
+               (pro.LocalRemoteAccessSetupPreparationEffort * pro.OnSiteHourlyRate) as LocalRemoteAccessSetup,
+               (pro.LocalRemoteAccessSetupPreparationEffort_Approved * pro.OnSiteHourlyRate_Approved) as LocalRemoteAccessSetup_Approved,
 
-           (pro.LocalRegularUpdateReadyEffort * 
-            pro.OnSiteHourlyRate * 
-            sla.LocalRegularUpdateReadyRepetition) as LocalRegularUpdate,
+               (pro.LocalRegularUpdateReadyEffort * 
+                pro.OnSiteHourlyRate * 
+                sla.LocalRegularUpdateReadyRepetition) as LocalRegularUpdate,
 
-           (pro.LocalRegularUpdateReadyEffort_Approved * 
-            pro.OnSiteHourlyRate_Approved * 
-            sla.LocalRegularUpdateReadyRepetition) as LocalRegularUpdate_Approved,
+               (pro.LocalRegularUpdateReadyEffort_Approved * 
+                pro.OnSiteHourlyRate_Approved * 
+                sla.LocalRegularUpdateReadyRepetition) as LocalRegularUpdate_Approved,
 
-           (pro.LocalPreparationShcEffort * 
-            pro.OnSiteHourlyRate * 
-            sla.LocalPreparationShcRepetition) as LocalPreparation,
+               (pro.LocalPreparationShcEffort * 
+                pro.OnSiteHourlyRate * 
+                sla.LocalPreparationShcRepetition) as LocalPreparation,
 
-           (pro.LocalPreparationShcEffort_Approved * 
-            pro.OnSiteHourlyRate_Approved * 
-            sla.LocalPreparationShcRepetition) as LocalPreparation_Approved,
+               (pro.LocalPreparationShcEffort_Approved * 
+                pro.OnSiteHourlyRate_Approved * 
+                sla.LocalPreparationShcRepetition) as LocalPreparation_Approved,
 
-           (pro.LocalRemoteShcCustomerBriefingEffort * 
-            pro.OnSiteHourlyRate * 
-            sla.LocalRemoteShcCustomerBriefingRepetition) as LocalRemoteCustomerBriefing,
+               (pro.LocalRemoteShcCustomerBriefingEffort * 
+                pro.OnSiteHourlyRate * 
+                sla.LocalRemoteShcCustomerBriefingRepetition) as LocalRemoteCustomerBriefing,
 
-           (pro.LocalRemoteShcCustomerBriefingEffort_Approved * 
-            pro.OnSiteHourlyRate_Approved * 
-            sla.LocalRemoteShcCustomerBriefingRepetition) as LocalRemoteCustomerBriefing_Approved,
+               (pro.LocalRemoteShcCustomerBriefingEffort_Approved * 
+                pro.OnSiteHourlyRate_Approved * 
+                sla.LocalRemoteShcCustomerBriefingRepetition) as LocalRemoteCustomerBriefing_Approved,
 
-           (pro.LocalOnsiteShcCustomerBriefingEffort * 
-            pro.OnSiteHourlyRate * 
-            sla.LocalOnsiteShcCustomerBriefingRepetition) as LocalOnsiteCustomerBriefing,
+               (pro.LocalOnsiteShcCustomerBriefingEffort * 
+                pro.OnSiteHourlyRate * 
+                sla.LocalOnsiteShcCustomerBriefingRepetition) as LocalOnsiteCustomerBriefing,
 
-           (pro.LocalOnsiteShcCustomerBriefingEffort_Approved * 
-            pro.OnSiteHourlyRate_Approved * 
-            sla.LocalOnsiteShcCustomerBriefingRepetition) as LocalOnsiteCustomerBriefing_Approved,
+               (pro.LocalOnsiteShcCustomerBriefingEffort_Approved * 
+                pro.OnSiteHourlyRate_Approved * 
+                sla.LocalOnsiteShcCustomerBriefingRepetition) as LocalOnsiteCustomerBriefing_Approved,
 
-           (pro.TravellingTime * 
-            pro.OnSiteHourlyRate * 
-            sla.TravellingTimeRepetition) as Travel,
+               (pro.TravellingTime * 
+                pro.OnSiteHourlyRate * 
+                sla.TravellingTimeRepetition) as Travel,
 
-           (pro.TravellingTime_Approved * 
-            pro.OnSiteHourlyRate_Approved * 
-            sla.TravellingTimeRepetition) as Travel_Approved,
+               (pro.TravellingTime_Approved * 
+                pro.OnSiteHourlyRate_Approved * 
+                sla.TravellingTimeRepetition) as Travel_Approved,
 
-           (pro.CentralExecutionShcReportCost * 
-            sla.CentralExecutionShcReportRepetition) as CentralExecutionReport,
+               (pro.CentralExecutionShcReportCost * 
+                sla.CentralExecutionShcReportRepetition) as CentralExecutionReport,
 
-           (pro.CentralExecutionShcReportCost_Approved * 
-            sla.CentralExecutionShcReportRepetition) as CentralExecutionReport_Approved
+               (pro.CentralExecutionShcReportCost_Approved * 
+                sla.CentralExecutionShcReportRepetition) as CentralExecutionReport_Approved
 
-    from SoftwareSolution.ProActiveSw pro
-    left join Fsp.SwFspCodeTranslation fsp on fsp.SogId = pro.Sog
-    left join Dependencies.ProActiveSla sla on sla.id = fsp.ProactiveSlaId
-    left join Dependencies.Duration dur on dur.Id = fsp.DurationId
-)
-, ProActiveCte2 as (
-     select pro.Country,
-            pro.Sog,
-            pro.Year,
+        from SoftwareSolution.ProActiveSw pro
+        left join Fsp.SwFspCodeTranslation fsp on fsp.SogId = pro.Sog
+        left join Dependencies.ProActiveSla sla on sla.id = fsp.ProactiveSlaId
+        left join Dependencies.Duration dur on dur.Id = fsp.DurationId
+    )
+    , ProActiveCte2 as (
+         select pro.Country,
+                pro.Sog,
+                pro.Year,
 
-            pro.LocalPreparation,
-            pro.LocalPreparation_Approved,
+                pro.LocalPreparation,
+                pro.LocalPreparation_Approved,
 
-            pro.LocalRegularUpdate,
-            pro.LocalRegularUpdate_Approved,
+                pro.LocalRegularUpdate,
+                pro.LocalRegularUpdate_Approved,
 
-            pro.LocalRemoteCustomerBriefing,
-            pro.LocalRemoteCustomerBriefing_Approved,
+                pro.LocalRemoteCustomerBriefing,
+                pro.LocalRemoteCustomerBriefing_Approved,
 
-            pro.LocalOnsiteCustomerBriefing,
-            pro.LocalOnsiteCustomerBriefing_Approved,
+                pro.LocalOnsiteCustomerBriefing,
+                pro.LocalOnsiteCustomerBriefing_Approved,
 
-            pro.Travel,
-            pro.Travel_Approved,
+                pro.Travel,
+                pro.Travel_Approved,
 
-            pro.CentralExecutionReport,
-            pro.CentralExecutionReport_Approved,
+                pro.CentralExecutionReport,
+                pro.CentralExecutionReport_Approved,
 
-            pro.LocalRemoteAccessSetup as Setup,
-            pro.LocalRemoteAccessSetup_Approved  as Setup_Approved,
+                pro.LocalRemoteAccessSetup as Setup,
+                pro.LocalRemoteAccessSetup_Approved  as Setup_Approved,
 
-           (pro.LocalPreparation + 
-            pro.LocalRegularUpdate + 
-            pro.LocalRemoteCustomerBriefing +
-            pro.LocalOnsiteCustomerBriefing +
-            pro.Travel +
-            pro.CentralExecutionReport) as Service,
+               (pro.LocalPreparation + 
+                pro.LocalRegularUpdate + 
+                pro.LocalRemoteCustomerBriefing +
+                pro.LocalOnsiteCustomerBriefing +
+                pro.Travel +
+                pro.CentralExecutionReport) as Service,
        
-           (pro.LocalPreparation_Approved + 
-            pro.LocalRegularUpdate_Approved + 
-            pro.LocalRemoteCustomerBriefing_Approved +
-            pro.LocalOnsiteCustomerBriefing_Approved +
-            pro.Travel_Approved +
-            pro.CentralExecutionReport_Approved) as Service_Approved
+               (pro.LocalPreparation_Approved + 
+                pro.LocalRegularUpdate_Approved + 
+                pro.LocalRemoteCustomerBriefing_Approved +
+                pro.LocalOnsiteCustomerBriefing_Approved +
+                pro.Travel_Approved +
+                pro.CentralExecutionReport_Approved) as Service_Approved
 
-    from ProActiveCte pro
-)
-select pro.*,
-       Hardware.CalcProActive(pro.Setup, pro.Service, pro.Year) as ProActive,
-       Hardware.CalcProActive(pro.Setup_Approved, pro.Service_Approved, pro.Year) as ProActive_Approved
-from ProActiveCte2 pro
+        from ProActiveCte pro
+    )
+    select pro.*,
+           Hardware.CalcProActive(pro.Setup, pro.Service, pro.Year) as ProActive,
+           Hardware.CalcProActive(pro.Setup_Approved, pro.Service_Approved, pro.Year) as ProActive_Approved
+    from ProActiveCte2 pro
 GO
 
 

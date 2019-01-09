@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Gdc.Scd.Core.Attributes
 {
     [System.AttributeUsage(System.AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class MustCompareAttribute : System.Attribute
+    public class MustCompareAttribute : Attribute
     {
         public bool IsComparable { get; set; }
         public bool IsIgnoreCase { get; set; }

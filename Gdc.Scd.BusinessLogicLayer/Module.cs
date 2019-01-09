@@ -2,7 +2,6 @@
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
-using Gdc.Scd.Core.Entities.CapabilityMatrix;
 using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.DataAccessLayer.Helpers;
@@ -18,7 +17,6 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind(typeof(IDomainService<>)).To(typeof(DomainService<>)).InRequestScope();
             Bind<IWgPorService>().To<WgPorDecoratorService>().InRequestScope();
             Bind<ICostEditorService>().To<CostEditorService>().InRequestScope();
-            Bind<ICapabilityMatrixService>().To<CapabilityMatrixService>().InRequestScope();
             Bind<IPortfolioService>().To<PortfolioService>().InRequestScope();
             Bind<ICalculationService>().To<CalculationService>().InRequestScope();
             Bind<IReportService>().To<ReportService>().InRequestScope();
@@ -26,8 +24,8 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InRequestScope();
             Bind<IAvailabilityFeeAdminService>().To<AvailabilityFeeAdminService>().InRequestScope();
             Bind<ICountryAdminService>().To<CountryAdminService>().InRequestScope();
+            Bind<ICountryUserService>().To<CountryUserService>().InRequestScope();
             Bind<IEmailService>().To<EmailService>().InRequestScope();
-            Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InRequestScope();
             Bind<IQualityGateSevice>().To<QualityGateSevice>().InRequestScope();
             Bind<IActiveDirectoryService>().To<ActiveDirectoryService>().InRequestScope();
             Bind<ITableViewService>().To<TableViewService>().InRequestScope();
@@ -42,6 +40,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<Country>();
             Kernel.RegisterEntity<CountryGroup>();
             Kernel.RegisterEntity<Pla>();
+            Kernel.RegisterEntity<CentralContractGroup>();
             Kernel.RegisterEntity<Wg>();
             Kernel.RegisterEntity<Availability>();
             Kernel.RegisterEntity<Year>();
@@ -78,9 +77,6 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<RoleCode>();
 
             /*---------domain business logic------------*/
-            Kernel.RegisterEntity<CapabilityMatrix>();
-            Kernel.RegisterEntity<CapabilityMatrixMaster>();
-            Kernel.RegisterEntity<CapabilityMatrixRule>();
             Kernel.RegisterEntity<LocalPortfolio>();
             Kernel.RegisterEntity<PrincipalPortfolio>();
             Kernel.RegisterEntity<HardwareManualCost>();

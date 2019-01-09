@@ -1,14 +1,13 @@
-﻿import { Button, Column, Container, Grid, GridProps, NumberColumn, Toolbar } from "@extjs/ext-react";
+﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
-import { handleRequest } from "../../Common/Helpers/RequestHelper";
-import { getFromUri } from "../../Common/Services/Ajax";
+import { AlertHelper } from "../../Common/Helpers/AlertHelper";
 import { AutoColumnModel } from "../Model/AutoColumnModel";
 import { AutoColumnType } from "../Model/AutoColumnType";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
 import { AutoFilter } from "./AutoFilter";
 import { EuroStringColumn } from "./EuroStringColumn";
+import { stringRenderer } from "./GridRenderer";
 import { PercentColumn } from "./PercentColumn";
-import { AlertHelper } from "../../Common/Helpers/AlertHelper";
 
 export interface AutoGridProps {
 
@@ -61,7 +60,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
         return (
             <Container layout="fit">
 
-                <AutoFilter ref="filter" docked="right" hidden={!this.showFilter()} filter={this.props.filter} onSearch={this.onSearch} />
+                <AutoFilter ref="filter" docked="right" hidden={!this.showFilter()} filter={this.props.filter} onSearch={this.onSearch} scrollable={true} />
 
                 <Toolbar docked="top">
                     {title}
@@ -92,7 +91,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
         let flex = m.flex || 1;
         switch (m.type) {
             case AutoColumnType.NUMBER:
-                return <NumberColumn key={i} flex={flex} text={m.text} dataIndex={m.name} />;
+                return <NumberColumn key={i} flex={flex} text={m.text} dataIndex={m.name} renderer={stringRenderer}/>;
 
             case AutoColumnType.EURO:
                 return <EuroStringColumn key={i} flex={flex} text={m.text} dataIndex={m.name} />;
@@ -102,7 +101,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
 
             case AutoColumnType.TEXT:
             default:
-                return <Column key={i} flex={flex} text={m.text} dataIndex={m.name} />;
+                return <Column key={i} flex={flex} text={m.text} dataIndex={m.name} renderer={stringRenderer} />;
         }
     }
 

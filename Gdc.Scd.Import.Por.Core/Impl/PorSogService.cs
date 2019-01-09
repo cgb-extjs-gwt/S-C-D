@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
 using Gdc.Scd.Import.Por.Core.Interfaces;
@@ -65,7 +66,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public bool UploadSogs(IEnumerable<SCD2_ServiceOfferingGroups> sogs, 
             IEnumerable<Pla> plas,
-            DateTime modifiedDateTime, IEnumerable<string> softwareServiceTypes)
+            DateTime modifiedDateTime, IEnumerable<string> softwareServiceTypes, List<UpdateQueryOption> updateOptions)
         {
             var result = true;
             _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(Sog));
@@ -96,7 +97,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     });
                 }
 
-                var added = this.AddOrActivate(updatedSogs, modifiedDateTime);
+                var added = this.AddOrActivate(updatedSogs, modifiedDateTime, updateOptions);
 
                 foreach (var addedEntity in added)
                 {

@@ -20,14 +20,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         public async Task<Stream> ExecuteExcelAsync(ReportSchemaDto schema, string func, DbParameter[] parameters)
         {
             var writer = new ReportExcelWriter(schema);
-            var sql = SelectAllQuery(func, parameters, 2000);
+            var sql = SelectAllQuery(func, parameters);
 
             await _repo.ReadBySql(sql, writer.WriteBody, parameters);
 
             return writer.GetData();
         }
 
-        public async Task<JsonArrayDto> ExecuteJsonAsync(
+        public async Task<(string json, int total)> ExecuteJsonAsync(
                 string func,
                 int start,
                 int limit,
@@ -35,18 +35,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             )
         {
             string sql;
-            JsonArrayDto result = new JsonArrayDto();
 
             sql = CountQuery(func, parameters);
 
-            result.Total = await _repo.ExecuteScalarAsync<int>(sql, parameters);
+            var total = await _repo.ExecuteScalarAsync<int>(sql, parameters);
 
             parameters = parameters.Copy();
             sql = SelectQuery(func, parameters, start, limit);
 
-            result.Json = await _repo.ExecuteAsJsonAsync(sql, parameters);
+            var json = await _repo.ExecuteAsJsonAsync(sql, parameters);
 
-            return result;
+            return (json, total);
         }
 
         private static string CountQuery(string func, DbParameter[] parameters)
@@ -56,15 +55,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                     .Build();
         }
 
-        private static string SelectQuery(string func, DbParameter[] parameters)
-        {
-            return SelectAllQuery(func, parameters, 30);
-        }
-
-        private static string SelectAllQuery(string func, DbParameter[] parameters, int max)
+        private static string SelectAllQuery(string func, DbParameter[] parameters)
         {
             return new SqlStringBuilder()
-                   .Append("SELECT top(").AppendValue(max).Append(")* FROM ").AppendFunc(func, parameters)
+                   .Append("SELECT * FROM ").AppendFunc(func, parameters)
                    .Build();
         }
 

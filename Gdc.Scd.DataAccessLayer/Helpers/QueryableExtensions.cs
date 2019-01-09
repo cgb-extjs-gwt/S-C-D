@@ -28,6 +28,11 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return source.Provider.CreateQuery<TEntity>(resultExpression);
         }
 
+        public static IQueryable<TSource> FromSql<TSource>(this IQueryable<TSource> source, string sql, params object[] parameters) where TSource : class
+        {
+            return RelationalQueryableExtensions.FromSql(source, new RawSqlString(sql), parameters);
+        }
+
         public static Task<TSource[]> GetAsync<TSource>(this IQueryable<TSource> source)
         {
             return EntityFrameworkQueryableExtensions.ToArrayAsync(source);
@@ -66,7 +71,7 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return GetAsync(WithPaging(source, start, limit));
         }
 
-        public static Tuple<TSource[], int> PagingWithCount<TSource>(
+        public static (TSource[] items, int total) PagingWithCount<TSource>(
                 this IQueryable<TSource> source,
                 int start,
                 int limit
@@ -74,10 +79,10 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
         {
             var count = source.Count();
             var result = Paging(source, start, limit);
-            return new Tuple<TSource[], int>(result, count);
+            return (result, count);
         }
 
-        public static async Task<Tuple<TSource[], int>> PagingWithCountAsync<TSource>(
+        public static async Task<(TSource[] items, int total)> PagingWithCountAsync<TSource>(
                 this IQueryable<TSource> source,
                 int start,
                 int limit
@@ -85,7 +90,7 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
         {
             var count = await GetCountAsync(source);
             var result = await PagingAsync(source, start, limit);
-            return new Tuple<TSource[], int>(result, count);
+            return (result, count);
         }
 
         public static Task<TSource> GetSingleAsync<TSource>(this IQueryable<TSource> source)

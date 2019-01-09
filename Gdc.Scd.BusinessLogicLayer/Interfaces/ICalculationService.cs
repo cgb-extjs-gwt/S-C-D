@@ -1,6 +1,5 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
-using Gdc.Scd.BusinessLogicLayer.Dto.Report;
-using System;
+using Gdc.Scd.Core.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,12 +7,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface ICalculationService
     {
-        Task<JsonArrayDto> GetHardwareCost(bool approved, HwFilterDto filter, int lasId, int limit);
+        Task<(string json, int total)> GetHardwareCost(bool approved, HwFilterDto filter, int lasId, int limit);
 
-        Task<Tuple<SwMaintenanceCostDto[], int>> GetSoftwareCost(SwFilterDto filter, int start, int limit);
+        Task<(SwMaintenanceCostDto[] items, int total)> GetSoftwareCost(bool approved, SwFilterDto filter, int start, int limit);
 
-        Task<Tuple<SwProactiveCostDto[], int>> GetSoftwareProactiveCost(SwFilterDto filter, int start, int limit);
+        Task<(SwProactiveCostDto[] items, int total)> GetSoftwareProactiveCost(bool approved, SwFilterDto filter, int start, int limit);
 
-        void SaveHardwareCost(IEnumerable<HwCostManualDto> records);
+        void SaveHardwareCost(User changeUser, long countryId, IEnumerable<HwCostManualDto> records);
     }
 }

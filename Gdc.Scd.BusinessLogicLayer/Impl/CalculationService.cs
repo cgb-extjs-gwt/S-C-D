@@ -1,9 +1,9 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
-using Gdc.Scd.BusinessLogicLayer.Dto.Report;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
-using Gdc.Scd.Core.Entities.CapabilityMatrix;
+using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System;
@@ -17,7 +17,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     {
         private readonly IRepositorySet repositorySet;
 
-        private readonly IRepository<CapabilityMatrix> matrixRepo;
+        private readonly IRepository<LocalPortfolio> portfolioRepo;
 
         private readonly IRepository<HardwareManualCost> hwManualRepo;
 
@@ -30,39 +30,32 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IRepository<HardwareManualCost> hwManualRepo,
                 IRepository<SoftwareMaintenance> swMaintenanceRepo,
                 IRepository<SoftwareProactive> swProactiveRepo,
-                IRepository<CapabilityMatrix> matrixRepo
+                IRepository<LocalPortfolio> portfolioRepo
             )
         {
             this.repositorySet = repositorySet;
             this.hwManualRepo = hwManualRepo;
             this.swMaintenanceRepo = swMaintenanceRepo;
             this.swProactiveRepo = swProactiveRepo;
-            this.matrixRepo = matrixRepo;
+            this.portfolioRepo = portfolioRepo;
         }
 
-        public async Task<JsonArrayDto> GetHardwareCost(bool approved, HwFilterDto filter, int lasId, int limit)
+        public Task<(string json, int total)> GetHardwareCost(bool approved, HwFilterDto filter, int lastId, int limit)
         {
-            var query = matrixRepo.GetAll().Where(x => !x.Denied);
-
-            if (filter != null)
+            if (filter == null || filter.Country <= 0)
             {
-                query = query.WhereIf(filter.Country.HasValue, x => x.Country.Id == filter.Country.Value)
-                             .WhereIf(filter.Wg.HasValue, x => x.Wg.Id == filter.Wg.Value)
-                             .WhereIf(filter.Availability.HasValue, x => x.Availability.Id == filter.Availability.Value)
-                             .WhereIf(filter.Duration.HasValue, x => x.Duration.Id == filter.Duration.Value)
-                             .WhereIf(filter.ReactionType.HasValue, x => x.ReactionType.Id == filter.ReactionType.Value)
-                             .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTime.Id == filter.ReactionTime.Value)
-                             .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocation.Id == filter.ServiceLocation.Value);
+                throw new ArgumentException("No country specified");
             }
 
-            var res = await new GetHwCost(repositorySet).ExecuteJsonAsync(approved, filter, lasId, limit);
-
-            res.Total = await query.Select(x => x.Id).GetCountAsync();
-
-            return res;
+            return new GetHwCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
         }
 
-        public async Task<Tuple<SwMaintenanceCostDto[], int>> GetSoftwareCost(SwFilterDto filter, int start, int limit)
+        public async Task<(SwMaintenanceCostDto[] items, int total)> GetSoftwareCost(
+                bool approved,
+                SwFilterDto filter,
+                int start,
+                int limit
+            )
         {
             var query = swMaintenanceRepo.GetAll();
 
@@ -77,32 +70,48 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             query = query.WithPaging(start, limit);
 
-            var result = await query.Select(x => new SwMaintenanceCostDto
+            IQueryable<SwMaintenanceCostDto> selectQuery;
+
+            if (approved)
             {
-                Sog = x.SogRef.Name,
-                Availability = x.AvailabilityRef.Name,
-                Year = x.YearRef.Name,
+                selectQuery = query.Select(x => new SwMaintenanceCostDto
+                {
+                    Sog = x.SogRef.Name,
+                    Availability = x.AvailabilityRef.Name,
+                    Year = x.YearRef.Name,
+                    DealerPrice = x.DealerPrice_Approved,
+                    MaintenanceListPrice = x.MaintenanceListPrice_Approved,
+                    Reinsurance = x.Reinsurance_Approved,
+                    ServiceSupport = x.ServiceSupport_Approved,
+                    TransferPrice = x.TransferPrice_Approved
+                });
+            }
+            else
+            {
+                selectQuery = query.Select(x => new SwMaintenanceCostDto
+                {
+                    Sog = x.SogRef.Name,
+                    Availability = x.AvailabilityRef.Name,
+                    Year = x.YearRef.Name,
+                    DealerPrice = x.DealerPrice,
+                    MaintenanceListPrice = x.MaintenanceListPrice,
+                    Reinsurance = x.Reinsurance,
+                    ServiceSupport = x.ServiceSupport,
+                    TransferPrice = x.TransferPrice
+                });
+            }
 
-                DealerPrice = x.DealerPrice,
-                DealerPrice_Approved = x.DealerPrice_Approved,
+            var result = await selectQuery.GetAsync();
 
-                MaintenanceListPrice = x.MaintenanceListPrice,
-                MaintenanceListPrice_Approved = x.MaintenanceListPrice_Approved,
-
-                Reinsurance = x.Reinsurance,
-                Reinsurance_Approved = x.Reinsurance_Approved,
-
-                ServiceSupport = x.ServiceSupport,
-                ServiceSupport_Approved = x.ServiceSupport_Approved,
-
-                TransferPrice = x.TransferPrice,
-                TransferPrice_Approved = x.TransferPrice_Approved
-            }).GetAsync();
-
-            return new Tuple<SwMaintenanceCostDto[], int>(result, count);
+            return (result, count);
         }
 
-        public async Task<Tuple<SwProactiveCostDto[], int>> GetSoftwareProactiveCost(SwFilterDto filter, int start, int limit)
+        public async Task<(SwProactiveCostDto[] items, int total)> GetSoftwareProactiveCost(
+                bool approved,
+                SwFilterDto filter,
+                int start,
+                int limit
+            )
         {
             var query = swProactiveRepo.GetAll();
 
@@ -117,32 +126,47 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             query = query.WithPaging(start, limit);
 
-            var result = await query.Select(x => new SwProactiveCostDto
+            IQueryable<SwProactiveCostDto> selectQuery;
+
+            if (approved)
             {
-                Country = x.CountryRef.Name,
-                Sog = x.SogRef.Name,
-                Year = x.YearRef.Name,
+                selectQuery = query.Select(x => new SwProactiveCostDto
+                {
+                    Country = x.CountryRef.Name,
+                    Sog = x.SogRef.Name,
+                    Year = x.YearRef.Name,
+                    ProActive = x.ProActive_Approved
+                });
+            }
+            else
+            {
+                selectQuery = query.Select(x => new SwProactiveCostDto
+                {
+                    Country = x.CountryRef.Name,
+                    Sog = x.SogRef.Name,
+                    Year = x.YearRef.Name,
+                    ProActive = x.ProActive
+                });
+            }
 
-                ProActive = x.ProActive,
-                ProActive_Approved = x.ProActive_Approved
-            }).GetAsync();
+            var result = await selectQuery.GetAsync();
 
-            return new Tuple<SwProactiveCostDto[], int>(result, count);
+            return (result, count);
         }
 
-        public void SaveHardwareCost(IEnumerable<HwCostManualDto> records)
+        public void SaveHardwareCost(User changeUser, long countryId, IEnumerable<HwCostManualDto> records)
         {
             var recordsId = records.Select(x => x.Id);
 
-            var entities = (from m in matrixRepo.GetAll().Where(x => recordsId.Contains(x.Id))
-                            from hw in hwManualRepo.GetAll().Where(x => x.Id == m.Id).DefaultIfEmpty()
+            var entities = (from p in portfolioRepo.GetAll().Where(x => x.Country.Id == countryId && recordsId.Contains(x.Id))
+                            from hw in hwManualRepo.GetAll().Where(x => x.Id == p.Id).DefaultIfEmpty()
                             select new
                             {
-                                Matrix = m,
-                                m.Country,
+                                Portfolio = p,
+                                p.Country,
                                 Manual = hw
                             })
-                           .ToDictionary(x => x.Matrix.Id, y => y);
+                           .ToDictionary(x => x.Portfolio.Id, y => y);
 
             if (entities.Count == 0)
             {
@@ -163,13 +187,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                     var e = entities[rec.Id];
                     var country = e.Country;
-                    var m = e.Matrix;
-                    var hwManual = e.Manual ?? new HardwareManualCost { Matrix = m }; //create new if does not exist
+                    var p = e.Portfolio;
+                    var hwManual = e.Manual ?? new HardwareManualCost { LocalPortfolio = p }; //create new if does not exist
 
                     if (country.CanOverrideTransferCostAndPrice)
                     {
                         hwManual.ServiceTC = rec.ServiceTC;
                         hwManual.ServiceTP = rec.ServiceTP;
+                        hwManual.ChangeUser = changeUser;
                         //
                         hwManualRepo.Save(hwManual);
                     }
@@ -178,6 +203,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     {
                         hwManual.ListPrice = rec.ListPrice;
                         hwManual.DealerDiscount = rec.DealerDiscount;
+                        hwManual.ChangeUser = changeUser;
                         //
                         hwManualRepo.Save(hwManual);
                     }

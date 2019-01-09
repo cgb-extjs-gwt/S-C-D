@@ -4,9 +4,13 @@ import { NamedId } from "../../Common/States/CommonStates";
 import { IDictService } from "../../Dict/Services/IDictService";
 import { DictFactory } from "../Services/DictFactory";
 
-export abstract class DictField extends React.Component<ComboBoxFieldProps, any> {
+export interface DictFieldProps extends ComboBoxFieldProps {
+    cache?: boolean;
+}
 
-    private combo: ComboBoxField & any;
+export abstract class DictField extends React.Component<DictFieldProps, any> {
+
+    protected combo: ComboBoxField & any;
 
     protected srv: IDictService;
 
@@ -14,7 +18,7 @@ export abstract class DictField extends React.Component<ComboBoxFieldProps, any>
 
     protected nameField: string = 'name';
 
-    public constructor(props: ComboBoxFieldProps) {
+    public constructor(props: DictFieldProps) {
         super(props);
         this.init();
     }
@@ -63,8 +67,17 @@ export abstract class DictField extends React.Component<ComboBoxFieldProps, any>
         return result;
     }
 
+    public getSelectedModel(): NamedId {
+        let selected = this.combo.getSelection();
+        return selected ? selected.data as NamedId : null;
+    }
+
     public reset() {
         this.combo.reset();
+    }
+
+    protected canCache() {
+        return this.props.cache === undefined || this.props.cache;
     }
 
     protected abstract getItems(): Promise<NamedId[]>;

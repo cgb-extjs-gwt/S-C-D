@@ -46,14 +46,19 @@ IF OBJECT_ID('Portfolio.GetListOrNull') IS NOT NULL
   DROP FUNCTION Portfolio.GetListOrNull;
 go
 
---IF TYPE_ID('dbo.ListID') IS NOT NULL
---  DROP Type dbo.ListID;
---go
+IF TYPE_ID('dbo.ListID') IS NOT NULL
+  DROP Type dbo.ListID;
+go
 
---CREATE TYPE dbo.ListID AS TABLE(
---    id bigint NULL
---)
---go
+CREATE TYPE dbo.ListID AS TABLE(
+    id bigint NULL
+)
+go
+
+CREATE NONCLUSTERED INDEX [IX_LocalPortfolio_Country_Wg]
+ON [Portfolio].[LocalPortfolio] ([CountryId],[WgId])
+INCLUDE ([AvailabilityId],[DurationId],[ProActiveSlaId],[ReactionTimeId],[ReactionTypeId],[ServiceLocationId])
+GO
 
 CREATE FUNCTION Portfolio.IsListEmpty(@list dbo.ListID readonly)
 RETURNS bit

@@ -51,26 +51,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public async Task<IEnumerable<Record>> GetRecords()
         {
             var costBlockInfos = this.GetCostBlockInfo().ToArray();
-            var records = await this.tableViewRepository.GetRecords(costBlockInfos);
 
-            if (costBlockInfos.All(info => info.Meta.InputLevelFields[MetaConstants.WgInputLevelName] != null))
-            {
-                var wgIds = records.Select(record => record.Coordinates[MetaConstants.WgInputLevelName].Id).ToArray();
-                var wgs = wgService.GetAll().Where(wg => wgIds.Contains(wg.Id)).Include(wg => wg.Pla).ToDictionary(wg => wg.Id);
-
-                foreach (var record in records)
-                {
-                    if (record.Coordinates.TryGetValue(MetaConstants.WgInputLevelName, out var wgCoordinate) &&
-                        wgs.TryGetValue(wgCoordinate.Id, out var wg))
-                    {
-                        record.AdditionalData.Add("Wg.PLA", wg.Pla.Name);
-                        record.AdditionalData.Add("Wg.Description", wg.Description);
-                        record.AdditionalData.Add("Wg.ResponsiblePerson", wg.ResponsiblePerson);
-                    }
-                }
-            }
-
-            return records;
+            return await this.tableViewRepository.GetRecords(costBlockInfos);
         }
 
         public async Task<QualityGateResultSet> UpdateRecords(IEnumerable<Record> records, ApprovalOption approvalOption)
@@ -83,17 +65,43 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (approvalOption.IsApproving && !approvalOption.HasQualityGateErrors)
             {
-                foreach(var editItemContext in editItemContexts)
+                var editContextGroups = editItemContexts.GroupBy(editItemContext => new
                 {
+                    editItemContext.Context.ApplicationId,
+                    editItemContext.Context.CostBlockId,
+                    editItemContext.Context.CostElementId,
+                    editItemContext.Context.InputLevelId,
+                    editItemContext.Context.RegionInputId
+                });
+
+                foreach (var editContextGroup in editContextGroups)
+                {
+                    var editContext = new EditContext
+                    {
+                        Context = new HistoryContext
+                        {
+                            ApplicationId = editContextGroup.Key.ApplicationId,
+                            CostBlockId = editContextGroup.Key.CostBlockId,
+                            CostElementId = editContextGroup.Key.CostElementId,
+                            InputLevelId = editContextGroup.Key.InputLevelId,
+                            RegionInputId = editContextGroup.Key.RegionInputId
+                        },
+                        EditItemSets = editContextGroup.Select(editItemContex => new EditItemSet
+                        {
+                            EditItems = editItemContex.EditItems,
+                            CoordinateFilter = editItemContex.Filter
+                        }).ToArray()
+                    };
+
                     checkResult.Items.Add(new QualityGateResultSetItem
                     {
                         CostElementIdentifier = new CostElementIdentifier
                         {
-                            ApplicationId = editItemContext.Context.ApplicationId,
-                            CostBlockId = editItemContext.Context.CostBlockId,
-                            CostElementId = editItemContext.Context.CostElementId,
+                            ApplicationId = editContextGroup.Key.ApplicationId,
+                            CostBlockId = editContextGroup.Key.CostBlockId,
+                            CostElementId = editContextGroup.Key.CostElementId,
                         },
-                        QualityGateResult = await this.qualityGateSevice.Check(editItemContext.EditItems, editItemContext.Context, editItemContext.Filter, EditorType.TableView)
+                        QualityGateResult = await this.qualityGateSevice.Check(editContext, EditorType.TableView)
                     });
                 }
             }
@@ -131,8 +139,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             return new TableViewInfo
             {
-                RecordInfo = this.tableViewRepository.GetTableViewRecordInfo(costBlockInfos),
-                References = await this.tableViewRepository.GetReferences(costBlockInfos)
+                RecordInfo = await this.tableViewRepository.GetRecordInfo(costBlockInfos),
+                CostBlockReferences = await this.tableViewRepository.GetReferences(costBlockInfos),
+                DependencyItems = await this.tableViewRepository.GetDependencyItems(costBlockInfos)
             };
         }
 
@@ -147,11 +156,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             var costBlockMeta = this.meta.GetCostBlockEntityMeta(historyContext);
             var inputLevels = this.GetInputLevels(costBlockMeta);
-            var coordinateInfo = this.BuildCoordinateInfo(coordinates, inputLevels);
+            var inputLevel = this.GetMaxInputLevel(coordinates, inputLevels);
 
-            historyContext.InputLevelId = coordinateInfo.InputLevel.Id;
+            historyContext.InputLevelId = inputLevel.Value.Id;
 
-            var filter = coordinateInfo.Filter.ToDictionary(keyValue => keyValue.Key, keyValue => new[] { keyValue.Value });
+            var filter = coordinates.ToDictionary(keyValue => keyValue.Key, keyValue => new[] { keyValue.Value });
 
             return await this.costBlockHistoryService.GetHistoryItems(historyContext, filter, queryInfo);
         }
@@ -202,14 +211,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     foreach (var inputLevelGroup in costElementGroup.GroupBy(info => info.InputLevel.Id))
                     {
-                        var context = new HistoryContext
-                        {
-                            ApplicationId = editInfo.Meta.ApplicationId,
-                            CostBlockId = editInfo.Meta.CostBlockId,
-                            InputLevelId = inputLevelGroup.Key,
-                            CostElementId = costElementGroup.Key
-                        };
-
                         var filterGroups = inputLevelGroup.GroupBy(info => info.Filter.Count == 0 ? null : info.Filter);
 
                         foreach (var filterGroup in filterGroups)
@@ -222,6 +223,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                 ? new Dictionary<string, long[]>()
                                 : filterGroup.Key.ToDictionary(keyValue => keyValue.Key, keyValue => new[] { keyValue.Value });
 
+                            var context = new HistoryContext
+                            {
+                                ApplicationId = editInfo.Meta.ApplicationId,
+                                CostBlockId = editInfo.Meta.CostBlockId,
+                                InputLevelId = inputLevelGroup.Key,
+                                CostElementId = costElementGroup.Key
+                            };
+
                             yield return (context, editItems, filter);
                         }
                     }
@@ -233,26 +242,32 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             IDictionary<string, long> coordinates,
             IDictionary<string, InputLevelMeta> inputLevelMetas)
         {
+            var maxInputLevel = this.GetMaxInputLevel(coordinates, inputLevelMetas);
+            var filter = new Dictionary<string, long>(coordinates);
+
+            filter.Remove(maxInputLevel.Value.Id);
+
+            return (filter, maxInputLevel.Value);
+        }
+
+        private (string Id, long Value)? GetMaxInputLevel(
+            IDictionary<string, long> coordinates,
+            IDictionary<string, InputLevelMeta> inputLevelMetas)
+        {
             InputLevelMeta maxInputLevelMeta = null;
-            (string, long)? inputLevel = null;
+            (string, long)? maxInputLevel = null;
 
             foreach (var coordinate in coordinates)
             {
-                var inputLevelMeta = inputLevelMetas[coordinate.Key];
-
-                if (inputLevelMeta != null &&
+                if (inputLevelMetas.TryGetValue(coordinate.Key, out var inputLevelMeta) &&
                     (maxInputLevelMeta == null || maxInputLevelMeta.LevelNumber < inputLevelMeta.LevelNumber))
                 {
                     maxInputLevelMeta = inputLevelMeta;
-                    inputLevel = (coordinate.Key, coordinate.Value);
+                    maxInputLevel = (coordinate.Key, coordinate.Value);
                 }
             }
 
-            var filter = new Dictionary<string, long>(coordinates);
-
-            filter.Remove(maxInputLevelMeta.Id);
-
-            return (filter, inputLevel.Value);
+            return maxInputLevel;
         }
 
         private IDictionary<string, InputLevelMeta> GetInputLevels(CostBlockEntityMeta meta)

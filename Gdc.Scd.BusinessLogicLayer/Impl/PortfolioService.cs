@@ -44,7 +44,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new UpdateLocalPortfolio(repositorySet).DenyAsync(countryId, ids);
         }
 
-        public Task<Tuple<PortfolioDto[], int>> GetAllowed(PortfolioFilterDto filter, int start, int limit)
+        public Task<(PortfolioDto[] items, int total)> GetAllowed(PortfolioFilterDto filter, int start, int limit)
         {
             if (filter != null && filter.Country.HasValue)
             {
@@ -56,7 +56,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public async Task<Tuple<PortfolioDto[], int>> GetPrincipalAllowed(PortfolioFilterDto filter, int start, int limit)
+        public async Task<(PortfolioDto[] items, int total)> GetPrincipalAllowed(PortfolioFilterDto filter, int start, int limit)
         {
             var query = principalRepo.GetAll();
 
@@ -93,10 +93,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IsCorePortfolio = x.IsCorePortfolio
             }).PagingAsync(start, limit);
 
-            return new Tuple<PortfolioDto[], int>(result, count);
+            return (result, count);
         }
 
-        public async Task<Tuple<PortfolioDto[], int>> GetLocalAllowed(long country, PortfolioFilterDto filter, int start, int limit)
+        public async Task<(PortfolioDto[] items, int total)> GetLocalAllowed(long country, PortfolioFilterDto filter, int start, int limit)
         {
             var query = localRepo.GetAll().Where(x => x.Country.Id == country);
 
@@ -127,7 +127,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 ProActive = x.ProActiveSla.ExternalName
             }).PagingAsync(start, limit);
 
-            return new Tuple<PortfolioDto[], int>(result, count);
+            return (result, count);
         }
 
         private Task UpdatePortfolio(PortfolioRuleSetDto m, bool deny)

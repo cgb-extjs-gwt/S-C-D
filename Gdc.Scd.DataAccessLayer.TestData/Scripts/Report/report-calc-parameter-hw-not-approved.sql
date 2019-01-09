@@ -9,7 +9,8 @@ CREATE FUNCTION Report.CalcParameterHwNotApproved
     @av bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint
+    @loc bigint,
+    @pro bigint
 )
 RETURNS TABLE 
 AS
@@ -32,7 +33,7 @@ RETURN (
               , wg.Name as Wg
               , wg.SogDescription
               , wg.SCD_ServiceType
-              , null as Sla
+              , pro.ExternalName as Sla
               , loc.Name as ServiceLocation
               , rtime.Name as ReactionTime
               , rtype.Name as ReactionType
@@ -114,11 +115,13 @@ RETURN (
               , null as ReinsuranceCalcMode
               , null as ReinsuranceContract
 
-        from Report.GetMatrixBySlaCountry(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc) m
+        from Portfolio.GetBySla(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc, @pro) m
 
         JOIN InputAtoms.CountryView c on c.Id = m.CountryId
 
         JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
+
+        JOIN InputAtoms.WgView wg2 on wg2.Id = m.WgId
 
         JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
 
@@ -129,6 +132,8 @@ RETURN (
         INNER JOIN Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
 
         INNER JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
+
+        INNER JOIN Dependencies.ProActiveSla pro on pro.Id = m.ProActiveSlaId
 
         LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
@@ -150,7 +155,7 @@ RETURN (
 
         LEFT JOIN Hardware.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
 
-        LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.Wg = m.WgId
+        LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg2.ClusterPla
 
         LEFT JOIN ReinsuranceCte r on r.Wg = m.WgId and r.Year = m.DurationId
 
@@ -161,6 +166,7 @@ RETURN (
                                     and fsp.ReactionTimeId = m.ReactionTimeId
                                     and fsp.ReactionTypeId = m.ReactionTypeId
                                     and fsp.ServiceLocationId = m.ServiceLocationId
+                                    and fsp.ProactiveSlaId = m.ProActiveSlaId
     )
     select    m.*
             , m.FieldServicePerYear * m.AFR1 as FieldServiceCost1
@@ -331,3 +337,8 @@ set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 11, 'reactiontype', 'Reaction type');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 12, 'loc', 'Service location');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 14, 'pro', 'ProActive');
+
+
+

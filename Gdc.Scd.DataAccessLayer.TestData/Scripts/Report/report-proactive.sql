@@ -10,7 +10,8 @@ CREATE FUNCTION Report.ProActive
     @dur bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint
+    @loc bigint,
+    @pro bigint
 )
 RETURNS TABLE 
 AS
@@ -33,12 +34,13 @@ RETURN (
             , m.ReactionTime
             , m.ReactionType
             , m.ServiceLocation
+            , m.ProActiveSla
 
             , m.ServiceTP - m.ProActive as ReActive
             , m.ProActive
             , m.ServiceTP
 
-    from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc) m
+    from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
     JOIN InputAtoms.CountryView c on c.Id = m.CountryId
     join Dependencies.Duration dur on dur.Id = m.DurationId
 )
@@ -80,6 +82,8 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ReactionType', 'Reaction Type', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Availability', 'Availability', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ProActiveSla', 'ProActive SLA', 1, 1);
 
 set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
@@ -97,5 +101,7 @@ set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 11, 'reactiontype', 'Reaction type');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 12, 'loc', 'Service location');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 14, 'pro', 'ProActive');
 
 GO

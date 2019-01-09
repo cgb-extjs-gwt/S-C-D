@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
@@ -34,6 +35,8 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<IUserRepository, IRepository<User>>().To<UserRepository>().InRequestScope();
             Bind<ICostBlockRepository>().To<CostBlockRepository>().InRequestScope();
             Bind<IApprovalRepository>().To<ApprovalRepository>().InRequestScope();
+            Bind<IRepository<HardwareManualCost>>().To<HardwareManualCostRepository>().InRequestScope();
+            Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InRequestScope();
 
             Bind<BaseColumnMetaSqlBuilder<IdFieldMeta>>().To<IdColumnMetaSqlBuilder>().InTransientScope();
             Bind<BaseColumnMetaSqlBuilder<SimpleFieldMeta>>().To<SimpleColumnMetaSqlBuilder>().InTransientScope();

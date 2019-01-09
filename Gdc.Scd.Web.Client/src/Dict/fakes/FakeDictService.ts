@@ -1,4 +1,5 @@
 import { NamedId } from "../../Common/States/CommonStates";
+import { Country } from "../Model/Country";
 import { IDictService } from "../Services/IDictService";
 import { fakeAvailability } from "./FakeAvailability";
 import { fakeCountries } from "./FakeCountries";
@@ -8,6 +9,7 @@ import { fakeReactTimeTypes } from "./FakeReactTimeTypes";
 import { fakeReactTypes } from "./FakeReactTypes";
 import { fakeServiceLocationTypes } from "./FakeServiceLocationTypes";
 import { fakeSog } from "./FakeSog";
+import { fakeUserCountries } from "./FakeUserCountries";
 import { fakeWG } from "./FakeWG";
 import { fakeYears } from "./FakeYear";
 
@@ -16,8 +18,14 @@ export class FakeDictService implements IDictService {
         return this.fromResult(fakeCountries);
     }
 
-    public getMasterCountries(): Promise<NamedId<string>[]> {
+    public getMasterCountries(cache: boolean): Promise<Country[]> {
         throw new Error("Method not implemented.");
+    }
+
+    public getUserCountries(cache: boolean): Promise<Country[]> {
+        var json = JSON.stringify(fakeUserCountries);
+        var data = JSON.parse(json);
+        return this.fromResult(data as Country[]);
     }
 
     public getCountryGroups(): Promise<NamedId<string>[]> {

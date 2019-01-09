@@ -6,6 +6,7 @@ import { ReactionTimeService } from "../../Dict/Services/ReactionTimeService";
 import { ReactionTypeService } from "../../Dict/Services/ReactionTypeService";
 import { ServiceLocationService } from "../../Dict/Services/ServiceLocationService";
 import { WgService } from "../../Dict/Services/WgService";
+import { Country } from "../Model/Country";
 import { CountryGroupService } from "./CountryGroupService";
 import { CountryManagementService } from "./CountryManagementService";
 import { IDictService } from "./IDictService";
@@ -13,6 +14,7 @@ import { PlaService } from "./PlaService";
 import { ProActiveService } from "./ProActiveService";
 import { RoleService } from "./RoleService";
 import { SogService } from "./SogService";
+import { UserCountryService } from "./UserCountryService";
 import { YearService } from "./YearService";
 
 export class DictService implements IDictService {
@@ -20,8 +22,14 @@ export class DictService implements IDictService {
         return new CountryManagementService().getCountryNames();
     }
 
-    public getMasterCountries(): Promise<NamedId<string>[]> {
-        return new CountryService().getAll();
+    public getMasterCountries(cache: boolean): Promise<Country[]> {
+        const srv = new CountryService();
+        return cache ? srv.getAll() : srv.loadAll();
+    }
+
+    public getUserCountries(cache: boolean): Promise<Country[]> {
+        const srv = new UserCountryService();
+        return cache ? srv.getAll() : srv.loadAll();
     }
 
     public getCountryGroups(): Promise<NamedId<string>[]> {

@@ -1,9 +1,12 @@
 ﻿import { NamedId } from "../../Common/States/CommonStates";
+import { Country } from "../Model/Country";
 
 export interface IDictService {
-    getCountries(): Promise<NamedId[]>;
+    getCountries(): Promise<NamedId<string>[]>;
 
-    getMasterCountries(): Promise<NamedId<string>[]>;
+    getMasterCountries(cache: boolean): Promise<Country[]>;
+
+    getUserCountries(cache: boolean): Promise<Country[]>;
 
     getCountryGroups(): Promise<NamedId[]>;
 

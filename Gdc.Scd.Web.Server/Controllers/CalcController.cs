@@ -4,7 +4,6 @@ using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Web.Server;
 using Gdc.Scd.Web.Server.Impl;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -15,79 +14,118 @@ namespace Gdc.Scd.Web.Api.Controllers
     [ScdAuthorize(Permissions = new[] { PermissionConstants.Report })]
     public class CalcController : ApiController
     {
-        ICalculationService calcSrv;
+        private readonly ICalculationService calcSrv;
 
-        public CalcController(ICalculationService calculationService)
+        private readonly ICountryUserService userCountrySrv;
+
+        public CalcController(
+                ICalculationService calcSrv,
+                ICountryUserService userCountrySrv
+            )
         {
-            this.calcSrv = calculationService;
+            this.calcSrv = calcSrv;
+            this.userCountrySrv = userCountrySrv;
         }
 
         [HttpGet]
         public Task<HttpResponseMessage> GetHwCost(
-                [FromUri]bool approved,
                 [FromUri]HwFilterDto filter,
+                [FromUri]bool approved = true,
                 [FromUri]int start = 0,
                 [FromUri]int limit = 50
             )
         {
-            if (!IsRangeValid(start, limit))
+            if (filter != null &&
+                filter.Country > 0 &&
+                IsRangeValid(start, limit) &&
+                HasAccess(approved, filter.Country))
             {
-                return null;
+                return calcSrv.GetHardwareCost(approved, filter, start, limit)
+                              .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
             }
-
-            return calcSrv.GetHardwareCost(approved, filter, start, limit)
-                          .ContinueWith(x => this.JsonContent(x.Result.Json, x.Result.Total));
+            throw this.NotFoundException();
         }
 
         [HttpGet]
         public Task<DataInfo<SwMaintenanceCostDto>> GetSwCost(
                 [FromUri]SwFilterDto filter,
+                [FromUri]bool approved = true,
                 [FromUri]int start = 0,
                 [FromUri]int limit = 50
             )
         {
-            if (!IsRangeValid(start, limit))
+            if (IsRangeValid(start, limit))
             {
-                return null;
+                return calcSrv.GetSoftwareCost(approved, filter, start, limit)
+                              .ContinueWith(x => new DataInfo<SwMaintenanceCostDto> { Items = x.Result.items, Total = x.Result.total });
             }
-
-            return calcSrv.GetSoftwareCost(filter, start, limit)
-                          .ContinueWith(x => new DataInfo<SwMaintenanceCostDto> { Items = x.Result.Item1, Total = x.Result.Item2 });
+            throw this.NotFoundException();
         }
 
         [HttpGet]
         public Task<DataInfo<SwProactiveCostDto>> GetSwProactiveCost(
                [FromUri]SwFilterDto filter,
+               [FromUri]bool approved = true,
                [FromUri]int start = 0,
                [FromUri]int limit = 50
            )
         {
-            if (!IsRangeValid(start, limit))
+            if (filter != null &&
+                IsRangeValid(start, limit) &&
+                HasAccess(approved, filter.Country.GetValueOrDefault()))
             {
-                return null;
+                return calcSrv.GetSoftwareProactiveCost(approved, filter, start, limit)
+                              .ContinueWith(x => new DataInfo<SwProactiveCostDto> { Items = x.Result.items, Total = x.Result.total });
             }
-
-            return calcSrv.GetSoftwareProactiveCost(filter, start, limit)
-                          .ContinueWith(x => new DataInfo<SwProactiveCostDto> { Items = x.Result.Item1, Total = x.Result.Item2 });
+            throw this.NotFoundException();
         }
 
         [HttpPost]
-        public void SaveHwCost([FromBody]IEnumerable<HwCostDto> records)
+        public void SaveHwCost([FromBody]SaveCostManualDto m)
         {
-            var model = records.Select(x => new HwCostManualDto
+            if (HasAccess(m.CountryId))
             {
-                Id = x.Id,
-                ServiceTC = x.ServiceTCManual,
-                ServiceTP = x.ServiceTPManual,
-                ListPrice = x.ListPrice,
-                DealerDiscount = x.DealerDiscount
-            });
-            calcSrv.SaveHardwareCost(model);
+                var items = m.Items.Select(x => new HwCostManualDto
+                {
+                    Id = x.Id,
+                    ServiceTC = x.ServiceTCManual,
+                    ServiceTP = x.ServiceTPManual,
+                    ListPrice = x.ListPrice,
+                    DealerDiscount = x.DealerDiscount
+                });
+                calcSrv.SaveHardwareCost(this.CurrentUser(), m.CountryId, items);
+            }
+            else
+            {
+                throw this.NotFoundException();
+            }
         }
 
         private bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 50;
         }
+
+        private bool HasAccess(long countryId)
+        {
+            return userCountrySrv.HasCountryAccess(this.CurrentUser(), countryId);
+        }
+
+        private bool HasAccess(bool approved, long countryId)
+        {
+            if (approved)
+            {
+                return true;
+            }
+
+            return userCountrySrv.HasCountryAccess(this.CurrentUser(), countryId);
+        }
+    }
+
+    public class SaveCostManualDto
+    {
+        public long CountryId { get; set; }
+
+        public HwCostDto[] Items { get; set; }
     }
 }

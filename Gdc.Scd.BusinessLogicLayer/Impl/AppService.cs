@@ -111,18 +111,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var inputLevelDtos = new MetaCollection<InputLevelDto>();
             var index = 0;
 
-            foreach (var inputLevelMeta in costElementMeta.InputLevels)
+            foreach (var inputLevel in costElementMeta.InputLevels)
             {
-                var inputLevelDto = this.Copy<InputLevelDto>(inputLevelMeta, nameof(InputLevelDto.LevelNumber));
+                var inputLevelDto = this.Copy<InputLevelDto>(inputLevel, nameof(InputLevelDto.LevelNumber));
 
                 inputLevelDto.LevelNumber = index++;
 
-                var prevInputLevelMeta = costElementMeta.GetPreviousInputLevel(inputLevelMeta.Id);
+                var inputLevelMeta = costElementMeta.GetFilterInputLevel(inputLevel.Id);
 
-                if (costElementMeta.HasInputLevelFilter(prevInputLevelMeta))
+                if (inputLevelMeta != null)
                 {
                     inputLevelDto.HasFilter = true;
-                    inputLevelDto.FilterName = prevInputLevelMeta.Name;
+                    inputLevelDto.FilterName = inputLevelMeta.Name;
                 }
 
                 inputLevelDtos.Add(inputLevelDto);

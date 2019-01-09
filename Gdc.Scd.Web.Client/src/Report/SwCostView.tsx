@@ -2,6 +2,7 @@
 import * as React from "react";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
+import { moneyRenderer } from "./Components/GridRenderer";
 import { SwCostFilter } from "./Components/SwCostFilter";
 import { SwCostFilterModel } from "./Model/SwCostFilterModel";
 
@@ -12,8 +13,16 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     private filter: SwCostFilter;
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
+        fields: [
+            { name: 'serviceSupport', type: 'number', allowNull: true, convert: moneyRenderer },
+            { name: 'reinsurance', type: 'number', allowNull: true, convert: moneyRenderer },
+            { name: 'transferPrice', type: 'number', allowNull: true, convert: moneyRenderer },
+            { name: 'maintenanceListPrice', type: 'number', allowNull: true, convert: moneyRenderer },
+            { name: 'dealerPrice', type: 'number', allowNull: true, convert: moneyRenderer }
+        ],
+
         pageSize: 25,
-        autoLoad: true,
+        autoLoad: false,
 
         proxy: {
             type: 'ajax',
@@ -37,7 +46,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         return (
             <Container layout="fit">
 
-                <SwCostFilter ref="filter" docked="right" onSearch={this.onSearch} />
+                <SwCostFilter ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} />
 
                 <Grid ref="grid" store={this.store} width="100%" plugins={['pagingtoolbar']}>
 
@@ -67,11 +76,11 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <NumberColumn text="Service support cost"   dataIndex="serviceSupport" />
-                        <NumberColumn text="Reinsurance"            dataIndex="reinsurance" />
-                        <NumberColumn text="Transer price"          dataIndex="transferPrice" />
-                        <NumberColumn text="Maintenance list price" dataIndex="maintenanceListPrice" />
-                        <NumberColumn text="Dealer reference price" dataIndex="dealerPrice" />
+                        <Column text="Service support cost" dataIndex="serviceSupport" />
+                        <Column text="Reinsurance" dataIndex="reinsurance" />
+                        <Column text="Transer price" dataIndex="transferPrice" />
+                        <Column text="Maintenance list price" dataIndex="maintenanceListPrice" />
+                        <Column text="Dealer reference price" dataIndex="dealerPrice" />
 
                     </Column>
 
@@ -101,7 +110,8 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onBeforeLoad(s, operation) {
-        let filter = this.filter.getModel();
+        let filter = this.filter.getModel() as any;
+        filter.approved = this.props.approved;
         let params = Ext.apply({}, operation.getParams(), filter);
         operation.setParams(params);
     }
