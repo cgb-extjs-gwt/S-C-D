@@ -41,7 +41,7 @@ namespace Gdc.Scd.Import.Core.Impl
 
         public IEnumerable<UpdateQueryOption> Upload(IEnumerable<InstallBaseDto> items, DateTime modifiedDateTime)
         {
-            var wgs = _repositoryWg.GetAll().Where(wg => wg.WgType == WgType.Por).ToList();
+            var wgs = _repositoryWg.GetAll().Where(wg => wg.WgType == WgType.Por && !wg.IsSoftware).ToList();
             var countryGroups = _repositoryCountryGroup.GetAll().Where(cg => cg.AutoUploadInstallBase).ToList();
             var countries = _repositoryCountry.GetAll().ToList();
             var installBase = _repositoryInstallBase.GetAll().ToList();
