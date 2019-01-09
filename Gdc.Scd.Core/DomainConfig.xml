@@ -845,7 +845,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="InstalledBaseSog" Caption="Installed base per SOG" InputOption="Automatically" RegionInput="_none_">
+        <Element Name="InstalledBaseSog" Caption="Installed base" InputOption="Manually" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
