@@ -213,9 +213,9 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
         };
 
         //TODO: Breaks editing
-        // if (column.dataIndex != null) {
-        //     columnOption.id = column.dataIndex.replace(/\./g, '');
-        // }
+         if (column.dataIndex != null) {
+             columnOption.id = column.dataIndex.replace(/\./g, '');
+         }
 
         if (column.flex) {
             columnOption.flex = column.flex;
@@ -227,6 +227,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
 
         if (column.filter) {
             columnOption.menu = ['-', this.buildColumnSearchField(column.filter)];
+            //columnOption.cls ='filtered-column'
         }
 
         if (column.extensible != null) {

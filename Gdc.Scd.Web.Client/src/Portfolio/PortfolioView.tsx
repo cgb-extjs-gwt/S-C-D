@@ -19,6 +19,10 @@ export class PortfolioView extends React.Component<any, any> {
 
     private srv: IPortfolioService;
 
+    state = {
+        isCountryUser: true
+    };
+
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
         pageSize: 100,
         autoLoad: true,
@@ -30,8 +34,16 @@ export class PortfolioView extends React.Component<any, any> {
             },
             reader: {
                 type: 'json',
+                keepRawData: true,
                 rootProperty: 'items',
-                totalProperty: 'total'
+                totalProperty: 'total',
+                
+            }
+        },
+        listeners: {
+            load: (store, records, successful, operation, eOpts) => {
+                const isCountryUser = this.store.getProxy().getReader().rawData.isCountryUser;
+                this.setState({ isCountryUser: isCountryUser });
             }
         }
     });
@@ -44,11 +56,12 @@ export class PortfolioView extends React.Component<any, any> {
     public render() {
 
         let isLocalPortfolio = this.isLocalPortfolio();
+        let isCountryUser = this.state.isCountryUser;
 
         return (
             <Container scrollable={true}>
 
-                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} />
+                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} isCountryUser={isCountryUser}/>
 
                 <Toolbar docked="top">
                     <Button iconCls="x-fa fa-edit" text="Edit" handler={this.onEdit} />
@@ -63,7 +76,7 @@ export class PortfolioView extends React.Component<any, any> {
                     selectable="multi"
                     plugins={['pagingtoolbar']}>
 
-                    <NullStringColumn hidden={!isLocalPortfolio} flex="1" text="Country" dataIndex="country" />
+                    <NullStringColumn hidden={!isLocalPortfolio && !isCountryUser} flex="1" text="Country" dataIndex="country" />
 
                     <NullStringColumn flex="1" text="WG(Asset)" dataIndex="wg" />
                     <NullStringColumn flex="1" text="Availability" dataIndex="availability" />
@@ -73,9 +86,9 @@ export class PortfolioView extends React.Component<any, any> {
                     <NullStringColumn flex="2" text="Service location" dataIndex="serviceLocation" />
                     <NullStringColumn flex="2" text="ProActive" dataIndex="proActive" />
 
-                    <ReadonlyCheckColumn hidden={isLocalPortfolio} flex="1" text="Fujitsu principal portfolio" dataIndex="isGlobalPortfolio" />
-                    <ReadonlyCheckColumn hidden={isLocalPortfolio} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
-                    <ReadonlyCheckColumn hidden={isLocalPortfolio} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
+                    <ReadonlyCheckColumn hidden={isLocalPortfolio || isCountryUser} flex="1" text="Fujitsu principal portfolio" dataIndex="isGlobalPortfolio" />
+                    <ReadonlyCheckColumn hidden={isLocalPortfolio || isCountryUser} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
+                    <ReadonlyCheckColumn hidden={isLocalPortfolio || isCountryUser} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
 
             </Container>

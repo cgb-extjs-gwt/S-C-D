@@ -7,6 +7,7 @@
     SOG = 'sog',
     COUNTRYGROUP = 'countrygroup',
     COUNTRY = 'country',
+    USERCOUNTRY = 'usercountry',
     AVAILABILITY = 'availability',
     DURATION = 'duration',
     REACTIONTIME = 'reactiontime',

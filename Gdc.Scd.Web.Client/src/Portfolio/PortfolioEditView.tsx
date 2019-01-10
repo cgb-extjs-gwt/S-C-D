@@ -3,7 +3,7 @@ import * as React from "react";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildComponentUrl } from "../Common/Services/Ajax";
-import { CountryField } from "../Dict/Components/CountryField";
+import { UserCountryField } from "../Dict/Components/UserCountryField";
 import { DictField } from "../Dict/Components/DictField";
 import { DictFactory } from "../Dict/Services/DictFactory";
 import { IDictService } from "../Dict/Services/IDictService";
@@ -57,7 +57,7 @@ export class PortfolioEditView extends React.Component<any, any> {
         return (
             <Container layout="vbox" padding="10px" scrollable="true">
 
-                <CountryField
+                <UserCountryField
                     ref={x => this.country = x}
                     width="250px"
                     label="Country:"
