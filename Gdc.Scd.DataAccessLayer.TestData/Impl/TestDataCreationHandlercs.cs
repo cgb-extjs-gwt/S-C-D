@@ -360,7 +360,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             this.repositorySet.GetRepository<ProActiveSla>().Save(new ProActiveSla[]
             {
-                new ProActiveSla { Name = "0", ExternalName = "none" },
+                new ProActiveSla { Name = "0", ExternalName = MetaConstants.NoneValue },
                 new ProActiveSla { Name = "1", ExternalName = "with autocall" },
                 new ProActiveSla { Name = "2", ExternalName = "with 1x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
                 new ProActiveSla { Name = "3", ExternalName = "with 2x System Health Check & Patch Information incl. remote Technical Account Management (per year)",
@@ -493,11 +493,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var fourHour = new ReactionTime { Name = "4h", ExternalName = "4h" };
             var twentyFourHour = new ReactionTime { Name = "24h", ExternalName = "24h" };
             var eightHour = new ReactionTime { Name = "8h", ExternalName = "8h" };
-            var noneTime = new ReactionTime { Name = "none", ExternalName = "none" };
+            var noneTime = new ReactionTime { Name = MetaConstants.NoneValue, ExternalName = MetaConstants.NoneValue };
 
             var response = new ReactionType { Name = "response", ExternalName = "response" };
             var recovery = new ReactionType { Name = "recovery", ExternalName = "recovery" };
-            var noneType = new ReactionType { Name = "none", ExternalName = "none" };
+            var noneType = new ReactionType { Name = MetaConstants.NoneValue, ExternalName = MetaConstants.NoneValue };
 
             this.repositorySet.GetRepository<ReactionType>().Save(noneType);
             this.repositorySet.GetRepository<ReactionTime>().Save(noneTime);
@@ -511,6 +511,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReactionTimeType { ReactionTime = twentyFourHour, ReactionType = recovery },
                 new ReactionTimeType { ReactionTime = eightHour, ReactionType = recovery },
                 new ReactionTimeType { ReactionTime = fourHour, ReactionType = recovery },
+                new ReactionTimeType { ReactionTime = noneTime, ReactionType = noneType },
             });
 
             var nineByFive = new Availability { Name = "9x5", ExternalName = "9x5 (local business hours);9x5 (08:00-17:00)" };
@@ -2516,11 +2517,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Country { Name = "Sweden", CurrencyId = sek, SAPCountryCode = "SWD", ISO3CountryCode = "SWE", CountryGroup = swedenCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = swedenCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Australia", CurrencyId = aud, SAPCountryCode = "AUS", ISO3CountryCode = "AUS", CountryGroup = australiaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = oceaniaClusterId, RegionId = australiaCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "New Zealand", CurrencyId = nzd, SAPCountryCode = "NSL", ISO3CountryCode = "NZL", CountryGroup = newZealnadCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = oceaniaClusterId, RegionId = newZealnadCG.RegionId, AssignedToMultiVendor = false },
-                new Country { Name = "Guernsey", SAPCountryCode = "", ISO3CountryCode = "GGY", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
+                new Country { Name = "Guernsey", SAPCountryCode = "", ISO3CountryCode = "GGY", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Ireland", SAPCountryCode = "GBR", ISO3CountryCode = "IRL", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Jersey", SAPCountryCode = "", ISO3CountryCode = "JEY", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Man, Isle of", SAPCountryCode = "", ISO3CountryCode = "", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
-                new Country { Name = "Great Britain", CurrencyId = gbp, SAPCountryCode = "GBR", ISO3CountryCode = "GBR", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
+                new Country { Name = "Great Britain", CurrencyId = gbp, SAPCountryCode = "GBR", ISO3CountryCode = "GBR", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Northern Ireland", SAPCountryCode = "", ISO3CountryCode = "", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Mexico", CurrencyId = mxn, SAPCountryCode = "MEX", ISO3CountryCode = "MEX", CountryGroup = mexicoCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = usClusterId, RegionId = mexicoCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "United States", CurrencyId = usd, SAPCountryCode = "FUJ", ISO3CountryCode = "USA", CountryGroup = usCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = usClusterId, RegionId = usCG.RegionId, AssignedToMultiVendor = false },

@@ -40,7 +40,7 @@ namespace Gdc.Scd.Import.Core.Impl
 
         public IEnumerable<UpdateQueryOption> Upload(IEnumerable<MaterialCostDto> items, DateTime modifiedDateTime)
         {
-            var wgs = _repositoryWg.GetAll().Where(wg => wg.WgType == WgType.Por).ToList();
+            var wgs = _repositoryWg.GetAll().Where(wg => wg.WgType == WgType.Por && !wg.IsSoftware).ToList();
             var region = _repositoryClusterRegion.GetAll().FirstOrDefault(r => r.Name.Equals(Config.EmeiaRegionName));
             if (region == null)
                 throw new ConfigurationErrorsException($"{Config.EmeiaRegionName} does not exist in the database");
