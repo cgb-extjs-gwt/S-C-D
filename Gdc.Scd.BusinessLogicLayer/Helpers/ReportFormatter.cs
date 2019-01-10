@@ -8,17 +8,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
         public static string Format4Decimals(double v)
         {
-            return v == 0 ? "0" : v.ToString("#.####", culture);
+            return v.ToString("0.####", culture);
         }
 
         public static string FormatEuro(double v)
         {
-            return v.ToString("#.##") + " EUR";
+            return v.ToString("0.00", culture) + " EUR";
         }
 
         public static string FormatPercent(double v)
         {
-            return v.ToString("#.###") + "%";
+            return v.ToString("0.000", culture) + "%";
         }
 
         public static string FormatYesNo(bool v)
