@@ -3,8 +3,6 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Web.Server.Impl;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -17,11 +15,9 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         private readonly IUserService userService;
 
-        public PortfolioController(IPortfolioService portfolioService,
-                IUserService userService)
+        public PortfolioController(IPortfolioService portfolioService)
         {
             this.portfolioService = portfolioService;
-            this.userService = userService;
         }
 
         [HttpGet]
@@ -35,8 +31,6 @@ namespace Gdc.Scd.Web.Server.Controllers
             {
                 return null;
             }
-
-            var userCountriesIds = this.userService.GetCurrentUserCountries().Select(country => country.Id).ToArray();
 
             return portfolioService
                     .GetAllowed(filter, start, limit)

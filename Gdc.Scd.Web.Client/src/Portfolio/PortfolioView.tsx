@@ -37,7 +37,7 @@ export class PortfolioView extends React.Component<any, any> {
                 type: 'json',
                 keepRawData: true,
                 rootProperty: 'items',
-                totalProperty: 'total',             
+                totalProperty: 'total'             
             }
         }
     });

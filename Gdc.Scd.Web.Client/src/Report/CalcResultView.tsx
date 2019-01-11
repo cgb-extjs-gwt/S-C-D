@@ -34,7 +34,7 @@ export class CalcResultView extends React.Component<any, any> {
                     </Container>
 
                     <Container title="Software &amp; Solution<br>service costs" layout="fit">
-                        <SwCostView approved={false}/>
+                        <SwCostView approved={false} />
                     </Container>
 
                     <Container title="Software &amp; Solution<br>service costs<br>(approved)" layout="fit">
