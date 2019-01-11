@@ -33,43 +33,57 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context, IDictionary<string, IEnumerable<object>> filter = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
+
             var nameField = costBlockMeta.InputLevelFields[context.InputLevelId];
-
-            var nameColumn = new ColumnInfo(nameField.ReferenceFaceField, nameField.ReferenceMeta.Name);
-            var nameIdColumn = new ColumnInfo(nameField.ReferenceValueField, nameField.ReferenceMeta.Name);
-            var countColumn = SqlFunctions.Count(context.CostElementId, true, costBlockMeta.Name);
-
-            QueryColumnInfo maxValueColumn;
+            var innerNameColumn = new ColumnInfo(nameField.ReferenceFaceField, nameField.ReferenceMeta.Name);
+            var innerNameIdColumn = new ColumnInfo(nameField.ReferenceValueField, nameField.ReferenceMeta.Name);
 
             var valueField = costBlockMeta.CostElementsFields[context.CostElementId];
-            var simpleValueField = valueField as SimpleFieldMeta;
-            if (simpleValueField != null && simpleValueField.Type == TypeCode.Boolean)
-            {
-                var valueColumn = new ColumnSqlBuilder { Name = simpleValueField.Name };
+            var innerValueColumn = new ColumnInfo(valueField.Name);
+            var valueApprovedField = costBlockMeta.CostElementsApprovedFields[valueField];
+            var valueApprovedColumn = new ColumnInfo(valueApprovedField.Name);
 
-                maxValueColumn = SqlFunctions.Max(
-                    SqlFunctions.Convert(valueColumn, TypeCode.Int32),
-                    costBlockMeta.Name);
-            }
-            else
-            {
-                maxValueColumn = SqlFunctions.Max(context.CostElementId, costBlockMeta.Name);
-            }
+            var innerApprovedColumn = new QueryColumnInfo(
+                new CaseSqlBuilder
+                {
+                    Cases = new[]
+                    {
+                        new CaseItem
+                        {
+                            When = SqlOperators.Equals(innerValueColumn, valueApprovedColumn).ToSqlBuilder(),
+                            Then = new RawSqlBuilder("1")
+                        }
+                    },
+                    Else = new RawSqlBuilder("0")
+                },
+                "IsApproved");
 
-            var query =
-                Sql.Select(nameIdColumn, nameColumn, maxValueColumn, countColumn)
+            var innerQuery =
+                Sql.Select(innerNameIdColumn, innerNameColumn, innerValueColumn, innerApprovedColumn)
                    .From(costBlockMeta)
                    .Join(costBlockMeta, nameField.Name)
-                   .WhereNotDeleted(costBlockMeta, filter, costBlockMeta.Name)
-                   .GroupBy(nameColumn, nameIdColumn)
+                   .WhereNotDeleted(costBlockMeta, filter, costBlockMeta.Name);
+
+            var nameIdCoumn = new ColumnInfo(innerNameIdColumn.Name);
+            var nameColumn = new ColumnInfo(innerNameColumn.Name);
+
+            var maxValueColumn =
+                costBlockMeta.CostElementsFields[context.CostElementId] is SimpleFieldMeta simpleField && simpleField.Type == TypeCode.Boolean
+                    ? SqlFunctions.Max(
+                        SqlFunctions.Convert(new ColumnSqlBuilder(simpleField.Name), TypeCode.Int32))
+                    : SqlFunctions.Max(context.CostElementId);
+
+            var countColumn = SqlFunctions.Count(context.CostElementId, true);
+            var approvedColumn = new ColumnInfo(innerApprovedColumn.Alias);
+
+            var query =
+                Sql.Select(nameIdCoumn, nameColumn, maxValueColumn, countColumn, approvedColumn)
+                   .FromQuery(innerQuery, "t")
+                   .GroupBy(nameIdCoumn, nameColumn, approvedColumn)
                    .OrderBy(new OrderByInfo
                    {
                        Direction = SortDirection.Asc,
-                       SqlBuilder = new ColumnSqlBuilder
-                       {
-                           Table = nameColumn.TableName,
-                           Name = nameColumn.Name
-                       }
+                       SqlBuilder = new ColumnSqlBuilder(nameColumn.Name)
                    });
 
             return await this.repositorySet.ReadBySql(query, reader =>
@@ -82,6 +96,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     Name = reader.GetString(1),
                     Value = valueCount == 1 ? reader.GetValue(2) : null,
                     ValueCount = valueCount,
+                    IsApproved = reader.GetInt32(4) == 1
                 };
             });
         }
