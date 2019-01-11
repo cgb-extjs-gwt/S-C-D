@@ -18,7 +18,7 @@ export class UserCountryService extends CacheDomainService<Country> {
         return get<Country[]>(this.controllerName, USR_ACTION);
     }
 
-    public isCountryUSer(): Promise<boolean> {
+    public isCountryUser(): Promise<boolean> {
         return get<boolean>(this.controllerName, ISCOUNTRYUSER_ACTION);
     }
 }

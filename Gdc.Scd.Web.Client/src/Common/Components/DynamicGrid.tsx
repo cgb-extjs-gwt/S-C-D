@@ -227,7 +227,6 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
 
         if (column.filter) {
             columnOption.menu = ['-', this.buildColumnSearchField(column.filter)];
-            //columnOption.cls ='filtered-column'
         }
 
         if (column.extensible != null) {
@@ -257,7 +256,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
                                         : column.referenceItems.get(value).name;
 
                             columnOption.renderer = column.rendererFn 
-                                ? (value, record) => column.rendererFn(getReferenceName(value), record) 
+                                ? column.rendererFn
                                 : (value, record) => getReferenceName(value)
                             break;
                     }

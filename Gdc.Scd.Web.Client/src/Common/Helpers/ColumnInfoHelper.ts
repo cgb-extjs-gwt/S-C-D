@@ -57,13 +57,11 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
         case FieldType.Flag:
             columnType = ColumnType.Reference;
             formatFn = (value: number) => {
-                let result: string;
-
-                switch(value) {
+                switch (value) {
                     case 0:
                         return 'false';
                     case 1:
-                        return 'true';
+                        return 'true';              
                     default:
                         return value;
                 }

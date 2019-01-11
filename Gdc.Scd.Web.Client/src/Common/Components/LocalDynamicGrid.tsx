@@ -248,10 +248,6 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
                 const headerId = dataIndex.replace(/\./g, '');
                 const headerIndex = dataIndex;
                 
-                //TODO: Breaks editing
-                //const headerText = visibleColumns.find(x => x.dataIndex == dataIndex).title;
-                //const filterSymbol = "&#8704;"
-                //this.setColumnHeaderText(headerId, headerText + "  " + filterSymbol);
                 Ext.getCmp(headerId).setCls('filtered-column');
 
                 this.filterDatas.forEach((filterData, dataIndex) => {
@@ -259,10 +255,8 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
 
                     filterData.store.each(record => allChecked = record.data.checked);
 
-                    //TODO: Breaks editing
                      if (allChecked && headerIndex == dataIndex) {
                          Ext.getCmp(headerId).removeCls('filtered-column');
-                         //this.setColumnHeaderText(headerId, headerText);
                      }
 
                     if (allChecked && headerIndex != dataIndex) {
@@ -281,11 +275,6 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
             });
         }
     }
-    
-    //TODO: Breaks editing
-     //private setColumnHeaderText(headerId: string, text: string) {
-     //    Ext.getCmp(headerId).setText(text);
-     //}
 
     private fillFilterData() {
         if (this.executeFillFilterData) {

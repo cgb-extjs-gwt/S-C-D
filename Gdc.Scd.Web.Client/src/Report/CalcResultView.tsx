@@ -6,21 +6,17 @@ import { SwProactiveCostView } from "./SwProactiveCostView";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
 
 export class CalcResultView extends React.Component<any, any> {
-    private tabPanel: any;
+    private tabPanel;
 
     public componentDidMount() {
         this.tabPanel = this.refs.tabPanel;
-
     }
 
     public render() {
-        let visible = false;
         const srv = new UserCountryService();
-        srv.isCountryUSer().then(x => {
+        srv.isCountryUser().then(x => {
             if (x) {
-                visible = !x;
-                console.log(this.tabPanel);
-                //this.tabPanel.child("swCostTab").tab.hide();          
+                this.tabPanel && this.tabPanel.items.items[2].tab.setHidden(true);       
             }
         });
 
@@ -37,12 +33,7 @@ export class CalcResultView extends React.Component<any, any> {
                         <HwCostView approved={true} />
                     </Container>
 
-                    <Container title="Software &amp; Solution<br>service costs" layout="fit" tabConfig={{
-                        hidden: true,
-                        bind: {
-                            hidden: '{!visible}'
-                        }
-                    }}>
+                    <Container title="Software &amp; Solution<br>service costs" layout="fit">
                         <SwCostView approved={false}/>
                     </Container>
 
