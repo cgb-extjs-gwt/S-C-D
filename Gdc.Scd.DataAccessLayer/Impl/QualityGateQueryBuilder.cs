@@ -161,7 +161,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
-            var costElementValueTableColumns = this.BuildCostElementValueTableColumns(history.Context, options, history.Context.CostElementId, costBlockMeta.Name);
+            var costElementValueTableColumns = this.BuildCostElementValueTableColumns(
+                history.Context, 
+                options, 
+                history.Context.CostElementId, 
+                costBlockMeta.Name,
+                costBlockMeta.HistoryMeta.Name);
+
             var costElementValueTableQuery =
                 Sql.SelectDistinct(costElementValueTableColumns.ToArray())
                    .From(costBlockMeta.HistoryMeta);
@@ -173,11 +179,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 joinInfos = new[]
                 {
                      new JoinInfo
-                    {
+                     {
                         Meta = costBlockMeta,
                         ReferenceFieldName = MetaConstants.CountryInputLevelName,
                         JoinedTableAlias = CountryTableAlias
-                    }
+                     }
                 };
             }
 
