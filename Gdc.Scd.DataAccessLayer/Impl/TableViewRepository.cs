@@ -344,7 +344,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                         case ReferenceFieldMeta referenceField:
                             additionalColumns.Add(new ColumnInfo(referenceField.ReferenceFaceField, referenceField.ReferenceMeta.Name, additionalDataInfo.Data.DataIndex));
-                            additionalJoinInfos.Add(new JoinInfo(info.CoordinateMeta, referenceField.Name));
+                            additionalJoinInfos.Add(new JoinInfo(info.CoordinateMeta, referenceField.Name)
+                            {
+                                JoinType = referenceField.IsNullOption ? JoinType.Left : JoinType.Inner
+                            });
                             break;
 
                         default:
@@ -535,6 +538,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                             {
                                 DataIndex = wgMeta.ResponsiblePersonField.Name,
                                 Title = "Responsible Person"
+                            }
+                        },
+                        new AdditionalDataInfo
+                        {
+                            Field = wgMeta.RoleCodeField,
+                            Data = new AdditionalData
+                            {
+                                DataIndex = wgMeta.RoleCodeField.Name,
+                                Title = "Role code"
                             }
                         },
                     };

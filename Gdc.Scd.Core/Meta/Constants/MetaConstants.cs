@@ -63,5 +63,7 @@
         public const string SwDigitInputLevel = "SwDigit";
 
         public const string NoneValue = "none";
+
+        public const string RoleCodeInputLevel = "RoleCode";
     }
 }
