@@ -14,15 +14,15 @@ RETURN (
             , c.CountryGroup
             , wg.Name as Wg
             , wg.Description as WgDescription
-            , fee.Fee_Approved as Fee
-            , fee2.InstalledBaseHighAvailability_Approved as IB
-            , fee2.CostPerKit_Approved as CostPerKit
-            , fee2.CostPerKitJapanBuy_Approved as CostPerKitJapanBuy
-            , fee2.MaxQty_Approved as MaxQty
-            , fee2.JapanBuy_Approved as JapanBuy
+            , calc.Fee_Approved as Fee
+            , fee.InstalledBaseHighAvailability_Approved as IB
+            , fee.CostPerKit_Approved as CostPerKit
+            , fee.CostPerKitJapanBuy_Approved as CostPerKitJapanBuy
+            , fee.MaxQty_Approved as MaxQty
+            , fee.JapanBuy_Approved as JapanBuy
 
-    from Hardware.AvailabilityFeeCalc fee
-    join Hardware.AvailabilityFee fee2 on fee2.Wg = fee.Wg and fee2.Country = fee.Country
+    from Hardware.AvailabilityFee fee
+    left join Hardware.AvailabilityFeeCalc calc on calc.Wg = fee.Wg and calc.Country = fee.Country
     join InputAtoms.CountryView c on c.Id = fee.Country
     join InputAtoms.Wg wg on wg.id = fee.Wg
 

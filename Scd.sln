@@ -54,6 +54,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Import.ExchangeRate
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Import.CentralContractGroup", "Gdc.Scd.Import.CentralContractGroup\Gdc.Scd.Import.CentralContractGroup.csproj", "{72E3DBA1-B2C5-4A32-A41D-54D84624400E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Tests.BusinessLogicLayer", "Gdc.Scd.Tests.BusinessLogicLayer\Gdc.Scd.Tests.BusinessLogicLayer.csproj", "{28974CF0-7147-43FB-9978-2FA104EDBAD9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -144,6 +146,10 @@ Global
 		{72E3DBA1-B2C5-4A32-A41D-54D84624400E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72E3DBA1-B2C5-4A32-A41D-54D84624400E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72E3DBA1-B2C5-4A32-A41D-54D84624400E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28974CF0-7147-43FB-9978-2FA104EDBAD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28974CF0-7147-43FB-9978-2FA104EDBAD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28974CF0-7147-43FB-9978-2FA104EDBAD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28974CF0-7147-43FB-9978-2FA104EDBAD9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -152,6 +158,7 @@ Global
 		{F83C2639-1AD2-4660-86A8-984B64DD9CAA} = {C927EC61-9181-455D-8473-3FB7AB88A997}
 		{920E1683-41C8-4C7C-AA52-E976FEAA4D2D} = {C927EC61-9181-455D-8473-3FB7AB88A997}
 		{4537345E-B8F7-47A6-8E02-F670B8359797} = {F83C2639-1AD2-4660-86A8-984B64DD9CAA}
+		{28974CF0-7147-43FB-9978-2FA104EDBAD9} = {C927EC61-9181-455D-8473-3FB7AB88A997}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A46F9BCF-9A07-4273-89CA-A06CF807AFCC}
