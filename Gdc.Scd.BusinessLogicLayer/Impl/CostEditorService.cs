@@ -70,9 +70,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 var userCountries = this.userService.GetCurrentUserCountries();
                 var filter = this.costBlockFilterBuilder.BuildFilter(context, userCountries);
-                var editItemInfo = this.GetEditItemInfo(context);
 
-                editItems = await this.costEditorRepository.GetEditItems(editItemInfo, filter);
+                editItems = await this.costEditorRepository.GetEditItems(context, filter);
             }
             else
             {
@@ -146,7 +145,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (!checkResult.HasErrors)
             {
-                var editItemInfo = this.GetEditItemInfo(context);
                 var userCountries = this.userService.GetCurrentUserCountries();
                 var filter = this.costBlockFilterBuilder.BuildFilter(context, userCountries);
 
@@ -154,7 +152,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     try
                     {
-                        var result = await this.costEditorRepository.UpdateValues(editItems, editItemInfo, filter);
+                        var result = await this.costEditorRepository.UpdateValues(editItems, context, filter);
 
                         await this.historySevice.Save(context, editItems, approvalOption, filter, EditorType.CostEditor);
 
@@ -201,17 +199,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var referenceFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(referenceField.ReferenceMeta);
 
             return await this.sqlRepository.GetDistinctItems(meta, referenceField.Name, costBlockFilter, referenceFilter);
-        }
-
-        private EditItemInfo GetEditItemInfo(CostEditorContext context)
-        {
-            return new EditItemInfo
-            {
-                Schema = context.ApplicationId,
-                EntityName = context.CostBlockId,
-                NameField = context.InputLevelId,
-                ValueField = context.CostElementId
-            };
         }
 
         private async Task<IEnumerable<NamedId>> GetCostElementFilterItems(CostEditorContext context, CostElementMeta costElementMeta, IEnumerable<Country> userCountries)
