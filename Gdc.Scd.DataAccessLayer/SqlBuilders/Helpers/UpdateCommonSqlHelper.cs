@@ -63,9 +63,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return new UpdateCommonSqlHelper(this.joinSqlHelper.Join(tableName, condition, type, alias));
         }
 
-        public UpdateCommonSqlHelper Join(BaseEntityMeta meta, string referenceFieldName, string joinedTableAlias = null, string metaTableAlias = null)
+        public UpdateCommonSqlHelper Join(BaseEntityMeta meta, string referenceFieldName, string joinedTableAlias = null, string metaTableAlias = null, JoinType joinType = JoinType.Inner)
         {
-            return new UpdateCommonSqlHelper(this.joinSqlHelper.Join(meta, referenceFieldName, joinedTableAlias, metaTableAlias));
+            return new UpdateCommonSqlHelper(this.joinSqlHelper.Join(meta, referenceFieldName, joinedTableAlias, metaTableAlias, joinType));
         }
 
         public UpdateCommonSqlHelper Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner, string aliasMetaTable = null)

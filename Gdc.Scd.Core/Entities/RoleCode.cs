@@ -3,7 +3,7 @@ using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("RoleCode", Schema = MetaConstants.InputLevelSchema)]
+    [Table(MetaConstants.RoleCodeInputLevel, Schema = MetaConstants.InputLevelSchema)]
     public class RoleCode : NamedId
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
