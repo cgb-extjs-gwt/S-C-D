@@ -25,57 +25,54 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
 
-        public async Task<IEnumerable<EditItem>> GetEditItems(EditItemInfo editItemInfo, IDictionary<string, long[]> filter)
+        public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context, IDictionary<string, long[]> filter)
         {
-            return await this.GetEditItems(editItemInfo, filter.Convert());
+            return await this.GetEditItems(context, filter.Convert());
         }
 
-        public async Task<IEnumerable<EditItem>> GetEditItems(EditItemInfo editItemInfo, IDictionary<string, IEnumerable<object>> filter = null)
+        public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context, IDictionary<string, IEnumerable<object>> filter = null)
         {
-            var costBlockMeta = (CostBlockEntityMeta)this.domainEnitiesMeta.GetEntityMeta(editItemInfo.EntityName, editItemInfo.Schema);
-            var nameField = costBlockMeta.InputLevelFields[editItemInfo.NameField];
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
+            var nameField = costBlockMeta.InputLevelFields[context.InputLevelId];
 
             var nameColumn = new ColumnInfo(nameField.ReferenceFaceField, nameField.ReferenceMeta.Name);
             var nameIdColumn = new ColumnInfo(nameField.ReferenceValueField, nameField.ReferenceMeta.Name);
-            var countColumn = SqlFunctions.Count(editItemInfo.ValueField, true, costBlockMeta.Name);
+            var countColumn = SqlFunctions.Count(context.CostElementId, true, costBlockMeta.Name);
 
             QueryColumnInfo maxValueColumn;
 
-            var valueField = costBlockMeta.AllFields.First(field => field.Name == editItemInfo.ValueField);
+            var valueField = costBlockMeta.CostElementsFields[context.CostElementId];
             var simpleValueField = valueField as SimpleFieldMeta;
             if (simpleValueField != null && simpleValueField.Type == TypeCode.Boolean)
             {
                 var valueColumn = new ColumnSqlBuilder { Name = simpleValueField.Name };
 
                 maxValueColumn = SqlFunctions.Max(
-                    SqlFunctions.Convert(valueColumn, TypeCode.Int32), 
+                    SqlFunctions.Convert(valueColumn, TypeCode.Int32),
                     costBlockMeta.Name);
             }
             else
             {
-                maxValueColumn = SqlFunctions.Max(editItemInfo.ValueField, costBlockMeta.Name);
+                maxValueColumn = SqlFunctions.Max(context.CostElementId, costBlockMeta.Name);
             }
 
-            var orderByInfo = new OrderByInfo
-            {
-                Direction = SortDirection.Asc,
-                SqlBuilder = new ColumnSqlBuilder
-                {
-                    Table = nameColumn.TableName,
-                    Name = nameColumn.Name
-                }
-            };
-
-            var query = 
+            var query =
                 Sql.Select(nameIdColumn, nameColumn, maxValueColumn, countColumn)
                    .From(costBlockMeta)
                    .Join(costBlockMeta, nameField.Name)
                    .WhereNotDeleted(costBlockMeta, filter, costBlockMeta.Name)
                    .GroupBy(nameColumn, nameIdColumn)
-                   .OrderBy(orderByInfo);
+                   .OrderBy(new OrderByInfo
+                   {
+                       Direction = SortDirection.Asc,
+                       SqlBuilder = new ColumnSqlBuilder
+                       {
+                           Table = nameColumn.TableName,
+                           Name = nameColumn.Name
+                       }
+                   });
 
-
-            return await this.repositorySet.ReadBySql(query, reader => 
+            return await this.repositorySet.ReadBySql(query, reader =>
             {
                 var valueCount = reader.GetInt32(3);
 
@@ -89,50 +86,50 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
-        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo, IDictionary<string, IEnumerable<object>> filter = null)
+        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, IDictionary<string, IEnumerable<object>> filter = null)
         {
-            var costBlockMeta = (CostBlockEntityMeta)this.domainEnitiesMeta.GetEntityMeta(editItemInfo.EntityName, editItemInfo.Schema);
-            var nameField = costBlockMeta.InputLevelFields[editItemInfo.NameField];
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
+            var nameField = costBlockMeta.InputLevelFields[context.InputLevelId];
 
             var query = 
                 Sql.Queries(
                     editItems.Select(
-                        (editItem, index) => this.BuildUpdateValueQuery(costBlockMeta, editItem, editItemInfo, index, filter)));
+                        (editItem, index) => this.BuildUpdateValueQuery(costBlockMeta, editItem, context, index, filter)));
 
             return await this.repositorySet.ExecuteSqlAsync(query);
         }
 
-        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, EditItemInfo editItemInfo, IDictionary<string, long[]> filter)
+        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, IDictionary<string, long[]> filter)
         {
-            return await this.UpdateValues(editItems, editItemInfo, filter.Convert());
+            return await this.UpdateValues(editItems, context, filter.Convert());
         }
 
         private SqlHelper BuildUpdateValueQuery(
             CostBlockEntityMeta meta,
             EditItem editItem,
-            EditItemInfo editItemInfo, 
+            CostEditorContext context, 
             int index, 
             IDictionary<string, IEnumerable<object>> filter = null)
         {
             var updateColumn = new ValueUpdateColumnInfo(
-                editItemInfo.ValueField,
+                context.CostElementId,
                 editItem.Value,
-                $"{editItemInfo.ValueField}_{index}");
+                $"{context.CostElementId}_{index}");
 
             //filter = new Dictionary<string, IEnumerable<object>>(filter ?? Enumerable.Empty<KeyValuePair<string, IEnumerable<object>>>())
             filter = new Dictionary<string, IEnumerable<object>>(filter ?? new Dictionary<string, IEnumerable<object>>())       
             {
-                [editItemInfo.NameField] = new object []
+                [context.InputLevelId] = new object []
                 {
                     new CommandParameterInfo
                     {
-                        Name = $"{editItemInfo.NameField}_{index}",
+                        Name = $"{context.InputLevelId}_{index}",
                         Value = editItem.Id
                     }
                 }
             };
 
-            return Sql.Update(editItemInfo.Schema, editItemInfo.EntityName, updateColumn).WhereNotDeleted(meta, filter);
+            return Sql.Update(meta, updateColumn).WhereNotDeleted(meta, filter);
         }
     }
 }
