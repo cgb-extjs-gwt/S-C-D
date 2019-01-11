@@ -10,6 +10,7 @@ import { ReadonlyCheckColumn } from "./Components/ReadonlyCheckColumn";
 import { PortfolioFilterModel } from "./Model/PortfolioFilterModel";
 import { IPortfolioService } from "./Services/IPortfolioService";
 import { PortfolioServiceFactory } from "./Services/PortfolioServiceFactory";
+import { UserCountryService } from "../Dict/Services/UserCountryService";
 
 export class PortfolioView extends React.Component<any, any> {
 
@@ -36,14 +37,7 @@ export class PortfolioView extends React.Component<any, any> {
                 type: 'json',
                 keepRawData: true,
                 rootProperty: 'items',
-                totalProperty: 'total',
-                
-            }
-        },
-        listeners: {
-            load: (store, records, successful, operation, eOpts) => {
-                const isCountryUser = this.store.getProxy().getReader().rawData.isCountryUser;
-                this.setState({ isCountryUser: isCountryUser });
+                totalProperty: 'total',             
             }
         }
     });
@@ -106,6 +100,9 @@ export class PortfolioView extends React.Component<any, any> {
         this.onDeny = this.onDeny.bind(this);
         this.onSearch = this.onSearch.bind(this);
         this.store.on('beforeload', this.onBeforeLoad, this);
+
+        const srv = new UserCountryService();
+        srv.isCountryUser().then(x => this.setState({ isCountryUser: x }));
     }
 
     private onEdit() {

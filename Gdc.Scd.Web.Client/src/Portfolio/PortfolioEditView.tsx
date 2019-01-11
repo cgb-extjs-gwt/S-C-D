@@ -4,6 +4,7 @@ import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildComponentUrl } from "../Common/Services/Ajax";
 import { UserCountryField } from "../Dict/Components/UserCountryField";
+import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { DictField } from "../Dict/Components/DictField";
 import { DictFactory } from "../Dict/Services/DictFactory";
 import { IDictService } from "../Dict/Services/IDictService";
@@ -45,7 +46,8 @@ export class PortfolioEditView extends React.Component<any, any> {
     private dictSrv: IDictService;
 
     public state = {
-        isPortfolio: true
+        isPortfolio: true,
+        isCountryUser: true
     };
 
     public constructor(props: any) {
@@ -53,7 +55,7 @@ export class PortfolioEditView extends React.Component<any, any> {
         this.init();
     }
 
-    public render() {
+    public render() {      
         return (
             <Container layout="vbox" padding="10px" scrollable="true">
 
@@ -93,7 +95,7 @@ export class PortfolioEditView extends React.Component<any, any> {
                     </div>
                 </div>
 
-                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio }} margin="15px 0">
+                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio, hidden: this.state.isCountryUser }} margin="15px 0">
                     <CheckBoxField ref={x => this.globPort = x} boxLabel="Fujitsu principal portfolio" />
                     <CheckBoxField ref={x => this.masterPort = x} boxLabel="Master portfolio" />
                     <CheckBoxField ref={x => this.corePort = x} boxLabel="Core portfolio" />
@@ -118,6 +120,9 @@ export class PortfolioEditView extends React.Component<any, any> {
         this.onDeny = this.onDeny.bind(this);
         this.onBack = this.onBack.bind(this);
         this.save = this.save.bind(this);
+
+        const srv = new UserCountryService();
+        srv.isCountryUser().then(x => this.setState({ isCountryUser: x }));
     }
 
     private onCountryChange(combo, newVal, oldVal) {

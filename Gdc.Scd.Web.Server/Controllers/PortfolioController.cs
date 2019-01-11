@@ -25,7 +25,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public Task<PortfolioDataInfo> Allowed(
+        public Task<DataInfo<PortfolioDto>> Allowed(
                 [FromUri]PortfolioFilterDto filter,
                 [FromUri]int start = 0,
                 [FromUri]int limit = 25
@@ -40,7 +40,7 @@ namespace Gdc.Scd.Web.Server.Controllers
 
             return portfolioService
                     .GetAllowed(filter, start, limit)
-                    .ContinueWith(x => new PortfolioDataInfo { Items = x.Result.items, Total = x.Result.total, IsCountryUser = userCountriesIds.Length > 0 });
+                    .ContinueWith(x => new DataInfo<PortfolioDto> { Items = x.Result.items, Total = x.Result.total });
         }
 
         [HttpPost]
@@ -72,14 +72,5 @@ namespace Gdc.Scd.Web.Server.Controllers
         public long CountryId { get; set; }
 
         public long[] Items { get; set; }
-    }
-
-    public class PortfolioDataInfo
-    {
-        public IEnumerable<PortfolioDto> Items { get; set; }
-
-        public int Total { get; set; }
-
-        public bool IsCountryUser { get; set; }
     }
 }
