@@ -13,6 +13,8 @@ namespace Gdc.Scd.Web.Server.Controllers
     {
         private readonly IPortfolioService portfolioService;
 
+        private readonly IUserService userService;
+
         public PortfolioController(IPortfolioService portfolioService)
         {
             this.portfolioService = portfolioService;

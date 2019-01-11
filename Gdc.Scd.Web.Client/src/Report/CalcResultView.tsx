@@ -3,15 +3,27 @@ import * as React from "react";
 import { HwCostView } from "./HwCostView";
 import { SwCostView } from "./SwCostView";
 import { SwProactiveCostView } from "./SwProactiveCostView";
+import { UserCountryService } from "../Dict/Services/UserCountryService";
 
 export class CalcResultView extends React.Component<any, any> {
+    private tabPanel;
+
+    public componentDidMount() {
+        this.tabPanel = this.refs.tabPanel;
+    }
 
     public render() {
+        const srv = new UserCountryService();
+        srv.isCountryUser().then(x => {
+            if (x) {
+                this.tabPanel && this.tabPanel.items.items[2].tab.setHidden(true);       
+            }
+        });
 
         return (
             <Container layout="vbox">
 
-                <TabPanel flex="1" tabBar={{ layout: { pack: 'left' } }}>
+                <TabPanel flex="1" tabBar={{ layout: { pack: 'left' } }} ref='tabPanel'>
 
                     <Container title="Hardware<br>service costs" layout="fit">
                         <HwCostView approved={false} />

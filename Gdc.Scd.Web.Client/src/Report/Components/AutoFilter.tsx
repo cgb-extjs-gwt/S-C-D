@@ -2,6 +2,7 @@
 import * as React from "react";
 import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
 import { CountryField } from "../../Dict/Components/CountryField";
+import { UserCountryField } from "../../Dict/Components/UserCountryField";
 import { CountryGroupField } from "../../Dict/Components/CountryGroupField";
 import { DurationField } from "../../Dict/Components/DurationField";
 import { ProActiveField } from "../../Dict/Components/ProActiveField";
@@ -64,6 +65,9 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
 
             case AutoFilterType.COUNTRY:
                 return <CountryField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+
+            case AutoFilterType.USERCOUNTRY:
+                return <UserCountryField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.COUNTRYGROUP:
                 return <CountryGroupField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
