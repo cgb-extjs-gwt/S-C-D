@@ -127,7 +127,6 @@ RETURN
                                    and fsp.ReactionTimeId = m.ReactionTimeId
                                    and fsp.ReactionTypeId = m.ReactionTypeId
                                    and fsp.ServiceLocationId = m.ServiceLocationId
-                                   and fsp.ProactiveSlaId = m.ProActiveSlaId
 )
 go
 

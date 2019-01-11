@@ -924,7 +924,7 @@ CREATE VIEW [Hardware].[FieldServiceCostView] AS
     JOIN InputAtoms.Country c on c.Id = fsc.Country
     JOIN InputAtoms.Wg on wg.Id = fsc.Wg
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = fsc.ReactionTimeType
-    LEFT JOIN Hardware.RoleCodeHourlyRates hr on hr.RoleCode = wg.RoleCodeId
+    LEFT JOIN Hardware.RoleCodeHourlyRates hr on hr.RoleCode = wg.RoleCodeId and hr.Country = fsc.Country
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 GO
 

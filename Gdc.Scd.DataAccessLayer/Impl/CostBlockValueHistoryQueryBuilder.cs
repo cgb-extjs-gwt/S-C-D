@@ -66,28 +66,33 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             string inputLevelId;
             InputLevelJoinType inputLevelJoinType;
+            IEnumerable<ReferenceFieldMeta> domainCoordinateFields;
+
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
+            var costElement = this.domainMeta.GetCostElement(history.Context);
 
             if (historyValueId.HasValue)
             {
-                var costElement = this.domainMeta.GetCostElement(history.Context);
                 var inputLevel = costElement.InputLevels.Last();
 
                 inputLevelId = inputLevel.Id;
                 inputLevelJoinType = InputLevelJoinType.All;
+                domainCoordinateFields = costBlockMeta.GetDomainCoordinateFields(history.Context.CostElementId);
             }
             else
             {
                 inputLevelId = history.Context.InputLevelId;
                 inputLevelJoinType = InputLevelJoinType.HistoryContext;
+                domainCoordinateFields =
+                    costElement.FilterInputLevels(history.Context.InputLevelId)
+                               .Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id])
+                               .Concat(new[] { costBlockMeta.GetDomainDependencyField(history.Context.CostElementId) });
             }
 
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
             var selectColumns = new List<ColumnInfo>
             {
                 new ColumnInfo(MetaConstants.IdFieldKey, costBlockMeta.HistoryMeta.Name, "HistoryValueId")
             };
-
-            var domainCoordinateFields = costBlockMeta.GetDomainCoordinateFields(history.Context.CostElementId);
 
             selectColumns.AddRange(this.GetCoordinateColumns(costBlockMeta, domainCoordinateFields));
 
@@ -149,9 +154,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         }
 
         public SqlHelper BuildJoinApproveHistoryValueQuery<TQuery>(
-            CostBlockHistory history, 
-            TQuery query, 
-            InputLevelJoinType inputLevelJoinType = InputLevelJoinType.HistoryContext, 
+            CostBlockHistory history,
+            TQuery query,
+            InputLevelJoinType inputLevelJoinType = InputLevelJoinType.HistoryContext,
             IEnumerable<JoinInfo> joinInfos = null,
             long? historyValueId = null,
             IDictionary<string, IEnumerable<object>> costBlockFiter = null)
@@ -164,17 +169,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 JoinInfos = joinInfos
             };
 
-            return this.BuildJoinHistoryValueQuery(history, query, options, historyValueId, costBlockFiter);
-        }
-
-        private SqlHelper BuildJoinHistoryValueQuery<TQuery>(
-            CostBlockHistory history,
-            TQuery query,
-            JoinHistoryValueQueryOptions options = null,
-            long? historyValueId = null,
-            IDictionary<string, IEnumerable<object>> costBlockFiter = null)
-            where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>
-        {
             query = this.BuildJoinHistoryValueQuery(history.Context, query, options);
 
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);

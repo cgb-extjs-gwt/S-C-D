@@ -147,22 +147,22 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
             public object GetNumber(DbDataReader reader)
             {
-                return reader.GetDouble(ordinal).ToString("#.####");
+                return ReportFormatter.Format4Decimals(reader.GetDouble(ordinal));
             }
 
             public object GetBoolean(DbDataReader reader)
             {
-                return reader.GetBoolean(ordinal) ? "YES" : "NO";
+                return ReportFormatter.FormatYesNo(reader.GetBoolean(ordinal));
             }
 
             public object GetEuro(DbDataReader reader)
             {
-                return reader.GetDouble(ordinal).ToString("#.##") + " EUR";
+                return ReportFormatter.FormatEuro(reader.GetDouble(ordinal));
             }
 
             public object GetPercent(DbDataReader reader)
             {
-                return reader.GetDouble(ordinal).ToString("#.###") + "%";
+                return ReportFormatter.FormatPercent(reader.GetDouble(ordinal));
             }
         }
     }
