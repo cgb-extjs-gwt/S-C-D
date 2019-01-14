@@ -46,21 +46,41 @@ namespace Gdc.Scd.Import.Core.Impl
             var wgs = _repositoryWg.GetAll().Where(wg => wg.WgType == WgType.Por && !wg.IsSoftware).ToList();
             var countryGroups = _repositoryCountryGroup.GetAll().Where(cg => cg.AutoUploadInstallBase).ToList();
             var countries = _repositoryCountry.GetAll().ToList();
-            var installBase = _repositoryInstallBase.GetAll().ToList();
+            var installBase = _repositoryInstallBase.GetAll().Where(ib => !ib.DeactivatedDateTime.HasValue).ToList();
+
+            var countryMatches = new Dictionary<long, long>();
+            foreach (var cm in InstallBaseConfig.CountryMatch)
+            {
+                var countrySource = countries.FirstOrDefault(c => c.Name.Equals(cm.Key, StringComparison.OrdinalIgnoreCase) && c.IsMaster);
+                var countryTarget = countries.FirstOrDefault(c => c.Name.Equals(cm.Value, StringComparison.OrdinalIgnoreCase) && c.IsMaster);
+                if (countrySource != null && countryTarget != null)
+                    countryMatches.Add(countrySource.Id, countryTarget.Id);
+            }
 
             //Central Europe IB calculation
             var centralEurope = _repositoryRegion.GetAll().FirstOrDefault(r => r.Name.Equals(InstallBaseConfig.CentralEuropeRegion, StringComparison.OrdinalIgnoreCase));
-            var centralEuropeCountryGroups = centralEurope != null ? _repositoryCountryGroup.GetAll().Where(cg => cg.RegionId == centralEurope.Id).ToList() : 
-                                                                 new List<CountryGroup>();
-            var centralEuropeCountryGroupIds = centralEuropeCountryGroups.Select(cg => cg.Id).ToList();
-            var centralEuropeCountries = countries.Where(c => centralEuropeCountryGroupIds.Contains(c.CountryGroupId.Value) && c.IsMaster).ToList();
-            var centralEuropeInstallBaseValues = new List<InstallBaseDto>();
-
+            var centralEuropeCountryGroups = centralEurope != null ? _repositoryCountryGroup.GetAll().Where(cg => cg.RegionId == centralEurope.Id).ToList() :
+                                                                     new List<CountryGroup>();
 
             var batchList = new List<InstallBase>();
             var centralEuropeBatchList = new List<InstallBase>();
 
-            foreach (var item in items)
+            var centralEuropeInstallBaseValues = new List<InstallBaseGroupingDto>();
+
+            var ibGroupedByCountryGroupAndWg = from ib in items
+                                                  group ib by new
+                                                  {
+                                                      ib.CountryGroup,
+                                                      ib.Wg
+                                                  } into ibg
+                                                  select new InstallBaseGroupingDto
+                                                  {
+                                                      CountryGroup = ibg.Key.CountryGroup,
+                                                      Wg = ibg.Key.Wg,
+                                                      InstallBase = ibg.Sum(i => i.InstallBase)
+                                                  };
+
+            foreach (var item in ibGroupedByCountryGroupAndWg)
             {
                 if (String.IsNullOrEmpty(item.Wg) || item.Wg.Equals("-") || String.IsNullOrEmpty(item.CountryGroup))
                     continue;
@@ -87,19 +107,28 @@ namespace Gdc.Scd.Import.Core.Impl
                 }
 
                 //getting master countries in country group
-                var masterCountries = countries.Where(c => c.CountryGroupId == countryGroup.Id && c.IsMaster);
+                var masterCountryIds = countries.Where(c => c.CountryGroupId == countryGroup.Id && c.IsMaster).Select(c => c.Id).ToList();
 
-                foreach (var masterCountry in masterCountries)
+                //adding countries that must inheirite value from another country (e.g. Luximbourg gets value from Belgium)
+                foreach (var countryMatch in countryMatches)
                 {
-                    var installBaseDb = installBase.FirstOrDefault(ib => ib.WgId == wg.Id && ib.CountryId == masterCountry.Id && !ib.DeactivatedDateTime.HasValue);
+                    if (masterCountryIds.Contains(countryMatch.Value))
+                        masterCountryIds.Add(countryMatch.Key);
+                }
+
+                foreach (var masterCountryId in masterCountryIds)
+                {
+                    var installBaseDb = installBase.FirstOrDefault(ib => ib.WgId == wg.Id && ib.CountryId == masterCountryId);
+
                     if (installBaseDb == null)
                     {
                         installBaseDb = new InstallBase();
-                        installBaseDb.CountryId = masterCountry.Id;
+                        installBaseDb.CountryId = masterCountryId;
                         installBaseDb.WgId = wg.Id;
                         installBaseDb.CentralContractGroupId = wg.CentralContractGroupId;
                         installBaseDb.PlaId = wg.PlaId;
                     }
+
                     installBaseDb.InstalledBaseCountry = item.InstallBase;
                     batchList.Add(installBaseDb);
                 }
@@ -107,8 +136,12 @@ namespace Gdc.Scd.Import.Core.Impl
 
             if (batchList.Any())
             {
-                  _repositoryInstallBase.Save(batchList);
+                _repositoryInstallBase.Save(batchList);
             }
+
+            //Upload Install Base for Central Europe
+            var centralEuropeCountryGroupIds = centralEuropeCountryGroups.Select(cg => cg.Id).ToList();
+            var centralEuropeCountries = countries.Where(c => centralEuropeCountryGroupIds.Contains(c.CountryGroupId.Value) && c.IsMaster).ToList();
 
             var centralEuropeValues = centralEuropeInstallBaseValues.GroupBy(ib => ib.Wg, 
                 ib => ib.InstallBase, 

@@ -61,6 +61,7 @@
     <Compile Include="Dto\ExchangeRateDto.cs" />
     <Compile Include="Dto\ImportResultDto.cs" />
     <Compile Include="Dto\InstallBaseDto.cs" />
+    <Compile Include="Dto\InstallBaseGroupingDto.cs" />
     <Compile Include="Dto\LogisticsDto.cs" />
     <Compile Include="Dto\MaterialCostDto.cs" />
     <Compile Include="Dto\ParseInfoDto.cs" />
