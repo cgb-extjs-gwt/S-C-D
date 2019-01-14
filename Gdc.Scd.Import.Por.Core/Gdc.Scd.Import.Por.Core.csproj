@@ -101,6 +101,7 @@
     <Compile Include="Extensions\FspCodeExtensions.cs" />
     <Compile Include="Impl\ImportHelper.cs" />
     <Compile Include="Impl\ImportService.cs" />
+    <Compile Include="Impl\PorConstants.cs" />
     <Compile Include="Impl\PorDataImporter.cs" />
     <Compile Include="Impl\PorFspTranslationService.cs" />
     <Compile Include="Impl\PorHwFspCodeTranslationService.cs" />

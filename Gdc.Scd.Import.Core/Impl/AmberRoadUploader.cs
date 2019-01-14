@@ -36,7 +36,10 @@ namespace Gdc.Scd.Import.Core.Impl
 
         public IEnumerable<UpdateQueryOption> Upload(IEnumerable<TaxAndDutiesDto> items, DateTime modifiedDateTime)
         {
-            var dbItemsTaxAndDuties = this._repositoryTaxAndDuties.GetAll().ToList();
+            var dbItemsTaxAndDuties = this._repositoryTaxAndDuties.GetAll()
+                                          .Where(td => !td.DeactivatedDateTime.HasValue)
+                                          .ToList();
+
             var dbItemsCountries = this._repositoryCountry.GetAll().Where(c => c.IsMaster).ToList();
             var batchList = new List<TaxAndDutiesEntity>();
 

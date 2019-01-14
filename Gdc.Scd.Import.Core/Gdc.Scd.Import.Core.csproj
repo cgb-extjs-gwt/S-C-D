@@ -76,6 +76,7 @@
     <Compile Include="Impl\FileConfigHandler.cs" />
     <Compile Include="Impl\FileDownloader.cs" />
     <Compile Include="Impl\ImportManager.cs" />
+    <Compile Include="Impl\InstallBaseConfig.cs" />
     <Compile Include="Impl\InstallBaseUploader.cs" />
     <Compile Include="Impl\Logger.cs" />
     <Compile Include="Impl\LogisticUploader.cs" />
