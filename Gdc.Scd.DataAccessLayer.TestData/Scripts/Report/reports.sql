@@ -120,13 +120,17 @@ RETURN
          , m.*
 
     FROM Hardware.GetCostsFull(1, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, 0, -1) m
-    LEFT JOIN Fsp.HwFspCodeTranslation fsp on fsp.CountryId = m.CountryId
-                                   and fsp.WgId = m.WgId
-                                   and fsp.AvailabilityId = m.AvailabilityId
-                                   and fsp.DurationId = m.DurationId
-                                   and fsp.ReactionTimeId = m.ReactionTimeId
-                                   and fsp.ReactionTypeId = m.ReactionTypeId
-                                   and fsp.ServiceLocationId = m.ServiceLocationId
+
+    LEFT JOIN Fsp.HwFspCodeTranslation fsp  on fsp.SlaHash = m.SlaHash 
+                                           and fsp.CountryId = m.CountryId
+                                           and fsp.WgId = m.WgId
+                                           and fsp.AvailabilityId = m.AvailabilityId
+                                           and fsp.DurationId= m.DurationId
+                                           and fsp.ReactionTimeId = m.ReactionTimeId
+                                           and fsp.ReactionTypeId = m.ReactionTypeId
+                                           and fsp.ServiceLocationId = m.ServiceLocationId
+                                           and fsp.ProactiveSlaId = m.ProActiveSlaId
+
 )
 go
 
