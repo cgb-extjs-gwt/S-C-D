@@ -1,3 +1,49 @@
+DROP INDEX [IX_HwFspCodeTranslation_AvailabilityId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_CountryId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_DurationId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_ProactiveSlaId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_ReactionTimeId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_ReactionTypeId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_ServiceLocationId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_WgId] ON [Fsp].[HwFspCodeTranslation]
+GO
+
+ALTER TABLE Fsp.HwFspCodeTranslation 
+    ADD SlaHash  AS checksum (
+                        cast(coalesce(CountryId, 0) as nvarchar(20)) + ',' +
+                        cast(WgId                   as nvarchar(20)) + ',' +
+                        cast(AvailabilityId         as nvarchar(20)) + ',' +
+                        cast(DurationId             as nvarchar(20)) + ',' +
+                        cast(ReactionTimeId         as nvarchar(20)) + ',' +
+                        cast(ReactionTypeId         as nvarchar(20)) + ',' +
+                        cast(ServiceLocationId      as nvarchar(20)) + ',' +
+                        cast(ProactiveSlaId         as nvarchar(20))
+                    );
+GO
+
+CREATE INDEX IX_HwFspCodeTranslation_SlaHash ON Fsp.HwFspCodeTranslation(SlaHash);
+GO
+
+ALTER TABLE Portfolio.LocalPortfolio
+    ADD SlaHash  AS checksum (
+                    cast(CountryId         as nvarchar(20)) + ',' +
+                    cast(WgId              as nvarchar(20)) + ',' +
+                    cast(AvailabilityId    as nvarchar(20)) + ',' +
+                    cast(DurationId        as nvarchar(20)) + ',' +
+                    cast(ReactionTimeId    as nvarchar(20)) + ',' +
+                    cast(ReactionTypeId    as nvarchar(20)) + ',' +
+                    cast(ServiceLocationId as nvarchar(20)) + ',' +
+                    cast(ProactiveSlaId    as nvarchar(20)) 
+                );
+GO
+
 ALTER TABLE Hardware.ManualCost
    DROP COLUMN DealerPrice;
 
@@ -15,9 +61,9 @@ CREATE NONCLUSTERED INDEX ix_Hardware_FieldServiceCost
     INCLUDE ([ServiceLocation],[ReactionTimeType],[RepairTime],[TravelTime],[LabourCost],[TravelCost],[PerformanceRate],[TimeAndMaterialShare])
 GO
 
-CREATE NONCLUSTERED INDEX ix_Atom_InstallBase
+CREATE NONCLUSTERED INDEX [ix_Atom_InstallBase] 
     ON [Hardware].[InstallBase] ([Country],[Wg])
-    INCLUDE ([InstalledBaseCountry],[InstalledBaseCountry_Approved],[InstalledBaseCountryPla],[InstalledBaseCountryPla_Approved])
+    INCLUDE (InstalledBaseCountry, InstalledBaseCountry_Approved, TotalIb, TotalIb_Approved, TotalIbClusterPla, TotalIbClusterPla_Approved)
 GO
 
 CREATE NONCLUSTERED INDEX ix_Hardware_AvailabilityFee
@@ -820,34 +866,41 @@ IF OBJECT_ID('Hardware.InstallBaseUpdated', 'TR') IS NOT NULL
   DROP TRIGGER Hardware.InstallBaseUpdated;
 go
 
-CREATE TRIGGER Hardware.InstallBaseUpdated
-ON Hardware.InstallBase
+CREATE TRIGGER [Hardware].[InstallBaseUpdated]
+ON [Hardware].[InstallBase]
 After INSERT, UPDATE
 AS BEGIN
 
-    with InstallBasePlaCte (Country, Pla, totalIB)
-    as
-    (
-        select Country, Pla, sum(InstalledBaseCountry) as totalIB
-        from Hardware.InstallBase 
-        where InstalledBaseCountry is not null
-        group by Country, Pla
+    with ibCte as (
+        select ib.*, pla.Id as PlaId, cpla.Id as ClusterPlaId 
+        from Hardware.InstallBase ib
+        JOIN InputAtoms.Pla pla on pla.id = ib.Pla
+        JOIN InputAtoms.ClusterPla cpla on cpla.Id = pla.ClusterPlaId
     )
-    , InstallBasePla_Approved_Cte (Country, Pla, totalIB)
-    as
-    (
-        select Country, Pla, sum(InstalledBaseCountry_Approved) as totalIB
-        from Hardware.InstallBase 
-        where InstalledBaseCountry_Approved is not null
-        group by Country, Pla
+    , totalIb_Cte as (
+        select Country
+             , sum(InstalledBaseCountry) as totalIb
+             , sum(InstalledBaseCountry_Approved) as totalIb_Approved
+        from ibCte
+        group by Country
     )
-    update ib
-        set 
-            ib.InstalledBaseCountryPla = ibp.totalIB,
-            ib.InstalledBaseCountryPla_Approved = ibp2.totalIB
-    from Hardware.InstallBase ib
-    LEFT JOIN InstallBasePlaCte ibp on ibp.Pla = ib.Pla and ibp.Country = ib.Country
-    LEFT JOIN InstallBasePla_Approved_Cte ibp2 on ibp2.Pla = ib.Pla and ibp2.Country = ib.Country
+    , totalIb_PLA_Cte as (
+        select Country
+             , ClusterPlaId
+             , sum(InstalledBaseCountry) as totalIbCluster
+             , sum(InstalledBaseCountry_Approved) as totalIbCluster_Approved
+        from ibCte
+        group by Country, ClusterPlaId
+    )
+    UPDATE ib
+        SET 
+              ib.TotalIb           = t1.totalIb
+            , ib.TotalIb_Approved  = t1.totalIb_Approved
+            , ib.TotalIbClusterPla = t2.totalIbCluster
+            , ib.TotalIbClusterPla_Approved = t2.totalIbCluster_Approved
+    from ibCte ib
+    join totalIb_Cte t1 on t1.Country = ib.Country
+    join totalIb_PLA_Cte t2 on t2.Country = ib.Country and t2.ClusterPlaId = ib.ClusterPlaId
 
 END
 GO
@@ -924,7 +977,7 @@ CREATE VIEW [Hardware].[FieldServiceCostView] AS
     JOIN InputAtoms.Country c on c.Id = fsc.Country
     JOIN InputAtoms.Wg on wg.Id = fsc.Wg
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = fsc.ReactionTimeType
-    LEFT JOIN Hardware.RoleCodeHourlyRates hr on hr.RoleCode = wg.RoleCodeId
+    LEFT JOIN Hardware.RoleCodeHourlyRates hr on hr.RoleCode = wg.RoleCodeId and hr.Country = fsc.Country
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 GO
 
@@ -1018,19 +1071,18 @@ CREATE VIEW [Hardware].[ServiceSupportCostView] as
            ssc.[1stLevelSupportCostsCountry_Approved] * er.Value as '1stLevelSupportCosts_Approved',
 
            (case 
-                when ssc.[2ndLevelSupportCostsLocal] is null then ssc.[2ndLevelSupportCostsClusterRegion]
-                else ssc.[2ndLevelSupportCostsLocal] * er.Value
+                when ssc.[2ndLevelSupportCostsLocal] > 0 then ssc.[2ndLevelSupportCostsLocal] * er.Value 
+                else ssc.[2ndLevelSupportCostsClusterRegion]
             end) as '2ndLevelSupportCosts', 
 
            (case 
-                when ssc.[2ndLevelSupportCostsLocal_Approved] is null then ssc.[2ndLevelSupportCostsClusterRegion_Approved]
-                else ssc.[2ndLevelSupportCostsLocal_Approved] * er.Value
+                when ssc.[2ndLevelSupportCostsLocal_Approved] > 0 then ssc.[2ndLevelSupportCostsLocal_Approved] * er.Value 
+                else ssc.[2ndLevelSupportCostsClusterRegion_Approved]
             end) as '2ndLevelSupportCosts_Approved'
 
     from Hardware.ServiceSupportCost ssc
     join InputAtoms.Country c on c.Id = ssc.Country
     left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
-
 GO
 
 CREATE VIEW [Hardware].[ReinsuranceView] as
@@ -1207,7 +1259,8 @@ RETURNS @tbl TABLE
                 [ReactionTimeId] [bigint] NOT NULL,
                 [ReactionTypeId] [bigint] NOT NULL,
                 [ServiceLocationId] [bigint] NOT NULL,
-                [ProActiveSlaId] [bigint] NOT NULL
+                [ProActiveSlaId] [bigint] NOT NULL,
+                [SlaHash] [int] NOT NULL
             )
 AS
 BEGIN
@@ -1238,13 +1291,13 @@ BEGIN
             )
             insert @tbl
             select top(@limit)
-                    rownum, Id, CountryId, WgId, AvailabilityId, DurationId, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProActiveSlaId
+                    rownum, Id, CountryId, WgId, AvailabilityId, DurationId, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProActiveSlaId, SlaHash
             from SlaCte where rownum > @lastid
         end
     else
         begin
             insert @tbl
-            select -1 as rownum, Id, CountryId, WgId, AvailabilityId, DurationId, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProActiveSlaId
+            select -1 as rownum, Id, CountryId, WgId, AvailabilityId, DurationId, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProActiveSlaId, SlaHash
             from Portfolio.LocalPortfolio m
             where   (m.CountryId = @cnt)
                 and (@wg is null or m.WgId = @wg)
@@ -1339,18 +1392,16 @@ RETURN
                   
          , case when @approved = 0 then ssc.[1stLevelSupportCosts]         else ssc.[1stLevelSupportCosts_Approved]  end as [1stLevelSupportCosts] 
          , case when @approved = 0 then ssc.[2ndLevelSupportCosts]         else ssc.[2ndLevelSupportCosts_Approved]  end as [2ndLevelSupportCosts] 
-         , case when @approved = 0 then ib.InstalledBaseCountry            else ib.InstalledBaseCountry_Approved     end as InstalledBaseCountry    
-         , case when @approved = 0 then ib.InstalledBaseCountryPla         else ib.InstalledBaseCountryPla_Approved  end as InstalledBaseCountryPla 
 
          , case when @approved = 0 then 
                     (case 
-                         when ib.InstalledBaseCountry <> 0 and ib.InstalledBaseCountryPla <> 0 
-                            then ssc.[1stLevelSupportCosts] / ib.InstalledBaseCountry + ssc.[2ndLevelSupportCosts] / ib.InstalledBaseCountryPla
+                         when ib.TotalIb <> 0 and ib.TotalIbClusterPla <> 0 
+                            then ssc.[1stLevelSupportCosts] / ib.TotalIb + ssc.[2ndLevelSupportCosts] / ib.TotalIbClusterPla
                      end)
                 else 
                     (case 
-                         when ib.InstalledBaseCountry_Approved <> 0 and ib.InstalledBaseCountryPla_Approved <> 0 
-                            then ssc.[1stLevelSupportCosts_Approved] / ib.InstalledBaseCountry_Approved + ssc.[2ndLevelSupportCosts_Approved] / ib.InstalledBaseCountryPla_Approved
+                         when ib.TotalIb_Approved <> 0 and ib.TotalIbClusterPla_Approved <> 0 
+                            then ssc.[1stLevelSupportCosts_Approved] / ib.TotalIb_Approved + ssc.[2ndLevelSupportCosts_Approved] / ib.TotalIbClusterPla_Approved
                      end)
             end  as ServiceSupport
          
@@ -1406,6 +1457,8 @@ RETURN
          , man.ServiceTP       as ServiceTPManual                   
          , man.ChangeUserName  as ChangeUserName
          , man.ChangeUserEmail as ChangeUserEmail
+
+         , m.SlaHash
 
     FROM Portfolio.GetBySlaPaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
 
@@ -1691,6 +1744,8 @@ RETURN
          , m.ServiceTPManual
          , m.ChangeUserName
          , m.ChangeUserEmail
+
+         , m.SlaHash
 
        from CostCte6 m
 )

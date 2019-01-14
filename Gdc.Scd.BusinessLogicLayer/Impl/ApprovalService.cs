@@ -150,7 +150,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             var qulityGateOption = this.qualityGateSevice.GetQualityGateOption(history.Context, history.EditorType);
 
-            if (this.qualityGateSevice.IsUseCheck(qulityGateOption))
+            if (history.State == CostBlockHistoryState.Approving && this.qualityGateSevice.IsUseCheck(qulityGateOption))
             {
                 bundleDetails = await this.approvalRepository.GetApproveBundleDetailQualityGate(history, qulityGateOption.IsCountyCheck, historyValueId, costBlockFilter);
             }

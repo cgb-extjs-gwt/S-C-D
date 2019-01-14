@@ -29,6 +29,10 @@ export function yearRenderer(val: number, row) {
     }
 }
 
+export function yesNoRenderer(val, row) {
+    return isEmpty(val) ? '' : val ? 'YES' : 'NO';
+}
+
 function isEmpty(val: any) {
     return val === null || val === undefined || val === '';
 }

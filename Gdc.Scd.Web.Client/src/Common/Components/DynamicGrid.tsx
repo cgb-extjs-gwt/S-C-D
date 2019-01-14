@@ -213,9 +213,9 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
         };
 
         //TODO: Breaks editing
-        // if (column.dataIndex != null) {
-        //     columnOption.id = column.dataIndex.replace(/\./g, '');
-        // }
+         if (column.dataIndex != null) {
+             columnOption.id = column.dataIndex.replace(/\./g, '');
+         }
 
         if (column.flex) {
             columnOption.flex = column.flex;
@@ -256,7 +256,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
                                         : column.referenceItems.get(value).name;
 
                             columnOption.renderer = column.rendererFn 
-                                ? (value, record) => column.rendererFn(getReferenceName(value), record) 
+                                ? column.rendererFn
                                 : (value, record) => getReferenceName(value)
                             break;
                     }

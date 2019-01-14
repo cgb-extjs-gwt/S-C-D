@@ -12,6 +12,8 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Entities
 
         public string MetaTableAlias { get; set; }
 
+        public JoinType JoinType { get; set; } = JoinType.Inner;
+
         public JoinInfo()
         {
         }

@@ -86,51 +86,88 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             combineEntity.Fields.Add(new IdFieldMeta());
 
-            var nameColumns = new List<string>();
+            var columnWithSpaces = new List<ISqlBuilder>();
+            var lastIndex = viewInfo.ReferenceInfos.Length - 1;
 
-            foreach (var referenceInfo in viewInfo.ReferenceInfos)
+            for (var index = 0; index < viewInfo.ReferenceInfos.Length; index++)
             {
+                var referenceInfo = viewInfo.ReferenceInfos[index];
                 var meta = this.BuildNamedMeta(referenceInfo.Type);
 
                 combineEntity.Fields.Add(ReferenceFieldMeta.Build(referenceInfo.ForeignColumn, meta));
 
-                var columnSqlBuilder = new ColumnSqlBuilder
+                var column = new ColumnSqlBuilder
                 {
                     Name = meta.NameField.Name,
                     Table = meta.Name
                 };
 
-                nameColumns.Add(columnSqlBuilder.Build(null));
+                columnWithSpaces.Add(new BracketsSqlBuilder
+                {
+                    Query = new CaseSqlBuilder
+                    {
+                        Input = column,
+                        Cases = new []
+                        {
+                            new CaseItem
+                            {
+                                When = new StringValueSqlBuilder(MetaConstants.NoneValue),
+                                Then = new StringValueSqlBuilder("")
+                            }
+                        },
+                        Else = index < lastIndex 
+                            ? SqlOperators.Add(column, new StringValueSqlBuilder(" ")).ToSqlBuilder() 
+                            : column
+                    }
+                });
             }
 
-            var columns = new List<BaseColumnInfo>
-            {
-                new ColumnInfo(IdFieldMeta.DefaultId, combineEntity.Name, IdFieldMeta.DefaultId),
-                new QueryColumnInfo(
-                    new RawSqlBuilder
-                    {
-                        RawSql = $"({string.Join(" + ' ' + ", nameColumns)})"
-                    },
-                    MetaConstants.NameFieldKey)
-            };
+            var idColumn = new ColumnInfo(IdFieldMeta.DefaultId, combineEntity.Name, IdFieldMeta.DefaultId);
+            var nameColumn = new QueryColumnInfo(
+                    SqlOperators.Add(columnWithSpaces.ToArray()).ToSqlBuilder(),
+                    MetaConstants.NameFieldKey);
+
+            var innerColumns = new List<BaseColumnInfo>{ idColumn, nameColumn };
 
             if (this.IsDisabledEntity(viewInfo))
             {
-                columns.Add(new ColumnInfo(nameof(BaseDisabledEntity.IsDisabled), combineEntity.Name));
+                innerColumns.Add(new ColumnInfo(nameof(BaseDisabledEntity.IsDisabled), combineEntity.Name, nameof(BaseDisabledEntity.IsDisabled)));
             }
 
-            var query = Sql.Select(columns.ToArray()).From(combineEntity);
+            var query = Sql.Select(innerColumns.ToArray()).From(combineEntity);
 
             foreach (var referenceInfo in viewInfo.ReferenceInfos)
             {
                 query = query.Join(combineEntity, referenceInfo.ForeignColumn);
             }
 
+            var columns = innerColumns.Select(
+                column =>
+                    column == nameColumn
+                        ? new QueryColumnInfo
+                        {
+                            Alias = nameColumn.Alias,
+                            Query = new CaseSqlBuilder
+                            {
+                                Input = new ColumnSqlBuilder(nameColumn.Alias),
+                                Cases = new[]
+                                {
+                                    new CaseItem
+                                    {
+                                        When = new StringValueSqlBuilder(""),
+                                        Then = new StringValueSqlBuilder(MetaConstants.NoneValue)
+                                    }
+                                },
+                                Else = new ColumnSqlBuilder(nameColumn.Alias)
+                            }
+                        }
+                        : new ColumnInfo(column.Alias) as BaseColumnInfo);
+
             var createViewQuery = new CreateViewSqlBuilder
             {
                 Shema = MetaConstants.DependencySchema,
                 Name = viewInfo.ViewName,
-                Query = query.ToSqlBuilder()
+                Query = Sql.Select(columns.ToArray()).FromQuery(query, "t").ToSqlBuilder()
             };
 
             this.repositorySet.ExecuteSql(new SqlHelper(createViewQuery));

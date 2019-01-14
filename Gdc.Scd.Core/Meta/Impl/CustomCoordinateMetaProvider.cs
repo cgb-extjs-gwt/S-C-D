@@ -26,19 +26,21 @@ namespace Gdc.Scd.Core.Meta.Impl
             var swDigitMeta = new SwDigitEnityMeta(sogMeta);
             var clusterRegionMeta = new NamedEntityMeta(MetaConstants.ClusterRegionInputLevel, MetaConstants.InputLevelSchema);
             var countryMeta = new CountryEntityMeta(clusterRegionMeta);
-            var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta, centralContractGroupMeta);
+            var roleCode = new NamedEntityMeta(MetaConstants.RoleCodeInputLevel, MetaConstants.InputLevelSchema);
+            var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta, centralContractGroupMeta, roleCode);
 
             var customMetas = new[]
             {
-                    swDigitMeta,
-                    sogMeta,
-                    sfabMeta,
-                    plaMeta,
-                    centralContractGroupMeta,
-                    wgMeta,
-                    clusterRegionMeta,
-                    countryMeta
-                };
+                swDigitMeta,
+                sogMeta,
+                sfabMeta,
+                plaMeta,
+                centralContractGroupMeta,
+                wgMeta,
+                clusterRegionMeta,
+                countryMeta,
+                roleCode
+            };
 
             var result = customMetas.ToDictionary(meta => BaseEntityMeta.BuildFullName(meta.Name, meta.Schema));
 

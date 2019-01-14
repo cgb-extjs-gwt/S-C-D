@@ -60,7 +60,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return this.Join(null, tableName, condition, type, alias);
         }
 
-        public ISqlBuilder Join(BaseEntityMeta meta, string referenceFieldName, string joinedTableAlias = null, string metaTableAlias = null)
+        public ISqlBuilder Join(
+            BaseEntityMeta meta, 
+            string referenceFieldName, 
+            string joinedTableAlias = null, 
+            string metaTableAlias = null, 
+            JoinType joinType = JoinType.Inner)
         {
             var referenceField = (ReferenceFieldMeta)meta.GetField(referenceFieldName);
 
@@ -70,7 +75,8 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                     SqlOperators.Equals(
                         new ColumnInfo(referenceField.Name, metaTableAlias ?? meta.Name),
                         new ColumnInfo(referenceField.ReferenceValueField, joinedTableAlias ?? referenceField.ReferenceMeta.Name)),
-                    alias: joinedTableAlias);
+                    joinType,
+                    joinedTableAlias);
         }
 
         public ISqlBuilder Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner, string aliasMetaTable = null)
@@ -87,7 +93,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 foreach (var joinInfo in joinInfos)
                 {
                     joinHelper = new JoinSqlHelper(
-                        joinHelper.Join(joinInfo.Meta, joinInfo.ReferenceFieldName, joinInfo.JoinedTableAlias, joinInfo.MetaTableAlias));
+                        joinHelper.Join(
+                            joinInfo.Meta, 
+                            joinInfo.ReferenceFieldName, 
+                            joinInfo.JoinedTableAlias, 
+                            joinInfo.MetaTableAlias, 
+                            joinInfo.JoinType));
                 }
             }
 

@@ -52,8 +52,6 @@ RETURN (
               , fsc.TravelTime as TravelTime
               , fsc.RepairTime as RepairTime
               , fsc.OnsiteHourlyRates as OnsiteHourlyRate
-              , null as OohUplift
-              , null as Uplift
 
               , lc.StandardHandling as StandardHandling
               , null as LogisticTransportcost
@@ -159,14 +157,15 @@ RETURN (
 
         LEFT JOIN ReinsuranceCte r on r.Wg = m.WgId and r.Year = m.DurationId
 
-        LEFT JOIN Fsp.HwFspCodeTranslation fsp on fsp.CountryId = m.CountryId
-                                    and fsp.WgId = m.WgId
-                                    and fsp.AvailabilityId = m.AvailabilityId
-                                    and fsp.DurationId = m.DurationId
-                                    and fsp.ReactionTimeId = m.ReactionTimeId
-                                    and fsp.ReactionTypeId = m.ReactionTypeId
-                                    and fsp.ServiceLocationId = m.ServiceLocationId
-                                    and fsp.ProactiveSlaId = m.ProActiveSlaId
+        LEFT JOIN Fsp.HwFspCodeTranslation fsp  on fsp.SlaHash = m.SlaHash 
+                                               and fsp.CountryId = m.CountryId
+                                               and fsp.WgId = m.WgId
+                                               and fsp.AvailabilityId = m.AvailabilityId
+                                               and fsp.DurationId= m.DurationId
+                                               and fsp.ReactionTimeId = m.ReactionTimeId
+                                               and fsp.ReactionTypeId = m.ReactionTypeId
+                                               and fsp.ServiceLocationId = m.ServiceLocationId
+                                               and fsp.ProactiveSlaId = m.ProActiveSlaId
     )
     select    m.*
             , m.FieldServicePerYear * m.AFR1 as FieldServiceCost1
@@ -224,10 +223,6 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'RepairTime', 'Repair time (MTTR)', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'OnsiteHourlyRate', 'Onsite hourly rate', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'OohUplift', 'OOH Uplift Field Service Cost', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Uplift', 'Uplift Field Service Cost', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'StandardHandling', 'Logistics handling cost', 1, 1);

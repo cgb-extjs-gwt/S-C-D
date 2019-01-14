@@ -6,6 +6,7 @@ const OpenBrowserPlugin = require('open-browser-webpack-plugin');
 const ExtReactWebpackPlugin = require('@extjs/reactor-webpack-plugin');
 const portfinder = require('portfinder');
 const WriteFilePlugin = require('write-file-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const sourcePath = path.resolve(__dirname, 'src');
 
@@ -29,7 +30,10 @@ module.exports = function (env) {
             new webpack.EnvironmentPlugin({
                 NODE_ENV: nodeEnv
             }),
-            new webpack.NamedModulesPlugin()
+            new webpack.NamedModulesPlugin(),
+            new CopyWebpackPlugin([
+                { from: 'Images', to: 'images' }
+            ])
         ];
 
 

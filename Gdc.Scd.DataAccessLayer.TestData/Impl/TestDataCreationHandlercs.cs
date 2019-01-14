@@ -360,7 +360,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             this.repositorySet.GetRepository<ProActiveSla>().Save(new ProActiveSla[]
             {
-                new ProActiveSla { Name = "0", ExternalName = "none" },
+                new ProActiveSla { Name = "0", ExternalName = MetaConstants.NoneValue },
                 new ProActiveSla { Name = "1", ExternalName = "with autocall" },
                 new ProActiveSla { Name = "2", ExternalName = "with 1x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
                 new ProActiveSla { Name = "3", ExternalName = "with 2x System Health Check & Patch Information incl. remote Technical Account Management (per year)",
@@ -493,11 +493,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var fourHour = new ReactionTime { Name = "4h", ExternalName = "4h" };
             var twentyFourHour = new ReactionTime { Name = "24h", ExternalName = "24h" };
             var eightHour = new ReactionTime { Name = "8h", ExternalName = "8h" };
-            var noneTime = new ReactionTime { Name = "none", ExternalName = "none" };
+            var noneTime = new ReactionTime { Name = MetaConstants.NoneValue, ExternalName = MetaConstants.NoneValue };
 
             var response = new ReactionType { Name = "response", ExternalName = "response" };
             var recovery = new ReactionType { Name = "recovery", ExternalName = "recovery" };
-            var noneType = new ReactionType { Name = "none", ExternalName = "none" };
+            var noneType = new ReactionType { Name = MetaConstants.NoneValue, ExternalName = MetaConstants.NoneValue };
 
             this.repositorySet.GetRepository<ReactionType>().Save(noneType);
             this.repositorySet.GetRepository<ReactionTime>().Save(noneTime);
@@ -511,6 +511,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReactionTimeType { ReactionTime = twentyFourHour, ReactionType = recovery },
                 new ReactionTimeType { ReactionTime = eightHour, ReactionType = recovery },
                 new ReactionTimeType { ReactionTime = fourHour, ReactionType = recovery },
+                new ReactionTimeType { ReactionTime = noneTime, ReactionType = noneType },
             });
 
             var nineByFive = new Availability { Name = "9x5", ExternalName = "9x5 (local business hours);9x5 (08:00-17:00)" };
