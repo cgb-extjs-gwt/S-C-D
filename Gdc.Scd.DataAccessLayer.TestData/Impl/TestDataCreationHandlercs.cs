@@ -593,29 +593,29 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             repository.Save(new List<CentralContractGroup>
             {
-                new CentralContractGroup {Name = "NA", Description = "UNASSIGNED" },
-                new CentralContractGroup {Name = "CG350", Description = "CENTRICSTOR" },
-                new CentralContractGroup {Name = "CG110", Description = "CLIENTS ENTRY" },
-                new CentralContractGroup {Name = "CG130", Description = "CLIENTS HIGHEND" },
-                new CentralContractGroup {Name = "CG120", Description = "CLIENTS MIDRANGE" },
-                new CentralContractGroup {Name = "CG100", Description = "CLIENTS SUBENTRY/ SWAP / EXCHANGE" },
-                new CentralContractGroup {Name = "CG041", Description = "DISPLAY W/O ODM" },
-                new CentralContractGroup {Name = "CG270", Description = "ENTERPRISE SERVER HIGHEND" },
-                new CentralContractGroup {Name = "CG260", Description = "ENTERPRISE SERVER MIDRANGE" },
-                new CentralContractGroup {Name = "CG050", Description = "PERIPHERALS" },
-                new CentralContractGroup {Name = "CG070", Description = "PRINTER" },
-                new CentralContractGroup {Name = "CG510", Description = "RETAIL PRODUCTS ENTRY" },
-                new CentralContractGroup {Name = "CG040", Description = "DISPLAYS" },
-                new CentralContractGroup {Name = "CG500", Description = "RETAIL SUBENTRY/ SWAP / EXCHANGE" },
-                new CentralContractGroup {Name = "CG060", Description = "SECURITY DEVICES" },
-                new CentralContractGroup {Name = "CG200", Description = "SERVER  SUBENTRY/ SWAP / EXCHANGE" },
-                new CentralContractGroup {Name = "CG210", Description = "SERVER ENTRY" },
-                new CentralContractGroup {Name = "CG220", Description = "SERVER MIDRANGE" },
-                new CentralContractGroup {Name = "CG230", Description = "SERVER HIGHEND" },
-                new CentralContractGroup {Name = "CG320", Description = "STORAGE MIDRANGE" },
-                new CentralContractGroup {Name = "CG310", Description = "STORAGE ENTRY" },
-                new CentralContractGroup {Name = "CG330", Description = "STORAGE HIGHEND" },
-                new CentralContractGroup {Name = "CG540", Description = "THIRD PARTY VENDORS" },
+                new CentralContractGroup {Code = "NA", Name = "UNASSIGNED" },
+                new CentralContractGroup {Code = "CG350", Name = "CENTRICSTOR" },
+                new CentralContractGroup {Code = "CG110", Name = "CLIENTS ENTRY" },
+                new CentralContractGroup {Code = "CG130", Name = "CLIENTS HIGHEND" },
+                new CentralContractGroup {Code = "CG120", Name = "CLIENTS MIDRANGE" },
+                new CentralContractGroup {Code = "CG100", Name = "CLIENTS SUBENTRY/ SWAP / EXCHANGE" },
+                new CentralContractGroup {Code = "CG041", Name = "DISPLAY W/O ODM" },
+                new CentralContractGroup {Code = "CG270", Name = "ENTERPRISE SERVER HIGHEND" },
+                new CentralContractGroup {Code = "CG260", Name = "ENTERPRISE SERVER MIDRANGE" },
+                new CentralContractGroup {Code = "CG050", Name = "PERIPHERALS" },
+                new CentralContractGroup {Code = "CG070", Name = "PRINTER" },
+                new CentralContractGroup {Code = "CG510", Name = "RETAIL PRODUCTS ENTRY" },
+                new CentralContractGroup {Code = "CG040", Name = "DISPLAYS" },
+                new CentralContractGroup {Code = "CG500", Name = "RETAIL SUBENTRY/ SWAP / EXCHANGE" },
+                new CentralContractGroup {Code = "CG060", Name = "SECURITY DEVICES" },
+                new CentralContractGroup {Code = "CG200", Name = "SERVER  SUBENTRY/ SWAP / EXCHANGE" },
+                new CentralContractGroup {Code = "CG210", Name = "SERVER ENTRY" },
+                new CentralContractGroup {Code = "CG220", Name = "SERVER MIDRANGE" },
+                new CentralContractGroup {Code = "CG230", Name = "SERVER HIGHEND" },
+                new CentralContractGroup {Code = "CG320", Name = "STORAGE MIDRANGE" },
+                new CentralContractGroup {Code = "CG310", Name = "STORAGE ENTRY" },
+                new CentralContractGroup {Code = "CG330", Name = "STORAGE HIGHEND" },
+                new CentralContractGroup {Code = "CG540", Name = "THIRD PARTY VENDORS" },
 
             });
 
@@ -626,29 +626,29 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             var repository = this.repositorySet.GetRepository<CentralContractGroup>();
 
-            var na = repository.GetAll().First(c => c.Name == "NA").Id;
-            var centricStor = repository.GetAll().First(c => c.Name == "CG350").Id;
-            var clientsEntry = repository.GetAll().First(c => c.Name == "CG110").Id;
-            var clientsHighend = repository.GetAll().First(c => c.Name == "CG130").Id;
-            var clientsMidrange = repository.GetAll().First(c => c.Name == "CG120").Id;
-            var clientsSubentry = repository.GetAll().First(c => c.Name == "CG100").Id;
-            var displayODM = repository.GetAll().First(c => c.Name == "CG041").Id;
-            var enterpriseServerHighend = repository.GetAll().First(c => c.Name == "CG270").Id;
-            var enterpriseServerMidrange = repository.GetAll().First(c => c.Name == "CG260").Id;
-            var peripherals = repository.GetAll().First(c => c.Name == "CG050").Id;
-            var pribter = repository.GetAll().First(c => c.Name == "CG070").Id;
-            var retailProducts = repository.GetAll().First(c => c.Name == "CG510").Id;
-            var displays = repository.GetAll().First(c => c.Name == "CG040").Id;
-            var retailSubentry = repository.GetAll().First(c => c.Name == "CG500").Id;
-            var securityDevices = repository.GetAll().First(c => c.Name == "CG060").Id;
-            var serverSubentry = repository.GetAll().First(c => c.Name == "CG200").Id;
-            var serverEntry = repository.GetAll().First(c => c.Name == "CG210").Id;
-            var serverMidrange = repository.GetAll().First(c => c.Name == "CG220").Id;
-            var serverHighend = repository.GetAll().First(c => c.Name == "CG230").Id;
-            var storageMidrange = repository.GetAll().First(c => c.Name == "CG320").Id;
-            var storageEntry = repository.GetAll().First(c => c.Name == "CG310").Id;
-            var storageHighend = repository.GetAll().First(c => c.Name == "CG330").Id;
-            var thirdPartyVendors = repository.GetAll().First(c => c.Name == "CG540").Id;
+            var na = repository.GetAll().First(c => c.Code == "NA").Id;
+            var centricStor = repository.GetAll().First(c => c.Code == "CG350").Id;
+            var clientsEntry = repository.GetAll().First(c => c.Code == "CG110").Id;
+            var clientsHighend = repository.GetAll().First(c => c.Code == "CG130").Id;
+            var clientsMidrange = repository.GetAll().First(c => c.Code == "CG120").Id;
+            var clientsSubentry = repository.GetAll().First(c => c.Code == "CG100").Id;
+            var displayODM = repository.GetAll().First(c => c.Code == "CG041").Id;
+            var enterpriseServerHighend = repository.GetAll().First(c => c.Code == "CG270").Id;
+            var enterpriseServerMidrange = repository.GetAll().First(c => c.Code == "CG260").Id;
+            var peripherals = repository.GetAll().First(c => c.Code == "CG050").Id;
+            var pribter = repository.GetAll().First(c => c.Code == "CG070").Id;
+            var retailProducts = repository.GetAll().First(c => c.Code == "CG510").Id;
+            var displays = repository.GetAll().First(c => c.Code == "CG040").Id;
+            var retailSubentry = repository.GetAll().First(c => c.Code == "CG500").Id;
+            var securityDevices = repository.GetAll().First(c => c.Code == "CG060").Id;
+            var serverSubentry = repository.GetAll().First(c => c.Code == "CG200").Id;
+            var serverEntry = repository.GetAll().First(c => c.Code == "CG210").Id;
+            var serverMidrange = repository.GetAll().First(c => c.Code == "CG220").Id;
+            var serverHighend = repository.GetAll().First(c => c.Code == "CG230").Id;
+            var storageMidrange = repository.GetAll().First(c => c.Code == "CG320").Id;
+            var storageEntry = repository.GetAll().First(c => c.Code == "CG310").Id;
+            var storageHighend = repository.GetAll().First(c => c.Code == "CG330").Id;
+            var thirdPartyVendors = repository.GetAll().First(c => c.Code == "CG540").Id;
 
             var clusterPlas = new List<ClusterPla>
             {

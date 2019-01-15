@@ -17,7 +17,8 @@ namespace Gdc.Scd.Core.Entities
             get => base.Id;
             set => base.Id = value;
         }
-        public string Description { get; set; }
+
+        public string Code { get; set; }
 
         public List<Wg> WarrantyGroups { get; set; }
     }
