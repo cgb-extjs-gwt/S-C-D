@@ -68,7 +68,7 @@ namespace Gdc.Scd.Import.Core.Impl
             var batchUpdate = new List<Wg>();
 
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_WG_START);
-            var defaultCentralContractGroup = this._centralContractGroupRepo.GetAll().FirstOrDefault(ccg => ccg.Name == "NA");
+            var defaultCentralContractGroup = this._centralContractGroupRepo.GetAll().FirstOrDefault(ccg => ccg.Code == "NA");
 
             foreach (var item in items)
             {

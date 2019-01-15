@@ -13,9 +13,9 @@ namespace Gdc.Scd.Import.Core.Dto
         public string WgName { get; set; }
 
         [ParseInfo(2)]
-        public string CentralContractGroupName { get; set; }
+        public string CentralContractGroupCode { get; set; }
 
         [ParseInfo(3)]
-        public string CentralContractGroupDescription { get; set; }
+        public string CentralContractGroupName { get; set; }
     }
 }

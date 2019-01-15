@@ -77,7 +77,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             try
             {
                 var defaultCentralContractGroup = this.repositorySet.GetRepository<CentralContractGroup>()
-                                                    .GetAll().FirstOrDefault(ccg => ccg.Name == "NA");
+                                                    .GetAll().FirstOrDefault(ccg => ccg.Code == "NA");
 
                 foreach (var porWg in wgs)
                 {
