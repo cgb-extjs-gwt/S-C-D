@@ -518,8 +518,7 @@ AS
 BEGIN
     return @afr * (
                    (1 - @timeAndMaterialShare) * (@travelCost + @labourCost + @performanceRate) + 
-                   @timeAndMaterialShare * (@travelTime + @repairTime) * @onsiteHourlyRate + 
-                   @performanceRate
+                   @timeAndMaterialShare * ((@travelTime + @repairTime) * @onsiteHourlyRate + @performanceRate)
                 );
 END
 GO
@@ -1536,7 +1535,7 @@ RETURN
         select    m.*
                 , m.Year * m.ServiceSupport as ServiceSupportCost
 
-                , (1 - m.TimeAndMaterialShare) * (m.TravelCost + m.LabourCost + m.PerformanceRate) + m.TimeAndMaterialShare * (m.TravelTime + m.repairTime) * m.OnsiteHourlyRates + m.PerformanceRate as FieldServicePerYear
+                , (1 - m.TimeAndMaterialShare) * (m.TravelCost + m.LabourCost + m.PerformanceRate) + m.TimeAndMaterialShare * ((m.TravelTime + m.repairTime) * m.OnsiteHourlyRates + m.PerformanceRate) as FieldServicePerYear
 
                 , m.StandardHandling + m.HighAvailabilityHandling + m.StandardDelivery + m.ExpressDelivery + m.TaxiCourierDelivery + m.ReturnDeliveryFactory as LogisticPerYear
                 
@@ -1749,6 +1748,7 @@ RETURN
 
        from CostCte6 m
 )
+
 go
 
 CREATE FUNCTION [Hardware].[GetCosts](
