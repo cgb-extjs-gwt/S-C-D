@@ -127,7 +127,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         wgs.Add(wg.Id);
                     }
 
-                    var sla = code.MapFspCodeToSla(slaDto);
+                    var sla = code.MapFspCodeToSla(slaDto, stdwSla.Proactive);
 
                     if (sla == null)
                     {
@@ -279,7 +279,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     }
 
                     var sla = isProactive ? code.MapFspCodeToSla(slaDto, hwSla.Proactive, true, proactiveServiceType) :
-                                            code.MapFspCodeToSla(slaDto);
+                                            code.MapFspCodeToSla(slaDto, hwSla.Proactive);
 
                     if (sla == null)
                     {
