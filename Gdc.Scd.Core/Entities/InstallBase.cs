@@ -15,14 +15,6 @@ namespace Gdc.Scd.Core.Entities
         public long? WgId { get; set; }
         public Wg Wg { get; set; }
 
-        [Column("Pla")]
-        public long? PlaId { get; set; }
-        public Pla Pla { get; set; }
-
-        [Column("CentralContractGroup")]
-        public long? CentralContractGroupId { get; set; }
-        public CentralContractGroup CentralContractGroup { get; set; }
-
         [Column("Country")]
         public long? CountryId { get; set; }
         public Country Country { get; set; }

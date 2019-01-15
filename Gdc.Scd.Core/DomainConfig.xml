@@ -381,7 +381,10 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="InstalledBaseCountry" Caption="Installed base country" InputOption="ManualyAutomaticly">
+        <Element Name="InstalledBaseCountry" Caption="Installed base country" InputOption="ManualyAutomaticly" RegionInput="Country">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
           <CostEditor>
             <Roles>
               <Role>PRS Finance</Role>
