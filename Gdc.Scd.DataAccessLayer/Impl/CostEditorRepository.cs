@@ -19,10 +19,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly DomainEnitiesMeta domainEnitiesMeta;
 
-        public CostEditorRepository(IRepositorySet repositorySet, DomainEnitiesMeta domainEnitiesMeta)
+        private readonly ICostBlockRepository costBlockRepository;
+
+        public CostEditorRepository(IRepositorySet repositorySet, DomainEnitiesMeta domainEnitiesMeta, ICostBlockRepository costBlockRepository)
         {
             this.repositorySet = repositorySet;
             this.domainEnitiesMeta = domainEnitiesMeta;
+            this.costBlockRepository = costBlockRepository;
         }
 
         public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context, IDictionary<string, long[]> filter)
@@ -88,48 +91,45 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, IDictionary<string, IEnumerable<object>> filter = null)
         {
+            if (filter == null)
+            {
+                filter = new Dictionary<string, IEnumerable<object>>();
+            }
+
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
-            var nameField = costBlockMeta.InputLevelFields[context.InputLevelId];
+            var editInfos =
+                editItems.Select((editItem, index) => new EditInfo
+                {
+                    Meta = costBlockMeta,
+                    ValueInfos = new[]
+                    {
+                        new ValuesInfo
+                        {
+                            Filter = new Dictionary<string, IEnumerable<object>>(filter)
+                            {
+                                [context.InputLevelId] = new object []
+                                {
+                                    new CommandParameterInfo
+                                    {
+                                        Name = $"{context.InputLevelId}_{index}",
+                                        Value = editItem.Id
+                                    }
+                                }
+                            },
+                            Values = new Dictionary<string, object>
+                            {
+                                [context.CostElementId] = editItem.Value
+                            }
+                        }
+                    }
+                });
 
-            var query = 
-                Sql.Queries(
-                    editItems.Select(
-                        (editItem, index) => this.BuildUpdateValueQuery(costBlockMeta, editItem, context, index, filter)));
-
-            return await this.repositorySet.ExecuteSqlAsync(query);
+            return await this.costBlockRepository.Update(editInfos);
         }
 
         public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, IDictionary<string, long[]> filter)
         {
             return await this.UpdateValues(editItems, context, filter.Convert());
-        }
-
-        private SqlHelper BuildUpdateValueQuery(
-            CostBlockEntityMeta meta,
-            EditItem editItem,
-            CostEditorContext context, 
-            int index, 
-            IDictionary<string, IEnumerable<object>> filter = null)
-        {
-            var updateColumn = new ValueUpdateColumnInfo(
-                context.CostElementId,
-                editItem.Value,
-                $"{context.CostElementId}_{index}");
-
-            //filter = new Dictionary<string, IEnumerable<object>>(filter ?? Enumerable.Empty<KeyValuePair<string, IEnumerable<object>>>())
-            filter = new Dictionary<string, IEnumerable<object>>(filter ?? new Dictionary<string, IEnumerable<object>>())       
-            {
-                [context.InputLevelId] = new object []
-                {
-                    new CommandParameterInfo
-                    {
-                        Name = $"{context.InputLevelId}_{index}",
-                        Value = editItem.Id
-                    }
-                }
-            };
-
-            return Sql.Update(meta, updateColumn).WhereNotDeleted(meta, filter);
         }
     }
 }

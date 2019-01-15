@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Gdc.Scd.Core.Meta.Entities;
 
-namespace Gdc.Scd.Core.Entities.TableView
+namespace Gdc.Scd.Core.Entities
 {
     public class EditInfo
     {
