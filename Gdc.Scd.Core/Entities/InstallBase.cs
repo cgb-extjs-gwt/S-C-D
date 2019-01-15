@@ -30,15 +30,6 @@ namespace Gdc.Scd.Core.Entities
         public double? InstalledBaseCountry { get; set; }
         public double? InstalledBaseCountry_Approved { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double? TotalIb { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double? TotalIb_Approved { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double? TotalIbClusterPla { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double? TotalIbClusterPla_Approved { get; set; }
-
         public DateTime CreatedDateTime { get; set; }
         public DateTime? DeactivatedDateTime { get; set; }
         public DateTime ModifiedDateTime { get; set; }

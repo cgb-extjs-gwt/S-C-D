@@ -56,14 +56,17 @@ ALTER TABLE Hardware.HddRetention
          HddRet_Approved float
 go
 
+ALTER TABLE Hardware.ServiceSupportCost
+    add   TotalIb                          float
+        , TotalIb_Approved                 float
+        , TotalIbClusterPla                float
+        , TotalIbClusterPla_Approved       float
+        , TotalIbClusterPlaRegion          float
+        , TotalIbClusterPlaRegion_Approved float
+
 CREATE NONCLUSTERED INDEX ix_Hardware_FieldServiceCost
     ON [Hardware].[FieldServiceCost] ([Country],[Wg])
     INCLUDE ([ServiceLocation],[ReactionTimeType],[RepairTime],[TravelTime],[LabourCost],[TravelCost],[PerformanceRate],[TimeAndMaterialShare])
-GO
-
-CREATE NONCLUSTERED INDEX [ix_Atom_InstallBase] 
-    ON [Hardware].[InstallBase] ([Country],[Wg])
-    INCLUDE (InstalledBaseCountry, InstalledBaseCountry_Approved, TotalIb, TotalIb_Approved, TotalIbClusterPla, TotalIbClusterPla_Approved)
 GO
 
 CREATE NONCLUSTERED INDEX ix_Hardware_AvailabilityFee
@@ -871,35 +874,52 @@ After INSERT, UPDATE
 AS BEGIN
 
     with ibCte as (
-        select ib.*, pla.Id as PlaId, cpla.Id as ClusterPlaId 
+        select ib.*
+                , c.ClusterRegionId
+                , pla.Id as PlaId
+                , cpla.Id as ClusterPlaId 
         from Hardware.InstallBase ib
-        JOIN InputAtoms.Pla pla on pla.id = ib.Pla
+        JOIN InputAtoms.Country c on c.id = ib.Country
+        JOIN InputAtoms.Wg wg on wg.id = ib.Wg
+        JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
         JOIN InputAtoms.ClusterPla cpla on cpla.Id = pla.ClusterPlaId
+
+        where wg.DeactivatedDateTime is null
     )
     , totalIb_Cte as (
         select Country
-             , sum(InstalledBaseCountry) as totalIb
-             , sum(InstalledBaseCountry_Approved) as totalIb_Approved
+                , sum(InstalledBaseCountry) as totalIb
+                , sum(InstalledBaseCountry_Approved) as totalIb_Approved
         from ibCte
         group by Country
     )
     , totalIb_PLA_Cte as (
         select Country
-             , ClusterPlaId
-             , sum(InstalledBaseCountry) as totalIbCluster
-             , sum(InstalledBaseCountry_Approved) as totalIbCluster_Approved
+                , ClusterPlaId
+                , sum(InstalledBaseCountry) as totalIb
+                , sum(InstalledBaseCountry_Approved) as totalIb_Approved
         from ibCte
         group by Country, ClusterPlaId
     )
-    UPDATE ib
-        SET 
-              ib.TotalIb           = t1.totalIb
-            , ib.TotalIb_Approved  = t1.totalIb_Approved
-            , ib.TotalIbClusterPla = t2.totalIbCluster
-            , ib.TotalIbClusterPla_Approved = t2.totalIbCluster_Approved
-    from ibCte ib
-    join totalIb_Cte t1 on t1.Country = ib.Country
-    join totalIb_PLA_Cte t2 on t2.Country = ib.Country and t2.ClusterPlaId = ib.ClusterPlaId
+    , totalIb_PLA_ClusterRegion_Cte as (
+        select    ClusterRegionId
+                , ClusterPlaId
+                , sum(InstalledBaseCountry) as totalIb
+                , sum(InstalledBaseCountry_Approved) as totalIb_Approved
+        from ibCte
+        group by ClusterRegionId, ClusterPlaId
+    )
+    UPDATE ssc
+            SET   ssc.TotalIb                          = t1.totalIb
+                , ssc.TotalIb_Approved                 = t1.totalIb_Approved
+                , ssc.TotalIbClusterPla                = t2.totalIb
+                , ssc.TotalIbClusterPla_Approved       = t2.totalIb_Approved
+                , ssc.TotalIbClusterPlaRegion          = t3.totalIb
+                , ssc.TotalIbClusterPlaRegion_Approved = t3.totalIb_Approved
+    from Hardware.ServiceSupportCost ssc
+    join totalIb_Cte t1 on t1.Country = ssc.Country
+    join totalIb_PLA_Cte t2 on t2.Country = ssc.Country and t2.ClusterPlaId = ssc.ClusterPla
+    join totalIb_PLA_ClusterRegion_Cte t3 on t3.ClusterRegionId = ssc.ClusterRegion and t3.ClusterPlaId = ssc.ClusterPla
 
 END
 GO
@@ -1062,26 +1082,59 @@ CREATE VIEW [Hardware].[MarkupStandardWarantyView] as
 GO
 
 CREATE VIEW [Hardware].[ServiceSupportCostView] as
-    select ssc.Country,
-           ssc.ClusterRegion,
-           ssc.ClusterPla,
+    with cte as (
+        select   ssc.Country
+               , ssc.ClusterRegion
+               , ssc.ClusterPla
 
-           ssc.[1stLevelSupportCostsCountry] * er.Value as '1stLevelSupportCosts',
-           ssc.[1stLevelSupportCostsCountry_Approved] * er.Value as '1stLevelSupportCosts_Approved',
+               , ssc.[1stLevelSupportCostsCountry] * er.Value          as '1stLevelSupportCosts'
+               , ssc.[1stLevelSupportCostsCountry_Approved] * er.Value as '1stLevelSupportCosts_Approved'
+           
+               , ssc.[2ndLevelSupportCostsLocal] * er.Value            as '2ndLevelSupportCostsLocal'
+               , ssc.[2ndLevelSupportCostsLocal_Approved] * er.Value   as '2ndLevelSupportCostsLocal_Approved'
 
-           (case 
-                when ssc.[2ndLevelSupportCostsLocal] > 0 then ssc.[2ndLevelSupportCostsLocal] * er.Value 
-                else ssc.[2ndLevelSupportCostsClusterRegion]
-            end) as '2ndLevelSupportCosts', 
+               , ssc.[2ndLevelSupportCostsClusterRegion]               as '2ndLevelSupportCostsClusterRegion'
+               , ssc.[2ndLevelSupportCostsClusterRegion_Approved]      as '2ndLevelSupportCostsClusterRegion_Approved'
 
-           (case 
-                when ssc.[2ndLevelSupportCostsLocal_Approved] > 0 then ssc.[2ndLevelSupportCostsLocal_Approved] * er.Value 
-                else ssc.[2ndLevelSupportCostsClusterRegion_Approved]
-            end) as '2ndLevelSupportCosts_Approved'
+               , case when ssc.[2ndLevelSupportCostsLocal] > 0 then ssc.[2ndLevelSupportCostsLocal] * er.Value 
+                        else ssc.[2ndLevelSupportCostsClusterRegion]
+                   end as '2ndLevelSupportCosts'
+                
+               , case when ssc.[2ndLevelSupportCostsLocal_Approved] > 0 then ssc.[2ndLevelSupportCostsLocal_Approved] * er.Value 
+                        else ssc.[2ndLevelSupportCostsClusterRegion_Approved]
+                   end as '2ndLevelSupportCosts_Approved'
 
-    from Hardware.ServiceSupportCost ssc
-    join InputAtoms.Country c on c.Id = ssc.Country
-    left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+               , case when ssc.[2ndLevelSupportCostsLocal] > 0          then ssc.TotalIbClusterPla          else ssc.TotalIbClusterPlaRegion          end as Total_IB_Pla
+               , case when ssc.[2ndLevelSupportCostsLocal_Approved] > 0 then ssc.TotalIbClusterPla_Approved else ssc.TotalIbClusterPlaRegion_Approved end as Total_IB_Pla_Approved
+
+               , ssc.TotalIb
+               , ssc.TotalIb_Approved
+               , ssc.TotalIbClusterPla
+               , ssc.TotalIbClusterPla_Approved
+               , ssc.TotalIbClusterPlaRegion
+               , ssc.TotalIbClusterPlaRegion_Approved
+
+        from Hardware.ServiceSupportCost ssc
+        join InputAtoms.Country c on c.Id = ssc.Country
+        left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+    )
+    select ssc.Country
+         , ssc.ClusterRegion
+         , ssc.ClusterPla
+         , ssc.[1stLevelSupportCosts]
+         , ssc.[1stLevelSupportCosts_Approved]
+         , ssc.[2ndLevelSupportCosts]
+         , ssc.[2ndLevelSupportCosts_Approved]
+
+         , case when ssc.TotalIb <> 0 and ssc.Total_IB_Pla <> 0 
+                then ssc.[1stLevelSupportCosts] / ssc.TotalIb + ssc.[2ndLevelSupportCosts] / ssc.Total_IB_Pla
+            end as ServiceSupport
+
+         , case when ssc.TotalIb_Approved <> 0 and ssc.Total_IB_Pla_Approved <> 0 
+                then ssc.[1stLevelSupportCosts_Approved] / ssc.TotalIb_Approved + ssc.[2ndLevelSupportCosts_Approved] / ssc.Total_IB_Pla_Approved
+            end as ServiceSupport_Approved
+
+    from cte ssc
 GO
 
 CREATE VIEW [Hardware].[ReinsuranceView] as
@@ -1392,17 +1445,7 @@ RETURN
          , case when @approved = 0 then ssc.[1stLevelSupportCosts]         else ssc.[1stLevelSupportCosts_Approved]  end as [1stLevelSupportCosts] 
          , case when @approved = 0 then ssc.[2ndLevelSupportCosts]         else ssc.[2ndLevelSupportCosts_Approved]  end as [2ndLevelSupportCosts] 
 
-         , case when @approved = 0 then 
-                    (case 
-                         when ib.TotalIb <> 0 and ib.TotalIbClusterPla <> 0 
-                            then ssc.[1stLevelSupportCosts] / ib.TotalIb + ssc.[2ndLevelSupportCosts] / ib.TotalIbClusterPla
-                     end)
-                else 
-                    (case 
-                         when ib.TotalIb_Approved <> 0 and ib.TotalIbClusterPla_Approved <> 0 
-                            then ssc.[1stLevelSupportCosts_Approved] / ib.TotalIb_Approved + ssc.[2ndLevelSupportCosts_Approved] / ib.TotalIbClusterPla_Approved
-                     end)
-            end  as ServiceSupport
+         , case when @approved = 0 then ssc.ServiceSupport                 else ssc.ServiceSupport_Approved          end as ServiceSupport
          
          , case when @approved = 0 then lc.ExpressDelivery                 else lc.ExpressDelivery_Approved          end as ExpressDelivery         
          , case when @approved = 0 then lc.HighAvailabilityHandling        else lc.HighAvailabilityHandling_Approved end as HighAvailabilityHandling
@@ -1483,8 +1526,6 @@ RETURN
     LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
     LEFT JOIN Hardware.HddRetention hdd on hdd.Wg = m.WgId AND hdd.Year = m.DurationId
-
-    LEFT JOIN Hardware.InstallBase ib on ib.Wg = m.WgId AND ib.Country = m.CountryId
 
     LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg.ClusterPla
 
