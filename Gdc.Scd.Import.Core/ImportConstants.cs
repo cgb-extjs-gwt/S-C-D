@@ -43,6 +43,7 @@ namespace Gdc.Scd.Import.Core
         public static string UPDATE_AVAILABILITY_FEE_NEW_WG_START = "Starting update Availability Fee for new WGs";
         public static string UPDATE_AVAILABILITY_FEE_NEW_WG_FINISH = "Availability Fee for new WGs was updated. {0} rows added";
         public static string UPDATE_AVAILABILITY_FEE_ERROR = "Error while updating Availability Fee.";
+        public static string UPDATE_INSTALL_BASE_CENTRAL_EUROPE = "Updating Install Base for Central Europe.";
         public static string DEACTIVATING_AVAILABILITY_FEE = "Deactivating Availability Fee for WG {0}.";
         public static string ADD_NEW_SFAB = "Adding new Sfab {0}...";
         public static string UPDATE_SFAB = "Updating Sfab {0}...";

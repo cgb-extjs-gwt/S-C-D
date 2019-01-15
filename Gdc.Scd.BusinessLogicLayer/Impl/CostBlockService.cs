@@ -50,7 +50,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             foreach (var costBlockMeta in costBlockMetas)
             {
                 this.costBlockRepository.UpdateByCoordinates(costBlockMeta, updateOptions);
-                
             }
         }
 

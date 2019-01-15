@@ -52,6 +52,11 @@ namespace Gdc.Scd.Import.Por.Core.Extensions
                     proactiveId = proActive[porFspCode.SecondSLA];
                 }
             }
+            else
+            {
+                if (proActive != null && proActive.ContainsKey(Impl.PorConstants.SlaNullValue))
+                    proactiveId = proActive[Impl.PorConstants.SlaNullValue];
+            }
 
             return new SlaDto
             {
