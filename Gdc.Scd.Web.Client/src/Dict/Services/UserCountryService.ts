@@ -3,6 +3,7 @@ import { CacheDomainService } from "../../Common/Services/CacheDomainService";
 import { Country } from "../Model/Country";
 
 const USR_ACTION: string = 'usr';
+const ISCOUNTRYUSER_ACTION: string = 'iscountryuser';
 
 export class UserCountryService extends CacheDomainService<Country> {
     constructor() {
@@ -15,5 +16,9 @@ export class UserCountryService extends CacheDomainService<Country> {
 
     public loadAll(): Promise<Country[]> {
         return get<Country[]>(this.controllerName, USR_ACTION);
+    }
+
+    public isCountryUser(): Promise<boolean> {
+        return get<boolean>(this.controllerName, ISCOUNTRYUSER_ACTION);
     }
 }

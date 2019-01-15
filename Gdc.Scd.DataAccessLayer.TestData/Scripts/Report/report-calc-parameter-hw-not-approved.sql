@@ -157,14 +157,15 @@ RETURN (
 
         LEFT JOIN ReinsuranceCte r on r.Wg = m.WgId and r.Year = m.DurationId
 
-        LEFT JOIN Fsp.HwFspCodeTranslation fsp on fsp.CountryId = m.CountryId
-                                    and fsp.WgId = m.WgId
-                                    and fsp.AvailabilityId = m.AvailabilityId
-                                    and fsp.DurationId = m.DurationId
-                                    and fsp.ReactionTimeId = m.ReactionTimeId
-                                    and fsp.ReactionTypeId = m.ReactionTypeId
-                                    and fsp.ServiceLocationId = m.ServiceLocationId
-                                    and fsp.ProactiveSlaId = m.ProActiveSlaId
+        LEFT JOIN Fsp.HwFspCodeTranslation fsp  on fsp.SlaHash = m.SlaHash 
+                                               and fsp.CountryId = m.CountryId
+                                               and fsp.WgId = m.WgId
+                                               and fsp.AvailabilityId = m.AvailabilityId
+                                               and fsp.DurationId= m.DurationId
+                                               and fsp.ReactionTimeId = m.ReactionTimeId
+                                               and fsp.ReactionTypeId = m.ReactionTypeId
+                                               and fsp.ServiceLocationId = m.ServiceLocationId
+                                               and fsp.ProactiveSlaId = m.ProActiveSlaId
     )
     select    m.*
             , m.FieldServicePerYear * m.AFR1 as FieldServiceCost1

@@ -97,7 +97,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var costBlock = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
             if (costBlock.CostElementsFields[context.CostElementId] is ReferenceFieldMeta field)
             {
-                referenceValues = await this.GetDistinctItems(context, costBlock, field);
+                referenceValues = await this.sqlRepository.GetNameIdItems(field.ReferenceMeta, field.ReferenceValueField, field.ReferenceFaceField);
             }
 
             return referenceValues;
