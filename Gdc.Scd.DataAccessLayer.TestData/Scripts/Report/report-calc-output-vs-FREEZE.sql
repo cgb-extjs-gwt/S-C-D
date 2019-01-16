@@ -60,8 +60,7 @@ RETURN (
              , fsc.RepairTime             , fsc.RepairTime_Approved              
              , fsc.OnsiteHourlyRates      , fsc.OnsiteHourlyRates_Approved       
 
-             , Hardware.CalcSrvSupportCost(ssc.[1stLevelSupportCosts], ssc.[2ndLevelSupportCosts], ib.TotalIb, ib.TotalIbClusterPla) as ServiceSupport
-             , Hardware.CalcSrvSupportCost(ssc.[1stLevelSupportCosts_Approved], ssc.[2ndLevelSupportCosts_Approved], ib.TotalIb_Approved, ib.TotalIbClusterPla_Approved) as ServiceSupport_Approved
+             , ssc.ServiceSupport         , ssc.ServiceSupport_Approved
 
              , lc.StandardHandling + lc.HighAvailabilityHandling + lc.StandardDelivery + lc.ExpressDelivery + lc.TaxiCourierDelivery + lc.ReturnDeliveryFactory as LogisticPerYear
              , lc.StandardHandling_Approved + lc.HighAvailabilityHandling_Approved + lc.StandardDelivery_Approved + lc.ExpressDelivery_Approved + lc.TaxiCourierDelivery_Approved + lc.ReturnDeliveryFactory_Approved as LogisticPerYear_Approved
@@ -94,8 +93,6 @@ RETURN (
         LEFT JOIN Fsp.HwStandardWarrantyView stdw2 on stdw2.Wg = m.WgId and stdw2.Country is null    --find principle standard warranty portfolio, if local does not exist
 
         LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
-
-        LEFT JOIN Hardware.InstallBase ib on ib.Wg = m.WgId AND ib.Country = m.CountryId
 
         LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg2.ClusterPla
 

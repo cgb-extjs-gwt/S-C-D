@@ -43,7 +43,14 @@ select     m.Id
          , m.OtherDirect as OtherDirect
          , m.Credits as Credits
          , null as IndirectCostOpex
-         , null as ServiceType
+         
+         , m.Availability                       + ', ' +
+               m.ReactionType                   + ', ' +
+               m.ReactionTime                   + ', ' +
+               cast(m.Year as nvarchar(1))      + ', ' +
+               m.ServiceLocation                + ', ' +
+               m.ProActiveSla as ServiceType
+         
          , null as PlausiCheck
          , null as PortfolioType
     from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
