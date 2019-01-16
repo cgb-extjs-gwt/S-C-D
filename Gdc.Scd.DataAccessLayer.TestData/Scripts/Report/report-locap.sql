@@ -20,13 +20,21 @@ RETURN (
          , m.Fsp
          , wg.Description as WgDescription
          , m.FspDescription as ServiceLevel
+
          , m.ReactionTime
          , m.Year as ServicePeriod
          , wg.Name as Wg
          , (m.ProActive + m.ServiceTP) as Dcos
          , m.ServiceTP
          , m.Country
-         , null as ServiceType
+
+         , m.Availability                       + ', ' +
+               m.ReactionType                   + ', ' +
+               m.ReactionTime                   + ', ' +
+               cast(m.Year as nvarchar(1))      + ', ' +
+               m.ServiceLocation                + ', ' +
+               m.ProActiveSla as ServiceType
+
          , null as PlausiCheck
          , null as PortfolioType
          , null as ReleaseCreated
