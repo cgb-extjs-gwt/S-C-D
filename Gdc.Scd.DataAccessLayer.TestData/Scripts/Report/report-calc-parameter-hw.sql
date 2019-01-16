@@ -44,6 +44,8 @@ RETURN (
               , fsp.Name Fsp
               , fsp.ServiceDescription as FspDescription
 
+              , ib.InstalledBaseCountry_Approved as IB
+
               --cost blocks
 
               , fsc.LabourCost_Approved as LabourCost
@@ -70,7 +72,7 @@ RETURN (
               , moc.MarkupFactor_Approved as MarkupFactorOtherCost
 
               , msw.MarkupFactorStandardWarranty_Approved as MarkupFactorStandardWarranty
-              , msw.MarkupStandardWarranty_Approved       as MarkupBMarkupStandardWarrantyaseW
+              , msw.MarkupStandardWarranty_Approved       as MarkupStandardWarranty
       
               , afr.AFR1_Approved     as AFR1
               , afr.AFR2_Approved     as AFR2
@@ -143,6 +145,8 @@ RETURN (
         LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
         LEFT JOIN Hardware.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
+
+        LEFT JOIN Hardware.InstallBase ib on ib.Country = m.CountryId and ib.Wg = m.WgId
 
         LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg2.ClusterPla
 
@@ -231,6 +235,9 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Fsp', 'G_MATNR', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'FspDescription', 'G_MAKTX', 1, 1);
+
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'IB', 'Installed base', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'LabourCost', 'Labour cost', 1, 1);
