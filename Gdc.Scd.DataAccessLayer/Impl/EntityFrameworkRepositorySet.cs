@@ -126,7 +126,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
-
         public int ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null)
         {
             var dbParams = this.GetDbParameters(parameters);

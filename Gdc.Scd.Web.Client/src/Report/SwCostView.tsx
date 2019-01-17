@@ -1,4 +1,4 @@
-﻿import { Column, Container, Grid, NumberColumn } from "@extjs/ext-react";
+﻿import { Column, Container, Grid } from "@extjs/ext-react";
 import * as React from "react";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
@@ -13,13 +13,6 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     private filter: SwCostFilter;
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
-        fields: [
-            { name: 'serviceSupport', type: 'number', allowNull: true, convert: moneyRenderer },
-            { name: 'reinsurance', type: 'number', allowNull: true, convert: moneyRenderer },
-            { name: 'transferPrice', type: 'number', allowNull: true, convert: moneyRenderer },
-            { name: 'maintenanceListPrice', type: 'number', allowNull: true, convert: moneyRenderer },
-            { name: 'dealerPrice', type: 'number', allowNull: true, convert: moneyRenderer }
-        ],
 
         pageSize: 25,
         autoLoad: false,
@@ -60,9 +53,10 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-green"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column text="SOG(Asset)" dataIndex="sog" />
-                        <Column text="Availability" dataIndex="availability" />
-                        <Column text="Year" dataIndex="year" />
+                        <Column text="SW digit" dataIndex="SwDigit" />
+                        <Column text="SOG(Asset)" dataIndex="Sog" />
+                        <Column text="Availability" dataIndex="Availability" />
+                        <Column text="Year" dataIndex="Year" />
 
                     </Column>
 
@@ -74,13 +68,13 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         text="Resulting costs"
                         dataIndex=""
                         cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
 
-                        <Column text="Service support cost" dataIndex="serviceSupport" />
-                        <Column text="Reinsurance" dataIndex="reinsurance" />
-                        <Column text="Transer price" dataIndex="transferPrice" />
-                        <Column text="Maintenance list price" dataIndex="maintenanceListPrice" />
-                        <Column text="Dealer reference price" dataIndex="dealerPrice" />
+                        <Column text="Service support cost" dataIndex="ServiceSupport" />
+                        <Column text="Reinsurance" dataIndex="Reinsurance" />
+                        <Column text="Transer price" dataIndex="TransferPrice" />
+                        <Column text="Maintenance list price" dataIndex="MaintenanceListPrice" />
+                        <Column text="Dealer reference price" dataIndex="DealerPrice" />
 
                     </Column>
 

@@ -24,6 +24,8 @@ export interface IDictService {
 
     getSog(): Promise<NamedId[]>;
 
+    getSwDigit(): Promise<NamedId[]>;
+
     getAvailabilityTypes(): Promise<NamedId[]>;
 
     getDurationTypes(): Promise<NamedId[]>;

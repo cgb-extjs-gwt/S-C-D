@@ -59,6 +59,10 @@ export class FakeDictService implements IDictService {
         return this.fromResult(fakeSog);
     }
 
+    public getSwDigit(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
+
     public getAvailabilityTypes(): Promise<NamedId[]> {
         return this.fromResult(fakeAvailability);
     }
