@@ -69,7 +69,7 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpGet]
-        public Task<DataInfo<SwProactiveCostDto>> GetSwProactiveCost(
+        public Task<HttpResponseMessage> GetSwProactiveCost(
                [FromUri]SwFilterDto filter,
                [FromUri]bool approved = true,
                [FromUri]int start = 0,
@@ -81,9 +81,12 @@ namespace Gdc.Scd.Web.Api.Controllers
                 HasAccess(approved, filter.Country.GetValueOrDefault()))
             {
                 return calcSrv.GetSoftwareProactiveCost(approved, filter, start, limit)
-                              .ContinueWith(x => new DataInfo<SwProactiveCostDto> { Items = x.Result.items, Total = x.Result.total });
+                              .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
             }
-            throw this.NotFoundException();
+            else
+            {
+                return this.NotFoundContentAsync();
+            }
         }
 
         [HttpPost]

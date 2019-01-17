@@ -4,7 +4,6 @@ using Gdc.Scd.BusinessLogicLayer.Procedures;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
-using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -21,22 +20,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<HardwareManualCost> hwManualRepo;
 
-        private readonly IRepository<SoftwareMaintenance> swMaintenanceRepo;
-
-        private readonly IRepository<SoftwareProactive> swProactiveRepo;
-
         public CalculationService(
                 IRepositorySet repositorySet,
                 IRepository<HardwareManualCost> hwManualRepo,
-                IRepository<SoftwareMaintenance> swMaintenanceRepo,
-                IRepository<SoftwareProactive> swProactiveRepo,
                 IRepository<LocalPortfolio> portfolioRepo
             )
         {
             this.repositorySet = repositorySet;
             this.hwManualRepo = hwManualRepo;
-            this.swMaintenanceRepo = swMaintenanceRepo;
-            this.swProactiveRepo = swProactiveRepo;
             this.portfolioRepo = portfolioRepo;
         }
 
@@ -60,52 +51,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new GetSwCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
         }
 
-        public async Task<(SwProactiveCostDto[] items, int total)> GetSoftwareProactiveCost(
+        public Task<(string json, int total)> GetSoftwareProactiveCost(
                 bool approved,
                 SwFilterDto filter,
-                int start,
+                int lastId,
                 int limit
             )
         {
-            var query = swProactiveRepo.GetAll();
-
-            if (filter != null)
-            {
-                query = query.WhereIf(filter.Country.HasValue, x => x.Country == filter.Country.Value)
-                             .WhereIf(filter.Sog.HasValue, x => x.Sog == filter.Sog.Value)
-                             .WhereIf(filter.Year.HasValue, x => x.Year == filter.Year.Value);
-            }
-
-            var count = await query.GetCountAsync();
-
-            query = query.WithPaging(start, limit);
-
-            IQueryable<SwProactiveCostDto> selectQuery;
-
-            if (approved)
-            {
-                selectQuery = query.Select(x => new SwProactiveCostDto
-                {
-                    Country = x.CountryRef.Name,
-                    Sog = x.SogRef.Name,
-                    Year = x.YearRef.Name,
-                    ProActive = x.ProActive_Approved
-                });
-            }
-            else
-            {
-                selectQuery = query.Select(x => new SwProactiveCostDto
-                {
-                    Country = x.CountryRef.Name,
-                    Sog = x.SogRef.Name,
-                    Year = x.YearRef.Name,
-                    ProActive = x.ProActive
-                });
-            }
-
-            var result = await selectQuery.GetAsync();
-
-            return (result, count);
+            return new GetSwProActiveCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
         }
 
         public void SaveHardwareCost(User changeUser, long countryId, IEnumerable<HwCostManualDto> records)
