@@ -249,17 +249,20 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
                 if (column.isEditable) {
                     switch (column.type) {
                         case ColumnType.Reference:
-                            const getReferenceName = 
-                                value => 
-                                    value == null ||  value == ' ' 
-                                        ? ' ' 
+                            const getReferenceName =
+                                value =>
+                                    value == null || value == ' '
+                                        ? ' '
                                         : column.referenceItems.get(value).name;
 
-                            columnOption.renderer = column.rendererFn 
+                            columnOption.renderer = column.rendererFn
                                 ? column.rendererFn
                                 : (value, record) => getReferenceName(value)
                             break;
                     }
+                }
+                else {
+                    columnOption.renderer = this.replaceNullValue;
                 }
                 break;
         }
@@ -370,10 +373,13 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
             style: 'border: 1px solid rgb(226, 226, 226);',
             columns: [
                 { xtype: 'checkcolumn', dataIndex: filter.checkedDataIndex, width: 70, sortable: false },
-                { text: 'Value', dataIndex: filter.valueDataIndex, width: 200  }
+                { text: 'Value', dataIndex: filter.valueDataIndex, width: 200, renderer: this.replaceNullValue }
             ]
         };
     }
+
+    private replaceNullValue = value => value ? value : ' ';
+    
 
     private onUpdateStore = (store: Store, record: Model, operation: StoreOperation, modifiedFieldNames: string[], details) => {
         switch (operation) {

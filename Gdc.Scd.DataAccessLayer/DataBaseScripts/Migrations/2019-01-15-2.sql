@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /*
 The column [Hardware].[InstallBase].[CentralContractGroup] is being dropped, data loss could occur.
 
@@ -387,9 +386,3 @@ PRINT N'Update complete.';
 
 
 GO
-=======
-  sp_rename '[InputAtoms].[CentralContractGroup].Name', 'Code', 'COLUMN';
-  GO
-  sp_rename '[InputAtoms].[CentralContractGroup].Description', 'Name', 'COLUMN';
-  GO
->>>>>>> origin/master
