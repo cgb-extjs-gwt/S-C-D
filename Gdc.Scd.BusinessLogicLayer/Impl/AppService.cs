@@ -6,6 +6,7 @@ using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Dto;
 using Gdc.Scd.Core.Meta.Entities;
 
@@ -62,6 +63,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 var isUsingCostEditor = false;
                 var isUsingTableView = false;
+                var isUsingCostImport = false;
                 var costElementDtos = new List<CostElementDto>();
 
                 foreach (var costElement in costBlock.CostElements)
@@ -72,8 +74,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     var costElementDto = new CostElementDto
                     {
                         IsUsingCostEditor = (isManualInput || isReadonly) && this.ContainsRole(costElement.CostEditorRoles, user),
-                        IsUsingTableView = isManualInput && this.ContainsRole(costElement.TableViewRoles, user)
+                        IsUsingTableView = isManualInput && this.ContainsRole(costElement.TableViewRoles, user),
                     };
+                    costElementDto.IsUsingCostImport = 
+                        (costElementDto.IsUsingCostEditor || costElementDto.IsUsingTableView) &&
+                        costElement.InputLevels[MetaConstants.WgInputLevelName] != null;
 
                     if (isAddingCostElement || costElementDto.IsUsingCostEditor || costElementDto.IsUsingTableView)
                     {
@@ -92,12 +97,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                         {
                             isUsingTableView = costElementDto.IsUsingTableView;
                         }
+
+                        if (!isUsingCostImport)
+                        {
+                            isUsingCostImport = costElementDto.IsUsingCostImport;
+                        }
                     }
                 }
 
                 if (costElementDtos.Count > 0)
                 {
-                    var costBlockDto = this.BuildCostBlockDto(costBlock, costElementDtos, isUsingCostEditor, isUsingTableView);
+                    var costBlockDto = this.BuildCostBlockDto(costBlock, costElementDtos, isUsingCostEditor, isUsingTableView, isUsingCostImport);
 
                     costBlockDtos.Add(costBlockDto);
                 }
@@ -131,13 +141,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return inputLevelDtos;
         }
 
-        private CostBlockDto BuildCostBlockDto(CostBlockMeta costBlock, IEnumerable<CostElementDto> costElementDtos, bool isUsingCostEditor, bool isUsingTableView)
+        private CostBlockDto BuildCostBlockDto(
+            CostBlockMeta costBlock, 
+            IEnumerable<CostElementDto> costElementDtos, 
+            bool isUsingCostEditor, 
+            bool isUsingTableView, 
+            bool isUsingCostImport)
         {
             var costBlockDto = new CostBlockDto
             {
                 CostElements = new MetaCollection<CostElementDto>(costElementDtos),
                 IsUsingCostEditor = isUsingCostEditor,
-                IsUsingTableView = isUsingTableView
+                IsUsingTableView = isUsingTableView,
+                IsUsingCostImport = isUsingCostImport
             };
 
             this.Copy(costBlock, costBlockDto, nameof(CostBlockDto.CostElements));

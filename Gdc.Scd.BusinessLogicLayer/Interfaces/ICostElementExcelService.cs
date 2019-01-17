@@ -7,6 +7,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface ICostElementExcelService
     {
-        Task<ExcelImportResult> Import(ICostElementIdentifier costElementId, Stream excelStream);
+        Task<ExcelImportResult> Import(ICostElementIdentifier costElementId, Stream excelStream, long? dependencyItemId = null);
     }
 }

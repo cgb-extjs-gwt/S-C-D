@@ -238,7 +238,7 @@
     <Compile Include="Controllers\Dict\YearController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\AppController.cs" />
-    <Compile Include="Controllers\CostBlockImportController.cs" />
+    <Compile Include="Controllers\CostBlockController.cs" />
     <Compile Include="Controllers\NotifyController.cs" />
     <Compile Include="Controllers\PortfolioController.cs" />
     <Compile Include="Controllers\ReadonlyDomainController.cs" />

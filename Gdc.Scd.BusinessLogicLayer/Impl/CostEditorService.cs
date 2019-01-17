@@ -31,6 +31,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IUserService userService;
 
+        private readonly ICostBlockService costBlockService;
+
         public CostEditorService(
             ICostEditorRepository costEditorRepository,
             ISqlRepository sqlRepository,
@@ -39,6 +41,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             ICostBlockFilterBuilder costBlockFilterBuilder,
             IQualityGateSevice qualityGateSevice,
             IUserService userService,
+            ICostBlockService costBlockService,
             DomainMeta meta,
             DomainEnitiesMeta domainEnitiesMeta)
         {
@@ -51,6 +54,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.costBlockFilterBuilder = costBlockFilterBuilder;
             this.qualityGateSevice = qualityGateSevice;
             this.userService = userService;
+            this.costBlockService = costBlockService;
         }
 
         public async Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context)
@@ -59,7 +63,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 this.meta.GetCostElement(context)
                          .GetFilterInputLevel(context.InputLevelId);
 
-            return await this.GetDistinctItems(context, previousInputLevel.Id);
+            return await this.costBlockService.GetCoordinateItems(context, previousInputLevel.Id);
         }
 
         public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context)
@@ -111,7 +115,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new CostElementData
             {
                 Regions = await this.GetRegions(context, costElementMeta, userCountries),
-                Filters = await this.GetCostElementFilterItems(context, costElementMeta, userCountries),
+                Filters = await this.costBlockService.GetDependencyItems(context),
                 ReferenceValues = await this.GetCostElementReferenceValues(context)
             };
         }
@@ -182,35 +186,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return await this.historySevice.GetHistoryItems(context, filter, queryInfo);
-        }
-
-        private async Task<IEnumerable<NamedId>> GetDistinctItems(CostEditorContext context, string referenceFieldName)
-        {
-            var meta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
-            var referenceField = (ReferenceFieldMeta)meta.GetField(referenceFieldName);
-
-            return await this.GetDistinctItems(context, meta, referenceField);
-        }
-
-        private async Task<IEnumerable<NamedId>> GetDistinctItems(CostEditorContext context, CostBlockEntityMeta meta, ReferenceFieldMeta referenceField)
-        {
-            var userCountries = this.userService.GetCurrentUserCountries();
-            var costBlockFilter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries).Convert();
-            var referenceFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(referenceField.ReferenceMeta);
-
-            return await this.sqlRepository.GetDistinctItems(meta, referenceField.Name, costBlockFilter, referenceFilter);
-        }
-
-        private async Task<IEnumerable<NamedId>> GetCostElementFilterItems(CostEditorContext context, CostElementMeta costElementMeta, IEnumerable<Country> userCountries)
-        {
-            IEnumerable<NamedId> filterItems = null;
-
-            if (costElementMeta.Dependency != null)
-            {
-                filterItems = await this.GetDistinctItems(context, costElementMeta.Dependency.Id);
-            }
-
-            return filterItems;
         }
 
         private async Task<IEnumerable<NamedId>> GetRegions(CostEditorContext context, CostElementMeta costElementMeta, Country[] userCountries)
