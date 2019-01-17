@@ -222,7 +222,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
         }
 
         if (column.rendererFn) {
-            columnOption.renderer = column.rendererFn;
+            columnOption.renderer = (value, record: Model) => this.replaceNullValue(column.rendererFn(value, record));
         }
 
         if (column.filter) {
@@ -260,9 +260,6 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
                                 : (value, record) => getReferenceName(value)
                             break;
                     }
-                }
-                else {
-                    columnOption.renderer = this.replaceNullValue;
                 }
                 break;
         }
