@@ -4,8 +4,8 @@ export interface PageAction extends Action<string> {
     pageName: string
 }
 
-export interface ItemSelectedAction extends Action<string> {
-    selectedItemId: string;
+export interface ItemSelectedAction<T=string> extends Action<string> {
+    selectedItemId: T;
 }
 
 export interface MultiItemSelectedAction extends Action<string> {

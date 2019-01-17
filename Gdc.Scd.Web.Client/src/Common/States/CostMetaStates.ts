@@ -3,6 +3,7 @@ import { NamedId } from "./CommonStates";
 export interface UsingInfo {
     isUsingCostEditor: boolean
     isUsingTableView: boolean
+    isUsingCostImport: boolean
 }
 
 export interface CostElementMeta extends NamedId, UsingInfo {
@@ -16,11 +17,9 @@ export interface CostElementMeta extends NamedId, UsingInfo {
     inputType: InputType
 }
 
-export interface CostBlockMeta extends NamedId {
+export interface CostBlockMeta extends NamedId, UsingInfo {
     applicationIds: string[]
     costElements: CostElementMeta[]
-    isUsingCostEditor: boolean
-    isUsingTableView: boolean
 }
 
 export interface InputLevelMeta extends NamedId {
