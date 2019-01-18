@@ -266,7 +266,10 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     }
 
     if (column.rendererFn) {
-      columnOption.renderer = column.rendererFn;
+      columnOption.renderer = (value, record: Model) =>
+        this.replaceNullValue(column.rendererFn(value, record));
+    } else {
+      columnOption.renderer = this.replaceNullValue;
     }
 
     if (column.filter) {
@@ -295,7 +298,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
         if (column.isEditable) {
           switch (column.type) {
             case ColumnType.Reference:
-                columnOption.renderer = buildReferenceColumnRendered(column);
+              columnOption.renderer = buildReferenceColumnRendered(column);
               break;
           }
         }
@@ -415,10 +418,17 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
           width: 70,
           sortable: false
         },
-        { text: "Value", dataIndex: filter.valueDataIndex, width: 200 }
+        {
+          text: "Value",
+          dataIndex: filter.valueDataIndex,
+          width: 200,
+          renderer: this.replaceNullValue
+        }
       ]
     };
   }
+
+  private replaceNullValue = value => (value ? value : " ");
 
   private onUpdateStore = (
     store: Store,

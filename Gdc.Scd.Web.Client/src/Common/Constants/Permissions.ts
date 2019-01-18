@@ -1,15 +1,17 @@
-export const COST_EDITOR = "CostEditor";
+export const COST_EDITOR = 'CostEditor';
 
-export const TABLE_VIEW = "TableView";
+export const TABLE_VIEW = 'TableView';
 
-export const APPROVAL = "Approval";
+export const COST_IMPORT = 'CostImport';
 
-export const OWN_APPROVAL = "OwnApproval";
+export const APPROVAL = 'Approval';
 
-export const PORTFOLIO = "Portfolio";
+export const OWN_APPROVAL = 'OwnApproval';
 
-export const REVIEW_PROCESS = "ReviewProcess";
+export const PORTFOLIO = 'Portfolio';
 
-export const REPORT = "Report";
+export const REVIEW_PROCESS = 'ReviewProcess';
 
-export const ADMIN = "Admin";
+export const REPORT = 'Report';
+
+export const ADMIN = 'Admin';
