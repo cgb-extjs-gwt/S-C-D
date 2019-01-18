@@ -2,7 +2,7 @@
   DROP FUNCTION Report.CalcOutputVsFREEZE;
 go 
 
-CREATE FUNCTION Report.CalcOutputVsFREEZE
+CREATE FUNCTION [Report].[CalcOutputVsFREEZE]
 (
     @cnt bigint,
     @wg bigint,
@@ -60,8 +60,7 @@ RETURN (
              , fsc.RepairTime             , fsc.RepairTime_Approved              
              , fsc.OnsiteHourlyRates      , fsc.OnsiteHourlyRates_Approved       
 
-             , Hardware.CalcSrvSupportCost(ssc.[1stLevelSupportCosts], ssc.[2ndLevelSupportCosts], ib.InstalledBaseCountry, ib.InstalledBaseCountryPla) as ServiceSupport
-             , Hardware.CalcSrvSupportCost(ssc.[1stLevelSupportCosts_Approved], ssc.[2ndLevelSupportCosts_Approved], ib.InstalledBaseCountry_Approved, ib.InstalledBaseCountryPla_Approved) as ServiceSupport_Approved
+             , ssc.ServiceSupport         , ssc.ServiceSupport_Approved
 
              , lc.StandardHandling + lc.HighAvailabilityHandling + lc.StandardDelivery + lc.ExpressDelivery + lc.TaxiCourierDelivery + lc.ReturnDeliveryFactory as LogisticPerYear
              , lc.StandardHandling_Approved + lc.HighAvailabilityHandling_Approved + lc.StandardDelivery_Approved + lc.ExpressDelivery_Approved + lc.TaxiCourierDelivery_Approved + lc.ReturnDeliveryFactory_Approved as LogisticPerYear_Approved
@@ -95,8 +94,6 @@ RETURN (
 
         LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
-        LEFT JOIN Hardware.InstallBase ib on ib.Wg = m.WgId AND ib.Country = m.CountryId
-
         LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg2.ClusterPla
 
         LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
@@ -113,7 +110,8 @@ RETURN (
 
         LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
 
-        LEFT JOIN Fsp.HwFspCodeTranslation fsp on fsp.CountryId = m.CountryId
+        LEFT JOIN Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash 
+                                              and fsp.CountryId = m.CountryId
                                               and fsp.WgId = m.WgId
                                               and fsp.AvailabilityId = m.AvailabilityId
                                               and fsp.DurationId = m.DurationId

@@ -39,7 +39,7 @@ namespace Gdc.Scd.Import.Core.Impl
 
         public IEnumerable<UpdateQueryOption> Upload(IEnumerable<AfrDto> items, DateTime modifiedDateTime)
         {
-            var wgs = _repositoryWg.GetAll().Where(wg => wg.WgType == WgType.Por).ToList();
+            var wgs = _repositoryWg.GetAll().Where(wg => wg.WgType == WgType.Por && !wg.IsSoftware).ToList();
             var years = _repositoryYear.GetAll().ToList();
             var afrs = _repositoryAfr.GetAll().ToList();
 
@@ -63,7 +63,8 @@ namespace Gdc.Scd.Import.Core.Impl
                     continue;
                 }
 
-                var afrDb = afrs.FirstOrDefault(af => af.WgId == wg.Id && af.YearId == year.Id);
+                var afrDb = afrs.FirstOrDefault(af => af.WgId == wg.Id && af.YearId == year.Id && !af.DeactivatedDateTime.HasValue);
+
                 if (afrDb == null)
                 {
                     afrDb = new Afr();

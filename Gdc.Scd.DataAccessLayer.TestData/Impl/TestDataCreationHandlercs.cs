@@ -199,6 +199,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             var costEditorPermission = new Permission { Name = PermissionConstants.CostEditor };
             var tableViewPermission = new Permission { Name = PermissionConstants.TableView };
+            var costImportPermission = new Permission { Name = PermissionConstants.CostImport };
             var approvalPermission = new Permission { Name = PermissionConstants.Approval };
             var ownApprovalPermission = new Permission { Name = PermissionConstants.OwnApproval };
             var portfolioPermission = new Permission { Name = PermissionConstants.Portfolio };
@@ -269,6 +270,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = reportPermission },
                         new RolePermission { Permission = approvalPermission },
                         new RolePermission { Permission = ownApprovalPermission },
+                        new RolePermission { Permission = costImportPermission },
                     }
                 },
                 new Role
@@ -282,6 +284,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = portfolioPermission },
                         new RolePermission { Permission = ownApprovalPermission },
                         new RolePermission { Permission = reviewProcessPermission },
+                        new RolePermission { Permission = costImportPermission },
+                        new RolePermission { Permission = costImportPermission },
                     }
                 },
                 new Role
@@ -307,6 +311,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = approvalPermission },
                         new RolePermission { Permission = ownApprovalPermission },
                         new RolePermission { Permission = reviewProcessPermission },
+                        new RolePermission { Permission = costImportPermission },
                     }
                 },
                 new Role
@@ -318,6 +323,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = tableViewPermission },
                         new RolePermission { Permission = reportPermission },
                         new RolePermission { Permission = reviewProcessPermission },
+                        new RolePermission { Permission = costImportPermission },
                     }
                 },
                 new Role
@@ -329,6 +335,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = tableViewPermission },
                         new RolePermission { Permission = reportPermission },
                         new RolePermission { Permission = reviewProcessPermission },
+                        new RolePermission { Permission = costImportPermission },
                     }
                 },
                 new Role
@@ -360,7 +367,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             this.repositorySet.GetRepository<ProActiveSla>().Save(new ProActiveSla[]
             {
-                new ProActiveSla { Name = "0", ExternalName = "none" },
+                new ProActiveSla { Name = "0", ExternalName = MetaConstants.NoneValue },
                 new ProActiveSla { Name = "1", ExternalName = "with autocall" },
                 new ProActiveSla { Name = "2", ExternalName = "with 1x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
                 new ProActiveSla { Name = "3", ExternalName = "with 2x System Health Check & Patch Information incl. remote Technical Account Management (per year)",
@@ -493,11 +500,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var fourHour = new ReactionTime { Name = "4h", ExternalName = "4h" };
             var twentyFourHour = new ReactionTime { Name = "24h", ExternalName = "24h" };
             var eightHour = new ReactionTime { Name = "8h", ExternalName = "8h" };
-            var noneTime = new ReactionTime { Name = "none", ExternalName = "none" };
+            var noneTime = new ReactionTime { Name = MetaConstants.NoneValue, ExternalName = MetaConstants.NoneValue };
 
             var response = new ReactionType { Name = "response", ExternalName = "response" };
             var recovery = new ReactionType { Name = "recovery", ExternalName = "recovery" };
-            var noneType = new ReactionType { Name = "none", ExternalName = "none" };
+            var noneType = new ReactionType { Name = MetaConstants.NoneValue, ExternalName = MetaConstants.NoneValue };
 
             this.repositorySet.GetRepository<ReactionType>().Save(noneType);
             this.repositorySet.GetRepository<ReactionTime>().Save(noneTime);
@@ -511,6 +518,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReactionTimeType { ReactionTime = twentyFourHour, ReactionType = recovery },
                 new ReactionTimeType { ReactionTime = eightHour, ReactionType = recovery },
                 new ReactionTimeType { ReactionTime = fourHour, ReactionType = recovery },
+                new ReactionTimeType { ReactionTime = noneTime, ReactionType = noneType },
             });
 
             var nineByFive = new Availability { Name = "9x5", ExternalName = "9x5 (local business hours);9x5 (08:00-17:00)" };
@@ -592,29 +600,29 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             repository.Save(new List<CentralContractGroup>
             {
-                new CentralContractGroup {Name = "NA", Description = "UNASSIGNED" },
-                new CentralContractGroup {Name = "CG350", Description = "CENTRICSTOR" },
-                new CentralContractGroup {Name = "CG110", Description = "CLIENTS ENTRY" },
-                new CentralContractGroup {Name = "CG130", Description = "CLIENTS HIGHEND" },
-                new CentralContractGroup {Name = "CG120", Description = "CLIENTS MIDRANGE" },
-                new CentralContractGroup {Name = "CG100", Description = "CLIENTS SUBENTRY/ SWAP / EXCHANGE" },
-                new CentralContractGroup {Name = "CG041", Description = "DISPLAY W/O ODM" },
-                new CentralContractGroup {Name = "CG270", Description = "ENTERPRISE SERVER HIGHEND" },
-                new CentralContractGroup {Name = "CG260", Description = "ENTERPRISE SERVER MIDRANGE" },
-                new CentralContractGroup {Name = "CG050", Description = "PERIPHERALS" },
-                new CentralContractGroup {Name = "CG070", Description = "PRINTER" },
-                new CentralContractGroup {Name = "CG510", Description = "RETAIL PRODUCTS ENTRY" },
-                new CentralContractGroup {Name = "CG040", Description = "DISPLAYS" },
-                new CentralContractGroup {Name = "CG500", Description = "RETAIL SUBENTRY/ SWAP / EXCHANGE" },
-                new CentralContractGroup {Name = "CG060", Description = "SECURITY DEVICES" },
-                new CentralContractGroup {Name = "CG200", Description = "SERVER  SUBENTRY/ SWAP / EXCHANGE" },
-                new CentralContractGroup {Name = "CG210", Description = "SERVER ENTRY" },
-                new CentralContractGroup {Name = "CG220", Description = "SERVER MIDRANGE" },
-                new CentralContractGroup {Name = "CG230", Description = "SERVER HIGHEND" },
-                new CentralContractGroup {Name = "CG320", Description = "STORAGE MIDRANGE" },
-                new CentralContractGroup {Name = "CG310", Description = "STORAGE ENTRY" },
-                new CentralContractGroup {Name = "CG330", Description = "STORAGE HIGHEND" },
-                new CentralContractGroup {Name = "CG540", Description = "THIRD PARTY VENDORS" },
+                new CentralContractGroup {Code = "NA", Name = "UNASSIGNED" },
+                new CentralContractGroup {Code = "CG350", Name = "CENTRICSTOR" },
+                new CentralContractGroup {Code = "CG110", Name = "CLIENTS ENTRY" },
+                new CentralContractGroup {Code = "CG130", Name = "CLIENTS HIGHEND" },
+                new CentralContractGroup {Code = "CG120", Name = "CLIENTS MIDRANGE" },
+                new CentralContractGroup {Code = "CG100", Name = "CLIENTS SUBENTRY/ SWAP / EXCHANGE" },
+                new CentralContractGroup {Code = "CG041", Name = "DISPLAY W/O ODM" },
+                new CentralContractGroup {Code = "CG270", Name = "ENTERPRISE SERVER HIGHEND" },
+                new CentralContractGroup {Code = "CG260", Name = "ENTERPRISE SERVER MIDRANGE" },
+                new CentralContractGroup {Code = "CG050", Name = "PERIPHERALS" },
+                new CentralContractGroup {Code = "CG070", Name = "PRINTER" },
+                new CentralContractGroup {Code = "CG510", Name = "RETAIL PRODUCTS ENTRY" },
+                new CentralContractGroup {Code = "CG040", Name = "DISPLAYS" },
+                new CentralContractGroup {Code = "CG500", Name = "RETAIL SUBENTRY/ SWAP / EXCHANGE" },
+                new CentralContractGroup {Code = "CG060", Name = "SECURITY DEVICES" },
+                new CentralContractGroup {Code = "CG200", Name = "SERVER  SUBENTRY/ SWAP / EXCHANGE" },
+                new CentralContractGroup {Code = "CG210", Name = "SERVER ENTRY" },
+                new CentralContractGroup {Code = "CG220", Name = "SERVER MIDRANGE" },
+                new CentralContractGroup {Code = "CG230", Name = "SERVER HIGHEND" },
+                new CentralContractGroup {Code = "CG320", Name = "STORAGE MIDRANGE" },
+                new CentralContractGroup {Code = "CG310", Name = "STORAGE ENTRY" },
+                new CentralContractGroup {Code = "CG330", Name = "STORAGE HIGHEND" },
+                new CentralContractGroup {Code = "CG540", Name = "THIRD PARTY VENDORS" },
 
             });
 
@@ -625,29 +633,29 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             var repository = this.repositorySet.GetRepository<CentralContractGroup>();
 
-            var na = repository.GetAll().First(c => c.Name == "NA").Id;
-            var centricStor = repository.GetAll().First(c => c.Name == "CG350").Id;
-            var clientsEntry = repository.GetAll().First(c => c.Name == "CG110").Id;
-            var clientsHighend = repository.GetAll().First(c => c.Name == "CG130").Id;
-            var clientsMidrange = repository.GetAll().First(c => c.Name == "CG120").Id;
-            var clientsSubentry = repository.GetAll().First(c => c.Name == "CG100").Id;
-            var displayODM = repository.GetAll().First(c => c.Name == "CG041").Id;
-            var enterpriseServerHighend = repository.GetAll().First(c => c.Name == "CG270").Id;
-            var enterpriseServerMidrange = repository.GetAll().First(c => c.Name == "CG260").Id;
-            var peripherals = repository.GetAll().First(c => c.Name == "CG050").Id;
-            var pribter = repository.GetAll().First(c => c.Name == "CG070").Id;
-            var retailProducts = repository.GetAll().First(c => c.Name == "CG510").Id;
-            var displays = repository.GetAll().First(c => c.Name == "CG040").Id;
-            var retailSubentry = repository.GetAll().First(c => c.Name == "CG500").Id;
-            var securityDevices = repository.GetAll().First(c => c.Name == "CG060").Id;
-            var serverSubentry = repository.GetAll().First(c => c.Name == "CG200").Id;
-            var serverEntry = repository.GetAll().First(c => c.Name == "CG210").Id;
-            var serverMidrange = repository.GetAll().First(c => c.Name == "CG220").Id;
-            var serverHighend = repository.GetAll().First(c => c.Name == "CG230").Id;
-            var storageMidrange = repository.GetAll().First(c => c.Name == "CG320").Id;
-            var storageEntry = repository.GetAll().First(c => c.Name == "CG310").Id;
-            var storageHighend = repository.GetAll().First(c => c.Name == "CG330").Id;
-            var thirdPartyVendors = repository.GetAll().First(c => c.Name == "CG540").Id;
+            var na = repository.GetAll().First(c => c.Code == "NA").Id;
+            var centricStor = repository.GetAll().First(c => c.Code == "CG350").Id;
+            var clientsEntry = repository.GetAll().First(c => c.Code == "CG110").Id;
+            var clientsHighend = repository.GetAll().First(c => c.Code == "CG130").Id;
+            var clientsMidrange = repository.GetAll().First(c => c.Code == "CG120").Id;
+            var clientsSubentry = repository.GetAll().First(c => c.Code == "CG100").Id;
+            var displayODM = repository.GetAll().First(c => c.Code == "CG041").Id;
+            var enterpriseServerHighend = repository.GetAll().First(c => c.Code == "CG270").Id;
+            var enterpriseServerMidrange = repository.GetAll().First(c => c.Code == "CG260").Id;
+            var peripherals = repository.GetAll().First(c => c.Code == "CG050").Id;
+            var pribter = repository.GetAll().First(c => c.Code == "CG070").Id;
+            var retailProducts = repository.GetAll().First(c => c.Code == "CG510").Id;
+            var displays = repository.GetAll().First(c => c.Code == "CG040").Id;
+            var retailSubentry = repository.GetAll().First(c => c.Code == "CG500").Id;
+            var securityDevices = repository.GetAll().First(c => c.Code == "CG060").Id;
+            var serverSubentry = repository.GetAll().First(c => c.Code == "CG200").Id;
+            var serverEntry = repository.GetAll().First(c => c.Code == "CG210").Id;
+            var serverMidrange = repository.GetAll().First(c => c.Code == "CG220").Id;
+            var serverHighend = repository.GetAll().First(c => c.Code == "CG230").Id;
+            var storageMidrange = repository.GetAll().First(c => c.Code == "CG320").Id;
+            var storageEntry = repository.GetAll().First(c => c.Code == "CG310").Id;
+            var storageHighend = repository.GetAll().First(c => c.Code == "CG330").Id;
+            var thirdPartyVendors = repository.GetAll().First(c => c.Code == "CG540").Id;
 
             var clusterPlas = new List<ClusterPla>
             {
@@ -2516,11 +2524,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Country { Name = "Sweden", CurrencyId = sek, SAPCountryCode = "SWD", ISO3CountryCode = "SWE", CountryGroup = swedenCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = swedenCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Australia", CurrencyId = aud, SAPCountryCode = "AUS", ISO3CountryCode = "AUS", CountryGroup = australiaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = oceaniaClusterId, RegionId = australiaCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "New Zealand", CurrencyId = nzd, SAPCountryCode = "NSL", ISO3CountryCode = "NZL", CountryGroup = newZealnadCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = oceaniaClusterId, RegionId = newZealnadCG.RegionId, AssignedToMultiVendor = false },
-                new Country { Name = "Guernsey", SAPCountryCode = "", ISO3CountryCode = "GGY", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
+                new Country { Name = "Guernsey", SAPCountryCode = "", ISO3CountryCode = "GGY", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Ireland", SAPCountryCode = "GBR", ISO3CountryCode = "IRL", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Jersey", SAPCountryCode = "", ISO3CountryCode = "JEY", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Man, Isle of", SAPCountryCode = "", ISO3CountryCode = "", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
-                new Country { Name = "Great Britain", CurrencyId = gbp, SAPCountryCode = "GBR", ISO3CountryCode = "GBR", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
+                new Country { Name = "Great Britain", CurrencyId = gbp, SAPCountryCode = "GBR", ISO3CountryCode = "GBR", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Northern Ireland", SAPCountryCode = "", ISO3CountryCode = "", CountryGroup = ukCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = ukCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Mexico", CurrencyId = mxn, SAPCountryCode = "MEX", ISO3CountryCode = "MEX", CountryGroup = mexicoCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = usClusterId, RegionId = mexicoCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "United States", CurrencyId = usd, SAPCountryCode = "FUJ", ISO3CountryCode = "USA", CountryGroup = usCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = usClusterId, RegionId = usCG.RegionId, AssignedToMultiVendor = false },

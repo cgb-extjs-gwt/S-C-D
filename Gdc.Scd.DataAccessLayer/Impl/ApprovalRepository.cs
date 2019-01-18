@@ -38,7 +38,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var query = this.historyQueryBuilder.BuildSelectJoinApproveHistoryValueQuery(history, historyValueId, costBlockFilter);
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
-            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, history.Context.CostElementId)
+            var maxInputLevelId = this.GetMaxInputLevelId(history, historyValueId);
+            var mapper = new CostBlockValueHistoryMapper(costBlockMeta, history.Context.CostElementId, maxInputLevelId)
             {
                 UseHistoryValueId = true
             };
@@ -78,7 +79,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
             var query = this.qualityGateQueryBuilder.BuildQulityGateApprovalQuery(history, userCountyGroupCheck, historyValueId, costBlockFilter);
 
-            var maxInputLevelId = historyValueId.HasValue ? null : history.Context.InputLevelId;
+            var maxInputLevelId = this.GetMaxInputLevelId(history, historyValueId);
 
             var mapper = new CostBlockValueHistoryMapper(costBlockMeta, history.Context.CostElementId, maxInputLevelId)
             {
@@ -88,6 +89,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             };
 
             return await this.repositorySet.ReadBySql(query, mapper.Map);
+        }
+
+        private string GetMaxInputLevelId(CostBlockHistory history, long? historyValueId)
+        {
+            return historyValueId.HasValue ? null : history.Context.InputLevelId;
         }
     }
 }

@@ -18,15 +18,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<PrincipalPortfolio> principalRepo;
 
+        private readonly IUserService userService;
+
         public PortfolioService(
                 IRepositorySet repositorySet,
                 IRepository<LocalPortfolio> localRepo,
-                IRepository<PrincipalPortfolio> principalRepo
+                IRepository<PrincipalPortfolio> principalRepo,
+                IUserService userService
             )
         {
             this.repositorySet = repositorySet;
             this.localRepo = localRepo;
             this.principalRepo = principalRepo;
+            this.userService = userService;
         }
 
         public Task Allow(PortfolioRuleSetDto m)
@@ -46,9 +50,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public Task<(PortfolioDto[] items, int total)> GetAllowed(PortfolioFilterDto filter, int start, int limit)
         {
+            var userCountriesIds = this.userService.GetCurrentUserCountries().Select(country => country.Id).ToArray();
+
             if (filter != null && filter.Country.HasValue)
             {
                 return GetLocalAllowed(filter.Country.Value, filter, start, limit);
+            }
+            else if (userCountriesIds.Length > 0)
+            {
+                return GetLocalAllowed(userCountriesIds.FirstOrDefault(), filter, start, limit);
             }
             else
             {

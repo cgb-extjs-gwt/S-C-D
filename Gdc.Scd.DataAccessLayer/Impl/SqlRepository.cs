@@ -43,7 +43,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             string schema,
             string referenceFieldName,
             IDictionary<string, IEnumerable<object>> entityFilter = null,
-            IDictionary<string, IEnumerable<object>> referenceFilter = null)
+            IDictionary<string, IEnumerable<object>> referenceFilter = null,
+            ConditionHelper filterCondition = null)
         {
             var meta = this.domainEnitiesMeta.GetEntityMeta(entityName, schema);
 
@@ -54,11 +55,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             BaseEntityMeta meta, 
             string referenceFieldName, 
             IDictionary<string, IEnumerable<object>> entityFilter = null,
-            IDictionary<string, IEnumerable<object>> referenceFilter = null)
+            IDictionary<string, IEnumerable<object>> referenceFilter = null,
+            ConditionHelper filterCondition = null)
         {
             var referenceField = (ReferenceFieldMeta)meta.GetField(referenceFieldName);
             var conditions = 
-                BuildCondition(entityFilter, meta.Name).Concat(BuildCondition(referenceFilter, referenceField.ReferenceMeta.Name));
+                BuildCondition(entityFilter, meta.Name).Concat(BuildCondition(referenceFilter, referenceField.ReferenceMeta.Name)).ToList();
+
+            if (filterCondition != null)
+            {
+                conditions.Add(filterCondition);
+            }
 
             var idColumn = new ColumnInfo(referenceField.ReferenceValueField, referenceField.ReferenceMeta.Name);
             var nameColumn = new ColumnInfo(referenceField.ReferenceFaceField, referenceField.ReferenceMeta.Name);

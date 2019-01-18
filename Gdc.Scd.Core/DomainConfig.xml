@@ -173,7 +173,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="2ndLevelSupportCostsLocal" Caption="2nd Level Support costs local" InputOption="Manually" RegionInput="ClusterRegion">
+        <Element Name="2ndLevelSupportCostsLocal" Caption="2nd Level Support costs local" InputOption="Manually" RegionInput="Country">
           <InputLevels>
             <InputLevel>ClusterPla</InputLevel>
           </InputLevels>
@@ -845,7 +845,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="InstalledBaseSog" Caption="Installed base per SOG" InputOption="Automatically" RegionInput="_none_">
+        <Element Name="InstalledBaseSog" Caption="Installed base" InputOption="Manually" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>

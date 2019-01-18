@@ -68,7 +68,7 @@ namespace Gdc.Scd.Import.Core.Impl
             var batchUpdate = new List<Wg>();
 
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_WG_START);
-            var defaultCentralContractGroup = this._centralContractGroupRepo.GetAll().FirstOrDefault(ccg => ccg.Name == "NA");
+            var defaultCentralContractGroup = this._centralContractGroupRepo.GetAll().FirstOrDefault(ccg => ccg.Code == "NA");
 
             foreach (var item in items)
             {
@@ -153,7 +153,7 @@ namespace Gdc.Scd.Import.Core.Impl
         private int UpdateLogistic(IEnumerable<LogisticsDto> items, DateTime modifiedDateTime)
         {
             var result = 0;
-            var wgs = _repositoryWg.GetAll().Where(wg => !wg.DeactivatedDateTime.HasValue).ToList();
+            var wgs = _repositoryWg.GetAll().Where(wg => !wg.DeactivatedDateTime.HasValue && !wg.IsSoftware).ToList();
             foreach (var item in items)
             {
                 switch (item.Action.ToLower())
@@ -166,9 +166,9 @@ namespace Gdc.Scd.Import.Core.Impl
                             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_AVAILABILITY_FEE_START, wg.Name);
                             Func<AvailabilityFee, bool> pred = null;
                             if (item.IsMultiVendor)
-                                pred = af => af.WgId == wg.Id && _multiVendorCountries.Contains(af.CountryId.Value);
+                                pred = af => af.WgId == wg.Id && _multiVendorCountries.Contains(af.CountryId.Value) && !af.DeactivatedDateTime.HasValue;
                             else
-                                pred = af => af.WgId == wg.Id && _allCountries.Contains(af.CountryId.Value);
+                                pred = af => af.WgId == wg.Id && _allCountries.Contains(af.CountryId.Value) && !af.DeactivatedDateTime.HasValue;
 
                             var itemsToUpdate = _availabilityFeeRepo.GetAll().Where(pred).ToList();
                             var batchList = new List<AvailabilityFee>();
@@ -179,7 +179,6 @@ namespace Gdc.Scd.Import.Core.Impl
                                 else
                                     itemToUpdate.CostPerKit = item.CostPerKit;
                                 itemToUpdate.MaxQty = item.MaxQty;
-                                itemToUpdate.DeactivatedDateTime = null;
                                 itemToUpdate.ModifiedDateTime = modifiedDateTime;
                                 batchList.Add(itemToUpdate);
                             }
@@ -223,7 +222,7 @@ namespace Gdc.Scd.Import.Core.Impl
             {
                 _logger.Log(LogLevel.Info, ImportConstants.UPDATE_AVAILABILITY_FEE_NEW_WG_START);
                 var addedCount = 0;
-                var wgs = _repositoryWg.GetAll().Where(wg => !wg.DeactivatedDateTime.HasValue).ToList();
+                var wgs = _repositoryWg.GetAll().Where(wg => !wg.DeactivatedDateTime.HasValue && !wg.IsSoftware).ToList();
                 foreach (var wg in this._newlyAddedWgs)
                 {
                     var availabilityFees = new List<AvailabilityFee>();

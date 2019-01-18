@@ -9,9 +9,13 @@ export interface DataInfo<T>
     total: number;
 }
 
-export interface SelectList<T> {
-    selectedItemId: string;
+export interface SelectList<T, TId=string> {
+    selectedItemId: TId;
     list: T[]
+}
+
+export interface SelectListAdvanced<T, TId=string> extends SelectList<T, TId> {
+    onItemSelected?(id: TId)
 }
 
 export interface MultiSelectList<T> {

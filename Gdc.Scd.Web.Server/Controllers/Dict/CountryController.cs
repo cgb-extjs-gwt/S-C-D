@@ -14,13 +14,17 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
 
         private readonly IDomainService<Country> domainService;
 
+        private readonly IUserService userService;
+
         public CountryController(
                 IDomainService<Country> domainService,
-                ICountryUserService userCntSrv
+                ICountryUserService userCntSrv,  
+                IUserService userService
             )
         {
             this.domainService = domainService;
             this.userCntSrv = userCntSrv;
+            this.userService = userService;
         }
 
         [HttpGet]
@@ -33,6 +37,12 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
         public Task<UserCountryDto[]> Usr()
         {
             return userCntSrv.GetUserMasterCountries(this.CurrentUser());
+        }
+
+        [HttpGet]
+        public bool IsCountryUser()
+        {
+            return this.userService.GetCurrentUserCountries().Any();
         }
 
         [HttpGet]

@@ -15,11 +15,12 @@
             this.ReferenceValueField = referenceValueField;
         }
 
-        public static ReferenceFieldMeta Build(string name,  NamedEntityMeta referenceMeta)
+        public static ReferenceFieldMeta Build(string name,  NamedEntityMeta referenceMeta, bool isNullable = false)
         {
             return new ReferenceFieldMeta(name, referenceMeta, referenceMeta.IdField.Name)
             {
                 ReferenceFaceField = referenceMeta.NameField.Name,
+                IsNullOption = isNullable
             };
         }
     }

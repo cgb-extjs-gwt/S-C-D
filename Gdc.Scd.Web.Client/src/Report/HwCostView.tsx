@@ -114,7 +114,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <Column text="Reaction type" dataIndex="ReactionType" />
                         <Column text="Reaction time" dataIndex="ReactionTime" />
                         <Column text="Service location" dataIndex="ServiceLocation" />
-                        <Column text="ProActive sla" dataIndex="ProActiveSla" />
+                        <Column text="ProActive SLA" dataIndex="ProActiveSla" />
                         <Column text="Standard warranty duration" dataIndex="StdWarranty" renderer={yearRenderer} flex="0.5" />
 
                     </Column>
