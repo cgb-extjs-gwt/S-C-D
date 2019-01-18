@@ -7,5 +7,7 @@ namespace Gdc.Scd.Core.Meta.Dto
         public bool IsUsingCostEditor { get; set; }
 
         public bool IsUsingTableView { get; set; }
+
+        public bool IsUsingCostImport { get; set; }
     }
 }

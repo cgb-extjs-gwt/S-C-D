@@ -6,6 +6,8 @@
 
         public const string TableView = "TableView";
 
+        public const string CostImport = "CostImport";
+
         public const string Approval = "Approval";
 
         public const string OwnApproval = "OwnApproval";
