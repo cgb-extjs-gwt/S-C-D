@@ -175,7 +175,7 @@ const buildProps = (() => {
                 CostBlockService.importExcel({ applicationId, costBlockId, costElementId }, file, dependencyItems.selectedItemId).then(
                     ({ errors }) => {
                         const status = errors && errors.length > 0 
-                            ? errors 
+                            ? [ ...errors, 'Import completed' ]
                             : ['Import successfully completed']
 
                         dispatch(loadImportStatus(status))

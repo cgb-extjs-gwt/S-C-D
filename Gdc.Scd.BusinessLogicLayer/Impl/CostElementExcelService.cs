@@ -93,38 +93,25 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var costBlockMeta = this.metas.GetCostBlockEntityMeta(costElementId);
             var converter = await this.BuildConverter(costBlockMeta, costElementId.CostElementId);
             var editInfos = new List<EditInfo>();
-            var dependencyFilter = new Dictionary<string, IEnumerable<object>>();
-
-            if (dependencyItemId.HasValue)
-            {
-                var dependencyMeta = costBlockMeta.DomainMeta.CostElements[costElementId.CostElementId].Dependency;
-
-                if (dependencyMeta == null)
-                {
-                    throw new Exception($"Cost element '{costElementId.CostElementId}' has not dependency, but parameter 'dependencyItemId' has value");
-                }
-                else
-                {
-                    dependencyFilter.Add(dependencyMeta.Id, new object[] { dependencyItemId.Value });
-                }
-            }
-
+            var dependencyFilter = this.BuildDependencyFilter(costBlockMeta, costElementId, dependencyItemId);
             var costElementField = costBlockMeta.CostElementsFields[costElementId.CostElementId];
 
             foreach (var wgValue in wgRawValues)
             {
                 try
                 {
-                    editInfos.Add(new EditInfo
+                    if (wgs.TryGetValue(wgValue.Key, out var wg))
                     {
-                        Meta = costBlockMeta,
-                        ValueInfos = new[]
+                        editInfos.Add(new EditInfo
                         {
+                            Meta = costBlockMeta,
+                            ValueInfos = new[]
+                            {
                                 new ValuesInfo
                                 {
                                     Filter = new Dictionary<string, IEnumerable<object>>(dependencyFilter)
                                     {
-                                        [MetaConstants.WgInputLevelName] = new object[] { wgs[wgValue.Key].Id }
+                                        [MetaConstants.WgInputLevelName] = new object[] { wg.Id }
                                     },
                                     Values = new Dictionary<string, object>
                                     {
@@ -132,11 +119,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                     }
                                 }
                             }
-                    });
+                        });
+                    }
+                    else
+                    {
+                        errors.Add($"Warranty group '{wgValue.Key}' not found");
+                    }
                 }
-                catch
+                catch(Exception ex)
                 {
-                    errors.Add($"Import error - warranty group '{wgValue.Key}', value '{wgValue.Value}'");
+                    errors.Add($"Import error - warranty group '{wgValue.Key}', value '{wgValue.Value}'. {ex.Message}");
                 }
             }
 
@@ -191,7 +183,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                     var referenceItemsDict = referenceItems.ToDictionary(item => item.Name.ToUpper(), item => item.Id);
 
-                    converter = rawValue => referenceItemsDict[rawValue.ToUpper()];
+                    converter = rawValue =>
+                    {
+                        if (!referenceItemsDict.TryGetValue(rawValue.ToUpper(), out var id))
+                        {
+                            throw new Exception($"'{rawValue}' not found in {referenceField.Name}");
+                        }
+
+                        return id;
+                    };
                     break;
 
                 default:
@@ -199,6 +199,30 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return converter;
+        }
+
+        private IDictionary<string, IEnumerable<object>> BuildDependencyFilter(
+            CostBlockEntityMeta costBlockMeta,
+            ICostElementIdentifier costElementId,
+            long? dependencyItemId)
+        {
+            var dependencyFilter = new Dictionary<string, IEnumerable<object>>();
+
+            if (dependencyItemId.HasValue)
+            {
+                var dependencyMeta = costBlockMeta.DomainMeta.CostElements[costElementId.CostElementId].Dependency;
+
+                if (dependencyMeta == null)
+                {
+                    throw new Exception($"Cost element '{costElementId.CostElementId}' has not dependency, but parameter 'dependencyItemId' has value");
+                }
+                else
+                {
+                    dependencyFilter.Add(dependencyMeta.Id, new object[] { dependencyItemId.Value });
+                }
+            }
+
+            return dependencyFilter;
         }
     }
 }
