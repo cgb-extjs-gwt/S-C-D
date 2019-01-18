@@ -12,7 +12,7 @@ export const getCostElement = (costBlock: CostBlockMeta, costElementId: string) 
 export const getCostElementByAppMeta = (meta: CostMetaData, costBlockId: string, costElementId: string) => {
     const costBlock = getCostBlock(meta, costBlockId);
 
-    return getCostElement(costBlock, costElementId);
+    return costBlock && getCostElement(costBlock, costElementId);
 }
 
 export const getCostBlock = (meta: CostMetaData, costBlockId: string) => findMeta(meta.costBlocks, costBlockId);

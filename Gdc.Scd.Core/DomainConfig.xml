@@ -381,11 +381,11 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="InstalledBaseCountry" Caption="Installed base country" InputOption="ManualyAutomaticly" RegionInput="Country">
-          <InputLevels>
-            <InputLevel>Wg</InputLevel>
-          </InputLevels>
-          <CostEditor>
+        <Element Name="InstalledBaseCountry" Caption="Installed base country" InputOption="ManualyAutomaticly" RegionInput="Country"> 
+            <InputLevels>
+              <InputLevel>Wg</InputLevel>
+            </InputLevels>      
+            <CostEditor>
             <Roles>
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
@@ -543,6 +543,8 @@
           <CostEditor>
             <Roles>
               <Role>SCD Admin</Role>
+              <Role>PRS Finance</Role>
+              <Role>Country key user</Role>
             </Roles>
           </CostEditor>
         </Element>
