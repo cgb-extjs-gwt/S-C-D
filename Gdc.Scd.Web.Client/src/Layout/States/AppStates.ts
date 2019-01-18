@@ -4,6 +4,7 @@ import { ApprovalCostElementsLayoutState } from "../../CostApproval/States/Appro
 import { OwnApprovalCostElementsLayoutState } from "../../CostApproval/States/OwnApprovalCostElementsLayoutState";
 import { TableViewState } from "../../TableView/States/TableViewState";
 import { NamedId } from "../../Common/States/CommonStates";
+import { CostImportState } from "../../CostImport/States/CostImportState";
 
 export interface Role {
     name: string
@@ -32,5 +33,6 @@ export interface CommonState {
         costApproval: ApprovalCostElementsLayoutState,
         ownCostApproval: OwnApprovalCostElementsLayoutState,
         tableView: TableViewState
+        costImport: CostImportState
     }
 }

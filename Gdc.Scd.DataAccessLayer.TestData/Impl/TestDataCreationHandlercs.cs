@@ -199,6 +199,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             var costEditorPermission = new Permission { Name = PermissionConstants.CostEditor };
             var tableViewPermission = new Permission { Name = PermissionConstants.TableView };
+            var costImportPermission = new Permission { Name = PermissionConstants.CostImport };
             var approvalPermission = new Permission { Name = PermissionConstants.Approval };
             var ownApprovalPermission = new Permission { Name = PermissionConstants.OwnApproval };
             var portfolioPermission = new Permission { Name = PermissionConstants.Portfolio };
@@ -269,6 +270,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = reportPermission },
                         new RolePermission { Permission = approvalPermission },
                         new RolePermission { Permission = ownApprovalPermission },
+                        new RolePermission { Permission = costImportPermission },
                     }
                 },
                 new Role
@@ -282,6 +284,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = portfolioPermission },
                         new RolePermission { Permission = ownApprovalPermission },
                         new RolePermission { Permission = reviewProcessPermission },
+                        new RolePermission { Permission = costImportPermission },
+                        new RolePermission { Permission = costImportPermission },
                     }
                 },
                 new Role
@@ -307,6 +311,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = approvalPermission },
                         new RolePermission { Permission = ownApprovalPermission },
                         new RolePermission { Permission = reviewProcessPermission },
+                        new RolePermission { Permission = costImportPermission },
                     }
                 },
                 new Role
@@ -318,6 +323,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = tableViewPermission },
                         new RolePermission { Permission = reportPermission },
                         new RolePermission { Permission = reviewProcessPermission },
+                        new RolePermission { Permission = costImportPermission },
                     }
                 },
                 new Role
@@ -329,6 +335,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = tableViewPermission },
                         new RolePermission { Permission = reportPermission },
                         new RolePermission { Permission = reviewProcessPermission },
+                        new RolePermission { Permission = costImportPermission },
                     }
                 },
                 new Role
