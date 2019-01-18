@@ -197,13 +197,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     editInfo.ValueInfos.Select(info => new
                                         {
                                             CostElementValues = info.Values,
-                                            CoordinateIfno = this.BuildCoordinateInfo(info.Coordinates, inputLevelMetas)
+                                            CoordinateInfo = this.BuildCoordinateInfo(
+                                                info.Filter.ToDictionary(
+                                                    keyValue => keyValue.Key, 
+                                                    keyValue => (long)keyValue.Value.First()), 
+                                                inputLevelMetas)
                                         })
                                        .SelectMany(info => info.CostElementValues.Select(costElemenValue => new
                                         {
                                             CostElementValue = costElemenValue,
-                                            info.CoordinateIfno.Filter,
-                                            info.CoordinateIfno.InputLevel
+                                            info.CoordinateInfo.Filter,
+                                            info.CoordinateInfo.InputLevel
                                         }))
                                        .GroupBy(info => info.CostElementValue.Key);
 

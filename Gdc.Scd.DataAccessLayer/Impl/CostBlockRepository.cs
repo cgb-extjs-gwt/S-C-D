@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
@@ -19,9 +20,37 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly IRepositorySet repositorySet;
 
-        public CostBlockRepository(IRepositorySet repositorySet)
+        private readonly DomainEnitiesMeta domainEnitiesMeta;
+
+        public CostBlockRepository(IRepositorySet repositorySet, DomainEnitiesMeta domainEnitiesMeta)
         {
             this.repositorySet = repositorySet;
+            this.domainEnitiesMeta = domainEnitiesMeta;
+        }
+
+        public async Task<int> Update(IEnumerable<EditInfo> editInfos)
+        {
+            var queries = new List<SqlHelper>();
+            var paramIndex = 0;
+
+            foreach (var editInfo in editInfos)
+            {
+                foreach (var valueInfo in editInfo.ValueInfos)
+                {
+                    var updateColumns = valueInfo.Values.Select(costElementValue => new ValueUpdateColumnInfo(
+                        costElementValue.Key,
+                        costElementValue.Value,
+                        $"param_{paramIndex++}"));
+
+                    var query =
+                        Sql.Update(editInfo.Meta, updateColumns.ToArray())
+                           .WhereNotDeleted(editInfo.Meta, valueInfo.Filter, editInfo.Meta.Name, $"param_{paramIndex++}");
+
+                    queries.Add(query);
+                }
+            }
+
+            return await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
         }
 
         public async Task<int> UpdateByCoordinatesAsync(CostBlockEntityMeta meta,

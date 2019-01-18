@@ -12,7 +12,11 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return SqlOperators.IsNull(meta.DeletedDateField.Name, tableName);
         }
 
-        public static ConditionHelper BuildFilterConditionn(CostBlockEntityMeta meta, IDictionary<string, IEnumerable<object>> filter = null, string tableName = null)
+        public static ConditionHelper BuildFilterConditionn(
+            CostBlockEntityMeta meta, 
+            IDictionary<string, IEnumerable<object>> filter = null, 
+            string tableName = null, 
+            string paramPrefix = null)
         {
             ConditionHelper result;
 
@@ -20,7 +24,7 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
 
             if (filter != null && filter.Count > 0)
             {
-                result = ConditionHelper.AndStatic(filter, tableName).And(notDeletedCondition);
+                result = ConditionHelper.AndStatic(filter, tableName, paramPrefix).And(notDeletedCondition);
             }
             else
             {
@@ -30,9 +34,14 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return result;
         }
 
-        public static T WhereNotDeleted<T>(this IWhereSqlHelper<T> query, CostBlockEntityMeta meta, IDictionary<string, IEnumerable<object>> filter, string tableName = null)
+        public static T WhereNotDeleted<T>(
+            this IWhereSqlHelper<T> query, 
+            CostBlockEntityMeta meta, 
+            IDictionary<string, IEnumerable<object>> filter, 
+            string tableName = null, 
+            string paramPrefix = null)
         {
-            return query.Where(BuildFilterConditionn(meta, filter, tableName));
+            return query.Where(BuildFilterConditionn(meta, filter, tableName, paramPrefix));
         }
 
         public static T WhereNotDeleted<T>(this IWhereSqlHelper<T> query, CostBlockEntityMeta meta, string tableName = null)
