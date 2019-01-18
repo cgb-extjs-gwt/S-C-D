@@ -224,6 +224,9 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
         if (column.rendererFn) {
             columnOption.renderer = (value, record: Model) => this.replaceNullValue(column.rendererFn(value, record));
         }
+        else {
+            columnOption.renderer = this.replaceNullValue
+        }
 
         if (column.filter) {
             columnOption.menu = ['-', this.buildColumnSearchField(column.filter)];
