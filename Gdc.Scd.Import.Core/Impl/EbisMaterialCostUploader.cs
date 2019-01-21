@@ -70,6 +70,7 @@ namespace Gdc.Scd.Import.Core.Impl
                     materialCostDb.RegionId = region.Id;
                 }
                 materialCostDb.MaterialCostWarranty = item.MaterialCost;
+                materialCostDb.MaterialCostWarranty_Approved = item.MaterialCost;
                 batchList.Add(materialCostDb);
             }
 
