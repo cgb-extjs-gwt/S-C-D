@@ -14,6 +14,7 @@
     REACTIONTYPE = 'reactiontype',
     PROACTIVE = 'proactive',
     SERVICELOCATION = 'servicelocation',
-    YEAR = 'year'
+    YEAR = 'year',
+    SWDIGIT = 'swdigit'
 
 }
