@@ -31,7 +31,9 @@ const editRecord: Reducer<TableViewState, EditRecordAction> = (state, action) =>
                 {
                     coordinates: actionRecord.coordinates,
                     data: changedData,
-                    additionalData: actionRecord.additionalData
+                    additionalData: actionRecord.additionalData,
+                    wgRoleCodeId: actionRecord.wgRoleCodeId,
+                    wgResponsiblePerson: actionRecord.wgResponsiblePerson
                 }
             ];
         }
@@ -45,7 +47,9 @@ const editRecord: Reducer<TableViewState, EditRecordAction> = (state, action) =>
                                 ...record.data, 
                                 ...changedData
                             },
-                            additionalData: actionRecord.additionalData
+                            additionalData: actionRecord.additionalData,
+                            wgRoleCodeId: actionRecord.wgRoleCodeId,
+                            wgResponsiblePerson: actionRecord.wgResponsiblePerson
                         }
                         : record
             );
