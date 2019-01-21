@@ -816,7 +816,7 @@ BEGIN
     select Country, Wg, Fee, Fee_Approved
     from Hardware.AvailabilityFeeCalcView fee
     join InputAtoms.Wg wg on wg.id = fee.Wg
-    where wg.WgType = 1 and wg.DeactivatedDateTime is null
+    where wg.DeactivatedDateTime is null
 
     ALTER INDEX ix_Hardware_AvailabilityFeeCalc ON Hardware.AvailabilityFeeCalc REBUILD;  
 
