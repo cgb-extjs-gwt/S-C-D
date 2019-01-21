@@ -85,8 +85,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 inputLevelJoinType = InputLevelJoinType.HistoryContext;
                 domainCoordinateFields =
                     costElement.FilterInputLevels(history.Context.InputLevelId)
-                               .Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id])
-                               .Concat(new[] { costBlockMeta.GetDomainDependencyField(history.Context.CostElementId) });
+                               .Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]);
+                var dependencyField = costBlockMeta.GetDomainDependencyField(history.Context.CostElementId);
+                if (dependencyField != null)
+                {
+                    domainCoordinateFields= domainCoordinateFields.Concat(new[] { dependencyField });
+                }
+                               
             }
 
             var selectColumns = new List<ColumnInfo>
@@ -254,7 +259,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 yield return new ColumnInfo(
                     dependecyField.ReferenceFaceField,
                     this.GetAlias(dependecyField.ReferenceMeta),
-                    $"{dependecyField.Name}_Name");
+                    $"{dependecyField.Name}_Name");            
             }
         }
 

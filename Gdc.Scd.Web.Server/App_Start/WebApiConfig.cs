@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Serialization;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -25,6 +26,7 @@ namespace Gdc.Scd.Web.Server
 
             var jsonFormatter = new JsonMediaTypeFormatter();
             jsonFormatter.SerializerSettings.ContractResolver = new CamelCaseExceptDictionaryKeysResolver();
+            jsonFormatter.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
             //optional: set serializer settings here
             config.Services.Replace(typeof(IContentNegotiator), new JsonContentNegotiator(jsonFormatter));
         }

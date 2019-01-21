@@ -337,7 +337,7 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     }
 
     private replaceNullValue(value) {
-        return value == null ? ' ' : value;
+        return value == null ? undefined : value;
     }
 
     private getLastLevelVisibleColumns(columns: ColumnInfo[]) {
