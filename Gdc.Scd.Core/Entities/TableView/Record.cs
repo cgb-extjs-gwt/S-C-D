@@ -10,6 +10,10 @@ namespace Gdc.Scd.Core.Entities.TableView
 
         public Dictionary<string, string> AdditionalData { get; set; }
 
+        public long? WgRoleCodeId { get; set; }
+
+        public string WgResponsiblePerson { get; set; }
+
         public Record()
         {
             this.Coordinates = new Dictionary<string, NamedId>();
