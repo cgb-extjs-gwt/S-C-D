@@ -105,10 +105,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             if (ids != null)
             {
-                filter = new Dictionary<string, IEnumerable<object>>
+                var idsArray = ids.Cast<object>().ToArray();
+                if (idsArray.Length > 0)
                 {
-                    [idField] = ids.Cast<object>().ToArray()
-                };
+                    filter = new Dictionary<string, IEnumerable<object>>
+                    {
+                        [idField] = idsArray
+                    };
+                }
             }
 
             return await this.GetNameIdItems(entityMeta, idField, nameField, filter);
