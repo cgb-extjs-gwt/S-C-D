@@ -11,11 +11,11 @@ namespace Gdc.Scd.Web.Server.Controllers
 {
     public class CostBlockController : ApiController
     {
-        private readonly ICostElementExcelService costElementExcelService;
+        private readonly ICostImportExcelService costElementExcelService;
 
         private readonly ICostBlockService costBlockService;
 
-        public CostBlockController(ICostElementExcelService costElementExcelService, ICostBlockService costBlockService)
+        public CostBlockController(ICostImportExcelService costElementExcelService, ICostBlockService costBlockService)
         {
             this.costElementExcelService = costElementExcelService;
             this.costBlockService = costBlockService;
@@ -33,12 +33,14 @@ namespace Gdc.Scd.Web.Server.Controllers
             var bytes = Convert.FromBase64String(importData.ExcelFile);
             var stream = new MemoryStream(bytes);
 
-            return await this.costElementExcelService.Import(importData.CostElementId, stream, importData.DependencyItemId);
+            return await this.costElementExcelService.Import(importData.CostElementId, stream, importData.ApprovalOption, importData.DependencyItemId);
         }
 
         public class ImportData
         {
             public CostElementIdentifier CostElementId { get; set; }
+
+            public ApprovalOption ApprovalOption { get; set; }
 
             public long? DependencyItemId { get; set; }
 

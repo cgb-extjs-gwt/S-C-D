@@ -14,9 +14,9 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
-    public class CostElementExcelService : ICostElementExcelService
+    public class CostImportExcelService : ICostImportExcelService
     {
-        private readonly ICostBlockRepository costBlockRepository;
+        private readonly ICostBlockService costBlockService;
 
         private readonly IDomainService<Wg> wgService;
 
@@ -24,19 +24,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly DomainEnitiesMeta metas;
 
-        public CostElementExcelService(
-            ICostBlockRepository costBlockRepository, 
+        public CostImportExcelService(
+            ICostBlockService costBlockService,
             IDomainService<Wg> wgService,
             ISqlRepository sqlRepository,
             DomainEnitiesMeta metas)
         {
-            this.costBlockRepository = costBlockRepository;
+            this.costBlockService = costBlockService;
             this.wgService = wgService;
             this.sqlRepository = sqlRepository;
             this.metas = metas;
         }
 
-        public async Task<ExcelImportResult> Import(ICostElementIdentifier costElementId, Stream excelStream, long? dependencyItemId = null)
+        public async Task<ExcelImportResult> Import(ICostElementIdentifier costElementId, Stream excelStream, ApprovalOption approvalOption, long? dependencyItemId = null)
         {
             var result = new ExcelImportResult
             {
@@ -69,7 +69,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 result.Errors.AddRange(editInfoResult.Errors);
 
-                await this.costBlockRepository.Update(editInfoResult.EditInfos);
+                var qualityGateResultSet = await this.costBlockService.Update(editInfoResult.EditInfos.ToArray(), approvalOption, EditorType.CostImport);
+                var qualityGateResultSetItem = qualityGateResultSet.Items.FirstOrDefault();
+
+                result.QualityGateResult = qualityGateResultSetItem == null
+                    ? new QualityGateResult()
+                    : qualityGateResultSetItem.QualityGateResult;
             }
             catch(Exception ex)
             {
@@ -86,9 +91,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var errors = new List<string>();
             var wgs =
-                    this.wgService.GetAll()
-                                  .Where(wg => wgRawValues.Keys.Contains(wg.Name))
-                                  .ToDictionary(wg => wg.Name);
+                this.wgService.GetAll()
+                              .Where(wg => wgRawValues.Keys.Contains(wg.Name))
+                              .ToDictionary(wg => wg.Name);
 
             var costBlockMeta = this.metas.GetCostBlockEntityMeta(costElementId);
             var converter = await this.BuildConverter(costBlockMeta, costElementId.CostElementId);
@@ -109,9 +114,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                             {
                                 new ValuesInfo
                                 {
-                                    Filter = new Dictionary<string, IEnumerable<object>>(dependencyFilter)
+                                    CoordinateFilter = new Dictionary<string, long[]>(dependencyFilter)
                                     {
-                                        [MetaConstants.WgInputLevelName] = new object[] { wg.Id }
+                                        [MetaConstants.WgInputLevelName] = new [] { wg.Id }
                                     },
                                     Values = new Dictionary<string, object>
                                     {
@@ -201,12 +206,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return converter;
         }
 
-        private IDictionary<string, IEnumerable<object>> BuildDependencyFilter(
+        private IDictionary<string, long[]> BuildDependencyFilter(
             CostBlockEntityMeta costBlockMeta,
             ICostElementIdentifier costElementId,
             long? dependencyItemId)
         {
-            var dependencyFilter = new Dictionary<string, IEnumerable<object>>();
+            var dependencyFilter = new Dictionary<string, long[]>();
 
             if (dependencyItemId.HasValue)
             {
@@ -218,7 +223,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 }
                 else
                 {
-                    dependencyFilter.Add(dependencyMeta.Id, new object[] { dependencyItemId.Value });
+                    dependencyFilter.Add(dependencyMeta.Id, new [] { dependencyItemId.Value });
                 }
             }
 

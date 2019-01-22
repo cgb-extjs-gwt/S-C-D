@@ -33,7 +33,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<ICostBlockService>().To<CostBlockService>().InRequestScope();
             Bind<IApprovalService>().To<ApprovalService>().InRequestScope();
             Bind<INotifyChannel>().To<MemoryChannel>().InSingletonScope();
-            Bind<ICostElementExcelService>().To<CostElementExcelService>().InRequestScope(); 
+            Bind<ICostImportExcelService>().To<CostImportExcelService>().InRequestScope(); 
 
             /*----------dictionaries-----------*/
             Kernel.RegisterEntity<ClusterRegion>();
