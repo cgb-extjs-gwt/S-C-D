@@ -258,6 +258,133 @@ CREATE TABLE Hardware.AfrYear(
 )
 GO
 
+IF OBJECT_ID('Hardware.ReinsuranceYear', 'U') IS NOT NULL
+  DROP TABLE Hardware.ReinsuranceYear;
+go
+
+CREATE TABLE [Hardware].[ReinsuranceYear](
+    [Wg] bigint PRIMARY KEY FOREIGN KEY REFERENCES InputAtoms.Wg(Id),
+    [ReinsuranceFlatfee1] [float] NULL,
+    [ReinsuranceFlatfee2] [float] NULL,
+    [ReinsuranceFlatfee3] [float] NULL,
+    [ReinsuranceFlatfee4] [float] NULL,
+    [ReinsuranceFlatfee5] [float] NULL,
+    [ReinsuranceFlatfeeP1] [float] NULL,
+    [ReinsuranceFlatfee1_Approved] [float] NULL,
+    [ReinsuranceFlatfee2_Approved] [float] NULL,
+    [ReinsuranceFlatfee3_Approved] [float] NULL,
+    [ReinsuranceFlatfee4_Approved] [float] NULL,
+    [ReinsuranceFlatfee5_Approved] [float] NULL,
+    [ReinsuranceFlatfeeP1_Approved] [float] NULL,
+    [ReinsuranceUpliftFactor_NBD_9x5] [float] NULL,
+    [ReinsuranceUpliftFactor_4h_9x5] [float] NULL,
+    [ReinsuranceUpliftFactor_4h_24x7] [float] NULL,
+    [ReinsuranceUpliftFactor_NBD_9x5_Approved] [float] NULL,
+    [ReinsuranceUpliftFactor_4h_9x5_Approved] [float] NULL,
+    [ReinsuranceUpliftFactor_4h_24x7_Approved] [float] NULL
+)
+
+GO
+
+IF OBJECT_ID('Hardware.Reinsurance_Updated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.Reinsurance_Updated;
+go
+
+CREATE TRIGGER [Hardware].[Reinsurance_Updated]
+ON [Hardware].[Reinsurance]
+After INSERT, UPDATE
+AS BEGIN
+
+    declare @NBD_9x5 bigint;
+    declare @4h_9x5 bigint;
+    declare @4h_24x7 bigint;
+
+    select @NBD_9x5 = id 
+    from Dependencies.ReactionTime_Avalability
+    where  ReactionTimeId = (select id from Dependencies.ReactionTime where UPPER(Name) = 'NBD')
+       and AvailabilityId = (select id from Dependencies.Availability where UPPER(Name) = '9X5')
+
+    select @4h_9x5 = id 
+    from Dependencies.ReactionTime_Avalability
+    where  ReactionTimeId = (select id from Dependencies.ReactionTime where UPPER(Name) = '4H')
+       and AvailabilityId = (select id from Dependencies.Availability where UPPER(Name) = '9X5')
+
+    select @4h_24x7 = id 
+    from Dependencies.ReactionTime_Avalability
+    where  ReactionTimeId = (select id from Dependencies.ReactionTime where UPPER(Name) = '4H')
+       and AvailabilityId = (select id from Dependencies.Availability where UPPER(Name) = '24X7')
+
+    TRUNCATE TABLE Hardware.ReinsuranceYear;
+
+    -- Disable all table constraints
+    ALTER TABLE Hardware.ReinsuranceYear NOCHECK CONSTRAINT ALL;
+
+    INSERT INTO Hardware.ReinsuranceYear(
+                      Wg
+                
+                    , ReinsuranceFlatfee1                     
+                    , ReinsuranceFlatfee2                     
+                    , ReinsuranceFlatfee3                     
+                    , ReinsuranceFlatfee4                     
+                    , ReinsuranceFlatfee5                     
+                    , ReinsuranceFlatfeeP1                    
+                
+                    , ReinsuranceFlatfee1_Approved            
+                    , ReinsuranceFlatfee2_Approved            
+                    , ReinsuranceFlatfee3_Approved            
+                    , ReinsuranceFlatfee4_Approved            
+                    , ReinsuranceFlatfee5_Approved            
+                    , ReinsuranceFlatfeeP1_Approved           
+                
+                    , ReinsuranceUpliftFactor_NBD_9x5         
+                    , ReinsuranceUpliftFactor_4h_9x5          
+                    , ReinsuranceUpliftFactor_4h_24x7         
+                
+                    , ReinsuranceUpliftFactor_NBD_9x5_Approved
+                    , ReinsuranceUpliftFactor_4h_9x5_Approved 
+                    , ReinsuranceUpliftFactor_4h_24x7_Approved
+                )
+    select   r.Wg
+
+           , max(case when y.IsProlongation = 0 and y.Value = 1  then ReinsuranceFlatfee end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 2  then ReinsuranceFlatfee end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 3  then ReinsuranceFlatfee end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 4  then ReinsuranceFlatfee end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 5  then ReinsuranceFlatfee end) 
+           , max(case when y.IsProlongation = 1 and y.Value = 1  then ReinsuranceFlatfee end) 
+
+           , max(case when y.IsProlongation = 0 and y.Value = 1  then ReinsuranceFlatfee_Approved end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 2  then ReinsuranceFlatfee_Approved end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 3  then ReinsuranceFlatfee_Approved end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 4  then ReinsuranceFlatfee_Approved end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 5  then ReinsuranceFlatfee_Approved end) 
+           , max(case when y.IsProlongation = 1 and y.Value = 1  then ReinsuranceFlatfee_Approved end) 
+
+           , max(case when r.ReactionTimeAvailability = @NBD_9x5 then r.ReinsuranceUpliftFactor end) 
+           , max(case when r.ReactionTimeAvailability = @4h_9x5  then r.ReinsuranceUpliftFactor end) 
+           , max(case when r.ReactionTimeAvailability = @4h_24x7 then r.ReinsuranceUpliftFactor end) 
+
+           , max(case when r.ReactionTimeAvailability = @NBD_9x5 then r.ReinsuranceUpliftFactor_Approved end) 
+           , max(case when r.ReactionTimeAvailability = @4h_9x5  then r.ReinsuranceUpliftFactor_Approved end) 
+           , max(case when r.ReactionTimeAvailability = @4h_24x7 then r.ReinsuranceUpliftFactor_Approved end) 
+
+    from Hardware.Reinsurance r
+    join Dependencies.Year y on y.Id = r.Year
+
+    where r.ReactionTimeAvailability in (@NBD_9x5, @4h_9x5, @4h_24x7) 
+      and r.DeactivatedDateTime is null
+    group by r.Wg;
+
+    -- Enable all table constraints
+    ALTER TABLE Hardware.ReinsuranceYear CHECK CONSTRAINT ALL;
+
+END
+GO
+
+update Hardware.Reinsurance set ReinsuranceFlatfee = ReinsuranceFlatfee + 0;
+
+go
+
 IF OBJECT_ID('Hardware.AFR_Updated', 'TR') IS NOT NULL
   DROP TRIGGER Hardware.AFR_Updated;
 go

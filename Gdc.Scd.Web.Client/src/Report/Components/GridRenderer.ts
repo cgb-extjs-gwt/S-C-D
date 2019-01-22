@@ -9,7 +9,7 @@ export function stringRenderer(val, row) {
 }
 
 export function numberRenderer(value: any, row: any): string {
-    return isEmpty(value) ? N_A : Ext.util.Format.number(value, '0.00');
+    return isEmpty(value) ? N_A : Ext.util.Format.number(value, '0.00###');
 }
 
 export function moneyRenderer(value: any, row: any): string {
@@ -17,7 +17,7 @@ export function moneyRenderer(value: any, row: any): string {
 }
 
 export function percentRenderer(value: any, row: any): string {
-    return isEmpty(value) ? N_A : Ext.util.Format.number(value, '0.000') + '%';
+    return isEmpty(value) ? N_A : Ext.util.Format.number(value, '0.00###') + '%';
 }
 
 export function yearRenderer(val: number, row) {
