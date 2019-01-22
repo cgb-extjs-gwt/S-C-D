@@ -513,25 +513,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                 DataIndex = wgMeta.DescriptionField.Name,
                                 Title = "WG Full name"
                             }
-                        },
-                        new AdditionalDataInfo
-                        {
-                            Field = wgMeta.ResponsiblePersonField,
-                            Data = new AdditionalData
-                            {
-                                DataIndex = wgMeta.ResponsiblePersonField.Name,
-                                Title = "Responsible Person"
-                            }
-                        },
-                        new AdditionalDataInfo
-                        {
-                            Field = wgMeta.RoleCodeField,
-                            Data = new AdditionalData
-                            {
-                                DataIndex = wgMeta.RoleCodeField.Name,
-                                Title = "Role code"
-                            }
-                        },
+                        }
                     };
                     break;
 

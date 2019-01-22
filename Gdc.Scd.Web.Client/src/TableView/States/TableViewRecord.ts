@@ -13,4 +13,6 @@ export interface TableViewRecord {
             value
         }
     }
+    wgRoleCodeId?: number
+    wgResponsiblePerson: string
 }

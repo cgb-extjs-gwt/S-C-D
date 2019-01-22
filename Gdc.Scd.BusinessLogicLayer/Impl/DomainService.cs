@@ -19,8 +19,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 try
                 {
-                    this.InnerSave(item);
-                    this.repositorySet.Sync();
+                    this.SaveWithoutTransaction(item);
+
                     transaction.Commit();
                 }
                 catch (Exception ex)
@@ -38,12 +38,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 try
                 {
-                    foreach (var item in items)
-                    {
-                        this.InnerSave(item);
-                    }
+                    this.SaveWithoutTransaction(items);
 
-                    this.repositorySet.Sync();
                     transaction.Commit();
                 }
                 catch (Exception ex)
@@ -53,6 +49,22 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     throw ex;
                 }
             }
+        }
+
+        public void SaveWithoutTransaction(T item)
+        {
+            this.InnerSave(item);
+            this.repositorySet.Sync();
+        }
+
+        public void SaveWithoutTransaction(IEnumerable<T> items)
+        {
+            foreach (var item in items)
+            {
+                this.InnerSave(item);
+            }
+
+            this.repositorySet.Sync();
         }
 
         public virtual void Delete(long id)

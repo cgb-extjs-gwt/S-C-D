@@ -72,6 +72,7 @@ namespace Gdc.Scd.Import.Core.Impl
                     afrDb.WgId = wg.Id;
                 }
                 afrDb.AFR = item.Afr;
+                afrDb.AFR_Approved = item.Afr;
                 batchList.Add(afrDb);
             }
 
