@@ -7,4 +7,5 @@
     reactionTime?: string;
     serviceLocation?: string;
     proActive?: string;
+    currency?: number; //0 - euro, 1 - local
 }
