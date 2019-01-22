@@ -11,7 +11,7 @@ AS
 RETURN (
     select    sog.Description as SogDescription
             , dig.Name as Digit
-            , fsp.Name
+            , fsp.Name as Fsp
             , sog.Name as Sog
 
             , fsp.ServiceDescription as SpDescription
