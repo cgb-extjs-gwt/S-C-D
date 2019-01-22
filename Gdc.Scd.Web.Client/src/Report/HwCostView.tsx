@@ -8,6 +8,8 @@ import { moneyRenderer, percentRenderer, yearRenderer, emptyRenderer, moneyRende
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 
+const localMoneyRenderer = moneyRendererFactory('Currency', 'ExchangeRate');
+
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private grid: Grid & any;
@@ -87,7 +89,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         const canEditTC: boolean = this.canEditTC();
         const canEditListPrice: boolean = this.canEditListPrice();
 
-        const moneyRndr = this.state.showInLocalCurrency ? moneyRendererFactory('Currency', 'ExchangeRate') : moneyRenderer;
+        const moneyRndr = this.state.showInLocalCurrency ? localMoneyRenderer : moneyRenderer;
 
         return (
             <Container layout="fit">
