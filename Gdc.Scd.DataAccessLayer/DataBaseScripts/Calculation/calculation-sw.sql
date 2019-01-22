@@ -1,24 +1,4 @@
-﻿IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceCostView', 'U') IS NOT NULL
-  DROP TABLE SoftwareSolution.SwSpMaintenanceCostView;
-go
-
-IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceCostView', 'V') IS NOT NULL
-  DROP VIEW SoftwareSolution.SwSpMaintenanceCostView;
-go
-
-IF OBJECT_ID('SoftwareSolution.ProActiveView', 'U') IS NOT NULL
-  DROP TABLE SoftwareSolution.ProActiveView;
-go
-
-IF OBJECT_ID('SoftwareSolution.ProActiveView', 'V') IS NOT NULL
-  DROP VIEW SoftwareSolution.ProActiveView;
-go
-
-IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceView', 'V') IS NOT NULL
-  DROP VIEW SoftwareSolution.SwSpMaintenanceView;
-go
-
-IF OBJECT_ID('InputAtoms.WgSogView', 'V') IS NOT NULL
+﻿IF OBJECT_ID('InputAtoms.WgSogView', 'V') IS NOT NULL
   DROP VIEW InputAtoms.WgSogView;
 go
 
@@ -36,6 +16,22 @@ go
 
 IF OBJECT_ID('SoftwareSolution.CalcTransferPrice') IS NOT NULL
   DROP FUNCTION SoftwareSolution.CalcTransferPrice;
+go 
+
+IF OBJECT_ID('SoftwareSolution.GetCosts') IS NOT NULL
+  DROP FUNCTION SoftwareSolution.GetCosts;
+go 
+
+IF OBJECT_ID('SoftwareSolution.GetProActiveCosts') IS NOT NULL
+  DROP FUNCTION SoftwareSolution.GetProActiveCosts;
+go 
+
+IF OBJECT_ID('SoftwareSolution.GetSwSpMaintenancePaging') IS NOT NULL
+  DROP FUNCTION SoftwareSolution.GetSwSpMaintenancePaging;
+go 
+
+IF OBJECT_ID('SoftwareSolution.GetProActivePaging') IS NOT NULL
+  DROP FUNCTION SoftwareSolution.GetProActivePaging;
 go 
 
 CREATE FUNCTION [SoftwareSolution].[CalcDealerPrice] (@maintenance float, @discount float)
