@@ -78,6 +78,7 @@ namespace Gdc.Scd.Import.Core.Impl
                     foreach (var entity in taxAndDutyEntities)
                     {
                         entity.TaxAndDuties = item.AverageSumDutiesAndTaxes;
+                        entity.TaxAndDuties_Approved = item.AverageSumDutiesAndTaxes;
                         batchList.Add(entity);
                     }
                 }
@@ -87,6 +88,7 @@ namespace Gdc.Scd.Import.Core.Impl
                     var entity = new TaxAndDutiesEntity();
                     entity.CountryId = country.Id;
                     entity.TaxAndDuties = item.AverageSumDutiesAndTaxes;
+                    entity.TaxAndDuties_Approved = item.AverageSumDutiesAndTaxes;
                     batchList.Add(entity);
                 }
             }
