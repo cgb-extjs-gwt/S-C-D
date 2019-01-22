@@ -4,32 +4,31 @@ go
 
 CREATE FUNCTION Report.SolutionPackPriceListDetail
 (
-    @sog bigint
+    @digit bigint
 )
 RETURNS TABLE 
 AS
 RETURN (
-    select 
-              sog.Description as SogDescription
-            , null as Digit
+    select    sog.Description as SogDescription
+            , dig.Name as Digit
             , fsp.Name
             , sog.Name as Sog
 
             , fsp.ServiceDescription as SpDescription
             , null as Sp
 
-            , sw.[2ndLevelSupportCosts_Approved] as SupportCost
+            , sw.[2ndLevelSupportCosts] as SupportCost
             
-            , sw.Reinsurance_Approved as Reinsurance
+            , sw.Reinsurance as Reinsurance
 
-            , sw.TransferPrice_Approved as TP
-            , sw.DealerPrice_Approved as DealerPrice
+            , sw.TransferPrice as TP
+            , sw.DealerPrice as DealerPrice
             , sw.MaintenanceListPrice as ListPrice
 
-    from SoftwareSolution.SwSpMaintenanceCostView sw
+    from SoftwareSolution.GetCosts(1, @digit, null, null, -1, -1) sw
+    join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
     join InputAtoms.Sog sog on sog.id = sw.Sog
-    join Fsp.SwFspCodeTranslation fsp on fsp.SogId = sw.Sog
-    where (@sog is null or sw.Sog = @sog)
+    left join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = sw.SwDigit
 )
 
 GO
@@ -69,6 +68,6 @@ set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
 
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 5, 'sog', 'Service Offering Group');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit'), 'digit', 'SW digit');
 
 GO

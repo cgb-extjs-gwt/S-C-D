@@ -9,11 +9,11 @@ CREATE FUNCTION Report.SolutionPackPriceList
 RETURNS TABLE 
 AS
 RETURN (
-    select 
-              sog.Description as SogDescription
+    select    dig.Name as Digit
+            , sog.Description as SogDescription
             , sog.Name as Sog
 
-            , fsp.Name
+            , fsp.Name as Fsp
             , fsp.ServiceDescription as SpDescription
             , null as Sp
 
@@ -22,6 +22,7 @@ RETURN (
             , sw.MaintenanceListPrice as ListPrice
 
     from SoftwareSolution.GetCosts(1, @digit, null, null, -1, -1) sw
+    join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
     join InputAtoms.Sog sog on sog.id = sw.Sog
     left join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = sw.SwDigit
 )
@@ -33,6 +34,8 @@ declare @index int = 0;
 
 delete from Report.ReportColumn where ReportId = @reportId;
 
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Digit', 'SW Product Order no.', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SogDescription', 'Infrastructure Solution', 1, 1);
 set @index = @index + 1;
