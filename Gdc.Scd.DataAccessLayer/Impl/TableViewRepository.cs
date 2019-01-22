@@ -24,11 +24,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly ICostBlockFilterBuilder costBlockFilterBuilder;
 
-        public TableViewRepository(IRepositorySet repositorySet, ISqlRepository sqlRepository, ICostBlockFilterBuilder costBlockFilterBuilder)
+        private readonly ICostBlockRepository costBlockRepository;
+
+        public TableViewRepository(
+            IRepositorySet repositorySet, 
+            ISqlRepository sqlRepository, 
+            ICostBlockFilterBuilder costBlockFilterBuilder,
+            ICostBlockRepository costBlockRepository)
         {
             this.repositorySet = repositorySet;
             this.sqlRepository = sqlRepository;
             this.costBlockFilterBuilder = costBlockFilterBuilder;
+            this.costBlockRepository = costBlockRepository;
         }
 
         public async Task<IEnumerable<Record>> GetRecords(CostElementInfo[] costElementInfos)
@@ -80,31 +87,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task UpdateRecords(IEnumerable<EditInfo> editInfos)
         {
-            var queries = new List<SqlHelper>();
-            var paramIndex = 0;
-
-            foreach (var editInfo in editInfos)
-            {
-                foreach (var valueInfo in editInfo.ValueInfos)
-                {
-                    var updateColumns = valueInfo.Values.Select(costElementValue => new ValueUpdateColumnInfo(
-                        costElementValue.Key,
-                        costElementValue.Value,
-                        $"param_{paramIndex++}"));
-
-                    var whereCondition = ConditionHelper.And(
-                        valueInfo.Coordinates.Select(
-                            coordinate => SqlOperators.Equals(coordinate.Key, $"param_{paramIndex++}", coordinate.Value)));
-
-                    var query =
-                        Sql.Update(editInfo.Meta, updateColumns.ToArray())
-                           .Where(whereCondition);
-
-                    queries.Add(query);
-                }
-            }
-
-            await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
+            await this.costBlockRepository.Update(editInfos);
         }
 
         public async Task<IDictionary<string, ReferenceSet>> GetReferences(CostElementInfo[] costElementInfo)
@@ -262,7 +245,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                         valueInfos.Add(new ValuesInfo
                         {
-                            Coordinates = coordinates,
+                            Filter = coordinates.ToDictionary(keyValue => keyValue.Key, keyValue => new object[] { keyValue.Value } as IEnumerable<object>),
                             Values = coordinateGroup.ToDictionary(rawEditInfo => rawEditInfo.EditFieldId.CostElementId, rawEditInfo => rawEditInfo.Value)
                         });
                     }
@@ -530,25 +513,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                 DataIndex = wgMeta.DescriptionField.Name,
                                 Title = "WG Full name"
                             }
-                        },
-                        new AdditionalDataInfo
-                        {
-                            Field = wgMeta.ResponsiblePersonField,
-                            Data = new AdditionalData
-                            {
-                                DataIndex = wgMeta.ResponsiblePersonField.Name,
-                                Title = "Responsible Person"
-                            }
-                        },
-                        new AdditionalDataInfo
-                        {
-                            Field = wgMeta.RoleCodeField,
-                            Data = new AdditionalData
-                            {
-                                DataIndex = wgMeta.RoleCodeField.Name,
-                                Title = "Role code"
-                            }
-                        },
+                        }
                     };
                     break;
 

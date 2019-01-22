@@ -10,8 +10,10 @@ import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField
 import { WgField } from "../../Dict/Components/WgField";
 import { PortfolioFilterModel } from "../Model/PortfolioFilterModel";
 import { ProActiveField } from "../../Dict/Components/ProActiveField";
+import { UserCountryField } from "../../Dict/Components/UserCountryField";
 
 export interface FilterPanelProps extends PanelProps {
+    isCountryUser: boolean;
     onSearch(filter: PortfolioFilterModel): void;
 }
 
@@ -45,6 +47,7 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
     }
 
     public render() {
+
         return (
             <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
 
@@ -57,8 +60,7 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
                         clearable: 'true'
                     }}
                 >
-
-                    <CountryField ref={x => this.country = x} label="Country:" onChange={this.onCountryChange} />
+                    <UserCountryField ref={x => this.country = x} label="Country:" cache={false} onChange={this.onCountryChange} />
                     <WgField ref={x => this.wg = x} label="Asset(WG):" />
                     <AvailabilityField ref={x => this.av = x} label="Availability:" />
                     <DurationField ref={x => this.dur = x} label="Duration:" />
@@ -69,7 +71,7 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
 
                 </Container>
 
-                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio, padding: '3px 0' }}>
+                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio, padding: '3px 0', hidden: this.props.isCountryUser }}>
                     <CheckBoxField ref={x => this.globPort = x} boxLabel="Fujitsu principal portfolio" />
                     <CheckBoxField ref={x => this.masterPort = x} boxLabel="Master portfolio" />
                     <CheckBoxField ref={x => this.corePort = x} boxLabel="Core portfolio" />

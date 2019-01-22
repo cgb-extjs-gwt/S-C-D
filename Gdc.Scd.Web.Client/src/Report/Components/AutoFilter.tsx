@@ -9,6 +9,8 @@ import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
 import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
 import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
 import { SogField } from "../../Dict/Components/SogField";
+import { SwDigitField } from "../../Dict/Components/SwDigitField";
+import { UserCountryField } from "../../Dict/Components/UserCountryField";
 import { WgField } from "../../Dict/Components/WgField";
 import { YearField } from "../../Dict/Components/YearField";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
@@ -65,6 +67,9 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
             case AutoFilterType.COUNTRY:
                 return <CountryField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
+            case AutoFilterType.USERCOUNTRY:
+                return <UserCountryField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+
             case AutoFilterType.COUNTRYGROUP:
                 return <CountryGroupField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
@@ -88,6 +93,9 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
 
             case AutoFilterType.SERVICELOCATION:
                 return <ServiceLocationField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+
+            case AutoFilterType.SWDIGIT:
+                return <SwDigitField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.TEXT:
             default:

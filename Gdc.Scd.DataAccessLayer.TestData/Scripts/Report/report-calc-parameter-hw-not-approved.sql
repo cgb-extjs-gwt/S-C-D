@@ -15,17 +15,7 @@ CREATE FUNCTION Report.CalcParameterHwNotApproved
 RETURNS TABLE 
 AS
 RETURN (
-    with ReinsuranceCte as (
-        select r.Wg
-             , r.Year
-             , SUM(CASE WHEN UPPER(rt.Name) = 'NBD' THEN r.Cost END) AS  ReinsuranceNBD
-             , SUM(CASE WHEN UPPER(av.Name) = '24X7' THEN r.Cost END) AS Reinsurance27x7
-        from Hardware.ReinsuranceView r
-        join Dependencies.Availability av on av.Id = r.AvailabilityId 
-        join Dependencies.ReactionTime rt on rt.id = r.ReactionTimeId
-        group by r.Wg, r.Year
-    )
-    , CostCte as (
+    with CostCte as (
             select 
                 m.Id
               , c.Name as Country
@@ -54,23 +44,30 @@ RETURN (
               , fsc.OnsiteHourlyRates as OnsiteHourlyRate
 
               , lc.StandardHandling as StandardHandling
-              , null as LogisticTransportcost
 
-              , null as FslFlatfee
-      
-              , mcw.MaterialCostWarranty * tax.TaxAndDuties as TaxAndDutiesW
-              , mco.MaterialCostOow      * tax.TaxAndDuties as TaxAndDutiesOow
+              , lc.StandardHandling + 
+                lc.HighAvailabilityHandling + 
+                lc.StandardDelivery + 
+                lc.ExpressDelivery + 
+                lc.TaxiCourierDelivery + 
+                lc.ReturnDeliveryFactory as LogisticPerYear
 
-              , null as Markup
-              , null as MarkupIndirect
-              , null as MarkupFactor
-              , null as MarkupBaseW
+              , case when afEx.id is null then af.Fee else 0 end as AvailabilityFee
       
-              , afr.AFR1 as AFR1
-              , afr.AFR2 as AFR2
-              , afr.AFR3 as AFR3
-              , afr.AFR4 as AFR4
-              , afr.AFR5 as AFR5
+              , tax.TaxAndDuties as TaxAndDutiesW
+
+              , moc.Markup       as MarkupOtherCost
+              , moc.MarkupFactor as MarkupFactorOtherCost
+
+              , msw.MarkupFactorStandardWarranty as MarkupFactorStandardWarranty
+              , msw.MarkupStandardWarranty       as MarkupStandardWarranty
+      
+              , afr.AFR1  as AFR1
+              , afr.AFR2  as AFR2
+              , afr.AFR3  as AFR3
+              , afr.AFR4  as AFR4
+              , afr.AFR5  as AFR5
+              , afr.AFRP1 as AFRP1
 
               , Hardware.CalcFieldServiceCost(
                             fsc.TimeAndMaterialShare, 
@@ -83,45 +80,34 @@ RETURN (
                             1
                         ) as FieldServicePerYear
 
-              , null as '2ndLevelRatio'
-              , null as '2ndLevelSupportRate'
-              , ssc.[1stLevelSupportCosts]
-              , null as OohUpliftSsc
+              , ssc.[1stLevelSupportCosts]           as [1stLevelSupportCosts]
+              , ssc.[2ndLevelSupportCosts]           as [2ndLevelSupportCosts]
            
-              , r.ReinsuranceNBD
-              , r.ReinsuranceNBD as ReinsuranceNBD_Oow
-              , r.Reinsurance27x7
-              , r.Reinsurance27x7 as Reinsurance27x7_Oow
-           
-              , null as MaterialPerIncident
-           
+              , r.ReinsuranceFlatfee1                as ReinsuranceFlatfee1
+              , r.ReinsuranceFlatfee2                as ReinsuranceFlatfee2
+              , r.ReinsuranceFlatfee3                as ReinsuranceFlatfee3
+              , r.ReinsuranceFlatfee4                as ReinsuranceFlatfee4
+              , r.ReinsuranceFlatfee5                as ReinsuranceFlatfee5
+              , r.ReinsuranceFlatfeeP1               as ReinsuranceFlatfeeP1
+              , r.ReinsuranceUpliftFactor_4h_24x7    as ReinsuranceUpliftFactor_4h_24x7
+              , r.ReinsuranceUpliftFactor_4h_9x5     as ReinsuranceUpliftFactor_4h_9x5
+              , r.ReinsuranceUpliftFactor_NBD_9x5    as ReinsuranceUpliftFactor_NBD_9x5
+
               , mcw.MaterialCostWarranty as MaterialCostWarranty
               , mco.MaterialCostOow as MaterialCostOow
-           
-              , null as OnSiteInterventions
-           
+
               , dur.Value as Duration
-           
-              , null as CallRate
-              , null as GlobalProduct
-           
-              , null as DealerPrice
-              , null as ListPrice
-           
-              , null as SparesAvailability
-              , null as UsageFtsLogistics
-              , null as ReinsuranceCalcMode
-              , null as ReinsuranceContract
+              , dur.IsProlongation
 
         from Portfolio.GetBySla(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc, @pro) m
 
-        JOIN InputAtoms.CountryView c on c.Id = m.CountryId
+        INNER JOIN InputAtoms.CountryView c on c.Id = m.CountryId
 
-        JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
+        INNER JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
 
-        JOIN InputAtoms.WgView wg2 on wg2.Id = m.WgId
+        INNER JOIN InputAtoms.WgView wg2 on wg2.Id = m.WgId
 
-        JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
+        INNER JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
 
         INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 
@@ -155,23 +141,118 @@ RETURN (
 
         LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg2.ClusterPla
 
-        LEFT JOIN ReinsuranceCte r on r.Wg = m.WgId and r.Year = m.DurationId
+        LEFT JOIN Hardware.ReinsuranceYear r on r.Wg = m.WgId
 
-        LEFT JOIN Fsp.HwFspCodeTranslation fsp on fsp.CountryId = m.CountryId
-                                    and fsp.WgId = m.WgId
-                                    and fsp.AvailabilityId = m.AvailabilityId
-                                    and fsp.DurationId = m.DurationId
-                                    and fsp.ReactionTimeId = m.ReactionTimeId
-                                    and fsp.ReactionTypeId = m.ReactionTypeId
-                                    and fsp.ServiceLocationId = m.ServiceLocationId
-                                    and fsp.ProactiveSlaId = m.ProActiveSlaId
+        LEFT JOIN Hardware.MarkupOtherCostsView moc on moc.Wg = m.WgId 
+                                                   AND moc.Country = m.CountryId 
+                                                   AND moc.ReactionTimeId = m.ReactionTimeId 
+                                                   AND moc.ReactionTypeId = m.ReactionTypeId 
+                                                   AND moc.AvailabilityId = m.AvailabilityId
+
+        LEFT JOIN Hardware.MarkupStandardWarantyView msw on msw.Wg = m.WgId 
+                                                        AND msw.Country = m.CountryId 
+                                                        AND msw.ReactionTimeId = m.ReactionTimeId 
+                                                        AND msw.ReactionTypeId = m.ReactionTypeId 
+                                                        AND msw.AvailabilityId = m.AvailabilityId
+
+        LEFT JOIN Hardware.AvailabilityFeeCalc af on af.Country = m.CountryId AND af.Wg = m.WgId
+
+        LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId 
+                                            AND afEx.ReactionTimeId = m.ReactionTimeId 
+                                            AND afEx.ReactionTypeId = m.ReactionTypeId 
+                                            AND afEx.ServiceLocationId = m.ServiceLocationId
+
+        LEFT JOIN Fsp.HwFspCodeTranslation fsp  on fsp.SlaHash = m.SlaHash 
+                                               and fsp.CountryId = m.CountryId
+                                               and fsp.WgId = m.WgId
+                                               and fsp.AvailabilityId = m.AvailabilityId
+                                               and fsp.DurationId= m.DurationId
+                                               and fsp.ReactionTimeId = m.ReactionTimeId
+                                               and fsp.ReactionTypeId = m.ReactionTypeId
+                                               and fsp.ServiceLocationId = m.ServiceLocationId
+                                               and fsp.ProactiveSlaId = m.ProActiveSlaId
     )
-    select    m.*
-            , m.FieldServicePerYear * m.AFR1 as FieldServiceCost1
-            , m.FieldServicePerYear * m.AFR2 as FieldServiceCost2
-            , m.FieldServicePerYear * m.AFR3 as FieldServiceCost3
-            , m.FieldServicePerYear * m.AFR4 as FieldServiceCost4
-            , m.FieldServicePerYear * m.AFR5 as FieldServiceCost5
+    select    
+                m.Id
+              , m.Country
+              , m.WgDescription
+              , m.Wg
+              , m.SogDescription
+              , m.SCD_ServiceType
+              , m.Sla
+              , m.ServiceLocation
+              , m.ReactionTime
+              , m.ReactionType
+              , m.Availability
+              , m.Currency
+
+             --FSP
+              , m.Fsp
+              , m.FspDescription
+
+              --cost blocks
+
+              , m.LabourCost
+              , m.TravelCost
+              , m.PerformanceRate
+              , m.TravelTime
+              , m.RepairTime
+              , m.OnsiteHourlyRate
+
+              , m.StandardHandling
+
+              , m.AvailabilityFee
+      
+              , m.TaxAndDutiesW
+
+              , m.MarkupOtherCost
+              , m.MarkupFactorOtherCost
+
+              , m.MarkupFactorStandardWarranty
+              , m.MarkupStandardWarranty
+      
+              , m.AFR1   * 100 as AFR1
+              , m.AFR2   * 100 as AFR2
+              , m.AFR3   * 100 as AFR3
+              , m.AFR4   * 100 as AFR4
+              , m.AFR5   * 100 as AFR5
+              , m.AFRP1  * 100 as AFRP1
+
+              , m.[1stLevelSupportCosts]
+              , m.[2ndLevelSupportCosts]
+           
+              , m.ReinsuranceFlatfee1
+              , m.ReinsuranceFlatfee2
+              , m.ReinsuranceFlatfee3
+              , m.ReinsuranceFlatfee4
+              , m.ReinsuranceFlatfee5
+              , m.ReinsuranceFlatfeeP1
+              , m.ReinsuranceUpliftFactor_4h_24x7
+              , m.ReinsuranceUpliftFactor_4h_9x5
+              , m.ReinsuranceUpliftFactor_NBD_9x5
+
+              , m.MaterialCostWarranty
+              , m.MaterialCostOow
+
+              , m.Duration
+
+             , m.FieldServicePerYear * m.AFR1 as FieldServiceCost1
+             , m.FieldServicePerYear * m.AFR2 as FieldServiceCost2
+             , m.FieldServicePerYear * m.AFR3 as FieldServiceCost3
+             , m.FieldServicePerYear * m.AFR4 as FieldServiceCost4
+             , m.FieldServicePerYear * m.AFR5 as FieldServiceCost5
+            
+             , Hardware.CalcByDur(
+                       m.Duration
+                     , m.IsProlongation 
+                     , m.LogisticPerYear * m.AFR1 
+                     , m.LogisticPerYear * m.AFR2 
+                     , m.LogisticPerYear * m.AFR3 
+                     , m.LogisticPerYear * m.AFR4 
+                     , m.LogisticPerYear * m.AFR5 
+                     , m.LogisticPerYear * m.AFRP1
+                 ) as LogisticTransportcost
+
     from CostCte m
 )
 GO
@@ -209,118 +290,100 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'FspDescription', 'G_MAKTX', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'LabourCost', 'Labour cost', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'LabourCost', 'Labour cost', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'TravelCost', 'Travel cost', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'TravelCost', 'Travel cost', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'PerformanceRate', 'Performance rate', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'PerformanceRate', 'Performance rate', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'TravelTime', 'Travel time (MTTT)', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'RepairTime', 'Repair time (MTTR)', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'OnsiteHourlyRate', 'Onsite hourly rate', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'TravelTime', 'Travel time (MTTT)', 1, 1);
+set @index = @index + 1;                                                                                          
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'RepairTime', 'Repair time (MTTR)', 1, 1);
+set @index = @index + 1;                                                                                          
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'OnsiteHourlyRate', 'Onsite hourly rate', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'StandardHandling', 'Logistics handling cost', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'LogisticTransportcost', 'Logistics transport cost', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'StandardHandling', 'Logistics handling cost', 1, 1);
+set @index = @index + 1;                                                                                          
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'LogisticTransportcost', 'Logistics transport cost', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'FslFlatfee', 'FSL flatfee', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'AvailabilityFee', 'Availability Fee', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'TaxAndDutiesW', 'Customs tax and duty', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'TaxAndDutiesW', 'Tax & duties', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'TaxAndDutiesOow', 'Customs tax and duty OOW', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'MarkupFactorOtherCost', 'Markup factor for other cost', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Markup', 'Markp for Opex, Interest & Other', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'MarkupOtherCost', 'Markup for other cost', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'MarkupIndirect', 'Markup for indirect costs', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'MarkupFactorStandardWarranty', 'Markup factor for standard warranty local cost', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'MarkupFactor', 'Markup factor for other direct cost and contingency', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'MarkupBaseW', 'Markup for base warranty local cost', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'MarkupStandardWarranty', 'Markup for standard warranty local cost', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'AFR1', 'AFR1', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 5, 'AFR1', 'AFR1', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'AFR2', 'AFR2', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 5, 'AFR2', 'AFR2', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'AFR3', 'AFR3', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 5, 'AFR3', 'AFR3', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'AFR4', 'AFR4', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 5, 'AFR4', 'AFR4', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'AFR5', 'AFR5', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 5, 'AFR5', 'AFR5', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'FieldServiceCost1', 'Calculated Field Service Cost 1 year', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'FieldServiceCost1', 'Calculated Field Service Cost 1 year', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'FieldServiceCost2', 'Calculated Field Service Cost 2 years', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'FieldServiceCost2', 'Calculated Field Service Cost 2 years', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'FieldServiceCost3', 'Calculated Field Service Cost 3 years', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'FieldServiceCost3', 'Calculated Field Service Cost 3 years', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'FieldServiceCost4', 'Calculated Field Service Cost 4 years', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'FieldServiceCost4', 'Calculated Field Service Cost 4 years', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'FieldServiceCost5', 'Calculated Field Service Cost 5 years', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'FieldServiceCost5', 'Calculated Field Service Cost 5 years', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, '2ndLevelRatio', '2nd level ratio', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, '2ndLevelSupportCosts', '2nd level support cost', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, '2ndLevelSupportRate', '2nd level support rate', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, '1stLevelSupportCosts', '1st level Service Desk cost (5x9)', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'OohUpliftSsc', 'OOH Uplift SSC', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, '1stLevelSupportCosts', '1st level support cost', 1, 1);
+
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ReinsuranceNBD', 'Reinsurance NBD', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceFlatfee1', 'Reinsurance Flatfee 1 year', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ReinsuranceNBD_Oow', 'Reinsurance NBD OOW', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceFlatfee2', 'Reinsurance Flatfee 2 years', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Reinsurance27x7', 'Reinsurance 7x24', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceFlatfee3', 'Reinsurance Flatfee 3 years', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Reinsurance27x7_Oow', 'Reinsurance 7x24 OOW', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceFlatfee4', 'Reinsurance Flatfee 4 years', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceFlatfee5', 'Reinsurance Flatfee 5 years', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceFlatfeeP1', 'Reinsurance Flatfee 1 year prolongation', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'MaterialPerIncident', 'Material quantity per incident', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceUpliftFactor_4h_24x7', 'Reinsurance uplift factor 4h 24x7', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'MaterialCostWarranty', 'Material Cost BaseW', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceUpliftFactor_4h_9x5', 'Reinsurance uplift factor 4h 9x5', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'MaterialCostOow', 'Material cost OOW', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceUpliftFactor_NBD_9x5', 'Reinsurance uplift factor NBD 9x5', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'OnSiteInterventions', 'On-site interventions with spare parts usage in %', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'MaterialCostWarranty', 'Material cost iW', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'MaterialCostOow', 'Material cost OOW', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Duration', 'Warranty duration', 1, 1);
-
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'CallRate', 'Call rate', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'GlobalProduct', 'Global Product', 1, 1);
-
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'DealerPrice', 'Markup for Margin (Dealer Price)', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ListPrice', 'Markup for Margin (List Price)', 1, 1);
-
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SparesAvailability', 'Spares availability', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'UsageFtsLogistics', 'Usage of FTS Logistics', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ReinsuranceCalcMode', 'Calculation mode for reinsurance', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ReinsuranceContract', 'Reinsurance Contract', 1, 1);
 
 ------------------------------------
 set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 7, 'cnt', 'Country Name');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 15, 'cnt', 'Country Name');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 4, 'wg', 'Warranty Group');
 set @index = @index + 1;

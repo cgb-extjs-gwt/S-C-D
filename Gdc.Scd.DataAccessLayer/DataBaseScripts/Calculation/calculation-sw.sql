@@ -1,24 +1,4 @@
-﻿IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceCostView', 'U') IS NOT NULL
-  DROP TABLE SoftwareSolution.SwSpMaintenanceCostView;
-go
-
-IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceCostView', 'V') IS NOT NULL
-  DROP VIEW SoftwareSolution.SwSpMaintenanceCostView;
-go
-
-IF OBJECT_ID('SoftwareSolution.ProActiveView', 'U') IS NOT NULL
-  DROP TABLE SoftwareSolution.ProActiveView;
-go
-
-IF OBJECT_ID('SoftwareSolution.ProActiveView', 'V') IS NOT NULL
-  DROP VIEW SoftwareSolution.ProActiveView;
-go
-
-IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceView', 'V') IS NOT NULL
-  DROP VIEW SoftwareSolution.SwSpMaintenanceView;
-go
-
-IF OBJECT_ID('InputAtoms.WgSogView', 'V') IS NOT NULL
+﻿IF OBJECT_ID('InputAtoms.WgSogView', 'V') IS NOT NULL
   DROP VIEW InputAtoms.WgSogView;
 go
 
@@ -36,6 +16,22 @@ go
 
 IF OBJECT_ID('SoftwareSolution.CalcTransferPrice') IS NOT NULL
   DROP FUNCTION SoftwareSolution.CalcTransferPrice;
+go 
+
+IF OBJECT_ID('SoftwareSolution.GetCosts') IS NOT NULL
+  DROP FUNCTION SoftwareSolution.GetCosts;
+go 
+
+IF OBJECT_ID('SoftwareSolution.GetProActiveCosts') IS NOT NULL
+  DROP FUNCTION SoftwareSolution.GetProActiveCosts;
+go 
+
+IF OBJECT_ID('SoftwareSolution.GetSwSpMaintenancePaging') IS NOT NULL
+  DROP FUNCTION SoftwareSolution.GetSwSpMaintenancePaging;
+go 
+
+IF OBJECT_ID('SoftwareSolution.GetProActivePaging') IS NOT NULL
+  DROP FUNCTION SoftwareSolution.GetProActivePaging;
 go 
 
 CREATE FUNCTION [SoftwareSolution].[CalcDealerPrice] (@maintenance float, @discount float)
@@ -92,229 +88,424 @@ CREATE VIEW InputAtoms.WgSogView as
     where wg.DeactivatedDateTime is null
 GO
 
-CREATE VIEW [SoftwareSolution].[SwSpMaintenanceView] as
-    SELECT ssm.Pla,
-           ssm.Sog,
-           ssm.Sfab,
-           ya.YearId as Year,
-           ya.AvailabilityId as Availability,
-           
-           ssm.[2ndLevelSupportCosts],
-           ssm.[2ndLevelSupportCosts_Approved],
+CREATE FUNCTION [SoftwareSolution].[GetSwSpMaintenancePaging] (
+    @approved bit,
+    @digit bigint,
+    @av bigint,
+    @year bigint,
+    @lastid bigint,
+    @limit int
+)
+RETURNS @tbl TABLE 
+        (   
+            [rownum] [int] NOT NULL,
+            [Id] [bigint] NOT NULL,
+            [Pla] [bigint] NOT NULL,
+            [Sfab] [bigint] NOT NULL,
+            [Sog] [bigint] NOT NULL,
+            [SwDigit] [bigint] NOT NULL,
+            [Availability] [bigint] NOT NULL,
+            [Year] [bigint] NOT NULL,
+            [2ndLevelSupportCosts] [float] NULL,
+            [InstalledBaseSog] [float] NULL,
+            [ReinsuranceFlatfee] [float] NULL,
+            [CurrencyReinsurance] [bigint] NULL,
+            [RecommendedSwSpMaintenanceListPrice] [float] NULL,
+            [MarkupForProductMarginSwLicenseListPrice] [float] NULL,
+            [ShareSwSpMaintenanceListPrice] [float] NULL,
+            [DiscountDealerPrice] [float] NULL
+        )
+AS
+BEGIN
 
-           ssm.InstalledBaseSog,
-           ssm.InstalledBaseSog_Approved,
-           
-           (case ssm.ReinsuranceFlatfee 
-               when null then ssm.ShareSwSpMaintenanceListPrice / 100 * ssm.RecommendedSwSpMaintenanceListPrice 
-               else ssm.ReinsuranceFlatfee * er.Value
-            end) as Reinsurance,
-           
-           (case ssm.ReinsuranceFlatfee_Approved 
-               when null then ssm.ShareSwSpMaintenanceListPrice_Approved / 100 * ssm.RecommendedSwSpMaintenanceListPrice_Approved 
-               else ssm.ReinsuranceFlatfee_Approved * er2.Value
-            end) as Reinsurance_Approved,
-          
-           (ssm.ShareSwSpMaintenanceListPrice / 100) as ShareSwSpMaintenance,
-           (ssm.ShareSwSpMaintenanceListPrice_Approved / 100) as ShareSwSpMaintenance_Approved,
+        if @limit > 0
+        begin
+            with cte as (
+                select ROW_NUMBER() over(
+                            order by ssm.SwDigit
+                                   , ya.AvailabilityId
+                                   , ya.YearId
+                        ) as rownum
+                      , ssm.*
+                      , ya.AvailabilityId
+                      , ya.YearId
+                FROM SoftwareSolution.SwSpMaintenance ssm
+                JOIN Dependencies.Year_Availability ya on ya.Id = ssm.YearAvailability
+                WHERE   (@digit is null or ssm.SwDigit = @digit)
+                    and (@av is null or ya.AvailabilityId = @av)
+                    and (@year is null or ya.YearId = @year)
+            )
+            insert @tbl
+            select top(@limit)
+                    rownum
+                  , ssm.Id
+                  , ssm.Pla
+                  , ssm.Sfab
+                  , ssm.Sog
+                  , ssm.SwDigit
+                  , ssm.AvailabilityId
+                  , ssm.YearId
+              
+                  , case when @approved = 0 then ssm.[2ndLevelSupportCosts] else ssm.[2ndLevelSupportCosts_Approved] end
+                  , case when @approved = 0 then ssm.InstalledBaseSog else ssm.InstalledBaseSog_Approved end
+                  , case when @approved = 0 then ssm.ReinsuranceFlatfee else ssm.ReinsuranceFlatfee_Approved end
+                  , case when @approved = 0 then ssm.CurrencyReinsurance else ssm.CurrencyReinsurance_Approved end
+                  , case when @approved = 0 then ssm.RecommendedSwSpMaintenanceListPrice else ssm.RecommendedSwSpMaintenanceListPrice_Approved end
+                  , case when @approved = 0 then ssm.MarkupForProductMarginSwLicenseListPrice else ssm.MarkupForProductMarginSwLicenseListPrice_Approved end
+                  , case when @approved = 0 then ssm.ShareSwSpMaintenanceListPrice else ssm.ShareSwSpMaintenanceListPrice_Approved end
+                  , case when @approved = 0 then ssm.DiscountDealerPrice else ssm.DiscountDealerPrice_Approved end
 
-           ssm.RecommendedSwSpMaintenanceListPrice as MaintenanceListPrice,
-           ssm.RecommendedSwSpMaintenanceListPrice_Approved as MaintenanceListPrice_Approved,
+            from cte ssm where rownum > @lastid
+        end
+    else
+        begin
+            insert @tbl
+            select -1 as rownum
+                  , ssm.Id
+                  , ssm.Pla
+                  , ssm.Sfab
+                  , ssm.Sog
+                  , ssm.SwDigit
+                  , ya.AvailabilityId
+                  , ya.YearId
 
-           (ssm.MarkupForProductMarginSwLicenseListPrice / 100)  as MarkupForProductMargin,
-           (ssm.MarkupForProductMarginSwLicenseListPrice_Approved / 100)  as MarkupForProductMargin_Approved,
+                  , case when @approved = 0 then ssm.[2ndLevelSupportCosts] else ssm.[2ndLevelSupportCosts_Approved] end
+                  , case when @approved = 0 then ssm.InstalledBaseSog else ssm.InstalledBaseSog_Approved end
+                  , case when @approved = 0 then ssm.ReinsuranceFlatfee else ssm.ReinsuranceFlatfee_Approved end
+                  , case when @approved = 0 then ssm.CurrencyReinsurance else ssm.CurrencyReinsurance_Approved end
+                  , case when @approved = 0 then ssm.RecommendedSwSpMaintenanceListPrice else ssm.RecommendedSwSpMaintenanceListPrice_Approved end
+                  , case when @approved = 0 then ssm.MarkupForProductMarginSwLicenseListPrice else ssm.MarkupForProductMarginSwLicenseListPrice_Approved end
+                  , case when @approved = 0 then ssm.ShareSwSpMaintenanceListPrice else ssm.ShareSwSpMaintenanceListPrice_Approved end
+                  , case when @approved = 0 then ssm.DiscountDealerPrice else ssm.DiscountDealerPrice_Approved end
 
-           (ssm.DiscountDealerPrice / 100) as DiscountDealerPrice,
-           (ssm.DiscountDealerPrice_Approved / 100) as DiscountDealerPrice_Approved
+            FROM SoftwareSolution.SwSpMaintenance ssm
+            JOIN Dependencies.Year_Availability ya on ya.Id = ssm.YearAvailability
 
-    FROM SoftwareSolution.SwSpMaintenance ssm
-    JOIN Dependencies.Year_Availability ya on ya.Id = ssm.YearAvailability
-    LEFT JOIN [References].ExchangeRate er on er.CurrencyId = ssm.CurrencyReinsurance
-    LEFT JOIN [References].ExchangeRate er2 on er2.CurrencyId = ssm.CurrencyReinsurance_Approved
+            WHERE   (@digit is null or ssm.SwDigit = @digit)
+                and (@av is null or ya.AvailabilityId = @av)
+                and (@year is null or ya.YearId = @year)
+
+        end
+
+    RETURN;
+END;
 GO
 
-CREATE VIEW SoftwareSolution.SwSpMaintenanceCostView as
+CREATE FUNCTION [SoftwareSolution].[GetCosts] (
+    @approved bit,
+    @digit bigint,
+    @av bigint,
+    @year bigint,
+    @lastid bigint,
+    @limit int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
     with GermanyServiceCte as (
-        select  wg.Id
-              , ssc.[1stLevelSupportCosts]
-              , ssc.[1stLevelSupportCosts_Approved]
-              , ib.InstalledBaseCountry
-              , ib.InstalledBaseCountry_Approved
+        SELECT   ssc.ClusterPla
+               , case when @approved = 0 then ssc.[1stLevelSupportCostsCountry] else ssc.[1stLevelSupportCostsCountry_Approved] end * er.Value as [1stLevelSupportCosts]
+               , case when @approved = 0 then ssc.TotalIb else TotalIb_Approved end as TotalIb
 
-        from Hardware.ServiceSupportCostView ssc
-        join InputAtoms.WgView wg on wg.ClusterPla = ssc.ClusterPla
-        join Hardware.InstallBase ib on ib.Country = ssc.Country and ib.Wg = wg.Id
-        join InputAtoms.Country c on c.id = ssc.Country
+        FROM Hardware.ServiceSupportCost ssc
+        JOIN InputAtoms.Country c on c.Id = ssc.Country and c.ISO3CountryCode = 'DEU' --install base by Germany!
+        LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+    )
+    , SwSpMaintenanceCte0 as (
+            SELECT  ssm.rownum
+                  , ssm.Id
+                  , ssm.SwDigit
+                  , ssm.Sog
+                  , ssm.Pla
+                  , ssm.Sfab
+                  , ssm.Availability
+                  , ssm.Year
 
-        where c.ISO3CountryCode = 'DEU' --install base by Germany!
+                  , ssm.[2ndLevelSupportCosts]
+                  , ssm.InstalledBaseSog
+           
+                  , case when ssm.ReinsuranceFlatfee is null 
+                            then ssm.ShareSwSpMaintenanceListPrice / 100 * ssm.RecommendedSwSpMaintenanceListPrice 
+                            else ssm.ReinsuranceFlatfee * er.Value
+                    end as Reinsurance
+
+                  , ssm.ShareSwSpMaintenanceListPrice / 100                      as ShareSwSpMaintenance
+
+                  , ssm.RecommendedSwSpMaintenanceListPrice                      as MaintenanceListPrice
+
+                  , ssm.MarkupForProductMarginSwLicenseListPrice / 100           as MarkupForProductMargin
+
+                  , ssm.DiscountDealerPrice / 100                                as DiscountDealerPrice
+
+            FROM SoftwareSolution.GetSwSpMaintenancePaging(@approved, @digit, @av, @year, @lastid, @limit) ssm
+            LEFT JOIN [References].ExchangeRate er on er.CurrencyId = ssm.CurrencyReinsurance    
     )
     , SwSpMaintenanceCte as (
         select m.*
-             , cte.*
-             , wg.SogId
-        from SoftwareSolution.SwSpMaintenanceView m 
-        left join InputAtoms.WgSogView wg on wg.SogId = m.Sog
-        left join GermanyServiceCte cte on m.Sog = wg.Id
+             , ssc.[1stLevelSupportCosts]
+             , ssc.TotalIb
+
+             , SoftwareSolution.CalcSrvSupportCost(ssc.[1stLevelSupportCosts], m.[2ndLevelSupportCosts], ssc.TotalIb, m.InstalledBaseSog) as ServiceSupport
+
+        from SwSpMaintenanceCte0 m 
+        join InputAtoms.Pla pla on pla.Id = m.Pla
+        left join GermanyServiceCte ssc on ssc.ClusterPla = pla.ClusterPlaId
     )
     , SwSpMaintenanceCte2 as (
-            select m.*
-                 , SoftwareSolution.CalcSrvSupportCost(m.[1stLevelSupportCosts], m.[2ndLevelSupportCosts], m.InstalledBaseCountry, m.InstalledBaseSog) as ServiceSupport
-                 , SoftwareSolution.CalcSrvSupportCost(m.[1stLevelSupportCosts_Approved], m.[2ndLevelSupportCosts_Approved], m.InstalledBaseCountry_Approved, m.InstalledBaseSog_Approved) as ServiceSupport_Approved
-        from SwSpMaintenanceCte m
+        select m.*
+
+             , SoftwareSolution.CalcTransferPrice(m.Reinsurance, m.ServiceSupport) as TransferPrice
+
+         from SwSpMaintenanceCte m
     )
     , SwSpMaintenanceCte3 as (
-        select m.*
-             , SoftwareSolution.CalcTransferPrice(m.Reinsurance, m.ServiceSupport) as TransferPrice
-             , SoftwareSolution.CalcTransferPrice(m.Reinsurance_Approved, m.ServiceSupport_Approved) as TransferPrice_Approved
-         from SwSpMaintenanceCte2 m
-    )
-    , SwSpMaintenanceCte4 as (
-        select m.Sog
+        select m.rownum
+             , m.Id
+             , m.SwDigit
+             , m.Sog
              , m.Pla
              , m.Sfab
              , m.Availability
              , m.Year
              , m.[1stLevelSupportCosts]
-             , m.[1stLevelSupportCosts_Approved]
              , m.[2ndLevelSupportCosts]
-             , m.[2ndLevelSupportCosts_Approved]
-             , m.InstalledBaseCountry
-             , m.InstalledBaseCountry_Approved
+             , m.TotalIb as InstalledBaseCountry
              , m.InstalledBaseSog
-             , m.InstalledBaseSog_Approved
              , m.Reinsurance
-             , m.Reinsurance_Approved
+             , m.ShareSwSpMaintenance
              , m.DiscountDealerPrice
-             , m.DiscountDealerPrice_Approved
              , m.ServiceSupport
-             , m.ServiceSupport_Approved
              , m.TransferPrice
-             , m.TransferPrice_Approved
-        
-            , (case 
-                    when m.MaintenanceListPrice is null then SoftwareSolution.CalcMaintenanceListPrice(m.TransferPrice, m.MarkupForProductMargin)
-                    else m.MaintenanceListPrice
-                end) as MaintenanceListPrice
-        
-            ,(case 
-                    when m.MaintenanceListPrice_Approved is null then SoftwareSolution.CalcMaintenanceListPrice(m.TransferPrice_Approved, m.MarkupForProductMargin_Approved)
-                    else m.MaintenanceListPrice_Approved
-               end) as MaintenanceListPrice_Approved 
 
-        from SwSpMaintenanceCte3 m
+            , case when m.MaintenanceListPrice is null 
+                     then SoftwareSolution.CalcMaintenanceListPrice(m.TransferPrice, m.MarkupForProductMargin)
+                     else m.MaintenanceListPrice
+               end as MaintenanceListPrice
+
+        from SwSpMaintenanceCte2 m
     )
     select m.*
-         , DealerPrice = SoftwareSolution.CalcDealerPrice(m.MaintenanceListPrice, m.DiscountDealerPrice)
-         , DealerPrice_Approved = SoftwareSolution.CalcDealerPrice(m.MaintenanceListPrice_Approved, m.DiscountDealerPrice_Approved)
-    from SwSpMaintenanceCte4 m
+         , SoftwareSolution.CalcDealerPrice(m.MaintenanceListPrice, m.DiscountDealerPrice) as DealerPrice 
+    from SwSpMaintenanceCte3 m
+)
 GO
 
-CREATE VIEW SoftwareSolution.ProActiveView AS
+CREATE FUNCTION [SoftwareSolution].[GetProActivePaging] (
+     @approved bit,
+     @cnt bigint,
+     @digit bigint,
+     @av bigint,
+     @year bigint,
+     @lastid bigint,
+     @limit int
+)
+RETURNS @tbl TABLE 
+        (   
+            rownum                                  int NOT NULL,
+            Id                                      bigint,
+            Country                                 bigint,
+            Pla                                     bigint,
+            Sog                                     bigint,
+                                                    
+            SwDigit                                 bigint,
+                                                    
+            FspId                                   bigint,
+            Fsp                                     nvarchar(30),
+            FspServiceDescription                   nvarchar(100),
+            AvailabilityId                          bigint,
+            DurationId                              bigint,
+            ReactionTimeId                          bigint,
+            ReactionTypeId                          bigint,
+            ServiceLocationId                       bigint,
+            ProactiveSlaId                          bigint,
+
+            LocalRemoteAccessSetupPreparationEffort float,
+            LocalRegularUpdateReadyEffort           float,
+            LocalPreparationShcEffort               float,
+            CentralExecutionShcReportCost           float,
+            LocalRemoteShcCustomerBriefingEffort    float,
+            LocalOnSiteShcCustomerBriefingEffort    float,
+            TravellingTime                          float,
+            OnSiteHourlyRate                        float
+        )
+AS
+BEGIN
+
+        if @limit > 0
+        begin
+            with FspCte as (
+                select fsp.*
+                from fsp.SwFspCodeTranslation fsp
+                join Dependencies.ProActiveSla pro on pro.id = fsp.ProactiveSlaId and pro.Name <> '0'
+                where (@digit is null or fsp.SwDigitId = @digit)
+                  and (@av is null or fsp.AvailabilityId = @av)
+                  and (@year is null or fsp.DurationId = @year)
+            )
+            , cte as (
+                select ROW_NUMBER() over(
+                            order by
+                               pro.SwDigit
+                             , fsp.AvailabilityId
+                             , fsp.DurationId
+                             , fsp.ReactionTimeId
+                             , fsp.ReactionTypeId
+                             , fsp.ServiceLocationId
+                             , fsp.ProactiveSlaId
+                         ) as rownum
+                     , pro.Id
+                     , pro.Country
+                     , pro.Pla
+                     , pro.Sog
+
+                     , pro.SwDigit
+
+                     , fsp.id as FspId
+                     , fsp.Name as Fsp
+                     , fsp.ServiceDescription as FspServiceDescription
+                     , fsp.AvailabilityId
+                     , fsp.DurationId
+                     , fsp.ReactionTimeId
+                     , fsp.ReactionTypeId
+                     , fsp.ServiceLocationId
+                     , fsp.ProactiveSlaId
+
+                     , case when @approved = 0 then pro.LocalRemoteAccessSetupPreparationEffort  else pro.LocalRemoteAccessSetupPreparationEffort       end as LocalRemoteAccessSetupPreparationEffort
+                     , case when @approved = 0 then pro.LocalRegularUpdateReadyEffort            else pro.LocalRegularUpdateReadyEffort_Approved        end as LocalRegularUpdateReadyEffort           
+                     , case when @approved = 0 then pro.LocalPreparationShcEffort                else pro.LocalPreparationShcEffort_Approved            end as LocalPreparationShcEffort
+                     , case when @approved = 0 then pro.CentralExecutionShcReportCost            else pro.CentralExecutionShcReportCost_Approved        end as CentralExecutionShcReportCost
+                     , case when @approved = 0 then pro.LocalRemoteShcCustomerBriefingEffort     else pro.LocalRemoteShcCustomerBriefingEffort_Approved end as LocalRemoteShcCustomerBriefingEffort
+                     , case when @approved = 0 then pro.LocalOnSiteShcCustomerBriefingEffort     else pro.LocalOnSiteShcCustomerBriefingEffort_Approved end as LocalOnSiteShcCustomerBriefingEffort
+                     , case when @approved = 0 then pro.TravellingTime                           else pro.TravellingTime_Approved                       end as TravellingTime
+                     , case when @approved = 0 then pro.OnSiteHourlyRate                         else pro.OnSiteHourlyRate_Approved                     end as OnSiteHourlyRate
+
+                    FROM SoftwareSolution.ProActiveSw pro
+                    LEFT JOIN FspCte fsp ON fsp.SwDigitId = pro.SwDigit
+
+                    WHERE  pro.Country = @cnt
+                       and (@digit is null or pro.SwDigit = @digit)
+                       and (@cnt is null   or pro.Country = @cnt)
+            )
+            INSERT @tbl
+            SELECT *
+            from cte pro where pro.rownum > @lastid
+        end
+    else
+        begin
+            with FspCte as (
+                select fsp.*
+                from fsp.SwFspCodeTranslation fsp
+                join Dependencies.ProActiveSla pro on pro.id = fsp.ProactiveSlaId and pro.Name <> '0'
+                where (@digit is null or fsp.SwDigitId = @digit)
+                  and (@av is null or fsp.AvailabilityId = @av)
+                  and (@year is null or fsp.DurationId = @year)
+            )
+            INSERT @tbl
+            SELECT -1 as rownum
+                 , pro.Id
+                 , pro.Country
+                 , pro.Pla
+                 , pro.Sog
+
+                 , pro.SwDigit
+
+                 , fsp.id as FspId
+                 , fsp.Name as Fsp
+                 , fsp.ServiceDescription as FspServiceDescription
+                 , fsp.AvailabilityId
+                 , fsp.DurationId
+                 , fsp.ReactionTimeId
+                 , fsp.ReactionTypeId
+                 , fsp.ServiceLocationId
+                 , fsp.ProactiveSlaId
+
+                 , case when @approved = 0 then pro.LocalRemoteAccessSetupPreparationEffort  else pro.LocalRemoteAccessSetupPreparationEffort       end as LocalRemoteAccessSetupPreparationEffort
+                 , case when @approved = 0 then pro.LocalRegularUpdateReadyEffort            else pro.LocalRegularUpdateReadyEffort_Approved        end as LocalRegularUpdateReadyEffort           
+                 , case when @approved = 0 then pro.LocalPreparationShcEffort                else pro.LocalPreparationShcEffort_Approved            end as LocalPreparationShcEffort
+                 , case when @approved = 0 then pro.CentralExecutionShcReportCost            else pro.CentralExecutionShcReportCost_Approved        end as CentralExecutionShcReportCost
+                 , case when @approved = 0 then pro.LocalRemoteShcCustomerBriefingEffort     else pro.LocalRemoteShcCustomerBriefingEffort_Approved end as LocalRemoteShcCustomerBriefingEffort
+                 , case when @approved = 0 then pro.LocalOnSiteShcCustomerBriefingEffort     else pro.LocalOnSiteShcCustomerBriefingEffort_Approved end as LocalOnSiteShcCustomerBriefingEffort
+                 , case when @approved = 0 then pro.TravellingTime                           else pro.TravellingTime_Approved                       end as TravellingTime
+                 , case when @approved = 0 then pro.OnSiteHourlyRate                         else pro.OnSiteHourlyRate_Approved                     end as OnSiteHourlyRate
+
+                FROM SoftwareSolution.ProActiveSw pro
+                LEFT JOIN FspCte fsp ON fsp.SwDigitId = pro.SwDigit
+
+                WHERE  pro.Country = @cnt
+                   and (@digit is null or pro.SwDigit = @digit)
+                   and (@cnt is null   or pro.Country = @cnt)
+
+        end
+
+    RETURN;
+END;
+GO
+
+CREATE FUNCTION [SoftwareSolution].[GetProActiveCosts] (
+     @approved bit,
+     @cnt bigint,
+     @digit bigint,
+     @av bigint,
+     @year bigint,
+     @lastid bigint,
+     @limit int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
     with ProActiveCte as (
-        select pro.Country,
-               pro.Sog,
-               dur.Value as Year,
+        select    pro.rownum                
+                , pro.Id                    
+                , pro.Country               
+                , pro.Pla                   
+                , pro.Sog                   
+                , pro.SwDigit               
+                , pro.FspId                 
+                , pro.Fsp                   
+                , pro.FspServiceDescription 
+                , pro.AvailabilityId        
+                , pro.DurationId            
+                , pro.ReactionTimeId        
+                , pro.ReactionTypeId        
+                , pro.ServiceLocationId     
+                , pro.ProactiveSlaId        
 
-               (pro.LocalRemoteAccessSetupPreparationEffort * pro.OnSiteHourlyRate) as LocalRemoteAccessSetup,
-               (pro.LocalRemoteAccessSetupPreparationEffort_Approved * pro.OnSiteHourlyRate_Approved) as LocalRemoteAccessSetup_Approved,
+                , pro.LocalPreparationShcEffort * pro.OnSiteHourlyRate * sla.LocalPreparationShcRepetition as LocalPreparation
 
-               (pro.LocalRegularUpdateReadyEffort * 
-                pro.OnSiteHourlyRate * 
-                sla.LocalRegularUpdateReadyRepetition) as LocalRegularUpdate,
+                , pro.LocalRegularUpdateReadyEffort * pro.OnSiteHourlyRate * sla.LocalRegularUpdateReadyRepetition as LocalRegularUpdate
 
-               (pro.LocalRegularUpdateReadyEffort_Approved * 
-                pro.OnSiteHourlyRate_Approved * 
-                sla.LocalRegularUpdateReadyRepetition) as LocalRegularUpdate_Approved,
+                , pro.LocalRemoteShcCustomerBriefingEffort * pro.OnSiteHourlyRate * sla.LocalRemoteShcCustomerBriefingRepetition as LocalRemoteCustomerBriefing
+                
+                , pro.LocalOnsiteShcCustomerBriefingEffort * pro.OnSiteHourlyRate * sla.LocalOnsiteShcCustomerBriefingRepetition as LocalOnsiteCustomerBriefing
+                
+                , pro.TravellingTime * pro.OnSiteHourlyRate * sla.TravellingTimeRepetition as Travel
 
-               (pro.LocalPreparationShcEffort * 
-                pro.OnSiteHourlyRate * 
-                sla.LocalPreparationShcRepetition) as LocalPreparation,
+                , pro.CentralExecutionShcReportCost * sla.CentralExecutionShcReportRepetition as CentralExecutionReport
 
-               (pro.LocalPreparationShcEffort_Approved * 
-                pro.OnSiteHourlyRate_Approved * 
-                sla.LocalPreparationShcRepetition) as LocalPreparation_Approved,
+                , pro.LocalRemoteAccessSetupPreparationEffort * pro.OnSiteHourlyRate as Setup
 
-               (pro.LocalRemoteShcCustomerBriefingEffort * 
-                pro.OnSiteHourlyRate * 
-                sla.LocalRemoteShcCustomerBriefingRepetition) as LocalRemoteCustomerBriefing,
-
-               (pro.LocalRemoteShcCustomerBriefingEffort_Approved * 
-                pro.OnSiteHourlyRate_Approved * 
-                sla.LocalRemoteShcCustomerBriefingRepetition) as LocalRemoteCustomerBriefing_Approved,
-
-               (pro.LocalOnsiteShcCustomerBriefingEffort * 
-                pro.OnSiteHourlyRate * 
-                sla.LocalOnsiteShcCustomerBriefingRepetition) as LocalOnsiteCustomerBriefing,
-
-               (pro.LocalOnsiteShcCustomerBriefingEffort_Approved * 
-                pro.OnSiteHourlyRate_Approved * 
-                sla.LocalOnsiteShcCustomerBriefingRepetition) as LocalOnsiteCustomerBriefing_Approved,
-
-               (pro.TravellingTime * 
-                pro.OnSiteHourlyRate * 
-                sla.TravellingTimeRepetition) as Travel,
-
-               (pro.TravellingTime_Approved * 
-                pro.OnSiteHourlyRate_Approved * 
-                sla.TravellingTimeRepetition) as Travel_Approved,
-
-               (pro.CentralExecutionShcReportCost * 
-                sla.CentralExecutionShcReportRepetition) as CentralExecutionReport,
-
-               (pro.CentralExecutionShcReportCost_Approved * 
-                sla.CentralExecutionShcReportRepetition) as CentralExecutionReport_Approved
-
-        from SoftwareSolution.ProActiveSw pro
-        left join Fsp.SwFspCodeTranslation fsp on fsp.SogId = pro.Sog
-        left join Dependencies.ProActiveSla sla on sla.id = fsp.ProactiveSlaId
-        left join Dependencies.Duration dur on dur.Id = fsp.DurationId
+        FROM SoftwareSolution.GetProActivePaging(@approved, @cnt, @digit, @av, @year, @lastid, @limit) pro
+        LEFT JOIN Dependencies.ProActiveSla sla on sla.id = pro.ProactiveSlaId
     )
     , ProActiveCte2 as (
-         select pro.Country,
-                pro.Sog,
-                pro.Year,
+         select pro.*
 
-                pro.LocalPreparation,
-                pro.LocalPreparation_Approved,
-
-                pro.LocalRegularUpdate,
-                pro.LocalRegularUpdate_Approved,
-
-                pro.LocalRemoteCustomerBriefing,
-                pro.LocalRemoteCustomerBriefing_Approved,
-
-                pro.LocalOnsiteCustomerBriefing,
-                pro.LocalOnsiteCustomerBriefing_Approved,
-
-                pro.Travel,
-                pro.Travel_Approved,
-
-                pro.CentralExecutionReport,
-                pro.CentralExecutionReport_Approved,
-
-                pro.LocalRemoteAccessSetup as Setup,
-                pro.LocalRemoteAccessSetup_Approved  as Setup_Approved,
-
-               (pro.LocalPreparation + 
-                pro.LocalRegularUpdate + 
-                pro.LocalRemoteCustomerBriefing +
-                pro.LocalOnsiteCustomerBriefing +
-                pro.Travel +
-                pro.CentralExecutionReport) as Service,
-       
-               (pro.LocalPreparation_Approved + 
-                pro.LocalRegularUpdate_Approved + 
-                pro.LocalRemoteCustomerBriefing_Approved +
-                pro.LocalOnsiteCustomerBriefing_Approved +
-                pro.Travel_Approved +
-                pro.CentralExecutionReport_Approved) as Service_Approved
+               , pro.LocalPreparation + 
+                 pro.LocalRegularUpdate + 
+                 pro.LocalRemoteCustomerBriefing +
+                 pro.LocalOnsiteCustomerBriefing +
+                 pro.Travel +
+                 pro.CentralExecutionReport as Service
 
         from ProActiveCte pro
     )
-    select pro.*,
-           Hardware.CalcProActive(pro.Setup, pro.Service, pro.Year) as ProActive,
-           Hardware.CalcProActive(pro.Setup_Approved, pro.Service_Approved, pro.Year) as ProActive_Approved
+    select pro.*
+         , Hardware.CalcProActive(pro.Setup, pro.Service, dur.Value) as ProActive
     from ProActiveCte2 pro
+    LEFT JOIN Dependencies.Duration dur on dur.Id = pro.DurationId
+);
 GO
+
 
 

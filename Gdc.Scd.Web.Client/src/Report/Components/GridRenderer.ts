@@ -8,12 +8,16 @@ export function stringRenderer(val, row) {
     return isEmpty(val) ? N_A : val;
 }
 
+export function numberRenderer(value: any, row: any): string {
+    return isEmpty(value) ? N_A : Ext.util.Format.number(value, '0.00###');
+}
+
 export function moneyRenderer(value: any, row: any): string {
     return isEmpty(value) ? N_A : Ext.util.Format.number(value, '0.00') + ' EUR';
 }
 
 export function percentRenderer(value: any, row: any): string {
-    return isEmpty(value) ? N_A : Ext.util.Format.number(value, '0.000') + '%';
+    return isEmpty(value) ? N_A : Ext.util.Format.number(value, '0.00###') + '%';
 }
 
 export function yearRenderer(val: number, row) {

@@ -15,25 +15,12 @@ namespace Gdc.Scd.Core.Entities
         public long? WgId { get; set; }
         public Wg Wg { get; set; }
 
-        [Column("Pla")]
-        public long? PlaId { get; set; }
-        public Pla Pla { get; set; }
-
-        [Column("CentralContractGroup")]
-        public long? CentralContractGroupId { get; set; }
-        public CentralContractGroup CentralContractGroup { get; set; }
-
         [Column("Country")]
         public long? CountryId { get; set; }
         public Country Country { get; set; }
 
         public double? InstalledBaseCountry { get; set; }
         public double? InstalledBaseCountry_Approved { get; set; }
-
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double? InstalledBaseCountryPla { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double? InstalledBaseCountryPla_Approved { get; set; }
 
         public DateTime CreatedDateTime { get; set; }
         public DateTime? DeactivatedDateTime { get; set; }

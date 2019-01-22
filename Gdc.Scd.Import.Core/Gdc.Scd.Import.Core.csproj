@@ -61,6 +61,7 @@
     <Compile Include="Dto\ExchangeRateDto.cs" />
     <Compile Include="Dto\ImportResultDto.cs" />
     <Compile Include="Dto\InstallBaseDto.cs" />
+    <Compile Include="Dto\InstallBaseGroupingDto.cs" />
     <Compile Include="Dto\LogisticsDto.cs" />
     <Compile Include="Dto\MaterialCostDto.cs" />
     <Compile Include="Dto\ParseInfoDto.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="Impl\FileConfigHandler.cs" />
     <Compile Include="Impl\FileDownloader.cs" />
     <Compile Include="Impl\ImportManager.cs" />
+    <Compile Include="Impl\InstallBaseConfig.cs" />
     <Compile Include="Impl\InstallBaseUploader.cs" />
     <Compile Include="Impl\Logger.cs" />
     <Compile Include="Impl\LogisticUploader.cs" />

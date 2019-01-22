@@ -2,7 +2,7 @@
 import * as React from "react";
 import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
 import { DictField } from "../../Dict/Components/DictField";
-import { SogField } from "../../Dict/Components/SogField";
+import { SwDigitField } from "../../Dict/Components/SwDigitField";
 import { YearField } from "../../Dict/Components/YearField";
 import { SwCostFilterModel } from "../Model/SwCostFilterModel";
 
@@ -12,7 +12,7 @@ export interface FilterPanelProps extends PanelProps {
 
 export class SwCostFilter extends React.Component<FilterPanelProps, any> {
 
-    private sog: DictField;
+    private digit: DictField;
 
     private avail: DictField;
 
@@ -37,9 +37,9 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
                     }}
                 >
 
-                    <SogField ref="sog" label="Asset(SOG):" />
-                    <AvailabilityField ref="availability" label="Availability:" />
-                    <YearField ref="year" label="Year:" />
+                    <SwDigitField ref={x => this.digit = x} label="SW digit:" />
+                    <AvailabilityField ref={x => this.avail = x} label="Availability:" />
+                    <YearField ref={x => this.year = x} label="Year:" />
 
                 </Container>
 
@@ -49,15 +49,9 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
         );
     }
 
-    public componentDidMount() {
-        this.sog = this.refs.sog as DictField;
-        this.avail = this.refs.availability as DictField;
-        this.year = this.refs.year as DictField;
-    }
-
     public getModel(): SwCostFilterModel {
         return {
-            sog: this.sog.getSelected(),
+            digit: this.digit.getSelected(),
             availability: this.avail.getSelected(),
             year: this.year.getSelected()
         };

@@ -12,7 +12,8 @@ using System.Linq;
 
 namespace Gdc.Scd.Import.Por.Core.Impl
 {
-    public class PorSwFspCodeTranslationService : PorFspTranslationService<SwFspCodeTranslation>, ISwFspCodeTranslationService
+    public class PorSwFspCodeTranslationService : PorFspTranslationService<SwFspCodeTranslation>, 
+                                                  ISwFspCodeTranslationService
     {
         private readonly ILogger<LogLevel> _logger;
 
@@ -79,6 +80,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                         _logger.Log(LogLevel.Debug, PorImportLoggingMessage.CHECKING_SW_PROACTIVE, digit.Name);
                         var proActive = model.ProActiveDigits.FirstOrDefault(d => d.DigitId.HasValue && d.DigitId == digit.Id);
+                        var proActiveNullValue = model.Sla.Proactive[PorConstants.SlaNullValue];
 
                         var dbcode = new SwFspCodeTranslation
                         {
@@ -97,7 +99,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                             Status = code.VStatus,
                             SwDigitId = digit.Id,
                             CreatedDateTime = model.CreatedDateTime,
-                            ProactiveSlaId = proActive == null ? null : proActive.ProActiveId
+                            ProactiveSlaId = proActive == null ? proActiveNullValue : proActive.ProActiveId
                         };
 
                         _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,

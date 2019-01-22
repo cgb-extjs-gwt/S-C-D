@@ -26,6 +26,7 @@ export interface TableViewInfo {
             }
         }
     }
+    roleCodeReferences: NamedId<number>[]
     dependencyItems: {
         [costElementId: string]: {
             [dependencyItemId: number]: NamedId<number>

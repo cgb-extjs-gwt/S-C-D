@@ -10,7 +10,6 @@ using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -26,9 +25,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IQualityGateSevice qualityGateSevice;
 
-        private readonly DomainEnitiesMeta meta;
-
         private readonly IDomainService<Wg> wgService;
+
+        private readonly IDomainService<RoleCode> roleCodeService;
+
+        private readonly DomainEnitiesMeta meta;
 
         public TableViewService(
             ITableViewRepository tableViewRepository, 
@@ -37,6 +38,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             ICostBlockHistoryService costBlockHistoryService,
             IQualityGateSevice qualityGateSevice,
             IDomainService<Wg> wgService,
+            IDomainService<RoleCode> roleCodeService,
             DomainEnitiesMeta meta)
         {
             this.tableViewRepository = tableViewRepository;
@@ -45,14 +47,26 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.costBlockHistoryService = costBlockHistoryService;
             this.qualityGateSevice = qualityGateSevice;
             this.wgService = wgService;
+            this.roleCodeService = roleCodeService;
             this.meta = meta;
         }
 
         public async Task<IEnumerable<Record>> GetRecords()
         {
             var costBlockInfos = this.GetCostBlockInfo().ToArray();
+            var records = await this.tableViewRepository.GetRecords(costBlockInfos);
+            var recordDictionary = this.GetRecordDictionary(records);
+            var wgs = this.GetWgs(recordDictionary.Keys);
 
-            return await this.tableViewRepository.GetRecords(costBlockInfos);
+            foreach (var wg in wgs)
+            {
+                var record = recordDictionary[wg.Id];
+
+                record.WgRoleCodeId = wg.RoleCodeId;
+                record.WgResponsiblePerson = wg.ResponsiblePerson;
+            }
+
+            return records;
         }
 
         public async Task<QualityGateResultSet> UpdateRecords(IEnumerable<Record> records, ApprovalOption approvalOption)
@@ -112,7 +126,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     try
                     {
-                        await this.tableViewRepository.UpdateRecords(editInfos);
+                        await this.UpdateRecords(records, editInfos);
 
                         foreach(var editItemContext in editItemContexts)
                         {
@@ -141,7 +155,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 RecordInfo = await this.tableViewRepository.GetRecordInfo(costBlockInfos),
                 CostBlockReferences = await this.tableViewRepository.GetReferences(costBlockInfos),
-                DependencyItems = await this.tableViewRepository.GetDependencyItems(costBlockInfos)
+                DependencyItems = await this.tableViewRepository.GetDependencyItems(costBlockInfos),
+                RoleCodeReferences = 
+                    this.roleCodeService.GetAll()
+                                        .Select(roleCode => new NamedId { Id = roleCode.Id, Name = roleCode.Name })
+                                        .ToArray()
             };
         }
 
@@ -163,6 +181,44 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var filter = coordinates.ToDictionary(keyValue => keyValue.Key, keyValue => new[] { keyValue.Value });
 
             return await this.costBlockHistoryService.GetHistoryItems(historyContext, filter, queryInfo);
+        }
+
+        private async Task UpdateRecords(IEnumerable<Record> records, EditInfo[] editInfos)
+        {
+            if (editInfos.Length > 0)
+            {
+                await this.tableViewRepository.UpdateRecords(editInfos);
+            }
+
+            var recordDictionary = this.GetRecordDictionary(records);
+            var wgs = this.GetWgs(recordDictionary.Keys);
+            var updatedWgs = new List<Wg>();
+
+            foreach (var wg in wgs)
+            {
+                var record = recordDictionary[wg.Id];
+
+                if (wg.RoleCodeId != record.WgRoleCodeId ||
+                    wg.ResponsiblePerson != record.WgResponsiblePerson)
+                {
+                    wg.RoleCodeId = record.WgRoleCodeId;
+                    wg.ResponsiblePerson = record.WgResponsiblePerson;
+
+                    updatedWgs.Add(wg);
+                }
+            }
+
+            this.wgService.SaveWithoutTransaction(updatedWgs);
+        }
+
+        private IDictionary<long, Record> GetRecordDictionary(IEnumerable<Record> records)
+        {
+            return records.ToDictionary(record => record.Coordinates[MetaConstants.WgInputLevelName].Id);
+        }
+
+        private Wg[] GetWgs(IEnumerable<long> wgIds)
+        {
+            return this.wgService.GetAll().Where(wg => wgIds.Contains(wg.Id)).ToArray();
         }
 
         private IEnumerable<CostElementInfo> GetCostBlockInfo()
@@ -197,13 +253,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     editInfo.ValueInfos.Select(info => new
                                         {
                                             CostElementValues = info.Values,
-                                            CoordinateIfno = this.BuildCoordinateInfo(info.Coordinates, inputLevelMetas)
+                                            CoordinateInfo = this.BuildCoordinateInfo(
+                                                info.Filter.ToDictionary(
+                                                    keyValue => keyValue.Key, 
+                                                    keyValue => (long)keyValue.Value.First()), 
+                                                inputLevelMetas)
                                         })
                                        .SelectMany(info => info.CostElementValues.Select(costElemenValue => new
                                         {
                                             CostElementValue = costElemenValue,
-                                            info.CoordinateIfno.Filter,
-                                            info.CoordinateIfno.InputLevel
+                                            info.CoordinateInfo.Filter,
+                                            info.CoordinateInfo.InputLevel
                                         }))
                                        .GroupBy(info => info.CostElementValue.Key);
 

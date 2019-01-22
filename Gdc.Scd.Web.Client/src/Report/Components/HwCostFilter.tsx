@@ -14,7 +14,6 @@ import { HwCostFilterModel } from "../Model/HwCostFilterModel";
 import { UserCountryField } from "../../Dict/Components/UserCountryField";
 
 export interface FilterPanelProps extends PanelProps {
-    checkAccess: boolean;
     onSearch(filter: HwCostFilterModel): void;
 }
 

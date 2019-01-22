@@ -7,12 +7,14 @@
     SOG = 'sog',
     COUNTRYGROUP = 'countrygroup',
     COUNTRY = 'country',
+    USERCOUNTRY = 'usercountry',
     AVAILABILITY = 'availability',
     DURATION = 'duration',
     REACTIONTIME = 'reactiontime',
     REACTIONTYPE = 'reactiontype',
     PROACTIVE = 'proactive',
     SERVICELOCATION = 'servicelocation',
-    YEAR = 'year'
+    YEAR = 'year',
+    SWDIGIT = 'swdigit'
 
 }

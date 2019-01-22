@@ -36,6 +36,7 @@
     "babel-preset-es2016": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
+    "copy-webpack-plugin": "^4.6.0",
     "cross-env": "^5.0.0",
     "html-webpack-plugin": "^2.24.1",
     "open-browser-webpack-plugin": "0.0.5",
@@ -46,6 +47,16 @@
     "webpack": "^2.5.1",
     "webpack-dev-server": "^2.4.1",
     "write-file-webpack-plugin": "^4.3.2"
+  },
+  "-vs-binding": {
+    "BeforeBuild": [
+      "update"
+    ],
+    "AfterBuild": [
+      "build"
+    ],
+    "ProjectOpened": [
+      "start"
+    ]
   }
-, "-vs-binding":{"BeforeBuild":["update"],"AfterBuild":["build"],"ProjectOpened":["start"]}
 }

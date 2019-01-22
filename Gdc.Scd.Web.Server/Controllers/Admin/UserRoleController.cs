@@ -7,7 +7,7 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
 {
     [ScdAuthorize(Permissions = new[] { PermissionConstants.Admin })]
     public class UserRoleController : BaseDomainController<UserRole>
-    {
-        public UserRoleController(IDomainService<UserRole> domainService) : base(domainService) { }
+    {     
+        public UserRoleController(IDomainService<UserRole> domainService) : base(domainService) { }     
     }
 }

@@ -32,6 +32,7 @@ export interface Store<T=any> {
     add(...records: T[]):  Model<T>[]
     remove(records: Model<T>[])
     remove(record: Model<T>)
+    removeAll()
     findBy(fn: (record: Model<T>) => boolean, scope?, start?: number)
     loadData(data: Model<T>[] | { [key: string]: any }[], append?: boolean)
     each(fn: (record: Model<T>) => any, scope?, includeFilterd?: boolean)
@@ -43,6 +44,8 @@ export interface Store<T=any> {
     sync(options: { 
         callback?()
     })
+    getById(id)
+    getAt(index: number)
 }
 
 export interface StoreUpdateEventFn<T=any> {
