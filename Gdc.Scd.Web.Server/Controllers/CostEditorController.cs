@@ -30,7 +30,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             this.domainMetaSevice = domainMetaSevice;
         }
 
-        public async Task<CostElementData> GetCostElementData([System.Web.Http.FromUri]CostEditorContext context)
+        public async Task<CostEditorCostElementData> GetCostElementData([System.Web.Http.FromUri]CostEditorContext context)
         {
             return await this.costEditorService.GetCostElementData(context);
         }

@@ -22,9 +22,9 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<NamedId>> GetDependencyItems([FromUri]HistoryContext context)
+        public async Task<CostElementData> GetCostElementData([FromUri]HistoryContext context)
         {
-            return await this.costBlockService.GetDependencyItems(context);
+            return await this.costBlockService.GetCostElementData(context);
         }
 
         [HttpPost]
@@ -33,7 +33,12 @@ namespace Gdc.Scd.Web.Server.Controllers
             var bytes = Convert.FromBase64String(importData.ExcelFile);
             var stream = new MemoryStream(bytes);
 
-            return await this.costElementExcelService.Import(importData.CostElementId, stream, importData.ApprovalOption, importData.DependencyItemId);
+            return await this.costElementExcelService.Import(
+                importData.CostElementId, 
+                stream, 
+                importData.ApprovalOption, 
+                importData.DependencyItemId,
+                importData.RegionId);
         }
 
         public class ImportData
@@ -43,6 +48,8 @@ namespace Gdc.Scd.Web.Server.Controllers
             public ApprovalOption ApprovalOption { get; set; }
 
             public long? DependencyItemId { get; set; }
+
+            public long? RegionId { get; set; }
 
             public string ExcelFile { get; set; }
         }

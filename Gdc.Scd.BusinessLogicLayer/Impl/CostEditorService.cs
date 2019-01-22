@@ -106,15 +106,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return referenceValues;
         }
 
-        public async Task<CostElementData> GetCostElementData(CostEditorContext context)
+        public async Task<CostEditorCostElementData> GetCostElementData(CostEditorContext context)
         {
-            var costElementMeta = this.meta.GetCostElement(context);
-            var userCountries = this.userService.GetCurrentUserCountries().ToArray();
+            var data = await this.costBlockService.GetCostElementData(context);
 
-            return new CostElementData
+            return new CostEditorCostElementData
             {
-                Regions = await this.GetRegions(context, costElementMeta, userCountries),
-                Filters = await this.costBlockService.GetDependencyItems(context),
+                Filters = data.DependencyItems,
+                Regions = data.Regions,
                 ReferenceValues = await this.GetCostElementReferenceValues(context)
             };
         }
@@ -165,25 +164,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return await this.historySevice.GetHistoryItems(context, filter, queryInfo);
-        }
-
-        private async Task<IEnumerable<NamedId>> GetRegions(CostEditorContext context, CostElementMeta costElementMeta, Country[] userCountries)
-        {
-            IEnumerable<NamedId> regions = null;
-
-            if (costElementMeta.RegionInput != null)
-            {
-                if (userCountries.Length == 0)
-                {
-                    regions = await this.sqlRepository.GetDistinctItems(context.CostBlockId, context.ApplicationId, costElementMeta.RegionInput.Id);
-                }
-                else
-                {
-                    regions = userCountries.Select(country => new NamedId { Id = country.Id, Name = country.Name }).ToArray();
-                }
-            }
-
-            return regions;
         }
     }
 }

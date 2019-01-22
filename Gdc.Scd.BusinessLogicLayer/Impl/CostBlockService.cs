@@ -203,6 +203,38 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return filterItems;
         }
 
+        public async Task<IEnumerable<NamedId>> GetRegions(HistoryContext context)
+        {
+            IEnumerable<NamedId> regions = null;
+
+            var costBlockMeta = this.meta.GetCostBlockEntityMeta(context);
+            var costElementMeta = costBlockMeta.DomainMeta.CostElements[context.CostElementId];
+            var userCountries = this.userService.GetCurrentUserCountries().ToArray();
+
+            if (costElementMeta.RegionInput != null)
+            {
+                if (userCountries.Length == 0)
+                {
+                    regions = await this.sqlRepository.GetDistinctItems(context.CostBlockId, context.ApplicationId, costElementMeta.RegionInput.Id);
+                }
+                else
+                {
+                    regions = userCountries.Select(country => new NamedId { Id = country.Id, Name = country.Name }).ToArray();
+                }
+            }
+
+            return regions;
+        }
+
+        public async Task<CostElementData> GetCostElementData(HistoryContext context)
+        {
+            return new CostElementData
+            {
+                DependencyItems = await this.GetDependencyItems(context),
+                Regions = await this.GetRegions(context)
+            };
+        }
+
         private IEnumerable<EditItemContext> BuildEditItemContexts(IEnumerable<EditInfo> editInfos)
         {
             var filterCache = new Dictionary<string, IDictionary<string, long[]>>();

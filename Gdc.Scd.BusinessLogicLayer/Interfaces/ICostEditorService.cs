@@ -12,7 +12,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<IEnumerable<NamedId>> GetCostElementReferenceValues(CostEditorContext context);
 
-        Task<CostElementData> GetCostElementData(CostEditorContext context);
+        Task<CostEditorCostElementData> GetCostElementData(CostEditorContext context);
 
         Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context);
 
