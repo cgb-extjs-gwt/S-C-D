@@ -75,7 +75,6 @@ namespace Gdc.Scd.Import.Core.Impl
                 var wg = wgs.FirstOrDefault(w => w.Name.Equals(item.WgCode));
                 switch (item.Action.ToLower())
                 {
-                    case "n":
                     case "u":
                         var pla = plas.FirstOrDefault(p => !String.IsNullOrEmpty(p.CodingPattern) && p.CodingPattern.Equals(item.Pla, StringComparison.OrdinalIgnoreCase));
                         if (pla == null)
@@ -158,7 +157,6 @@ namespace Gdc.Scd.Import.Core.Impl
             {
                 switch (item.Action.ToLower())
                 {
-                    case "n":
                     case "u":
                         var wg = wgs.FirstOrDefault(w => w.Name.Equals(item.WgCode, StringComparison.OrdinalIgnoreCase));
                         if (wg != null)
