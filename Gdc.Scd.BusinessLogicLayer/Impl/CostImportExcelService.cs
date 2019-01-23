@@ -103,7 +103,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             var costBlockMeta = this.metas.GetCostBlockEntityMeta(costElementId);
             var converter = await this.BuildConverter(costBlockMeta, costElementId.CostElementId);
-            var editInfos = new List<EditInfo>();
+            var valueInfos = new List<ValuesInfo>();
             var dependencyFilter = this.BuildFilter(costBlockMeta, costElementId, dependencyItemId, regionId);
             var costElementField = costBlockMeta.CostElementsFields[costElementId.CostElementId];
 
@@ -113,22 +113,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     if (wgs.TryGetValue(wgValue.Key, out var wg))
                     {
-                        editInfos.Add(new EditInfo
+                        valueInfos.Add(new ValuesInfo
                         {
-                            Meta = costBlockMeta,
-                            ValueInfos = new[]
+                            CoordinateFilter = new Dictionary<string, long[]>(dependencyFilter)
                             {
-                                new ValuesInfo
-                                {
-                                    CoordinateFilter = new Dictionary<string, long[]>(dependencyFilter)
-                                    {
-                                        [MetaConstants.WgInputLevelName] = new [] { wg.Id }
-                                    },
-                                    Values = new Dictionary<string, object>
-                                    {
-                                        [costElementId.CostElementId] = converter(wgValue.Value)
-                                    }
-                                }
+                                [MetaConstants.WgInputLevelName] = new[] { wg.Id }
+                            },
+                            Values = new Dictionary<string, object>
+                            {
+                                [costElementId.CostElementId] = converter(wgValue.Value)
                             }
                         });
                     }
@@ -142,6 +135,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     errors.Add($"Import error - warranty group '{wgValue.Key}', value '{wgValue.Value}'. {ex.Message}");
                 }
             }
+
+            var editInfos = new[]
+            {
+                new EditInfo
+                {
+                    Meta = costBlockMeta,
+                    ValueInfos = valueInfos
+                }
+            };
 
             return (editInfos, errors);
         }
