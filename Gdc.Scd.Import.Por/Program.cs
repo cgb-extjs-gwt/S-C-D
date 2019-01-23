@@ -119,7 +119,7 @@ namespace Gdc.Scd.Import.Por
                 List<SCD2_v_SAR_new_codes> stdwCodes = new List<SCD2_v_SAR_new_codes>();
                 List<SCD2_v_SAR_new_codes> proActiveCodes = new List<SCD2_v_SAR_new_codes>();
                 List<SCD2_v_SAR_new_codes> softwareCodes = new List<SCD2_v_SAR_new_codes>();
-                List<SCD2_v_SAR_new_codes> hddRetensionCodes = new List<SCD2_v_SAR_new_codes>();
+                List<SCD2_v_SAR_new_codes> hddRetentionCodes = new List<SCD2_v_SAR_new_codes>();
 
                 foreach (var code in fspcodes)
                 {
@@ -138,7 +138,7 @@ namespace Gdc.Scd.Import.Por
                         softwareCodes.Add(code);
 
                     else if (hddServiceTypes.Contains(code.SCD_ServiceType))
-                        hddRetensionCodes.Add(code);
+                        hddRetentionCodes.Add(code);
                 }
 
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, "Standard Warranties");
@@ -151,7 +151,7 @@ namespace Gdc.Scd.Import.Por
                     HardwareCodes = otherHardwareCodes,
                     ProactiveCodes = proActiveCodes,
                     StandardWarranties = stdwCodes,
-                    HddRetensionCodes = hddRetensionCodes,
+                    HddRetentionCodes = hddRetentionCodes,
                     LutCodes = lutCodes,
                     CreationDate = DateTime.Now,
                     HwSla = new HwSlaDto
