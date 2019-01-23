@@ -40,9 +40,23 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
         }
 
         [HttpGet]
-        public bool IsCountryUser()
+        public bool IsCountryUser(int cntId = 0)
         {
-            return this.userService.GetCurrentUserCountries().Any();
+            if (cntId == 0)
+            {
+                return this.userService.GetCurrentUserCountries().Any();
+            }
+            else
+            {
+                return this.userService.GetCurrentUserCountries().Where(x => x.Id == cntId).Any() || this.userService.HasRole(this.CurrentUser().Login, "SCD Admin");
+            }
+            
+        }
+
+        [HttpGet]
+        public bool IsAdminUser(int cntId = 0)
+        {
+            return this.userService.HasRole(this.CurrentUser().Login, "SCD Admin");
         }
 
         [HttpGet]

@@ -101,6 +101,25 @@ namespace Gdc.Scd.Web.Api.Controllers
             }
         }
 
+        [HttpPost]
+        public void ReleaseHwCost([FromBody]SaveCostManualDto m)
+        {
+            if (HasAccess(m.CountryId))
+            {
+                var items = m.Items.Select(x => new HwCostManualDto
+                {
+                    Id = x.Id,
+                    ServiceTC_Released = x.ServiceTCManual ?? x.ServiceTC,
+                    ServiceTP_Released = x.ServiceTPManual ?? x.ServiceTP
+                });
+                calcSrv.SaveHardwareCost(this.CurrentUser(), m.CountryId, items, true);
+            }
+            else
+            {
+                throw this.NotFoundException();
+            }
+        }
+
         private bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 50;
