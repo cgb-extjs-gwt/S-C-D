@@ -90,4 +90,4 @@ export const buildCostEditorContext = (state: CostEditorState) => {
     }
 }
 
-export const filterCostEditorItems = <T extends UsingInfo>(items: T[]) => items.filter(item => item.isUsingCostEditor);
+export const filterCostEditorItems = <T extends UsingInfo>(items: T[]) => items.filter(item => item.usingInfo.isUsingCostEditor);

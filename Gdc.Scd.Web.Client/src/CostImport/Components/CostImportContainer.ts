@@ -99,18 +99,20 @@ const buildProps = (() => {
         return props;
 
         function getApplicationItems() {
-            return oldAppMetaData == appMetaData ? oldAppMetaData.applications : appMetaData.applications;
+            return oldAppMetaData == appMetaData 
+                ? oldProps.applications.list
+                : appMetaData.applications.filter(application => application.usingInfo.isUsingCostImport) ;
         }
 
         function getCostBlockItems() {
             let costBlockItems: NamedId[];
 
-            if (oldProps.applications.selectedItemId == costImport.applicationId) {
+            if (oldAppMetaData == appMetaData && oldProps.applications.selectedItemId == costImport.applicationId) {
                 costBlockItems = oldProps.costBlocks.list;
             } else {
                 costBlockItems = appMetaData.costBlocks.filter(
                     costBlock => 
-                        costBlock.isUsingCostImport &&
+                        costBlock.usingInfo.isUsingCostImport &&
                         costBlock.applicationIds.includes(costImport.applicationId)
                 )
             }
@@ -121,13 +123,13 @@ const buildProps = (() => {
         function getCostElementItems() {
             let costElementItems: NamedId[];
 
-            if (oldProps.costBlocks.selectedItemId == costImport.costBlockId) {
+            if (oldAppMetaData == appMetaData && oldProps.costBlocks.selectedItemId == costImport.costBlockId) {
                 costElementItems = oldProps.costElements.list;
             } else {
                 const costBlock = getCostBlock(appMetaData, costImport.costBlockId);
 
                 if (costBlock) {
-                    costElementItems = costBlock.costElements.filter(costElement => costElement.isUsingCostImport);
+                    costElementItems = costBlock.costElements.filter(costElement => costElement.usingInfo.isUsingCostImport);
                 }
             }
 

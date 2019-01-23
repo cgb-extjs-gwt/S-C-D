@@ -1,9 +1,11 @@
 import { NamedId } from "./CommonStates";
 
 export interface UsingInfo {
-    isUsingCostEditor: boolean
-    isUsingTableView: boolean
-    isUsingCostImport: boolean
+    usingInfo: {
+        isUsingCostEditor: boolean
+        isUsingTableView: boolean
+        isUsingCostImport: boolean
+    }
 }
 
 export interface CostElementMeta extends NamedId, UsingInfo {

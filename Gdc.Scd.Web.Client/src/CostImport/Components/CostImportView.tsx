@@ -45,6 +45,7 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
     private costElementData: ComboboxData
     private dependencyData: ComboboxData
     private regionData: ComboboxData
+    private allComboboxData: ComboboxData[]
     private resultStore: Store<ResultImportItem>
     private fileField
 
@@ -55,12 +56,22 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
         this.costBlockData = this.buildComboboxData(props => props.costBlocks);
         this.costElementData = this.buildComboboxData(props => props.costElements);
         this.dependencyData = this.buildComboboxData(props => props.dependencyItems);
-        this.regionData = this.buildComboboxData(props => props.regions)
-        this.resultStore = this.createStore(props.resultImport)
+        this.regionData = this.buildComboboxData(props => props.regions);
+        this.allComboboxData = [
+            this.applicationData,
+            this.costBlockData,
+            this.costElementData,
+            this.dependencyData,
+            this.regionData
+        ];
+        this.resultStore = this.createStore(props.resultImport);
+
+        this.autoComboboxSelect(this.props);
     }
 
     public componentWillReceiveProps(nextProps: CostImportViewProps) {
         this.updateStore(this.props.resultImport, nextProps.resultImport, this.resultStore);
+        this.autoComboboxSelect(nextProps);
     }
 
     public componentWillUnmount() {
@@ -124,16 +135,15 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
     }
 
     private buildComboboxData(selector: SelectListSelector): ComboboxData {
-        const selectList = selector(this.props);
         const onChange = this.buildComboboxChangeHandler(selector);
 
         return {
             onChange,
             selector,
             buildConfig: () => {
-                const selectList = selector(this.props);
-                const store = this.createStore(selectList.list);
-                const selection = store.getById(selectList.selectedItemId);
+                const { list, selectedItemId } = selector(this.props);
+                const store = this.createStore(list);
+                const selection = store.getById(selectedItemId);
 
                 return {
                     store,
@@ -164,5 +174,15 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
         const { onFileSelect } = this.props;
 
         onFileSelect && onFileSelect(newValue);
+    }
+
+    private autoComboboxSelect(props: CostImportViewProps) {
+        this.allComboboxData.forEach(data => {
+            const { list, selectedItemId, onItemSelected } = data.selector(props);
+
+            if (list && list.length == 1 && selectedItemId == null) {
+                onItemSelected(list[0].id);
+            }
+        });
     }
 }
