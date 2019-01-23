@@ -4,9 +4,12 @@ import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { moneyRenderer, percentRenderer, yearRenderer, emptyRenderer } from "./Components/GridRenderer";
+import { emptyRenderer, moneyRenderer, moneyRendererFactory, percentRenderer, yearRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
+import { CurrencyType } from "./Model/CurrencyType";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
+
+const localMoneyRenderer = moneyRendererFactory('Currency', 'ExchangeRate');
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
@@ -74,7 +77,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     public state = {
         disableSaveButton: true,
         disableCancelButton: true,
-        selectedCountry: null
+        selectedCountry: null,
+        showInLocalCurrency: true
     };
 
     public constructor(props: CalcCostProps) {
@@ -86,10 +90,18 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         const canEditTC: boolean = this.canEditTC();
         const canEditListPrice: boolean = this.canEditListPrice();
 
+        const moneyRndr = this.state.showInLocalCurrency ? localMoneyRenderer : moneyRenderer;
+
         return (
             <Container layout="fit">
 
-                <HwCostFilter ref={x => this.filter = x} docked="right" onSearch={this.onSearch} checkAccess={!this.props.approved} scrollable={true} />
+                <HwCostFilter
+                    ref={x => this.filter = x}
+                    docked="right"
+                    onSearch={this.onSearch}
+                    onChange={this.onFilterChange}
+                    checkAccess={!this.props.approved}
+                    scrollable={true} />
 
                 <Grid
                     ref={x => this.grid = x}
@@ -126,7 +138,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Cost block results"
                         dataIndex=""
                         cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
                         <NumberColumn text="Field service cost" dataIndex="FieldServiceCost" />
                         <NumberColumn text="Service support cost" dataIndex="ServiceSupportCost" />
@@ -149,7 +161,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Resulting costs"
                         dataIndex=""
                         cls="calc-cost-result-yellow"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
                         <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
                         <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
@@ -178,6 +190,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private init() {
         this.onSearch = this.onSearch.bind(this);
+        this.onFilterChange = this.onFilterChange.bind(this);
         this.cancelChanges = this.cancelChanges.bind(this);
         this.saveRecords = this.saveRecords.bind(this);
 
@@ -209,6 +222,11 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private onSearch(filter: HwCostFilterModel) {
         this.reload();
+    }
+
+    private onFilterChange(filter: HwCostFilterModel) {
+        this.setState({ showInLocalCurrency: filter.currency === CurrencyType.Local });
+        this.grid.refresh();
     }
 
     private reload() {
