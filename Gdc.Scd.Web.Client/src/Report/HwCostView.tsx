@@ -99,19 +99,19 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
         return (
             <Container layout="fit">
-                <Panel {...this.props} docked="right" margin="0 0 5px 0" padding="4px 20px 7px 20px" scrollable={true} >
-                    <HwCostFilter ref={x => this.filter = x} onSearch={this.onSearch} checkAccess={!this.props.approved}/>
-                    <HwReleasePanel onApprove={this.releaseCosts} checkAccess={!this.props.approved} hidden={!this.props.approved || this.state.hideReleaseButton}/>
-                </Panel>
-               
 
-                <HwCostFilter
-                    ref={x => this.filter = x}
-                    docked="right"
-                    onSearch={this.onSearch}
-                    onChange={this.onFilterChange}
-                    checkAccess={!this.props.approved}
-                    scrollable={true} />
+                <Panel {...this.props} docked="right" margin="0 0 5px 0" padding="4px 20px 7px 20px" scrollable={true} >
+                    <HwCostFilter
+                        ref={x => this.filter = x}
+                        onSearch={this.onSearch}
+                        onChange={this.onFilterChange}
+                        checkAccess={!this.props.approved}
+                        scrollable={true} />
+                    <HwReleasePanel
+                        onApprove={this.releaseCosts}
+                        checkAccess={!this.props.approved}
+                        hidden={!this.props.approved || this.state.hideReleaseButton} />
+                </Panel>         
 
                 <Grid
                     ref={x => this.grid = x}
@@ -284,9 +284,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         if (this.state && this.state.selectedCountry) {
             cntId = this.state.selectedCountry.id;
             srv.isCountryUser(cntId).then(x => {
-                if (x) {
                     this.setState({ hideReleaseButton: !x })
-                }
             });
         }
     }
