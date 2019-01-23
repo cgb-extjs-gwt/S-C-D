@@ -100,13 +100,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         return (
             <Container layout="fit">
 
-                <Panel {...this.props} docked="right" margin="0 0 5px 0" padding="4px 20px 7px 20px" scrollable={true} >
+                <Panel {...this.props} docked="right" scrollable={true} >
                     <HwCostFilter
                         ref={x => this.filter = x}
                         onSearch={this.onSearch}
                         onChange={this.onFilterChange}
-                        checkAccess={!this.props.approved}
-                        scrollable={true} />
+                        checkAccess={!this.props.approved} />
                     <HwReleasePanel
                         onApprove={this.releaseCosts}
                         checkAccess={!this.props.approved}
