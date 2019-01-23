@@ -2010,14 +2010,13 @@ BEGIN
         and (@pro is null           or m.ProActiveSlaId = @pro);
 
 
-    declare @cur nvarchar(16);
+    declare @cur nvarchar(max);
     declare @exchange float;
 
     select @cur = cur.Name
          , @exchange =  er.Value 
     from [References].Currency cur
     join [References].ExchangeRate er on er.CurrencyId = cur.Id
-
     where cur.Id = (select CurrencyId from InputAtoms.Country where id = @cnt);
 
     select @cur as Currency, @exchange as ExchangeRate, m.*
@@ -2025,4 +2024,5 @@ BEGIN
     order by Id
 
 END
-go
+
+GO
