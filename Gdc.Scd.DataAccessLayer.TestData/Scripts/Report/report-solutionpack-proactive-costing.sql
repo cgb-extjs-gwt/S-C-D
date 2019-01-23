@@ -5,7 +5,7 @@ go
 CREATE FUNCTION Report.SolutionPackProActiveCosting
 (
     @cnt bigint,
-    @sog bigint,
+    @digit bigint,
     @year bigint
 )
 RETURNS TABLE 
@@ -14,7 +14,7 @@ RETURN (
     select    c.CountryGroup
             , c.Name as Country
 
-            , null as InfSolution
+            , dig.Name as InfSolution
             , sog.Name as Wg
             , sog.Sog
             , fsp.Name as Fsp
@@ -27,22 +27,20 @@ RETURN (
                 else CAST(y.Value as varchar(15))
              end as Duration
 
-             , sc.TransferPrice_Approved - pro.ProActive_Approved as ReActive
-             , pro.ProActive_Approved as ProActive
-             , sc.TransferPrice_Approved as ServiceTP
+             , av.Name as Availability
 
-    from SoftwareSolution.ProActiveView pro
-    join Dependencies.Year y on y.id = pro.Year
+             , sc.TransferPrice - pro.ProActive as ReActive
+             , pro.ProActive as ProActive
+             , sc.TransferPrice as ServiceTP
+
+    from SoftwareSolution.GetProActiveCosts(1, @cnt, @digit, null, @year, -1, -1) pro
+    join Dependencies.Year y on y.id = pro.DurationId
+    join Dependencies.Availability av on av.id = pro.AvailabilityId
     join InputAtoms.CountryView c on c.id = pro.Country
+    join InputAtoms.SwDigit dig on dig.Id = pro.SwDigit
     join InputAtoms.WgSogView sog on sog.id = pro.Sog
-    left join SoftwareSolution.SwSpMaintenanceCostView sc on sc.Year = pro.Year and sc.Sog = pro.Sog
-    left join Fsp.SwFspCodeTranslation fsp on fsp.AvailabilityId = sc.Availability
-                                          and fsp.DurationId = sc.Year
-                                          and fsp.SogId = sc.Sog
-
-    where (@cnt is null or pro.Country = @cnt)
-      and (@sog is null or pro.Sog = @sog)
-      and (@year is null or pro.Year = @year)
+    left join SoftwareSolution.GetCosts(1, @digit, null, @year, -1, -1) sc on sc.Year = pro.DurationId and sc.Availability = pro.AvailabilityId and sc.SwDigit = pro.SwDigit
+    left join Fsp.SwFspCodeTranslation fsp on fsp.Id = pro.FspId
 )
 
 GO
@@ -88,7 +86,7 @@ delete from Report.ReportFilter where ReportId = @reportId;
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 7, 'cnt', 'Country Name');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 5, 'sog', 'Service Offering Group');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit'), 'digit', 'SW digit');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 13, 'year', 'Service period');
 

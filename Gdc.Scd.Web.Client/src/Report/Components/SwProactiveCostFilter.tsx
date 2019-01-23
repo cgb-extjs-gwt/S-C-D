@@ -1,11 +1,12 @@
 ﻿import { Button, Container, Panel, PanelProps } from "@extjs/ext-react";
 import * as React from "react";
+import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
 import { CountryField } from "../../Dict/Components/CountryField";
 import { DictField } from "../../Dict/Components/DictField";
-import { SogField } from "../../Dict/Components/SogField";
+import { SwDigitField } from "../../Dict/Components/SwDigitField";
+import { UserCountryField } from "../../Dict/Components/UserCountryField";
 import { YearField } from "../../Dict/Components/YearField";
 import { SwCostFilterModel } from "../Model/SwCostFilterModel";
-import { UserCountryField } from "../../Dict/Components/UserCountryField";
 
 export interface FilterPanelProps extends PanelProps {
     checkAccess: boolean;
@@ -16,7 +17,9 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
 
     private cnt: DictField;
 
-    private sog: DictField;
+    private digit: DictField;
+
+    private av: DictField;
 
     private year: DictField;
 
@@ -52,7 +55,8 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
                 >
 
                     {countryField}
-                    <SogField ref={x => this.sog = x} label="Asset(SOG):" />
+                    <SwDigitField ref={x => this.digit = x} label="SW digit:" />
+                    <AvailabilityField ref={x => this.av = x} label="Availability:" />
                     <YearField ref={x => this.year = x} label="Year:" />
 
                 </Container>
@@ -66,7 +70,8 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
     public getModel(): SwCostFilterModel {
         return {
             country: this.cnt.getSelected(),
-            sog: this.sog.getSelected(),
+            digit: this.digit.getSelected(),
+            availability: this.av.getSelected(),
             year: this.year.getSelected()
         };
     }

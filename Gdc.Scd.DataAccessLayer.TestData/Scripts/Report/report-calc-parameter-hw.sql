@@ -15,17 +15,7 @@ CREATE FUNCTION Report.CalcParameterHw
 RETURNS TABLE 
 AS
 RETURN (
-    with ReinsuranceCte as (
-        select r.Wg
-             , r.Year
-             , SUM(CASE WHEN UPPER(rt.Name) = 'NBD' THEN r.Cost_Approved END) AS  ReinsuranceNBD
-             , SUM(CASE WHEN UPPER(av.Name) = '24X7' THEN r.Cost_Approved END) AS Reinsurance27x7
-        from Hardware.ReinsuranceView r
-        join Dependencies.Availability av on av.Id = r.AvailabilityId 
-        join Dependencies.ReactionTime rt on rt.id = r.ReactionTimeId
-        group by r.Wg, r.Year
-    )
-    , CostCte as (
+    with CostCte as (
             select 
                 m.Id
               , c.Name as Country
@@ -43,8 +33,6 @@ RETURN (
              --FSP
               , fsp.Name Fsp
               , fsp.ServiceDescription as FspDescription
-
-              , ib.InstalledBaseCountry_Approved as IB
 
               --cost blocks
 
@@ -74,12 +62,12 @@ RETURN (
               , msw.MarkupFactorStandardWarranty_Approved as MarkupFactorStandardWarranty
               , msw.MarkupStandardWarranty_Approved       as MarkupStandardWarranty
       
-              , afr.AFR1_Approved     as AFR1
-              , afr.AFR2_Approved     as AFR2
-              , afr.AFR3_Approved     as AFR3
-              , afr.AFR4_Approved     as AFR4
-              , afr.AFR5_Approved     as AFR5
-              , afr.AFRP1_Approved    as AFRP1
+              , afr.AFR1_Approved  as AFR1
+              , afr.AFR2_Approved  as AFR2
+              , afr.AFR3_Approved  as AFR3
+              , afr.AFR4_Approved  as AFR4
+              , afr.AFR5_Approved  as AFR5
+              , afr.AFRP1_Approved as AFRP1
 
               , Hardware.CalcFieldServiceCost(
                             fsc.TimeAndMaterialShare_Approved, 
@@ -92,14 +80,19 @@ RETURN (
                             1
                         ) as FieldServicePerYear
 
-              , ssc.[1stLevelSupportCosts_Approved] as '1stLevelSupportCosts'
-              , ssc.[2ndLevelSupportCosts_Approved] as '2ndLevelSupportCosts'
+              , ssc.[1stLevelSupportCosts_Approved]           as [1stLevelSupportCosts]
+              , ssc.[2ndLevelSupportCosts_Approved]           as [2ndLevelSupportCosts]
            
-              , r.ReinsuranceNBD
-              , r.ReinsuranceNBD as ReinsuranceNBD_Oow
-              , r.Reinsurance27x7
-              , r.Reinsurance27x7 as Reinsurance27x7_Oow
-           
+              , r.ReinsuranceFlatfee1_Approved                as ReinsuranceFlatfee1
+              , r.ReinsuranceFlatfee2_Approved                as ReinsuranceFlatfee2
+              , r.ReinsuranceFlatfee3_Approved                as ReinsuranceFlatfee3
+              , r.ReinsuranceFlatfee4_Approved                as ReinsuranceFlatfee4
+              , r.ReinsuranceFlatfee5_Approved                as ReinsuranceFlatfee5
+              , r.ReinsuranceFlatfeeP1_Approved               as ReinsuranceFlatfeeP1
+              , r.ReinsuranceUpliftFactor_4h_24x7_Approved    as ReinsuranceUpliftFactor_4h_24x7
+              , r.ReinsuranceUpliftFactor_4h_9x5_Approved     as ReinsuranceUpliftFactor_4h_9x5
+              , r.ReinsuranceUpliftFactor_NBD_9x5_Approved    as ReinsuranceUpliftFactor_NBD_9x5
+
               , mcw.MaterialCostWarranty_Approved as MaterialCostWarranty
               , mco.MaterialCostOow_Approved as MaterialCostOow
 
@@ -108,13 +101,13 @@ RETURN (
 
         from Portfolio.GetBySla(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc, @pro) m
 
-        JOIN InputAtoms.CountryView c on c.Id = m.CountryId
+        INNER JOIN InputAtoms.CountryView c on c.Id = m.CountryId
 
-        JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
+        INNER JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
 
-        JOIN InputAtoms.WgView wg2 on wg2.Id = m.WgId
+        INNER JOIN InputAtoms.WgView wg2 on wg2.Id = m.WgId
 
-        JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
+        INNER JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
 
         INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 
@@ -146,11 +139,9 @@ RETURN (
 
         LEFT JOIN Hardware.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
 
-        LEFT JOIN Hardware.InstallBase ib on ib.Country = m.CountryId and ib.Wg = m.WgId
-
         LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg2.ClusterPla
 
-        LEFT JOIN ReinsuranceCte r on r.Wg = m.WgId and r.Year = m.DurationId
+        LEFT JOIN Hardware.ReinsuranceYear r on r.Wg = m.WgId
 
         LEFT JOIN Hardware.MarkupOtherCostsView moc on moc.Wg = m.WgId 
                                                    AND moc.Country = m.CountryId 
@@ -181,24 +172,86 @@ RETURN (
                                                and fsp.ServiceLocationId = m.ServiceLocationId
                                                and fsp.ProactiveSlaId = m.ProActiveSlaId
     )
-    select    m.*
+    select    
+                m.Id
+              , m.Country
+              , m.WgDescription
+              , m.Wg
+              , m.SogDescription
+              , m.SCD_ServiceType
+              , m.Sla
+              , m.ServiceLocation
+              , m.ReactionTime
+              , m.ReactionType
+              , m.Availability
+              , m.Currency
 
-            , m.FieldServicePerYear * m.AFR1 as FieldServiceCost1
-            , m.FieldServicePerYear * m.AFR2 as FieldServiceCost2
-            , m.FieldServicePerYear * m.AFR3 as FieldServiceCost3
-            , m.FieldServicePerYear * m.AFR4 as FieldServiceCost4
-            , m.FieldServicePerYear * m.AFR5 as FieldServiceCost5
+             --FSP
+              , m.Fsp
+              , m.FspDescription
 
-            , Hardware.CalcByDur(
-                      m.Duration
-                    , m.IsProlongation 
-                    , m.LogisticPerYear * m.AFR1 
-                    , m.LogisticPerYear * m.AFR2 
-                    , m.LogisticPerYear * m.AFR3 
-                    , m.LogisticPerYear * m.AFR4 
-                    , m.LogisticPerYear * m.AFR5 
-                    , m.LogisticPerYear * m.AFRP1
-                ) as LogisticTransportcost
+              --cost blocks
+
+              , m.LabourCost
+              , m.TravelCost
+              , m.PerformanceRate
+              , m.TravelTime
+              , m.RepairTime
+              , m.OnsiteHourlyRate
+
+              , m.StandardHandling
+
+              , m.AvailabilityFee
+      
+              , m.TaxAndDutiesW
+
+              , m.MarkupOtherCost
+              , m.MarkupFactorOtherCost
+
+              , m.MarkupFactorStandardWarranty
+              , m.MarkupStandardWarranty
+      
+              , m.AFR1   * 100 as AFR1
+              , m.AFR2   * 100 as AFR2
+              , m.AFR3   * 100 as AFR3
+              , m.AFR4   * 100 as AFR4
+              , m.AFR5   * 100 as AFR5
+              , m.AFRP1  * 100 as AFRP1
+
+              , m.[1stLevelSupportCosts]
+              , m.[2ndLevelSupportCosts]
+           
+              , m.ReinsuranceFlatfee1
+              , m.ReinsuranceFlatfee2
+              , m.ReinsuranceFlatfee3
+              , m.ReinsuranceFlatfee4
+              , m.ReinsuranceFlatfee5
+              , m.ReinsuranceFlatfeeP1
+              , m.ReinsuranceUpliftFactor_4h_24x7
+              , m.ReinsuranceUpliftFactor_4h_9x5
+              , m.ReinsuranceUpliftFactor_NBD_9x5
+
+              , m.MaterialCostWarranty
+              , m.MaterialCostOow
+
+              , m.Duration
+
+             , m.FieldServicePerYear * m.AFR1 as FieldServiceCost1
+             , m.FieldServicePerYear * m.AFR2 as FieldServiceCost2
+             , m.FieldServicePerYear * m.AFR3 as FieldServiceCost3
+             , m.FieldServicePerYear * m.AFR4 as FieldServiceCost4
+             , m.FieldServicePerYear * m.AFR5 as FieldServiceCost5
+            
+             , Hardware.CalcByDur(
+                       m.Duration
+                     , m.IsProlongation 
+                     , m.LogisticPerYear * m.AFR1 
+                     , m.LogisticPerYear * m.AFR2 
+                     , m.LogisticPerYear * m.AFR3 
+                     , m.LogisticPerYear * m.AFR4 
+                     , m.LogisticPerYear * m.AFR5 
+                     , m.LogisticPerYear * m.AFRP1
+                 ) as LogisticTransportcost
 
     from CostCte m
 )
@@ -237,9 +290,6 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'FspDescription', 'G_MAKTX', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'IB', 'Installed base', 1, 1);
-
-set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'LabourCost', 'Labour cost', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'TravelCost', 'Travel cost', 1, 1);
@@ -274,15 +324,15 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'MarkupStandardWarranty', 'Markup for standard warranty local cost', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'AFR1', 'AFR1', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 5, 'AFR1', 'AFR1', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'AFR2', 'AFR2', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 5, 'AFR2', 'AFR2', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'AFR3', 'AFR3', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 5, 'AFR3', 'AFR3', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'AFR4', 'AFR4', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 5, 'AFR4', 'AFR4', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'AFR5', 'AFR5', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 5, 'AFR5', 'AFR5', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'FieldServiceCost1', 'Calculated Field Service Cost 1 year', 1, 1);
@@ -300,14 +350,26 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, '1stLevelSupportCosts', '1st level support cost', 1, 1);
 
+
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceNBD', 'Reinsurance NBD', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceFlatfee1', 'Reinsurance Flatfee 1 year', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceNBD_Oow', 'Reinsurance NBD OOW', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceFlatfee2', 'Reinsurance Flatfee 2 years', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'Reinsurance27x7', 'Reinsurance 7x24', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceFlatfee3', 'Reinsurance Flatfee 3 years', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'Reinsurance27x7_Oow', 'Reinsurance 7x24 OOW', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceFlatfee4', 'Reinsurance Flatfee 4 years', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceFlatfee5', 'Reinsurance Flatfee 5 years', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceFlatfeeP1', 'Reinsurance Flatfee 1 year prolongation', 1, 1);
+
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceUpliftFactor_4h_24x7', 'Reinsurance uplift factor 4h 24x7', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceUpliftFactor_4h_9x5', 'Reinsurance uplift factor 4h 9x5', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'ReinsuranceUpliftFactor_NBD_9x5', 'Reinsurance uplift factor NBD 9x5', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'MaterialCostWarranty', 'Material cost iW', 1, 1);

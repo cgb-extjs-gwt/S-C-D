@@ -81,8 +81,6 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<LocalPortfolio>();
             Kernel.RegisterEntity<PrincipalPortfolio>();
             Kernel.RegisterEntity<HardwareManualCost>();
-            Kernel.RegisterEntity<SoftwareMaintenance>();
-            Kernel.RegisterEntity<SoftwareProactive>();
 
             /*---------reports----------*/
             Kernel.RegisterEntity<Report>();

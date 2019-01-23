@@ -16,6 +16,7 @@ import { RoleService } from "./RoleService";
 import { SogService } from "./SogService";
 import { UserCountryService } from "./UserCountryService";
 import { YearService } from "./YearService";
+import { SwDigitService } from "./SwDigitService";
 
 export class DictService implements IDictService {
     public getCountries(): Promise<NamedId<string>[]> {
@@ -62,6 +63,10 @@ export class DictService implements IDictService {
 
     public getSog(): Promise<NamedId<string>[]> {
         return new SogService().getAll();
+    }
+
+    public getSwDigit(): Promise<NamedId<string>[]> {
+        return new SwDigitService().getAll();
     }
 
     public getAvailabilityTypes(): Promise<NamedId<string>[]> {
