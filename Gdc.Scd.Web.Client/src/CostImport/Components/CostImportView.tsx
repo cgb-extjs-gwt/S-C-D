@@ -12,7 +12,9 @@ export interface CostImportViewProps {
     costBlocks: SelectListAdvanced<NamedId>
     costElements: SelectListAdvanced<NamedId>
     dependencyItems?: SelectListAdvanced<NamedId<number>, number>
+    regions?: SelectListAdvanced<NamedId<number>, number>
     isVisibleDependencyItems: boolean
+    isVisibleRegions: boolean
     resultImport: ResultImportItem[]
     isImportButtonEnabled: boolean
     onImport?(file)
@@ -41,6 +43,7 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
     private costBlockData: ComboboxData
     private costElementData: ComboboxData
     private dependencyData: ComboboxData
+    private regionData: ComboboxData
     private resultStore: Store<ResultImportItem>
     private fileField
 
@@ -51,6 +54,7 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
         this.costBlockData = this.buildComboboxData(props => props.costBlocks);
         this.costElementData = this.buildComboboxData(props => props.costElements);
         this.dependencyData = this.buildComboboxData(props => props.dependencyItems);
+        this.regionData = this.buildComboboxData(props => props.regions)
         this.resultStore = this.createStore(props.resultImport)
     }
 
@@ -65,7 +69,7 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
     }
 
     public render() {
-        const { dependencyItems, isImportButtonEnabled, isVisibleDependencyItems } = this.props;
+        const { dependencyItems, isImportButtonEnabled, isVisibleDependencyItems, isVisibleRegions } = this.props;
 
         return (
             <Container layout="vbox">
@@ -77,6 +81,11 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
                         {
                             isVisibleDependencyItems 
                                 ? <ComboBoxField key="dependencies" label="Dependencies"{...this.dependencyData.buildConfig()}/>
+                                : <div/>
+                        }
+                        {
+                            isVisibleRegions 
+                                ? <ComboBoxField key="regions" label="Regions"{...this.regionData.buildConfig()}/>
                                 : <div/>
                         }
                         <FileField label="Excel file" ref={button => this.fileField = button} onChange={this.onFileSelect}/>

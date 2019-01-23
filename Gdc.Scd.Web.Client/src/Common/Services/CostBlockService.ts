@@ -2,16 +2,17 @@ import { CostElementIdentifier } from "../States/CostElementIdentifier";
 import { get, post } from "./Ajax";
 import { NamedId } from "../States/CommonStates";
 import { ImportResult } from "../../CostImport/States/ImportResult";
+import { CostElementData } from "../States/CostElementData";
 
 const COST_BLOCK_CONTROLLER = 'CostBlock';
 
-export const getDependencyItems = (costElementId: CostElementIdentifier) => get<NamedId<number>[]>(
+export const getCostElementData = (costElementId: CostElementIdentifier) => get<CostElementData>(
     COST_BLOCK_CONTROLLER,
-    'GetDependencyItems',
+    'GetCostElementData',
     costElementId
 )
 
-export const importExcel = (costElementId: CostElementIdentifier, file, dependencyItemId?: number) => new Promise<ImportResult>(
+export const importExcel = (costElementId: CostElementIdentifier, file, dependencyItemId?: number, regionId?: number) => new Promise<ImportResult>(
     (resolve, reject) => {
         const fileReader = new FileReader();
 
@@ -20,6 +21,7 @@ export const importExcel = (costElementId: CostElementIdentifier, file, dependen
             const data = {
                 costElementId,
                 dependencyItemId,
+                regionId,
                 excelFile: excelFileRaw.split('base64,')[1]
             };
 

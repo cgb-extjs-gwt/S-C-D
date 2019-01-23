@@ -5,6 +5,7 @@ export interface CostImportState {
     costBlockId: string
     costElementId: string
     dependencyItems: SelectList<NamedId<number>, number>
+    regions: SelectList<NamedId<number>, number>
     status: string[]
     fileName: string
 }
