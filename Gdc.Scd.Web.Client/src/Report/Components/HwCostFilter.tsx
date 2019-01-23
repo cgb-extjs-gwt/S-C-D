@@ -8,10 +8,11 @@ import { ProActiveField } from "../../Dict/Components/ProActiveField";
 import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
 import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
 import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
+import { UserCountryField } from "../../Dict/Components/UserCountryField";
 import { WgField } from "../../Dict/Components/WgField";
 import { Country } from "../../Dict/Model/Country";
+import { CurrencyType } from "../Model/CurrencyType";
 import { HwCostFilterModel } from "../Model/HwCostFilterModel";
-import { UserCountryField } from "../../Dict/Components/UserCountryField";
 
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: HwCostFilterModel): void;
@@ -134,7 +135,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         }
     }
 
-    private getCurrency(): number {
-        return this.euroCur.getChecked() ? 0 : 1;
+    private getCurrency(): CurrencyType {
+        return this.euroCur.getChecked() ? CurrencyType.Euro : CurrencyType.Local
     }
 }

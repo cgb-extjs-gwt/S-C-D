@@ -4,8 +4,9 @@ import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { moneyRenderer, percentRenderer, yearRenderer, emptyRenderer, moneyRendererFactory } from "./Components/GridRenderer";
+import { emptyRenderer, moneyRenderer, moneyRendererFactory, percentRenderer, yearRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
+import { CurrencyType } from "./Model/CurrencyType";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 
 const localMoneyRenderer = moneyRendererFactory('Currency', 'ExchangeRate');
@@ -224,7 +225,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onFilterChange(filter: HwCostFilterModel) {
-        this.setState({ showInLocalCurrency: filter.currency === 1 });
+        this.setState({ showInLocalCurrency: filter.currency === CurrencyType.Local });
         this.grid.refresh();
     }
 
