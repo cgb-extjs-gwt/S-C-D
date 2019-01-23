@@ -810,8 +810,10 @@ CREATE VIEW [Hardware].[AvailabilityFeeView] as
            fee.AverageContractDuration,
            fee.AverageContractDuration_Approved,
        
-           case when fee.JapanBuy = 1 then fee.CostPerKitJapanBuy else fee.CostPerKit end as CostPerKit,
-
+           case when fee.JapanBuy = 1          then fee.CostPerKitJapanBuy else fee.CostPerKit end as CostPerKit,
+        
+           case when fee.JapanBuy_Approved = 1 then fee.CostPerKitJapanBuy else fee.CostPerKit end as CostPerKit_Approved,
+        
            fee.MaxQty
 
     from Hardware.AvailabilityFee fee
@@ -847,10 +849,10 @@ CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as
                    sum(fee.IsMultiVendor * fee.IB_Approved) as Total_IB_MVS_Approved,
 
                    sum(case when fee.MaxQty = 0 then 0 else fee.IsMultiVendor * fee.CostPerKit / fee.MaxQty * fee.IB end) as Total_KC_MQ_IB_MVS,
-                   sum(case when fee.MaxQty = 0 then 0 else fee.IsMultiVendor * fee.CostPerKit / fee.MaxQty * fee.IB_Approved end) as Total_KC_MQ_IB_MVS_Approved,
+                   sum(case when fee.MaxQty = 0 then 0 else fee.IsMultiVendor * fee.CostPerKit_Approved / fee.MaxQty * fee.IB_Approved end) as Total_KC_MQ_IB_MVS_Approved,
 
                    sum(case when fee.MaxQty = 0 then 0 else (1 - fee.IsMultiVendor) * fee.CostPerKit / fee.MaxQty * fee.IB end) as Total_KC_MQ_IB_FTS,
-                   sum(case when fee.MaxQty = 0 then 0 else (1 - fee.IsMultiVendor) * fee.CostPerKit / fee.MaxQty * fee.IB_Approved end) as Total_KC_MQ_IB_FTS_Approved
+                   sum(case when fee.MaxQty = 0 then 0 else (1 - fee.IsMultiVendor) * fee.CostPerKit_Approved / fee.MaxQty * fee.IB_Approved end) as Total_KC_MQ_IB_FTS_Approved
 
             from Hardware.AvailabilityFeeVIEW fee
             group by fee.Country 
@@ -897,8 +899,8 @@ CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as
         from AvFeeCte fee
     )
     select fee.*, 
-           case when IB = 0 then 0 else Hardware.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) end as Fee,
-           case when IB_Approved = 0 then 0 else Hardware.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC_Approved, fee.YI_Approved, fee.Total_KC_MQ_IB_VENDOR_Approved) end as Fee_Approved
+           case when IB = 0 or fee.MaxQty = 0 then 0 else Hardware.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) end as Fee,
+           case when IB_Approved = 0 or fee.MaxQty = 0 then 0 else Hardware.CalcAvailabilityFee(fee.CostPerKit_Approved, fee.MaxQty, fee.TISC_Approved, fee.YI_Approved, fee.Total_KC_MQ_IB_VENDOR_Approved) end as Fee_Approved
     from AvFeeCte2 fee
 GO
 
@@ -1788,23 +1790,23 @@ RETURN
                 , Hardware.AddMarkup(m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect1P
 
                 , case when m.StdWarranty >= 1 
-                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic1, m.tax1, m.AFR1, m.AvailabilityFeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
+                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic1, m.tax1, m.AFR1, m.AvailabilityFeeOrZero, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
                         else 0 
                     end as LocalServiceStandardWarranty1
                 , case when m.StdWarranty >= 2 
-                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic2, m.tax2, m.AFR2, m.AvailabilityFeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
+                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic2, m.tax2, m.AFR2, m.AvailabilityFeeOrZero, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
                         else 0 
                     end as LocalServiceStandardWarranty2
                 , case when m.StdWarranty >= 3 
-                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic3, m.tax3, m.AFR3, m.AvailabilityFeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
+                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic3, m.tax3, m.AFR3, m.AvailabilityFeeOrZero, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
                         else 0 
                     end as LocalServiceStandardWarranty3
                 , case when m.StdWarranty >= 4 
-                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic4, m.tax4, m.AFR4, m.AvailabilityFeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
+                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic4, m.tax4, m.AFR4, m.AvailabilityFeeOrZero, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
                         else 0 
                     end as LocalServiceStandardWarranty4
                 , case when m.StdWarranty >= 5 
-                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic5, m.tax5, m.AFR5, m.AvailabilityFeeOrZero, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
+                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic5, m.tax5, m.AFR5, m.AvailabilityFeeOrZero, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
                         else 0 
                     end as LocalServiceStandardWarranty5
                 , 0     as LocalServiceStandardWarranty1P
@@ -1833,12 +1835,12 @@ RETURN
     )
     , CostCte6 as (
         select m.*
-             , Hardware.AddMarkup(m.ServiceTC1, m.MarkupFactor, m.Markup) as ServiceTP1
-             , Hardware.AddMarkup(m.ServiceTC2, m.MarkupFactor, m.Markup) as ServiceTP2
-             , Hardware.AddMarkup(m.ServiceTC3, m.MarkupFactor, m.Markup) as ServiceTP3
-             , Hardware.AddMarkup(m.ServiceTC4, m.MarkupFactor, m.Markup) as ServiceTP4
-             , Hardware.AddMarkup(m.ServiceTC5, m.MarkupFactor, m.Markup) as ServiceTP5
-             , Hardware.AddMarkup(m.ServiceTC1P, m.MarkupFactor, m.Markup) as ServiceTP1P
+             , Hardware.AddMarkup(m.ServiceTC1,  1 + m.MarkupFactor, m.Markup) as ServiceTP1
+             , Hardware.AddMarkup(m.ServiceTC2,  1 + m.MarkupFactor, m.Markup) as ServiceTP2
+             , Hardware.AddMarkup(m.ServiceTC3,  1 + m.MarkupFactor, m.Markup) as ServiceTP3
+             , Hardware.AddMarkup(m.ServiceTC4,  1 + m.MarkupFactor, m.Markup) as ServiceTP4
+             , Hardware.AddMarkup(m.ServiceTC5,  1 + m.MarkupFactor, m.Markup) as ServiceTP5
+             , Hardware.AddMarkup(m.ServiceTC1P, 1 + m.MarkupFactor, m.Markup) as ServiceTP1P
         from CostCte5 m
     )    
     select m.Id
@@ -1980,7 +1982,7 @@ RETURN
 
 go
 
-CREATE PROCEDURE Hardware.SpGetCosts
+CREATE PROCEDURE [Hardware].[SpGetCosts]
     @approved bit,
     @cnt bigint,
     @wg bigint,
@@ -2007,10 +2009,22 @@ BEGIN
         and (@reactiontime is null  or m.ReactionTimeId = @reactiontime)
         and (@reactiontype is null  or m.ReactionTypeId = @reactiontype)
         and (@loc is null           or m.ServiceLocationId = @loc)
-        and (@pro is null           or m.ProActiveSlaId = @pro)
+        and (@pro is null           or m.ProActiveSlaId = @pro);
 
-    select * from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit)
+
+    declare @cur nvarchar(max);
+    declare @exchange float;
+
+    select @cur = cur.Name
+         , @exchange =  er.Value 
+    from [References].Currency cur
+    join [References].ExchangeRate er on er.CurrencyId = cur.Id
+    where cur.Id = (select CurrencyId from InputAtoms.Country where id = @cnt);
+
+    select @cur as Currency, @exchange as ExchangeRate, m.*
+    from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
     order by Id
 
 END
-go
+
+GO
