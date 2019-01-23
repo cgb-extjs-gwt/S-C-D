@@ -6,24 +6,8 @@ IF OBJECT_ID('Report.GetCostsFull') IS NOT NULL
   DROP FUNCTION Report.GetCostsFull;
 go 
 
-IF OBJECT_ID('Report.GetSwResultBySla') IS NOT NULL
-  DROP FUNCTION Report.GetSwResultBySla;
-go 
-
-IF OBJECT_ID('Report.GetSwResultBySla2') IS NOT NULL
-  DROP FUNCTION Report.GetSwResultBySla2;
-go 
-
-IF OBJECT_ID('SoftwareSolution.ServiceCostCalculationView', 'V') IS NOT NULL
-  DROP VIEW SoftwareSolution.ServiceCostCalculationView;
-go
-
 IF OBJECT_ID('InputAtoms.CountryView', 'V') IS NOT NULL
   DROP VIEW InputAtoms.CountryView;
-go
-
-IF OBJECT_ID('InputAtoms.WgSogView', 'V') IS NOT NULL
-  DROP VIEW InputAtoms.WgSogView;
 go
 
 CREATE VIEW InputAtoms.CountryView WITH SCHEMABINDING AS
@@ -47,56 +31,6 @@ CREATE VIEW InputAtoms.CountryView WITH SCHEMABINDING AS
     left join InputAtoms.ClusterRegion cr on cr.Id = c.ClusterRegionId
     left join [References].Currency cur on cur.Id = c.CurrencyId
 
-GO
-
-CREATE VIEW InputAtoms.WgSogView as 
-    select wg.*
-         , sog.Name as Sog
-         , sog.Description as SogDescription
-    from InputAtoms.Wg wg
-    left join InputAtoms.Sog sog on sog.id = wg.SogId
-    where wg.DeactivatedDateTime is null
-GO
-
-CREATE view SoftwareSolution.ServiceCostCalculationView as
-    select  sc.Year as YearId
-          , y.Name as Year
-          , y.Value as YearValue
-          , sc.Availability as AvailabilityId
-          , av.Name as Availability
-          , sc.Sog as SogId
-          , sog.Sog
-          , sog.SogDescription
-          , sog.Description
-      
-          , sc.DealerPrice_Approved as DealerPrice
-          , sc.MaintenanceListPrice_Approved as MaintenanceListPrice
-          , sc.Reinsurance_Approved as Reinsurance
-          , sc.ServiceSupport_Approved as ServiceSupport
-          , sc.TransferPrice_Approved as TransferPrice
-
-    from SoftwareSolution.SwSpMaintenanceCostView sc
-    join Dependencies.Availability av on av.Id = sc.Availability
-    join Dependencies.Year y on y.id = sc.Year
-    left join InputAtoms.WgSogView sog on sog.id = sc.Sog
-
-GO
-
-CREATE FUNCTION Report.GetSwResultBySla
-(
-    @sog bigint,
-    @av bigint,
-    @year bigint
-)
-RETURNS TABLE 
-AS
-RETURN (
-    select sc.*
-    from SoftwareSolution.ServiceCostCalculationView sc
-    where sc.SogId = @sog
-      and (@av is null or sc.AvailabilityId = @av)
-      and (@year is null or sc.YearId = @year)
-)
 GO
 
 CREATE FUNCTION [Report].[GetCostsFull](

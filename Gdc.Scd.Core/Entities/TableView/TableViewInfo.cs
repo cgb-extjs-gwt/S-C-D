@@ -8,6 +8,8 @@ namespace Gdc.Scd.Core.Entities.TableView
 
         public IDictionary<string, ReferenceSet> CostBlockReferences { get; set; }
 
+        public IEnumerable<NamedId> RoleCodeReferences { get; set; }
+
         public IDictionary<string, IDictionary<long, NamedId>> DependencyItems { get; set; }
     }
 }

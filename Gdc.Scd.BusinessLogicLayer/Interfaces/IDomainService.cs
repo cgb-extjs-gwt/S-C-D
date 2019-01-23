@@ -9,6 +9,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         void Save(IEnumerable<T> items);
 
+        void SaveWithoutTransaction(T item);
+
+        void SaveWithoutTransaction(IEnumerable<T> items);
+
         void Delete(long id);
     }
 }

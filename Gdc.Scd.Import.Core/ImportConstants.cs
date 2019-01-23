@@ -61,5 +61,7 @@ namespace Gdc.Scd.Import.Core
         public static string UPDATE_EXCHANGE_RATE = "Exchanhe Rate for currency {0} was updated.";
         public static string UPDATING_WGS = "Starting updating WGs...";
         public static string UPDATING_WGS_END = "WGs were updated.";
+        public static string SET_ZEROS_INSTALL_BASE = "Set zero values for not received install bases";
+        public static string ZEROS_SET = "Zero were set. {0} values were affected.";
     }
 }

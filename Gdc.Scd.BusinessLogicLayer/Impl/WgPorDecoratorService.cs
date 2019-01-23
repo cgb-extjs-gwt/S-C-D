@@ -59,5 +59,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 throw new System.ArgumentException("Illegal wg type");
             }
         }
+
+        public void SaveWithoutTransaction(Wg item)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void SaveWithoutTransaction(IEnumerable<Wg> items)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

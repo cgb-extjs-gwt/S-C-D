@@ -57,11 +57,12 @@ export class TableView extends React.Component<TableViewProps, TableViewState> {
 
          if (startCell) {
             const column = selectionInfo.startCell.column;
+            const dataIndex = column.getDataIndex();
 
             this.setState({
                 selection: records,
-                selectedDataIndex: column.getDataIndex(),
-                isEnableHistoryButton: !!column.getEditable()
+                selectedDataIndex: dataIndex,
+                isEnableHistoryButton: dataIndex in records[0].data.data
             });
          } 
          else {

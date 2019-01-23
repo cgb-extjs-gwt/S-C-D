@@ -1,4 +1,4 @@
-﻿import { Button, Container, Panel, PanelProps } from "@extjs/ext-react";
+﻿import { Button, Container, Panel, PanelProps, RadioField } from "@extjs/ext-react";
 import * as React from "react";
 import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
 import { CountryField } from "../../Dict/Components/CountryField";
@@ -8,13 +8,15 @@ import { ProActiveField } from "../../Dict/Components/ProActiveField";
 import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
 import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
 import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
+import { UserCountryField } from "../../Dict/Components/UserCountryField";
 import { WgField } from "../../Dict/Components/WgField";
 import { Country } from "../../Dict/Model/Country";
+import { CurrencyType } from "../Model/CurrencyType";
 import { HwCostFilterModel } from "../Model/HwCostFilterModel";
-import { UserCountryField } from "../../Dict/Components/UserCountryField";
 
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: HwCostFilterModel): void;
+    onChange(filter: HwCostFilterModel): void;
 }
 
 export class HwCostFilter extends React.Component<FilterPanelProps, any> {
@@ -34,6 +36,10 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
     private srvloc: DictField;
 
     private proactive: DictField;
+
+    private localCur: RadioField & any;
+
+    private euroCur: RadioField & any;
 
     public constructor(props: any) {
         super(props);
@@ -76,6 +82,11 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
                 </Container>
 
+                <Container layout={{ type: 'vbox', align: 'left' }} margin="5px 0 0 0" defaults={{ padding: '3px 0' }} >
+                    <RadioField ref={x => this.localCur = x} name="currency" boxLabel="Show in local currency" checked onCheck={this.onChange} />
+                    <RadioField ref={x => this.euroCur = x} name="currency" boxLabel="Show in EUR" onCheck={this.onChange} />
+                </Container>
+
                 <Button text="Search" ui="action" minWidth="85px" margin="20px auto" disabled={!valid} handler={this.onSearch} />
 
             </Panel>
@@ -91,7 +102,8 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
             reactionType: this.reacttype.getSelected(),
             reactionTime: this.reacttime.getSelected(),
             serviceLocation: this.srvloc.getSelected(),
-            proActive: this.proactive.getSelected()
+            proActive: this.proactive.getSelected(),
+            currency: this.getCurrency()
         };
     }
 
@@ -102,6 +114,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
     private init() {
         this.onCountryChange = this.onCountryChange.bind(this);
         this.onSearch = this.onSearch.bind(this);
+        this.onChange = this.onChange.bind(this);
     }
 
     private onCountryChange() {
@@ -113,5 +126,16 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         if (handler) {
             handler(this.getModel());
         }
+    }
+
+    private onChange() {
+        let handler = this.props.onChange;
+        if (handler) {
+            handler(this.getModel());
+        }
+    }
+
+    private getCurrency(): CurrencyType {
+        return this.euroCur.getChecked() ? CurrencyType.Euro : CurrencyType.Local
     }
 }

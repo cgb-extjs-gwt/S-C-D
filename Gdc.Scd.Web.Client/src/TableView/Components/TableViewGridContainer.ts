@@ -42,14 +42,33 @@ const buildProps = (() => {
     function buildGridProps (tableViewInfo: TableViewInfo, meta: CostMetaData) {
         let readUrl: string;
         
-        const columns = [];
+        const columns: ColumnInfo<TableViewRecord>[] = [];
 
         if (tableViewInfo && meta) {
             readUrl = buildGetRecordsUrl();
 
+            const roleCodeReferences = new Map<number, NamedId<number>>();
+
+            tableViewInfo.roleCodeReferences.forEach(roleCode => roleCodeReferences.set(roleCode.id, roleCode));
+
             columns.push(
                 ...buildCoordinateColumns(tableViewInfo.recordInfo.coordinates),
                 ...buildAdditionalColumns(),
+                {
+                    title: 'Role code',
+                    dataIndex: 'wgRoleCodeId',
+                    isEditable: true,
+                    type: ColumnType.Reference,
+                    width: 100,
+                    referenceItems: roleCodeReferences,
+                },
+                {
+                    title: 'Responsible person',
+                    dataIndex: 'wgResponsiblePerson',
+                    isEditable: true,
+                    type: ColumnType.Text,
+                    width: 100,
+                },
                 ...buildCostElementColumns()
             );
         }
@@ -198,7 +217,7 @@ const buildActions = (() => {
                         else {
                             const valueCount = record.data.data[dataIndex];
 
-                            if (valueCount.count == 0) {
+                            if (valueCount && valueCount.count == 0) {
                                 valueCount.count = 1;
                             }
                         }

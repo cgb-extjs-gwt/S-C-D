@@ -4,13 +4,16 @@ import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { moneyRenderer, percentRenderer, yearRenderer, emptyRenderer } from "./Components/GridRenderer";
+import { emptyRenderer, moneyRenderer, moneyRendererFactory, percentRenderer, yearRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
+import { CurrencyType } from "./Model/CurrencyType";
 import { HwReleasePanel } from "./Components/HwReleasePanel";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
+
+const localMoneyRenderer = moneyRendererFactory('Currency', 'ExchangeRate');
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
@@ -79,6 +82,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         disableSaveButton: true,
         disableCancelButton: true,
         selectedCountry: null,
+        showInLocalCurrency: true,
         hideReleaseButton: true
     };
 
@@ -90,7 +94,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     public render() {
         const canEditTC: boolean = this.canEditTC();
         const canEditListPrice: boolean = this.canEditListPrice();
-     
+
+        const moneyRndr = this.state.showInLocalCurrency ? localMoneyRenderer : moneyRenderer;
+
         return (
             <Container layout="fit">
                 <Panel {...this.props} docked="right" margin="0 0 5px 0" padding="4px 20px 7px 20px" scrollable={true} >
@@ -98,6 +104,14 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     <HwReleasePanel onApprove={this.releaseCosts} checkAccess={!this.props.approved} hidden={!this.props.approved || this.state.hideReleaseButton}/>
                 </Panel>
                
+
+                <HwCostFilter
+                    ref={x => this.filter = x}
+                    docked="right"
+                    onSearch={this.onSearch}
+                    onChange={this.onFilterChange}
+                    checkAccess={!this.props.approved}
+                    scrollable={true} />
 
                 <Grid
                     ref={x => this.grid = x}
@@ -134,7 +148,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Cost block results"
                         dataIndex=""
                         cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
                         <NumberColumn text="Field service cost" dataIndex="FieldServiceCost" />
                         <NumberColumn text="Service support cost" dataIndex="ServiceSupportCost" />
@@ -157,7 +171,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Resulting costs"
                         dataIndex=""
                         cls="calc-cost-result-yellow"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
                         <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
                         <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
@@ -188,6 +202,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private init() {
         this.onSearch = this.onSearch.bind(this);
+        this.onFilterChange = this.onFilterChange.bind(this);
         this.cancelChanges = this.cancelChanges.bind(this);
         this.saveRecords = this.saveRecords.bind(this);
         this.releaseCosts = this.releaseCosts.bind(this);
@@ -245,6 +260,11 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private onSearch(filter: HwCostFilterModel) {
         this.reload();
+    }
+
+    private onFilterChange(filter: HwCostFilterModel) {
+        this.setState({ showInLocalCurrency: filter.currency === CurrencyType.Local });
+        this.grid.refresh();
     }
 
     private reload() {
