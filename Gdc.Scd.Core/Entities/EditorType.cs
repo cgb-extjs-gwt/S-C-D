@@ -3,6 +3,7 @@
     public enum EditorType
     {
         CostEditor,
-        TableView
+        TableView,
+        CostImport
     }
 }

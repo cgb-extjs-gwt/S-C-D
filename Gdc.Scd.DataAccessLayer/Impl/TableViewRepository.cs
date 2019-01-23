@@ -24,18 +24,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly ICostBlockFilterBuilder costBlockFilterBuilder;
 
-        private readonly ICostBlockRepository costBlockRepository;
-
         public TableViewRepository(
             IRepositorySet repositorySet, 
             ISqlRepository sqlRepository, 
-            ICostBlockFilterBuilder costBlockFilterBuilder,
-            ICostBlockRepository costBlockRepository)
+            ICostBlockFilterBuilder costBlockFilterBuilder)
         {
             this.repositorySet = repositorySet;
             this.sqlRepository = sqlRepository;
             this.costBlockFilterBuilder = costBlockFilterBuilder;
-            this.costBlockRepository = costBlockRepository;
         }
 
         public async Task<IEnumerable<Record>> GetRecords(CostElementInfo[] costElementInfos)
@@ -83,11 +79,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                 return record;
             });
-        }
-
-        public async Task UpdateRecords(IEnumerable<EditInfo> editInfos)
-        {
-            await this.costBlockRepository.Update(editInfos);
         }
 
         public async Task<IDictionary<string, ReferenceSet>> GetReferences(CostElementInfo[] costElementInfo)
@@ -167,6 +158,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public IEnumerable<EditInfo> BuildEditInfos(CostElementInfo[] costElementInfos, IEnumerable<Record> records)
         {
+            var coordinateValueCache = new Dictionary<long, long[]>();
+
             var queries = new List<SqlHelper>();
             var fieldDictionary = costElementInfos.ToDictionary(
                 info => info.Meta.Name,
@@ -245,7 +238,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                         valueInfos.Add(new ValuesInfo
                         {
-                            Filter = coordinates.ToDictionary(keyValue => keyValue.Key, keyValue => new object[] { keyValue.Value } as IEnumerable<object>),
+                            CoordinateFilter = coordinates.ToDictionary(keyValue => keyValue.Key, keyValue => new [] { keyValue.Value }),
                             Values = coordinateGroup.ToDictionary(rawEditInfo => rawEditInfo.EditFieldId.CostElementId, rawEditInfo => rawEditInfo.Value)
                         });
                     }

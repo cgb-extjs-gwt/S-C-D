@@ -10,8 +10,6 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
     {
         Task<IEnumerable<Record>> GetRecords(CostElementInfo[] costBlockInfos);
 
-        Task UpdateRecords(IEnumerable<EditInfo> editInfos);
-
         Task<IDictionary<string, ReferenceSet>> GetReferences(CostElementInfo[] costBlockInfos);
 
         Task<IDictionary<string, IDictionary<long, NamedId>>> GetDependencyItems(CostElementInfo[] costBlockInfos);
