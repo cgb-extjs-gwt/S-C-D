@@ -6,15 +6,18 @@ import { CommonState } from "../../Layout/States/AppStates";
 import { getCostElementData } from "../../Common/Services/CostBlockService";
 import { Action } from "redux";
 import { CostElementData } from "../../Common/States/CostElementData";
+import { BundleDetailGroup } from "../../QualityGate/States/QualityGateResult";
 
-export const COST_IMPORT_SELECT_APPLICATION = 'COST_IMPORT.SELECT.APPLICATION';
-export const COST_IMPORT_SELECT_COST_BLOCK = 'COST_IMPORT.SELECT.COST_BLOCK';
-export const COST_IMPORT_SELECT_COST_ELEMENT = 'COST_IMPORT.SELECT.COST_ELEMENT';
-export const COST_IMPORT_SELECT_DEPENDENCY_ITEM = 'COST_IMPORT.SELECT.DEPENDENCY_ITEM';
-export const COST_IMPORT_SELECT_REGION = 'COST_IMPORT.SELECT.REGION';
-export const COST_IMPORT_LOAD_COST_ELEMENT_DATA = 'COST_IMPORT.LOAD.COST_ELEMENT_DATA';
-export const COST_IMPORT_LOAD_IMPORT_STATUS = 'COST_IMPORT.LOAD.IMPORT_STATUS';
-export const COST_IMPORT_SELECT_FILE = 'COST_IMPORT.SELECT.FILE';
+export const COST_IMPORT_SELECT_APPLICATION = 'COST_IMPORT.SELECT.APPLICATION'
+export const COST_IMPORT_SELECT_COST_BLOCK = 'COST_IMPORT.SELECT.COST_BLOCK'
+export const COST_IMPORT_SELECT_COST_ELEMENT = 'COST_IMPORT.SELECT.COST_ELEMENT'
+export const COST_IMPORT_SELECT_DEPENDENCY_ITEM = 'COST_IMPORT.SELECT.DEPENDENCY_ITEM'
+export const COST_IMPORT_SELECT_REGION = 'COST_IMPORT.SELECT.REGION'
+export const COST_IMPORT_LOAD_COST_ELEMENT_DATA = 'COST_IMPORT.LOAD.COST_ELEMENT_DATA'
+export const COST_IMPORT_LOAD_IMPORT_STATUS = 'COST_IMPORT.LOAD.IMPORT_STATUS'
+export const COST_IMPORT_SELECT_FILE = 'COST_IMPORT.SELECT.FILE'
+export const COST_IMPORT_LOAD_FILE_DATA = 'COST_IMPORT.LOAD.FILE_DATA'
+export const COST_IMPORT_LOAD_QUALITY_GATE_ERRORS = 'COST_IMPORT.LOAD.QUALITY_GATE_ERRORS'
 
 export const selectApplication = (applicationId: string) => (<ItemSelectedAction>{
     type: COST_IMPORT_SELECT_APPLICATION,
@@ -54,4 +57,14 @@ export const loadImportStatus = (status: string[]) => (<CommonAction<string[]>>{
 export const selectFile = (fileName: string) => (<ItemSelectedAction>{
     type: COST_IMPORT_SELECT_FILE,
     selectedItemId: fileName
+})
+
+export const loadFileData = (base64Data: string) => (<CommonAction<string>>{
+    type: COST_IMPORT_LOAD_FILE_DATA,
+    data: base64Data
+})
+
+export const loadQualityGateErrors = (qualityGateErrors: BundleDetailGroup[]) => (<CommonAction<BundleDetailGroup[]>>{
+    type: COST_IMPORT_LOAD_QUALITY_GATE_ERRORS,
+    data: qualityGateErrors
 })

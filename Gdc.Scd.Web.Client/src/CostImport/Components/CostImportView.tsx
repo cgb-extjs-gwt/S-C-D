@@ -2,6 +2,7 @@ import * as React from "react";
 import { NamedId, SelectListAdvanced } from "../../Common/States/CommonStates";
 import { Container, Panel, FormPanel, Grid, ComboBoxField, Toolbar, Button, FileField, Column } from "@extjs/ext-react";
 import { Store, Model } from "../../Common/States/ExtStates";
+import { QualityGateWindowContainer, QualityGateWindowContainerProps } from "./QualityGateWindowContainer"
 
 export interface ResultImportItem {
     info: string
@@ -70,6 +71,9 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
 
     public render() {
         const { dependencyItems, isImportButtonEnabled, isVisibleDependencyItems, isVisibleRegions } = this.props;
+        const qualityGateProps: QualityGateWindowContainerProps = { 
+            position: { left: '20%', top: '20%' }
+        };
 
         return (
             <Container layout="vbox">
@@ -99,6 +103,8 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
                 <Grid store={this.resultStore} sortable={false} grouped={false} flex={1}>
                     <Column text="Status" dataIndex="info" flex={1}/>
                 </Grid>
+
+                <QualityGateWindowContainer {...qualityGateProps as any} />
             </Container>
         );
     }

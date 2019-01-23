@@ -5,9 +5,11 @@ import { NamedId, SelectListAdvanced } from "../../Common/States/CommonStates";
 import { CostImportState } from "../States/CostImportState";
 import { CostMetaData, CostElementMeta } from "../../Common/States/CostMetaStates";
 import { getCostBlock, getCostElementByAppMeta } from "../../Common/Helpers/MetaHelper";
-import { selectApplication, selectCostBlock, selectCostElement, selectDependencyItem, loadCostElementData, selectFile, loadImportStatus, selectRegion } from "../Actions/CostImportActions";
+import { selectApplication, selectCostBlock, selectCostElement, selectDependencyItem, loadCostElementData, selectFile, selectRegion, loadFileData } from "../Actions/CostImportActions";
+import { importExcel } from "../Actions/CostImportAsyncAtions";
 import * as CostBlockService from "../../Common/Services/CostBlockService";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
+import { getBase64Data } from "../../Common/Helpers/FileHelper";
 
 const buildProps = (() => {
     let oldProps: CostImportViewProps = {
@@ -165,7 +167,8 @@ const buildProps = (() => {
                 costImport.applicationId && 
                 costImport.costBlockId &&
                 costImport.costElementId &&
-                costImport.fileName);
+                costImport.file.name
+            );
 
             if (result && costElement.dependency) {
                 result = costImport.dependencyItems.selectedItemId != null;
@@ -196,22 +199,10 @@ const buildProps = (() => {
         }
 
         function onImport(file) {
-            const { applicationId, costBlockId, costElementId } = costImport;
-            const dependencyItemId = costImport.dependencyItems.selectedItemId;
-            const regionId = costImport.regions.selectedItemId;
-
-            handleRequest(
-                CostBlockService.importExcel({ applicationId, costBlockId, costElementId }, file, dependencyItemId, regionId).then(
-                    ({ errors }) => {
-                        const status = errors && errors.length > 0 
-                            ? [ ...errors, 'Import completed' ]
-                            : ['Import successfully completed']
-
-                        dispatch(loadImportStatus(status))
-                    },
-                    () => dispatch(loadImportStatus(['Error during import']))
-                )
-            )
+            getBase64Data(file).then(fileData => {
+                dispatch(loadFileData(fileData));
+                dispatch(importExcel({ isApproving: true }));
+            });
         }
     }
 })()
