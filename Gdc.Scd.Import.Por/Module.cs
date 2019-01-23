@@ -10,6 +10,7 @@ using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
+using Gdc.Scd.Import.Por.Core.Dto;
 using Gdc.Scd.Import.Por.Core.Impl;
 using Gdc.Scd.Import.Por.Core.Interfaces;
 using Ninject;
@@ -39,7 +40,8 @@ namespace Gdc.Scd.Import.Por
             Bind<IPorSwDigitService>().To<PorSwDigitService>();
             Bind<IPorSwLicenseService>().To<PorSwLicenseService>();
             Bind<IPorSwDigitLicenseService>().To<PorSwDigitLicenseService>();
-            Bind<IHwFspCodeTranslationService>().To<PorHwFspCodeTranslationService>();
+            Bind<IHwFspCodeTranslationService<HwFspCodeDto>>().To<PorHwFspCodeTranslationService>();
+            Bind<IHwFspCodeTranslationService<HwHddFspCodeDto>>().To<PorHddHwFspCodeCodeTranslationService>();
             Bind<ISwFspCodeTranslationService>().To<PorSwFspCodeTranslationService>();
             Bind<IPorSwProActiveService>().To<PorSwProActiveService>();
             Bind<ICostBlockService>().To<CostBlockService>();

@@ -68,6 +68,7 @@ namespace Gdc.Scd.Import.Core.Impl
             if (batchList.Any())
             {
                 _repositoryExchangeRate.Save(batchList);
+                _repositorySet.Sync();
             }
 
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, batchList.Count);
