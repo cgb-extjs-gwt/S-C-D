@@ -69,6 +69,12 @@ namespace Gdc.Scd.Import.Por
             this.Bind<IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope();
             Bind<IUserRepository, IRepository<User>>().To<UserRepository>().InSingletonScope();
             Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InSingletonScope();
+            Bind<IQualityGateRepository>().To<QualityGateRepository>().InSingletonScope();
+            Bind<IQualityGateQueryBuilder>().To<QualityGateQueryBuilder>().InSingletonScope();
+            Bind<IQualityGateSevice>().To<QualityGateSevice>().InSingletonScope();
+            Bind<ICostBlockValueHistoryQueryBuilder>().To<CostBlockValueHistoryQueryBuilder>().InSingletonScope();
+            Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InSingletonScope();
+            Bind<ICostBlockValueHistoryRepository>().To<CostBlockValueHistoryRepository>().InSingletonScope();
 
             Kernel.RegisterEntity<Pla>();
             Kernel.RegisterEntity<CentralContractGroup>();
