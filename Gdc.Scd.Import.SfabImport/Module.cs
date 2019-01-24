@@ -62,7 +62,7 @@ namespace Gdc.Scd.Import.SfabImport
             }).InSingletonScope();
 
             Bind<IUserService>().To<UserService>().InSingletonScope();
-            this.Bind<IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope();
+            this.Bind<Scd.Core.Interfaces.IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope();
             Bind<IUserRepository, IRepository<User>>().To<UserRepository>().InSingletonScope();
             Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InSingletonScope();
             Bind<IQualityGateRepository>().To<QualityGateRepository>().InSingletonScope();
