@@ -4,12 +4,13 @@ import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { emptyRenderer, moneyRenderer, moneyRendererFactory, percentRenderer, yearRenderer } from "./Components/GridRenderer";
+import { emptyRenderer, IRenderer, localMoneyRendererFactory, localToEuroMoneyRendererFactory, percentRenderer, yearRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { CurrencyType } from "./Model/CurrencyType";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
 
-const localMoneyRenderer = moneyRendererFactory('Currency', 'ExchangeRate');
+const localMoneyRenderer = localMoneyRendererFactory('Currency');
+const euroMoneyRenderer = localToEuroMoneyRendererFactory('ExchangeRate');
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
@@ -87,10 +88,23 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     public render() {
-        const canEditTC: boolean = this.canEditTC();
-        const canEditListPrice: boolean = this.canEditListPrice();
 
-        const moneyRndr = this.state.showInLocalCurrency ? localMoneyRenderer : moneyRenderer;
+        let canEditTC: boolean = false;
+        let canEditListPrice: boolean = false;
+        let moneyRndr: IRenderer;
+
+        if (this.state.showInLocalCurrency) {
+
+            //allow manual edit in LOCAL CURRENCY mode only for well view!!!
+
+            canEditTC = this.canEditTC();
+            canEditListPrice = this.canEditListPrice();
+            //
+            moneyRndr = localMoneyRenderer;
+        }
+        else {
+            moneyRndr = euroMoneyRenderer;
+        }
 
         return (
             <Container layout="fit">
