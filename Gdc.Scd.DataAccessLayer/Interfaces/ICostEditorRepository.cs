@@ -9,9 +9,5 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
         Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context, IDictionary<string, long[]> filter);
 
         Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context, IDictionary<string, IEnumerable<object>> filter = null);
-
-        Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, IDictionary<string, IEnumerable<object>> filter = null);
-
-        Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, IDictionary<string, long[]> filter);
     }
 }

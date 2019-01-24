@@ -4,8 +4,6 @@ namespace Gdc.Scd.Core.Meta.Dto
 {
     public class ApplicationDto : BaseMeta
     {
-        public bool IsUsingCostEditor { get; set; }
-
-        public bool IsUsingTableView { get; set; }
+        public UsingInfo UsingInfo { get; set; }
     }
 }
