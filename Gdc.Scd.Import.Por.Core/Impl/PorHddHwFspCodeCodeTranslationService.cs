@@ -77,7 +77,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                     //map warranty groups
                     var wgs = code.MapFspCodeToWgs(hwSla.Wgs, hwSla.Sogs, _logger);
 
-                    if (wgs.Any())
+                    if (!wgs.Any())
                         continue;
 
                     foreach (var country in hwSla.Countries[countryCode])

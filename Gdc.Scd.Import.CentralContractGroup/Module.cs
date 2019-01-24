@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Impl;
+﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
+using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
@@ -56,6 +57,11 @@ namespace Gdc.Scd.Import.CentralContractGroup
                 var domainEntitiesMetaService = Kernel.Get<IDomainEnitiesMetaService>();
                 return domainEntitiesMetaService.Get(domainMeta);
             }).InSingletonScope();
+
+            Bind<IUserService>().To<UserService>().InSingletonScope();
+            Bind<Scd.Core.Interfaces.IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope();
+            Bind<IUserRepository, IRepository<User>>().To<UserRepository>().InSingletonScope();
+            Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InSingletonScope();
 
             Kernel.RegisterEntity<Wg>();
             Kernel.RegisterEntity<Gdc.Scd.Core.Entities.CentralContractGroup>();

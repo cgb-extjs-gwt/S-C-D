@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Impl;
+﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
+using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Comparators;
 using Gdc.Scd.Core.Entities;
@@ -64,6 +65,11 @@ namespace Gdc.Scd.Import.Por
                 return domainEntitiesMetaService.Get(domainMeta);
             }).InSingletonScope();
 
+            Bind<IUserService>().To<UserService>().InSingletonScope();
+            this.Bind<IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope();
+            Bind<IUserRepository, IRepository<User>>().To<UserRepository>().InSingletonScope();
+            Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InSingletonScope();
+
             Kernel.RegisterEntity<Pla>();
             Kernel.RegisterEntity<CentralContractGroup>();
             Kernel.RegisterEntity<Sog>();
@@ -82,6 +88,7 @@ namespace Gdc.Scd.Import.Por
             Kernel.RegisterEntity<HwFspCodeTranslation>();
             Kernel.RegisterEntity<SwFspCodeTranslation>();
             Kernel.RegisterEntity<ProActiveDigit>();
+            Kernel.RegisterEntity<HwHddFspCodeTranslation>();
         }
     }
 }
