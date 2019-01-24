@@ -14,23 +14,24 @@ export class QualityGateErrorWindow extends React.Component<QualityGateErrorWind
         const hasErrors = errors && errors.length > 0;
 
         return (
-            hasErrors &&
-            <Dialog 
-                displayed={hasErrors} 
-                title="Quality gate errors" 
-                maximizable
-                resizable={{
-                    dynamic: true,
-                    edges: 'all'
-                }}
-                minHeight="50%"
-                minWidth="60%"
-                layout="fit"
-                closeAction="destroy"
-                {...position}
-            >
-                <QualityGateErrorContainer {...(this.props as any)}  />
-            </Dialog>
+            hasErrors 
+                ? <Dialog 
+                    displayed={hasErrors} 
+                    title="Quality gate errors" 
+                    maximizable
+                    resizable={{
+                        dynamic: true,
+                        edges: 'all'
+                    }}
+                    minHeight="50%"
+                    minWidth="60%"
+                    layout="fit"
+                    closeAction="destroy"
+                    {...position}
+                >
+                    <QualityGateErrorContainer {...(this.props as any)}  />
+                </Dialog>
+                : null
         );
     }
 }

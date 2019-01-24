@@ -5,9 +5,11 @@ import { NamedId, SelectListAdvanced } from "../../Common/States/CommonStates";
 import { CostImportState } from "../States/CostImportState";
 import { CostMetaData, CostElementMeta } from "../../Common/States/CostMetaStates";
 import { getCostBlock, getCostElementByAppMeta } from "../../Common/Helpers/MetaHelper";
-import { selectApplication, selectCostBlock, selectCostElement, selectDependencyItem, loadDependencyItems, selectFile, loadImportStatus } from "../Actions/CostImportActions";
+import { selectApplication, selectCostBlock, selectCostElement, selectDependencyItem, loadCostElementData, selectFile, selectRegion, loadFileData } from "../Actions/CostImportActions";
+import { importExcel } from "../Actions/CostImportAsyncAtions";
 import * as CostBlockService from "../../Common/Services/CostBlockService";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
+import { getBase64Data } from "../../Common/Helpers/FileHelper";
 
 const buildProps = (() => {
     let oldProps: CostImportViewProps = {
@@ -27,15 +29,17 @@ const buildProps = (() => {
             list: null,
             selectedItemId: null
         },
+        regions: {
+            list: null,
+            selectedItemId: null
+        },
         isImportButtonEnabled: false,
         isVisibleDependencyItems: false,
+        isVisibleRegions: false,
         resultImport: null
     };
     let oldAppMetaData: CostMetaData;
     let oldCostImport: CostImportState
-    let oldCostBlocks: NamedId[];
-    let oldCostElements: NamedId[];
-    let oldDependencies: NamedId<number>[];
 
     return (dispatch: Dispatch, { app: { appMetaData }, pages: { costImport } }: CommonState) => {
         let props: CostImportViewProps;
@@ -43,7 +47,15 @@ const buildProps = (() => {
         if (oldCostImport == costImport && oldAppMetaData == appMetaData) {
             props = oldProps;
         } else {
+            let isVisibleDependencyItems = false;
+            let isVisibleRegions = false;
+
             const costElement = getCostElementByAppMeta(appMetaData, costImport.costBlockId, costImport.costElementId);
+
+            if (costElement) {
+                isVisibleDependencyItems = !!costElement.dependency;
+                isVisibleRegions = !!costElement.regionInput;
+            }
 
             oldProps = props = {
                 applications: {
@@ -66,9 +78,15 @@ const buildProps = (() => {
                     selectedItemId: costImport.dependencyItems.selectedItemId,
                     onItemSelected: dependencyItemId => dispatch(selectDependencyItem(dependencyItemId))
                 },
+                regions: {
+                    list: getRegions(),
+                    selectedItemId: costImport.regions.selectedItemId,
+                    onItemSelected: regionId => dispatch(selectRegion(regionId))
+                },
                 isImportButtonEnabled: isImportButtonEnabled(costElement),
                 resultImport: getImportResult(),
-                isVisibleDependencyItems: costElement ? !!costElement.dependency : false,
+                isVisibleDependencyItems,
+                isVisibleRegions,
                 onFileSelect: fileName => dispatch(selectFile(fileName)),
                 onUnmount: () => dispatch(selectFile(null)),
                 onImport
@@ -76,26 +94,25 @@ const buildProps = (() => {
 
             oldAppMetaData = appMetaData;
             oldCostImport = costImport;
-            oldCostBlocks = props.costBlocks.list;
-            oldCostElements = props.costElements.list;
-            oldDependencies = props.dependencyItems.list;
         }
 
         return props;
 
         function getApplicationItems() {
-            return oldAppMetaData == appMetaData ? oldAppMetaData.applications : appMetaData.applications;
+            return oldAppMetaData == appMetaData 
+                ? oldProps.applications.list
+                : appMetaData.applications.filter(application => application.usingInfo.isUsingCostImport) ;
         }
 
         function getCostBlockItems() {
             let costBlockItems: NamedId[];
 
-            if (oldProps.applications.selectedItemId == costImport.applicationId) {
-                costBlockItems = oldCostBlocks;
+            if (oldAppMetaData == appMetaData && oldProps.applications.selectedItemId == costImport.applicationId) {
+                costBlockItems = oldProps.costBlocks.list;
             } else {
                 costBlockItems = appMetaData.costBlocks.filter(
                     costBlock => 
-                        costBlock.isUsingCostImport &&
+                        costBlock.usingInfo.isUsingCostImport &&
                         costBlock.applicationIds.includes(costImport.applicationId)
                 )
             }
@@ -106,13 +123,13 @@ const buildProps = (() => {
         function getCostElementItems() {
             let costElementItems: NamedId[];
 
-            if (oldProps.costBlocks.selectedItemId == costImport.costBlockId) {
-                costElementItems = oldCostElements;
+            if (oldAppMetaData == appMetaData && oldProps.costBlocks.selectedItemId == costImport.costBlockId) {
+                costElementItems = oldProps.costElements.list;
             } else {
                 const costBlock = getCostBlock(appMetaData, costImport.costBlockId);
 
                 if (costBlock) {
-                    costElementItems = costBlock.costElements.filter(costElement => costElement.isUsingCostImport);
+                    costElementItems = costBlock.costElements.filter(costElement => costElement.usingInfo.isUsingCostImport);
                 }
             }
 
@@ -125,7 +142,7 @@ const buildProps = (() => {
             if (oldProps.dependencyItems.list && 
                 oldProps.dependencyItems.list.length > 0 &&
                 oldProps.costElements.selectedItemId == costImport.costElementId) {
-                dependencyItems = oldDependencies;
+                dependencyItems = oldProps.dependencyItems.list;
             } else {
                 dependencyItems = costImport.dependencyItems.list;
             }
@@ -133,12 +150,27 @@ const buildProps = (() => {
             return dependencyItems;
         }
 
+        function getRegions() {
+            let regions: NamedId<number>[];
+
+            if (oldProps.regions.list && 
+                oldProps.regions.list.length > 0 &&
+                oldProps.costElements.selectedItemId == costImport.costElementId) {
+                regions = oldProps.regions.list;
+            } else {
+                regions = costImport.regions.list;
+            }
+
+            return regions;
+        }
+
         function isImportButtonEnabled(costElement: CostElementMeta) {
             let result = !!(
                 costImport.applicationId && 
                 costImport.costBlockId &&
                 costImport.costElementId &&
-                costImport.fileName);
+                costImport.file.name
+            );
 
             if (result && costElement.dependency) {
                 result = costImport.dependencyItems.selectedItemId != null;
@@ -161,28 +193,18 @@ const buildProps = (() => {
 
             if (costElement && costElement.dependency) {
                 handleRequest(
-                    CostBlockService.getDependencyItems({ applicationId, costBlockId, costElementId }).then(
-                        dependencyItems => dispatch(loadDependencyItems(dependencyItems))
+                    CostBlockService.getCostElementData({ applicationId, costBlockId, costElementId }).then(
+                        costElementData => dispatch(loadCostElementData(costElementData))
                     )
                 )
             }
         }
 
         function onImport(file) {
-            const { applicationId, costBlockId, costElementId, dependencyItems } = costImport;
-
-            handleRequest(
-                CostBlockService.importExcel({ applicationId, costBlockId, costElementId }, file, dependencyItems.selectedItemId).then(
-                    ({ errors }) => {
-                        const status = errors && errors.length > 0 
-                            ? [ ...errors, 'Import completed' ]
-                            : ['Import successfully completed']
-
-                        dispatch(loadImportStatus(status))
-                    },
-                    () => dispatch(loadImportStatus(['Error during import']))
-                )
-            )
+            getBase64Data(file).then(fileData => {
+                dispatch(loadFileData(fileData));
+                dispatch(importExcel({ isApproving: true }));
+            });
         }
     }
 })()

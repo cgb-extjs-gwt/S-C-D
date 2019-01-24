@@ -14,9 +14,9 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
-    public class CostElementExcelService : ICostElementExcelService
+    public class CostImportExcelService : ICostImportExcelService
     {
-        private readonly ICostBlockRepository costBlockRepository;
+        private readonly ICostBlockService costBlockService;
 
         private readonly IDomainService<Wg> wgService;
 
@@ -24,19 +24,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly DomainEnitiesMeta metas;
 
-        public CostElementExcelService(
-            ICostBlockRepository costBlockRepository, 
+        public CostImportExcelService(
+            ICostBlockService costBlockService,
             IDomainService<Wg> wgService,
             ISqlRepository sqlRepository,
             DomainEnitiesMeta metas)
         {
-            this.costBlockRepository = costBlockRepository;
+            this.costBlockService = costBlockService;
             this.wgService = wgService;
             this.sqlRepository = sqlRepository;
             this.metas = metas;
         }
 
-        public async Task<ExcelImportResult> Import(ICostElementIdentifier costElementId, Stream excelStream, long? dependencyItemId = null)
+        public async Task<ExcelImportResult> Import(
+            ICostElementIdentifier costElementId, 
+            Stream excelStream, 
+            ApprovalOption approvalOption, 
+            long? dependencyItemId = null,
+            long? regionId = null)
         {
             var result = new ExcelImportResult
             {
@@ -65,11 +70,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     }
                 }
 
-                var editInfoResult = await this.BuildEditInfos(costElementId, dependencyItemId, wgRawValues);
+                var editInfoResult = await this.BuildEditInfos(costElementId, dependencyItemId, regionId, wgRawValues);
 
                 result.Errors.AddRange(editInfoResult.Errors);
 
-                await this.costBlockRepository.Update(editInfoResult.EditInfos);
+                var qualityGateResultSet = await this.costBlockService.Update(editInfoResult.EditInfos.ToArray(), approvalOption, EditorType.CostImport);
+                var qualityGateResultSetItem = qualityGateResultSet.Items.FirstOrDefault();
+
+                result.QualityGateResult = qualityGateResultSetItem == null
+                    ? new QualityGateResult()
+                    : qualityGateResultSetItem.QualityGateResult;
             }
             catch(Exception ex)
             {
@@ -82,18 +92,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private async Task<(IEnumerable<EditInfo> EditInfos, IEnumerable<string> Errors)> BuildEditInfos(
             ICostElementIdentifier costElementId,
             long? dependencyItemId,
+            long? regionId,
             IDictionary<string, string> wgRawValues)
         {
             var errors = new List<string>();
             var wgs =
-                    this.wgService.GetAll()
-                                  .Where(wg => wgRawValues.Keys.Contains(wg.Name))
-                                  .ToDictionary(wg => wg.Name);
+                this.wgService.GetAll()
+                              .Where(wg => wgRawValues.Keys.Contains(wg.Name))
+                              .ToDictionary(wg => wg.Name);
 
             var costBlockMeta = this.metas.GetCostBlockEntityMeta(costElementId);
             var converter = await this.BuildConverter(costBlockMeta, costElementId.CostElementId);
-            var editInfos = new List<EditInfo>();
-            var dependencyFilter = this.BuildDependencyFilter(costBlockMeta, costElementId, dependencyItemId);
+            var valueInfos = new List<ValuesInfo>();
+            var dependencyFilter = this.BuildFilter(costBlockMeta, costElementId, dependencyItemId, regionId);
             var costElementField = costBlockMeta.CostElementsFields[costElementId.CostElementId];
 
             foreach (var wgValue in wgRawValues)
@@ -102,22 +113,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     if (wgs.TryGetValue(wgValue.Key, out var wg))
                     {
-                        editInfos.Add(new EditInfo
+                        valueInfos.Add(new ValuesInfo
                         {
-                            Meta = costBlockMeta,
-                            ValueInfos = new[]
+                            CoordinateFilter = new Dictionary<string, long[]>(dependencyFilter)
                             {
-                                new ValuesInfo
-                                {
-                                    Filter = new Dictionary<string, IEnumerable<object>>(dependencyFilter)
-                                    {
-                                        [MetaConstants.WgInputLevelName] = new object[] { wg.Id }
-                                    },
-                                    Values = new Dictionary<string, object>
-                                    {
-                                        [costElementId.CostElementId] = converter(wgValue.Value)
-                                    }
-                                }
+                                [MetaConstants.WgInputLevelName] = new[] { wg.Id }
+                            },
+                            Values = new Dictionary<string, object>
+                            {
+                                [costElementId.CostElementId] = converter(wgValue.Value)
                             }
                         });
                     }
@@ -131,6 +135,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     errors.Add($"Import error - warranty group '{wgValue.Key}', value '{wgValue.Value}'. {ex.Message}");
                 }
             }
+
+            var editInfos = new[]
+            {
+                new EditInfo
+                {
+                    Meta = costBlockMeta,
+                    ValueInfos = valueInfos
+                }
+            };
 
             return (editInfos, errors);
         }
@@ -201,28 +214,40 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return converter;
         }
 
-        private IDictionary<string, IEnumerable<object>> BuildDependencyFilter(
+        private IDictionary<string, long[]> BuildFilter(
             CostBlockEntityMeta costBlockMeta,
             ICostElementIdentifier costElementId,
-            long? dependencyItemId)
+            long? dependencyItemId,
+            long? regionId)
         {
-            var dependencyFilter = new Dictionary<string, IEnumerable<object>>();
+            var filter = new Dictionary<string, long[]>();
+            var costElement = costBlockMeta.DomainMeta.CostElements[costElementId.CostElementId];
 
             if (dependencyItemId.HasValue)
             {
-                var dependencyMeta = costBlockMeta.DomainMeta.CostElements[costElementId.CostElementId].Dependency;
-
-                if (dependencyMeta == null)
+                if (costElement.Dependency == null)
                 {
                     throw new Exception($"Cost element '{costElementId.CostElementId}' has not dependency, but parameter 'dependencyItemId' has value");
                 }
                 else
                 {
-                    dependencyFilter.Add(dependencyMeta.Id, new object[] { dependencyItemId.Value });
+                    filter.Add(costElement.Dependency.Id, new [] { dependencyItemId.Value });
                 }
             }
 
-            return dependencyFilter;
+            if (regionId.HasValue)
+            {
+                if (costElement.RegionInput == null)
+                {
+                    throw new Exception($"Cost element '{costElementId.CostElementId}' has not region, but parameter 'regionId' has value");
+                }
+                else
+                {
+                    filter.Add(costElement.RegionInput.Id, new[] { regionId.Value });
+                }
+            }
+
+            return filter;
         }
     }
 }

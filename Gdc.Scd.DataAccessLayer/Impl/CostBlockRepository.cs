@@ -6,6 +6,7 @@ using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
@@ -42,15 +43,28 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         costElementValue.Value,
                         $"param_{paramIndex++}"));
 
+                    var filter = valueInfo.CoordinateFilter.ToDictionary(
+                        keyValue => keyValue.Key, 
+                        keyValue => BuildCommandParameters(keyValue).Cast<object>().ToArray() as IEnumerable<object>);
+
                     var query =
                         Sql.Update(editInfo.Meta, updateColumns.ToArray())
-                           .WhereNotDeleted(editInfo.Meta, valueInfo.Filter, editInfo.Meta.Name, $"param_{paramIndex++}");
+                           .WhereNotDeleted(editInfo.Meta, filter, editInfo.Meta.Name, $"param_{paramIndex++}");
 
                     queries.Add(query);
                 }
             }
 
             return await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
+
+            IEnumerable<CommandParameterInfo> BuildCommandParameters(KeyValuePair<string, long[]> keyValue)
+            {
+                return keyValue.Value.Select(value => new CommandParameterInfo
+                {
+                    Name = $"{keyValue.Key}_{paramIndex++}",
+                    Value = value
+                });
+            }
         }
 
         public async Task<int> UpdateByCoordinatesAsync(CostBlockEntityMeta meta,

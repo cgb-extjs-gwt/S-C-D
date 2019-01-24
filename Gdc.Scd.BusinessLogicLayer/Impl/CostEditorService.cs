@@ -6,7 +6,6 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
@@ -107,71 +106,50 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return referenceValues;
         }
 
-        public async Task<CostElementData> GetCostElementData(CostEditorContext context)
+        public async Task<CostEditorCostElementData> GetCostElementData(CostEditorContext context)
         {
-            var costElementMeta = this.meta.GetCostElement(context);
-            var userCountries = this.userService.GetCurrentUserCountries().ToArray();
+            var data = await this.costBlockService.GetCostElementData(context);
 
-            return new CostElementData
+            return new CostEditorCostElementData
             {
-                Regions = await this.GetRegions(context, costElementMeta, userCountries),
-                Filters = await this.costBlockService.GetDependencyItems(context),
+                Filters = data.DependencyItems,
+                Regions = data.Regions,
                 ReferenceValues = await this.GetCostElementReferenceValues(context)
             };
         }
 
         public async Task<QualityGateResult> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, ApprovalOption approvalOption)
         {
-            QualityGateResult checkResult;
+            var userCountries = this.userService.GetCurrentUserCountries();
+            var filter = this.costBlockFilterBuilder.BuildFilter(context, userCountries);
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
 
-            if (approvalOption.IsApproving && !approvalOption.HasQualityGateErrors)
+            var editInfos = new[]
             {
-                var filter = this.costBlockFilterBuilder.BuildCoordinateFilter(context);
-                var editContext = new EditContext
+                new EditInfo
                 {
-                    Context = context,
-                    EditItemSets = new[] 
+                    Meta = costBlockMeta,
+                    ValueInfos = editItems.Select(editItem => new ValuesInfo
                     {
-                        new EditItemSet
+                        CoordinateFilter = new Dictionary<string, long[]>(filter)
                         {
-                            EditItems = editItems,
-                            CoordinateFilter = filter
+                            [context.InputLevelId] = new [] { editItem.Id }
+                        },
+                        Values = new Dictionary<string, object>
+                        {
+                            [context.CostElementId] = editItem.Value
                         }
-                    }
-                };
-
-                checkResult = await this.qualityGateSevice.Check(editContext, EditorType.CostEditor);
-            }
-            else
-            {
-                checkResult = new QualityGateResult();
-            }
-
-            if (!checkResult.HasErrors)
-            {
-                var userCountries = this.userService.GetCurrentUserCountries();
-                var filter = this.costBlockFilterBuilder.BuildFilter(context, userCountries);
-
-                using (var transaction = this.repositorySet.GetTransaction())
-                {
-                    try
-                    {
-                        var result = await this.costEditorRepository.UpdateValues(editItems, context, filter);
-
-                        await this.historySevice.Save(context, editItems, approvalOption, filter, EditorType.CostEditor);
-
-                        transaction.Commit();
-                    }
-                    catch
-                    {
-                        transaction.Rollback();
-
-                        throw;
-                    }
+                    }).ToArray()
                 }
-            }
+            };
 
-            return checkResult;
+            var qualityGateResultSet = await this.costBlockService.Update(editInfos, approvalOption, EditorType.CostEditor);
+            var qualityGateResultSetItem = qualityGateResultSet.Items.FirstOrDefault();
+
+            return 
+                qualityGateResultSetItem == null 
+                    ? new QualityGateResult() 
+                    : qualityGateResultSetItem.QualityGateResult;
         }
 
         public async Task<IEnumerable<HistoryItem>> GetHistoryItems(CostEditorContext context, long editItemId, QueryInfo queryInfo = null)
@@ -186,25 +164,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return await this.historySevice.GetHistoryItems(context, filter, queryInfo);
-        }
-
-        private async Task<IEnumerable<NamedId>> GetRegions(CostEditorContext context, CostElementMeta costElementMeta, Country[] userCountries)
-        {
-            IEnumerable<NamedId> regions = null;
-
-            if (costElementMeta.RegionInput != null)
-            {
-                if (userCountries.Length == 0)
-                {
-                    regions = await this.sqlRepository.GetDistinctItems(context.CostBlockId, context.ApplicationId, costElementMeta.RegionInput.Id);
-                }
-                else
-                {
-                    regions = userCountries.Select(country => new NamedId { Id = country.Id, Name = country.Name }).ToArray();
-                }
-            }
-
-            return regions;
         }
     }
 }
