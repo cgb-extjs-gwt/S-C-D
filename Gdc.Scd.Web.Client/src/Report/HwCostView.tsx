@@ -372,13 +372,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private getSelectedRows(): string[] {
-        let selected: any[] = this.grid.getSelections();
-        let result:any[]=[];
-
-        for (let i = 0, len = selected.length; i < len; i++) {
-            result[i] = selected[i].data.Id;
-        }
-
-        return result;
+        return ExtDataviewHelper.getGridSelected(this.grid, 'Id');
     }
 }

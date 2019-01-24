@@ -11,12 +11,6 @@ GO
 
 EXECUTE sp_refreshsqlmodule N'[Hardware].[ManualCostView]';
 
-USE [Scd_2]
-GO
-/****** Object:  UserDefinedFunction [Hardware].[GetCalcMember]    Script Date: 22.01.2019 12:28:18 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
 GO
 
 ALTER FUNCTION [Hardware].[GetCalcMember] (
@@ -140,8 +134,8 @@ RETURN
          , man.DealerDiscount  as DealerDiscount              
          , man.DealerPrice     as DealerPrice                 
          , man.ServiceTC       as ServiceTCManual                   
-         , man.ServiceTP       as ServiceTPManual 
-		 , man.ServiceTC_Released as ServiceTC_Released                  
+         , man.ServiceTP       as ServiceTPManual                   
+         , man.ServiceTC_Released as ServiceTC_Released                  
          , man.ServiceTP_Released as ServiceTP_Released                  
          , man.ChangeUserName  as ChangeUserName
          , man.ChangeUserEmail as ChangeUserEmail
@@ -199,15 +193,17 @@ RETURN
 
     LEFT JOIN Hardware.ManualCostView man on man.PortfolioId = m.Id
 )
+GO
 
 USE [Scd_2]
 GO
-/****** Object:  UserDefinedFunction [Hardware].[GetCostsFull]    Script Date: 22.01.2019 12:29:33 ******/
+
+/****** Object:  UserDefinedFunction [Hardware].[GetCostsFull]    Script Date: 24.01.2019 9:14:46 ******/
 SET ANSI_NULLS ON
 GO
+
 SET QUOTED_IDENTIFIER ON
 GO
-
 ALTER FUNCTION [Hardware].[GetCostsFull](
     @approved bit,
     @cnt bigint,
@@ -227,6 +223,13 @@ RETURN
 (
     with CostCte as (
         select    m.*
+
+                , case when m.TaxAndDuties is null then 0 else m.TaxAndDuties end as TaxAndDutiesOrZero
+
+                , case when m.Reinsurance is null then 0 else m.Reinsurance end as ReinsuranceOrZero
+
+                , case when m.AvailabilityFee is null then 0 else m.AvailabilityFee end as AvailabilityFeeOrZero
+
                 , m.Year * m.ServiceSupport as ServiceSupportCost
 
                 , (1 - m.TimeAndMaterialShare) * (m.TravelCost + m.LabourCost + m.PerformanceRate) + m.TimeAndMaterialShare * ((m.TravelTime + m.repairTime) * m.OnsiteHourlyRates + m.PerformanceRate) as FieldServicePerYear
@@ -273,18 +276,18 @@ RETURN
     , CostCte2_2 as (
         select    m.*
 
-                , case when m.StdWarranty >= 1 then m.TaxAndDuties * m.mat1 else 0 end as tax1
-                , case when m.StdWarranty >= 2 then m.TaxAndDuties * m.mat2 else 0 end as tax2
-                , case when m.StdWarranty >= 3 then m.TaxAndDuties * m.mat3 else 0 end as tax3
-                , case when m.StdWarranty >= 4 then m.TaxAndDuties * m.mat4 else 0 end as tax4
-                , case when m.StdWarranty >= 5 then m.TaxAndDuties * m.mat5 else 0 end as tax5
+                , case when m.StdWarranty >= 1 then m.TaxAndDutiesOrZero * m.mat1 else 0 end as tax1
+                , case when m.StdWarranty >= 2 then m.TaxAndDutiesOrZero * m.mat2 else 0 end as tax2
+                , case when m.StdWarranty >= 3 then m.TaxAndDutiesOrZero * m.mat3 else 0 end as tax3
+                , case when m.StdWarranty >= 4 then m.TaxAndDutiesOrZero * m.mat4 else 0 end as tax4
+                , case when m.StdWarranty >= 5 then m.TaxAndDutiesOrZero * m.mat5 else 0 end as tax5
                 , 0  as tax1P
 
-                , case when m.StdWarranty >= 1 then 0 else m.TaxAndDuties * m.matO1 end as taxO1
-                , case when m.StdWarranty >= 2 then 0 else m.TaxAndDuties * m.matO2 end as taxO2
-                , case when m.StdWarranty >= 3 then 0 else m.TaxAndDuties * m.matO3 end as taxO3
-                , case when m.StdWarranty >= 4 then 0 else m.TaxAndDuties * m.matO4 end as taxO4
-                , case when m.StdWarranty >= 5 then 0 else m.TaxAndDuties * m.matO5 end as taxO5
+                , case when m.StdWarranty >= 1 then 0 else m.TaxAndDutiesOrZero * m.matO1 end as taxO1
+                , case when m.StdWarranty >= 2 then 0 else m.TaxAndDutiesOrZero * m.matO2 end as taxO2
+                , case when m.StdWarranty >= 3 then 0 else m.TaxAndDutiesOrZero * m.matO3 end as taxO3
+                , case when m.StdWarranty >= 4 then 0 else m.TaxAndDutiesOrZero * m.matO4 end as taxO4
+                , case when m.StdWarranty >= 5 then 0 else m.TaxAndDutiesOrZero * m.matO5 end as taxO5
                 , m.matO1P * m.AFRP1 as taxO1P
 
                 , m.mat1  + m.matO1                     as matCost1
@@ -294,43 +297,43 @@ RETURN
                 , m.mat5  + m.matO5                     as matCost5
                 , m.mat1P + m.matO1P                    as matCost1P
 
-                , m.TaxAndDuties * (m.mat1  + m.matO1)  as TaxAndDuties1
-                , m.TaxAndDuties * (m.mat2  + m.matO2)  as TaxAndDuties2
-                , m.TaxAndDuties * (m.mat3  + m.matO3)  as TaxAndDuties3
-                , m.TaxAndDuties * (m.mat4  + m.matO4)  as TaxAndDuties4
-                , m.TaxAndDuties * (m.mat5  + m.matO5)  as TaxAndDuties5
-                , m.TaxAndDuties * (m.mat1P + m.matO1P) as TaxAndDuties1P
+                , m.TaxAndDutiesOrZero * (m.mat1  + m.matO1)  as TaxAndDuties1
+                , m.TaxAndDutiesOrZero * (m.mat2  + m.matO2)  as TaxAndDuties2
+                , m.TaxAndDutiesOrZero * (m.mat3  + m.matO3)  as TaxAndDuties3
+                , m.TaxAndDutiesOrZero * (m.mat4  + m.matO4)  as TaxAndDuties4
+                , m.TaxAndDutiesOrZero * (m.mat5  + m.matO5)  as TaxAndDuties5
+                , m.TaxAndDutiesOrZero * (m.mat1P + m.matO1P) as TaxAndDuties1P
 
         from CostCte2 m
     )
     , CostCte3 as (
         select    m.*
 
-                , Hardware.AddMarkup(m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.Reinsurance, m.MarkupFactor, m.Markup)  as OtherDirect1
-                , Hardware.AddMarkup(m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.Reinsurance, m.MarkupFactor, m.Markup)  as OtherDirect2
-                , Hardware.AddMarkup(m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.Reinsurance, m.MarkupFactor, m.Markup)  as OtherDirect3
-                , Hardware.AddMarkup(m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.Reinsurance, m.MarkupFactor, m.Markup)  as OtherDirect4
-                , Hardware.AddMarkup(m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.Reinsurance, m.MarkupFactor, m.Markup)  as OtherDirect5
-                , Hardware.AddMarkup(m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.Reinsurance, m.MarkupFactor, m.Markup)  as OtherDirect1P
+                , Hardware.AddMarkup(m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect1
+                , Hardware.AddMarkup(m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect2
+                , Hardware.AddMarkup(m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect3
+                , Hardware.AddMarkup(m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect4
+                , Hardware.AddMarkup(m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect5
+                , Hardware.AddMarkup(m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect1P
 
                 , case when m.StdWarranty >= 1 
-                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic1, m.tax1, m.AFR1, m.AvailabilityFee, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
+                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic1, m.tax1, m.AFR1, m.AvailabilityFeeOrZero, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
                         else 0 
                     end as LocalServiceStandardWarranty1
                 , case when m.StdWarranty >= 2 
-                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic2, m.tax2, m.AFR2, m.AvailabilityFee, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
+                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic2, m.tax2, m.AFR2, m.AvailabilityFeeOrZero, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
                         else 0 
                     end as LocalServiceStandardWarranty2
                 , case when m.StdWarranty >= 3 
-                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic3, m.tax3, m.AFR3, m.AvailabilityFee, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
+                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic3, m.tax3, m.AFR3, m.AvailabilityFeeOrZero, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
                         else 0 
                     end as LocalServiceStandardWarranty3
                 , case when m.StdWarranty >= 4 
-                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic4, m.tax4, m.AFR4, m.AvailabilityFee, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
+                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic4, m.tax4, m.AFR4, m.AvailabilityFeeOrZero, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
                         else 0 
                     end as LocalServiceStandardWarranty4
                 , case when m.StdWarranty >= 5 
-                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic5, m.tax5, m.AFR5, m.AvailabilityFee, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
+                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic5, m.tax5, m.AFR5, m.AvailabilityFeeOrZero, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
                         else 0 
                     end as LocalServiceStandardWarranty5
                 , 0     as LocalServiceStandardWarranty1P
@@ -349,22 +352,22 @@ RETURN
     )
     , CostCte5 as (
         select m.*
-             , m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.TaxAndDuties1  + m.Reinsurance + m.AvailabilityFee - m.Credit1  as ServiceTC1
-             , m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.TaxAndDuties2  + m.Reinsurance + m.AvailabilityFee - m.Credit2  as ServiceTC2
-             , m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.TaxAndDuties3  + m.Reinsurance + m.AvailabilityFee - m.Credit3  as ServiceTC3
-             , m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.TaxAndDuties4  + m.Reinsurance + m.AvailabilityFee - m.Credit4  as ServiceTC4
-             , m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.TaxAndDuties5  + m.Reinsurance + m.AvailabilityFee - m.Credit5  as ServiceTC5
-             , m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.TaxAndDuties1P + m.Reinsurance + m.AvailabilityFee - m.Credit1P as ServiceTC1P
+             , m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.TaxAndDuties1  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit1  as ServiceTC1
+             , m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.TaxAndDuties2  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit2  as ServiceTC2
+             , m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.TaxAndDuties3  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit3  as ServiceTC3
+             , m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.TaxAndDuties4  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit4  as ServiceTC4
+             , m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.TaxAndDuties5  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit5  as ServiceTC5
+             , m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.TaxAndDuties1P + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit1P as ServiceTC1P
         from CostCte4 m
     )
     , CostCte6 as (
         select m.*
-             , Hardware.AddMarkup(m.ServiceTC1, m.MarkupFactor, m.Markup) as ServiceTP1
-             , Hardware.AddMarkup(m.ServiceTC2, m.MarkupFactor, m.Markup) as ServiceTP2
-             , Hardware.AddMarkup(m.ServiceTC3, m.MarkupFactor, m.Markup) as ServiceTP3
-             , Hardware.AddMarkup(m.ServiceTC4, m.MarkupFactor, m.Markup) as ServiceTP4
-             , Hardware.AddMarkup(m.ServiceTC5, m.MarkupFactor, m.Markup) as ServiceTP5
-             , Hardware.AddMarkup(m.ServiceTC1P, m.MarkupFactor, m.Markup) as ServiceTP1P
+             , Hardware.AddMarkup(m.ServiceTC1,  1 + m.MarkupFactor, m.Markup) as ServiceTP1
+             , Hardware.AddMarkup(m.ServiceTC2,  1 + m.MarkupFactor, m.Markup) as ServiceTP2
+             , Hardware.AddMarkup(m.ServiceTC3,  1 + m.MarkupFactor, m.Markup) as ServiceTP3
+             , Hardware.AddMarkup(m.ServiceTC4,  1 + m.MarkupFactor, m.Markup) as ServiceTP4
+             , Hardware.AddMarkup(m.ServiceTC5,  1 + m.MarkupFactor, m.Markup) as ServiceTP5
+             , Hardware.AddMarkup(m.ServiceTC1P, 1 + m.MarkupFactor, m.Markup) as ServiceTP1P
         from CostCte5 m
     )    
     select m.Id
@@ -438,20 +441,13 @@ RETURN
          , m.ChangeUserName
          , m.ChangeUserEmail
 
-		 , m.ServiceTC_Released
+         , m.ServiceTC_Released
          , m.ServiceTP_Released
 
          , m.SlaHash
 
        from CostCte6 m
 )
-
-USE [Scd_2]
-GO
-/****** Object:  UserDefinedFunction [Hardware].[GetCosts]    Script Date: 22.01.2019 12:30:23 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
 GO
 
 ALTER FUNCTION [Hardware].[GetCosts](
@@ -510,7 +506,7 @@ RETURN
          , ChangeUserName
          , ChangeUserEmail
 
-		 ,ServiceTC_Released
+         ,ServiceTC_Released
          ,ServiceTP_Released
 
     from Hardware.GetCostsFull(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit)
