@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Web.Server.Impl;
 
 namespace Gdc.Scd.Web.Server.Controllers
 {
@@ -21,12 +23,14 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
+        [ScdAuthorize(Permissions = new[] { PermissionConstants.CostImport, PermissionConstants.CostEditor, PermissionConstants.TableView })]
         public async Task<CostElementData> GetCostElementData([FromUri]HistoryContext context)
         {
             return await this.costBlockService.GetCostElementData(context);
         }
 
         [HttpPost]
+        [ScdAuthorize(Permissions = new[] { PermissionConstants.CostImport })]
         public async Task<ExcelImportResult> ImportExcel([FromBody]ImportData importData)
         {
             var bytes = Convert.FromBase64String(importData.ExcelFile);
