@@ -53,6 +53,17 @@ namespace Gdc.Scd.Import.Por
             }
         }
 
+        public static string[] HddServiceType
+        {
+            get
+            {
+                var hddServiceType = ConfigurationManager.AppSettings["HwHddServiceType"];
+                if (String.IsNullOrEmpty(hddServiceType))
+                    throw new ConfigurationErrorsException(String.Format(ImportConstantMessages.CONFIGURATION_ERROR, "SCDServiceTypes"));
+                return hddServiceType.Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            }
+        }
+
         public static string[] AllServiceTypes
         {
             get
@@ -60,6 +71,7 @@ namespace Gdc.Scd.Import.Por
                 return HwServiceTypes
                         .Union(ProActiveServices)
                         .Union(SoftwareSolutionTypes)
+                        .Union(HddServiceType)
                         .ToArray();
             }
         }

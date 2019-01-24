@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Impl;
+﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
+using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
@@ -59,6 +60,17 @@ namespace Gdc.Scd.Import.SfabImport
                 var domainEntitiesMetaService = Kernel.Get<IDomainEnitiesMetaService>();
                 return domainEntitiesMetaService.Get(domainMeta);
             }).InSingletonScope();
+
+            Bind<IUserService>().To<UserService>().InSingletonScope();
+            this.Bind<IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope();
+            Bind<IUserRepository, IRepository<User>>().To<UserRepository>().InSingletonScope();
+            Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InSingletonScope();
+            Bind<IQualityGateRepository>().To<QualityGateRepository>().InSingletonScope();
+            Bind<IQualityGateQueryBuilder>().To<QualityGateQueryBuilder>().InSingletonScope();
+            Bind<IQualityGateSevice>().To<QualityGateSevice>().InSingletonScope();
+            Bind<ICostBlockValueHistoryQueryBuilder>().To<CostBlockValueHistoryQueryBuilder>().InSingletonScope();
+            Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InSingletonScope();
+            Bind<ICostBlockValueHistoryRepository>().To<CostBlockValueHistoryRepository>().InSingletonScope();
 
             Kernel.RegisterEntity<ImportConfiguration>();
             Kernel.RegisterEntity<Wg>();
