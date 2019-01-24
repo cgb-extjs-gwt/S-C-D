@@ -61,7 +61,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new GetSwProActiveCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
         }
 
-        public void SaveHardwareCost(User changeUser, long countryId, IEnumerable<HwCostManualDto> records)
+        public void SaveHardwareCost(User changeUser, long countryId, IEnumerable<HwCostManualDto> records, bool release = false)
         {
             var recordsId = records.Select(x => x.Id);
 
@@ -97,23 +97,33 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     var p = e.Portfolio;
                     var hwManual = e.Manual ?? new HardwareManualCost { LocalPortfolio = p }; //create new if does not exist
 
-                    if (country.CanOverrideTransferCostAndPrice)
+                    if (release)
                     {
-                        hwManual.ServiceTC = rec.ServiceTC;
-                        hwManual.ServiceTP = rec.ServiceTP;
+                        hwManual.ServiceTC_Released = rec.ServiceTC_Released;
+                        hwManual.ServiceTP_Released = rec.ServiceTP_Released;
                         hwManual.ChangeUser = changeUser;
-                        //
                         hwManualRepo.Save(hwManual);
                     }
+                    else
+                    {
+                        if (country.CanOverrideTransferCostAndPrice)
+                        {
+                            hwManual.ServiceTC = rec.ServiceTC;
+                            hwManual.ServiceTP = rec.ServiceTP;
+                            hwManual.ChangeUser = changeUser;
+                            //
+                            hwManualRepo.Save(hwManual);
+                        }
 
-                    if (country.CanStoreListAndDealerPrices)
-                    {
-                        hwManual.ListPrice = rec.ListPrice;
-                        hwManual.DealerDiscount = rec.DealerDiscount;
-                        hwManual.ChangeUser = changeUser;
-                        //
-                        hwManualRepo.Save(hwManual);
-                    }
+                        if (country.CanStoreListAndDealerPrices)
+                        {
+                            hwManual.ListPrice = rec.ListPrice;
+                            hwManual.DealerDiscount = rec.DealerDiscount;
+                            hwManual.ChangeUser = changeUser;
+                            //
+                            hwManualRepo.Save(hwManual);
+                        }
+                    }                   
                 }
 
                 repositorySet.Sync();
