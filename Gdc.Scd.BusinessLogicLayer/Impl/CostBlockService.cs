@@ -177,7 +177,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var userCountries = this.userService.GetCurrentUserCountries();
             var costBlockFilter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries).Convert();
             var referenceFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(referenceField.ReferenceMeta);
-            var notDeletedCondition = CostBlockQueryHelper.BuildNotDeletedCondition(meta);
+            var notDeletedCondition = CostBlockQueryHelper.BuildNotDeletedCondition(meta, meta.Name);
 
             return 
                 await this.sqlRepository.GetDistinctItems(
