@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
@@ -19,13 +17,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly DomainEnitiesMeta domainEnitiesMeta;
 
-        private readonly ICostBlockRepository costBlockRepository;
-
-        public CostEditorRepository(IRepositorySet repositorySet, DomainEnitiesMeta domainEnitiesMeta, ICostBlockRepository costBlockRepository)
+        public CostEditorRepository(IRepositorySet repositorySet, DomainEnitiesMeta domainEnitiesMeta)
         {
             this.repositorySet = repositorySet;
             this.domainEnitiesMeta = domainEnitiesMeta;
-            this.costBlockRepository = costBlockRepository;
         }
 
         public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context, IDictionary<string, long[]> filter)
@@ -87,49 +82,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     ValueCount = valueCount,
                 };
             });
-        }
-
-        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, IDictionary<string, IEnumerable<object>> filter = null)
-        {
-            if (filter == null)
-            {
-                filter = new Dictionary<string, IEnumerable<object>>();
-            }
-
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
-            var editInfos =
-                editItems.Select((editItem, index) => new EditInfo
-                {
-                    Meta = costBlockMeta,
-                    ValueInfos = new[]
-                    {
-                        new ValuesInfo
-                        {
-                            Filter = new Dictionary<string, IEnumerable<object>>(filter)
-                            {
-                                [context.InputLevelId] = new object []
-                                {
-                                    new CommandParameterInfo
-                                    {
-                                        Name = $"{context.InputLevelId}_{index}",
-                                        Value = editItem.Id
-                                    }
-                                }
-                            },
-                            Values = new Dictionary<string, object>
-                            {
-                                [context.CostElementId] = editItem.Value
-                            }
-                        }
-                    }
-                });
-
-            return await this.costBlockRepository.Update(editInfos);
-        }
-
-        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, IDictionary<string, long[]> filter)
-        {
-            return await this.UpdateValues(editItems, context, filter.Convert());
         }
     }
 }

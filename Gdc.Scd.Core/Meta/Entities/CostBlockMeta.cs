@@ -15,5 +15,16 @@ namespace Gdc.Scd.Core.Meta.Entities
                                      .OrderBy(inputLevel => inputLevel.LevelNumber);
             }
         }
+
+        public InputLevelMeta GetMaxInputLevel(IEnumerable<string> inputLevelIds)
+        {
+            var inputLevelMetas = this.InputLevels.ToDictionary(inputLevel => inputLevel.Id);
+
+            return
+                inputLevelIds.Where(coordinateId => inputLevelMetas.ContainsKey(coordinateId))
+                             .Select(coordinateId => inputLevelMetas[coordinateId])
+                             .OrderByDescending(inputLevel => inputLevel.LevelNumber)
+                             .FirstOrDefault();
+        }
     }
 }
