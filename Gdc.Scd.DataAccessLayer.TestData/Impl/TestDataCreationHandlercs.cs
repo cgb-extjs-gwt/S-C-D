@@ -212,6 +212,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 costEditorPermission,
                 tableViewPermission,
                 approvalPermission,
+                costImportPermission,
                 ownApprovalPermission,
                 portfolioPermission,
                 reviewProcessPermission,
