@@ -109,7 +109,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     <HwReleasePanel
                         onApprove={this.releaseCosts}
                         checkAccess={!this.props.approved}
-                        hidden={!this.props.approved || this.state.hideReleaseButton} />
+                        hidden={this.state.hideReleaseButton} />
                 </Panel>         
 
                 <Grid
@@ -207,6 +207,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         this.releaseCosts = this.releaseCosts.bind(this);
 
         this.store.on('beforeload', this.onBeforeLoad, this);
+        this.store.on('datachanged', this.ondDataChanged, this);   
     }
 
     private toggleToolbar(disable: boolean) {
@@ -277,13 +278,15 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         filter.approved = this.props.approved;
         let params = Ext.apply({}, operation.getParams(), filter);
         operation.setParams(params);
+    }
 
+    private ondDataChanged(s, operation) {
         const srv = new UserCountryService();
         let cntId = 0;
         if (this.state && this.state.selectedCountry) {
             cntId = this.state.selectedCountry.id;
             srv.isCountryUser(cntId).then(x => {
-                    this.setState({ hideReleaseButton: !x })
+                this.setState({ hideReleaseButton: !this.props.approved || !x || !this.state.disableSaveButton })
             });
         }
     }
@@ -308,10 +311,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             desktop.plugins.gridcellediting = true;
             desktop.plugins.selectionreplicator = true;
             desktop.selectable = {
+                cells: true,
                 rows: true,
                 columns: false,
                 drag: true,
                 extensible: 'y',
+                checkbox: true
             };
         }
 
