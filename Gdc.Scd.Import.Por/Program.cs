@@ -27,6 +27,8 @@ namespace Gdc.Scd.Import.Por
                 var standardWarrantiesServiceTypes = Config.StandardWarrantyTypes;
                 var hardwareServiceTypes = Config.HwServiceTypes;
                 var allowedServiceTypes = Config.AllServiceTypes;
+                var hddServiceTypes = Config.HddServiceType;
+
                 PorService.Logger.Log(LogLevel.Info, "Reading configuration is completed.");
 
 
@@ -117,6 +119,7 @@ namespace Gdc.Scd.Import.Por
                 List<SCD2_v_SAR_new_codes> stdwCodes = new List<SCD2_v_SAR_new_codes>();
                 List<SCD2_v_SAR_new_codes> proActiveCodes = new List<SCD2_v_SAR_new_codes>();
                 List<SCD2_v_SAR_new_codes> softwareCodes = new List<SCD2_v_SAR_new_codes>();
+                List<SCD2_v_SAR_new_codes> hddRetentionCodes = new List<SCD2_v_SAR_new_codes>();
 
                 foreach (var code in fspcodes)
                 {
@@ -128,11 +131,14 @@ namespace Gdc.Scd.Import.Por
 
                     else if (standardWarrantiesServiceTypes.Contains(code.SCD_ServiceType))
                     {
-                            stdwCodes.Add(code);
+                        stdwCodes.Add(code);
                     }
 
                     else if (softwareServiceTypes.Contains(code.SCD_ServiceType))
                         softwareCodes.Add(code);
+
+                    else if (hddServiceTypes.Contains(code.SCD_ServiceType))
+                        hddRetentionCodes.Add(code);
                 }
 
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, "Standard Warranties");
@@ -145,6 +151,7 @@ namespace Gdc.Scd.Import.Por
                     HardwareCodes = otherHardwareCodes,
                     ProactiveCodes = proActiveCodes,
                     StandardWarranties = stdwCodes,
+                    HddRetentionCodes = hddRetentionCodes,
                     LutCodes = lutCodes,
                     CreationDate = DateTime.Now,
                     HwSla = new HwSlaDto
@@ -163,6 +170,7 @@ namespace Gdc.Scd.Import.Por
                 //UPLOAD HARDWARE
                 PorService.UploadHwFspCodes(hwModel, step);
                 step++;
+
 
                 //STEP 7: PROACTIVE DIGITS UPLOAD
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, "Software ProActive");

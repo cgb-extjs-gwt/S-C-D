@@ -13,6 +13,7 @@ namespace Gdc.Scd.Import.Por.Core.Dto
         public List<SCD2_v_SAR_new_codes> HardwareCodes { get; set; }
         public List<SCD2_v_SAR_new_codes> ProactiveCodes { get; set; }
         public List<SCD2_v_SAR_new_codes> StandardWarranties { get; set; }
+        public List<SCD2_v_SAR_new_codes> HddRetentionCodes { get; set; }
         public List<SCD2_LUT_TSP> LutCodes { get; set; }
         public HwSlaDto HwSla { get; set; }
         public SlaDictsDto Sla { get; set; }

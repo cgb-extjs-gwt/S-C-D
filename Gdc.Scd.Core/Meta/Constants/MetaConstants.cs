@@ -65,5 +65,7 @@
         public const string NoneValue = "none";
 
         public const string RoleCodeInputLevel = "RoleCode";
+
+        public const string HwHddFspCodeTranslationTable = "HwHddFspCodeTranslation";
     }
 }

@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.Por.Core.Interfaces
 {
-    public interface IHwFspCodeTranslationService
+    public interface IHwFspCodeTranslationService<T>
     {
-        bool UploadHardware(HwFspCodeDto model);
+        bool UploadHardware(T model);
     }
 }

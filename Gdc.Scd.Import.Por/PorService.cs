@@ -45,7 +45,8 @@ namespace Gdc.Scd.Import.Por
         public static IPorSwDigitService SwDigitService { get; private set; }
         public static IPorSwLicenseService SwLicenseService { get; private set; }
         public static IPorSwDigitLicenseService SwLicenseDigitService { get; private set; }
-        public static IHwFspCodeTranslationService HardwareService { get; private set; }
+        public static IHwFspCodeTranslationService<HwFspCodeDto> HardwareService { get; private set; }
+        public static IHwFspCodeTranslationService<HwHddFspCodeDto> HardwareHddService { get; private set; }
         public static ISwFspCodeTranslationService SoftwareService { get; private set; }
         public static IPorSwProActiveService SoftwareProactiveService { get; private set; }
         public static ICostBlockService CostBlockService { get; private set; }
@@ -87,7 +88,8 @@ namespace Gdc.Scd.Import.Por
             SwDigitService = kernel.Get<IPorSwDigitService>();
             SwLicenseService = kernel.Get<IPorSwLicenseService>();
             SwLicenseDigitService = kernel.Get<IPorSwDigitLicenseService>();
-            HardwareService = kernel.Get<IHwFspCodeTranslationService>();
+            HardwareService = kernel.Get<IHwFspCodeTranslationService<HwFspCodeDto>>();
+            HardwareHddService = kernel.Get<IHwFspCodeTranslationService<HwHddFspCodeDto>>();
             SoftwareService = kernel.Get<ISwFspCodeTranslationService>();
             SoftwareProactiveService = kernel.Get<IPorSwProActiveService>();
             CostBlockService = kernel.Get<ICostBlockService>();
@@ -163,6 +165,17 @@ namespace Gdc.Scd.Import.Por
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(HwFspCodeTranslation));
 
             var success = HardwareService.UploadHardware(model);
+
+            Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(HwHddFspCodeTranslation));
+
+            var hwHddDto = new HwHddFspCodeDto
+            {
+                HardwareCodes = model.HddRetentionCodes,
+                CreationDate = model.CreationDate,
+                HwSla = model.HwSla
+            };
+
+            success = success && HardwareHddService.UploadHardware(hwHddDto);
 
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);
         }

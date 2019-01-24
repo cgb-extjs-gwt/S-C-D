@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.BusinessLogicLayer.Impl;
+﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
+using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Comparators;
 using Gdc.Scd.Core.Entities;
@@ -10,6 +11,7 @@ using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
+using Gdc.Scd.Import.Por.Core.Dto;
 using Gdc.Scd.Import.Por.Core.Impl;
 using Gdc.Scd.Import.Por.Core.Interfaces;
 using Ninject;
@@ -39,7 +41,8 @@ namespace Gdc.Scd.Import.Por
             Bind<IPorSwDigitService>().To<PorSwDigitService>();
             Bind<IPorSwLicenseService>().To<PorSwLicenseService>();
             Bind<IPorSwDigitLicenseService>().To<PorSwDigitLicenseService>();
-            Bind<IHwFspCodeTranslationService>().To<PorHwFspCodeTranslationService>();
+            Bind<IHwFspCodeTranslationService<HwFspCodeDto>>().To<PorHwFspCodeTranslationService>();
+            Bind<IHwFspCodeTranslationService<HwHddFspCodeDto>>().To<PorHddHwFspCodeCodeTranslationService>();
             Bind<ISwFspCodeTranslationService>().To<PorSwFspCodeTranslationService>();
             Bind<IPorSwProActiveService>().To<PorSwProActiveService>();
             Bind<ICostBlockService>().To<CostBlockService>();
@@ -62,6 +65,11 @@ namespace Gdc.Scd.Import.Por
                 return domainEntitiesMetaService.Get(domainMeta);
             }).InSingletonScope();
 
+            Bind<IUserService>().To<UserService>().InSingletonScope();
+            this.Bind<IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope();
+            Bind<IUserRepository, IRepository<User>>().To<UserRepository>().InSingletonScope();
+            Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InSingletonScope();
+
             Kernel.RegisterEntity<Pla>();
             Kernel.RegisterEntity<CentralContractGroup>();
             Kernel.RegisterEntity<Sog>();
@@ -80,6 +88,7 @@ namespace Gdc.Scd.Import.Por
             Kernel.RegisterEntity<HwFspCodeTranslation>();
             Kernel.RegisterEntity<SwFspCodeTranslation>();
             Kernel.RegisterEntity<ProActiveDigit>();
+            Kernel.RegisterEntity<HwHddFspCodeTranslation>();
         }
     }
 }
