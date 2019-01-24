@@ -1385,6 +1385,9 @@ CREATE VIEW [Hardware].[ManualCostView] as
             , man.ServiceTC   / er.Value as ServiceTC   
             , man.ServiceTP   / er.Value as ServiceTP   
 
+            , man.ServiceTC_Released / er.Value as ServiceTC_Released
+            , man.ServiceTP_Released / er.Value as ServiceTP_Released
+
             , man.ListPrice   / er.Value as ListPrice   
             , man.DealerPrice / er.Value as DealerPrice 
             , man.DealerDiscount
@@ -1395,7 +1398,6 @@ CREATE VIEW [Hardware].[ManualCostView] as
     join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
     left join dbo.[User] u on u.Id = man.ChangeUserId
 GO
-
 
 CREATE FUNCTION [Portfolio].[GetBySla](
     @cnt bigint,
@@ -2085,6 +2087,9 @@ BEGIN
 
              , ServiceTCManual               * @exchange  as ServiceTCManual
              , ServiceTPManual               * @exchange  as ServiceTPManual
+
+             , ServiceTC_Released            * @exchange as ServiceTC_Released
+             , ServiceTP_Released            * @exchange as ServiceTP_Released
 
              , ListPrice                     * @exchange  as ListPrice
              , DealerPrice                   * @exchange  as DealerPrice

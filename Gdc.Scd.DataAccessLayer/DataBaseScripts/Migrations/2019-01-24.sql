@@ -369,6 +369,9 @@ BEGIN
              , ServiceTCManual               * @exchange  as ServiceTCManual
              , ServiceTPManual               * @exchange  as ServiceTPManual
 
+             , ServiceTC_Released            * @exchange as ServiceTC_Released
+             , ServiceTP_Released            * @exchange as ServiceTP_Released
+
              , ListPrice                     * @exchange  as ListPrice
              , DealerPrice                   * @exchange  as DealerPrice
              , DealerDiscount                             as DealerDiscount
@@ -390,7 +393,6 @@ BEGIN
     end
 
 END
-
 GO
 
 ALTER VIEW [Hardware].[ManualCostView] as
@@ -403,9 +405,12 @@ ALTER VIEW [Hardware].[ManualCostView] as
             , man.ServiceTC   / er.Value as ServiceTC   
             , man.ServiceTP   / er.Value as ServiceTP   
 
+            , man.ServiceTC_Released / er.Value as ServiceTC_Released
+            , man.ServiceTP_Released / er.Value as ServiceTP_Released
+
             , man.ListPrice   / er.Value as ListPrice   
-            , man.DealerPrice / er.Value as DealerPrice 
             , man.DealerDiscount
+            , man.DealerPrice / er.Value as DealerPrice 
 
     from Hardware.ManualCost man
     join Portfolio.LocalPortfolio p on p.Id = man.PortfolioId
