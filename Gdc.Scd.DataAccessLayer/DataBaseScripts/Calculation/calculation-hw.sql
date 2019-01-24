@@ -1633,6 +1633,8 @@ RETURN
          , man.DealerPrice     as DealerPrice                 
          , man.ServiceTC       as ServiceTCManual                   
          , man.ServiceTP       as ServiceTPManual                   
+         , man.ServiceTC_Released as ServiceTC_Released                  
+         , man.ServiceTP_Released as ServiceTP_Released                  
          , man.ChangeUserName  as ChangeUserName
          , man.ChangeUserEmail as ChangeUserEmail
 
@@ -1928,11 +1930,13 @@ RETURN
          , m.ChangeUserName
          , m.ChangeUserEmail
 
+         , m.ServiceTC_Released
+         , m.ServiceTP_Released
+
          , m.SlaHash
 
        from CostCte6 m
 )
-
 go
 
 CREATE FUNCTION [Hardware].[GetCosts](
@@ -1991,9 +1995,11 @@ RETURN
          , ChangeUserName
          , ChangeUserEmail
 
+         ,ServiceTC_Released
+         ,ServiceTP_Released
+
     from Hardware.GetCostsFull(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit)
 )
-
 go
 
 CREATE PROCEDURE [Hardware].[SpGetCosts]
