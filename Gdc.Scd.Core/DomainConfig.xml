@@ -98,8 +98,8 @@
             </Roles>
           </CostEditor>
         </Element>
-        <!--<Element Name="OnsiteHourlyRate" Caption="Onsite hourly rate" InputOption="Reference"/>-->
         <Element Name="LabourCost" Caption="Labour cost" InputOption="Manually" Dependency="ServiceLocation">
+          <TypeOption Type="CountryCurrencyCost"/>
           <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
@@ -109,6 +109,7 @@
           </CostEditor>
         </Element>
         <Element Name="TravelCost" Caption="Travel cost" InputOption="Manually" Dependency="ServiceLocation">
+          <TypeOption Type="CountryCurrencyCost"/>
           <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
@@ -136,7 +137,6 @@
             </Roles>
           </CostEditor>
         </Element>
-        <!--<Element Name="AFR" InputOption="Reference"/>-->
       </Elements>
       <QualityGate>
         <CountryGroupCoeff>0.15</CountryGroupCoeff>
@@ -185,7 +185,6 @@
             </Roles>
           </CostEditor>
         </Element>
-        <!--<Element Name="InstalledBasePla" Caption="Installed base PLA" InputOption="Reference"/>-->
       </Elements>
     </Block>
 
@@ -254,7 +253,6 @@
             </Roles>
           </CostEditor>
         </Element>
-        <!--<Element Name="AFR" InputOption="Reference"/>-->
       </Elements>
     </Block>
 
@@ -515,21 +513,6 @@
         </Element>
       </Elements>
     </Block>
-
-    <!--HARDCODED-->
-    <!--<Block Name="TaxAndDuties" Caption="Tax &amp; duties">
-      <Applications>
-        <Application>Hardware</Application>
-      </Applications>
-      <Elements>
-        <Element Name="TaxAndDuties" Caption="Tax &amp; duties" InputOption="Automaticly">
-          <InputLevels>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Wg</InputLevel>
-          </InputLevels>
-        </Element>
-      </Elements>
-    </Block>-->
 
     <Block Name="RoleCodeHourlyRates" Caption="Role Code Hourly Rates">
       <Applications>

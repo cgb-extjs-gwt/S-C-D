@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using Gdc.Scd.BusinessLogicLayer.Dto;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
@@ -30,7 +31,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             this.domainMetaSevice = domainMetaSevice;
         }
 
-        public async Task<CostEditorCostElementData> GetCostElementData([System.Web.Http.FromUri]CostEditorContext context)
+        public async Task<CostEditorDto> GetCostElementData([System.Web.Http.FromUri]CostEditorContext context)
         {
             return await this.costEditorService.GetCostElementData(context);
         }
