@@ -205,7 +205,7 @@ RETURN
 (
     with GermanyServiceCte as (
         SELECT   ssc.ClusterPla
-               , case when @approved = 0 then ssc.[1stLevelSupportCostsCountry] else ssc.[1stLevelSupportCostsCountry_Approved] end * er.Value as [1stLevelSupportCosts]
+               , case when @approved = 0 then ssc.[1stLevelSupportCostsCountry] else ssc.[1stLevelSupportCostsCountry_Approved] end / er.Value as [1stLevelSupportCosts]
                , case when @approved = 0 then ssc.TotalIb else TotalIb_Approved end as TotalIb
 
         FROM Hardware.ServiceSupportCost ssc
@@ -227,7 +227,7 @@ RETURN
            
                   , case when ssm.ReinsuranceFlatfee is null 
                             then ssm.ShareSwSpMaintenanceListPrice / 100 * ssm.RecommendedSwSpMaintenanceListPrice 
-                            else ssm.ReinsuranceFlatfee * er.Value
+                            else ssm.ReinsuranceFlatfee / er.Value
                     end as Reinsurance
 
                   , ssm.ShareSwSpMaintenanceListPrice / 100                      as ShareSwSpMaintenance
