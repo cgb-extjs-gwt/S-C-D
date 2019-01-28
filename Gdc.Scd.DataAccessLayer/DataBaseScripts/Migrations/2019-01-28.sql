@@ -1,4 +1,8 @@
-﻿IF OBJECT_ID('Report.FlatFeeReport') IS NOT NULL
+﻿INSERT INTO Report.ReportFilterType(MultiSelect, Name) values (1, 'wgall');
+
+go
+
+IF OBJECT_ID('Report.FlatFeeReport') IS NOT NULL
   DROP FUNCTION Report.FlatFeeReport;
 go 
 

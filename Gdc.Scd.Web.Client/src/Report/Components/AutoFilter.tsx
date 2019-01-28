@@ -15,6 +15,7 @@ import { WgField } from "../../Dict/Components/WgField";
 import { YearField } from "../../Dict/Components/YearField";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
 import { AutoFilterType } from "../Model/AutoFilterType";
+import { WgAllField } from "../../Dict/Components/WgAllField";
 
 export interface AutoFilterPanelProps extends PanelProps {
     filter: AutoFilterModel[];
@@ -60,6 +61,9 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
 
             case AutoFilterType.WG:
                 return <WgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+
+            case AutoFilterType.WGALL:
+                return <WgAllField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.SOG:
                 return <SogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
