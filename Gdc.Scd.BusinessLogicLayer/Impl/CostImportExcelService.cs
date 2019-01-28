@@ -55,9 +55,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     workbook.Worksheets.Select(worksheet => new
                                         {
                                             Worksheet = worksheet,
-                                            RowCount = worksheet.RowsUsed().Count()
+                                            RowsUsed = worksheet.RowsUsed()
                                         })
-                                       .FirstOrDefault(info => info.RowCount > 0);
+                                       .FirstOrDefault(info => info.RowsUsed.Count() > 0);
 
                 if (worksheetInfo == null)
                 {
@@ -67,8 +67,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     var wgRawValues = new Dictionary<string, string>();
 
-                    for (var rowIndex = 1; rowIndex <= worksheetInfo.RowCount; rowIndex++)
+                    foreach (var row in worksheetInfo.RowsUsed)
                     {
+                        var rowIndex = row.RowNumber();
                         var wgName = worksheetInfo.Worksheet.Cell(rowIndex, 1).GetValue<string>();
 
                         if (!string.IsNullOrWhiteSpace(wgName))
@@ -81,13 +82,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                             }
                         }
                     }
-                   
+
                     var editInfoResult = await this.BuildEditInfos(costElementId, dependencyItemId, regionId, wgRawValues);
+
+                    result.Errors.AddRange(editInfoResult.Errors);
 
                     if (editInfoResult.EditInfo.ValueInfos.Any())
                     {
-                        result.Errors.AddRange(editInfoResult.Errors);
-
                         var qualityGateResultSet = await this.costBlockService.Update(new[] { editInfoResult.EditInfo }, approvalOption, EditorType.CostImport);
                         var qualityGateResultSetItem = qualityGateResultSet.Items.FirstOrDefault();
 
@@ -98,7 +99,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     }
                     else
                     {
-                        result.Errors.Add($"Worksheet '{worksheetInfo.Worksheet.Name}' has not warranty groups");
+                        result.Errors.Add($"Worksheet '{worksheetInfo.Worksheet.Name}' has not available warranty groups");
                     }
                 }
             }

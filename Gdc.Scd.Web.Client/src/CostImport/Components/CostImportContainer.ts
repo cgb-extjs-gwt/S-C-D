@@ -176,6 +176,10 @@ const buildProps = (() => {
                 result = costImport.dependencyItems.selectedItemId != null;
             }
 
+            if (result && costElement.regionInput) {
+                result = costImport.regions.selectedItemId != null;
+            }
+
             return result;
         }
 
