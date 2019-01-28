@@ -4,6 +4,7 @@
     NUMBER = 'number',
     BOOLEAN = 'boolean',
     WG = 'wg',
+    WGALL = 'wgall',
     SOG = 'sog',
     COUNTRYGROUP = 'countrygroup',
     COUNTRY = 'country',

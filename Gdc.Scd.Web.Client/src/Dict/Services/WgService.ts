@@ -5,4 +5,8 @@ export class WgService extends CacheDomainService<NamedId> {
     constructor() {
         super('wg');
     }
+
+    public allWithMultivendor(): Promise<NamedId[]> {
+        return this.getFromUrl<NamedId>('multivendor');
+    }
 }
