@@ -57,6 +57,10 @@ export class DictService implements IDictService {
         return new WgService().getAll();
     }
 
+    public getWgWithMultivendor(): Promise<NamedId<string>[]> {
+        return new WgService().allWithMultivendor();
+    }
+
     public getPla(): Promise<NamedId<string>[]> {
         return new PlaService().getAll();
     }

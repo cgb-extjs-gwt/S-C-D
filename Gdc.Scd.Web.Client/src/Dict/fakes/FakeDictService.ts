@@ -51,6 +51,10 @@ export class FakeDictService implements IDictService {
         return this.fromResult(fakeWG);
     }
 
+    public getWgWithMultivendor(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
+
     public getPla(): Promise<NamedId<string>[]> {
         return this.fromResult(fakePla);
     }
