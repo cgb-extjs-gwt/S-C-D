@@ -14,8 +14,8 @@ export class CalcResultView extends React.Component<any, any> {
 
     public render() {
         const srv = new UserCountryService();
-        srv.isCountryUser().then(x => {
-            if (x) {
+        srv.isAdminUser().then(x => {
+            if (!x) {
                 this.tabPanel && this.tabPanel.items.items[2].tab.setHidden(true);       
             }
         });

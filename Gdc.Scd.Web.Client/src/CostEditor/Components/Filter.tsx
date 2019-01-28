@@ -19,19 +19,14 @@ export interface FilterProps extends FilterActions {
 }
 
 export class Filter extends React.Component<FilterProps> {
-    private readonly store: Store<CheckItem>
+    private store: Store<CheckItem>
 
     constructor(props: FilterProps) {
         super(props);
 
-        const { items, onSelectionChanged } = props;
+        const { items } = props;
 
-        this.store = Ext.create('Ext.data.Store', {
-            data: items && items.slice(),
-            listeners: {
-              update: this.onSelectionChanged
-            }
-        });
+        this.store = this.createStore(items);
     }
 
     public shouldComponentUpdate(nextProps: FilterProps) {
@@ -40,7 +35,7 @@ export class Filter extends React.Component<FilterProps> {
 
     public componentWillReceiveProps(nextProps: FilterProps) {
         if (this.props.items != nextProps.items) {
-            this.store.loadData(nextProps.items || []);            
+            this.store = this.createStore(nextProps.items);
         }
     }
 
@@ -82,5 +77,14 @@ export class Filter extends React.Component<FilterProps> {
         const { onSelectionChanged } = this.props;
 
         onSelectionChanged && onSelectionChanged(record.data, record.data.isChecked);
+    }
+
+    private createStore(items: CheckItem[]) {
+        return Ext.create('Ext.data.Store', {
+            data: items || [],
+            listeners: {
+              update: this.onSelectionChanged
+            }
+        });
     }
 }

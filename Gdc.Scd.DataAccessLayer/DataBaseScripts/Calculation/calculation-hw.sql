@@ -794,18 +794,18 @@ CREATE VIEW [Hardware].[AvailabilityFeeView] as
            fee.InstalledBaseHighAvailability as IB,
            fee.InstalledBaseHighAvailability_Approved as IB_Approved,
            
-           fee.TotalLogisticsInfrastructureCost          * er.Value as TotalLogisticsInfrastructureCost,
-           fee.TotalLogisticsInfrastructureCost_Approved * er.Value as TotalLogisticsInfrastructureCost_Approved,
+           fee.TotalLogisticsInfrastructureCost          / er.Value as TotalLogisticsInfrastructureCost,
+           fee.TotalLogisticsInfrastructureCost_Approved / er.Value as TotalLogisticsInfrastructureCost_Approved,
 
            (case 
                 when wg.IsMultiVendor = 1 then fee.StockValueMv 
                 else fee.StockValueFj 
-            end) * er.Value as StockValue,
+            end) / er.Value as StockValue,
 
            (case  
                 when wg.IsMultiVendor = 1 then fee.StockValueMv_Approved 
                 else fee.StockValueFj_Approved 
-            end) * er.Value as StockValue_Approved,
+            end) / er.Value as StockValue_Approved,
        
            fee.AverageContractDuration,
            fee.AverageContractDuration_Approved,
@@ -1102,14 +1102,14 @@ CREATE VIEW [Hardware].[FieldServiceCostView] AS
             fsc.TravelTime,
             fsc.TravelTime_Approved,
 
-            fsc.LabourCost          * er.Value as LabourCost,
-            fsc.LabourCost_Approved * er.Value as LabourCost_Approved,
+            fsc.LabourCost          / er.Value as LabourCost,
+            fsc.LabourCost_Approved / er.Value as LabourCost_Approved,
 
-            fsc.TravelCost          * er.Value as TravelCost,
-            fsc.TravelCost_Approved * er.Value as TravelCost_Approved,
+            fsc.TravelCost          / er.Value as TravelCost,
+            fsc.TravelCost_Approved / er.Value as TravelCost_Approved,
 
-            fsc.PerformanceRate          * er.Value as PerformanceRate,
-            fsc.PerformanceRate_Approved * er.Value as PerformanceRate_Approved,
+            fsc.PerformanceRate          / er.Value as PerformanceRate,
+            fsc.PerformanceRate_Approved / er.Value as PerformanceRate_Approved,
 
             (fsc.TimeAndMaterialShare / 100) as TimeAndMaterialShare,
             (fsc.TimeAndMaterialShare_Approved / 100) as TimeAndMaterialShare_Approved
@@ -1151,23 +1151,23 @@ CREATE VIEW [Hardware].[LogisticsCostView] AS
            rt.ReactionTypeId as ReactionType, 
            rt.ReactionTimeId as ReactionTime,
            
-           lc.StandardHandling          * er.Value as StandardHandling,
-           lc.StandardHandling_Approved * er.Value as StandardHandling_Approved,
+           lc.StandardHandling          / er.Value as StandardHandling,
+           lc.StandardHandling_Approved / er.Value as StandardHandling_Approved,
 
-           lc.HighAvailabilityHandling          * er.Value as HighAvailabilityHandling,
-           lc.HighAvailabilityHandling_Approved * er.Value as HighAvailabilityHandling_Approved,
+           lc.HighAvailabilityHandling          / er.Value as HighAvailabilityHandling,
+           lc.HighAvailabilityHandling_Approved / er.Value as HighAvailabilityHandling_Approved,
 
-           lc.StandardDelivery          * er.Value as StandardDelivery,
-           lc.StandardDelivery_Approved * er.Value as StandardDelivery_Approved,
+           lc.StandardDelivery          / er.Value as StandardDelivery,
+           lc.StandardDelivery_Approved / er.Value as StandardDelivery_Approved,
 
-           lc.ExpressDelivery          * er.Value as ExpressDelivery,
-           lc.ExpressDelivery_Approved * er.Value as ExpressDelivery_Approved,
+           lc.ExpressDelivery          / er.Value as ExpressDelivery,
+           lc.ExpressDelivery_Approved / er.Value as ExpressDelivery_Approved,
 
-           lc.TaxiCourierDelivery          * er.Value as TaxiCourierDelivery,
-           lc.TaxiCourierDelivery_Approved * er.Value as TaxiCourierDelivery_Approved,
+           lc.TaxiCourierDelivery          / er.Value as TaxiCourierDelivery,
+           lc.TaxiCourierDelivery_Approved / er.Value as TaxiCourierDelivery_Approved,
 
-           lc.ReturnDeliveryFactory          * er.Value as ReturnDeliveryFactory,
-           lc.ReturnDeliveryFactory_Approved * er.Value as ReturnDeliveryFactory_Approved
+           lc.ReturnDeliveryFactory          / er.Value as ReturnDeliveryFactory,
+           lc.ReturnDeliveryFactory_Approved / er.Value as ReturnDeliveryFactory_Approved
 
     FROM Hardware.LogisticsCosts lc
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = lc.ReactionTimeType
@@ -1209,20 +1209,20 @@ CREATE VIEW [Hardware].[ServiceSupportCostView] as
                , ssc.ClusterRegion
                , ssc.ClusterPla
 
-               , ssc.[1stLevelSupportCostsCountry] * er.Value          as '1stLevelSupportCosts'
-               , ssc.[1stLevelSupportCostsCountry_Approved] * er.Value as '1stLevelSupportCosts_Approved'
+               , ssc.[1stLevelSupportCostsCountry] / er.Value          as '1stLevelSupportCosts'
+               , ssc.[1stLevelSupportCostsCountry_Approved] / er.Value as '1stLevelSupportCosts_Approved'
            
-               , ssc.[2ndLevelSupportCostsLocal] * er.Value            as '2ndLevelSupportCostsLocal'
-               , ssc.[2ndLevelSupportCostsLocal_Approved] * er.Value   as '2ndLevelSupportCostsLocal_Approved'
+               , ssc.[2ndLevelSupportCostsLocal] / er.Value            as '2ndLevelSupportCostsLocal'
+               , ssc.[2ndLevelSupportCostsLocal_Approved] / er.Value   as '2ndLevelSupportCostsLocal_Approved'
 
                , ssc.[2ndLevelSupportCostsClusterRegion]               as '2ndLevelSupportCostsClusterRegion'
                , ssc.[2ndLevelSupportCostsClusterRegion_Approved]      as '2ndLevelSupportCostsClusterRegion_Approved'
 
-               , case when ssc.[2ndLevelSupportCostsLocal] > 0 then ssc.[2ndLevelSupportCostsLocal] * er.Value 
+               , case when ssc.[2ndLevelSupportCostsLocal] > 0 then ssc.[2ndLevelSupportCostsLocal] / er.Value 
                         else ssc.[2ndLevelSupportCostsClusterRegion]
                    end as '2ndLevelSupportCosts'
                 
-               , case when ssc.[2ndLevelSupportCostsLocal_Approved] > 0 then ssc.[2ndLevelSupportCostsLocal_Approved] * er.Value 
+               , case when ssc.[2ndLevelSupportCostsLocal_Approved] > 0 then ssc.[2ndLevelSupportCostsLocal_Approved] / er.Value 
                         else ssc.[2ndLevelSupportCostsClusterRegion_Approved]
                    end as '2ndLevelSupportCosts_Approved'
 
@@ -1265,9 +1265,9 @@ CREATE VIEW [Hardware].[ReinsuranceView] as
            rta.AvailabilityId, 
            rta.ReactionTimeId,
 
-           r.ReinsuranceFlatfee * r.ReinsuranceUpliftFactor / 100 * er.Value as Cost,
+           r.ReinsuranceFlatfee * r.ReinsuranceUpliftFactor / 100 / er.Value as Cost,
 
-           r.ReinsuranceFlatfee_Approved * r.ReinsuranceUpliftFactor_Approved / 100 * er2.Value as Cost_Approved
+           r.ReinsuranceFlatfee_Approved * r.ReinsuranceUpliftFactor_Approved / 100 / er2.Value as Cost_Approved
 
     FROM Hardware.Reinsurance r
     JOIN Dependencies.ReactionTime_Avalability rta on rta.Id = r.ReactionTimeAvailability
@@ -1376,10 +1376,26 @@ CREATE VIEW [Hardware].[ProActiveView] with schemabinding as
 GO
 
 CREATE VIEW [Hardware].[ManualCostView] as
-    select man.*
-         , u.Name  as ChangeUserName
-         , u.Email as ChangeUserEmail
+    select    man.PortfolioId
+
+            , man.ChangeUserId
+            , u.Name  as ChangeUserName
+            , u.Email as ChangeUserEmail
+
+            , man.ServiceTC   / er.Value as ServiceTC   
+            , man.ServiceTP   / er.Value as ServiceTP   
+
+            , man.ServiceTC_Released / er.Value as ServiceTC_Released
+            , man.ServiceTP_Released / er.Value as ServiceTP_Released
+
+            , man.ListPrice   / er.Value as ListPrice   
+            , man.DealerPrice / er.Value as DealerPrice 
+            , man.DealerDiscount
+
     from Hardware.ManualCost man
+    join Portfolio.LocalPortfolio p on p.Id = man.PortfolioId
+    join InputAtoms.Country c on c.Id = p.CountryId
+    join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
     left join dbo.[User] u on u.Id = man.ChangeUserId
 GO
 
@@ -1619,6 +1635,8 @@ RETURN
          , man.DealerPrice     as DealerPrice                 
          , man.ServiceTC       as ServiceTCManual                   
          , man.ServiceTP       as ServiceTPManual                   
+         , man.ServiceTC_Released as ServiceTC_Released                  
+         , man.ServiceTP_Released as ServiceTP_Released                  
          , man.ChangeUserName  as ChangeUserName
          , man.ChangeUserEmail as ChangeUserEmail
 
@@ -1914,11 +1932,13 @@ RETURN
          , m.ChangeUserName
          , m.ChangeUserEmail
 
+         , m.ServiceTC_Released
+         , m.ServiceTP_Released
+
          , m.SlaHash
 
        from CostCte6 m
 )
-
 go
 
 CREATE FUNCTION [Hardware].[GetCosts](
@@ -1977,13 +1997,16 @@ RETURN
          , ChangeUserName
          , ChangeUserEmail
 
+         ,ServiceTC_Released
+         ,ServiceTP_Released
+
     from Hardware.GetCostsFull(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit)
 )
-
 go
 
 CREATE PROCEDURE [Hardware].[SpGetCosts]
     @approved bit,
+    @local bit,
     @cnt bigint,
     @wg bigint,
     @av bigint,
@@ -2021,9 +2044,72 @@ BEGIN
     join [References].ExchangeRate er on er.CurrencyId = cur.Id
     where cur.Id = (select CurrencyId from InputAtoms.Country where id = @cnt);
 
-    select @cur as Currency, @exchange as ExchangeRate, m.*
-    from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
-    order by Id
+    if @local = 1
+    begin
+    
+        --convert values from EUR to local
+
+        select Id
+
+             , Country
+             , @cur as Currency
+             , @exchange as ExchangeRate
+
+             , Wg
+             , Availability
+             , Duration
+             , ReactionTime
+             , ReactionType
+             , ServiceLocation
+             , ProActiveSla
+
+             , StdWarranty
+
+             --Cost
+
+             , AvailabilityFee               * @exchange  as AvailabilityFee 
+             , HddRet                        * @exchange  as HddRet
+             , TaxAndDutiesW                 * @exchange  as TaxAndDutiesW
+             , TaxAndDutiesOow               * @exchange  as TaxAndDutiesOow
+             , Reinsurance                   * @exchange  as Reinsurance
+             , ProActive                     * @exchange  as ProActive
+             , ServiceSupportCost            * @exchange  as ServiceSupportCost
+
+             , MaterialW                     * @exchange  as MaterialW
+             , MaterialOow                   * @exchange  as MaterialOow
+             , FieldServiceCost              * @exchange  as FieldServiceCost
+             , Logistic                      * @exchange  as Logistic
+             , OtherDirect                   * @exchange  as OtherDirect
+             , LocalServiceStandardWarranty  * @exchange  as LocalServiceStandardWarranty
+             , Credits                       * @exchange  as Credits
+             , ServiceTC                     * @exchange  as ServiceTC
+             , ServiceTP                     * @exchange  as ServiceTP
+
+             , ServiceTCManual               * @exchange  as ServiceTCManual
+             , ServiceTPManual               * @exchange  as ServiceTPManual
+
+             , ServiceTC_Released            * @exchange as ServiceTC_Released
+             , ServiceTP_Released            * @exchange as ServiceTP_Released
+
+             , ListPrice                     * @exchange  as ListPrice
+             , DealerPrice                   * @exchange  as DealerPrice
+             , DealerDiscount                             as DealerDiscount
+
+             , ChangeUserName                             as ChangeUserName
+             , ChangeUserEmail                            as ChangeUserEmail
+
+        from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit)
+        order by Id
+        
+    end
+    else
+    begin
+
+        select @cur as Currency, @exchange as ExchangeRate, m.*
+        from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
+        order by Id
+
+    end
 
 END
 

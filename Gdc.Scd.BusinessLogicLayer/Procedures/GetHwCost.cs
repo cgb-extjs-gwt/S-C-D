@@ -32,6 +32,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         private static DbParameter[] Prepare(bool approved, HwFilterDto filter, int lastid, int limit)
         {
             var pApproved = new DbParameterBuilder().WithName("approved").WithValue(approved);
+            var pLocal = new DbParameterBuilder().WithName("local").WithValue(true);
             var pCnt = new DbParameterBuilder().WithName("cnt");
             var pWg = new DbParameterBuilder().WithName("wg");
             var pAv = new DbParameterBuilder().WithName("av");
@@ -58,6 +59,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
             return new DbParameter[] {
                  pApproved.Build(),
+                 pLocal.Build(),
                  pCnt.Build(),
                  pWg.Build(),
                  pAv.Build(),
@@ -74,7 +76,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
         private static int GetTotal(DbParameter[] parameters)
         {
-            return parameters[11].GetInt32();
+            return parameters[12].GetInt32();
         }
     }
 }

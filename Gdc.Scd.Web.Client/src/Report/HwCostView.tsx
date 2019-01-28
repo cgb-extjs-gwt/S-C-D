@@ -1,15 +1,20 @@
-﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
+﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar, Panel } from "@extjs/ext-react";
 import * as React from "react";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { emptyRenderer, moneyRenderer, moneyRendererFactory, percentRenderer, yearRenderer } from "./Components/GridRenderer";
+import { emptyRenderer, IRenderer, localMoneyRendererFactory, localToEuroMoneyRendererFactory, percentRenderer, yearRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { CurrencyType } from "./Model/CurrencyType";
+import { HwReleasePanel } from "./Components/HwReleasePanel";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
+import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
+import { UserCountryService } from "../Dict/Services/UserCountryService";
+import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 
-const localMoneyRenderer = moneyRendererFactory('Currency', 'ExchangeRate');
+const localMoneyRenderer = localMoneyRendererFactory('Currency');
+const euroMoneyRenderer = localToEuroMoneyRendererFactory('ExchangeRate');
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
@@ -17,10 +22,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private filter: HwCostFilter;
 
-    private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
+    private store = Ext.create('Ext.data.Store', {
 
         fields: [
-            'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail',
+            'Id', 'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail',
             {
                 name: 'DealerPriceCalc',
                 calculate: function (d) {
@@ -78,7 +83,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         disableSaveButton: true,
         disableCancelButton: true,
         selectedCountry: null,
-        showInLocalCurrency: true
+        showInLocalCurrency: true,
+        hideReleaseButton: true
     };
 
     public constructor(props: CalcCostProps) {
@@ -87,21 +93,38 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     public render() {
-        const canEditTC: boolean = this.canEditTC();
-        const canEditListPrice: boolean = this.canEditListPrice();
 
-        const moneyRndr = this.state.showInLocalCurrency ? localMoneyRenderer : moneyRenderer;
+        let canEditTC: boolean = false;
+        let canEditListPrice: boolean = false;
+        let moneyRndr: IRenderer;
+
+        if (this.state.showInLocalCurrency) {
+
+            //allow manual edit in LOCAL CURRENCY mode only for well view!!!
+
+            canEditTC = this.canEditTC();
+            canEditListPrice = this.canEditListPrice();
+            //
+            moneyRndr = localMoneyRenderer;
+        }
+        else {
+            moneyRndr = euroMoneyRenderer;
+        }
 
         return (
             <Container layout="fit">
 
-                <HwCostFilter
-                    ref={x => this.filter = x}
-                    docked="right"
-                    onSearch={this.onSearch}
-                    onChange={this.onFilterChange}
-                    checkAccess={!this.props.approved}
-                    scrollable={true} />
+                <Panel {...this.props} docked="right" scrollable={true} >
+                    <HwCostFilter
+                        ref={x => this.filter = x}
+                        onSearch={this.onSearch}
+                        onChange={this.onFilterChange}
+                        checkAccess={!this.props.approved} />
+                    <HwReleasePanel
+                        onApprove={this.releaseCosts}
+                        checkAccess={!this.props.approved}
+                        hidden={this.state.hideReleaseButton} />
+                </Panel>         
 
                 <Grid
                     ref={x => this.grid = x}
@@ -165,8 +188,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                         <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
                         <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
+                        <NumberColumn text="Service TC(released)" dataIndex="ServiceTC_Released"/>
                         <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
                         <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
+                        <NumberColumn text="Service TP(released)" dataIndex="ServiceTP_Released"/>
 
                         <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
                         <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
@@ -193,8 +218,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         this.onFilterChange = this.onFilterChange.bind(this);
         this.cancelChanges = this.cancelChanges.bind(this);
         this.saveRecords = this.saveRecords.bind(this);
+        this.releaseCosts = this.releaseCosts.bind(this);
 
         this.store.on('beforeload', this.onBeforeLoad, this);
+        this.store.on('datachanged', this.ondDataChanged, this);   
     }
 
     private toggleToolbar(disable: boolean) {
@@ -220,6 +247,31 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         }
     }
 
+    private releaseCosts() {
+        let recs = this.getSelectedRows();
+        let cnt = this.state.selectedCountry;
+
+        if (cnt) {
+            if (recs && recs.length > 0) {
+                recs = this.store.getData().items.filter(x => recs.includes(x.data.Id)).map(x => x.data);
+            }
+            else {
+                recs = this.store.getData().items.map(x => x.data);
+            }
+        }
+
+        ExtMsgHelper.confirm('Release', `Do you want to approve for release ${recs.length} record(s)?`, () => {
+            let me = this;
+            let p = post('calc', 'releasehwcost', { items: recs, countryId: cnt.id }).then(() => {
+                me.reset();
+                me.reload();
+            });
+            handleRequest(p);
+        });
+
+        
+    }
+
     private onSearch(filter: HwCostFilterModel) {
         this.reload();
     }
@@ -242,6 +294,17 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         operation.setParams(params);
     }
 
+    private ondDataChanged(s, operation) {
+        const srv = new UserCountryService();
+        let cntId = 0;
+        if (this.state && this.state.selectedCountry) {
+            cntId = this.state.selectedCountry.id;
+            srv.isCountryUser(cntId).then(x => {
+                this.setState({ hideReleaseButton: !this.props.approved || !x || !this.state.disableSaveButton })
+            });
+        }
+    }
+
     private pluginConf(): any {
         let cfg: any = {
             'desktop': {
@@ -262,11 +325,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             desktop.plugins.gridcellediting = true;
             desktop.plugins.selectionreplicator = true;
             desktop.selectable = {
-                rows: true,
                 cells: true,
+                rows: true,
                 columns: false,
                 drag: true,
                 extensible: 'y',
+                checkbox: true
             };
         }
 
@@ -324,5 +388,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             disableSaveButton: true,
             selectedCountry: this.filter.getCountry()
         });
+    }
+
+    private getSelectedRows(): string[] {
+        return ExtDataviewHelper.getGridSelected(this.grid, 'Id');
     }
 }

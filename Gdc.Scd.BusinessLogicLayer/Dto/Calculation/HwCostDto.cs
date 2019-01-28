@@ -61,14 +61,16 @@
         public double? Credits_Approved { get; set; }
 
         public double? ServiceTC { get; set; }
-        public double? ServiceTC_Approved { get; set; }
+        public double? ServiceTC_Approved { get; set; }    
         public double? ServiceTCManual { get; set; }
-        public double? ServiceTCManual_Approved { get; set; }
+        public double? ServiceTCManual_Approved { get; set; }      
+        public double? ServiceTC_Released { get; set; }
 
         public double? ServiceTP { get; set; }
         public double? ServiceTP_Approved { get; set; }
         public double? ServiceTPManual { get; set; }
         public double? ServiceTPManual_Approved { get; set; }
+        public double? ServiceTP_Released { get; set; }
 
         public double? ListPrice { get; set; }
         public double? ListPrice_Approved { get; set; }
