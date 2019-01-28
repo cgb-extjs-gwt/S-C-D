@@ -91,6 +91,7 @@
       <DependentUpon>FrieseModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Dto\HwFspCodeDto.cs" />
+    <Compile Include="Dto\HwHddFspCodeDto.cs" />
     <Compile Include="Dto\HwSlaDto.cs" />
     <Compile Include="Dto\SlaDictsDto.cs" />
     <Compile Include="Dto\SlaDto.cs" />
@@ -104,6 +105,7 @@
     <Compile Include="Impl\PorConstants.cs" />
     <Compile Include="Impl\PorDataImporter.cs" />
     <Compile Include="Impl\PorFspTranslationService.cs" />
+    <Compile Include="Impl\PorHddHwFspCodeCodeTranslationService.cs" />
     <Compile Include="Impl\PorHwFspCodeTranslationService.cs" />
     <Compile Include="Impl\PorImportLoggingMessage.cs" />
     <Compile Include="Impl\PorSogService.cs" />

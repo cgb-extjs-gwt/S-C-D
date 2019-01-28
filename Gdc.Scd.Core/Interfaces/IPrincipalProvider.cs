@@ -1,6 +1,6 @@
 ﻿using System.Security.Principal;
 
-namespace Gdc.Scd.Import.Core.Interfaces
+namespace Gdc.Scd.Core.Interfaces
 {
     public interface IPrincipalProvider
     {
