@@ -51,45 +51,71 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             try
             {
                 var workbook = new XLWorkbook(excelStream);
-                var worksheet = workbook.Worksheets.First();
-                var rowCount = worksheet.RowsUsed().Count();
-                var wgRawValues = new Dictionary<string, string>();
+                var worksheetInfo = 
+                    workbook.Worksheets.Select(worksheet => new
+                                        {
+                                            Worksheet = worksheet,
+                                            RowCount = worksheet.RowsUsed().Count()
+                                        })
+                                       .FirstOrDefault(info => info.RowCount > 0);
 
-                for (var rowIndex = 1; rowIndex <= rowCount; rowIndex++)
+                if (worksheetInfo == null)
                 {
-                    var wgName = worksheet.Cell(rowIndex, 1).GetValue<string>();
+                    result.Errors.Add("Excel file is empty");
+                }
+                else
+                {
+                    var wgRawValues = new Dictionary<string, string>();
 
-                    if (!string.IsNullOrWhiteSpace(wgName))
+                    for (var rowIndex = 1; rowIndex <= worksheetInfo.RowCount; rowIndex++)
                     {
-                        var wgValue = worksheet.Cell(rowIndex, 2).GetValue<string>();
+                        var wgName = worksheetInfo.Worksheet.Cell(rowIndex, 1).GetValue<string>();
 
-                        if (!string.IsNullOrWhiteSpace(wgValue))
+                        if (!string.IsNullOrWhiteSpace(wgName))
                         {
-                            wgRawValues[wgName] = wgValue;
+                            var wgValue = worksheetInfo.Worksheet.Cell(rowIndex, 2).GetValue<string>();
+
+                            if (!string.IsNullOrWhiteSpace(wgValue))
+                            {
+                                wgRawValues[wgName] = wgValue;
+                            }
                         }
                     }
+                   
+                    var editInfoResult = await this.BuildEditInfos(costElementId, dependencyItemId, regionId, wgRawValues);
+
+                    if (editInfoResult.EditInfo.ValueInfos.Any())
+                    {
+                        result.Errors.AddRange(editInfoResult.Errors);
+
+                        var qualityGateResultSet = await this.costBlockService.Update(new[] { editInfoResult.EditInfo }, approvalOption, EditorType.CostImport);
+                        var qualityGateResultSetItem = qualityGateResultSet.Items.FirstOrDefault();
+
+                        if (qualityGateResultSetItem != null)
+                        {
+                            result.QualityGateResult = qualityGateResultSetItem.QualityGateResult;
+                        }
+                    }
+                    else
+                    {
+                        result.Errors.Add($"Worksheet '{worksheetInfo.Worksheet.Name}' has not warranty groups");
+                    }
                 }
-
-                var editInfoResult = await this.BuildEditInfos(costElementId, dependencyItemId, regionId, wgRawValues);
-
-                result.Errors.AddRange(editInfoResult.Errors);
-
-                var qualityGateResultSet = await this.costBlockService.Update(editInfoResult.EditInfos.ToArray(), approvalOption, EditorType.CostImport);
-                var qualityGateResultSetItem = qualityGateResultSet.Items.FirstOrDefault();
-
-                result.QualityGateResult = qualityGateResultSetItem == null
-                    ? new QualityGateResult()
-                    : qualityGateResultSetItem.QualityGateResult;
             }
             catch(Exception ex)
             {
                 result.Errors.Add($"Import error. {ex.Message}");
             }
 
+            if (result.QualityGateResult == null)
+            {
+                result.QualityGateResult = new QualityGateResult();
+            }
+
             return result;
         }
 
-        private async Task<(IEnumerable<EditInfo> EditInfos, IEnumerable<string> Errors)> BuildEditInfos(
+        private async Task<(EditInfo EditInfo, IEnumerable<string> Errors)> BuildEditInfos(
             ICostElementIdentifier costElementId,
             long? dependencyItemId,
             long? regionId,
@@ -136,16 +162,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 }
             }
 
-            var editInfos = new[]
+            var editInfo = new EditInfo
             {
-                new EditInfo
-                {
-                    Meta = costBlockMeta,
-                    ValueInfos = valueInfos
-                }
+                Meta = costBlockMeta,
+                ValueInfos = valueInfos
             };
 
-            return (editInfos, errors);
+            return (editInfo, errors);
         }
 
         private async Task<Func<string, object>> BuildConverter(CostBlockEntityMeta meta, string costElementId)
