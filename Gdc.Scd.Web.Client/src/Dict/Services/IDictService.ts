@@ -1,4 +1,4 @@
-﻿import { NamedId } from "../../Common/States/CommonStates";
+﻿import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
 import { Country } from "../Model/Country";
 
 export interface IDictService {
@@ -38,7 +38,7 @@ export interface IDictService {
 
     getReactionTimeTypes(): Promise<NamedId[]>;
 
-    getServiceLocationTypes(): Promise<NamedId[]>;
+    getServiceLocationTypes(): Promise<SortableNamedId[]>;
 
     getProActive(): Promise<NamedId[]>;
 

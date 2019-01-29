@@ -1785,16 +1785,16 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             repository.Save(new List<ServiceLocation>
             {
-                new ServiceLocation {Name = "Material/Spares Service", ExternalName = "Material/Spares" },
-                new ServiceLocation {Name = "Bring-In Service", ExternalName = "Bring-In" },
-                new ServiceLocation {Name = "Send-In / Return-to-Base Service", ExternalName = "Send-In/Return-to-Base Service" },
-                new ServiceLocation {Name = "Collect & Return Service", ExternalName = "Collect & Return" },
-                new ServiceLocation {Name = "Collect & Return-Display Service", ExternalName = "Collect & Return-Display Service" },
-                new ServiceLocation {Name = "Door-to-Door Exchange Service", ExternalName = "Door-to-Door Exchange" },
-                new ServiceLocation {Name = "Desk-to-Desk Exchange Service", ExternalName = "Desk-to-Desk Exchange" },
-                new ServiceLocation {Name = "On-Site Service", ExternalName = "On-Site Service" },
-                new ServiceLocation {Name = "On-Site Exchange Service", ExternalName = "On-Site Exchange" },
-                new ServiceLocation {Name = "Remote", ExternalName = "Remote Service" },
+                new ServiceLocation {Name = "Material/Spares Service", ExternalName = "Material/Spares", Order = 1 },
+                new ServiceLocation {Name = "Bring-In Service", ExternalName = "Bring-In", Order = 2 },
+                new ServiceLocation {Name = "Send-In / Return-to-Base Service", ExternalName = "Send-In/Return-to-Base Service", Order = 3 },
+                new ServiceLocation {Name = "Collect & Return Service", ExternalName = "Collect & Return", Order = 4 },
+                new ServiceLocation {Name = "Collect & Return-Display Service", ExternalName = "Collect & Return-Display Service", Order = 5 },
+                new ServiceLocation {Name = "Door-to-Door Exchange Service", ExternalName = "Door-to-Door Exchange", Order = 6 },
+                new ServiceLocation {Name = "Desk-to-Desk Exchange Service", ExternalName = "Desk-to-Desk Exchange", Order = 7 },
+                new ServiceLocation {Name = "On-Site Service", ExternalName = "On-Site Service", Order = 8 },
+                new ServiceLocation {Name = "On-Site Exchange Service", ExternalName = "On-Site Exchange", Order = 9 },
+                new ServiceLocation {Name = "Remote", ExternalName = "Remote Service", Order = 10 },
 
             });
 

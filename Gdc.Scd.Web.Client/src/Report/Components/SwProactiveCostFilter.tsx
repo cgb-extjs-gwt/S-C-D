@@ -7,6 +7,7 @@ import { SwDigitField } from "../../Dict/Components/SwDigitField";
 import { UserCountryField } from "../../Dict/Components/UserCountryField";
 import { YearField } from "../../Dict/Components/YearField";
 import { SwCostFilterModel } from "../Model/SwCostFilterModel";
+import { NamedId } from "../../Common/States/CommonStates";
 
 export interface FilterPanelProps extends PanelProps {
     checkAccess: boolean;
@@ -15,13 +16,13 @@ export interface FilterPanelProps extends PanelProps {
 
 export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any> {
 
-    private cnt: DictField;
+    private cnt: DictField<NamedId>;
 
-    private digit: DictField;
+    private digit: DictField<NamedId>;
 
-    private av: DictField;
+    private av: DictField<NamedId>;
 
-    private year: DictField;
+    private year: DictField<NamedId>;
 
     public constructor(props: any) {
         super(props);

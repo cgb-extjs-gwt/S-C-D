@@ -1,6 +1,7 @@
 ﻿import { DictField } from "./DictField";
+import { NamedId } from "../../Common/States/CommonStates";
 
-export class ProActiveField extends DictField {
+export class ProActiveField extends DictField<NamedId> {
 
     protected nameField: string = 'externalName';
 
