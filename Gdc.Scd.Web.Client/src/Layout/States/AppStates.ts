@@ -19,11 +19,13 @@ export interface AppState {
     }
     appMetaData: CostMetaData
     userRoles: Role[]
+    appVersion: string
 }
 
 export interface AppData {
     meta: CostMetaData
     userRoles: Role[]
+    appVersion: string
 }
 
 export interface CommonState {

@@ -4,6 +4,7 @@ import { Route, Switch } from 'react-router-dom';
 import { MenuItem } from '../../Common/States/ExtStates';
 import { NavMenuContainer } from './NavMenuContainer';
 import { AlertPanel } from './AlertPanel';
+import { AppService } from "../Services/AppService";
 
 Ext.require(['Ext.data.ChainedStore'])
 
@@ -23,6 +24,7 @@ export interface LayoutProps extends LayoutActions {
     title: string
     routes: RouteItem[]
     menuItems: MenuItem[]
+    appVersion: string
 }
 
 /**
@@ -34,12 +36,12 @@ export class Layout extends React.Component<LayoutProps> {
     }
 
     render() {
-        const { title, routes, menuItems } = this.props;
+        const { title, routes, menuItems, appVersion } = this.props;
 
         return (
             <Container id={ROOT_LAYOUT_ID} fullscreen layout="fit">
                 <Panel scrollable docked="left" shadow zIndex={2}>
-                    <TitleBar title="SCD 2.0" docked="top" />
+                    <TitleBar title={`SCD 2.0 ver.${appVersion}`}  docked="top" />
                     <NavMenuContainer items={menuItems} />
                 </Panel>
 
