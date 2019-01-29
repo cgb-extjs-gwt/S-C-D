@@ -6,6 +6,7 @@ import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
 import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
 import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
 import { AvailabilityFeeFilterModel } from "./AvailabilityFeeFilterModel";
+import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
 
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: AvailabilityFeeFilterModel): void;
@@ -13,13 +14,13 @@ export interface FilterPanelProps extends PanelProps {
 
 export class FilterPanel extends React.Component<FilterPanelProps, any> {
 
-    private country: DictField;
+    private country: DictField<NamedId>;
 
-    private reacttype: DictField;
+    private reacttype: DictField<NamedId>;
 
-    private reacttime: DictField;
+    private reacttime: DictField<NamedId>;
 
-    private srvloc: DictField;
+    private srvloc: DictField<SortableNamedId>;
 
     private isApplicable: CheckBoxField;
 

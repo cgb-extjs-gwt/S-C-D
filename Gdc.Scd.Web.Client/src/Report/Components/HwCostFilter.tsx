@@ -13,6 +13,7 @@ import { WgField } from "../../Dict/Components/WgField";
 import { Country } from "../../Dict/Model/Country";
 import { CurrencyType } from "../Model/CurrencyType";
 import { HwCostFilterModel } from "../Model/HwCostFilterModel";
+import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
 
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: HwCostFilterModel): void;
@@ -23,19 +24,19 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
     private cnt: CountryField;
 
-    private wg: DictField;
+    private wg: DictField<NamedId>;
 
-    private av: DictField;
+    private av: DictField<NamedId>;
 
-    private dur: DictField;
+    private dur: DictField<NamedId>;
 
-    private reacttype: DictField;
+    private reacttype: DictField<NamedId>;
 
-    private reacttime: DictField;
+    private reacttime: DictField<NamedId>;
 
-    private srvloc: DictField;
+    private srvloc: DictField<SortableNamedId>;
 
-    private proactive: DictField;
+    private proactive: DictField<NamedId>;
 
     private localCur: RadioField & any;
 

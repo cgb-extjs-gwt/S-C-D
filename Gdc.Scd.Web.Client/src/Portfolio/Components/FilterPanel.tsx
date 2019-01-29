@@ -11,6 +11,7 @@ import { WgField } from "../../Dict/Components/WgField";
 import { PortfolioFilterModel } from "../Model/PortfolioFilterModel";
 import { ProActiveField } from "../../Dict/Components/ProActiveField";
 import { UserCountryField } from "../../Dict/Components/UserCountryField";
+import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
 
 export interface FilterPanelProps extends PanelProps {
     isCountryUser: boolean;
@@ -19,21 +20,21 @@ export interface FilterPanelProps extends PanelProps {
 
 export class FilterPanel extends React.Component<FilterPanelProps, any> {
 
-    private country: DictField;
+    private country: DictField<NamedId>;
 
-    private wg: DictField;
+    private wg: DictField<NamedId>;
 
-    private av: DictField;
+    private av: DictField<NamedId>;
 
-    private dur: DictField;
+    private dur: DictField<NamedId>;
 
-    private reacttype: DictField;
+    private reacttype: DictField<NamedId>;
 
-    private reacttime: DictField;
+    private reacttime: DictField<NamedId>;
 
-    private srvloc: DictField;
+    private srvloc: DictField<SortableNamedId>;
 
-    private proactive: DictField;
+    private proactive: DictField<NamedId>;
 
     private globPort: CheckBoxField;
 

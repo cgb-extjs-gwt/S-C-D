@@ -8,7 +8,7 @@ export interface DictFieldProps extends ComboBoxFieldProps {
     cache?: boolean;
 }
 
-export abstract class DictField extends React.Component<DictFieldProps, any> {
+export abstract class DictField<T> extends React.Component<DictFieldProps, any> {
 
     protected combo: ComboBoxField & any;
 
@@ -80,7 +80,7 @@ export abstract class DictField extends React.Component<DictFieldProps, any> {
         return this.props.cache === undefined || this.props.cache;
     }
 
-    protected abstract getItems(): Promise<NamedId[]>;
+    protected abstract getItems(): Promise<T[]>;
 
     private init() {
         this.srv = DictFactory.getDictService();
