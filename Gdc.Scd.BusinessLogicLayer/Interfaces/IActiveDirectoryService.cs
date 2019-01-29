@@ -15,7 +15,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         ActiveDirectoryConfig Configuration { get; set; }
         bool CheckCredentials(string userName, string password, string domainName);
         DirectoryEntry GetUserByEmail(string email, string userName, string password, string domainName);
-        DirectoryEntry GetUserFromForestByUsername(string userName, string password, string domainName);
+        SearchResultCollection GetUserFromForestByUsername(string search);
         List<UserPrincipal> SearchForUserByString(string search, int count);
         UserPrincipal FindByIdentity(string userIdentity);
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.DirectoryServices;
 using System.Linq;
 using System.Security.Principal;
 using System.Web.Http;
@@ -44,16 +45,46 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
             var searchCount = Int32.Parse(ConfigurationManager.AppSettings["UsersSearchCount"]);
             if (string.IsNullOrEmpty(searchString))
                 return new DataInfo<User> { Items = new List<User>(), Total = 0 };
-
-            var foundUsers = activeDirectoryService.SearchForUserByString(searchString, searchCount).Select(
-                user => new User
+            var foundUsers = new List<User>();
+            var foundDomainUsers = activeDirectoryService.SearchForUserByString(searchString, searchCount);
+            if (foundDomainUsers.Count > 0)
+            {
+                foundUsers = foundDomainUsers.Select(
+                    user => new User
+                    {
+                        Name = user.DisplayName,
+                        Login = user.Sid.Translate(typeof(NTAccount)).ToString(),
+                        Email = user.EmailAddress
+                    }).OrderBy(x => x.Name).ToList();
+            }
+                
+            else
+            {
+                var foundForestUsers = activeDirectoryService.GetUserFromForestByUsername(searchString);
+                foreach (SearchResult foundForestUser in foundForestUsers)
                 {
-                    Name = user.DisplayName,
-                    Login = user.Sid.Translate(typeof(NTAccount)).ToString(),
-                    Email = user.EmailAddress
-                }).OrderBy(x => x.Name).ToList();
+                    var userEntry = foundForestUser.GetDirectoryEntry();
+                    foundUsers.Add(
+                        new User
+                        {
+                            Email = Convert.ToString(userEntry.Properties["mail"].Value),
+                            Name = Convert.ToString(userEntry.Properties["cn"].Value),
+                            Login = GetLoginFromSearchResult(foundForestUser),
+                        }
+                    );
+                }
+            }
 
             return new DataInfo<User> { Items = foundUsers, Total = foundUsers.Count() };
+        }
+        private string GetLoginFromSearchResult(SearchResult result)
+        {
+            var propertyValues = result.Properties["objectsid"];
+            var objectsid = (byte[])propertyValues[0];
+            var sid = new SecurityIdentifier(objectsid, 0);
+
+            var account = sid.Translate(typeof(NTAccount));
+            return account.ToString();
         }
     }
 }

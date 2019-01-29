@@ -61,23 +61,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 }
             }
         }
-
-        public DirectoryEntry GetUserFromForestByUsername(string userName, string password, string domainName)
+        public SearchResultCollection GetUserFromForestByUsername(string search)
         {
-            if (string.IsNullOrEmpty(Configuration.ForestName) || string.IsNullOrEmpty(userName) ||
-                string.IsNullOrEmpty(password))
-                return null;
-            var domainContext = new DirectoryContext(DirectoryContextType.Forest, Configuration.ForestName, userName, password);
+            var domainContext = new DirectoryContext(DirectoryContextType.Forest, "fujitsu.local");
             var currentForest = Forest.GetForest(domainContext);
             var gc = currentForest.FindGlobalCatalog();
 
             using (var userSearcher = gc.GetDirectorySearcher())
             {
-                userSearcher.Filter = "(&((&(objectCategory=Person)(objectClass=User)))(|(samaccountname=" + userName + ")(mail=" + userName + ")))";
-                var result = userSearcher.FindOne();
+                userSearcher.Filter = "(|(samaccountname=" + search + "*)(name=" + search + "*)(displayName=" + search + "*)(mail=" + search + "))";
+                var result = userSearcher.FindAll();
                 if (result == null)
                     return null;
-                return result.GetDirectoryEntry();
+                return result;
             }
         }
 
