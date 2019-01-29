@@ -118,7 +118,6 @@ namespace Gdc.Scd.Web.Api.Controllers
                 var items = m.Items.Select(x => new HwCostManualDto
                 {
                     Id = x.Id,
-                    ServiceTC_Released = x.ServiceTCManual ?? x.ServiceTC,
                     ServiceTP_Released = x.ServiceTPManual ?? x.ServiceTP
                 });
                 calcSrv.SaveHardwareCost(this.CurrentUser(), m.CountryId, items, true);

@@ -1396,7 +1396,6 @@ CREATE VIEW [Hardware].[ManualCostView] as
             , man.ServiceTC   / er.Value as ServiceTC   
             , man.ServiceTP   / er.Value as ServiceTP   
 
-            , man.ServiceTC_Released / er.Value as ServiceTC_Released
             , man.ServiceTP_Released / er.Value as ServiceTP_Released
 
             , man.ListPrice   / er.Value as ListPrice   
@@ -1669,8 +1668,7 @@ RETURN
          , man.DealerDiscount  as DealerDiscount              
          , man.DealerPrice     as DealerPrice                 
          , man.ServiceTC       as ServiceTCManual                   
-         , man.ServiceTP       as ServiceTPManual                   
-         , man.ServiceTC_Released as ServiceTC_Released                  
+         , man.ServiceTP       as ServiceTPManual                                 
          , man.ServiceTP_Released as ServiceTP_Released                  
          , man.ChangeUserName  as ChangeUserName
          , man.ChangeUserEmail as ChangeUserEmail
@@ -1983,7 +1981,6 @@ RETURN
          , m.ChangeUserName
          , m.ChangeUserEmail
 
-         , m.ServiceTC_Released
          , m.ServiceTP_Released
 
          , m.SlaHash
@@ -2048,8 +2045,7 @@ RETURN
          , ChangeUserName
          , ChangeUserEmail
 
-         ,ServiceTC_Released
-         ,ServiceTP_Released
+         , ServiceTP_Released
 
     from Hardware.GetCostsFull(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit)
 )
@@ -2139,7 +2135,6 @@ BEGIN
              , ServiceTCManual               * @exchange  as ServiceTCManual
              , ServiceTPManual               * @exchange  as ServiceTPManual
 
-             , ServiceTC_Released            * @exchange as ServiceTC_Released
              , ServiceTP_Released            * @exchange as ServiceTP_Released
 
              , ListPrice                     * @exchange  as ListPrice
