@@ -183,10 +183,13 @@ const buildMapStateToProps = () => {
             }
         }
 
+        let productVersion = app.productVersion;
+
         return <LayoutProps>{
             title,
             menuItems,
-            routes
+            routes,
+            productVersion
         }
     }
 }
