@@ -56,18 +56,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
 
-        public async Task<IEnumerable<BundleDto>> GetApprovalBundles(BundleFilter filter, CostBlockHistoryState state)
+        public async Task<IEnumerable<BundleDto>> GetApprovalBundles(BundleFilter filter)
         {
-            var histories = this.costBlockHistoryService.GetByFilter(filter, state).ToArray();
+            var histories = this.costBlockHistoryService.GetByFilter(filter, CostBlockHistoryState.Approving).ToArray();
 
             return await this.GetApprovalBundles(histories);
         }
 
-        public async Task<IEnumerable<BundleDto>> GetOwnApprovalBundles(BundleFilter filter, CostBlockHistoryState state)
+        public async Task<IEnumerable<BundleDto>> GetOwnApprovalBundles(OwnApprovalFilter filter)
         {
             var user = this.userService.GetCurrentUser();
             var histories = 
-                this.costBlockHistoryService.GetByFilter(filter, state)
+                this.costBlockHistoryService.GetByFilter(filter, filter.State)
                                             .Where(history => history.EditUser.Id == user.Id)
                                             .ToArray();
 

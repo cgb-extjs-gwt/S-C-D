@@ -11,9 +11,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
     {
         Task Approve(long historyId);
 
-        Task<IEnumerable<BundleDto>> GetApprovalBundles(BundleFilter filter, CostBlockHistoryState state);
+        Task<IEnumerable<BundleDto>> GetApprovalBundles(BundleFilter filter);
 
-        Task<IEnumerable<BundleDto>> GetOwnApprovalBundles(BundleFilter filter, CostBlockHistoryState state);
+        Task<IEnumerable<BundleDto>> GetOwnApprovalBundles(OwnApprovalFilter filter);
 
         Task<IEnumerable<BundleDetailGroupDto>> GetApproveBundleDetails(CostBlockHistory history, long? historyValueId = null, IDictionary<string, IEnumerable<object>> costBlockFilter = null);
 

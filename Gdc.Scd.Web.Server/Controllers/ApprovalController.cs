@@ -5,7 +5,6 @@ using System.Web.Http;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Dto;
-using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Approval;
 using Gdc.Scd.Core.Entities.QualityGate;
 using Gdc.Scd.Web.Server.Impl;
@@ -24,30 +23,30 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         [HttpGet]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval })]
-        public async Task<IEnumerable<BundleDto>> GetApprovalBundles([FromUri]CostBlockHistoryState state, [FromUri]BundleFilter filter = null)
+        public async Task<IEnumerable<BundleDto>> GetApprovalBundles([FromUri]BundleFilter filter = null)
         {
-            return await this.approvalService.GetApprovalBundles(filter, state);
+            return await this.approvalService.GetApprovalBundles(filter);
         }
 
         [HttpPost]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval })]
-        public async Task<IEnumerable<BundleDto>> GetApprovalBundlesByFilter(BundleFilter filter, [FromUri]CostBlockHistoryState state)
+        public async Task<IEnumerable<BundleDto>> GetApprovalBundlesByFilter(BundleFilter filter)
         {
-            return await this.approvalService.GetApprovalBundles(filter, state);
+            return await this.approvalService.GetApprovalBundles(filter);
         }
 
         [HttpGet]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.OwnApproval })]
-        public async Task<IEnumerable<BundleDto>> GetOwnApprovalBundles([FromUri]CostBlockHistoryState state, [FromUri]BundleFilter filter = null)
+        public async Task<IEnumerable<BundleDto>> GetOwnApprovalBundles([FromUri]OwnApprovalFilter filter = null)
         {
-            return await this.approvalService.GetOwnApprovalBundles(filter, state);
+            return await this.approvalService.GetOwnApprovalBundles(filter);
         }
 
         [HttpPost]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.OwnApproval })]
-        public async Task<IEnumerable<BundleDto>> GetOwnApprovalBundlesByFilter(BundleFilter filter, [FromUri]CostBlockHistoryState state)
+        public async Task<IEnumerable<BundleDto>> GetOwnApprovalBundlesByFilter(OwnApprovalFilter filter)
         {
-            return await this.approvalService.GetOwnApprovalBundles(filter, state);
+            return await this.approvalService.GetOwnApprovalBundles(filter);
         }
 
         [HttpGet]
@@ -72,7 +71,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
+        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval })]
         public async Task<IHttpActionResult> Approve(long historyId)
         {
             await this.approvalService.Approve(historyId);
@@ -81,7 +80,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
+        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval })]
         public IHttpActionResult Reject(long historyId, string message)
         {
             this.approvalService.Reject(historyId, message);
@@ -90,7 +89,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
+        [ScdAuthorize(Permissions = new[] { PermissionConstants.OwnApproval })]
         public async Task<QualityGateResult> SendForApproval([FromUri]long historyId, [FromUri]string qualityGateErrorExplanation = null)
         {
             return await this.approvalService.SendForApproval(historyId, qualityGateErrorExplanation);
