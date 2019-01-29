@@ -34,7 +34,8 @@ export enum FieldType {
     Reference = "Reference",
     Double = "Double",
     Flag = "Flag",
-    Percent = "Percent"
+    Percent = "Percent",
+    CountryCurrencyCost = "CountryCurrencyCost"
 }
 
 export enum InputType {
