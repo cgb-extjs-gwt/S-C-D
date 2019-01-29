@@ -29,7 +29,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             {
                 name: 'DealerPriceCalc',
                 calculate: function (d) {
-                    let result: any = '';
+                    let result: any;
                     if (d && d.ListPrice) {
                         result = d.ListPrice;
                         if (d.DealerDiscount) {

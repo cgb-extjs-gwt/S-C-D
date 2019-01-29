@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Gdc.Scd.BusinessLogicLayer.Dto;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
@@ -226,9 +227,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return regions;
         }
 
-        public async Task<CostElementData> GetCostElementData(HistoryContext context)
+        public async Task<CostElementDataDto> GetCostElementData(HistoryContext context)
         {
-            return new CostElementData
+            return new CostElementDataDto
             {
                 DependencyItems = await this.GetDependencyItems(context),
                 Regions = await this.GetRegions(context)

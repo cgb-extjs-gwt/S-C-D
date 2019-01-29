@@ -2,7 +2,7 @@ import { Action } from "redux";
 import { asyncAction, AsyncAction } from "../../Common/Actions/AsyncAction";
 import * as service from "../Services/CostEditorServices";
 import { CostEditorState } from "../States/CostEditorStates";
-import { EditItem, CostElementData } from "../States/CostBlockStates";
+import { EditItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { buildCostEditorContext, findCostElementByState, findInputeLevelByState, findCostBlockByState, findInputLevel } from "../Helpers/CostEditorHelpers";
 import { CommonState } from "../../Layout/States/AppStates";
@@ -11,6 +11,7 @@ import { QualityGateResult } from "../../QualityGate/States/QualityGateResult";
 import { findMeta, getCostBlock } from "../../Common/Helpers/MetaHelper";
 import { ApprovalOption } from "../../QualityGate/States/ApprovalOption";
 import { CostBlockMeta } from "../../Common/States/CostMetaStates";
+import { CostElementData } from "../States/CostElementData";
 
 export const COST_EDITOR_SELECT_COST_BLOCK = 'COST_EDITOR.SELECT.COST_BLOCK';
 export const COST_BLOCK_INPUT_SELECT_REGIONS = 'COST_BLOCK_INPUT.SELECT.REGIONS';

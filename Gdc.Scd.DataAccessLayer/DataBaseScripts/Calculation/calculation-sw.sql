@@ -1,4 +1,12 @@
-﻿IF OBJECT_ID('InputAtoms.WgSogView', 'V') IS NOT NULL
+﻿IF OBJECT_ID('SoftwareSolution.SpGetProActiveCosts') IS NOT NULL
+  DROP PROCEDURE SoftwareSolution.SpGetProActiveCosts;
+go
+
+IF OBJECT_ID('SoftwareSolution.SpGetCosts') IS NOT NULL
+  DROP PROCEDURE SoftwareSolution.SpGetCosts;
+go
+
+IF OBJECT_ID('InputAtoms.WgSogView', 'V') IS NOT NULL
   DROP VIEW InputAtoms.WgSogView;
 go
 
@@ -506,6 +514,115 @@ RETURN
     LEFT JOIN Dependencies.Duration dur on dur.Id = pro.DurationId
 );
 GO
+
+CREATE PROCEDURE [SoftwareSolution].[SpGetCosts]
+    @approved bit,
+    @digit bigint,
+    @av bigint,
+    @year bigint,
+    @lastid bigint,
+    @limit int,
+    @total int output
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    SELECT @total = COUNT(m.id)
+
+        FROM SoftwareSolution.SwSpMaintenance m 
+        JOIN Dependencies.Year_Availability yav on yav.Id = m.YearAvailability
+
+        WHERE    (@digit is null or m.SwDigit = @digit)
+             and (@av is null    or yav.AvailabilityId = @av)
+             and (@year is null  or yav.YearId = @year)
+
+    select  m.rownum
+          , m.Id
+          , d.Name as SwDigit
+          , sog.Name as Sog
+          , av.Name as Availability 
+          , y.Name as Year
+          , m.[1stLevelSupportCosts]
+          , m.[2ndLevelSupportCosts]
+          , m.InstalledBaseCountry
+          , m.InstalledBaseSog
+          , m.Reinsurance
+          , m.ServiceSupport
+          , m.TransferPrice
+          , m.MaintenanceListPrice
+          , m.DealerPrice
+          , m.DiscountDealerPrice
+    from SoftwareSolution.GetCosts(@approved, @digit, @av, @year, @lastid, @limit) m
+    join InputAtoms.SwDigit d on d.Id = m.SwDigit
+    join InputAtoms.Sog sog on sog.Id = m.Sog
+    join Dependencies.Availability av on av.Id = m.Availability
+    join Dependencies.Year y on y.Id = m.Year
+
+    order by m.SwDigit, m.Availability, m.Year
+
+END
+
+GO
+
+CREATE PROCEDURE [SoftwareSolution].[SpGetProActiveCosts]
+    @approved bit,
+    @cnt bigint,
+    @digit bigint,
+    @av bigint,
+    @year bigint,
+    @lastid bigint,
+    @limit int,
+    @total int output
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    WITH FspCte AS (
+        select fsp.SwDigitId
+        from fsp.SwFspCodeTranslation fsp
+        join Dependencies.ProActiveSla pro on pro.id = fsp.ProactiveSlaId and pro.Name <> '0'
+        where (@digit is null or fsp.SwDigitId = @digit)
+          and (@av is null or fsp.AvailabilityId = @av)
+          and (@year is null or fsp.DurationId = @year)
+    )
+    SELECT @total = COUNT(pro.id)
+
+    FROM SoftwareSolution.ProActiveSw pro
+    LEFT JOIN FspCte fsp ON fsp.SwDigitId = pro.SwDigit
+
+    WHERE  pro.Country = @cnt
+        and (@digit is null or pro.SwDigit = @digit)
+        and (@cnt is null   or pro.Country = @cnt)
+
+    -----------------------------------------------------------------------------------------------------
+
+    select    m.rownum
+            , c.Name as Country               
+            , sog.Name as Sog                   
+            , d.Name as SwDigit               
+
+            , av.Name as Availability
+            , y.Name as Year
+            , pro.ExternalName as ProactiveSla
+
+            , m.ProActive
+
+    FROM SoftwareSolution.GetProActiveCosts(@approved, @cnt, @digit, @av, @year, @lastid, @limit) m
+    JOIN InputAtoms.Country c on c.id = m.Country
+    join InputAtoms.SwDigit d on d.Id = m.SwDigit
+    join InputAtoms.Sog sog on sog.Id = d.SogId
+    left join Dependencies.Availability av on av.Id = m.AvailabilityId
+    left join Dependencies.Year y on y.Id = m.DurationId
+    left join Dependencies.ProActiveSla pro on pro.Id = m.ProactiveSlaId
+
+    order by m.SwDigit, m.AvailabilityId, m.DurationId, m.ProactiveSlaId;
+
+
+END
+GO
+
 
 
 

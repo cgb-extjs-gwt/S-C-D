@@ -76,30 +76,7 @@ const initByMeta: Reducer<CostEditorState, LoadingAppDataAction> = (state, { dat
 
 const defaultState = () => (<CostEditorState>{
     applications: null,
-    dataLossInfo: {
-        isWarningDisplayed: false,
-        action: null,
-    }
 })
-
-const loseChanges: Reducer<CostEditorState, Action<string>> = (state, action) => {
-    const { id: applicationId, costBlocks } = findApplication(state);
-
-    state = mapCostBlock(state, applicationId, costBlocks.selectedItemId, costBlock => ({
-        ...costBlock,
-        edit: {
-            ...costBlock.edit,
-            editedItems: []
-        }
-    }));
-
-    return {
-        ...state,
-        dataLossInfo: {
-            ...state.dataLossInfo,
-        }
-    }
-}
 
 const clearCostBlockFilters  = (costBlock: CostBlockState, clearSelected: boolean = false) => {
     const result: CostBlockState = {

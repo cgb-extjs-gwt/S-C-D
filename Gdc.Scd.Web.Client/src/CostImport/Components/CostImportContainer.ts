@@ -176,6 +176,10 @@ const buildProps = (() => {
                 result = costImport.dependencyItems.selectedItemId != null;
             }
 
+            if (result && costElement.regionInput) {
+                result = costImport.regions.selectedItemId != null;
+            }
+
             return result;
         }
 
@@ -191,7 +195,7 @@ const buildProps = (() => {
             const { applicationId, costBlockId } = costImport;
             const costElement = getCostElementByAppMeta(appMetaData, costBlockId, costElementId);
 
-            if (costElement && costElement.dependency) {
+            if (costElement && (costElement.dependency || costElement.regionInput)) {
                 handleRequest(
                     CostBlockService.getCostElementData({ applicationId, costBlockId, costElementId }).then(
                         costElementData => dispatch(loadCostElementData(costElementData))

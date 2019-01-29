@@ -1,9 +1,10 @@
 import { buildMvcUrl, get, post } from "../../Common/Services/Ajax";
 import { NamedId } from "../../Common/States/CommonStates";
 import { QualityGateResult } from "../../QualityGate/States/QualityGateResult";
-import { CostElementData, EditItem } from "../States/CostBlockStates";
+import { EditItem } from "../States/CostBlockStates";
 import { Context } from "../../Common/States/Context";
 import { ApprovalOption } from "../../QualityGate/States/ApprovalOption";
+import { CostElementData } from "../States/CostElementData";
 
 export const COST_EDITOR_CONTROLLER_NAME = 'CostEditor';
 

@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
@@ -12,8 +9,6 @@ namespace Gdc.Scd.Core.Meta.Impl
 {
     public class DomainEnitiesMetaService : IDomainEnitiesMetaService
     {
-        private const string TypeKey = "Type";
-
         private const string ReferenceTypeKey = "Reference";
 
         private const string FlagTypeKey = "Flag";
@@ -122,7 +117,7 @@ namespace Gdc.Scd.Core.Meta.Impl
 
             if (costElementMeta.TypeOptions != null)
             {
-                switch(costElementMeta.TypeOptions[TypeKey])
+                switch(costElementMeta.GetOptionsType())
                 {
                     case ReferenceTypeKey:
                         var entityName = costElementMeta.TypeOptions[NameKey];

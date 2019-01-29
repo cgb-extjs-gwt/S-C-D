@@ -36,6 +36,7 @@ export interface CostElementColumnOption<T=any> {
     references?: NamedId<number>[]
     width?: string | number
     flex?: number
+    currency?: string
     mappingFn?(data: T): any
     editMappingFn?(data: Model<T>, dataIndex: string)
     getCountFn?(data: Model<T>): number
@@ -46,7 +47,7 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
     let referenceItems: Map<number, NamedId<number>>;
     let formatFn: (value, record?: Model<T>) => any;
 
-    const { title, type, dataIndex, inputType, references = [] } = option;
+    const { title, type, dataIndex, inputType, references = [], currency } = option;
     const readonly = inputType == InputType.AutomaticallyReadonly || inputType == InputType.Automatically;
 
     switch (type) {
@@ -82,6 +83,12 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
         case FieldType.Percent:
             columnType = ColumnType.Numeric;
             formatFn = value => Ext.util.Format.number(value, '0.##%');
+            break;
+
+        case FieldType.CountryCurrencyCost: 
+            if (currency != null) {
+                formatFn = value => Ext.util.Format.number(value, `0.## ${currency}`);
+            }
             break;
     }
 
