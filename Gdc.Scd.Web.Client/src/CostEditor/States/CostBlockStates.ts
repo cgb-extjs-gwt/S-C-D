@@ -15,10 +15,14 @@ export interface Filter {
     filter: CheckItem[]
 }
 
+export interface Region extends NamedId {
+    currency?: NamedId
+}
+
 export interface CostElementState extends Filter {
     costElementId: string
     inputLevels: SelectList<InputLevelState>
-    region: SelectList<NamedId>
+    region: SelectList<Region>
     isDataLoaded: boolean
     referenceValues: NamedId<number>[]
 }
@@ -26,12 +30,6 @@ export interface CostElementState extends Filter {
 export interface InputLevelState extends Filter {
     inputLevelId: string
     isFilterLoaded: boolean
-}
-
-export interface CostElementData {
-    regions: NamedId[] 
-    filters: NamedId[] 
-    referenceValues: NamedId<number>[] 
 }
 
 export interface CostBlockEditState {

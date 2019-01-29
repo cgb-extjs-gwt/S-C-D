@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Gdc.Scd.BusinessLogicLayer.Dto;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
@@ -16,7 +17,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<IEnumerable<NamedId>> GetRegions(HistoryContext context);
 
-        Task<CostElementData> GetCostElementData(HistoryContext context);
+        Task<CostElementDataDto> GetCostElementData(HistoryContext context);
 
         Task UpdateByCoordinatesAsync(
             IEnumerable<CostBlockEntityMeta> costBlockMetas, 

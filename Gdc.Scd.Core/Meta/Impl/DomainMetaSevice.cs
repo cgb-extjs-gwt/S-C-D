@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
 
@@ -160,6 +161,13 @@ namespace Gdc.Scd.Core.Meta.Impl
                 costElementMeta.TypeOptions = 
                     typeNode.Attributes()
                             .ToDictionary(attr => attr.Name.ToString(), attr => attr.Value.ToString());
+
+                if (costElementMeta.IsCountryCurrencyCost && 
+                    costElementMeta.RegionInput != null && 
+                    costElementMeta.RegionInput.Id != MetaConstants.CountryInputLevelName)
+                {
+                    throw new Exception($"Cost element {costElementMeta.Id} with 'CountryCurrencyCost' type option must have '{MetaConstants.CountryInputLevelName}' region input.");
+                }
             }
 
             costElementMeta.TableViewRoles = this.BuildRoles(node, TableViewNodeName);
