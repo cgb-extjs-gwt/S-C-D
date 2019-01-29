@@ -1994,7 +1994,7 @@ RETURN
          , ChangeUserName
          , ChangeUserEmail
 
-         ,ServiceTP_Released
+         , ServiceTP_Released
 
     from Hardware.GetCostsFull(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit)
 )
