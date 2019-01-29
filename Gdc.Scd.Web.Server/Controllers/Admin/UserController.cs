@@ -40,51 +40,14 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
         }
 
         [HttpGet]
-        public DataInfo<User> SearchUser(string _dc, string searchString, int page = 1, int start = 0, int limit = 25)
+        public DataInfo<User> SearchUser(string searchString)
         {
             var searchCount = Int32.Parse(ConfigurationManager.AppSettings["UsersSearchCount"]);
             if (string.IsNullOrEmpty(searchString))
                 return new DataInfo<User> { Items = new List<User>(), Total = 0 };
-            var foundUsers = new List<User>();
-            var foundDomainUsers = activeDirectoryService.SearchForUserByString(searchString, searchCount);
-            if (foundDomainUsers.Count > 0)
-            {
-                foundUsers = foundDomainUsers.Select(
-                    user => new User
-                    {
-                        Name = user.DisplayName,
-                        Login = user.Sid.Translate(typeof(NTAccount)).ToString(),
-                        Email = user.EmailAddress
-                    }).OrderBy(x => x.Name).ToList();
-            }
-                
-            else
-            {
-                var foundForestUsers = activeDirectoryService.GetUserFromForestByUsername(searchString);
-                foreach (SearchResult foundForestUser in foundForestUsers)
-                {
-                    var userEntry = foundForestUser.GetDirectoryEntry();
-                    foundUsers.Add(
-                        new User
-                        {
-                            Email = Convert.ToString(userEntry.Properties["mail"].Value),
-                            Name = Convert.ToString(userEntry.Properties["cn"].Value),
-                            Login = GetLoginFromSearchResult(foundForestUser),
-                        }
-                    );
-                }
-            }
+            var foundUsers = activeDirectoryService.SearchForUserByString(searchString, searchCount);
 
             return new DataInfo<User> { Items = foundUsers, Total = foundUsers.Count() };
-        }
-        private string GetLoginFromSearchResult(SearchResult result)
-        {
-            var propertyValues = result.Properties["objectsid"];
-            var objectsid = (byte[])propertyValues[0];
-            var sid = new SecurityIdentifier(objectsid, 0);
-
-            var account = sid.Translate(typeof(NTAccount));
-            return account.ToString();
         }
     }
 }

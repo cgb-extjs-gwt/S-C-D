@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
@@ -61,12 +62,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 }
             }
         }
-        public SearchResultCollection GetUserFromForestByUsername(string search)
+        public SearchResultCollection GetUserFromForest(string search)
         {
-            var domainContext = new DirectoryContext(DirectoryContextType.Forest, "fujitsu.local");
+            var domainContext = new DirectoryContext(DirectoryContextType.Forest, Configuration.ForestName);
             var currentForest = Forest.GetForest(domainContext);
             var gc = currentForest.FindGlobalCatalog();
-
             using (var userSearcher = gc.GetDirectorySearcher())
             {
                 userSearcher.Filter = "(|(samaccountname=" + search + "*)(name=" + search + "*)(displayName=" + search + "*)(mail=" + search + "))";
@@ -77,7 +77,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public List<UserPrincipal> SearchForUserByString(string search, int count = 5)
+        public List<UserPrincipal> GetUserFromDomain(string search, int count = 5)
         {
             var searchResults = new List<DirectoryEntry>();
             using (var context = new PrincipalContext(ContextType.Domain))
@@ -86,10 +86,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     var searchPrinciples = new List<UserPrincipal>();
                     searchPrinciples.Add(new UserPrincipal(context) { Surname = string.Format("{0}*", search) });
-                    searchPrinciples.Add(new UserPrincipal(context) { GivenName = string.Format("{0}*", search) });                 
-
+                    searchPrinciples.Add(new UserPrincipal(context) { GivenName = string.Format("{0}*", search) });
                     var results = new List<UserPrincipal>();
-                    
                     try
                     {
                         var searcher = new PrincipalSearcher();
@@ -109,6 +107,39 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 }
             }
         }
+        public List<User> SearchForUserByString(string search, int count = 5)
+        {
+            var foundUsers = new List<User>();
+            var foundDomainUsers = GetUserFromDomain(search, count);
+            if (foundDomainUsers.Count > 0)
+            {
+                foundUsers = foundDomainUsers.Select(
+                    user => new User
+                    {
+                        Name = user.DisplayName,
+                        Login = user.Sid.Translate(typeof(NTAccount)).ToString(),
+                        Email = user.EmailAddress
+                    }).OrderBy(x => x.Name).ToList();
+            }
+            else
+            {
+                var foundForestUsers = GetUserFromForest(search);
+                foreach (SearchResult foundForestUser in foundForestUsers)
+                {
+                    var userEntry = foundForestUser.GetDirectoryEntry();
+                    foundUsers.Add(
+                        new User
+                        {
+                            Email = Convert.ToString(userEntry.Properties["mail"].Value),
+                            Name = Convert.ToString(userEntry.Properties["cn"].Value),
+                            Login = GetLoginFromSearchResult(foundForestUser),
+                        }
+                    );
+                }
+            }
+
+            return foundUsers;
+        }
         public UserPrincipal FindByIdentity(string userIdentity)
         {
             using (var context = new PrincipalContext(ContextType.Domain))
@@ -123,6 +154,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     return null;
                 }
             }
+        }
+        private string GetLoginFromSearchResult(SearchResult result)
+        {
+            var propertyValues = result.Properties["objectsid"];
+            var objectsid = (byte[])propertyValues[0];
+            var sid = new SecurityIdentifier(objectsid, 0);
+
+            var account = sid.Translate(typeof(NTAccount));
+            return account.ToString();
         }
     }
 }
