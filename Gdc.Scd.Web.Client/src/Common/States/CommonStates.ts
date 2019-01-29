@@ -3,6 +3,12 @@ export interface NamedId<TId = string> {
     name: string;
 }
 
+export interface SortableNamedId<TId = string> {
+    id: TId;
+    name: string;
+    order: number;
+}
+
 export interface DataInfo<T>
 {
     items: T[];
