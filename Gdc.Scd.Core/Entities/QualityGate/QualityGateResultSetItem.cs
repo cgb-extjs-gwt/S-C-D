@@ -1,4 +1,4 @@
-﻿namespace Gdc.Scd.Core.Entities
+﻿namespace Gdc.Scd.Core.Entities.QualityGate
 {
     public class QualityGateResultSetItem
     {

@@ -6,6 +6,8 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.Approval;
+using Gdc.Scd.Core.Entities.QualityGate;
 using Gdc.Scd.Web.Server.Impl;
 using Newtonsoft.Json;
 
@@ -22,35 +24,35 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         [HttpGet]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval })]
-        public async Task<IEnumerable<Bundle>> GetApprovalBundles([FromUri]CostBlockHistoryState state, [FromUri]CostBlockHistoryFilter filter = null)
+        public async Task<IEnumerable<BundleDto>> GetApprovalBundles([FromUri]CostBlockHistoryState state, [FromUri]BundleFilter filter = null)
         {
             return await this.approvalService.GetApprovalBundles(filter, state);
         }
 
         [HttpPost]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval })]
-        public async Task<IEnumerable<Bundle>> GetApprovalBundlesByFilter(CostBlockHistoryFilter filter, [FromUri]CostBlockHistoryState state)
+        public async Task<IEnumerable<BundleDto>> GetApprovalBundlesByFilter(BundleFilter filter, [FromUri]CostBlockHistoryState state)
         {
             return await this.approvalService.GetApprovalBundles(filter, state);
         }
 
         [HttpGet]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.OwnApproval })]
-        public async Task<IEnumerable<Bundle>> GetOwnApprovalBundles([FromUri]CostBlockHistoryState state, [FromUri]CostBlockHistoryFilter filter = null)
+        public async Task<IEnumerable<BundleDto>> GetOwnApprovalBundles([FromUri]CostBlockHistoryState state, [FromUri]BundleFilter filter = null)
         {
             return await this.approvalService.GetOwnApprovalBundles(filter, state);
         }
 
         [HttpPost]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.OwnApproval })]
-        public async Task<IEnumerable<Bundle>> GetOwnApprovalBundlesByFilter(CostBlockHistoryFilter filter, [FromUri]CostBlockHistoryState state)
+        public async Task<IEnumerable<BundleDto>> GetOwnApprovalBundlesByFilter(BundleFilter filter, [FromUri]CostBlockHistoryState state)
         {
             return await this.approvalService.GetOwnApprovalBundles(filter, state);
         }
 
         [HttpGet]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.Approval, PermissionConstants.OwnApproval })]
-        public async Task<IEnumerable<BundleDetailGroup>> GetApproveBundleDetail(
+        public async Task<IEnumerable<BundleDetailGroupDto>> GetApproveBundleDetail(
             [FromUri]long costBlockHistoryId,
             [FromUri]long? historyValueId = null,
             [FromUri]string costBlockFilter = null)

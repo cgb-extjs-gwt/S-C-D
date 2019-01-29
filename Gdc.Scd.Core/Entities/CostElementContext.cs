@@ -1,14 +1,14 @@
 ﻿namespace Gdc.Scd.Core.Entities
 {
-    public class HistoryContext : CostElementIdentifier
+    public class CostElementContext : CostElementIdentifier
     {
         public long? RegionInputId { get; set; }
 
         public string InputLevelId { get; set; }
 
-        public static HistoryContext Build(HistoryContext context)
+        public static CostElementContext Build(CostElementContext context)
         {
-            return new HistoryContext
+            return new CostElementContext
             {
                 ApplicationId = context.ApplicationId,
                 RegionInputId = context.RegionInputId,

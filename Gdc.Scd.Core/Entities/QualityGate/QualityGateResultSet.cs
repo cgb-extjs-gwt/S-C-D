@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Gdc.Scd.Core.Entities
+namespace Gdc.Scd.Core.Entities.QualityGate
 {
     public class QualityGateResultSet
     {

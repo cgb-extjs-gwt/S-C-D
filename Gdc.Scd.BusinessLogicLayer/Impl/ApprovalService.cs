@@ -6,6 +6,8 @@ using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.Approval;
+using Gdc.Scd.Core.Entities.QualityGate;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
@@ -54,14 +56,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
 
-        public async Task<IEnumerable<Bundle>> GetApprovalBundles(CostBlockHistoryFilter filter, CostBlockHistoryState state)
+        public async Task<IEnumerable<BundleDto>> GetApprovalBundles(BundleFilter filter, CostBlockHistoryState state)
         {
             var histories = this.costBlockHistoryService.GetByFilter(filter, state).ToArray();
 
             return await this.GetApprovalBundles(histories);
         }
 
-        public async Task<IEnumerable<Bundle>> GetOwnApprovalBundles(CostBlockHistoryFilter filter, CostBlockHistoryState state)
+        public async Task<IEnumerable<BundleDto>> GetOwnApprovalBundles(BundleFilter filter, CostBlockHistoryState state)
         {
             var user = this.userService.GetCurrentUser();
             var histories = 
@@ -141,7 +143,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public async Task<IEnumerable<BundleDetailGroup>> GetApproveBundleDetails(
+        public async Task<IEnumerable<BundleDetailGroupDto>> GetApproveBundleDetails(
             CostBlockHistory history,
             long? historyValueId = null,
             IDictionary<string, IEnumerable<object>> costBlockFilter = null)
@@ -162,7 +164,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return bundleDetails.ToBundleDetailGroups();
         }
 
-        public async Task<IEnumerable<BundleDetailGroup>> GetApproveBundleDetails(
+        public async Task<IEnumerable<BundleDetailGroupDto>> GetApproveBundleDetails(
             long costBlockHistoryId,
             long? historyValueId = null,
             IDictionary<string, IEnumerable<object>> costBlockFilter = null)
@@ -172,7 +174,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return await this.GetApproveBundleDetails(history, historyValueId, costBlockFilter);
         }
 
-        private async Task<IEnumerable<Bundle>> GetApprovalBundles(CostBlockHistory[] histories)
+        private async Task<IEnumerable<BundleDto>> GetApprovalBundles(CostBlockHistory[] histories)
         {
             var historyInfos =
                 histories.Select(history => new
@@ -197,7 +199,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 regionCache.Add(historyInfoGroup.Key, regions.ToDictionary(region => region.Id));
             }
 
-            var historyDtos = new List<Bundle>();
+            var historyDtos = new List<BundleDto>();
 
             foreach (var history in histories)
             {
@@ -207,7 +209,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     ? null
                     : regionCache[costElement.RegionInput][history.Context.RegionInputId.Value];
 
-                var historyDto = new Bundle
+                var historyDto = new BundleDto
                 {
                     Id = history.Id,
                     EditDate = history.EditDate,

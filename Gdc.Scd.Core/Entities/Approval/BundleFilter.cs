@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Gdc.Scd.Core.Entities
+namespace Gdc.Scd.Core.Entities.Approval
 {
-    public class CostBlockHistoryFilter
+    public class BundleFilter
     {
         public DateTime? DateTimeFrom { get; set; }
 

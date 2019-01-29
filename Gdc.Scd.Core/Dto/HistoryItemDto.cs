@@ -2,7 +2,7 @@
 
 namespace Gdc.Scd.Core.Dto
 {
-    public class HistoryItem
+    public class HistoryItemDto
     {
         public DateTime EditDate { get; set; }
 

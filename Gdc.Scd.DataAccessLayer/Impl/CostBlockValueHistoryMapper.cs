@@ -2,6 +2,7 @@
 using System.Data;
 using System.Linq;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.Approval;
 using Gdc.Scd.Core.Meta.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.Impl

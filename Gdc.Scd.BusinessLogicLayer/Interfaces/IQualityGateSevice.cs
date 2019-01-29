@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.QualityGate;
 using Gdc.Scd.Core.Interfaces;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces

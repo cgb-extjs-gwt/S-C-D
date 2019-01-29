@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Gdc.Scd.Core.Entities
+namespace Gdc.Scd.Core.Entities.Approval
 {
     public class BundleDetail : BaseBundleDetail
     {

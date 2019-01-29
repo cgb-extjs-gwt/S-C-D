@@ -2,11 +2,11 @@
 using System.Linq;
 using Gdc.Scd.Core.Dto;
 
-namespace Gdc.Scd.Core.Entities
+namespace Gdc.Scd.Core.Entities.QualityGate
 {
     public class QualityGateResult
     {
-        public IEnumerable<BundleDetailGroup> Errors { get; set; }
+        public IEnumerable<BundleDetailGroupDto> Errors { get; set; }
 
         public bool HasErrors
         {
