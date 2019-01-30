@@ -717,17 +717,6 @@ BEGIN
 END
 GO
 
-USE [Scd_3]
-GO
-
-/****** Object:  UserDefinedFunction [Hardware].[CalcLocSrvStandardWarranty]    Script Date: 30.01.2019 9:21:49 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
 CREATE FUNCTION [Hardware].[CalcLocSrvStandardWarranty](
     @labourCost float,
     @travelCost float,
