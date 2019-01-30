@@ -256,6 +256,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                       }))
                                       .GroupBy(info => info.CostElementValue.Key);
 
+                
                 foreach (var costElementGroup in costElementGroups)
                 {
                     foreach (var inputLevelGroup in costElementGroup.GroupBy(info => info.InputLevel.Id))
@@ -269,7 +270,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                            .ToArray();
 
                             var filter = filterGroup.Key == null ? new Dictionary<string, long[]>() : filterGroup.Key;
-
+                            
+                            
                             var context = new HistoryContext
                             {
                                 ApplicationId = editInfo.Meta.ApplicationId,
@@ -277,6 +279,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                 InputLevelId = inputLevelGroup.Key,
                                 CostElementId = costElementGroup.Key
                             };
+
+                            var inputRegionInfo = editInfo.Meta.DomainMeta.CostElements.First(ce => ce.Id == costElementGroup.Key).RegionInput;
+                            if (inputRegionInfo != null)
+                            {
+                                var inputRegionIdColumn = inputRegionInfo.Id;
+                                var inputRegionValue = filter[inputRegionIdColumn];
+                                if (inputRegionValue.Count() == 1)
+                                    context.RegionInputId = inputRegionValue[0];
+                            }
 
                             yield return new EditItemContext
                             {
