@@ -141,10 +141,6 @@ IF OBJECT_ID('Hardware.CalcLocSrvStandardWarranty') IS NOT NULL
   DROP FUNCTION Hardware.CalcLocSrvStandardWarranty;
 go 
 
-IF OBJECT_ID('Hardware.CalcLocSrvStandardWarranty_New') IS NOT NULL
-  DROP FUNCTION Hardware.CalcLocSrvStandardWarranty_New;
-go 
-
 IF OBJECT_ID('Hardware.AvailabilityFeeCalcView', 'V') IS NOT NULL
   DROP VIEW Hardware.AvailabilityFeeCalcView;
 go
@@ -215,6 +211,10 @@ go
 
 IF OBJECT_ID('Hardware.AddMarkup') IS NOT NULL
   DROP FUNCTION Hardware.AddMarkup;
+go 
+
+IF OBJECT_ID('Hardware.AddMarkupFactorOrFixValue') IS NOT NULL
+  DROP FUNCTION Hardware.AddMarkupFactorOrFixValue;
 go 
 
 IF OBJECT_ID('Hardware.CalcAvailabilityFee') IS NOT NULL
@@ -633,6 +633,29 @@ BEGIN
 END
 GO
 
+CREATE FUNCTION [Hardware].[AddMarkupFactorOrFixValue](
+    @value float,
+    @markupFactor float,
+    @fixed float
+)
+RETURNS float
+AS
+BEGIN
+
+    if @markupFactor > 0
+        begin
+            set @value = @value * @markupFactor;
+        end
+    else if @fixed > 0
+        begin
+            set @value = @fixed;
+        end
+
+    RETURN @value;
+
+END
+GO
+
 CREATE FUNCTION [Hardware].[CalcLogisticCost](
 	@standardHandling float,
     @highAvailabilityHandling float,
@@ -718,28 +741,6 @@ END
 GO
 
 CREATE FUNCTION [Hardware].[CalcLocSrvStandardWarranty](
-    @labourCost float,
-    @travelCost float,
-    @srvSupportCost float,
-    @logisticCost float,
-    @taxAndDutiesW float,
-    @afr float,
-    @availabilityFee float,
-    @markupFactor float,
-    @markup float
-)
-RETURNS float
-AS
-BEGIN
-    declare @totalCost float = Hardware.AddMarkup(@labourCost + @travelCost + @srvSupportCost + @logisticCost, @markupFactor, @markup);
-    declare @fee float = Hardware.AddMarkup(@availabilityFee, @markupFactor, @markup);
-
-    return @afr * (@totalCost + @taxAndDutiesW) + @fee;
-END
-
-GO
-
-CREATE FUNCTION [Hardware].[CalcLocSrvStandardWarranty_New](
     @fieldServiceCost float,
     @srvSupportCost float,
     @logisticCost float,
@@ -1657,8 +1658,9 @@ RETURN
                  else 0
            end as AvailabilityFee
 
-         , case when @approved = 0 then moc.Markup                         else moc.Markup_Approved                       end as Markup                      
-         , case when @approved = 0 then moc.MarkupFactor                   else moc.MarkupFactor_Approved                 end as MarkupFactor                
+         , case when @approved = 0 then moc.Markup                         else moc.Markup_Approved                       end as MarkupOtherCost                      
+         , case when @approved = 0 then moc.MarkupFactor                   else moc.MarkupFactor_Approved                 end as MarkupFactorOtherCost                
+
          , case when @approved = 0 then msw.MarkupFactorStandardWarranty   else msw.MarkupFactorStandardWarranty_Approved end as MarkupFactorStandardWarranty
          , case when @approved = 0 then msw.MarkupStandardWarranty         else msw.MarkupStandardWarranty_Approved       end as MarkupStandardWarranty      
 
@@ -1694,7 +1696,7 @@ RETURN
          , man.DealerDiscount  as DealerDiscount              
          , man.DealerPrice     as DealerPrice                 
          , man.ServiceTC       as ServiceTCManual                   
-         , man.ServiceTP       as ServiceTPManual                                 
+         , man.ServiceTP       as ServiceTPManual                   
          , man.ServiceTP_Released as ServiceTP_Released                  
          , man.ChangeUserName  as ChangeUserName
          , man.ChangeUserEmail as ChangeUserEmail
@@ -1875,31 +1877,31 @@ RETURN
         select    
                   m.*
 
-                , Hardware.AddMarkup(m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect1
-                , Hardware.AddMarkup(m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect2
-                , Hardware.AddMarkup(m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect3
-                , Hardware.AddMarkup(m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect4
-                , Hardware.AddMarkup(m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect5
-                , Hardware.AddMarkup(m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect1P
+                , Hardware.AddMarkupFactorOrFixValue(m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect1
+                , Hardware.AddMarkupFactorOrFixValue(m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect2
+                , Hardware.AddMarkupFactorOrFixValue(m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect3
+                , Hardware.AddMarkupFactorOrFixValue(m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect4
+                , Hardware.AddMarkupFactorOrFixValue(m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect5
+                , Hardware.AddMarkupFactorOrFixValue(m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect1P
 
                 , case when m.StdWarranty >= 1 
-                        then Hardware.CalcLocSrvStandardWarranty_New(m.FieldServiceCostStdw1, m.ServiceSupport, m.LogisticStdw1, m.tax1, m.AFR1, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw1, m.ServiceSupport, m.LogisticStdw1, m.tax1, m.AFR1, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty1
                 , case when m.StdWarranty >= 2 
-                        then Hardware.CalcLocSrvStandardWarranty_New(m.FieldServiceCostStdw2, m.ServiceSupport, m.LogisticStdw2, m.tax2, m.AFR2, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw2, m.ServiceSupport, m.LogisticStdw2, m.tax2, m.AFR2, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty2
                 , case when m.StdWarranty >= 3 
-                        then Hardware.CalcLocSrvStandardWarranty_New(m.FieldServiceCostStdw3, m.ServiceSupport, m.LogisticStdw3, m.tax3, m.AFR3, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw3, m.ServiceSupport, m.LogisticStdw3, m.tax3, m.AFR3, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty3
                 , case when m.StdWarranty >= 4 
-                        then Hardware.CalcLocSrvStandardWarranty_New(m.FieldServiceCostStdw4, m.ServiceSupport, m.LogisticStdw4, m.tax4, m.AFR4, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw4, m.ServiceSupport, m.LogisticStdw4, m.tax4, m.AFR4, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty4
                 , case when m.StdWarranty >= 5 
-                        then Hardware.CalcLocSrvStandardWarranty_New(m.FieldServiceCostStdw5, m.ServiceSupport, m.LogisticStdw5, m.tax5, m.AFR5, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw5, m.ServiceSupport, m.LogisticStdw5, m.tax5, m.AFR5, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty5
                 , 0     as LocalServiceStandardWarranty1P
@@ -1928,12 +1930,12 @@ RETURN
     )
     , CostCte6 as (
         select m.*
-             , Hardware.AddMarkup(m.ServiceTC1,  1 + m.MarkupFactor, m.Markup) as ServiceTP1
-             , Hardware.AddMarkup(m.ServiceTC2,  1 + m.MarkupFactor, m.Markup) as ServiceTP2
-             , Hardware.AddMarkup(m.ServiceTC3,  1 + m.MarkupFactor, m.Markup) as ServiceTP3
-             , Hardware.AddMarkup(m.ServiceTC4,  1 + m.MarkupFactor, m.Markup) as ServiceTP4
-             , Hardware.AddMarkup(m.ServiceTC5,  1 + m.MarkupFactor, m.Markup) as ServiceTP5
-             , Hardware.AddMarkup(m.ServiceTC1P, 1 + m.MarkupFactor, m.Markup) as ServiceTP1P
+             , Hardware.AddMarkup(m.ServiceTC1,  1 + m.MarkupFactorOtherCost, m.MarkupOtherCost) as ServiceTP1
+             , Hardware.AddMarkup(m.ServiceTC2,  1 + m.MarkupFactorOtherCost, m.MarkupOtherCost) as ServiceTP2
+             , Hardware.AddMarkup(m.ServiceTC3,  1 + m.MarkupFactorOtherCost, m.MarkupOtherCost) as ServiceTP3
+             , Hardware.AddMarkup(m.ServiceTC4,  1 + m.MarkupFactorOtherCost, m.MarkupOtherCost) as ServiceTP4
+             , Hardware.AddMarkup(m.ServiceTC5,  1 + m.MarkupFactorOtherCost, m.MarkupOtherCost) as ServiceTP5
+             , Hardware.AddMarkup(m.ServiceTC1P, 1 + m.MarkupFactorOtherCost, m.MarkupOtherCost) as ServiceTP1P
         from CostCte5 m
     )    
     select m.Id
@@ -1963,7 +1965,7 @@ RETURN
 
          --Cost
 
-         , m.AvailabilityFee
+         , m.AvailabilityFee * m.Year as AvailabilityFee
          , m.HddRet
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.tax1, m.tax2, m.tax3, m.tax4, m.tax5, m.tax1P) as TaxAndDutiesW
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.taxO1, m.taxO2, m.taxO3, m.taxO4, m.taxO5, m.taxO1P) as TaxAndDutiesOow
