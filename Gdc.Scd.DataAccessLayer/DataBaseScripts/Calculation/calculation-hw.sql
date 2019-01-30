@@ -141,6 +141,10 @@ IF OBJECT_ID('Hardware.CalcLocSrvStandardWarranty') IS NOT NULL
   DROP FUNCTION Hardware.CalcLocSrvStandardWarranty;
 go 
 
+IF OBJECT_ID('Hardware.CalcLocSrvStandardWarranty_New') IS NOT NULL
+  DROP FUNCTION Hardware.CalcLocSrvStandardWarranty_New;
+go 
+
 IF OBJECT_ID('Hardware.AvailabilityFeeCalcView', 'V') IS NOT NULL
   DROP VIEW Hardware.AvailabilityFeeCalcView;
 go
@@ -713,7 +717,40 @@ BEGIN
 END
 GO
 
+USE [Scd_3]
+GO
+
+/****** Object:  UserDefinedFunction [Hardware].[CalcLocSrvStandardWarranty]    Script Date: 30.01.2019 9:21:49 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
 CREATE FUNCTION [Hardware].[CalcLocSrvStandardWarranty](
+    @labourCost float,
+    @travelCost float,
+    @srvSupportCost float,
+    @logisticCost float,
+    @taxAndDutiesW float,
+    @afr float,
+    @availabilityFee float,
+    @markupFactor float,
+    @markup float
+)
+RETURNS float
+AS
+BEGIN
+    declare @totalCost float = Hardware.AddMarkup(@labourCost + @travelCost + @srvSupportCost + @logisticCost, @markupFactor, @markup);
+    declare @fee float = Hardware.AddMarkup(@availabilityFee, @markupFactor, @markup);
+
+    return @afr * (@totalCost + @taxAndDutiesW) + @fee;
+END
+
+GO
+
+CREATE FUNCTION [Hardware].[CalcLocSrvStandardWarranty_New](
     @fieldServiceCost float,
     @srvSupportCost float,
     @logisticCost float,
@@ -1857,23 +1894,23 @@ RETURN
                 , Hardware.AddMarkup(m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect1P
 
                 , case when m.StdWarranty >= 1 
-                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw1, m.ServiceSupport, m.LogisticStdw1, m.tax1, m.AFR1, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                        then Hardware.CalcLocSrvStandardWarranty_New(m.FieldServiceCostStdw1, m.ServiceSupport, m.LogisticStdw1, m.tax1, m.AFR1, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty1
                 , case when m.StdWarranty >= 2 
-                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw2, m.ServiceSupport, m.LogisticStdw2, m.tax2, m.AFR2, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                        then Hardware.CalcLocSrvStandardWarranty_New(m.FieldServiceCostStdw2, m.ServiceSupport, m.LogisticStdw2, m.tax2, m.AFR2, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty2
                 , case when m.StdWarranty >= 3 
-                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw3, m.ServiceSupport, m.LogisticStdw3, m.tax3, m.AFR3, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                        then Hardware.CalcLocSrvStandardWarranty_New(m.FieldServiceCostStdw3, m.ServiceSupport, m.LogisticStdw3, m.tax3, m.AFR3, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty3
                 , case when m.StdWarranty >= 4 
-                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw4, m.ServiceSupport, m.LogisticStdw4, m.tax4, m.AFR4, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                        then Hardware.CalcLocSrvStandardWarranty_New(m.FieldServiceCostStdw4, m.ServiceSupport, m.LogisticStdw4, m.tax4, m.AFR4, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty4
                 , case when m.StdWarranty >= 5 
-                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw5, m.ServiceSupport, m.LogisticStdw5, m.tax5, m.AFR5, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                        then Hardware.CalcLocSrvStandardWarranty_New(m.FieldServiceCostStdw5, m.ServiceSupport, m.LogisticStdw5, m.tax5, m.AFR5, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty5
                 , 0     as LocalServiceStandardWarranty1P
