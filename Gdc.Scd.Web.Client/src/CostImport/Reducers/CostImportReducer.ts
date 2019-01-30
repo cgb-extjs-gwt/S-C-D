@@ -15,11 +15,7 @@ const reset = () => ({
         list: [],
         selectedItemId: null
     },
-    status: [],
-    file: <FileData>{
-        name: null,
-        base64Data: null
-    }
+    status: []
 })
 
 const defaultState = () => (<CostImportState>{
@@ -27,6 +23,10 @@ const defaultState = () => (<CostImportState>{
     applicationId: null,
     costBlockId: null,
     costElementId: null,
+    file: <FileData>{
+        name: null,
+        base64Data: null
+    }
 })
 
 const selectApplication: Reducer<CostImportState, ItemSelectedAction> = (state, action) => ({
@@ -85,6 +85,7 @@ const loadImportStatus: Reducer<CostImportState, CommonAction<string[]>> = (stat
 
 const selectFile: Reducer<CostImportState, ItemSelectedAction> = (state, action) => ({
     ...state,
+    status: [],
     file: {
         ...state.file,
         name: action.selectedItemId,

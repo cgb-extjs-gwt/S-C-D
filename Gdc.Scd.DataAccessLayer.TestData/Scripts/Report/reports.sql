@@ -128,6 +128,7 @@ RETURN
 
          , coalesce(ServiceTCManual, ServiceTC) ServiceTC
          , coalesce(ServiceTPManual, ServiceTP) ServiceTP
+         , ServiceTP_Released
 
     FROM Report.GetCostsFull(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
 )
