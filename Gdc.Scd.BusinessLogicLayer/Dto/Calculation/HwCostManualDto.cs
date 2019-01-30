@@ -12,8 +12,6 @@
 
         public double? DealerDiscount { get; set; }
 
-        public double? ServiceTC_Released { get; set; }
-
         public double? ServiceTP_Released { get; set; }
     }
 }

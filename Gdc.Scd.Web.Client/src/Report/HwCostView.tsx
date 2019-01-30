@@ -188,7 +188,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                         <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
                         <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
-                        <NumberColumn text="Service TC(released)" dataIndex="ServiceTC_Released"/>
                         <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
                         <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
                         <NumberColumn text="Service TP(released)" dataIndex="ServiceTP_Released"/>

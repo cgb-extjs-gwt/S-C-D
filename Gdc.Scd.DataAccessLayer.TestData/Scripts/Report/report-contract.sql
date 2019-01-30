@@ -27,17 +27,17 @@ RETURN (
          , m.Availability
          , m.ProActiveSla
 
-         , m.ServiceTP1 AS ServiceTP1
-         , m.ServiceTP2 AS ServiceTP2
-         , m.ServiceTP3 AS ServiceTP3
-         , m.ServiceTP4 AS ServiceTP4
-         , m.ServiceTP5 AS ServiceTP5
+         , case when m.DurationId >= 1 then  m.ServiceTP_Released / dur.Value else null end as ServiceTP1
+         , case when m.DurationId >= 2 then  m.ServiceTP_Released / dur.Value else null end as ServiceTP2
+         , case when m.DurationId >= 3 then  m.ServiceTP_Released / dur.Value else null end as ServiceTP3
+         , case when m.DurationId >= 4 then  m.ServiceTP_Released / dur.Value else null end as ServiceTP4
+         , case when m.DurationId >= 5 then  m.ServiceTP_Released / dur.Value else null end as ServiceTP5
 
-         , m.ServiceTP1 / 12 AS ServiceTPMonthly1
-         , m.ServiceTP2 / 12 AS ServiceTPMonthly2
-         , m.ServiceTP3 / 12 AS ServiceTPMonthly3
-         , m.ServiceTP4 / 12 AS ServiceTPMonthly4
-         , m.ServiceTP5 / 12 AS ServiceTPMonthly5
+         , case when m.DurationId >= 1 then  m.ServiceTP_Released / dur.Value / 12 else null end as ServiceTPMonthly1
+         , case when m.DurationId >= 2 then  m.ServiceTP_Released / dur.Value / 12 else null end as ServiceTPMonthly2
+         , case when m.DurationId >= 3 then  m.ServiceTP_Released / dur.Value / 12 else null end as ServiceTPMonthly3
+         , case when m.DurationId >= 4 then  m.ServiceTP_Released / dur.Value / 12 else null end as ServiceTPMonthly4
+         , case when m.DurationId >= 5 then  m.ServiceTP_Released / dur.Value / 12 else null end as ServiceTPMonthly5
 
          , m.StdWarranty as WarrantyLevel
          , null as PortfolioType
@@ -45,6 +45,7 @@ RETURN (
 
     from Hardware.GetCostsFull(1, @cnt, @wg, @av, (select top(1) id from Dependencies.Duration where IsProlongation = 0 and Value = 5), @reactiontime, @reactiontype, @loc, @pro, 0, -1) m
     join InputAtoms.WgSogView wg on wg.id = m.WgId
+	join Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
 )
 GO
 
