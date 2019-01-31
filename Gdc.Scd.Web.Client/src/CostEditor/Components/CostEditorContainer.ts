@@ -1,4 +1,4 @@
-import { Filter, CostBlockState, InputLevelState, CheckItem } from "../States/CostBlockStates";
+import { Filter, CostBlockState, InputLevelState, CheckItem, CostElementState } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { CostEditorState } from "../States/CostEditorStates";
 import { CostBlockTab, CostEditorProps, CostEditorActions, CostEditorView } from "./CostEditorView";
@@ -63,6 +63,20 @@ const buildInputLevel = (
     }
 };
 
+const getCurrencyName = ({ region }: CostElementState) => {
+    let currencyName: string;
+
+    if (region && region.list) {
+        const { currency } = region.list.find(item => item.id == region.selectedItemId);
+
+        if (currency) {
+            currencyName = currency.name;
+        }
+    }
+
+    return currencyName;
+}
+
 const costBlockTabMap = (
     applicationId: string,
     costBlock: CostBlockState, 
@@ -112,7 +126,8 @@ const costBlockTabMap = (
                         title: selectedCostElementMeta.name,
                         type: selectedCostElementMeta.typeOptions ? selectedCostElementMeta.typeOptions.Type : FieldType.Double,
                         selectedItems: selectedCostElement.referenceValues,
-                        inputType: selectedCostElementMeta.inputType
+                        inputType: selectedCostElementMeta.inputType,
+                        currency: getCurrencyName(selectedCostElement)
                     },
                     url: costBlock.edit.editItemsUrl
                 },
@@ -179,7 +194,7 @@ const applyFilters = (() => {
 
 export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},CommonState>(
     state => {
-        const { applications, dataLossInfo } = state.pages.costEditor;
+        const { applications } = state.pages.costEditor;
         const { costBlocks } = findApplication(state.pages.costEditor);
         const { applications: applicationMetas, costBlocks: costBlockMetas } = state.app.appMetaData;
 
@@ -188,7 +203,6 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
                 selectedItemId: applications.selectedItemId,
                 list: <NamedId[]>filterCostEditorItems(applicationMetas)
             },
-            isDataLossWarningDisplayed: dataLossInfo.isWarningDisplayed,
             costBlocks: {
                 selectedItemId: costBlocks.selectedItemId,
                 list: costBlocks.list.map(costBlock => {

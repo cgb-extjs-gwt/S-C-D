@@ -5,6 +5,7 @@ import { DictField } from "../../Dict/Components/DictField";
 import { SwDigitField } from "../../Dict/Components/SwDigitField";
 import { YearField } from "../../Dict/Components/YearField";
 import { SwCostFilterModel } from "../Model/SwCostFilterModel";
+import { NamedId } from "../../Common/States/CommonStates";
 
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: SwCostFilterModel): void;
@@ -12,11 +13,11 @@ export interface FilterPanelProps extends PanelProps {
 
 export class SwCostFilter extends React.Component<FilterPanelProps, any> {
 
-    private digit: DictField;
+    private digit: DictField<NamedId>;
 
-    private avail: DictField;
+    private avail: DictField<NamedId>;
 
-    private year: DictField;
+    private year: DictField<NamedId>;
 
     public constructor(props: any) {
         super(props);

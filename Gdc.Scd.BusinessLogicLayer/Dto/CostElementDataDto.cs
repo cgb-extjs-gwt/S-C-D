@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Gdc.Scd.Core.Entities;
 
-namespace Gdc.Scd.BusinessLogicLayer.Entities
+namespace Gdc.Scd.BusinessLogicLayer.Dto
 {
-    public class CostElementData
+    public class CostElementDataDto
     {
         public IEnumerable<NamedId> Regions { get; set; }
 

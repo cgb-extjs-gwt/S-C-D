@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Gdc.Scd.BusinessLogicLayer.Dto;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
@@ -226,9 +227,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return regions;
         }
 
-        public async Task<CostElementData> GetCostElementData(HistoryContext context)
+        public async Task<CostElementDataDto> GetCostElementData(HistoryContext context)
         {
-            return new CostElementData
+            return new CostElementDataDto
             {
                 DependencyItems = await this.GetDependencyItems(context),
                 Regions = await this.GetRegions(context)
@@ -254,7 +255,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                           info.CoordinateInfo.InputLevel
                                       }))
                                       .GroupBy(info => info.CostElementValue.Key);
-
+ 
                 foreach (var costElementGroup in costElementGroups)
                 {
                     foreach (var inputLevelGroup in costElementGroup.GroupBy(info => info.InputLevel.Id))
@@ -268,7 +269,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                            .ToArray();
 
                             var filter = filterGroup.Key == null ? new Dictionary<string, long[]>() : filterGroup.Key;
-
+                            
                             var context = new HistoryContext
                             {
                                 ApplicationId = editInfo.Meta.ApplicationId,
@@ -276,6 +277,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                 InputLevelId = inputLevelGroup.Key,
                                 CostElementId = costElementGroup.Key
                             };
+
+                            var inputRegionInfo = editInfo.Meta.DomainMeta.CostElements[costElementGroup.Key].RegionInput;
+                            if (inputRegionInfo != null)
+                            {
+                                var inputRegionIdColumn = inputRegionInfo.Id;
+                                if (filter.TryGetValue(inputRegionIdColumn, out var inputRegionValue))
+                                {
+                                    if (inputRegionValue.Length == 1)
+                                        context.RegionInputId = inputRegionValue[0];
+                                    else
+                                        throw new System.Exception("RegionInputId must have single value");
+                                }
+                            }
 
                             yield return new EditItemContext
                             {

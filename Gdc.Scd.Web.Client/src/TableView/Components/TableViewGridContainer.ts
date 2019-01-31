@@ -156,7 +156,11 @@ const buildProps = (() => {
                     type: fieldType,
                     inputType: costElement.inputType,
                     width: 100,
-                    mappingFn: record => record.data[dataIndex].value,
+                    mappingFn: record => {
+                        const { value }  = record.data[dataIndex]
+
+                        return value == null ? ' ' : value;
+                    },
                     editMappingFn: (record, dataIndex) => record.data.data[dataIndex].value = record.get(dataIndex),
                     getCountFn: record => record.data.data[dataIndex].count
                 })
