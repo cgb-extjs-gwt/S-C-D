@@ -4,7 +4,6 @@ import { Route, Switch } from 'react-router-dom';
 import { MenuItem } from '../../Common/States/ExtStates';
 import { NavMenuContainer } from './NavMenuContainer';
 import { AlertPanel } from './AlertPanel';
-import { AppService } from "../Services/AppService";
 
 Ext.require(['Ext.data.ChainedStore'])
 
