@@ -225,6 +225,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     CostElement = MetaDto.Build(costElement),
                     InputLevel = MetaDto.Build(costElement.InputLevels[history.Context.InputLevelId]),
                     RegionInput = regionInput,
+                    State = history.State,
                     QualityGateErrorExplanation = history.QualityGateErrorExplanation
                 };
 

@@ -25,6 +25,8 @@ namespace Gdc.Scd.Core.Dto
 
         public MetaDto InputLevel { get; set; }
 
+        public CostBlockHistoryState State { get; set; }
+
         public string QualityGateErrorExplanation { get; set; }
     }
 }
