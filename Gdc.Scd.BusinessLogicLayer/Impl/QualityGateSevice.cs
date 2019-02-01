@@ -7,6 +7,8 @@ using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.Approval;
+using Gdc.Scd.Core.Entities.QualityGate;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
@@ -53,7 +55,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
             else
             {
-                result.Errors = Enumerable.Empty<BundleDetailGroup>();
+                result.Errors = Enumerable.Empty<BundleDetailGroupDto>();
             }
 
             return result;
@@ -72,7 +74,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
             else
             {
-                result.Errors = Enumerable.Empty<BundleDetailGroup>();
+                result.Errors = Enumerable.Empty<BundleDetailGroupDto>();
             }
 
             return result;

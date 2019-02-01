@@ -6,6 +6,7 @@ using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.Approval;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
@@ -39,7 +40,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.costBlockFilterBuilder = costBlockFilterBuilder;
         }
 
-        public IQueryable<CostBlockHistory> GetByFilter(CostBlockHistoryFilter filter)
+        public IQueryable<CostBlockHistory> GetByFilter(BundleFilter filter)
         {
             return this.FilterHistories(this.GetAll(), filter);
         }
@@ -49,17 +50,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return this.GetAll().Where(history => history.State == state);
         }
 
-        public IQueryable<CostBlockHistory> GetByFilter(CostBlockHistoryFilter filter, CostBlockHistoryState state)
+        public IQueryable<CostBlockHistory> GetByFilter(BundleFilter filter, CostBlockHistoryState state)
         {
             return this.FilterHistories(this.GetByFilter(state), filter);
         }
 
-        public async Task<IEnumerable<HistoryItem>> GetHistoryItems(HistoryContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null)
+        public async Task<IEnumerable<HistoryItemDto>> GetHistoryItems(CostElementContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null)
         {
             return await this.costBlockValueHistoryRepository.GetHistory(historyContext, filter, queryInfo);
         }
 
-        public async Task Save(HistoryContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter, EditorType editorType)
+        public async Task Save(CostElementContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter, EditorType editorType)
         {
             if (approvalOption.HasQualityGateErrors && string.IsNullOrWhiteSpace(approvalOption.QualityGateErrorExplanation))
             {
@@ -137,7 +138,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             history.State = state;
         }
 
-        private IQueryable<CostBlockHistory> FilterHistories(IQueryable<CostBlockHistory> query, CostBlockHistoryFilter filter)
+        private IQueryable<CostBlockHistory> FilterHistories(IQueryable<CostBlockHistory> query, BundleFilter filter)
         {
             if (filter != null)
             {
