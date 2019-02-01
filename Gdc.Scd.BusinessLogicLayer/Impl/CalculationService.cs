@@ -99,7 +99,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                     if (release)
                     {
-                        hwManual.ServiceTC_Released = rec.ServiceTC_Released;
                         hwManual.ServiceTP_Released = rec.ServiceTP_Released;
                         hwManual.ChangeUser = changeUser;
                         hwManualRepo.Save(hwManual);
