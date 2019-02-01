@@ -158,7 +158,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     : qualityGateResultSetItem.QualityGateResult;
         }
 
-        public async Task<IEnumerable<HistoryItemDto>> GetHistoryItems(CostEditorContext context, long editItemId, QueryInfo queryInfo = null)
+        public async Task<DataInfo<HistoryItemDto>> GetHistory(CostEditorContext context, long editItemId, QueryInfo queryInfo = null)
         {
             var userCountries = this.userService.GetCurrentUserCountries();
             var filter = this.costBlockFilterBuilder.BuildFilter(context, userCountries);
@@ -169,7 +169,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 filter.Add(context.InputLevelId, new long[] { editItemId });
             }
 
-            return await this.historySevice.GetHistoryItems(context, filter, queryInfo);
+            return await this.historySevice.GetHistory(context, filter, queryInfo);
         }
 
         private async Task<RegionDto[]> GetRegions(CostEditorContext context)
