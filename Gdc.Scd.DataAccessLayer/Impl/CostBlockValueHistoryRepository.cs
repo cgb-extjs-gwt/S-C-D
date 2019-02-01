@@ -77,7 +77,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
         }
 
-        public async Task<IEnumerable<HistoryItem>> GetHistory(HistoryContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null)
+        public async Task<DataInfo<HistoryItem>> GetHistory(HistoryContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
 
@@ -132,19 +132,29 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 InputLevelJoinType = InputLevelJoinType.All
             };
 
-            var query =
+            var historyQuery =
                 this.historyQueryBuilder.BuildJoinHistoryValueQuery(historyContext, selectQuery, options)
                                         .Join(nameof(User), SqlOperators.Equals(histroryEditUserIdColumn, userIdColumn))
-                                        .Where(whereCondition)
-                                        .WithRownumPaging(queryInfo);
+                                        .Where(whereCondition);
+                                        
 
-            return await this.repositorySet.ReadBySql(query, reader => new HistoryItem
+            var countHistoryQuery = Sql.Select(SqlFunctions.Count()).FromQuery(historyQuery, "t");
+
+            var count = await this.repositorySet.ExecuteScalarAsync<int>(countHistoryQuery.ToSql(), countHistoryQuery.GetParameters());
+
+            var historyItems = await this.repositorySet.ReadBySql(historyQuery.WithRownumPaging(queryInfo), reader => new HistoryItem
+                                {
+                                    Value = reader.GetValue(0),
+                                    EditDate = reader.GetDateTime(1),
+                                    EditUserId = reader.GetInt64(2),
+                                    EditUserName = reader.GetString(3)
+                                });
+
+            return new DataInfo<HistoryItem>
             {
-                Value = reader.GetValue(0),
-                EditDate = reader.GetDateTime(1),
-                EditUserId = reader.GetInt64(2),
-                EditUserName = reader.GetString(3)
-            });
+                Items = historyItems,
+                Total = count
+            };
         }
 
         private string ToLowerFirstLetter(string value)

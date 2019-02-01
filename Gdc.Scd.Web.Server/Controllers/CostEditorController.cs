@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Gdc.Scd.BusinessLogicLayer.Dto;
@@ -57,9 +58,8 @@ namespace Gdc.Scd.Web.Server.Controllers
             return await this.costEditorService.UpdateValues(editItems, context, approvalOption);
         }
 
-        // TODO: Need return DataInfo object, otherwise live scrol don't work. See BaseDomainController method GetBy.
         [HttpGet]
-        public async Task<IEnumerable<HistoryItem>> GetHistory(
+        public async Task<DataInfo<HistoryItem>> GetHistory(
             [System.Web.Http.FromUri]CostEditorContext context,
             [System.Web.Http.FromUri]long editItemId,
             [System.Web.Http.FromUri]int? start,
@@ -67,8 +67,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             [System.Web.Http.FromUri]string sort = null)
         {
             var queryInfo = QueryInfoHelper.BuildQueryInfo(start, limit, sort);
-
-            return await this.costEditorService.GetHistoryItems(context, editItemId, queryInfo);
+            return await this.costEditorService.GetHistory(context, editItemId, queryInfo);
         }
     }
 }

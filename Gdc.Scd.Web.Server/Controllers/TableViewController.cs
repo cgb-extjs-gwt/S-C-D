@@ -41,9 +41,8 @@ namespace Gdc.Scd.Web.Server.Controllers
             return await this.tableViewService.GetTableViewInfo();
         }
 
-        // TODO: Need return DataInfo object, otherwise live scrol don't work. See BaseDomainController method GetBy.
         [HttpGet]
-        public async Task<IEnumerable<HistoryItem>> GetHistory(
+        public async Task<DataInfo<HistoryItem>> GetHistory(
             [FromUri]CostElementIdentifier costElementId,
             [FromUri]string coordinates,
             [FromUri]int? start,
@@ -52,8 +51,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         {
             var queryInfo = QueryInfoHelper.BuildQueryInfo(start, limit, sort);
             var coordinatesDict = JsonConvert.DeserializeObject<Dictionary<string, long>>(coordinates);
-
-            return await this.tableViewService.GetHistoryItems(costElementId, coordinatesDict, queryInfo);
+            return await this.tableViewService.GetHistory(costElementId, coordinatesDict, queryInfo);
         }
     }
 }

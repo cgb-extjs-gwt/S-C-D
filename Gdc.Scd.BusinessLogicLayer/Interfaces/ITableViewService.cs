@@ -15,6 +15,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<TableViewInfo> GetTableViewInfo();
 
-        Task<IEnumerable<HistoryItem>> GetHistoryItems(CostElementIdentifier costElementId, IDictionary<string, long> coordinates, QueryInfo queryInfo = null);
+        Task<DataInfo<HistoryItem>> GetHistory(CostElementIdentifier costElementId, IDictionary<string, long> coordinates, QueryInfo queryInfo = null);
     }
 }

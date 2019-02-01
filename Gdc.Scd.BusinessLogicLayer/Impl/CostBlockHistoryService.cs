@@ -54,7 +54,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return this.FilterHistories(this.GetByFilter(state), filter);
         }
 
-        public async Task<IEnumerable<HistoryItem>> GetHistoryItems(HistoryContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null)
+        public async Task<DataInfo<HistoryItem>> GetHistory(HistoryContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null)
         {
             return await this.costBlockValueHistoryRepository.GetHistory(historyContext, filter, queryInfo);
         }

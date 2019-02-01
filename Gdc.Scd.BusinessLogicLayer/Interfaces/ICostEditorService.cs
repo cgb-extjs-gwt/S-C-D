@@ -19,6 +19,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<QualityGateResult> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, ApprovalOption approvalOption);
 
-        Task<IEnumerable<HistoryItem>> GetHistoryItems(CostEditorContext context, long editItemId, QueryInfo queryInfo = null);
+        Task<DataInfo<HistoryItem>> GetHistory(CostEditorContext context, long editItemId, QueryInfo queryInfo = null);
     }
 }

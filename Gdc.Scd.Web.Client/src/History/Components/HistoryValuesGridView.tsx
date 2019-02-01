@@ -30,7 +30,7 @@ export class HistoryValuesGridView extends React.Component<HistoryValuesGridView
     }
 
     private buildStore(dataLoadUrl: string) {
-        return Ext.create('Ext.data.Store', {
+        return Ext.create('Ext.data.virtual.Store', {
             fields: [ 
                 { name: EDIT_DATE_COLUMN_NAME, type: 'date' },
                 { name: EDIT_USER_NAME_COLUMN_NAME, type: 'string' },
@@ -44,6 +44,8 @@ export class HistoryValuesGridView extends React.Component<HistoryValuesGridView
                 url: dataLoadUrl,
                 reader: { 
                     type: 'json',
+                    rootProperty: 'items',
+                    totalProperty: 'total'
                 }
             }
         });

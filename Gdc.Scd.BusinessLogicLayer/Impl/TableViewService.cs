@@ -123,7 +123,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             };
         }
 
-        public async Task<IEnumerable<HistoryItem>> GetHistoryItems(CostElementIdentifier costElementId, IDictionary<string, long> coordinates, QueryInfo queryInfo = null)
+        public async Task<DataInfo<HistoryItem>> GetHistory(CostElementIdentifier costElementId, IDictionary<string, long> coordinates, QueryInfo queryInfo = null)
         {
             var historyContext = new HistoryContext
             {
@@ -139,7 +139,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             var filter = coordinates.ToDictionary(keyValue => keyValue.Key, keyValue => new[] { keyValue.Value });
 
-            return await this.costBlockHistoryService.GetHistoryItems(historyContext, filter, queryInfo);
+            return await this.costBlockHistoryService.GetHistory(historyContext, filter, queryInfo);
         }
 
         private IDictionary<long, Record> GetRecordDictionary(IEnumerable<Record> records)
