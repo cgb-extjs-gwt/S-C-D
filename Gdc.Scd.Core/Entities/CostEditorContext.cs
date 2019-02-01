@@ -1,6 +1,6 @@
 ﻿namespace Gdc.Scd.Core.Entities
 {
-    public class CostEditorContext : HistoryContext
+    public class CostEditorContext : CostElementContext
     {
         public long[] CostElementFilterIds { get; set; }
 

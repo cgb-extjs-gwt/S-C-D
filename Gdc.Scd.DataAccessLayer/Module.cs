@@ -48,7 +48,7 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<IConfigureApplicationHandler>().To<DatabaseCreationHandler>().InTransientScope();
             Bind<IConfigureDatabaseHandler, ICustomConfigureTableHandler, ICoordinateEntityMetaProvider>().To<ViewConfigureHandler>().InTransientScope();
 
-            Kernel.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(HistoryContext), nameof(CostBlockHistory.Context)));
+            Kernel.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(CostElementContext), nameof(CostBlockHistory.Context)));
             Kernel.RegisterEntityAsUnique<User>(nameof(User.Login));
             Kernel.RegisterEntity<UserRole>();
             Kernel.RegisterEntityAsUniqueName<Role>();

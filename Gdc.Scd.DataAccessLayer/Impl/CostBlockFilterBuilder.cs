@@ -17,7 +17,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.meta = meta;
         }
 
-        public IDictionary<string, long[]> BuildRegionFilter(HistoryContext context, IEnumerable<Country> userCountries = null)
+        public IDictionary<string, long[]> BuildRegionFilter(CostElementContext context, IEnumerable<Country> userCountries = null)
         {
             var filter = new Dictionary<string, long[]>();
             var costBlock = this.meta.GetCostBlockEntityMeta(context);
