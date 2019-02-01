@@ -22,6 +22,7 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<ICostBlockValueHistoryRepository>().To<CostBlockValueHistoryRepository>().InRequestScope();
             Bind<ISqlRepository>().To<SqlRepository>().InRequestScope();
             Bind<IRepository<CostBlockHistory>>().To<CostBlockHistoryRepository>().InRequestScope();
+            Bind<IWgRepository, IRepository<Wg>>().To<WgRepository>().InRequestScope();
             Bind<IRepository<ReactionTimeType>>().To<ReactionTimeTypeRepository>().InRequestScope();
             Bind<IRepository<ReactionTimeAvalability>>().To<ReactionTimeAvalabilityRepository>().InRequestScope();
             Bind<IRepository<ReactionTimeTypeAvalability>>().To<ReactionTimeTypeAvalabilityRepository>().InRequestScope();

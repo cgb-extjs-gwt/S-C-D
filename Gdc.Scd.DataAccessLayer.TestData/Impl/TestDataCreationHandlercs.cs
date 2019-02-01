@@ -1772,6 +1772,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "usercountry" , MultiSelect = true },
                 new ReportFilterType { Name = "swdigit" , MultiSelect = true },
                 new ReportFilterType { Name = "wgall" , MultiSelect = true },
+                new ReportFilterType { Name = "wgstandard" , MultiSelect = true },
             };
 
             var repository = this.repositorySet.GetRepository<ReportFilterType>();

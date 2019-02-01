@@ -9,13 +9,14 @@ import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
 import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
 import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
 import { SogField } from "../../Dict/Components/SogField";
+import { StandardWgField } from "../../Dict/Components/StandardWgField";
 import { SwDigitField } from "../../Dict/Components/SwDigitField";
 import { UserCountryField } from "../../Dict/Components/UserCountryField";
+import { WgAllField } from "../../Dict/Components/WgAllField";
 import { WgField } from "../../Dict/Components/WgField";
 import { YearField } from "../../Dict/Components/YearField";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
 import { AutoFilterType } from "../Model/AutoFilterType";
-import { WgAllField } from "../../Dict/Components/WgAllField";
 
 export interface AutoFilterPanelProps extends PanelProps {
     filter: AutoFilterModel[];
@@ -64,6 +65,9 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
 
             case AutoFilterType.WGALL:
                 return <WgAllField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+
+            case AutoFilterType.WGSTANDARD:
+                return <StandardWgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.SOG:
                 return <SogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
