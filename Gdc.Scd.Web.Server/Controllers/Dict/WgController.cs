@@ -9,11 +9,11 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
 {
     public class WgController : BaseDomainController<Wg>
     {
-        IDomainService<Wg> wgService;
+        IWgService wgService;
         IWgPorService wgPorService;
 
         public WgController(
-                IDomainService<Wg> wgService,
+                IWgService wgService,
                 IWgPorService wgPorService
             ) : base(wgPorService)
         {
@@ -33,9 +33,9 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
         [HttpGet]
         public Task<NamedId[]> Standard()
         {
-            return wgPorService.GetStandards()
-                               .Select(x => new NamedId { Id = x.Id, Name = x.Name })
-                               .GetAsync();
+            return wgService.GetStandards()
+                            .Select(x => new NamedId { Id = x.Id, Name = x.Name })
+                            .GetAsync();
         }
     }
 }

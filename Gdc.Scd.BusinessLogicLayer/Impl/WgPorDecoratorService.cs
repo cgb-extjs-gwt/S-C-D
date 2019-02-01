@@ -1,7 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Enums;
-using Gdc.Scd.DataAccessLayer.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -31,11 +30,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public IQueryable<Wg> GetAll()
         {
             return origin.GetAll().Where(x => x.WgType == WgType.Por);
-        }
-
-        public IQueryable<Wg> GetStandards()
-        {
-            return origin.GetAll().FromSql("select * from InputAtoms.WgStdView");
         }
 
         public void Save(Wg item)
