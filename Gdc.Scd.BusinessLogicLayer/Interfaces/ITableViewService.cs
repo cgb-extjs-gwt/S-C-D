@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.QualityGate;
 using Gdc.Scd.Core.Entities.TableView;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
@@ -15,6 +16,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<TableViewInfo> GetTableViewInfo();
 
-        Task<DataInfo<HistoryItem>> GetHistory(CostElementIdentifier costElementId, IDictionary<string, long> coordinates, QueryInfo queryInfo = null);
+        Task<DataInfo<HistoryItemDto>> GetHistory(CostElementIdentifier costElementId, IDictionary<string, long> coordinates, QueryInfo queryInfo = null);
     }
 }

@@ -77,24 +77,24 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
         }
 
-        public async Task<DataInfo<HistoryItem>> GetHistory(HistoryContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null)
+        public async Task<DataInfo<HistoryItemDto>> GetHistory(CostElementContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
 
             var historyEditUserIdColumnName = $"{nameof(CostBlockHistory.EditUser)}{nameof(User.Id)}";
-            var historyEditUserIdColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItem.EditUserId));
+            var historyEditUserIdColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItemDto.EditUserId));
             var histroryEditUserIdColumn = new ColumnInfo(
                 historyEditUserIdColumnName, 
                 costBlockMeta.HistoryMeta.CostBlockHistoryField.ReferenceMeta.Name, 
                 historyEditUserIdColumnAlias);
 
-            var editDateColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItem.EditDate));
+            var editDateColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItemDto.EditDate));
             var editDateColumn = new ColumnInfo(
                 nameof(CostBlockHistory.EditDate), 
                 costBlockMeta.HistoryMeta.CostBlockHistoryField.ReferenceMeta.Name, 
                 editDateColumnAlias);
 
-            var userNameColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItem.EditUserName));
+            var userNameColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItemDto.EditUserName));
             var userNameColumn = new ColumnInfo(nameof(User.Name), nameof(User), userNameColumnAlias);
 
             var selectColumns = new List<ColumnInfo>
@@ -142,7 +142,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             var count = await this.repositorySet.ExecuteScalarAsync<int>(countHistoryQuery.ToSql(), countHistoryQuery.GetParameters());
 
-            var historyItems = await this.repositorySet.ReadBySql(historyQuery.WithRownumPaging(queryInfo), reader => new HistoryItem
+            var historyItems = await this.repositorySet.ReadBySql(historyQuery.WithRownumPaging(queryInfo), reader => new HistoryItemDto
                                 {
                                     Value = reader.GetValue(0),
                                     EditDate = reader.GetDateTime(1),
@@ -150,7 +150,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                     EditUserName = reader.GetString(3)
                                 });
 
-            return new DataInfo<HistoryItem>
+            return new DataInfo<HistoryItemDto>
             {
                 Items = historyItems,
                 Total = count

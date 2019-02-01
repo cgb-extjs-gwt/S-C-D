@@ -25,7 +25,7 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         [HttpGet]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.CostImport, PermissionConstants.CostEditor, PermissionConstants.TableView })]
-        public async Task<CostElementDataDto> GetCostElementData([FromUri]HistoryContext context)
+        public async Task<CostElementDataDto> GetCostElementData([FromUri]CostElementContext context)
         {
             return await this.costBlockService.GetCostElementData(context);
         }

@@ -7,7 +7,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
     public interface IQualityGateQueryBuilder
     {
         SqlHelper BuildQualityGateQuery(
-            HistoryContext historyContext, 
+            CostElementContext historyContext, 
             IEnumerable<EditItem> editItems, 
             IDictionary<string, IEnumerable<object>> costBlockFilter, 
             bool useCountryGroupCheck);

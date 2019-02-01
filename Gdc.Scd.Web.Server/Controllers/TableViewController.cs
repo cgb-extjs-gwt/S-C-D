@@ -6,6 +6,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.QualityGate;
 using Gdc.Scd.Core.Entities.TableView;
 using Gdc.Scd.Web.Server.Heplers;
 using Gdc.Scd.Web.Server.Impl;
@@ -42,7 +43,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<DataInfo<HistoryItem>> GetHistory(
+        public async Task<DataInfo<HistoryItemDto>> GetHistory(
             [FromUri]CostElementIdentifier costElementId,
             [FromUri]string coordinates,
             [FromUri]int? start,

@@ -55,6 +55,10 @@ export class FakeDictService implements IDictService {
         throw new Error("Method not implemented.");
     }
 
+    public getStandardWg(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
+
     public getPla(): Promise<NamedId<string>[]> {
         return this.fromResult(fakePla);
     }

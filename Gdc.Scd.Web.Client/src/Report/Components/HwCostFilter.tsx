@@ -1,5 +1,6 @@
 ﻿import { Button, Container, Panel, PanelProps, RadioField } from "@extjs/ext-react";
 import * as React from "react";
+import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
 import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
 import { CountryField } from "../../Dict/Components/CountryField";
 import { DictField } from "../../Dict/Components/DictField";
@@ -8,12 +9,11 @@ import { ProActiveField } from "../../Dict/Components/ProActiveField";
 import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
 import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
 import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
+import { StandardWgField } from "../../Dict/Components/StandardWgField";
 import { UserCountryField } from "../../Dict/Components/UserCountryField";
-import { WgField } from "../../Dict/Components/WgField";
 import { Country } from "../../Dict/Model/Country";
 import { CurrencyType } from "../Model/CurrencyType";
 import { HwCostFilterModel } from "../Model/HwCostFilterModel";
-import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
 
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: HwCostFilterModel): void;
@@ -73,7 +73,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                 >
 
                     {countryField}
-                    <WgField ref={x => this.wg = x} label="Asset(WG):" />
+                    <StandardWgField ref={x => this.wg = x} label="Asset(WG):" />
                     <AvailabilityField ref={x => this.av = x} label="Availability:" />
                     <DurationField ref={x => this.dur = x} label="Duration:" />
                     <ReactionTypeField ref={x => this.reacttype = x} label="Reaction type:" />
