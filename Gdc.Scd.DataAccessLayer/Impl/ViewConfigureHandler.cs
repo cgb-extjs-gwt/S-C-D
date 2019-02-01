@@ -74,9 +74,32 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         IEnumerable<NamedEntityMeta> ICoordinateEntityMetaProvider.GetCoordinateEntityMetas()
         {
-            return
-                this.combinedViewInfos.Where(this.IsDisabledEntity)
-                                      .Select(info => new DisabledEntityMeta(info.ViewName, info.Shema));
+            var combinedMetas = new List<NamedEntityMeta>();
+            var referenceMetas = new Dictionary<string, NamedEntityMeta>();
+
+            foreach (var viewInfo in this.combinedViewInfos)
+            {
+                var meta = this.IsDisabledEntity(viewInfo)
+                    ? new DisabledEntityMeta(viewInfo.ViewName, viewInfo.Shema)
+                    : new NamedEntityMeta(viewInfo.ViewName, viewInfo.Shema);
+
+                foreach (var referenceInfo in viewInfo.ReferenceInfos)
+                {
+                    var referenceName = BaseEntityMeta.BuildFullName(referenceInfo.ReferenceEntityInfo.Name, referenceInfo.ReferenceEntityInfo.Schema);
+
+                    if (!referenceMetas.TryGetValue(referenceName, out var referenceMeta))
+                    {
+                        referenceMeta = this.BuildNamedMeta(referenceInfo.ReferenceEntityInfo);
+                        referenceMetas.Add(referenceName, referenceMeta);
+                    }
+
+                    meta.Fields.Add(ReferenceFieldMeta.Build(referenceInfo.ForeignColumn, referenceMeta));
+                }
+
+                combinedMetas.Add(meta);
+            }
+
+            return combinedMetas.Concat(referenceMetas.Values);
         }
 
         private void CreateCombinedView(CombinedViewInfo viewInfo)
@@ -92,7 +115,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             for (var index = 0; index < viewInfo.ReferenceInfos.Length; index++)
             {
                 var referenceInfo = viewInfo.ReferenceInfos[index];
-                var meta = this.BuildNamedMeta(referenceInfo.Type);
+                var meta = this.BuildNamedMeta(referenceInfo.ReferenceEntityInfo);
 
                 combineEntity.Fields.Add(ReferenceFieldMeta.Build(referenceInfo.ForeignColumn, meta));
 
@@ -128,6 +151,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     MetaConstants.NameFieldKey);
 
             var innerColumns = new List<BaseColumnInfo>{ idColumn, nameColumn };
+
+            innerColumns.AddRange(
+                viewInfo.ReferenceInfos.Select(
+                    info => new ColumnInfo(info.ForeignColumn, combineEntity.Name, info.ForeignColumn)));
 
             if (this.IsDisabledEntity(viewInfo))
             {
@@ -178,10 +205,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return typeof(BaseDisabledEntity).IsAssignableFrom(viewInfo.CombinedType);
         }
 
-        private NamedEntityMeta BuildNamedMeta(Type type)
+        private NamedEntityMeta BuildNamedMeta(EntityInfo info)
         {
-            var info = MetaHelper.GetEntityInfo(type);
-
             return new NamedEntityMeta(info.Name, info.Schema);
         }
 
@@ -207,12 +232,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             public string ForeignColumn { get; private set; }
 
+            public EntityInfo ReferenceEntityInfo { get; private set; }
+
             public static ReferenceInfo Build<T>(string property) where T : NamedId
             {
+                var type = typeof(T);
+
                 return new ReferenceInfo
                 {
-                    Type = typeof(T),
-                    ForeignColumn = $"{property}Id"
+                    Type = type,
+                    ForeignColumn = $"{property}Id",
+                    ReferenceEntityInfo = MetaHelper.GetEntityInfo(type)
                 };
             }
         }
