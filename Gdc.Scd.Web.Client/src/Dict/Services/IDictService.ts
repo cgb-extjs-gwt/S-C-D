@@ -22,6 +22,8 @@ export interface IDictService {
 
     getWgWithMultivendor(): Promise<NamedId[]>;
 
+    getStandardWg(): Promise<NamedId[]>;
+
     getPla(): Promise<NamedId[]>;
 
     getSog(): Promise<NamedId[]>;

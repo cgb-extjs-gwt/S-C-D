@@ -10,6 +10,7 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
     public class WgController : BaseDomainController<Wg>
     {
         IDomainService<Wg> wgService;
+        IWgPorService wgPorService;
 
         public WgController(
                 IDomainService<Wg> wgService,
@@ -17,6 +18,7 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
             ) : base(wgPorService)
         {
             this.wgService = wgService;
+            this.wgPorService = wgPorService;
         }
 
         [HttpGet]
@@ -26,6 +28,14 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
                             .Where(x => !x.DeactivatedDateTime.HasValue)
                             .Select(x => new NamedId { Id = x.Id, Name = x.Name })
                             .GetAsync();
+        }
+
+        [HttpGet]
+        public Task<NamedId[]> Standard()
+        {
+            return wgPorService.GetStandards()
+                               .Select(x => new NamedId { Id = x.Id, Name = x.Name })
+                               .GetAsync();
         }
     }
 }
