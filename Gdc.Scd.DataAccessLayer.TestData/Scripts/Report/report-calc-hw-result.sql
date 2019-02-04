@@ -40,34 +40,34 @@ RETURN (
 
             --Cost
 
-            , Report.FormatMoney(AvailabilityFee               * Exchange, Currency)  as AvailabilityFee 
-            , Report.FormatMoney(HddRet                        * Exchange, Currency)  as HddRet
-            , Report.FormatMoney(TaxAndDutiesW                 * Exchange, Currency)  as TaxAndDutiesW
-            , Report.FormatMoney(TaxAndDutiesOow               * Exchange, Currency)  as TaxAndDutiesOow
-            , Report.FormatMoney(Reinsurance                   * Exchange, Currency)  as Reinsurance
-            , Report.FormatMoney(ProActive                     * Exchange, Currency)  as ProActive
-            , Report.FormatMoney(ServiceSupportCost            * Exchange, Currency)  as ServiceSupportCost
-
-            , Report.FormatMoney(MaterialW                     * Exchange, Currency)  as MaterialW
-            , Report.FormatMoney(MaterialOow                   * Exchange, Currency)  as MaterialOow
-            , Report.FormatMoney(FieldServiceCost              * Exchange, Currency)  as FieldServiceCost
-            , Report.FormatMoney(Logistic                      * Exchange, Currency)  as Logistic
-            , Report.FormatMoney(OtherDirect                   * Exchange, Currency)  as OtherDirect
-            , Report.FormatMoney(LocalServiceStandardWarranty  * Exchange, Currency)  as LocalServiceStandardWarranty
-            , Report.FormatMoney(Credits                       * Exchange, Currency)  as Credits
-            , Report.FormatMoney(ServiceTC                     * Exchange, Currency)  as ServiceTC
-            , Report.FormatMoney(ServiceTP                     * Exchange, Currency)  as ServiceTP
-
-            , Report.FormatMoney(ServiceTCManual               * Exchange, Currency)  as ServiceTCManual
-            , Report.FormatMoney(ServiceTPManual               * Exchange, Currency)  as ServiceTPManual
-
-            , Report.FormatMoney(ServiceTP_Released            * Exchange, Currency)  as ServiceTP_Released
-
-            , Report.FormatMoney(ListPrice                     * Exchange, Currency)  as ListPrice
-            , Report.FormatMoney(DealerPrice                   * Exchange, Currency)  as DealerPrice
-            , DealerDiscount                                                          as DealerDiscount
-                                                                                  
-            , ChangeUserName + '[' + ChangeUserEmail + ']'                            as ChangeUser
+            , AvailabilityFee               * Exchange     as AvailabilityFee 
+            , HddRet                        * Exchange     as HddRet
+            , TaxAndDutiesW                 * Exchange     as TaxAndDutiesW
+            , TaxAndDutiesOow               * Exchange     as TaxAndDutiesOow
+            , Reinsurance                   * Exchange     as Reinsurance
+            , ProActive                     * Exchange     as ProActive
+            , ServiceSupportCost            * Exchange     as ServiceSupportCost
+                                                          
+            , MaterialW                     * Exchange     as MaterialW
+            , MaterialOow                   * Exchange     as MaterialOow
+            , FieldServiceCost              * Exchange     as FieldServiceCost
+            , Logistic                      * Exchange     as Logistic
+            , OtherDirect                   * Exchange     as OtherDirect
+            , LocalServiceStandardWarranty  * Exchange     as LocalServiceStandardWarranty
+            , Credits                       * Exchange     as Credits
+            , ServiceTC                     * Exchange     as ServiceTC
+            , ServiceTP                     * Exchange     as ServiceTP
+                                                          
+            , ServiceTCManual               * Exchange     as ServiceTCManual
+            , ServiceTPManual               * Exchange     as ServiceTPManual
+                                                          
+            , ServiceTP_Released            * Exchange     as ServiceTP_Released
+                                                          
+            , ListPrice                     * Exchange     as ListPrice
+            , DealerPrice                   * Exchange     as DealerPrice
+            , DealerDiscount                               as DealerDiscount
+                                                           
+            , ChangeUserName + '[' + ChangeUserEmail + ']' as ChangeUser
 
     from Hardware.GetCosts(@approved, @country, @wg, @availability, @duration, @reactiontime, @reactiontype, @servicelocation, @proactive, -1, -1), CurrencyCte
 )
@@ -77,6 +77,9 @@ declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CA
 declare @index int = 0;
 
 delete from Report.ReportColumn where ReportId = @reportId;
+
+declare @money bigint;
+select @money = id from Report.ReportColumnType where upper(name) = 'MONEY';
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Country', 'Country', 1, 1);
@@ -98,56 +101,56 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'StdWarranty', 'Standard warranty duration', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'FieldServiceCost', 'Field service cost', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'FieldServiceCost', 'Field service cost', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceSupportCost', 'Service support cost', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ServiceSupportCost', 'Service support cost', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Logistic', 'Logistic cost', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'Logistic', 'Logistic cost', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'AvailabilityFee', 'Availability fee', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'AvailabilityFee', 'Availability fee', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'HddRet', 'HDD retention', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'HddRet', 'HDD retention', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Reinsurance', 'Reinsurance', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'Reinsurance', 'Reinsurance', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'TaxAndDutiesW', 'Tax & Duties iW period', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'TaxAndDutiesW', 'Tax & Duties iW period', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'TaxAndDutiesOow', 'Tax & Duties OOW period', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'TaxAndDutiesOow', 'Tax & Duties OOW period', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'MaterialW', 'Material cost iW period', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'MaterialW', 'Material cost iW period', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'MaterialOow', 'Material cost OOW period', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'MaterialOow', 'Material cost OOW period', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ProActive', 'ProActive', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ProActive', 'ProActive', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTC', 'Service TC(calc)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ServiceTC', 'Service TC(calc)', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTCManual', 'Service TC(manual)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ServiceTCManual', 'Service TC(manual)', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTP', 'Service TP(calc)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ServiceTP', 'Service TP(calc)', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTPManual', 'Service TP(manual)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ServiceTPManual', 'Service TP(manual)', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceTP_Released', 'Service TP(released)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ServiceTP_Released', 'Service TP(released)', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ListPrice', 'List price', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'ListPrice', 'List price', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 5, 'DealerDiscount', 'Dealer discount in %', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'DealerPrice', 'Dealer price', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'DealerPrice', 'Dealer price', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ChangeUser', 'Change user', 1, 1);
 
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'OtherDirect', 'Other direct cost', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'OtherDirect', 'Other direct cost', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'LocalServiceStandardWarranty', 'Local service standard warranty', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'LocalServiceStandardWarranty', 'Local service standard warranty', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Credits', 'Credits', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'Credits', 'Credits', 1, 1);
 
 ------------------------------------
 set @index = 0;
