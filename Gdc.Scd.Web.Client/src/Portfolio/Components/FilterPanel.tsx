@@ -12,6 +12,14 @@ import { PortfolioFilterModel } from "../Model/PortfolioFilterModel";
 import { ProActiveField } from "../../Dict/Components/ProActiveField";
 import { UserCountryField } from "../../Dict/Components/UserCountryField";
 import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
+import { DictFactory } from "../../Dict/Services/DictFactory";
+import { IDictService } from "../../Dict/Services/IDictService";
+import { MultiSelect } from "./MultiSelect";
+import { MultiSelectWg } from "./MultiSelectWg";
+import { MultiSelectProActive } from "./MultiSelectProActive";
+
+const SELECT_MAX_HEIGHT: string = '200px';
+
 
 export interface FilterPanelProps extends PanelProps {
     isCountryUser: boolean;
@@ -20,27 +28,29 @@ export interface FilterPanelProps extends PanelProps {
 
 export class FilterPanel extends React.Component<FilterPanelProps, any> {
 
-    private country: DictField<NamedId>;
+    private country: MultiSelect;
 
-    private wg: DictField<NamedId>;
+    private wg: MultiSelect;
 
-    private av: DictField<NamedId>;
+    private av: MultiSelect;
 
-    private dur: DictField<NamedId>;
+    private dur: MultiSelect;
 
-    private reacttype: DictField<NamedId>;
+    private reacttype: MultiSelect;
 
-    private reacttime: DictField<NamedId>;
+    private reacttime: MultiSelect;
 
-    private srvloc: DictField<SortableNamedId>;
+    private srvloc: MultiSelect;
 
-    private proactive: DictField<NamedId>;
+    private proactive: MultiSelect;
 
     private globPort: CheckBoxField;
 
     private masterPort: CheckBoxField;
 
     private corePort: CheckBoxField;
+
+    private dictSrv: IDictService;
 
     public constructor(props: any) {
         super(props);
@@ -50,25 +60,36 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
     public render() {
 
         return (
-            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
+            <Container margin="10px 0"
+                defaults={{
+                    maxWidth: '200px',
+                    width: '200px',
+                    valueField: 'id',
+                    displayField: 'name',
+                    queryMode: 'local',
+                    clearable: 'true'
+                }}
+            >           
+                <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
 
                 <Container margin="10px 0"
                     defaults={{
                         maxWidth: '200px',
+                        width: '200px',
                         valueField: 'id',
                         displayField: 'name',
                         queryMode: 'local',
-                        clearable: 'true'
+                        clearable: 'true'              
                     }}
-                >
-                    <UserCountryField ref={x => this.country = x} label="Country:" cache={false} onChange={this.onCountryChange} />
-                    <WgField ref={x => this.wg = x} label="Asset(WG):" />
-                    <AvailabilityField ref={x => this.av = x} label="Availability:" />
-                    <DurationField ref={x => this.dur = x} label="Duration:" />
-                    <ReactionTypeField ref={x => this.reacttype = x} label="Reaction type:" />
-                    <ReactionTimeField ref={x => this.reacttime = x} label="Reaction time:" />
-                    <ServiceLocationField ref={x => this.srvloc = x} label="Service location:" />
-                    <ProActiveField ref={x => this.proactive = x} label="ProActive:" />
+                >            
+                    <MultiSelect ref={x => this.country = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Country" store={this.dictSrv.getUserCountryNames} />
+                    <MultiSelectWg ref={x => this.wg = x} width='200px' maxHeight="204px" title="Asset(WG)" store={this.dictSrv.getWG} />
+                    <MultiSelect ref={x => this.av = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Availability" store={this.dictSrv.getAvailabilityTypes} />
+                    <MultiSelect ref={x => this.dur = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Duration" store={this.dictSrv.getDurationTypes} />
+                    <MultiSelect ref={x => this.reacttype = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Reaction type" store={this.dictSrv.getReactionTypes} />
+                    <MultiSelect ref={x => this.reacttime = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Reaction time" store={this.dictSrv.getReactionTimeTypes} />
+                    <MultiSelect ref={x => this.srvloc = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Service location" store={this.dictSrv.getServiceLocationTypes} />
+                    <MultiSelectProActive ref={x => this.proactive = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="ProActive" store={this.dictSrv.getProActive} />
 
                 </Container>
 
@@ -78,30 +99,37 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
                     <CheckBoxField ref={x => this.corePort = x} boxLabel="Core portfolio" />
                 </Container>
 
-                <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="20px auto" />
+               
 
+            </Panel>    
+            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
+                <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="20px auto" />
             </Panel>
+             </Container >
         );
     }
 
-    public getModel(): PortfolioFilterModel {
-        return {
-            country: this.country.getSelected(),
-            wg: this.wg.getSelected(),
-            availability: this.av.getSelected(),
-            duration: this.dur.getSelected(),
-            reactionType: this.reacttype.getSelected(),
-            reactionTime: this.reacttime.getSelected(),
-            serviceLocation: this.srvloc.getSelected(),
-            proActive: this.proactive.getSelected(),
+    public getModel() {
+        let m = new PortfolioFilterModel();
 
-            isGlobalPortfolio: this.getChecked(this.globPort),
-            isMasterPortfolio: this.getChecked(this.masterPort),
-            isCorePortfolio: this.getChecked(this.corePort)
-        };
+        m.country = this.country.getSelectedKeys();
+        m.wg = this.wg.getSelectedKeys();
+        m.availability = this.av.getSelectedKeys();
+        m.duration = this.dur.getSelectedKeys();
+        m.reactionType = this.reacttype.getSelectedKeys();
+        m.reactionTime = this.reacttime.getSelectedKeys();
+        m.serviceLocation = this.srvloc.getSelectedKeys();
+        m.proActive = this.proactive.getSelectedKeys();
+
+        m.isGlobalPortfolio= this.getChecked(this.globPort);
+        m.isMasterPortfolio= this.getChecked(this.masterPort);
+        m.isCorePortfolio = this.getChecked(this.corePort);
+
+        return m;
     }
 
     private init() {
+        this.dictSrv = DictFactory.getDictService();
         this.onCountryChange = this.onCountryChange.bind(this);
         this.onSearch = this.onSearch.bind(this);
         //

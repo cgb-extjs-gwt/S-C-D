@@ -128,7 +128,7 @@ export class PortfolioView extends React.Component<any, any> {
 
     private denyCombination(ids: string[]) {
         let cnt = this.getSelectedCountry();
-        let p = this.srv.denyById(cnt, ids).then(x => this.reload());
+        let p = this.srv.denyById(cnt[0], ids).then(x => this.reload());
         handleRequest(p);
     }
 
@@ -142,7 +142,7 @@ export class PortfolioView extends React.Component<any, any> {
         let result = false;
         if (this.filter) {
             let filter = this.filter.getModel();
-            result = !!(filter && filter.country);
+            result = !!(filter && filter.country && filter.country.length > 0);
         }
         return result;
     }

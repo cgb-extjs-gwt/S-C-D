@@ -33,6 +33,11 @@ export class DictService implements IDictService {
         return cache ? srv.getAll() : srv.loadAll();
     }
 
+    public getUserCountryNames(): Promise<NamedId[]> {
+        const srv = new UserCountryService();
+        return srv.getAllNames();
+    }
+
     public getCountryGroups(): Promise<NamedId<string>[]> {
         return new CountryGroupService().getAll();
     }

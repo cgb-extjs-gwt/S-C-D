@@ -52,13 +52,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var userCountriesIds = this.userService.GetCurrentUserCountries().Select(country => country.Id).ToArray();
 
-            if (filter != null && filter.Country.HasValue)
+            if (filter != null && filter.Country != null)
             {
-                return GetLocalAllowed(filter.Country.Value, filter, start, limit);
+                return GetLocalAllowed(filter.Country, filter, start, limit);
             }
             else if (userCountriesIds.Length > 0)
             {
-                return GetLocalAllowed(userCountriesIds.FirstOrDefault(), filter, start, limit);
+                return GetLocalAllowed(userCountriesIds, filter, start, limit);
             }
             else
             {
@@ -72,13 +72,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (filter != null)
             {
-                query = query.WhereIf(filter.Wg.HasValue, x => x.Wg.Id == filter.Wg.Value)
-                             .WhereIf(filter.Availability.HasValue, x => x.Availability.Id == filter.Availability.Value)
-                             .WhereIf(filter.Duration.HasValue, x => x.Duration.Id == filter.Duration.Value)
-                             .WhereIf(filter.ReactionType.HasValue, x => x.ReactionType.Id == filter.ReactionType.Value)
-                             .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTime.Id == filter.ReactionTime.Value)
-                             .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocation.Id == filter.ServiceLocation.Value)
-                             .WhereIf(filter.ProActive.HasValue, x => x.ProActiveSla.Id == filter.ProActive.Value)
+                query = query.WhereIf(filter.Wg != null, x => filter.Wg.Contains(x.Wg.Id))
+                             .WhereIf(filter.Availability != null, x => filter.Availability.Contains(x.Availability.Id))
+                             .WhereIf(filter.Duration != null, x => filter.Duration.Contains(x.Duration.Id))
+                             .WhereIf(filter.ReactionType != null, x => filter.ReactionType.Contains(x.ReactionType.Id))
+                             .WhereIf(filter.ReactionTime != null, x => filter.ReactionTime.Contains(x.ReactionTime.Id))
+                             .WhereIf(filter.ServiceLocation != null, x => filter.ServiceLocation.Contains(x.ServiceLocation.Id))
+                             .WhereIf(filter.ProActive != null, x => filter.ProActive.Contains(x.ProActiveSla.Id))
                              .WhereIf(filter.IsGlobalPortfolio.HasValue && filter.IsGlobalPortfolio.Value, x => x.IsGlobalPortfolio)
                              .WhereIf(filter.IsMasterPortfolio.HasValue && filter.IsMasterPortfolio.Value, x => x.IsMasterPortfolio)
                              .WhereIf(filter.IsCorePortfolio.HasValue && filter.IsCorePortfolio.Value, x => x.IsCorePortfolio);
@@ -106,19 +106,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return (result, count);
         }
 
-        public async Task<(PortfolioDto[] items, int total)> GetLocalAllowed(long country, PortfolioFilterDto filter, int start, int limit)
+        public async Task<(PortfolioDto[] items, int total)> GetLocalAllowed(long[] countries, PortfolioFilterDto filter, int start, int limit)
         {
-            var query = localRepo.GetAll().Where(x => x.Country.Id == country);
+            var query = localRepo.GetAll().Where(x => countries.Contains(x.Country.Id));
 
             if (filter != null)
             {
-                query = query.WhereIf(filter.Wg.HasValue, x => x.Wg.Id == filter.Wg.Value)
-                             .WhereIf(filter.Availability.HasValue, x => x.Availability.Id == filter.Availability.Value)
-                             .WhereIf(filter.Duration.HasValue, x => x.Duration.Id == filter.Duration.Value)
-                             .WhereIf(filter.ReactionType.HasValue, x => x.ReactionType.Id == filter.ReactionType.Value)
-                             .WhereIf(filter.ReactionTime.HasValue, x => x.ReactionTime.Id == filter.ReactionTime.Value)
-                             .WhereIf(filter.ServiceLocation.HasValue, x => x.ServiceLocation.Id == filter.ServiceLocation.Value)
-                             .WhereIf(filter.ProActive.HasValue, x => x.ProActiveSla.Id == filter.ProActive.Value);
+                query = query.WhereIf(filter.Wg != null, x => filter.Wg.Contains(x.Wg.Id))
+                             .WhereIf(filter.Availability != null, x => filter.Availability.Contains(x.Availability.Id))
+                             .WhereIf(filter.Duration != null, x => filter.Duration.Contains(x.Duration.Id))
+                             .WhereIf(filter.ReactionType != null, x => filter.ReactionType.Contains(x.ReactionType.Id))
+                             .WhereIf(filter.ReactionTime != null, x => filter.ReactionTime.Contains(x.ReactionTime.Id))
+                             .WhereIf(filter.ServiceLocation != null, x => filter.ServiceLocation.Contains(x.ServiceLocation.Id))
+                             .WhereIf(filter.ProActive != null, x => filter.ProActive.Contains(x.ProActiveSla.Id));
             }
 
             var count = await query.GetCountAsync();

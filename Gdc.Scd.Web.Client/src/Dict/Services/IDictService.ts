@@ -8,6 +8,8 @@ export interface IDictService {
 
     getUserCountries(cache: boolean): Promise<Country[]>;
 
+    getUserCountryNames(): Promise<NamedId[]>;
+
     getCountryGroups(): Promise<NamedId[]>;
 
     getCountryGroupDigits(): Promise<NamedId[]>;
