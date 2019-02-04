@@ -282,7 +282,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     private onDownload(filter: HwCostFilterModel & any) {
         filter = filter || {};
         filter.local = filter.currency;
-        ExportService.Download('CALCULATION-HW-RESULT', this.props.approved, filter);
+        ExportService.Download('HW-CALC-RESULT', this.props.approved, filter);
     }
 
     private onFilterChange(filter: HwCostFilterModel) {

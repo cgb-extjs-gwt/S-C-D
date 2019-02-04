@@ -1,8 +1,8 @@
-﻿IF OBJECT_ID('Report.CalcHwResult') IS NOT NULL
-  DROP FUNCTION Report.CalcHwResult;
+﻿IF OBJECT_ID('Report.HwCalcResult') IS NOT NULL
+  DROP FUNCTION Report.HwCalcResult;
 go 
 
-CREATE FUNCTION Report.CalcHwResult
+CREATE FUNCTION Report.HwCalcResult
 (
     @approved bit,
     @local bit,
@@ -73,7 +73,7 @@ RETURN (
 )
 GO
 
-declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CALCULATION-HW-RESULT');
+declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'HW-CALC-RESULT');
 declare @index int = 0;
 
 delete from Report.ReportColumn where ReportId = @reportId;

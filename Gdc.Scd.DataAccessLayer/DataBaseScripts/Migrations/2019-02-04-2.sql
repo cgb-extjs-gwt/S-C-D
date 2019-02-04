@@ -1,5 +1,5 @@
 ﻿insert into Report.Report(Name, Title, CountrySpecific, HasFreesedVersion, SqlFunc) 
-   values('CALCULATION-HW-RESULT', 'Hardware service costs', 1,  1, 'Report.CalcHwResult');
+   values('HW-CALC-RESULT', 'Hardware service costs', 1,  1, 'Report.HwCalcResult');
 
 insert into Report.Report(Name, Title, CountrySpecific, HasFreesedVersion, SqlFunc) 
    values('SW-CALC-RESULT', 'Software & Solution service costs', 1,  1, 'Report.SwCalcResult');
@@ -9,11 +9,11 @@ insert into Report.Report(Name, Title, CountrySpecific, HasFreesedVersion, SqlFu
 
 insert into Report.ReportColumnType(Name) values ('money');
 
-IF OBJECT_ID('Report.CalcHwResult') IS NOT NULL
-  DROP FUNCTION Report.CalcHwResult;
+IF OBJECT_ID('Report.HwCalcResult') IS NOT NULL
+  DROP FUNCTION Report.HwCalcResult;
 go 
 
-CREATE FUNCTION Report.CalcHwResult
+CREATE FUNCTION Report.HwCalcResult
 (
     @approved bit,
     @local bit,
@@ -84,7 +84,7 @@ RETURN (
 )
 GO
 
-declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CALCULATION-HW-RESULT');
+declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'HW-CALC-RESULT');
 declare @index int = 0;
 
 delete from Report.ReportColumn where ReportId = @reportId;
@@ -187,6 +187,7 @@ insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@r
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 14, 'proactive', 'ProActive');
 
+go
 
 IF OBJECT_ID('Report.SwCalcResult') IS NOT NULL
   DROP FUNCTION Report.SwCalcResult;
