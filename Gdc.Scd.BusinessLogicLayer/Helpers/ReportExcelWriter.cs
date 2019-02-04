@@ -29,7 +29,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             this.fields = schema.Fields;
             this.fieldCount = fields.Length;
 
-            this.currentRow = 2;
+            this.currentRow = 1;
             this.workbook = new XLWorkbook();
 
             var sheetName = schema.Name;

@@ -12,7 +12,7 @@ import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwReleasePanel } from "./Components/HwReleasePanel";
 import { CurrencyType } from "./Model/CurrencyType";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
-import { AlertHelper } from "../Common/Helpers/AlertHelper";
+import { ExportService } from "./Services/ExportService";
 
 const localMoneyRenderer = localMoneyRendererFactory('Currency');
 const euroMoneyRenderer = localToEuroMoneyRendererFactory('ExchangeRate');
@@ -280,16 +280,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onDownload(filter: HwCostFilterModel & any) {
-
         filter = filter || {};
-        filter.report = 'CALCULATION-HW-RESULT';
-        filter.approved = this.props.approved ? 1 : 0;
         filter.local = filter.currency;
-        filter._dc = new Date().getTime();
-
-        let url = buildMvcUrl('report', 'export2', filter);
-
-        AlertHelper.autoload(url);
+        ExportService.Download('CALCULATION-HW-RESULT', this.props.approved, filter);
     }
 
     private onFilterChange(filter: HwCostFilterModel) {

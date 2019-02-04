@@ -5,6 +5,7 @@ import { CalcCostProps } from "./Components/CalcCostProps";
 import { moneyRenderer, stringRenderer } from "./Components/GridRenderer";
 import { SwProactiveCostFilter } from "./Components/SwProactiveCostFilter";
 import { SwCostFilterModel } from "./Model/SwCostFilterModel";
+import { ExportService } from "./Services/ExportService";
 
 export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
 
@@ -39,7 +40,13 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
         return (
             <Container layout="fit">
 
-                <SwProactiveCostFilter ref={x => this.filter = x} docked="right" onSearch={this.onSearch} checkAccess={!this.props.approved} scrollable={true} />
+                <SwProactiveCostFilter
+                    ref={x => this.filter = x}
+                    docked="right"
+                    onSearch={this.onSearch}
+                    onDownload={this.onDownload}
+                    checkAccess={!this.props.approved}
+                    scrollable={true} />
 
                 <Grid ref={x => this.grid = x} store={this.store} width="100%" plugins={['pagingtoolbar']}>
 
@@ -82,11 +89,16 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
 
     private init() {
         this.onSearch = this.onSearch.bind(this);
+        this.onDownload = this.onDownload.bind(this);
         this.store.on('beforeload', this.onBeforeLoad, this);
     }
 
     private onSearch(filter: SwCostFilterModel) {
         this.reload();
+    }
+
+    private onDownload(filter: SwCostFilterModel) {
+        ExportService.Download('SW-PROACTIVE-CALC-RESULT', this.props.approved, filter);
     }
 
     private reload() {

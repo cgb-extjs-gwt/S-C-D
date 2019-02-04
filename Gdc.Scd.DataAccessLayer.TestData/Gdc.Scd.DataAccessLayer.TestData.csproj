@@ -83,8 +83,8 @@
     <EmbeddedResource Include="Scripts\Report\report-proactive.sql" />
     <EmbeddedResource Include="Scripts\Report\report-solution-pack-price-list-detail.sql" />
     <EmbeddedResource Include="Scripts\Report\report-solution-pack-price-list.sql" />
-    <EmbeddedResource Include="Scripts\Report\report-solutionpack-proactive-costing.sql" />
-    <EmbeddedResource Include="Scripts\Report\report-SW-Service-Price-List-detail.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-SW-proactive-calc-result.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-SW-calc-result.sql" />
     <EmbeddedResource Include="Scripts\Report\report-SW-Service-Price-List.sql" />
     <EmbeddedResource Include="Scripts\Report\reports.sql" />
   </ItemGroup>
