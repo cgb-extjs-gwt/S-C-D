@@ -107,7 +107,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
         {
             private readonly DbDataReader reader;
 
-            public int CUR_ORDINAL;
+            private int CUR_ORDINAL;
+
             public readonly int ordinal;
 
             public readonly Func<object> format;
