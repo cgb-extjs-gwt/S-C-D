@@ -39,6 +39,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             return service.Excel(id, GetFilter()).ContinueWith(x => this.ExcelContent(x.Result.data, x.Result.fileName));
         }
 
+        //TODO: realize user/country user access level validation
         [HttpGet]
         public Task<HttpResponseMessage> ExportByName([FromUri]string report)
         {
