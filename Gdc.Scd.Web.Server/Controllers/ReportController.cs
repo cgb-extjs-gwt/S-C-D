@@ -40,7 +40,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        public Task<HttpResponseMessage> Export2([FromUri]string report)
+        public Task<HttpResponseMessage> ExportByName([FromUri]string report)
         {
             return service.Excel(report, GetFilter()).ContinueWith(x => this.ExcelContent(x.Result.data, x.Result.fileName));
         }
