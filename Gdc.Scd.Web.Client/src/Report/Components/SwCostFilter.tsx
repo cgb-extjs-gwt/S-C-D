@@ -9,6 +9,7 @@ import { NamedId } from "../../Common/States/CommonStates";
 
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: SwCostFilterModel): void;
+    onDownload(filter: SwCostFilterModel): void;
 }
 
 export class SwCostFilter extends React.Component<FilterPanelProps, any> {
@@ -26,7 +27,7 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
 
     public render() {
         return (
-            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
+            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px" layout={{ type: 'vbox', align: 'left' }}>
 
                 <Container margin="10px 0"
                     defaults={{
@@ -46,6 +47,8 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
 
                 <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="20px auto" />
 
+                <Button text="Download" ui="action" minWidth="85px" iconCls="x-fa fa-download" handler={this.onDownload} />
+
             </Panel>
         );
     }
@@ -60,10 +63,18 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
 
     private init() {
         this.onSearch = this.onSearch.bind(this);
+        this.onDownload = this.onDownload.bind(this);
     }
 
     private onSearch() {
         let handler = this.props.onSearch;
+        if (handler) {
+            handler(this.getModel());
+        }
+    }
+
+    private onDownload() {
+        let handler = this.props.onDownload;
         if (handler) {
             handler(this.getModel());
         }

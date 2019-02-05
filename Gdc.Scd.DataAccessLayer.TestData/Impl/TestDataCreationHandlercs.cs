@@ -104,6 +104,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List-detail.sql"));
 
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hw-calc-result.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-calc-result.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-proactive-calc-result.sql"));
+
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.split-string.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-hdd-retention.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-proactive.sql"));
@@ -1745,6 +1749,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportColumnType { Name = "boolean" },
                 new ReportColumnType { Name = "euro" },
                 new ReportColumnType { Name = "percent" },
+                new ReportColumnType { Name = "money" }
             };
 
             var repository = this.repositorySet.GetRepository<ReportColumnType>();
