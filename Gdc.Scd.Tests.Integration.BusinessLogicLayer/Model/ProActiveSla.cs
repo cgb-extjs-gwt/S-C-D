@@ -18,6 +18,8 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public ProActiveSla()
         {
             this.HwFspCodeTranslations = new HashSet<HwFspCodeTranslation>();
+            this.LocalPortfolios = new HashSet<LocalPortfolio>();
+            this.PrincipalPortfolios = new HashSet<PrincipalPortfolio>();
             this.SwFspCodeTranslations = new HashSet<SwFspCodeTranslation>();
         }
     
@@ -33,6 +35,10 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<HwFspCodeTranslation> HwFspCodeTranslations { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<LocalPortfolio> LocalPortfolios { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<PrincipalPortfolio> PrincipalPortfolios { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SwFspCodeTranslation> SwFspCodeTranslations { get; set; }
     }

@@ -39,7 +39,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public virtual ReactionTime ReactionTime { get; set; }
         public virtual ReactionType ReactionType { get; set; }
         public virtual ServiceLocation ServiceLocation { get; set; }
-        public virtual Sog Sog { get; set; }
-        public virtual SwDigit SwDigit { get; set; }
+        public virtual Sog1 Sog1 { get; set; }
+        public virtual SwDigit1 SwDigit1 { get; set; }
     }
 }

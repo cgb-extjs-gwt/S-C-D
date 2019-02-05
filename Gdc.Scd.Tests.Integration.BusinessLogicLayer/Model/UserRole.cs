@@ -21,6 +21,6 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
     
         public virtual Role Role { get; set; }
         public virtual User User { get; set; }
-        public virtual Country Country { get; set; }
+        public virtual Country1 Country1 { get; set; }
     }
 }
