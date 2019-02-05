@@ -39,12 +39,12 @@
 ('Logistic-cost-input-central', 'Logistics Cost Report input currency central with all country values', 1,  0, 'Report.LogisticCostInputCentral'),
 
 ('Logistic-cost-calc-country', 'Calculated logistics cost local per country', 1,  0, 'Report.LogisticCostCalcCountry'),
-('Logistic-cost-calc-central', 'Calculated logistics cost central with all country values', 1,  0, 'Report.LogisticCostCalcCentral')
+('Logistic-cost-calc-central', 'Calculated logistics cost central with all country values', 1,  0, 'Report.LogisticCostCalcCentral'),
 
+('HW-CALC-RESULT', 'Hardware service costs', 1,  1, 'Report.HwCalcResult'),
 
+('SW-CALC-RESULT', 'Software & Solution service costs', 1,  1, 'Report.SwCalcResult'),
 
-
-
-
+('SW-PROACTIVE-CALC-RESULT', 'Software & Solution proactive cost', 1,  1, 'Report.SwProactiveCalcResult');
 
 
