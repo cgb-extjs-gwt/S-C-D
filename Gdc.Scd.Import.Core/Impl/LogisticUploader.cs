@@ -233,6 +233,7 @@ namespace Gdc.Scd.Import.Core.Impl
                             {
                                 CountryId = country,
                                 WgId = dbWg.Id,
+                                PlaId = dbWg.Pla.Id,
                                 CreatedDateTime = DateTime.Now,
                                 ModifiedDateTime = DateTime.Now,
                                 DeactivatedDateTime = null
