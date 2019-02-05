@@ -731,6 +731,126 @@
       </Elements>
     </Block>
 
+    <Block Name="SwSpMaintenance" Caption="SW / SP Maintenance">
+      <Applications>
+        <Application>SoftwareSolution</Application>
+      </Applications>
+      <Elements>
+        <Element Name="2ndLevelSupportCosts" Caption="2nd level support costs" InputOption="Manually" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="InstalledBaseSog" Caption="Installed base" InputOption="Manually" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="CurrencyReinsurance" Caption="Currency Reinsurance" InputOption="Manually" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+          <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
+        </Element>
+        <Element Name="RecommendedSwSpMaintenanceListPrice" Caption="SW/SP Maintenance List Price" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="MarkupForProductMarginSwLicenseListPrice" Caption="Markup for Product Margin of SW License List Price (%)" InputOption="Manually" Dependency="Availability" RegionInput="_none_">
+          <TypeOption Type="Percent"/>
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="ShareSwSpMaintenanceListPrice" Caption="Share Reinsurance of SW/SP Maintenance List Price" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
+          <TypeOption Type="Percent"/>
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="DiscountDealerPrice" Caption="Discount to Dealer price in %" InputOption="Manually" RegionInput="_none_">
+          <TypeOption Type="Percent"/>
+          <InputLevels>
+            <InputLevel>Pla</InputLevel>
+            <InputLevel>Sfab</InputLevel>
+            <InputLevel>Sog</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>PRS PSM</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+      </Elements>
+    </Block>
+
     <Block Name="ProActiveSw" Caption="ProActive">
       <Applications>
         <Application>SoftwareSolution</Application>
@@ -850,126 +970,6 @@
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-      </Elements>
-    </Block>
-    
-    <Block Name="SwSpMaintenance" Caption="SW / SP Maintenance">
-      <Applications>
-        <Application>SoftwareSolution</Application>
-      </Applications>
-      <Elements>
-        <Element Name="2ndLevelSupportCosts" Caption="2nd level support costs" InputOption="Manually" RegionInput="_none_">
-          <InputLevels>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sfab</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>PRS Finance</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="InstalledBaseSog" Caption="Installed base" InputOption="Manually" RegionInput="_none_">
-          <InputLevels>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sfab</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>PRS Finance</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
-          <InputLevels>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sfab</InputLevel>
-            <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="CurrencyReinsurance" Caption="Currency Reinsurance" InputOption="Manually" RegionInput="_none_">
-          <InputLevels>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sfab</InputLevel>
-            <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-          <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
-        </Element>
-        <Element Name="RecommendedSwSpMaintenanceListPrice" Caption="SW/SP Maintenance List Price" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
-          <InputLevels>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sfab</InputLevel>
-            <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="MarkupForProductMarginSwLicenseListPrice" Caption="Markup for Product Margin of SW License List Price (%)" InputOption="Manually" Dependency="Availability" RegionInput="_none_">
-          <TypeOption Type="Percent"/>
-          <InputLevels>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sfab</InputLevel>
-            <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="ShareSwSpMaintenanceListPrice" Caption="Share Reinsurance of SW/SP Maintenance List Price" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
-          <TypeOption Type="Percent"/>
-          <InputLevels>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sfab</InputLevel>
-            <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </CostEditor>
-        </Element>
-        <Element Name="DiscountDealerPrice" Caption="Discount to Dealer price in %" InputOption="Manually" RegionInput="_none_">
-          <TypeOption Type="Percent"/>
-          <InputLevels>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sfab</InputLevel>
-            <InputLevel>Sog</InputLevel>
-            <InputLevel>SwDigit</InputLevel>
-          </InputLevels>
-          <CostEditor>
-            <Roles>
-              <Role>PRS PSM</Role>
               <Role>SCD Admin</Role>
             </Roles>
           </CostEditor>
