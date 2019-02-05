@@ -14,9 +14,9 @@ import { UserCountryField } from "../../Dict/Components/UserCountryField";
 import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
 import { DictFactory } from "../../Dict/Services/DictFactory";
 import { IDictService } from "../../Dict/Services/IDictService";
-import { MultiSelect } from "./MultiSelect";
-import { MultiSelectWg } from "./MultiSelectWg";
-import { MultiSelectProActive } from "./MultiSelectProActive";
+import { MultiSelect } from "../../Dict/Components/MultiSelect";
+import { MultiSelectWg } from "../../Dict/Components/MultiSelectWg";
+import { MultiSelectProActive } from "../../Dict/Components/MultiSelectProActive";
 
 const SELECT_MAX_HEIGHT: string = '200px';
 
@@ -60,52 +60,44 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
     public render() {
 
         return (
-            <Container margin="10px 0"
-                defaults={{
-                    maxWidth: '200px',
-                    width: '200px',
-                    valueField: 'id',
-                    displayField: 'name',
-                    queryMode: 'local',
-                    clearable: 'true'
-                }}
-            >           
-                <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
-
-                <Container margin="10px 0"
-                    defaults={{
-                        maxWidth: '200px',
-                        width: '200px',
-                        valueField: 'id',
-                        displayField: 'name',
-                        queryMode: 'local',
-                        clearable: 'true'              
-                    }}
-                >            
-                    <MultiSelect ref={x => this.country = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Country" store={this.dictSrv.getUserCountryNames} />
-                    <MultiSelectWg ref={x => this.wg = x} width='200px' maxHeight="204px" title="Asset(WG)" store={this.dictSrv.getWG} />
-                    <MultiSelect ref={x => this.av = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Availability" store={this.dictSrv.getAvailabilityTypes} />
-                    <MultiSelect ref={x => this.dur = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Duration" store={this.dictSrv.getDurationTypes} />
-                    <MultiSelect ref={x => this.reacttype = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Reaction type" store={this.dictSrv.getReactionTypes} />
-                    <MultiSelect ref={x => this.reacttime = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Reaction time" store={this.dictSrv.getReactionTimeTypes} />
-                    <MultiSelect ref={x => this.srvloc = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Service location" store={this.dictSrv.getServiceLocationTypes} />
-                    <MultiSelectProActive ref={x => this.proactive = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="ProActive" store={this.dictSrv.getProActive} />
-
-                </Container>
-
-                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio, padding: '3px 0', hidden: this.props.isCountryUser }}>
-                    <CheckBoxField ref={x => this.globPort = x} boxLabel="Fujitsu principal portfolio" />
-                    <CheckBoxField ref={x => this.masterPort = x} boxLabel="Master portfolio" />
-                    <CheckBoxField ref={x => this.corePort = x} boxLabel="Core portfolio" />
-                </Container>
-
-               
-
-            </Panel>    
-            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
-                <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="20px auto" />
-            </Panel>
-             </Container >
+            <Container layout="vbox" height="100%" docked="right">     
+                <Panel {...this.props}
+                    layout={{ type: 'vbox', align: 'left' }}
+                    height="90%"
+                    margin="0 0 5px 0"
+                    padding="4px 20px 7px 20px"
+                    scrollable={true}>
+                    <Container margin="10px 0"
+                        defaults={{
+                            maxWidth: '200px',
+                            width: '200px',
+                            valueField: 'id',
+                            displayField: 'name',
+                            queryMode: 'local',
+                            clearable: 'true'              
+                        }}
+                    >            
+                        <MultiSelect ref={x => this.country = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Country" store={this.dictSrv.getUserCountryNames} />
+                        <MultiSelectWg ref={x => this.wg = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Asset(WG)" store={this.dictSrv.getWG} />
+                        <MultiSelect ref={x => this.av = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Availability" store={this.dictSrv.getAvailabilityTypes} />
+                        <MultiSelect ref={x => this.dur = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Duration" store={this.dictSrv.getDurationTypes} />
+                        <MultiSelect ref={x => this.reacttype = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Reaction type" store={this.dictSrv.getReactionTypes} />
+                        <MultiSelect ref={x => this.reacttime = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Reaction time" store={this.dictSrv.getReactionTimeTypes} />
+                        <MultiSelect ref={x => this.srvloc = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Service location" store={this.dictSrv.getServiceLocationTypes} />
+                        <MultiSelectProActive ref={x => this.proactive = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="ProActive" store={this.dictSrv.getProActive} />
+                    </Container>
+                    <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio, padding: '3px 0', hidden: this.props.isCountryUser }}>
+                        <CheckBoxField ref={x => this.globPort = x} boxLabel="Fujitsu principal portfolio" />
+                        <CheckBoxField ref={x => this.masterPort = x} boxLabel="Master portfolio" />
+                        <CheckBoxField ref={x => this.corePort = x} boxLabel="Core portfolio" />
+                    </Container>              
+                </Panel>    
+                <Panel {...this.props}
+                    padding="4px 20px 7px 20px"
+                    height="10%">
+                    <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="20px auto" />
+                </Panel> 
+            </Container>
         );
     }
 

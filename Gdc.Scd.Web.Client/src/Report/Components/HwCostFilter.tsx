@@ -14,6 +14,13 @@ import { UserCountryField } from "../../Dict/Components/UserCountryField";
 import { Country } from "../../Dict/Model/Country";
 import { CurrencyType } from "../Model/CurrencyType";
 import { HwCostFilterModel } from "../Model/HwCostFilterModel";
+import { DictFactory } from "../../Dict/Services/DictFactory";
+import { IDictService } from "../../Dict/Services/IDictService";
+import { MultiSelect } from "../../Dict/Components/MultiSelect";
+import { MultiSelectWg } from "../../Dict/Components/MultiSelectWg";
+import { MultiSelectProActive } from "../../Dict/Components/MultiSelectProActive";
+
+const SELECT_MAX_HEIGHT: string = '200px';
 
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: HwCostFilterModel): void;
@@ -23,25 +30,27 @@ export interface FilterPanelProps extends PanelProps {
 
 export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
-    private cnt: CountryField;
+    private cnt: MultiSelect;
 
-    private wg: DictField<NamedId>;
+    private wg: MultiSelect;
 
-    private av: DictField<NamedId>;
+    private av: MultiSelect;
 
-    private dur: DictField<NamedId>;
+    private dur: MultiSelect;
 
-    private reacttype: DictField<NamedId>;
+    private reacttype: MultiSelect;
 
-    private reacttime: DictField<NamedId>;
+    private reacttime: MultiSelect;
 
-    private srvloc: DictField<SortableNamedId>;
+    private srvloc: MultiSelect;
 
-    private proactive: DictField<NamedId>;
+    private proactive: MultiSelect;
 
     private localCur: RadioField & any;
 
     private euroCur: RadioField & any;
+
+    private dictSrv: IDictService;
 
     public constructor(props: any) {
         super(props);
@@ -54,10 +63,10 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         let countryField;
 
         if (this.props.checkAccess) {
-            countryField = <UserCountryField ref={x => this.cnt = x} label="Country:" cache={false} onChange={this.onCountryChange} />;
+            countryField = <MultiSelect ref={x => this.cnt = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Country" store={this.dictSrv.getUserCountryNames} onselect={this.onCountryChange}/>
         }
         else {
-            countryField = <CountryField ref={x => this.cnt = x} label="Country:" cache={false} onChange={this.onCountryChange} />;
+            countryField = <MultiSelect ref={x => this.cnt = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Country" store={this.dictSrv.getMasterCountriesNames} onselect={this.onCountryChange}/>;
         }
 
         return (
@@ -74,13 +83,13 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                 >
 
                     {countryField}
-                    <StandardWgField ref={x => this.wg = x} label="Asset(WG):" />
-                    <AvailabilityField ref={x => this.av = x} label="Availability:" />
-                    <DurationField ref={x => this.dur = x} label="Duration:" />
-                    <ReactionTypeField ref={x => this.reacttype = x} label="Reaction type:" />
-                    <ReactionTimeField ref={x => this.reacttime = x} label="Reaction time:" />
-                    <ServiceLocationField ref={x => this.srvloc = x} label="Service location:" />
-                    <ProActiveField ref={x => this.proactive = x} label="ProActive:" />
+                    <MultiSelectWg ref={x => this.wg = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Asset(WG)" store={this.dictSrv.getWG} />
+                    <MultiSelect ref={x => this.av = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Availability" store={this.dictSrv.getAvailabilityTypes} />
+                    <MultiSelect ref={x => this.dur = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Duration" store={this.dictSrv.getDurationTypes} />
+                    <MultiSelect ref={x => this.reacttype = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Reaction type" store={this.dictSrv.getReactionTypes} />
+                    <MultiSelect ref={x => this.reacttime = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Reaction time" store={this.dictSrv.getReactionTimeTypes} />
+                    <MultiSelect ref={x => this.srvloc = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Service location" store={this.dictSrv.getServiceLocationTypes} />
+                    <MultiSelectProActive ref={x => this.proactive = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="ProActive" store={this.dictSrv.getProActive} />
 
                 </Container>
 
@@ -98,31 +107,34 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
     }
 
     public getModel(): HwCostFilterModel {
-        return {
-            country: this.cnt.getSelected(),
-            wg: this.wg.getSelected(),
-            availability: this.av.getSelected(),
-            duration: this.dur.getSelected(),
-            reactionType: this.reacttype.getSelected(),
-            reactionTime: this.reacttime.getSelected(),
-            serviceLocation: this.srvloc.getSelected(),
-            proActive: this.proactive.getSelected(),
-            currency: this.getCurrency()
-        };
+        let m = new HwCostFilterModel();
+
+        m.country = this.cnt.getSelectedKeys();
+        m.wg = this.wg.getSelectedKeys();
+        m.availability = this.av.getSelectedKeys();
+        m.duration = this.dur.getSelectedKeys();
+        m.reactionType = this.reacttype.getSelectedKeys();
+        m.reactionTime = this.reacttime.getSelectedKeys();
+        m.serviceLocation = this.srvloc.getSelectedKeys();
+        m.proActive = this.proactive.getSelectedKeys();
+        m.currency = this.getCurrency();
+
+        return m;
     }
 
-    public getCountry(): Country {
-        return this.cnt.getSelectedModel();
+    public getCountry(): any {
+        return this.cnt.getSelectedKeys();
     }
 
     private init() {
+        this.dictSrv = DictFactory.getDictService();
         this.onCountryChange = this.onCountryChange.bind(this);
         this.onSearch = this.onSearch.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onDownload = this.onDownload.bind(this);
     }
 
-    private onCountryChange() {
+    private onCountryChange(field, records) {
         this.setState({ valid: !!this.cnt.getSelected() });
     }
 

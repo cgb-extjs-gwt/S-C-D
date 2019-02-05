@@ -61,7 +61,7 @@ namespace Gdc.Scd.Web.Server.Controllers
 
     public class LocalPortfolioDto
     {
-        public long CountryId { get; set; }
+        public long[] CountryId { get; set; }
 
         public long[] Items { get; set; }
     }

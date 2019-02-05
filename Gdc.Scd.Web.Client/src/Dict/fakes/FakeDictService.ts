@@ -14,6 +14,9 @@ import { fakeWG } from "./FakeWG";
 import { fakeYears } from "./FakeYear";
 
 export class FakeDictService implements IDictService {
+    getMasterCountriesNames(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
     getUserCountryNames(): Promise<NamedId<string>[]> {
         throw new Error("Method not implemented.");
     }

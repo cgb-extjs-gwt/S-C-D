@@ -28,6 +28,11 @@ export class DictService implements IDictService {
         return cache ? srv.getAll() : srv.loadAll();
     }
 
+    public getMasterCountriesNames(): Promise<NamedId<string>[]> {
+        const srv = new CountryService();
+        return srv.getAllNames();
+    }
+
     public getUserCountries(cache: boolean): Promise<Country[]> {
         const srv = new UserCountryService();
         return cache ? srv.getAll() : srv.loadAll();

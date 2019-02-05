@@ -1,10 +1,12 @@
-﻿import { CheckBoxField, Container, List } from "@extjs/ext-react";
+﻿import { CheckBoxField, Container, List, Panel } from "@extjs/ext-react";
 import * as React from "react";
 import { ExtDataviewHelper } from "../../Common/Helpers/ExtDataviewHelper";
 import { NamedId } from "../../Common/States/CommonStates";
 
 const ID_PROP = 'id';
 const NAME_PROP: string = 'name';
+
+Ext.require('Ext.panel.Collapser');
 
 export interface MultiSelectProps {
 
@@ -21,6 +23,8 @@ export interface MultiSelectProps {
     selectable?: string;
 
     store(): Promise<NamedId[]>;
+
+    onselect?: (field, records)=>void;
 }
 
 export class MultiSelect extends React.Component<MultiSelectProps, any> {
@@ -53,7 +57,7 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
 
     public render() {
 
-        let { width, height, maxHeight, title, selectable } = this.props;
+        let { width, height, maxHeight, title, selectable, onselect } = this.props;
 
         title = '<h4>' + title + '</h4>';
 
@@ -64,13 +68,16 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
         selectable = selectable || 'multi';
 
         return (
-            <Container width={width}>
+            <Panel title='test' width={width} collasible={{
+                direction: 'top',
+                dynamic: true
+            }}>
                 <CheckBoxField
                     ref={x => this.cb = x}
                     boxLabel={title}
                     padding="7px"
                     bodyAlign="left"
-                    onChange={this.onTopSelectionChange}
+                    onChange={this.onTopSelectionChange}    
                 />
                 <div onClick={this.onListClick}>
                     <Container>
@@ -82,10 +89,11 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
                             maxHeight={maxHeight}
                             selectable={selectable}
                             scrollable="true"
+                            onSelect={onselect}
                         />
                     </Container>
                 </div>
-            </Container>
+            </Panel>
         );
     }
 

@@ -35,7 +35,8 @@ namespace Gdc.Scd.Web.Api.Controllers
             )
         {
             if (filter != null &&
-                filter.Country > 0 &&
+                filter.Country != null &&
+                filter.Country.Length > 0 &&
                 IsRangeValid(start, limit) &&
                 HasAccess(approved, filter.Country))
             {
@@ -101,7 +102,7 @@ namespace Gdc.Scd.Web.Api.Controllers
                     ListPrice = x.ListPrice,
                     DealerDiscount = x.DealerDiscount
                 });
-                calcSrv.SaveHardwareCost(this.CurrentUser(), m.CountryId, items);
+                calcSrv.SaveHardwareCost(this.CurrentUser(), items);
             }
             else
             {
@@ -119,7 +120,7 @@ namespace Gdc.Scd.Web.Api.Controllers
                     Id = x.Id,
                     ServiceTP_Released = x.ServiceTPManual ?? x.ServiceTP
                 });
-                calcSrv.SaveHardwareCost(this.CurrentUser(), m.CountryId, items, true);
+                calcSrv.SaveHardwareCost(this.CurrentUser(), items, true);
             }
             else
             {
@@ -132,9 +133,29 @@ namespace Gdc.Scd.Web.Api.Controllers
             return start >= 0 && limit <= 50;
         }
 
-        private bool HasAccess(long countryId)
+        private bool HasAccess(long[] countryIds)
         {
-            return userCountrySrv.HasCountryAccess(this.CurrentUser(), countryId);
+            var hasAccess = true;
+            for (var i = 0; i < countryIds.Length; i++)
+            {
+                hasAccess = hasAccess && userCountrySrv.HasCountryAccess(this.CurrentUser(), countryIds[i]);
+            }
+            return hasAccess;
+        }
+
+        private bool HasAccess(bool approved, long[] countryIds)
+        {
+            if (approved)
+            {
+                return true;
+            }
+
+            var hasAccess = true;
+            for(var i=0;i< countryIds.Length; i++)
+            {
+                hasAccess= hasAccess && userCountrySrv.HasCountryAccess(this.CurrentUser(), countryIds[i]);
+            }
+            return hasAccess;
         }
 
         private bool HasAccess(bool approved, long countryId)
@@ -150,7 +171,7 @@ namespace Gdc.Scd.Web.Api.Controllers
 
     public class SaveCostManualDto
     {
-        public long CountryId { get; set; }
+        public long[] CountryId { get; set; }
 
         public HwCostDto[] Items { get; set; }
     }

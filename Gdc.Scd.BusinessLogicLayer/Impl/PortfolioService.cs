@@ -43,7 +43,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return UpdatePortfolio(m, true);
         }
 
-        public Task Deny(long countryId, long[] ids)
+        public Task Deny(long[] countryId, long[] ids)
         {
             return new UpdateLocalPortfolio(repositorySet).DenyAsync(countryId, ids);
         }
