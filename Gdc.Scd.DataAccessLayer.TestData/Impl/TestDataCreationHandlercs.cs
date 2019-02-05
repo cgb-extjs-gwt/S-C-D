@@ -2030,7 +2030,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         private void CreateRegions()
         {
             var crAsia = new ClusterRegion { Name = "Asia" };
-            var crEmeia = new ClusterRegion { Name = "EMEIA" };
+            var crEmeia = new ClusterRegion { Name = "EMEIA", IsEmeia = true };
             var crJapan = new ClusterRegion { Name = "Japan" };
             var crLatinAmerica = new ClusterRegion { Name = "Latin America" };
             var crUnitedStates = new ClusterRegion { Name = "United States" };
