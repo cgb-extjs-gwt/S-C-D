@@ -174,26 +174,29 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private async Task<RegionDto[]> GetRegions(CostEditorContext context)
         {
-            IEnumerable<RegionDto> regionDtos;
+            RegionDto[] regionDtos = null;
 
             var regions = await this.costBlockService.GetRegions(context);
-
-            var costElement = this.meta.GetCostElement(context);
-            if (costElement.IsCountryCurrencyCost)
+            if (regions != null)
             {
-                var countryIds = regions.Select(region => region.Id).ToArray();
+                var costElement = this.meta.GetCostElement(context);
+                if (costElement.IsCountryCurrencyCost)
+                {
+                    var countryIds = regions.Select(region => region.Id).ToArray();
 
-                regionDtos =
-                    this.countryService.GetAll()
-                                       .Where(country => countryIds.Contains(country.Id))
-                                       .Select(country => new RegionDto(country, country.Currency));
-            }
-            else
-            {
-                regionDtos = regions.Select(region => new RegionDto(region));
+                    regionDtos =
+                        this.countryService.GetAll()
+                                           .Where(country => countryIds.Contains(country.Id))
+                                           .Select(country => new RegionDto(country, country.Currency))
+                                           .ToArray();
+                }
+                else
+                {
+                    regionDtos = regions.Select(region => new RegionDto(region)).ToArray();
+                }
             }
 
-            return regionDtos.ToArray();
+            return regionDtos;
         }
     }
 }
