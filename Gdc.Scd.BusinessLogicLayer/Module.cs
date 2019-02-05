@@ -55,7 +55,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<ServiceLocation>();
             Kernel.RegisterEntity<Currency>();
             Kernel.RegisterEntity<ExchangeRate>();
-            Kernel.RegisterEntity<YearAvailability>();
+            Kernel.RegisterEntity<DurationAvailability>();
             Kernel.RegisterEntity<ClusterPla>();
             Kernel.RegisterEntity<ProActiveSla>();
             Kernel.RegisterEntity<SwDigit>();

@@ -3,10 +3,10 @@ using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("Year_Availability", Schema = MetaConstants.DependencySchema)]
-    public class YearAvailability : BaseDisabledEntity
+    [Table("Duration_Availability", Schema = MetaConstants.DependencySchema)]
+    public class DurationAvailability : BaseDisabledEntity
     {
-        public Year Year { get; set; }
+        public Duration Year { get; set; }
 
         public Availability Availability { get; set; }
     }

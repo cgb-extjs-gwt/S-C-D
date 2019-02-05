@@ -44,7 +44,7 @@
     <Dependency Name="ReactionTimeAvailability" Caption="Reaction" Type="View"/>
     <Dependency Name="ReactionTimeTypeAvailability" Caption="Reaction" Type="View"/>
     <Dependency Name="Availability" Caption="Availability"/>
-    <Dependency Name="YearAvailability" Caption="Year Availability" Type="View"/>
+    <Dependency Name="DurationAvailability" Caption="Duration Availability" Type="View"/>
     <Dependency Name="ProActiveSla" Caption="Pro Active SLA"/>
   </Dependencies>
 
@@ -877,7 +877,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" Dependency="YearAvailability" RegionInput="_none_">
+        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
@@ -906,7 +906,7 @@
           </CostEditor>
           <TypeOption Type="Reference" Schema="References" Name="Currency" IdFieldName="Id" FaceFieldName="Name"/>
         </Element>
-        <Element Name="RecommendedSwSpMaintenanceListPrice" Caption="Recommended SW/SP Maintenance List Price" InputOption="Manually" Dependency="Availability" RegionInput="_none_">
+        <Element Name="RecommendedSwSpMaintenanceListPrice" Caption="SW/SP Maintenance List Price" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
@@ -935,7 +935,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="ShareSwSpMaintenanceListPrice" Caption="Share SW/SP Maintenance List Price (%)" InputOption="Manually" Dependency="Availability" RegionInput="_none_">
+        <Element Name="ShareSwSpMaintenanceListPrice" Caption="Share Reinsurance of SW/SP Maintenance List Price" InputOption="Manually" Dependency="DurationAvailability" RegionInput="_none_">
           <TypeOption Type="Percent"/>
           <InputLevels>
             <InputLevel>Pla</InputLevel>

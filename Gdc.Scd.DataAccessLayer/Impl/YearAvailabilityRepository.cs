@@ -2,14 +2,14 @@
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
-    public class YearAvailabilityRepository : EntityFrameworkRepository<YearAvailability>
+    public class DurationAvailabilityRepository : EntityFrameworkRepository<DurationAvailability>
     {
-        public YearAvailabilityRepository(EntityFrameworkRepositorySet repositorySet) 
+        public DurationAvailabilityRepository(EntityFrameworkRepositorySet repositorySet) 
             : base(repositorySet)
         {
         }
 
-        public override void Save(YearAvailability item)
+        public override void Save(DurationAvailability item)
         {
             this.SetAddOrUpdateState(item.Year);
             this.SetAddOrUpdateState(item.Availability);

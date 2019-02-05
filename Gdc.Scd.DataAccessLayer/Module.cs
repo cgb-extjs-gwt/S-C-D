@@ -27,7 +27,7 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<IRepository<ReactionTimeAvalability>>().To<ReactionTimeAvalabilityRepository>().InRequestScope();
             Bind<IRepository<ReactionTimeTypeAvalability>>().To<ReactionTimeTypeAvalabilityRepository>().InRequestScope();
             Bind<ICostBlockValueHistoryQueryBuilder>().To<CostBlockValueHistoryQueryBuilder>().InRequestScope();
-            Bind<IRepository<YearAvailability>>().To<YearAvailabilityRepository>().InRequestScope();
+            Bind<IRepository<DurationAvailability>>().To<DurationAvailabilityRepository>().InRequestScope();
             Bind<IQualityGateRepository>().To<QualityGateRepository>().InRequestScope();
             Bind<IQualityGateQueryBuilder>().To<QualityGateQueryBuilder>().InRequestScope();
             Bind<IRepository<Country>>().To<CountryRepository>().InRequestScope();
