@@ -14,19 +14,10 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
     
     public partial class RoleCode
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public RoleCode()
-        {
-            this.RoleCodeHourlyRates = new HashSet<RoleCodeHourlyRate>();
-            this.Wgs = new HashSet<Wg>();
-        }
+        public long CostBlockHistory { get; set; }
+        public Nullable<long> RoleCode1 { get; set; }
     
-        public long Id { get; set; }
-        public string Name { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<RoleCodeHourlyRate> RoleCodeHourlyRates { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Wg> Wgs { get; set; }
+        public virtual CostBlockHistory CostBlockHistory1 { get; set; }
+        public virtual RoleCode1 RoleCode11 { get; set; }
     }
 }

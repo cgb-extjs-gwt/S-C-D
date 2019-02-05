@@ -21,13 +21,9 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public Nullable<double> InstalledBaseCountry { get; set; }
         public Nullable<double> InstalledBaseCountry_Approved { get; set; }
         public System.DateTime ModifiedDateTime { get; set; }
-        public Nullable<long> Pla { get; set; }
         public Nullable<long> Wg { get; set; }
-        public Nullable<double> InstalledBaseCountryPla { get; set; }
-        public Nullable<double> InstalledBaseCountryPla_Approved { get; set; }
     
-        public virtual Country Country1 { get; set; }
-        public virtual Pla Pla1 { get; set; }
-        public virtual Wg Wg1 { get; set; }
+        public virtual Country1 Country1 { get; set; }
+        public virtual Wg1 Wg1 { get; set; }
     }
 }

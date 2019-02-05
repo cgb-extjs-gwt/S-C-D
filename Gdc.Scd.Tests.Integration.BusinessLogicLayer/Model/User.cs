@@ -17,6 +17,9 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public User()
         {
+            this.CostBlockHistories = new HashSet<CostBlockHistory>();
+            this.CostBlockHistories1 = new HashSet<CostBlockHistory>();
+            this.ManualCosts = new HashSet<ManualCost>();
             this.UserRoles = new HashSet<UserRole>();
         }
     
@@ -25,6 +28,12 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public string Login { get; set; }
         public string Name { get; set; }
     
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CostBlockHistory> CostBlockHistories { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CostBlockHistory> CostBlockHistories1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<ManualCost> ManualCosts { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<UserRole> UserRoles { get; set; }
     }

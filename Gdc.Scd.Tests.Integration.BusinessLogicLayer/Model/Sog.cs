@@ -14,40 +14,10 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
     
     public partial class Sog
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Sog()
-        {
-            this.SwFspCodeTranslations = new HashSet<SwFspCodeTranslation>();
-            this.ProActiveSws = new HashSet<ProActiveSw>();
-            this.SwSpMaintenances = new HashSet<SwSpMaintenance>();
-            this.SwDigits = new HashSet<SwDigit>();
-            this.Wgs = new HashSet<Wg>();
-        }
+        public long CostBlockHistory { get; set; }
+        public Nullable<long> Sog1 { get; set; }
     
-        public long Id { get; set; }
-        public string Alignment { get; set; }
-        public System.DateTime CreatedDateTime { get; set; }
-        public Nullable<System.DateTime> DeactivatedDateTime { get; set; }
-        public string Description { get; set; }
-        public string FabGrp { get; set; }
-        public bool IsSoftware { get; set; }
-        public System.DateTime ModifiedDateTime { get; set; }
-        public string Name { get; set; }
-        public long PlaId { get; set; }
-        public string SCD_ServiceType { get; set; }
-        public Nullable<long> SFabId { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SwFspCodeTranslation> SwFspCodeTranslations { get; set; }
-        public virtual Pla Pla { get; set; }
-        public virtual Sfab Sfab { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ProActiveSw> ProActiveSws { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SwSpMaintenance> SwSpMaintenances { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SwDigit> SwDigits { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Wg> Wgs { get; set; }
+        public virtual CostBlockHistory CostBlockHistory1 { get; set; }
+        public virtual Sog1 Sog11 { get; set; }
     }
 }

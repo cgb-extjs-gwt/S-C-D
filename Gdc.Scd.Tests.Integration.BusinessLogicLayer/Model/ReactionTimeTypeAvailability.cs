@@ -14,7 +14,9 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
     
     public partial class ReactionTimeTypeAvailability
     {
-        public long Id { get; set; }
-        public string Name { get; set; }
+        public long CostBlockHistory { get; set; }
+        public Nullable<long> ReactionTimeTypeAvailability1 { get; set; }
+    
+        public virtual CostBlockHistory CostBlockHistory1 { get; set; }
     }
 }
