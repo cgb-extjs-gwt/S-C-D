@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
@@ -53,14 +52,28 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders
         {
             string result = null;
 
-            if (field.ReferenceMeta.StoreType == StoreType.Table)
+            BaseEntityMeta refMeta = null;
+
+            if (field.ReferenceMeta.RealMeta == null)
             {
-                var constraintName = $"[FK_{this.Meta.Schema}{this.Meta.Name}{field.Name}_{field.ReferenceMeta.Schema}{field.ReferenceMeta.Name}]";
+                if (field.ReferenceMeta.StoreType == StoreType.Table)
+                {
+                    refMeta = field.ReferenceMeta;
+                }
+            }
+            else
+            {
+                refMeta = field.ReferenceMeta.RealMeta;
+            }
+
+            if (refMeta != null)
+            {
+                var constraintName = $"[FK_{this.Meta.Schema}{this.Meta.Name}{field.Name}_{refMeta.Schema}{refMeta.Name}]";
 
                 result =
                     $@"
                         {this.BuildAlterTable()} WITH CHECK ADD  CONSTRAINT {constraintName} FOREIGN KEY([{field.Name}]) 
-                        REFERENCES [{field.ReferenceMeta.Schema}].[{field.ReferenceMeta.Name}] ([{field.ReferenceValueField}]);
+                        REFERENCES [{refMeta.Schema}].[{refMeta.Name}] ([{field.ReferenceValueField}]);
                         {this.BuildAlterTable()} CHECK CONSTRAINT {constraintName};
                     ";
             }

@@ -14,6 +14,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public StoreType StoreType { get; set; }
 
+        public BaseEntityMeta RealMeta { get; set; }
+
         public abstract IEnumerable<FieldMeta> AllFields { get; }
 
         string IMetaIdentifialble.Id => this.FullName;

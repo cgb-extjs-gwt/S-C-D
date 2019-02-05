@@ -20,6 +20,10 @@
 
         public const string CountryInputLevelName = "Country";
 
+        public const string EmeiaCountryInputLevelName = "EmeiaCountry";
+
+        public const string NonEmeiaCountryInputLevelName = "NonEmeiaCountry";
+
         public const string RegionLevel = "Region";
         
         public const string DefaultSchema = "dbo";
