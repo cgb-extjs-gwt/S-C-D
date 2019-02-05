@@ -91,7 +91,13 @@ export class QualityGateGrid extends React.PureComponent<QualityGateGridProps> {
 
         return Ext.create('Ext.data.Store', {
             fields: [
-                'lastInputLevel', 
+                {
+                    name: 'lastInputLevel',
+                    sortable: true,
+                    sortType: function (value) {
+                        return value.name.replace(/(\d+)/g, "0000000000$1").replace(/0*(\d{10,})/g, "$1");
+                    },
+                },
                 'coordinates',
                 'newValue',
                 this.buildNullValueMappingField('oldValue'),

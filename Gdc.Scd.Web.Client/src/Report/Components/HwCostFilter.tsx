@@ -18,6 +18,7 @@ import { HwCostFilterModel } from "../Model/HwCostFilterModel";
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: HwCostFilterModel): void;
     onChange(filter: HwCostFilterModel): void;
+    onDownload(filter: HwCostFilterModel): void;
 }
 
 export class HwCostFilter extends React.Component<FilterPanelProps, any> {
@@ -60,7 +61,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         }
 
         return (
-            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
+            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px" layout={{ type: 'vbox', align: 'left' }}>
 
                 <Container margin="10px 0"
                     defaults={{
@@ -90,6 +91,8 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
                 <Button text="Search" ui="action" minWidth="85px" margin="20px auto" disabled={!valid} handler={this.onSearch} />
 
+                <Button text="Download" ui="action" minWidth="85px" iconCls="x-fa fa-download" disabled={!valid} handler={this.onDownload} />
+
             </Panel>
         );
     }
@@ -116,6 +119,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         this.onCountryChange = this.onCountryChange.bind(this);
         this.onSearch = this.onSearch.bind(this);
         this.onChange = this.onChange.bind(this);
+        this.onDownload = this.onDownload.bind(this);
     }
 
     private onCountryChange() {
@@ -131,6 +135,13 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
     private onChange() {
         let handler = this.props.onChange;
+        if (handler) {
+            handler(this.getModel());
+        }
+    }
+
+    private onDownload() {
+        let handler = this.props.onDownload;
         if (handler) {
             handler(this.getModel());
         }

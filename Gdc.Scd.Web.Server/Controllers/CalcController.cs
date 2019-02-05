@@ -1,7 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
-using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Web.Server;
 using Gdc.Scd.Web.Server.Impl;
 using System.Linq;

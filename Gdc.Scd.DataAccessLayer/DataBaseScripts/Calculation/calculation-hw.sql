@@ -15,6 +15,78 @@ GO
 DROP INDEX [IX_HwFspCodeTranslation_WgId] ON [Fsp].[HwFspCodeTranslation]
 GO
 
+IF OBJECT_ID('Hardware.MaterialCostOowCalc', 'U') IS NOT NULL
+  DROP TABLE Hardware.MaterialCostOowCalc;
+go
+
+CREATE TABLE Hardware.MaterialCostOowCalc (
+    [Country] [bigint] NOT NULL foreign key references InputAtoms.Country(Id),
+    [Wg] [bigint] NOT NULL foreign key references InputAtoms.Wg(Id),
+    [MaterialCostOow] [float] NULL,
+    [MaterialCostOow_Approved] [float] NULL,
+    CONSTRAINT PK_MaterialCostOowCalc PRIMARY KEY NONCLUSTERED (Country, Wg)
+)
+GO
+
+IF OBJECT_ID('Hardware.SpUpdateMaterialCostOowCalc') IS NOT NULL
+  DROP PROCEDURE Hardware.SpUpdateMaterialCostOowCalc;
+go
+
+CREATE PROCEDURE Hardware.SpUpdateMaterialCostOowCalc
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    truncate table Hardware.MaterialCostOowCalc;
+
+    -- Disable all table constraints
+    ALTER TABLE Hardware.MaterialCostOowCalc NOCHECK CONSTRAINT ALL;
+
+    INSERT INTO Hardware.MaterialCostOowCalc(Country, Wg, MaterialCostOow, MaterialCostOow_Approved)
+        select NonEmeiaCountry as Country, Wg, MaterialCostOow, MaterialCostOow_Approved
+        from Hardware.MaterialCostOow
+        where DeactivatedDateTime is null
+
+        union 
+
+        select EmeiaCountry as Country, Wg, MaterialCostOow, MaterialCostOow_Approved
+        from Hardware.MaterialCostOowEmeia
+        where DeactivatedDateTime is null
+
+    -- Enable all table constraints
+    ALTER TABLE Hardware.MaterialCostOowCalc CHECK CONSTRAINT ALL;
+
+END
+go
+
+IF OBJECT_ID('Hardware.MaterialCostOowUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.MaterialCostOowUpdated;
+go
+
+CREATE TRIGGER Hardware.MaterialCostOowUpdated
+ON Hardware.MaterialCostOow
+After INSERT, UPDATE
+AS BEGIN
+    exec Hardware.SpUpdateMaterialCostOowCalc;
+END
+go
+
+IF OBJECT_ID('Hardware.MaterialCostOowEmeiaUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.MaterialCostOowEmeiaUpdated;
+go
+
+CREATE TRIGGER Hardware.MaterialCostOowEmeiaUpdated
+ON Hardware.MaterialCostOowEmeia
+After INSERT, UPDATE
+AS BEGIN
+    exec Hardware.SpUpdateMaterialCostOowCalc;
+END
+go
+
+exec Hardware.SpUpdateMaterialCostOowCalc;
+go
+
 ALTER TABLE Fsp.HwFspCodeTranslation 
     ADD SlaHash  AS checksum (
                         cast(coalesce(CountryId, 0) as nvarchar(20)) + ',' +
@@ -1731,7 +1803,7 @@ RETURN
 
     LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
-    LEFT JOIN Hardware.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
+    LEFT JOIN Hardware.MaterialCostOowCalc mco on mco.Wg = m.WgId AND mco.Country = m.CountryId
 
     LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Year = m.DurationId AND r.AvailabilityId = m.AvailabilityId AND r.ReactionTimeId = m.ReactionTimeId
 
@@ -1920,22 +1992,24 @@ RETURN
     )
     , CostCte5 as (
         select m.*
-             , m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.TaxAndDuties1  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit1  as ServiceTC1
-             , m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.TaxAndDuties2  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit2  as ServiceTC2
-             , m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.TaxAndDuties3  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit3  as ServiceTC3
-             , m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.TaxAndDuties4  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit4  as ServiceTC4
-             , m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.TaxAndDuties5  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit5  as ServiceTC5
-             , m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.TaxAndDuties1P + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit1P as ServiceTC1P
+
+             , m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.TaxAndDuties1  + m.ReinsuranceOrZero + m.OtherDirect1  + m.AvailabilityFeeOrZero - m.Credit1  as ServiceTP1
+             , m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.TaxAndDuties2  + m.ReinsuranceOrZero + m.OtherDirect2  + m.AvailabilityFeeOrZero - m.Credit2  as ServiceTP2
+             , m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.TaxAndDuties3  + m.ReinsuranceOrZero + m.OtherDirect3  + m.AvailabilityFeeOrZero - m.Credit3  as ServiceTP3
+             , m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.TaxAndDuties4  + m.ReinsuranceOrZero + m.OtherDirect4  + m.AvailabilityFeeOrZero - m.Credit4  as ServiceTP4
+             , m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.TaxAndDuties5  + m.ReinsuranceOrZero + m.OtherDirect5  + m.AvailabilityFeeOrZero - m.Credit5  as ServiceTP5
+             , m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.TaxAndDuties1P + m.ReinsuranceOrZero + m.OtherDirect1P + m.AvailabilityFeeOrZero - m.Credit1P as ServiceTP1P
+
         from CostCte4 m
     )
     , CostCte6 as (
         select m.*
-             , Hardware.AddMarkup(m.ServiceTC1,  1 + m.MarkupFactorOtherCost, m.MarkupOtherCost) as ServiceTP1
-             , Hardware.AddMarkup(m.ServiceTC2,  1 + m.MarkupFactorOtherCost, m.MarkupOtherCost) as ServiceTP2
-             , Hardware.AddMarkup(m.ServiceTC3,  1 + m.MarkupFactorOtherCost, m.MarkupOtherCost) as ServiceTP3
-             , Hardware.AddMarkup(m.ServiceTC4,  1 + m.MarkupFactorOtherCost, m.MarkupOtherCost) as ServiceTP4
-             , Hardware.AddMarkup(m.ServiceTC5,  1 + m.MarkupFactorOtherCost, m.MarkupOtherCost) as ServiceTP5
-             , Hardware.AddMarkup(m.ServiceTC1P, 1 + m.MarkupFactorOtherCost, m.MarkupOtherCost) as ServiceTP1P
+             , m.ServiceTP1  - m.OtherDirect1  as ServiceTC1
+             , m.ServiceTP2  - m.OtherDirect2  as ServiceTC2
+             , m.ServiceTP3  - m.OtherDirect3  as ServiceTC3
+             , m.ServiceTP4  - m.OtherDirect4  as ServiceTC4
+             , m.ServiceTP5  - m.OtherDirect5  as ServiceTC5
+             , m.ServiceTP1P - m.OtherDirect1P as ServiceTC1P
         from CostCte5 m
     )    
     select m.Id
