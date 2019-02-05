@@ -272,6 +272,7 @@
       <Elements>
         <Element Name="InstalledBaseHighAvailability" Caption="Installed base high availability" InputOption="Manually">
           <InputLevels>
+            <InputLevel>Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
           <CostEditor>
@@ -287,6 +288,7 @@
           <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -301,6 +303,7 @@
           <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -315,6 +318,7 @@
           <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -328,6 +332,7 @@
         <Element Name="AverageContractDuration" Caption="Average contract duration" InputOption="Manually">
           <InputLevels>
             <InputLevel>Country</InputLevel>
+            <InputLevel>Pla</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -340,6 +345,7 @@
         </Element>
         <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="AutomaticallyReadonly" RegionInput="_none_">
           <InputLevels>
+            <InputLevel>Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
           <CostEditor>
@@ -351,6 +357,7 @@
         </Element>
         <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="AutomaticallyReadonly" RegionInput="_none_">
           <InputLevels>
+            <InputLevel>Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
           <CostEditor>
@@ -362,6 +369,7 @@
         </Element>
         <Element Name="MaxQty" Caption="MaxQty" InputOption="AutomaticallyReadonly" RegionInput="_none_">
           <InputLevels>
+            <InputLevel>Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
           <CostEditor>
@@ -374,6 +382,7 @@
         <Element Name="JapanBuy" Caption="Japan Buy" InputOption="Manually">
           <TypeOption Type="Flag"/>
           <InputLevels>
+            <InputLevel>Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
           <CostEditor>
