@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
@@ -13,8 +12,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public SimpleFieldMeta IsMasterField { get; }
 
-        public CountryEntityMeta(NamedEntityMeta clusterRegionMeta)
-            : base(MetaConstants.CountryInputLevelName, MetaConstants.InputLevelSchema)
+        public CountryEntityMeta(string name, string schema, ClusterRegionEntityMeta clusterRegionMeta)
+            : base(name, schema)
         {
             this.QualityGateGroupField = new SimpleFieldMeta(nameof(Country.QualityGateGroup), TypeCode.String);
             this.ClusterRegionField = ReferenceFieldMeta.Build(nameof(Country.ClusterRegionId), clusterRegionMeta);

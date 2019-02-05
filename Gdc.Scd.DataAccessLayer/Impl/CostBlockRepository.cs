@@ -82,7 +82,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.repositorySet.ExecuteSql(query);
         }
 
-        private SqlHelper BuildUpdateByCoordinatesQuery(CostBlockEntityMeta meta,
+        private SqlHelper BuildUpdateByCoordinatesQuery(
+            CostBlockEntityMeta meta,
             IEnumerable<UpdateQueryOption> updateOptions = null)
         {
             List<SqlHelper> queries = new List<SqlHelper>();
@@ -217,8 +218,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         /// <param name="costBlockMeta">Cost Block info</param>
         /// <param name="updateOptions">Updated coordinates with old and new values</param>
         /// <returns></returns>
-        private SqlHelper[] BuildAllUpdateCostBlockQueriesByCoordinates(BaseCostBlockEntityMeta costBlockMeta,
-            IEnumerable<UpdateQueryOption> updateOptions, string prefix = "")
+        private SqlHelper[] BuildAllUpdateCostBlockQueriesByCoordinates(
+            BaseCostBlockEntityMeta costBlockMeta,
+            IEnumerable<UpdateQueryOption> updateOptions, 
+            string prefix = "")
         {
             List<SqlHelper> queries = new List<SqlHelper>();
 
@@ -236,8 +239,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return $"{prefix}{paramName}";
         }
 
-        private SqlHelper BuildUpdateCostBlockByChangedCoordinatesQuery(BaseCostBlockEntityMeta costBlockMeta, 
-            UpdateQueryOption updateOptions, int index, string prefix = "")
+        private SqlHelper BuildUpdateCostBlockByChangedCoordinatesQuery(
+            BaseCostBlockEntityMeta costBlockMeta, 
+            UpdateQueryOption updateOptions, 
+            int index, 
+            string prefix = "")
         {
             var costBlockCoordinates = new HashSet<string>(costBlockMeta.CoordinateFields.Select(c => c.Name));
             var changedCoordinates = new HashSet<string>(updateOptions.NewCoordinates.Keys);

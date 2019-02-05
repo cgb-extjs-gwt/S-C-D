@@ -1,6 +1,8 @@
 <SCDConfiguration>
   <InputLevels>
     <InputLevel Name="Country"/>
+    <InputLevel Name="EmeiaCountry" Caption="Country" Type="View"/>
+    <InputLevel Name="NonEmeiaCountry" Caption="Country" Type="View"/>
     <InputLevel Name="ClusterRegion" Caption="Region"/>
     <InputLevel Name="ClusterPla" Caption="Cluster Pla"/>
     <InputLevel Name="Pla" Caption="PLA"/>
@@ -494,22 +496,42 @@
       </Elements>
     </Block>
 
-    <Block Name="MaterialCostOow" Caption="Material cost OOW">
+    <Block Name="MaterialCostOowEmeia" Caption="Material cost OOW EMEIA">
       <Applications>
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="ClusterRegion">
+        <Element Name="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="EmeiaCountry">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
           <TableView>
             <Roles>
-              <Role>PRS PSM</Role>  
+              <Role>PRS PSM</Role>
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
             </Roles>
           </TableView>
+        </Element>
+      </Elements>
+    </Block>
+
+    <Block Name="MaterialCostOow" Caption="Material cost OOW">
+      <Applications>
+        <Application>Hardware</Application>
+      </Applications>
+      <Elements>
+        <Element Name="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="NonEmeiaCountry">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>PRS PSM</Role>
+              <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
         </Element>
       </Elements>
     </Block>

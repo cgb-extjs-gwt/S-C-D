@@ -6,11 +6,6 @@ namespace Gdc.Scd.Core.Entities
     [Table(MetaConstants.ClusterRegionInputLevel, Schema = MetaConstants.InputLevelSchema)]
     public class ClusterRegion : NamedId
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public override long Id
-        {
-            get => base.Id;
-            set => base.Id = value;
-        }
+        public bool IsEmeia { get; set; }
     }
 }
