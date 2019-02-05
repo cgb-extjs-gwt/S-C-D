@@ -9,7 +9,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Dto.Report
 
         public ReportFilterCollection(IEnumerable<KeyValuePair<string, string>> items) : this()
         {
-            if(items == null)
+            if (items == null)
             {
                 throw new ArgumentException("Invalid item collection");
             }
@@ -21,6 +21,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Dto.Report
                     Add(item.Key, item.Value);
                 }
             }
+        }
+
+        public bool TryGetVal(string key, out string value)
+        {
+            value = null;
+            bool result = false;
+
+            if (ContainsKey(key))
+            {
+                string v = this[key];
+                if (!string.IsNullOrEmpty(v))
+                {
+                    result = true;
+                    value = v;
+                }
+            }
+
+            return result;
         }
     }
 }

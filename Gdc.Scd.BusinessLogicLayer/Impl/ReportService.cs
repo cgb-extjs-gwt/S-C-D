@@ -54,6 +54,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return (d, fn);
         }
 
+        public async Task<(Stream data, string fileName)> Excel(string reportName, ReportFilterCollection filter)
+        {
+            var r = GetSchemas().GetSchema(reportName);
+            var func = r.Report.SqlFunc;
+            var parameters = r.FillParameters(filter);
+            var schema = r.AsSchemaDto();
+
+            var fn = FileNameHelper.Excel(schema.Name);
+            var d = await new GetReport(repositorySet).ExecuteExcelAsync(schema, func, parameters);
+
+            return (d, fn);
+        }
+
         public Task<(string json, int total)> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit)
         {
             var r = GetSchemas().GetSchema(reportId);
@@ -322,7 +335,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             string value;
 
-            if (src != null && src.TryGetValue(f.Name, out value))
+            if (src != null && src.TryGetVal(f.Name, out value))
             {
                 builder.WithValue(value);
             }

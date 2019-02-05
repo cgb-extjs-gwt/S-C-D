@@ -1,5 +1,6 @@
 ﻿import { Button, Container, Panel, PanelProps, RadioField } from "@extjs/ext-react";
 import * as React from "react";
+import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
 import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
 import { CountryField } from "../../Dict/Components/CountryField";
 import { DictField } from "../../Dict/Components/DictField";
@@ -8,8 +9,8 @@ import { ProActiveField } from "../../Dict/Components/ProActiveField";
 import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
 import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
 import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
+import { StandardWgField } from "../../Dict/Components/StandardWgField";
 import { UserCountryField } from "../../Dict/Components/UserCountryField";
-import { WgField } from "../../Dict/Components/WgField";
 import { Country } from "../../Dict/Model/Country";
 import { CurrencyType } from "../Model/CurrencyType";
 import { HwCostFilterModel } from "../Model/HwCostFilterModel";
@@ -17,25 +18,26 @@ import { HwCostFilterModel } from "../Model/HwCostFilterModel";
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: HwCostFilterModel): void;
     onChange(filter: HwCostFilterModel): void;
+    onDownload(filter: HwCostFilterModel): void;
 }
 
 export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
     private cnt: CountryField;
 
-    private wg: DictField;
+    private wg: DictField<NamedId>;
 
-    private av: DictField;
+    private av: DictField<NamedId>;
 
-    private dur: DictField;
+    private dur: DictField<NamedId>;
 
-    private reacttype: DictField;
+    private reacttype: DictField<NamedId>;
 
-    private reacttime: DictField;
+    private reacttime: DictField<NamedId>;
 
-    private srvloc: DictField;
+    private srvloc: DictField<SortableNamedId>;
 
-    private proactive: DictField;
+    private proactive: DictField<NamedId>;
 
     private localCur: RadioField & any;
 
@@ -59,7 +61,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         }
 
         return (
-            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
+            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px" layout={{ type: 'vbox', align: 'left' }}>
 
                 <Container margin="10px 0"
                     defaults={{
@@ -72,7 +74,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                 >
 
                     {countryField}
-                    <WgField ref={x => this.wg = x} label="Asset(WG):" />
+                    <StandardWgField ref={x => this.wg = x} label="Asset(WG):" />
                     <AvailabilityField ref={x => this.av = x} label="Availability:" />
                     <DurationField ref={x => this.dur = x} label="Duration:" />
                     <ReactionTypeField ref={x => this.reacttype = x} label="Reaction type:" />
@@ -88,6 +90,8 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                 </Container>
 
                 <Button text="Search" ui="action" minWidth="85px" margin="20px auto" disabled={!valid} handler={this.onSearch} />
+
+                <Button text="Download" ui="action" minWidth="85px" iconCls="x-fa fa-download" disabled={!valid} handler={this.onDownload} />
 
             </Panel>
         );
@@ -115,6 +119,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         this.onCountryChange = this.onCountryChange.bind(this);
         this.onSearch = this.onSearch.bind(this);
         this.onChange = this.onChange.bind(this);
+        this.onDownload = this.onDownload.bind(this);
     }
 
     private onCountryChange() {
@@ -130,6 +135,13 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
     private onChange() {
         let handler = this.props.onChange;
+        if (handler) {
+            handler(this.getModel());
+        }
+    }
+
+    private onDownload() {
+        let handler = this.props.onDownload;
         if (handler) {
             handler(this.getModel());
         }

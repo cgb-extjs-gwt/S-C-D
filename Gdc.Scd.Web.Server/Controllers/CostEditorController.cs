@@ -7,6 +7,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.QualityGate;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
 using Gdc.Scd.Web.Server.Heplers;
@@ -59,7 +60,7 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         // TODO: Need return DataInfo object, otherwise live scrol don't work. See BaseDomainController method GetBy.
         [HttpGet]
-        public async Task<IEnumerable<HistoryItem>> GetHistory(
+        public async Task<IEnumerable<HistoryItemDto>> GetHistory(
             [System.Web.Http.FromUri]CostEditorContext context,
             [System.Web.Http.FromUri]long editItemId,
             [System.Web.Http.FromUri]int? start,

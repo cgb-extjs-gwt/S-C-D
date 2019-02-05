@@ -104,6 +104,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List-detail.sql"));
 
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hw-calc-result.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-calc-result.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-proactive-calc-result.sql"));
+
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.split-string.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-hdd-retention.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-proactive.sql"));
@@ -1745,6 +1749,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportColumnType { Name = "boolean" },
                 new ReportColumnType { Name = "euro" },
                 new ReportColumnType { Name = "percent" },
+                new ReportColumnType { Name = "money" }
             };
 
             var repository = this.repositorySet.GetRepository<ReportColumnType>();
@@ -1772,6 +1777,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "usercountry" , MultiSelect = true },
                 new ReportFilterType { Name = "swdigit" , MultiSelect = true },
                 new ReportFilterType { Name = "wgall" , MultiSelect = true },
+                new ReportFilterType { Name = "wgstandard" , MultiSelect = true },
             };
 
             var repository = this.repositorySet.GetRepository<ReportFilterType>();
@@ -1785,16 +1791,16 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             repository.Save(new List<ServiceLocation>
             {
-                new ServiceLocation {Name = "Material/Spares Service", ExternalName = "Material/Spares" },
-                new ServiceLocation {Name = "Bring-In Service", ExternalName = "Bring-In" },
-                new ServiceLocation {Name = "Send-In / Return-to-Base Service", ExternalName = "Send-In/Return-to-Base Service" },
-                new ServiceLocation {Name = "Collect & Return Service", ExternalName = "Collect & Return" },
-                new ServiceLocation {Name = "Collect & Return-Display Service", ExternalName = "Collect & Return-Display Service" },
-                new ServiceLocation {Name = "Door-to-Door Exchange Service", ExternalName = "Door-to-Door Exchange" },
-                new ServiceLocation {Name = "Desk-to-Desk Exchange Service", ExternalName = "Desk-to-Desk Exchange" },
-                new ServiceLocation {Name = "On-Site Service", ExternalName = "On-Site Service" },
-                new ServiceLocation {Name = "On-Site Exchange Service", ExternalName = "On-Site Exchange" },
-                new ServiceLocation {Name = "Remote", ExternalName = "Remote Service" },
+                new ServiceLocation {Name = "Material/Spares Service", ExternalName = "Material/Spares", Order = 1 },
+                new ServiceLocation {Name = "Bring-In Service", ExternalName = "Bring-In", Order = 2 },
+                new ServiceLocation {Name = "Send-In / Return-to-Base Service", ExternalName = "Send-In/Return-to-Base Service", Order = 3 },
+                new ServiceLocation {Name = "Collect & Return Service", ExternalName = "Collect & Return", Order = 4 },
+                new ServiceLocation {Name = "Collect & Return-Display Service", ExternalName = "Collect & Return-Display Service", Order = 5 },
+                new ServiceLocation {Name = "Door-to-Door Exchange Service", ExternalName = "Door-to-Door Exchange", Order = 6 },
+                new ServiceLocation {Name = "Desk-to-Desk Exchange Service", ExternalName = "Desk-to-Desk Exchange", Order = 7 },
+                new ServiceLocation {Name = "On-Site Service", ExternalName = "On-Site Service", Order = 8 },
+                new ServiceLocation {Name = "On-Site Exchange Service", ExternalName = "On-Site Exchange", Order = 9 },
+                new ServiceLocation {Name = "Remote", ExternalName = "Remote Service", Order = 10 },
 
             });
 

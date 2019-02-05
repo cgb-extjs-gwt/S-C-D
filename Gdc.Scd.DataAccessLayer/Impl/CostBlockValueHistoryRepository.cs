@@ -77,24 +77,24 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
         }
 
-        public async Task<IEnumerable<HistoryItem>> GetHistory(HistoryContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null)
+        public async Task<IEnumerable<HistoryItemDto>> GetHistory(CostElementContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
 
             var historyEditUserIdColumnName = $"{nameof(CostBlockHistory.EditUser)}{nameof(User.Id)}";
-            var historyEditUserIdColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItem.EditUserId));
+            var historyEditUserIdColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItemDto.EditUserId));
             var histroryEditUserIdColumn = new ColumnInfo(
                 historyEditUserIdColumnName, 
                 costBlockMeta.HistoryMeta.CostBlockHistoryField.ReferenceMeta.Name, 
                 historyEditUserIdColumnAlias);
 
-            var editDateColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItem.EditDate));
+            var editDateColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItemDto.EditDate));
             var editDateColumn = new ColumnInfo(
                 nameof(CostBlockHistory.EditDate), 
                 costBlockMeta.HistoryMeta.CostBlockHistoryField.ReferenceMeta.Name, 
                 editDateColumnAlias);
 
-            var userNameColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItem.EditUserName));
+            var userNameColumnAlias = this.ToLowerFirstLetter(nameof(HistoryItemDto.EditUserName));
             var userNameColumn = new ColumnInfo(nameof(User.Name), nameof(User), userNameColumnAlias);
 
             var selectColumns = new List<ColumnInfo>
@@ -138,7 +138,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                         .Where(whereCondition)
                                         .WithRownumPaging(queryInfo);
 
-            return await this.repositorySet.ReadBySql(query, reader => new HistoryItem
+            return await this.repositorySet.ReadBySql(query, reader => new HistoryItemDto
             {
                 Value = reader.GetValue(0),
                 EditDate = reader.GetDateTime(1),

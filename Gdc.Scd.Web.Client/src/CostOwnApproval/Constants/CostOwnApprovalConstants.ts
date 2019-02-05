@@ -1,0 +1,1 @@
+export const OWN_COST_APPROVAL_PAGE = "ownCostApproval";

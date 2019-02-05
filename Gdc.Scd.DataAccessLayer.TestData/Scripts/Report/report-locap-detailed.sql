@@ -26,8 +26,8 @@ select     m.Id
          , m.Year as ServicePeriod
          , wg.Sog as Sog
          , m.ProActiveSla
-         , m.ProActive + m.ServiceTP as Dcos
-         , m.ServiceTP as ServiceTP
+         , m.ProActive + m.ServiceTP_Released as Dcos
+         , m.ServiceTP_Released
          , m.ListPrice
          , m.DealerPrice
          , m.Country
@@ -82,9 +82,9 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ProActiveSla', 'ProActive SLA', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'Dcos', 'Service DCOS', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'Dcos', 'Service TC', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTP', 'Service TP (Full cost)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTP_Released', 'Service TP (Released)', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ListPrice', 'List Price (Bottom-up calculated)', 1, 1);
 set @index = @index + 1;

@@ -1,7 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Calculation;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
-using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Web.Server;
 using Gdc.Scd.Web.Server.Impl;
 using System.Linq;
@@ -118,7 +117,6 @@ namespace Gdc.Scd.Web.Api.Controllers
                 var items = m.Items.Select(x => new HwCostManualDto
                 {
                     Id = x.Id,
-                    ServiceTC_Released = x.ServiceTCManual ?? x.ServiceTC,
                     ServiceTP_Released = x.ServiceTPManual ?? x.ServiceTP
                 });
                 calcSrv.SaveHardwareCost(this.CurrentUser(), m.CountryId, items, true);

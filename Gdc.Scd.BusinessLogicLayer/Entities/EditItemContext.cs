@@ -5,7 +5,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Entities
 {
     public class EditItemContext
     {
-        public HistoryContext Context { get; set; }
+        public CostElementContext Context { get; set; }
 
         public EditItem[] EditItems { get; set; }
 

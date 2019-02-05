@@ -14,12 +14,13 @@ import { PortfolioEditModel } from "./Model/PortfolioEditModel";
 import { IPortfolioService } from "./Services/IPortfolioService";
 import { PortfolioServiceFactory } from "./Services/PortfolioServiceFactory";
 import { MultiSelectProActive } from "./Components/MultiSelectProActive";
+import { NamedId } from "../Common/States/CommonStates";
 
 const SELECT_MAX_HEIGHT: string = '260px';
 
 export class PortfolioEditView extends React.Component<any, any> {
 
-    private country: DictField;
+    private country: DictField<NamedId>;
 
     private wg: MultiSelect;
 

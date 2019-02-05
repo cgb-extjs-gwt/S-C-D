@@ -16,6 +16,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             return v.ToString("0.00", culture) + " EUR";
         }
 
+        public static string FormatMoney(double v, string currency)
+        {
+            return string.Concat(v.ToString("0.00", culture), " ", currency);
+        }
+
         public static string FormatPercent(double v)
         {
             return v.ToString("0.000", culture) + "%";

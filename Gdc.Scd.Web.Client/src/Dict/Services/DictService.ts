@@ -1,4 +1,4 @@
-import { NamedId } from "../../Common/States/CommonStates";
+import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
 import { AvailabilityService } from "../../Dict/Services/AvailabilityService";
 import { CountryService } from "../../Dict/Services/CountryService";
 import { DurationService } from "../../Dict/Services/DurationService";
@@ -61,6 +61,10 @@ export class DictService implements IDictService {
         return new WgService().allWithMultivendor();
     }
 
+    public getStandardWg(): Promise<NamedId<string>[]> {
+        return new WgService().standard();
+    }
+
     public getPla(): Promise<NamedId<string>[]> {
         return new PlaService().getAll();
     }
@@ -93,7 +97,7 @@ export class DictService implements IDictService {
         return new ReactionTimeService().getAll();
     }
 
-    public getServiceLocationTypes(): Promise<NamedId<string>[]> {
+    public getServiceLocationTypes(): Promise<SortableNamedId<string>[]> {
         return new ServiceLocationService().getAll();
     }
 
