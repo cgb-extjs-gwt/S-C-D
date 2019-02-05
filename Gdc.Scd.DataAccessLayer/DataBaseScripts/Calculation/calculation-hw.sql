@@ -15,6 +15,78 @@ GO
 DROP INDEX [IX_HwFspCodeTranslation_WgId] ON [Fsp].[HwFspCodeTranslation]
 GO
 
+IF OBJECT_ID('Hardware.MaterialCostOowCalc', 'U') IS NOT NULL
+  DROP TABLE Hardware.MaterialCostOowCalc;
+go
+
+CREATE TABLE Hardware.MaterialCostOowCalc (
+    [Country] [bigint] NOT NULL foreign key references InputAtoms.Country(Id),
+    [Wg] [bigint] NOT NULL foreign key references InputAtoms.Wg(Id),
+    [MaterialCostOow] [float] NULL,
+    [MaterialCostOow_Approved] [float] NULL,
+    CONSTRAINT PK_MaterialCostOowCalc PRIMARY KEY NONCLUSTERED (Country, Wg)
+)
+GO
+
+IF OBJECT_ID('Hardware.SpUpdateMaterialCostOowCalc') IS NOT NULL
+  DROP PROCEDURE Hardware.SpUpdateMaterialCostOowCalc;
+go
+
+CREATE PROCEDURE Hardware.SpUpdateMaterialCostOowCalc
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    truncate table Hardware.MaterialCostOowCalc;
+
+    -- Disable all table constraints
+    ALTER TABLE Hardware.MaterialCostOowCalc NOCHECK CONSTRAINT ALL;
+
+    INSERT INTO Hardware.MaterialCostOowCalc(Country, Wg, MaterialCostOow, MaterialCostOow_Approved)
+        select NonEmeiaCountry as Country, Wg, MaterialCostOow, MaterialCostOow_Approved
+        from Hardware.MaterialCostOow
+        where DeactivatedDateTime is null
+
+        union 
+
+        select EmeiaCountry as Country, Wg, MaterialCostOow, MaterialCostOow_Approved
+        from Hardware.MaterialCostOowEmeia
+        where DeactivatedDateTime is null
+
+    -- Enable all table constraints
+    ALTER TABLE Hardware.MaterialCostOowCalc CHECK CONSTRAINT ALL;
+
+END
+go
+
+IF OBJECT_ID('Hardware.MaterialCostOowUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.MaterialCostOowUpdated;
+go
+
+CREATE TRIGGER Hardware.MaterialCostOowUpdated
+ON Hardware.MaterialCostOow
+After INSERT, UPDATE
+AS BEGIN
+    exec Hardware.SpUpdateMaterialCostOowCalc;
+END
+go
+
+IF OBJECT_ID('Hardware.MaterialCostOowEmeiaUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.MaterialCostOowEmeiaUpdated;
+go
+
+CREATE TRIGGER Hardware.MaterialCostOowEmeiaUpdated
+ON Hardware.MaterialCostOowEmeia
+After INSERT, UPDATE
+AS BEGIN
+    exec Hardware.SpUpdateMaterialCostOowCalc;
+END
+go
+
+exec Hardware.SpUpdateMaterialCostOowCalc;
+go
+
 ALTER TABLE Fsp.HwFspCodeTranslation 
     ADD SlaHash  AS checksum (
                         cast(coalesce(CountryId, 0) as nvarchar(20)) + ',' +
@@ -1731,7 +1803,7 @@ RETURN
 
     LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
-    LEFT JOIN Hardware.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
+    LEFT JOIN Hardware.MaterialCostOowCalc mco on mco.Wg = m.WgId AND mco.Country = m.CountryId
 
     LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Year = m.DurationId AND r.AvailabilityId = m.AvailabilityId AND r.ReactionTimeId = m.ReactionTimeId
 
