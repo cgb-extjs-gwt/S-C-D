@@ -15,6 +15,18 @@ GO
 DROP INDEX [IX_HwFspCodeTranslation_WgId] ON [Fsp].[HwFspCodeTranslation]
 GO
 
+ALTER TABLE Hardware.AvailabilityFee DROP COLUMN CostPerKit_Approved;
+go
+ALTER TABLE Hardware.AvailabilityFee DROP COLUMN CostPerKitJapanBuy_Approved;
+go
+ALTER TABLE Hardware.AvailabilityFee DROP COLUMN MaxQty_Approved;
+go
+ALTER TABLE Hardware.AvailabilityFee
+   ADD   CostPerKit_Approved          as (CostPerKit)
+       , CostPerKitJapanBuy_Approved  as (CostPerKitJapanBuy)
+       , MaxQty_Approved              as (MaxQty)
+go
+
 IF OBJECT_ID('Hardware.MaterialCostOowCalc', 'U') IS NOT NULL
   DROP TABLE Hardware.MaterialCostOowCalc;
 go
@@ -139,11 +151,6 @@ ALTER TABLE Hardware.ServiceSupportCost
 CREATE NONCLUSTERED INDEX ix_Hardware_FieldServiceCost
     ON [Hardware].[FieldServiceCost] ([Country],[Wg])
     INCLUDE ([ServiceLocation],[ReactionTimeType],[RepairTime],[TravelTime],[LabourCost],[TravelCost],[PerformanceRate],[TimeAndMaterialShare])
-GO
-
-CREATE NONCLUSTERED INDEX ix_Hardware_AvailabilityFee
-    ON [Hardware].[AvailabilityFee] (Country, Wg)
-    INCLUDE ([InstalledBaseHighAvailability],[CostPerKit],[CostPerKitJapanBuy],[MaxQty],[JapanBuy],[InstalledBaseHighAvailability_Approved],[CostPerKit_Approved],[CostPerKitJapanBuy_Approved],[MaxQty_Approved])
 GO
 
 CREATE NONCLUSTERED INDEX ix_Hardware_LogisticsCosts
