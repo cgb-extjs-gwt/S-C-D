@@ -17,7 +17,7 @@ export class PortfolioService implements IPortfolioService {
         return post(this.controllerName, 'deny', row);
     }
 
-    public denyById(cnt: string, ids: string[]): Promise<any> {
+    public denyById(cnt: string[], ids: string[]): Promise<any> {
         return post(this.controllerName, 'denylocal', { countryId: cnt, items: ids });
     }
 }

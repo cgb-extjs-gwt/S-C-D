@@ -33,28 +33,4 @@ export class UserCountryService extends CacheDomainService<Country> {
         return get<boolean>(this.controllerName, ISADMINUSER_ACTION);
     }
 
-    private distinct(data: Country[], prop: string): string[] {
-        let result = [];
-        if (data) {
-
-            let obj = {};
-
-            for (let i = 0, len = data.length; i < len; i++) {
-                let key = data[i][prop];
-                if (key) {
-                    obj[key] = '';
-                }
-            }
-
-            let uniqueKeys = Object.keys(obj).sort();
-
-            for (let i = 0, len = uniqueKeys.length; i < len; i++) {
-                let key = uniqueKeys[i];
-                result[i] = <Country>{ id: key, name: key };
-            }
-        }
-        return result;
-    }
-
-
 }

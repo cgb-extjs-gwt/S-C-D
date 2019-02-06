@@ -3,7 +3,7 @@ import * as React from "react";
 import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
-import { buildComponentUrl, buildMvcUrl, post } from "../Common/Services/Ajax";
+import { buildComponentUrl, buildMvcUrl } from "../Common/Services/Ajax";
 import { FilterPanel } from "./Components/FilterPanel";
 import { NullStringColumn } from "./Components/NullStringColumn";
 import { ReadonlyCheckColumn } from "./Components/ReadonlyCheckColumn";
@@ -128,7 +128,7 @@ export class PortfolioView extends React.Component<any, any> {
 
     private denyCombination(ids: string[]) {
         let cnt = this.getSelectedCountry();
-        let p = this.srv.denyById(cnt[0], ids).then(x => this.reload());
+        let p = this.srv.denyById(cnt, ids).then(x => this.reload());
         handleRequest(p);
     }
 

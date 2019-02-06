@@ -24,7 +24,6 @@ export interface MultiSelectProps {
 
     onselect?: (field, records) => void;
 
-    headerCheckboxHidden?: boolean
 }
 
 export class MultiSelect extends React.Component<MultiSelectProps, any> {
@@ -57,7 +56,7 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
 
     public render() {
 
-        let { width, height, maxHeight, title, selectable, onselect, headerCheckboxHidden } = this.props;
+        let { width, height, maxHeight, title, selectable, onselect } = this.props;
 
         title = '<h4>' + title + '</h4>';
 
@@ -75,7 +74,6 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
                     padding="7px"
                     bodyAlign="left"
                     onChange={this.onTopSelectionChange}
-                    hidden={headerCheckboxHidden? headerCheckboxHidden: false}
                 />
                 <div onClick={this.onListClick}>
                     <Container>
