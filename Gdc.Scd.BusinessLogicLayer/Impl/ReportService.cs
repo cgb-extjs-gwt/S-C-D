@@ -343,15 +343,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 }
                 else
                 {
-                    if (src.Where(x => x.Key.Contains(String.Format("{0}[", f.Name))).Any())
+                    if (f.Type.MultiSelect)
                     {
-                        var values= src.Where(x => x.Key.Contains(String.Format("{0}[", f.Name))).Select(x=>Convert.ToInt64(x.Value)).ToArray<long>();
-                        builder.WithListIdValue(values);
+                        if (src.Where(x => x.Key.Contains(String.Format("{0}[", f.Name))).Any())
+                        {
+                            var values = src.Where(x => x.Key.Contains(String.Format("{0}[", f.Name))).Select(x => Convert.ToInt64(x.Value)).ToArray<long>();
+                            builder.WithListIdValue(values);
+                        }
+                        else
+                        {
+                            builder.WithListIdValue(null);
+                        }
                     }
-                    else
-                    {
-                        builder.WithNull();
-                    }
+                    
                 }
             }
             else
