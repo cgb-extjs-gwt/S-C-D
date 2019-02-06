@@ -520,7 +520,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="EmeiaCountry">
+        <Element Name="MaterialCostOow" Caption="Material cost OOW EMEIA" InputOption="Manually" RegionInput="EmeiaCountry">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
