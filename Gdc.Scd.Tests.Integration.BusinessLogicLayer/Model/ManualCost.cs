@@ -14,18 +14,16 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
     
     public partial class ManualCost
     {
-        public long MatrixId { get; set; }
+        public long PortfolioId { get; set; }
+        public Nullable<long> ChangeUserId { get; set; }
         public Nullable<double> DealerDiscount { get; set; }
-        public Nullable<double> DealerDiscount_Approved { get; set; }
         public Nullable<double> ListPrice { get; set; }
-        public Nullable<double> ListPrice_Approved { get; set; }
         public Nullable<double> ServiceTC { get; set; }
-        public Nullable<double> ServiceTC_Approved { get; set; }
         public Nullable<double> ServiceTP { get; set; }
-        public Nullable<double> ServiceTP_Approved { get; set; }
+        public Nullable<double> ServiceTP_Released { get; set; }
         public Nullable<double> DealerPrice { get; set; }
-        public Nullable<double> DealerPrice_Approved { get; set; }
     
-        public virtual Matrix Matrix { get; set; }
+        public virtual User User { get; set; }
+        public virtual LocalPortfolio LocalPortfolio { get; set; }
     }
 }

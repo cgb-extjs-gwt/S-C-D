@@ -51,8 +51,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateRegions();
             this.CreateCurrenciesAndExchangeRates();
             this.CreateCountries();
-            this.CreateYearAvailability();
-            this.CreateDurations();
+            this.CreateYears();
+            this.CreateDurationAvailability();
             this.CreateProActiveSla();
             this.CreateImportConfiguration();
             this.CreateRolecodes();
@@ -118,17 +118,17 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             }
         }
 
-        private void CreateYearAvailability()
+        private void CreateDurationAvailability()
         {
-            var years = this.GetYears();
+            var years = this.GetDurations();
             var availabilities = this.repositorySet.GetRepository<Availability>().GetAll().ToArray();
-            var yearAvailabilityRepository = this.repositorySet.GetRepository<YearAvailability>();
+            var durationAvailabilityRepository = this.repositorySet.GetRepository<DurationAvailability>();
 
             foreach (var availability in availabilities)
             {
                 foreach (var year in years)
                 {
-                    yearAvailabilityRepository.Save(new YearAvailability
+                    durationAvailabilityRepository.Save(new DurationAvailability
                     {
                         Availability = availability,
                         Year = year
@@ -191,11 +191,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.repositorySet.ExecuteSql(Sql.Queries(queries));
         }
 
-        private void CreateDurations()
+        private void CreateYears()
         {
-            //Insert Durations
-            var durationRepository = repositorySet.GetRepository<Duration>();
-            durationRepository.Save(GetDurations());
+            //Insert Years
+            var yearRepository = repositorySet.GetRepository<Year>();
+            yearRepository.Save(GetYears());
             repositorySet.Sync();
         }
 

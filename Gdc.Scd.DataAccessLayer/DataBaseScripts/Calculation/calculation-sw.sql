@@ -138,7 +138,7 @@ BEGIN
                       , ya.AvailabilityId
                       , ya.YearId
                 FROM SoftwareSolution.SwSpMaintenance ssm
-                JOIN Dependencies.Year_Availability ya on ya.Id = ssm.YearAvailability
+                JOIN Dependencies.Duration_Availability ya on ya.Id = ssm.DurationAvailability
                 WHERE   (@digit is null or ssm.SwDigit = @digit)
                     and (@av is null or ya.AvailabilityId = @av)
                     and (@year is null or ya.YearId = @year)
@@ -187,7 +187,7 @@ BEGIN
                   , case when @approved = 0 then ssm.DiscountDealerPrice else ssm.DiscountDealerPrice_Approved end
 
             FROM SoftwareSolution.SwSpMaintenance ssm
-            JOIN Dependencies.Year_Availability ya on ya.Id = ssm.YearAvailability
+            JOIN Dependencies.Duration_Availability ya on ya.Id = ssm.DurationAvailability
 
             WHERE   (@digit is null or ssm.SwDigit = @digit)
                 and (@av is null or ya.AvailabilityId = @av)
@@ -531,7 +531,7 @@ BEGIN
     SELECT @total = COUNT(m.id)
 
         FROM SoftwareSolution.SwSpMaintenance m 
-        JOIN Dependencies.Year_Availability yav on yav.Id = m.YearAvailability
+        JOIN Dependencies.Duration_Availability yav on yav.Id = m.DurationAvailability
 
         WHERE    (@digit is null or m.SwDigit = @digit)
              and (@av is null    or yav.AvailabilityId = @av)

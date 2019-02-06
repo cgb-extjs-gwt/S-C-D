@@ -24,6 +24,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
     
         public long Id { get; set; }
         public Nullable<long> AvailabilityId { get; set; }
+        public bool IsDisabled { get; set; }
         public Nullable<long> ReactionTimeId { get; set; }
         public Nullable<long> ReactionTypeId { get; set; }
     

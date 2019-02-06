@@ -18,6 +18,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public long Country { get; set; }
         public long Pla { get; set; }
         public long Sog { get; set; }
+        public long SwDigit { get; set; }
         public Nullable<double> LocalRemoteAccessSetupPreparationEffort { get; set; }
         public Nullable<double> LocalRegularUpdateReadyEffort { get; set; }
         public Nullable<double> LocalPreparationShcEffort { get; set; }
@@ -37,8 +38,9 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public System.DateTime CreatedDateTime { get; set; }
         public Nullable<System.DateTime> DeactivatedDateTime { get; set; }
     
-        public virtual Country Country1 { get; set; }
-        public virtual Pla Pla1 { get; set; }
-        public virtual Sog Sog1 { get; set; }
+        public virtual Country1 Country1 { get; set; }
+        public virtual Pla1 Pla1 { get; set; }
+        public virtual Sog1 Sog1 { get; set; }
+        public virtual SwDigit1 SwDigit1 { get; set; }
     }
 }
