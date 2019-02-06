@@ -795,7 +795,7 @@ BEGIN
                       , ya.AvailabilityId
                       , ya.YearId
                 FROM SoftwareSolution.SwSpMaintenance ssm
-                JOIN Dependencies.Year_Availability ya on ya.Id = ssm.YearAvailability
+                JOIN Dependencies.Duration_Availability ya on ya.Id = ssm.DurationAvailability
                 WHERE (@isEmptyDigit = 1 or ssm.SwDigit in (select id from @digit))
 					AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
 					AND (@isEmptyYear = 1 or ya.YearId in (select id from @year))
@@ -844,7 +844,7 @@ BEGIN
                   , case when @approved = 0 then ssm.DiscountDealerPrice else ssm.DiscountDealerPrice_Approved end
 
             FROM SoftwareSolution.SwSpMaintenance ssm
-            JOIN Dependencies.Year_Availability ya on ya.Id = ssm.YearAvailability
+            JOIN Dependencies.Duration_Availability ya on ya.Id = ssm.DurationAvailability
 
             WHERE (@isEmptyDigit = 1 or ssm.SwDigit in (select id from @digit))
 					AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
@@ -976,7 +976,7 @@ BEGIN
     SELECT @total = COUNT(m.id)
 
         FROM SoftwareSolution.SwSpMaintenance m 
-        JOIN Dependencies.Year_Availability yav on yav.Id = m.YearAvailability
+        JOIN Dependencies.Duration_Availability yav on yav.Id = m.DurationAvailability
 
 		WHERE (@isEmptyDigit = 1 or m.SwDigit in (select id from @digit))
 			AND (@isEmptyAV = 1 or yav.AvailabilityId in (select id from @av))
@@ -1302,6 +1302,10 @@ RETURN
 END
 GO
 
+IF OBJECT_ID('Report.GetCostsFull') IS NOT NULL
+  DROP FUNCTION Report.GetCostsFull;
+go 
+
 ALTER FUNCTION [Report].[GetCostsFull](
     @cnt bigint,
     @wg bigint,
@@ -1483,6 +1487,10 @@ RETURN (
 	join Dependencies.Duration dur on dur.id = m.DurationId
 )
 GO
+
+IF OBJECT_ID('Report.CalcOutputNewVsOld') IS NOT NULL
+  DROP FUNCTION Report.CalcOutputNewVsOld;
+go 
 
 ALTER FUNCTION [Report].[CalcOutputNewVsOld]
 (

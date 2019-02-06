@@ -544,7 +544,7 @@ BEGIN
     SELECT @total = COUNT(m.id)
 
         FROM SoftwareSolution.SwSpMaintenance m 
-        JOIN Dependencies.Year_Availability yav on yav.Id = m.YearAvailability
+        JOIN Dependencies.Duration_Availability yav on yav.Id = m.DurationAvailability
 
 		WHERE (@isEmptyDigit = 1 or m.SwDigit in (select id from @digit))
 			AND (@isEmptyAV = 1 or yav.AvailabilityId in (select id from @av))
