@@ -8,6 +8,13 @@ import { UserCountryField } from "../../Dict/Components/UserCountryField";
 import { YearField } from "../../Dict/Components/YearField";
 import { SwCostFilterModel } from "../Model/SwCostFilterModel";
 import { NamedId } from "../../Common/States/CommonStates";
+import { DictFactory } from "../../Dict/Services/DictFactory";
+import { IDictService } from "../../Dict/Services/IDictService";
+import { MultiSelect } from "../../Dict/Components/MultiSelect";
+
+Ext.require('Ext.panel.Collapser');
+
+const SELECT_MAX_HEIGHT: string = '200px';
 
 export interface FilterPanelProps extends PanelProps {
     checkAccess: boolean;
@@ -17,13 +24,15 @@ export interface FilterPanelProps extends PanelProps {
 
 export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any> {
 
-    private cnt: DictField<NamedId>;
+    private cnt: MultiSelect;
 
-    private digit: DictField<NamedId>;
+    private digit: MultiSelect;
 
-    private av: DictField<NamedId>;
+    private av: MultiSelect;
 
-    private year: DictField<NamedId>;
+    private year: MultiSelect;
+
+    private dictSrv: IDictService;
 
     public constructor(props: any) {
         super(props);
@@ -36,11 +45,25 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
 
         let countryField;
 
+        let multiProps = {
+            width: '200px',
+            maxHeight: SELECT_MAX_HEIGHT,
+            title: ""
+        };
+        let panelProps = {
+            width: '300px',
+            collapsible: {
+                direction: 'top',
+                dynamic: true,
+                collapsed: true
+            }
+        };
+
         if (this.props.checkAccess) {
-            countryField = <UserCountryField ref={x => this.cnt = x} label="Country:" onChange={this.onCountryChange} />;
+            countryField = <MultiSelect ref={x => this.cnt = x} {...multiProps} store={this.dictSrv.getUserCountryNames} onselect={this.onCountryChange} />
         }
         else {
-            countryField = <CountryField ref={x => this.cnt = x} label="Country:" onChange={this.onCountryChange} />
+            countryField = <MultiSelect ref={x => this.cnt = x} {...multiProps} store={this.dictSrv.getMasterCountriesNames} onselect={this.onCountryChange} />;
         }
 
         return (
@@ -56,10 +79,22 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
                     }}
                 >
 
-                    {countryField}
-                    <SwDigitField ref={x => this.digit = x} label="SW digit:" />
-                    <AvailabilityField ref={x => this.av = x} label="Availability:" />
-                    <YearField ref={x => this.year = x} label="Year:" />
+                    <Panel title='Country'
+                        {...panelProps}>
+                        {countryField}
+                    </Panel>
+                    <Panel title='SW digit'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.digit = x} {...multiProps} store={this.dictSrv.getSwDigit} />
+                    </Panel>
+                    <Panel title='Availability'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.av = x} {...multiProps} store={this.dictSrv.getAvailabilityTypes} />
+                    </Panel>
+                    <Panel title='Year'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.year = x} {...multiProps} store={this.dictSrv.getYears} />
+                    </Panel>
 
                 </Container>
 
@@ -73,14 +108,15 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
 
     public getModel(): SwCostFilterModel {
         return {
-            country: this.cnt.getSelected(),
-            digit: this.digit.getSelected(),
-            availability: this.av.getSelected(),
-            year: this.year.getSelected()
+            country: this.cnt.getSelectedKeys(),
+            digit: this.digit.getSelectedKeys(),
+            availability: this.av.getSelectedKeys(),
+            year: this.year.getSelectedKeys()
         };
     }
 
     private init() {
+        this.dictSrv = DictFactory.getDictService();
         this.onCountryChange = this.onCountryChange.bind(this);
         this.onSearch = this.onSearch.bind(this);
         this.onDownload = this.onDownload.bind(this);

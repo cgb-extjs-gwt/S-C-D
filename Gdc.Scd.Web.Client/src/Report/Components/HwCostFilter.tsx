@@ -20,6 +20,8 @@ import { MultiSelect } from "../../Dict/Components/MultiSelect";
 import { MultiSelectWg } from "../../Dict/Components/MultiSelectWg";
 import { MultiSelectProActive } from "../../Dict/Components/MultiSelectProActive";
 
+Ext.require('Ext.panel.Collapser');
+
 const SELECT_MAX_HEIGHT: string = '200px';
 
 export interface FilterPanelProps extends PanelProps {
@@ -62,15 +64,29 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
         let countryField;
 
+        let multiProps = {
+            width: '200px',
+            maxHeight: SELECT_MAX_HEIGHT,
+            title: ""
+        };
+        let panelProps = {
+            width: '300px',
+            collapsible: {
+                direction: 'top',
+                dynamic: true,
+                collapsed: true
+            }
+        };
+
         if (this.props.checkAccess) {
-            countryField = <MultiSelect ref={x => this.cnt = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Country" store={this.dictSrv.getUserCountryNames} onselect={this.onCountryChange}/>
+            countryField = <MultiSelect ref={x => this.cnt = x} {...multiProps} store={this.dictSrv.getUserCountryNames} onselect={this.onCountryChange}/>
         }
         else {
-            countryField = <MultiSelect ref={x => this.cnt = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Country" store={this.dictSrv.getMasterCountriesNames} onselect={this.onCountryChange}/>;
+            countryField = <MultiSelect ref={x => this.cnt = x} {...multiProps} store={this.dictSrv.getMasterCountriesNames} onselect={this.onCountryChange}/>;
         }
-
+     
         return (
-            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px" layout={{ type: 'vbox', align: 'left' }}>
+            <Panel {...this.props} margin="0 0 5px 0" padding="5px 5px 5px 5px" layout={{ type: 'vbox', align: 'left' }}>
 
                 <Container margin="10px 0"
                     defaults={{
@@ -81,16 +97,38 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                         clearable: 'true'
                     }}
                 >
-
-                    {countryField}
-                    <MultiSelectWg ref={x => this.wg = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Asset(WG)" store={this.dictSrv.getWG} />
-                    <MultiSelect ref={x => this.av = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Availability" store={this.dictSrv.getAvailabilityTypes} />
-                    <MultiSelect ref={x => this.dur = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Duration" store={this.dictSrv.getDurationTypes} />
-                    <MultiSelect ref={x => this.reacttype = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Reaction type" store={this.dictSrv.getReactionTypes} />
-                    <MultiSelect ref={x => this.reacttime = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Reaction time" store={this.dictSrv.getReactionTimeTypes} />
-                    <MultiSelect ref={x => this.srvloc = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="Service location" store={this.dictSrv.getServiceLocationTypes} />
-                    <MultiSelectProActive ref={x => this.proactive = x} width='200px' maxHeight={SELECT_MAX_HEIGHT} title="ProActive" store={this.dictSrv.getProActive} />
-
+                    <Panel title='Country'
+                        {...panelProps}>
+                        {countryField}
+                    </Panel>
+                    <Panel title='Asset(WG)'
+                        {...panelProps}>
+                        <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getWG} />
+                    </Panel>
+                    <Panel title='Availability'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.av = x} {...multiProps} store={this.dictSrv.getAvailabilityTypes} />
+                    </Panel>
+                    <Panel title='Duration'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.dur = x} {...multiProps} store={this.dictSrv.getDurationTypes} />
+                    </Panel>
+                    <Panel title='Reaction type'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.reacttype = x} {...multiProps} store={this.dictSrv.getReactionTypes} />
+                    </Panel>
+                    <Panel title='Reaction time'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.reacttime = x} {...multiProps} store={this.dictSrv.getReactionTimeTypes} />
+                    </Panel>
+                    <Panel title='Service location'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.srvloc = x} {...multiProps} store={this.dictSrv.getServiceLocationTypes} />
+                    </Panel>
+                    <Panel title='ProActive'
+                        {...panelProps}>
+                        <MultiSelectProActive ref={x => this.proactive = x} {...multiProps} store={this.dictSrv.getProActive} />
+                    </Panel>
                 </Container>
 
                 <Container layout={{ type: 'vbox', align: 'left' }} margin="5px 0 0 0" defaults={{ padding: '3px 0' }} >

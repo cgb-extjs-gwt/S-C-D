@@ -6,6 +6,13 @@ import { SwDigitField } from "../../Dict/Components/SwDigitField";
 import { YearField } from "../../Dict/Components/YearField";
 import { SwCostFilterModel } from "../Model/SwCostFilterModel";
 import { NamedId } from "../../Common/States/CommonStates";
+import { DictFactory } from "../../Dict/Services/DictFactory";
+import { IDictService } from "../../Dict/Services/IDictService";
+import { MultiSelect } from "../../Dict/Components/MultiSelect";
+
+Ext.require('Ext.panel.Collapser');
+
+const SELECT_MAX_HEIGHT: string = '200px';
 
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: SwCostFilterModel): void;
@@ -14,11 +21,13 @@ export interface FilterPanelProps extends PanelProps {
 
 export class SwCostFilter extends React.Component<FilterPanelProps, any> {
 
-    private digit: DictField<NamedId>;
+    private digit: MultiSelect;
 
-    private avail: DictField<NamedId>;
+    private avail: MultiSelect;
 
-    private year: DictField<NamedId>;
+    private year: MultiSelect;
+
+    private dictSrv: IDictService;
 
     public constructor(props: any) {
         super(props);
@@ -26,6 +35,20 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
     }
 
     public render() {
+        let multiProps = {
+            width: '200px',
+            maxHeight: SELECT_MAX_HEIGHT,
+            title: ""
+        };
+        let panelProps = {
+            width: '300px',
+            collapsible: {
+                direction: 'top',
+                dynamic: true,
+                collapsed: true
+            }
+        };
+
         return (
             <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px" layout={{ type: 'vbox', align: 'left' }}>
 
@@ -39,9 +62,18 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
                     }}
                 >
 
-                    <SwDigitField ref={x => this.digit = x} label="SW digit:" />
-                    <AvailabilityField ref={x => this.avail = x} label="Availability:" />
-                    <YearField ref={x => this.year = x} label="Year:" />
+                    <Panel title='SW digit'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.digit = x} {...multiProps} store={this.dictSrv.getSwDigit} />
+                    </Panel>
+                    <Panel title='Availability'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.avail = x} {...multiProps} store={this.dictSrv.getAvailabilityTypes} />
+                    </Panel>
+                    <Panel title='Year'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.year = x} {...multiProps} store={this.dictSrv.getYears} />
+                    </Panel>
 
                 </Container>
 
@@ -55,13 +87,14 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
 
     public getModel(): SwCostFilterModel {
         return {
-            digit: this.digit.getSelected(),
-            availability: this.avail.getSelected(),
-            year: this.year.getSelected()
-        };
+            digit: this.digit.getSelectedKeys(),
+            availability: this.avail.getSelectedKeys(),
+            year: this.year.getSelectedKeys()
+        }
     }
 
     private init() {
+        this.dictSrv = DictFactory.getDictService();
         this.onSearch = this.onSearch.bind(this);
         this.onDownload = this.onDownload.bind(this);
     }

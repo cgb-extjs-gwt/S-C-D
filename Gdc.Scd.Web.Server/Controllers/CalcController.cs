@@ -77,8 +77,10 @@ namespace Gdc.Scd.Web.Api.Controllers
            )
         {
             if (filter != null &&
+                filter.Country != null &&
+                filter.Country.Length > 0 &&
                 IsRangeValid(start, limit) &&
-                HasAccess(approved, filter.Country.GetValueOrDefault()))
+                HasAccess(approved, filter.Country))
             {
                 return calcSrv.GetSoftwareProactiveCost(approved, filter, start, limit)
                               .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));

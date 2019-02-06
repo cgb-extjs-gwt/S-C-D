@@ -3,7 +3,7 @@ import * as React from "react";
 import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
-import { buildComponentUrl, buildMvcUrl } from "../Common/Services/Ajax";
+import { buildComponentUrl, buildMvcUrl, post } from "../Common/Services/Ajax";
 import { FilterPanel } from "./Components/FilterPanel";
 import { NullStringColumn } from "./Components/NullStringColumn";
 import { ReadonlyCheckColumn } from "./Components/ReadonlyCheckColumn";

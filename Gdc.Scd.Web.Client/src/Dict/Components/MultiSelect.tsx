@@ -6,8 +6,6 @@ import { NamedId } from "../../Common/States/CommonStates";
 const ID_PROP = 'id';
 const NAME_PROP: string = 'name';
 
-Ext.require('Ext.panel.Collapser');
-
 export interface MultiSelectProps {
 
     width?: string;
@@ -24,7 +22,9 @@ export interface MultiSelectProps {
 
     store(): Promise<NamedId[]>;
 
-    onselect?: (field, records)=>void;
+    onselect?: (field, records) => void;
+
+    headerCheckboxHidden?: boolean
 }
 
 export class MultiSelect extends React.Component<MultiSelectProps, any> {
@@ -57,7 +57,7 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
 
     public render() {
 
-        let { width, height, maxHeight, title, selectable, onselect } = this.props;
+        let { width, height, maxHeight, title, selectable, onselect, headerCheckboxHidden } = this.props;
 
         title = '<h4>' + title + '</h4>';
 
@@ -68,16 +68,14 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
         selectable = selectable || 'multi';
 
         return (
-            <Panel title='test' width={width} collasible={{
-                direction: 'top',
-                dynamic: true
-            }}>
+            <Container width={width}>
                 <CheckBoxField
                     ref={x => this.cb = x}
                     boxLabel={title}
                     padding="7px"
                     bodyAlign="left"
-                    onChange={this.onTopSelectionChange}    
+                    onChange={this.onTopSelectionChange}
+                    hidden={headerCheckboxHidden? headerCheckboxHidden: false}
                 />
                 <div onClick={this.onListClick}>
                     <Container>
@@ -93,7 +91,7 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
                         />
                     </Container>
                 </div>
-            </Panel>
+            </Container>
         );
     }
 
