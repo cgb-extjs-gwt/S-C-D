@@ -16,9 +16,9 @@ RETURN (
             , wg.Description as WgDescription
             , calc.Fee_Approved as Fee
             , fee.InstalledBaseHighAvailability_Approved as IB
-            , fee.CostPerKit_Approved as CostPerKit
-            , fee.CostPerKitJapanBuy_Approved as CostPerKitJapanBuy
-            , fee.MaxQty_Approved as MaxQty
+            , fee.CostPerKit as CostPerKit
+            , fee.CostPerKitJapanBuy as CostPerKitJapanBuy
+            , fee.MaxQty as MaxQty
             , fee.JapanBuy_Approved as JapanBuy
 
     from Hardware.AvailabilityFee fee
