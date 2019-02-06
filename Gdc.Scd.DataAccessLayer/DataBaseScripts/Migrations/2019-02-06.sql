@@ -41,7 +41,7 @@ RETURN (
          , m.ServiceLocation
          , m.ProActiveSla
 
-    from Report.GetCosts(@cnt, @wg, @av, 5, @reactiontime, @reactiontype, @loc, @pro) m
+    from Report.GetCosts(@cnt, @wg, @av, (SELECT Id FROM [Dependencies].[Duration] WHERE [Value] = 5 AND [IsProlongation] = 0), @reactiontime, @reactiontype, @loc, @pro) m
     join InputAtoms.CountryView c on c.id = m.CountryId
     join InputAtoms.WgSogView wg on wg.id = m.WgId
 )
