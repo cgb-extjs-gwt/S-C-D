@@ -43,10 +43,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     ReferenceInfo.Build<Availability>(nameof(ReactionTimeTypeAvalability.Availability)),
                     ReferenceInfo.Build<ReactionType>(nameof(ReactionTimeTypeAvalability.ReactionType))),
 
-                CombinedViewInfo.Build<YearAvailability>(
-                    "YearAvailability",
-                    ReferenceInfo.Build<Year>(nameof(YearAvailability.Year)),
-                    ReferenceInfo.Build<Availability>(nameof(YearAvailability.Availability)))
+                CombinedViewInfo.Build<DurationAvailability>(
+                    "DurationAvailability",
+                    ReferenceInfo.Build<Duration>(nameof(DurationAvailability.Year)),
+                    ReferenceInfo.Build<Availability>(nameof(DurationAvailability.Availability)))
             };
         }
 

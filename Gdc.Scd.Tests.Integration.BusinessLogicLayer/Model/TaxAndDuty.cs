@@ -22,6 +22,6 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public Nullable<double> TaxAndDuties { get; set; }
         public Nullable<double> TaxAndDuties_Approved { get; set; }
     
-        public virtual Country Country1 { get; set; }
+        public virtual Country1 Country1 { get; set; }
     }
 }

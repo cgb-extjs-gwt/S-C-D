@@ -31,6 +31,6 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public virtual Year Year1 { get; set; }
         public virtual Currency Currency { get; set; }
         public virtual Currency Currency1 { get; set; }
-        public virtual Wg Wg1 { get; set; }
+        public virtual Wg1 Wg1 { get; set; }
     }
 }

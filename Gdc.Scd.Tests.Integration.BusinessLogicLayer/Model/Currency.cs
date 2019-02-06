@@ -19,7 +19,9 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         {
             this.Reinsurances = new HashSet<Reinsurance>();
             this.Reinsurances1 = new HashSet<Reinsurance>();
-            this.Countries = new HashSet<Country>();
+            this.Hardware_Reinsurance = new HashSet<Hardware_Reinsurance>();
+            this.SoftwareSolution_SwSpMaintenance = new HashSet<SoftwareSolution_SwSpMaintenance>();
+            this.Country1 = new HashSet<Country1>();
             this.SwSpMaintenances = new HashSet<SwSpMaintenance>();
             this.SwSpMaintenances1 = new HashSet<SwSpMaintenance>();
         }
@@ -32,7 +34,11 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Reinsurance> Reinsurances1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Country> Countries { get; set; }
+        public virtual ICollection<Hardware_Reinsurance> Hardware_Reinsurance { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SoftwareSolution_SwSpMaintenance> SoftwareSolution_SwSpMaintenance { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Country1> Country1 { get; set; }
         public virtual ExchangeRate ExchangeRate { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SwSpMaintenance> SwSpMaintenances { get; set; }

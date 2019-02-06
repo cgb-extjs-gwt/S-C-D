@@ -28,6 +28,6 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public Nullable<double> AFR5_Approved { get; set; }
         public Nullable<double> AFRP1_Approved { get; set; }
     
-        public virtual Wg Wg1 { get; set; }
+        public virtual Wg1 Wg1 { get; set; }
     }
 }
