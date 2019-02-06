@@ -675,12 +675,6 @@ BEGIN
     declare @cur nvarchar(max);
     declare @exchange float;
 
-    --select @cur = cur.Name
-    --     , @exchange =  er.Value 
-    --from [References].Currency cur
-    --join [References].ExchangeRate er on er.CurrencyId = cur.Id
-    --where cur.Id = (select CurrencyId from InputAtoms.Country where id = @cnt);
-
     if @local = 1
     begin
     
