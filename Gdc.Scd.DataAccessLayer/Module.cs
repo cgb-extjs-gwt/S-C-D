@@ -22,11 +22,12 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<ICostBlockValueHistoryRepository>().To<CostBlockValueHistoryRepository>().InRequestScope();
             Bind<ISqlRepository>().To<SqlRepository>().InRequestScope();
             Bind<IRepository<CostBlockHistory>>().To<CostBlockHistoryRepository>().InRequestScope();
+            Bind<IWgRepository, IRepository<Wg>>().To<WgRepository>().InRequestScope();
             Bind<IRepository<ReactionTimeType>>().To<ReactionTimeTypeRepository>().InRequestScope();
             Bind<IRepository<ReactionTimeAvalability>>().To<ReactionTimeAvalabilityRepository>().InRequestScope();
             Bind<IRepository<ReactionTimeTypeAvalability>>().To<ReactionTimeTypeAvalabilityRepository>().InRequestScope();
             Bind<ICostBlockValueHistoryQueryBuilder>().To<CostBlockValueHistoryQueryBuilder>().InRequestScope();
-            Bind<IRepository<YearAvailability>>().To<YearAvailabilityRepository>().InRequestScope();
+            Bind<IRepository<DurationAvailability>>().To<DurationAvailabilityRepository>().InRequestScope();
             Bind<IQualityGateRepository>().To<QualityGateRepository>().InRequestScope();
             Bind<IQualityGateQueryBuilder>().To<QualityGateQueryBuilder>().InRequestScope();
             Bind<IRepository<Country>>().To<CountryRepository>().InRequestScope();
@@ -46,8 +47,9 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<DatabaseMetaSqlBuilder>().To<DatabaseMetaSqlBuilder>().InTransientScope();
             Bind<IConfigureApplicationHandler>().To<DatabaseCreationHandler>().InTransientScope();
             Bind<IConfigureDatabaseHandler, ICustomConfigureTableHandler, ICoordinateEntityMetaProvider>().To<ViewConfigureHandler>().InTransientScope();
+            Bind<IConfigureDatabaseHandler>().To<CountryViewConfigureHandler>().InTransientScope();
 
-            Kernel.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(HistoryContext), nameof(CostBlockHistory.Context)));
+            Kernel.RegisterEntity<CostBlockHistory>(builder => builder.OwnsOne(typeof(CostElementContext), nameof(CostBlockHistory.Context)));
             Kernel.RegisterEntityAsUnique<User>(nameof(User.Login));
             Kernel.RegisterEntity<UserRole>();
             Kernel.RegisterEntityAsUniqueName<Role>();

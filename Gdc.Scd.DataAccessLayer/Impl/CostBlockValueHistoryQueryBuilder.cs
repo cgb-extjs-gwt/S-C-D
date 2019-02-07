@@ -23,7 +23,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.domainMeta = domainMeta;
         }
 
-        public SelectJoinSqlHelper BuildSelectHistoryValueQuery(HistoryContext historyContext, IEnumerable<BaseColumnInfo> addingSelectColumns = null)
+        public SelectJoinSqlHelper BuildSelectHistoryValueQuery(CostElementContext historyContext, IEnumerable<BaseColumnInfo> addingSelectColumns = null)
         {
             const string ValueColumnName = "value";
 
@@ -107,7 +107,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return this.BuildJoinApproveHistoryValueQuery(history, selectQuery, inputLevelJoinType, joinInfos, historyValueId, costBlockFilter);
         }
 
-        public TQuery BuildJoinHistoryValueQuery<TQuery>(HistoryContext historyContext, TQuery query, JoinHistoryValueQueryOptions options = null)
+        public TQuery BuildJoinHistoryValueQuery<TQuery>(CostElementContext historyContext, TQuery query, JoinHistoryValueQueryOptions options = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
@@ -207,14 +207,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return $"{meta.Schema}_{meta.Name}";
         }
 
-        private ConditionHelper BuildCostBlockJoinCondition(HistoryContext historyContext, CostBlockEntityMeta costBlockMeta, JoinHistoryValueQueryOptions options)
+        private ConditionHelper BuildCostBlockJoinCondition(CostElementContext historyContext, CostBlockEntityMeta costBlockMeta, JoinHistoryValueQueryOptions options)
         {
             var conditions = new List<ConditionHelper>();
 
             if (options.IsUseRegionCondition && historyContext.RegionInputId.HasValue)
             {
                 var region = this.domainMeta.GetCostElement(historyContext).RegionInput;
-                var historyRegionIdName = $"{nameof(CostBlockHistory.Context)}_{nameof(HistoryContext.RegionInputId)}";
+                var historyRegionIdName = $"{nameof(CostBlockHistory.Context)}_{nameof(CostElementContext.RegionInputId)}";
                 var regionCondition = SqlOperators.Equals(
                         new ColumnInfo(historyRegionIdName, nameof(CostBlockHistory)),
                         new ColumnInfo(region.Id, costBlockMeta.Name));

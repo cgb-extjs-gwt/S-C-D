@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Gdc.Scd.Core.Dto;
-using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.Approval;
 
 namespace Gdc.Scd.BusinessLogicLayer.Helpers
 {
     public static class BundleDetailExtensions
     {
-        public static IEnumerable<BundleDetailGroup> ToBundleDetailGroups(this IEnumerable<BundleDetail> bundleDetails)
+        public static IEnumerable<BundleDetailGroupDto> ToBundleDetailGroups(this IEnumerable<BundleDetail> bundleDetails)
         {
             var groups = bundleDetails.GroupBy(bundleDetail => new
             {
@@ -21,7 +21,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             });
 
             return
-                groups.Select(bundleDetailGroup => new BundleDetailGroup
+                groups.Select(bundleDetailGroup => new BundleDetailGroupDto
                 {
                     HistoryValueId = bundleDetailGroup.Key.HistoryValueId,
                     NewValue = bundleDetailGroup.Key.NewValue,

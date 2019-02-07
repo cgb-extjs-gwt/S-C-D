@@ -107,28 +107,29 @@ export class CountryGrid extends React.Component {
                     width="100%"
                     height="100%"
                     plugins={['gridcellediting']}>
-                <Column text="Country" dataIndex="countryName" flex={1} />
-                <Column text="Country Group" dataIndex="countryGroup" flex={1} />
-                <Column text="LUT" dataIndex="lutCode" flex={1} renderer={this.renderer.bind(this)} />
-                <Column text="Digit" dataIndex="countryDigit" flex={1} renderer={this.renderer.bind(this)} />
-                <Column text="ISO Code" dataIndex="isO3Code" flex={1} renderer={this.renderer.bind(this)} />
-                <CheckColumn text="Is Master" dataIndex="isMaster" flex={1} disabled={true}/>
-                <CheckColumn text="Store List and Dealer Prices" dataIndex="canStoreListAndDealerPrices" flex={2} />
-                <CheckColumn text="Override TC and TP" dataIndex="canOverrideTransferCostAndPrice" flex={1} />
-                <Column text="Quality Group" dataIndex="qualityGroup" flex={1} editable
-                    renderer={this.renderer.bind(this)} >
-                    <TextField />
-                </Column>
+                    <Column text="Country" dataIndex="countryName" flex={1} />
+                    <Column text="Country Group" dataIndex="countryGroup" flex={1} />
+                    <Column text="LUT" dataIndex="lutCode" flex={1} renderer={this.renderer.bind(this)} />
+                    <Column text="Digit" dataIndex="countryDigit" flex={1} renderer={this.renderer.bind(this)} />
+                    <Column text="ISO Code" dataIndex="isO3Code" flex={1} renderer={this.renderer.bind(this)} />
+                    <Column text="Currency Code" dataIndex="currency" flex={1} renderer={this.renderer.bind(this)} />
+                    <CheckColumn text="Is Master" dataIndex="isMaster" flex={1} disabled={true} />
+                    <CheckColumn text="Store List and Dealer Prices" dataIndex="canStoreListAndDealerPrices" flex={2} />
+                    <CheckColumn text="Override TC and TP" dataIndex="canOverrideTransferCostAndPrice" flex={1} />
+                    <Column text="Quality Group" dataIndex="qualityGroup" flex={1} editable
+                        renderer={this.renderer.bind(this)} >
+                        <TextField />
+                    </Column>
 
-                <Toolbar docked="bottom">
-                    <Button
-                        text="Save"
-                        flex={1}
-                        handler={this.saveRecords}
-                        iconCls="x-fa fa-save"
-                        disabled={this.state.disableSaveButton}
-                    />
-                </Toolbar>
+                    <Toolbar docked="bottom">
+                        <Button
+                            text="Save"
+                            flex={1}
+                            handler={this.saveRecords}
+                            iconCls="x-fa fa-save"
+                            disabled={this.state.disableSaveButton}
+                        />
+                    </Toolbar>
                 </Grid>
             </Container>);
     }

@@ -14,28 +14,10 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
     
     public partial class ClusterRegion
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public ClusterRegion()
-        {
-            this.MaterialCostOows = new HashSet<MaterialCostOow>();
-            this.MaterialCostWarranties = new HashSet<MaterialCostWarranty>();
-            this.ServiceSupportCosts = new HashSet<ServiceSupportCost>();
-            this.Countries = new HashSet<Country>();
-            this.Regions = new HashSet<Region>();
-        }
+        public long CostBlockHistory { get; set; }
+        public Nullable<long> ClusterRegion1 { get; set; }
     
-        public long Id { get; set; }
-        public string Name { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<MaterialCostOow> MaterialCostOows { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<MaterialCostWarranty> MaterialCostWarranties { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ServiceSupportCost> ServiceSupportCosts { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Country> Countries { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Region> Regions { get; set; }
+        public virtual CostBlockHistory CostBlockHistory1 { get; set; }
+        public virtual ClusterRegion1 ClusterRegion11 { get; set; }
     }
 }

@@ -14,17 +14,20 @@ RETURN (
             , c.CountryGroup
             , wg.Name as Wg
             , wg.Description as WgDescription
-            , calc.Fee_Approved as Fee
+        
+            , calc.Fee_Approved * er.Value as Fee
+        
             , fee.InstalledBaseHighAvailability_Approved as IB
-            , fee.CostPerKit_Approved as CostPerKit
-            , fee.CostPerKitJapanBuy_Approved as CostPerKitJapanBuy
-            , fee.MaxQty_Approved as MaxQty
+            , fee.CostPerKit as CostPerKit
+            , fee.CostPerKitJapanBuy as CostPerKitJapanBuy
+            , fee.MaxQty as MaxQty
             , fee.JapanBuy_Approved as JapanBuy
 
     from Hardware.AvailabilityFee fee
     left join Hardware.AvailabilityFeeCalc calc on calc.Wg = fee.Wg and calc.Country = fee.Country
     join InputAtoms.CountryView c on c.Id = fee.Country
     join InputAtoms.Wg wg on wg.id = fee.Wg
+    left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 
     where (@cnt is null or fee.Country = @cnt)
         and (@wg is null or fee.Wg = @wg)
@@ -45,7 +48,7 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'WgDescription', 'WG Description', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'Fee', 'FSL Flatfee monthly (EUR)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'Fee', 'FSL Flatfee monthly (country currency)', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'IB', 'Installed base high availability', 1, 1);
 set @index = @index + 1;

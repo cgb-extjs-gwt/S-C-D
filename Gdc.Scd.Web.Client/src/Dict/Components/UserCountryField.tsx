@@ -1,7 +1,8 @@
 ﻿import { Country } from "../Model/Country";
 import { DictField } from "./DictField";
+import { NamedId } from "../../Common/States/CommonStates";
 
-export class UserCountryField extends DictField {
+export class UserCountryField extends DictField<NamedId> {
     public getItems() {
         return this.srv.getUserCountries(this.canCache());
     }

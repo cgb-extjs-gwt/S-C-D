@@ -15,6 +15,7 @@ namespace Gdc.Scd.BusinessLogicLayer
         public override void Load()
         {
             Bind(typeof(IDomainService<>)).To(typeof(DomainService<>)).InRequestScope();
+            Bind<IWgService>().To<WgService>().InRequestScope();
             Bind<IWgPorService>().To<WgPorDecoratorService>().InRequestScope();
             Bind<ICostEditorService>().To<CostEditorService>().InRequestScope();
             Bind<IPortfolioService>().To<PortfolioService>().InRequestScope();
@@ -54,7 +55,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<ServiceLocation>();
             Kernel.RegisterEntity<Currency>();
             Kernel.RegisterEntity<ExchangeRate>();
-            Kernel.RegisterEntity<YearAvailability>();
+            Kernel.RegisterEntity<DurationAvailability>();
             Kernel.RegisterEntity<ClusterPla>();
             Kernel.RegisterEntity<ProActiveSla>();
             Kernel.RegisterEntity<SwDigit>();

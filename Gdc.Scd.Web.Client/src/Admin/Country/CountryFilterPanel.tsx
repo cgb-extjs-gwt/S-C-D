@@ -8,6 +8,7 @@ import { CountryNameField } from "../../Dict/Components/CountryNameField";
 import { CountryQualityGroupField } from "../../Dict/Components/CountryQualityGroupField";
 import { DictField } from "../../Dict/Components/DictField";
 import { CountryFilterModel } from "./CountryFilterModel";
+import { NamedId } from "../../Common/States/CommonStates";
 
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: CountryFilterModel): void;
@@ -15,17 +16,17 @@ export interface FilterPanelProps extends PanelProps {
 
 export class FilterPanel extends React.Component<FilterPanelProps, any> {
 
-    private country: DictField;
+    private country: DictField<NamedId>;
 
-    private group: DictField;
+    private group: DictField<NamedId>;
 
-    private lut: DictField;
+    private lut: DictField<NamedId>;
 
-    private digit: DictField;
+    private digit: DictField<NamedId>;
 
-    private iso: DictField;
+    private iso: DictField<NamedId>;
 
-    private qualityGroup: DictField;
+    private qualityGroup: DictField<NamedId>;
 
     private isMaster: RadioField;
 

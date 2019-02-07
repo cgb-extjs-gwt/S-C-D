@@ -270,6 +270,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
+        public Task<T> ExecuteScalarAsync<T>(string sql, IEnumerable<CommandParameterInfo> parameters = null)
+        {
+            var dbParams = this.GetDbParameters(parameters).ToArray();
+            return this.ExecuteScalarAsync<T>(sql, dbParams);
+        }
+
         public IEnumerable<Type> GetRegisteredEntities()
         {
             return RegisteredEntities.Keys.ToArray();
@@ -391,5 +397,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 conn.Close();
             }
         }
+
     }
 }

@@ -17,7 +17,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public CountryGroup()
         {
-            this.Countries = new HashSet<Country>();
+            this.Country1 = new HashSet<Country1>();
         }
     
         public long Id { get; set; }
@@ -28,7 +28,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public long RegionId { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Country> Countries { get; set; }
+        public virtual ICollection<Country1> Country1 { get; set; }
         public virtual Region Region { get; set; }
     }
 }

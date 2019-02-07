@@ -12,7 +12,7 @@ export interface MultiItemSelectedAction extends Action<string> {
     selectedItemIds: string[];
 }
 
-export interface PageItemSelectedAction extends ItemSelectedAction, PageAction {
+export interface PageItemSelectedAction<T=string> extends ItemSelectedAction<T>, PageAction {
 
 }
 

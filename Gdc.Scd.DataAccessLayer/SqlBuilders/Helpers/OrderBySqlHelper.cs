@@ -71,7 +71,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
                 sb.Append(@"select * from (select t.*, ROW_NUMBER() OVER (order by [").Append(field).Append("] ").Append(dir).Append(") AS rownum from (")
                     .Append(ToSql())
-                    .Append(")t)T1 where rownum between ").Append(skip).Append(" and ").Append(take);
+                    .Append(")t)T1 where rownum between ").Append(skip).Append(" and ").Append(take + skip);
 
                 return new SqlHelper(new RawSqlBuilder(sb.ToString(), ToSqlBuilder().GetChildrenBuilders()));
             }
