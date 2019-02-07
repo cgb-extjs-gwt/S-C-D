@@ -425,19 +425,19 @@ AS BEGIN
                 )
     select   r.Wg
 
-           , max(case when y.IsProlongation = 0 and y.Value = 1  then ReinsuranceFlatfee end) 
-           , max(case when y.IsProlongation = 0 and y.Value = 2  then ReinsuranceFlatfee end) 
-           , max(case when y.IsProlongation = 0 and y.Value = 3  then ReinsuranceFlatfee end) 
-           , max(case when y.IsProlongation = 0 and y.Value = 4  then ReinsuranceFlatfee end) 
-           , max(case when y.IsProlongation = 0 and y.Value = 5  then ReinsuranceFlatfee end) 
-           , max(case when y.IsProlongation = 1 and y.Value = 1  then ReinsuranceFlatfee end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 1  then ReinsuranceFlatfee end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 2  then ReinsuranceFlatfee end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 3  then ReinsuranceFlatfee end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 4  then ReinsuranceFlatfee end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 5  then ReinsuranceFlatfee end) 
+           , max(case when d.IsProlongation = 1 and d.Value = 1  then ReinsuranceFlatfee end) 
 
-           , max(case when y.IsProlongation = 0 and y.Value = 1  then ReinsuranceFlatfee_Approved end) 
-           , max(case when y.IsProlongation = 0 and y.Value = 2  then ReinsuranceFlatfee_Approved end) 
-           , max(case when y.IsProlongation = 0 and y.Value = 3  then ReinsuranceFlatfee_Approved end) 
-           , max(case when y.IsProlongation = 0 and y.Value = 4  then ReinsuranceFlatfee_Approved end) 
-           , max(case when y.IsProlongation = 0 and y.Value = 5  then ReinsuranceFlatfee_Approved end) 
-           , max(case when y.IsProlongation = 1 and y.Value = 1  then ReinsuranceFlatfee_Approved end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 1  then ReinsuranceFlatfee_Approved end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 2  then ReinsuranceFlatfee_Approved end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 3  then ReinsuranceFlatfee_Approved end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 4  then ReinsuranceFlatfee_Approved end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 5  then ReinsuranceFlatfee_Approved end) 
+           , max(case when d.IsProlongation = 1 and d.Value = 1  then ReinsuranceFlatfee_Approved end) 
 
            , max(case when r.ReactionTimeAvailability = @NBD_9x5 then r.ReinsuranceUpliftFactor end) 
            , max(case when r.ReactionTimeAvailability = @4h_9x5  then r.ReinsuranceUpliftFactor end) 
@@ -448,7 +448,7 @@ AS BEGIN
            , max(case when r.ReactionTimeAvailability = @4h_24x7 then r.ReinsuranceUpliftFactor_Approved end) 
 
     from Hardware.Reinsurance r
-    join Dependencies.Year y on y.Id = r.Year
+    join Dependencies.Duration d on d.Id = r.Duration
 
     where r.ReactionTimeAvailability in (@NBD_9x5, @4h_9x5, @4h_24x7) 
       and r.DeactivatedDateTime is null
@@ -1361,7 +1361,7 @@ GO
 
 CREATE VIEW [Hardware].[ReinsuranceView] as
     SELECT r.Wg, 
-           r.Year,
+           r.Duration,
            rta.AvailabilityId, 
            rta.ReactionTimeId,
 
@@ -1795,7 +1795,7 @@ RETURN
 
     LEFT JOIN Hardware.MaterialCostOowCalc mco on mco.Wg = m.WgId AND mco.Country = m.CountryId
 
-    LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Year = m.DurationId AND r.AvailabilityId = m.AvailabilityId AND r.ReactionTimeId = m.ReactionTimeId
+    LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Duration = m.DurationId AND r.AvailabilityId = m.AvailabilityId AND r.ReactionTimeId = m.ReactionTimeId
 
     LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId AND fsc.ReactionTypeId = m.ReactionTypeId AND fsc.ReactionTimeId = m.ReactionTimeId
 
