@@ -1,5 +1,3 @@
-use Scd_2_hdd;
-
 IF OBJECT_ID('Hardware.HddRetentionManualCost', 'U') IS NOT NULL
   DROP TABLE Hardware.HddRetentionManualCost;
 go
