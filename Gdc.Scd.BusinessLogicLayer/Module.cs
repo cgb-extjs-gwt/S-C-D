@@ -20,6 +20,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<ICostEditorService>().To<CostEditorService>().InRequestScope();
             Bind<IPortfolioService>().To<PortfolioService>().InRequestScope();
             Bind<ICalculationService>().To<CalculationService>().InRequestScope();
+            Bind<IHddRetentionService>().To<HddRetentionService>().InRequestScope();
             Bind<IReportService>().To<ReportService>().InRequestScope();
             Bind<IUserService>().To<UserService>().InRequestScope();
             Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InRequestScope();
@@ -83,6 +84,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<LocalPortfolio>();
             Kernel.RegisterEntity<PrincipalPortfolio>();
             Kernel.RegisterEntity<HardwareManualCost>();
+            Kernel.RegisterEntity<HddRetentionManualCost>();
 
             /*---------reports----------*/
             Kernel.RegisterEntity<Report>();

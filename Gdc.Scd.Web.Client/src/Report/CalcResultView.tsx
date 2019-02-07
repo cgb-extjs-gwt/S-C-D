@@ -4,6 +4,7 @@ import { HwCostView } from "./HwCostView";
 import { SwCostView } from "./SwCostView";
 import { SwProactiveCostView } from "./SwProactiveCostView";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
+import { HddCostView } from "./HddCostView";
 
 export class CalcResultView extends React.Component<any, any> {
     private tabPanel;
@@ -31,6 +32,14 @@ export class CalcResultView extends React.Component<any, any> {
 
                     <Container title="Hardware<br>service costs<br>(approved)" layout="fit">
                         <HwCostView approved={true} />
+                    </Container>
+
+                    <Container title="Hdd retention<br>service costs" layout="fit">
+                        <HddCostView approved={false} />
+                    </Container>
+
+                    <Container title="Hdd retention<br>service costs<br>(approved)" layout="fit">
+                        <HddCostView approved={true} />
                     </Container>
 
                     <Container title="Software &amp; Solution<br>service costs" layout="fit">

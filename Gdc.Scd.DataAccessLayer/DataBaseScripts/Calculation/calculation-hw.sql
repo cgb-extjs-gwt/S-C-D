@@ -523,6 +523,12 @@ CREATE NONCLUSTERED INDEX [IX_HwStandardWarranty_Country] ON Fsp.HwStandardWarra
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
 
+CREATE VIEW [InputAtoms].[WgStdView] AS
+    select *
+    from InputAtoms.Wg
+    where Id in (select Wg from Fsp.HwStandardWarranty) and WgType = 1
+GO
+
 IF OBJECT_ID('Fsp.HwFspCodeTranslation_Updated', 'TR') IS NOT NULL
   DROP TRIGGER Fsp.HwFspCodeTranslation_Updated;
 go
