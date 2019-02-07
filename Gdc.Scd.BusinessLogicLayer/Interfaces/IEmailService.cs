@@ -1,10 +1,11 @@
 ﻿using Gdc.Scd.Core.Entities;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface IEmailService
     {
-        void SendApprovalMail(User recepient);
-        void SendRejectedMail(User recepient, string rejectionText, string approverName);
+        Task SendApprovalMailAsync(CostBlockHistory history);
+        Task SendRejectedMailAsync(CostBlockHistory history, string rejectionText, string approverName);
     }
 }
