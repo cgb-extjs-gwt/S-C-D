@@ -200,10 +200,6 @@ IF OBJECT_ID('Hardware.CalcFieldServiceCost') IS NOT NULL
   DROP FUNCTION Hardware.CalcFieldServiceCost;
 go 
 
-IF OBJECT_ID('Hardware.CalcHddRetention') IS NOT NULL
-  DROP FUNCTION Hardware.CalcHddRetention;
-go 
-
 IF OBJECT_ID('Hardware.CalcMaterialCost') IS NOT NULL
   DROP FUNCTION Hardware.CalcMaterialCost;
 go 
@@ -778,14 +774,6 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION [Hardware].[CalcHddRetention](@cost float, @fr float)
-RETURNS float
-AS
-BEGIN
-    RETURN @cost * @fr;
-END
-GO
-
 CREATE FUNCTION [Hardware].[CalcMaterialCost](@cost float, @afr float)
 RETURNS float
 AS
@@ -1167,35 +1155,30 @@ IF OBJECT_ID('Hardware.HddRetentionUpdated', 'TR') IS NOT NULL
   DROP TRIGGER Hardware.HddRetentionUpdated;
 go
 
-CREATE TRIGGER Hardware.HddRetentionUpdated
-ON Hardware.HddRetention
+CREATE TRIGGER [Hardware].[HddRetentionUpdated]
+ON [Hardware].[HddRetention]
 After INSERT, UPDATE
 AS BEGIN
 
+    SET NOCOUNT ON;
+
     with cte as (
-        select    h.Id
-                , h.Wg
-                , h.HddMaterialCost * h.HddFr / 100 as hddRetPerYear
-                , h.HddMaterialCost_Approved * h.HddFr_Approved / 100 as hddRetPerYear_Approved
-                , y.IsProlongation
-                , y.Value
+        select    h.Wg
+                , sum(h.HddMaterialCost * h.HddFr / 100) as hddRet
+                , sum(h.HddMaterialCost_Approved * h.HddFr_Approved / 100) as hddRet_Approved
         from Hardware.HddRetention h
-        join Dependencies.Year y on y.Id = h.Year
-    )
-    , cte2 as (
-        select *
-        from cte c
-            cross apply(select sum(c2.hddRetPerYear) as HddRet, 
-                               sum(c2.hddRetPerYear_Approved) as HddRet_Approved
-                            from cte as c2
-                            where c2.Wg = c.Wg and c2.IsProlongation = c.IsProlongation and c2.Value <= c.Value) ca
+        where h.Year in (select id from Dependencies.Year where IsProlongation = 0 and Value <= 5 )
+        group by h.Wg
     )
     update h
         set h.HddRet = c.HddRet, HddRet_Approved = c.HddRet_Approved
     from Hardware.HddRetention h
-    join cte2 c on c.Id = h.Id
+    join cte c on c.Wg = h.Wg
 
 END
+go
+
+update Hardware.HddRetention set HddFr = HddFr + 0;
 go
 
 CREATE VIEW [Hardware].[FieldServiceCostView] AS
