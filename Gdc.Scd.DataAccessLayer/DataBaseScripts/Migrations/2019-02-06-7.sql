@@ -24,9 +24,9 @@ RETURN (
             , fee.JapanBuy_Approved as JapanBuy
 
     from Hardware.AvailabilityFee fee
-    left join Hardware.AvailabilityFeeCalc calc on calc.Wg = fee.Wg and calc.Country = fee.Country
     join InputAtoms.CountryView c on c.Id = fee.Country
     join InputAtoms.Wg wg on wg.id = fee.Wg
+    left join Hardware.AvailabilityFeeCalc calc on calc.Wg = fee.Wg and calc.Country = fee.Country
     left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 
     where (@cnt is null or fee.Country = @cnt)
