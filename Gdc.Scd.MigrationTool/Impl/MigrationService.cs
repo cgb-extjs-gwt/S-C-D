@@ -48,7 +48,9 @@ namespace Gdc.Scd.MigrationTool.Impl
                 var migrations = this.repositorySet.GetRepository<Migration>().GetAll();
                 var executedNumbers = new HashSet<int>(migrations.Select(migration => migration.Number));
 
-                return this.migrationActions.Where(action => !executedNumbers.Contains(action.Number));
+                return 
+                    this.migrationActions.Where(action => !executedNumbers.Contains(action.Number))
+                                         .OrderBy(action => action.Number);
             }
             catch (SqlException ex)
             {
