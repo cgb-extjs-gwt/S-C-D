@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Gdc.Scd.BusinessLogicLayer.Dto;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.QualityGate;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
@@ -32,6 +34,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly ICostBlockService costBlockService;
 
+        private readonly IDomainService<Country> countryService;
+
         public CostEditorService(
             ICostEditorRepository costEditorRepository,
             ISqlRepository sqlRepository,
@@ -41,6 +45,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             IQualityGateSevice qualityGateSevice,
             IUserService userService,
             ICostBlockService costBlockService,
+            IDomainService<Country> countryService,
             DomainMeta meta,
             DomainEnitiesMeta domainEnitiesMeta)
         {
@@ -54,6 +59,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.qualityGateSevice = qualityGateSevice;
             this.userService = userService;
             this.costBlockService = costBlockService;
+            this.countryService = countryService;
         }
 
         public async Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context)
@@ -106,15 +112,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return referenceValues;
         }
 
-        public async Task<CostEditorCostElementData> GetCostElementData(CostEditorContext context)
+        public async Task<CostEditorDto> GetCostElementData(CostEditorContext context)
         {
-            var data = await this.costBlockService.GetCostElementData(context);
+            var dependencyItems = await this.costBlockService.GetDependencyItems(context);
 
-            return new CostEditorCostElementData
+            return new CostEditorDto
             {
-                Filters = data.DependencyItems,
-                Regions = data.Regions,
-                ReferenceValues = await this.GetCostElementReferenceValues(context)
+                Filters = dependencyItems,
+                Regions = await this.GetRegions(context),
+                ReferenceValues = await this.GetCostElementReferenceValues(context),
             };
         }
 
@@ -152,7 +158,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     : qualityGateResultSetItem.QualityGateResult;
         }
 
-        public async Task<IEnumerable<HistoryItem>> GetHistoryItems(CostEditorContext context, long editItemId, QueryInfo queryInfo = null)
+        public async Task<DataInfo<HistoryItemDto>> GetHistory(CostEditorContext context, long editItemId, QueryInfo queryInfo = null)
         {
             var userCountries = this.userService.GetCurrentUserCountries();
             var filter = this.costBlockFilterBuilder.BuildFilter(context, userCountries);
@@ -163,7 +169,34 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 filter.Add(context.InputLevelId, new long[] { editItemId });
             }
 
-            return await this.historySevice.GetHistoryItems(context, filter, queryInfo);
+            return await this.historySevice.GetHistory(context, filter, queryInfo);
+        }
+
+        private async Task<RegionDto[]> GetRegions(CostEditorContext context)
+        {
+            RegionDto[] regionDtos = null;
+
+            var regions = await this.costBlockService.GetRegions(context);
+            if (regions != null)
+            {
+                var costElement = this.meta.GetCostElement(context);
+                if (costElement.IsCountryCurrencyCost)
+                {
+                    var countryIds = regions.Select(region => region.Id).ToArray();
+
+                    regionDtos =
+                        this.countryService.GetAll()
+                                           .Where(country => countryIds.Contains(country.Id))
+                                           .Select(country => new RegionDto(country, country.Currency))
+                                           .ToArray();
+                }
+                else
+                {
+                    regionDtos = regions.Select(region => new RegionDto(region)).ToArray();
+                }
+            }
+
+            return regionDtos;
         }
     }
 }

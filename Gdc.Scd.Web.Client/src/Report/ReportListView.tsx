@@ -97,7 +97,7 @@ export class ReportListView extends React.Component<any, any> {
                     "leaf": true
                 },
                 {
-                    "text": "<a href='#' data-href='/report/FLAT-Fee-Reports'>10. Availability fee report (old FSL fee report)</a>",
+                    "text": "<a href='#' data-href='/report/FLAT-Fee-Reports'>10. Availability fee report</a>",
                     "leaf": true
                 },
                 {

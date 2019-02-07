@@ -1,4 +1,4 @@
-import { NamedId } from "../../Common/States/CommonStates";
+import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
 import { Country } from "../Model/Country";
 import { IDictService } from "../Services/IDictService";
 import { fakeAvailability } from "./FakeAvailability";
@@ -55,6 +55,10 @@ export class FakeDictService implements IDictService {
         throw new Error("Method not implemented.");
     }
 
+    public getStandardWg(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
+
     public getPla(): Promise<NamedId<string>[]> {
         return this.fromResult(fakePla);
     }
@@ -87,7 +91,7 @@ export class FakeDictService implements IDictService {
         return this.fromResult(fakeReactTimeTypes);
     }
 
-    public getServiceLocationTypes(): Promise<NamedId[]> {
+    public getServiceLocationTypes(): Promise<SortableNamedId[]> {
         return this.fromResult(fakeServiceLocationTypes);
     }
 

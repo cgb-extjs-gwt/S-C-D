@@ -19,7 +19,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public Nullable<long> SwDigitId { get; set; }
         public Nullable<long> SwLicenseId { get; set; }
     
-        public virtual SwDigit SwDigit { get; set; }
+        public virtual SwDigit1 SwDigit1 { get; set; }
         public virtual SwLicense SwLicense { get; set; }
     }
 }

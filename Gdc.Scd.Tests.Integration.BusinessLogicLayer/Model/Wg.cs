@@ -14,84 +14,10 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
     
     public partial class Wg
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Wg()
-        {
-            this.HwFspCodeTranslations = new HashSet<HwFspCodeTranslation>();
-            this.AFRs = new HashSet<AFR>();
-            this.AvailabilityFees = new HashSet<AvailabilityFee>();
-            this.FieldServiceCosts = new HashSet<FieldServiceCost>();
-            this.HddRetentions = new HashSet<HddRetention>();
-            this.InstallBases = new HashSet<InstallBase>();
-            this.LogisticsCosts = new HashSet<LogisticsCost>();
-            this.MarkupOtherCosts = new HashSet<MarkupOtherCost>();
-            this.MarkupStandardWaranties = new HashSet<MarkupStandardWaranty>();
-            this.MaterialCostOows = new HashSet<MaterialCostOow>();
-            this.MaterialCostWarranties = new HashSet<MaterialCostWarranty>();
-            this.ProActives = new HashSet<ProActive>();
-            this.ProlongationMarkups = new HashSet<ProlongationMarkup>();
-            this.Reinsurances = new HashSet<Reinsurance>();
-            this.Matrices = new HashSet<Matrix>();
-            this.MatrixMasters = new HashSet<MatrixMaster>();
-            this.MatrixRules = new HashSet<MatrixRule>();
-        }
+        public long CostBlockHistory { get; set; }
+        public Nullable<long> Wg1 { get; set; }
     
-        public long Id { get; set; }
-        public string Alignment { get; set; }
-        public System.DateTime CreatedDateTime { get; set; }
-        public Nullable<System.DateTime> DeactivatedDateTime { get; set; }
-        public string Description { get; set; }
-        public bool ExistsInLogisticsDb { get; set; }
-        public string FabGrp { get; set; }
-        public bool IsDeactivatedInLogistic { get; set; }
-        public bool IsSoftware { get; set; }
-        public System.DateTime ModifiedDateTime { get; set; }
-        public string Name { get; set; }
-        public long PlaId { get; set; }
-        public Nullable<long> RoleCodeId { get; set; }
-        public string SCD_ServiceType { get; set; }
-        public Nullable<long> SFabId { get; set; }
-        public Nullable<long> SogId { get; set; }
-        public int WgType { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<HwFspCodeTranslation> HwFspCodeTranslations { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<AFR> AFRs { get; set; }
-        public virtual AfrYear AfrYear { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<AvailabilityFee> AvailabilityFees { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<FieldServiceCost> FieldServiceCosts { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<HddRetention> HddRetentions { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<InstallBase> InstallBases { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<LogisticsCost> LogisticsCosts { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<MarkupOtherCost> MarkupOtherCosts { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<MarkupStandardWaranty> MarkupStandardWaranties { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<MaterialCostOow> MaterialCostOows { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<MaterialCostWarranty> MaterialCostWarranties { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ProActive> ProActives { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ProlongationMarkup> ProlongationMarkups { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Reinsurance> Reinsurances { get; set; }
-        public virtual Pla Pla { get; set; }
-        public virtual RoleCode RoleCode { get; set; }
-        public virtual Sfab Sfab { get; set; }
-        public virtual Sog Sog { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Matrix> Matrices { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<MatrixMaster> MatrixMasters { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<MatrixRule> MatrixRules { get; set; }
+        public virtual CostBlockHistory CostBlockHistory1 { get; set; }
+        public virtual Wg1 Wg11 { get; set; }
     }
 }

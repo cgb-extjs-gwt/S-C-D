@@ -5,6 +5,7 @@
     BOOLEAN = 'boolean',
     WG = 'wg',
     WGALL = 'wgall',
+    WGSTANDARD = 'wgstandard',
     SOG = 'sog',
     COUNTRYGROUP = 'countrygroup',
     COUNTRY = 'country',

@@ -5,12 +5,13 @@ import { costEditorReducer } from "./CostEditor/Reducers/CostEditorReducer";
 import { appReducer } from "./Layout/Reducers/AppReducer";
 import { CommonState, AppState } from "./Layout/States/AppStates";
 import { COST_EDITOR_PAGE } from "./CostEditor/Actions/CostEditorActions";
-import { buildApprovalCostElementsReducer } from "./CostApproval/Reducers/ApprovalCostElementsReducer";
-import { COST_APPROVAL_PAGE, OWN_COST_APPROVAL_PAGE } from "./CostApproval/Constants/CostApprovalConstants";
-import { qualityGateErrorsReducer } from "./CostApproval/Reducers/QualityGateErrorsReducer";
 import { tableViewReducer } from "./TableView/Reducers/TableViewReducer";
 import { CostMetaData } from "./Common/States/CostMetaStates";
 import { costImportReducer } from "./CostImport/Reducers/CostImportReducer";
+import { COST_APPROVAL_PAGE } from "./CostApproval/Constants/CostApprovalConstants";
+import { costApprovalReducer } from "./CostApproval/Reducers/CostApprovalReducer";
+import { OWN_COST_APPROVAL_PAGE } from "./CostOwnApproval/Constants/CostOwnApprovalConstants";
+import { costOwnApprovalReducer } from "./CostOwnApproval/Reducers/CostOwnApprovalReducer";
 
 const asyncActionHandler = store => next => action => {
     if (action instanceof AsyncAction) {
@@ -27,10 +28,8 @@ export const storeFactory = () => {
         app: appReducer,
         pages: combineReducers({
             [COST_EDITOR_PAGE]:costEditorReducer,
-            [COST_APPROVAL_PAGE]: buildApprovalCostElementsReducer(COST_APPROVAL_PAGE),
-            [OWN_COST_APPROVAL_PAGE]: buildApprovalCostElementsReducer(OWN_COST_APPROVAL_PAGE, {
-                qualityGateErrors: qualityGateErrorsReducer
-            }),
+            [COST_APPROVAL_PAGE]: costApprovalReducer,
+            [OWN_COST_APPROVAL_PAGE]: costOwnApprovalReducer,
             tableView: tableViewReducer,
             costImport: costImportReducer
         })

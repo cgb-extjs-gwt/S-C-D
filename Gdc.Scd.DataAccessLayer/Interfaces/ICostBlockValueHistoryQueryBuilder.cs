@@ -10,11 +10,11 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
     public interface ICostBlockValueHistoryQueryBuilder
     {
         SelectJoinSqlHelper BuildSelectHistoryValueQuery(
-            HistoryContext historyContext, 
+            CostElementContext historyContext, 
             IEnumerable<BaseColumnInfo> addingSelectColumns = null);
 
         TQuery BuildJoinHistoryValueQuery<TQuery>(
-            HistoryContext historyContext, 
+            CostElementContext historyContext, 
             TQuery query, 
             JoinHistoryValueQueryOptions options = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>;

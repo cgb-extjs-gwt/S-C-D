@@ -15,6 +15,90 @@ GO
 DROP INDEX [IX_HwFspCodeTranslation_WgId] ON [Fsp].[HwFspCodeTranslation]
 GO
 
+ALTER TABLE Hardware.AvailabilityFee DROP COLUMN CostPerKit_Approved;
+go
+ALTER TABLE Hardware.AvailabilityFee DROP COLUMN CostPerKitJapanBuy_Approved;
+go
+ALTER TABLE Hardware.AvailabilityFee DROP COLUMN MaxQty_Approved;
+go
+ALTER TABLE Hardware.AvailabilityFee
+   ADD   CostPerKit_Approved          as (CostPerKit)
+       , CostPerKitJapanBuy_Approved  as (CostPerKitJapanBuy)
+       , MaxQty_Approved              as (MaxQty)
+go
+
+IF OBJECT_ID('Hardware.MaterialCostOowCalc', 'U') IS NOT NULL
+  DROP TABLE Hardware.MaterialCostOowCalc;
+go
+
+CREATE TABLE Hardware.MaterialCostOowCalc (
+    [Country] [bigint] NOT NULL foreign key references InputAtoms.Country(Id),
+    [Wg] [bigint] NOT NULL foreign key references InputAtoms.Wg(Id),
+    [MaterialCostOow] [float] NULL,
+    [MaterialCostOow_Approved] [float] NULL,
+    CONSTRAINT PK_MaterialCostOowCalc PRIMARY KEY NONCLUSTERED (Country, Wg)
+)
+GO
+
+IF OBJECT_ID('Hardware.SpUpdateMaterialCostOowCalc') IS NOT NULL
+  DROP PROCEDURE Hardware.SpUpdateMaterialCostOowCalc;
+go
+
+CREATE PROCEDURE Hardware.SpUpdateMaterialCostOowCalc
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    truncate table Hardware.MaterialCostOowCalc;
+
+    -- Disable all table constraints
+    ALTER TABLE Hardware.MaterialCostOowCalc NOCHECK CONSTRAINT ALL;
+
+    INSERT INTO Hardware.MaterialCostOowCalc(Country, Wg, MaterialCostOow, MaterialCostOow_Approved)
+        select NonEmeiaCountry as Country, Wg, MaterialCostOow, MaterialCostOow_Approved
+        from Hardware.MaterialCostOow
+        where DeactivatedDateTime is null
+
+        union 
+
+        select EmeiaCountry as Country, Wg, MaterialCostOow, MaterialCostOow_Approved
+        from Hardware.MaterialCostOowEmeia
+        where DeactivatedDateTime is null
+
+    -- Enable all table constraints
+    ALTER TABLE Hardware.MaterialCostOowCalc CHECK CONSTRAINT ALL;
+
+END
+go
+
+IF OBJECT_ID('Hardware.MaterialCostOowUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.MaterialCostOowUpdated;
+go
+
+CREATE TRIGGER Hardware.MaterialCostOowUpdated
+ON Hardware.MaterialCostOow
+After INSERT, UPDATE
+AS BEGIN
+    exec Hardware.SpUpdateMaterialCostOowCalc;
+END
+go
+
+IF OBJECT_ID('Hardware.MaterialCostOowEmeiaUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.MaterialCostOowEmeiaUpdated;
+go
+
+CREATE TRIGGER Hardware.MaterialCostOowEmeiaUpdated
+ON Hardware.MaterialCostOowEmeia
+After INSERT, UPDATE
+AS BEGIN
+    exec Hardware.SpUpdateMaterialCostOowCalc;
+END
+go
+
+exec Hardware.SpUpdateMaterialCostOowCalc;
+go
+
 ALTER TABLE Fsp.HwFspCodeTranslation 
     ADD SlaHash  AS checksum (
                         cast(coalesce(CountryId, 0) as nvarchar(20)) + ',' +
@@ -69,11 +153,6 @@ CREATE NONCLUSTERED INDEX ix_Hardware_FieldServiceCost
     INCLUDE ([ServiceLocation],[ReactionTimeType],[RepairTime],[TravelTime],[LabourCost],[TravelCost],[PerformanceRate],[TimeAndMaterialShare])
 GO
 
-CREATE NONCLUSTERED INDEX ix_Hardware_AvailabilityFee
-    ON [Hardware].[AvailabilityFee] (Country, Wg)
-    INCLUDE ([InstalledBaseHighAvailability],[CostPerKit],[CostPerKitJapanBuy],[MaxQty],[JapanBuy],[InstalledBaseHighAvailability_Approved],[CostPerKit_Approved],[CostPerKitJapanBuy_Approved],[MaxQty_Approved])
-GO
-
 CREATE NONCLUSTERED INDEX ix_Hardware_LogisticsCosts
     ON [Hardware].[LogisticsCosts] (Country, Wg, ReactionTimeType)
     INCLUDE ([StandardHandling],[HighAvailabilityHandling],[StandardDelivery],[ExpressDelivery],[TaxiCourierDelivery],[ReturnDeliveryFactory],[StandardHandling_Approved],[HighAvailabilityHandling_Approved],[StandardDelivery_Approved],[ExpressDelivery_Approved],[TaxiCourierDelivery_Approved],[ReturnDeliveryFactory_Approved])
@@ -119,10 +198,6 @@ go
 
 IF OBJECT_ID('Hardware.CalcFieldServiceCost') IS NOT NULL
   DROP FUNCTION Hardware.CalcFieldServiceCost;
-go 
-
-IF OBJECT_ID('Hardware.CalcHddRetention') IS NOT NULL
-  DROP FUNCTION Hardware.CalcHddRetention;
 go 
 
 IF OBJECT_ID('Hardware.CalcMaterialCost') IS NOT NULL
@@ -211,6 +286,10 @@ go
 
 IF OBJECT_ID('Hardware.AddMarkup') IS NOT NULL
   DROP FUNCTION Hardware.AddMarkup;
+go 
+
+IF OBJECT_ID('Hardware.AddMarkupFactorOrFixValue') IS NOT NULL
+  DROP FUNCTION Hardware.AddMarkupFactorOrFixValue;
 go 
 
 IF OBJECT_ID('Hardware.CalcAvailabilityFee') IS NOT NULL
@@ -629,6 +708,29 @@ BEGIN
 END
 GO
 
+CREATE FUNCTION [Hardware].[AddMarkupFactorOrFixValue](
+    @value float,
+    @markupFactor float,
+    @fixed float
+)
+RETURNS float
+AS
+BEGIN
+
+    if @markupFactor > 0
+        begin
+            set @value = @value * @markupFactor;
+        end
+    else if @fixed > 0
+        begin
+            set @value = @fixed;
+        end
+
+    RETURN @value;
+
+END
+GO
+
 CREATE FUNCTION [Hardware].[CalcLogisticCost](
 	@standardHandling float,
     @highAvailabilityHandling float,
@@ -669,14 +771,6 @@ BEGIN
                    (1 - @timeAndMaterialShare) * (@travelCost + @labourCost + @performanceRate) + 
                    @timeAndMaterialShare * ((@travelTime + @repairTime) * @onsiteHourlyRate + @performanceRate)
                 );
-END
-GO
-
-CREATE FUNCTION [Hardware].[CalcHddRetention](@cost float, @fr float)
-RETURNS float
-AS
-BEGIN
-    RETURN @cost * @fr;
 END
 GO
 
@@ -1061,35 +1155,30 @@ IF OBJECT_ID('Hardware.HddRetentionUpdated', 'TR') IS NOT NULL
   DROP TRIGGER Hardware.HddRetentionUpdated;
 go
 
-CREATE TRIGGER Hardware.HddRetentionUpdated
-ON Hardware.HddRetention
+CREATE TRIGGER [Hardware].[HddRetentionUpdated]
+ON [Hardware].[HddRetention]
 After INSERT, UPDATE
 AS BEGIN
 
+    SET NOCOUNT ON;
+
     with cte as (
-        select    h.Id
-                , h.Wg
-                , h.HddMaterialCost * h.HddFr / 100 as hddRetPerYear
-                , h.HddMaterialCost_Approved * h.HddFr_Approved / 100 as hddRetPerYear_Approved
-                , y.IsProlongation
-                , y.Value
+        select    h.Wg
+                , sum(h.HddMaterialCost * h.HddFr / 100) as hddRet
+                , sum(h.HddMaterialCost_Approved * h.HddFr_Approved / 100) as hddRet_Approved
         from Hardware.HddRetention h
-        join Dependencies.Year y on y.Id = h.Year
-    )
-    , cte2 as (
-        select *
-        from cte c
-            cross apply(select sum(c2.hddRetPerYear) as HddRet, 
-                               sum(c2.hddRetPerYear_Approved) as HddRet_Approved
-                            from cte as c2
-                            where c2.Wg = c.Wg and c2.IsProlongation = c.IsProlongation and c2.Value <= c.Value) ca
+        where h.Year in (select id from Dependencies.Year where IsProlongation = 0 and Value <= 5 )
+        group by h.Wg
     )
     update h
         set h.HddRet = c.HddRet, HddRet_Approved = c.HddRet_Approved
     from Hardware.HddRetention h
-    join cte2 c on c.Id = h.Id
+    join cte c on c.Wg = h.Wg
 
 END
+go
+
+update Hardware.HddRetention set HddFr = HddFr + 0;
 go
 
 CREATE VIEW [Hardware].[FieldServiceCostView] AS
@@ -1631,8 +1720,9 @@ RETURN
                  else 0
            end as AvailabilityFee
 
-         , case when @approved = 0 then moc.Markup                         else moc.Markup_Approved                       end as Markup                      
-         , case when @approved = 0 then moc.MarkupFactor                   else moc.MarkupFactor_Approved                 end as MarkupFactor                
+         , case when @approved = 0 then moc.Markup                         else moc.Markup_Approved                       end as MarkupOtherCost                      
+         , case when @approved = 0 then moc.MarkupFactor                   else moc.MarkupFactor_Approved                 end as MarkupFactorOtherCost                
+
          , case when @approved = 0 then msw.MarkupFactorStandardWarranty   else msw.MarkupFactorStandardWarranty_Approved end as MarkupFactorStandardWarranty
          , case when @approved = 0 then msw.MarkupStandardWarranty         else msw.MarkupStandardWarranty_Approved       end as MarkupStandardWarranty      
 
@@ -1668,7 +1758,7 @@ RETURN
          , man.DealerDiscount  as DealerDiscount              
          , man.DealerPrice     as DealerPrice                 
          , man.ServiceTC       as ServiceTCManual                   
-         , man.ServiceTP       as ServiceTPManual                                 
+         , man.ServiceTP       as ServiceTPManual                   
          , man.ServiceTP_Released as ServiceTP_Released                  
          , man.ChangeUserName  as ChangeUserName
          , man.ChangeUserEmail as ChangeUserEmail
@@ -1703,7 +1793,7 @@ RETURN
 
     LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
-    LEFT JOIN Hardware.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
+    LEFT JOIN Hardware.MaterialCostOowCalc mco on mco.Wg = m.WgId AND mco.Country = m.CountryId
 
     LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Year = m.DurationId AND r.AvailabilityId = m.AvailabilityId AND r.ReactionTimeId = m.ReactionTimeId
 
@@ -1849,12 +1939,12 @@ RETURN
         select    
                   m.*
 
-                , Hardware.AddMarkup(m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect1
-                , Hardware.AddMarkup(m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect2
-                , Hardware.AddMarkup(m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect3
-                , Hardware.AddMarkup(m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect4
-                , Hardware.AddMarkup(m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect5
-                , Hardware.AddMarkup(m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.ReinsuranceOrZero, m.MarkupFactor, m.Markup)  as OtherDirect1P
+                , Hardware.AddMarkupFactorOrFixValue(m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect1
+                , Hardware.AddMarkupFactorOrFixValue(m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect2
+                , Hardware.AddMarkupFactorOrFixValue(m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect3
+                , Hardware.AddMarkupFactorOrFixValue(m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect4
+                , Hardware.AddMarkupFactorOrFixValue(m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect5
+                , Hardware.AddMarkupFactorOrFixValue(m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect1P
 
                 , case when m.StdWarranty >= 1 
                         then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw1, m.ServiceSupport, m.LogisticStdw1, m.tax1, m.AFR1, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
@@ -1892,22 +1982,24 @@ RETURN
     )
     , CostCte5 as (
         select m.*
-             , m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.TaxAndDuties1  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit1  as ServiceTC1
-             , m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.TaxAndDuties2  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit2  as ServiceTC2
-             , m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.TaxAndDuties3  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit3  as ServiceTC3
-             , m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.TaxAndDuties4  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit4  as ServiceTC4
-             , m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.TaxAndDuties5  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit5  as ServiceTC5
-             , m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.TaxAndDuties1P + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero - m.Credit1P as ServiceTC1P
+
+             , m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.TaxAndDuties1  + m.ReinsuranceOrZero + m.OtherDirect1  + m.AvailabilityFeeOrZero - m.Credit1  as ServiceTP1
+             , m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.TaxAndDuties2  + m.ReinsuranceOrZero + m.OtherDirect2  + m.AvailabilityFeeOrZero - m.Credit2  as ServiceTP2
+             , m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.TaxAndDuties3  + m.ReinsuranceOrZero + m.OtherDirect3  + m.AvailabilityFeeOrZero - m.Credit3  as ServiceTP3
+             , m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.TaxAndDuties4  + m.ReinsuranceOrZero + m.OtherDirect4  + m.AvailabilityFeeOrZero - m.Credit4  as ServiceTP4
+             , m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.TaxAndDuties5  + m.ReinsuranceOrZero + m.OtherDirect5  + m.AvailabilityFeeOrZero - m.Credit5  as ServiceTP5
+             , m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.TaxAndDuties1P + m.ReinsuranceOrZero + m.OtherDirect1P + m.AvailabilityFeeOrZero - m.Credit1P as ServiceTP1P
+
         from CostCte4 m
     )
     , CostCte6 as (
         select m.*
-             , Hardware.AddMarkup(m.ServiceTC1,  1 + m.MarkupFactor, m.Markup) as ServiceTP1
-             , Hardware.AddMarkup(m.ServiceTC2,  1 + m.MarkupFactor, m.Markup) as ServiceTP2
-             , Hardware.AddMarkup(m.ServiceTC3,  1 + m.MarkupFactor, m.Markup) as ServiceTP3
-             , Hardware.AddMarkup(m.ServiceTC4,  1 + m.MarkupFactor, m.Markup) as ServiceTP4
-             , Hardware.AddMarkup(m.ServiceTC5,  1 + m.MarkupFactor, m.Markup) as ServiceTP5
-             , Hardware.AddMarkup(m.ServiceTC1P, 1 + m.MarkupFactor, m.Markup) as ServiceTP1P
+             , m.ServiceTP1  - m.OtherDirect1  as ServiceTC1
+             , m.ServiceTP2  - m.OtherDirect2  as ServiceTC2
+             , m.ServiceTP3  - m.OtherDirect3  as ServiceTC3
+             , m.ServiceTP4  - m.OtherDirect4  as ServiceTC4
+             , m.ServiceTP5  - m.OtherDirect5  as ServiceTC5
+             , m.ServiceTP1P - m.OtherDirect1P as ServiceTC1P
         from CostCte5 m
     )    
     select m.Id
@@ -1937,7 +2029,7 @@ RETURN
 
          --Cost
 
-         , m.AvailabilityFee
+         , m.AvailabilityFee * m.Year as AvailabilityFee
          , m.HddRet
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.tax1, m.tax2, m.tax3, m.tax4, m.tax5, m.tax1P) as TaxAndDutiesW
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.taxO1, m.taxO2, m.taxO3, m.taxO4, m.taxO5, m.taxO1P) as TaxAndDutiesOow

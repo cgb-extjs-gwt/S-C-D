@@ -16,11 +16,13 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
     {
         public long Id { get; set; }
         public long RoleCode { get; set; }
+        public long Country { get; set; }
         public Nullable<double> OnsiteHourlyRates { get; set; }
         public Nullable<double> OnsiteHourlyRates_Approved { get; set; }
         public System.DateTime CreatedDateTime { get; set; }
         public Nullable<System.DateTime> DeactivatedDateTime { get; set; }
     
-        public virtual RoleCode RoleCode1 { get; set; }
+        public virtual Country1 Country1 { get; set; }
+        public virtual RoleCode1 RoleCode1 { get; set; }
     }
 }

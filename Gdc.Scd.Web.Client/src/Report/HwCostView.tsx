@@ -1,17 +1,18 @@
-﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar, Panel } from "@extjs/ext-react";
+﻿import { Button, Column, Container, Grid, NumberColumn, Panel, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
+import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
+import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
+import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { emptyRenderer, IRenderer, localMoneyRendererFactory, localToEuroMoneyRendererFactory, percentRenderer, yearRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
-import { CurrencyType } from "./Model/CurrencyType";
 import { HwReleasePanel } from "./Components/HwReleasePanel";
+import { CurrencyType } from "./Model/CurrencyType";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
-import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
-import { UserCountryService } from "../Dict/Services/UserCountryService";
-import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
+import { ExportService } from "./Services/ExportService";
 
 const localMoneyRenderer = localMoneyRendererFactory('Currency');
 const euroMoneyRenderer = localToEuroMoneyRendererFactory('ExchangeRate');
@@ -119,12 +120,14 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         ref={x => this.filter = x}
                         onSearch={this.onSearch}
                         onChange={this.onFilterChange}
+                        onDownload={this.onDownload}
                         checkAccess={!this.props.approved} />
+
                     <HwReleasePanel
                         onApprove={this.releaseCosts}
                         checkAccess={!this.props.approved}
                         hidden={this.state.hideReleaseButton} />
-                </Panel>         
+                </Panel>
 
                 <Grid
                     ref={x => this.grid = x}
@@ -190,7 +193,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
                         <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
                         <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
-                        <NumberColumn text="Service TP(released)" dataIndex="ServiceTP_Released"/>
+                        <NumberColumn text="Service TP(released)" dataIndex="ServiceTP_Released" />
 
                         <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
                         <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
@@ -215,12 +218,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     private init() {
         this.onSearch = this.onSearch.bind(this);
         this.onFilterChange = this.onFilterChange.bind(this);
+        this.onDownload = this.onDownload.bind(this);
         this.cancelChanges = this.cancelChanges.bind(this);
         this.saveRecords = this.saveRecords.bind(this);
         this.releaseCosts = this.releaseCosts.bind(this);
 
         this.store.on('beforeload', this.onBeforeLoad, this);
-        this.store.on('datachanged', this.ondDataChanged, this);   
+        this.store.on('datachanged', this.ondDataChanged, this);
     }
 
     private toggleToolbar(disable: boolean) {
@@ -268,11 +272,17 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             handleRequest(p);
         });
 
-        
+
     }
 
     private onSearch(filter: HwCostFilterModel) {
         this.reload();
+    }
+
+    private onDownload(filter: HwCostFilterModel & any) {
+        filter = filter || {};
+        filter.local = filter.currency;
+        ExportService.Download('HW-CALC-RESULT', this.props.approved, filter);
     }
 
     private onFilterChange(filter: HwCostFilterModel) {
