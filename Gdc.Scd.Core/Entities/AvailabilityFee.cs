@@ -17,7 +17,7 @@ namespace Gdc.Scd.Core.Entities
 
         [Column(MetaConstants.PlaInputLevelName)]
         public long? PlaId { get; set; }
-        public Wg Pla { get; set; }
+        public Pla Pla { get; set; }
 
         [Column(MetaConstants.WgInputLevelName)]
         public long? WgId { get; set; }
