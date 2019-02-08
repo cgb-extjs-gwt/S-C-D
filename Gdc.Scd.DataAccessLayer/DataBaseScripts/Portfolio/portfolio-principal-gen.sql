@@ -1,13 +1,7 @@
 ALTER DATABASE SCD_2 SET RECOVERY SIMPLE
 GO 
 
-ALTER INDEX IX_PrincipalPortfolio_AvailabilityId    ON Portfolio.PrincipalPortfolio DISABLE;  
-ALTER INDEX IX_PrincipalPortfolio_DurationId        ON Portfolio.PrincipalPortfolio DISABLE;  
-ALTER INDEX IX_PrincipalPortfolio_ReactionTimeId    ON Portfolio.PrincipalPortfolio DISABLE;  
-ALTER INDEX IX_PrincipalPortfolio_ReactionTypeId    ON Portfolio.PrincipalPortfolio DISABLE;  
-ALTER INDEX IX_PrincipalPortfolio_ServiceLocationId ON Portfolio.PrincipalPortfolio DISABLE;  
-ALTER INDEX IX_PrincipalPortfolio_WgId              ON Portfolio.PrincipalPortfolio DISABLE;  
-ALTER INDEX IX_PrincipalPortfolio_ProActiveSlaId    ON Portfolio.PrincipalPortfolio DISABLE;  
+ALTER INDEX IX_PrincipalPortfolio_SLA ON Portfolio.PrincipalPortfolio DISABLE;  
 
 -- Disable all table constraints
 ALTER TABLE Portfolio.PrincipalPortfolio NOCHECK CONSTRAINT ALL
@@ -1047,31 +1041,7 @@ insert into Portfolio.PrincipalPortfolio(
         , Dependencies.Duration dur
     where (dur.IsProlongation = 0 and dur.Value in (3,4,5)) or (dur.IsProlongation = 1 and dur.Value = 1) ;
 
-ALTER INDEX IX_PrincipalPortfolio_AvailabilityId ON Portfolio.PrincipalPortfolio REBUILD;  
-
-GO
-
-ALTER INDEX IX_PrincipalPortfolio_DurationId ON Portfolio.PrincipalPortfolio REBUILD;  
-
-GO
-
-ALTER INDEX IX_PrincipalPortfolio_ReactionTimeId ON Portfolio.PrincipalPortfolio REBUILD;  
-
-GO
-
-ALTER INDEX IX_PrincipalPortfolio_ReactionTypeId ON Portfolio.PrincipalPortfolio REBUILD;  
-
-GO
-
-ALTER INDEX IX_PrincipalPortfolio_ServiceLocationId ON Portfolio.PrincipalPortfolio REBUILD;  
-
-GO
-
-ALTER INDEX IX_PrincipalPortfolio_WgId ON Portfolio.PrincipalPortfolio REBUILD;  
-
-GO
-
-ALTER INDEX IX_PrincipalPortfolio_ProActiveSlaId    ON Portfolio.PrincipalPortfolio REBUILD;  
+ALTER INDEX IX_PrincipalPortfolio_SLA ON Portfolio.PrincipalPortfolio REBUILD;  
 GO
 
 -- Enable all table constraints

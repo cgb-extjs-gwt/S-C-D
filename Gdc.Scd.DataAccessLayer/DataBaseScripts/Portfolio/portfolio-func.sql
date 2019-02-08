@@ -1,3 +1,25 @@
+DROP INDEX IX_PrincipalPortfolio_AvailabilityId    ON Portfolio.PrincipalPortfolio;  
+DROP INDEX IX_PrincipalPortfolio_DurationId        ON Portfolio.PrincipalPortfolio;  
+DROP INDEX IX_PrincipalPortfolio_ReactionTimeId    ON Portfolio.PrincipalPortfolio;  
+DROP INDEX IX_PrincipalPortfolio_ReactionTypeId    ON Portfolio.PrincipalPortfolio;  
+DROP INDEX IX_PrincipalPortfolio_ServiceLocationId ON Portfolio.PrincipalPortfolio;  
+DROP INDEX IX_PrincipalPortfolio_WgId              ON Portfolio.PrincipalPortfolio;  
+DROP INDEX IX_PrincipalPortfolio_ProActiveSlaId    ON Portfolio.PrincipalPortfolio;  
+go
+
+CREATE NONCLUSTERED INDEX [IX_PrincipalPortfolio_SLA] ON [Portfolio].[PrincipalPortfolio]
+(
+    [AvailabilityId] ASC,
+    [DurationId] ASC,
+    [ProActiveSlaId] ASC,
+    [ReactionTimeId] ASC,
+    [ReactionTypeId] ASC,
+    [ServiceLocationId] ASC,
+    [WgId] ASC
+)
+INCLUDE ( 	[Id]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
 IF OBJECT_ID('Portfolio.AllowPrincipalPortfolio') IS NOT NULL
   DROP PROCEDURE Portfolio.AllowPrincipalPortfolio;
 go
