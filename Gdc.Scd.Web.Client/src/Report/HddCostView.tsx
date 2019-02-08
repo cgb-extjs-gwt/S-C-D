@@ -1,55 +1,45 @@
-﻿import { Button, Column, Container, Grid, NumberColumn, Panel, Toolbar } from "@extjs/ext-react";
+﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
-import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
-import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
-import { Country } from "../Dict/Model/Country";
-import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { emptyRenderer, IRenderer, localMoneyRendererFactory, localToEuroMoneyRendererFactory, percentRenderer, yearRenderer } from "./Components/GridRenderer";
-import { HwCostFilter } from "./Components/HwCostFilter";
-import { HwReleasePanel } from "./Components/HwReleasePanel";
-import { CurrencyType } from "./Model/CurrencyType";
-import { HwCostFilterModel } from "./Model/HwCostFilterModel";
-import { ExportService } from "./Services/ExportService";
-
-const localMoneyRenderer = localMoneyRendererFactory('Currency');
-const euroMoneyRenderer = localToEuroMoneyRendererFactory('ExchangeRate');
+import { emptyRenderer, moneyRenderer, percentRenderer } from "./Components/GridRenderer";
+import { HddCostFilter } from "./Components/HddCostFilter";
+import { HddCostFilterModel } from "./Model/HddCostFilterModel";
 
 export class HddCostView extends React.Component<CalcCostProps, any> {
 
     private grid: Grid & any;
 
-    private filter: HwCostFilter;
+    private filter: HddCostFilter;
 
     private store = Ext.create('Ext.data.Store', {
 
         fields: [
-            'WgId', 'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail',
+            'wgId', 'listPrice', 'dealerDiscount', 'changeUserName', 'changeUserEmail',
             {
-                name: 'DealerPriceCalc',
+                name: 'dealerPriceCalc',
                 calculate: function (d) {
                     let result: any;
-                    if (d && d.ListPrice) {
-                        result = d.ListPrice;
-                        if (d.DealerDiscount) {
-                            result = result - (result * d.DealerDiscount / 100);
+                    if (d && d.listPrice) {
+                        result = d.listPrice;
+                        if (d.dealerDiscount) {
+                            result = result - (result * d.dealerDiscount / 100);
                         }
                     }
                     return result;
                 }
             },
             {
-                name: 'ChangeUserCalc',
+                name: 'changeUserCalc',
                 calculate: function (d) {
                     let result: string = '';
                     if (d) {
-                        if (d.ChangeUserName) {
-                            result += d.ChangeUserName;
+                        if (d.changeUserName) {
+                            result += d.changeUserName;
                         }
-                        if (d.ChangeUserEmail) {
-                            result += '[' + d.ChangeUserEmail + ']';
+                        if (d.changeUserEmail) {
+                            result += '[' + d.changeUserEmail + ']';
                         }
                     }
                     return result;
@@ -72,12 +62,12 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                 totalProperty: 'total'
             }
         },
-        //listeners: {
-        //    update: () => {
-        //        const changed = this.store.getUpdatedRecords().length;
-        //        this.toggleToolbar(changed == 0);
-        //    }
-        //}
+        listeners: {
+            update: () => {
+                const changed = this.store.getUpdatedRecords().length;
+                this.toggleToolbar(changed == 0);
+            }
+        }
     });
 
     public state = {
@@ -95,33 +85,18 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
 
     public render() {
 
-        let canEdit: boolean = false;
-        let moneyRndr: IRenderer = euroMoneyRenderer;
-
-        //if (this.state.showInLocalCurrency) {
-
-        //    //allow manual edit in LOCAL CURRENCY mode only for well view!!!
-
-        //    canEditTC = this.canEditTC();
-        //    canEditListPrice = this.canEditListPrice();
-        //    //
-        //    moneyRndr = localMoneyRenderer;
-        //}
-        //else {
-        //    moneyRndr = euroMoneyRenderer;
-        //}
+        let canEdit: boolean = this.canEdit();
 
         return (
             <Container layout="fit">
+
+                <HddCostFilter ref={x => this.filter = x} docked="right" onSearch={this.onSearch} onDownload={this.onDownload} scrollable={true} />
 
                 <Grid
                     ref={x => this.grid = x}
                     store={this.store}
                     width="100%"
                     platformConfig={this.pluginConf()}
-
-                    defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}
-
                 >
 
                     { /*dependencies*/}
@@ -146,7 +121,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                         text="Resulting costs"
                         dataIndex=""
                         cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
 
                         <NumberColumn text="HDD retention" dataIndex="hddRetention" />
 
@@ -155,26 +130,57 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Dealer discount in %" dataIndex="dealerDiscount" editable={canEdit} renderer={percentRenderer} />
                         <NumberColumn text="Dealer price" dataIndex="dealerPriceCalc" />
 
-                        <Column flex="2" minWidth="250" text="Change user" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
+                        <Column flex="2" minWidth="250" text="Change user" dataIndex="changeUserCalc" renderer={emptyRenderer} />
 
                     </Column>
 
                 </Grid>
+
+                {this.toolbar()}
 
             </Container>
         );
     }
 
     private init() {
-        //this.onSearch = this.onSearch.bind(this);
-        //this.onFilterChange = this.onFilterChange.bind(this);
-        //this.onDownload = this.onDownload.bind(this);
-        //this.cancelChanges = this.cancelChanges.bind(this);
-        //this.saveRecords = this.saveRecords.bind(this);
-        //this.releaseCosts = this.releaseCosts.bind(this);
-
+        this.onSearch = this.onSearch.bind(this);
+        this.onDownload = this.onDownload.bind(this);
+        this.cancelChanges = this.cancelChanges.bind(this);
+        this.saveRecords = this.saveRecords.bind(this);
+        //
         this.store.on('beforeload', this.onBeforeLoad, this);
-        this.store.on('datachanged', this.ondDataChanged, this);
+    }
+
+    private canEdit(): boolean {
+        return this.approved();
+    }
+
+    private cancelChanges() {
+        this.store.rejectChanges();
+        this.toggleToolbar(true);
+    }
+
+    private toolbar() {
+        if (this.canEdit()) {
+            return <Toolbar docked="top">
+                <Button
+                    text="Cancel"
+                    iconCls="x-fa fa-trash"
+                    handler={this.cancelChanges}
+                    disabled={this.state.disableCancelButton}
+                />
+                <Button
+                    text="Save"
+                    iconCls="x-fa fa-save"
+                    handler={this.saveRecords}
+                    disabled={this.state.disableSaveButton}
+                />
+            </Toolbar>;
+        }
+    }
+
+    private toggleToolbar(disable: boolean) {
+        this.setState({ disableSaveButton: disable, disableCancelButton: disable });
     }
 
     private pluginConf(): any {
@@ -195,14 +201,12 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
             cfg['!desktop'].plugins.grideditable = true;
             const desktop = cfg['desktop'];
             desktop.plugins.gridcellediting = true;
-            desktop.plugins.selectionreplicator = true;
             desktop.selectable = {
                 cells: true,
                 rows: true,
                 columns: false,
                 drag: true,
-                extensible: 'y',
-                checkbox: true
+                extensible: 'y'
             };
         }
 
@@ -217,24 +221,37 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
         this.store.load();
     }
 
+    private onSearch(filter: HddCostFilterModel) {
+        this.reload();
+    }
+
+    private onDownload(filter: HddCostFilterModel & any) {
+        console.log('onDownload()', filter);
+        //filter = filter || {};
+        //filter.local = filter.currency;
+        //ExportService.Download('HW-CALC-RESULT', this.props.approved, filter);
+    }
+
     private onBeforeLoad(s, operation) {
         this.reset();
         //
-        //let filter = this.filter.getModel() as any;
-        //filter.approved = this.props.approved;
-        //let params = Ext.apply({}, operation.getParams(), filter);
-        //operation.setParams(params);
+        let filter = this.filter.getModel() as any;
+        filter.approved = this.props.approved;
+        let params = Ext.apply({}, operation.getParams(), filter);
+        operation.setParams(params);
     }
 
-    private ondDataChanged(s, operation) {
-        //const srv = new UserCountryService();
-        //let cntId = 0;
-        //if (this.state && this.state.selectedCountry) {
-        //    cntId = this.state.selectedCountry.id;
-        //    srv.isCountryUser(cntId).then(x => {
-        //        this.setState({ hideReleaseButton: !this.props.approved || !x || !this.state.disableSaveButton })
-        //    });
-        //}
+    private saveRecords() {
+        let recs = this.store.getModifiedRecords().map(x => x.getData());
+
+        if (recs) {
+            let me = this;
+            let p = post('hdd', 'savecost', recs).then(() => {
+                me.reset();
+                me.reload();
+            });
+            handleRequest(p);
+        }
     }
 
     private reset() {

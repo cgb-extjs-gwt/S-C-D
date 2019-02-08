@@ -43,5 +43,18 @@ namespace Gdc.Scd.Web.Server.Controllers
                 throw this.NotFoundException();
             }*/
         }
+
+        [HttpPost]
+        public void SaveCost([FromBody]HddRetentionDto[] items)
+        {
+            if (true)
+            {
+                hdd.SaveCost(this.CurrentUser(), items);
+            }
+            else
+            {
+                throw this.NotFoundException();
+            }
+        }
     }
 }

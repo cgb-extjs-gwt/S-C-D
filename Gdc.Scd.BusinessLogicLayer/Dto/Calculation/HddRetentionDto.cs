@@ -16,7 +16,7 @@
 
         public double? DealerPrice { get; private set; }
 
-        public string ChangeUser { get; set; }
+        public string ChangeUserName { get; set; }
 
         public string ChangeUserEmail { get; set; }
     }
