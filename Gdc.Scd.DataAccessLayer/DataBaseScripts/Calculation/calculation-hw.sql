@@ -200,6 +200,10 @@ IF OBJECT_ID('Hardware.CalcFieldServiceCost') IS NOT NULL
   DROP FUNCTION Hardware.CalcFieldServiceCost;
 go 
 
+IF OBJECT_ID('Hardware.CalcHddRetention') IS NOT NULL
+  DROP FUNCTION Hardware.CalcHddRetention;
+go 
+
 IF OBJECT_ID('Hardware.CalcMaterialCost') IS NOT NULL
   DROP FUNCTION Hardware.CalcMaterialCost;
 go 
@@ -425,19 +429,19 @@ AS BEGIN
                 )
     select   r.Wg
 
-           , max(case when d.IsProlongation = 0 and d.Value = 1  then ReinsuranceFlatfee end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 2  then ReinsuranceFlatfee end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 3  then ReinsuranceFlatfee end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 4  then ReinsuranceFlatfee end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 5  then ReinsuranceFlatfee end) 
-           , max(case when d.IsProlongation = 1 and d.Value = 1  then ReinsuranceFlatfee end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 1  then ReinsuranceFlatfee end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 2  then ReinsuranceFlatfee end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 3  then ReinsuranceFlatfee end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 4  then ReinsuranceFlatfee end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 5  then ReinsuranceFlatfee end) 
+           , max(case when y.IsProlongation = 1 and y.Value = 1  then ReinsuranceFlatfee end) 
 
-           , max(case when d.IsProlongation = 0 and d.Value = 1  then ReinsuranceFlatfee_Approved end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 2  then ReinsuranceFlatfee_Approved end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 3  then ReinsuranceFlatfee_Approved end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 4  then ReinsuranceFlatfee_Approved end) 
-           , max(case when d.IsProlongation = 0 and d.Value = 5  then ReinsuranceFlatfee_Approved end) 
-           , max(case when d.IsProlongation = 1 and d.Value = 1  then ReinsuranceFlatfee_Approved end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 1  then ReinsuranceFlatfee_Approved end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 2  then ReinsuranceFlatfee_Approved end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 3  then ReinsuranceFlatfee_Approved end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 4  then ReinsuranceFlatfee_Approved end) 
+           , max(case when y.IsProlongation = 0 and y.Value = 5  then ReinsuranceFlatfee_Approved end) 
+           , max(case when y.IsProlongation = 1 and y.Value = 1  then ReinsuranceFlatfee_Approved end) 
 
            , max(case when r.ReactionTimeAvailability = @NBD_9x5 then r.ReinsuranceUpliftFactor end) 
            , max(case when r.ReactionTimeAvailability = @4h_9x5  then r.ReinsuranceUpliftFactor end) 
@@ -448,7 +452,7 @@ AS BEGIN
            , max(case when r.ReactionTimeAvailability = @4h_24x7 then r.ReinsuranceUpliftFactor_Approved end) 
 
     from Hardware.Reinsurance r
-    join Dependencies.Duration d on d.Id = r.Duration
+    join Dependencies.Year y on y.Id = r.Year
 
     where r.ReactionTimeAvailability in (@NBD_9x5, @4h_9x5, @4h_24x7) 
       and r.DeactivatedDateTime is null
@@ -771,6 +775,14 @@ BEGIN
                    (1 - @timeAndMaterialShare) * (@travelCost + @labourCost + @performanceRate) + 
                    @timeAndMaterialShare * ((@travelTime + @repairTime) * @onsiteHourlyRate + @performanceRate)
                 );
+END
+GO
+
+CREATE FUNCTION [Hardware].[CalcHddRetention](@cost float, @fr float)
+RETURNS float
+AS
+BEGIN
+    RETURN @cost * @fr;
 END
 GO
 
@@ -1155,30 +1167,35 @@ IF OBJECT_ID('Hardware.HddRetentionUpdated', 'TR') IS NOT NULL
   DROP TRIGGER Hardware.HddRetentionUpdated;
 go
 
-CREATE TRIGGER [Hardware].[HddRetentionUpdated]
-ON [Hardware].[HddRetention]
+CREATE TRIGGER Hardware.HddRetentionUpdated
+ON Hardware.HddRetention
 After INSERT, UPDATE
 AS BEGIN
 
-    SET NOCOUNT ON;
-
     with cte as (
-        select    h.Wg
-                , sum(h.HddMaterialCost * h.HddFr / 100) as hddRet
-                , sum(h.HddMaterialCost_Approved * h.HddFr_Approved / 100) as hddRet_Approved
+        select    h.Id
+                , h.Wg
+                , h.HddMaterialCost * h.HddFr / 100 as hddRetPerYear
+                , h.HddMaterialCost_Approved * h.HddFr_Approved / 100 as hddRetPerYear_Approved
+                , y.IsProlongation
+                , y.Value
         from Hardware.HddRetention h
-        where h.Year in (select id from Dependencies.Year where IsProlongation = 0 and Value <= 5 )
-        group by h.Wg
+        join Dependencies.Year y on y.Id = h.Year
+    )
+    , cte2 as (
+        select *
+        from cte c
+            cross apply(select sum(c2.hddRetPerYear) as HddRet, 
+                               sum(c2.hddRetPerYear_Approved) as HddRet_Approved
+                            from cte as c2
+                            where c2.Wg = c.Wg and c2.IsProlongation = c.IsProlongation and c2.Value <= c.Value) ca
     )
     update h
         set h.HddRet = c.HddRet, HddRet_Approved = c.HddRet_Approved
     from Hardware.HddRetention h
-    join cte c on c.Wg = h.Wg
+    join cte2 c on c.Id = h.Id
 
 END
-go
-
-update Hardware.HddRetention set HddFr = HddFr + 0;
 go
 
 CREATE VIEW [Hardware].[FieldServiceCostView] AS
@@ -1361,7 +1378,7 @@ GO
 
 CREATE VIEW [Hardware].[ReinsuranceView] as
     SELECT r.Wg, 
-           r.Duration,
+           r.Year,
            rta.AvailabilityId, 
            rta.ReactionTimeId,
 
@@ -1803,7 +1820,7 @@ RETURN
 
     LEFT JOIN Hardware.MaterialCostOowCalc mco on mco.Wg = m.WgId AND mco.Country = m.CountryId
 
-    LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Duration = m.DurationId AND r.AvailabilityId = m.AvailabilityId AND r.ReactionTimeId = m.ReactionTimeId
+    LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Year = m.DurationId AND r.AvailabilityId = m.AvailabilityId AND r.ReactionTimeId = m.ReactionTimeId
 
     LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId AND fsc.ReactionTypeId = m.ReactionTypeId AND fsc.ReactionTimeId = m.ReactionTimeId
 
