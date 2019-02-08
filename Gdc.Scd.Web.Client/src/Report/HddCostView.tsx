@@ -2,14 +2,13 @@
 import * as React from "react";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
+import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { emptyRenderer, moneyRenderer, percentRenderer } from "./Components/GridRenderer";
 import { HddCostFilter } from "./Components/HddCostFilter";
 import { HddCostFilterModel } from "./Model/HddCostFilterModel";
 
 export class HddCostView extends React.Component<CalcCostProps, any> {
-
-    private grid: Grid & any;
 
     private filter: HddCostFilter;
 
@@ -58,7 +57,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
             reader: {
                 type: 'json',
                 rootProperty: 'items',
-                idProperty: "WgId",
+                idProperty: "wgId",
                 totalProperty: 'total'
             }
         },
@@ -73,9 +72,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
     public state = {
         disableSaveButton: true,
         disableCancelButton: true,
-        selectedCountry: null,
-        showInLocalCurrency: true,
-        hideReleaseButton: true
+        isAdmin: false
     };
 
     public constructor(props: CalcCostProps) {
@@ -83,9 +80,14 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
         this.init();
     }
 
+    public componentDidMount() {
+        new UserCountryService().isAdminUser().then(x => this.setState({ isAdmin: x }));
+    }
+
     public render() {
 
         let canEdit: boolean = this.canEdit();
+        let isAdmin: boolean = this.state.isAdmin;
 
         return (
             <Container layout="fit">
@@ -93,7 +95,6 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                 <HddCostFilter ref={x => this.filter = x} docked="right" onSearch={this.onSearch} onDownload={this.onDownload} scrollable={true} />
 
                 <Grid
-                    ref={x => this.grid = x}
                     store={this.store}
                     width="100%"
                     platformConfig={this.pluginConf()}
@@ -109,7 +110,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-green"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <Column text="WG(Asset)" dataIndex="Wg" />
+                        <Column text="WG(Asset)" dataIndex="wg" />
 
                     </Column>
 
@@ -123,7 +124,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-blue"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
 
-                        <NumberColumn text="HDD retention" dataIndex="hddRetention" />
+                        <NumberColumn text="HDD retention" dataIndex="hddRetention" hidden={!isAdmin} />
 
                         <NumberColumn text="Transfer price" dataIndex="transferPrice" editable={canEdit} />
                         <NumberColumn text="List price" dataIndex="listPrice" editable={canEdit} />
@@ -152,12 +153,85 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
     }
 
     private canEdit(): boolean {
-        return this.approved();
+        return this.props.approved && this.state.isAdmin;
     }
 
     private cancelChanges() {
         this.store.rejectChanges();
         this.toggleToolbar(true);
+    }
+
+    private onSearch(filter: HddCostFilterModel) {
+        this.reload();
+    }
+
+    private onDownload(filter: HddCostFilterModel & any) {
+        console.log('onDownload()', filter);
+        //filter = filter || {};
+        //filter.local = filter.currency;
+        //ExportService.Download('HW-CALC-RESULT', this.props.approved, filter);
+    }
+
+    private onBeforeLoad(s, operation) {
+        this.reset();
+        //
+        let filter = this.filter.getModel() as any;
+        filter.approved = this.props.approved;
+        let params = Ext.apply({}, operation.getParams(), filter);
+        operation.setParams(params);
+    }
+
+    private pluginConf(): any {
+        let cfg: any = {
+            'desktop': {
+                plugins: {
+                    gridpagingtoolbar: true
+                }
+            },
+            '!desktop': {
+                plugins: {
+                    gridpagingtoolbar: true
+                }
+            }
+        };
+
+        if (this.canEdit()) {
+            cfg['!desktop'].plugins.grideditable = true;
+            const desktop = cfg['desktop'];
+            desktop.plugins.gridcellediting = true;
+            desktop.selectable = {
+                cells: true,
+                rows: true,
+                columns: false,
+                drag: true,
+                extensible: 'y'
+            };
+        }
+
+        return cfg;
+    }
+
+    private reload() {
+        this.store.load();
+    }
+
+    private reset() {
+        this.setState({
+            disableCancelButton: true,
+            disableSaveButton: true
+        });
+    }
+
+    private saveRecords() {
+        let recs = this.store.getModifiedRecords().map(x => x.getData());
+
+        if (recs) {
+            let p = post('hdd', 'savecost', recs).then(() => {
+                this.reset();
+                this.reload();
+            });
+            handleRequest(p);
+        }
     }
 
     private toolbar() {
@@ -181,84 +255,5 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
 
     private toggleToolbar(disable: boolean) {
         this.setState({ disableSaveButton: disable, disableCancelButton: disable });
-    }
-
-    private pluginConf(): any {
-        let cfg: any = {
-            'desktop': {
-                plugins: {
-                    gridpagingtoolbar: true
-                }
-            },
-            '!desktop': {
-                plugins: {
-                    gridpagingtoolbar: true
-                }
-            }
-        };
-
-        if (this.approved()) {
-            cfg['!desktop'].plugins.grideditable = true;
-            const desktop = cfg['desktop'];
-            desktop.plugins.gridcellediting = true;
-            desktop.selectable = {
-                cells: true,
-                rows: true,
-                columns: false,
-                drag: true,
-                extensible: 'y'
-            };
-        }
-
-        return cfg;
-    }
-
-    private approved() {
-        return this.props.approved;
-    }
-
-    private reload() {
-        this.store.load();
-    }
-
-    private onSearch(filter: HddCostFilterModel) {
-        this.reload();
-    }
-
-    private onDownload(filter: HddCostFilterModel & any) {
-        console.log('onDownload()', filter);
-        //filter = filter || {};
-        //filter.local = filter.currency;
-        //ExportService.Download('HW-CALC-RESULT', this.props.approved, filter);
-    }
-
-    private onBeforeLoad(s, operation) {
-        this.reset();
-        //
-        let filter = this.filter.getModel() as any;
-        filter.approved = this.props.approved;
-        let params = Ext.apply({}, operation.getParams(), filter);
-        operation.setParams(params);
-    }
-
-    private saveRecords() {
-        let recs = this.store.getModifiedRecords().map(x => x.getData());
-
-        if (recs) {
-            let me = this;
-            let p = post('hdd', 'savecost', recs).then(() => {
-                me.reset();
-                me.reload();
-            });
-            handleRequest(p);
-        }
-    }
-
-    private reset() {
-        this.setState({
-            disableCancelButton: true,
-            disableSaveButton: true,
-            //selectedCountry: this.filter.getCountry()
-        });
     }
 }

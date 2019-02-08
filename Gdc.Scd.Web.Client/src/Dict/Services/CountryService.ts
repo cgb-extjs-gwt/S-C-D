@@ -12,6 +12,6 @@ export class CountryService extends CacheDomainService<Country> {
     }
 
     public iso(): Promise<string[]> {
-        return this.getFromUrl<string>('iso');
+        return this.getFromUrlAll<string>('iso');
     }
 }

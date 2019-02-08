@@ -20,28 +20,21 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         [HttpGet]
         public Task<DataInfo<HddRetentionDto>> GetCost(
-                [FromUri]object filter,
+                [FromUri]HddFilterDto filter,
                 [FromUri]bool approved = true,
                 [FromUri]int start = 0,
                 [FromUri]int limit = 50
             )
         {
-            return hdd.GetCost(approved, null, start, limit).ContinueWith(x => new DataInfo<HddRetentionDto> { Items = x.Result.items, Total = x.Result.total });
-
-
-            /*
-            if (filter != null &&
-                filter.Country > 0 &&
-                IsRangeValid(start, limit) &&
-                HasAccess(approved, filter.Country))
+            if (IsRangeValid(start, limit))
             {
-                return calcSrv.GetHardwareCost(approved, filter, start, limit)
-                              .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
+                return hdd.GetCost(this.CurrentUser(), approved, filter, start, limit)
+                          .ContinueWith(x => new DataInfo<HddRetentionDto> { Items = x.Result.items, Total = x.Result.total });
             }
             else
             {
                 throw this.NotFoundException();
-            }*/
+            }
         }
 
         [HttpPost]
@@ -55,6 +48,11 @@ namespace Gdc.Scd.Web.Server.Controllers
             {
                 throw this.NotFoundException();
             }
+        }
+
+        private bool IsRangeValid(int start, int limit)
+        {
+            return start >= 0 && limit <= 100;
         }
     }
 }

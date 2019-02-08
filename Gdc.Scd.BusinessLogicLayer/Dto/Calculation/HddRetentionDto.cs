@@ -14,7 +14,7 @@
 
         public double? DealerDiscount { get; set; }
 
-        public double? DealerPrice { get; private set; }
+        public double? DealerPrice { get; set; }
 
         public string ChangeUserName { get; set; }
 
