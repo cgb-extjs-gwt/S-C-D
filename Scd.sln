@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+VisualStudioVersion = 15.0.27004.2006
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gdc.Scd.DataAccessLayer", "Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj", "{8903EA84-F24A-4EF5-8CBA-6AAF1139D07D}"
 EndProject
@@ -55,6 +55,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Import.CentralContractGroup", "Gdc.Scd.Import.CentralContractGroup\Gdc.Scd.Import.CentralContractGroup.csproj", "{72E3DBA1-B2C5-4A32-A41D-54D84624400E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Tests.BusinessLogicLayer", "Gdc.Scd.Tests.BusinessLogicLayer\Gdc.Scd.Tests.BusinessLogicLayer.csproj", "{28974CF0-7147-43FB-9978-2FA104EDBAD9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.MigrationTool", "Gdc.Scd.MigrationTool\Gdc.Scd.MigrationTool.csproj", "{D9A9C773-1E12-43C2-A665-711277962C00}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -150,6 +152,10 @@ Global
 		{28974CF0-7147-43FB-9978-2FA104EDBAD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28974CF0-7147-43FB-9978-2FA104EDBAD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28974CF0-7147-43FB-9978-2FA104EDBAD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9A9C773-1E12-43C2-A665-711277962C00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9A9C773-1E12-43C2-A665-711277962C00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9A9C773-1E12-43C2-A665-711277962C00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9A9C773-1E12-43C2-A665-711277962C00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
