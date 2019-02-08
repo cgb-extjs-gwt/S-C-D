@@ -3,7 +3,7 @@ import * as React from "react";
 import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
-import { buildComponentUrl, buildMvcUrl } from "../Common/Services/Ajax";
+import { buildComponentUrl, buildMvcUrl, post } from "../Common/Services/Ajax";
 import { FilterPanel } from "./Components/FilterPanel";
 import { NullStringColumn } from "./Components/NullStringColumn";
 import { ReadonlyCheckColumn } from "./Components/ReadonlyCheckColumn";
@@ -33,12 +33,16 @@ export class PortfolioView extends React.Component<any, any> {
             api: {
                 read: buildMvcUrl('portfolio', 'allowed')
             },
+            actionMethods: {
+                read: 'POST'
+            },
             reader: {
                 type: 'json',
                 keepRawData: true,
                 rootProperty: 'items',
                 totalProperty: 'total'             
-            }
+            },
+            paramsAsJson: true
         }
     });
 
@@ -122,8 +126,8 @@ export class PortfolioView extends React.Component<any, any> {
 
     private onBeforeLoad(s, operation) {
         let filter = this.filter.getModel();
-        let params = Ext.apply({}, operation.getParams(), filter);
-        operation.setParams(params);
+        let params = operation.getParams();
+        operation.setParams(filter);
     }
 
     private denyCombination(ids: string[]) {

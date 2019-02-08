@@ -26,21 +26,18 @@ namespace Gdc.Scd.Web.Api.Controllers
             this.userCountrySrv = userCountrySrv;
         }
 
-        [HttpGet]
+        [HttpPost]
         public Task<HttpResponseMessage> GetHwCost(
-                [FromUri]HwFilterDto filter,
-                [FromUri]bool approved = true,
-                [FromUri]int start = 0,
-                [FromUri]int limit = 50
+                [FromBody]HwFilterDto filter
             )
         {
             if (filter != null &&
                 filter.Country != null &&
                 filter.Country.Length > 0 &&
-                IsRangeValid(start, limit) &&
-                HasAccess(approved, filter.Country))
+                IsRangeValid(filter.Start, filter.Limit) &&
+                HasAccess(filter.Approved, filter.Country))
             {
-                return calcSrv.GetHardwareCost(approved, filter, start, limit)
+                return calcSrv.GetHardwareCost(filter.Approved, filter, filter.Start, filter.Limit)
                               .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
             }
             else
@@ -49,17 +46,14 @@ namespace Gdc.Scd.Web.Api.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         public Task<HttpResponseMessage> GetSwCost(
-                [FromUri]SwFilterDto filter,
-                [FromUri]bool approved = true,
-                [FromUri]int start = 0,
-                [FromUri]int limit = 50
+                [FromBody]SwFilterDto filter
             )
         {
-            if (IsRangeValid(start, limit))
+            if (IsRangeValid(filter.Start, filter.Limit))
             {
-                return calcSrv.GetSoftwareCost(approved, filter, start, limit)
+                return calcSrv.GetSoftwareCost(filter.Approved, filter, filter.Start, filter.Limit)
                               .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
             }
             else
@@ -70,19 +64,16 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         [HttpGet]
         public Task<HttpResponseMessage> GetSwProactiveCost(
-               [FromUri]SwFilterDto filter,
-               [FromUri]bool approved = true,
-               [FromUri]int start = 0,
-               [FromUri]int limit = 50
+               [FromUri]SwFilterDto filter
            )
         {
             if (filter != null &&
                 filter.Country != null &&
                 filter.Country.Length > 0 &&
-                IsRangeValid(start, limit) &&
-                HasAccess(approved, filter.Country))
+                IsRangeValid(filter.Start, filter.Limit) &&
+                HasAccess(filter.Approved, filter.Country))
             {
-                return calcSrv.GetSoftwareProactiveCost(approved, filter, start, limit)
+                return calcSrv.GetSoftwareProactiveCost(filter.Approved, filter, filter.Start, filter.Limit)
                               .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
             }
             else
@@ -145,6 +136,11 @@ namespace Gdc.Scd.Web.Api.Controllers
             return hasAccess;
         }
 
+        private bool HasAccess(long countryIds)
+        {
+            return userCountrySrv.HasCountryAccess(this.CurrentUser(), countryIds);
+        }
+
         private bool HasAccess(bool approved, long[] countryIds)
         {
             if (approved)
@@ -173,7 +169,7 @@ namespace Gdc.Scd.Web.Api.Controllers
 
     public class SaveCostManualDto
     {
-        public long[] CountryId { get; set; }
+        public long CountryId { get; set; }
 
         public HwCostDto[] Items { get; set; }
     }

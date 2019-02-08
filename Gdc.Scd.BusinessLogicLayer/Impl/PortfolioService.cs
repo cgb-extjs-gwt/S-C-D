@@ -45,7 +45,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public Task Deny(long[] countryId, long[] ids)
         {
-            return new UpdateLocalPortfolio(repositorySet).DenyAsync(countryId, ids);
+            return new UpdateLocalPortfolio(repositorySet).DenyAsync(ids);
         }
 
         public Task<(PortfolioDto[] items, int total)> GetAllowed(PortfolioFilterDto filter, int start, int limit)

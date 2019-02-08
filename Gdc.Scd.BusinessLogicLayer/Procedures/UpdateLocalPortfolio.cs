@@ -32,15 +32,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             return repositorySet.ExecuteProcAsync(proc, Prepare(dto));
         }
 
-        public Task DenyAsync(long[] cnt, long[] ids)
+        public Task DenyAsync(long[] ids)
         {
-            return repositorySet.ExecuteProcAsync(PROC_DENY_PORTFOLIO_BY_ID, Prepare(cnt, ids));
+            return repositorySet.ExecuteProcAsync(PROC_DENY_PORTFOLIO_BY_ID, Prepare(ids));
         }
 
-        private DbParameter[] Prepare(long[] cnt, long[] ids)
+        private DbParameter[] Prepare(long[] ids)
         {
             return new DbParameter[] {
-                new DbParameterBuilder().WithName("@cnt").WithListIdValue(cnt).Build(),
                 new DbParameterBuilder().WithName("@ids").WithListIdValue(ids).Build()
             };
         }

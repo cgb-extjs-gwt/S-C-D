@@ -1,16 +1,6 @@
 ﻿import { Button, Container, Panel, PanelProps, RadioField } from "@extjs/ext-react";
 import * as React from "react";
 import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
-import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
-import { CountryField } from "../../Dict/Components/CountryField";
-import { DictField } from "../../Dict/Components/DictField";
-import { DurationField } from "../../Dict/Components/DurationField";
-import { ProActiveField } from "../../Dict/Components/ProActiveField";
-import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
-import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
-import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
-import { StandardWgField } from "../../Dict/Components/StandardWgField";
-import { UserCountryField } from "../../Dict/Components/UserCountryField";
 import { Country } from "../../Dict/Model/Country";
 import { CurrencyType } from "../Model/CurrencyType";
 import { HwCostFilterModel } from "../Model/HwCostFilterModel";
@@ -79,10 +69,10 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         };
 
         if (this.props.checkAccess) {
-            countryField = <MultiSelect ref={x => this.cnt = x} {...multiProps} store={this.dictSrv.getUserCountryNames} onselect={this.onCountryChange}/>
+            countryField = <MultiSelect ref={x => this.cnt = x} {...multiProps} selectable='single' store={this.dictSrv.getUserCountryNames} onselect={this.onCountryChange}/>
         }
         else {
-            countryField = <MultiSelect ref={x => this.cnt = x} {...multiProps} store={this.dictSrv.getMasterCountriesNames} onselect={this.onCountryChange}/>;
+            countryField = <MultiSelect ref={x => this.cnt = x} {...multiProps} selectable='single' store={this.dictSrv.getMasterCountriesNames} onselect={this.onCountryChange}/>;
         }
      
         return (
@@ -103,7 +93,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                     </Panel>
                     <Panel title='Asset(WG)'
                         {...panelProps}>
-                        <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getWG} />
+                        <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getStandardWg} />
                     </Panel>
                     <Panel title='Availability'
                         {...panelProps}>
@@ -136,32 +126,30 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                     <RadioField ref={x => this.euroCur = x} name="currency" boxLabel="Show in EUR" onCheck={this.onChange} />
                 </Container>
 
-                <Button text="Search" ui="action" minWidth="85px" margin="20px auto" disabled={!valid} handler={this.onSearch} />
+                <Button text="Search" ui="action" minWidth="85px" margin="5px 20px" disabled={!valid} handler={this.onSearch} />
 
-                <Button text="Download" ui="action" minWidth="85px" iconCls="x-fa fa-download" disabled={!valid} handler={this.onDownload} />
+                <Button text="Download" ui="action" minWidth="85px" margin="5px 20px" iconCls="x-fa fa-download" disabled={!valid} handler={this.onDownload} />
 
             </Panel>
         );
     }
 
     public getModel(): HwCostFilterModel {
-        let m = new HwCostFilterModel();
-
-        m.country = this.cnt.getSelectedKeys();
-        m.wg = this.wg.getSelectedKeys();
-        m.availability = this.av.getSelectedKeys();
-        m.duration = this.dur.getSelectedKeys();
-        m.reactionType = this.reacttype.getSelectedKeys();
-        m.reactionTime = this.reacttime.getSelectedKeys();
-        m.serviceLocation = this.srvloc.getSelectedKeys();
-        m.proActive = this.proactive.getSelectedKeys();
-        m.currency = this.getCurrency();
-
-        return m;
+        return {
+            country: this.cnt.getSelectedKeysOrNull(),
+            wg: this.wg.getSelectedKeysOrNull(),
+            availability: this.av.getSelectedKeysOrNull(),
+            duration: this.dur.getSelectedKeysOrNull(),
+            reactionType: this.reacttype.getSelectedKeysOrNull(),
+            reactionTime: this.reacttime.getSelectedKeysOrNull(),
+            serviceLocation: this.srvloc.getSelectedKeysOrNull(),
+            proActive: this.proactive.getSelectedKeysOrNull(),
+            currency: this.getCurrency()
+        }
     }
 
     public getCountry(): any {
-        return this.cnt.getSelectedKeys();
+        return this.cnt.getSelected()[0];
     }
 
     private init() {

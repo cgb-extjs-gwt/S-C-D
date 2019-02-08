@@ -1,11 +1,5 @@
 ﻿import { Button, Container, Panel, PanelProps } from "@extjs/ext-react";
 import * as React from "react";
-import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
-import { CountryField } from "../../Dict/Components/CountryField";
-import { DictField } from "../../Dict/Components/DictField";
-import { SwDigitField } from "../../Dict/Components/SwDigitField";
-import { UserCountryField } from "../../Dict/Components/UserCountryField";
-import { YearField } from "../../Dict/Components/YearField";
 import { SwCostFilterModel } from "../Model/SwCostFilterModel";
 import { NamedId } from "../../Common/States/CommonStates";
 import { DictFactory } from "../../Dict/Services/DictFactory";
@@ -98,9 +92,9 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
 
                 </Container>
 
-                <Button text="Search" ui="action" minWidth="85px" margin="20px auto" disabled={!valid} handler={this.onSearch} />
+                <Button text="Search" ui="action" minWidth="85px" margin="5px 20px" disabled={!valid} handler={this.onSearch} />
 
-                <Button text="Download" ui="action" minWidth="85px" iconCls="x-fa fa-download" disabled={!valid} handler={this.onDownload} />
+                <Button text="Download" ui="action" minWidth="85px" margin="5px 20px" iconCls="x-fa fa-download" disabled={!valid} handler={this.onDownload} />
 
             </Panel>
         );
@@ -108,10 +102,10 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
 
     public getModel(): SwCostFilterModel {
         return {
-            country: this.cnt.getSelectedKeys(),
-            digit: this.digit.getSelectedKeys(),
-            availability: this.av.getSelectedKeys(),
-            year: this.year.getSelectedKeys()
+            country: this.cnt.getSelectedKeysOrNull(),
+            digit: this.digit.getSelectedKeysOrNull(),
+            availability: this.av.getSelectedKeysOrNull(),
+            year: this.year.getSelectedKeysOrNull()
         };
     }
 

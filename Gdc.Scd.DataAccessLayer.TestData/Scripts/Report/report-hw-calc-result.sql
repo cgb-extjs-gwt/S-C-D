@@ -155,26 +155,44 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 ------------------------------------
 set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
+declare @filterTypeId bigint = 0
+
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 3, 'approved', 'Approved');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 3, 'local', 'Local currency');
+
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 15, 'country', 'Country');
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'country' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'country', 'Country');
+
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 4, 'wg', 'Asset(WG)');
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'wg' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'wg', 'Asset(WG)');
+
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 8, 'availability', 'Availability');
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'availability' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'availability', 'Availability');
+
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 8, 'duration', 'Duration');
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'duration' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'duration', 'Duration');
+
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 10, 'reactiontime', 'Reaction time');
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'reactiontime' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'reactiontime', 'Reaction time');
+
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 11, 'reactiontype', 'Reaction type');
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'reactiontype' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'reactiontype', 'Reaction type');
+
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 12, 'servicelocation', 'Service location');
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'servicelocation' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'servicelocation', 'Service location');
+
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 14, 'proactive', 'ProActive');
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'proactive' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'proactive', 'ProActive');
 
 
 

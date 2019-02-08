@@ -1,9 +1,6 @@
 ﻿import { Button, Container, Panel, PanelProps } from "@extjs/ext-react";
 import * as React from "react";
 import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
-import { DictField } from "../../Dict/Components/DictField";
-import { SwDigitField } from "../../Dict/Components/SwDigitField";
-import { YearField } from "../../Dict/Components/YearField";
 import { SwCostFilterModel } from "../Model/SwCostFilterModel";
 import { NamedId } from "../../Common/States/CommonStates";
 import { DictFactory } from "../../Dict/Services/DictFactory";
@@ -77,9 +74,9 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
 
                 </Container>
 
-                <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="20px auto" />
+                <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="5px 20px" />
 
-                <Button text="Download" ui="action" minWidth="85px" iconCls="x-fa fa-download" handler={this.onDownload} />
+                <Button text="Download" ui="action" minWidth="85px" iconCls="x-fa fa-download" handler={this.onDownload} margin="5px 20px"/>
 
             </Panel>
         );
@@ -87,9 +84,9 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
 
     public getModel(): SwCostFilterModel {
         return {
-            digit: this.digit.getSelectedKeys(),
-            availability: this.avail.getSelectedKeys(),
-            year: this.year.getSelectedKeys()
+            digit: this.digit.getSelectedKeysOrNull(),
+            availability: this.avail.getSelectedKeysOrNull(),
+            year: this.year.getSelectedKeysOrNull()
         }
     }
 

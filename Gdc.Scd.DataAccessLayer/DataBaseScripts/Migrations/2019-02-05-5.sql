@@ -1620,3 +1620,192 @@ RETURN (
     join InputAtoms.CountryView c on c.Id = m.CountryId
     LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTime = m.ReactionTimeId AND lc.ReactionType = m.ReactionTypeId
 )
+GO
+
+UPDATE [Report].[ReportFilterType] SET [MultiSelect] = 0 WHERE [Name]='wg' 
+UPDATE [Report].[ReportFilterType] SET [MultiSelect] = 0 WHERE [Name]='sog'
+UPDATE [Report].[ReportFilterType] SET [MultiSelect] = 0 WHERE [Name]='countrygroup'
+UPDATE [Report].[ReportFilterType] SET [MultiSelect] = 0 WHERE [Name]='country'
+UPDATE [Report].[ReportFilterType] SET [MultiSelect] = 0 WHERE [Name]='availability'
+UPDATE [Report].[ReportFilterType] SET [MultiSelect] = 0 WHERE [Name]='duration'
+UPDATE [Report].[ReportFilterType] SET [MultiSelect] = 0 WHERE [Name]='reactiontime'
+UPDATE [Report].[ReportFilterType] SET [MultiSelect] = 0 WHERE [Name]='reactiontype'
+UPDATE [Report].[ReportFilterType] SET [MultiSelect] = 0 WHERE [Name]='servicelocation'
+UPDATE [Report].[ReportFilterType] SET [MultiSelect] = 0 WHERE [Name]='year'
+UPDATE [Report].[ReportFilterType] SET [MultiSelect] = 0 WHERE [Name]='proactive'
+UPDATE [Report].[ReportFilterType] SET [MultiSelect] = 0 WHERE [Name]='usercountry'
+UPDATE [Report].[ReportFilterType] SET [MultiSelect] = 0 WHERE [Name]='swdigit'
+UPDATE [Report].[ReportFilterType] SET [MultiSelect] = 0 WHERE [Name]='wgall'
+UPDATE [Report].[ReportFilterType] SET [MultiSelect] = 0 WHERE [Name]='wgstandard'
+
+INSERT INTO [Report].[ReportFilterType] (Name, MultiSelect) VALUES('wg', 1)
+INSERT INTO [Report].[ReportFilterType] (Name, MultiSelect) VALUES('country', 1)
+INSERT INTO [Report].[ReportFilterType] (Name, MultiSelect) VALUES('availability', 1)
+INSERT INTO [Report].[ReportFilterType] (Name, MultiSelect) VALUES('duration', 1)
+INSERT INTO [Report].[ReportFilterType] (Name, MultiSelect) VALUES('reactiontime', 1)
+INSERT INTO [Report].[ReportFilterType] (Name, MultiSelect) VALUES('reactiontype', 1)
+INSERT INTO [Report].[ReportFilterType] (Name, MultiSelect) VALUES('servicelocation', 1)
+INSERT INTO [Report].[ReportFilterType] (Name, MultiSelect) VALUES('year', 1)
+INSERT INTO [Report].[ReportFilterType] (Name, MultiSelect) VALUES('proactive', 1)
+INSERT INTO [Report].[ReportFilterType] (Name, MultiSelect) VALUES('usercountry', 1)
+INSERT INTO [Report].[ReportFilterType] (Name, MultiSelect) VALUES('swdigit', 1)
+INSERT INTO [Report].[ReportFilterType] (Name, MultiSelect) VALUES('wgstandard', 1)
+
+declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'HW-CALC-RESULT')
+declare @index int = 0;
+delete from Report.ReportFilter where ReportId = @reportId;
+declare @filterTypeId bigint = 0
+
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 3, 'approved', 'Approved');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 3, 'local', 'Local currency');
+
+set @index = @index + 1;
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'country' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'country', 'Country');
+
+set @index = @index + 1;
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'wg' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'wg', 'Asset(WG)');
+
+set @index = @index + 1;
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'availability' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'availability', 'Availability');
+
+set @index = @index + 1;
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'duration' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'duration', 'Duration');
+
+set @index = @index + 1;
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'reactiontime' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'reactiontime', 'Reaction time');
+
+set @index = @index + 1;
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'reactiontype' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'reactiontype', 'Reaction type');
+
+set @index = @index + 1;
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'servicelocation' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'servicelocation', 'Service location');
+
+set @index = @index + 1;
+set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'proactive' and MultiSelect=1)
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'proactive', 'ProActive');
+
+
+set @reportId = (select Id from Report.Report where upper(Name) = 'SW-CALC-RESULT')
+set @index = 0;
+delete from Report.ReportFilter where ReportId = @reportId;
+
+
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 3, 'approved', 'Approved');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit' and MultiSelect=1), 'digit', 'SW digit');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'availability' and MultiSelect=1), 'availability', 'Availability');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'year' and MultiSelect=1), 'year', 'Year');
+
+set @reportId = (select Id from Report.Report where upper(Name) = 'SW-PROACTIVE-CALC-RESULT')
+set @index = 0;
+delete from Report.ReportFilter where ReportId = @reportId;
+
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 3, 'approved', 'Approved');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'country' and MultiSelect=1), 'Country', 'Country');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit' and MultiSelect=1), 'digit', 'SW digit');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'availability' and MultiSelect=1), 'availability', 'Availability');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'year' and MultiSelect=1), 'year', 'Service period');
+
+GO
+ALTER FUNCTION [Report].[HwCalcResult]
+(
+    @approved bit,
+    @local bit,
+    @country dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @availability dbo.ListID readonly,
+    @duration dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @servicelocation dbo.ListID readonly,
+    @proactive dbo.ListID readonly
+)
+RETURNS TABLE 
+AS
+RETURN (
+    with CurrencyCte as (
+        select   case when @local = 1 then cur.Name else 'EUR' end as Currency
+               , case when @local = 1 then er.Value else 1     end as Exchange
+        from [References].Currency cur
+        join [References].ExchangeRate er on er.CurrencyId = cur.Id
+        where cur.Id = (select CurrencyId from InputAtoms.Country where id  in (select id from @country))
+    )
+    select    Country
+            , case when @local = 1 then cur.Name else 'EUR' end as Currency
+
+            , Wg
+            , Availability
+            , Duration
+            , ReactionTime
+            , ReactionType
+            , ServiceLocation
+            , ProActiveSla
+
+            , StdWarranty
+
+            --Cost
+
+            , case when @local = 1 then AvailabilityFee * er.Value else AvailabilityFee end as AvailabilityFee 
+            , case when @local = 1 then HddRet * er.Value else HddRet end as HddRet
+            , case when @local = 1 then TaxAndDutiesW * er.Value else TaxAndDutiesW end as TaxAndDutiesW
+            , case when @local = 1 then TaxAndDutiesOow * er.Value else TaxAndDutiesOow end as TaxAndDutiesOow
+            , case when @local = 1 then Reinsurance * er.Value else Reinsurance end as Reinsurance
+            , case when @local = 1 then ProActive * er.Value else ProActive end as ProActive
+            , case when @local = 1 then ServiceSupportCost * er.Value else ServiceSupportCost end as ServiceSupportCost
+                                                          
+            , case when @local = 1 then MaterialW * er.Value else MaterialW end as MaterialW
+            , case when @local = 1 then MaterialOow * er.Value else MaterialOow end as MaterialOow
+            , case when @local = 1 then FieldServiceCost * er.Value else FieldServiceCost end as FieldServiceCost
+            , case when @local = 1 then Logistic * er.Value else Logistic end as Logistic
+            , case when @local = 1 then OtherDirect * er.Value else OtherDirect end as OtherDirect
+            , case when @local = 1 then LocalServiceStandardWarranty * er.Value else LocalServiceStandardWarranty end as LocalServiceStandardWarranty
+            , case when @local = 1 then Credits * er.Value else Credits end as Credits
+            , case when @local = 1 then ServiceTC * er.Value else ServiceTC end as ServiceTC
+            , case when @local = 1 then ServiceTP * er.Value else ServiceTP end as ServiceTP
+                                                          
+            , case when @local = 1 then ServiceTCManual * er.Value else ServiceTCManual end as ServiceTCManual
+            , case when @local = 1 then ServiceTPManual * er.Value else ServiceTPManual end as ServiceTPManual
+                                                          
+            , case when @local = 1 then ServiceTP_Released * er.Value else ServiceTP_Released end as ServiceTP_Released
+                                                          
+            , case when @local = 1 then ListPrice * er.Value else ListPrice end as ListPrice
+            , case when @local = 1 then DealerPrice * er.Value else DealerPrice end as DealerPrice
+            , DealerDiscount                               as DealerDiscount
+                                                           
+            , ChangeUserName + '[' + ChangeUserEmail + ']' as ChangeUser
+
+    from Hardware.GetCosts(@approved, @country, @wg, @availability, @duration, @reactiontime, @reactiontype, @servicelocation, @proactive, -1, -1)
+	join [References].Currency cur on cur.Id in (select CurrencyId from InputAtoms.Country where id in (select id from @country))
+	join [References].ExchangeRate er on er.CurrencyId = cur.Id
+)
+GO
+
+ALTER PROCEDURE [Portfolio].[DenyLocalPortfolioById]
+    @ids dbo.ListID readonly
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    DELETE FROM Portfolio.LocalPortfolio
+    WHERE (Id in (select Id from @ids));
+
+END
+GO

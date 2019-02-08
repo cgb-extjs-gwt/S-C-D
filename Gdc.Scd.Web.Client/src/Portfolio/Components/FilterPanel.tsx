@@ -1,16 +1,6 @@
 ﻿import { Button, CheckBoxField, Container, Panel, PanelProps } from "@extjs/ext-react";
 import * as React from "react";
-import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
-import { CountryField } from "../../Dict/Components/CountryField";
-import { DictField } from "../../Dict/Components/DictField";
-import { DurationField } from "../../Dict/Components/DurationField";
-import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
-import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
-import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
-import { WgField } from "../../Dict/Components/WgField";
 import { PortfolioFilterModel } from "../Model/PortfolioFilterModel";
-import { ProActiveField } from "../../Dict/Components/ProActiveField";
-import { UserCountryField } from "../../Dict/Components/UserCountryField";
 import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
 import { DictFactory } from "../../Dict/Services/DictFactory";
 import { IDictService } from "../../Dict/Services/IDictService";
@@ -134,23 +124,25 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
         );
     }
 
-    public getModel() {
-        let m = new PortfolioFilterModel();
+    public getModel(): PortfolioFilterModel {
+        return {
+            country: this.country.getSelectedKeysOrNull(),
+            wg: this.wg.getSelectedKeysOrNull(),
+            availability: this.av.getSelectedKeysOrNull(),
+            duration: this.dur.getSelectedKeysOrNull(),
+            reactionType: this.reacttype.getSelectedKeysOrNull(),
+            reactionTime: this.reacttime.getSelectedKeysOrNull(),
+            serviceLocation: this.srvloc.getSelectedKeysOrNull(),
+            proActive: this.proactive.getSelectedKeysOrNull(),
 
-        m.country = this.country.getSelectedKeys();
-        m.wg = this.wg.getSelectedKeys();
-        m.availability = this.av.getSelectedKeys();
-        m.duration = this.dur.getSelectedKeys();
-        m.reactionType = this.reacttype.getSelectedKeys();
-        m.reactionTime = this.reacttime.getSelectedKeys();
-        m.serviceLocation = this.srvloc.getSelectedKeys();
-        m.proActive = this.proactive.getSelectedKeys();
+            isGlobalPortfolio: this.getChecked(this.globPort),
+            isMasterPortfolio: this.getChecked(this.masterPort),
+            isCorePortfolio: this.getChecked(this.corePort)
+        }
+    }
 
-        m.isGlobalPortfolio= this.getChecked(this.globPort);
-        m.isMasterPortfolio= this.getChecked(this.masterPort);
-        m.isCorePortfolio = this.getChecked(this.corePort);
+    private getSelectedKeysOrNull() {
 
-        return m;
     }
 
     private init() {

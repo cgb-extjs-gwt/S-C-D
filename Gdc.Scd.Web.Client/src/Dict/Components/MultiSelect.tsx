@@ -101,6 +101,10 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
         return ExtDataviewHelper.getListSelected(this.lst, ID_PROP);
     }
 
+    public getSelectedKeysOrNull<T>(): T[] {
+        return ExtDataviewHelper.getListSelected(this.lst, ID_PROP).length > 0 ? ExtDataviewHelper.getListSelected(this.lst, ID_PROP): null;
+    }
+
     public reset() {
         this.onTopSelectionChange(this.cb, false, false);
     }

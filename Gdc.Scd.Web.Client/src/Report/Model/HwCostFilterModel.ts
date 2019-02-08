@@ -1,6 +1,6 @@
 ﻿import { CurrencyType } from "./CurrencyType";
 
-export class HwCostFilterModel {
+export interface HwCostFilterModel {
     country?: string[];
     wg?: string[];
     availability?: string[];

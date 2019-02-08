@@ -7,5 +7,10 @@
         public long[] Country { get; set; }
         public long[] Availability { get; set; }
         public long[] Year { get; set; }
+
+        public bool Approved { get; set; }
+
+        public int Start { get; set; }
+        public int Limit { get; set; }
     }
 }
