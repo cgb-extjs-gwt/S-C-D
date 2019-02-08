@@ -22,12 +22,12 @@ export class CalcResultView extends React.Component<any, any> {
 
         if (this.state.isAdmin) {
 
-            sw = <Container title="Software &amp; Solution<br>service costs" layout="fit" >
-                <SwCostView approved={false} />
-            </Container>;
-
             hdd = <Container title="Hdd retention<br>service costs" layout="fit">
                 <HddCostView approved={false} />
+            </Container>;
+
+            sw = <Container title="Software &amp; Solution<br>service costs" layout="fit" >
+                <SwCostView approved={false} />
             </Container>;
         }
 
