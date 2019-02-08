@@ -6,9 +6,11 @@ using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.QualityGate;
+using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
@@ -189,25 +191,108 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.UpdateByCoordinates(this.meta.CostBlocks, updateOptions);
         }
 
+        //public async Task<IEnumerable<NamedId>> GetCoordinateItems(CostElementContext context, string coordinateId)
+        //{
+        //    var costBlockMeta = this.meta.GetCostBlockEntityMeta(context);
+        //    var referenceField = costBlockMeta.GetDomainCoordinateField(context.CostElementId, coordinateId);
+
+        //    var userCountries = this.userService.GetCurrentUserCountries();
+        //    var costBlockFilter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries).Convert();
+        //    var referenceFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(referenceField.ReferenceMeta);
+        //    var notDeletedCondition = CostBlockQueryHelper.BuildNotDeletedCondition(costBlockMeta, costBlockMeta.Name);
+
+        //    return 
+        //        await this.sqlRepository.GetDistinctItems(
+        //            costBlockMeta, 
+        //            referenceField.Name, 
+        //            costBlockFilter, 
+        //            referenceFilter,
+        //            notDeletedCondition);
+        //}
+
         public async Task<IEnumerable<NamedId>> GetCoordinateItems(CostElementContext context, string coordinateId)
         {
-            var meta = this.meta.GetCostBlockEntityMeta(context);
-            var referenceField = 
-                meta.GetDomainCoordinateFields(context.CostElementId)
-                    .First(field => field.Name == coordinateId);
+            IEnumerable<NamedId> items;
 
+            var costBlockMeta = this.meta.GetCostBlockEntityMeta(context);
+            var coordinateField = costBlockMeta.GetDomainCoordinateField(context.CostElementId, coordinateId);
+            var portfolioField = this.meta.LocalPortfolio.GetFieldByReferenceMeta(coordinateField.ReferenceMeta);
             var userCountries = this.userService.GetCurrentUserCountries();
-            var costBlockFilter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries).Convert();
-            var referenceFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(referenceField.ReferenceMeta);
-            var notDeletedCondition = CostBlockQueryHelper.BuildNotDeletedCondition(meta, meta.Name);
 
-            return 
-                await this.sqlRepository.GetDistinctItems(
-                    meta, 
-                    referenceField.Name, 
-                    costBlockFilter, 
-                    referenceFilter,
-                    notDeletedCondition);
+            if (portfolioField == null)
+            {
+                items = await GetCoordinateItems();
+            }
+            else
+            {
+                var countryField = costBlockMeta.GetDomainCoordinateField(context.CostElementId, MetaConstants.CountryInputLevelName);
+                if (countryField == null)
+                {
+                    var regionField = costBlockMeta.GetDomainCoordinateField(context.CostElementId, MetaConstants.ClusterRegionInputLevel);
+                    if (regionField == null)
+                    {
+                        items = await GetCoordinateItems();
+                    }
+                    else
+                    {
+                        var countryMeta = this.meta.GetCountryEntityMeta();
+                        var joinInfos = new[]
+                        {
+                            new JoinInfo(countryMeta, countryMeta.ClusterRegionField.Name)
+                        };
+
+                        var filters = new Dictionary<string, IDictionary<string, IEnumerable<object>>>();
+
+                        if (context.RegionInputId.HasValue)
+                        {
+                            filters[countryMeta.Name] = new Dictionary<string, IEnumerable<object>>
+                            {
+                                [regionField.Name] = new object[] { context.RegionInputId.Value }
+                            };
+                        }
+
+                        items = await this.sqlRepository.GetDistinctItems(this.meta.LocalPortfolio, portfolioField.Name, filters, joinInfos: joinInfos);
+                    }
+                }
+                else
+                {
+                    Dictionary<string, IEnumerable<object>> portfolioFilter = null;
+
+                    var countryMeta = this.meta.GetCountryEntityMeta();
+                    var portfolioCountryField = this.meta.LocalPortfolio.GetFieldByReferenceMeta(countryMeta);
+                    if (portfolioCountryField != null)
+                    {
+                        var costBlockFilter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries).Convert();
+
+                        if (costBlockFilter.TryGetValue(MetaConstants.CountryInputLevelName, out var countryIds))
+                        {
+                            portfolioFilter = new Dictionary<string, IEnumerable<object>>
+                            {
+                                [portfolioCountryField.Name] = countryIds
+                            };
+                        }
+                    }
+
+                    items = await this.sqlRepository.GetDistinctItems(this.meta.LocalPortfolio, portfolioField.Name, portfolioFilter);
+                }
+            }
+
+            return items;
+
+            async Task<IEnumerable<NamedId>> GetCoordinateItems()
+            {
+                var costBlockFilter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries).Convert();
+                var referenceFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(coordinateField.ReferenceMeta);
+                var notDeletedCondition = CostBlockQueryHelper.BuildNotDeletedCondition(costBlockMeta, costBlockMeta.Name);
+
+                return
+                    await this.sqlRepository.GetDistinctItems(
+                        costBlockMeta,
+                        coordinateField.Name,
+                        costBlockFilter,
+                        referenceFilter,
+                        notDeletedCondition);
+            }
         }
 
         public async Task<IEnumerable<NamedId>> GetDependencyItems(CostElementContext context)
@@ -260,14 +345,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public async Task<CostElementDataDto> GetCostElementData(CostElementContext context)
-        {
-            return new CostElementDataDto
-            {
-                DependencyItems = await this.GetDependencyItems(context),
-                Regions = await this.GetRegions(context)
-            };
-        }
+        //public async Task<CostElementDataDto> GetCostElementData(CostElementContext context)
+        //{
+        //    return new CostElementDataDto
+        //    {
+        //        DependencyItems = await this.GetDependencyItems(context),
+        //        Regions = await this.GetRegions(context)
+        //    };
+        //}
 
         private IEnumerable<EditItemContext> BuildEditItemContexts(IEnumerable<EditInfo> editInfos)
         {
@@ -360,5 +445,25 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 }
             }
         }
+
+        //private async Task<IEnumerable<NamedId>> GetCoordinateItems(
+        //    CostElementContext context, 
+        //    string coordinateId, 
+        //    CostBlockEntityMeta costBlockMeta,
+        //    ReferenceFieldMeta referenceField,
+        //    IEnumerable<Country> userCountries)
+        //{
+        //    var costBlockFilter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries).Convert();
+        //    var referenceFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(referenceField.ReferenceMeta);
+        //    var notDeletedCondition = CostBlockQueryHelper.BuildNotDeletedCondition(costBlockMeta, costBlockMeta.Name);
+
+        //    return
+        //        await this.sqlRepository.GetDistinctItems(
+        //            costBlockMeta,
+        //            referenceField.Name,
+        //            costBlockFilter,
+        //            referenceFilter,
+        //            notDeletedCondition);
+        //}
     }
 }

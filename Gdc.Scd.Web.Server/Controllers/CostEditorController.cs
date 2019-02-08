@@ -39,6 +39,12 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
+        public async Task<IEnumerable<NamedId>> GetDependencyItems([System.Web.Http.FromUri]CostEditorContext context)
+        {
+            return await this.costEditorService.GetDependencyItems(context);
+        }
+
+        [HttpGet]
         public async Task<IEnumerable<NamedId>> GetInputLevelFilterItems([System.Web.Http.FromUri]CostEditorContext context)
         {
             return await this.costEditorService.GetInputLevelFilterItems(context);

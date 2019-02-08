@@ -81,6 +81,13 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
         }
 
+        public ReferenceFieldMeta GetDomainCoordinateField(string costElementId, string fieldName)
+        {
+            return
+                this.GetDomainCoordinateFields(costElementId)
+                    .FirstOrDefault(field => field.Name == fieldName);
+        }
+
         private IEnumerable<ReferenceFieldMeta> GetDomainInputLevelFields(CostElementMeta costElement)
         {
             return costElement.InputLevels.Select(inputLevel => this.InputLevelFields[inputLevel.Id]);

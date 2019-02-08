@@ -52,6 +52,8 @@
 
         public const string PortfolioSchema = "Portfolio";
 
+        public const string LocalPortfolioTableName = "LocalPortfolio";
+
         public const string ClusterRegionInputLevel = "ClusterRegion";
         
         public const string SpoolerSchema = "Spooler";

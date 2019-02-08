@@ -18,7 +18,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<IEnumerable<NamedId>> GetRegions(CostElementContext context);
 
-        Task<CostElementDataDto> GetCostElementData(CostElementContext context);
+        //Task<CostElementDataDto> GetCostElementData(CostElementContext context);
 
         Task UpdateByCoordinatesAsync(
             IEnumerable<CostBlockEntityMeta> costBlockMetas, 

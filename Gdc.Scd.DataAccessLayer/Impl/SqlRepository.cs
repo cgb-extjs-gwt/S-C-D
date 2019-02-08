@@ -58,9 +58,63 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             IDictionary<string, IEnumerable<object>> referenceFilter = null,
             ConditionHelper filterCondition = null)
         {
+            //var referenceField = (ReferenceFieldMeta)meta.GetField(referenceFieldName);
+            //var conditions = 
+            //    BuildCondition(entityFilter, meta.Name).Concat(BuildCondition(referenceFilter, referenceField.ReferenceMeta.Name)).ToList();
+
+            //if (filterCondition != null)
+            //{
+            //    conditions.Add(filterCondition);
+            //}
+
+            //var idColumn = new ColumnInfo(referenceField.ReferenceValueField, referenceField.ReferenceMeta.Name);
+            //var nameColumn = new ColumnInfo(referenceField.ReferenceFaceField, referenceField.ReferenceMeta.Name);
+
+            //var query =
+            //    Sql.SelectDistinct(idColumn, nameColumn)
+            //       .From(meta)
+            //       .Join(meta, referenceField.Name)
+            //       .Join(joinInfos)
+            //       .Where(conditions)
+            //       .OrderBy(SortDirection.Asc, nameColumn);
+
+            //return await this.repositorySet.ReadBySql(
+            //    query,
+            //    reader => new NamedId
+            //    {
+            //        Id = reader.GetInt64(0),
+            //        Name = reader.GetString(1)
+            //    });
+
+            //IEnumerable<ConditionHelper> BuildCondition(IDictionary<string, IEnumerable<object>> filter, string tableName)
+            //{
+            //    if (filter != null && filter.Count > 0)
+            //    {
+            //        yield return ConditionHelper.AndStatic(filter, tableName, tableName);
+            //    }
+            //}
+
             var referenceField = (ReferenceFieldMeta)meta.GetField(referenceFieldName);
-            var conditions = 
-                BuildCondition(entityFilter, meta.Name).Concat(BuildCondition(referenceFilter, referenceField.ReferenceMeta.Name)).ToList();
+            var filters = new Dictionary<string, IDictionary<string, IEnumerable<object>>>
+            {
+                [meta.Name] = entityFilter,
+                [referenceField.ReferenceMeta.Name] = referenceFilter
+            };
+
+            return await this.GetDistinctItems(meta, referenceFieldName, filters, filterCondition);
+        }
+
+        public async Task<IEnumerable<NamedId>> GetDistinctItems(
+            BaseEntityMeta meta,
+            string referenceFieldName,
+            IDictionary<string, IDictionary<string, IEnumerable<object>>> filters,
+            ConditionHelper filterCondition = null,
+            IEnumerable<JoinInfo> joinInfos = null)
+        {
+            var referenceField = (ReferenceFieldMeta)meta.GetField(referenceFieldName);
+            //var conditions =
+            //    BuildCondition(entityFilter, meta.Name).Concat(BuildCondition(referenceFilter, referenceField.ReferenceMeta.Name)).ToList();
+            var conditions = filters.SelectMany(filter => BuildCondition(filter.Value, filter.Key)).ToList();
 
             if (filterCondition != null)
             {
@@ -74,6 +128,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 Sql.SelectDistinct(idColumn, nameColumn)
                    .From(meta)
                    .Join(meta, referenceField.Name)
+                   .Join(joinInfos)
                    .Where(conditions)
                    .OrderBy(SortDirection.Asc, nameColumn);
 
