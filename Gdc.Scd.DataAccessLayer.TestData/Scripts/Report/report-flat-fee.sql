@@ -15,7 +15,8 @@ RETURN (
             , wg.Name as Wg
             , wg.Description as WgDescription
         
-            , calc.Fee_Approved * er.Value as Fee
+            , c.Currency
+            , calc.Fee_Approved * er.Value / 12 as Fee
         
             , fee.InstalledBaseHighAvailability_Approved as IB
             , fee.CostPerKit as CostPerKit
@@ -38,6 +39,8 @@ GO
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'FLAT-FEE-REPORTS');
 declare @index int = 0;
 
+declare @numberCol bigint = (select id from Report.ReportColumnType where UPPER(name) = 'NUMBER');
+
 delete from Report.ReportColumn where ReportId = @reportId;
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'CountryGroup', 'Country Group', 1, 1);
@@ -48,13 +51,15 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'WgDescription', 'WG Description', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 2, 'Fee', 'FSL Flatfee monthly (country currency)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Currency', 'Country currency', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'IB', 'Installed base high availability', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @numberCol, 'Fee', 'Availability fee  monthly (country currency)', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'CostPerKit', 'Cost per KIT (EUR)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @numberCol, 'IB', 'Installed base high availability', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'CostPerKitJapanBuy', 'Cost per KIT Japan-Buy (EUR)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @numberCol, 'CostPerKit', 'Cost per KIT (EUR)', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @numberCol, 'CostPerKitJapanBuy', 'Cost per KIT Japan-Buy (EUR)', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'MaxQty', 'MaxQty', 1, 1);
 set @index = @index + 1;
