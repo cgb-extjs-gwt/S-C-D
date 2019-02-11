@@ -42,13 +42,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             IQueryable<HddRetentionDto> queryDto;
 
-            if (usr.IsGlobal)
+            if (usr.IsAdmin)
             {
                 queryDto = query.Select(x => new HddRetentionDto
                 {
                     WgId = x.WgId,
                     Wg = x.Wg,
-                    HddRetention = approved ? x.HddRet_Approved : x.HddRet, //show for admin only
+                    HddRetention = approved ? x.HddRet_Approved : x.HddRet, //show hdd retention calc value for admin only
                     TransferPrice = x.TransferPrice,
                     ListPrice = x.ListPrice,
                     DealerDiscount = x.DealerDiscount,
@@ -79,6 +79,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public void SaveCost(User usr, HddRetentionDto[] items)
         {
+            if(CanEdit(usr))
+            {
+                throw new System.ArgumentException("Illegal access. User does not have <scd admin> role");
+            }
+        }
+
+        public bool CanEdit(User usr)
+        {
+            return usr.IsAdmin;
         }
     }
 }

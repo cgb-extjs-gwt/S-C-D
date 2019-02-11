@@ -38,15 +38,17 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        public void SaveCost([FromBody]HddRetentionDto[] items)
+        public IHttpActionResult SaveCost([FromBody]HddRetentionDto[] items)
         {
-            if (true)
+            var usr = this.CurrentUser();
+            if (hdd.CanEdit(usr))
             {
-                hdd.SaveCost(this.CurrentUser(), items);
+                hdd.SaveCost(usr, items);
+                return Ok();
             }
             else
             {
-                throw this.NotFoundException();
+                return NotFound();
             }
         }
 

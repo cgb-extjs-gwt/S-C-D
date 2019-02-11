@@ -14,6 +14,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
                 int limit
             );
 
+        bool CanEdit(User usr);
+
         void SaveCost(User user, HddRetentionDto[] items);
     }
 }
