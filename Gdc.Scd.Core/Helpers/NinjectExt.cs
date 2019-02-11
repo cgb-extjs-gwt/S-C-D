@@ -3,7 +3,7 @@ using Ninject.Web.Common;
 
 namespace Gdc.Scd.Core.Helpers
 {
-    public static class NinjectExtensions
+    public static class NinjectExt
     {
         public static bool IsConsoleApplication { get; set; }
 
