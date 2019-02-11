@@ -26,11 +26,6 @@ namespace Gdc.Scd.Core.Meta.Impl
             var swDigitMeta = new SwDigitEnityMeta(sogMeta);
             var clusterRegionMeta = new ClusterRegionEntityMeta();
             var countryMeta = new CountryEntityMeta(MetaConstants.CountryInputLevelName, MetaConstants.InputLevelSchema, clusterRegionMeta);
-            var emeiaCountryMeta = new CountryEntityMeta(MetaConstants.EmeiaCountryInputLevelName, MetaConstants.InputLevelSchema, clusterRegionMeta)
-            {
-                StoreType = StoreType.View,
-                RealMeta = countryMeta
-            };
             var nonEmeiaCountryMeta = new CountryEntityMeta(MetaConstants.NonEmeiaCountryInputLevelName, MetaConstants.InputLevelSchema, clusterRegionMeta)
             {
                 StoreType = StoreType.View,
@@ -49,7 +44,6 @@ namespace Gdc.Scd.Core.Meta.Impl
                 wgMeta,
                 clusterRegionMeta,
                 countryMeta,
-                emeiaCountryMeta,
                 nonEmeiaCountryMeta,
                 roleCode
             };
