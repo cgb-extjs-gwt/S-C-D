@@ -4,9 +4,9 @@ using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Core.Entities.Report;
+using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Ninject.Modules;
-using Ninject.Web.Common;
 
 namespace Gdc.Scd.BusinessLogicLayer
 {
@@ -14,6 +14,25 @@ namespace Gdc.Scd.BusinessLogicLayer
     {
         public override void Load()
         {
+            Bind(typeof(IDomainService<>)).To(typeof(DomainService<>)).InScdRequestScope();
+            Bind<IWgService>().To<WgService>().InScdRequestScope();
+            Bind<IWgPorService>().To<WgPorDecoratorService>().InScdRequestScope();
+            Bind<ICostEditorService>().To<CostEditorService>().InScdRequestScope();
+            Bind<IPortfolioService>().To<PortfolioService>().InScdRequestScope();
+            Bind<ICalculationService>().To<CalculationService>().InScdRequestScope();
+            Bind<IReportService>().To<ReportService>().InScdRequestScope();
+            Bind<IUserService>().To<UserService>().InScdRequestScope();
+            Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InScdRequestScope();
+            Bind<IAvailabilityFeeAdminService>().To<AvailabilityFeeAdminService>().InScdRequestScope();
+            Bind<ICountryAdminService>().To<CountryAdminService>().InScdRequestScope();
+            Bind<ICountryUserService>().To<CountryUserService>().InScdRequestScope();
+            Bind<IEmailService>().To<EmailService>().InScdRequestScope();
+            Bind<IQualityGateSevice>().To<QualityGateSevice>().InScdRequestScope();
+            Bind<IActiveDirectoryService>().To<ActiveDirectoryService>().InScdRequestScope();
+            Bind<ITableViewService>().To<TableViewService>().InScdRequestScope();
+            Bind<IAppService>().To<AppService>().InScdRequestScope();
+            Bind<ICostBlockService>().To<CostBlockService>().InScdRequestScope();
+            Bind<IApprovalService>().To<ApprovalService>().InScdRequestScope();
             Bind(typeof(IDomainService<>)).To(typeof(DomainService<>)).InRequestScope();
             Bind<IWgService>().To<WgService>().InRequestScope();
             Bind<IWgPorService>().To<WgPorDecoratorService>().InRequestScope();
@@ -35,7 +54,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<ICostBlockService>().To<CostBlockService>().InRequestScope();
             Bind<IApprovalService>().To<ApprovalService>().InRequestScope();
             Bind<INotifyChannel>().To<MemoryChannel>().InSingletonScope();
-            Bind<ICostImportExcelService>().To<CostImportExcelService>().InRequestScope(); 
+            Bind<ICostImportExcelService>().To<CostImportExcelService>().InScdRequestScope(); 
 
             /*----------dictionaries-----------*/
             Kernel.RegisterEntity<ClusterRegion>();

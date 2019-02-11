@@ -19,7 +19,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<IEnumerable<BundleDetailGroupDto>> GetApproveBundleDetails(long costBlockHistoryId, long? historyValueId = null, IDictionary<string, IEnumerable<object>> costBlockFilter = null);
 
-        void Reject(long historyId, string message = null);
+        Task Reject(long historyId, string message = null);
 
         Task<QualityGateResult> SendForApproval(long historyId, string qualityGateErrorExplanation = null);
     }
