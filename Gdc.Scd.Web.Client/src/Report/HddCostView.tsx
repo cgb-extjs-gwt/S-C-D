@@ -7,6 +7,7 @@ import { CalcCostProps } from "./Components/CalcCostProps";
 import { emptyRenderer, moneyRenderer, percentRenderer } from "./Components/GridRenderer";
 import { HddCostFilter } from "./Components/HddCostFilter";
 import { HddCostFilterModel } from "./Model/HddCostFilterModel";
+import { ExportService } from "./Services/ExportService";
 
 export class HddCostView extends React.Component<CalcCostProps, any> {
 
@@ -170,10 +171,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onDownload(filter: HddCostFilterModel & any) {
-        console.log('onDownload()', filter);
-        //filter = filter || {};
-        //filter.local = filter.currency;
-        //ExportService.Download('HW-CALC-RESULT', this.props.approved, filter);
+        ExportService.Download('HDD-RETENTION-CALC-RESULT', this.props.approved, {});
     }
 
     private onBeforeLoad(s, operation) {
