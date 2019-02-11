@@ -457,7 +457,7 @@ AS BEGIN
            , max(case when r.ReactionTimeAvailability = @4h_24x7 then r.ReinsuranceUpliftFactor_Approved end) 
 
     from Hardware.Reinsurance r
-    join Dependencies.Year y on y.Id = r.Year
+    join Dependencies.Duration d on d.Id = r.Duration
 
     where r.ReactionTimeAvailability in (@NBD_9x5, @4h_9x5, @4h_24x7) 
       and r.DeactivatedDateTime is null

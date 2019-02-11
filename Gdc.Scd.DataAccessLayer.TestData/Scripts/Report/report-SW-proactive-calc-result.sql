@@ -5,10 +5,10 @@ go
 CREATE FUNCTION Report.SwProactiveCalcResult
 (
     @approved bit,
-    @country bigint,
-    @digit bigint,
-    @availability bigint,
-    @year bigint
+    @country dbo.ListID readonly,
+    @digit dbo.ListID readonly,
+    @availability dbo.ListID readonly,
+    @year dbo.ListID readonly
 )
 RETURNS TABLE 
 AS
@@ -31,7 +31,6 @@ RETURN (
     left join Dependencies.Year y on y.Id = m.DurationId
     left join Dependencies.ProActiveSla pro on pro.Id = m.ProactiveSlaId
 )
-
 GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'SW-PROACTIVE-CALC-RESULT');

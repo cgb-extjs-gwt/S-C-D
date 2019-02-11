@@ -4,10 +4,10 @@ go
 
 CREATE FUNCTION Report.SwCalcResult
 (
-    @approved bit,
-    @digit bigint,
-    @availability bigint,
-    @year bigint
+	@approved bit,
+    @digit dbo.ListID readonly,
+    @availability dbo.ListID readonly,
+    @year dbo.ListID readonly
 )
 RETURNS TABLE 
 AS

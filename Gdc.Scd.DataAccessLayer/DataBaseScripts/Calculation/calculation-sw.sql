@@ -301,7 +301,6 @@ RETURN
     from SwSpMaintenanceCte3 m
 )
 GO
-GO
 
 CREATE FUNCTION [SoftwareSolution].[GetProActivePaging] (
      @approved bit,

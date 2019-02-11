@@ -4,16 +4,16 @@ go
 
 CREATE FUNCTION Report.HwCalcResult
 (
-    @approved bit,
+	@approved bit,
     @local bit,
-    @country bigint,
-    @wg bigint,
-    @availability bigint,
-    @duration bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @servicelocation bigint,
-    @proactive bigint
+    @country dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @availability dbo.ListID readonly,
+    @duration dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @servicelocation dbo.ListID readonly,
+    @proactive dbo.ListID readonly
 )
 RETURNS TABLE 
 AS
@@ -23,10 +23,10 @@ RETURN (
                , case when @local = 1 then er.Value else 1     end as Exchange
         from [References].Currency cur
         join [References].ExchangeRate er on er.CurrencyId = cur.Id
-        where cur.Id = (select CurrencyId from InputAtoms.Country where id = @country)
+        where cur.Id = (select CurrencyId from InputAtoms.Country where id  in (select id from @country))
     )
     select    Country
-            , Currency
+            , case when @local = 1 then cur.Name else 'EUR' end as Currency
 
             , Wg
             , Availability
@@ -40,37 +40,40 @@ RETURN (
 
             --Cost
 
-            , AvailabilityFee               * Exchange     as AvailabilityFee 
-            , HddRet                        * Exchange     as HddRet
-            , TaxAndDutiesW                 * Exchange     as TaxAndDutiesW
-            , TaxAndDutiesOow               * Exchange     as TaxAndDutiesOow
-            , Reinsurance                   * Exchange     as Reinsurance
-            , ProActive                     * Exchange     as ProActive
-            , ServiceSupportCost            * Exchange     as ServiceSupportCost
+            , case when @local = 1 then AvailabilityFee * er.Value else AvailabilityFee end as AvailabilityFee 
+            , case when @local = 1 then HddRet * er.Value else HddRet end as HddRet
+            , case when @local = 1 then TaxAndDutiesW * er.Value else TaxAndDutiesW end as TaxAndDutiesW
+            , case when @local = 1 then TaxAndDutiesOow * er.Value else TaxAndDutiesOow end as TaxAndDutiesOow
+            , case when @local = 1 then Reinsurance * er.Value else Reinsurance end as Reinsurance
+            , case when @local = 1 then ProActive * er.Value else ProActive end as ProActive
+            , case when @local = 1 then ServiceSupportCost * er.Value else ServiceSupportCost end as ServiceSupportCost
                                                           
-            , MaterialW                     * Exchange     as MaterialW
-            , MaterialOow                   * Exchange     as MaterialOow
-            , FieldServiceCost              * Exchange     as FieldServiceCost
-            , Logistic                      * Exchange     as Logistic
-            , OtherDirect                   * Exchange     as OtherDirect
-            , LocalServiceStandardWarranty  * Exchange     as LocalServiceStandardWarranty
-            , Credits                       * Exchange     as Credits
-            , ServiceTC                     * Exchange     as ServiceTC
-            , ServiceTP                     * Exchange     as ServiceTP
+            , case when @local = 1 then MaterialW * er.Value else MaterialW end as MaterialW
+            , case when @local = 1 then MaterialOow * er.Value else MaterialOow end as MaterialOow
+            , case when @local = 1 then FieldServiceCost * er.Value else FieldServiceCost end as FieldServiceCost
+            , case when @local = 1 then Logistic * er.Value else Logistic end as Logistic
+            , case when @local = 1 then OtherDirect * er.Value else OtherDirect end as OtherDirect
+            , case when @local = 1 then LocalServiceStandardWarranty * er.Value else LocalServiceStandardWarranty end as LocalServiceStandardWarranty
+            , case when @local = 1 then Credits * er.Value else Credits end as Credits
+            , case when @local = 1 then ServiceTC * er.Value else ServiceTC end as ServiceTC
+            , case when @local = 1 then ServiceTP * er.Value else ServiceTP end as ServiceTP
                                                           
-            , ServiceTCManual               * Exchange     as ServiceTCManual
-            , ServiceTPManual               * Exchange     as ServiceTPManual
+            , case when @local = 1 then ServiceTCManual * er.Value else ServiceTCManual end as ServiceTCManual
+            , case when @local = 1 then ServiceTPManual * er.Value else ServiceTPManual end as ServiceTPManual
                                                           
-            , ServiceTP_Released            * Exchange     as ServiceTP_Released
+            , case when @local = 1 then ServiceTP_Released * er.Value else ServiceTP_Released end as ServiceTP_Released
                                                           
-            , ListPrice                     * Exchange     as ListPrice
-            , DealerPrice                   * Exchange     as DealerPrice
+            , case when @local = 1 then ListPrice * er.Value else ListPrice end as ListPrice
+            , case when @local = 1 then DealerPrice * er.Value else DealerPrice end as DealerPrice
             , DealerDiscount                               as DealerDiscount
                                                            
             , ChangeUserName + '[' + ChangeUserEmail + ']' as ChangeUser
 
-    from Hardware.GetCosts(@approved, @country, @wg, @availability, @duration, @reactiontime, @reactiontype, @servicelocation, @proactive, -1, -1), CurrencyCte
+    from Hardware.GetCosts(@approved, @country, @wg, @availability, @duration, @reactiontime, @reactiontype, @servicelocation, @proactive, -1, -1)
+	join [References].Currency cur on cur.Id in (select CurrencyId from InputAtoms.Country where id in (select id from @country))
+	join [References].ExchangeRate er on er.CurrencyId = cur.Id
 )
+
 GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'HW-CALC-RESULT');
