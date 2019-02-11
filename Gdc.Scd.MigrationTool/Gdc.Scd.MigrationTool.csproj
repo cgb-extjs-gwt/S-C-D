@@ -54,15 +54,21 @@
     <Compile Include="Interfaces\IMigrationAction.cs" />
     <Compile Include="Interfaces\IMigrationService.cs" />
     <Compile Include="Migrations\Migration_2019_02_07.cs" />
+    <Compile Include="Migrations\Migration_2019_02_08.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlFormatter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="MigrationScripts\2019-02-08.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj">
       <Project>{785fe9d5-3140-46bf-af1b-eb3764397a44}</Project>
