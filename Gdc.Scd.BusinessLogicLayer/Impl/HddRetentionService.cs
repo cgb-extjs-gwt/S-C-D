@@ -11,16 +11,30 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
     public class HddRetentionService : IHddRetentionService
     {
+        private readonly IRepositorySet repositorySet;
+
+        private readonly IWgRepository wgRepo;
+
         private readonly IRepository<HddRetentionView> hddViewRepo;
+
         private readonly IRepository<HddRetentionManualCost> hddRepo;
 
         public HddRetentionService(
+                IRepositorySet repositorySet,
                 IRepository<HddRetentionView> hddViewRepo,
-                IRepository<HddRetentionManualCost> hddRepo
+                IRepository<HddRetentionManualCost> hddRepo,
+                IWgRepository wgRepo
             )
         {
+            this.repositorySet = repositorySet;
             this.hddViewRepo = hddViewRepo;
             this.hddRepo = hddRepo;
+            this.wgRepo = wgRepo;
+        }
+
+        public bool CanEdit(User usr)
+        {
+            return usr.IsAdmin;
         }
 
         public async Task<(HddRetentionDto[] items, int total)> GetCost(
@@ -77,17 +91,67 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return (result, count);
         }
 
-        public void SaveCost(User usr, HddRetentionDto[] items)
+        public void SaveCost(User changeUser, HddRetentionDto[] records)
         {
-            if(CanEdit(usr))
+            if (!CanEdit(changeUser))
             {
                 throw new System.ArgumentException("Illegal access. User does not have <scd admin> role");
             }
-        }
 
-        public bool CanEdit(User usr)
-        {
-            return usr.IsAdmin;
+            var recordsId = records.Select(x => x.WgId);
+
+            var entities = (from wg in wgRepo.GetAll().Where(x => recordsId.Contains(x.Id))
+                            from hdd in hddRepo.GetAll().Where(x => x.Id == wg.Id).DefaultIfEmpty()
+                            select new
+                            {
+                                Wg = wg,
+                                Manual = hdd
+                            })
+                           .ToDictionary(x => x.Wg.Id, y => y);
+
+            if (entities.Count == 0)
+            {
+                return;
+            }
+
+            ITransaction transaction = null;
+            try
+            {
+                transaction = repositorySet.GetTransaction();
+
+                foreach (var rec in records)
+                {
+                    if (!entities.ContainsKey(rec.WgId))
+                    {
+                        continue;
+                    }
+
+                    var e = entities[rec.WgId];
+                    var hdd = e.Manual ?? new HddRetentionManualCost { Wg = e.Wg }; //create new if does not exist
+
+                    hdd.TransferPrice = rec.TransferPrice;
+                    hdd.ListPrice = rec.ListPrice;
+                    hdd.DealerDiscount = rec.DealerDiscount;
+                    hdd.ChangeUser = changeUser;
+                    //
+                    hddRepo.Save(hdd);
+                }
+
+                repositorySet.Sync();
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+            finally
+            {
+                if (transaction != null)
+                {
+                    transaction.Dispose();
+                }
+            }
         }
     }
 }

@@ -152,6 +152,10 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
         this.store.on('beforeload', this.onBeforeLoad, this);
     }
 
+    private approved() {
+        return this.props.approved;
+    }
+
     private canEdit(): boolean {
         return this.props.approved && this.state.isAdmin;
     }
@@ -195,10 +199,11 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
             }
         };
 
-        if (this.canEdit()) {
+        if (this.approved()) { //using CanEdit() does not work cause await http request
             cfg['!desktop'].plugins.grideditable = true;
             const desktop = cfg['desktop'];
             desktop.plugins.gridcellediting = true;
+            desktop.plugins.selectionreplicator = true;
             desktop.selectable = {
                 cells: true,
                 rows: true,

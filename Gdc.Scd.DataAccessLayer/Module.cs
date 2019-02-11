@@ -37,6 +37,8 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<ICostBlockRepository>().To<CostBlockRepository>().InRequestScope();
             Bind<IApprovalRepository>().To<ApprovalRepository>().InRequestScope();
             Bind<IRepository<HardwareManualCost>>().To<HardwareManualCostRepository>().InRequestScope();
+            Bind<IRepository<HddRetentionManualCost>>().To<HddRetentionManualCostRepository>().InRequestScope();
+
             Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InRequestScope();
 
             Bind<BaseColumnMetaSqlBuilder<IdFieldMeta>>().To<IdColumnMetaSqlBuilder>().InTransientScope();
