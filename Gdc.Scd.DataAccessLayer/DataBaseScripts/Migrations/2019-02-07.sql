@@ -27,7 +27,7 @@ CREATE VIEW Hardware.HddRetentionView as
          , hm.ListPrice
          , hm.DealerDiscount
          , hm.DealerPrice
-         , u.Name as ChangeUser
+         , u.Name as ChangeUserName
          , u.Email as ChangeUserEmail
 
     FROM Hardware.HddRetention h
