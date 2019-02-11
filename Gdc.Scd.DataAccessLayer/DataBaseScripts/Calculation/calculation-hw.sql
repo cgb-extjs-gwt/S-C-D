@@ -62,9 +62,18 @@ BEGIN
 
         union 
 
-        select EmeiaCountry as Country, Wg, MaterialCostOow, MaterialCostOow_Approved
-        from Hardware.MaterialCostOowEmeia
-        where DeactivatedDateTime is null
+        SELECT cr.Id AS Country, Wg, MaterialCostOow, MaterialCostOow_Approved 
+		  FROM [Hardware].[MaterialCostOowEmeia] mc
+		  CROSS JOIN (SELECT c.[Id]
+		  FROM [InputAtoms].[Country] c
+		  INNER JOIN [InputAtoms].[CountryGroup] cg
+		  ON c.CountryGroupId = cg.Id
+		  INNER JOIN [InputAtoms].[Region] r
+		  ON cg.RegionId = r.Id
+		  INNER JOIN [InputAtoms].[ClusterRegion] cr
+		  ON r.ClusterRegionId = cr.Id
+		  WHERE cr.IsEmeia = 1 AND c.IsMaster = 1) AS cr
+		  where DeactivatedDateTime is null
 
     -- Enable all table constraints
     ALTER TABLE Hardware.MaterialCostOowCalc CHECK CONSTRAINT ALL;
