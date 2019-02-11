@@ -1,7 +1,6 @@
 <SCDConfiguration>
   <InputLevels>
     <InputLevel Name="Country"/>
-    <InputLevel Name="EmeiaCountry" Caption="Country" Type="View"/>
     <InputLevel Name="NonEmeiaCountry" Caption="Country" Type="View"/>
     <InputLevel Name="ClusterRegion" Caption="Region"/>
     <InputLevel Name="ClusterPla" Caption="Cluster Pla"/>
@@ -521,7 +520,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="MaterialCostOow" Caption="Material cost OOW EMEIA" InputOption="Manually" RegionInput="EmeiaCountry">
+        <Element Name="MaterialCostOow" Caption="Material cost OOW EMEIA" InputOption="Manually" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
