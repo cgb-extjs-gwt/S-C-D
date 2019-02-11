@@ -5,41 +5,29 @@ go
 CREATE FUNCTION Report.HddRetentionByCountry
 (
     @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @loc bigint,
-    @pro bigint
+    @wg bigint
 )
 RETURNS TABLE 
 AS
 RETURN (
-    select m.Id
-         , m.Country
-         , c.CountryGroup
+    SELECT c.CountryGroup
+         , c.Name as Country
          , wg.Name as Wg
          , wg.Description as WgDescription
-         , m.Fsp
-         , m.Fsp as TopFsp
-     
-         , m.HddRet
-         , m.ServiceTP
-         , m.DealerPrice
-         , m.ListPrice
+         , fsp.Name as Fsp
+         , fsp.Name as TopFsp
 
-         , wg.Sog
+         , hdd.TransferPrice
+         , hdd.DealerPrice
+         , hdd.ListPrice
 
-         , m.Availability
-         , m.Duration
-         , m.ReactionTime
-         , m.ReactionType
-         , m.ServiceLocation
-         , m.ProActiveSla
+    from Fsp.HwHddFspCodeTranslation fsp
+    join InputAtoms.CountryView c on c.Id = fsp.CountryId
+    join InputAtoms.WgSogView wg on wg.id = fsp.WgId
+    left join Hardware.HddRetentionView hdd on hdd.WgId = fsp.WgId
 
-    from Report.GetCosts(@cnt, @wg, @av, (SELECT Id FROM [Dependencies].[Duration] WHERE [Value] = 5 AND [IsProlongation] = 0), @reactiontime, @reactiontype, @loc, @pro) m
-    join InputAtoms.CountryView c on c.id = m.CountryId
-    join InputAtoms.WgSogView wg on wg.id = m.WgId
+    where     (@cnt is null or fsp.CountryId = @cnt)
+          and (@wg is null or fsp.WgId = @wg)
 )
 
 go
@@ -62,40 +50,18 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'TopFsp', 'TopUp Code', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'HddRet', 'HDD retention', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTP', 'Transfer Price', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'TransferPrice', 'Transfer Price', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'DealerPrice', 'Dealer Price (Central Reference)', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ListPrice', 'List Price (Central Reference)', 1, 1);
 
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Availability', 'Availability', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ReactionTime', 'Reaction Time', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ReactionType', 'Reaction Type', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceLocation', 'Service Level Description', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ProActiveSla', 'ProActive SLA', 1, 1);
-
 set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
+
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 7, 'cnt', 'Country Name');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where UPPER(name) = 'USERCOUNTRY'), 'cnt', 'Country Name');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 4, 'wg', 'Warranty Group');
-set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 8, 'av', 'Availability');
-set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 10, 'reactiontime', 'Reaction time');
-set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 11, 'reactiontype', 'Reaction type');
-set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 12, 'loc', 'Service location');
-set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 14, 'pro', 'ProActive');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where UPPER(name) = 'WG'), 'wg', 'Warranty Group');
 
 
