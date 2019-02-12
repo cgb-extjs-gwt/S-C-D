@@ -56,7 +56,7 @@
     <Compile Include="Interfaces\IMigrationService.cs" />
     <Compile Include="Migrations\Migration_2019_02_07.cs" />
     <Compile Include="Migrations\Migration_2019_02_08.cs" />
-    <Compile Include="Migrations\Migration_2019_02_11.cs" />
+    <Compile Include="Migrations\Migration_2019_02_11_3.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,7 +70,7 @@
     <Content Include="MigrationScripts\2019-02-08.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="MigrationScripts\2019-02-11.sql">
+    <Content Include="MigrationScripts\2019-02-11_3.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
