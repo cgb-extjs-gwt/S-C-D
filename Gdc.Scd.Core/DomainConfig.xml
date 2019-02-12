@@ -546,7 +546,6 @@
           </InputLevels>
           <CostEditor>
             <Roles>
-              <Role>PRS PSM</Role>
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
             </Roles>

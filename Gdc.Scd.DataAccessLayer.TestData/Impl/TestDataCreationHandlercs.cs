@@ -1727,12 +1727,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateRolecodes()
         {
+
             var roleCodes = new RoleCode[] {
-                new RoleCode { Name = "SEFS05" },
-                new RoleCode { Name = "SEFS06" },
-                new RoleCode { Name = "SEFS04" },
-                new RoleCode { Name = "SEIE07" },
-                new RoleCode { Name = "SEIE08" }
+                new RoleCode { Name = "SEFS05", Deactivated = false },
+                new RoleCode { Name = "SEFS06", Deactivated = false },
+                new RoleCode { Name = "SEFS04", Deactivated = false },
+                new RoleCode { Name = "SEIE07", Deactivated = false },
+                new RoleCode { Name = "SEIE08", Deactivated = false }
             };
 
             var repository = this.repositorySet.GetRepository<RoleCode>();
