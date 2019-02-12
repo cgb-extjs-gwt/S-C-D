@@ -132,6 +132,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                         Report = new Report { Id = x.Report.Id },
                                         AllowNull = x.AllowNull,
                                         Flex = x.Flex,
+                                        Format = x.Format,
                                         Type = new ReportColumnType
                                         {
                                             Id = x.Type.Id,
@@ -280,7 +281,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     Name = x.Name,
                     Text = x.Text,
                     AllowNull = x.AllowNull,
-                    Flex = x.Flex
+                    Flex = x.Flex,
+                    Format = x.Format
                 };
             }
 
