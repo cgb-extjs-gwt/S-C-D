@@ -53,9 +53,14 @@
     <Compile Include="Impl\MigrationService.cs" />
     <Compile Include="Interfaces\IMigrationAction.cs" />
     <Compile Include="Interfaces\IMigrationService.cs" />
+    <Compile Include="Migrations\Migration_2019_02_12_16_08.cs" />
     <Compile Include="Migrations\Migration_2019_02_07.cs" />
+    <Compile Include="Migrations\Migration_2019_02_11_2.cs" />
     <Compile Include="Migrations\Migration_2019_02_08.cs" />
-    <Compile Include="Migrations\Migration_2019_02_12_2.cs" />
+    <Compile Include="Migrations\Migration_2019_02_12.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Migrations\Migration_2019_02_11.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -66,10 +71,19 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="MigrationScripts\2019-02-12_16_08.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-02-11-2.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="MigrationScripts\2019-02-08.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="MigrationScripts\2019-02-12_2.sql">
+    <Content Include="MigrationScripts\2019-02-12.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-02-11.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -26,20 +26,18 @@ namespace Gdc.Scd.Web.Api.Controllers
             this.userCountrySrv = userCountrySrv;
         }
 
-        [HttpGet]
+        [HttpPost]
         public Task<HttpResponseMessage> GetHwCost(
-                [FromUri]HwFilterDto filter,
-                [FromUri]bool approved = true,
-                [FromUri]int start = 0,
-                [FromUri]int limit = 50
+                [FromBody]HwFilterDto filter
             )
         {
             if (filter != null &&
-                filter.Country > 0 &&
-                IsRangeValid(start, limit) &&
-                HasAccess(approved, filter.Country))
+                filter.Country != null &&
+                filter.Country.Length > 0 &&
+                IsRangeValid(filter.Start, filter.Limit) &&
+                HasAccess(filter.Approved, filter.Country))
             {
-                return calcSrv.GetHardwareCost(approved, filter, start, limit)
+                return calcSrv.GetHardwareCost(filter.Approved, filter, filter.Start, filter.Limit)
                               .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
             }
             else
@@ -48,17 +46,14 @@ namespace Gdc.Scd.Web.Api.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         public Task<HttpResponseMessage> GetSwCost(
-                [FromUri]SwFilterDto filter,
-                [FromUri]bool approved = true,
-                [FromUri]int start = 0,
-                [FromUri]int limit = 50
+                [FromBody]SwFilterDto filter
             )
         {
-            if (IsRangeValid(start, limit))
+            if (IsRangeValid(filter.Start, filter.Limit))
             {
-                return calcSrv.GetSoftwareCost(approved, filter, start, limit)
+                return calcSrv.GetSoftwareCost(filter.Approved, filter, filter.Start, filter.Limit)
                               .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
             }
             else
@@ -69,17 +64,16 @@ namespace Gdc.Scd.Web.Api.Controllers
 
         [HttpGet]
         public Task<HttpResponseMessage> GetSwProactiveCost(
-               [FromUri]SwFilterDto filter,
-               [FromUri]bool approved = true,
-               [FromUri]int start = 0,
-               [FromUri]int limit = 50
+               [FromUri]SwFilterDto filter
            )
         {
             if (filter != null &&
-                IsRangeValid(start, limit) &&
-                HasAccess(approved, filter.Country.GetValueOrDefault()))
+                filter.Country != null &&
+                filter.Country.Length > 0 &&
+                IsRangeValid(filter.Start, filter.Limit) &&
+                HasAccess(filter.Approved, filter.Country))
             {
-                return calcSrv.GetSoftwareProactiveCost(approved, filter, start, limit)
+                return calcSrv.GetSoftwareProactiveCost(filter.Approved, filter, filter.Start, filter.Limit)
                               .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
             }
             else
@@ -101,7 +95,7 @@ namespace Gdc.Scd.Web.Api.Controllers
                     ListPrice = x.ListPrice,
                     DealerDiscount = x.DealerDiscount
                 });
-                calcSrv.SaveHardwareCost(this.CurrentUser(), m.CountryId, items);
+                calcSrv.SaveHardwareCost(this.CurrentUser(), items);
             }
             else
             {
@@ -119,7 +113,7 @@ namespace Gdc.Scd.Web.Api.Controllers
                     Id = x.Id,
                     ServiceTP_Released = x.ServiceTPManual ?? x.ServiceTP
                 });
-                calcSrv.SaveHardwareCost(this.CurrentUser(), m.CountryId, items, true);
+                calcSrv.SaveHardwareCost(this.CurrentUser(), items, true);
             }
             else
             {
@@ -132,9 +126,34 @@ namespace Gdc.Scd.Web.Api.Controllers
             return start >= 0 && limit <= 50;
         }
 
-        private bool HasAccess(long countryId)
+        private bool HasAccess(long[] countryIds)
         {
-            return userCountrySrv.HasCountryAccess(this.CurrentUser(), countryId);
+            var hasAccess = true;
+            for (var i = 0; i < countryIds.Length; i++)
+            {
+                hasAccess = hasAccess && userCountrySrv.HasCountryAccess(this.CurrentUser(), countryIds[i]);
+            }
+            return hasAccess;
+        }
+
+        private bool HasAccess(long countryIds)
+        {
+            return userCountrySrv.HasCountryAccess(this.CurrentUser(), countryIds);
+        }
+
+        private bool HasAccess(bool approved, long[] countryIds)
+        {
+            if (approved)
+            {
+                return true;
+            }
+
+            var hasAccess = true;
+            for(var i=0;i< countryIds.Length; i++)
+            {
+                hasAccess= hasAccess && userCountrySrv.HasCountryAccess(this.CurrentUser(), countryIds[i]);
+            }
+            return hasAccess;
         }
 
         private bool HasAccess(bool approved, long countryId)

@@ -3,6 +3,7 @@ import { EditItem } from "../../CostEditor/States/CostBlockStates";
 import { ComboBoxField, Grid, Column, Toolbar, Button, SelectField, TextField } from '@extjs/ext-react';
 import { NamedId } from '../../Common/States/CommonStates';
 import { buildMvcUrl } from "../../Common/Services/Ajax";
+import { ExtMsgHelper } from "../../Common/Helpers/ExtMsgHelper";
 
 const CONTROLLER_NAME = 'RoleCode';
 
@@ -22,12 +23,12 @@ Ext.define('RoleCode', {
 });
 
 export default class RoleCodesGrid extends React.Component {
+    private grid;
+
     state = {
         disableSaveButton: true,
         disableDeleteButton: true,
-        disableNewButton: false,
-        deletedRecord: null,
-        selectedRecord: null
+        disableNewButton: false
     };
 
 
@@ -50,8 +51,7 @@ export default class RoleCodesGrid extends React.Component {
             },          
             listeners: {
                 exception: function (proxy, response, operation) {
-                    //TODO: show error
-                    if (response.status == 409) {
+                    if (response.status != 200) {
                         let message = JSON.parse(response.responseText).Message
                         Ext.Msg.alert('Error', message)
                     }
@@ -59,9 +59,9 @@ export default class RoleCodesGrid extends React.Component {
             },
             api: {             
                 create: buildMvcUrl(CONTROLLER_NAME, 'SaveAll'),
-                read: buildMvcUrl(CONTROLLER_NAME, 'GetAll'),
+                read: buildMvcUrl(CONTROLLER_NAME, 'GetAllActive'),
                 update: buildMvcUrl(CONTROLLER_NAME, 'SaveAll'),
-                destroy: buildMvcUrl(CONTROLLER_NAME, 'DeleteAll')
+                destroy: buildMvcUrl(CONTROLLER_NAME, 'DeactivateAll')
             }
         },
         listeners: {
@@ -101,9 +101,6 @@ export default class RoleCodesGrid extends React.Component {
             failure: (batch, options) => {
                 //TODO: show error
                 this.store.rejectChanges();
-                this.setState({
-                    deletedRecord: null
-                });
             }      
         });
     }
@@ -114,19 +111,21 @@ export default class RoleCodesGrid extends React.Component {
         this.setState({ disableNewButton: true });
     }
 
-    deleteRecord = () => {
-        this.store.remove(this.state.selectedRecord);
-        this.setState({
-            disableDeleteButton: true,
-            disableNewButton: false,
-            deletedRecord: this.state.selectedRecord
-        });
+    onDeleteRecords = () => {
+        let selected = this.grid.getSelections();
+        if (selected.length > 0) {
+            ExtMsgHelper.confirm('Delete role code', 'Do you want to remove role code(s)?', () => this.deleteRecords(selected));
+        }
+    }
+
+    deleteRecords = (selected) => {
+        this.store.remove(selected);
+        this.saveRecords();
     }
 
     selectRowHandler = (dataView, records, selected, selection) => {
-        if (!this.state.deletedRecord && records[0]) {
+        if (records) {
             this.setState({
-                selectedRecord: records[0],
                 disableDeleteButton: false
             });
         }
@@ -138,6 +137,7 @@ export default class RoleCodesGrid extends React.Component {
     render() {
         return (
             <Grid
+                ref={x => this.grid = x}
                 title={'Role codes'}
                 store={this.store}
                 cls="filter-grid"
@@ -187,7 +187,7 @@ export default class RoleCodesGrid extends React.Component {
                         text="Delete"
                         flex={1}
                         iconCls="x-fa fa-trash"
-                        handler={this.deleteRecord}
+                        handler={this.onDeleteRecords}
                         disabled={this.state.disableDeleteButton}
                     />
                     <Button
