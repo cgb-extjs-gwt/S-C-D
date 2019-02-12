@@ -62,7 +62,7 @@ namespace Gdc.Scd.Web.Api.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         public Task<HttpResponseMessage> GetSwProactiveCost(
                [FromUri]SwFilterDto filter
            )

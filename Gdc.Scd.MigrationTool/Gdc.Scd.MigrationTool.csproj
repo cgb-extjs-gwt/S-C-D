@@ -70,14 +70,18 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="MigrationScripts\2019-02-11-2.sql">
+    <Content Include="MigrationScripts\2019-02-11-2.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
     <Content Include="MigrationScripts\2019-02-08.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="MigrationScripts\2019-02-12.sql" />
-    <None Include="MigrationScripts\2019-02-11.sql" />
+    <Content Include="MigrationScripts\2019-02-12.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-02-11.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj">
