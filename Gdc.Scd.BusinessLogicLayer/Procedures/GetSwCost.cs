@@ -41,9 +41,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
             if (filter != null)
             {
-                pDigit.WithValue(filter.Digit);
-                pAv.WithValue(filter.Availability);
-                pYear.WithValue(filter.Year);
+                pDigit.WithListIdValue(filter.Digit);
+                pAv.WithListIdValue(filter.Availability);
+                pYear.WithListIdValue(filter.Year);
             }
 
             return new DbParameter[] {
