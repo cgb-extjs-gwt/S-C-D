@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.MigrationTool.Migrations
 {
-	public class Migration_2019_02_08
-	{
+	public class Migration_2019_02_08 : IMigrationAction
+    {
 		private readonly IRepositorySet repositorySet;
 
 		public int Number => 2;
