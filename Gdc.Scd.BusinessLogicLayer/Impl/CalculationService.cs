@@ -33,7 +33,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public Task<(string json, int total)> GetHardwareCost(bool approved, HwFilterDto filter, int lastId, int limit)
         {
-            if (filter == null || filter.Country <= 0)
+            if (filter == null || filter.Country == null || filter.Country.Length == 0)
             {
                 throw new ArgumentException("No country specified");
             }
@@ -61,11 +61,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new GetSwProActiveCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
         }
 
-        public void SaveHardwareCost(User changeUser, long countryId, IEnumerable<HwCostManualDto> records, bool release = false)
+        public void SaveHardwareCost(User changeUser, IEnumerable<HwCostManualDto> records, bool release = false)
         {
             var recordsId = records.Select(x => x.Id);
 
-            var entities = (from p in portfolioRepo.GetAll().Where(x => x.Country.Id == countryId && recordsId.Contains(x.Id))
+            var entities = (from p in portfolioRepo.GetAll().Where(x => recordsId.Contains(x.Id))
                             from hw in hwManualRepo.GetAll().Where(x => x.Id == p.Id).DefaultIfEmpty()
                             select new
                             {
