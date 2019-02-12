@@ -1,7 +1,6 @@
 <SCDConfiguration>
   <InputLevels>
     <InputLevel Name="Country"/>
-    <InputLevel Name="EmeiaCountry" Caption="Country" Type="View"/>
     <InputLevel Name="NonEmeiaCountry" Caption="Country" Type="View"/>
     <InputLevel Name="ClusterRegion" Caption="Region"/>
     <InputLevel Name="ClusterPla" Caption="Cluster Pla"/>
@@ -39,6 +38,7 @@
   
   <Dependencies>
     <Dependency Name="Year"/>
+    <Dependency Name="Duration"/>
     <Dependency Name="ServiceLocation" Caption="Service location"/>
     <Dependency Name="ReactionTimeType" Caption="Reaction" Type="View"/>
     <Dependency Name="ReactionTimeAvailability" Caption="Reaction" Type="View"/>
@@ -520,7 +520,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="MaterialCostOow" Caption="Material cost OOW EMEIA" InputOption="Manually" RegionInput="EmeiaCountry">
+        <Element Name="MaterialCostOow" Caption="Material cost OOW EMEIA" InputOption="Manually" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -610,7 +610,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="CurrencyReinsurance" Caption="Currency Reinsurance" InputOption="Manually" Dependency="Year" RegionInput="_none_">
+        <Element Name="CurrencyReinsurance" Caption="Currency Reinsurance" InputOption="Manually" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -622,7 +622,7 @@
             </Roles>
           </TableView>
         </Element>
-        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" RegionInput="_none_" Dependency="Year">
+        <Element Name="ReinsuranceFlatfee" Caption="Reinsurance Flatfee" InputOption="Manually" RegionInput="_none_" Dependency="Duration">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
