@@ -213,7 +213,6 @@ END
 go
 
 CREATE PROCEDURE Portfolio.DenyLocalPortfolioById
-    @cnt bigint,
     @ids dbo.ListID readonly
 AS
 BEGIN
@@ -221,8 +220,7 @@ BEGIN
     SET NOCOUNT ON;
 
     DELETE FROM Portfolio.LocalPortfolio
-    WHERE   (CountryId = @cnt) 
-        AND (Id in (select Id from @ids));
+    WHERE (Id in (select Id from @ids));
 
 END
 go

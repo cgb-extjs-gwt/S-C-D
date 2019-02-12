@@ -8,12 +8,12 @@ import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { DictField } from "../Dict/Components/DictField";
 import { DictFactory } from "../Dict/Services/DictFactory";
 import { IDictService } from "../Dict/Services/IDictService";
-import { MultiSelect } from "./Components/MultiSelect";
-import { MultiSelectWg } from "./Components/MultiSelectWg";
+import { MultiSelect } from "../Dict/Components/MultiSelect";
+import { MultiSelectWg } from "../Dict/Components/MultiSelectWg";
 import { PortfolioEditModel } from "./Model/PortfolioEditModel";
 import { IPortfolioService } from "./Services/IPortfolioService";
 import { PortfolioServiceFactory } from "./Services/PortfolioServiceFactory";
-import { MultiSelectProActive } from "./Components/MultiSelectProActive";
+import { MultiSelectProActive } from "../Dict/Components/MultiSelectProActive";
 import { NamedId } from "../Common/States/CommonStates";
 
 const SELECT_MAX_HEIGHT: string = '260px';
