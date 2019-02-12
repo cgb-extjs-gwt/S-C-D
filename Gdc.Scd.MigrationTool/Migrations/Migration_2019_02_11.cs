@@ -13,7 +13,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 3;
+        public int Number => 5;
 
         public string Description => "Remove PRS PSM permissions for Input Cost Elements + Disabled column for RoleCode";
 
