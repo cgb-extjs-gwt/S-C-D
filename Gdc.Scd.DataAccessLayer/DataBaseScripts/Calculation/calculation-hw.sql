@@ -2161,7 +2161,7 @@ RETURN
 go
 
 CREATE PROCEDURE [Hardware].[SpGetCosts]
-     @approved bit,
+         @approved bit,
     @local bit,
  	@cnt dbo.ListID readonly,
     @wg dbo.ListID readonly,
@@ -2258,7 +2258,8 @@ BEGIN
 
         from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) costs
 		join [References].Currency cur on cur.Id in (select CurrencyId from InputAtoms.Country where id in (select id from @cnt))
-		join [References].ExchangeRate er on er.CurrencyId = cur.Id
+		join [InputAtoms].Country c on c.Name = costs.Country
+		join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
         order by Id 
         
     end
@@ -2267,10 +2268,11 @@ BEGIN
 
         select  cur.Name as Currency
              , er.Value as ExchangeRate, 
-			 m.*
-        from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
+			 costs.*
+        from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) costs
 		join [References].Currency cur on cur.Id in (select CurrencyId from InputAtoms.Country where id in (select id from @cnt))
-		join [References].ExchangeRate er on er.CurrencyId = cur.Id
+		join [InputAtoms].Country c on c.Name = costs.Country
+		join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
         order by Id
 
     end

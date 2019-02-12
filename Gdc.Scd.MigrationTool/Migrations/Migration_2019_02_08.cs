@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.MigrationTool.Migrations
 {
-	public class Migration_2019_02_08 : IMigrationAction
+	public class Migration_2019_02_08
 	{
 		private readonly IRepositorySet repositorySet;
 

@@ -13,9 +13,9 @@ namespace Gdc.Scd.MigrationTool.Migrations
 	{
 		private readonly IRepositorySet repositorySet;
 
-		public int Number => 2;
+		public int Number => 4;
 
-		public string Description => "Remove EmeiaCountry from MaterialCostOowEmeia";
+		public string Description => "Multiselect filters for portfolio and calc results";
 
 		public Migration_2019_02_11_2(IRepositorySet repositorySet)
 		{

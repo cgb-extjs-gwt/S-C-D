@@ -1,4 +1,4 @@
-USE [SCD_2]
+USE [SCD_2_3]
 GO
 
 SET ANSI_NULLS ON
@@ -284,7 +284,7 @@ RETURN
 
     LEFT JOIN Hardware.MaterialCostOowCalc mco on mco.Wg = m.WgId AND mco.Country = m.CountryId
 
-    LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Year = m.DurationId AND r.AvailabilityId = m.AvailabilityId AND r.ReactionTimeId = m.ReactionTimeId
+    LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Duration = m.DurationId AND r.AvailabilityId = m.AvailabilityId AND r.ReactionTimeId = m.ReactionTimeId
 
     LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId AND fsc.ReactionTypeId = m.ReactionTypeId AND fsc.ReactionTimeId = m.ReactionTimeId
 
@@ -633,7 +633,7 @@ RETURN
 GO
 
 ALTER PROCEDURE [Hardware].[SpGetCosts]
-    @approved bit,
+      @approved bit,
     @local bit,
  	@cnt dbo.ListID readonly,
     @wg dbo.ListID readonly,
@@ -730,7 +730,8 @@ BEGIN
 
         from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) costs
 		join [References].Currency cur on cur.Id in (select CurrencyId from InputAtoms.Country where id in (select id from @cnt))
-		join [References].ExchangeRate er on er.CurrencyId = cur.Id
+		join [InputAtoms].Country c on c.Name = costs.Country
+		join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
         order by Id 
         
     end
@@ -739,10 +740,11 @@ BEGIN
 
         select  cur.Name as Currency
              , er.Value as ExchangeRate, 
-			 m.*
-        from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
+			 costs.*
+        from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) costs
 		join [References].Currency cur on cur.Id in (select CurrencyId from InputAtoms.Country where id in (select id from @cnt))
-		join [References].ExchangeRate er on er.CurrencyId = cur.Id
+		join [InputAtoms].Country c on c.Name = costs.Country
+		join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
         order by Id
 
     end
@@ -1293,6 +1295,10 @@ BEGIN
 END
 GO
 
+IF OBJECT_ID('Portfolio.IntToListID') IS NOT NULL
+  DROP FUNCTION Portfolio.IntToListID;
+go 
+
 CREATE FUNCTION Portfolio.IntToListID(@var bigint)
 RETURNS @tbl TABLE( id bigint NULL)
 AS
@@ -1306,7 +1312,7 @@ IF OBJECT_ID('Report.GetCostsFull') IS NOT NULL
   DROP FUNCTION Report.GetCostsFull;
 go 
 
-ALTER FUNCTION [Report].[GetCostsFull](
+CREATE FUNCTION [Report].[GetCostsFull](
     @cnt bigint,
     @wg bigint,
     @av bigint,
@@ -1492,7 +1498,7 @@ IF OBJECT_ID('Report.CalcOutputNewVsOld') IS NOT NULL
   DROP FUNCTION Report.CalcOutputNewVsOld;
 go 
 
-ALTER FUNCTION [Report].[CalcOutputNewVsOld]
+CREATE FUNCTION [Report].[CalcOutputNewVsOld]
 (
     @cnt bigint,
     @wg bigint,
@@ -1998,3 +2004,251 @@ begin
 return
 end
 go
+
+IF OBJECT_ID('Report.GetServiceCostsBySla') IS NOT NULL
+  DROP FUNCTION Report.GetServiceCostsBySla;
+go 
+
+CREATE FUNCTION [Report].[GetServiceCostsBySla]
+(
+    @cnt nvarchar(200),
+    @loc nvarchar(200),
+    @av nvarchar(200),
+    @reactiontime nvarchar(200),
+    @reactiontype nvarchar(200),
+    @wg nvarchar(200),   
+    @dur nvarchar(200)
+)
+RETURNS @tbl TABLE (
+    Country nvarchar(200),
+    ServiceTC float, 
+    ServiceTP float, 
+    ServiceTP1 float,
+    ServiceTP2 float,
+    ServiceTP3 float,
+    ServiceTP4 float,
+    ServiceTP5 float
+)
+AS
+BEGIN
+
+    declare @cntId dbo.ListId;
+    declare @locId dbo.ListId;
+    declare @avId dbo.ListId;
+    declare @reactiontimeId dbo.ListId;
+    declare @reactiontypeId dbo.ListId;
+    declare @wgId dbo.ListId;
+    declare @durId dbo.ListId;
+	declare @proId dbo.ListId;
+
+    insert into @cntId select id from InputAtoms.Country where UPPER(Name)= UPPER(@cnt);
+    insert into @locId select  id from Dependencies.ServiceLocation where UPPER(Name) = UPPER(@loc);
+    insert into @avId select   id from Dependencies.Availability where ExternalName like '%' + @av + '%';
+    insert into @reactiontimeId select   id from Dependencies.ReactionTime where UPPER(Name)=UPPER(@reactiontime);
+    insert into @reactiontypeId select   id from Dependencies.ReactionType where UPPER(Name)=UPPER(@reactiontype);
+    insert into @wgId select id from InputAtoms.Wg where UPPER(Name)=UPPER(@wg);
+    insert into @durId select id from Dependencies.Duration where UPPER(Name)=UPPER(@dur);
+
+    INSERT @tbl
+    select costs.Country,
+           coalesce(costs.ServiceTCManual, costs.ServiceTC) as ServiceTC, 
+		   costs.ServiceTP_Released as ServiceTP, 
+           costs.ServiceTP1,
+           costs.ServiceTP2,
+           costs.ServiceTP3,
+           costs.ServiceTP4,
+           costs.ServiceTP5
+     from Hardware.GetCostsFull(0, @cntId, @wgId, @avId, @durId, @reactiontimeId, @reactiontypeId, @locId, @proId, 0, -1) costs
+
+    return;
+END
+GO
+
+IF OBJECT_ID('Report.SwCalcResult') IS NOT NULL
+  DROP FUNCTION Report.SwCalcResult;
+go 
+
+CREATE FUNCTION Report.SwCalcResult
+(
+	@approved bit,
+    @digit dbo.ListID readonly,
+    @availability dbo.ListID readonly,
+    @year dbo.ListID readonly
+)
+RETURNS TABLE 
+AS
+RETURN (
+    select    d.Name as SwDigit
+            , sog.Name as Sog
+            , av.Name as Availability 
+            , y.Name as Year
+            , m.ServiceSupport
+            , m.Reinsurance
+            , m.TransferPrice
+            , m.MaintenanceListPrice
+            , m.DealerPrice
+    from SoftwareSolution.GetCosts(@approved, @digit, @availability, @year, -1, -1) m
+    join InputAtoms.SwDigit d on d.Id = m.SwDigit
+    join InputAtoms.Sog sog on sog.Id = m.Sog
+    join Dependencies.Availability av on av.Id = m.Availability
+    join Dependencies.Year y on y.Id = m.Year
+)
+GO
+
+IF OBJECT_ID('Report.SwProactiveCalcResult') IS NOT NULL
+  DROP FUNCTION Report.SwProactiveCalcResult;
+go 
+
+CREATE FUNCTION Report.SwProactiveCalcResult
+(
+    @approved bit,
+    @country dbo.ListID readonly,
+    @digit dbo.ListID readonly,
+    @availability dbo.ListID readonly,
+    @year dbo.ListID readonly
+)
+RETURNS TABLE 
+AS
+RETURN (
+    select    c.Name as Country               
+            , sog.Name as Sog                   
+            , d.Name as SwDigit               
+
+            , av.Name as Availability
+            , y.Name as Year
+            , pro.ExternalName as ProactiveSla
+
+            , m.ProActive
+
+    FROM SoftwareSolution.GetProActiveCosts(@approved, @country, @digit, @availability, @year, -1, -1) m
+    JOIN InputAtoms.Country c on c.id = m.Country
+    join InputAtoms.SwDigit d on d.Id = m.SwDigit
+    join InputAtoms.Sog sog on sog.Id = d.SogId
+    left join Dependencies.Availability av on av.Id = m.AvailabilityId
+    left join Dependencies.Year y on y.Id = m.DurationId
+    left join Dependencies.ProActiveSla pro on pro.Id = m.ProactiveSlaId
+)
+GO
+
+IF OBJECT_ID('Report.SwServicePriceListDetail') IS NOT NULL
+  DROP FUNCTION Report.SwServicePriceListDetail;
+go 
+
+CREATE FUNCTION Report.SwServicePriceListDetail
+(
+    @digit bigint,
+    @av bigint,
+    @year bigint
+)
+RETURNS @tbl TABLE (
+	Digit nvarchar(max) NULL
+	,SogDescription nvarchar(max) NULL
+	,Sog nvarchar(max) NULL
+	,Fsp2 nvarchar(max) NULL
+	,Fsp nvarchar(max) NULL
+	
+	,SpDescription nvarchar(max) NULL
+	,Sp nvarchar(max) NULL
+
+	,ServiceSupport float NULL
+	,Reinsurance float NULL
+
+	,TP float NULL
+	,DealerPrice float NULL
+	,ListPrice float NULL
+)
+as
+begin
+	declare @digitList dbo.ListId; 
+	if @digit is not null insert into @digitList(id) select id from Portfolio.IntToListID(@digit);
+
+	declare @avList dbo.ListId; 
+	if @av is not null insert into @avList(id) select id from Portfolio.IntToListID(@av);
+
+	declare @yearList dbo.ListId; 
+	if @year is not null insert into @yearList(id) select id from Portfolio.IntToListID(@year);
+
+	insert into @tbl
+    select    dig.Name as Digit
+            , sog.Description as SogDescription
+            , sog.Name as Sog
+            , null as Fsp2
+            , fsp.Name as Fsp
+
+            , fsp.ServiceDescription as SpDescription
+            , null as Sp
+
+            , sw.ServiceSupport as ServiceSupport
+            , sw.Reinsurance as Reinsurance
+
+            , sw.TransferPrice as TP
+            , sw.DealerPrice as DealerPrice
+            , sw.MaintenanceListPrice as ListPrice
+
+    from SoftwareSolution.GetCosts(1, @digitList, @avList, @yearList, -1, -1) sw
+    join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
+    join InputAtoms.Sog sog on sog.id = sw.Sog
+    left join Fsp.SwFspCodeTranslation fsp on fsp.AvailabilityId = sw.Availability
+                                          and fsp.DurationId = sw.Year
+                                          and fsp.SogId = sw.Sog
+return
+end
+GO
+
+IF OBJECT_ID('Report.SwServicePriceList') IS NOT NULL
+  DROP FUNCTION Report.SwServicePriceList;
+go 
+
+CREATE FUNCTION [Report].[SwServicePriceList]
+(
+	@digit bigint,
+    @av bigint,
+    @year bigint
+)
+RETURNS @tbl TABLE (
+	Digit nvarchar(max) NULL
+	,SogDescription nvarchar(max) NULL
+	,Sog nvarchar(max) NULL
+	,Fsp nvarchar(max) NULL
+	
+	,SpDescription nvarchar(max) NULL
+	,Sp nvarchar(max) NULL
+
+	,TP float NULL
+	,DealerPrice float NULL
+	,ListPrice float NULL
+)
+as
+begin
+	declare @digitList dbo.ListId; 
+	if @digit is not null insert into @digitList(id) select id from Portfolio.IntToListID(@digit);
+
+	declare @avList dbo.ListId; 
+	if @av is not null insert into @avList(id) select id from Portfolio.IntToListID(@av);
+
+	declare @yearList dbo.ListId; 
+	if @year is not null insert into @yearList(id) select id from Portfolio.IntToListID(@year);
+
+	insert into @tbl
+    select 
+              dig.Name as Digit
+            , sog.Description as SogDescription
+            , sog.Name as Sog
+            , fsp.Name as Fsp
+
+            , fsp.ServiceDescription as SpDescription
+            , null as Sp
+
+            , sw.TransferPrice as TP
+            , sw.DealerPrice as DealerPrice
+            , sw.MaintenanceListPrice as ListPrice
+
+    from SoftwareSolution.GetCosts(1, @digitList, @avList, @yearList, -1, -1) sw
+    join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
+    join InputAtoms.Sog sog on sog.id = sw.Sog
+    left join Fsp.SwFspCodeTranslation fsp on fsp.AvailabilityId = sw.Availability
+                                          and fsp.DurationId = sw.Year
+                                          and fsp.SogId = sw.Sog
+return
+end
+GO
