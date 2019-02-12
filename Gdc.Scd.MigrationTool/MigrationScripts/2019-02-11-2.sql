@@ -205,7 +205,7 @@ RETURN
          , case when @approved = 0 then lc.ReturnDeliveryFactory           else lc.ReturnDeliveryFactory_Approved    end as ReturnDeliveryFactory   
          , case when @approved = 0 then lc.TaxiCourierDelivery             else lc.TaxiCourierDelivery_Approved      end as TaxiCourierDelivery     
 
-         , case when afEx.id is null then (case when @approved = 0 then af.Fee else af.Fee_Approved end)
+         , case when afEx.id is not null then (case when @approved = 0 then af.Fee else af.Fee_Approved end)
                  else 0
            end as AvailabilityFee
 
