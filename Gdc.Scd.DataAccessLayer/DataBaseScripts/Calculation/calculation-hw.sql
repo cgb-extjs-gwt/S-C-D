@@ -1680,7 +1680,7 @@ END;
 go
 
 CREATE FUNCTION [Hardware].[GetCalcMember] (
-     @approved bit,
+    @approved bit,
 	@cnt dbo.ListID readonly,
     @wg dbo.ListID readonly,
     @av dbo.ListID readonly,
@@ -1748,8 +1748,6 @@ RETURN
          , case when @approved = 0 then afr.AFR5  else afr.AFR5_Approved   end as AFR5 
          , case when @approved = 0 then afr.AFRP1 else afr.AFRP1_Approved  end as AFRP1
        
-         , case when @approved = 0 then hdd.HddRet                         else hdd.HddRet_Approved                  end as HddRet              
-         
          , case when @approved = 0 then mcw.MaterialCostWarranty           else mcw.MaterialCostWarranty_Approved    end as MaterialCostWarranty
          , case when @approved = 0 then mco.MaterialCostOow                else mco.MaterialCostOow_Approved         end as MaterialCostOow     
 
@@ -1852,8 +1850,6 @@ RETURN
 
     LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
-    LEFT JOIN Hardware.HddRetention hdd on hdd.Wg = m.WgId AND hdd.Year = m.DurationId
-
     LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg.ClusterPla
 
     LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
@@ -1885,7 +1881,7 @@ RETURN
 GO
 
 CREATE FUNCTION [Hardware].[GetCostsFull](
-     @approved bit,
+    @approved bit,
 	@cnt dbo.ListID readonly,
     @wg dbo.ListID readonly,
     @av dbo.ListID readonly,
@@ -2097,7 +2093,6 @@ RETURN
          --Cost
 
          , m.AvailabilityFee * m.Year as AvailabilityFee
-         , m.HddRet
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.tax1, m.tax2, m.tax3, m.tax4, m.tax5, m.tax1P) as TaxAndDutiesW
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.taxO1, m.taxO2, m.taxO3, m.taxO4, m.taxO5, m.taxO1P) as TaxAndDutiesOow
          , m.Reinsurance
@@ -2179,7 +2174,6 @@ RETURN
          , StdWarranty
 
          , AvailabilityFee
-         , HddRet
          , TaxAndDutiesW
          , TaxAndDutiesOow
          , Reinsurance
@@ -2211,9 +2205,9 @@ RETURN
 go
 
 CREATE PROCEDURE [Hardware].[SpGetCosts]
-	@approved bit,
+    @approved bit,
     @local bit,
- 	@cnt dbo.ListID readonly,
+    @cnt dbo.ListID readonly,
     @wg dbo.ListID readonly,
     @av dbo.ListID readonly,
     @dur dbo.ListID readonly,
@@ -2277,7 +2271,6 @@ BEGIN
              --Cost
 
              , AvailabilityFee               * er.Value  as AvailabilityFee 
-             , HddRet                        * er.Value  as HddRet
              , TaxAndDutiesW                 * er.Value  as TaxAndDutiesW
              , TaxAndDutiesOow               * er.Value  as TaxAndDutiesOow
              , Reinsurance                   * er.Value  as Reinsurance
@@ -2307,9 +2300,9 @@ BEGIN
              , ChangeUserEmail                            as ChangeUserEmail
 
         from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) costs
-		join [InputAtoms].Country c on c.Name = costs.Country
-		join [References].Currency cur on cur.Id = c.CurrencyId
-		join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+        join [InputAtoms].Country c on c.Name = costs.Country
+        join [References].Currency cur on cur.Id = c.CurrencyId
+        join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
         order by Id 
         
     end
@@ -2326,3 +2319,5 @@ BEGIN
         order by Id
     end
 END
+
+go

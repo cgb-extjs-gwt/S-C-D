@@ -49,7 +49,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (filter != null)
             {
-                query = query.WhereIf(filter.Wg.HasValue, x => x.WgId == filter.Wg.Value);
+                query = query.WhereIf(filter.Wg != null && filter.Wg.Length > 0, x => filter.Wg.Contains(x.WgId));
             }
 
             var count = await query.GetCountAsync();

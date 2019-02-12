@@ -41,7 +41,6 @@ RETURN (
             --Cost
 
             , case when @local = 1 then AvailabilityFee * er.Value else AvailabilityFee end as AvailabilityFee 
-            , case when @local = 1 then HddRet * er.Value else HddRet end as HddRet
             , case when @local = 1 then TaxAndDutiesW * er.Value else TaxAndDutiesW end as TaxAndDutiesW
             , case when @local = 1 then TaxAndDutiesOow * er.Value else TaxAndDutiesOow end as TaxAndDutiesOow
             , case when @local = 1 then Reinsurance * er.Value else Reinsurance end as Reinsurance
@@ -111,8 +110,6 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'Logistic', 'Logistic cost', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'AvailabilityFee', 'Availability fee', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'HddRet', 'HDD retention', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'Reinsurance', 'Reinsurance', 1, 1);
 set @index = @index + 1;

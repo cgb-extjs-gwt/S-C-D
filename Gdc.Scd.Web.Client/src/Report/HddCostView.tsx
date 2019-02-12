@@ -55,12 +55,16 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
             api: {
                 read: buildMvcUrl('hdd', 'getcost')
             },
+            actionMethods: {
+                read: 'POST'
+            },
             reader: {
                 type: 'json',
                 rootProperty: 'items',
                 idProperty: "wgId",
                 totalProperty: 'total'
-            }
+            },
+            paramsAsJson: true
         },
         listeners: {
             update: () => {

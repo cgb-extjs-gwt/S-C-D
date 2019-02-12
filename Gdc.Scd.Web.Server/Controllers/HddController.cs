@@ -18,17 +18,14 @@ namespace Gdc.Scd.Web.Server.Controllers
             this.hdd = hdd;
         }
 
-        [HttpGet]
+        [HttpPost]
         public Task<DataInfo<HddRetentionDto>> GetCost(
-                [FromUri]HddFilterDto filter,
-                [FromUri]bool approved = true,
-                [FromUri]int start = 0,
-                [FromUri]int limit = 50
+                [FromBody]HddFilterDto filter
             )
         {
-            if (IsRangeValid(start, limit))
+            if (IsRangeValid(filter.Start, filter.Limit))
             {
-                return hdd.GetCost(this.CurrentUser(), approved, filter, start, limit)
+                return hdd.GetCost(this.CurrentUser(), filter.Approved, filter, filter.Start, filter.Limit)
                           .ContinueWith(x => new DataInfo<HddRetentionDto> { Items = x.Result.items, Total = x.Result.total });
             }
             else

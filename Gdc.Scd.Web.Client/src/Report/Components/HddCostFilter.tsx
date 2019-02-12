@@ -1,9 +1,14 @@
 ﻿import { Button, Container, Panel, PanelProps } from "@extjs/ext-react";
 import * as React from "react";
-import { NamedId } from "../../Common/States/CommonStates";
-import { DictField } from "../../Dict/Components/DictField";
-import { WgField } from "../../Dict/Components/WgField";
+import { MultiSelect } from "../../Dict/Components/MultiSelect";
+import { MultiSelectWg } from "../../Dict/Components/MultiSelectWg";
+import { DictFactory } from "../../Dict/Services/DictFactory";
+import { IDictService } from "../../Dict/Services/IDictService";
 import { HddCostFilterModel } from "../Model/HddCostFilterModel";
+
+Ext.require('Ext.panel.Collapser');
+
+const SELECT_MAX_HEIGHT: string = '200px';
 
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: HddCostFilterModel): void;
@@ -12,9 +17,24 @@ export interface FilterPanelProps extends PanelProps {
 
 export class HddCostFilter extends React.Component<FilterPanelProps, any> {
 
-    private sog: DictField<NamedId>;
+    private wg: MultiSelect;
 
-    private wg: DictField<NamedId>;
+    private dictSrv: IDictService;
+
+    private multiProps = {
+        width: '200px',
+        maxHeight: SELECT_MAX_HEIGHT,
+        title: ""
+    };
+
+    private panelProps = {
+        width: '300px',
+        collapsible: {
+            direction: 'top',
+            dynamic: true,
+            collapsed: true
+        }
+    };
 
     public constructor(props: any) {
         super(props);
@@ -22,6 +42,7 @@ export class HddCostFilter extends React.Component<FilterPanelProps, any> {
     }
 
     public render() {
+
         return (
             <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px" layout={{ type: 'vbox', align: 'left' }}>
 
@@ -35,7 +56,10 @@ export class HddCostFilter extends React.Component<FilterPanelProps, any> {
                     }}
                 >
 
-                    <WgField ref={x => this.wg = x} label="Asset(WG):" />
+                    <Panel title='Asset(WG)'
+                        {...this.panelProps}>
+                        <MultiSelectWg ref={x => this.wg = x} {...this.multiProps} store={this.dictSrv.getWG} />
+                    </Panel>
 
                 </Container>
 
@@ -49,11 +73,12 @@ export class HddCostFilter extends React.Component<FilterPanelProps, any> {
 
     public getModel(): HddCostFilterModel {
         return {
-            wg: this.wg.getSelected()
+            wg: this.wg.getSelectedKeysOrNull()
         };
     }
 
     private init() {
+        this.dictSrv = DictFactory.getDictService();
         this.onSearch = this.onSearch.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onDownload = this.onDownload.bind(this);

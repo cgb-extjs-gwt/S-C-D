@@ -1,3 +1,3 @@
 ﻿export interface HddCostFilterModel {
-    wg?: string;
+    wg?: string[];
 }
