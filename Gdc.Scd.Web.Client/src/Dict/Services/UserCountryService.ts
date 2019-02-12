@@ -1,6 +1,7 @@
 ﻿import { get } from "../../Common/Services/Ajax";
 import { CacheDomainService } from "../../Common/Services/CacheDomainService";
 import { Country } from "../Model/Country";
+import { NamedId } from "../../Common/States/CommonStates";
 
 const USR_ACTION: string = 'usr';
 const ISCOUNTRYUSER_ACTION: string = 'iscountryuser';
@@ -20,6 +21,10 @@ export class UserCountryService extends CacheDomainService<Country> {
         return get<Country[]>(this.controllerName, USR_ACTION);
     }
 
+    public getAllNames(): Promise<NamedId[]> {
+        return this.getFromUrl(USR_ACTION);
+    }
+
     public isCountryUser(cntId = 0): Promise<boolean> {
         return get<boolean>(this.controllerName, ISCOUNTRYUSER_ACTION, { cntId: cntId });
     }
@@ -27,4 +32,5 @@ export class UserCountryService extends CacheDomainService<Country> {
     public isAdminUser(): Promise<boolean> {
         return get<boolean>(this.controllerName, ISADMINUSER_ACTION);
     }
+
 }
