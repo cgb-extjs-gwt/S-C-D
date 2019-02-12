@@ -18,23 +18,21 @@ namespace Gdc.Scd.Web.Server.Controllers
             this.portfolioService = portfolioService;
         }
 
-        [HttpGet]
+        [HttpPost]
         public Task<DataInfo<PortfolioDto>> Allowed(
-                [FromUri]PortfolioFilterDto filter,
-                [FromUri]int start = 0,
-                [FromUri]int limit = 25
+                [FromBody]PortfolioFilterDto filter
             )
         {
-            if (!IsRangeValid(start, limit))
+            if (!IsRangeValid(filter.Start, filter.Limit))
             {
                 return null;
             }
 
             return portfolioService
-                    .GetAllowed(filter, start, limit)
+                    .GetAllowed(filter, filter.Start, filter.Limit)
                     .ContinueWith(x => new DataInfo<PortfolioDto> { Items = x.Result.items, Total = x.Result.total });
         }
-
+      
         [HttpPost]
         public Task Allow([FromBody]PortfolioRuleSetDto m)
         {
@@ -61,7 +59,7 @@ namespace Gdc.Scd.Web.Server.Controllers
 
     public class LocalPortfolioDto
     {
-        public long CountryId { get; set; }
+        public long[] CountryId { get; set; }
 
         public long[] Items { get; set; }
     }

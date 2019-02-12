@@ -9,7 +9,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task Deny(PortfolioRuleSetDto set);
 
-        Task Deny(long countryId, long[] ids);
+        Task Deny(long[] countryId, long[] ids);
 
         Task<(PortfolioDto[] items, int total)> GetAllowed(PortfolioFilterDto filter, int start, int limit);
     }
