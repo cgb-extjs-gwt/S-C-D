@@ -86,7 +86,7 @@ export class WarrantyGroupGrid extends React.Component<any> {
                 type: 'json'
             },
             api: {
-                read: buildMvcUrl(ROLECODE_CONTROLLER_NAME, 'GetAll')
+                read: buildMvcUrl(ROLECODE_CONTROLLER_NAME, 'GetAllActive')
             }
         },
         listeners: {

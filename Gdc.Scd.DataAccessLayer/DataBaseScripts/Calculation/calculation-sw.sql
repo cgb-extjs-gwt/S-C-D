@@ -98,9 +98,9 @@ GO
 
 CREATE FUNCTION [SoftwareSolution].[GetSwSpMaintenancePaging] (
     @approved bit,
-    @digit bigint,
-    @av bigint,
-    @year bigint,
+    @digit dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @year dbo.ListID readonly,
     @lastid bigint,
     @limit int
 )
@@ -125,6 +125,9 @@ RETURNS @tbl TABLE
         )
 AS
 BEGIN
+		declare @isEmptyDigit    bit = Portfolio.IsListEmpty(@digit);
+		declare @isEmptyAV    bit = Portfolio.IsListEmpty(@av);
+		declare @isEmptyYear    bit = Portfolio.IsListEmpty(@year);
 
         if @limit > 0
         begin
@@ -139,9 +142,9 @@ BEGIN
                       , ya.YearId
                 FROM SoftwareSolution.SwSpMaintenance ssm
                 JOIN Dependencies.Duration_Availability ya on ya.Id = ssm.DurationAvailability
-                WHERE   (@digit is null or ssm.SwDigit = @digit)
-                    and (@av is null or ya.AvailabilityId = @av)
-                    and (@year is null or ya.YearId = @year)
+                WHERE (@isEmptyDigit = 1 or ssm.SwDigit in (select id from @digit))
+					AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
+					AND (@isEmptyYear = 1 or ya.YearId in (select id from @year))
             )
             insert @tbl
             select top(@limit)
@@ -189,21 +192,21 @@ BEGIN
             FROM SoftwareSolution.SwSpMaintenance ssm
             JOIN Dependencies.Duration_Availability ya on ya.Id = ssm.DurationAvailability
 
-            WHERE   (@digit is null or ssm.SwDigit = @digit)
-                and (@av is null or ya.AvailabilityId = @av)
-                and (@year is null or ya.YearId = @year)
+            WHERE (@isEmptyDigit = 1 or ssm.SwDigit in (select id from @digit))
+					AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
+					AND (@isEmptyYear = 1 or ya.YearId in (select id from @year))
 
         end
 
     RETURN;
-END;
+END
 GO
 
 CREATE FUNCTION [SoftwareSolution].[GetCosts] (
-    @approved bit,
-    @digit bigint,
-    @av bigint,
-    @year bigint,
+     @approved bit,
+    @digit dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @year dbo.ListID readonly,
     @lastid bigint,
     @limit int
 )
@@ -301,10 +304,10 @@ GO
 
 CREATE FUNCTION [SoftwareSolution].[GetProActivePaging] (
      @approved bit,
-     @cnt bigint,
-     @digit bigint,
-     @av bigint,
-     @year bigint,
+     @cnt dbo.ListID readonly,
+     @digit dbo.ListID readonly,
+     @av dbo.ListID readonly,
+     @year dbo.ListID readonly,
      @lastid bigint,
      @limit int
 )
@@ -339,6 +342,10 @@ RETURNS @tbl TABLE
         )
 AS
 BEGIN
+		declare @isEmptyCnt    bit = Portfolio.IsListEmpty(@cnt);
+		declare @isEmptyDigit    bit = Portfolio.IsListEmpty(@digit);
+		declare @isEmptyAV    bit = Portfolio.IsListEmpty(@av);
+		declare @isEmptyYear    bit = Portfolio.IsListEmpty(@year);
 
         if @limit > 0
         begin
@@ -346,9 +353,9 @@ BEGIN
                 select fsp.*
                 from fsp.SwFspCodeTranslation fsp
                 join Dependencies.ProActiveSla pro on pro.id = fsp.ProactiveSlaId and pro.Name <> '0'
-                where (@digit is null or fsp.SwDigitId = @digit)
-                  and (@av is null or fsp.AvailabilityId = @av)
-                  and (@year is null or fsp.DurationId = @year)
+				where (@isEmptyDigit = 1 or fsp.SwDigitId in (select id from @digit))
+					AND (@isEmptyAV = 1 or fsp.AvailabilityId in (select id from @av))
+					AND (@isEmptyYear = 1 or fsp.DurationId in (select id from @year))
             )
             , cte as (
                 select ROW_NUMBER() over(
@@ -390,9 +397,10 @@ BEGIN
                     FROM SoftwareSolution.ProActiveSw pro
                     LEFT JOIN FspCte fsp ON fsp.SwDigitId = pro.SwDigit
 
-                    WHERE  pro.Country = @cnt
-                       and (@digit is null or pro.SwDigit = @digit)
-                       and (@cnt is null   or pro.Country = @cnt)
+				    WHERE (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
+				    AND (@isEmptyDigit = 1 or pro.SwDigit in (select id from @digit))
+					AND (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
+
             )
             INSERT @tbl
             SELECT *
@@ -404,9 +412,9 @@ BEGIN
                 select fsp.*
                 from fsp.SwFspCodeTranslation fsp
                 join Dependencies.ProActiveSla pro on pro.id = fsp.ProactiveSlaId and pro.Name <> '0'
-                where (@digit is null or fsp.SwDigitId = @digit)
-                  and (@av is null or fsp.AvailabilityId = @av)
-                  and (@year is null or fsp.DurationId = @year)
+				where (@isEmptyDigit = 1 or fsp.SwDigitId in (select id from @digit))
+				AND (@isEmptyAV = 1 or fsp.AvailabilityId in (select id from @av))
+				AND (@isEmptyYear = 1 or fsp.DurationId in (select id from @year))
             )
             INSERT @tbl
             SELECT -1 as rownum
@@ -439,22 +447,22 @@ BEGIN
                 FROM SoftwareSolution.ProActiveSw pro
                 LEFT JOIN FspCte fsp ON fsp.SwDigitId = pro.SwDigit
 
-                WHERE  pro.Country = @cnt
-                   and (@digit is null or pro.SwDigit = @digit)
-                   and (@cnt is null   or pro.Country = @cnt)
+				WHERE (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
+				AND (@isEmptyDigit = 1 or pro.SwDigit in (select id from @digit))
+				AND (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
 
         end
 
     RETURN;
-END;
+END
 GO
 
 CREATE FUNCTION [SoftwareSolution].[GetProActiveCosts] (
-     @approved bit,
-     @cnt bigint,
-     @digit bigint,
-     @av bigint,
-     @year bigint,
+      @approved bit,
+	 @cnt dbo.ListID readonly,
+     @digit dbo.ListID readonly,
+     @av dbo.ListID readonly,
+     @year dbo.ListID readonly,
      @lastid bigint,
      @limit int
 )
@@ -516,10 +524,10 @@ RETURN
 GO
 
 CREATE PROCEDURE [SoftwareSolution].[SpGetCosts]
-    @approved bit,
-    @digit bigint,
-    @av bigint,
-    @year bigint,
+     @approved bit,
+    @digit dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @year dbo.ListID readonly,
     @lastid bigint,
     @limit int,
     @total int output
@@ -528,14 +536,18 @@ BEGIN
 
     SET NOCOUNT ON;
 
+	declare @isEmptyDigit    bit = Portfolio.IsListEmpty(@digit);
+	declare @isEmptyAV    bit = Portfolio.IsListEmpty(@av);
+	declare @isEmptyYear    bit = Portfolio.IsListEmpty(@year);
+
     SELECT @total = COUNT(m.id)
 
         FROM SoftwareSolution.SwSpMaintenance m 
         JOIN Dependencies.Duration_Availability yav on yav.Id = m.DurationAvailability
 
-        WHERE    (@digit is null or m.SwDigit = @digit)
-             and (@av is null    or yav.AvailabilityId = @av)
-             and (@year is null  or yav.YearId = @year)
+		WHERE (@isEmptyDigit = 1 or m.SwDigit in (select id from @digit))
+			AND (@isEmptyAV = 1 or yav.AvailabilityId in (select id from @av))
+			AND (@isEmptyYear = 1 or yav.YearId in (select id from @year))
 
     select  m.rownum
           , m.Id
@@ -566,11 +578,11 @@ END
 GO
 
 CREATE PROCEDURE [SoftwareSolution].[SpGetProActiveCosts]
-    @approved bit,
-    @cnt bigint,
-    @digit bigint,
-    @av bigint,
-    @year bigint,
+     @approved bit,
+  	@cnt dbo.ListID readonly,
+    @digit dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @year dbo.ListID readonly,
     @lastid bigint,
     @limit int,
     @total int output
@@ -579,22 +591,27 @@ BEGIN
 
     SET NOCOUNT ON;
 
+	declare @isEmptyCnt    bit = Portfolio.IsListEmpty(@cnt);
+	declare @isEmptyDigit    bit = Portfolio.IsListEmpty(@digit);
+	declare @isEmptyAV    bit = Portfolio.IsListEmpty(@av);
+	declare @isEmptyYear    bit = Portfolio.IsListEmpty(@year);
+
     WITH FspCte AS (
         select fsp.SwDigitId
         from fsp.SwFspCodeTranslation fsp
         join Dependencies.ProActiveSla pro on pro.id = fsp.ProactiveSlaId and pro.Name <> '0'
-        where (@digit is null or fsp.SwDigitId = @digit)
-          and (@av is null or fsp.AvailabilityId = @av)
-          and (@year is null or fsp.DurationId = @year)
+		where (@isEmptyDigit = 1 or fsp.SwDigitId in (select id from @digit))
+				AND (@isEmptyAV = 1 or fsp.AvailabilityId in (select id from @av))
+				AND (@isEmptyYear = 1 or fsp.DurationId in (select id from @year))
     )
     SELECT @total = COUNT(pro.id)
 
     FROM SoftwareSolution.ProActiveSw pro
     LEFT JOIN FspCte fsp ON fsp.SwDigitId = pro.SwDigit
 
-    WHERE  pro.Country = @cnt
-        and (@digit is null or pro.SwDigit = @digit)
-        and (@cnt is null   or pro.Country = @cnt)
+	WHERE (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
+		AND (@isEmptyDigit = 1 or pro.SwDigit in (select id from @digit))
+		AND (@isEmptyCnt = 1 or pro.Country in (select id from @cnt))
 
     -----------------------------------------------------------------------------------------------------
 

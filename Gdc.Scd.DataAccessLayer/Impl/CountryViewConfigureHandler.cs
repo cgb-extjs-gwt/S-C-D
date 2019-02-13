@@ -32,22 +32,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var clusterRegionMeta = (ClusterRegionEntityMeta)countryMeta.ClusterRegionField.ReferenceMeta;
             var isEmeiaColumn = new ColumnSqlBuilder(clusterRegionMeta.IsEmeiaField.Name, clusterRegionMeta.Name);
 
-            var emeiaCountryQuery =
-                countryQuery.Where(
-                    SqlOperators.Equals(isEmeiaColumn, new RawSqlBuilder("1")));
-
             var nonEmeiaCountryQuery =
                 countryQuery.Where(
                     SqlOperators.Equals(isEmeiaColumn, new RawSqlBuilder("0")));
 
             var views = new[]
             {
-                new CreateViewSqlBuilder
-                {
-                    Name = MetaConstants.EmeiaCountryInputLevelName,
-                    Shema = MetaConstants.InputLevelSchema,
-                    Query = emeiaCountryQuery.ToSqlBuilder()
-                },
                 new CreateViewSqlBuilder
                 {
                     Name = MetaConstants.NonEmeiaCountryInputLevelName,

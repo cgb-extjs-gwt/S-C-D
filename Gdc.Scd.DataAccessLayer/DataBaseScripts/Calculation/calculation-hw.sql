@@ -62,9 +62,18 @@ BEGIN
 
         union 
 
-        select EmeiaCountry as Country, Wg, MaterialCostOow, MaterialCostOow_Approved
-        from Hardware.MaterialCostOowEmeia
-        where DeactivatedDateTime is null
+        SELECT cr.Id AS Country, Wg, MaterialCostOow, MaterialCostOow_Approved 
+		  FROM [Hardware].[MaterialCostOowEmeia] mc
+		  CROSS JOIN (SELECT c.[Id]
+		  FROM [InputAtoms].[Country] c
+		  INNER JOIN [InputAtoms].[CountryGroup] cg
+		  ON c.CountryGroupId = cg.Id
+		  INNER JOIN [InputAtoms].[Region] r
+		  ON cg.RegionId = r.Id
+		  INNER JOIN [InputAtoms].[ClusterRegion] cr
+		  ON r.ClusterRegionId = cr.Id
+		  WHERE cr.IsEmeia = 1 AND c.IsMaster = 1) AS cr
+		  where DeactivatedDateTime is null
 
     -- Enable all table constraints
     ALTER TABLE Hardware.MaterialCostOowCalc CHECK CONSTRAINT ALL;
@@ -521,6 +530,12 @@ CREATE NONCLUSTERED INDEX [IX_HwStandardWarranty_Country] ON Fsp.HwStandardWarra
 (
 	[Country] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
+CREATE VIEW [InputAtoms].[WgStdView] AS
+    select *
+    from InputAtoms.Wg
+    where Id in (select Wg from Fsp.HwStandardWarranty) and WgType = 1
 GO
 
 IF OBJECT_ID('Fsp.HwFspCodeTranslation_Updated', 'TR') IS NOT NULL
@@ -1181,6 +1196,35 @@ go
 update Hardware.HddRetention set HddFr = HddFr + 0;
 go
 
+IF OBJECT_ID('Hardware.HddRetentionView', 'U') IS NOT NULL
+  DROP TABLE Hardware.HddRetentionView;
+go
+
+IF OBJECT_ID('Hardware.HddRetentionView', 'V') IS NOT NULL
+  DROP VIEW Hardware.HddRetentionView;
+go
+
+CREATE VIEW Hardware.HddRetentionView as 
+    SELECT 
+           h.Wg as WgId
+         , wg.Name as Wg
+         , h.HddRet
+         , HddRet_Approved
+         , hm.TransferPrice 
+         , hm.ListPrice
+         , hm.DealerDiscount
+         , hm.DealerPrice
+         , u.Name as ChangeUserName
+         , u.Email as ChangeUserEmail
+
+    FROM Hardware.HddRetention h
+    JOIN InputAtoms.Wg wg on wg.id = h.Wg
+    LEFT JOIN Hardware.HddRetentionManualCost hm on hm.WgId = h.Wg
+    LEFT JOIN [dbo].[User] u on u.Id = hm.ChangeUserId
+    WHERE h.DeactivatedDateTime is null 
+      AND h.Year = (select id from Dependencies.Year where Value = 5 and IsProlongation = 0)
+go
+
 CREATE VIEW [Hardware].[FieldServiceCostView] AS
     SELECT  fsc.Country,
             fsc.Wg,
@@ -1526,14 +1570,14 @@ RETURN
 GO
 
 CREATE FUNCTION [Portfolio].[GetBySlaPaging](
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @loc bigint,
-    @pro bigint,
+    @cnt dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @dur dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc dbo.ListID readonly,
+    @pro dbo.ListID readonly,
     @lastid bigint,
     @limit int
 )
@@ -1553,6 +1597,14 @@ RETURNS @tbl TABLE
             )
 AS
 BEGIN
+	declare @isEmptyCnt    bit = Portfolio.IsListEmpty(@cnt);
+    declare @isEmptyWG    bit = Portfolio.IsListEmpty(@wg);
+    declare @isEmptyAv    bit = Portfolio.IsListEmpty(@av);
+    declare @isEmptyDur   bit = Portfolio.IsListEmpty(@dur);
+    declare @isEmptyRType bit = Portfolio.IsListEmpty(@reactiontype);
+    declare @isEmptyRTime bit = Portfolio.IsListEmpty(@reactiontime);
+    declare @isEmptyLoc   bit = Portfolio.IsListEmpty(@loc);
+    declare @isEmptyPro   bit = Portfolio.IsListEmpty(@pro);
 
     if @limit > 0
         begin
@@ -1569,14 +1621,14 @@ BEGIN
                         ) as rownum
                      , m.*
                     from Portfolio.LocalPortfolio m
-                    where   (m.CountryId = @cnt)
-                        and (@wg is null or m.WgId = @wg)
-                        and (@av is null or m.AvailabilityId = @av)
-                        and (@dur is null or m.DurationId = @dur)
-                        and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
-                        and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
-                        and (@loc is null or          m.ServiceLocationId = @loc)
-                        and (@pro is null or          m.ProActiveSlaId = @pro)
+					where   (@isEmptyCnt = 1 or CountryId in (select id from @cnt))
+							AND (@isEmptyWG = 1 or WgId in (select id from @wg))
+							AND (@isEmptyAv = 1 or AvailabilityId in (select id from @av))
+							AND (@isEmptyDur = 1 or DurationId in (select id from @dur))
+							AND (@isEmptyRTime = 1 or ReactionTimeId in (select id from @reactiontime))
+							AND (@isEmptyRType = 1 or ReactionTypeId in (select id from @reactiontype))
+							AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
+							AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
             )
             insert @tbl
             select top(@limit)
@@ -1588,14 +1640,14 @@ BEGIN
             insert @tbl
             select -1 as rownum, Id, CountryId, WgId, AvailabilityId, DurationId, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProActiveSlaId, SlaHash
             from Portfolio.LocalPortfolio m
-            where   (m.CountryId = @cnt)
-                and (@wg is null or m.WgId = @wg)
-                and (@av is null or m.AvailabilityId = @av)
-                and (@dur is null or m.DurationId = @dur)
-                and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
-                and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
-                and (@loc is null or          m.ServiceLocationId = @loc)
-                and (@pro is null or          m.ProActiveSlaId = @pro)
+			where   (@isEmptyCnt = 1 or CountryId in (select id from @cnt))
+							AND (@isEmptyWG = 1 or WgId in (select id from @wg))
+							AND (@isEmptyAv = 1 or AvailabilityId in (select id from @av))
+							AND (@isEmptyDur = 1 or DurationId in (select id from @dur))
+							AND (@isEmptyRTime = 1 or ReactionTimeId in (select id from @reactiontime))
+							AND (@isEmptyRType = 1 or ReactionTypeId in (select id from @reactiontype))
+							AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
+							AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
 
              order by m.CountryId
                     , m.WgId
@@ -1614,14 +1666,14 @@ go
 
 CREATE FUNCTION [Hardware].[GetCalcMember] (
     @approved bit,
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @loc bigint,
-    @pro bigint,
+	@cnt dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @dur dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc dbo.ListID readonly,
+    @pro dbo.ListID readonly,
     @lastid bigint,
     @limit int
 )
@@ -1681,8 +1733,6 @@ RETURN
          , case when @approved = 0 then afr.AFR5  else afr.AFR5_Approved   end as AFR5 
          , case when @approved = 0 then afr.AFRP1 else afr.AFRP1_Approved  end as AFRP1
        
-         , case when @approved = 0 then hdd.HddRet                         else hdd.HddRet_Approved                  end as HddRet              
-         
          , case when @approved = 0 then mcw.MaterialCostWarranty           else mcw.MaterialCostWarranty_Approved    end as MaterialCostWarranty
          , case when @approved = 0 then mco.MaterialCostOow                else mco.MaterialCostOow_Approved         end as MaterialCostOow     
 
@@ -1716,7 +1766,7 @@ RETURN
          , case when @approved = 0 then lc.ReturnDeliveryFactory           else lc.ReturnDeliveryFactory_Approved    end as ReturnDeliveryFactory   
          , case when @approved = 0 then lc.TaxiCourierDelivery             else lc.TaxiCourierDelivery_Approved      end as TaxiCourierDelivery     
 
-         , case when afEx.id is null then (case when @approved = 0 then af.Fee else af.Fee_Approved end)
+         , case when afEx.id is not null then (case when @approved = 0 then af.Fee else af.Fee_Approved end)
                  else 0
            end as AvailabilityFee
 
@@ -1785,8 +1835,6 @@ RETURN
 
     LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
-    LEFT JOIN Hardware.HddRetention hdd on hdd.Wg = m.WgId AND hdd.Year = m.DurationId
-
     LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg.ClusterPla
 
     LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
@@ -1819,14 +1867,14 @@ GO
 
 CREATE FUNCTION [Hardware].[GetCostsFull](
     @approved bit,
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @loc bigint,
-    @pro bigint,
+	@cnt dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @dur dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc dbo.ListID readonly,
+    @pro dbo.ListID readonly,
     @lastid bigint,
     @limit int
 )
@@ -2030,7 +2078,6 @@ RETURN
          --Cost
 
          , m.AvailabilityFee * m.Year as AvailabilityFee
-         , m.HddRet
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.tax1, m.tax2, m.tax3, m.tax4, m.tax5, m.tax1P) as TaxAndDutiesW
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.taxO1, m.taxO2, m.taxO3, m.taxO4, m.taxO5, m.taxO1P) as TaxAndDutiesOow
          , m.Reinsurance
@@ -2083,14 +2130,14 @@ go
 
 CREATE FUNCTION [Hardware].[GetCosts](
     @approved bit,
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @loc bigint,
-    @pro bigint,
+   	@cnt dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @dur dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc dbo.ListID readonly,
+    @pro dbo.ListID readonly,
     @lastid bigint,
     @limit int
 )
@@ -2112,7 +2159,6 @@ RETURN
          , StdWarranty
 
          , AvailabilityFee
-         , HddRet
          , TaxAndDutiesW
          , TaxAndDutiesOow
          , Reinsurance
@@ -2137,7 +2183,7 @@ RETURN
          , ChangeUserName
          , ChangeUserEmail
 
-         , ServiceTP_Released
+         ,ServiceTP_Released
 
     from Hardware.GetCostsFull(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit)
 )
@@ -2146,14 +2192,14 @@ go
 CREATE PROCEDURE [Hardware].[SpGetCosts]
     @approved bit,
     @local bit,
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @loc bigint,
-    @pro bigint,
+    @cnt dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @dur dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc dbo.ListID readonly,
+    @pro dbo.ListID readonly,
     @lastid bigint,
     @limit int,
     @total int output
@@ -2162,37 +2208,40 @@ BEGIN
 
     SET NOCOUNT ON;
 
+	declare @isEmptyCnt    bit = Portfolio.IsListEmpty(@cnt);
+    declare @isEmptyWG    bit = Portfolio.IsListEmpty(@wg);
+    declare @isEmptyAv    bit = Portfolio.IsListEmpty(@av);
+    declare @isEmptyDur   bit = Portfolio.IsListEmpty(@dur);
+    declare @isEmptyRType bit = Portfolio.IsListEmpty(@reactiontype);
+    declare @isEmptyRTime bit = Portfolio.IsListEmpty(@reactiontime);
+    declare @isEmptyLoc   bit = Portfolio.IsListEmpty(@loc);
+    declare @isEmptyPro   bit = Portfolio.IsListEmpty(@pro);
+
     select @total = COUNT(id)
     from Portfolio.LocalPortfolio m
-    where   (m.CountryId = @cnt)
-        and (@wg is null            or m.WgId = @wg)
-        and (@av is null            or m.AvailabilityId = @av)
-        and (@dur is null           or m.DurationId = @dur)
-        and (@reactiontime is null  or m.ReactionTimeId = @reactiontime)
-        and (@reactiontype is null  or m.ReactionTypeId = @reactiontype)
-        and (@loc is null           or m.ServiceLocationId = @loc)
-        and (@pro is null           or m.ProActiveSlaId = @pro);
+   where   (@isEmptyCnt = 1 or CountryId in (select id from @cnt))
+		AND (@isEmptyWG = 1 or WgId in (select id from @wg))
+		AND (@isEmptyAv = 1 or AvailabilityId in (select id from @av))
+		AND (@isEmptyDur = 1 or DurationId in (select id from @dur))
+		AND (@isEmptyRTime = 1 or ReactionTimeId in (select id from @reactiontime))
+		AND (@isEmptyRType = 1 or ReactionTypeId in (select id from @reactiontype))
+		AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
+		AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
 
 
     declare @cur nvarchar(max);
     declare @exchange float;
-
-    select @cur = cur.Name
-         , @exchange =  er.Value 
-    from [References].Currency cur
-    join [References].ExchangeRate er on er.CurrencyId = cur.Id
-    where cur.Id = (select CurrencyId from InputAtoms.Country where id = @cnt);
 
     if @local = 1
     begin
     
         --convert values from EUR to local
 
-        select Id
+        select costs.Id
 
              , Country
-             , @cur as Currency
-             , @exchange as ExchangeRate
+             , cur.Name as Currency
+             , er.Value as ExchangeRate
 
              , Wg
              , Availability
@@ -2206,49 +2255,54 @@ BEGIN
 
              --Cost
 
-             , AvailabilityFee               * @exchange  as AvailabilityFee 
-             , HddRet                        * @exchange  as HddRet
-             , TaxAndDutiesW                 * @exchange  as TaxAndDutiesW
-             , TaxAndDutiesOow               * @exchange  as TaxAndDutiesOow
-             , Reinsurance                   * @exchange  as Reinsurance
-             , ProActive                     * @exchange  as ProActive
-             , ServiceSupportCost            * @exchange  as ServiceSupportCost
+             , AvailabilityFee               * er.Value  as AvailabilityFee 
+             , TaxAndDutiesW                 * er.Value  as TaxAndDutiesW
+             , TaxAndDutiesOow               * er.Value  as TaxAndDutiesOow
+             , Reinsurance                   * er.Value  as Reinsurance
+             , ProActive                     * er.Value  as ProActive
+             , ServiceSupportCost            * er.Value  as ServiceSupportCost
 
-             , MaterialW                     * @exchange  as MaterialW
-             , MaterialOow                   * @exchange  as MaterialOow
-             , FieldServiceCost              * @exchange  as FieldServiceCost
-             , Logistic                      * @exchange  as Logistic
-             , OtherDirect                   * @exchange  as OtherDirect
-             , LocalServiceStandardWarranty  * @exchange  as LocalServiceStandardWarranty
-             , Credits                       * @exchange  as Credits
-             , ServiceTC                     * @exchange  as ServiceTC
-             , ServiceTP                     * @exchange  as ServiceTP
+             , MaterialW                     * er.Value  as MaterialW
+             , MaterialOow                   * er.Value  as MaterialOow
+             , FieldServiceCost              * er.Value  as FieldServiceCost
+             , Logistic                      * er.Value  as Logistic
+             , OtherDirect                   * er.Value  as OtherDirect
+             , LocalServiceStandardWarranty  * er.Value  as LocalServiceStandardWarranty
+             , Credits                       * er.Value  as Credits
+             , ServiceTC                     * er.Value  as ServiceTC
+             , ServiceTP                     * er.Value  as ServiceTP
 
-             , ServiceTCManual               * @exchange  as ServiceTCManual
-             , ServiceTPManual               * @exchange  as ServiceTPManual
+             , ServiceTCManual               * er.Value  as ServiceTCManual
+             , ServiceTPManual               * er.Value  as ServiceTPManual
 
-             , ServiceTP_Released            * @exchange as ServiceTP_Released
+             , ServiceTP_Released            * er.Value as ServiceTP_Released
 
-             , ListPrice                     * @exchange  as ListPrice
-             , DealerPrice                   * @exchange  as DealerPrice
+             , ListPrice                     * er.Value  as ListPrice
+             , DealerPrice                   * er.Value  as DealerPrice
              , DealerDiscount                             as DealerDiscount
 
              , ChangeUserName                             as ChangeUserName
              , ChangeUserEmail                            as ChangeUserEmail
 
-        from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit)
-        order by Id
+        from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) costs
+        join [InputAtoms].Country c on c.Name = costs.Country
+        join [References].Currency cur on cur.Id = c.CurrencyId
+        join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+        order by Id 
         
     end
     else
     begin
 
-        select @cur as Currency, @exchange as ExchangeRate, m.*
-        from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
+        select  cur.Name as Currency
+             , er.Value as ExchangeRate, 
+			 costs.*
+        from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) costs
+		join [InputAtoms].Country c on c.Name = costs.Country
+		join [References].Currency cur on cur.Id = c.CurrencyId
+		join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
         order by Id
-
     end
-
 END
 
-GO
+go

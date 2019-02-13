@@ -14,7 +14,7 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             EntityFrameworkRepositorySet.RegisteredEntities.Add(typeof(T), entityTypeBuilder);
         }
 
-        public static void RegisterEntityAsUnique<T>(this IKernel kernel, string fieldName, Action<EntityTypeBuilder> entityTypeBuilder = null) where T : class, IIdentifiable
+        public static void RegisterEntityAsUnique<T>(this IKernel kernel, string fieldName, Action<EntityTypeBuilder> entityTypeBuilder) where T : class, IIdentifiable
         {
             kernel.RegisterEntity<T>(builder =>
             {
@@ -22,6 +22,11 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
 
                 entityTypeBuilder?.Invoke(builder);
             });
+        }
+
+        public static void RegisterEntityAsUnique<T>(this IKernel kernel, string fieldName) where T : class, IIdentifiable
+        {
+            kernel.RegisterEntityAsUnique<T>(fieldName, null);
         }
 
         public static void RegisterEntityAsUniqueName<T>(this IKernel kernel, Action<EntityTypeBuilder> entityTypeBuilder = null) where T : NamedId

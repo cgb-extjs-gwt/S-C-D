@@ -21,5 +21,7 @@ namespace Gdc.Scd.Core.Entities.Report
         public bool AllowNull { get; set; }
 
         public int Flex { get; set; }
+
+        public string Format { get; set; }
     }
 }

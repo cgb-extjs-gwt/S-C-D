@@ -65,12 +65,16 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             api: {
                 read: buildMvcUrl('calc', 'gethwcost')
             },
+            actionMethods: {
+                read: 'POST'
+            },
             reader: {
                 type: 'json',
                 rootProperty: 'items',
                 idProperty: "Id",
                 totalProperty: 'total'
-            }
+            },
+            paramsAsJson: true
         },
         listeners: {
             update: () => {
@@ -170,7 +174,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Service support cost" dataIndex="ServiceSupportCost" />
                         <NumberColumn text="Logistic cost" dataIndex="Logistic" />
                         <NumberColumn text="Availability fee" dataIndex="AvailabilityFee" />
-                        <NumberColumn text="HDD retention" dataIndex="HddRet" />
                         <NumberColumn text="Reinsurance" dataIndex="Reinsurance" />
                         <NumberColumn text="Tax &amp; Duties iW period" dataIndex="TaxAndDutiesW" />
                         <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="TaxAndDutiesOow" />
@@ -296,11 +299,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private onBeforeLoad(s, operation) {
         this.reset();
-        //
+
         let filter = this.filter.getModel() as any;
         filter.approved = this.props.approved;
-        let params = Ext.apply({}, operation.getParams(), filter);
-        operation.setParams(params);
+        operation.setParams(filter);
     }
 
     private ondDataChanged(s, operation) {

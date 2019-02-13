@@ -77,7 +77,7 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ProActiveSla', 'ProActive SLA', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Duration', 'Serice Period', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Duration', 'Service Period', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ReActive', 'Thereof HW Service cost (TP)', 1, 1);
 set @index = @index + 1;
