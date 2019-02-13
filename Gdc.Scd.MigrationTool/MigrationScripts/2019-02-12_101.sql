@@ -1,4 +1,9 @@
-﻿IF OBJECT_ID('Report.FlatFeeReport') IS NOT NULL
+﻿alter table Report.ReportColumn
+    add Format nvarchar(50);
+
+go
+
+IF OBJECT_ID('Report.FlatFeeReport') IS NOT NULL
   DROP FUNCTION Report.FlatFeeReport;
 go 
 
