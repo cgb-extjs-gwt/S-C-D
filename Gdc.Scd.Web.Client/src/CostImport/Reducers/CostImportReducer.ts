@@ -1,8 +1,7 @@
 import { Reducer, Action } from "redux";
 import { CostImportState, FileData } from "../States/CostImportState";
-import { COST_IMPORT_SELECT_APPLICATION, COST_IMPORT_SELECT_COST_BLOCK, COST_IMPORT_SELECT_COST_ELEMENT, COST_IMPORT_LOAD_COST_ELEMENT_DATA, COST_IMPORT_LOAD_IMPORT_STATUS, COST_IMPORT_SELECT_DEPENDENCY_ITEM, COST_IMPORT_SELECT_FILE, COST_IMPORT_SELECT_REGION, COST_IMPORT_LOAD_FILE_DATA, COST_IMPORT_LOAD_QUALITY_GATE_ERRORS } from "../Actions/CostImportActions";
+import { COST_IMPORT_SELECT_APPLICATION, COST_IMPORT_SELECT_COST_BLOCK, COST_IMPORT_SELECT_COST_ELEMENT, COST_IMPORT_LOAD_IMPORT_STATUS, COST_IMPORT_SELECT_DEPENDENCY_ITEM, COST_IMPORT_SELECT_FILE, COST_IMPORT_SELECT_REGION, COST_IMPORT_LOAD_FILE_DATA, COST_IMPORT_LOAD_QUALITY_GATE_ERRORS, COST_IMPORT_LOAD_DEPENDENCY_ITEMS, COST_IMPORT_LOAD_REGIONS } from "../Actions/CostImportActions";
 import { ItemSelectedAction, CommonAction } from "../../Common/Actions/CommonActions";
-import { CostElementData } from "../../Common/States/CostElementData";
 import { SelectList, NamedId } from "../../Common/States/CommonStates";
 import { BundleDetailGroup } from "../../QualityGate/States/QualityGateResult";
 
@@ -61,22 +60,26 @@ const selectDependencyItem: Reducer<CostImportState, ItemSelectedAction<number>>
 const selectRegion: Reducer<CostImportState, ItemSelectedAction<number>> = (state, action) => ({
     ...state,
     regions: {
-        ...state.dependencyItems,
+        ...state.regions,
         selectedItemId: action.selectedItemId
     }
 }) 
 
-const loadCostElementData: Reducer<CostImportState, CommonAction<CostElementData>> = (state, { data: { dependencyItems, regions } }) => ({
+const loadRegions: Reducer<CostImportState, CommonAction<NamedId<number>[]>> = (state, action) => ({
+    ...state,
+    regions: {
+        ...state.regions,
+        list: action.data
+    }
+})
+
+const loadDependencyItems: Reducer<CostImportState, CommonAction<NamedId<number>[]>> = (state, action) => ({
     ...state,
     dependencyItems: {
         ...state.dependencyItems,
-        list: dependencyItems
-    },
-    regions: {
-        ...state.regions,
-        list: regions
+        list: action.data
     }
-}) 
+})
 
 const loadImportStatus: Reducer<CostImportState, CommonAction<string[]>> = (state, action) => ({
     ...state,
@@ -123,8 +126,11 @@ export const costImportReducer: Reducer<CostImportState, Action<string>> = (stat
         case COST_IMPORT_SELECT_REGION:
             return selectRegion(state, <ItemSelectedAction<number>>action);
 
-        case COST_IMPORT_LOAD_COST_ELEMENT_DATA:
-            return loadCostElementData(state, <CommonAction<CostElementData>>action);
+        case COST_IMPORT_LOAD_DEPENDENCY_ITEMS:
+            return loadDependencyItems(state, <CommonAction<NamedId<number>[]>> action);
+
+        case COST_IMPORT_LOAD_REGIONS:
+            return loadRegions(state, <CommonAction<NamedId<number>[]>> action);
 
         case COST_IMPORT_LOAD_IMPORT_STATUS:
             return loadImportStatus(state, <CommonAction<string[]>>action);

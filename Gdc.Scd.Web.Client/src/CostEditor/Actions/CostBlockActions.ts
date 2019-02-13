@@ -1,27 +1,22 @@
 import { Action } from "redux";
-import { asyncAction, AsyncAction } from "../../Common/Actions/AsyncAction";
-import * as service from "../Services/CostEditorServices";
-import { CostEditorState } from "../States/CostEditorStates";
 import { EditItem } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
-import { buildCostEditorContext, findCostElementByState, findInputeLevelByState, findCostBlockByState, findInputLevel } from "../Helpers/CostEditorHelpers";
 import { CommonState } from "../../Layout/States/AppStates";
-import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { QualityGateResult } from "../../QualityGate/States/QualityGateResult";
-import { findMeta, getCostBlock } from "../../Common/Helpers/MetaHelper";
-import { ApprovalOption } from "../../QualityGate/States/ApprovalOption";
 import { CostBlockMeta } from "../../Common/States/CostMetaStates";
 import { CostElementData } from "../States/CostElementData";
+import { CommonAction } from "../../Common/Actions/CommonActions";
 
 export const COST_EDITOR_SELECT_COST_BLOCK = 'COST_EDITOR.SELECT.COST_BLOCK';
 export const COST_BLOCK_INPUT_SELECT_REGIONS = 'COST_BLOCK_INPUT.SELECT.REGIONS';
 export const COST_BLOCK_INPUT_SELECT_COST_ELEMENT = 'COST_BLOCK_INPUT.SELECT.COST_ELEMENT';
-export const COST_BLOCK_INPUT_SELECTION_CHANGE_COST_ELEMENT_FILTER = 'COST_BLOCK_INPUT.SELECTION_CHANGE.COST_ELEMENT_FILTER'
-export const COST_BLOCK_INPUT_RESET_COST_ELEMENT_FILTER = 'COST_BLOCK_INPUT_RESET_COST_ELEMENT_FILTER'
+export const COST_BLOCK_INPUT_SELECTION_CHANGE_COST_ELEMENT_FILTER = 'COST_BLOCK_INPUT.SELECTION_CHANGE.COST_ELEMENT_FILTER';
+export const COST_BLOCK_INPUT_RESET_COST_ELEMENT_FILTER = 'COST_BLOCK_INPUT_RESET_COST_ELEMENT_FILTER';
 export const COST_BLOCK_INPUT_SELECT_INPUT_LEVEL = 'COST_BLOCK_INPUT.SELECT.INPUT_LEVEL';
-export const COST_BLOCK_INPUT_SELECTION_CHANGE_INPUT_LEVEL_FILTER = 'COST_BLOCK_INPUT.SELECTION_CHANGE.INPUT_LEVEL_FILTER'
-export const COST_BLOCK_INPUT_RESET_INPUT_LEVEL_FILTER = 'COST_BLOCK_INPUT.RESET.INPUT_LEVEL_FILTER'
+export const COST_BLOCK_INPUT_SELECTION_CHANGE_INPUT_LEVEL_FILTER = 'COST_BLOCK_INPUT.SELECTION_CHANGE.INPUT_LEVEL_FILTER';
+export const COST_BLOCK_INPUT_RESET_INPUT_LEVEL_FILTER = 'COST_BLOCK_INPUT.RESET.INPUT_LEVEL_FILTER';
 export const COST_BLOCK_INPUT_LOAD_COST_ELEMENT_DATA = 'COST_BLOCK_INPUT.LOAD.COST_ELEMENT_DATA';
+export const COST_BLOCK_INPUT_LOAD_DEPENDENCY_FILTER = 'COST_BLOCK_INPUT.LOAD.DEPENDENCY_FILTER';
 export const COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER = 'COST_BLOCK_INPUT.LOAD.INPUT_LEVEL_FILTER';
 export const COST_BLOCK_INPUT_EDIT_ITEMS_URL_CHANGED = 'COST_BLOCK_INPUT.EDIT_ITEMS_URL.CHANGED';
 export const COST_BLOCK_INPUT_CLEAR_EDIT_ITEMS = 'COST_BLOCK_INPUT.CLEAR.EDIT_ITEMS';
@@ -37,35 +32,42 @@ export interface CostBlockAction extends Action<string>  {
 
 export interface CostElementAction extends CostBlockAction {
     costElementId: string
+}
+
+export interface CostElementMetaAction extends CostElementAction {
     costBlockMeta: CostBlockMeta
 }
 
 export interface FilterSelectionChangedAction extends CostBlockAction {
-    filterItemId: string
+    filterItemId: number
     isSelected: boolean
 }
 
-export interface RegionSelectedAction extends CostElementAction {
-    regionId: string;
+export interface RegionSelectedAction extends CostElementMetaAction {
+    regionId: number;
 }
 
-export interface CostElementFilterSelectionChangedAction extends FilterSelectionChangedAction, CostElementAction {
+export interface CostElementFilterSelectionChangedAction extends FilterSelectionChangedAction, CostElementMetaAction {
 }
 
-export interface InputLevelAction extends CostElementAction {
+export interface InputLevelAction extends CostElementMetaAction {
     inputLevelId: string
 }
 
 export interface InputLevelFilterSelectionChangedAction extends FilterSelectionChangedAction, InputLevelAction {
 }
 
-export interface CostElementDataLoadedAction extends CostElementAction {
+export interface CostElementDataLoadedAction extends CostElementMetaAction {
     costElementData: CostElementData
     costBlockMeta: CostBlockMeta
 }
 
+export interface DependencyFilterLoadedAction extends CostElementAction {
+    filterItems: NamedId<number>[]
+}
+
 export interface InputLevelFilterLoadedAction extends InputLevelAction {
-    filterItems: NamedId[]
+    filterItems: NamedId<number>[]
 }
 
 export interface EditItemUrlChangedAction extends CostBlockAction {
@@ -86,7 +88,7 @@ export const selectCostBlock = (applicationId: string, costBlockId: string) => (
     costBlockId
 });
 
-export const selectRegion = (applicationId: string, costBlockId: string, costElementId: string, regionId: string) => (<RegionSelectedAction>{
+export const selectRegion = (applicationId: string, costBlockId: string, costElementId: string, regionId: number) => (<RegionSelectedAction>{
     type:  COST_BLOCK_INPUT_SELECT_REGIONS,
     applicationId,
     costBlockId,
@@ -94,7 +96,7 @@ export const selectRegion = (applicationId: string, costBlockId: string, costEle
     costElementId
 })
 
-export const selectCostElement = (applicationId: string, costElementId: string, costBlockMeta: CostBlockMeta) => (<CostElementAction>{
+export const selectCostElement = (applicationId: string, costElementId: string, costBlockMeta: CostBlockMeta) => (<CostElementMetaAction>{
     type:  COST_BLOCK_INPUT_SELECT_COST_ELEMENT,
     applicationId,
     costBlockId: costBlockMeta.id,
@@ -106,7 +108,7 @@ export const changeSelectionCostElementFilter = (
     applicationId: string,
     costBlockId: string, 
     costElementId: string, 
-    filterItemId: string,
+    filterItemId: number,
     isSelected: boolean
 ) => (<CostElementFilterSelectionChangedAction>{
     type: COST_BLOCK_INPUT_SELECTION_CHANGE_COST_ELEMENT_FILTER,
@@ -117,7 +119,7 @@ export const changeSelectionCostElementFilter = (
     isSelected
 })
 
-export const resetCostElementFilter = (applicationId: string, costBlockId: string, costElementId: string) => (<CostElementAction>{
+export const resetCostElementFilter = (applicationId: string, costBlockId: string, costElementId: string) => (<CostElementMetaAction>{
     type: COST_BLOCK_INPUT_RESET_COST_ELEMENT_FILTER,
     applicationId,
     costBlockId,
@@ -137,7 +139,7 @@ export const changeSelectionInputLevelFilter = (
     costBlockId: string, 
     costElementId: string,
     inputLevelId: string, 
-    filterItemId: string,
+    filterItemId: number,
     isSelected: boolean
 ) => (<InputLevelFilterSelectionChangedAction>{
     type: COST_BLOCK_INPUT_SELECTION_CHANGE_INPUT_LEVEL_FILTER,
@@ -171,12 +173,25 @@ export const loadCostElementData = (
     costBlockMeta
 })
 
+export const loadDependencyFilter = (
+    applicationId: string, 
+    costBlockId: string, 
+    costElementId: string, 
+    dependencies: NamedId<number>[]
+) => (<DependencyFilterLoadedAction>{
+    type: COST_BLOCK_INPUT_LOAD_DEPENDENCY_FILTER,
+    applicationId,
+    costBlockId,
+    costElementId,
+    filterItems: dependencies
+})
+
 export const loadInputLevelFilter = (
     applicationId: string,
     costBlockId: string, 
     costElementId: string,
     inputLevelId: string, 
-    filterItems: NamedId[]
+    filterItems: NamedId<number>[]
 ) => (<InputLevelFilterLoadedAction>{
     type: COST_BLOCK_INPUT_LOAD_INPUT_LEVEL_FILTER,
     applicationId,
@@ -224,147 +239,3 @@ export const resetErrors = (applicationId: string, costBlockId: string) => (<Cos
     applicationId,
     costBlockId
 })
-
-export const getDataByCostElementSelection = (applicationId: string, costBlockId: string, costElementId: string) =>
-    asyncAction<CommonState>(
-        (dispatch, getState) => {
-            const { app: { appMetaData } } = getState();
-            const costBlockMeta = getCostBlock(appMetaData, costBlockId);   
-
-            dispatch(selectCostElement(applicationId, costElementId, costBlockMeta));
-
-            const state = getState().pages.costEditor
-            const context = buildCostEditorContext(state);
-            const costElement = findCostElementByState(state, applicationId, costBlockId, costElementId);
-
-            if (costElement.isDataLoaded) {
-                dispatch(loadEditItemsByContext());
-            } else {
-                handleRequest(
-                    service.getCostElementData(context).then(data => { 
-                        dispatch(loadCostElementData(applicationId, costElementId, costBlockMeta, data));
-                        dispatch(loadEditItemsByContext());
-                    })
-                )
-            }
-
-            if (costElement.inputLevels.selectedItemId == null){
-                dispatch(
-                    getFilterItemsByInputLevelSelection(
-                        applicationId,
-                        costBlockId, 
-                        costElementId, 
-                        costElement.
-                        inputLevels.list[0].inputLevelId));
-            }
-        }
-    )
-
-export const getFilterItemsByInputLevelSelection = (applicationId: string, costBlockId: string, costElementId: string, inputLevelId: string) =>
-    asyncAction<CommonState>(
-        (dispatch, getState) => {
-            dispatch(selectInputLevel(applicationId, costBlockId, costElementId, inputLevelId));
-
-            const state = getState();
-            const costEditor = state.pages.costEditor;
-            const costBlockMeta = findMeta(state.app.appMetaData.costBlocks, costBlockId);
-            const costElementMeta = findMeta(costBlockMeta.costElements, costElementId);
-            const inputLevelMeta = findMeta(costElementMeta.inputLevels, inputLevelId);
-
-            if (inputLevelMeta.hasFilter) {
-                const inputLevel = findInputeLevelByState(costEditor, applicationId, costBlockId, costElementId, inputLevelId)
-                
-                if (!inputLevel || !inputLevel.filter)
-                {
-                    const context = buildCostEditorContext(costEditor);
-                    
-                    handleRequest(
-                        service.getLevelInputFilterItems(context).then(filterItems => {
-                            dispatch(loadInputLevelFilter(applicationId, costBlockId, costElementId, inputLevelId, filterItems));
-                            dispatch(loadEditItemsByContext());
-                        })
-                    )
-                } else {
-                    dispatch(loadEditItemsByContext());
-                }
-            } else {
-                dispatch(loadEditItemsByContext());
-            }
-        }
-    )
-
-export const loadEditItemsByContext = () => 
-    asyncAction<CommonState>(
-        (dispatch, getState) => {
-            const { app: { appMetaData }, pages: { costEditor } } = getState();
-            const context = buildCostEditorContext(costEditor);
-            const costBlockMeta = findMeta(appMetaData.costBlocks, context.costBlockId);
-
-            if (context.costElementId != null && context.inputLevelId != null) {
-                const costElementMeta = findMeta(costBlockMeta.costElements, context.costElementId);
-
-                let isDispatching: boolean = null;
-
-                if (!costElementMeta.regionInput || context.regionInputId) {
-                    const costElementState = findCostElementByState(costEditor);
-
-                    isDispatching = costElementMeta.dependency == null || costElementState.filter != null;
-
-                    if (isDispatching !== false) {
-                        const inputLevelMeta = findMeta(costElementMeta.inputLevels, context.inputLevelId);
-
-                        if (inputLevelMeta.hasFilter) {
-                            const inputLevelState = findInputLevel(costElementState.inputLevels);
-
-                            isDispatching = inputLevelState.filter != null;
-                        } else {
-                            isDispatching = true;
-                        }
-                    }
-                }
-
-                if (isDispatching) {
-                    dispatch(
-                        editItemsUrlChanged(
-                            context.applicationId, 
-                            context.costBlockId,
-                            service.buildGetEditItemsUrl(context)
-                        )
-                    )
-                }
-            }
-        }
-    )
-
-export const saveEditItemsToServer = (applicationId: string, costBlockId: string, approvalOption: ApprovalOption) => 
-    asyncAction<CommonState>(
-        (dispatch, getState) => {
-            const state = getState().pages.costEditor
-            const costBlock = findCostBlockByState(state, applicationId, costBlockId);
-            const context = buildCostEditorContext(state);
-
-            handleRequest(
-                service.saveEditItems(costBlock.edit.editedItems, context, approvalOption)
-                       .then(
-                            qualityGateResult => dispatch(saveEditItems(applicationId, costBlockId, qualityGateResult))
-                       )
-            )
-        }
-    )
-
-export const selectRegionWithReloading = (applicationId: string, costBlockId: string, regionId: string) => asyncAction<CommonState>(
-    (dispatch, getState) => {
-        const state = getState();
-        const costBlock = findCostBlockByState(state.pages.costEditor, applicationId, costBlockId);
-
-        dispatch(selectRegion(applicationId, costBlockId, costBlock.costElements.selectedItemId, regionId));
-        dispatch(loadEditItemsByContext());
-    }
-)
-
-export const applyFiltersWithReloading = (applicationId: string, costBlockId: string) => asyncAction<CommonState>(
-     dispatch => {
-        dispatch(applyFilters(applicationId, costBlockId));
-        dispatch(loadEditItemsByContext());
-    }
-)
