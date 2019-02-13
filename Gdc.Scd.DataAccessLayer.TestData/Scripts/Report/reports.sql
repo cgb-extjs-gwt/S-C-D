@@ -53,42 +53,41 @@ CREATE FUNCTION [Report].[GetCostsFull](
     @pro bigint
 )
 RETURNS @tbl TABLE (
-	      Fsp nvarchar(max) NULL
-	     ,FspDescription nvarchar(max) NULL
-
-		 ,Id bigint NOT NULL
-
-         ,CountryId bigint NOT NULL
-         ,Country nvarchar(max) NULL
-         ,WgId bigint NOT NULL
-         ,Wg nvarchar(max) NULL
-         ,AvailabilityId bigint NOT NULL
-         ,Availability nvarchar(max) NULL
-         ,DurationId bigint NOT NULL
-         ,Duration nvarchar(max) NULL
-         ,Year int NOT NULL
-         ,IsProlongation bit NOT NULL
-         ,ReactionTimeId bigint NOT NULL
-         ,ReactionTime nvarchar(max) NULL
-         ,ReactionTypeId bigint NOT NULL
-         ,ReactionType nvarchar(max) NULL
-         ,ServiceLocationId bigint NOT NULL
-         ,ServiceLocation nvarchar(max) NULL
-         ,ProActiveSlaId bigint NOT NULL
-         ,ProActiveSla nvarchar(max) NULL
-
-         ,StdWarranty int NULL
-
+           Fsp nvarchar(max) NULL
+         , FspDescription nvarchar(max) NULL
+           
+         , Id bigint NOT NULL
+           
+         , CountryId bigint NOT NULL
+         , Country nvarchar(max) NULL
+         , WgId bigint NOT NULL
+         , Wg nvarchar(max) NULL
+         , AvailabilityId bigint NOT NULL
+         , Availability nvarchar(max) NULL
+         , DurationId bigint NOT NULL
+         , Duration nvarchar(max) NULL
+         , Year int NOT NULL
+         , IsProlongation bit NOT NULL
+         , ReactionTimeId bigint NOT NULL
+         , ReactionTime nvarchar(max) NULL
+         , ReactionTypeId bigint NOT NULL
+         , ReactionType nvarchar(max) NULL
+         , ServiceLocationId bigint NOT NULL
+         , ServiceLocation nvarchar(max) NULL
+         , ProActiveSlaId bigint NOT NULL
+         , ProActiveSla nvarchar(max) NULL
+           
+         , StdWarranty int NULL
+           
          --Cost
-
-         ,AvailabilityFee float NULL
-         ,HddRet float NULL
-         ,TaxAndDutiesW float NULL
-         ,TaxAndDutiesOow float NULL
-         ,Reinsurance float NULL
-         ,ProActive float NULL
-         ,ServiceSupportCost float NULL
-
+           
+         , AvailabilityFee float NULL
+         , TaxAndDutiesW float NULL
+         , TaxAndDutiesOow float NULL
+         , Reinsurance float NULL
+         , ProActive float NULL
+         , ServiceSupportCost float NULL
+           
          , MaterialW float NULL
          , MaterialOow float NULL
          , FieldServiceCost float NULL
@@ -99,63 +98,62 @@ RETURNS @tbl TABLE (
          
          , Credits float NULL
 
-
          , ServiceTC float NULL
          , ServiceTP float NULL
 
-         ,ServiceTC1 float NULL
-         ,ServiceTC2 float NULL
-         ,ServiceTC3 float NULL
-         ,ServiceTC4 float NULL
-         ,ServiceTC5 float NULL
-         ,ServiceTC1P float NULL
-
-         ,ServiceTP1 float NULL
-         ,ServiceTP2 float NULL
-         ,ServiceTP3 float NULL
-         ,ServiceTP4 float NULL
-         ,ServiceTP5 float NULL
-         ,ServiceTP1P float NULL
-
-         ,ListPrice float NULL
-         ,DealerDiscount float NULL
-         ,DealerPrice float NULL
-         ,ServiceTCManual float NULL
-         ,ServiceTPManual float NULL
-         ,ChangeUserName nvarchar(max) NULL
-         ,ChangeUserEmail nvarchar(max) NULL
-
-         ,ServiceTP_Released float NULL
-
-         ,SlaHash int NOT NULL
+         , ServiceTC1 float NULL
+         , ServiceTC2 float NULL
+         , ServiceTC3 float NULL
+         , ServiceTC4 float NULL
+         , ServiceTC5 float NULL
+         , ServiceTC1P float NULL
+           
+         , ServiceTP1 float NULL
+         , ServiceTP2 float NULL
+         , ServiceTP3 float NULL
+         , ServiceTP4 float NULL
+         , ServiceTP5 float NULL
+         , ServiceTP1P float NULL
+           
+         , ListPrice float NULL
+         , DealerDiscount float NULL
+         , DealerPrice float NULL
+         , ServiceTCManual float NULL
+         , ServiceTPManual float NULL
+         , ChangeUserName nvarchar(max) NULL
+         , ChangeUserEmail nvarchar(max) NULL
+           
+         , ServiceTP_Released float NULL
+           
+         , SlaHash int NOT NULL
 ) 
 AS
 begin
-	declare @cntTable dbo.ListId;
-	if @cnt is not null insert into @cntTable(id) SELECT id FROM Portfolio.IntToListID(@cnt);
+    declare @cntTable dbo.ListId;
+    if @cnt is not null insert into @cntTable(id) SELECT id FROM Portfolio.IntToListID(@cnt);
 
-	declare @wgTable dbo.ListId;
-	if @wg is not null insert into @wgTable(id) SELECT id FROM Portfolio.IntToListID(@wg);
+    declare @wgTable dbo.ListId;
+    if @wg is not null insert into @wgTable(id) SELECT id FROM Portfolio.IntToListID(@wg);
 
-	declare @avTable dbo.ListId;
-	if @av is not null insert into @avTable(id) SELECT id FROM Portfolio.IntToListID(@av);
+    declare @avTable dbo.ListId;
+    if @av is not null insert into @avTable(id) SELECT id FROM Portfolio.IntToListID(@av);
 
-	declare @durTable dbo.ListId;
-	if @dur is not null insert into @durTable(id) SELECT id FROM Portfolio.IntToListID(@dur);
+    declare @durTable dbo.ListId;
+    if @dur is not null insert into @durTable(id) SELECT id FROM Portfolio.IntToListID(@dur);
 
-	declare @rtimeTable dbo.ListId;
-	if @reactiontime is not null insert into @rtimeTable(id) SELECT id FROM Portfolio.IntToListID(@reactiontime);
-	
-	declare @rtypeTable dbo.ListId;
-	if @reactiontype is not null insert into @rtypeTable(id) SELECT id FROM Portfolio.IntToListID(@reactiontype);
-	
-	declare @locTable dbo.ListId;
-	if @loc is not null insert into @locTable(id) SELECT id FROM Portfolio.IntToListID(@loc);
-	
-	declare @proTable dbo.ListId;
-	if @pro is not null insert into @proTable(id) SELECT id FROM Portfolio.IntToListID(@pro);
+    declare @rtimeTable dbo.ListId;
+    if @reactiontime is not null insert into @rtimeTable(id) SELECT id FROM Portfolio.IntToListID(@reactiontime);
 
-	insert into @tbl
+    declare @rtypeTable dbo.ListId;
+    if @reactiontype is not null insert into @rtypeTable(id) SELECT id FROM Portfolio.IntToListID(@reactiontype);
+
+    declare @locTable dbo.ListId;
+    if @loc is not null insert into @locTable(id) SELECT id FROM Portfolio.IntToListID(@loc);
+
+    declare @proTable dbo.ListId;
+    if @pro is not null insert into @proTable(id) SELECT id FROM Portfolio.IntToListID(@pro);
+
+    insert into @tbl
     select 
            fsp.Name as Fsp
          , fsp.ServiceDescription as FspDescription
@@ -176,6 +174,7 @@ begin
 return
 
 end
+
 go
 
 CREATE FUNCTION [Report].[GetCosts](
@@ -217,7 +216,6 @@ RETURN
          , ProActiveSla
 
          , AvailabilityFee
-         , HddRet
          , TaxAndDutiesW
          , TaxAndDutiesOow
          , Reinsurance

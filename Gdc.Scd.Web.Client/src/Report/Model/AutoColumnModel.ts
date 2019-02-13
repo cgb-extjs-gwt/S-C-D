@@ -1,7 +1,6 @@
 ﻿import { AutoColumnType } from "./AutoColumnType";
 
 export interface AutoColumnModel {
-
     text: string;
 
     name: string;
@@ -10,6 +9,7 @@ export interface AutoColumnModel {
 
     allowNull?: boolean;
 
-    flex?: number
+    flex?: number;
 
+    format?: string;
 }
