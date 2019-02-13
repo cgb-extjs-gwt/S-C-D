@@ -34,6 +34,8 @@
 
         public const string ManualCostTable = "ManualCost";
 
+        public const string HddRetentionManualCostTable = "HddRetentionManualCost";
+
         public const string HardwareSchema = "Hardware";
 
         public const string FspCodeTranslationSchema = "Fsp";
