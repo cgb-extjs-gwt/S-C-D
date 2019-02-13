@@ -94,13 +94,13 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
                         <ComboBoxField label="Cost blocks" {...this.costBlockData.buildConfig()}/>
                         <ComboBoxField label="Cost elements"  {...this.costElementData.buildConfig()}/>
                         {
-                            isVisibleDependencyItems 
-                                ? <ComboBoxField key="dependencies" label="Dependencies"{...this.dependencyData.buildConfig()}/>
+                            isVisibleRegions 
+                                ? <ComboBoxField key="regions" label="Regions"{...this.regionData.buildConfig()}/>
                                 : <div/>
                         }
                         {
-                            isVisibleRegions 
-                                ? <ComboBoxField key="regions" label="Regions"{...this.regionData.buildConfig()}/>
+                            isVisibleDependencyItems 
+                                ? <ComboBoxField key="dependencies" label="Dependencies"{...this.dependencyData.buildConfig()}/>
                                 : <div/>
                         }
                         <FileField label="Excel file" ref={button => this.fileField = button} onChange={this.onFileSelect}/>

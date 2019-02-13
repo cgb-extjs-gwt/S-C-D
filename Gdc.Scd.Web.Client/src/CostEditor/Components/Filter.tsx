@@ -6,7 +6,7 @@ import { Store } from '../../Common/States/ExtStates';
 import { objectPropsEqual } from '../../Common/Helpers/CommonHelpers';
 
 export interface FilterActions {
-    onSelectionChanged?: (item: NamedId, isSelected: boolean) => void
+    onSelectionChanged?: (item: NamedId<number>, isSelected: boolean) => void
     onReset?: () => void
 }
 

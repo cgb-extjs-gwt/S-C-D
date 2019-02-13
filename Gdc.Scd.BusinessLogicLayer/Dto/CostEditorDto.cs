@@ -5,9 +5,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Dto
 {
     public class CostEditorDto
     {
-        //public IEnumerable<RegionDto> Regions { get; set; }
-
-        public IEnumerable<NamedId> Filters { get; set; }
+        public IEnumerable<RegionDto> Regions { get; set; }
 
         public IEnumerable<NamedId> ReferenceValues { get; set; }
     }

@@ -17,6 +17,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public BaseEntityMeta RealMeta { get; set; }
 
+        public IEnumerable<ReferenceFieldMeta> ReferenceFields => this.AllFields.OfType<ReferenceFieldMeta>();
+
         public abstract IEnumerable<FieldMeta> AllFields { get; }
 
         string IMetaIdentifialble.Id => this.FullName;
@@ -40,8 +42,7 @@ namespace Gdc.Scd.Core.Meta.Entities
         public ReferenceFieldMeta GetFieldByReferenceMeta(BaseEntityMeta referenceMeta)
         {
             return
-                this.AllFields.OfType<ReferenceFieldMeta>()
-                              .FirstOrDefault(field => field.ReferenceMeta == referenceMeta);
+                this.ReferenceFields.FirstOrDefault(field => field.ReferenceMeta == referenceMeta);
         }
     }
 }

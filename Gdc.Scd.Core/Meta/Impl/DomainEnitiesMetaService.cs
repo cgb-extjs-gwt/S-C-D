@@ -41,7 +41,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                 CostBlockHistory = costBlockHistory
             };
 
-            var customCoordinateMetas = this.coordinateEntityMetaProviders.SelectMany(provider => provider.GetCoordinateEntityMetas());
+            var customCoordinateMetas = this.coordinateEntityMetaProviders.SelectMany(provider => provider.GetCoordinateEntityMetas()).ToArray();
             var metaFactory = new CoordinateMetaFactory(customCoordinateMetas);
 
             foreach (var costBlockMeta in domainMeta.CostBlocks)
@@ -75,6 +75,9 @@ namespace Gdc.Scd.Core.Meta.Impl
                     this.BuildCostBlockHistory(costBlockEntity, domainEnitiesMeta);
                 }
             }
+
+            domainEnitiesMeta.OtherMetas.AddRange(
+                customCoordinateMetas.Where(meta => domainEnitiesMeta[meta.FullName] == null));
 
             domainEnitiesMeta.LocalPortfolio = this.BuildLocalPortfolioMeta(domainEnitiesMeta);
 

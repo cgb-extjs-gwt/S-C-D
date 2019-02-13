@@ -5,18 +5,12 @@ import { CostBlockTab, CostEditorProps, CostEditorActions, CostEditorView } from
 import { connect } from "react-redux";
 import { selectApplication, } from "../Actions/CostEditorActions";
 import { 
-    selectRegionWithReloading, 
-    getDataByCostElementSelection, 
-    loadEditItemsByContext, 
-    getFilterItemsByInputLevelSelection, 
     changeSelectionCostElementFilter, 
     changeSelectionInputLevelFilter, 
     resetCostElementFilter, 
     resetInputLevelFilter, 
     clearEditItems, 
     editItem, 
-    saveEditItemsToServer, 
-    applyFiltersWithReloading,
     selectCostBlock, 
 } 
 from "../Actions/CostBlockActions";
@@ -27,6 +21,7 @@ import { InputLevelMeta, CostBlockMeta, FieldType } from "../../Common/States/Co
 import { filterCostEditorItems, findCostBlock, findApplication } from "../Helpers/CostEditorHelpers";
 import { findMeta } from "../../Common/Helpers/MetaHelper";
 import { Dispatch } from "redux";
+import { applyFiltersWithReloading, selectRegionWithReloading, loadDataByCostElementSelection, loadDataByInputLevelSelection, saveEditItemsToServer } from "../Actions/CostBlockAsyncActions";
 
 const buildInputLevel = (
     costBlock: CostBlockState, 
@@ -228,10 +223,10 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
                 dispatch(selectRegionWithReloading(applicationId, costBlockId, regionId));
             },
             onCostElementSelected: (applicationId, costBlockId, costElementId) => {
-                dispatch(getDataByCostElementSelection(applicationId, costBlockId, costElementId));
+                dispatch(loadDataByCostElementSelection(applicationId, costBlockId, costElementId));
             },
             onInputLevelSelected: (applicationId, costBlockId, costElementId, inputLevelId) => {
-                dispatch(getFilterItemsByInputLevelSelection(applicationId, costBlockId, costElementId, inputLevelId));
+                dispatch(loadDataByInputLevelSelection(applicationId, costBlockId, costElementId, inputLevelId));
             },
             onCostElementFilterSelectionChanged: (applicationId, costBlockId, costElementId, filterItemId, isSelected) => {
                 dispatch(changeSelectionCostElementFilter(applicationId, costBlockId, costElementId, filterItemId, isSelected));

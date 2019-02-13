@@ -10,11 +10,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface ICostEditorService
     {
-        Task<IEnumerable<NamedId>> GetDependencyItems(CostEditorContext context);
-
         Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context);
-
-        //Task<IEnumerable<NamedId>> GetCostElementReferenceValues(CostEditorContext context);
 
         Task<CostEditorDto> GetCostElementData(CostEditorContext context);
 

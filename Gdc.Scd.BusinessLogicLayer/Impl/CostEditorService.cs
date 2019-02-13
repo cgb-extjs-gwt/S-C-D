@@ -62,11 +62,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.countryService = countryService;
         }
 
-        public async Task<IEnumerable<NamedId>> GetDependencyItems(CostEditorContext context)
-        {
-            return await this.costBlockService.GetDependencyItems(context);
-        }
-
         public async Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context)
         {
             var previousInputLevel =
@@ -108,8 +103,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             return new CostEditorDto
             {
-                Filters = await this.costBlockService.GetDependencyItems(context),
-                //Regions = await this.GetRegions(context),
+                Regions = await this.GetRegions(context),
                 ReferenceValues = await this.GetCostElementReferenceValues(context),
             };
         }
