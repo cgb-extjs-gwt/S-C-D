@@ -17,10 +17,15 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         public string Description => "Fix IsApplicable under Availability Fee";
 
+        public Migration_2019_02_12(IRepositorySet repositorySet)
+        {
+            this.repositorySet = repositorySet;
+        }
+
         public void Execute()
         {
             var queries = new List<SqlHelper>();
-            queries.AddRange(SqlFormatter.BuildFromFile(@"MigrationScripts\Migration_2019_02_12.sql"));
+            queries.AddRange(SqlFormatter.BuildFromFile(@"MigrationScripts\2019-02-12.sql"));
             foreach (var query in queries)
                 this.repositorySet.ExecuteSql(query);
         }

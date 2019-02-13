@@ -237,6 +237,7 @@
     <Compile Include="Controllers\Dict\SwDigitController.cs" />
     <Compile Include="Controllers\Dict\WgController.cs" />
     <Compile Include="Controllers\Dict\YearController.cs" />
+    <Compile Include="Controllers\HddController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\AppController.cs" />
     <Compile Include="Controllers\CostBlockController.cs" />

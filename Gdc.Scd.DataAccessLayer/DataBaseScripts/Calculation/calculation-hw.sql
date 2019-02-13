@@ -532,6 +532,12 @@ CREATE NONCLUSTERED INDEX [IX_HwStandardWarranty_Country] ON Fsp.HwStandardWarra
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
 
+CREATE VIEW [InputAtoms].[WgStdView] AS
+    select *
+    from InputAtoms.Wg
+    where Id in (select Wg from Fsp.HwStandardWarranty) and WgType = 1
+GO
+
 IF OBJECT_ID('Fsp.HwFspCodeTranslation_Updated', 'TR') IS NOT NULL
   DROP TRIGGER Fsp.HwFspCodeTranslation_Updated;
 go
@@ -1190,6 +1196,35 @@ go
 update Hardware.HddRetention set HddFr = HddFr + 0;
 go
 
+IF OBJECT_ID('Hardware.HddRetentionView', 'U') IS NOT NULL
+  DROP TABLE Hardware.HddRetentionView;
+go
+
+IF OBJECT_ID('Hardware.HddRetentionView', 'V') IS NOT NULL
+  DROP VIEW Hardware.HddRetentionView;
+go
+
+CREATE VIEW Hardware.HddRetentionView as 
+    SELECT 
+           h.Wg as WgId
+         , wg.Name as Wg
+         , h.HddRet
+         , HddRet_Approved
+         , hm.TransferPrice 
+         , hm.ListPrice
+         , hm.DealerDiscount
+         , hm.DealerPrice
+         , u.Name as ChangeUserName
+         , u.Email as ChangeUserEmail
+
+    FROM Hardware.HddRetention h
+    JOIN InputAtoms.Wg wg on wg.id = h.Wg
+    LEFT JOIN Hardware.HddRetentionManualCost hm on hm.WgId = h.Wg
+    LEFT JOIN [dbo].[User] u on u.Id = hm.ChangeUserId
+    WHERE h.DeactivatedDateTime is null 
+      AND h.Year = (select id from Dependencies.Year where Value = 5 and IsProlongation = 0)
+go
+
 CREATE VIEW [Hardware].[FieldServiceCostView] AS
     SELECT  fsc.Country,
             fsc.Wg,
@@ -1630,7 +1665,7 @@ END;
 go
 
 CREATE FUNCTION [Hardware].[GetCalcMember] (
-     @approved bit,
+    @approved bit,
 	@cnt dbo.ListID readonly,
     @wg dbo.ListID readonly,
     @av dbo.ListID readonly,
@@ -1698,8 +1733,6 @@ RETURN
          , case when @approved = 0 then afr.AFR5  else afr.AFR5_Approved   end as AFR5 
          , case when @approved = 0 then afr.AFRP1 else afr.AFRP1_Approved  end as AFRP1
        
-         , case when @approved = 0 then hdd.HddRet                         else hdd.HddRet_Approved                  end as HddRet              
-         
          , case when @approved = 0 then mcw.MaterialCostWarranty           else mcw.MaterialCostWarranty_Approved    end as MaterialCostWarranty
          , case when @approved = 0 then mco.MaterialCostOow                else mco.MaterialCostOow_Approved         end as MaterialCostOow     
 
@@ -1802,8 +1835,6 @@ RETURN
 
     LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
-    LEFT JOIN Hardware.HddRetention hdd on hdd.Wg = m.WgId AND hdd.Year = m.DurationId
-
     LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg.ClusterPla
 
     LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
@@ -1835,7 +1866,7 @@ RETURN
 GO
 
 CREATE FUNCTION [Hardware].[GetCostsFull](
-     @approved bit,
+    @approved bit,
 	@cnt dbo.ListID readonly,
     @wg dbo.ListID readonly,
     @av dbo.ListID readonly,
@@ -2047,7 +2078,6 @@ RETURN
          --Cost
 
          , m.AvailabilityFee * m.Year as AvailabilityFee
-         , m.HddRet
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.tax1, m.tax2, m.tax3, m.tax4, m.tax5, m.tax1P) as TaxAndDutiesW
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.taxO1, m.taxO2, m.taxO3, m.taxO4, m.taxO5, m.taxO1P) as TaxAndDutiesOow
          , m.Reinsurance
@@ -2129,7 +2159,6 @@ RETURN
          , StdWarranty
 
          , AvailabilityFee
-         , HddRet
          , TaxAndDutiesW
          , TaxAndDutiesOow
          , Reinsurance
@@ -2161,9 +2190,9 @@ RETURN
 go
 
 CREATE PROCEDURE [Hardware].[SpGetCosts]
-	@approved bit,
+    @approved bit,
     @local bit,
- 	@cnt dbo.ListID readonly,
+    @cnt dbo.ListID readonly,
     @wg dbo.ListID readonly,
     @av dbo.ListID readonly,
     @dur dbo.ListID readonly,
@@ -2227,7 +2256,6 @@ BEGIN
              --Cost
 
              , AvailabilityFee               * er.Value  as AvailabilityFee 
-             , HddRet                        * er.Value  as HddRet
              , TaxAndDutiesW                 * er.Value  as TaxAndDutiesW
              , TaxAndDutiesOow               * er.Value  as TaxAndDutiesOow
              , Reinsurance                   * er.Value  as Reinsurance
@@ -2257,9 +2285,9 @@ BEGIN
              , ChangeUserEmail                            as ChangeUserEmail
 
         from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) costs
-		join [InputAtoms].Country c on c.Name = costs.Country
-		join [References].Currency cur on cur.Id = c.CurrencyId
-		join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+        join [InputAtoms].Country c on c.Name = costs.Country
+        join [References].Currency cur on cur.Id = c.CurrencyId
+        join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
         order by Id 
         
     end
@@ -2276,3 +2304,5 @@ BEGIN
         order by Id
     end
 END
+
+go
