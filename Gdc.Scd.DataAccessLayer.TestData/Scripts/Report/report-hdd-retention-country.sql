@@ -60,8 +60,8 @@ set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
 
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where UPPER(name) = 'USERCOUNTRY'), 'cnt', 'Country Name');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select top(1) id from Report.ReportFilterType where UPPER(name) = 'USERCOUNTRY' and MultiSelect = 0), 'cnt', 'Country Name');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where UPPER(name) = 'WG'), 'wg', 'Warranty Group');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select top(1) id from Report.ReportFilterType where UPPER(name) = 'WG' and MultiSelect = 0), 'wg', 'Warranty Group');
 
 

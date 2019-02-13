@@ -1196,21 +1196,6 @@ go
 update Hardware.HddRetention set HddFr = HddFr + 0;
 go
 
-IF OBJECT_ID('Hardware.HddRetentionManualCost', 'U') IS NOT NULL
-  DROP TABLE Hardware.HddRetentionManualCost;
-go
-
-CREATE TABLE Hardware.HddRetentionManualCost (
-       [WgId] [bigint] NOT NULL primary key foreign key references InputAtoms.Wg(Id)
-     , [ChangeUserId] [bigint] NOT NULL foreign key REFERENCES [dbo].[User] ([Id])
-     , [TransferPrice] [float] NULL
-     , [ListPrice] [float] NULL
-     , [DealerDiscount] [float] NULL
-     , [DealerPrice]  AS ([ListPrice]-([ListPrice]*[DealerDiscount])/(100))
-) 
-
-GO
-
 IF OBJECT_ID('Hardware.HddRetentionView', 'U') IS NOT NULL
   DROP TABLE Hardware.HddRetentionView;
 go
