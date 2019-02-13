@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 3;
+        public int Number => 8;
 
         public string Description => "Hdd retention schema change. Add List price/dealer price. Fix hdd retention reports";
 

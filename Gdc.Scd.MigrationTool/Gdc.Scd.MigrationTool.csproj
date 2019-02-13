@@ -62,6 +62,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Migrations\Migration_2019_02_11.cs" />
+    <Compile Include="Migrations\Migration_2019_02_12_16_08.cs" />
     <Compile Include="Migrations\Migration_2019_02_12_16_17.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
@@ -89,6 +90,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2019-02-11.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-02-12_16_08.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
