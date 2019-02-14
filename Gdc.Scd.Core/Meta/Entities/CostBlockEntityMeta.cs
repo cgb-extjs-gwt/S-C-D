@@ -98,7 +98,7 @@ namespace Gdc.Scd.Core.Meta.Entities
             if (costElement.RegionInput != null)
             {
                 var inputLevel = costElement.InputLevels[costElement.RegionInput.Id];
-                if (inputLevel == null)
+                if (inputLevel != null)
                 {
                     yield return this.InputLevelFields[inputLevel.Id];
                 }
