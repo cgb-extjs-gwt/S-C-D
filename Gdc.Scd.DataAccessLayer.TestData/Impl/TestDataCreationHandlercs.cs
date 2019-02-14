@@ -2692,23 +2692,20 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateCdCsConfiguration()
         {
-            var russiaConfig = new CdCsConfiguration()
-            {
-                CountryId = 41,
-                FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
-                FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Russia"
-            };
-            var germanyConfig = new CdCsConfiguration()
-            {
-                CountryId = 113,
-                FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
-                FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Germany"
-            };
-
             this.repositorySet.GetRepository<CdCsConfiguration>().Save(new List<CdCsConfiguration>()
             {
-                russiaConfig,
-                germanyConfig
+                new CdCsConfiguration()
+                {
+                    CountryId = 41,
+                    FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
+                    FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Russia"
+                },
+                new CdCsConfiguration()
+                {
+                    CountryId = 113,
+                    FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
+                    FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Germany"
+                }
             });
             this.repositorySet.Sync();
         }

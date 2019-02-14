@@ -203,7 +203,7 @@ delete from Report.ReportFilter where ReportId = @reportId;
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 7, 'cnt', 'Country Name');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit'), 'digit', 'SW digit');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit' and MultiSelect=0), 'digit', 'SW digit');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 13, 'year', 'Service period');
 
