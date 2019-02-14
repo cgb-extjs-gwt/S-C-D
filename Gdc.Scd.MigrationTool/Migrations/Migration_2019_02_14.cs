@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 9;
+        public int Number => 10;
 
         public string Description => "Fix Tax&duties out of warranty";
 
