@@ -42,10 +42,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
             if (filter != null)
             {
-                pCnt.WithValue(filter.Country);
-                pDigit.WithValue(filter.Digit);
-                pAv.WithValue(filter.Availability);
-                pYear.WithValue(filter.Year);
+                pCnt.WithListIdValue(filter.Country);
+                pDigit.WithListIdValue(filter.Digit);
+                pAv.WithListIdValue(filter.Availability);
+                pYear.WithListIdValue(filter.Year);
             }
 
             return new DbParameter[] {

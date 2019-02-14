@@ -5,10 +5,10 @@ go
 CREATE FUNCTION Report.SwProactiveCalcResult
 (
     @approved bit,
-    @country bigint,
-    @digit bigint,
-    @availability bigint,
-    @year bigint
+    @country dbo.ListID readonly,
+    @digit dbo.ListID readonly,
+    @availability dbo.ListID readonly,
+    @year dbo.ListID readonly
 )
 RETURNS TABLE 
 AS
@@ -31,7 +31,6 @@ RETURN (
     left join Dependencies.Year y on y.Id = m.DurationId
     left join Dependencies.ProActiveSla pro on pro.Id = m.ProactiveSlaId
 )
-
 GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'SW-PROACTIVE-CALC-RESULT');
@@ -61,12 +60,12 @@ delete from Report.ReportFilter where ReportId = @reportId;
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 3, 'approved', 'Approved');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 15, 'Country', 'Country');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'country' and MultiSelect=1), 'Country', 'Country');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit'), 'digit', 'SW digit');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit' and MultiSelect=1), 'digit', 'SW digit');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 8, 'availability', 'Availability');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'availability' and MultiSelect=1), 'availability', 'Availability');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 13, 'year', 'Service period');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'year' and MultiSelect=1), 'year', 'Service period');
 
 GO

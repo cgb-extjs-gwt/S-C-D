@@ -1,4 +1,4 @@
-﻿import { CheckBoxField, Container, List } from "@extjs/ext-react";
+﻿import { CheckBoxField, Container, List, Panel } from "@extjs/ext-react";
 import * as React from "react";
 import { ExtDataviewHelper } from "../../Common/Helpers/ExtDataviewHelper";
 import { NamedId } from "../../Common/States/CommonStates";
@@ -21,6 +21,11 @@ export interface MultiSelectProps {
     selectable?: string;
 
     store(): Promise<NamedId[]>;
+
+    onselect?: (field, records) => void;
+
+    hideCheckbox?: boolean;
+
 }
 
 export class MultiSelect extends React.Component<MultiSelectProps, any> {
@@ -53,7 +58,7 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
 
     public render() {
 
-        let { width, height, maxHeight, title, selectable } = this.props;
+        let { width, height, maxHeight, title, selectable, onselect, hideCheckbox } = this.props;
 
         title = '<h4>' + title + '</h4>';
 
@@ -71,6 +76,7 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
                     padding="7px"
                     bodyAlign="left"
                     onChange={this.onTopSelectionChange}
+                    hidden={hideCheckbox?hideCheckbox:false}
                 />
                 <div onClick={this.onListClick}>
                     <Container>
@@ -82,6 +88,7 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
                             maxHeight={maxHeight}
                             selectable={selectable}
                             scrollable="true"
+                            onSelect={onselect}
                         />
                     </Container>
                 </div>
@@ -95,6 +102,10 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
 
     public getSelectedKeys<T>(): T[] {
         return ExtDataviewHelper.getListSelected(this.lst, ID_PROP);
+    }
+
+    public getSelectedKeysOrNull<T>(): T[] {
+        return ExtDataviewHelper.getListSelected(this.lst, ID_PROP).length > 0 ? ExtDataviewHelper.getListSelected(this.lst, ID_PROP): null;
     }
 
     public reset() {

@@ -4,10 +4,10 @@ go
 
 CREATE FUNCTION Report.SwCalcResult
 (
-    @approved bit,
-    @digit bigint,
-    @availability bigint,
-    @year bigint
+	@approved bit,
+    @digit dbo.ListID readonly,
+    @availability dbo.ListID readonly,
+    @year dbo.ListID readonly
 )
 RETURNS TABLE 
 AS
@@ -15,7 +15,7 @@ RETURN (
     select    d.Name as SwDigit
             , sog.Name as Sog
             , av.Name as Availability 
-            , y.Name as Year
+            , dr.Name as Duration
             , m.ServiceSupport
             , m.Reinsurance
             , m.TransferPrice
@@ -25,7 +25,7 @@ RETURN (
     join InputAtoms.SwDigit d on d.Id = m.SwDigit
     join InputAtoms.Sog sog on sog.Id = m.Sog
     join Dependencies.Availability av on av.Id = m.Availability
-    join Dependencies.Year y on y.Id = m.Year
+    join Dependencies.Duration dr on dr.Id = m.Year
 )
 GO
 
@@ -41,7 +41,7 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Availability', 'Availability', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Year', 'Year', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Duration', 'Duration', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceSupport', 'Service support cost', 1, 1);
@@ -61,11 +61,11 @@ delete from Report.ReportFilter where ReportId = @reportId;
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 3, 'approved', 'Approved');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit'), 'digit', 'SW digit');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit' and MultiSelect=1), 'digit', 'SW digit');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 8, 'availability', 'Availability');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'availability' and MultiSelect=1), 'availability', 'Availability');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 13, 'year', 'Year');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'duration' and MultiSelect=1), 'year', 'Duration');
 
 GO
 

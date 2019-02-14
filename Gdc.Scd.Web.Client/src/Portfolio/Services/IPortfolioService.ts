@@ -5,5 +5,5 @@ export interface IPortfolioService {
 
     deny(row: PortfolioEditModel): Promise<any>;
 
-    denyById(cnt: string, ids: string[]): Promise<any>;
+    denyById(cnt: string[], ids: string[]): Promise<any>;
 }

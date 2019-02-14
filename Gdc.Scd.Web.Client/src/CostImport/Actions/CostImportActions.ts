@@ -3,17 +3,16 @@ import { NamedId } from "../../Common/States/CommonStates";
 import { CostElementIdentifier } from "../../Common/States/CostElementIdentifier";
 import { asyncAction } from "../../Common/Actions/AsyncAction";
 import { CommonState } from "../../Layout/States/AppStates";
-import { getCostElementData } from "../../Common/Services/CostBlockService";
 import { Action } from "redux";
-import { CostElementData } from "../../Common/States/CostElementData";
 import { BundleDetailGroup } from "../../QualityGate/States/QualityGateResult";
 
 export const COST_IMPORT_SELECT_APPLICATION = 'COST_IMPORT.SELECT.APPLICATION'
 export const COST_IMPORT_SELECT_COST_BLOCK = 'COST_IMPORT.SELECT.COST_BLOCK'
 export const COST_IMPORT_SELECT_COST_ELEMENT = 'COST_IMPORT.SELECT.COST_ELEMENT'
+export const COST_IMPORT_LOAD_DEPENDENCY_ITEMS = 'COST_IMPORT.LOAD.DEPENDENCY_ITEMS'
 export const COST_IMPORT_SELECT_DEPENDENCY_ITEM = 'COST_IMPORT.SELECT.DEPENDENCY_ITEM'
+export const COST_IMPORT_LOAD_REGIONS = 'COST_IMPORT.LOAD.REGIONS'
 export const COST_IMPORT_SELECT_REGION = 'COST_IMPORT.SELECT.REGION'
-export const COST_IMPORT_LOAD_COST_ELEMENT_DATA = 'COST_IMPORT.LOAD.COST_ELEMENT_DATA'
 export const COST_IMPORT_LOAD_IMPORT_STATUS = 'COST_IMPORT.LOAD.IMPORT_STATUS'
 export const COST_IMPORT_SELECT_FILE = 'COST_IMPORT.SELECT.FILE'
 export const COST_IMPORT_LOAD_FILE_DATA = 'COST_IMPORT.LOAD.FILE_DATA'
@@ -44,9 +43,14 @@ export const selectRegion = (regionId: number) => (<ItemSelectedAction<number>>{
     selectedItemId: regionId
 })
 
-export const loadCostElementData = (costElementData: CostElementData) => (<CommonAction<CostElementData>>{
-    type: COST_IMPORT_LOAD_COST_ELEMENT_DATA,
-    data: costElementData
+export const loadRegions = (regions: NamedId<number>[]) =>(<CommonAction<NamedId<number>[]>>{
+    type: COST_IMPORT_LOAD_REGIONS,
+    data: regions
+})
+
+export const loadDependencyItems = (dependencyItems: NamedId<number>[]) => (<CommonAction<NamedId<number>[]>>{
+    type: COST_IMPORT_LOAD_DEPENDENCY_ITEMS,
+    data: dependencyItems
 })
 
 export const loadImportStatus = (status: string[]) => (<CommonAction<string[]>>{

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 
 namespace Gdc.Scd.DataAccessLayer.Interfaces
@@ -16,9 +17,9 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
         Task<IEnumerable<NamedId>> GetDistinctItems(string entityName, string schema, string referenceFieldName, IDictionary<string, long[]> filter);
 
         Task<IEnumerable<NamedId>> GetDistinctItems(
-            string entityName, 
-            string entitySchema, 
-            string referenceFieldName, 
+            string entityName,
+            string entitySchema,
+            string referenceFieldName,
             IDictionary<string, IEnumerable<object>> entityFilter = null,
             IDictionary<string, IEnumerable<object>> referenceFilter = null,
             ConditionHelper filterCondition = null);
@@ -29,6 +30,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
             IDictionary<string, IEnumerable<object>> entityFilter = null,
             IDictionary<string, IEnumerable<object>> referenceFilter = null,
             ConditionHelper filterCondition = null);
+
+        Task<IEnumerable<NamedId>> GetDistinctItems(DistinctItemsInfo info);
 
         Task<IEnumerable<NamedId>> GetNameIdItems(BaseEntityMeta entityMeta, string idField, string nameField);
 

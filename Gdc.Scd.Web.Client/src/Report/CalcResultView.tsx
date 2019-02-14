@@ -1,29 +1,40 @@
 ﻿import { Container, TabPanel } from "@extjs/ext-react";
 import * as React from "react";
+import { UserCountryService } from "../Dict/Services/UserCountryService";
+import { HddCostView } from "./HddCostView";
 import { HwCostView } from "./HwCostView";
 import { SwCostView } from "./SwCostView";
 import { SwProactiveCostView } from "./SwProactiveCostView";
-import { UserCountryService } from "../Dict/Services/UserCountryService";
 
 export class CalcResultView extends React.Component<any, any> {
-    private tabPanel;
+
+    public state = {
+        isAdmin: false
+    };
 
     public componentDidMount() {
-        this.tabPanel = this.refs.tabPanel;
+        new UserCountryService().isAdminUser().then(x => this.setState({ isAdmin: x }));
     }
 
     public render() {
-        const srv = new UserCountryService();
-        srv.isAdminUser().then(x => {
-            if (!x) {
-                this.tabPanel && this.tabPanel.items.items[2].tab.setHidden(true);       
-            }
-        });
+
+        let hdd = null, sw = null;
+
+        if (this.state.isAdmin) {
+
+            hdd = <Container title="Hdd retention<br>service costs" layout="fit">
+                <HddCostView approved={false} />
+            </Container>;
+
+            sw = <Container title="Software &amp; Solution<br>service costs" layout="fit" >
+                <SwCostView approved={false} />
+            </Container>;
+        }
 
         return (
             <Container layout="vbox">
 
-                <TabPanel flex="1" tabBar={{ layout: { pack: 'left' } }} ref='tabPanel'>
+                <TabPanel flex="1" tabBar={{ layout: { pack: 'left' } }}>
 
                     <Container title="Hardware<br>service costs" layout="fit">
                         <HwCostView approved={false} />
@@ -33,9 +44,13 @@ export class CalcResultView extends React.Component<any, any> {
                         <HwCostView approved={true} />
                     </Container>
 
-                    <Container title="Software &amp; Solution<br>service costs" layout="fit">
-                        <SwCostView approved={false} />
+                    {hdd}
+
+                    <Container title="Hdd retention<br>service costs<br>(approved)" layout="fit">
+                        <HddCostView approved={true} />
                     </Container>
+
+                    {sw}
 
                     <Container title="Software &amp; Solution<br>service costs<br>(approved)" layout="fit">
                         <SwCostView approved={true} />

@@ -61,6 +61,7 @@ export class MultiSelectWg extends MultiSelect {
     }
 
     private filter(key: string, val: string) {
+        val = val || '';
         this.lst.getStore().filter(key, val);
     }
 }

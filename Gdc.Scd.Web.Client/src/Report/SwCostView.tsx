@@ -23,11 +23,15 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
             api: {
                 read: buildMvcUrl('calc', 'getswcost')
             },
+            actionMethods: {
+                read: 'POST'
+            },
             reader: {
                 type: 'json',
                 rootProperty: 'items',
                 totalProperty: 'total'
-            }
+            },
+            paramsAsJson: true
         }
     });
 
@@ -57,7 +61,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         <Column text="SW digit" dataIndex="SwDigit" />
                         <Column text="SOG(Asset)" dataIndex="Sog" />
                         <Column text="Availability" dataIndex="Availability" />
-                        <Column text="Year" dataIndex="Year" />
+                        <Column text="Duration" dataIndex="Duration" />
 
                     </Column>
 
@@ -112,7 +116,6 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     private onBeforeLoad(s, operation) {
         let filter = this.filter.getModel() as any;
         filter.approved = this.props.approved;
-        let params = Ext.apply({}, operation.getParams(), filter);
-        operation.setParams(params);
+        operation.setParams(filter);
     }
 }

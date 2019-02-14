@@ -16,7 +16,7 @@ export const resetFilter = (state: CheckItem[]) =>
         isChecked: true 
     }))
 
-export const loadFilter = (filterItems: NamedId[]) => 
+export const loadFilter = (filterItems: NamedId<number>[]) => 
     filterItems && filterItems.map(filterItem => (<CheckItem>{
         ...filterItem,  
         isChecked: true

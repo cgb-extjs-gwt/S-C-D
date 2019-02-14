@@ -1,19 +1,20 @@
 ﻿import { Button, Container, Panel, PanelProps, RadioField } from "@extjs/ext-react";
 import * as React from "react";
 import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
-import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
-import { CountryField } from "../../Dict/Components/CountryField";
-import { DictField } from "../../Dict/Components/DictField";
-import { DurationField } from "../../Dict/Components/DurationField";
-import { ProActiveField } from "../../Dict/Components/ProActiveField";
-import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
-import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
-import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
-import { StandardWgField } from "../../Dict/Components/StandardWgField";
-import { UserCountryField } from "../../Dict/Components/UserCountryField";
 import { Country } from "../../Dict/Model/Country";
 import { CurrencyType } from "../Model/CurrencyType";
 import { HwCostFilterModel } from "../Model/HwCostFilterModel";
+import { DictFactory } from "../../Dict/Services/DictFactory";
+import { IDictService } from "../../Dict/Services/IDictService";
+import { MultiSelect } from "../../Dict/Components/MultiSelect";
+import { MultiSelectWg } from "../../Dict/Components/MultiSelectWg";
+import { MultiSelectProActive } from "../../Dict/Components/MultiSelectProActive";
+import { CountryField } from "../../Dict/Components/CountryField";
+import { UserCountryField } from "../../Dict/Components/UserCountryField";
+
+Ext.require('Ext.panel.Collapser');
+
+const SELECT_MAX_HEIGHT: string = '200px';
 
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: HwCostFilterModel): void;
@@ -25,23 +26,25 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
     private cnt: CountryField;
 
-    private wg: DictField<NamedId>;
+    private wg: MultiSelect;
 
-    private av: DictField<NamedId>;
+    private av: MultiSelect;
 
-    private dur: DictField<NamedId>;
+    private dur: MultiSelect;
 
-    private reacttype: DictField<NamedId>;
+    private reacttype: MultiSelect;
 
-    private reacttime: DictField<NamedId>;
+    private reacttime: MultiSelect;
 
-    private srvloc: DictField<SortableNamedId>;
+    private srvloc: MultiSelect;
 
-    private proactive: DictField<NamedId>;
+    private proactive: MultiSelect;
 
     private localCur: RadioField & any;
 
     private euroCur: RadioField & any;
+
+    private dictSrv: IDictService;
 
     public constructor(props: any) {
         super(props);
@@ -53,15 +56,32 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
         let countryField;
 
+        let multiProps = {
+            width: '200px',
+            maxHeight: SELECT_MAX_HEIGHT,
+            title: "",
+            hideCheckbox: true
+        };
+        let panelProps = {
+            width: '300px',
+            collapsible: {
+                direction: 'top',
+                dynamic: true,
+                collapsed: true
+            },
+            userCls: 'multiselect-filter',
+            margin: "0 0 2px 0"
+        };
+
         if (this.props.checkAccess) {
-            countryField = <UserCountryField ref={x => this.cnt = x} label="Country:" cache={false} onChange={this.onCountryChange} />;
+            countryField = <UserCountryField ref={x => this.cnt = x} margin="5px 5px 15px 15px" label="Country:" cache={false} onChange={this.onCountryChange} />;
         }
         else {
-            countryField = <CountryField ref={x => this.cnt = x} label="Country:" cache={false} onChange={this.onCountryChange} />;
+            countryField = <CountryField ref={x => this.cnt = x} margin="5px 5px 15px 15px" label="Country:" cache={false} onChange={this.onCountryChange} />;
         }
-
+     
         return (
-            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px" layout={{ type: 'vbox', align: 'left' }}>
+            <Panel {...this.props} margin="0 0 5px 0" padding="5px 5px 5px 5px" layout={{ type: 'vbox', align: 'left' }}>
 
                 <Container margin="10px 0"
                     defaults={{
@@ -72,16 +92,36 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                         clearable: 'true'
                     }}
                 >
-
                     {countryField}
-                    <StandardWgField ref={x => this.wg = x} label="Asset(WG):" />
-                    <AvailabilityField ref={x => this.av = x} label="Availability:" />
-                    <DurationField ref={x => this.dur = x} label="Duration:" />
-                    <ReactionTypeField ref={x => this.reacttype = x} label="Reaction type:" />
-                    <ReactionTimeField ref={x => this.reacttime = x} label="Reaction time:" />
-                    <ServiceLocationField ref={x => this.srvloc = x} label="Service location:" />
-                    <ProActiveField ref={x => this.proactive = x} label="ProActive:" />
 
+                    <Panel title='Asset(WG)'
+                        {...panelProps}>
+                        <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getStandardWg} />
+                    </Panel>
+                    <Panel title='Availability'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.av = x} {...multiProps} store={this.dictSrv.getAvailabilityTypes} />
+                    </Panel>
+                    <Panel title='Duration'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.dur = x} {...multiProps} store={this.dictSrv.getDurationTypes} />
+                    </Panel>
+                    <Panel title='Reaction type'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.reacttype = x} {...multiProps} store={this.dictSrv.getReactionTypes} />
+                    </Panel>
+                    <Panel title='Reaction time'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.reacttime = x} {...multiProps} store={this.dictSrv.getReactionTimeTypes} />
+                    </Panel>
+                    <Panel title='Service location'
+                        {...panelProps}>
+                        <MultiSelect ref={x => this.srvloc = x} {...multiProps} store={this.dictSrv.getServiceLocationTypes} />
+                    </Panel>
+                    <Panel title='ProActive'
+                        {...panelProps}>
+                        <MultiSelectProActive ref={x => this.proactive = x} {...multiProps} store={this.dictSrv.getProActive} />
+                    </Panel>
                 </Container>
 
                 <Container layout={{ type: 'vbox', align: 'left' }} margin="5px 0 0 0" defaults={{ padding: '3px 0' }} >
@@ -89,9 +129,9 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                     <RadioField ref={x => this.euroCur = x} name="currency" boxLabel="Show in EUR" onCheck={this.onChange} />
                 </Container>
 
-                <Button text="Search" ui="action" minWidth="85px" margin="20px auto" disabled={!valid} handler={this.onSearch} />
+                <Button text="Search" ui="action" minWidth="85px" margin="5px 20px" disabled={!valid} handler={this.onSearch} />
 
-                <Button text="Download" ui="action" minWidth="85px" iconCls="x-fa fa-download" disabled={!valid} handler={this.onDownload} />
+                <Button text="Download" ui="action" minWidth="85px" margin="5px 20px" iconCls="x-fa fa-download" disabled={!valid} handler={this.onDownload} />
 
             </Panel>
         );
@@ -99,30 +139,31 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
     public getModel(): HwCostFilterModel {
         return {
-            country: this.cnt.getSelected(),
-            wg: this.wg.getSelected(),
-            availability: this.av.getSelected(),
-            duration: this.dur.getSelected(),
-            reactionType: this.reacttype.getSelected(),
-            reactionTime: this.reacttime.getSelected(),
-            serviceLocation: this.srvloc.getSelected(),
-            proActive: this.proactive.getSelected(),
+            country: [this.cnt.getSelected()],
+            wg: this.wg.getSelectedKeysOrNull(),
+            availability: this.av.getSelectedKeysOrNull(),
+            duration: this.dur.getSelectedKeysOrNull(),
+            reactionType: this.reacttype.getSelectedKeysOrNull(),
+            reactionTime: this.reacttime.getSelectedKeysOrNull(),
+            serviceLocation: this.srvloc.getSelectedKeysOrNull(),
+            proActive: this.proactive.getSelectedKeysOrNull(),
             currency: this.getCurrency()
-        };
+        }
     }
 
-    public getCountry(): Country {
-        return this.cnt.getSelectedModel();
+    public getCountry(): any {
+        return this.cnt.getSelected()[0];
     }
 
     private init() {
+        this.dictSrv = DictFactory.getDictService();
         this.onCountryChange = this.onCountryChange.bind(this);
         this.onSearch = this.onSearch.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onDownload = this.onDownload.bind(this);
     }
 
-    private onCountryChange() {
+    private onCountryChange(field, records) {
         this.setState({ valid: !!this.cnt.getSelected() });
     }
 

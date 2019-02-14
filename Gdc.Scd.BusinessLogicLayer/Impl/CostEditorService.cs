@@ -99,26 +99,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public async Task<IEnumerable<NamedId>> GetCostElementReferenceValues(CostEditorContext context)
-        {
-            IEnumerable<NamedId> referenceValues = null;
-
-            var costBlock = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
-            if (costBlock.CostElementsFields[context.CostElementId] is ReferenceFieldMeta field)
-            {
-                referenceValues = await this.sqlRepository.GetNameIdItems(field.ReferenceMeta, field.ReferenceValueField, field.ReferenceFaceField);
-            }
-
-            return referenceValues;
-        }
-
         public async Task<CostEditorDto> GetCostElementData(CostEditorContext context)
         {
-            var dependencyItems = await this.costBlockService.GetDependencyItems(context);
-
             return new CostEditorDto
             {
-                Filters = dependencyItems,
                 Regions = await this.GetRegions(context),
                 ReferenceValues = await this.GetCostElementReferenceValues(context),
             };
@@ -172,7 +156,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return await this.historySevice.GetHistory(context, filter, queryInfo);
         }
 
-        private async Task<RegionDto[]> GetRegions(CostEditorContext context)
+        public async Task<RegionDto[]> GetRegions(CostEditorContext context)
         {
             RegionDto[] regionDtos = null;
 
@@ -197,6 +181,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
 
             return regionDtos;
+        }
+
+        private async Task<IEnumerable<NamedId>> GetCostElementReferenceValues(CostEditorContext context)
+        {
+            IEnumerable<NamedId> referenceValues = null;
+
+            var costBlock = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
+            if (costBlock.CostElementsFields[context.CostElementId] is ReferenceFieldMeta field)
+            {
+                referenceValues = await this.sqlRepository.GetNameIdItems(field.ReferenceMeta, field.ReferenceValueField, field.ReferenceFaceField);
+            }
+
+            return referenceValues;
         }
     }
 }

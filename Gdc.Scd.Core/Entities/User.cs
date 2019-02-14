@@ -6,6 +6,8 @@ namespace Gdc.Scd.Core.Entities
 {
     public class User : NamedId
     {
+        private const string SCD_ADMIN = "SCD Admin";
+
         public string Login { get; set; }
 
         public string Email { get; set; }
@@ -55,7 +57,20 @@ namespace Gdc.Scd.Core.Entities
                 {
                     return roles.Any(x => x.IsGlobal);
                 }
+                return false;
+            }
+        }
 
+        [NotMapped]
+        public bool IsAdmin
+        {
+            get
+            {
+                var roles = this.Roles;
+                if (roles != null)
+                {
+                    return roles.Any(x => string.Compare(x.Name, SCD_ADMIN, true) == 0);
+                }
                 return false;
             }
         }

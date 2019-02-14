@@ -26,24 +26,23 @@ RETURN (
          , m.ReactionType
          , m.Availability
          , m.ProActiveSla
-
-         , case when m.DurationId >= 1 then  m.ServiceTP_Released / dur.Value else null end as ServiceTP1
+		 , case when m.DurationId >= 1 then  m.ServiceTP_Released / dur.Value else null end as ServiceTP1
          , case when m.DurationId >= 2 then  m.ServiceTP_Released / dur.Value else null end as ServiceTP2
          , case when m.DurationId >= 3 then  m.ServiceTP_Released / dur.Value else null end as ServiceTP3
          , case when m.DurationId >= 4 then  m.ServiceTP_Released / dur.Value else null end as ServiceTP4
          , case when m.DurationId >= 5 then  m.ServiceTP_Released / dur.Value else null end as ServiceTP5
 
-         , case when m.DurationId >= 1 then  m.ServiceTP_Released / dur.Value / 12 else null end as ServiceTPMonthly1
-         , case when m.DurationId >= 2 then  m.ServiceTP_Released / dur.Value / 12 else null end as ServiceTPMonthly2
-         , case when m.DurationId >= 3 then  m.ServiceTP_Released / dur.Value / 12 else null end as ServiceTPMonthly3
-         , case when m.DurationId >= 4 then  m.ServiceTP_Released / dur.Value / 12 else null end as ServiceTPMonthly4
-         , case when m.DurationId >= 5 then  m.ServiceTP_Released / dur.Value / 12 else null end as ServiceTPMonthly5
+		 , case when m.DurationId >= 1 then  m.ServiceTP_Released / dur.Value / 12 else null end as ServiceTPMonthly1
+		 , case when m.DurationId >= 2 then  m.ServiceTP_Released / dur.Value / 12 else null end as ServiceTPMonthly2
+		 , case when m.DurationId >= 3 then  m.ServiceTP_Released / dur.Value / 12 else null end as ServiceTPMonthly3
+		 , case when m.DurationId >= 4 then  m.ServiceTP_Released / dur.Value / 12 else null end as ServiceTPMonthly4
+		 , case when m.DurationId >= 5 then  m.ServiceTP_Released / dur.Value / 12 else null end as ServiceTPMonthly5
 
          , m.StdWarranty as WarrantyLevel
          , null as PortfolioType
-         , wg.Sog as Sog
+         , wg.Sog as Sog	
 
-    from Hardware.GetCostsFull(1, @cnt, @wg, @av, (select top(1) id from Dependencies.Duration where IsProlongation = 0 and Value = 5), @reactiontime, @reactiontype, @loc, @pro, 0, -1) m
+    from Report.GetCostsFull(@cnt, @wg, @av, (select top(1) id from Dependencies.Duration where IsProlongation = 0 and Value = 5), @reactiontime, @reactiontype, @loc, @pro) m
     join InputAtoms.WgSogView wg on wg.id = m.WgId
 	join Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
 )

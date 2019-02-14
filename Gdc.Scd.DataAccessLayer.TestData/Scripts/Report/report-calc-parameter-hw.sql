@@ -52,7 +52,7 @@ RETURN (
                 lc.TaxiCourierDelivery_Approved + 
                 lc.ReturnDeliveryFactory_Approved as LogisticPerYear
 
-              , case when afEx.id is null then af.Fee_Approved else 0 end as AvailabilityFee
+              , case when afEx.id is not null then af.Fee_Approved else 0 end as AvailabilityFee
       
               , tax.TaxAndDuties_Approved as TaxAndDutiesW
 

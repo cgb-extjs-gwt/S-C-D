@@ -20,11 +20,15 @@ export class CacheDomainService<T> {
         return p;
     }
 
-    public getFromUrl<K>(action: string): Promise<K[]> {
+    public getFromUrlAll<K>(action: string): Promise<K[]> {
+        return this.getFromUrl<K[]>(action);
+    }
+
+    public getFromUrl<K>(action: string): Promise<K> {
         let url = buildMvcUrl(this.controllerName, action);
         let p = CacheDomainService.all[url];
         if (!p) {
-            p = get<K[]>(this.controllerName, action);
+            p = get<K>(this.controllerName, action);
             CacheDomainService.all[url] = p;
         }
         return p;

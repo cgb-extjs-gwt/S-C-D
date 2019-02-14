@@ -28,6 +28,7 @@ export interface InputLevelMeta extends NamedId {
     levelNumer: number
     hasFilter: boolean
     filterName
+    hide: boolean
 }
 
 export enum FieldType {

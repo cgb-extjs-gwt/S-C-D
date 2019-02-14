@@ -117,7 +117,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                     try
                     {
-                        this.emailService.SendApprovalMail(history.EditUser);
+                        await this.emailService.SendApprovalMailAsync(history);
                     }
                     catch
                     {
@@ -133,13 +133,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public void Reject(long historyId, string message = null)
+        public async Task Reject(long historyId, string message = null)
         {
             var history = this.costBlockHistoryService.SaveAsRejected(historyId, message);
 
             if (message != null)
             {
-                this.emailService.SendRejectedMail(history.EditUser, message, userService.GetCurrentUser().Name);
+                await this.emailService.SendRejectedMailAsync(history, message, userService.GetCurrentUser().Name);
             }
         }
 
@@ -209,6 +209,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     ? null
                     : regionCache[costElement.RegionInput][history.Context.RegionInputId.Value];
 
+                var inputLevel = costElement.GetInputLevel(history.Context.InputLevelId);
+
                 var historyDto = new BundleDto
                 {
                     Id = history.Id,
@@ -223,7 +225,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     Application = MetaDto.Build(this.domainMeta.Applications[history.Context.ApplicationId]),
                     CostBlock = MetaDto.Build(costBlock),
                     CostElement = MetaDto.Build(costElement),
-                    InputLevel = MetaDto.Build(costElement.InputLevels[history.Context.InputLevelId]),
+                    InputLevel = MetaDto.Build(inputLevel),
                     RegionInput = regionInput,
                     State = history.State,
                     QualityGateErrorExplanation = history.QualityGateErrorExplanation
