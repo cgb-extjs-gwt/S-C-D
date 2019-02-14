@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Gdc.Scd.Core.Meta.Entities
 {
@@ -9,7 +10,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public string Description { get; set; }
 
-        public MetaCollection<TInputLevel> InputLevels { get; set; }
+        public virtual IEnumerable<TInputLevel> InputLevels { get; }
 
         public InputLevelMeta RegionInput { get; set; }
 
@@ -35,6 +36,16 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
 
             return type;
+        }
+
+        public TInputLevel GetInputLevel(string inputLevelId)
+        {
+            return this.InputLevels.FirstOrDefault(inputLevel => inputLevel.Id == inputLevelId);
+        }
+
+        public bool HasInputLevel(string inputLevelId)
+        {
+            return this.GetInputLevel(inputLevelId) != null;
         }
     }
 }

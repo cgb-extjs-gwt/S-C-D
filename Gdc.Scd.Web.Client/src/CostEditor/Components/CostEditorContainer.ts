@@ -53,7 +53,7 @@ const buildInputLevel = (
         isEnableList: isEnableList,
         selectList: {
             selectedItemId: selectedInputLevelId,
-            list: inputLevelMetas
+            list: inputLevelMetas.filter(inputLevel => !inputLevel.hide)
         }
     }
 };

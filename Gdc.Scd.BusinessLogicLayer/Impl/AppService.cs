@@ -81,11 +81,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     };
                     costElementDto.UsingInfo.IsUsingCostImport = 
                         costElementDto.UsingInfo.IsAnyUsing() &&
-                        costElement.InputLevels[MetaConstants.WgInputLevelName] != null;
+                        costElement.HasInputLevel(MetaConstants.WgInputLevelName);
 
                     if (isAddingCostElement || costElementDto.UsingInfo.IsUsingCostEditor || costElementDto.UsingInfo.IsUsingTableView)
                     {
-                        costElementDto.InputLevels = this.BuildInputLevelDtos(costElement);
+                        costElementDto.SetInputLevels(this.BuildInputLevelDtos(costElement));
 
                         this.Copy(costElement, costElementDto, nameof(CostElementDto.InputLevels));
 
@@ -113,13 +113,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var inputLevelDtos = new MetaCollection<InputLevelDto>();
             var index = 0;
 
-            foreach (var inputLevel in costElementMeta.InputLevels)
+            foreach (var inputLevelInfo in costElementMeta.InputLevelMetaInfos)
             {
-                var inputLevelDto = this.Copy<InputLevelDto>(inputLevel, nameof(InputLevelDto.LevelNumber));
+                var inputLevelDto = this.Copy<InputLevelDto>(inputLevelInfo.InputLevel, nameof(InputLevelDto.LevelNumber));
 
                 inputLevelDto.LevelNumber = index++;
+                inputLevelDto.Hide = inputLevelInfo.Hide;
 
-                var inputLevelMeta = costElementMeta.GetFilterInputLevel(inputLevel.Id);
+                var inputLevelMeta = costElementMeta.GetFilterInputLevel(inputLevelInfo.InputLevel.Id);
 
                 if (inputLevelMeta != null)
                 {
