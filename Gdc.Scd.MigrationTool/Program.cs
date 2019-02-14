@@ -14,7 +14,7 @@ namespace Gdc.Scd.MigrationTool
 
         static Program()
         {
-            NinjectExtensions.IsConsoleApplication = true;
+            NinjectExt.IsConsoleApplication = true;
 
             kernel = CreateKernel();
             migrationService = kernel.Get<IMigrationService>();

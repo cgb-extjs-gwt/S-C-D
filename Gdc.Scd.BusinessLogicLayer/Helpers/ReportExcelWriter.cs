@@ -33,7 +33,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             this.workbook = new XLWorkbook();
 
             var sheetName = schema.Name;
-            if(sheetName.Length > 31)
+            if (sheetName.Length > 31)
             {
                 sheetName = sheetName.Substring(0, 31); //ClosedXML limit
             }
@@ -66,7 +66,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
                 if (f.HasValue())
                 {
-                    worksheet.Cell(currentRow, i + 1).Value = f.format();
+                    worksheet.Cell(currentRow, i + 1).Value = f.GetValue();
                 }
             }
         }
@@ -96,8 +96,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
             for (var i = 0; i < fieldCount; i++)
             {
-                var f = fields[i];
-                formatters[i] = new ReportColumnFormat(reader, f.Name, f.Type);
+                formatters[i] = new ReportColumnFormat(reader, fields[i]);
             }
 
             this.prepared = true;
@@ -105,48 +104,51 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
         private class ReportColumnFormat
         {
-            private readonly DbDataReader reader;
+            private DbDataReader reader;
+
+            private ReportColumnDto col;
+
+            private int ordinal;
 
             private int CUR_ORDINAL;
 
-            public readonly int ordinal;
+            private Func<object> fmt;
 
-            public readonly Func<object> format;
-
-            public ReportColumnFormat(DbDataReader reader, string fieldName, string type)
+            public ReportColumnFormat(DbDataReader reader, ReportColumnDto col)
             {
                 this.reader = reader;
-                this.ordinal = reader.GetOrdinal(fieldName);
-                this.format = GetFormatter(type);
-            }
-
-            public Func<object> GetFormatter(string type)
-            {
-                if (string.Compare(type, "number", true) == 0)
+                this.col = col;
+                this.ordinal = reader.GetOrdinal(col.Name);
+                //
+                if (col.IsNumber())
                 {
-                    return GetNumber;
+                    InitNumber();
                 }
-                else if (string.Compare(type, "boolean", true) == 0)
+                else if (col.IsBoolean())
                 {
-                    return GetBoolean;
+                    InitBoolean();
                 }
-                else if (string.Compare(type, "euro", true) == 0)
+                else if (col.IsEuro())
                 {
-                    return GetEuro;
+                    InitEuro();
                 }
-                else if (string.Compare(type, "percent", true) == 0)
+                else if (col.IsPercent())
                 {
-                    return GetPercent;
+                    InitPercent();
                 }
-                else if (string.Compare(type, "money", true) == 0)
+                else if (col.IsMoney())
                 {
-                    CUR_ORDINAL = reader.GetOrdinal("Currency");
-                    return GetMoney;
+                    InitMoney();
                 }
                 else
                 {
-                    return GetText;
+                    InitTxt();
                 }
+            }
+
+            public object GetValue()
+            {
+                return fmt();
             }
 
             public bool HasValue()
@@ -154,34 +156,77 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
                 return !reader.IsDBNull(ordinal);
             }
 
-            public object GetText()
+            private object GetText()
             {
                 return reader[ordinal];
             }
 
-            public object GetNumber()
+            private object GetNumber()
             {
                 return ReportFormatter.Format4Decimals(reader.GetDouble(ordinal));
             }
 
-            public object GetBoolean()
+            private object GetNumberFmt()
+            {
+                return ReportFormatter.FormatDecimals(reader.GetDouble(ordinal), col.Format);
+            }
+
+            private object GetBoolean()
             {
                 return ReportFormatter.FormatYesNo(reader.GetBoolean(ordinal));
             }
 
-            public object GetEuro()
+            private object GetEuro()
             {
                 return ReportFormatter.FormatEuro(reader.GetDouble(ordinal));
             }
 
-            public object GetPercent()
+            private object GetPercent()
             {
                 return ReportFormatter.FormatPercent(reader.GetDouble(ordinal));
             }
 
-            public object GetMoney()
+            private object GetMoney()
             {
                 return ReportFormatter.FormatMoney(reader.GetDouble(ordinal), reader.GetString(CUR_ORDINAL));
+            }
+
+            private void InitBoolean()
+            {
+                fmt = GetBoolean;
+            }
+
+            private void InitEuro()
+            {
+                fmt = GetEuro;
+            }
+
+            private void InitMoney()
+            {
+                CUR_ORDINAL = reader.GetOrdinal("Currency");
+                fmt = GetMoney;
+            }
+
+            private void InitNumber()
+            {
+                if (string.IsNullOrEmpty(col.Format))
+                {
+                    fmt = GetNumber;
+                }
+                else
+                {
+                    fmt = GetNumberFmt;
+                }
+            }
+
+            private void InitPercent()
+            {
+                fmt = GetPercent;
+            }
+
+            private void InitTxt()
+            {
+                fmt = GetText;
             }
         }
     }

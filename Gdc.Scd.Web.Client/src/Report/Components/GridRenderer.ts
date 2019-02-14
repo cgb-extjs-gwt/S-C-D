@@ -14,9 +14,13 @@ export function stringRenderer(val, row) {
     return isEmpty(val) ? N_A : val;
 }
 
-export function numberRenderer(value: any, row: any): string {
-    return isEmpty(value) ? N_A : Ext.util.Format.number(value, '0.00###');
+export function numberRendererFactory(format: string): IRenderer {
+    return function (value: any, row: any): string {
+        return isEmpty(value) ? N_A : Ext.util.Format.number(value, format);
+    }
 }
+
+export const numberRenderer: IRenderer = numberRendererFactory('0.00###');
 
 export function moneyRenderer(value: any, row: any): string {
     return currencyRenderer(value, EUR);

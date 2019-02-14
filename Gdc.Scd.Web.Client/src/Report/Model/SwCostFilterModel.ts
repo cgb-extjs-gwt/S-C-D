@@ -4,4 +4,5 @@
     sog?: string;
     availability?: string[];
     year?: string[];
+    duration?: string[];
 }

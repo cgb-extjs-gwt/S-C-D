@@ -6,7 +6,7 @@ import { HistoryButtonView, HistoryButtonViewProps } from "../../History/Compone
 import { Position } from "../../Common/States/ExtStates";
 
 export interface HistoryValuesGridContainerProps {
-    editItemId: string,
+    editItemId: number,
     isEnabled: boolean, 
     flex: number,
     windowPosition?: Position

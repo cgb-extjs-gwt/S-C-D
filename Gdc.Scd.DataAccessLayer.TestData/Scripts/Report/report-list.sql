@@ -9,6 +9,7 @@
 ('HDD-Retention-country', 'HDD retention reports on country level', 1, 1, 'Report.HddRetentionByCountry'),
 ('HDD-Retention-central', 'HDD retention reports as central report', 0, 1, 'Report.HddRetentionCentral'),
 ('HDD-Retention-parameter', 'HDD retention parameter', 0, 1, 'Report.HddRetentionParameter'),
+('HDD-RETENTION-CALC-RESULT', 'Hdd retention service costs', 0, 1, 'Report.HddRetentionCalcResult'),
 
 --Calculation Parameter Overview reports 
 ('Calculation-Parameter-hw', 'Calculation Parameter Overview reports for HW maintenance cost elements (approved)', 1,  0, 'Report.CalcParameterHw'),

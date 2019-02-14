@@ -1,13 +1,10 @@
-﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
+﻿import { Button, Container, Grid, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
 import { AlertHelper } from "../../Common/Helpers/AlertHelper";
 import { AutoColumnModel } from "../Model/AutoColumnModel";
-import { AutoColumnType } from "../Model/AutoColumnType";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
+import { AutoColumnBuilder } from "./AutoColumnBuilder";
 import { AutoFilter } from "./AutoFilter";
-import { EuroStringColumn } from "./EuroStringColumn";
-import { numberRenderer, stringRenderer, yesNoRenderer } from "./GridRenderer";
-import { PercentColumn } from "./PercentColumn";
 
 export interface AutoGridProps {
 
@@ -28,6 +25,8 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
     private grid: Grid;
 
     private filter: AutoFilter;
+
+    private columns: AutoColumnBuilder[];
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
         pageSize: 25,
@@ -74,7 +73,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
                     defaults={{ minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}
                     plugins={['pagingtoolbar']}>
 
-                    {this.props.columns.map(this.createColumn)}
+                    {this.columns.map((x, i) => x.build(i))}
 
                 </Grid>
 
@@ -87,28 +86,9 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
         this.filter = this.refs.filter as AutoFilter;
     }
 
-    private createColumn(m: AutoColumnModel, i: number) {
-        let flex = m.flex || 1;
-        switch (m.type) {
-            case AutoColumnType.NUMBER:
-                return <NumberColumn key={i} flex={flex} text={m.text} dataIndex={m.name} renderer={numberRenderer}/>;
-
-            case AutoColumnType.EURO:
-                return <EuroStringColumn key={i} flex={flex} text={m.text} dataIndex={m.name} />;
-
-            case AutoColumnType.PERCENT:
-                return <PercentColumn key={i} flex={flex} text={m.text} dataIndex={m.name} />;
-
-            case AutoColumnType.BOOLEAN:
-                return <Column key={i} flex={flex} text={m.text} dataIndex={m.name} renderer={yesNoRenderer} />;
-
-            case AutoColumnType.TEXT:
-            default:
-                return <Column key={i} flex={flex} text={m.text} dataIndex={m.name} renderer={stringRenderer} />;
-        }
-    }
-
     private init() {
+        this.columns = this.props.columns.map(x => new AutoColumnBuilder(x));
+        //
         this.onSearch = this.onSearch.bind(this);
         this.onBeforeLoad = this.onBeforeLoad.bind(this);
         this.onDownload = this.onDownload.bind(this);
@@ -117,25 +97,11 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
     }
 
     private onDownload() {
-
-        let url = this.props.downloadUrl;
-
         let filter = this.filter.getModel() || {};
         filter._dc = new Date().getTime();
 
-        url = Ext.urlAppend(url, Ext.urlEncode(filter, true));
-
+        let url = Ext.urlAppend(this.props.downloadUrl, Ext.urlEncode(filter, true));
         AlertHelper.autoload(url);
-
-        //let url = this.props.downloadUrl;
-
-        //let filter = this.filter.getModel() || {};
-        //filter._dc = new Date().getTime();
-
-        //url = Ext.urlAppend(url, Ext.urlEncode(filter, true));
-
-        //let p = getFromUri<any>(url);
-        //handleRequest(p).then(() => Ext.Msg.alert('Report', 'Your report in process...<br>Please wait while it finish'));
     }
 
     private onSearch(filter: any) {

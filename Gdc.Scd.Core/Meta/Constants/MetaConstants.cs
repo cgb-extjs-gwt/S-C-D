@@ -34,6 +34,8 @@
 
         public const string ManualCostTable = "ManualCost";
 
+        public const string HddRetentionManualCostTable = "HddRetentionManualCost";
+
         public const string HardwareSchema = "Hardware";
 
         public const string FspCodeTranslationSchema = "Fsp";
@@ -51,6 +53,8 @@
         public const string MatrixSchema = "Matrix";
 
         public const string PortfolioSchema = "Portfolio";
+
+        public const string LocalPortfolioTableName = "LocalPortfolio";
 
         public const string ClusterRegionInputLevel = "ClusterRegion";
         

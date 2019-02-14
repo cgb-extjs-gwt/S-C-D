@@ -12,8 +12,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
     {
         Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context);
 
-        Task<IEnumerable<NamedId>> GetCostElementReferenceValues(CostEditorContext context);
-
         Task<CostEditorDto> GetCostElementData(CostEditorContext context);
 
         Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context);

@@ -8,7 +8,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
         public static string Format4Decimals(double v)
         {
-            return v.ToString("0.####", culture);
+            return FormatDecimals(v, "0.####");
+        }
+
+        public static string FormatDecimals(double v, string fmt)
+        {
+            return v.ToString(fmt, culture);
         }
 
         public static string FormatEuro(double v)

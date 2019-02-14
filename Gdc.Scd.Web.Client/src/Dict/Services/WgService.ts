@@ -7,10 +7,10 @@ export class WgService extends CacheDomainService<NamedId> {
     }
 
     public allWithMultivendor(): Promise<NamedId[]> {
-        return this.getFromUrl<NamedId>('multivendor');
+        return this.getFromUrlAll<NamedId>('multivendor');
     }
 
     public standard(): Promise<NamedId[]> {
-        return this.getFromUrl<NamedId>('standard');
+        return this.getFromUrlAll<NamedId>('standard');
     }
 }
