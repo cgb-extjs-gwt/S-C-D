@@ -43,7 +43,9 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
                 direction: 'top',
                 dynamic: true,
                 collapsed: true
-            }
+            },
+            userCls: 'multiselect-filter',
+            margin: "0 0 2px 0"
         };
 
         return (
@@ -55,7 +57,8 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
                         valueField: 'id',
                         displayField: 'name',
                         queryMode: 'local',
-                        clearable: 'true'
+                        clearable: 'true',
+                        hideCheckbox: true
                     }}
                 >
 
