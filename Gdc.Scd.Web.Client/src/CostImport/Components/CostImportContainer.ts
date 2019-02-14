@@ -5,8 +5,8 @@ import { NamedId, SelectListAdvanced } from "../../Common/States/CommonStates";
 import { CostImportState } from "../States/CostImportState";
 import { CostMetaData, CostElementMeta } from "../../Common/States/CostMetaStates";
 import { getCostBlock, getCostElementByAppMeta } from "../../Common/Helpers/MetaHelper";
-import { selectApplication, selectCostBlock, selectCostElement, selectDependencyItem, loadCostElementData, selectFile, selectRegion, loadFileData } from "../Actions/CostImportActions";
-import { importExcel } from "../Actions/CostImportAsyncAtions";
+import { selectApplication, selectCostBlock, selectCostElement, selectDependencyItem, selectFile, selectRegion, loadFileData, loadRegions, loadDependencyItems } from "../Actions/CostImportActions";
+import { importExcel, loadDependencyItemsFromServer, loadRegionsFromServer } from "../Actions/CostImportAsyncAtions";
 import * as CostBlockService from "../../Common/Services/CostBlockService";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { getBase64Data } from "../../Common/Helpers/FileHelper";
@@ -74,14 +74,14 @@ const buildProps = (() => {
                     onItemSelected: onCostElementSelected
                 },
                 dependencyItems: {
-                    list: getDependencyItems(),
+                    list: costImport.dependencyItems.list,
                     selectedItemId: costImport.dependencyItems.selectedItemId,
                     onItemSelected: dependencyItemId => dispatch(selectDependencyItem(dependencyItemId))
                 },
                 regions: {
-                    list: getRegions(),
+                    list: costImport.regions.list,
                     selectedItemId: costImport.regions.selectedItemId,
-                    onItemSelected: regionId => dispatch(selectRegion(regionId))
+                    onItemSelected: onRegionSelected
                 },
                 isImportButtonEnabled: isImportButtonEnabled(costElement),
                 resultImport: getImportResult(),
@@ -136,34 +136,6 @@ const buildProps = (() => {
             return costElementItems;
         }
 
-        function getDependencyItems() {
-            let dependencyItems: NamedId<number>[];
-
-            if (oldProps.dependencyItems.list && 
-                oldProps.dependencyItems.list.length > 0 &&
-                oldProps.costElements.selectedItemId == costImport.costElementId) {
-                dependencyItems = oldProps.dependencyItems.list;
-            } else {
-                dependencyItems = costImport.dependencyItems.list;
-            }
-
-            return dependencyItems;
-        }
-
-        function getRegions() {
-            let regions: NamedId<number>[];
-
-            if (oldProps.regions.list && 
-                oldProps.regions.list.length > 0 &&
-                oldProps.costElements.selectedItemId == costImport.costElementId) {
-                regions = oldProps.regions.list;
-            } else {
-                regions = costImport.regions.list;
-            }
-
-            return regions;
-        }
-
         function isImportButtonEnabled(costElement: CostElementMeta) {
             let result = !!(
                 costImport.applicationId && 
@@ -195,13 +167,21 @@ const buildProps = (() => {
             const { applicationId, costBlockId } = costImport;
             const costElement = getCostElementByAppMeta(appMetaData, costBlockId, costElementId);
 
-            if (costElement && (costElement.dependency || costElement.regionInput)) {
-                handleRequest(
-                    CostBlockService.getCostElementData({ applicationId, costBlockId, costElementId }).then(
-                        costElementData => dispatch(loadCostElementData(costElementData))
-                    )
-                )
+            if (costElement) {
+                if (costElement.regionInput) {
+                    dispatch(loadRegionsFromServer(applicationId, costBlockId, costElementId));
+                } else if (costElement.dependency) {
+                    dispatch(loadDependencyItemsFromServer(applicationId, costBlockId, costElementId));
+                }
             }
+        }
+
+        function onRegionSelected(regionId: number) {
+            dispatch(selectRegion(regionId));
+
+            const { applicationId, costBlockId, costElementId } = costImport;
+
+            dispatch(loadDependencyItemsFromServer(applicationId, costBlockId, costElementId, regionId));
         }
 
         function onImport(file) {

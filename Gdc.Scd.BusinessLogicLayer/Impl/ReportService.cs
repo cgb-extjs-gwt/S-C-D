@@ -54,6 +54,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return (d, fn);
         }
 
+        public async Task<(Stream data, string fileName)> Excel(string reportName, ReportFilterCollection filter)
+        {
+            var r = GetSchemas().GetSchema(reportName);
+            var func = r.Report.SqlFunc;
+            var parameters = r.FillParameters(filter);
+            var schema = r.AsSchemaDto();
+
+            var fn = FileNameHelper.Excel(schema.Name);
+            var d = await new GetReport(repositorySet).ExecuteExcelAsync(schema, func, parameters);
+
+            return (d, fn);
+        }
+
         public Task<(string json, int total)> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit)
         {
             var r = GetSchemas().GetSchema(reportId);
@@ -119,6 +132,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                         Report = new Report { Id = x.Report.Id },
                                         AllowNull = x.AllowNull,
                                         Flex = x.Flex,
+                                        Format = x.Format,
                                         Type = new ReportColumnType
                                         {
                                             Id = x.Type.Id,
@@ -267,7 +281,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     Name = x.Name,
                     Text = x.Text,
                     AllowNull = x.AllowNull,
-                    Flex = x.Flex
+                    Flex = x.Flex,
+                    Format = x.Format
                 };
             }
 
@@ -322,9 +337,32 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             string value;
 
-            if (src != null && src.TryGetValue(f.Name, out value))
+            if (src != null)
             {
-                builder.WithValue(value);
+                if(src.TryGetVal(f.Name, out value))
+                {
+                    builder.WithValue(value);
+                }
+                else
+                {
+                    if (f.Type.MultiSelect)
+                    {
+                        if (src.Where(x => x.Key.Contains(String.Format("{0}[", f.Name))).Any())
+                        {
+                            var values = src.Where(x => x.Key.Contains(String.Format("{0}[", f.Name))).Select(x => Convert.ToInt64(x.Value)).ToArray();
+                            builder.WithListIdValue(values);
+                        }
+                        else
+                        {
+                            builder.WithListIdValue(null);
+                        }
+                    }
+                    else
+                    {
+                        builder.WithNull();
+                    }
+
+                }
             }
             else
             {

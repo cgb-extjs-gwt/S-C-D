@@ -5,6 +5,7 @@ import { CalcCostProps } from "./Components/CalcCostProps";
 import { moneyRenderer } from "./Components/GridRenderer";
 import { SwCostFilter } from "./Components/SwCostFilter";
 import { SwCostFilterModel } from "./Model/SwCostFilterModel";
+import { ExportService } from "./Services/ExportService";
 
 export class SwCostView extends React.Component<CalcCostProps, any> {
 
@@ -22,11 +23,15 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
             api: {
                 read: buildMvcUrl('calc', 'getswcost')
             },
+            actionMethods: {
+                read: 'POST'
+            },
             reader: {
                 type: 'json',
                 rootProperty: 'items',
                 totalProperty: 'total'
-            }
+            },
+            paramsAsJson: true
         }
     });
 
@@ -39,7 +44,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         return (
             <Container layout="fit">
 
-                <SwCostFilter ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} />
+                <SwCostFilter ref="filter" docked="right" onSearch={this.onSearch} onDownload={this.onDownload} scrollable={true} />
 
                 <Grid ref="grid" store={this.store} width="100%" plugins={['pagingtoolbar']}>
 
@@ -56,7 +61,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         <Column text="SW digit" dataIndex="SwDigit" />
                         <Column text="SOG(Asset)" dataIndex="Sog" />
                         <Column text="Availability" dataIndex="Availability" />
-                        <Column text="Year" dataIndex="Year" />
+                        <Column text="Duration" dataIndex="Duration" />
 
                     </Column>
 
@@ -90,6 +95,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
     private init() {
         this.onSearch = this.onSearch.bind(this);
+        this.onDownload = this.onDownload.bind(this);
         this.onBeforeLoad = this.onBeforeLoad.bind(this);
 
         this.store.on('beforeload', this.onBeforeLoad);
@@ -99,6 +105,10 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
         this.reload();
     }
 
+    private onDownload(filter: SwCostFilterModel) {
+        ExportService.Download('SW-CALC-RESULT', this.props.approved, filter);
+    }
+
     private reload() {
         this.store.load();
     }
@@ -106,7 +116,6 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     private onBeforeLoad(s, operation) {
         let filter = this.filter.getModel() as any;
         filter.approved = this.props.approved;
-        let params = Ext.apply({}, operation.getParams(), filter);
-        operation.setParams(params);
+        operation.setParams(filter);
     }
 }

@@ -2,9 +2,29 @@ import { asyncAction } from "../../Common/Actions/AsyncAction";
 import { CommonState } from "../../Layout/States/AppStates";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import * as CostBlockService from "../../Common/Services/CostBlockService";
-import { loadImportStatus, loadQualityGateErrors } from "../Actions/CostImportActions";
-import { ImportData } from "../../Common/Services/CostBlockService";
+import { loadImportStatus, loadQualityGateErrors, loadDependencyItems, loadRegions } from "../Actions/CostImportActions";
+import { ImportData, getDependencyItems, getRegions } from "../../Common/Services/CostBlockService";
 import { ApprovalOption } from "../../QualityGate/States/ApprovalOption";
+
+export const loadRegionsFromServer = (applicationId: string, costBlockId: string, costElementId: string) => asyncAction<CommonState>(
+    (dispatch, getState) => {
+        handleRequest(
+            getRegions({ applicationId, costBlockId, costElementId }).then(
+                regions => dispatch(loadRegions(regions))
+            )
+        )
+    }
+)
+
+export const loadDependencyItemsFromServer = (applicationId: string, costBlockId: string, costElementId: string, regionId?: number) => asyncAction<CommonState>(
+    (dispatch, getState) => {
+        handleRequest(
+            getDependencyItems({ applicationId, costBlockId, costElementId }, regionId).then(
+                dependencyItems => dispatch(loadDependencyItems(dependencyItems))
+            )
+        )
+    }
+)
 
 export const importExcel = (approvalOption: ApprovalOption) => asyncAction<CommonState>(
     (dispatch, getState) => {

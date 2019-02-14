@@ -18,7 +18,8 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public long Pla { get; set; }
         public long Sfab { get; set; }
         public long Sog { get; set; }
-        public long YearAvailability { get; set; }
+        public long SwDigit { get; set; }
+        public long DurationAvailability { get; set; }
         public long Availability { get; set; }
         public Nullable<double> C2ndLevelSupportCosts { get; set; }
         public Nullable<double> InstalledBaseSog { get; set; }
@@ -40,10 +41,11 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public Nullable<System.DateTime> DeactivatedDateTime { get; set; }
     
         public virtual Availability Availability1 { get; set; }
-        public virtual Year_Availability Year_Availability { get; set; }
-        public virtual Pla Pla1 { get; set; }
-        public virtual Sfab Sfab1 { get; set; }
-        public virtual Sog Sog1 { get; set; }
+        public virtual Duration_Availability Duration_Availability { get; set; }
+        public virtual Pla1 Pla1 { get; set; }
+        public virtual Sfab1 Sfab1 { get; set; }
+        public virtual Sog1 Sog1 { get; set; }
+        public virtual SwDigit1 SwDigit1 { get; set; }
         public virtual Currency Currency { get; set; }
         public virtual Currency Currency1 { get; set; }
     }

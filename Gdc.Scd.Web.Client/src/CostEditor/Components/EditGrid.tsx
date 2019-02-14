@@ -37,10 +37,7 @@ export interface EditGridProps extends EditGridActions {
 
 export class EditGrid extends React.Component<EditGridProps> {
     public shouldComponentUpdate(nextProps: EditGridProps) {
-        return (
-            !objectPropsEqual(this.props, nextProps, 'url', 'nameColumnTitle') ||
-            !objectPropsEqual(this.props.valueColumn, nextProps.valueColumn)
-        );
+        return this.props.url != nextProps.url;
     }
 
     public render() {

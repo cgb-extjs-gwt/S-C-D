@@ -4,7 +4,7 @@ namespace Gdc.Scd.Core.Entities
 {
     public class EditContext
     {
-        public HistoryContext Context { get; set; }
+        public CostElementContext Context { get; set; }
 
         public IEnumerable<EditItemSet> EditItemSets { get; set; }
     }

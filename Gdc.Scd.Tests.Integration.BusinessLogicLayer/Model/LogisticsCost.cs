@@ -17,6 +17,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public long Id { get; set; }
         public long Country { get; set; }
         public long Pla { get; set; }
+        public long CentralContractGroup { get; set; }
         public long Wg { get; set; }
         public long ReactionTimeType { get; set; }
         public Nullable<double> StandardHandling { get; set; }
@@ -35,8 +36,9 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public Nullable<System.DateTime> DeactivatedDateTime { get; set; }
     
         public virtual ReactionTime_ReactionType ReactionTime_ReactionType { get; set; }
-        public virtual Country Country1 { get; set; }
-        public virtual Pla Pla1 { get; set; }
-        public virtual Wg Wg1 { get; set; }
+        public virtual CentralContractGroup1 CentralContractGroup1 { get; set; }
+        public virtual Country1 Country1 { get; set; }
+        public virtual Pla1 Pla1 { get; set; }
+        public virtual Wg1 Wg1 { get; set; }
     }
 }

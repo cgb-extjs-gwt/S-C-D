@@ -28,9 +28,19 @@ export class DictService implements IDictService {
         return cache ? srv.getAll() : srv.loadAll();
     }
 
+    public getMasterCountriesNames(): Promise<NamedId<string>[]> {
+        const srv = new CountryService();
+        return srv.getAllNames();
+    }
+
     public getUserCountries(cache: boolean): Promise<Country[]> {
         const srv = new UserCountryService();
         return cache ? srv.getAll() : srv.loadAll();
+    }
+
+    public getUserCountryNames(): Promise<NamedId[]> {
+        const srv = new UserCountryService();
+        return srv.getAllNames();
     }
 
     public getCountryGroups(): Promise<NamedId<string>[]> {
@@ -59,6 +69,10 @@ export class DictService implements IDictService {
 
     public getWgWithMultivendor(): Promise<NamedId<string>[]> {
         return new WgService().allWithMultivendor();
+    }
+
+    public getStandardWg(): Promise<NamedId<string>[]> {
+        return new WgService().standard();
     }
 
     public getPla(): Promise<NamedId<string>[]> {

@@ -8,10 +8,15 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public override IEnumerable<FieldMeta> AllFields => this.Fields;
 
-        public EntityMeta(string name, string shema = null) 
+        public EntityMeta(string name, string shema) 
             : base(name, shema)
         {
         }
-        
+
+        public EntityMeta(string name, string shema, IEnumerable<FieldMeta> fields)
+            : this(name, shema)
+        {
+            this.Fields.AddRange(fields);
+        }
     }
 }

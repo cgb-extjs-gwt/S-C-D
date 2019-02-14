@@ -47,14 +47,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
             if (filter != null)
             {
-                pCnt.WithValue(filter.Country);
-                pWg.WithValue(filter.Wg);
-                pAv.WithValue(filter.Availability);
-                pDur.WithValue(filter.Duration);
-                pReactiontype.WithValue(filter.ReactionType);
-                pReactiontime.WithValue(filter.ReactionTime);
-                pLoc.WithValue(filter.ServiceLocation);
-                pPro.WithValue(filter.ProActive);
+                pCnt.WithListIdValue(filter.Country);
+                pWg.WithListIdValue(filter.Wg);
+                pAv.WithListIdValue(filter.Availability);
+                pDur.WithListIdValue(filter.Duration);
+                pReactiontype.WithListIdValue(filter.ReactionType);
+                pReactiontime.WithListIdValue(filter.ReactionTime);
+                pLoc.WithListIdValue(filter.ServiceLocation);
+                pPro.WithListIdValue(filter.ProActive);
             }
 
             return new DbParameter[] {

@@ -81,9 +81,28 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
         }
 
+        public ReferenceFieldMeta GetDomainCoordinateField(string costElementId, string fieldName)
+        {
+            return
+                this.GetDomainCoordinateFields(costElementId)
+                    .FirstOrDefault(field => field.Name == fieldName);
+        }
+
         private IEnumerable<ReferenceFieldMeta> GetDomainInputLevelFields(CostElementMeta costElement)
         {
-            return costElement.InputLevels.Select(inputLevel => this.InputLevelFields[inputLevel.Id]);
+            foreach(var field in costElement.InputLevels.Select(inputLevel => this.InputLevelFields[inputLevel.Id]))
+            {
+                yield return field;
+            }
+
+            if (costElement.RegionInput != null)
+            {
+                var inputLevel = costElement.InputLevels[costElement.RegionInput.Id];
+                if (inputLevel == null)
+                {
+                    yield return this.InputLevelFields[inputLevel.Id];
+                }
+            }
         }
     }
 }

@@ -63,7 +63,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         }
 
         public SqlHelper BuildQualityGateQuery(
-            HistoryContext historyContext,
+            CostElementContext historyContext,
             IEnumerable<EditItem> editItems,
             IDictionary<string, IEnumerable<object>> costBlockFilter,
             bool useCountryGroupCheck)
@@ -201,7 +201,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return $"{item1}_{item2}";
         }
 
-        private SqlHelper BuildQualityGateQuery(HistoryContext historyContext, QualityGateQueryOptions options, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
+        private SqlHelper BuildQualityGateQuery(CostElementContext historyContext, QualityGateQueryOptions options, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
 
@@ -322,7 +322,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
         }
 
-        private List<ColumnInfo> BuildQualityGateQueryColumns(CostBlockEntityMeta costBlockMeta, QualityGateQueryOptions options, HistoryContext historyContext)
+        private List<ColumnInfo> BuildQualityGateQueryColumns(CostBlockEntityMeta costBlockMeta, QualityGateQueryOptions options, CostElementContext historyContext)
         {
             var columns = this.BuildValueColumns(ResultQualityGateTable, options).ToList();
 
@@ -354,7 +354,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return columns;
         }
 
-        private BaseColumnInfo[] BuildCountryGroupAverageColumns(HistoryContext historyContext)
+        private BaseColumnInfo[] BuildCountryGroupAverageColumns(CostElementContext historyContext)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
             var approvedCostElement = costBlockMeta.GetApprovedCostElement(historyContext.CostElementId);
@@ -403,7 +403,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 editItemColumns.Select(columns => Sql.Select(columns.Id, columns.Value).ToSqlBuilder()));
         }
 
-        private SqlHelper BuildCountryGroupAverageTable(HistoryContext historyContext)
+        private SqlHelper BuildCountryGroupAverageTable(CostElementContext historyContext)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
             var columns = this.BuildCountryGroupAverageColumns(historyContext);
@@ -418,7 +418,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         }
 
         private List<ColumnInfo> BuildCostElementValueTableColumns(
-            HistoryContext historyContext,
+            CostElementContext historyContext,
             QualityGateQueryOptions options,
             string newValueColumn = NewValueColumn, 
             string table = null, 
@@ -449,7 +449,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return columns;
         }
 
-        private SqlHelper BuildInnerQualityGateQuery(HistoryContext historyContext, QualityGateQueryOptions options)
+        private SqlHelper BuildInnerQualityGateQuery(CostElementContext historyContext, QualityGateQueryOptions options)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
             var coordinateColumns = 

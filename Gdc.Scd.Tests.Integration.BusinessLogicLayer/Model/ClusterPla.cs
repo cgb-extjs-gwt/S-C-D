@@ -14,19 +14,10 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
     
     public partial class ClusterPla
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public ClusterPla()
-        {
-            this.ServiceSupportCosts = new HashSet<ServiceSupportCost>();
-            this.Plas = new HashSet<Pla>();
-        }
+        public long CostBlockHistory { get; set; }
+        public Nullable<long> ClusterPla1 { get; set; }
     
-        public long Id { get; set; }
-        public string Name { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ServiceSupportCost> ServiceSupportCosts { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Pla> Plas { get; set; }
+        public virtual CostBlockHistory CostBlockHistory1 { get; set; }
+        public virtual ClusterPla1 ClusterPla11 { get; set; }
     }
 }

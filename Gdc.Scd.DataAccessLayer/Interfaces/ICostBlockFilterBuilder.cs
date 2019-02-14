@@ -6,7 +6,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 {
     public interface ICostBlockFilterBuilder
     {
-        IDictionary<string, long[]> BuildRegionFilter(HistoryContext context, IEnumerable<Country> userCountries = null);
+        IDictionary<string, long[]> BuildRegionFilter(CostElementContext context, IEnumerable<Country> userCountries = null);
 
         IDictionary<string, long[]> BuildCoordinateFilter(CostEditorContext context);
 

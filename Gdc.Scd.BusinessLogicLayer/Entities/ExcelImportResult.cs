@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.QualityGate;
 
 namespace Gdc.Scd.BusinessLogicLayer.Entities
 {

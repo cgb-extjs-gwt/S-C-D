@@ -24,6 +24,7 @@ RETURN (
          , m.ReactionTime
          , m.Year as ServicePeriod
          , wg.Name as Wg
+         , m.LocalServiceStandardWarranty
          , (m.ProActive + m.ServiceTP_Released) as Dcos
          , m.ServiceTP_Released
          , m.Country
@@ -61,7 +62,9 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Wg', 'WG', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'Dcos', 'Service DCOS', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'LocalServiceStandardWarranty', 'Standard Warranty costs', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'Dcos', 'Service TC', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceTP_Released', 'Service TP (Released)', 1, 1);
 set @index = @index + 1;

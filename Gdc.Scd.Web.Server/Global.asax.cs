@@ -49,7 +49,7 @@ namespace Gdc.Scd.Web.Server
                     }
                 };
             }
-        }            
+        }
 
         private class FakeIIdentity : System.Security.Principal.IIdentity
         {

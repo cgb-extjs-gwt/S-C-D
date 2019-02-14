@@ -26,9 +26,15 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public Nullable<double> C2ndLevelSupportCostsLocal_Approved { get; set; }
         public System.DateTime CreatedDateTime { get; set; }
         public Nullable<System.DateTime> DeactivatedDateTime { get; set; }
+        public Nullable<double> TotalIb { get; set; }
+        public Nullable<double> TotalIb_Approved { get; set; }
+        public Nullable<double> TotalIbClusterPla { get; set; }
+        public Nullable<double> TotalIbClusterPla_Approved { get; set; }
+        public Nullable<double> TotalIbClusterPlaRegion { get; set; }
+        public Nullable<double> TotalIbClusterPlaRegion_Approved { get; set; }
     
-        public virtual ClusterPla ClusterPla1 { get; set; }
-        public virtual ClusterRegion ClusterRegion1 { get; set; }
-        public virtual Country Country1 { get; set; }
+        public virtual ClusterPla1 ClusterPla1 { get; set; }
+        public virtual ClusterRegion1 ClusterRegion1 { get; set; }
+        public virtual Country1 Country1 { get; set; }
     }
 }

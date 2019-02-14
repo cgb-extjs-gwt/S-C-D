@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.Interfaces

@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Gdc.Scd.BusinessLogicLayer.Dto;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
@@ -24,10 +24,15 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpGet]
-        [ScdAuthorize(Permissions = new[] { PermissionConstants.CostImport, PermissionConstants.CostEditor, PermissionConstants.TableView })]
-        public async Task<CostElementDataDto> GetCostElementData([FromUri]HistoryContext context)
+        public async Task<IEnumerable<NamedId>> GetRegions([FromUri]CostElementContext context)
         {
-            return await this.costBlockService.GetCostElementData(context);
+            return await this.costBlockService.GetRegions(context);
+        }
+
+        [HttpGet]
+        public async Task<IEnumerable<NamedId>> GetDependencyItems([FromUri]CostEditorContext context)
+        {
+            return await this.costBlockService.GetDependencyItems(context);
         }
 
         [HttpPost]

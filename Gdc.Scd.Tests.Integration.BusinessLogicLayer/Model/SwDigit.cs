@@ -14,25 +14,10 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
     
     public partial class SwDigit
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public SwDigit()
-        {
-            this.SwFspCodeTranslations = new HashSet<SwFspCodeTranslation>();
-            this.SwDigitLicenses = new HashSet<SwDigitLicense>();
-        }
+        public long CostBlockHistory { get; set; }
+        public Nullable<long> SwDigit1 { get; set; }
     
-        public long Id { get; set; }
-        public System.DateTime CreatedDateTime { get; set; }
-        public Nullable<System.DateTime> DeactivatedDateTime { get; set; }
-        public string Description { get; set; }
-        public System.DateTime ModifiedDateTime { get; set; }
-        public string Name { get; set; }
-        public long SogId { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SwFspCodeTranslation> SwFspCodeTranslations { get; set; }
-        public virtual Sog Sog { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SwDigitLicense> SwDigitLicenses { get; set; }
+        public virtual CostBlockHistory CostBlockHistory1 { get; set; }
+        public virtual SwDigit1 SwDigit11 { get; set; }
     }
 }

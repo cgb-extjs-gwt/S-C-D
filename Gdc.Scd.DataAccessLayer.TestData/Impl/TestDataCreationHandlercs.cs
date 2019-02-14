@@ -51,8 +51,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateRegions();
             this.CreateCurrenciesAndExchangeRates();
             this.CreateCountries();
-            this.CreateYearAvailability();
-            this.CreateDurations();
+            this.CreateYears();
+            this.CreateDurationAvailability();
             this.CreateProActiveSla();
             this.CreateImportConfiguration();
             this.CreateRolecodes();
@@ -88,6 +88,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-central.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-country.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-parameter.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-calc-result.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap-detailed.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-calc-central.sql"));
@@ -104,6 +105,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List-detail.sql"));
 
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hw-calc-result.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-calc-result.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-proactive-calc-result.sql"));
+
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.split-string.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-hdd-retention.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-proactive.sql"));
@@ -114,17 +119,17 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             }
         }
 
-        private void CreateYearAvailability()
+        private void CreateDurationAvailability()
         {
-            var years = this.GetYears();
+            var years = this.GetDurations();
             var availabilities = this.repositorySet.GetRepository<Availability>().GetAll().ToArray();
-            var yearAvailabilityRepository = this.repositorySet.GetRepository<YearAvailability>();
+            var durationAvailabilityRepository = this.repositorySet.GetRepository<DurationAvailability>();
 
             foreach (var availability in availabilities)
             {
                 foreach (var year in years)
                 {
-                    yearAvailabilityRepository.Save(new YearAvailability
+                    durationAvailabilityRepository.Save(new DurationAvailability
                     {
                         Availability = availability,
                         Year = year
@@ -187,11 +192,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.repositorySet.ExecuteSql(Sql.Queries(queries));
         }
 
-        private void CreateDurations()
+        private void CreateYears()
         {
-            //Insert Durations
-            var durationRepository = repositorySet.GetRepository<Duration>();
-            durationRepository.Save(GetDurations());
+            //Insert Years
+            var yearRepository = repositorySet.GetRepository<Year>();
+            yearRepository.Save(GetYears());
             repositorySet.Sync();
         }
 
@@ -1723,12 +1728,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateRolecodes()
         {
+
             var roleCodes = new RoleCode[] {
-                new RoleCode { Name = "SEFS05" },
-                new RoleCode { Name = "SEFS06" },
-                new RoleCode { Name = "SEFS04" },
-                new RoleCode { Name = "SEIE07" },
-                new RoleCode { Name = "SEIE08" }
+                new RoleCode { Name = "SEFS05", Deactivated = false },
+                new RoleCode { Name = "SEFS06", Deactivated = false },
+                new RoleCode { Name = "SEFS04", Deactivated = false },
+                new RoleCode { Name = "SEIE07", Deactivated = false },
+                new RoleCode { Name = "SEIE08", Deactivated = false }
             };
 
             var repository = this.repositorySet.GetRepository<RoleCode>();
@@ -1745,6 +1751,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportColumnType { Name = "boolean" },
                 new ReportColumnType { Name = "euro" },
                 new ReportColumnType { Name = "percent" },
+                new ReportColumnType { Name = "money" }
             };
 
             var repository = this.repositorySet.GetRepository<ReportColumnType>();
@@ -1758,9 +1765,23 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "text" },
                 new ReportFilterType { Name = "number" },
                 new ReportFilterType { Name = "boolean" },
+                new ReportFilterType { Name = "wg" , MultiSelect = false },
+                new ReportFilterType { Name = "sog" , MultiSelect = false },
+                new ReportFilterType { Name = "countrygroup" , MultiSelect = false },
+                new ReportFilterType { Name = "country" , MultiSelect = false },
+                new ReportFilterType { Name = "availability" , MultiSelect = false },
+                new ReportFilterType { Name = "duration" , MultiSelect = false },
+                new ReportFilterType { Name = "reactiontime" , MultiSelect = false },
+                new ReportFilterType { Name = "reactiontype" , MultiSelect = false },
+                new ReportFilterType { Name = "servicelocation" , MultiSelect = false },
+                new ReportFilterType { Name = "year" , MultiSelect = false },
+                new ReportFilterType { Name = "proactive" , MultiSelect = false },
+                new ReportFilterType { Name = "usercountry" , MultiSelect = false },
+                new ReportFilterType { Name = "swdigit" , MultiSelect = false },
+                new ReportFilterType { Name = "wgall" , MultiSelect = false },
+                new ReportFilterType { Name = "wgstandard" , MultiSelect = false },
+
                 new ReportFilterType { Name = "wg" , MultiSelect = true },
-                new ReportFilterType { Name = "sog" , MultiSelect = true },
-                new ReportFilterType { Name = "countrygroup" , MultiSelect = true },
                 new ReportFilterType { Name = "country" , MultiSelect = true },
                 new ReportFilterType { Name = "availability" , MultiSelect = true },
                 new ReportFilterType { Name = "duration" , MultiSelect = true },
@@ -1769,9 +1790,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "servicelocation" , MultiSelect = true },
                 new ReportFilterType { Name = "year" , MultiSelect = true },
                 new ReportFilterType { Name = "proactive" , MultiSelect = true },
-                new ReportFilterType { Name = "usercountry" , MultiSelect = true },
                 new ReportFilterType { Name = "swdigit" , MultiSelect = true },
-                new ReportFilterType { Name = "wgall" , MultiSelect = true },
+                new ReportFilterType { Name = "wgstandard" , MultiSelect = true }
             };
 
             var repository = this.repositorySet.GetRepository<ReportFilterType>();
@@ -2024,7 +2044,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         private void CreateRegions()
         {
             var crAsia = new ClusterRegion { Name = "Asia" };
-            var crEmeia = new ClusterRegion { Name = "EMEIA" };
+            var crEmeia = new ClusterRegion { Name = "EMEIA", IsEmeia = true };
             var crJapan = new ClusterRegion { Name = "Japan" };
             var crLatinAmerica = new ClusterRegion { Name = "Latin America" };
             var crUnitedStates = new ClusterRegion { Name = "United States" };

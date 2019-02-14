@@ -31,9 +31,7 @@ RETURN (
               , av.Name    as Availability
               , prosla.ExternalName as ProActiveSla
 
-              , case when stdw.DurationValue is not null then stdw.DurationValue 
-                    when stdw2.DurationValue is not null then stdw2.DurationValue 
-                 end as StdWarranty
+              , stdw.DurationValue as StdWarranty
 
               , mcw.MaterialCostWarranty_Approved as MaterialCostWarranty
 
@@ -63,8 +61,7 @@ RETURN (
 
         JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
-        LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId --find local standard warranty portfolio
-        LEFT JOIN Fsp.HwStandardWarrantyView stdw2 on stdw2.Wg = m.WgId and stdw2.Country is null    --find principle standard warranty portfolio, if local does not exist
+        LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId
 
         LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 

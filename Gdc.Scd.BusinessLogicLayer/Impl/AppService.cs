@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using Gdc.Scd.BusinessLogicLayer.Dto;
@@ -38,7 +39,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new AppData
             {
                 Meta = this.GetMetaDto(user),
-                UserRoles = this.GetRoleDtos(user)
+                UserRoles = this.GetRoleDtos(user),
+                AppVersion = ConfigurationManager.AppSettings["ApplicationVersion"]
             };
         }
 

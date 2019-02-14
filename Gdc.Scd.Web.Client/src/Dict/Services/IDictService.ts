@@ -6,7 +6,11 @@ export interface IDictService {
 
     getMasterCountries(cache: boolean): Promise<Country[]>;
 
+    getMasterCountriesNames(): Promise<NamedId<string>[]>;
+
     getUserCountries(cache: boolean): Promise<Country[]>;
+
+    getUserCountryNames(): Promise<NamedId[]>;
 
     getCountryGroups(): Promise<NamedId[]>;
 
@@ -21,6 +25,8 @@ export interface IDictService {
     getWG(): Promise<NamedId[]>;
 
     getWgWithMultivendor(): Promise<NamedId[]>;
+
+    getStandardWg(): Promise<NamedId[]>;
 
     getPla(): Promise<NamedId[]>;
 

@@ -2,13 +2,32 @@
   DROP FUNCTION Report.SolutionPackPriceList;
 go 
 
-CREATE FUNCTION Report.SolutionPackPriceList
+CREATE FUNCTION [Report].[SolutionPackPriceList]
 (
     @digit bigint
 )
-RETURNS TABLE 
-AS
-RETURN (
+RETURNS @tbl TABLE (
+	Digit nvarchar(max) NULL
+	,SogDescription nvarchar(max) NULL
+	,Sog nvarchar(max) NULL
+	
+	,Fsp nvarchar(max) NULL
+	,SpDescription nvarchar(max) NULL
+	,Sp nvarchar(max) NULL
+
+	,TP float NULL
+	,DealerPrice float NULL
+	,ListPrice float NULL
+)
+as
+begin
+	declare @digitList dbo.ListId; 
+	if @digit is not null insert into @digitList(id) select id from Portfolio.IntToListID(@digit);
+
+	declare @emptyAv dbo.ListId;
+	declare @emptyYear dbo.ListId;
+
+	insert into @tbl
     select    dig.Name as Digit
             , sog.Description as SogDescription
             , sog.Name as Sog
@@ -21,14 +40,14 @@ RETURN (
             , sw.DealerPrice as DealerPrice
             , sw.MaintenanceListPrice as ListPrice
 
-    from SoftwareSolution.GetCosts(1, @digit, null, null, -1, -1) sw
+    from SoftwareSolution.GetCosts(1, @digitList, @emptyAv, @emptyYear, -1, -1) sw
     join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
     join InputAtoms.Sog sog on sog.id = sw.Sog
     left join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = sw.SwDigit
                                           and fsp.AvailabilityId = sw.Availability
                                           and fsp.DurationId = sw.Year
-)
-
+return
+end
 GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'SOLUTIONPACK-PRICE-LIST');
@@ -63,6 +82,6 @@ set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
 
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit'), 'digit', 'SW digit');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit' and MultiSelect=0), 'digit', 'SW digit');
 
 GO
