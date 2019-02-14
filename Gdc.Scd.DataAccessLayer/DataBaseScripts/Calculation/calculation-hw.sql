@@ -297,8 +297,8 @@ IF OBJECT_ID('Hardware.AddMarkup') IS NOT NULL
   DROP FUNCTION Hardware.AddMarkup;
 go 
 
-IF OBJECT_ID('Hardware.AddMarkupFactorOrFixValue') IS NOT NULL
-  DROP FUNCTION Hardware.AddMarkupFactorOrFixValue;
+IF OBJECT_ID('Hardware.MarkupOrFixValue') IS NOT NULL
+  DROP FUNCTION Hardware.MarkupOrFixValue;
 go 
 
 IF OBJECT_ID('Hardware.CalcAvailabilityFee') IS NOT NULL
@@ -723,25 +723,25 @@ BEGIN
 END
 GO
 
-CREATE FUNCTION [Hardware].[AddMarkupFactorOrFixValue](
+CREATE FUNCTION Hardware.MarkupOrFixValue (
     @value float,
     @markupFactor float,
     @fixed float
 )
-RETURNS float
+RETURNS float 
 AS
 BEGIN
 
     if @markupFactor > 0
         begin
-            set @value = @value * @markupFactor;
+            return @value * @markupFactor;
         end
     else if @fixed > 0
         begin
-            set @value = @fixed;
+            return @fixed;
         end
 
-    RETURN @value;
+    RETURN 0;
 
 END
 GO
@@ -1965,7 +1965,7 @@ RETURN
                 , case when m.StdWarranty >= 3 then 0 else m.TaxAndDutiesOrZero * m.matO3 end as taxO3
                 , case when m.StdWarranty >= 4 then 0 else m.TaxAndDutiesOrZero * m.matO4 end as taxO4
                 , case when m.StdWarranty >= 5 then 0 else m.TaxAndDutiesOrZero * m.matO5 end as taxO5
-                , m.matO1P * m.AFRP1 as taxO1P
+                , m.TaxAndDutiesOrZero * m.matO1P as taxO1P
 
                 , m.mat1  + m.matO1                     as matCost1
                 , m.mat2  + m.matO2                     as matCost2
