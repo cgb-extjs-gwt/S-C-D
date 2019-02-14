@@ -3,6 +3,5 @@ import { Region } from "./CostBlockStates";
 
 export interface CostElementData {
     regions: Region[] 
-    filters: NamedId[] 
     referenceValues: NamedId<number>[] 
 }

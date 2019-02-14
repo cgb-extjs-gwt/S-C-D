@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.Core.Meta.Helpers;
 using Gdc.Scd.Core.Meta.Interfaces;
 
 namespace Gdc.Scd.Core.Meta.Impl
@@ -38,7 +41,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                 CostBlockHistory = costBlockHistory
             };
 
-            var customCoordinateMetas = this.coordinateEntityMetaProviders.SelectMany(provider => provider.GetCoordinateEntityMetas());
+            var customCoordinateMetas = this.coordinateEntityMetaProviders.SelectMany(provider => provider.GetCoordinateEntityMetas()).ToArray();
             var metaFactory = new CoordinateMetaFactory(customCoordinateMetas);
 
             foreach (var costBlockMeta in domainMeta.CostBlocks)
@@ -72,6 +75,11 @@ namespace Gdc.Scd.Core.Meta.Impl
                     this.BuildCostBlockHistory(costBlockEntity, domainEnitiesMeta);
                 }
             }
+
+            domainEnitiesMeta.OtherMetas.AddRange(
+                customCoordinateMetas.Where(meta => domainEnitiesMeta[meta.FullName] == null));
+
+            domainEnitiesMeta.LocalPortfolio = this.BuildLocalPortfolioMeta(domainEnitiesMeta);
 
             return domainEnitiesMeta;
         }
@@ -215,6 +223,22 @@ namespace Gdc.Scd.Core.Meta.Impl
             var fields = fromCollection.Select(field => field.Clone()).Cast<T>();
 
             toCollection.AddRange(fields);
+        }
+
+        private EntityMeta BuildLocalPortfolioMeta(DomainEnitiesMeta domainEnitiesMeta)
+        {
+            var fields =
+                typeof(LocalPortfolio).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty)
+                                      .Where(prop => !prop.PropertyType.IsPrimitive && prop.PropertyType != typeof(string))
+                                      .Select(prop => new
+                                      {
+                                          PropertyName = prop.Name,
+                                          ReferenceEntity = domainEnitiesMeta.GetEntityMeta(MetaHelper.GetEntityInfo(prop.PropertyType)) as NamedEntityMeta
+                                      })
+                                      .Where(info => info.ReferenceEntity != null)
+                                      .Select(info => ReferenceFieldMeta.Build($"{info.PropertyName}Id", info.ReferenceEntity));
+
+            return new EntityMeta(MetaConstants.LocalPortfolioTableName, MetaConstants.PortfolioSchema, fields);
         }
 
         private class CoordinateMetaFactory
