@@ -161,7 +161,6 @@ BEGIN
     RETURN 0;
 
 END
-
 GO
 
 ALTER FUNCTION [Hardware].[GetCalcMember] (
@@ -334,11 +333,11 @@ RETURN
 
     LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId AND fsc.ReactionTypeId = m.ReactionTypeId AND fsc.ReactionTimeId = m.ReactionTimeId
 
-    LEFT JOIN Hardware.FieldServiceCostView fscStd ON fscStd.Wg = m.WgId AND fscStd.Country = m.CountryId AND fscStd.ServiceLocation = m.ServiceLocationId AND fscStd.ReactionTypeId = m.ReactionTypeId AND fscStd.ReactionTimeId = m.ReactionTimeId
+    LEFT JOIN Hardware.FieldServiceCostView fscStd ON fscStd.Country = stdw.Country AND fscStd.Wg = stdw.Wg AND fscStd.ServiceLocation = stdw.ServiceLocationId AND fscStd.ReactionTypeId = stdw.ReactionTypeId AND fscStd.ReactionTimeId = stdw.ReactionTimeId
 
     LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTime = m.ReactionTimeId AND lc.ReactionType = m.ReactionTypeId
 
-    LEFT JOIN Hardware.LogisticsCostView lcStd on lcStd.Country = m.CountryId AND lcStd.Wg = m.WgId AND lcStd.ReactionTime = stdw.ReactionTimeId AND lcStd.ReactionType = stdw.ReactionTypeId
+    LEFT JOIN Hardware.LogisticsCostView lcStd on lcStd.Country = stdw.Country AND lcStd.Wg = stdw.Wg AND lcStd.ReactionTime = stdw.ReactionTimeId AND lcStd.ReactionType = stdw.ReactionTypeId
 
     LEFT JOIN Hardware.MarkupOtherCostsView moc on moc.Wg = m.WgId AND moc.Country = m.CountryId AND moc.ReactionTimeId = m.ReactionTimeId AND moc.ReactionTypeId = m.ReactionTypeId AND moc.AvailabilityId = m.AvailabilityId
 
@@ -617,5 +616,327 @@ RETURN
 )
 GO
 
+ALTER FUNCTION Report.PoStandardWarrantyMaterial
+(
+    @cnt bigint,
+    @wg bigint,
+    @av bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc bigint,
+    @pro bigint
+)
+RETURNS TABLE 
+AS
+RETURN (
+    with cte as (
+        select 
+                m.Id
+              , c.CountryGroup
+              , c.LUTCode
+              , wg.Name as Wg
+              , wg.Description as WgDescription
+              , pla.Name as Pla
+              , dur.Value as Year
+              , dur.IsProlongation
+              , (dur.Name + ' ' + loc.Name) as ServiceLevel
+              , rtime.Name as ReactionTime
+              , rtype.Name as ReactionType
+              , av.Name    as Availability
+              , prosla.ExternalName as ProActiveSla
 
+              , stdw.DurationValue as StdWarranty
+
+              , mcw.MaterialCostWarranty_Approved as MaterialCostWarranty
+
+              , afr.AFR1_Approved as AFR1
+              , afr.AFR2_Approved as AFR2
+              , afr.AFR3_Approved as AFR3
+              , afr.AFR4_Approved as AFR4
+              , afr.AFR5_Approved as AFR5
+
+              , null as SparesAvailability
+
+        from Portfolio.GetBySla(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc, @pro) m
+
+        JOIN InputAtoms.CountryView c on c.Id = m.CountryId
+
+        JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
+
+        JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
+
+        JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
+
+        JOIN Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
+
+        JOIN Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
+
+        JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
+
+        JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
+
+        LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId
+
+        LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
+
+        LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
+
+        LEFT JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
+    )
+    , cte2 as (
+        select    
+              m.*
+
+                , case when m.StdWarranty >= 1 then m.MaterialCostWarranty * m.AFR1 else 0 end as mat1
+                , case when m.StdWarranty >= 2 then m.MaterialCostWarranty * m.AFR2 else 0 end as mat2
+                , case when m.StdWarranty >= 3 then m.MaterialCostWarranty * m.AFR3 else 0 end as mat3
+                , case when m.StdWarranty >= 4 then m.MaterialCostWarranty * m.AFR4 else 0 end as mat4
+                , case when m.StdWarranty >= 5 then m.MaterialCostWarranty * m.AFR5 else 0 end as mat5
+        from cte m
+    )
+    select    m.Id
+            , m.CountryGroup
+            , m.LUTCode
+            , m.Wg
+            , m.WgDescription
+            , m.Pla
+            , m.ServiceLevel
+            , m.ReactionTime
+            , m.ReactionType
+            , m.Availability
+            , m.ProActiveSla
+
+            , Hardware.CalcByDur(m.Year, m.IsProlongation, m.mat1, m.mat2, m.mat3, m.mat4, m.mat5, 0) as MaterialW
+
+            , m.MaterialCostWarranty
+
+            , m.AFR1
+            , m.AFR2
+            , m.AFR3
+            , m.AFR4
+            , m.AFR5
+
+            , m.SparesAvailability
+    from cte2 m
+)
+GO
+
+ALTER FUNCTION [Report].[CalcOutputVsFREEZE]
+(
+    @cnt bigint,
+    @wg bigint,
+    @av bigint,
+    @dur bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc bigint,
+    @pro bigint
+)
+RETURNS TABLE 
+AS
+RETURN (
+    with cte as (
+        SELECT    m.Id
+
+                --FSP
+                , fsp.Name Fsp
+                , fsp.ServiceDescription as FspDescription
+        
+                , wg.SogDescription as SogDescription
+                , wg.Description as WgDescription
+                , wg.Name as Wg
+        
+            --SLA
+                , c.Name as Country
+                , dur.Name as Duration
+                , dur.Value as Year
+                , dur.IsProlongation
+                , av.Name as Availability
+                , rtime.Name as ReactionTime
+                , loc.Name as ServiceLocation
+                , prosla.ExternalName  as ProActiveSla
+
+                , stdw.DurationValue as StdWarranty
+
+                , afr.AFR1 , AFR1_Approved
+                , afr.AFR2, AFR2_Approved       
+                , afr.AFR3, afr.AFR3_Approved   
+                , afr.AFR4, afr.AFR4_Approved   
+                , afr.AFR5, afr.AFR5_Approved   
+                , afr.AFRP1, afr.AFRP1_Approved
+
+                , mcw.MaterialCostWarranty, mcw.MaterialCostWarranty_Approved
+
+                , coalesce(tax.TaxAndDuties, 0) as TaxAndDuties, coalesce(tax.TaxAndDuties_Approved, 0) as TaxAndDuties_Approved
+
+                , fsc.TravelCost + fsc.LabourCost + coalesce(fsc.PerformanceRate, 0) as FieldServicePerYearStdw
+                , fsc.TravelCost_Approved + fsc.LabourCost_Approved + coalesce(fsc.PerformanceRate_Approved, 0)  as FieldServicePerYearStdw_Approved
+
+                , ssc.ServiceSupport         , ssc.ServiceSupport_Approved
+
+                , lc.StandardHandling + lc.HighAvailabilityHandling + lc.StandardDelivery + lc.ExpressDelivery + lc.TaxiCourierDelivery + lc.ReturnDeliveryFactory as LogisticPerYearStdw
+                , lc.StandardHandling_Approved + lc.HighAvailabilityHandling_Approved + lc.StandardDelivery_Approved + lc.ExpressDelivery_Approved + lc.TaxiCourierDelivery_Approved + lc.ReturnDeliveryFactory_Approved as LogisticPerYearStdw_Approved
+
+                , coalesce(case when afEx.Id is not null then af.Fee end, 0) as AvailabilityFee
+                , coalesce(case when afEx.Id is not null then af.Fee_Approved end, 0) as AvailabilityFee_Approved
+
+                , msw.MarkupFactorStandardWarranty , msw.MarkupFactorStandardWarranty_Approved  
+                , msw.MarkupStandardWarranty       , msw.MarkupStandardWarranty_Approved        
+
+        FROM Portfolio.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
+
+        INNER JOIN InputAtoms.Country c on c.id = m.CountryId
+
+        INNER JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
+
+        INNER JOIN InputAtoms.WgView wg2 on wg2.id = m.WgId
+
+        INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
+
+        INNER JOIN Dependencies.Duration dur on dur.id = m.DurationId
+
+        INNER JOIN Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
+
+        INNER JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
+
+        INNER JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
+
+        LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId 
+
+        LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
+
+        LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg2.ClusterPla
+
+        LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
+
+        LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
+
+        LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Country = stdw.Country AND fsc.Wg = stdw.Wg AND fsc.ServiceLocation = stdw.ServiceLocationId AND fsc.ReactionTypeId = stdw.ReactionTypeId AND fsc.ReactionTimeId = stdw.ReactionTimeId
+
+        LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = stdw.Country AND lc.Wg = stdw.Wg AND lc.ReactionTime = stdw.ReactionTimeId AND lc.ReactionType = stdw.ReactionTypeId
+
+        LEFT JOIN Hardware.MarkupStandardWarantyView msw on msw.Wg = m.WgId AND msw.Country = m.CountryId AND msw.ReactionTimeId = m.ReactionTimeId AND msw.ReactionTypeId = m.ReactionTypeId AND msw.AvailabilityId = m.AvailabilityId
+
+        LEFT JOIN Hardware.AvailabilityFeeCalc af on af.Country = m.CountryId AND af.Wg = m.WgId
+
+        LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
+
+        LEFT JOIN Fsp.HwFspCodeTranslation fsp on   fsp.SlaHash = m.SlaHash 
+                                                and fsp.CountryId = m.CountryId
+                                                and fsp.WgId = m.WgId
+                                                and fsp.AvailabilityId = m.AvailabilityId
+                                                and fsp.DurationId = m.DurationId
+                                                and fsp.ReactionTimeId = m.ReactionTimeId
+                                                and fsp.ReactionTypeId = m.ReactionTypeId
+                                                and fsp.ServiceLocationId = m.ServiceLocationId
+                                                and fsp.ProactiveSlaId = m.ProActiveSlaId
+    )
+    , CostCte as (
+        select    m.*
+
+                , m.TaxAndDuties * m.MaterialCostWarranty * m.AFR1 as tax1
+                , m.TaxAndDuties * m.MaterialCostWarranty * m.AFR2 as tax2
+                , m.TaxAndDuties * m.MaterialCostWarranty * m.AFR3 as tax3
+                , m.TaxAndDuties * m.MaterialCostWarranty * m.AFR4 as tax4
+                , m.TaxAndDuties * m.MaterialCostWarranty * m.AFR5 as tax5
+
+                , m.TaxAndDuties_Approved * m.MaterialCostWarranty_Approved * m.AFR1_Approved as tax1_Approved
+                , m.TaxAndDuties_Approved * m.MaterialCostWarranty_Approved * m.AFR2_Approved as tax2_Approved
+                , m.TaxAndDuties_Approved * m.MaterialCostWarranty_Approved * m.AFR3_Approved as tax3_Approved
+                , m.TaxAndDuties_Approved * m.MaterialCostWarranty_Approved * m.AFR4_Approved as tax4_Approved
+                , m.TaxAndDuties_Approved * m.MaterialCostWarranty_Approved * m.AFR5_Approved as tax5_Approved
+
+                , m.FieldServicePerYearStdw * m.AFR1  as FieldServiceCost1
+                , m.FieldServicePerYearStdw * m.AFR2  as FieldServiceCost2
+                , m.FieldServicePerYearStdw * m.AFR3  as FieldServiceCost3
+                , m.FieldServicePerYearStdw * m.AFR4  as FieldServiceCost4
+                , m.FieldServicePerYearStdw * m.AFR5  as FieldServiceCost5
+
+                , m.FieldServicePerYearStdw * m.AFR1  as FieldServiceCost1_Approved
+                , m.FieldServicePerYearStdw * m.AFR2  as FieldServiceCost2_Approved
+                , m.FieldServicePerYearStdw * m.AFR3  as FieldServiceCost3_Approved
+                , m.FieldServicePerYearStdw * m.AFR4  as FieldServiceCost4_Approved
+                , m.FieldServicePerYearStdw * m.AFR5  as FieldServiceCost5_Approved
+
+                , m.LogisticPerYearStdw * m.AFR1  as Logistic1
+                , m.LogisticPerYearStdw * m.AFR2  as Logistic2
+                , m.LogisticPerYearStdw * m.AFR3  as Logistic3
+                , m.LogisticPerYearStdw * m.AFR4  as Logistic4
+                , m.LogisticPerYearStdw * m.AFR5  as Logistic5
+
+                , m.LogisticPerYearStdw_Approved * m.AFR1_Approved   as Logistic1_Approved
+                , m.LogisticPerYearStdw_Approved * m.AFR2_Approved   as Logistic2_Approved
+                , m.LogisticPerYearStdw_Approved * m.AFR3_Approved   as Logistic3_Approved
+                , m.LogisticPerYearStdw_Approved * m.AFR4_Approved   as Logistic4_Approved
+                , m.LogisticPerYearStdw_Approved * m.AFR5_Approved   as Logistic5_Approved
+
+        from cte m
+    )
+    , CostCte2 as (
+        select    m.*
+
+                , case when m.StdWarranty >= 1 
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost1, m.ServiceSupport, m.Logistic1, m.tax1, m.AFR1, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                        else 0 
+                    end as LocalServiceStandardWarranty1
+                , case when m.StdWarranty >= 2 
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost2, m.ServiceSupport, m.Logistic2, m.tax2, m.AFR2, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                        else 0 
+                    end as LocalServiceStandardWarranty2
+                , case when m.StdWarranty >= 3 
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost3, m.ServiceSupport, m.Logistic3, m.tax3, m.AFR3, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                        else 0 
+                    end as LocalServiceStandardWarranty3
+                , case when m.StdWarranty >= 4 
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost4, m.ServiceSupport, m.Logistic4, m.tax4, m.AFR4, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                        else 0 
+                    end as LocalServiceStandardWarranty4
+                , case when m.StdWarranty >= 5 
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost5, m.ServiceSupport, m.Logistic5, m.tax5, m.AFR5, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                        else 0 
+                    end as LocalServiceStandardWarranty5
+                , 0     as LocalServiceStandardWarranty1P
+
+                , case when m.StdWarranty >= 1 
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost1_Approved, m.ServiceSupport_Approved, m.Logistic1_Approved, m.tax1_Approved, m.AFR1_Approved, 1 + m.MarkupFactorStandardWarranty_Approved, m.MarkupStandardWarranty_Approved)
+                        else 0 
+                    end as LocalServiceStandardWarranty1_Approved
+                , case when m.StdWarranty >= 2 
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost2_Approved, m.ServiceSupport_Approved, m.Logistic2_Approved, m.tax2_Approved, m.AFR2_Approved, 1 + m.MarkupFactorStandardWarranty_Approved, m.MarkupStandardWarranty_Approved)
+                        else 0 
+                    end as LocalServiceStandardWarranty2_Approved
+                , case when m.StdWarranty >= 3 
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost3_Approved, m.ServiceSupport_Approved, m.Logistic3_Approved, m.tax3_Approved, m.AFR3_Approved, 1 + m.MarkupFactorStandardWarranty_Approved, m.MarkupStandardWarranty_Approved)
+                        else 0 
+                    end as LocalServiceStandardWarranty3_Approved
+                , case when m.StdWarranty >= 4 
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost4_Approved, m.ServiceSupport_Approved, m.Logistic4_Approved, m.tax4_Approved, m.AFR4_Approved, 1 + m.MarkupFactorStandardWarranty_Approved, m.MarkupStandardWarranty_Approved)
+                        else 0 
+                    end as LocalServiceStandardWarranty4_Approved
+                , case when m.StdWarranty >= 5 
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost5_Approved, m.ServiceSupport_Approved, m.Logistic5_Approved, m.tax5_Approved, m.AFR5_Approved, 1 + m.MarkupFactorStandardWarranty_Approved, m.MarkupStandardWarranty_Approved)
+                        else 0 
+                    end as LocalServiceStandardWarranty5_Approved
+                , 0     as LocalServiceStandardWarranty1P_Approved
+
+        from CostCte m
+    )
+    select    m.Id
+            , m.Country
+            , m.SogDescription as SogDescription
+            , m.Fsp
+            , m.Wg
+            , m.WgDescription
+            , m.ServiceLocation
+            , m.ReactionTime
+            , m.ProActiveSla
+         
+            , (m.Duration + ' ' + m.ServiceLocation) as ServiceProduct
+         
+            , Hardware.CalcByDur(m.Year, m.IsProlongation, m.LocalServiceStandardWarranty1, m.LocalServiceStandardWarranty2, m.LocalServiceStandardWarranty3, m.LocalServiceStandardWarranty4, m.LocalServiceStandardWarranty5, m.LocalServiceStandardWarranty1P) as StandardWarranty
+            , Hardware.CalcByDur(m.Year, m.IsProlongation, m.LocalServiceStandardWarranty1_Approved, m.LocalServiceStandardWarranty2_Approved, m.LocalServiceStandardWarranty3_Approved, m.LocalServiceStandardWarranty4_Approved, m.LocalServiceStandardWarranty5_Approved, m.LocalServiceStandardWarranty1P_Approved) as StandardWarranty_Approved
+    from CostCte2 m
+)
+
+go
 

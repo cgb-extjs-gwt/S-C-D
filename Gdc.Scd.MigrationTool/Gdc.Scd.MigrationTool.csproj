@@ -65,6 +65,7 @@
     <Compile Include="Migrations\Migration_2019_02_12_16_08.cs" />
     <Compile Include="Migrations\Migration_2019_02_12_16_17.cs" />
     <Compile Include="Migrations\Migration_2019_02_13.cs" />
+    <Compile Include="Migrations\Migration_2019_02_14.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -97,6 +98,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2019-02-13.sql" />
+    <Content Include="MigrationScripts\2019-02-14-2.sql" />
+    <Content Include="MigrationScripts\2019-02-14.sql" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj">
