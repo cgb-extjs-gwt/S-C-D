@@ -1,4 +1,4 @@
-﻿IF OBJECT_ID('Report.SwCalcResult') IS NOT NULL
+IF OBJECT_ID('Report.SwCalcResult') IS NOT NULL
   DROP FUNCTION Report.SwCalcResult;
 go 
 
@@ -67,5 +67,58 @@ insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@r
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'duration' and MultiSelect=1), 'year', 'Duration');
 
+GO
+
+ALTER PROCEDURE [SoftwareSolution].[SpGetCosts]
+    @approved bit,
+    @digit dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @year dbo.ListID readonly,
+    @lastid bigint,
+    @limit int,
+    @total int output
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+	declare @isEmptyDigit    bit = Portfolio.IsListEmpty(@digit);
+	declare @isEmptyAV    bit = Portfolio.IsListEmpty(@av);
+	declare @isEmptyYear    bit = Portfolio.IsListEmpty(@year);
+
+    SELECT @total = COUNT(m.id)
+
+        FROM SoftwareSolution.SwSpMaintenance m 
+        JOIN Dependencies.Duration_Availability dav on dav.Id = m.DurationAvailability
+
+		WHERE (@isEmptyDigit = 1 or m.SwDigit in (select id from @digit))
+			AND (@isEmptyAV = 1 or dav.AvailabilityId in (select id from @av))
+			AND (@isEmptyYear = 1 or dav.YearId in (select id from @year))
+
+    select  m.rownum
+          , m.Id
+          , d.Name as SwDigit
+          , sog.Name as Sog
+          , av.Name as Availability 
+          , dr.Name as Duration
+          , m.[1stLevelSupportCosts]
+          , m.[2ndLevelSupportCosts]
+          , m.InstalledBaseCountry
+          , m.InstalledBaseSog
+          , m.Reinsurance
+          , m.ServiceSupport
+          , m.TransferPrice
+          , m.MaintenanceListPrice
+          , m.DealerPrice
+          , m.DiscountDealerPrice
+    from SoftwareSolution.GetCosts(@approved, @digit, @av, @year, @lastid, @limit) m
+    join InputAtoms.SwDigit d on d.Id = m.SwDigit
+    join InputAtoms.Sog sog on sog.Id = m.Sog
+    join Dependencies.Availability av on av.Id = m.Availability
+    join Dependencies.Duration dr on dr.Id = m.Year
+
+    order by m.SwDigit, m.Availability, m.Year
+
+END
 GO
 

@@ -61,7 +61,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                         <Column text="SW digit" dataIndex="SwDigit" />
                         <Column text="SOG(Asset)" dataIndex="Sog" />
                         <Column text="Availability" dataIndex="Availability" />
-                        <Column text="Year" dataIndex="Year" />
+                        <Column text="Duration" dataIndex="Duration" />
 
                     </Column>
 
