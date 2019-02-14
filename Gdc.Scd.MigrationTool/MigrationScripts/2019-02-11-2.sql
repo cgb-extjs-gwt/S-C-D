@@ -750,7 +750,11 @@ BEGIN
 END
 GO
 
-ALTER FUNCTION [SoftwareSolution].[GetSwSpMaintenancePaging] (
+IF OBJECT_ID('[SoftwareSolution].[GetSwSpMaintenancePaging]') IS NOT NULL
+  DROP FUNCTION [SoftwareSolution].[GetSwSpMaintenancePaging];
+go 
+
+CREATE FUNCTION [SoftwareSolution].[GetSwSpMaintenancePaging] (
     @approved bit,
     @digit dbo.ListID readonly,
     @av dbo.ListID readonly,
