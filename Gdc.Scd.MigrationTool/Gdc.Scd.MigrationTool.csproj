@@ -97,9 +97,15 @@
     <Content Include="MigrationScripts\2019-02-12_16_08.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="MigrationScripts\2019-02-13.sql" />
-    <Content Include="MigrationScripts\2019-02-14-2.sql" />
-    <Content Include="MigrationScripts\2019-02-14.sql" />
+    <Content Include="MigrationScripts\2019-02-13.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-02-14-2.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-02-14.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj">
