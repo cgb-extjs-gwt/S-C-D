@@ -59,12 +59,12 @@ namespace Gdc.Scd.Core.Meta.Impl
                     {
                         this.BuildCostElement(costElementMeta, costBlockEntity, domainEnitiesMeta);
 
-                        if (costElementMeta.Dependency != null && costBlockEntity.DependencyFields[costElementMeta.Dependency.Id] == null)
+                        if (costElementMeta.Dependency != null && !costBlockEntity.DependencyFields.Contains(costElementMeta.Dependency.Id))
                         {
                             this.BuildDependencies(costElementMeta, costBlockEntity, domainEnitiesMeta, metaFactory);
                         }
 
-                        if (costElementMeta.RegionInput != null && costBlockEntity.InputLevelFields[costElementMeta.RegionInput.Id] == null)
+                        if (costElementMeta.RegionInput != null && !costBlockEntity.InputLevelFields.Contains(costElementMeta.RegionInput.Id))
                         {
                             this.BuildInputLevels(costElementMeta.RegionInput, costBlockEntity, domainEnitiesMeta, metaFactory);
                         }
@@ -86,7 +86,7 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private void BuildDependencies(CostElementMeta costElementMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta, CoordinateMetaFactory metaFactory)
         {
-            if (costElementMeta.Dependency != null && costBlockEntity.DependencyFields[costElementMeta.Dependency.Id] == null)
+            if (costElementMeta.Dependency != null && !costBlockEntity.DependencyFields.Contains(costElementMeta.Dependency.Id))
             {
                 var dependencyFullName = BaseEntityMeta.BuildFullName(costElementMeta.Dependency.Id, MetaConstants.DependencySchema);
                 var dependencyEntity = metaFactory.GetMeta(costElementMeta.Dependency.Id, MetaConstants.DependencySchema);
