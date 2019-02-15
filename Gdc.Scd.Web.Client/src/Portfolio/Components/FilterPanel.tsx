@@ -53,14 +53,17 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
             width: '200px',
             maxHeight: SELECT_MAX_HEIGHT,
             headerCheckboxHidden: false,
-            title: ' '
+            title: ' ',
+            hideCheckbox: true
         };
         let panelProps = {
             collapsible: {
                 direction: 'top',
                 dynamic: true,
                 collapsed: true
-            }
+            },
+            userCls: 'multiselect-filter',
+            margin: "0 0 2px 0"
         };
         return (
             <Container layout="vbox" height="100%" docked="right">     
@@ -82,7 +85,7 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
                     > 
                         <Panel title='Country'
                             {...panelProps}>
-                            <MultiSelect ref={x => this.country = x} {...multiProps} store={this.dictSrv.getUserCountryNames}/>
+                            <MultiSelect ref={x => this.country = x} {...multiProps} hideCheckbox={false} store={this.dictSrv.getUserCountryNames}/>
                         </Panel>
                         <Panel title='Asset(WG)'
                             {...panelProps}>
