@@ -308,16 +308,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                     else
                                         throw new System.Exception($"{nameof(context.RegionInputId)} must have single value.");
                                 }
-
-                                else if (inputRegionInfo.Id == context.InputLevelId && editInfo.ValueInfos.Count() == 1)
+                                else if (inputRegionInfo.Id == context.InputLevelId)
                                 {
-                                    if (editInfo.ValueInfos.ElementAt(0).CoordinateFilter.TryGetValue(inputRegionInfo.Id, out inputRegionValue))
-                                    {
-                                        if (inputRegionValue.Length == 1)
-                                            context.RegionInputId = inputRegionValue[0];
-                                        else
-                                            throw new System.Exception($"{inputRegionInfo.Id} must have single value on input level {inputRegionInfo.Id}.");
-                                    }
+                                    if (editItems.Length == 1)
+                                        context.RegionInputId = editItems[0].Id;
+                                    else
+                                        throw new System.Exception($"{inputRegionInfo.Id} must have single value on input level {inputRegionInfo.Id}.");
                                 }
                             }
 
