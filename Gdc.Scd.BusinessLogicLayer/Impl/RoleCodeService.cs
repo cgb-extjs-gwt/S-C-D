@@ -26,7 +26,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             if (!wgService.GetAll().Where(x => x.RoleCodeId == roleCode.Id).Any())
             {
-                roleCode.Deactivated = true;
+                roleCode.DeactivatedDateTime = DateTime.Now;
+                roleCode.ModifiedDateTime = DateTime.Now;
                 roleService.Save(roleCode);
                 return true;
             }
@@ -44,7 +45,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 foreach(var roleCode in roleCodes)
                 {
-                    roleCode.Deactivated = true;
+                    roleCode.DeactivatedDateTime = DateTime.Now;
+                    roleCode.ModifiedDateTime = DateTime.Now;
                     roleService.Save(roleCode);
                 }
                 return true;
@@ -57,7 +59,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public Task<RoleCode[]> GetAllActive()
         {
-            return roleService.GetAll().Where(x => !x.Deactivated).GetAsync();
+            return roleService.GetAll().Where(x => !x.DeactivatedDateTime.HasValue).GetAsync();
+        }
+
+        public void Save(IEnumerable<RoleCode> roleCodes)
+        {
+            foreach(var roleCode in roleCodes)
+            {
+                roleCode.ModifiedDateTime = DateTime.Now;
+            }
+            roleService.Save(roleCodes);
         }
     }
 }
