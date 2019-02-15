@@ -36,6 +36,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 roleCode.DeactivatedDateTime = DateTime.Now;
                 roleCode.ModifiedDateTime = DateTime.Now;
                 roleService.Save(roleCode);
+                UpdateMeta();
                 return true;
             }
             else
@@ -56,6 +57,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     roleCode.ModifiedDateTime = DateTime.Now;
                     roleService.Save(roleCode);
                 }
+                UpdateMeta();
                 return true;
             }
             else
@@ -76,6 +78,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 roleCode.ModifiedDateTime = DateTime.Now;
             }
             roleService.Save(roleCodes);
+            UpdateMeta();
+        }
+
+        private void UpdateMeta()
+        {
             var relatedMetas = meta.CostBlocks.Where(x => x.CoordinateFields.Where(r => r.ReferenceMeta.Name == MetaConstants.RoleCodeInputLevel).Any());
             CostBlockService.UpdateByCoordinates(relatedMetas);
         }
