@@ -96,7 +96,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
                     <Panel title='Asset(WG)'
                         {...panelProps}>
-                        <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getStandardWgs} />
+                        <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getStandardWg} />
                     </Panel>
                     <Panel title='Availability'
                         {...panelProps}>

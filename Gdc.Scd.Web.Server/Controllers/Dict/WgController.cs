@@ -35,11 +35,5 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
             return wgService.GetStandards().GetAsync();
         }
 
-        [HttpGet]
-        public Task<Wg[]> StandardWg()
-        {
-            return wgService.GetStandards()
-                            .GetAsync();
-        }
     }
 }

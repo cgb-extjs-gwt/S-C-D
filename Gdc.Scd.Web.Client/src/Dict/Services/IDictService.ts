@@ -28,8 +28,6 @@ export interface IDictService {
 
     getStandardWg(): Promise<NamedId[]>;
 
-    getStandardWgs(): Promise<NamedId[]>;
-
     getPla(): Promise<NamedId[]>;
 
     getSog(): Promise<NamedId[]>;
