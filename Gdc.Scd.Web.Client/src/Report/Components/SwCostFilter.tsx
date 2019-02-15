@@ -35,7 +35,8 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
         let multiProps = {
             width: '200px',
             maxHeight: SELECT_MAX_HEIGHT,
-            title: ""
+            title: "",
+            hideCheckbox: true
         };
         let panelProps = {
             width: '300px',
@@ -57,8 +58,7 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
                         valueField: 'id',
                         displayField: 'name',
                         queryMode: 'local',
-                        clearable: 'true',
-                        hideCheckbox: true
+                        clearable: 'true'
                     }}
                 >
 

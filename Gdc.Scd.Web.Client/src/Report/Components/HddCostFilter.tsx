@@ -24,7 +24,8 @@ export class HddCostFilter extends React.Component<FilterPanelProps, any> {
     private multiProps = {
         width: '200px',
         maxHeight: SELECT_MAX_HEIGHT,
-        title: ""
+        title: "",
+        hideCheckbox: true
     };
 
     private panelProps = {
@@ -33,7 +34,9 @@ export class HddCostFilter extends React.Component<FilterPanelProps, any> {
             direction: 'top',
             dynamic: true,
             collapsed: true
-        }
+        },
+        userCls: 'multiselect-filter',
+        margin: "0 0 2px 0"
     };
 
     public constructor(props: any) {
