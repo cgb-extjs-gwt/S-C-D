@@ -22,20 +22,17 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
         }
 
         [HttpGet]
-        public Task<NamedId[]> Multivendor()
+        public Task<Wg[]> Multivendor()
         {
             return wgService.GetAll()
                             .Where(x => !x.DeactivatedDateTime.HasValue)
-                            .Select(x => new NamedId { Id = x.Id, Name = x.Name })
                             .GetAsync();
         }
 
         [HttpGet]
-        public Task<NamedId[]> Standard()
+        public Task<Wg[]> Standard()
         {
-            return wgService.GetStandards()
-                            .Select(x => new NamedId { Id = x.Id, Name = x.Name })
-                            .GetAsync();
+            return wgService.GetStandards().GetAsync();
         }
 
         [HttpGet]
