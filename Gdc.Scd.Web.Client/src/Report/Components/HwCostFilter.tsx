@@ -151,8 +151,8 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         }
     }
 
-    public getCountry(): any {
-        return this.cnt.getSelected()[0];
+    public getCountry(): Country {
+        return this.cnt.getSelectedModel();
     }
 
     private init() {
@@ -163,7 +163,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         this.onDownload = this.onDownload.bind(this);
     }
 
-    private onCountryChange(field, records) {
+    private onCountryChange() {
         this.setState({ valid: !!this.cnt.getSelected() });
     }
 

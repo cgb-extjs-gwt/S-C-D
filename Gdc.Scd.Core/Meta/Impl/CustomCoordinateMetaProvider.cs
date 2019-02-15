@@ -31,7 +31,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                 StoreType = StoreType.View,
                 RealMeta = countryMeta
             };
-            var roleCode = new NamedEntityMeta(MetaConstants.RoleCodeInputLevel, MetaConstants.InputLevelSchema);
+            var roleCode = new DeactivatableEntityMeta(MetaConstants.RoleCodeInputLevel, MetaConstants.InputLevelSchema);
             var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta, centralContractGroupMeta, roleCode);
 
             var customMetas = new[]
