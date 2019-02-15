@@ -96,7 +96,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
                     <Panel title='Asset(WG)'
                         {...panelProps}>
-                        <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getStandardWg} />
+                        <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getStandardWgs} />
                     </Panel>
                     <Panel title='Availability'
                         {...panelProps}>
@@ -151,8 +151,8 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         }
     }
 
-    public getCountry(): any {
-        return this.cnt.getSelected()[0];
+    public getCountry(): Country {
+        return this.cnt.getSelectedModel();
     }
 
     private init() {
@@ -163,7 +163,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         this.onDownload = this.onDownload.bind(this);
     }
 
-    private onCountryChange(field, records) {
+    private onCountryChange() {
         this.setState({ valid: !!this.cnt.getSelected() });
     }
 

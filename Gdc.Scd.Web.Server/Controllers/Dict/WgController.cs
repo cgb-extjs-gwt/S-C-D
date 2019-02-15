@@ -37,5 +37,12 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
                             .Select(x => new NamedId { Id = x.Id, Name = x.Name })
                             .GetAsync();
         }
+
+        [HttpGet]
+        public Task<Wg[]> StandardWg()
+        {
+            return wgService.GetStandards()
+                            .GetAsync();
+        }
     }
 }

@@ -13,4 +13,8 @@ export class WgService extends CacheDomainService<NamedId> {
     public standard(): Promise<NamedId[]> {
         return this.getFromUrlAll<NamedId>('standard');
     }
+
+    public standardWG(): Promise<NamedId[]> {
+        return this.getFromUrlAll<NamedId>('standardWg');
+    }
 }
