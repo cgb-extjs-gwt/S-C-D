@@ -34,5 +34,6 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
         {
             return wgService.GetStandards().GetAsync();
         }
+
     }
 }

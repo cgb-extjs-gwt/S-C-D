@@ -1,10 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 
 namespace Gdc.Scd.Core.Entities
 {
     [Table(MetaConstants.RoleCodeInputLevel, Schema = MetaConstants.InputLevelSchema)]
-    public class RoleCode : NamedId
+    public class RoleCode : NamedId, IDeactivatable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id
@@ -13,6 +15,8 @@ namespace Gdc.Scd.Core.Entities
             set => base.Id = value;
         }
 
-        public bool Deactivated { get; set; }
+        public DateTime CreatedDateTime { get; set; }
+        public DateTime? DeactivatedDateTime { get; set; }
+        public DateTime ModifiedDateTime { get; set; }
     }
 }

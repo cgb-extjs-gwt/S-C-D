@@ -1,5 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Constants;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using System;
 using System.Collections.Generic;
@@ -13,20 +15,26 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     {
         private readonly IDomainService<Wg> wgService;
         private readonly IDomainService<RoleCode> roleService;
+        public ICostBlockService CostBlockService { get; private set; }
+        private readonly DomainEnitiesMeta meta;
 
         private const string StillReferencedMessage = "Role code(s) cannot be deleted because it is still referenced by warranty group(s).";
 
-        public RoleCodeService(IDomainService<Wg> wgService, IDomainService<RoleCode> roleService)
+        public RoleCodeService(IDomainService<Wg> wgService, IDomainService<RoleCode> roleService, ICostBlockService CostBlockService,
+            DomainEnitiesMeta meta)
         {
             this.wgService = wgService;
             this.roleService = roleService;
+            this.CostBlockService = CostBlockService;
+            this.meta = meta;
         }
 
         public bool Deactivate(RoleCode roleCode)
         {
             if (!wgService.GetAll().Where(x => x.RoleCodeId == roleCode.Id).Any())
             {
-                roleCode.Deactivated = true;
+                roleCode.DeactivatedDateTime = DateTime.Now;
+                roleCode.ModifiedDateTime = DateTime.Now;
                 roleService.Save(roleCode);
                 return true;
             }
@@ -44,7 +52,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 foreach(var roleCode in roleCodes)
                 {
-                    roleCode.Deactivated = true;
+                    roleCode.DeactivatedDateTime = DateTime.Now;
+                    roleCode.ModifiedDateTime = DateTime.Now;
                     roleService.Save(roleCode);
                 }
                 return true;
@@ -57,7 +66,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public Task<RoleCode[]> GetAllActive()
         {
-            return roleService.GetAll().Where(x => !x.Deactivated).GetAsync();
+            return roleService.GetAll().Where(x => !x.DeactivatedDateTime.HasValue).GetAsync();
+        }
+
+        public void Save(IEnumerable<RoleCode> roleCodes)
+        {
+            foreach(var roleCode in roleCodes)
+            {
+                roleCode.ModifiedDateTime = DateTime.Now;
+            }
+            roleService.Save(roleCodes);
+            var relatedMetas = meta.CostBlocks.Where(x => x.CoordinateFields.Where(r => r.ReferenceMeta.Name == MetaConstants.RoleCodeInputLevel).Any());
+            CostBlockService.UpdateByCoordinates(relatedMetas);
         }
     }
 }

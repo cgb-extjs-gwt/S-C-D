@@ -12,5 +12,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         bool Deactivate(RoleCode roleCode);
         bool Deactivate(IEnumerable<RoleCode> roleCode);
         Task<RoleCode[]> GetAllActive();
+        void Save(IEnumerable<RoleCode> roleCodes);
     }
 }

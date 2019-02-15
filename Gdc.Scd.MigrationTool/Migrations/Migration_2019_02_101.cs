@@ -18,7 +18,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         public void Execute()
         {
-            var queries = SqlFormatter.BuildFromFile(@"MigrationScripts\2019-02-101.sql");
+            var queries = SqlFormatter.BuildFromFile(@"MigrationScripts\2019-02-12_101.sql");
             foreach (var query in queries)
             {
                 repositorySet.ExecuteSql(query);
