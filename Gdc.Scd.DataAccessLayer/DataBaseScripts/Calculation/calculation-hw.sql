@@ -628,7 +628,7 @@ AS BEGIN
 END
 GO
 
-ALTER VIEW [Fsp].[HwStandardWarrantyView] AS
+CREATE VIEW [Fsp].[HwStandardWarrantyView] AS
     SELECT std.Wg
          , std.Country
          , std.Duration
@@ -1655,7 +1655,7 @@ RETURNS @tbl TABLE
             )
 AS
 BEGIN
-	declare @isEmptyCnt    bit = Portfolio.IsListEmpty(@cnt);
+    declare @cnt_id bigint = (select top(1) id from @cnt);
     declare @isEmptyWG    bit = Portfolio.IsListEmpty(@wg);
     declare @isEmptyAv    bit = Portfolio.IsListEmpty(@av);
     declare @isEmptyDur   bit = Portfolio.IsListEmpty(@dur);
@@ -1679,14 +1679,14 @@ BEGIN
                         ) as rownum
                      , m.*
                     from Portfolio.LocalPortfolio m
-					where   (@isEmptyCnt = 1 or CountryId in (select id from @cnt))
-							AND (@isEmptyWG = 1 or WgId in (select id from @wg))
-							AND (@isEmptyAv = 1 or AvailabilityId in (select id from @av))
-							AND (@isEmptyDur = 1 or DurationId in (select id from @dur))
-							AND (@isEmptyRTime = 1 or ReactionTimeId in (select id from @reactiontime))
-							AND (@isEmptyRType = 1 or ReactionTypeId in (select id from @reactiontype))
-							AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
-							AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
+                    where   CountryId = @cnt_id
+                        AND (@isEmptyWG = 1 or WgId in (select id from @wg))
+                        AND (@isEmptyAv = 1 or AvailabilityId in (select id from @av))
+                        AND (@isEmptyDur = 1 or DurationId in (select id from @dur))
+                        AND (@isEmptyRTime = 1 or ReactionTimeId in (select id from @reactiontime))
+                        AND (@isEmptyRType = 1 or ReactionTypeId in (select id from @reactiontype))
+                        AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
+                        AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
             )
             insert @tbl
             select top(@limit)
@@ -1698,14 +1698,14 @@ BEGIN
             insert @tbl
             select -1 as rownum, Id, CountryId, WgId, AvailabilityId, DurationId, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProActiveSlaId, SlaHash
             from Portfolio.LocalPortfolio m
-			where   (@isEmptyCnt = 1 or CountryId in (select id from @cnt))
-							AND (@isEmptyWG = 1 or WgId in (select id from @wg))
-							AND (@isEmptyAv = 1 or AvailabilityId in (select id from @av))
-							AND (@isEmptyDur = 1 or DurationId in (select id from @dur))
-							AND (@isEmptyRTime = 1 or ReactionTimeId in (select id from @reactiontime))
-							AND (@isEmptyRType = 1 or ReactionTypeId in (select id from @reactiontype))
-							AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
-							AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
+            where    CountryId = @cnt_id
+                AND (@isEmptyWG = 1 or WgId in (select id from @wg))
+                AND (@isEmptyAv = 1 or AvailabilityId in (select id from @av))
+                AND (@isEmptyDur = 1 or DurationId in (select id from @dur))
+                AND (@isEmptyRTime = 1 or ReactionTimeId in (select id from @reactiontime))
+                AND (@isEmptyRType = 1 or ReactionTypeId in (select id from @reactiontype))
+                AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
+                AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
 
              order by m.CountryId
                     , m.WgId
@@ -1720,6 +1720,7 @@ BEGIN
 
     RETURN;
 END;
+
 go
 
 CREATE FUNCTION [Hardware].[GetCalcMember] (
@@ -2255,7 +2256,7 @@ BEGIN
 
     SET NOCOUNT ON;
 
-	declare @isEmptyCnt    bit = Portfolio.IsListEmpty(@cnt);
+    declare @cnt_id bigint = (select top(1) id from @cnt);
     declare @isEmptyWG    bit = Portfolio.IsListEmpty(@wg);
     declare @isEmptyAv    bit = Portfolio.IsListEmpty(@av);
     declare @isEmptyDur   bit = Portfolio.IsListEmpty(@dur);
@@ -2266,15 +2267,14 @@ BEGIN
 
     select @total = COUNT(id)
     from Portfolio.LocalPortfolio m
-   where   (@isEmptyCnt = 1 or CountryId in (select id from @cnt))
-		AND (@isEmptyWG = 1 or WgId in (select id from @wg))
-		AND (@isEmptyAv = 1 or AvailabilityId in (select id from @av))
-		AND (@isEmptyDur = 1 or DurationId in (select id from @dur))
-		AND (@isEmptyRTime = 1 or ReactionTimeId in (select id from @reactiontime))
-		AND (@isEmptyRType = 1 or ReactionTypeId in (select id from @reactiontype))
-		AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
-		AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
-
+   where     CountryId = @cnt_id
+        AND (@isEmptyWG = 1 or WgId in (select id from @wg))
+        AND (@isEmptyAv = 1 or AvailabilityId in (select id from @av))
+        AND (@isEmptyDur = 1 or DurationId in (select id from @dur))
+        AND (@isEmptyRTime = 1 or ReactionTimeId in (select id from @reactiontime))
+        AND (@isEmptyRType = 1 or ReactionTypeId in (select id from @reactiontype))
+        AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
+        AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
 
     declare @cur nvarchar(max);
     declare @exchange float;
@@ -2341,13 +2341,13 @@ BEGIN
     else
     begin
 
-        select  cur.Name as Currency
-             , er.Value as ExchangeRate, 
-			 costs.*
+        select cur.Name as Currency
+             , er.Value as ExchangeRate
+             , costs.*
         from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) costs
-		join [InputAtoms].Country c on c.Name = costs.Country
-		join [References].Currency cur on cur.Id = c.CurrencyId
-		join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+        join [InputAtoms].Country c on c.Name = costs.Country
+        join [References].Currency cur on cur.Id = c.CurrencyId
+        join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
         order by Id
     end
 END
