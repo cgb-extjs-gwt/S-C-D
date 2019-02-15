@@ -9,7 +9,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         public int Number => 11;
 
-        public string Description => "Fix Tax&duties out of warranty";
+        public string Description => "Role code is now IDeactivatable";
 
         public Migration_2019_02_15(IRepositorySet repositorySet)
         {
