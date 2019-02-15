@@ -95,13 +95,9 @@ namespace Gdc.Scd.Core.Meta.Entities
                 yield return field;
             }
 
-            if (costElement.RegionInput != null)
+            if (costElement.RegionInput != null && !costElement.HasInputLevel(costElement.RegionInput.Id))
             {
-                var inputLevel = costElement.GetInputLevel(costElement.RegionInput.Id);
-                if (inputLevel == null)
-                {
-                    yield return this.InputLevelFields[costElement.RegionInput.Id];
-                }
+                yield return this.InputLevelFields[costElement.RegionInput.Id];
             }
         }
     }
