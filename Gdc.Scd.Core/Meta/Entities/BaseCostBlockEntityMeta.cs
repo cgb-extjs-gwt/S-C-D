@@ -42,7 +42,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public bool ContainsCoordinateField(string fieldName)
         {
-            return this.InputLevelFields[fieldName] != null || this.DependencyFields[fieldName] != null;
+            return this.InputLevelFields.Contains(fieldName) || this.DependencyFields.Contains(fieldName);
         }
     }
 }

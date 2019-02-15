@@ -196,9 +196,9 @@ namespace Gdc.Scd.Core.Meta.Impl
             return result;
         }
 
-        private List<InputLevelMetaInfo<InputLevelMeta>> BuildInputLevelMetaInfos(XElement node, DomainInfo<InputLevelMeta> domainInfo)
+        private MetaCollection<InputLevelMetaInfo<InputLevelMeta>> BuildInputLevelMetaInfos(XElement node, DomainInfo<InputLevelMeta> domainInfo)
         {
-            var inputLevelInfos = new List<InputLevelMetaInfo<InputLevelMeta>>();
+            var inputLevelInfos = new MetaCollection<InputLevelMetaInfo<InputLevelMeta>>();
 
             if (node != null)
             {
