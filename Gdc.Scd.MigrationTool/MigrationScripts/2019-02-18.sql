@@ -1,4 +1,4 @@
-﻿UPDATE FUNCTION [SoftwareSolution].[GetCosts] (
+﻿ALTER FUNCTION [SoftwareSolution].[GetCosts] (
      @approved bit,
     @digit dbo.ListID readonly,
     @av dbo.ListID readonly,
