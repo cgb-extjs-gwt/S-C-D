@@ -12,7 +12,6 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -30,245 +29,50 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
 
-        //public async Task<int> Update(IEnumerable<EditInfo> editInfos)
-        //{
-        //    var queries = new List<SqlHelper>();
-        //    var paramIndex = 0;
-
-        //    foreach (var editInfo in editInfos)
-        //    {
-        //        foreach (var valueInfo in editInfo.ValueInfos)
-        //        {
-        //            var updateColumns = valueInfo.Values.Select(costElementValue => new ValueUpdateColumnInfo(
-        //                costElementValue.Key,
-        //                costElementValue.Value,
-        //                $"param_{paramIndex++}"));
-
-        //            var filter = valueInfo.CoordinateFilter.ToDictionary(
-        //                keyValue => keyValue.Key,
-        //                keyValue => BuildCommandParameters(keyValue).Cast<object>().ToArray() as IEnumerable<object>);
-
-        //            var query =
-        //                Sql.Update(editInfo.Meta, updateColumns.ToArray())
-        //                   .WhereNotDeleted(editInfo.Meta, filter, editInfo.Meta.Name, $"param_{paramIndex++}");
-
-        //            queries.Add(query);
-        //        }
-        //    }
-
-        //    var sw = new System.Diagnostics.Stopwatch();
-        //    sw.Start();
-
-        //    var v = await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
-
-        //    sw.Stop();
-
-        //    return v;
-
-        //    IEnumerable<CommandParameterInfo> BuildCommandParameters(KeyValuePair<string, long[]> keyValue)
-        //    {
-        //        return keyValue.Value.Select(value => new CommandParameterInfo
-        //        {
-        //            Name = $"{keyValue.Key}_{paramIndex++}",
-        //            Value = value
-        //        });
-        //    }
-        //}
-
         public async Task<int> Update(IEnumerable<EditInfo> editInfos)
         {
-            const string ValueTableAlias = "Values";
-
             var queries = new List<SqlHelper>();
             var paramIndex = 0;
 
             foreach (var editInfo in editInfos)
             {
-                var valueColumnNames =
-                    editInfo.ValueInfos.SelectMany(valueInfo => valueInfo.Values.Keys)
-                                       .Distinct()
-                                       .ToArray();
+                var valueInfos = editInfo.ValueInfos.ToArray();
 
-                var coordinateColumnNames =
-                    editInfo.ValueInfos.SelectMany(valueInfo => valueInfo.CoordinateFilter.Keys)
-                                       .Distinct()
-                                       .ToArray();
-
-                var valueQueries = new List<ISqlBuilder>();
-
-                foreach (var valueInfo in editInfo.ValueInfos)
+                foreach (var valueInfo in valueInfos)
                 {
-                    var valueColumns = valueColumnNames.SelectMany(columnName => BuildValueColumns(columnName, valueInfo.Values)).ToArray();
+                    var updateColumns = valueInfo.Values.Select(costElementValue => new ValueUpdateColumnInfo(
+                        costElementValue.Key,
+                        costElementValue.Value,
+                        $"param_{paramIndex++}"));
 
-                    foreach (var filter in SplitCoordinateFilter(valueInfo.CoordinateFilter))
-                    {
-                        var coordinateColumns = BuildCoordinateColumns(coordinateColumnNames, filter);
-                        var columns = valueColumns.Concat(coordinateColumns).ToArray();
+                    var filter = valueInfo.CoordinateFilter.ToDictionary(
+                        keyValue => keyValue.Key,
+                        keyValue => BuildCommandParameters(keyValue).Cast<object>().ToArray() as IEnumerable<object>);
 
-                        valueQueries.Add(Sql.Select(columns).ToSqlBuilder());
-                    }
+                    var query =
+                        Sql.Update(editInfo.Meta, updateColumns.ToArray())
+                           .WhereNotDeleted(editInfo.Meta, filter, editInfo.Meta.Name, $"param_{paramIndex++}");
+
+                    queries.Add(query);
                 }
 
-                var valuesTable = new AliasSqlBuilder
+                if (valueInfos.Length > 1)
                 {
-                    Alias = ValueTableAlias,
-                    Query = new BracketsSqlBuilder
-                    {
-                        Query = Sql.Union(valueQueries).ToSqlBuilder()
-                    }
-                };
-
-                var updateColumns = valueColumnNames.Select(column => BuildUpdateColumn(editInfo.Meta.Name, column)).ToArray();
-                var query =
-                    Sql.Update(editInfo.Meta, updateColumns)
-                       .From(editInfo.Meta)
-                       .Join(valuesTable, BuildJoinCoordinateCondition(editInfo.Meta.Name, coordinateColumnNames));
-
-                queries.Add(query);
+                    queries.Insert(0, Sql.DisableTriggers(editInfo.Meta));
+                    queries.Insert(queries.Count - 1, Sql.EnableTriggers(editInfo.Meta));
+                }
             }
 
-            //return await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
+            return await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
 
-            var sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
-
-            var v = await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
-
-            sw.Stop();
-
-            return v;
-
-            IEnumerable<QueryColumnInfo> BuildValueColumns(string columnName, IDictionary<string, object> values)
+            IEnumerable<CommandParameterInfo> BuildCommandParameters(KeyValuePair<string, long[]> keyValue)
             {
-                var hasValue = values.TryGetValue(columnName, out var value);
-
-                yield return new QueryColumnInfo
+                return keyValue.Value.Select(value => new CommandParameterInfo
                 {
-                    Alias = columnName,
-                    Query = new ParameterSqlBuilder
-                    {
-                        ParamInfo = new CommandParameterInfo
-                        {
-                            Name = BuildParamName(),
-                            Value = value
-                        }
-                    }
-                };
-
-                yield return new QueryColumnInfo
-                {
-                    Alias = BuildHasValueColumnName(columnName),
-                    Query = new RawSqlBuilder(hasValue ? "1" : "0")
-                    //Query = new ParameterSqlBuilder
-                    //{
-                    //    ParamInfo = new CommandParameterInfo
-                    //    {
-                    //        Name = BuildParamName(),
-                    //        Value = value
-                    //    }
-                    //}
-                };
-            }
-
-            IEnumerable<QueryColumnInfo> BuildCoordinateColumns(string[] coordinateNames, IDictionary<string, long> filter)
-            {
-                return coordinateNames.Select(coordinateName => new QueryColumnInfo
-                {
-                    Alias = coordinateName,
-                    Query = new ParameterSqlBuilder
-                    {
-                        ParamInfo = new CommandParameterInfo
-                        {
-                            Name = BuildParamName(),
-                            Value = filter.TryGetValue(coordinateName, out var value) ? (object)value : null
-                        }
-                    }
+                    Name = $"{keyValue.Key}_{paramIndex++}",
+                    Value = value
                 });
             }
-
-            QueryUpdateColumnInfo BuildUpdateColumn(string updatedTable, string columnName)
-            {
-                var hasValueColumnName = BuildHasValueColumnName(columnName);
-                var query = new BracketsSqlBuilder
-                {
-                    Query = new CaseSqlBuilder
-                    {
-                        Cases = new[]
-                        {
-                            new CaseItem
-                            {
-                                When = SqlOperators.Equals(new ColumnSqlBuilder(hasValueColumnName, ValueTableAlias), new RawSqlBuilder("1")).ToSqlBuilder(),
-                                Then = new ColumnSqlBuilder(columnName, ValueTableAlias)
-                            }
-                        },
-                        Else = new ColumnSqlBuilder(columnName, updatedTable)
-                    }
-                };
-
-                return new QueryUpdateColumnInfo(columnName, query, updatedTable);
-            }
-
-            IEnumerable<IDictionary<string, long>> SplitCoordinateFilter(IEnumerable<KeyValuePair<string, long[]>> filter)
-            {
-                var singleFilterItems = new List<KeyValuePair<string, long[]>>();
-                var mulitpleFilterItems = new List<KeyValuePair<string, long[]>>();
-                var isfilterMulipleValues = false;
-
-                foreach (var filterItem in filter)
-                {
-                    if (filterItem.Value.Length == 1)
-                    {
-                        singleFilterItems.Add(filterItem);
-                    }
-                    else
-                    {
-                        mulitpleFilterItems.Add(filterItem);
-
-                        isfilterMulipleValues = true;
-                    }
-                }
-
-                if (isfilterMulipleValues)
-                {
-                    foreach (var filterItem in mulitpleFilterItems)
-                    {
-                        var filterItems = mulitpleFilterItems.Where(item => item.Key != filterItem.Key).ToArray();
-
-                        foreach (var value in filterItem.Value)
-                        {
-                            var splitedFilters = SplitCoordinateFilter(new List<KeyValuePair<string, long[]>>(singleFilterItems.Concat(filterItems))
-                           {
-                                new KeyValuePair<string, long[]>(filterItem.Key, new[] { value })
-                           });
-
-                            foreach (var splitedFilter in splitedFilters)
-                            {
-                                yield return splitedFilter;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    yield return filter.ToDictionary(filterItem => filterItem.Key, filterItem => filterItem.Value[0]);
-                }
-            }
-
-            ConditionHelper BuildJoinCoordinateCondition(string updateTabel, string[] columns)
-            {
-                var conditions =
-                    columns.Select(
-                        column =>
-                            ConditionHelper.OrBrackets(
-                                SqlOperators.Equals(new ColumnInfo(column, updateTabel), new ColumnInfo(column, ValueTableAlias)),
-                                SqlOperators.IsNull(column, ValueTableAlias)));
-
-                return ConditionHelper.And(conditions);
-            }
-
-            string BuildHasValueColumnName(string columnName) => $"{columnName}HasValue";
-
-            string BuildParamName() => $"param_{paramIndex++}";
         }
 
         public async Task<int> UpdateByCoordinatesAsync(CostBlockEntityMeta meta,

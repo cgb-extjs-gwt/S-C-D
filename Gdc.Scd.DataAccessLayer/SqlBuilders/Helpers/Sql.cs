@@ -237,6 +237,41 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return Delete(null, null, table);
         }
 
+        public static SqlHelper AddDefault(string tableName, string columnName, string defaultValue, string schema = null, string database = null)
+        {
+            return new SqlHelper(new AlterTableSqlBuilder
+            {
+                Name = tableName,
+                Schema = schema,
+                DataBase = database,
+                Query = new AddDefaultSqlBuilder
+                {
+                    ColumnName = columnName,
+                    DefaultValue = defaultValue
+                }
+            });
+        }
+
+        public static SqlHelper DisableTrigger(string table, string schema = null)
+        {
+            return DisableEnableTrigger(schema, table, DispabelEnableType.Disable);
+        }
+
+        public static SqlHelper DisableTriggers(BaseEntityMeta meta)
+        {
+            return DisableEnableTrigger(meta, DispabelEnableType.Disable);
+        }
+
+        public static SqlHelper EnableTrigger(string table, string schema = null)
+        {
+            return DisableEnableTrigger(schema, table, DispabelEnableType.Enable);
+        }
+
+        public static SqlHelper EnableTriggers(BaseEntityMeta meta)
+        {
+            return DisableEnableTrigger(meta, DispabelEnableType.Enable);
+        }
+
         private static SelectIntoSqlHelper Select(bool isDistinct, params BaseColumnInfo[] columns)
         {
             var selectBuilder = new SelectSqlBuilder
@@ -301,19 +336,19 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return columnNames.Select(name => new ColumnInfo { Name = name });
         }
 
-        public static SqlHelper AddDefault(string tableName, string columnName, string defaultValue, string schema = null, string database = null)
+        private static SqlHelper DisableEnableTrigger(string schema, string table, DispabelEnableType type)
         {
-            return new SqlHelper(new AlterTableSqlBuilder
+            return new SqlHelper(new DisableEnableTriggersSqlBuilder
             {
-                Name = tableName,
                 Schema = schema,
-                DataBase = database,
-                Query= new AddDefaultSqlBuilder
-                {
-                    ColumnName= columnName,
-                    DefaultValue=defaultValue
-                }
+                Table = table,
+                Type = type
             });
+        }
+
+        private static SqlHelper DisableEnableTrigger(BaseEntityMeta meta, DispabelEnableType type)
+        {
+            return DisableEnableTrigger(meta.Schema, meta.Name, type);
         }
     }
 }
