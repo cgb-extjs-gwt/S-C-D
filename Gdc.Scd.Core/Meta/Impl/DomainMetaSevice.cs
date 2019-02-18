@@ -42,6 +42,8 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string InputLevelNodeName = "InputLevel";
 
+        private const string InputLevelHideAttributeName = "Hide";
+
         private const string RegionInputListNodeName = "RegionInputs";
 
         private const string RegionInputNodeName = "RegionInput";
@@ -141,8 +143,8 @@ namespace Gdc.Scd.Core.Meta.Impl
 
             costElementMeta.Description = this.BuildCostElementDescription(node);
 
-            costElementMeta.InputLevels =
-                this.BuildItemCollectionByDomainInfo(node.Element(InputLevelListNodeName), InputLevelNodeName, defination.InputLevels);
+            costElementMeta.InputLevelMetaInfos =
+                this.BuildInputLevelMetaInfos(node.Element(InputLevelListNodeName), defination.InputLevels);
 
             costElementMeta.RegionInput = this.BuildItemByDomainInfo(node, RegionInputNodeName, defination.RegionInputs);
             costElementMeta.Dependency = this.BuildItemByDomainInfo(node, DependencyNodeName, defination.Dependencies);
@@ -194,6 +196,36 @@ namespace Gdc.Scd.Core.Meta.Impl
             return result;
         }
 
+        private MetaCollection<InputLevelMetaInfo<InputLevelMeta>> BuildInputLevelMetaInfos(XElement node, DomainInfo<InputLevelMeta> domainInfo)
+        {
+            var inputLevelInfos = new MetaCollection<InputLevelMetaInfo<InputLevelMeta>>();
+
+            if (node != null)
+            {
+                foreach (var inputLevelNode in node.Elements(InputLevelNodeName))
+                {
+                    var hideAttribute = inputLevelNode.Attribute(InputLevelHideAttributeName);
+
+                    inputLevelInfos.Add(new InputLevelMetaInfo<InputLevelMeta>
+                    {
+                        InputLevel = domainInfo.Items[inputLevelNode.Value],
+                        Hide = hideAttribute == null ? false : bool.Parse(hideAttribute.Value)
+                    });
+                }
+            }
+
+            if (inputLevelInfos.Count == 0)
+            {
+                inputLevelInfos.AddRange(
+                    domainInfo.DefaultItems.Select(inpuLevel => new InputLevelMetaInfo<InputLevelMeta>
+                    {
+                        InputLevel = inpuLevel
+                    }));
+            }
+
+            return inputLevelInfos;
+        }
+
         private MetaCollection<T> BuildItemCollectionByDomainInfo<T>(XElement node, string nodeItemName, DomainInfo<T> domainInfo) where T : BaseMeta
         {
             List<T> items = null;
@@ -202,7 +234,7 @@ namespace Gdc.Scd.Core.Meta.Impl
             {
                 items =
                     node.Elements(nodeItemName)
-                        .Select(inpuLevelNode => domainInfo.Items[inpuLevelNode.Value])
+                        .Select(innerNode => domainInfo.Items[innerNode.Value])
                         .ToList();
             }
 

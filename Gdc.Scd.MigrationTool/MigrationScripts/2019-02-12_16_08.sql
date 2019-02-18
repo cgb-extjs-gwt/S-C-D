@@ -121,14 +121,44 @@ go
 
 CREATE FUNCTION Report.SolutionPackProActiveCosting
 (
-    @cnt bigint,
+	@cnt bigint,
     @digit bigint,
     @year bigint
 )
-RETURNS TABLE 
-AS
-RETURN (
-    select    c.CountryGroup
+RETURNS @tbl TABLE (
+	CountryGroup nvarchar(max) NULL
+	,Country nvarchar(max) NULL
+	,InfSolution nvarchar(max) NULL
+	,Wg nvarchar(max) NULL
+	
+	,Sog nvarchar(max) NULL
+	,Fsp nvarchar(max) NULL
+
+	,ServiceDescription nvarchar(max) NULL
+
+	,Sp nvarchar(max) NULL
+	,Duration nvarchar(max) NULL
+	,Availability nvarchar(max) NULL
+
+	,ReActive float NULL
+	,ProActive float NULL
+	,ServiceTP float NULL
+)
+as
+begin
+	declare @cntList dbo.ListId; 
+	if @cnt is not null insert into @cntList(id) select id from Portfolio.IntToListID(@cnt);
+
+	declare @digitList dbo.ListId; 
+	if @digit is not null insert into @digitList(id) select id from Portfolio.IntToListID(@digit);
+
+	declare @yearList dbo.ListId; 
+	if @year is not null insert into @yearList(id) select id from Portfolio.IntToListID(@year);
+
+	declare @emptyAv dbo.ListId;
+
+   insert into @tbl
+   select    c.CountryGroup
             , c.Name as Country
 
             , dig.Name as InfSolution
@@ -150,17 +180,17 @@ RETURN (
              , pro.ProActive as ProActive
              , sc.TransferPrice as ServiceTP
 
-    from SoftwareSolution.GetProActiveCosts(1, @cnt, @digit, null, @year, -1, -1) pro
+    from SoftwareSolution.GetProActiveCosts(1, @cntList, @digitList, @emptyAv, @yearList, -1, -1) pro
     join Dependencies.Year y on y.id = pro.DurationId
     join Dependencies.Availability av on av.id = pro.AvailabilityId
     join InputAtoms.CountryView c on c.id = pro.Country
     join InputAtoms.SwDigit dig on dig.Id = pro.SwDigit
     join InputAtoms.WgSogView sog on sog.id = pro.Sog
-    left join SoftwareSolution.GetCosts(1, @digit, null, @year, -1, -1) sc on sc.Year = pro.DurationId and sc.Availability = pro.AvailabilityId and sc.SwDigit = pro.SwDigit
+    left join SoftwareSolution.GetCosts(1, @digitList, @emptyAv, @yearList, -1, -1) sc on sc.Year = pro.DurationId and sc.Availability = pro.AvailabilityId and sc.SwDigit = pro.SwDigit
     left join Fsp.SwFspCodeTranslation fsp on fsp.Id = pro.FspId
-)
-
-GO
+return
+end
+go
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'SOLUTIONPACK-PROACTIVE-COSTING');
 declare @index int = 0;

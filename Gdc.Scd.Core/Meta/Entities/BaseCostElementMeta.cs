@@ -9,7 +9,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public string Description { get; set; }
 
-        public MetaCollection<TInputLevel> InputLevels { get; set; }
+        public virtual IEnumerable<TInputLevel> InputLevels { get; }
 
         public InputLevelMeta RegionInput { get; set; }
 

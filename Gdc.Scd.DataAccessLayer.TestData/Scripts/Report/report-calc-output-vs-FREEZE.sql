@@ -16,28 +16,8 @@ CREATE FUNCTION [Report].[CalcOutputVsFREEZE]
 RETURNS TABLE 
 AS
 RETURN (
-    with StdCte as (
-        SELECT 
-                    m.*
-
-                    , case when stdw.DurationValue is not null then stdw.DurationValue 
-                        when stdw2.DurationValue is not null then stdw2.DurationValue 
-                    end as StdWarranty
-                    , case when stdw.DurationValue is not null then stdw.ReactionTimeId 
-                        when stdw2.DurationValue is not null then stdw2.ReactionTimeId  
-                    end as StdwReactionTimeId 
-                    , case when stdw.DurationValue is not null then stdw.ReactionTypeId 
-                        when stdw2.DurationValue is not null then stdw2.ReactionTypeId 
-                    end as StdwReactionTypeId
-
-        FROM Portfolio.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
-
-        LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId --find local standard warranty portfolio
-        LEFT JOIN Fsp.HwStandardWarrantyView stdw2 on stdw2.Wg = m.WgId and stdw2.Country is null    --find principle standard warranty portfolio, if local does not exist
-
-    )
-    , cte as (
-        SELECT m.Id
+    with cte as (
+        SELECT    m.Id
 
                 --FSP
                 , fsp.Name Fsp
@@ -57,7 +37,7 @@ RETURN (
                 , loc.Name as ServiceLocation
                 , prosla.ExternalName  as ProActiveSla
 
-                , m.StdWarranty
+                , stdw.DurationValue as StdWarranty
 
                 , afr.AFR1 , AFR1_Approved
                 , afr.AFR2, AFR2_Approved       
@@ -70,21 +50,21 @@ RETURN (
 
                 , coalesce(tax.TaxAndDuties, 0) as TaxAndDuties, coalesce(tax.TaxAndDuties_Approved, 0) as TaxAndDuties_Approved
 
-                , fsc.TravelCost + fsc.LabourCost as FieldServicePerYearStdw
-                , fsc.TravelCost_Approved + fsc.LabourCost_Approved as FieldServicePerYearStdw_Approved
+                , fsc.TravelCost + fsc.LabourCost + coalesce(fsc.PerformanceRate, 0) as FieldServicePerYearStdw
+                , fsc.TravelCost_Approved + fsc.LabourCost_Approved + coalesce(fsc.PerformanceRate_Approved, 0)  as FieldServicePerYearStdw_Approved
 
                 , ssc.ServiceSupport         , ssc.ServiceSupport_Approved
 
-                , lcs.StandardHandling + lcs.HighAvailabilityHandling + lcs.StandardDelivery + lcs.ExpressDelivery + lcs.TaxiCourierDelivery + lcs.ReturnDeliveryFactory as LogisticPerYearStdw
-                , lcs.StandardHandling_Approved + lcs.HighAvailabilityHandling_Approved + lcs.StandardDelivery_Approved + lcs.ExpressDelivery_Approved + lcs.TaxiCourierDelivery_Approved + lcs.ReturnDeliveryFactory_Approved as LogisticPerYearStdw_Approved
+                , lc.StandardHandling + lc.HighAvailabilityHandling + lc.StandardDelivery + lc.ExpressDelivery + lc.TaxiCourierDelivery + lc.ReturnDeliveryFactory as LogisticPerYearStdw
+                , lc.StandardHandling_Approved + lc.HighAvailabilityHandling_Approved + lc.StandardDelivery_Approved + lc.ExpressDelivery_Approved + lc.TaxiCourierDelivery_Approved + lc.ReturnDeliveryFactory_Approved as LogisticPerYearStdw_Approved
 
-                , coalesce(af.Fee, 0) as AvailabilityFee
-                , coalesce(af.Fee_Approved, 0) as AvailabilityFee_Approved
+                , coalesce(case when afEx.Id is not null then af.Fee end, 0) as AvailabilityFee
+                , coalesce(case when afEx.Id is not null then af.Fee_Approved end, 0) as AvailabilityFee_Approved
 
                 , msw.MarkupFactorStandardWarranty , msw.MarkupFactorStandardWarranty_Approved  
                 , msw.MarkupStandardWarranty       , msw.MarkupStandardWarranty_Approved        
 
-        FROM StdCte m
+        FROM Portfolio.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
 
         INNER JOIN InputAtoms.Country c on c.id = m.CountryId
 
@@ -102,6 +82,8 @@ RETURN (
 
         INNER JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
+        LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId 
+
         LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
         LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg2.ClusterPla
@@ -110,9 +92,9 @@ RETURN (
 
         LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
-        LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId AND fsc.ReactionTypeId = m.ReactionTypeId AND fsc.ReactionTimeId = m.ReactionTimeId
+        LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Country = stdw.Country AND fsc.Wg = stdw.Wg AND fsc.ServiceLocation = stdw.ServiceLocationId AND fsc.ReactionTypeId = stdw.ReactionTypeId AND fsc.ReactionTimeId = stdw.ReactionTimeId
 
-        LEFT JOIN Hardware.LogisticsCostView lcs on lcs.Country = m.CountryId AND lcs.Wg = m.WgId AND lcs.ReactionTime = m.StdwReactionTimeId AND lcs.ReactionType = m.StdwReactionTypeId
+        LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = stdw.Country AND lc.Wg = stdw.Wg AND lc.ReactionTime = stdw.ReactionTimeId AND lc.ReactionType = stdw.ReactionTypeId
 
         LEFT JOIN Hardware.MarkupStandardWarantyView msw on msw.Wg = m.WgId AND msw.Country = m.CountryId AND msw.ReactionTimeId = m.ReactionTimeId AND msw.ReactionTypeId = m.ReactionTypeId AND msw.AvailabilityId = m.AvailabilityId
 
@@ -120,7 +102,7 @@ RETURN (
 
         LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
 
-        LEFT JOIN Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash 
+        LEFT JOIN Fsp.HwFspCodeTranslation fsp on   fsp.SlaHash = m.SlaHash 
                                                 and fsp.CountryId = m.CountryId
                                                 and fsp.WgId = m.WgId
                                                 and fsp.AvailabilityId = m.AvailabilityId

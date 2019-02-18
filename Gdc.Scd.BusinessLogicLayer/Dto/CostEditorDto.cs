@@ -7,8 +7,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Dto
     {
         public IEnumerable<RegionDto> Regions { get; set; }
 
-        public IEnumerable<NamedId> Filters { get; set; }
-
         public IEnumerable<NamedId> ReferenceValues { get; set; }
     }
 }

@@ -1,9 +1,8 @@
 import { CostElementIdentifier } from "./CostElementIdentifier";
 
 export interface Context extends CostElementIdentifier {
-    scopeId: string
-    regionInputId: string
+    regionInputId: number
     inputLevelId: string
-    costElementFilterIds: string[],
-    inputLevelFilterIds: string[]
+    costElementFilterIds: number[],
+    inputLevelFilterIds: number[]
 }

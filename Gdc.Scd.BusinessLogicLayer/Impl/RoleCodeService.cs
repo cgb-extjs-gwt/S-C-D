@@ -1,5 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Constants;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using System;
 using System.Collections.Generic;
@@ -13,13 +15,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     {
         private readonly IDomainService<Wg> wgService;
         private readonly IDomainService<RoleCode> roleService;
+        public ICostBlockService CostBlockService { get; private set; }
+        private readonly DomainEnitiesMeta meta;
 
         private const string StillReferencedMessage = "Role code(s) cannot be deleted because it is still referenced by warranty group(s).";
 
-        public RoleCodeService(IDomainService<Wg> wgService, IDomainService<RoleCode> roleService)
+        public RoleCodeService(IDomainService<Wg> wgService, IDomainService<RoleCode> roleService, ICostBlockService CostBlockService,
+            DomainEnitiesMeta meta)
         {
             this.wgService = wgService;
             this.roleService = roleService;
+            this.CostBlockService = CostBlockService;
+            this.meta = meta;
         }
 
         public bool Deactivate(RoleCode roleCode)
@@ -29,6 +36,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 roleCode.DeactivatedDateTime = DateTime.Now;
                 roleCode.ModifiedDateTime = DateTime.Now;
                 roleService.Save(roleCode);
+                UpdateMeta();
                 return true;
             }
             else
@@ -49,6 +57,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     roleCode.ModifiedDateTime = DateTime.Now;
                     roleService.Save(roleCode);
                 }
+                UpdateMeta();
                 return true;
             }
             else
@@ -69,6 +78,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 roleCode.ModifiedDateTime = DateTime.Now;
             }
             roleService.Save(roleCodes);
+            UpdateMeta();
+        }
+
+        private void UpdateMeta()
+        {
+            var relatedMetas = meta.CostBlocks.Where(x => x.CoordinateFields.Where(r => r.ReferenceMeta.Name == MetaConstants.RoleCodeInputLevel).Any());
+            CostBlockService.UpdateByCoordinates(relatedMetas);
         }
     }
 }

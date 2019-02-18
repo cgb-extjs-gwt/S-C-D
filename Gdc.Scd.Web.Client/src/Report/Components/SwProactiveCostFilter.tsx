@@ -42,15 +42,19 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
         let multiProps = {
             width: '200px',
             maxHeight: SELECT_MAX_HEIGHT,
-            title: ""
+            title: "",
+            hideCheckbox: true
         };
         let panelProps = {
             width: '300px',
             collapsible: {
                 direction: 'top',
                 dynamic: true,
-                collapsed: true
-            }
+                collapsed: true,
+                hideCheckbox: true
+            },
+            userCls: 'multiselect-filter',
+            margin: "0 0 2px 0"
         };
 
         if (this.props.checkAccess) {

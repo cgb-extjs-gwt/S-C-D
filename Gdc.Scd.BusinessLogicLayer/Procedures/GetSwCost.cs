@@ -34,7 +34,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             var pApproved = new DbParameterBuilder().WithName("approved").WithValue(approved);
             var pDigit = new DbParameterBuilder().WithName("digit");
             var pAv = new DbParameterBuilder().WithName("av");
-            var pYear = new DbParameterBuilder().WithName("year");
+            var pDuration = new DbParameterBuilder().WithName("year");
             var pLastid = new DbParameterBuilder().WithName("lastid").WithValue(lastid);
             var pLimit = new DbParameterBuilder().WithName("limit").WithValue(limit);
             var pTotal = new DbParameterBuilder().WithName("total").WithType(DbType.Int32).WithDirection(ParameterDirection.Output);
@@ -43,14 +43,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             {
                 pDigit.WithListIdValue(filter.Digit);
                 pAv.WithListIdValue(filter.Availability);
-                pYear.WithListIdValue(filter.Year);
+                pDuration.WithListIdValue(filter.Duration);
             }
 
             return new DbParameter[] {
                  pApproved.Build(),
                  pDigit.Build(),
                  pAv.Build(),
-                 pYear.Build(),
+                 pDuration.Build(),
                  pLastid.Build(),
                  pLimit.Build(),
                  pTotal.Build()

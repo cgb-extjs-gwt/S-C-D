@@ -22,7 +22,7 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
 
     private avail: MultiSelect;
 
-    private year: MultiSelect;
+    private duration: MultiSelect;
 
     private dictSrv: IDictService;
 
@@ -35,7 +35,8 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
         let multiProps = {
             width: '200px',
             maxHeight: SELECT_MAX_HEIGHT,
-            title: ""
+            title: "",
+            hideCheckbox: true
         };
         let panelProps = {
             width: '300px',
@@ -43,7 +44,9 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
                 direction: 'top',
                 dynamic: true,
                 collapsed: true
-            }
+            },
+            userCls: 'multiselect-filter',
+            margin: "0 0 2px 0"
         };
 
         return (
@@ -67,9 +70,9 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
                         {...panelProps}>
                         <MultiSelect ref={x => this.avail = x} {...multiProps} store={this.dictSrv.getAvailabilityTypes} />
                     </Panel>
-                    <Panel title='Year'
+                    <Panel title='Duration'
                         {...panelProps}>
-                        <MultiSelect ref={x => this.year = x} {...multiProps} store={this.dictSrv.getYears} />
+                        <MultiSelect ref={x => this.duration = x} {...multiProps} store={this.dictSrv.getDurationTypes} />
                     </Panel>
 
                 </Container>
@@ -86,7 +89,7 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
         return {
             digit: this.digit.getSelectedKeysOrNull(),
             availability: this.avail.getSelectedKeysOrNull(),
-            year: this.year.getSelectedKeysOrNull()
+            duration: this.duration.getSelectedKeysOrNull()
         }
     }
 

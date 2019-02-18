@@ -2,12 +2,12 @@ import { NamedId, SelectList } from "../../Common/States/CommonStates";
 import { BundleDetailGroup } from "../../QualityGate/States/QualityGateResult";
 
 
-export interface EditItem extends NamedId {
+export interface EditItem extends NamedId<number> {
     value: number
     valueCount: number
 }
 
-export interface CheckItem extends NamedId {
+export interface CheckItem extends NamedId<number> {
     isChecked: boolean
 }
 
@@ -15,21 +15,21 @@ export interface Filter {
     filter: CheckItem[]
 }
 
-export interface Region extends NamedId {
+export interface Region extends NamedId<number> {
     currency?: NamedId
-}
-
-export interface CostElementState extends Filter {
-    costElementId: string
-    inputLevels: SelectList<InputLevelState>
-    region: SelectList<Region>
-    isDataLoaded: boolean
-    referenceValues: NamedId<number>[]
 }
 
 export interface InputLevelState extends Filter {
     inputLevelId: string
     isFilterLoaded: boolean
+}
+
+export interface CostElementState extends Filter {
+    costElementId: string
+    inputLevels: SelectList<InputLevelState>
+    region: SelectList<Region, number>
+    isDataLoaded: boolean
+    referenceValues: NamedId<number>[]
 }
 
 export interface CostBlockEditState {

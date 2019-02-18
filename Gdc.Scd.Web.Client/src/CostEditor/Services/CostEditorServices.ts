@@ -11,7 +11,7 @@ export const COST_EDITOR_CONTROLLER_NAME = 'CostEditor';
 export const getCostElementData = (context: Context) => get<CostElementData>(COST_EDITOR_CONTROLLER_NAME, 'GetCostElementData', context);
 
 export const getLevelInputFilterItems = (context: Context) => 
-    get<NamedId[]>(COST_EDITOR_CONTROLLER_NAME, 'GetInputLevelFilterItems', context);  
+    get<NamedId<number>[]>(COST_EDITOR_CONTROLLER_NAME, 'GetInputLevelFilterItems', context);  
 
 export const buildGetEditItemsUrl = (context: Context) => 
     buildMvcUrl(COST_EDITOR_CONTROLLER_NAME, 'GetEditItems', context);
@@ -19,5 +19,5 @@ export const buildGetEditItemsUrl = (context: Context) =>
 export const saveEditItems = (editItems: EditItem[], context: Context, approvalOption: ApprovalOption) =>
     post<any, QualityGateResult>(COST_EDITOR_CONTROLLER_NAME, 'UpdateValues', editItems, { ...context, ...approvalOption });
 
-export const buildGetHistoryUrl = (context: Context, editItemId: string) => 
+export const buildGetHistoryUrl = (context: Context, editItemId: number) => 
     buildMvcUrl(COST_EDITOR_CONTROLLER_NAME, 'GetHistory', { ...context, editItemId });

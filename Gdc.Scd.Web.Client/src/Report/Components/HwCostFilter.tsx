@@ -9,6 +9,8 @@ import { IDictService } from "../../Dict/Services/IDictService";
 import { MultiSelect } from "../../Dict/Components/MultiSelect";
 import { MultiSelectWg } from "../../Dict/Components/MultiSelectWg";
 import { MultiSelectProActive } from "../../Dict/Components/MultiSelectProActive";
+import { CountryField } from "../../Dict/Components/CountryField";
+import { UserCountryField } from "../../Dict/Components/UserCountryField";
 
 Ext.require('Ext.panel.Collapser');
 
@@ -22,7 +24,7 @@ export interface FilterPanelProps extends PanelProps {
 
 export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
-    private cnt: MultiSelect;
+    private cnt: CountryField;
 
     private wg: MultiSelect;
 
@@ -57,7 +59,8 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         let multiProps = {
             width: '200px',
             maxHeight: SELECT_MAX_HEIGHT,
-            title: ""
+            title: "",
+            hideCheckbox: true
         };
         let panelProps = {
             width: '300px',
@@ -65,14 +68,16 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                 direction: 'top',
                 dynamic: true,
                 collapsed: true
-            }
+            },
+            userCls: 'multiselect-filter',
+            margin: "0 0 2px 0"
         };
 
         if (this.props.checkAccess) {
-            countryField = <MultiSelect ref={x => this.cnt = x} {...multiProps} selectable='single' store={this.dictSrv.getUserCountryNames} onselect={this.onCountryChange}/>
+            countryField = <UserCountryField ref={x => this.cnt = x} margin="5px 5px 15px 15px" label="Country:" cache={false} onChange={this.onCountryChange} />;
         }
         else {
-            countryField = <MultiSelect ref={x => this.cnt = x} {...multiProps} selectable='single' store={this.dictSrv.getMasterCountriesNames} onselect={this.onCountryChange}/>;
+            countryField = <CountryField ref={x => this.cnt = x} margin="5px 5px 15px 15px" label="Country:" cache={false} onChange={this.onCountryChange} />;
         }
      
         return (
@@ -87,10 +92,8 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                         clearable: 'true'
                     }}
                 >
-                    <Panel title='Country'
-                        {...panelProps}>
-                        {countryField}
-                    </Panel>
+                    {countryField}
+
                     <Panel title='Asset(WG)'
                         {...panelProps}>
                         <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getStandardWg} />
@@ -136,7 +139,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
     public getModel(): HwCostFilterModel {
         return {
-            country: this.cnt.getSelectedKeysOrNull(),
+            country: [this.cnt.getSelected()],
             wg: this.wg.getSelectedKeysOrNull(),
             availability: this.av.getSelectedKeysOrNull(),
             duration: this.dur.getSelectedKeysOrNull(),
@@ -148,8 +151,8 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         }
     }
 
-    public getCountry(): any {
-        return this.cnt.getSelected()[0];
+    public getCountry(): Country {
+        return this.cnt.getSelectedModel();
     }
 
     private init() {
@@ -160,7 +163,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         this.onDownload = this.onDownload.bind(this);
     }
 
-    private onCountryChange(field, records) {
+    private onCountryChange() {
         this.setState({ valid: !!this.cnt.getSelected() });
     }
 

@@ -50,7 +50,7 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
         const props = this.props;
 
         let isEnabledHistoryButton = false;
-        let editItem: string = null;
+        let editItem: number = null;
 
         if (this.state.selectedItems.length == 1) {
             isEnabledHistoryButton = true;

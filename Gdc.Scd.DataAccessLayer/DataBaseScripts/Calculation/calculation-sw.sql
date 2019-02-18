@@ -543,18 +543,18 @@ BEGIN
     SELECT @total = COUNT(m.id)
 
         FROM SoftwareSolution.SwSpMaintenance m 
-        JOIN Dependencies.Duration_Availability yav on yav.Id = m.DurationAvailability
+        JOIN Dependencies.Duration_Availability dav on dav.Id = m.DurationAvailability
 
 		WHERE (@isEmptyDigit = 1 or m.SwDigit in (select id from @digit))
-			AND (@isEmptyAV = 1 or yav.AvailabilityId in (select id from @av))
-			AND (@isEmptyYear = 1 or yav.YearId in (select id from @year))
+			AND (@isEmptyAV = 1 or dav.AvailabilityId in (select id from @av))
+			AND (@isEmptyYear = 1 or dav.YearId in (select id from @year))
 
     select  m.rownum
           , m.Id
           , d.Name as SwDigit
           , sog.Name as Sog
           , av.Name as Availability 
-          , y.Name as Year
+          , dr.Name as Duration
           , m.[1stLevelSupportCosts]
           , m.[2ndLevelSupportCosts]
           , m.InstalledBaseCountry
@@ -569,7 +569,7 @@ BEGIN
     join InputAtoms.SwDigit d on d.Id = m.SwDigit
     join InputAtoms.Sog sog on sog.Id = m.Sog
     join Dependencies.Availability av on av.Id = m.Availability
-    join Dependencies.Year y on y.Id = m.Year
+    join Dependencies.Duration dr on dr.Id = m.Year
 
     order by m.SwDigit, m.Availability, m.Year
 

@@ -272,7 +272,7 @@
       <Elements>
         <Element Name="InstalledBaseHighAvailability" Caption="Installed base high availability" InputOption="Manually">
           <InputLevels>
-            <InputLevel>Pla</InputLevel>
+            <InputLevel Hide="True">Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
           <CostEditor>
