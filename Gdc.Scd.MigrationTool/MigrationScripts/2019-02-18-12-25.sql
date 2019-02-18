@@ -1,0 +1,21 @@
+USE [Scd_2]
+GO
+
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (113,'/02/sites/p/ServiceCostDatabase/CGER/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CGER')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (80,'/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (144,'/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (97,'/02/sites/p/ServiceCostDatabase/UKandI/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/UKandI')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (121,'/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (142,'/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (120,'/teams/cor/SCD/USA/CD_CS_CalculationTool','https://partners.ts.fujitsu.com/teams/cor/SCD/USA')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (13,'/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (41,'/02/sites/p/ServiceCostDatabase/CNEE/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CNEE')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (158,'/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (112,'/02/sites/p/ServiceCostDatabase/CGER/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CGER')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (115,'/02/sites/p/ServiceCostDatabase/CGER/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CGER')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (135,'/02/sites/p/ServiceCostDatabase/CMEA/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CMEA')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (12,'/02/sites/p/ServiceCostDatabase/CNEE/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CNEE')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (101,'/02/sites/p/ServiceCostDatabase/CNOE/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CNOE')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (82,'/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (118,'/teams/cor/SCD/Latin%20America/CD_CS_CalculationTool','https://partners.ts.fujitsu.com/teams/cor/SCD/Latin%20America')
+INSERT INTO [Report].[CdCsConfiguration] ([CountryId],[FileFolderUrl], [FileWebUrl]) VALUES (156,'/02/sites/p/ServiceCostDatabase/CMEA/CD_CS_CalculationTool','http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CMEA')
