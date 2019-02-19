@@ -81,6 +81,9 @@ namespace Gdc.Scd.Core.Meta.Impl
 
             domainEnitiesMeta.LocalPortfolio = this.BuildLocalPortfolioMeta(domainEnitiesMeta);
 
+            var countryMeta = domainEnitiesMeta.GetCountryEntityMeta();
+            domainEnitiesMeta.ExchangeRate = new ExchangeRateEntityMeta(countryMeta);
+
             return domainEnitiesMeta;
         }
 
