@@ -130,28 +130,28 @@ RETURNS @tbl TABLE (
 AS
 begin
     declare @cntTable dbo.ListId;
-    if @cnt is not null insert into @cntTable(id) SELECT id FROM Portfolio.IntToListID(@cnt);
+    if @cnt is not null insert into @cntTable(id) values(@cnt);
 
     declare @wgTable dbo.ListId;
-    if @wg is not null insert into @wgTable(id) SELECT id FROM Portfolio.IntToListID(@wg);
+    if @wg is not null insert into @wgTable(id) values(@wg);
 
     declare @avTable dbo.ListId;
-    if @av is not null insert into @avTable(id) SELECT id FROM Portfolio.IntToListID(@av);
+    if @av is not null insert into @avTable(id) values(@av);
 
     declare @durTable dbo.ListId;
-    if @dur is not null insert into @durTable(id) SELECT id FROM Portfolio.IntToListID(@dur);
+    if @dur is not null insert into @durTable(id) values(@dur);
 
     declare @rtimeTable dbo.ListId;
-    if @reactiontime is not null insert into @rtimeTable(id) SELECT id FROM Portfolio.IntToListID(@reactiontime);
+    if @reactiontime is not null insert into @rtimeTable(id) values(@reactiontime);
 
     declare @rtypeTable dbo.ListId;
-    if @reactiontype is not null insert into @rtypeTable(id) SELECT id FROM Portfolio.IntToListID(@reactiontype);
+    if @reactiontype is not null insert into @rtypeTable(id) values(@reactiontype);
 
     declare @locTable dbo.ListId;
-    if @loc is not null insert into @locTable(id) SELECT id FROM Portfolio.IntToListID(@loc);
+    if @loc is not null insert into @locTable(id) values(@loc);
 
     declare @proTable dbo.ListId;
-    if @pro is not null insert into @proTable(id) SELECT id FROM Portfolio.IntToListID(@pro);
+    if @pro is not null insert into @proTable(id) values(@pro);
 
     insert into @tbl
     select 

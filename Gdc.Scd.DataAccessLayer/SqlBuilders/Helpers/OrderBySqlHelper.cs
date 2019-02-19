@@ -6,7 +6,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class OrderBySqlHelper : SqlHelper, IOrderBySqlHelper<UnionSqlHelper>, IQueryInfoSqlHelper
+    public class OrderBySqlHelper : UnionSqlHelper, IOrderBySqlHelper<UnionSqlHelper>, IQueryInfoSqlHelper
     {
         public OrderBySqlHelper(ISqlBuilder sqlBuilder)
             : base(sqlBuilder)
@@ -39,46 +39,34 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public SqlHelper ByQueryInfo(QueryInfo queryInfo)
         {
-            SqlHelper result = this;
+            SqlHelper query;
 
-            if (queryInfo != null)
-            {
-                var orderByQuery = this.OrderBy(queryInfo.Sort.Direction, new ColumnInfo(queryInfo.Sort.Property));
-                result = queryInfo.Skip.HasValue || queryInfo.Take.HasValue
-                    ? orderByQuery.OffsetFetch(queryInfo.Skip ?? 0, queryInfo.Take)
-                    : orderByQuery;
-            }
-
-            return result;
-        }
-
-        public SqlHelper WithRownumPaging(QueryInfo queryInfo)
-        {
             if (queryInfo == null)
             {
-                return this;
+                query = this;
             }
-
-            if (queryInfo.Skip.HasValue || queryInfo.Take.HasValue)
+            else if (queryInfo.Skip.HasValue || queryInfo.Take.HasValue)
             {
-                int skip = queryInfo.Skip ?? 0;
-                int take = queryInfo.Take ?? 0;
+                const string InnerTableAlias = "t";
+                const string RowNumberAlias = "RowNumber";
 
-                var sb = new System.Text.StringBuilder();
+                var skip = queryInfo.Skip ?? 0;
+                var take = queryInfo.Take ?? 0;
 
-                var field = queryInfo.Sort.Property;
-                var dir = queryInfo.Sort.Direction;
-
-                sb.Append(@"select * from (select t.*, ROW_NUMBER() OVER (order by [").Append(field).Append("] ").Append(dir).Append(") AS rownum from (")
-                    .Append(ToSql())
-                    .Append(")t)T1 where rownum between ").Append(skip).Append(" and ").Append(take + skip);
-
-                return new SqlHelper(new RawSqlBuilder(sb.ToString(), ToSqlBuilder().GetChildrenBuilders()));
+                query
+                    = Sql.Select()
+                         .FromQuery(
+                             Sql.Select(new ColumnInfo(null, InnerTableAlias), SqlFunctions.RowNumber(queryInfo.Sort, RowNumberAlias))
+                                .FromQuery(this, InnerTableAlias),
+                             "t2")
+                         .Where(SqlOperators.Between(RowNumberAlias, skip, skip + take));
             }
             else
             {
-                return OrderBy(queryInfo.Sort.Direction, new ColumnInfo(queryInfo.Sort.Property));
+                query = this.OrderBy(queryInfo.Sort.Direction, new ColumnInfo(queryInfo.Sort.Property));
             }
+
+            return query;
         }
     }
 }

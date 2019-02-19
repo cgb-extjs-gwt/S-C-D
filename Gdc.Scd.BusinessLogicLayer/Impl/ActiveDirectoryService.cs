@@ -127,14 +127,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 foreach (SearchResult foundForestUser in foundForestUsers)
                 {
                     var userEntry = foundForestUser.GetDirectoryEntry();
-                    foundUsers.Add(
-                        new User
-                        {
-                            Email = Convert.ToString(userEntry.Properties["mail"].Value),
-                            Name = Convert.ToString(userEntry.Properties["displayName"].Value),
-                            Login = GetLoginFromSearchResult(foundForestUser),
-                        }
-                    );
+                    var login = GetLoginFromSearchResult(foundForestUser);
+                    if (!string.IsNullOrEmpty(login))
+                    {
+                        foundUsers.Add(
+                            new User
+                            {
+                                Email = Convert.ToString(userEntry.Properties["mail"].Value),
+                                Name = Convert.ToString(userEntry.Properties["cn"].Value),
+                                Login = login
+                            }
+                        );
+                    }
                 }
             }
 
@@ -157,12 +161,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         }
         private string GetLoginFromSearchResult(SearchResult result)
         {
-            var propertyValues = result.Properties["objectsid"];
-            var objectsid = (byte[])propertyValues[0];
-            var sid = new SecurityIdentifier(objectsid, 0);
+            try
+            {
+                var propertyValues = result.Properties["objectsid"];
+                var objectsid = (byte[]) propertyValues[0];
+                var sid = new SecurityIdentifier(objectsid, 0);
 
-            var account = sid.Translate(typeof(NTAccount));
-            return account.ToString();
+                var account = sid.Translate(typeof(NTAccount));
+                return account.ToString();
+            }
+            catch (Exception ex)
+            {
+                return string.Empty;
+            }
         }
     }
 }
