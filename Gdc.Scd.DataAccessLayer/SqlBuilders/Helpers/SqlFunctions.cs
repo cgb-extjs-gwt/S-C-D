@@ -1,4 +1,5 @@
 ﻿using System;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
@@ -57,6 +58,25 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             {
                 Query = query,
                 Type = type
+            };
+        }
+
+        public static QueryColumnInfo RowNumber(SortInfo sortInfo, string alias = null)
+        {
+            return new QueryColumnInfo
+            {
+                Alias = alias,
+                Query = new RowNumberColumnSqlBuilder
+                {
+                    OrderByInfos = new[]
+                    {
+                        new OrderByInfo
+                        {
+                            Direction = sortInfo.Direction,
+                            SqlBuilder = new ColumnSqlBuilder(sortInfo.Property)
+                        }
+                    }
+                }
             };
         }
 

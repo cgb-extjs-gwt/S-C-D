@@ -9,14 +9,15 @@ import { WgService } from "../../Dict/Services/WgService";
 import { Country } from "../Model/Country";
 import { CountryGroupService } from "./CountryGroupService";
 import { CountryManagementService } from "./CountryManagementService";
+import { CurrencyService } from "./CurrencyService";
 import { IDictService } from "./IDictService";
 import { PlaService } from "./PlaService";
 import { ProActiveService } from "./ProActiveService";
 import { RoleService } from "./RoleService";
 import { SogService } from "./SogService";
+import { SwDigitService } from "./SwDigitService";
 import { UserCountryService } from "./UserCountryService";
 import { YearService } from "./YearService";
-import { SwDigitService } from "./SwDigitService";
 
 export class DictService implements IDictService {
     public getCountries(): Promise<NamedId<string>[]> {
@@ -61,6 +62,10 @@ export class DictService implements IDictService {
 
     public getCountryQualityGroup(): Promise<NamedId<string>[]> {
         return new CountryManagementService().getQualityGroups();
+    }
+
+    public getCurrencies(): Promise<NamedId<string>[]> {
+        return new CurrencyService().getAll();
     }
 
     public getWG(): Promise<NamedId<string>[]> {

@@ -22,6 +22,8 @@ export interface IDictService {
 
     getCountryQualityGroup(): Promise<NamedId[]>;
 
+    getCurrencies(): Promise<NamedId[]>;
+
     getWG(): Promise<NamedId[]>;
 
     getWgWithMultivendor(): Promise<NamedId[]>;

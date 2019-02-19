@@ -3,7 +3,7 @@ using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class SelectFromSqlHelper : SqlHelper, IFromSqlHelper<SelectJoinSqlHelper>
+    public class SelectFromSqlHelper : UnionSqlHelper, IFromSqlHelper<SelectJoinSqlHelper>
     {
         private readonly FromSqlHepler fromSqlHelper;
 

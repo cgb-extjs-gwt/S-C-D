@@ -32,7 +32,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
                 stringBuilder.Append(".");
             }
 
-            stringBuilder.Append(this.GetSqlName(this.Name));
+            var columnName = this.Name == null ? "*" : this.GetSqlName(this.Name);
+
+            stringBuilder.Append(columnName);
 
             return stringBuilder.ToString();
         }
