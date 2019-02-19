@@ -6,9 +6,11 @@ export interface ReportLoadFrameProps {
     filter: any;
 }
 
-export class ReportLoadFrame extends React.Component<ReportLoadFrameProps, any>{
+export class ReportLoader extends React.Component<ReportLoadFrameProps, any>{
 
     private token: string;
+
+    private frm: HTMLElement;
 
     constructor(props: ReportLoadFrameProps) {
         super(props);
@@ -16,11 +18,10 @@ export class ReportLoadFrame extends React.Component<ReportLoadFrameProps, any>{
     }
 
     public render() {
-        return <iframe src="about:blank" id={this.token} name={this.token}></iframe>;
+        return <iframe ref={x => this.frm = x} src="about:blank" id={this.token} name={this.token}></iframe>;
     }
 
     public componentDidMount() {
-        var me = this as any;
 
         var form = document.createElement("form");
         form.setAttribute("target", this.token);
@@ -30,7 +31,7 @@ export class ReportLoadFrame extends React.Component<ReportLoadFrameProps, any>{
         this.addFormData(form, 'report', this.props.report);
         this.addFormData(form, 'filter', JSON.stringify(this.props.filter))
 
-        me.getDOMNode().appendChild(form);
+        this.frm.appendChild(form);
         form.submit();
     }
 

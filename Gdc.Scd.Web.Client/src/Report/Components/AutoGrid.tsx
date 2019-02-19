@@ -98,10 +98,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
 
     private onDownload() {
         let filter = this.filter.getModel() || {};
-        filter._dc = new Date().getTime();
-
-        let url = Ext.urlAppend(this.props.downloadUrl, Ext.urlEncode(filter, true));
-        //AlertHelper.autoload(url);
+        AlertHelper.autoload(this.props.downloadUrl, '', filter);
     }
 
     private onSearch(filter: any) {
