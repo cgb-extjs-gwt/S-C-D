@@ -350,8 +350,23 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private BaseColumnInfo[] BuildCountryGroupAverageColumns(CostElementContext historyContext)
         {
+            var countryMeta = this.domainEnitiesMeta.GetCountryEntityMeta();
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
+            var countryField = costBlockMeta.GetFieldByReferenceMeta(countryMeta);
+            var currencyMeta = (NamedEntityMeta)countryMeta.CurrencyField.ReferenceMeta;
+            var exchangeRateMeta = this.domainEnitiesMeta.ExchangeRate;
             var approvedCostElement = costBlockMeta.GetApprovedCostElement(historyContext.CostElementId);
+
+            var costElementColumn = new ColumnInfo(approvedCostElement.Name, costBlockMeta.Name);
+            var exchangeRateColumn = new ColumnInfo(exchangeRateMeta.Value.Name, exchangeRateMeta.Name);
+            var countryGroupAverageColumn = new QueryColumnInfo
+            {
+                Alias = CountryGroupAverageColumn,
+                Query = new AverageSqlBuilder
+                {
+                    Query = SqlOperators.Devide(costElementColumn, exchangeRateColumn).ToSqlBuilder()
+                }
+            };
 
             return new BaseColumnInfo[]
             {
@@ -360,12 +375,20 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 {
                     Alias = CountryGroupAverageColumn,
                     Query =
-                        Sql.Select(SqlFunctions.Average(approvedCostElement.Name, costBlockMeta.Name, CountryGroupAverageColumn))
+                        Sql.Select(countryGroupAverageColumn)
                            .From(costBlockMeta)
-                           .Join(costBlockMeta, MetaConstants.CountryInputLevelName)
-                           .Where(SqlOperators.Equals(
-                               new ColumnInfo(this.qualityGateCountryGroupColumnName, CostElementValuesTable),
-                               new ColumnInfo(this.qualityGateCountryGroupColumnName, MetaConstants.CountryInputLevelName)))
+                           .Join(costBlockMeta, countryField.Name)
+                           .Join(countryMeta, countryMeta.CurrencyField.Name)
+                           .Join(
+                                this.domainEnitiesMeta.ExchangeRate, 
+                                SqlOperators.Equals(
+                                    new ColumnInfo(currencyMeta.IdField.Name, currencyMeta.Name), 
+                                    new ColumnInfo(exchangeRateMeta.CurrencyField.Name, exchangeRateMeta.Name)))
+                           .Where(
+                                SqlOperators.Equals(
+                                   new ColumnInfo(this.qualityGateCountryGroupColumnName, CostElementValuesTable),
+                                   new ColumnInfo(this.qualityGateCountryGroupColumnName, countryMeta.Name))
+                                            .And(CostBlockQueryHelper.BuildNotDeletedCondition(costBlockMeta)))
                            .ToSqlBuilder()
                 }
             };
