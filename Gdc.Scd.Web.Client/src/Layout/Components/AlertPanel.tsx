@@ -3,6 +3,7 @@ import * as React from "react";
 import { AlertHelper } from "../../Common/Helpers/AlertHelper";
 import { RemoteNotify } from "../../Webworker/RemoteNotify";
 import { AlertAction, APP_ALERT_ERROR, APP_ALERT_INFO, APP_ALERT_LINK, APP_ALERT_REPORT, APP_ALERT_SUCCESS, APP_ALERT_WARNING, LinkAction, ReportAction } from "../Actions/AlertActions";
+import { ReportLoadFrame } from "./ReportLoadFrame";
 
 export class AlertPanel extends React.Component<ContainerProps, any> {
 
@@ -63,7 +64,7 @@ export class AlertPanel extends React.Component<ContainerProps, any> {
     }
 
     private createFrame(model: ReportAction, index: number): JSX.Element {
-        return <iframe key={index} src={model.url}></iframe>;
+        return <ReportLoadFrame key={index} url={model.url} report={model.report} filter={model.filter} />
     }
 
     private textAlert(css: string, caption: string, text: string, index: number): JSX.Element {
@@ -130,3 +131,4 @@ export class AlertPanel extends React.Component<ContainerProps, any> {
         this.setState({ items: array });
     }
 }
+

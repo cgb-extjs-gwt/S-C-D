@@ -4,8 +4,11 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Web.Server.Impl;
+using Newtonsoft.Json.Linq;
 using Ninject;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Hosting;
@@ -40,10 +43,18 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         //TODO: realize user/country user access level validation
-        [HttpGet]
-        public Task<HttpResponseMessage> ExportByName([FromUri]string report)
+        [HttpPost]
+        public Task<HttpResponseMessage> ExportByName([FromBody]ReportFormData data)
         {
-            return service.Excel(report, GetFilter()).ContinueWith(x => this.ExcelContent(x.Result.data, x.Result.fileName));
+            if (data.IsValid())
+            {
+                return service.Excel(data.Report, data.AsFilterCollection())
+                              .ContinueWith(x => this.ExcelContent(x.Result.data, x.Result.fileName));
+            }
+            else
+            {
+                return this.NotFoundContentAsync();
+            }
         }
 
         [HttpGet]
@@ -107,7 +118,8 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         private ReportFilterCollection GetFilter()
         {
-            return new ReportFilterCollection(Request.GetQueryNameValuePairs());
+            throw new System.NotImplementedException();
+            //return new ReportFilterCollection(Request.GetQueryNameValuePairs());
         }
 
         private static bool IsRangeValid(int start, int limit)
@@ -118,6 +130,56 @@ namespace Gdc.Scd.Web.Server.Controllers
         public static string DownloadLink(string key)
         {
             return string.Concat("/api/report/load?key=", key);
+        }
+
+        public class ReportFormData
+        {
+            public string Report { get; set; }
+
+            public string Filter { get; set; }
+
+            public ReportFilterCollection AsFilterCollection()
+            {
+                IList<KeyValuePair<string, object>> pairs = new List<KeyValuePair<string, object>>();
+
+                var jo = JObject.Parse(Filter);
+
+                foreach (var o in jo)
+                {
+                    object val = null;
+
+                    var token = o.Value;
+
+                    if (token.Type == JTokenType.Array)
+                    {
+                        val = token.ToObject<long[]>();
+                    }
+                    if (token.Type == JTokenType.Integer)
+                    {
+                        val = token.ToObject<long>();
+                    }
+                    if (token.Type == JTokenType.Float)
+                    {
+                        val = token.ToObject<double>();
+                    }
+                    if (token.Type == JTokenType.String)
+                    {
+                        val = token.ToObject<string>();
+                    }
+
+                    if (val != null)
+                    {
+                        pairs.Add(new KeyValuePair<string, object>(o.Key, val));
+                    }
+                }
+
+                return new ReportFilterCollection(pairs);
+            }
+
+            public bool IsValid()
+            {
+                return !string.IsNullOrEmpty(Report);
+            }
         }
     }
 }
