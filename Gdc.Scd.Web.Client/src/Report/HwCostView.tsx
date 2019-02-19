@@ -1,6 +1,5 @@
-﻿import { Button, Column, Container, Grid, NumberColumn, Panel, Toolbar } from "@extjs/ext-react";
+﻿import { Button, Column, Container, Grid, NumberColumn, Panel, Toolbar, CheckColumn } from "@extjs/ext-react";
 import * as React from "react";
-import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
@@ -16,6 +15,7 @@ import { ExportService } from "./Services/ExportService";
 
 const localMoneyRenderer = localMoneyRendererFactory('Currency');
 const euroMoneyRenderer = localToEuroMoneyRendererFactory('ExchangeRate');
+const SELECTED_FIELD = 'selected';
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
@@ -26,7 +26,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     private store = Ext.create('Ext.data.Store', {
 
         fields: [
-            'Id', 'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail',
+            'Id', SELECTED_FIELD, 'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail',
             {
                 name: 'DealerPriceCalc',
                 calculate: function (d) {
@@ -77,9 +77,14 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             paramsAsJson: true
         },
         listeners: {
-            update: () => {
+            update: (store, record, operation, modifiedFieldNames, details) => {
                 const changed = this.store.getUpdatedRecords().length;
-                this.toggleToolbar(changed == 0);
+                if (modifiedFieldNames && modifiedFieldNames.length > 0 && modifiedFieldNames[0] == SELECTED_FIELD) {
+                    this.onCheckChange();
+                }
+                else {
+                    this.toggleToolbar(changed == 0);
+                }
             }
         }
     });
@@ -147,8 +152,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Dependencies"
                         dataIndex=""
                         cls="calc-cost-result-green"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                        defaults={{ align: 'center', minWidth: 50, flex: 1, cls: "x-text-el-wrap" }}>
 
+                        <CheckColumn dataIndex={SELECTED_FIELD} sortable={false} flex="0.2" hidden={!this.approved()}/>
                         <Column text="Country" dataIndex="Country" />
                         <Column text="WG(Asset)" dataIndex="Wg" />
                         <Column text="Availability" dataIndex="Availability" />
@@ -227,7 +233,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         this.releaseCosts = this.releaseCosts.bind(this);
 
         this.store.on('beforeload', this.onBeforeLoad, this);
-        this.store.on('datachanged', this.ondDataChanged, this);
     }
 
     private toggleToolbar(disable: boolean) {
@@ -303,9 +308,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         let filter = this.filter.getModel() as any;
         filter.approved = this.props.approved;
         operation.setParams(filter);
-    }
 
-    private ondDataChanged(s, operation) {
         const srv = new UserCountryService();
         let cntId = 0;
         if (this.state && this.state.selectedCountry) {
@@ -340,8 +343,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 rows: true,
                 columns: false,
                 drag: true,
-                extensible: 'y',
-                checkbox: true
+                extensible: 'y'
             };
         }
 
@@ -402,6 +404,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private getSelectedRows(): string[] {
-        return ExtDataviewHelper.getGridSelected(this.grid, 'Id');
+        return this.store.getData().items.filter(record => record.data[SELECTED_FIELD] == true).map(record => record.data.Id)
+    }
+
+    private onCheckChange = () => {
+        this.grid.select(this.store.getData().items.filter(record => record.data[SELECTED_FIELD] == true));
     }
 }

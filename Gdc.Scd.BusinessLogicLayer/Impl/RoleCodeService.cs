@@ -75,6 +75,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             foreach(var roleCode in roleCodes)
             {
+                if (roleCode.Id == 0) roleCode.CreatedDateTime = DateTime.Now;
                 roleCode.ModifiedDateTime = DateTime.Now;
             }
             roleService.Save(roleCodes);
