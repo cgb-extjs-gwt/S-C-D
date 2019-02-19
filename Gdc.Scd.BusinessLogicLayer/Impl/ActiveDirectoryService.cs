@@ -131,7 +131,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                         new User
                         {
                             Email = Convert.ToString(userEntry.Properties["mail"].Value),
-                            Name = Convert.ToString(userEntry.Properties["cn"].Value),
+                            Name = Convert.ToString(userEntry.Properties["displayName"].Value),
                             Login = GetLoginFromSearchResult(foundForestUser),
                         }
                     );
