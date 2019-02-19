@@ -159,6 +159,21 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<MultiplicationSqlBuilder>(operands);
         }
 
+        public static ConditionHelper Devide(ISqlBuilder leftOperand, ISqlBuilder rightOperand)
+        {
+            return CreateConditionHelper<DivisionSqlBuilder>(leftOperand, rightOperand);
+        }
+
+        public static ConditionHelper Devide(string columnName, object value = null, string tableName = null)
+        {
+            return CreateConditionHelper<DivisionSqlBuilder>(columnName, value, tableName);
+        }
+
+        public static ConditionHelper Devide(ColumnInfo leftColumn, ColumnInfo rightColumn)
+        {
+            return CreateConditionHelper<DivisionSqlBuilder>(leftColumn, rightColumn);
+        }
+
         public static ConditionHelper IsNull(ISqlBuilder operand)
         {
             var isNull = new IsNullSqlBuilder
