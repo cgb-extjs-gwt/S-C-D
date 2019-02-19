@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Gdc.Scd.DataAccessLayer.Entities;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
+﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
@@ -21,55 +17,20 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
         }
 
-        public string ToSql()
-        {
-            return this.sqlBuilder.Build(new SqlBuilderContext());
-        }
-
         public ISqlBuilder ToSqlBuilder()
         {
             return this.sqlBuilder;
         }
 
-        public IEnumerable<CommandParameterInfo> GetParameters()
+        public QueryData ToQueryData()
         {
-            var paramDictionary = new Dictionary<string, CommandParameterInfo>();
+            var context = new SqlBuilderContext();
 
-            foreach (var param in this.GetParameters(this.sqlBuilder))
+            return new QueryData
             {
-                if (paramDictionary.TryGetValue(param.Name, out var paramDict))
-                {
-                    if (!object.Equals(param.Value, paramDict.Value))
-                    {
-                        throw new Exception("There are two parameters that have the same name, but different values.");
-                    }
-                }
-                else
-                {
-                    paramDictionary.Add(param.Name, param);
-                }
-            }
-
-            return paramDictionary.Values;
-        }
-
-        private IEnumerable<CommandParameterInfo> GetParameters(ISqlBuilder sqlBuilder)
-        {
-            var paramBuilder = sqlBuilder as ParameterSqlBuilder;
-            if (paramBuilder == null)
-            {
-                foreach (var childBuilder in sqlBuilder.GetChildrenBuilders())
-                {
-                    foreach (var paramInfo in this.GetParameters(childBuilder))
-                    {
-                        yield return paramInfo;
-                    }
-                }
-            }
-            else
-            {
-                yield return paramBuilder.ParamInfo;
-            }
+                Sql = this.sqlBuilder.Build(context),
+                Parameters = context.GetParameters()
+            };
         }
     }
 }

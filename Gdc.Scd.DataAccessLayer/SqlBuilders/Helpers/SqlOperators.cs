@@ -14,9 +14,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<EqualsSqlBuilder>(leftOperand, rightOperand);
         }
 
-        public static ConditionHelper Equals(string columnName, string paramName, object value = null, string tableName = null)
+        public static ConditionHelper Equals(string columnName, object value = null, string tableName = null)
         {
-            return CreateConditionHelper<EqualsSqlBuilder>(columnName, paramName, value, tableName);
+            return CreateConditionHelper<EqualsSqlBuilder>(columnName, value, tableName);
         }
 
         public static ConditionHelper Equals(ColumnInfo leftColumn, ColumnInfo rightColumn)
@@ -29,9 +29,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<NotEqualsSqlBuilder>(leftOperand, rightOperand);
         }
 
-        public static ConditionHelper NotEquals(string columnName, string paramName, object value = null, string tableName = null)
+        public static ConditionHelper NotEquals(string columnName, object value = null, string tableName = null)
         {
-            return CreateConditionHelper<NotEqualsSqlBuilder>(columnName, paramName, value, tableName);
+            return CreateConditionHelper<NotEqualsSqlBuilder>(columnName, value, tableName);
         }
 
         public static ConditionHelper NotEquals(ColumnInfo leftColumn, ColumnInfo rightColumn)
@@ -44,9 +44,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<GreaterSqlBuilder>(leftOperand, rightOperand);
         }
 
-        public static ConditionHelper Greater(string columnName, string paramName, object value = null, string tableName = null)
+        public static ConditionHelper Greater(string columnName, object value = null, string tableName = null)
         {
-            return CreateConditionHelper<GreaterSqlBuilder>(columnName, paramName, value, tableName);
+            return CreateConditionHelper<GreaterSqlBuilder>(columnName, value, tableName);
         }
 
         public static ConditionHelper Greater(ColumnInfo leftColumn, ColumnInfo rightColumn)
@@ -59,9 +59,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<GreaterOrEqualSqlBuilder>(leftOperand, rightOperand);
         }
 
-        public static ConditionHelper GreaterOrEqual(string columnName, string paramName, object value = null, string tableName = null)
+        public static ConditionHelper GreaterOrEqual(string columnName, object value = null, string tableName = null)
         {
-            return CreateConditionHelper<GreaterOrEqualSqlBuilder>(columnName, paramName, value, tableName);
+            return CreateConditionHelper<GreaterOrEqualSqlBuilder>(columnName, value, tableName);
         }
 
         public static ConditionHelper GreaterOrEqual(ColumnInfo leftColumn, ColumnInfo rightColumn)
@@ -74,9 +74,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<LessSqlBuilder>(leftOperand, rightOperand);
         }
 
-        public static ConditionHelper Less(string columnName, string paramName, object value = null, string tableName = null)
+        public static ConditionHelper Less(string columnName, object value = null, string tableName = null)
         {
-            return CreateConditionHelper<LessSqlBuilder>(columnName, paramName, value, tableName);
+            return CreateConditionHelper<LessSqlBuilder>(columnName, value, tableName);
         }
 
         public static ConditionHelper Less(ColumnInfo leftColumn, ColumnInfo rightColumn)
@@ -89,9 +89,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<LessOrEqualSqlBuilder>(leftOperand, rightOperand);
         }
 
-        public static ConditionHelper LessOrEqual(string columnName, string paramName, object value = null, string tableName = null)
+        public static ConditionHelper LessOrEqual(string columnName, object value = null, string tableName = null)
         {
-            return CreateConditionHelper<LessOrEqualSqlBuilder>(columnName, paramName, value, tableName);
+            return CreateConditionHelper<LessOrEqualSqlBuilder>(columnName, value, tableName);
         }
 
         public static ConditionHelper LessOrEqual(ColumnInfo leftColumn, ColumnInfo rightColumn)
@@ -104,9 +104,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<AdditionSqlBuilder>(leftOperand, rightOperand);
         }
 
-        public static ConditionHelper Add(string columnName, string paramName, object value = null, string tableName = null)
+        public static ConditionHelper Add(string columnName, object value = null, string tableName = null)
         {
-            return CreateConditionHelper<AdditionSqlBuilder>(columnName, paramName, value, tableName);
+            return CreateConditionHelper<AdditionSqlBuilder>(columnName, value, tableName);
         }
 
         public static ConditionHelper Add(ColumnInfo leftColumn, ColumnInfo rightColumn)
@@ -124,9 +124,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<SubtractionSqlBuilder>(leftOperand, rightOperand);
         }
 
-        public static ConditionHelper Subtract(string columnName, string paramName, object value = null, string tableName = null)
+        public static ConditionHelper Subtract(string columnName, object value = null, string tableName = null)
         {
-            return CreateConditionHelper<SubtractionSqlBuilder>(columnName, paramName, value, tableName);
+            return CreateConditionHelper<SubtractionSqlBuilder>(columnName, value, tableName);
         }
 
         public static ConditionHelper Subtract(params ISqlBuilder[] operands)
@@ -144,9 +144,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<MultiplicationSqlBuilder>(leftOperand, rightOperand);
         }
 
-        public static ConditionHelper Multiply(string columnName, string paramName, object value = null, string tableName = null)
+        public static ConditionHelper Multiply(string columnName, object value = null, string tableName = null)
         {
-            return CreateConditionHelper<MultiplicationSqlBuilder>(columnName, paramName, value, tableName);
+            return CreateConditionHelper<MultiplicationSqlBuilder>(columnName, value, tableName);
         }
 
         public static ConditionHelper Multiply(ColumnInfo leftColumn, ColumnInfo rightColumn)
@@ -157,6 +157,21 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         public static ConditionHelper Multiply(params ISqlBuilder[] operands)
         {
             return CreateConditionHelper<MultiplicationSqlBuilder>(operands);
+        }
+
+        public static ConditionHelper Devide(ISqlBuilder leftOperand, ISqlBuilder rightOperand)
+        {
+            return CreateConditionHelper<DivisionSqlBuilder>(leftOperand, rightOperand);
+        }
+
+        public static ConditionHelper Devide(string columnName, object value = null, string tableName = null)
+        {
+            return CreateConditionHelper<DivisionSqlBuilder>(columnName, value, tableName);
+        }
+
+        public static ConditionHelper Devide(ColumnInfo leftColumn, ColumnInfo rightColumn)
+        {
+            return CreateConditionHelper<DivisionSqlBuilder>(leftColumn, rightColumn);
         }
 
         public static ConditionHelper IsNull(ISqlBuilder operand)
@@ -216,6 +231,26 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return In(column, valuesQuery.ToSqlBuilder(), table);
         }
 
+        public static ConditionHelper Between(ISqlBuilder column, ISqlBuilder begin, ISqlBuilder end, bool isNot = false)
+        {
+            return new ConditionHelper(new BetweenSqlBuilder
+            {
+                Column = column,
+                Begin = begin,
+                End = end,
+                IsNot = isNot
+            });
+        }
+
+        public static ConditionHelper Between(string column, int begin, int end, bool isNot = false, string table = null)
+        {
+            var columnSqlBuilder = new ColumnSqlBuilder(column, table);
+            var beginSqlBuilder = new RawSqlBuilder(begin.ToString());
+            var endSqlBuilder = new RawSqlBuilder(end.ToString());
+
+            return Between(columnSqlBuilder, beginSqlBuilder, endSqlBuilder, isNot);
+        }
+
         public static T BinaryOperator<T>(ISqlBuilder leftOperand, ISqlBuilder rightOperand)
             where T : BinaryOperatorSqlBuilder, new()
         {
@@ -266,14 +301,14 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return new ConditionHelper(result);
         }
 
-        private static ConditionHelper CreateConditionHelper<T>(string columnName, string paramName, object value, string tableName)
+        private static ConditionHelper CreateConditionHelper<T>(string columnName, object value, string tableName)
             where T : BinaryOperatorSqlBuilder, new()
         {
             var binOperator = BinaryOperator<T>(
                 new ColumnSqlBuilder { Name = columnName, Table = tableName },
                 new ParameterSqlBuilder
                 {
-                    ParamInfo = new CommandParameterInfo { Name = paramName, Value = value }
+                    ParamInfo = new CommandParameterInfo(value)
                 });
 
             var result = new ConditionHelper(binOperator);

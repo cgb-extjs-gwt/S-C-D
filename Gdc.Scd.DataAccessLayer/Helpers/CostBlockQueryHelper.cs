@@ -15,8 +15,7 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
         public static ConditionHelper BuildFilterConditionn(
             CostBlockEntityMeta meta, 
             IDictionary<string, IEnumerable<object>> filter = null, 
-            string tableName = null, 
-            string paramPrefix = null)
+            string tableName = null)
         {
             ConditionHelper result;
 
@@ -24,7 +23,7 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
 
             if (filter != null && filter.Count > 0)
             {
-                result = ConditionHelper.AndStatic(filter, tableName, paramPrefix).And(notDeletedCondition);
+                result = ConditionHelper.AndStatic(filter, tableName).And(notDeletedCondition);
             }
             else
             {
@@ -38,10 +37,9 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             this IWhereSqlHelper<T> query, 
             CostBlockEntityMeta meta, 
             IDictionary<string, IEnumerable<object>> filter, 
-            string tableName = null, 
-            string paramPrefix = null)
+            string tableName = null)
         {
-            return query.Where(BuildFilterConditionn(meta, filter, tableName, paramPrefix));
+            return query.Where(BuildFilterConditionn(meta, filter, tableName));
         }
 
         public static T WhereNotDeleted<T>(this IWhereSqlHelper<T> query, CostBlockEntityMeta meta, string tableName = null)

@@ -264,12 +264,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                 if (costBlockInfo is DependencyItemCostBlockQueryInfo dependencyItemQueryInfo)
                 {
-                    var parameterName = $"{dependencyItemQueryInfo.DependecyField.Name}_{dependencyItemQueryInfo.DependencyItemId}";
-                    var parameter = new CommandParameterInfo(parameterName, dependencyItemQueryInfo.DependencyItemId);
-
                     filter = new Dictionary<string, IEnumerable<object>>
                     {
-                        [dependencyItemQueryInfo.DependecyField.Name] = new object[] { parameter }
+                        [dependencyItemQueryInfo.DependecyField.Name] = new object[] { dependencyItemQueryInfo.DependencyItemId }
                     };
                 }
 
