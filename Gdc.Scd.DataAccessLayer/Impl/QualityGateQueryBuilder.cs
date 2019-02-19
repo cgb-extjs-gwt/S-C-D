@@ -30,11 +30,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private const string CountryGroupCheckColumn = "CountryGroupCheck";
 
-        private const string CountryGroupCoeffParam = "сountryGroupCoeff";
-
         private const string PeriodCheckColumn = "PeriodCheck";
-
-        private const string PeriodCoeffParam = "periodCoeff";
 
         private const string CountryGroupAverageTable = "CountryGroupAverageTable";
 
@@ -290,8 +286,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 OldValueColumn,
                 NewValueColumn,
                 PeriodCheckColumn,
-                qualityGate.PeriodCoeff,
-                PeriodCoeffParam);
+                qualityGate.PeriodCoeff);
 
             var checkColumns = new List<QueryColumnInfo> { periodCheckColumn };
 
@@ -302,8 +297,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         CountryGroupAvgColumn,
                         NewValueColumn,
                         CountryGroupCheckColumn,
-                        qualityGate.CountryGroupCoeff,
-                        CountryGroupCoeffParam);
+                        qualityGate.CountryGroupCoeff);
 
                 checkColumns.Add(countryGroupCheckColumn);
             }
@@ -386,7 +380,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     Alias = idColumnAlias,
                     Query = new ParameterSqlBuilder
                     {
-                        ParamInfo = new CommandParameterInfo($"id_{index}", editItem.Id)
+                        ParamInfo = new CommandParameterInfo(editItem.Id)
                     }
                 },
                 Value = new QueryColumnInfo
@@ -394,7 +388,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     Alias = NewValueColumn,
                     Query = new ParameterSqlBuilder
                     {
-                        ParamInfo = new CommandParameterInfo($"value_{index}", editItem.Value)
+                        ParamInfo = new CommandParameterInfo(editItem.Value)
                     }
                 }
             });
@@ -497,8 +491,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
            string oldValueColumnName,
            string newValueColumnName,
            string alias,
-           double coeff,
-           string coeffParamName)
+           double coeff)
         {
             var oldValueColumn = new ColumnInfo(oldValueColumnName, table);
             var newValueColumn = new ColumnInfo(newValueColumnName, table);
@@ -510,7 +503,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 },
                 new AbsSqlBuilder
                 {
-                    Query = SqlOperators.Multiply(oldValueColumnName, coeffParamName, coeff, table).ToSqlBuilder()
+                    Query = SqlOperators.Multiply(oldValueColumnName, coeff, table).ToSqlBuilder()
                 });
 
             return new QueryColumnInfo

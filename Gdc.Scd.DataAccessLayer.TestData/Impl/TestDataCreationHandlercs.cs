@@ -580,15 +580,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private ISqlBuilder BuildSelectIdByNameQuery(string table, string name)
         {
-            var paramName = name.Replace(" ", string.Empty);
-
             return
                 new BracketsSqlBuilder
                 {
                     Query =
                         Sql.Select(IdFieldMeta.DefaultId)
                            .From(table, MetaConstants.DependencySchema)
-                           .Where(SqlOperators.Equals(MetaConstants.NameFieldKey, paramName, name))
+                           .Where(SqlOperators.Equals(MetaConstants.NameFieldKey, name))
                            .ToSqlBuilder()
                 };
         }

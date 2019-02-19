@@ -159,11 +159,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                         valueColumn.Name,
                         new ParameterSqlBuilder
                         {
-                            ParamInfo = new CommandParameterInfo
-                            {
-                                Name = valueColumn.ParameterName ?? valueColumn.Name,
-                                Value = valueColumn.Value
-                            }
+                            ParamInfo = new CommandParameterInfo(valueColumn.Value)
                         });
                 }
 
