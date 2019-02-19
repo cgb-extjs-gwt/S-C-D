@@ -42,7 +42,8 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
         let multiProps = {
             width: '200px',
             maxHeight: SELECT_MAX_HEIGHT,
-            title: ""
+            title: "",
+            hideCheckbox: true
         };
         let panelProps = {
             width: '300px',

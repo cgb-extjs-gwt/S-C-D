@@ -43,5 +43,11 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
         {
             return roleCodeService.GetAllActive();
         }
+
+        [HttpPost]
+        public override void SaveAll([FromBody]IEnumerable<RoleCode> items)
+        {
+            this.roleCodeService.Save(items);
+        }
     }
 }

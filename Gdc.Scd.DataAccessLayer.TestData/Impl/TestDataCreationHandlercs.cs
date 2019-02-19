@@ -1728,11 +1728,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
 
             var roleCodes = new RoleCode[] {
-                new RoleCode { Name = "SEFS05", Deactivated = false },
-                new RoleCode { Name = "SEFS06", Deactivated = false },
-                new RoleCode { Name = "SEFS04", Deactivated = false },
-                new RoleCode { Name = "SEIE07", Deactivated = false },
-                new RoleCode { Name = "SEIE08", Deactivated = false }
+                new RoleCode { Name = "SEFS05" },
+                new RoleCode { Name = "SEFS06" },
+                new RoleCode { Name = "SEFS04" },
+                new RoleCode { Name = "SEIE07" },
+                new RoleCode { Name = "SEIE08" }
             };
 
             var repository = this.repositorySet.GetRepository<RoleCode>();
@@ -2690,23 +2690,20 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateCdCsConfiguration()
         {
-            var russiaConfig = new CdCsConfiguration()
-            {
-                CountryId = 41,
-                FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
-                FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Russia"
-            };
-            var germanyConfig = new CdCsConfiguration()
-            {
-                CountryId = 113,
-                FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
-                FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Germany"
-            };
-
             this.repositorySet.GetRepository<CdCsConfiguration>().Save(new List<CdCsConfiguration>()
             {
-                russiaConfig,
-                germanyConfig
+                new CdCsConfiguration()
+                {
+                    CountryId = 41,
+                    FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
+                    FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Russia"
+                },
+                new CdCsConfiguration()
+                {
+                    CountryId = 113,
+                    FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
+                    FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Germany"
+                }
             });
             this.repositorySet.Sync();
         }

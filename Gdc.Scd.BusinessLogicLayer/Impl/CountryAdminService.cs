@@ -4,7 +4,6 @@ using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,11 +15,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<Country> _countryRepo;
 
-        public CountryAdminService(IRepositorySet repositorySet,
-            IRepository<Country> countryRepo)
+        private readonly IRepository<Currency> _currencyRepo;
+
+        public CountryAdminService(
+                IRepositorySet repositorySet,
+                IRepository<Country> countryRepo,
+                IRepository<Currency> currencyRepo
+            )
         {
             _repositorySet = repositorySet;
             _countryRepo = countryRepo;
+            _currencyRepo = currencyRepo;
         }
 
         public List<CountryDto> GetAll(int pageNumber, int limit, out int totalCount, AdminCountryFilterDto filter = null)
@@ -65,16 +70,26 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var countryDict = countries.ToDictionary(c => c.CountryId);
             var keys = countryDict.Select(d => d.Key).ToList();
             var countriesToUpdate = _countryRepo.GetAll().Where(c => keys.Contains(c.Id));
+            var currencies = SelectCurrencies(countries);
+
             foreach (var country in countriesToUpdate)
             {
-                country.CanOverrideTransferCostAndPrice = countryDict[country.Id].CanOverrideTransferCostAndPrice;
-                country.CanStoreListAndDealerPrices = countryDict[country.Id].CanStoreListAndDealerPrices;
-                country.QualityGateGroup = String.IsNullOrEmpty(countryDict[country.Id].QualityGroup?.Trim()) ? null :
-                                                                countryDict[country.Id].QualityGroup.Trim();
+                var dto = countryDict[country.Id];
+                //
+                country.CanOverrideTransferCostAndPrice = dto.CanOverrideTransferCostAndPrice;
+                country.CanStoreListAndDealerPrices = dto.CanStoreListAndDealerPrices;
+                country.QualityGateGroup = string.IsNullOrEmpty(dto.QualityGroup?.Trim()) ? null : dto.QualityGroup.Trim();
+                country.CurrencyId = currencies[dto.Currency].Id;
             }
 
             _countryRepo.Save(countriesToUpdate);
             _repositorySet.Sync();
+        }
+
+        private Dictionary<string, Currency> SelectCurrencies(IEnumerable<CountryDto> countries)
+        {
+            var keys = countries.Select(x => x.Currency);
+            return _currencyRepo.GetAll().Where(c => keys.Contains(c.Name)).ToDictionary(x => x.Name);
         }
     }
 }

@@ -24,12 +24,12 @@ namespace Gdc.Scd.Export.CdCs.Procedures
         {
             string sql;
 
-            sql = SelectTopQuery(func, parameters);
+            sql = SelectQuery(func, parameters);
 
             return _repo.ExecuteAsTable(sql, parameters);
         }
 
-        private string SelectTopQuery(string func, DbParameter[] parameters, int top = 1)
+        private string SelectQuery(string func, DbParameter[] parameters)
         {
             return new SqlStringBuilder()
                    .Append("SELECT * FROM ").AppendFunc(func, parameters)
@@ -54,7 +54,7 @@ namespace Gdc.Scd.Export.CdCs.Procedures
             return builder.Build();
         }
 
-        public double CheckDoubleField(DataRow row, string fieldName)
+        public static double CheckDoubleField(DataRow row, string fieldName)
         {
             if (row != null && row.Field<double?>(fieldName) != null)
             {
