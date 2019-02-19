@@ -18,15 +18,8 @@ CREATE FUNCTION Report.HwCalcResult
 RETURNS TABLE 
 AS
 RETURN (
-    with CurrencyCte as (
-        select   case when @local = 1 then cur.Name else 'EUR' end as Currency
-               , case when @local = 1 then er.Value else 1     end as Exchange
-        from [References].Currency cur
-        join [References].ExchangeRate er on er.CurrencyId = cur.Id
-        where cur.Id = (select CurrencyId from InputAtoms.Country where id  in (select id from @country))
-    )
     select    Country
-            , case when @local = 1 then cur.Name else 'EUR' end as Currency
+            , case when @local = 1 then c.Currency else 'EUR' end as Currency
 
             , Wg
             , Availability
@@ -68,9 +61,9 @@ RETURN (
                                                            
             , ChangeUserName + '[' + ChangeUserEmail + ']' as ChangeUser
 
-    from Hardware.GetCosts(@approved, @country, @wg, @availability, @duration, @reactiontime, @reactiontype, @servicelocation, @proactive, -1, -1)
-	join [References].Currency cur on cur.Id in (select CurrencyId from InputAtoms.Country where id in (select id from @country))
-	join [References].ExchangeRate er on er.CurrencyId = cur.Id
+    from Hardware.GetCosts(@approved, @country, @wg, @availability, @duration, @reactiontime, @reactiontype, @servicelocation, @proactive, -1, -1) costs
+    join InputAtoms.CountryView c on c.Name = costs.Country
+    join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 )
 
 GO
@@ -158,41 +151,33 @@ delete from Report.ReportFilter where ReportId = @reportId;
 declare @filterTypeId bigint = 0
 
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 3, 'approved', 'Approved');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select Id from Report.ReportFilterType where Name = 'boolean'), 'approved', 'Approved');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 3, 'local', 'Local currency');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select Id from Report.ReportFilterType where Name = 'boolean'), 'local', 'Local currency');
 
 set @index = @index + 1;
-set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'country' and MultiSelect=1)
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'country', 'Country');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select Id from Report.ReportFilterType where Name = 'country' and MultiSelect=1), 'country', 'Country');
 
 set @index = @index + 1;
-set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'wg' and MultiSelect=1)
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'wg', 'Asset(WG)');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select Id from Report.ReportFilterType where Name = 'wg' and MultiSelect=1), 'wg', 'Asset(WG)');
 
 set @index = @index + 1;
-set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'availability' and MultiSelect=1)
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'availability', 'Availability');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select Id from Report.ReportFilterType where Name = 'availability' and MultiSelect=1), 'availability', 'Availability');
 
 set @index = @index + 1;
-set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'duration' and MultiSelect=1)
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'duration', 'Duration');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select Id from Report.ReportFilterType where Name = 'duration' and MultiSelect=1), 'duration', 'Duration');
 
 set @index = @index + 1;
-set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'reactiontime' and MultiSelect=1)
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'reactiontime', 'Reaction time');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select Id from Report.ReportFilterType where Name = 'reactiontime' and MultiSelect=1), 'reactiontime', 'Reaction time');
 
 set @index = @index + 1;
-set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'reactiontype' and MultiSelect=1)
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'reactiontype', 'Reaction type');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select Id from Report.ReportFilterType where Name = 'reactiontype' and MultiSelect=1), 'reactiontype', 'Reaction type');
 
 set @index = @index + 1;
-set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'servicelocation' and MultiSelect=1)
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'servicelocation', 'Service location');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select Id from Report.ReportFilterType where Name = 'servicelocation' and MultiSelect=1), 'servicelocation', 'Service location');
 
 set @index = @index + 1;
-set @filterTypeId = (select Id from Report.ReportFilterType where Name = 'proactive' and MultiSelect=1)
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, @filterTypeId, 'proactive', 'ProActive');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select Id from Report.ReportFilterType where Name = 'proactive' and MultiSelect=1), 'proactive', 'ProActive');
 
 
 

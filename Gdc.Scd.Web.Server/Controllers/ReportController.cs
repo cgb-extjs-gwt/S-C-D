@@ -62,25 +62,15 @@ namespace Gdc.Scd.Web.Server.Controllers
             return service.GetSchema(name);
         }
 
-        [HttpGet]
-        public Task<HttpResponseMessage> View(
-                [FromUri]long id,
-                [FromUri]int start = 0,
-                [FromUri]int limit = 25
-            )
+        [HttpPost]
+        public Task<HttpResponseMessage> View([FromUri]long id, [FromBody]ReportFormData data)
         {
-            if (!IsRangeValid(start, limit))
+            if (!IsRangeValid(data.Start, data.Limit))
             {
                 return null;
             }
-            return service.GetJsonArrayData(id, GetFilter(), start, limit)
+            return service.GetJsonArrayData(id, data.AsFilterCollection(), data.Start, data.Limit)
                           .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
-        }
-
-        private ReportFilterCollection GetFilter()
-        {
-            throw new System.NotImplementedException();
-            //return new ReportFilterCollection(Request.GetQueryNameValuePairs());
         }
 
         private static bool IsRangeValid(int start, int limit)
@@ -88,13 +78,14 @@ namespace Gdc.Scd.Web.Server.Controllers
             return start >= 0 && limit <= 50;
         }
 
-        public static string DownloadLink(string key)
-        {
-            return string.Concat("/api/report/load?key=", key);
-        }
-
         public class ReportFormData
         {
+            public long Id { get; set; }
+
+            public int Start { get; set; }
+
+            public int Limit { get; set; }
+
             public string Report { get; set; }
 
             public string Filter { get; set; }
