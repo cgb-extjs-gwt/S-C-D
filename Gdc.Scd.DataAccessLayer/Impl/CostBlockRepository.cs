@@ -6,7 +6,6 @@ using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
@@ -32,39 +31,32 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public async Task<int> Update(IEnumerable<EditInfo> editInfos)
         {
             var queries = new List<SqlHelper>();
-            var paramIndex = 0;
 
             foreach (var editInfo in editInfos)
             {
-                foreach (var valueInfo in editInfo.ValueInfos)
+                var valueInfos = editInfo.ValueInfos.ToArray();
+
+                foreach (var valueInfo in valueInfos)
                 {
                     var updateColumns = valueInfo.Values.Select(costElementValue => new ValueUpdateColumnInfo(
                         costElementValue.Key,
-                        costElementValue.Value,
-                        $"param_{paramIndex++}"));
-
-                    var filter = valueInfo.CoordinateFilter.ToDictionary(
-                        keyValue => keyValue.Key, 
-                        keyValue => BuildCommandParameters(keyValue).Cast<object>().ToArray() as IEnumerable<object>);
+                        costElementValue.Value));
 
                     var query =
                         Sql.Update(editInfo.Meta, updateColumns.ToArray())
-                           .WhereNotDeleted(editInfo.Meta, filter, editInfo.Meta.Name, $"param_{paramIndex++}");
+                           .WhereNotDeleted(editInfo.Meta, valueInfo.CoordinateFilter.Convert(), editInfo.Meta.Name);
 
                     queries.Add(query);
+                }
+
+                if (valueInfos.Length > 1)
+                {
+                    queries.Insert(0, Sql.DisableTriggers(editInfo.Meta));
+                    queries.Insert(queries.Count - 1, Sql.EnableTriggers(editInfo.Meta));
                 }
             }
 
             return await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
-
-            IEnumerable<CommandParameterInfo> BuildCommandParameters(KeyValuePair<string, long[]> keyValue)
-            {
-                return keyValue.Value.Select(value => new CommandParameterInfo
-                {
-                    Name = $"{keyValue.Key}_{paramIndex++}",
-                    Value = value
-                });
-            }
         }
 
         public async Task<int> UpdateByCoordinatesAsync(CostBlockEntityMeta meta,
@@ -233,12 +225,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return queries.ToArray();
         }
 
-        private string BuildParamName(int index, string columnName, bool oldCoordinates, string prefix = "")
-        {
-            var paramName = oldCoordinates ? $"Old{columnName}{index}" : $"New{columnName}{index}";
-            return $"{prefix}{paramName}";
-        }
-
         private SqlHelper BuildUpdateCostBlockByChangedCoordinatesQuery(
             BaseCostBlockEntityMeta costBlockMeta, 
             UpdateQueryOption updateOptions, 
@@ -252,18 +238,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 var condition = ConditionHelper.And(
                     updateOptions.OldCoordinates.Select(
-                        field => 
-                        {
-                            var paramName = BuildParamName(index, field.Key, true, prefix);
-                            return SqlOperators.Equals(field.Key, paramName, field.Value);
-                        }));
+                        field => SqlOperators.Equals(field.Key, field.Value)));
 
-                var updatedColumns = updateOptions.NewCoordinates
-                                    .Select(field =>
-                                    {
-                                        var paramName = BuildParamName(index, field.Key, false, prefix);
-                                        return new ValueUpdateColumnInfo(field.Key, field.Value, paramName);
-                                    }).ToArray();
+                var updatedColumns = 
+                    updateOptions.NewCoordinates
+                                 .Select(field => new ValueUpdateColumnInfo(field.Key, field.Value))
+                                 .ToArray();
 
                 return Sql.Update(costBlockMeta, updatedColumns).Where(condition);
             }
@@ -351,14 +331,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 case WgEnityMeta wgMeta:
                     if (costBlockMeta.Name != MetaConstants.AvailabilityFeeCostBlock)
                     {
-                        conditions.Add(SqlOperators.Equals(wgMeta.WgTypeField.Name, "wgType", (int)WgType.Por));
+                        conditions.Add(SqlOperators.Equals(wgMeta.WgTypeField.Name, (int)WgType.Por));
                     }
 
-                    conditions.Add(SqlOperators.Equals(wgMeta.IsSoftwareField.Name, "isSoftware", costBlockMeta.Schema == MetaConstants.SoftwareSolutionSchema));
+                    conditions.Add(SqlOperators.Equals(wgMeta.IsSoftwareField.Name, costBlockMeta.Schema == MetaConstants.SoftwareSolutionSchema));
                     break;
 
                 case CountryEntityMeta countryMeta:
-                    conditions.Add(SqlOperators.Equals(countryMeta.IsMasterField.Name, "isMaster", true));
+                    conditions.Add(SqlOperators.Equals(countryMeta.IsMasterField.Name, true));
                     break;
             }
 
@@ -373,5 +353,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             public JoinInfo InnerJoinInfo { get; set; }
         }
+
+        //private class IndexInfo
+        //{
+        //    public int Index { get; set; }
+
+        //    public int MaxIndex { get; set; }
+
+        //    public IndexInfo(int index, int maxIndex)
+        //    {
+        //        this.Index = index;
+        //        this.MaxIndex = maxIndex;
+        //    }
+        //}
     }
 }

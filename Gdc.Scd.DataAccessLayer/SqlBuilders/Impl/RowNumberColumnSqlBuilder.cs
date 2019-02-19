@@ -1,18 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 {
-    public class ParameterSqlBuilder : ISqlBuilder
+    public class RowNumberColumnSqlBuilder : ISqlBuilder
     {
-        public CommandParameterInfo ParamInfo { get; set; }
+        public IEnumerable<OrderByInfo> OrderByInfos { get; set; }
 
         public string Build(SqlBuilderContext context)
         {
-            return context.GetParameterName(this.ParamInfo.Value);
+            var orderBy = new OrderBySqlBuilder
+            {
+                Query = new RawSqlBuilder(string.Empty),
+                OrderByInfos = this.OrderByInfos
+            };
+
+            return $" ROW_NUMBER() OVER ({orderBy.Build(context)})";
         }
 
         public IEnumerable<ISqlBuilder> GetChildrenBuilders()

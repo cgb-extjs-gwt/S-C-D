@@ -180,7 +180,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var whereCondition =
                 SqlOperators.Equals(
                     costBlockMeta.HistoryMeta.CostBlockHistoryField.Name,
-                    "costBlockHistoryId",
                     history.Id,
                     costBlockMeta.HistoryMeta.Name);
 
@@ -188,7 +187,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 whereCondition = whereCondition.And(SqlOperators.Equals(
                     MetaConstants.IdFieldKey,
-                    "historyValueId",
                     historyValueId,
                     costBlockMeta.HistoryMeta.Name));
             }
