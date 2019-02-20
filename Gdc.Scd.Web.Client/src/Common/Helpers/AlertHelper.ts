@@ -8,8 +8,8 @@ export class AlertHelper {
         this.dispatch = dispatch;
     }
 
-    public static autoload(url: string) {
-        this.send(report('Report', 'Your report in process... Please wait while it finish', url));
+    public static autoload(url: string, reportName: string, filter: any) {
+        this.send(report('Report', 'Your report in process... Please wait while it finish', url, reportName, filter));
     }
 
     private static send(msg: AlertAction) {
