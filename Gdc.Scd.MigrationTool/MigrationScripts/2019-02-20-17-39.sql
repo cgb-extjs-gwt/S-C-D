@@ -36,7 +36,7 @@ begin
 
 	insert into @tbl
     select 
-              lic.Description as LicenseDescription
+              dl.Description as LicenseDescription
             , sog.Name as Sog
             , fsp.Name as Fsp
 
@@ -51,14 +51,14 @@ begin
     join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
     join InputAtoms.Sog sog on sog.id = sw.Sog
 	left join (
-			SELECT SwDigitId, MIN(SwLicenseId) AS SwLicense 
+			SELECT SwDigitId, lic.Description, ROW_NUMBER() OVER (PARTITION BY SwDigitId ORDER BY digLic.Id DESC) AS rn
 			FROM InputAtoms.SwDigitLicense digLic
-			GROUP BY SwDigitId) dl
+			JOIN InputAtoms.SwLicense lic ON digLic.SwLicenseId = lic.Id
+			WHERE lic.Description IS NOT NULL) dl
 	ON dl.SwDigitId = dig.Id
-	left join InputAtoms.SwLicense lic ON dl.SwLicense = lic.Id
-    left join Fsp.SwFspCodeTranslation fsp on fsp.AvailabilityId = sw.Availability
-                                          and fsp.DurationId = sw.Year
-                                          and fsp.SogId = sw.Sog
+	left join Fsp.SwFspCodeTranslation fsp on fsp.AvailabilityId = sw.Availability
+										  and fsp.DurationId = sw.Year
+										  and fsp.SogId = sw.Sog
 return
 end
 GO
