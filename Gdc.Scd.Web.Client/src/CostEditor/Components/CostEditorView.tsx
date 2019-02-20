@@ -82,7 +82,7 @@ export class CostEditorView extends React.Component<CostEditorProps> {
                         tabBar={{
                             layout: { pack: 'left' }
                         }}
-                        activeTab={
+                        activeItem={
                             costBlocks.list.findIndex(costBlock => costBlock.id === costBlocks.selectedItemId)
                         }
                         onActiveItemChange={
