@@ -163,7 +163,7 @@ export class ReportListView extends React.Component<any, any> {
                     ]
                 },
                 {
-                    "text": "13. LOCAP Global Support Packs(for all the countries)",
+                    "text": "<a href='#' data-href='/report/Locap-Global-Support'>13. LOCAP Global Support Packs(for all the countries)</a>",
                     "leaf": true
                 },
                 {

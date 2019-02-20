@@ -2,6 +2,7 @@
 
 ('Locap', 'LOCAP reports (for a specific country)', 1,  1, 'Report.Locap'),
 ('Locap-Detailed', 'LOCAP reports detailed', 1,  1, 'Report.LocapDetailed'),
+('Locap-Global-Support', 'Maintenance Service Costs and List Price Output - Global Support Packs', 1,  1, 'Report.LocapGlobalSupport'),
 ('Contract', 'Contract reports', 1,  1, 'Report.Contract'),
 ('ProActive-reports', 'ProActive reports', 1, 0, 'Report.ProActive'),
 
