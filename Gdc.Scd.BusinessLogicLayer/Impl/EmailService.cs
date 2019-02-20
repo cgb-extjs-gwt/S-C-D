@@ -60,13 +60,24 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var costBlock = domainMeta.CostBlocks[history.Context.CostBlockId];
             var costElement = costBlock.CostElements[history.Context.CostElementId];
-            var countryName = await GetCountryNameAsync(costElement.RegionInput.Id, history.Context.RegionInputId.Value);
-            var costBlockInfo = $"</br><b>Cost Block: {costBlock.Name}</br>";
-            var costElementInfo = $"Cost Element: {costElement.Name}</br>";
-            var countryInfo = $"Country: {countryName}</br>";
-            var userInfo = $"User name: {history.ApproveRejectUser.Name}</br>";
-            var dateInfo = $"Date: {history.ApproveRejectDate.Value.Date.ToShortDateString()}</br></b>";
-            return string.Concat(costBlockInfo, costElementInfo, countryInfo, userInfo, dateInfo);
+
+            var infos = new List<string>
+            {
+                $"</br><b>Cost Block: {costBlock.Name}</br>",
+                $"Cost Element: {costElement.Name}</br>",
+            };
+
+            if (history.Context.RegionInputId.HasValue)
+            {
+                var countryName = await GetCountryNameAsync(costElement.RegionInput.Id, history.Context.RegionInputId.Value);
+
+                infos.Add($"Country: {countryName}</br>");
+            }
+
+            infos.Add($"User name: {history.ApproveRejectUser.Name}</br>");
+            infos.Add($"Date: {history.ApproveRejectDate.Value.Date.ToShortDateString()}</br></b>");
+
+            return string.Concat(infos);
         }
         private string GenerateApprovedGreeting(string username)
         {
