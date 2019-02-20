@@ -35,11 +35,15 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
             api: {
                 read: this.props.url
             },
+            actionMethods: {
+                read: 'POST'
+            },
             reader: {
                 type: 'json',
                 rootProperty: 'items',
                 totalProperty: 'total'
-            }
+            },
+            paramsAsJson: true
         }
     });
 
@@ -98,10 +102,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
 
     private onDownload() {
         let filter = this.filter.getModel() || {};
-        filter._dc = new Date().getTime();
-
-        let url = Ext.urlAppend(this.props.downloadUrl, Ext.urlEncode(filter, true));
-        AlertHelper.autoload(url);
+        AlertHelper.autoload(this.props.downloadUrl, '', filter);
     }
 
     private onSearch(filter: any) {
@@ -113,7 +114,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
     }
 
     private onBeforeLoad(s, operation) {
-        let filter = this.filter.getModel();
+        let filter = { 'filter': JSON.stringify(this.filter.getModel()) };
         let params = Ext.apply({}, operation.getParams(), filter);
         operation.setParams(params);
     }

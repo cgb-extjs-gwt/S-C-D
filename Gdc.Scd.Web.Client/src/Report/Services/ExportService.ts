@@ -10,8 +10,8 @@ export class ExportService
         filter.approved = approved ? 1 : 0;
         filter._dc = new Date().getTime();
 
-        let url = buildMvcUrl('report', 'exportbyname', filter);
+        let url = buildMvcUrl('report', 'exportbyname');
 
-        AlertHelper.autoload(url);
+        AlertHelper.autoload(url, report, filter);
     }
 }
