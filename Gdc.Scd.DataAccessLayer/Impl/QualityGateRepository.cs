@@ -32,6 +32,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(historyContext, editItems, costBlockFilter.Convert(), userCountyGroupCheck);
             var mapper = new CostBlockValueHistoryMapper(costBlockMeta, historyContext.CostElementId)
             {
+                OldValue = true,
                 UsePeriodQualityGate = true,
                 UsetCountryGroupQualityGate = userCountyGroupCheck
             };
@@ -45,6 +46,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var query = this.qualityGateQueryBuilder.BuildQualityGateQuery(history, userCountyGroupCheck, costBlockFilter);
             var mapper = new CostBlockValueHistoryMapper(costBlockMeta, history.Context.CostElementId)
             {
+                OldValue = true,
                 UsePeriodQualityGate = true,
                 UsetCountryGroupQualityGate = userCountyGroupCheck
             };
