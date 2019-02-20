@@ -12,5 +12,10 @@ namespace Gdc.Scd.Web.Server
         {
             return JsonConvert.SerializeObject(o, serializerSettings);
         }
+
+        public static T AsObject<T>(this string json)
+        {
+            return JsonConvert.DeserializeObject<T>(json, serializerSettings);
+        }
     }
 }

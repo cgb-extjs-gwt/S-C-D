@@ -27,10 +27,5 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
             long? historyValueId = null,
             IDictionary<string, IEnumerable<object>> costBlockFiter = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>;
-
-        SqlHelper BuildSelectJoinApproveHistoryValueQuery(
-            CostBlockHistory history, 
-            long? historyValueId = null, 
-            IDictionary<string, IEnumerable<object>> costBlockFilter = null);
     }
 }

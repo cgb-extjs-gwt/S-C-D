@@ -1,14 +1,13 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
-using Gdc.Scd.BusinessLogicLayer.Entities.Alert;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Web.Server.Impl;
+using Newtonsoft.Json.Linq;
 using Ninject;
-using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web.Hosting;
 using System.Web.Http;
 
 namespace Gdc.Scd.Web.Server.Controllers
@@ -18,46 +17,30 @@ namespace Gdc.Scd.Web.Server.Controllers
     {
         private readonly IReportService service;
 
-        private readonly INotifyChannel channel;
-
         private readonly IKernel serviceProvider;
 
         public ReportController(
                 IReportService reportService,
-                INotifyChannel channel,
                 IKernel serviceProvider
             )
         {
             this.service = reportService;
-            this.channel = channel;
             this.serviceProvider = serviceProvider;
         }
 
-        [HttpGet]
-        public Task<HttpResponseMessage> Export([FromUri]long id)
+        [HttpPost]
+        public Task<HttpResponseMessage> Export([FromUri]long id, [FromBody]ReportFormData data)
         {
-            return service.Excel(id, GetFilter()).ContinueWith(x => this.ExcelContent(x.Result.data, x.Result.fileName));
+            return service.Excel(id, data.AsFilterCollection())
+                          .ContinueWith(x => this.ExcelContent(x.Result.data, x.Result.fileName));
         }
 
         //TODO: realize user/country user access level validation
-        [HttpGet]
-        public Task<HttpResponseMessage> ExportByName([FromUri]string report)
+        [HttpPost]
+        public Task<HttpResponseMessage> ExportByName([FromBody]ReportFormData data)
         {
-            return service.Excel(report, GetFilter()).ContinueWith(x => this.ExcelContent(x.Result.data, x.Result.fileName));
-        }
-
-        [HttpGet]
-        public IHttpActionResult ExportAsync([FromUri]long id)
-        {
-            HostingEnvironment.QueueBackgroundWorkItem(ct => CreateReportAsync(id));
-            return Ok();
-        }
-
-        [HttpGet]
-        public HttpResponseMessage Load([FromUri]string key)
-        {
-            var res = AppCache.Get(key) as FileStreamDto;
-            return res == null ? this.NotFoundContent() : this.ExcelContent(res.Data, res.FileName);
+            return service.Excel(data.Report, data.AsFilterCollection())
+                            .ContinueWith(x => this.ExcelContent(x.Result.data, x.Result.fileName));
         }
 
         [HttpGet]
@@ -79,35 +62,15 @@ namespace Gdc.Scd.Web.Server.Controllers
             return service.GetSchema(name);
         }
 
-        [HttpGet]
-        public Task<HttpResponseMessage> View(
-                [FromUri]long id,
-                [FromUri]int start = 0,
-                [FromUri]int limit = 25
-            )
+        [HttpPost]
+        public Task<HttpResponseMessage> View([FromUri]long id, [FromBody]ReportFormData data)
         {
-            if (!IsRangeValid(start, limit))
+            if (!IsRangeValid(data.Start, data.Limit))
             {
                 return null;
             }
-            return service.GetJsonArrayData(id, GetFilter(), start, limit)
+            return service.GetJsonArrayData(id, data.AsFilterCollection(), data.Start, data.Limit)
                           .ContinueWith(x => this.JsonContent(x.Result.json, x.Result.total));
-        }
-
-        private async Task CreateReportAsync(long id)
-        {
-            var srv = serviceProvider.Get<IReportService>();
-
-            var report = await srv.Excel(id, GetFilter());
-            var key = Guid.NewGuid().ToString();
-
-            AppCache.Set(key, report);
-            channel.Send(TextAlert.Report("Your report is completed", DownloadLink(key)));
-        }
-
-        private ReportFilterCollection GetFilter()
-        {
-            return new ReportFilterCollection(Request.GetQueryNameValuePairs());
         }
 
         private static bool IsRangeValid(int start, int limit)
@@ -115,9 +78,55 @@ namespace Gdc.Scd.Web.Server.Controllers
             return start >= 0 && limit <= 50;
         }
 
-        public static string DownloadLink(string key)
+        public class ReportFormData
         {
-            return string.Concat("/api/report/load?key=", key);
+            public long Id { get; set; }
+
+            public int Start { get; set; }
+
+            public int Limit { get; set; }
+
+            public string Report { get; set; }
+
+            public string Filter { get; set; }
+
+            public ReportFilterCollection AsFilterCollection()
+            {
+                IList<KeyValuePair<string, object>> pairs = new List<KeyValuePair<string, object>>();
+
+                var jo = JObject.Parse(Filter);
+
+                foreach (var o in jo)
+                {
+                    object val = null;
+
+                    var token = o.Value;
+
+                    if (token.Type == JTokenType.Array)
+                    {
+                        val = token.ToObject<long[]>();
+                    }
+                    if (token.Type == JTokenType.Integer)
+                    {
+                        val = token.ToObject<long>();
+                    }
+                    if (token.Type == JTokenType.Float)
+                    {
+                        val = token.ToObject<double>();
+                    }
+                    if (token.Type == JTokenType.String)
+                    {
+                        val = token.ToObject<string>();
+                    }
+
+                    if (val != null)
+                    {
+                        pairs.Add(new KeyValuePair<string, object>(o.Key, val));
+                    }
+                }
+
+                return new ReportFilterCollection(pairs);
+            }
         }
     }
 }
