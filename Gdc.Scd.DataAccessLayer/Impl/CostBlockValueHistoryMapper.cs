@@ -19,6 +19,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public bool UseHistoryValueId { get; set; }
 
+        public bool OldValue { get; set; }
+
         public bool UsePeriodQualityGate { get; set; }
 
         public bool UsetCountryGroupQualityGate { get; set; }
@@ -50,14 +52,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 Dependencies = new Dictionary<string, NamedId>()
             };
 
-            if (this.UsePeriodQualityGate)
+            if (this.OldValue)
             {
-                item.OldValue = this.GetDouble(reader, index++);
+                item.OldValue = reader.GetValue(index++);
             }
 
             if (this.UsetCountryGroupQualityGate)
             {
-                item.CountryGroupAvgValue = this.GetDouble(reader, index++);
+                item.CountryGroupAvgValue = reader.IsDBNull(index) ? default(double?) : reader.GetDouble(index);
+                index++;
             }
 
             if (this.UseHistoryValueId)
@@ -96,11 +99,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
 
             return item;
-        }
-
-        private double? GetDouble(IDataReader reader, int index)
-        {
-            return reader.IsDBNull(index) ? default(double?) : reader.GetDouble(index);
         }
     }
 }
