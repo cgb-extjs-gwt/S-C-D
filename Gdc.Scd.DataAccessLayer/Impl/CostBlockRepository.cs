@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
@@ -19,9 +20,43 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly IRepositorySet repositorySet;
 
-        public CostBlockRepository(IRepositorySet repositorySet)
+        private readonly DomainEnitiesMeta domainEnitiesMeta;
+
+        public CostBlockRepository(IRepositorySet repositorySet, DomainEnitiesMeta domainEnitiesMeta)
         {
             this.repositorySet = repositorySet;
+            this.domainEnitiesMeta = domainEnitiesMeta;
+        }
+
+        public async Task<int> Update(IEnumerable<EditInfo> editInfos)
+        {
+            var queries = new List<SqlHelper>();
+
+            foreach (var editInfo in editInfos)
+            {
+                var valueInfos = editInfo.ValueInfos.ToArray();
+
+                foreach (var valueInfo in valueInfos)
+                {
+                    var updateColumns = valueInfo.Values.Select(costElementValue => new ValueUpdateColumnInfo(
+                        costElementValue.Key,
+                        costElementValue.Value));
+
+                    var query =
+                        Sql.Update(editInfo.Meta, updateColumns.ToArray())
+                           .WhereNotDeleted(editInfo.Meta, valueInfo.CoordinateFilter.Convert(), editInfo.Meta.Name);
+
+                    queries.Add(query);
+                }
+
+                if (valueInfos.Length > 1)
+                {
+                    queries.Insert(0, Sql.DisableTriggers(editInfo.Meta));
+                    queries.Insert(queries.Count - 1, Sql.EnableTriggers(editInfo.Meta));
+                }
+            }
+
+            return await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
         }
 
         public async Task<int> UpdateByCoordinatesAsync(CostBlockEntityMeta meta,
@@ -39,7 +74,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.repositorySet.ExecuteSql(query);
         }
 
-        private SqlHelper BuildUpdateByCoordinatesQuery(CostBlockEntityMeta meta,
+        private SqlHelper BuildUpdateByCoordinatesQuery(
+            CostBlockEntityMeta meta,
             IEnumerable<UpdateQueryOption> updateOptions = null)
         {
             List<SqlHelper> queries = new List<SqlHelper>();
@@ -174,8 +210,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         /// <param name="costBlockMeta">Cost Block info</param>
         /// <param name="updateOptions">Updated coordinates with old and new values</param>
         /// <returns></returns>
-        private SqlHelper[] BuildAllUpdateCostBlockQueriesByCoordinates(BaseCostBlockEntityMeta costBlockMeta,
-            IEnumerable<UpdateQueryOption> updateOptions, string prefix = "")
+        private SqlHelper[] BuildAllUpdateCostBlockQueriesByCoordinates(
+            BaseCostBlockEntityMeta costBlockMeta,
+            IEnumerable<UpdateQueryOption> updateOptions, 
+            string prefix = "")
         {
             List<SqlHelper> queries = new List<SqlHelper>();
 
@@ -187,14 +225,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return queries.ToArray();
         }
 
-        private string BuildParamName(int index, string columnName, bool oldCoordinates, string prefix = "")
-        {
-            var paramName = oldCoordinates ? $"Old{columnName}{index}" : $"New{columnName}{index}";
-            return $"{prefix}{paramName}";
-        }
-
-        private SqlHelper BuildUpdateCostBlockByChangedCoordinatesQuery(BaseCostBlockEntityMeta costBlockMeta, 
-            UpdateQueryOption updateOptions, int index, string prefix = "")
+        private SqlHelper BuildUpdateCostBlockByChangedCoordinatesQuery(
+            BaseCostBlockEntityMeta costBlockMeta, 
+            UpdateQueryOption updateOptions, 
+            int index, 
+            string prefix = "")
         {
             var costBlockCoordinates = new HashSet<string>(costBlockMeta.CoordinateFields.Select(c => c.Name));
             var changedCoordinates = new HashSet<string>(updateOptions.NewCoordinates.Keys);
@@ -203,18 +238,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 var condition = ConditionHelper.And(
                     updateOptions.OldCoordinates.Select(
-                        field => 
-                        {
-                            var paramName = BuildParamName(index, field.Key, true, prefix);
-                            return SqlOperators.Equals(field.Key, paramName, field.Value);
-                        }));
+                        field => SqlOperators.Equals(field.Key, field.Value)));
 
-                var updatedColumns = updateOptions.NewCoordinates
-                                    .Select(field =>
-                                    {
-                                        var paramName = BuildParamName(index, field.Key, false, prefix);
-                                        return new ValueUpdateColumnInfo(field.Key, field.Value, paramName);
-                                    }).ToArray();
+                var updatedColumns = 
+                    updateOptions.NewCoordinates
+                                 .Select(field => new ValueUpdateColumnInfo(field.Key, field.Value))
+                                 .ToArray();
 
                 return Sql.Update(costBlockMeta, updatedColumns).Where(condition);
             }
@@ -302,14 +331,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 case WgEnityMeta wgMeta:
                     if (costBlockMeta.Name != MetaConstants.AvailabilityFeeCostBlock)
                     {
-                        conditions.Add(SqlOperators.Equals(wgMeta.WgTypeField.Name, "wgType", (int)WgType.Por));
+                        conditions.Add(SqlOperators.Equals(wgMeta.WgTypeField.Name, (int)WgType.Por));
                     }
 
-                    conditions.Add(SqlOperators.Equals(wgMeta.IsSoftwareField.Name, "isSoftware", costBlockMeta.Schema == MetaConstants.SoftwareSolutionSchema));
+                    conditions.Add(SqlOperators.Equals(wgMeta.IsSoftwareField.Name, costBlockMeta.Schema == MetaConstants.SoftwareSolutionSchema));
                     break;
 
                 case CountryEntityMeta countryMeta:
-                    conditions.Add(SqlOperators.Equals(countryMeta.IsMasterField.Name, "isMaster", true));
+                    conditions.Add(SqlOperators.Equals(countryMeta.IsMasterField.Name, true));
                     break;
             }
 
@@ -324,5 +353,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             public JoinInfo InnerJoinInfo { get; set; }
         }
+
+        //private class IndexInfo
+        //{
+        //    public int Index { get; set; }
+
+        //    public int MaxIndex { get; set; }
+
+        //    public IndexInfo(int index, int maxIndex)
+        //    {
+        //        this.Index = index;
+        //        this.MaxIndex = maxIndex;
+        //    }
+        //}
     }
 }

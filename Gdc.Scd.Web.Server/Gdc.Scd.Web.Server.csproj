@@ -226,6 +226,7 @@
     <Compile Include="Controllers\Dict\AvailabilityController.cs" />
     <Compile Include="Controllers\Dict\CountryController.cs" />
     <Compile Include="Controllers\Dict\CountryGroupController.cs" />
+    <Compile Include="Controllers\Dict\CurrencyController.cs" />
     <Compile Include="Controllers\Dict\DurationController.cs" />
     <Compile Include="Controllers\Dict\PlaController.cs" />
     <Compile Include="Controllers\Dict\ProActiveController.cs" />
@@ -234,10 +235,13 @@
     <Compile Include="Controllers\Dict\RegionController.cs" />
     <Compile Include="Controllers\Dict\ServiceLocationController.cs" />
     <Compile Include="Controllers\Dict\SogController.cs" />
+    <Compile Include="Controllers\Dict\SwDigitController.cs" />
     <Compile Include="Controllers\Dict\WgController.cs" />
     <Compile Include="Controllers\Dict\YearController.cs" />
+    <Compile Include="Controllers\HddController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\AppController.cs" />
+    <Compile Include="Controllers\CostBlockController.cs" />
     <Compile Include="Controllers\NotifyController.cs" />
     <Compile Include="Controllers\PortfolioController.cs" />
     <Compile Include="Controllers\ReadonlyDomainController.cs" />
@@ -267,6 +271,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="favicon.ico" />
+    <Content Include="frame.html" />
     <Content Include="Global.asax" />
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -285,6 +290,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Import\" />
     <Folder Include="Views\Shared\" />
     <Folder Include="Views\Test\" />
   </ItemGroup>

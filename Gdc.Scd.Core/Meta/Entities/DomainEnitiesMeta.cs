@@ -12,12 +12,12 @@ namespace Gdc.Scd.Core.Meta.Entities
             get
             {
                 return
-                    
                     this.CostBlocks[fullName] ??
                     this.Dependencies[fullName] ??
                     this.InputLevels[fullName] ??
                     this.OtherMetas[fullName] ??
-                    this.RelatedItemsHistories[fullName];
+                    this.RelatedItemsHistories[fullName] ??
+                    this.AllMetas.FirstOrDefault(meta => meta.FullName == fullName);
             }
         }
 
@@ -29,6 +29,10 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public EntityMeta CostBlockHistory { get; set; }
 
+        public EntityMeta LocalPortfolio { get; set; }
+
+        public ExchangeRateEntityMeta ExchangeRate { get; set; }
+
         public MetaCollection<BaseEntityMeta> OtherMetas { get; } = new MetaCollection<BaseEntityMeta>();
 
         public MetaCollection<RelatedItemsHistoryEntityMeta> RelatedItemsHistories { get; } = new MetaCollection<RelatedItemsHistoryEntityMeta>();
@@ -37,13 +41,33 @@ namespace Gdc.Scd.Core.Meta.Entities
         {
             get
             {
-                return
+                if (this.CostBlockHistory != null)
+                {
+                    yield return this.CostBlockHistory;
+                }
+                
+                if (this.LocalPortfolio != null)
+                {
+                    yield return this.LocalPortfolio;
+                }
+
+                if (this.ExchangeRate != null)
+                {
+                    yield return this.ExchangeRate;
+                }
+
+                var fields =
                     this.CostBlocks.Cast<BaseEntityMeta>()
                                    .Concat(this.CostBlocks.Select(costBlock => costBlock.HistoryMeta))
                                    .Concat(this.RelatedItemsHistories)
                                    .Concat(this.Dependencies)
                                    .Concat(this.InputLevels)
                                    .Concat(this.OtherMetas);
+
+                foreach (var field in fields)
+                {
+                    yield return field;
+                }
             }
         }
 
@@ -54,9 +78,16 @@ namespace Gdc.Scd.Core.Meta.Entities
             return this[fullName];
         }
 
+        public BaseEntityMeta GetEntityMeta(EntityInfo entityInfo)
+        {
+            return this.GetEntityMeta(entityInfo.Name, entityInfo.Schema);
+        }
+
         public NamedEntityMeta GetInputLevel(string name)
         {
-            return (NamedEntityMeta)this.GetEntityMeta(name, MetaConstants.InputLevelSchema);
+            var fullName = BaseEntityMeta.BuildFullName(MetaConstants.CountryInputLevelName, MetaConstants.InputLevelSchema);
+
+            return this.InputLevels[fullName];
         }
 
         public CountryEntityMeta GetCountryEntityMeta()
@@ -68,7 +99,9 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public CostBlockEntityMeta GetCostBlockEntityMeta(ICostBlockIdentifier costBlockIdentifier)
         {
-            return (CostBlockEntityMeta)this.GetEntityMeta(costBlockIdentifier.CostBlockId, costBlockIdentifier.ApplicationId);
+            var fullName = BaseEntityMeta.BuildFullName(costBlockIdentifier.CostBlockId, costBlockIdentifier.ApplicationId);
+
+            return this.CostBlocks[fullName];
         }
     }
 }

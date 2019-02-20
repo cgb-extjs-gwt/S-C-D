@@ -3,22 +3,24 @@ import * as React from "react";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildComponentUrl } from "../Common/Services/Ajax";
-import { CountryField } from "../Dict/Components/CountryField";
+import { UserCountryField } from "../Dict/Components/UserCountryField";
+import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { DictField } from "../Dict/Components/DictField";
 import { DictFactory } from "../Dict/Services/DictFactory";
 import { IDictService } from "../Dict/Services/IDictService";
-import { MultiSelect } from "./Components/MultiSelect";
-import { MultiSelectWg } from "./Components/MultiSelectWg";
+import { MultiSelect } from "../Dict/Components/MultiSelect";
+import { MultiSelectWg } from "../Dict/Components/MultiSelectWg";
 import { PortfolioEditModel } from "./Model/PortfolioEditModel";
 import { IPortfolioService } from "./Services/IPortfolioService";
 import { PortfolioServiceFactory } from "./Services/PortfolioServiceFactory";
-import { MultiSelectProActive } from "./Components/MultiSelectProActive";
+import { MultiSelectProActive } from "../Dict/Components/MultiSelectProActive";
+import { NamedId } from "../Common/States/CommonStates";
 
 const SELECT_MAX_HEIGHT: string = '260px';
 
 export class PortfolioEditView extends React.Component<any, any> {
 
-    private country: DictField;
+    private country: DictField<NamedId>;
 
     private wg: MultiSelect;
 
@@ -45,7 +47,8 @@ export class PortfolioEditView extends React.Component<any, any> {
     private dictSrv: IDictService;
 
     public state = {
-        isPortfolio: true
+        isPortfolio: true,
+        isCountryUser: true
     };
 
     public constructor(props: any) {
@@ -53,11 +56,11 @@ export class PortfolioEditView extends React.Component<any, any> {
         this.init();
     }
 
-    public render() {
+    public render() {      
         return (
             <Container layout="vbox" padding="10px" scrollable="true">
 
-                <CountryField
+                <UserCountryField
                     ref={x => this.country = x}
                     width="250px"
                     label="Country:"
@@ -93,7 +96,7 @@ export class PortfolioEditView extends React.Component<any, any> {
                     </div>
                 </div>
 
-                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio }} margin="15px 0">
+                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio, hidden: this.state.isCountryUser }} margin="15px 0">
                     <CheckBoxField ref={x => this.globPort = x} boxLabel="Fujitsu principal portfolio" />
                     <CheckBoxField ref={x => this.masterPort = x} boxLabel="Master portfolio" />
                     <CheckBoxField ref={x => this.corePort = x} boxLabel="Core portfolio" />
@@ -118,6 +121,9 @@ export class PortfolioEditView extends React.Component<any, any> {
         this.onDeny = this.onDeny.bind(this);
         this.onBack = this.onBack.bind(this);
         this.save = this.save.bind(this);
+
+        const srv = new UserCountryService();
+        srv.isCountryUser().then(x => this.setState({ isCountryUser: x }));
     }
 
     private onCountryChange(combo, newVal, oldVal) {

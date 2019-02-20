@@ -1,3 +1,142 @@
+DROP INDEX [IX_HwFspCodeTranslation_AvailabilityId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_CountryId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_DurationId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_ProactiveSlaId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_ReactionTimeId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_ReactionTypeId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_ServiceLocationId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_WgId] ON [Fsp].[HwFspCodeTranslation]
+GO
+
+ALTER TABLE Hardware.AvailabilityFee DROP COLUMN CostPerKit_Approved;
+go
+ALTER TABLE Hardware.AvailabilityFee DROP COLUMN CostPerKitJapanBuy_Approved;
+go
+ALTER TABLE Hardware.AvailabilityFee DROP COLUMN MaxQty_Approved;
+go
+ALTER TABLE Hardware.AvailabilityFee
+   ADD   CostPerKit_Approved          as (CostPerKit)
+       , CostPerKitJapanBuy_Approved  as (CostPerKitJapanBuy)
+       , MaxQty_Approved              as (MaxQty)
+go
+
+IF OBJECT_ID('Hardware.MaterialCostOowCalc', 'U') IS NOT NULL
+  DROP TABLE Hardware.MaterialCostOowCalc;
+go
+
+CREATE TABLE Hardware.MaterialCostOowCalc (
+    [Country] [bigint] NOT NULL foreign key references InputAtoms.Country(Id),
+    [Wg] [bigint] NOT NULL foreign key references InputAtoms.Wg(Id),
+    [MaterialCostOow] [float] NULL,
+    [MaterialCostOow_Approved] [float] NULL,
+    CONSTRAINT PK_MaterialCostOowCalc PRIMARY KEY NONCLUSTERED (Country, Wg)
+)
+GO
+
+IF OBJECT_ID('Hardware.SpUpdateMaterialCostOowCalc') IS NOT NULL
+  DROP PROCEDURE Hardware.SpUpdateMaterialCostOowCalc;
+go
+
+CREATE PROCEDURE Hardware.SpUpdateMaterialCostOowCalc
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    truncate table Hardware.MaterialCostOowCalc;
+
+    -- Disable all table constraints
+    ALTER TABLE Hardware.MaterialCostOowCalc NOCHECK CONSTRAINT ALL;
+
+    INSERT INTO Hardware.MaterialCostOowCalc(Country, Wg, MaterialCostOow, MaterialCostOow_Approved)
+        select NonEmeiaCountry as Country, Wg, MaterialCostOow, MaterialCostOow_Approved
+        from Hardware.MaterialCostOow
+        where DeactivatedDateTime is null
+
+        union 
+
+        SELECT cr.Id AS Country, Wg, MaterialCostOow, MaterialCostOow_Approved 
+		  FROM [Hardware].[MaterialCostOowEmeia] mc
+		  CROSS JOIN (SELECT c.[Id]
+		  FROM [InputAtoms].[Country] c
+		  INNER JOIN [InputAtoms].[CountryGroup] cg
+		  ON c.CountryGroupId = cg.Id
+		  INNER JOIN [InputAtoms].[Region] r
+		  ON cg.RegionId = r.Id
+		  INNER JOIN [InputAtoms].[ClusterRegion] cr
+		  ON r.ClusterRegionId = cr.Id
+		  WHERE cr.IsEmeia = 1 AND c.IsMaster = 1) AS cr
+		  where DeactivatedDateTime is null
+
+    -- Enable all table constraints
+    ALTER TABLE Hardware.MaterialCostOowCalc CHECK CONSTRAINT ALL;
+
+END
+go
+
+IF OBJECT_ID('Hardware.MaterialCostOowUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.MaterialCostOowUpdated;
+go
+
+CREATE TRIGGER Hardware.MaterialCostOowUpdated
+ON Hardware.MaterialCostOow
+After INSERT, UPDATE
+AS BEGIN
+    exec Hardware.SpUpdateMaterialCostOowCalc;
+END
+go
+
+IF OBJECT_ID('Hardware.MaterialCostOowEmeiaUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.MaterialCostOowEmeiaUpdated;
+go
+
+CREATE TRIGGER Hardware.MaterialCostOowEmeiaUpdated
+ON Hardware.MaterialCostOowEmeia
+After INSERT, UPDATE
+AS BEGIN
+    exec Hardware.SpUpdateMaterialCostOowCalc;
+END
+go
+
+exec Hardware.SpUpdateMaterialCostOowCalc;
+go
+
+ALTER TABLE Fsp.HwFspCodeTranslation 
+    ADD SlaHash  AS checksum (
+                        cast(coalesce(CountryId, 0) as nvarchar(20)) + ',' +
+                        cast(WgId                   as nvarchar(20)) + ',' +
+                        cast(AvailabilityId         as nvarchar(20)) + ',' +
+                        cast(DurationId             as nvarchar(20)) + ',' +
+                        cast(ReactionTimeId         as nvarchar(20)) + ',' +
+                        cast(ReactionTypeId         as nvarchar(20)) + ',' +
+                        cast(ServiceLocationId      as nvarchar(20)) + ',' +
+                        cast(ProactiveSlaId         as nvarchar(20))
+                    );
+GO
+
+CREATE INDEX IX_HwFspCodeTranslation_SlaHash ON Fsp.HwFspCodeTranslation(SlaHash);
+GO
+
+ALTER TABLE Portfolio.LocalPortfolio
+    ADD SlaHash  AS checksum (
+                    cast(CountryId         as nvarchar(20)) + ',' +
+                    cast(WgId              as nvarchar(20)) + ',' +
+                    cast(AvailabilityId    as nvarchar(20)) + ',' +
+                    cast(DurationId        as nvarchar(20)) + ',' +
+                    cast(ReactionTimeId    as nvarchar(20)) + ',' +
+                    cast(ReactionTypeId    as nvarchar(20)) + ',' +
+                    cast(ServiceLocationId as nvarchar(20)) + ',' +
+                    cast(ProactiveSlaId    as nvarchar(20)) 
+                );
+GO
+
 ALTER TABLE Hardware.ManualCost
    DROP COLUMN DealerPrice;
 
@@ -10,19 +149,17 @@ ALTER TABLE Hardware.HddRetention
          HddRet_Approved float
 go
 
+ALTER TABLE Hardware.ServiceSupportCost
+    add   TotalIb                          float
+        , TotalIb_Approved                 float
+        , TotalIbClusterPla                float
+        , TotalIbClusterPla_Approved       float
+        , TotalIbClusterPlaRegion          float
+        , TotalIbClusterPlaRegion_Approved float
+
 CREATE NONCLUSTERED INDEX ix_Hardware_FieldServiceCost
     ON [Hardware].[FieldServiceCost] ([Country],[Wg])
     INCLUDE ([ServiceLocation],[ReactionTimeType],[RepairTime],[TravelTime],[LabourCost],[TravelCost],[PerformanceRate],[TimeAndMaterialShare])
-GO
-
-CREATE NONCLUSTERED INDEX ix_Atom_InstallBase
-    ON [Hardware].[InstallBase] ([Country],[Wg])
-    INCLUDE ([InstalledBaseCountry],[InstalledBaseCountry_Approved],[InstalledBaseCountryPla],[InstalledBaseCountryPla_Approved])
-GO
-
-CREATE NONCLUSTERED INDEX ix_Hardware_AvailabilityFee
-    ON [Hardware].[AvailabilityFee] (Country, Wg)
-    INCLUDE ([InstalledBaseHighAvailability],[CostPerKit],[CostPerKitJapanBuy],[MaxQty],[JapanBuy],[InstalledBaseHighAvailability_Approved],[CostPerKit_Approved],[CostPerKitJapanBuy_Approved],[MaxQty_Approved])
 GO
 
 CREATE NONCLUSTERED INDEX ix_Hardware_LogisticsCosts
@@ -70,10 +207,6 @@ go
 
 IF OBJECT_ID('Hardware.CalcFieldServiceCost') IS NOT NULL
   DROP FUNCTION Hardware.CalcFieldServiceCost;
-go 
-
-IF OBJECT_ID('Hardware.CalcHddRetention') IS NOT NULL
-  DROP FUNCTION Hardware.CalcHddRetention;
 go 
 
 IF OBJECT_ID('Hardware.CalcMaterialCost') IS NOT NULL
@@ -164,6 +297,10 @@ IF OBJECT_ID('Hardware.AddMarkup') IS NOT NULL
   DROP FUNCTION Hardware.AddMarkup;
 go 
 
+IF OBJECT_ID('Hardware.MarkupOrFixValue') IS NOT NULL
+  DROP FUNCTION Hardware.MarkupOrFixValue;
+go 
+
 IF OBJECT_ID('Hardware.CalcAvailabilityFee') IS NOT NULL
   DROP FUNCTION Hardware.CalcAvailabilityFee;
 go 
@@ -209,6 +346,133 @@ CREATE TABLE Hardware.AfrYear(
 )
 GO
 
+IF OBJECT_ID('Hardware.ReinsuranceYear', 'U') IS NOT NULL
+  DROP TABLE Hardware.ReinsuranceYear;
+go
+
+CREATE TABLE [Hardware].[ReinsuranceYear](
+    [Wg] bigint PRIMARY KEY FOREIGN KEY REFERENCES InputAtoms.Wg(Id),
+    [ReinsuranceFlatfee1] [float] NULL,
+    [ReinsuranceFlatfee2] [float] NULL,
+    [ReinsuranceFlatfee3] [float] NULL,
+    [ReinsuranceFlatfee4] [float] NULL,
+    [ReinsuranceFlatfee5] [float] NULL,
+    [ReinsuranceFlatfeeP1] [float] NULL,
+    [ReinsuranceFlatfee1_Approved] [float] NULL,
+    [ReinsuranceFlatfee2_Approved] [float] NULL,
+    [ReinsuranceFlatfee3_Approved] [float] NULL,
+    [ReinsuranceFlatfee4_Approved] [float] NULL,
+    [ReinsuranceFlatfee5_Approved] [float] NULL,
+    [ReinsuranceFlatfeeP1_Approved] [float] NULL,
+    [ReinsuranceUpliftFactor_NBD_9x5] [float] NULL,
+    [ReinsuranceUpliftFactor_4h_9x5] [float] NULL,
+    [ReinsuranceUpliftFactor_4h_24x7] [float] NULL,
+    [ReinsuranceUpliftFactor_NBD_9x5_Approved] [float] NULL,
+    [ReinsuranceUpliftFactor_4h_9x5_Approved] [float] NULL,
+    [ReinsuranceUpliftFactor_4h_24x7_Approved] [float] NULL
+)
+
+GO
+
+IF OBJECT_ID('Hardware.Reinsurance_Updated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.Reinsurance_Updated;
+go
+
+CREATE TRIGGER [Hardware].[Reinsurance_Updated]
+ON [Hardware].[Reinsurance]
+After INSERT, UPDATE
+AS BEGIN
+
+    declare @NBD_9x5 bigint;
+    declare @4h_9x5 bigint;
+    declare @4h_24x7 bigint;
+
+    select @NBD_9x5 = id 
+    from Dependencies.ReactionTime_Avalability
+    where  ReactionTimeId = (select id from Dependencies.ReactionTime where UPPER(Name) = 'NBD')
+       and AvailabilityId = (select id from Dependencies.Availability where UPPER(Name) = '9X5')
+
+    select @4h_9x5 = id 
+    from Dependencies.ReactionTime_Avalability
+    where  ReactionTimeId = (select id from Dependencies.ReactionTime where UPPER(Name) = '4H')
+       and AvailabilityId = (select id from Dependencies.Availability where UPPER(Name) = '9X5')
+
+    select @4h_24x7 = id 
+    from Dependencies.ReactionTime_Avalability
+    where  ReactionTimeId = (select id from Dependencies.ReactionTime where UPPER(Name) = '4H')
+       and AvailabilityId = (select id from Dependencies.Availability where UPPER(Name) = '24X7')
+
+    TRUNCATE TABLE Hardware.ReinsuranceYear;
+
+    -- Disable all table constraints
+    ALTER TABLE Hardware.ReinsuranceYear NOCHECK CONSTRAINT ALL;
+
+    INSERT INTO Hardware.ReinsuranceYear(
+                      Wg
+                
+                    , ReinsuranceFlatfee1                     
+                    , ReinsuranceFlatfee2                     
+                    , ReinsuranceFlatfee3                     
+                    , ReinsuranceFlatfee4                     
+                    , ReinsuranceFlatfee5                     
+                    , ReinsuranceFlatfeeP1                    
+                
+                    , ReinsuranceFlatfee1_Approved            
+                    , ReinsuranceFlatfee2_Approved            
+                    , ReinsuranceFlatfee3_Approved            
+                    , ReinsuranceFlatfee4_Approved            
+                    , ReinsuranceFlatfee5_Approved            
+                    , ReinsuranceFlatfeeP1_Approved           
+                
+                    , ReinsuranceUpliftFactor_NBD_9x5         
+                    , ReinsuranceUpliftFactor_4h_9x5          
+                    , ReinsuranceUpliftFactor_4h_24x7         
+                
+                    , ReinsuranceUpliftFactor_NBD_9x5_Approved
+                    , ReinsuranceUpliftFactor_4h_9x5_Approved 
+                    , ReinsuranceUpliftFactor_4h_24x7_Approved
+                )
+    select   r.Wg
+
+           , max(case when d.IsProlongation = 0 and d.Value = 1  then ReinsuranceFlatfee end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 2  then ReinsuranceFlatfee end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 3  then ReinsuranceFlatfee end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 4  then ReinsuranceFlatfee end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 5  then ReinsuranceFlatfee end) 
+           , max(case when d.IsProlongation = 1 and d.Value = 1  then ReinsuranceFlatfee end) 
+
+           , max(case when d.IsProlongation = 0 and d.Value = 1  then ReinsuranceFlatfee_Approved end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 2  then ReinsuranceFlatfee_Approved end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 3  then ReinsuranceFlatfee_Approved end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 4  then ReinsuranceFlatfee_Approved end) 
+           , max(case when d.IsProlongation = 0 and d.Value = 5  then ReinsuranceFlatfee_Approved end) 
+           , max(case when d.IsProlongation = 1 and d.Value = 1  then ReinsuranceFlatfee_Approved end) 
+
+           , max(case when r.ReactionTimeAvailability = @NBD_9x5 then r.ReinsuranceUpliftFactor end) 
+           , max(case when r.ReactionTimeAvailability = @4h_9x5  then r.ReinsuranceUpliftFactor end) 
+           , max(case when r.ReactionTimeAvailability = @4h_24x7 then r.ReinsuranceUpliftFactor end) 
+
+           , max(case when r.ReactionTimeAvailability = @NBD_9x5 then r.ReinsuranceUpliftFactor_Approved end) 
+           , max(case when r.ReactionTimeAvailability = @4h_9x5  then r.ReinsuranceUpliftFactor_Approved end) 
+           , max(case when r.ReactionTimeAvailability = @4h_24x7 then r.ReinsuranceUpliftFactor_Approved end) 
+
+    from Hardware.Reinsurance r
+    join Dependencies.Duration d on d.Id = r.Duration
+
+    where r.ReactionTimeAvailability in (@NBD_9x5, @4h_9x5, @4h_24x7) 
+      and r.DeactivatedDateTime is null
+    group by r.Wg;
+
+    -- Enable all table constraints
+    ALTER TABLE Hardware.ReinsuranceYear CHECK CONSTRAINT ALL;
+
+END
+GO
+
+update Hardware.Reinsurance set ReinsuranceFlatfee = ReinsuranceFlatfee + 0;
+
+go
+
 IF OBJECT_ID('Hardware.AFR_Updated', 'TR') IS NOT NULL
   DROP TRIGGER Hardware.AFR_Updated;
 go
@@ -248,57 +512,140 @@ IF OBJECT_ID('Fsp.HwStandardWarranty', 'U') IS NOT NULL
 go
 
 CREATE TABLE Fsp.HwStandardWarranty(
+    [Country] [bigint] NOT NULL foreign key references InputAtoms.Country(Id),
     [Wg] [bigint] NOT NULL foreign key references InputAtoms.Wg(Id),
-    [Country] [bigint] NULL foreign key references InputAtoms.Country(Id),
-    [Duration] [bigint] NOT NULL foreign key references Dependencies.Duration(Id)
+    [AvailabilityId] [bigint] NOT NULL foreign key references Dependencies.Availability(Id),
+    [Duration] [bigint] NOT NULL foreign key references Dependencies.Duration(Id),
+    [ReactionTimeId] [bigint] NOT NULL foreign key references Dependencies.ReactionTime(id),
+    [ReactionTypeId] [bigint] NOT NULL foreign key references Dependencies.ReactionType(id),
+    [ServiceLocationId] [bigint] NOT NULL foreign key references Dependencies.ServiceLocation(id),
+    [ProActiveSlaId] [bigint] NOT NULL foreign key references Dependencies.ProActiveSla(id),
+    CONSTRAINT PK_HwStandardWarranty PRIMARY KEY NONCLUSTERED (Country, Wg)
 )
 GO
 
-CREATE NONCLUSTERED INDEX [IX_HwStandardWarranty_Wg] ON Fsp.HwStandardWarranty
-(
-	[Wg] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
-CREATE NONCLUSTERED INDEX [IX_HwStandardWarranty_Country] ON Fsp.HwStandardWarranty
-(
-	[Country] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+CREATE VIEW [InputAtoms].[WgStdView] AS
+    select *
+    from InputAtoms.Wg
+    where Id in (select Wg from Fsp.HwStandardWarranty) and WgType = 1
 GO
 
 IF OBJECT_ID('Fsp.HwFspCodeTranslation_Updated', 'TR') IS NOT NULL
   DROP TRIGGER Fsp.HwFspCodeTranslation_Updated;
 go
 
-CREATE TRIGGER Fsp.HwFspCodeTranslation_Updated
-ON Fsp.HwFspCodeTranslation
+CREATE TRIGGER [Fsp].[HwFspCodeTranslation_Updated]
+ON [Fsp].[HwFspCodeTranslation]
 After INSERT, UPDATE
 AS BEGIN
 
     truncate table Fsp.HwStandardWarranty;
 
-    insert into Fsp.HwStandardWarranty(Wg, Country, Duration)
-        select WgId, CountryId, max(DurationId) as DurationId
+    -- Disable all table constraints
+    ALTER TABLE Fsp.HwStandardWarranty NOCHECK CONSTRAINT ALL;
+
+    WITH StdCte AS (
+
+    --remove duplicates in FSP
+      SELECT fsp.CountryId
+           , fsp.WgId
+           , fsp.AvailabilityId   
+           , fsp.DurationId       
+           , fsp.ReactionTimeId   
+           , fsp.ReactionTypeId   
+           , fsp.ServiceLocationId
+           , fsp.ProactiveSlaId   
+           , row_number() OVER(PARTITION BY fsp.CountryId, fsp.WgId
+                 ORDER BY 
+                     fsp.CountryId
+                   , fsp.WgId
+                   , fsp.AvailabilityId    
+                   , fsp.DurationId        
+                   , fsp.ReactionTimeId    
+                   , fsp.ReactionTypeId    
+                   , fsp.ServiceLocationId 
+                   , fsp.ProactiveSlaId    ) AS rownum
+
         from Fsp.HwFspCodeTranslation fsp
         where fsp.IsStandardWarranty = 1 
-        group by WgId, CountryId, DurationId;
+    )
+    , StdCte2 as (
+        select * from StdCte WHERE rownum = 1
+    )
+    , Fsp as (
+
+        --find FSP for countries
+
+        select    fsp.CountryId
+                , fsp.WgId
+                , fsp.AvailabilityId
+                , fsp.DurationId
+                , fsp.ReactionTimeId
+                , fsp.ReactionTypeId
+                , fsp.ServiceLocationId
+                , fsp.ProactiveSlaId
+        from StdCte2 fsp
+        where CountryId is not null
+    )
+    , Fsp2 as (
+        
+        --create default country FSP
+
+        select    c.Id as CountryId
+                , fsp.WgId
+                , fsp.AvailabilityId
+                , fsp.DurationId
+                , fsp.ReactionTimeId
+                , fsp.ReactionTypeId
+                , fsp.ServiceLocationId
+                , fsp.ProactiveSlaId
+        from StdCte2 fsp, InputAtoms.Country c
+        where fsp.CountryId is null and c.IsMaster = 1
+    )
+    , StdFsp as (
+
+        --get country FSP(if exists), or default country FSP
+
+        select 
+                  coalesce(fsp.CountryId          , fsp2.CountryId        ) as CountryId        
+                , coalesce(fsp.WgId               , fsp2.WgId             ) as WgId             
+                , coalesce(fsp.AvailabilityId     , fsp2.AvailabilityId   ) as AvailabilityId   
+                , coalesce(fsp.DurationId         , fsp2.DurationId       ) as DurationId       
+                , coalesce(fsp.ReactionTimeId     , fsp2.ReactionTimeId   ) as ReactionTimeId   
+                , coalesce(fsp.ReactionTypeId     , fsp2.ReactionTypeId   ) as ReactionTypeId   
+                , coalesce(fsp.ServiceLocationId  , fsp2.ServiceLocationId) as ServiceLocationId
+                , coalesce(fsp.ProactiveSlaId     , fsp2.ProactiveSlaId   ) as ProactiveSlaId   
+        from Fsp2 fsp2
+        left join Fsp fsp on fsp.CountryId = fsp2.CountryId and fsp.WgId = fsp2.WgId
+    )
+    insert into Fsp.HwStandardWarranty(Country, Wg, AvailabilityId, Duration, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProactiveSlaId)
+        select    fsp.CountryId, fsp.WgId, fsp.AvailabilityId, fsp.DurationId, fsp.ReactionTimeId, fsp.ReactionTypeId, fsp.ServiceLocationId, fsp.ProactiveSlaId
+        from StdFsp fsp;
+
+    -- Enable all table constraints
+    ALTER TABLE Fsp.HwStandardWarranty CHECK CONSTRAINT ALL;
+
 END
 GO
 
-IF OBJECT_ID('Fsp.HwStandardWarrantyView', 'V') IS NOT NULL
-  DROP VIEW Fsp.HwStandardWarrantyView;
-go
-
-CREATE VIEW Fsp.HwStandardWarrantyView AS
-    SELECT std.Wg, std.Country, std.Duration, dur.Name, dur.IsProlongation, dur.Value as DurationValue
+CREATE VIEW [Fsp].[HwStandardWarrantyView] AS
+    SELECT std.Wg
+         , std.Country
+         , std.Duration
+         , dur.Name
+         , dur.IsProlongation
+         , dur.Value as DurationValue
+         , std.AvailabilityId
+         , std.ReactionTimeId
+         , std.ReactionTypeId
+         , std.ServiceLocationId
+         , std.ProActiveSlaId
     FROM fsp.HwStandardWarranty std
     INNER JOIN Dependencies.Duration dur on dur.Id = std.Duration
-
 GO
 
 update Fsp.HwFspCodeTranslation set Name = Name;
 GO
-
 
 CREATE FUNCTION Hardware.CalcByDur
 (
@@ -420,16 +767,39 @@ RETURNS float
 AS
 BEGIN
 
-    if @markupFactor is null
-        begin
-            set @value = @value + @markup;
-        end
-    else
+    if @markupFactor > 0
         begin
             set @value = @value * @markupFactor;
         end
+    else if @markup > 0
+        begin
+            set @value = @value + @markup;
+        end
 
     RETURN @value;
+
+END
+GO
+
+CREATE FUNCTION Hardware.MarkupOrFixValue (
+    @value float,
+    @markupFactor float,
+    @fixed float
+)
+RETURNS float 
+AS
+BEGIN
+
+    if @markupFactor > 0
+        begin
+            return @value * @markupFactor;
+        end
+    else if @fixed > 0
+        begin
+            return @fixed;
+        end
+
+    RETURN 0;
 
 END
 GO
@@ -472,17 +842,8 @@ AS
 BEGIN
     return @afr * (
                    (1 - @timeAndMaterialShare) * (@travelCost + @labourCost + @performanceRate) + 
-                   @timeAndMaterialShare * (@travelTime + @repairTime) * @onsiteHourlyRate + 
-                   @performanceRate
+                   @timeAndMaterialShare * ((@travelTime + @repairTime) * @onsiteHourlyRate + @performanceRate)
                 );
-END
-GO
-
-CREATE FUNCTION [Hardware].[CalcHddRetention](@cost float, @fr float)
-RETURNS float
-AS
-BEGIN
-    RETURN @cost * @fr;
 END
 GO
 
@@ -520,23 +881,18 @@ END
 GO
 
 CREATE FUNCTION [Hardware].[CalcLocSrvStandardWarranty](
-    @labourCost float,
-    @travelCost float,
+    @fieldServiceCost float,
     @srvSupportCost float,
     @logisticCost float,
     @taxAndDutiesW float,
     @afr float,
-    @availabilityFee float,
     @markupFactor float,
     @markup float
 )
 RETURNS float
 AS
 BEGIN
-    declare @totalCost float = Hardware.AddMarkup(@labourCost + @travelCost + @srvSupportCost + @logisticCost, @markupFactor, @markup);
-    declare @fee float = Hardware.AddMarkup(@availabilityFee, @markupFactor, @markup);
-
-    return @afr * (@totalCost + @taxAndDutiesW) + @fee;
+    return Hardware.AddMarkup(@fieldServiceCost + @srvSupportCost + @logisticCost, @markupFactor, @markup) + @taxAndDutiesW * @afr;
 END
 GO
 
@@ -616,34 +972,27 @@ CREATE VIEW [Hardware].[AvailabilityFeeView] as
            fee.InstalledBaseHighAvailability as IB,
            fee.InstalledBaseHighAvailability_Approved as IB_Approved,
            
-           fee.TotalLogisticsInfrastructureCost          * er.Value as TotalLogisticsInfrastructureCost,
-           fee.TotalLogisticsInfrastructureCost_Approved * er.Value as TotalLogisticsInfrastructureCost_Approved,
+           fee.TotalLogisticsInfrastructureCost          / er.Value as TotalLogisticsInfrastructureCost,
+           fee.TotalLogisticsInfrastructureCost_Approved / er.Value as TotalLogisticsInfrastructureCost_Approved,
 
            (case 
                 when wg.IsMultiVendor = 1 then fee.StockValueMv 
                 else fee.StockValueFj 
-            end) * er.Value as StockValue,
+            end) / er.Value as StockValue,
 
            (case  
                 when wg.IsMultiVendor = 1 then fee.StockValueMv_Approved 
                 else fee.StockValueFj_Approved 
-            end) * er.Value as StockValue_Approved,
+            end) / er.Value as StockValue_Approved,
        
            fee.AverageContractDuration,
            fee.AverageContractDuration_Approved,
        
-           (case  
-                when fee.JapanBuy = 1 then fee.CostPerKitJapanBuy
-                else fee.CostPerKit
-            end) as CostPerKit,
-       
-           (case  
-                when fee.JapanBuy = 1 then fee.CostPerKitJapanBuy_Approved
-                else fee.CostPerKit_Approved
-            end) as CostPerKit_Approved,
-       
-            fee.MaxQty,
-            fee.MaxQty_Approved
+           case when fee.JapanBuy = 1          then fee.CostPerKitJapanBuy else fee.CostPerKit end as CostPerKit,
+        
+           case when fee.JapanBuy_Approved = 1 then fee.CostPerKitJapanBuy else fee.CostPerKit end as CostPerKit_Approved,
+        
+           fee.MaxQty
 
     from Hardware.AvailabilityFee fee
     JOIN WgCte wg on wg.Id = fee.Wg
@@ -677,11 +1026,11 @@ CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as
                    sum(fee.IsMultiVendor * fee.IB) as Total_IB_MVS,
                    sum(fee.IsMultiVendor * fee.IB_Approved) as Total_IB_MVS_Approved,
 
-                   sum(case when fee.MaxQty = 0          then 0 else fee.IsMultiVendor * fee.CostPerKit / fee.MaxQty * fee.IB end) as Total_KC_MQ_IB_MVS,
-                   sum(case when fee.MaxQty_Approved = 0 then 0 else fee.IsMultiVendor * fee.CostPerKit_Approved / fee.MaxQty_Approved * fee.IB_Approved end) as Total_KC_MQ_IB_MVS_Approved,
+                   sum(case when fee.MaxQty = 0 then 0 else fee.IsMultiVendor * fee.CostPerKit / fee.MaxQty * fee.IB end) as Total_KC_MQ_IB_MVS,
+                   sum(case when fee.MaxQty = 0 then 0 else fee.IsMultiVendor * fee.CostPerKit_Approved / fee.MaxQty * fee.IB_Approved end) as Total_KC_MQ_IB_MVS_Approved,
 
-                   sum(case when fee.MaxQty = 0          then 0 else (1 - fee.IsMultiVendor) * fee.CostPerKit / fee.MaxQty * fee.IB end) as Total_KC_MQ_IB_FTS,
-                   sum(case when fee.MaxQty_Approved = 0 then 0 else (1 - fee.IsMultiVendor) * fee.CostPerKit_Approved / fee.MaxQty_Approved * fee.IB_Approved end) as Total_KC_MQ_IB_FTS_Approved
+                   sum(case when fee.MaxQty = 0 then 0 else (1 - fee.IsMultiVendor) * fee.CostPerKit / fee.MaxQty * fee.IB end) as Total_KC_MQ_IB_FTS,
+                   sum(case when fee.MaxQty = 0 then 0 else (1 - fee.IsMultiVendor) * fee.CostPerKit_Approved / fee.MaxQty * fee.IB_Approved end) as Total_KC_MQ_IB_FTS_Approved
 
             from Hardware.AvailabilityFeeVIEW fee
             group by fee.Country 
@@ -728,10 +1077,9 @@ CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as
         from AvFeeCte fee
     )
     select fee.*, 
-           case when IB = 0 then 0 else Hardware.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) end as Fee,
-           case when IB_Approved = 0 then 0 else Hardware.CalcAvailabilityFee(fee.CostPerKit_Approved, fee.MaxQty_Approved, fee.TISC_Approved, fee.YI_Approved, fee.Total_KC_MQ_IB_VENDOR_Approved) end as Fee_Approved
+           case when IB = 0 or fee.MaxQty = 0 then 0 else Hardware.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) end as Fee,
+           case when IB_Approved = 0 or fee.MaxQty = 0 then 0 else Hardware.CalcAvailabilityFee(fee.CostPerKit_Approved, fee.MaxQty, fee.TISC_Approved, fee.YI_Approved, fee.Total_KC_MQ_IB_VENDOR_Approved) end as Fee_Approved
     from AvFeeCte2 fee
-
 GO
 
 IF OBJECT_ID('Hardware.AvailabilityFeeCalc', 'U') IS NOT NULL
@@ -775,7 +1123,7 @@ BEGIN
     select Country, Wg, Fee, Fee_Approved
     from Hardware.AvailabilityFeeCalcView fee
     join InputAtoms.Wg wg on wg.id = fee.Wg
-    where wg.WgType = 1 and wg.DeactivatedDateTime is null
+    where wg.DeactivatedDateTime is null
 
     ALTER INDEX ix_Hardware_AvailabilityFeeCalc ON Hardware.AvailabilityFeeCalc REBUILD;  
 
@@ -820,34 +1168,58 @@ IF OBJECT_ID('Hardware.InstallBaseUpdated', 'TR') IS NOT NULL
   DROP TRIGGER Hardware.InstallBaseUpdated;
 go
 
-CREATE TRIGGER Hardware.InstallBaseUpdated
-ON Hardware.InstallBase
+CREATE TRIGGER [Hardware].[InstallBaseUpdated]
+ON [Hardware].[InstallBase]
 After INSERT, UPDATE
 AS BEGIN
 
-    with InstallBasePlaCte (Country, Pla, totalIB)
-    as
-    (
-        select Country, Pla, sum(InstalledBaseCountry) as totalIB
-        from Hardware.InstallBase 
-        where InstalledBaseCountry is not null
-        group by Country, Pla
+    with ibCte as (
+        select ib.*
+                , c.ClusterRegionId
+                , pla.Id as PlaId
+                , cpla.Id as ClusterPlaId 
+        from Hardware.InstallBase ib
+        JOIN InputAtoms.Country c on c.id = ib.Country
+        JOIN InputAtoms.Wg wg on wg.id = ib.Wg
+        JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
+        JOIN InputAtoms.ClusterPla cpla on cpla.Id = pla.ClusterPlaId
+
+        where ib.DeactivatedDateTime is null and wg.DeactivatedDateTime is null
     )
-    , InstallBasePla_Approved_Cte (Country, Pla, totalIB)
-    as
-    (
-        select Country, Pla, sum(InstalledBaseCountry_Approved) as totalIB
-        from Hardware.InstallBase 
-        where InstalledBaseCountry_Approved is not null
-        group by Country, Pla
+    , totalIb_Cte as (
+        select Country
+                , sum(InstalledBaseCountry) as totalIb
+                , sum(InstalledBaseCountry_Approved) as totalIb_Approved
+        from ibCte
+        group by Country
     )
-    update ib
-        set 
-            ib.InstalledBaseCountryPla = ibp.totalIB,
-            ib.InstalledBaseCountryPla_Approved = ibp2.totalIB
-    from Hardware.InstallBase ib
-    LEFT JOIN InstallBasePlaCte ibp on ibp.Pla = ib.Pla and ibp.Country = ib.Country
-    LEFT JOIN InstallBasePla_Approved_Cte ibp2 on ibp2.Pla = ib.Pla and ibp2.Country = ib.Country
+    , totalIb_PLA_Cte as (
+        select Country
+                , ClusterPlaId
+                , sum(InstalledBaseCountry) as totalIb
+                , sum(InstalledBaseCountry_Approved) as totalIb_Approved
+        from ibCte
+        group by Country, ClusterPlaId
+    )
+    , totalIb_PLA_ClusterRegion_Cte as (
+        select    ClusterRegionId
+                , ClusterPlaId
+                , sum(InstalledBaseCountry) as totalIb
+                , sum(InstalledBaseCountry_Approved) as totalIb_Approved
+        from ibCte
+        group by ClusterRegionId, ClusterPlaId
+    )
+    UPDATE ssc
+            SET   ssc.TotalIb                          = t1.totalIb
+                , ssc.TotalIb_Approved                 = t1.totalIb_Approved
+                , ssc.TotalIbClusterPla                = t2.totalIb
+                , ssc.TotalIbClusterPla_Approved       = t2.totalIb_Approved
+                , ssc.TotalIbClusterPlaRegion          = t3.totalIb
+                , ssc.TotalIbClusterPlaRegion_Approved = t3.totalIb_Approved
+    from Hardware.ServiceSupportCost ssc
+    join totalIb_Cte t1 on t1.Country = ssc.Country
+    join totalIb_PLA_Cte t2 on t2.Country = ssc.Country and t2.ClusterPlaId = ssc.ClusterPla
+    join totalIb_PLA_ClusterRegion_Cte t3 on t3.ClusterRegionId = ssc.ClusterRegion and t3.ClusterPlaId = ssc.ClusterPla
 
 END
 GO
@@ -856,35 +1228,59 @@ IF OBJECT_ID('Hardware.HddRetentionUpdated', 'TR') IS NOT NULL
   DROP TRIGGER Hardware.HddRetentionUpdated;
 go
 
-CREATE TRIGGER Hardware.HddRetentionUpdated
-ON Hardware.HddRetention
+CREATE TRIGGER [Hardware].[HddRetentionUpdated]
+ON [Hardware].[HddRetention]
 After INSERT, UPDATE
 AS BEGIN
 
+    SET NOCOUNT ON;
+
     with cte as (
-        select    h.Id
-                , h.Wg
-                , h.HddMaterialCost * h.HddFr / 100 as hddRetPerYear
-                , h.HddMaterialCost_Approved * h.HddFr_Approved / 100 as hddRetPerYear_Approved
-                , y.IsProlongation
-                , y.Value
+        select    h.Wg
+                , sum(h.HddMaterialCost * h.HddFr / 100) as hddRet
+                , sum(h.HddMaterialCost_Approved * h.HddFr_Approved / 100) as hddRet_Approved
         from Hardware.HddRetention h
-        join Dependencies.Year y on y.Id = h.Year
-    )
-    , cte2 as (
-        select *
-        from cte c
-            cross apply(select sum(c2.hddRetPerYear) as HddRet, 
-                               sum(c2.hddRetPerYear_Approved) as HddRet_Approved
-                            from cte as c2
-                            where c2.Wg = c.Wg and c2.IsProlongation = c.IsProlongation and c2.Value <= c.Value) ca
+        where h.Year in (select id from Dependencies.Year where IsProlongation = 0 and Value <= 5 )
+        group by h.Wg
     )
     update h
         set h.HddRet = c.HddRet, HddRet_Approved = c.HddRet_Approved
     from Hardware.HddRetention h
-    join cte2 c on c.Id = h.Id
+    join cte c on c.Wg = h.Wg
 
 END
+go
+
+update Hardware.HddRetention set HddFr = HddFr + 0;
+go
+
+IF OBJECT_ID('Hardware.HddRetentionView', 'U') IS NOT NULL
+  DROP TABLE Hardware.HddRetentionView;
+go
+
+IF OBJECT_ID('Hardware.HddRetentionView', 'V') IS NOT NULL
+  DROP VIEW Hardware.HddRetentionView;
+go
+
+CREATE VIEW Hardware.HddRetentionView as 
+    SELECT 
+           h.Wg as WgId
+         , wg.Name as Wg
+         , h.HddRet
+         , HddRet_Approved
+         , hm.TransferPrice 
+         , hm.ListPrice
+         , hm.DealerDiscount
+         , hm.DealerPrice
+         , u.Name as ChangeUserName
+         , u.Email as ChangeUserEmail
+
+    FROM Hardware.HddRetention h
+    JOIN InputAtoms.Wg wg on wg.id = h.Wg
+    LEFT JOIN Hardware.HddRetentionManualCost hm on hm.WgId = h.Wg
+    LEFT JOIN [dbo].[User] u on u.Id = hm.ChangeUserId
+    WHERE h.DeactivatedDateTime is null 
+      AND h.Year = (select id from Dependencies.Year where Value = 5 and IsProlongation = 0)
 go
 
 CREATE VIEW [Hardware].[FieldServiceCostView] AS
@@ -908,14 +1304,14 @@ CREATE VIEW [Hardware].[FieldServiceCostView] AS
             fsc.TravelTime,
             fsc.TravelTime_Approved,
 
-            fsc.LabourCost          * er.Value as LabourCost,
-            fsc.LabourCost_Approved * er.Value as LabourCost_Approved,
+            fsc.LabourCost          / er.Value as LabourCost,
+            fsc.LabourCost_Approved / er.Value as LabourCost_Approved,
 
-            fsc.TravelCost          * er.Value as TravelCost,
-            fsc.TravelCost_Approved * er.Value as TravelCost_Approved,
+            fsc.TravelCost          / er.Value as TravelCost,
+            fsc.TravelCost_Approved / er.Value as TravelCost_Approved,
 
-            fsc.PerformanceRate          * er.Value as PerformanceRate,
-            fsc.PerformanceRate_Approved * er.Value as PerformanceRate_Approved,
+            fsc.PerformanceRate          / er.Value as PerformanceRate,
+            fsc.PerformanceRate_Approved / er.Value as PerformanceRate_Approved,
 
             (fsc.TimeAndMaterialShare / 100) as TimeAndMaterialShare,
             (fsc.TimeAndMaterialShare_Approved / 100) as TimeAndMaterialShare_Approved
@@ -957,23 +1353,23 @@ CREATE VIEW [Hardware].[LogisticsCostView] AS
            rt.ReactionTypeId as ReactionType, 
            rt.ReactionTimeId as ReactionTime,
            
-           lc.StandardHandling          * er.Value as StandardHandling,
-           lc.StandardHandling_Approved * er.Value as StandardHandling_Approved,
+           lc.StandardHandling          / er.Value as StandardHandling,
+           lc.StandardHandling_Approved / er.Value as StandardHandling_Approved,
 
-           lc.HighAvailabilityHandling          * er.Value as HighAvailabilityHandling,
-           lc.HighAvailabilityHandling_Approved * er.Value as HighAvailabilityHandling_Approved,
+           lc.HighAvailabilityHandling          / er.Value as HighAvailabilityHandling,
+           lc.HighAvailabilityHandling_Approved / er.Value as HighAvailabilityHandling_Approved,
 
-           lc.StandardDelivery          * er.Value as StandardDelivery,
-           lc.StandardDelivery_Approved * er.Value as StandardDelivery_Approved,
+           lc.StandardDelivery          / er.Value as StandardDelivery,
+           lc.StandardDelivery_Approved / er.Value as StandardDelivery_Approved,
 
-           lc.ExpressDelivery          * er.Value as ExpressDelivery,
-           lc.ExpressDelivery_Approved * er.Value as ExpressDelivery_Approved,
+           lc.ExpressDelivery          / er.Value as ExpressDelivery,
+           lc.ExpressDelivery_Approved / er.Value as ExpressDelivery_Approved,
 
-           lc.TaxiCourierDelivery          * er.Value as TaxiCourierDelivery,
-           lc.TaxiCourierDelivery_Approved * er.Value as TaxiCourierDelivery_Approved,
+           lc.TaxiCourierDelivery          / er.Value as TaxiCourierDelivery,
+           lc.TaxiCourierDelivery_Approved / er.Value as TaxiCourierDelivery_Approved,
 
-           lc.ReturnDeliveryFactory          * er.Value as ReturnDeliveryFactory,
-           lc.ReturnDeliveryFactory_Approved * er.Value as ReturnDeliveryFactory_Approved
+           lc.ReturnDeliveryFactory          / er.Value as ReturnDeliveryFactory,
+           lc.ReturnDeliveryFactory_Approved / er.Value as ReturnDeliveryFactory_Approved
 
     FROM Hardware.LogisticsCosts lc
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = lc.ReactionTimeType
@@ -1010,38 +1406,70 @@ CREATE VIEW [Hardware].[MarkupStandardWarantyView] as
 GO
 
 CREATE VIEW [Hardware].[ServiceSupportCostView] as
-    select ssc.Country,
-           ssc.ClusterRegion,
-           ssc.ClusterPla,
+    with cte as (
+        select   ssc.Country
+               , ssc.ClusterRegion
+               , ssc.ClusterPla
 
-           ssc.[1stLevelSupportCostsCountry] * er.Value as '1stLevelSupportCosts',
-           ssc.[1stLevelSupportCostsCountry_Approved] * er.Value as '1stLevelSupportCosts_Approved',
+               , ssc.[1stLevelSupportCostsCountry] / er.Value          as '1stLevelSupportCosts'
+               , ssc.[1stLevelSupportCostsCountry_Approved] / er.Value as '1stLevelSupportCosts_Approved'
+           
+               , ssc.[2ndLevelSupportCostsLocal] / er.Value            as '2ndLevelSupportCostsLocal'
+               , ssc.[2ndLevelSupportCostsLocal_Approved] / er.Value   as '2ndLevelSupportCostsLocal_Approved'
 
-           (case 
-                when ssc.[2ndLevelSupportCostsLocal] is null then ssc.[2ndLevelSupportCostsClusterRegion]
-                else ssc.[2ndLevelSupportCostsLocal] * er.Value
-            end) as '2ndLevelSupportCosts', 
+               , ssc.[2ndLevelSupportCostsClusterRegion]               as '2ndLevelSupportCostsClusterRegion'
+               , ssc.[2ndLevelSupportCostsClusterRegion_Approved]      as '2ndLevelSupportCostsClusterRegion_Approved'
 
-           (case 
-                when ssc.[2ndLevelSupportCostsLocal_Approved] is null then ssc.[2ndLevelSupportCostsClusterRegion_Approved]
-                else ssc.[2ndLevelSupportCostsLocal_Approved] * er.Value
-            end) as '2ndLevelSupportCosts_Approved'
+               , case when ssc.[2ndLevelSupportCostsLocal] > 0 then ssc.[2ndLevelSupportCostsLocal] / er.Value 
+                        else ssc.[2ndLevelSupportCostsClusterRegion]
+                   end as '2ndLevelSupportCosts'
+                
+               , case when ssc.[2ndLevelSupportCostsLocal_Approved] > 0 then ssc.[2ndLevelSupportCostsLocal_Approved] / er.Value 
+                        else ssc.[2ndLevelSupportCostsClusterRegion_Approved]
+                   end as '2ndLevelSupportCosts_Approved'
 
-    from Hardware.ServiceSupportCost ssc
-    join InputAtoms.Country c on c.Id = ssc.Country
-    left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+               , case when ssc.[2ndLevelSupportCostsLocal] > 0          then ssc.TotalIbClusterPla          else ssc.TotalIbClusterPlaRegion          end as Total_IB_Pla
+               , case when ssc.[2ndLevelSupportCostsLocal_Approved] > 0 then ssc.TotalIbClusterPla_Approved else ssc.TotalIbClusterPlaRegion_Approved end as Total_IB_Pla_Approved
 
+               , ssc.TotalIb
+               , ssc.TotalIb_Approved
+               , ssc.TotalIbClusterPla
+               , ssc.TotalIbClusterPla_Approved
+               , ssc.TotalIbClusterPlaRegion
+               , ssc.TotalIbClusterPlaRegion_Approved
+
+        from Hardware.ServiceSupportCost ssc
+        join InputAtoms.Country c on c.Id = ssc.Country
+        left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+    )
+    select ssc.Country
+         , ssc.ClusterRegion
+         , ssc.ClusterPla
+         , ssc.[1stLevelSupportCosts]
+         , ssc.[1stLevelSupportCosts_Approved]
+         , ssc.[2ndLevelSupportCosts]
+         , ssc.[2ndLevelSupportCosts_Approved]
+
+         , case when ssc.TotalIb <> 0 and ssc.Total_IB_Pla <> 0 
+                then ssc.[1stLevelSupportCosts] / ssc.TotalIb + ssc.[2ndLevelSupportCosts] / ssc.Total_IB_Pla
+            end as ServiceSupport
+
+         , case when ssc.TotalIb_Approved <> 0 and ssc.Total_IB_Pla_Approved <> 0 
+                then ssc.[1stLevelSupportCosts_Approved] / ssc.TotalIb_Approved + ssc.[2ndLevelSupportCosts_Approved] / ssc.Total_IB_Pla_Approved
+            end as ServiceSupport_Approved
+
+    from cte ssc
 GO
 
 CREATE VIEW [Hardware].[ReinsuranceView] as
     SELECT r.Wg, 
-           r.Year,
+           r.Duration,
            rta.AvailabilityId, 
            rta.ReactionTimeId,
 
-           r.ReinsuranceFlatfee * r.ReinsuranceUpliftFactor / 100 * er.Value as Cost,
+           r.ReinsuranceFlatfee * r.ReinsuranceUpliftFactor / 100 / er.Value as Cost,
 
-           r.ReinsuranceFlatfee_Approved * r.ReinsuranceUpliftFactor_Approved / 100 * er2.Value as Cost_Approved
+           r.ReinsuranceFlatfee_Approved * r.ReinsuranceUpliftFactor_Approved / 100 / er2.Value as Cost_Approved
 
     FROM Hardware.Reinsurance r
     JOIN Dependencies.ReactionTime_Avalability rta on rta.Id = r.ReactionTimeAvailability
@@ -1150,10 +1578,25 @@ CREATE VIEW [Hardware].[ProActiveView] with schemabinding as
 GO
 
 CREATE VIEW [Hardware].[ManualCostView] as
-    select man.*
-         , u.Name  as ChangeUserName
-         , u.Email as ChangeUserEmail
+    select    man.PortfolioId
+
+            , man.ChangeUserId
+            , u.Name  as ChangeUserName
+            , u.Email as ChangeUserEmail
+
+            , man.ServiceTC   / er.Value as ServiceTC   
+            , man.ServiceTP   / er.Value as ServiceTP   
+
+            , man.ServiceTP_Released / er.Value as ServiceTP_Released
+
+            , man.ListPrice   / er.Value as ListPrice   
+            , man.DealerPrice / er.Value as DealerPrice 
+            , man.DealerDiscount
+
     from Hardware.ManualCost man
+    join Portfolio.LocalPortfolio p on p.Id = man.PortfolioId
+    join InputAtoms.Country c on c.Id = p.CountryId
+    join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
     left join dbo.[User] u on u.Id = man.ChangeUserId
 GO
 
@@ -1185,14 +1628,14 @@ RETURN
 GO
 
 CREATE FUNCTION [Portfolio].[GetBySlaPaging](
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @loc bigint,
-    @pro bigint,
+    @cnt dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @dur dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc dbo.ListID readonly,
+    @pro dbo.ListID readonly,
     @lastid bigint,
     @limit int
 )
@@ -1207,10 +1650,19 @@ RETURNS @tbl TABLE
                 [ReactionTimeId] [bigint] NOT NULL,
                 [ReactionTypeId] [bigint] NOT NULL,
                 [ServiceLocationId] [bigint] NOT NULL,
-                [ProActiveSlaId] [bigint] NOT NULL
+                [ProActiveSlaId] [bigint] NOT NULL,
+                [SlaHash] [int] NOT NULL
             )
 AS
 BEGIN
+    declare @cnt_id bigint = (select top(1) id from @cnt);
+    declare @isEmptyWG    bit = Portfolio.IsListEmpty(@wg);
+    declare @isEmptyAv    bit = Portfolio.IsListEmpty(@av);
+    declare @isEmptyDur   bit = Portfolio.IsListEmpty(@dur);
+    declare @isEmptyRType bit = Portfolio.IsListEmpty(@reactiontype);
+    declare @isEmptyRTime bit = Portfolio.IsListEmpty(@reactiontime);
+    declare @isEmptyLoc   bit = Portfolio.IsListEmpty(@loc);
+    declare @isEmptyPro   bit = Portfolio.IsListEmpty(@pro);
 
     if @limit > 0
         begin
@@ -1227,33 +1679,33 @@ BEGIN
                         ) as rownum
                      , m.*
                     from Portfolio.LocalPortfolio m
-                    where   (m.CountryId = @cnt)
-                        and (@wg is null or m.WgId = @wg)
-                        and (@av is null or m.AvailabilityId = @av)
-                        and (@dur is null or m.DurationId = @dur)
-                        and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
-                        and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
-                        and (@loc is null or          m.ServiceLocationId = @loc)
-                        and (@pro is null or          m.ProActiveSlaId = @pro)
+                    where   CountryId = @cnt_id
+                        AND (@isEmptyWG = 1 or WgId in (select id from @wg))
+                        AND (@isEmptyAv = 1 or AvailabilityId in (select id from @av))
+                        AND (@isEmptyDur = 1 or DurationId in (select id from @dur))
+                        AND (@isEmptyRTime = 1 or ReactionTimeId in (select id from @reactiontime))
+                        AND (@isEmptyRType = 1 or ReactionTypeId in (select id from @reactiontype))
+                        AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
+                        AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
             )
             insert @tbl
             select top(@limit)
-                    rownum, Id, CountryId, WgId, AvailabilityId, DurationId, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProActiveSlaId
+                    rownum, Id, CountryId, WgId, AvailabilityId, DurationId, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProActiveSlaId, SlaHash
             from SlaCte where rownum > @lastid
         end
     else
         begin
             insert @tbl
-            select -1 as rownum, Id, CountryId, WgId, AvailabilityId, DurationId, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProActiveSlaId
+            select -1 as rownum, Id, CountryId, WgId, AvailabilityId, DurationId, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProActiveSlaId, SlaHash
             from Portfolio.LocalPortfolio m
-            where   (m.CountryId = @cnt)
-                and (@wg is null or m.WgId = @wg)
-                and (@av is null or m.AvailabilityId = @av)
-                and (@dur is null or m.DurationId = @dur)
-                and (@reactiontime is null or m.ReactionTimeId = @reactiontime)
-                and (@reactiontype is null or m.ReactionTypeId = @reactiontype)
-                and (@loc is null or          m.ServiceLocationId = @loc)
-                and (@pro is null or          m.ProActiveSlaId = @pro)
+            where    CountryId = @cnt_id
+                AND (@isEmptyWG = 1 or WgId in (select id from @wg))
+                AND (@isEmptyAv = 1 or AvailabilityId in (select id from @av))
+                AND (@isEmptyDur = 1 or DurationId in (select id from @dur))
+                AND (@isEmptyRTime = 1 or ReactionTimeId in (select id from @reactiontime))
+                AND (@isEmptyRType = 1 or ReactionTypeId in (select id from @reactiontype))
+                AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
+                AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
 
              order by m.CountryId
                     , m.WgId
@@ -1268,18 +1720,19 @@ BEGIN
 
     RETURN;
 END;
+
 go
 
 CREATE FUNCTION [Hardware].[GetCalcMember] (
     @approved bit,
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @loc bigint,
-    @pro bigint,
+    @cnt dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @dur dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc dbo.ListID readonly,
+    @pro dbo.ListID readonly,
     @lastid bigint,
     @limit int
 )
@@ -1287,125 +1740,124 @@ RETURNS TABLE
 AS
 RETURN 
 (
-    SELECT m.Id
+    SELECT   m.Id
 
-        --SLA
+            --SLA
 
-         , m.CountryId          
-         , c.Name               as Country
-         , m.WgId
-         , wg.Name              as Wg
-         , m.DurationId
-         , dur.Name             as Duration
-         , dur.Value            as Year
-         , dur.IsProlongation   as IsProlongation
-         , m.AvailabilityId
-         , av.Name              as Availability
-         , m.ReactionTimeId
-         , rtime.Name           as ReactionTime
-         , m.ReactionTypeId
-         , rtype.Name           as ReactionType
-         , m.ServiceLocationId
-         , loc.Name             as ServiceLocation
-         , m.ProActiveSlaId
-         , prosla.ExternalName  as ProActiveSla
+            , m.CountryId          
+            , c.Name               as Country
+            , m.WgId
+            , wg.Name              as Wg
+            , m.DurationId
+            , dur.Name             as Duration
+            , dur.Value            as Year
+            , dur.IsProlongation   as IsProlongation
+            , m.AvailabilityId
+            , av.Name              as Availability
+            , m.ReactionTimeId
+            , rtime.Name           as ReactionTime
+            , m.ReactionTypeId
+            , rtype.Name           as ReactionType
+            , m.ServiceLocationId
+            , loc.Name             as ServiceLocation
+            , m.ProActiveSlaId
+            , prosla.ExternalName  as ProActiveSla
 
-         , case when stdw.DurationValue is not null then stdw.DurationValue 
-                when stdw2.DurationValue is not null then stdw2.DurationValue 
-            end as StdWarranty
+            , stdw.DurationValue   as StdWarranty
 
-         , case when @approved = 0 then afr.AFR1  else AFR1_Approved       end as AFR1 
-         , case when @approved = 0 then afr.AFR2  else AFR2_Approved       end as AFR2 
-         , case when @approved = 0 then afr.AFR3  else afr.AFR3_Approved   end as AFR3 
-         , case when @approved = 0 then afr.AFR4  else afr.AFR4_Approved   end as AFR4 
-         , case when @approved = 0 then afr.AFR5  else afr.AFR5_Approved   end as AFR5 
-         , case when @approved = 0 then afr.AFRP1 else afr.AFRP1_Approved  end as AFRP1
+            , case when @approved = 0 then afr.AFR1  else AFR1_Approved       end as AFR1 
+            , case when @approved = 0 then afr.AFR2  else AFR2_Approved       end as AFR2 
+            , case when @approved = 0 then afr.AFR3  else afr.AFR3_Approved   end as AFR3 
+            , case when @approved = 0 then afr.AFR4  else afr.AFR4_Approved   end as AFR4 
+            , case when @approved = 0 then afr.AFR5  else afr.AFR5_Approved   end as AFR5 
+            , case when @approved = 0 then afr.AFRP1 else afr.AFRP1_Approved  end as AFRP1
        
-         , case when @approved = 0 then hdd.HddRet                         else hdd.HddRet_Approved                  end as HddRet              
+            , case when @approved = 0 then mcw.MaterialCostWarranty           else mcw.MaterialCostWarranty_Approved       end as MaterialCostWarranty
+            , case when @approved = 0 then mco.MaterialCostOow                else mco.MaterialCostOow_Approved            end as MaterialCostOow     
+                                                                                                                      
+            , case when @approved = 0 then tax.TaxAndDuties                   else tax.TaxAndDuties_Approved               end as TaxAndDuties
+                                                                                                                      
+            , case when @approved = 0 then r.Cost                             else r.Cost_Approved                         end as Reinsurance
+                                                                                                                      
+            , case when @approved = 0 then fscStd.LabourCost                  else fscStd.LabourCost_Approved              end as StdLabourCost             
+            , case when @approved = 0 then fscStd.TravelCost                  else fscStd.TravelCost_Approved              end as StdTravelCost             
+            , case when @approved = 0 then fscStd.PerformanceRate             else fscStd.PerformanceRate_Approved         end as StdPerformanceRate        
+                                                                                                                      
+            , case when @approved = 0 then fsc.LabourCost                     else fsc.LabourCost_Approved                 end as LabourCost             
+            , case when @approved = 0 then fsc.TravelCost                     else fsc.TravelCost_Approved                 end as TravelCost             
+            , case when @approved = 0 then fsc.TimeAndMaterialShare           else fsc.TimeAndMaterialShare_Approved       end as TimeAndMaterialShare   
+            , case when @approved = 0 then fsc.PerformanceRate                else fsc.PerformanceRate_Approved            end as PerformanceRate        
+            , case when @approved = 0 then fsc.TravelTime                     else fsc.TravelTime_Approved                 end as TravelTime             
+            , case when @approved = 0 then fsc.RepairTime                     else fsc.RepairTime_Approved                 end as RepairTime             
+            , case when @approved = 0 then fsc.OnsiteHourlyRates              else fsc.OnsiteHourlyRates_Approved          end as OnsiteHourlyRates      
+                                                                                                                      
+            , case when @approved = 0 then ssc.[1stLevelSupportCosts]         else ssc.[1stLevelSupportCosts_Approved]     end as [1stLevelSupportCosts] 
+            , case when @approved = 0 then ssc.[2ndLevelSupportCosts]         else ssc.[2ndLevelSupportCosts_Approved]     end as [2ndLevelSupportCosts] 
+                                                                                                                      
+            , case when @approved = 0 then ssc.ServiceSupport                 else ssc.ServiceSupport_Approved             end as ServiceSupport
          
-         , case when @approved = 0 then mcw.MaterialCostWarranty           else mcw.MaterialCostWarranty_Approved    end as MaterialCostWarranty
-         , case when @approved = 0 then mco.MaterialCostOow                else mco.MaterialCostOow_Approved         end as MaterialCostOow     
+            , case when @approved = 0 then lcStd.ExpressDelivery              else lcStd.ExpressDelivery_Approved          end as StdExpressDelivery         
+            , case when @approved = 0 then lcStd.HighAvailabilityHandling     else lcStd.HighAvailabilityHandling_Approved end as StdHighAvailabilityHandling
+            , case when @approved = 0 then lcStd.StandardDelivery             else lcStd.StandardDelivery_Approved         end as StdStandardDelivery        
+            , case when @approved = 0 then lcStd.StandardHandling             else lcStd.StandardHandling_Approved         end as StdStandardHandling        
+            , case when @approved = 0 then lcStd.ReturnDeliveryFactory        else lcStd.ReturnDeliveryFactory_Approved    end as StdReturnDeliveryFactory   
+            , case when @approved = 0 then lcStd.TaxiCourierDelivery          else lcStd.TaxiCourierDelivery_Approved      end as StdTaxiCourierDelivery     
 
-         , case when @approved = 0 then tax.TaxAndDuties                   else tax.TaxAndDuties_Approved            end as TaxAndDuties
+            , case when @approved = 0 then lc.ExpressDelivery                 else lc.ExpressDelivery_Approved             end as ExpressDelivery         
+            , case when @approved = 0 then lc.HighAvailabilityHandling        else lc.HighAvailabilityHandling_Approved    end as HighAvailabilityHandling
+            , case when @approved = 0 then lc.StandardDelivery                else lc.StandardDelivery_Approved            end as StandardDelivery        
+            , case when @approved = 0 then lc.StandardHandling                else lc.StandardHandling_Approved            end as StandardHandling        
+            , case when @approved = 0 then lc.ReturnDeliveryFactory           else lc.ReturnDeliveryFactory_Approved       end as ReturnDeliveryFactory   
+            , case when @approved = 0 then lc.TaxiCourierDelivery             else lc.TaxiCourierDelivery_Approved         end as TaxiCourierDelivery     
+                                                                                                                       
+            , case when afEx.id is not null then (case when @approved = 0 then af.Fee else af.Fee_Approved end)
+                    else 0
+            end as AvailabilityFee
 
-         , case when @approved = 0 then r.Cost                             else r.Cost_Approved                      end as Reinsurance
-         , case when @approved = 0 then fsc.LabourCost                     else fsc.LabourCost_Approved              end as LabourCost             
-         , case when @approved = 0 then fsc.TravelCost                     else fsc.TravelCost_Approved              end as TravelCost             
-         , case when @approved = 0 then fsc.TimeAndMaterialShare           else fsc.TimeAndMaterialShare_Approved    end as TimeAndMaterialShare   
-         , case when @approved = 0 then fsc.PerformanceRate                else fsc.PerformanceRate_Approved         end as PerformanceRate        
-         , case when @approved = 0 then fsc.TravelTime                     else fsc.TravelTime_Approved              end as TravelTime             
-         , case when @approved = 0 then fsc.RepairTime                     else fsc.RepairTime_Approved              end as RepairTime             
-         , case when @approved = 0 then fsc.OnsiteHourlyRates              else fsc.OnsiteHourlyRates_Approved       end as OnsiteHourlyRates      
-                  
-         , case when @approved = 0 then ssc.[1stLevelSupportCosts]         else ssc.[1stLevelSupportCosts_Approved]  end as [1stLevelSupportCosts] 
-         , case when @approved = 0 then ssc.[2ndLevelSupportCosts]         else ssc.[2ndLevelSupportCosts_Approved]  end as [2ndLevelSupportCosts] 
-         , case when @approved = 0 then ib.InstalledBaseCountry            else ib.InstalledBaseCountry_Approved     end as InstalledBaseCountry    
-         , case when @approved = 0 then ib.InstalledBaseCountryPla         else ib.InstalledBaseCountryPla_Approved  end as InstalledBaseCountryPla 
+            , case when @approved = 0 then moc.Markup                         else moc.Markup_Approved                       end as MarkupOtherCost                      
+            , case when @approved = 0 then moc.MarkupFactor                   else moc.MarkupFactor_Approved                 end as MarkupFactorOtherCost                
 
-         , case when @approved = 0 then 
-                    (case 
-                         when ib.InstalledBaseCountry <> 0 and ib.InstalledBaseCountryPla <> 0 
-                            then ssc.[1stLevelSupportCosts] / ib.InstalledBaseCountry + ssc.[2ndLevelSupportCosts] / ib.InstalledBaseCountryPla
-                     end)
-                else 
-                    (case 
-                         when ib.InstalledBaseCountry_Approved <> 0 and ib.InstalledBaseCountryPla_Approved <> 0 
-                            then ssc.[1stLevelSupportCosts_Approved] / ib.InstalledBaseCountry_Approved + ssc.[2ndLevelSupportCosts_Approved] / ib.InstalledBaseCountryPla_Approved
-                     end)
-            end  as ServiceSupport
-         
-         , case when @approved = 0 then lc.ExpressDelivery                 else lc.ExpressDelivery_Approved          end as ExpressDelivery         
-         , case when @approved = 0 then lc.HighAvailabilityHandling        else lc.HighAvailabilityHandling_Approved end as HighAvailabilityHandling
-         , case when @approved = 0 then lc.StandardDelivery                else lc.StandardDelivery_Approved         end as StandardDelivery        
-         , case when @approved = 0 then lc.StandardHandling                else lc.StandardHandling_Approved         end as StandardHandling        
-         , case when @approved = 0 then lc.ReturnDeliveryFactory           else lc.ReturnDeliveryFactory_Approved    end as ReturnDeliveryFactory   
-         , case when @approved = 0 then lc.TaxiCourierDelivery             else lc.TaxiCourierDelivery_Approved      end as TaxiCourierDelivery     
+            , case when @approved = 0 then msw.MarkupFactorStandardWarranty   else msw.MarkupFactorStandardWarranty_Approved end as MarkupFactorStandardWarranty
+            , case when @approved = 0 then msw.MarkupStandardWarranty         else msw.MarkupStandardWarranty_Approved       end as MarkupStandardWarranty      
 
-         , case when afEx.id is null then (case when @approved = 0 then af.Fee else af.Fee_Approved end)
-                 else 0
-           end as AvailabilityFee
-
-         , case when @approved = 0 then moc.Markup                         else moc.Markup_Approved                       end as Markup                      
-         , case when @approved = 0 then moc.MarkupFactor                   else moc.MarkupFactor_Approved                 end as MarkupFactor                
-         , case when @approved = 0 then msw.MarkupFactorStandardWarranty   else msw.MarkupFactorStandardWarranty_Approved end as MarkupFactorStandardWarranty
-         , case when @approved = 0 then msw.MarkupStandardWarranty         else msw.MarkupStandardWarranty_Approved       end as MarkupStandardWarranty      
-
-
-         , case when @approved = 0 then pro.LocalRemoteAccessSetupPreparationEffort * pro.OnSiteHourlyRate
+            , case when @approved = 0 then pro.LocalRemoteAccessSetupPreparationEffort * pro.OnSiteHourlyRate
                 else pro.LocalRemoteAccessSetupPreparationEffort_Approved * pro.OnSiteHourlyRate_Approved
             end as LocalRemoteAccessSetup
 
-         , case when @approved = 0 then pro.LocalRegularUpdateReadyEffort * pro.OnSiteHourlyRate * prosla.LocalRegularUpdateReadyRepetition 
+            , case when @approved = 0 then pro.LocalRegularUpdateReadyEffort * pro.OnSiteHourlyRate * prosla.LocalRegularUpdateReadyRepetition 
                 else pro.LocalRegularUpdateReadyEffort_Approved * pro.OnSiteHourlyRate_Approved * prosla.LocalRegularUpdateReadyRepetition 
             end as LocalRegularUpdate
 
-         , case when @approved = 0 then pro.LocalPreparationShcEffort * pro.OnSiteHourlyRate * prosla.LocalPreparationShcRepetition 
+            , case when @approved = 0 then pro.LocalPreparationShcEffort * pro.OnSiteHourlyRate * prosla.LocalPreparationShcRepetition 
                 else pro.LocalPreparationShcEffort_Approved * pro.OnSiteHourlyRate_Approved * prosla.LocalPreparationShcRepetition 
             end as LocalPreparation
 
-         , case when @approved = 0 then pro.LocalRemoteShcCustomerBriefingEffort * pro.OnSiteHourlyRate * prosla.LocalRemoteShcCustomerBriefingRepetition 
+            , case when @approved = 0 then pro.LocalRemoteShcCustomerBriefingEffort * pro.OnSiteHourlyRate * prosla.LocalRemoteShcCustomerBriefingRepetition 
                 else pro.LocalRemoteShcCustomerBriefingEffort_Approved * pro.OnSiteHourlyRate_Approved * prosla.LocalRemoteShcCustomerBriefingRepetition 
             end as LocalRemoteCustomerBriefing
 
-         , case when @approved = 0 then pro.LocalOnsiteShcCustomerBriefingEffort * pro.OnSiteHourlyRate * prosla.LocalOnsiteShcCustomerBriefingRepetition 
+            , case when @approved = 0 then pro.LocalOnsiteShcCustomerBriefingEffort * pro.OnSiteHourlyRate * prosla.LocalOnsiteShcCustomerBriefingRepetition 
                 else pro.LocalOnSiteShcCustomerBriefingEffort_Approved * pro.OnSiteHourlyRate_Approved * prosla.LocalOnsiteShcCustomerBriefingRepetition 
             end as LocalOnsiteCustomerBriefing
 
-         , case when @approved = 0 then pro.TravellingTime * pro.OnSiteHourlyRate * prosla.TravellingTimeRepetition 
+            , case when @approved = 0 then pro.TravellingTime * pro.OnSiteHourlyRate * prosla.TravellingTimeRepetition 
                 else pro.TravellingTime_Approved * pro.OnSiteHourlyRate_Approved * prosla.TravellingTimeRepetition 
             end as Travel
 
-         , case when @approved = 0 then pro.CentralExecutionShcReportCost * prosla.CentralExecutionShcReportRepetition 
+            , case when @approved = 0 then pro.CentralExecutionShcReportCost * prosla.CentralExecutionShcReportRepetition 
                 else pro.CentralExecutionShcReportCost_Approved * prosla.CentralExecutionShcReportRepetition 
             end as CentralExecutionReport
 
-         , man.ListPrice       as ListPrice                   
-         , man.DealerDiscount  as DealerDiscount              
-         , man.DealerPrice     as DealerPrice                 
-         , man.ServiceTC       as ServiceTCManual                   
-         , man.ServiceTP       as ServiceTPManual                   
-         , man.ChangeUserName  as ChangeUserName
-         , man.ChangeUserEmail as ChangeUserEmail
+            , man.ListPrice       as ListPrice                   
+            , man.DealerDiscount  as DealerDiscount              
+            , man.DealerPrice     as DealerPrice                 
+            , man.ServiceTC       as ServiceTCManual                   
+            , man.ServiceTP       as ServiceTPManual                   
+            , man.ServiceTP_Released as ServiceTP_Released                  
+            , man.ChangeUserName  as ChangeUserName
+            , man.ChangeUserEmail as ChangeUserEmail
+
+            , m.SlaHash
 
     FROM Portfolio.GetBySlaPaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
 
@@ -1425,14 +1877,9 @@ RETURN
 
     INNER JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
-    LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId --find local standard warranty portfolio
-    LEFT JOIN Fsp.HwStandardWarrantyView stdw2 on stdw2.Wg = m.WgId and stdw2.Country is null    --find principle standard warranty portfolio, if local does not exist
+    LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId
 
     LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
-
-    LEFT JOIN Hardware.HddRetention hdd on hdd.Wg = m.WgId AND hdd.Year = m.DurationId
-
-    LEFT JOIN Hardware.InstallBase ib on ib.Wg = m.WgId AND ib.Country = m.CountryId
 
     LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg.ClusterPla
 
@@ -1440,13 +1887,17 @@ RETURN
 
     LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
-    LEFT JOIN Hardware.MaterialCostOow mco on mco.Wg = m.WgId AND mco.ClusterRegion = c.ClusterRegionId
+    LEFT JOIN Hardware.MaterialCostOowCalc mco on mco.Wg = m.WgId AND mco.Country = m.CountryId
 
-    LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Year = m.DurationId AND r.AvailabilityId = m.AvailabilityId AND r.ReactionTimeId = m.ReactionTimeId
+    LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Duration = m.DurationId AND r.AvailabilityId = m.AvailabilityId AND r.ReactionTimeId = m.ReactionTimeId
 
     LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId AND fsc.ReactionTypeId = m.ReactionTypeId AND fsc.ReactionTimeId = m.ReactionTimeId
 
+    LEFT JOIN Hardware.FieldServiceCostView fscStd ON fscStd.Country = stdw.Country AND fscStd.Wg = stdw.Wg AND fscStd.ServiceLocation = stdw.ServiceLocationId AND fscStd.ReactionTypeId = stdw.ReactionTypeId AND fscStd.ReactionTimeId = stdw.ReactionTimeId
+
     LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTime = m.ReactionTimeId AND lc.ReactionType = m.ReactionTypeId
+
+    LEFT JOIN Hardware.LogisticsCostView lcStd on lcStd.Country = stdw.Country AND lcStd.Wg = stdw.Wg AND lcStd.ReactionTime = stdw.ReactionTimeId AND lcStd.ReactionType = stdw.ReactionTypeId
 
     LEFT JOIN Hardware.MarkupOtherCostsView moc on moc.Wg = m.WgId AND moc.Country = m.CountryId AND moc.ReactionTimeId = m.ReactionTimeId AND moc.ReactionTypeId = m.ReactionTypeId AND moc.AvailabilityId = m.AvailabilityId
 
@@ -1464,14 +1915,14 @@ GO
 
 CREATE FUNCTION [Hardware].[GetCostsFull](
     @approved bit,
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @loc bigint,
-    @pro bigint,
+	@cnt dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @dur dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc dbo.ListID readonly,
+    @pro dbo.ListID readonly,
     @lastid bigint,
     @limit int
 )
@@ -1481,12 +1932,23 @@ RETURN
 (
     with CostCte as (
         select    m.*
+
+                , case when m.TaxAndDuties is null then 0 else m.TaxAndDuties end as TaxAndDutiesOrZero
+
+                , case when m.Reinsurance is null then 0 else m.Reinsurance end as ReinsuranceOrZero
+
+                , case when m.AvailabilityFee is null then 0 else m.AvailabilityFee end as AvailabilityFeeOrZero
+
                 , m.Year * m.ServiceSupport as ServiceSupportCost
 
-                , (1 - m.TimeAndMaterialShare) * (m.TravelCost + m.LabourCost + m.PerformanceRate) + m.TimeAndMaterialShare * (m.TravelTime + m.repairTime) * m.OnsiteHourlyRates + m.PerformanceRate as FieldServicePerYear
+                , m.StdLabourCost + m.StdTravelCost + coalesce(m.StdPerformanceRate, 0) as FieldServicePerYearStdw
+
+                , (1 - m.TimeAndMaterialShare) * (m.TravelCost + m.LabourCost + m.PerformanceRate) + m.TimeAndMaterialShare * ((m.TravelTime + m.repairTime) * m.OnsiteHourlyRates + m.PerformanceRate) as FieldServicePerYear
+
+                , m.StdStandardHandling + m.StdHighAvailabilityHandling + m.StdStandardDelivery + m.StdExpressDelivery + m.StdTaxiCourierDelivery + m.StdReturnDeliveryFactory as LogisticPerYearStdw
 
                 , m.StandardHandling + m.HighAvailabilityHandling + m.StandardDelivery + m.ExpressDelivery + m.TaxiCourierDelivery + m.ReturnDeliveryFactory as LogisticPerYear
-                
+
                 , m.LocalRemoteAccessSetup + m.Year * (m.LocalPreparation + m.LocalRegularUpdate + m.LocalRemoteCustomerBriefing + m.LocalOnsiteCustomerBriefing + m.Travel + m.CentralExecutionReport) as ProActive
        
         from Hardware.GetCalcMember(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
@@ -1508,12 +1970,24 @@ RETURN
                 , case when m.StdWarranty >= 5 then 0 else m.MaterialCostOow * m.AFR5 end as matO5
                 , m.MaterialCostOow * m.AFRP1 as matO1P
 
+                , m.FieldServicePerYearStdw * m.AFR1  as FieldServiceCostStdw1
+                , m.FieldServicePerYearStdw * m.AFR2  as FieldServiceCostStdw2
+                , m.FieldServicePerYearStdw * m.AFR3  as FieldServiceCostStdw3
+                , m.FieldServicePerYearStdw * m.AFR4  as FieldServiceCostStdw4
+                , m.FieldServicePerYearStdw * m.AFR5  as FieldServiceCostStdw5
+
                 , m.FieldServicePerYear * m.AFR1  as FieldServiceCost1
                 , m.FieldServicePerYear * m.AFR2  as FieldServiceCost2
                 , m.FieldServicePerYear * m.AFR3  as FieldServiceCost3
                 , m.FieldServicePerYear * m.AFR4  as FieldServiceCost4
                 , m.FieldServicePerYear * m.AFR5  as FieldServiceCost5
                 , m.FieldServicePerYear * m.AFRP1 as FieldServiceCost1P
+
+                , m.LogisticPerYearStdw * m.AFR1  as LogisticStdw1
+                , m.LogisticPerYearStdw * m.AFR2  as LogisticStdw2
+                , m.LogisticPerYearStdw * m.AFR3  as LogisticStdw3
+                , m.LogisticPerYearStdw * m.AFR4  as LogisticStdw4
+                , m.LogisticPerYearStdw * m.AFR5  as LogisticStdw5
 
                 , m.LogisticPerYear * m.AFR1  as Logistic1
                 , m.LogisticPerYear * m.AFR2  as Logistic2
@@ -1527,19 +2001,19 @@ RETURN
     , CostCte2_2 as (
         select    m.*
 
-                , case when m.StdWarranty >= 1 then m.TaxAndDuties * m.mat1 else 0 end as tax1
-                , case when m.StdWarranty >= 2 then m.TaxAndDuties * m.mat2 else 0 end as tax2
-                , case when m.StdWarranty >= 3 then m.TaxAndDuties * m.mat3 else 0 end as tax3
-                , case when m.StdWarranty >= 4 then m.TaxAndDuties * m.mat4 else 0 end as tax4
-                , case when m.StdWarranty >= 5 then m.TaxAndDuties * m.mat5 else 0 end as tax5
+                , case when m.StdWarranty >= 1 then m.TaxAndDutiesOrZero * m.mat1 else 0 end as tax1
+                , case when m.StdWarranty >= 2 then m.TaxAndDutiesOrZero * m.mat2 else 0 end as tax2
+                , case when m.StdWarranty >= 3 then m.TaxAndDutiesOrZero * m.mat3 else 0 end as tax3
+                , case when m.StdWarranty >= 4 then m.TaxAndDutiesOrZero * m.mat4 else 0 end as tax4
+                , case when m.StdWarranty >= 5 then m.TaxAndDutiesOrZero * m.mat5 else 0 end as tax5
                 , 0  as tax1P
 
-                , case when m.StdWarranty >= 1 then 0 else m.TaxAndDuties * m.matO1 end as taxO1
-                , case when m.StdWarranty >= 2 then 0 else m.TaxAndDuties * m.matO2 end as taxO2
-                , case when m.StdWarranty >= 3 then 0 else m.TaxAndDuties * m.matO3 end as taxO3
-                , case when m.StdWarranty >= 4 then 0 else m.TaxAndDuties * m.matO4 end as taxO4
-                , case when m.StdWarranty >= 5 then 0 else m.TaxAndDuties * m.matO5 end as taxO5
-                , m.matO1P * m.AFRP1 as taxO1P
+                , case when m.StdWarranty >= 1 then 0 else m.TaxAndDutiesOrZero * m.matO1 end as taxO1
+                , case when m.StdWarranty >= 2 then 0 else m.TaxAndDutiesOrZero * m.matO2 end as taxO2
+                , case when m.StdWarranty >= 3 then 0 else m.TaxAndDutiesOrZero * m.matO3 end as taxO3
+                , case when m.StdWarranty >= 4 then 0 else m.TaxAndDutiesOrZero * m.matO4 end as taxO4
+                , case when m.StdWarranty >= 5 then 0 else m.TaxAndDutiesOrZero * m.matO5 end as taxO5
+                , m.TaxAndDutiesOrZero * m.matO1P as taxO1P
 
                 , m.mat1  + m.matO1                     as matCost1
                 , m.mat2  + m.matO2                     as matCost2
@@ -1548,43 +2022,44 @@ RETURN
                 , m.mat5  + m.matO5                     as matCost5
                 , m.mat1P + m.matO1P                    as matCost1P
 
-                , m.TaxAndDuties * (m.mat1  + m.matO1)  as TaxAndDuties1
-                , m.TaxAndDuties * (m.mat2  + m.matO2)  as TaxAndDuties2
-                , m.TaxAndDuties * (m.mat3  + m.matO3)  as TaxAndDuties3
-                , m.TaxAndDuties * (m.mat4  + m.matO4)  as TaxAndDuties4
-                , m.TaxAndDuties * (m.mat5  + m.matO5)  as TaxAndDuties5
-                , m.TaxAndDuties * (m.mat1P + m.matO1P) as TaxAndDuties1P
+                , m.TaxAndDutiesOrZero * (m.mat1  + m.matO1)  as TaxAndDuties1
+                , m.TaxAndDutiesOrZero * (m.mat2  + m.matO2)  as TaxAndDuties2
+                , m.TaxAndDutiesOrZero * (m.mat3  + m.matO3)  as TaxAndDuties3
+                , m.TaxAndDutiesOrZero * (m.mat4  + m.matO4)  as TaxAndDuties4
+                , m.TaxAndDutiesOrZero * (m.mat5  + m.matO5)  as TaxAndDuties5
+                , m.TaxAndDutiesOrZero * (m.mat1P + m.matO1P) as TaxAndDuties1P
 
         from CostCte2 m
     )
     , CostCte3 as (
-        select    m.*
+        select    
+                  m.*
 
-                , Hardware.AddMarkup(m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.Reinsurance, m.MarkupFactor, m.Markup)  as OtherDirect1
-                , Hardware.AddMarkup(m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.Reinsurance, m.MarkupFactor, m.Markup)  as OtherDirect2
-                , Hardware.AddMarkup(m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.Reinsurance, m.MarkupFactor, m.Markup)  as OtherDirect3
-                , Hardware.AddMarkup(m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.Reinsurance, m.MarkupFactor, m.Markup)  as OtherDirect4
-                , Hardware.AddMarkup(m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.Reinsurance, m.MarkupFactor, m.Markup)  as OtherDirect5
-                , Hardware.AddMarkup(m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.Reinsurance, m.MarkupFactor, m.Markup)  as OtherDirect1P
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect1
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect2
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect3
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect4
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect5
+                , Hardware.MarkupOrFixValue(m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.ReinsuranceOrZero + m.AvailabilityFeeOrZero, m.MarkupFactorOtherCost, m.MarkupOtherCost)  as OtherDirect1P
 
                 , case when m.StdWarranty >= 1 
-                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic1, m.tax1, m.AFR1, m.AvailabilityFee, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw1, m.ServiceSupport, m.LogisticStdw1, m.tax1, m.AFR1, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty1
                 , case when m.StdWarranty >= 2 
-                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic2, m.tax2, m.AFR2, m.AvailabilityFee, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw2, m.ServiceSupport, m.LogisticStdw2, m.tax2, m.AFR2, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty2
                 , case when m.StdWarranty >= 3 
-                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic3, m.tax3, m.AFR3, m.AvailabilityFee, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw3, m.ServiceSupport, m.LogisticStdw3, m.tax3, m.AFR3, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty3
                 , case when m.StdWarranty >= 4 
-                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic4, m.tax4, m.AFR4, m.AvailabilityFee, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw4, m.ServiceSupport, m.LogisticStdw4, m.tax4, m.AFR4, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty4
                 , case when m.StdWarranty >= 5 
-                        then Hardware.CalcLocSrvStandardWarranty(m.LabourCost, m.TravelCost, m.ServiceSupport, m.Logistic5, m.tax5, m.AFR5, m.AvailabilityFee, m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty) 
+                        then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCostStdw5, m.ServiceSupport, m.LogisticStdw5, m.tax5, m.AFR5, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty5
                 , 0     as LocalServiceStandardWarranty1P
@@ -1603,22 +2078,24 @@ RETURN
     )
     , CostCte5 as (
         select m.*
-             , m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.TaxAndDuties1  + m.Reinsurance + m.AvailabilityFee - m.Credit1  as ServiceTC1
-             , m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.TaxAndDuties2  + m.Reinsurance + m.AvailabilityFee - m.Credit2  as ServiceTC2
-             , m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.TaxAndDuties3  + m.Reinsurance + m.AvailabilityFee - m.Credit3  as ServiceTC3
-             , m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.TaxAndDuties4  + m.Reinsurance + m.AvailabilityFee - m.Credit4  as ServiceTC4
-             , m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.TaxAndDuties5  + m.Reinsurance + m.AvailabilityFee - m.Credit5  as ServiceTC5
-             , m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.TaxAndDuties1P + m.Reinsurance + m.AvailabilityFee - m.Credit1P as ServiceTC1P
+
+             , m.FieldServiceCost1  + m.ServiceSupport + m.matCost1  + m.Logistic1  + m.TaxAndDuties1  + m.ReinsuranceOrZero + m.OtherDirect1  + m.AvailabilityFeeOrZero - m.Credit1  as ServiceTP1
+             , m.FieldServiceCost2  + m.ServiceSupport + m.matCost2  + m.Logistic2  + m.TaxAndDuties2  + m.ReinsuranceOrZero + m.OtherDirect2  + m.AvailabilityFeeOrZero - m.Credit2  as ServiceTP2
+             , m.FieldServiceCost3  + m.ServiceSupport + m.matCost3  + m.Logistic3  + m.TaxAndDuties3  + m.ReinsuranceOrZero + m.OtherDirect3  + m.AvailabilityFeeOrZero - m.Credit3  as ServiceTP3
+             , m.FieldServiceCost4  + m.ServiceSupport + m.matCost4  + m.Logistic4  + m.TaxAndDuties4  + m.ReinsuranceOrZero + m.OtherDirect4  + m.AvailabilityFeeOrZero - m.Credit4  as ServiceTP4
+             , m.FieldServiceCost5  + m.ServiceSupport + m.matCost5  + m.Logistic5  + m.TaxAndDuties5  + m.ReinsuranceOrZero + m.OtherDirect5  + m.AvailabilityFeeOrZero - m.Credit5  as ServiceTP5
+             , m.FieldServiceCost1P + m.ServiceSupport + m.matCost1P + m.Logistic1P + m.TaxAndDuties1P + m.ReinsuranceOrZero + m.OtherDirect1P + m.AvailabilityFeeOrZero - m.Credit1P as ServiceTP1P
+
         from CostCte4 m
     )
     , CostCte6 as (
         select m.*
-             , Hardware.AddMarkup(m.ServiceTC1, m.MarkupFactor, m.Markup) as ServiceTP1
-             , Hardware.AddMarkup(m.ServiceTC2, m.MarkupFactor, m.Markup) as ServiceTP2
-             , Hardware.AddMarkup(m.ServiceTC3, m.MarkupFactor, m.Markup) as ServiceTP3
-             , Hardware.AddMarkup(m.ServiceTC4, m.MarkupFactor, m.Markup) as ServiceTP4
-             , Hardware.AddMarkup(m.ServiceTC5, m.MarkupFactor, m.Markup) as ServiceTP5
-             , Hardware.AddMarkup(m.ServiceTC1P, m.MarkupFactor, m.Markup) as ServiceTP1P
+             , m.ServiceTP1  - m.OtherDirect1  as ServiceTC1
+             , m.ServiceTP2  - m.OtherDirect2  as ServiceTC2
+             , m.ServiceTP3  - m.OtherDirect3  as ServiceTC3
+             , m.ServiceTP4  - m.OtherDirect4  as ServiceTC4
+             , m.ServiceTP5  - m.OtherDirect5  as ServiceTC5
+             , m.ServiceTP1P - m.OtherDirect1P as ServiceTC1P
         from CostCte5 m
     )    
     select m.Id
@@ -1648,8 +2125,7 @@ RETURN
 
          --Cost
 
-         , m.AvailabilityFee
-         , m.HddRet
+         , m.AvailabilityFee * m.Year as AvailabilityFee
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.tax1, m.tax2, m.tax3, m.tax4, m.tax5, m.tax1P) as TaxAndDutiesW
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.taxO1, m.taxO2, m.taxO3, m.taxO4, m.taxO5, m.taxO1P) as TaxAndDutiesOow
          , m.Reinsurance
@@ -1692,20 +2168,24 @@ RETURN
          , m.ChangeUserName
          , m.ChangeUserEmail
 
+         , m.ServiceTP_Released
+
+         , m.SlaHash
+
        from CostCte6 m
 )
-go
+GO
 
 CREATE FUNCTION [Hardware].[GetCosts](
     @approved bit,
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @loc bigint,
-    @pro bigint,
+   	@cnt dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @dur dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc dbo.ListID readonly,
+    @pro dbo.ListID readonly,
     @lastid bigint,
     @limit int
 )
@@ -1727,7 +2207,6 @@ RETURN
          , StdWarranty
 
          , AvailabilityFee
-         , HddRet
          , TaxAndDutiesW
          , TaxAndDutiesOow
          , Reinsurance
@@ -1752,21 +2231,23 @@ RETURN
          , ChangeUserName
          , ChangeUserEmail
 
+         ,ServiceTP_Released
+
     from Hardware.GetCostsFull(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit)
 )
-
 go
 
-CREATE PROCEDURE Hardware.SpGetCosts
+CREATE PROCEDURE [Hardware].[SpGetCosts]
     @approved bit,
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @loc bigint,
-    @pro bigint,
+    @local bit,
+    @cnt dbo.ListID readonly,
+    @wg dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @dur dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc dbo.ListID readonly,
+    @pro dbo.ListID readonly,
     @lastid bigint,
     @limit int,
     @total int output
@@ -1775,19 +2256,100 @@ BEGIN
 
     SET NOCOUNT ON;
 
+    declare @cnt_id bigint = (select top(1) id from @cnt);
+    declare @isEmptyWG    bit = Portfolio.IsListEmpty(@wg);
+    declare @isEmptyAv    bit = Portfolio.IsListEmpty(@av);
+    declare @isEmptyDur   bit = Portfolio.IsListEmpty(@dur);
+    declare @isEmptyRType bit = Portfolio.IsListEmpty(@reactiontype);
+    declare @isEmptyRTime bit = Portfolio.IsListEmpty(@reactiontime);
+    declare @isEmptyLoc   bit = Portfolio.IsListEmpty(@loc);
+    declare @isEmptyPro   bit = Portfolio.IsListEmpty(@pro);
+
     select @total = COUNT(id)
     from Portfolio.LocalPortfolio m
-    where   (m.CountryId = @cnt)
-        and (@wg is null            or m.WgId = @wg)
-        and (@av is null            or m.AvailabilityId = @av)
-        and (@dur is null           or m.DurationId = @dur)
-        and (@reactiontime is null  or m.ReactionTimeId = @reactiontime)
-        and (@reactiontype is null  or m.ReactionTypeId = @reactiontype)
-        and (@loc is null           or m.ServiceLocationId = @loc)
-        and (@pro is null           or m.ProActiveSlaId = @pro)
+   where     CountryId = @cnt_id
+        AND (@isEmptyWG = 1 or WgId in (select id from @wg))
+        AND (@isEmptyAv = 1 or AvailabilityId in (select id from @av))
+        AND (@isEmptyDur = 1 or DurationId in (select id from @dur))
+        AND (@isEmptyRTime = 1 or ReactionTimeId in (select id from @reactiontime))
+        AND (@isEmptyRType = 1 or ReactionTypeId in (select id from @reactiontype))
+        AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
+        AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
 
-    select * from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit)
-    order by Id
+    declare @cur nvarchar(max);
+    declare @exchange float;
 
+    if @local = 1
+    begin
+    
+        --convert values from EUR to local
+
+        select costs.Id
+
+             , Country
+             , cur.Name as Currency
+             , er.Value as ExchangeRate
+
+             , Wg
+             , Availability
+             , Duration
+             , ReactionTime
+             , ReactionType
+             , ServiceLocation
+             , ProActiveSla
+
+             , StdWarranty
+
+             --Cost
+
+             , AvailabilityFee               * er.Value  as AvailabilityFee 
+             , TaxAndDutiesW                 * er.Value  as TaxAndDutiesW
+             , TaxAndDutiesOow               * er.Value  as TaxAndDutiesOow
+             , Reinsurance                   * er.Value  as Reinsurance
+             , ProActive                     * er.Value  as ProActive
+             , ServiceSupportCost            * er.Value  as ServiceSupportCost
+
+             , MaterialW                     * er.Value  as MaterialW
+             , MaterialOow                   * er.Value  as MaterialOow
+             , FieldServiceCost              * er.Value  as FieldServiceCost
+             , Logistic                      * er.Value  as Logistic
+             , OtherDirect                   * er.Value  as OtherDirect
+             , LocalServiceStandardWarranty  * er.Value  as LocalServiceStandardWarranty
+             , Credits                       * er.Value  as Credits
+             , ServiceTC                     * er.Value  as ServiceTC
+             , ServiceTP                     * er.Value  as ServiceTP
+
+             , ServiceTCManual               * er.Value  as ServiceTCManual
+             , ServiceTPManual               * er.Value  as ServiceTPManual
+
+             , ServiceTP_Released            * er.Value as ServiceTP_Released
+
+             , ListPrice                     * er.Value  as ListPrice
+             , DealerPrice                   * er.Value  as DealerPrice
+             , DealerDiscount                             as DealerDiscount
+
+             , ChangeUserName                             as ChangeUserName
+             , ChangeUserEmail                            as ChangeUserEmail
+
+        from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) costs
+        join [InputAtoms].Country c on c.Name = costs.Country
+        join [References].Currency cur on cur.Id = c.CurrencyId
+        join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+        order by Id 
+        
+    end
+    else
+    begin
+
+        select cur.Name as Currency
+             , er.Value as ExchangeRate
+             , costs.*
+        from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) costs
+        join [InputAtoms].Country c on c.Name = costs.Country
+        join [References].Currency cur on cur.Id = c.CurrencyId
+        join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+        order by Id
+    end
 END
+
 go

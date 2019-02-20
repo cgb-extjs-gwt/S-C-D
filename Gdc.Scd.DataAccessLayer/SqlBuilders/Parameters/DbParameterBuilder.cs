@@ -90,6 +90,23 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters
             return WithTypeName("ListID").WithPValue(tbl);
         }
 
+        public DbParameterBuilder WithListNameValue(string[] values)
+        {
+            var tbl = new DataTable();
+            tbl.Columns.Add("Name", typeof(string));
+
+            if (values != null)
+            {
+                var rows = tbl.Rows;
+                for (var i = 0; i < values.Length; i++)
+                {
+                    rows.Add(values[i]);
+                }
+            }
+
+            return WithTypeName("ListName").WithPValue(tbl);
+        }
+
         public DbParameterBuilder WithKeyValue(IDictionary<string, string> values)
         {
             var tbl = new DataTable();

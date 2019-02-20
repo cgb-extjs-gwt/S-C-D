@@ -9,6 +9,10 @@ import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
 import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
 import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
 import { SogField } from "../../Dict/Components/SogField";
+import { StandardWgField } from "../../Dict/Components/StandardWgField";
+import { SwDigitField } from "../../Dict/Components/SwDigitField";
+import { UserCountryField } from "../../Dict/Components/UserCountryField";
+import { WgAllField } from "../../Dict/Components/WgAllField";
 import { WgField } from "../../Dict/Components/WgField";
 import { YearField } from "../../Dict/Components/YearField";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
@@ -59,11 +63,20 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
             case AutoFilterType.WG:
                 return <WgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
+            case AutoFilterType.WGALL:
+                return <WgAllField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+
+            case AutoFilterType.WGSTANDARD:
+                return <StandardWgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+
             case AutoFilterType.SOG:
                 return <SogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.COUNTRY:
                 return <CountryField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+
+            case AutoFilterType.USERCOUNTRY:
+                return <UserCountryField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.COUNTRYGROUP:
                 return <CountryGroupField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
@@ -88,6 +101,9 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
 
             case AutoFilterType.SERVICELOCATION:
                 return <ServiceLocationField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+
+            case AutoFilterType.SWDIGIT:
+                return <SwDigitField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.TEXT:
             default:

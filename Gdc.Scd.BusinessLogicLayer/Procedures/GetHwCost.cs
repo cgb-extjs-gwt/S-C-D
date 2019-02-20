@@ -32,6 +32,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         private static DbParameter[] Prepare(bool approved, HwFilterDto filter, int lastid, int limit)
         {
             var pApproved = new DbParameterBuilder().WithName("approved").WithValue(approved);
+            var pLocal = new DbParameterBuilder().WithName("local").WithValue(true);
             var pCnt = new DbParameterBuilder().WithName("cnt");
             var pWg = new DbParameterBuilder().WithName("wg");
             var pAv = new DbParameterBuilder().WithName("av");
@@ -46,18 +47,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
             if (filter != null)
             {
-                pCnt.WithValue(filter.Country);
-                pWg.WithValue(filter.Wg);
-                pAv.WithValue(filter.Availability);
-                pDur.WithValue(filter.Duration);
-                pReactiontype.WithValue(filter.ReactionType);
-                pReactiontime.WithValue(filter.ReactionTime);
-                pLoc.WithValue(filter.ServiceLocation);
-                pPro.WithValue(filter.ProActive);
+                pCnt.WithListIdValue(filter.Country);
+                pWg.WithListIdValue(filter.Wg);
+                pAv.WithListIdValue(filter.Availability);
+                pDur.WithListIdValue(filter.Duration);
+                pReactiontype.WithListIdValue(filter.ReactionType);
+                pReactiontime.WithListIdValue(filter.ReactionTime);
+                pLoc.WithListIdValue(filter.ServiceLocation);
+                pPro.WithListIdValue(filter.ProActive);
             }
 
             return new DbParameter[] {
                  pApproved.Build(),
+                 pLocal.Build(),
                  pCnt.Build(),
                  pWg.Build(),
                  pAv.Build(),
@@ -74,7 +76,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
         private static int GetTotal(DbParameter[] parameters)
         {
-            return parameters[11].GetInt32();
+            return parameters[12].GetInt32();
         }
     }
 }

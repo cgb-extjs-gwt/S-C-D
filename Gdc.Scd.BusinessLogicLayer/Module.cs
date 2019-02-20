@@ -4,9 +4,9 @@ using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Core.Entities.Report;
+using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Ninject.Modules;
-using Ninject.Web.Common;
 
 namespace Gdc.Scd.BusinessLogicLayer
 {
@@ -14,25 +14,29 @@ namespace Gdc.Scd.BusinessLogicLayer
     {
         public override void Load()
         {
-            Bind(typeof(IDomainService<>)).To(typeof(DomainService<>)).InRequestScope();
-            Bind<IWgPorService>().To<WgPorDecoratorService>().InRequestScope();
-            Bind<ICostEditorService>().To<CostEditorService>().InRequestScope();
-            Bind<IPortfolioService>().To<PortfolioService>().InRequestScope();
-            Bind<ICalculationService>().To<CalculationService>().InRequestScope();
-            Bind<IReportService>().To<ReportService>().InRequestScope();
-            Bind<IUserService>().To<UserService>().InRequestScope();
-            Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InRequestScope();
-            Bind<IAvailabilityFeeAdminService>().To<AvailabilityFeeAdminService>().InRequestScope();
-            Bind<ICountryAdminService>().To<CountryAdminService>().InRequestScope();
-            Bind<ICountryUserService>().To<CountryUserService>().InRequestScope();
-            Bind<IEmailService>().To<EmailService>().InRequestScope();
-            Bind<IQualityGateSevice>().To<QualityGateSevice>().InRequestScope();
-            Bind<IActiveDirectoryService>().To<ActiveDirectoryService>().InRequestScope();
-            Bind<ITableViewService>().To<TableViewService>().InRequestScope();
-            Bind<IAppService>().To<AppService>().InRequestScope();
-            Bind<ICostBlockService>().To<CostBlockService>().InRequestScope();
-            Bind<IApprovalService>().To<ApprovalService>().InRequestScope();
+            Bind(typeof(IDomainService<>)).To(typeof(DomainService<>)).InScdRequestScope();
+            Bind<IWgService>().To<WgService>().InScdRequestScope();
+            Bind<IWgPorService>().To<WgPorDecoratorService>().InScdRequestScope();
+            Bind<ICostEditorService>().To<CostEditorService>().InScdRequestScope();
+            Bind<IPortfolioService>().To<PortfolioService>().InScdRequestScope();
+            Bind<ICalculationService>().To<CalculationService>().InScdRequestScope();
+            Bind<IHddRetentionService>().To<HddRetentionService>().InScdRequestScope();
+            Bind<IReportService>().To<ReportService>().InScdRequestScope();
+            Bind<IUserService>().To<UserService>().InScdRequestScope();
+            Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InScdRequestScope();
+            Bind<IAvailabilityFeeAdminService>().To<AvailabilityFeeAdminService>().InScdRequestScope();
+            Bind<ICountryAdminService>().To<CountryAdminService>().InScdRequestScope();
+            Bind<ICountryUserService>().To<CountryUserService>().InScdRequestScope();
+            Bind<IEmailService>().To<EmailService>().InScdRequestScope();
+            Bind<IQualityGateSevice>().To<QualityGateSevice>().InScdRequestScope();
+            Bind<IActiveDirectoryService>().To<ActiveDirectoryService>().InScdRequestScope();
+            Bind<ITableViewService>().To<TableViewService>().InScdRequestScope();
+            Bind<IAppService>().To<AppService>().InScdRequestScope();
+            Bind<ICostBlockService>().To<CostBlockService>().InScdRequestScope();
+            Bind<IApprovalService>().To<ApprovalService>().InScdRequestScope();
             Bind<INotifyChannel>().To<MemoryChannel>().InSingletonScope();
+            Bind<ICostImportExcelService>().To<CostImportExcelService>().InScdRequestScope();
+            Bind<IRoleCodeService>().To<RoleCodeService>().InScdRequestScope();
 
             /*----------dictionaries-----------*/
             Kernel.RegisterEntity<ClusterRegion>();
@@ -53,7 +57,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<ServiceLocation>();
             Kernel.RegisterEntity<Currency>();
             Kernel.RegisterEntity<ExchangeRate>();
-            Kernel.RegisterEntity<YearAvailability>();
+            Kernel.RegisterEntity<DurationAvailability>();
             Kernel.RegisterEntity<ClusterPla>();
             Kernel.RegisterEntity<ProActiveSla>();
             Kernel.RegisterEntity<SwDigit>();
@@ -62,6 +66,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<SwLicense>();
             Kernel.RegisterEntity<SwDigitLicense>();
             Kernel.RegisterEntity<HwFspCodeTranslation>();
+            Kernel.RegisterEntity<HwHddFspCodeTranslation>();
             Kernel.RegisterEntity<SwFspCodeTranslation>();
             Kernel.RegisterEntity<ImportConfiguration>();
             Kernel.RegisterEntity<ProActiveDigit>();
@@ -80,8 +85,8 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<LocalPortfolio>();
             Kernel.RegisterEntity<PrincipalPortfolio>();
             Kernel.RegisterEntity<HardwareManualCost>();
-            Kernel.RegisterEntity<SoftwareMaintenance>();
-            Kernel.RegisterEntity<SoftwareProactive>();
+            Kernel.RegisterEntity<HddRetentionManualCost>();
+            Kernel.RegisterEntity<HddRetentionView>();
 
             /*---------reports----------*/
             Kernel.RegisterEntity<Report>();

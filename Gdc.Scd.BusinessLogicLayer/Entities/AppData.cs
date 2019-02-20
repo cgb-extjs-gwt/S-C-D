@@ -9,5 +9,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Entities
         public DomainMetaDto Meta { get; set; }
 
         public IEnumerable<RoleDto> UserRoles { get; set; }
+
+        public string AppVersion { get; set; }
     }
 }

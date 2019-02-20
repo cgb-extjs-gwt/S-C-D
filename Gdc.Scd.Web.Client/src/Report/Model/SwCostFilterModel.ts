@@ -1,6 +1,8 @@
 ﻿export interface SwCostFilterModel {
-    country?: string;
+    country?: string[];
+    digit?: string[];
     sog?: string;
-    availability?: string;
-    year?: string;
+    availability?: string[];
+    year?: string[];
+    duration?: string[];
 }

@@ -10,18 +10,18 @@ Ext.require([
 ]);
 
 export interface CostBlockActions {
-    onRegionSelected?: (regionId: string) => void
+    onRegionSelected?: (regionId: number) => void
     onCostElementSelected?: (costElementId: string) => void
     onCostElementFilterSelectionChanged?: (
         costElementId: string,
-        filterItemId: string,
+        filterItemId: number,
         isSelected: boolean) => void
     onCostElementFilterReseted?: (costElementId: string) => void
     onInputLevelSelected?: (costElementId: string, inputLevelId: string) => void
     onInputLevelFilterSelectionChanged?: (
         costElementId: string,
         inputLevelId: string,
-        filterItemId: string,
+        filterItemId: number,
         isSelected: boolean) => void
     onInputLevelFilterReseted?: (costElementId: string, inputLevelId: string) => void
     onEditItemsCleared?: () => void
@@ -44,7 +44,7 @@ export interface CostElementProps extends SelectListFilter {
 }
 
 export interface RegionProps {
-    selectedList: SelectList<NamedId>
+    selectedList: SelectList<NamedId<number>, number>
     name: string
     isEnabled: boolean
 }
@@ -101,7 +101,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
                                 items={costElement.filter}
                                 flex={1}
                                 onSelectionChanged={
-                                    (item: NamedId, isSelected: boolean) =>
+                                    (item: NamedId<number>, isSelected: boolean) =>
                                         onCostElementFilterSelectionChanged &&
                                         onCostElementFilterSelectionChanged(
                                             costElement.selectList.selectedItemId,
@@ -149,7 +149,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
                                     items={inputLevel.filter}
                                     flex={1}
                                     onSelectionChanged={
-                                        (item: NamedId, isSelected: boolean) =>
+                                        (item: NamedId<number>, isSelected: boolean) =>
                                             onInputLevelFilterSelectionChanged &&
                                             onInputLevelFilterSelectionChanged(
                                                 costElement.selectList.selectedItemId,
@@ -190,7 +190,7 @@ export class CostBlockView extends React.Component<CostBlockProps & CostBlockAct
 
             const selectedRegion =
                 regionStore.getData()
-                    .findBy(item => (item.data as NamedId).id === region.selectedList.selectedItemId);
+                    .findBy(item => (item.data as NamedId<number>).id === region.selectedList.selectedItemId);
 
             result = (
                 <ComboBoxField

@@ -1,4 +1,4 @@
-import { NamedId } from "../../Common/States/CommonStates";
+import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
 import { Country } from "../Model/Country";
 import { IDictService } from "../Services/IDictService";
 import { fakeAvailability } from "./FakeAvailability";
@@ -14,6 +14,15 @@ import { fakeWG } from "./FakeWG";
 import { fakeYears } from "./FakeYear";
 
 export class FakeDictService implements IDictService {
+    getCurrencies(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
+    getMasterCountriesNames(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
+    getUserCountryNames(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
     public getCountries(): Promise<NamedId[]> {
         return this.fromResult(fakeCountries);
     }
@@ -51,12 +60,24 @@ export class FakeDictService implements IDictService {
         return this.fromResult(fakeWG);
     }
 
+    public getWgWithMultivendor(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
+
+    public getStandardWg(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
+
     public getPla(): Promise<NamedId<string>[]> {
         return this.fromResult(fakePla);
     }
 
     public getSog(): Promise<NamedId<string>[]> {
         return this.fromResult(fakeSog);
+    }
+
+    public getSwDigit(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
     }
 
     public getAvailabilityTypes(): Promise<NamedId[]> {
@@ -79,7 +100,7 @@ export class FakeDictService implements IDictService {
         return this.fromResult(fakeReactTimeTypes);
     }
 
-    public getServiceLocationTypes(): Promise<NamedId[]> {
+    public getServiceLocationTypes(): Promise<SortableNamedId[]> {
         return this.fromResult(fakeServiceLocationTypes);
     }
 

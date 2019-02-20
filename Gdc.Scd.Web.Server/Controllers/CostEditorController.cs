@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using Gdc.Scd.BusinessLogicLayer.Dto;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.QualityGate;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
 using Gdc.Scd.Web.Server.Heplers;
@@ -30,7 +33,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             this.domainMetaSevice = domainMetaSevice;
         }
 
-        public async Task<CostElementData> GetCostElementData([System.Web.Http.FromUri]CostEditorContext context)
+        public async Task<CostEditorDto> GetCostElementData([System.Web.Http.FromUri]CostEditorContext context)
         {
             return await this.costEditorService.GetCostElementData(context);
         }
@@ -56,9 +59,8 @@ namespace Gdc.Scd.Web.Server.Controllers
             return await this.costEditorService.UpdateValues(editItems, context, approvalOption);
         }
 
-        // TODO: Need return DataInfo object, otherwise live scrol don't work. See BaseDomainController method GetBy.
         [HttpGet]
-        public async Task<IEnumerable<HistoryItem>> GetHistory(
+        public async Task<DataInfo<HistoryItemDto>> GetHistory(
             [System.Web.Http.FromUri]CostEditorContext context,
             [System.Web.Http.FromUri]long editItemId,
             [System.Web.Http.FromUri]int? start,
@@ -66,8 +68,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             [System.Web.Http.FromUri]string sort = null)
         {
             var queryInfo = QueryInfoHelper.BuildQueryInfo(start, limit, sort);
-
-            return await this.costEditorService.GetHistoryItems(context, editItemId, queryInfo);
+            return await this.costEditorService.GetHistory(context, editItemId, queryInfo);
         }
     }
 }

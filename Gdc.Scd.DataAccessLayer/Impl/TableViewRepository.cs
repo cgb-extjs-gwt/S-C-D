@@ -10,7 +10,7 @@ using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -24,7 +24,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly ICostBlockFilterBuilder costBlockFilterBuilder;
 
-        public TableViewRepository(IRepositorySet repositorySet, ISqlRepository sqlRepository, ICostBlockFilterBuilder costBlockFilterBuilder)
+        public TableViewRepository(
+            IRepositorySet repositorySet, 
+            ISqlRepository sqlRepository, 
+            ICostBlockFilterBuilder costBlockFilterBuilder)
         {
             this.repositorySet = repositorySet;
             this.sqlRepository = sqlRepository;
@@ -76,35 +79,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                 return record;
             });
-        }
-
-        public async Task UpdateRecords(IEnumerable<EditInfo> editInfos)
-        {
-            var queries = new List<SqlHelper>();
-            var paramIndex = 0;
-
-            foreach (var editInfo in editInfos)
-            {
-                foreach (var valueInfo in editInfo.ValueInfos)
-                {
-                    var updateColumns = valueInfo.Values.Select(costElementValue => new ValueUpdateColumnInfo(
-                        costElementValue.Key,
-                        costElementValue.Value,
-                        $"param_{paramIndex++}"));
-
-                    var whereCondition = ConditionHelper.And(
-                        valueInfo.Coordinates.Select(
-                            coordinate => SqlOperators.Equals(coordinate.Key, $"param_{paramIndex++}", coordinate.Value)));
-
-                    var query =
-                        Sql.Update(editInfo.Meta, updateColumns.ToArray())
-                           .Where(whereCondition);
-
-                    queries.Add(query);
-                }
-            }
-
-            await this.repositorySet.ExecuteSqlAsync(Sql.Queries(queries));
         }
 
         public async Task<IDictionary<string, ReferenceSet>> GetReferences(CostElementInfo[] costElementInfo)
@@ -184,6 +158,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public IEnumerable<EditInfo> BuildEditInfos(CostElementInfo[] costElementInfos, IEnumerable<Record> records)
         {
+            var coordinateValueCache = new Dictionary<long, long[]>();
+
             var queries = new List<SqlHelper>();
             var fieldDictionary = costElementInfos.ToDictionary(
                 info => info.Meta.Name,
@@ -262,7 +238,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                         valueInfos.Add(new ValuesInfo
                         {
-                            Coordinates = coordinates,
+                            CoordinateFilter = coordinates.ToDictionary(keyValue => keyValue.Key, keyValue => new [] { keyValue.Value }),
                             Values = coordinateGroup.ToDictionary(rawEditInfo => rawEditInfo.EditFieldId.CostElementId, rawEditInfo => rawEditInfo.Value)
                         });
                     }
@@ -280,7 +256,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
         }
 
-        private UnionSqlHelper BuildGetRecordsQuery(QueryInfo queryInfo)
+        private SqlHelper BuildGetRecordsQuery(QueryInfo queryInfo)
         {
             var costBlockQueryInfos = queryInfo.DataInfos.Select(costBlockInfo => 
             {
@@ -288,12 +264,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                 if (costBlockInfo is DependencyItemCostBlockQueryInfo dependencyItemQueryInfo)
                 {
-                    var parameterName = $"{dependencyItemQueryInfo.DependecyField.Name}_{dependencyItemQueryInfo.DependencyItemId}";
-                    var parameter = new CommandParameterInfo(parameterName, dependencyItemQueryInfo.DependencyItemId);
-
                     filter = new Dictionary<string, IEnumerable<object>>
                     {
-                        [dependencyItemQueryInfo.DependecyField.Name] = new object[] { parameter }
+                        [dependencyItemQueryInfo.DependecyField.Name] = new object[] { dependencyItemQueryInfo.DependencyItemId }
                     };
                 }
 
@@ -310,14 +283,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         Alias = costBlockInfo.Alias
                     },
                     Filter = filter,
-                    GroupByColumns = queryInfo.CoordinateInfos.Select(info => new ColumnInfo(info.CoordinateMeta.Name, costBlockInfo.Alias)).ToArray()
+                    GroupByColumns = queryInfo.CoordinateInfos.Select(info => new ColumnInfo(info.CoordinateMeta.Name, costBlockInfo.Alias)).ToArray(),
+                    TempTable = $"#{costBlockInfo.Alias}"
                 };
             });
 
             var costBlockQueries = costBlockQueryInfos.Select(info => new
             {
                 info.From,
+                info.TempTable,
                 Query = Sql.Select(info.SelectColumns.Concat(info.GroupByColumns).ToArray())
+                           .Into(info.TempTable)
                            .From(info.From.Meta, info.From.Alias)
                            .WhereNotDeleted(info.From.Meta, info.Filter, info.From.Alias)
                            .GroupBy(info.GroupByColumns)
@@ -365,7 +341,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var columns = coordinateIdColumns.Concat(coordinateNameColumns).Concat(dataColumns).Concat(additionalColumns).ToArray();
 
             var firstQuery = costBlockQueries[0];
-            var joinQuery = Sql.Select(columns).FromQuery(firstQuery.Query, firstQuery.From.Alias);
+            var joinQuery = Sql.Select(columns).From(firstQuery.TempTable, alias: firstQuery.From.Alias);
 
             for (var index = 1; index < costBlockQueries.Length; index++)
             {
@@ -377,23 +353,32 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                             new ColumnInfo(info.CoordinateMeta.Name, firstQuery.From.Alias),
                             new ColumnInfo(info.CoordinateMeta.Name, costBlockQuery.From.Alias)));
 
-                var query = new AliasSqlBuilder
-                {
-                    Alias = costBlockQuery.From.Alias,
-                    Query = new BracketsSqlBuilder
-                    {
-                        Query = costBlockQuery.Query
-                    }
-                };
-
-                joinQuery = joinQuery.Join(query, ConditionHelper.And(conditions));
+                joinQuery = joinQuery.Join(costBlockQuery.TempTable, ConditionHelper.And(conditions), JoinType.Inner, costBlockQuery.From.Alias);
             }
 
             var joinInfos = 
                 queryInfo.CoordinateInfos.Select(info => new JoinInfo(firstQuery.From.Meta, info.CoordinateMeta.Name, null, firstQuery.From.Alias))
                                          .Concat(additionalJoinInfos);
 
-            return joinQuery.Join(joinInfos).OrderBy(SortDirection.Asc, coordinateNameColumns.ToArray());
+            var commonQuery = joinQuery.Join(joinInfos).OrderBy(SortDirection.Asc, coordinateNameColumns.ToArray()).ToSqlBuilder();
+
+            var createTaleQueries = new List<ISqlBuilder>();
+            var dropTableQueries = new List<ISqlBuilder>();
+
+            foreach(var info in costBlockQueries)
+            {
+                createTaleQueries.Add(info.Query);
+                dropTableQueries.Add(Sql.DropTable(info.TempTable).ToSqlBuilder());
+            }
+
+            var queryList = new List<ISqlBuilder>(createTaleQueries)
+            {
+                commonQuery
+            };
+
+            queryList.AddRange(dropTableQueries);
+
+            return Sql.Queries(queryList);
         }
 
         private static string SerializeDataIndex(string costBlockId, string costElementId, long? dependencyItemId = null)
@@ -530,25 +515,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                 DataIndex = wgMeta.DescriptionField.Name,
                                 Title = "WG Full name"
                             }
-                        },
-                        new AdditionalDataInfo
-                        {
-                            Field = wgMeta.ResponsiblePersonField,
-                            Data = new AdditionalData
-                            {
-                                DataIndex = wgMeta.ResponsiblePersonField.Name,
-                                Title = "Responsible Person"
-                            }
-                        },
-                        new AdditionalDataInfo
-                        {
-                            Field = wgMeta.RoleCodeField,
-                            Data = new AdditionalData
-                            {
-                                DataIndex = wgMeta.RoleCodeField.Name,
-                                Title = "Role code"
-                            }
-                        },
+                        }
                     };
                     break;
 

@@ -65,6 +65,11 @@ namespace Gdc.Scd.Core.Meta.Entities
             return this.dictionary.ContainsValue(item);
         }
 
+        public bool Contains(string id)
+        {
+            return this.dictionary.ContainsKey(id);
+        }
+
         public void CopyTo(T[] array, int arrayIndex)
         {
             this.dictionary.Values.CopyTo(array, arrayIndex);

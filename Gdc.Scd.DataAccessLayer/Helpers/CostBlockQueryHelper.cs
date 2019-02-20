@@ -12,7 +12,10 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return SqlOperators.IsNull(meta.DeletedDateField.Name, tableName);
         }
 
-        public static ConditionHelper BuildFilterConditionn(CostBlockEntityMeta meta, IDictionary<string, IEnumerable<object>> filter = null, string tableName = null)
+        public static ConditionHelper BuildFilterConditionn(
+            CostBlockEntityMeta meta, 
+            IDictionary<string, IEnumerable<object>> filter = null, 
+            string tableName = null)
         {
             ConditionHelper result;
 
@@ -30,7 +33,11 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return result;
         }
 
-        public static T WhereNotDeleted<T>(this IWhereSqlHelper<T> query, CostBlockEntityMeta meta, IDictionary<string, IEnumerable<object>> filter, string tableName = null)
+        public static T WhereNotDeleted<T>(
+            this IWhereSqlHelper<T> query, 
+            CostBlockEntityMeta meta, 
+            IDictionary<string, IEnumerable<object>> filter, 
+            string tableName = null)
         {
             return query.Where(BuildFilterConditionn(meta, filter, tableName));
         }

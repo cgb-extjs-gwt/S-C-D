@@ -9,6 +9,7 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -30,11 +31,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private const string CountryGroupCheckColumn = "CountryGroupCheck";
 
-        private const string CountryGroupCoeffParam = "сountryGroupCoeff";
-
         private const string PeriodCheckColumn = "PeriodCheck";
-
-        private const string PeriodCoeffParam = "periodCoeff";
 
         private const string CountryGroupAverageTable = "CountryGroupAverageTable";
 
@@ -63,7 +60,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         }
 
         public SqlHelper BuildQualityGateQuery(
-            HistoryContext historyContext,
+            CostElementContext historyContext,
             IEnumerable<EditItem> editItems,
             IDictionary<string, IEnumerable<object>> costBlockFilter,
             bool useCountryGroupCheck)
@@ -201,7 +198,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return $"{item1}_{item2}";
         }
 
-        private SqlHelper BuildQualityGateQuery(HistoryContext historyContext, QualityGateQueryOptions options, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
+        private SqlHelper BuildQualityGateQuery(CostElementContext historyContext, QualityGateQueryOptions options, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
 
@@ -290,8 +287,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 OldValueColumn,
                 NewValueColumn,
                 PeriodCheckColumn,
-                qualityGate.PeriodCoeff,
-                PeriodCoeffParam);
+                qualityGate.PeriodCoeff);
 
             var checkColumns = new List<QueryColumnInfo> { periodCheckColumn };
 
@@ -302,8 +298,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         CountryGroupAvgColumn,
                         NewValueColumn,
                         CountryGroupCheckColumn,
-                        qualityGate.CountryGroupCoeff,
-                        CountryGroupCoeffParam);
+                        qualityGate.CountryGroupCoeff);
 
                 checkColumns.Add(countryGroupCheckColumn);
             }
@@ -322,7 +317,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
         }
 
-        private List<ColumnInfo> BuildQualityGateQueryColumns(CostBlockEntityMeta costBlockMeta, QualityGateQueryOptions options, HistoryContext historyContext)
+        private List<ColumnInfo> BuildQualityGateQueryColumns(CostBlockEntityMeta costBlockMeta, QualityGateQueryOptions options, CostElementContext historyContext)
         {
             var columns = this.BuildValueColumns(ResultQualityGateTable, options).ToList();
 
@@ -354,10 +349,41 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return columns;
         }
 
-        private BaseColumnInfo[] BuildCountryGroupAverageColumns(HistoryContext historyContext)
+        private BaseColumnInfo[] BuildCountryGroupAverageColumns(CostElementContext historyContext)
         {
+            var countryMeta = this.domainEnitiesMeta.GetCountryEntityMeta();
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
+            var countryField = costBlockMeta.GetFieldByReferenceMeta(countryMeta);
             var approvedCostElement = costBlockMeta.GetApprovedCostElement(historyContext.CostElementId);
+
+            ISqlBuilder averageColumnQuery;
+            var joinInfos = new List<(BaseEntityMeta joinedMeta, ColumnInfo LeftColumn, ColumnInfo RightColumn)>();
+
+            var costElementColumn = new ColumnInfo(approvedCostElement.Name, costBlockMeta.Name);
+
+            if (costBlockMeta.DomainMeta.CostElements[historyContext.CostElementId].IsCountryCurrencyCost)
+            {
+                var exchangeRateMeta = this.domainEnitiesMeta.ExchangeRate;
+                var exchangeRateColumn = new ColumnInfo(exchangeRateMeta.Value.Name, exchangeRateMeta.Name);
+
+                averageColumnQuery = SqlOperators.Devide(costElementColumn, exchangeRateColumn).ToSqlBuilder();
+
+                var currencyMeta = (NamedEntityMeta)countryMeta.CurrencyField.ReferenceMeta;
+
+                joinInfos.Add((
+                    currencyMeta,
+                    new ColumnInfo(countryMeta.CurrencyField.Name, countryMeta.Name), 
+                    new ColumnInfo(countryMeta.CurrencyField.ReferenceValueField, countryMeta.CurrencyField.ReferenceMeta.Name)));
+
+                joinInfos.Add((
+                    this.domainEnitiesMeta.ExchangeRate,
+                    new ColumnInfo(currencyMeta.IdField.Name, currencyMeta.Name),
+                    new ColumnInfo(exchangeRateMeta.CurrencyField.Name, exchangeRateMeta.Name)));
+            }
+            else
+            {
+                averageColumnQuery = new ColumnSqlBuilder(costElementColumn);
+            }
 
             return new BaseColumnInfo[]
             {
@@ -365,16 +391,32 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 new QueryColumnInfo
                 {
                     Alias = CountryGroupAverageColumn,
-                    Query =
-                        Sql.Select(SqlFunctions.Average(approvedCostElement.Name, costBlockMeta.Name, CountryGroupAverageColumn))
-                           .From(costBlockMeta)
-                           .Join(costBlockMeta, MetaConstants.CountryInputLevelName)
-                           .Where(SqlOperators.Equals(
-                               new ColumnInfo(this.qualityGateCountryGroupColumnName, CostElementValuesTable),
-                               new ColumnInfo(this.qualityGateCountryGroupColumnName, MetaConstants.CountryInputLevelName)))
-                           .ToSqlBuilder()
+                    Query = BuildCountryGroupAverageColumnQuery()
                 }
             };
+
+            ISqlBuilder BuildCountryGroupAverageColumnQuery()
+            {
+                var query =
+                     Sql.Select(SqlFunctions.Average(averageColumnQuery, CountryGroupAverageColumn))
+                        .From(costBlockMeta)
+                        .Join(costBlockMeta, countryField.Name);
+
+                foreach (var joinInfo in joinInfos)
+                {
+                    query = query.Join(
+                        joinInfo.joinedMeta, 
+                        SqlOperators.Equals(joinInfo.LeftColumn, joinInfo.RightColumn));
+                }
+
+                return
+                    query.Where(
+                        SqlOperators.Equals(
+                            new ColumnInfo(this.qualityGateCountryGroupColumnName, CostElementValuesTable),
+                            new ColumnInfo(this.qualityGateCountryGroupColumnName, countryMeta.Name))
+                                    .And(CostBlockQueryHelper.BuildNotDeletedCondition(costBlockMeta)))
+                        .ToSqlBuilder();
+            }
         }
 
         private SqlHelper BuildNewValuesQuery(IEnumerable<EditItem> items, string idColumnAlias)
@@ -386,7 +428,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     Alias = idColumnAlias,
                     Query = new ParameterSqlBuilder
                     {
-                        ParamInfo = new CommandParameterInfo($"id_{index}", editItem.Id)
+                        ParamInfo = new CommandParameterInfo(editItem.Id)
                     }
                 },
                 Value = new QueryColumnInfo
@@ -394,7 +436,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     Alias = NewValueColumn,
                     Query = new ParameterSqlBuilder
                     {
-                        ParamInfo = new CommandParameterInfo($"value_{index}", editItem.Value)
+                        ParamInfo = new CommandParameterInfo(editItem.Value)
                     }
                 }
             });
@@ -403,7 +445,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 editItemColumns.Select(columns => Sql.Select(columns.Id, columns.Value).ToSqlBuilder()));
         }
 
-        private SqlHelper BuildCountryGroupAverageTable(HistoryContext historyContext)
+        private SqlHelper BuildCountryGroupAverageTable(CostElementContext historyContext)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
             var columns = this.BuildCountryGroupAverageColumns(historyContext);
@@ -418,7 +460,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         }
 
         private List<ColumnInfo> BuildCostElementValueTableColumns(
-            HistoryContext historyContext,
+            CostElementContext historyContext,
             QualityGateQueryOptions options,
             string newValueColumn = NewValueColumn, 
             string table = null, 
@@ -449,7 +491,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return columns;
         }
 
-        private SqlHelper BuildInnerQualityGateQuery(HistoryContext historyContext, QualityGateQueryOptions options)
+        private SqlHelper BuildInnerQualityGateQuery(CostElementContext historyContext, QualityGateQueryOptions options)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
             var coordinateColumns = 
@@ -497,8 +539,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
            string oldValueColumnName,
            string newValueColumnName,
            string alias,
-           double coeff,
-           string coeffParamName)
+           double coeff)
         {
             var oldValueColumn = new ColumnInfo(oldValueColumnName, table);
             var newValueColumn = new ColumnInfo(newValueColumnName, table);
@@ -510,7 +551,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 },
                 new AbsSqlBuilder
                 {
-                    Query = SqlOperators.Multiply(oldValueColumnName, coeffParamName, coeff, table).ToSqlBuilder()
+                    Query = SqlOperators.Multiply(oldValueColumnName, coeff, table).ToSqlBuilder()
                 });
 
             return new QueryColumnInfo

@@ -1,37 +1,39 @@
 ﻿import { Button, CheckBoxField, Container, Panel, PanelProps } from "@extjs/ext-react";
 import * as React from "react";
-import { AvailabilityField } from "../../Dict/Components/AvailabilityField";
-import { CountryField } from "../../Dict/Components/CountryField";
-import { DictField } from "../../Dict/Components/DictField";
-import { DurationField } from "../../Dict/Components/DurationField";
-import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
-import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
-import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
-import { WgField } from "../../Dict/Components/WgField";
 import { PortfolioFilterModel } from "../Model/PortfolioFilterModel";
-import { ProActiveField } from "../../Dict/Components/ProActiveField";
+import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
+import { DictFactory } from "../../Dict/Services/DictFactory";
+import { IDictService } from "../../Dict/Services/IDictService";
+import { MultiSelect } from "../../Dict/Components/MultiSelect";
+import { MultiSelectWg } from "../../Dict/Components/MultiSelectWg";
+import { MultiSelectProActive } from "../../Dict/Components/MultiSelectProActive";
+
+Ext.require('Ext.panel.Collapser');
+
+const SELECT_MAX_HEIGHT: string = '200px';
 
 export interface FilterPanelProps extends PanelProps {
+    isCountryUser: boolean;
     onSearch(filter: PortfolioFilterModel): void;
 }
 
 export class FilterPanel extends React.Component<FilterPanelProps, any> {
 
-    private country: DictField;
+    private country: MultiSelect;
 
-    private wg: DictField;
+    private wg: MultiSelect;
 
-    private av: DictField;
+    private av: MultiSelect;
 
-    private dur: DictField;
+    private dur: MultiSelect;
 
-    private reacttype: DictField;
+    private reacttype: MultiSelect;
 
-    private reacttime: DictField;
+    private reacttime: MultiSelect;
 
-    private srvloc: DictField;
+    private srvloc: MultiSelect;
 
-    private proactive: DictField;
+    private proactive: MultiSelect;
 
     private globPort: CheckBoxField;
 
@@ -39,66 +41,115 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
 
     private corePort: CheckBoxField;
 
+    private dictSrv: IDictService;
+
     public constructor(props: any) {
         super(props);
         this.init();
     }
 
     public render() {
+        let multiProps = {
+            width: '200px',
+            maxHeight: SELECT_MAX_HEIGHT,
+            headerCheckboxHidden: false,
+            title: ' ',
+            hideCheckbox: true
+        };
+        let panelProps = {
+            collapsible: {
+                direction: 'top',
+                dynamic: true,
+                collapsed: true
+            },
+            userCls: 'multiselect-filter',
+            margin: "0 0 2px 0"
+        };
         return (
-            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
-
-                <Container margin="10px 0"
-                    defaults={{
-                        maxWidth: '200px',
-                        valueField: 'id',
-                        displayField: 'name',
-                        queryMode: 'local',
-                        clearable: 'true'
-                    }}
-                >
-
-                    <CountryField ref={x => this.country = x} label="Country:" onChange={this.onCountryChange} />
-                    <WgField ref={x => this.wg = x} label="Asset(WG):" />
-                    <AvailabilityField ref={x => this.av = x} label="Availability:" />
-                    <DurationField ref={x => this.dur = x} label="Duration:" />
-                    <ReactionTypeField ref={x => this.reacttype = x} label="Reaction type:" />
-                    <ReactionTimeField ref={x => this.reacttime = x} label="Reaction time:" />
-                    <ServiceLocationField ref={x => this.srvloc = x} label="Service location:" />
-                    <ProActiveField ref={x => this.proactive = x} label="ProActive:" />
-
-                </Container>
-
-                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio, padding: '3px 0' }}>
-                    <CheckBoxField ref={x => this.globPort = x} boxLabel="Fujitsu principal portfolio" />
-                    <CheckBoxField ref={x => this.masterPort = x} boxLabel="Master portfolio" />
-                    <CheckBoxField ref={x => this.corePort = x} boxLabel="Core portfolio" />
-                </Container>
-
-                <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="20px auto" />
-
-            </Panel>
+            <Container layout="vbox" height="100%" docked="right">     
+                <Panel {...this.props}
+                    layout={{ type: 'vbox', align: 'left' }}
+                    height="90%"
+                    margin="0 0 5px 0"
+                    padding="4px 20px 7px 20px"
+                    scrollable={true}>
+                    <Container margin="10px 0"
+                        defaults={{
+                            maxWidth: '200px',
+                            width: '200px',
+                            valueField: 'id',
+                            displayField: 'name',
+                            queryMode: 'local',
+                            clearable: 'true'              
+                        }}
+                    > 
+                        <Panel title='Country'
+                            {...panelProps}>
+                            <MultiSelect ref={x => this.country = x} {...multiProps} hideCheckbox={false} store={this.dictSrv.getUserCountryNames}/>
+                        </Panel>
+                        <Panel title='Asset(WG)'
+                            {...panelProps}>
+                            <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getWG} />
+                        </Panel>
+                        <Panel title='Availability'
+                            {...panelProps}>
+                            <MultiSelect ref={x => this.av = x} {...multiProps} store={this.dictSrv.getAvailabilityTypes} />
+                        </Panel>
+                        <Panel title='Duration'
+                            {...panelProps}>
+                            <MultiSelect ref={x => this.dur = x} {...multiProps} store={this.dictSrv.getDurationTypes} />
+                        </Panel>
+                        <Panel title='Reaction type'
+                            {...panelProps}>
+                            <MultiSelect ref={x => this.reacttype = x} {...multiProps} store={this.dictSrv.getReactionTypes} />
+                        </Panel>
+                        <Panel title='Reaction time'
+                            {...panelProps}>
+                            <MultiSelect ref={x => this.reacttime = x} {...multiProps} store={this.dictSrv.getReactionTimeTypes} />
+                        </Panel>
+                        <Panel title='Service location'
+                            {...panelProps}>
+                            <MultiSelect ref={x => this.srvloc = x} {...multiProps} store={this.dictSrv.getServiceLocationTypes} />
+                        </Panel>
+                        <Panel title='ProActive'
+                            {...panelProps}>
+                            <MultiSelectProActive ref={x => this.proactive = x} {...multiProps} store={this.dictSrv.getProActive} />
+                        </Panel>
+                    </Container>
+                    <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio, padding: '3px 0', hidden: this.props.isCountryUser }}>
+                        <CheckBoxField ref={x => this.globPort = x} boxLabel="Fujitsu principal portfolio" />
+                        <CheckBoxField ref={x => this.masterPort = x} boxLabel="Master portfolio" />
+                        <CheckBoxField ref={x => this.corePort = x} boxLabel="Core portfolio" />
+                    </Container>              
+                    <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="20px auto" />
+                </Panel>       
+            </Container>
         );
     }
 
     public getModel(): PortfolioFilterModel {
         return {
-            country: this.country.getSelected(),
-            wg: this.wg.getSelected(),
-            availability: this.av.getSelected(),
-            duration: this.dur.getSelected(),
-            reactionType: this.reacttype.getSelected(),
-            reactionTime: this.reacttime.getSelected(),
-            serviceLocation: this.srvloc.getSelected(),
-            proActive: this.proactive.getSelected(),
+            country: this.country.getSelectedKeysOrNull(),
+            wg: this.wg.getSelectedKeysOrNull(),
+            availability: this.av.getSelectedKeysOrNull(),
+            duration: this.dur.getSelectedKeysOrNull(),
+            reactionType: this.reacttype.getSelectedKeysOrNull(),
+            reactionTime: this.reacttime.getSelectedKeysOrNull(),
+            serviceLocation: this.srvloc.getSelectedKeysOrNull(),
+            proActive: this.proactive.getSelectedKeysOrNull(),
 
             isGlobalPortfolio: this.getChecked(this.globPort),
             isMasterPortfolio: this.getChecked(this.masterPort),
             isCorePortfolio: this.getChecked(this.corePort)
-        };
+        }
+    }
+
+    private getSelectedKeysOrNull() {
+
     }
 
     private init() {
+        this.dictSrv = DictFactory.getDictService();
         this.onCountryChange = this.onCountryChange.bind(this);
         this.onSearch = this.onSearch.bind(this);
         //

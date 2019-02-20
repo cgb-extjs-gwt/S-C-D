@@ -1,22 +1,16 @@
-import { Filter, CostBlockState, InputLevelState, CheckItem } from "../States/CostBlockStates";
+import { Filter, CostBlockState, InputLevelState, CheckItem, CostElementState } from "../States/CostBlockStates";
 import { NamedId } from "../../Common/States/CommonStates";
 import { CostEditorState } from "../States/CostEditorStates";
 import { CostBlockTab, CostEditorProps, CostEditorActions, CostEditorView } from "./CostEditorView";
 import { connect } from "react-redux";
 import { selectApplication, } from "../Actions/CostEditorActions";
 import { 
-    selectRegionWithReloading, 
-    getDataByCostElementSelection, 
-    loadEditItemsByContext, 
-    getFilterItemsByInputLevelSelection, 
     changeSelectionCostElementFilter, 
     changeSelectionInputLevelFilter, 
     resetCostElementFilter, 
     resetInputLevelFilter, 
     clearEditItems, 
     editItem, 
-    saveEditItemsToServer, 
-    applyFiltersWithReloading,
     selectCostBlock, 
 } 
 from "../Actions/CostBlockActions";
@@ -27,6 +21,7 @@ import { InputLevelMeta, CostBlockMeta, FieldType } from "../../Common/States/Co
 import { filterCostEditorItems, findCostBlock, findApplication } from "../Helpers/CostEditorHelpers";
 import { findMeta } from "../../Common/Helpers/MetaHelper";
 import { Dispatch } from "redux";
+import { applyFiltersWithReloading, selectRegionWithReloading, loadDataByCostElementSelection, loadDataByInputLevelSelection, saveEditItemsToServer } from "../Actions/CostBlockAsyncActions";
 
 const buildInputLevel = (
     costBlock: CostBlockState, 
@@ -58,10 +53,24 @@ const buildInputLevel = (
         isEnableList: isEnableList,
         selectList: {
             selectedItemId: selectedInputLevelId,
-            list: inputLevelMetas
+            list: inputLevelMetas.filter(inputLevel => !inputLevel.hide)
         }
     }
 };
+
+const getCurrencyName = ({ region }: CostElementState) => {
+    let currencyName: string;
+
+    if (region && region.list) {
+        const { currency } = region.list.find(item => item.id == region.selectedItemId);
+
+        if (currency) {
+            currencyName = currency.name;
+        }
+    }
+
+    return currencyName;
+}
 
 const costBlockTabMap = (
     applicationId: string,
@@ -112,7 +121,8 @@ const costBlockTabMap = (
                         title: selectedCostElementMeta.name,
                         type: selectedCostElementMeta.typeOptions ? selectedCostElementMeta.typeOptions.Type : FieldType.Double,
                         selectedItems: selectedCostElement.referenceValues,
-                        inputType: selectedCostElementMeta.inputType
+                        inputType: selectedCostElementMeta.inputType,
+                        currency: getCurrencyName(selectedCostElement)
                     },
                     url: costBlock.edit.editItemsUrl
                 },
@@ -179,7 +189,7 @@ const applyFilters = (() => {
 
 export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},CommonState>(
     state => {
-        const { applications, dataLossInfo } = state.pages.costEditor;
+        const { applications } = state.pages.costEditor;
         const { costBlocks } = findApplication(state.pages.costEditor);
         const { applications: applicationMetas, costBlocks: costBlockMetas } = state.app.appMetaData;
 
@@ -188,7 +198,6 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
                 selectedItemId: applications.selectedItemId,
                 list: <NamedId[]>filterCostEditorItems(applicationMetas)
             },
-            isDataLossWarningDisplayed: dataLossInfo.isWarningDisplayed,
             costBlocks: {
                 selectedItemId: costBlocks.selectedItemId,
                 list: costBlocks.list.map(costBlock => {
@@ -214,10 +223,10 @@ export const CostEditorContainer = connect<CostEditorProps,CostEditorActions,{},
                 dispatch(selectRegionWithReloading(applicationId, costBlockId, regionId));
             },
             onCostElementSelected: (applicationId, costBlockId, costElementId) => {
-                dispatch(getDataByCostElementSelection(applicationId, costBlockId, costElementId));
+                dispatch(loadDataByCostElementSelection(applicationId, costBlockId, costElementId));
             },
             onInputLevelSelected: (applicationId, costBlockId, costElementId, inputLevelId) => {
-                dispatch(getFilterItemsByInputLevelSelection(applicationId, costBlockId, costElementId, inputLevelId));
+                dispatch(loadDataByInputLevelSelection(applicationId, costBlockId, costElementId, inputLevelId));
             },
             onCostElementFilterSelectionChanged: (applicationId, costBlockId, costElementId, filterItemId, isSelected) => {
                 dispatch(changeSelectionCostElementFilter(applicationId, costBlockId, costElementId, filterItemId, isSelected));

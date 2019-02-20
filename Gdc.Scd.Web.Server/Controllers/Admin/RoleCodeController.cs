@@ -8,37 +8,46 @@ using System.Net.Http;
 using System.Web.Http;
 using Gdc.Scd.Web.Server.Impl;
 using Gdc.Scd.Core.Constants;
+using System.Threading.Tasks;
 
 namespace Gdc.Scd.Web.Server.Controllers.Admin
 {
     [ScdAuthorize(Permissions = new[] { PermissionConstants.Admin })]
     public class RoleCodeController : BaseDomainController<RoleCode>
     {
-        public RoleCodeController(IDomainService<RoleCode> domainService) : base(domainService) { }
+        private readonly IRoleCodeService roleCodeService;
+
+        public RoleCodeController(IDomainService<RoleCode> domainService, IRoleCodeService roleCodeService) : base(domainService)
+        {
+            this.roleCodeService = roleCodeService;
+        }
 
         [HttpPost]
-        public override HttpResponseMessage DeleteAll([FromBody]IEnumerable<RoleCode> items)
+        public HttpResponseMessage DeactivateAll([FromBody]IEnumerable<RoleCode> items)
         {
             try
             {
-                foreach (var item in items)
-                {
-                    this.domainService.Delete(item.Id);
-                }
+                roleCodeService.Deactivate(items);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                //TODO: remove hard coded sql error code
-                //replace by string message from domain service or own service error
-
-                if (ex.InnerException is SqlException &&
-                        ((SqlException)ex.InnerException).Number == 547)
-                {
-                    HttpError err = new HttpError("This item cannot be deleted because it is still referenced by other items.");
-                    return Request.CreateResponse(HttpStatusCode.Conflict, err);
-                }
+                HttpError err = new HttpError(ex.Message);
+                return Request.CreateResponse(HttpStatusCode.Conflict, err);
             }
+                
             return Request.CreateResponse(HttpStatusCode.OK);
+        }
+
+        [HttpGet]
+        public Task<RoleCode[]> GetAllActive()
+        {
+            return roleCodeService.GetAllActive();
+        }
+
+        [HttpPost]
+        public override void SaveAll([FromBody]IEnumerable<RoleCode> items)
+        {
+            this.roleCodeService.Save(items);
         }
     }
 }

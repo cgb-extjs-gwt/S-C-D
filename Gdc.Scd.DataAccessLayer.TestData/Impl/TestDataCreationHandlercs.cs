@@ -51,8 +51,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.CreateRegions();
             this.CreateCurrenciesAndExchangeRates();
             this.CreateCountries();
-            this.CreateYearAvailability();
-            this.CreateDurations();
+            this.CreateYears();
+            this.CreateDurationAvailability();
             this.CreateProActiveSla();
             this.CreateImportConfiguration();
             this.CreateRolecodes();
@@ -88,6 +88,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-central.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-country.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-parameter.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-calc-result.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap-detailed.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-calc-central.sql"));
@@ -104,6 +105,10 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-Service-Price-List-detail.sql"));
 
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hw-calc-result.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-calc-result.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-proactive-calc-result.sql"));
+
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.split-string.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-hdd-retention.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-proactive.sql"));
@@ -114,17 +119,17 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             }
         }
 
-        private void CreateYearAvailability()
+        private void CreateDurationAvailability()
         {
-            var years = this.GetYears();
+            var years = this.GetDurations();
             var availabilities = this.repositorySet.GetRepository<Availability>().GetAll().ToArray();
-            var yearAvailabilityRepository = this.repositorySet.GetRepository<YearAvailability>();
+            var durationAvailabilityRepository = this.repositorySet.GetRepository<DurationAvailability>();
 
             foreach (var availability in availabilities)
             {
                 foreach (var year in years)
                 {
-                    yearAvailabilityRepository.Save(new YearAvailability
+                    durationAvailabilityRepository.Save(new DurationAvailability
                     {
                         Availability = availability,
                         Year = year
@@ -187,11 +192,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             this.repositorySet.ExecuteSql(Sql.Queries(queries));
         }
 
-        private void CreateDurations()
+        private void CreateYears()
         {
-            //Insert Durations
-            var durationRepository = repositorySet.GetRepository<Duration>();
-            durationRepository.Save(GetDurations());
+            //Insert Years
+            var yearRepository = repositorySet.GetRepository<Year>();
+            yearRepository.Save(GetYears());
             repositorySet.Sync();
         }
 
@@ -199,6 +204,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             var costEditorPermission = new Permission { Name = PermissionConstants.CostEditor };
             var tableViewPermission = new Permission { Name = PermissionConstants.TableView };
+            var costImportPermission = new Permission { Name = PermissionConstants.CostImport };
             var approvalPermission = new Permission { Name = PermissionConstants.Approval };
             var ownApprovalPermission = new Permission { Name = PermissionConstants.OwnApproval };
             var portfolioPermission = new Permission { Name = PermissionConstants.Portfolio };
@@ -211,6 +217,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 costEditorPermission,
                 tableViewPermission,
                 approvalPermission,
+                costImportPermission,
                 ownApprovalPermission,
                 portfolioPermission,
                 reviewProcessPermission,
@@ -269,6 +276,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = reportPermission },
                         new RolePermission { Permission = approvalPermission },
                         new RolePermission { Permission = ownApprovalPermission },
+                        new RolePermission { Permission = costImportPermission },
                     }
                 },
                 new Role
@@ -282,6 +290,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = portfolioPermission },
                         new RolePermission { Permission = ownApprovalPermission },
                         new RolePermission { Permission = reviewProcessPermission },
+                        new RolePermission { Permission = costImportPermission },
+                        new RolePermission { Permission = costImportPermission },
                     }
                 },
                 new Role
@@ -307,6 +317,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = approvalPermission },
                         new RolePermission { Permission = ownApprovalPermission },
                         new RolePermission { Permission = reviewProcessPermission },
+                        new RolePermission { Permission = costImportPermission },
                     }
                 },
                 new Role
@@ -318,6 +329,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = tableViewPermission },
                         new RolePermission { Permission = reportPermission },
                         new RolePermission { Permission = reviewProcessPermission },
+                        new RolePermission { Permission = costImportPermission },
                     }
                 },
                 new Role
@@ -329,6 +341,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = tableViewPermission },
                         new RolePermission { Permission = reportPermission },
                         new RolePermission { Permission = reviewProcessPermission },
+                        new RolePermission { Permission = costImportPermission },
                     }
                 },
                 new Role
@@ -567,15 +580,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private ISqlBuilder BuildSelectIdByNameQuery(string table, string name)
         {
-            var paramName = name.Replace(" ", string.Empty);
-
             return
                 new BracketsSqlBuilder
                 {
                     Query =
                         Sql.Select(IdFieldMeta.DefaultId)
                            .From(table, MetaConstants.DependencySchema)
-                           .Where(SqlOperators.Equals(MetaConstants.NameFieldKey, paramName, name))
+                           .Where(SqlOperators.Equals(MetaConstants.NameFieldKey, name))
                            .ToSqlBuilder()
                 };
         }
@@ -593,29 +604,29 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             repository.Save(new List<CentralContractGroup>
             {
-                new CentralContractGroup {Name = "NA", Description = "UNASSIGNED" },
-                new CentralContractGroup {Name = "CG350", Description = "CENTRICSTOR" },
-                new CentralContractGroup {Name = "CG110", Description = "CLIENTS ENTRY" },
-                new CentralContractGroup {Name = "CG130", Description = "CLIENTS HIGHEND" },
-                new CentralContractGroup {Name = "CG120", Description = "CLIENTS MIDRANGE" },
-                new CentralContractGroup {Name = "CG100", Description = "CLIENTS SUBENTRY/ SWAP / EXCHANGE" },
-                new CentralContractGroup {Name = "CG041", Description = "DISPLAY W/O ODM" },
-                new CentralContractGroup {Name = "CG270", Description = "ENTERPRISE SERVER HIGHEND" },
-                new CentralContractGroup {Name = "CG260", Description = "ENTERPRISE SERVER MIDRANGE" },
-                new CentralContractGroup {Name = "CG050", Description = "PERIPHERALS" },
-                new CentralContractGroup {Name = "CG070", Description = "PRINTER" },
-                new CentralContractGroup {Name = "CG510", Description = "RETAIL PRODUCTS ENTRY" },
-                new CentralContractGroup {Name = "CG040", Description = "DISPLAYS" },
-                new CentralContractGroup {Name = "CG500", Description = "RETAIL SUBENTRY/ SWAP / EXCHANGE" },
-                new CentralContractGroup {Name = "CG060", Description = "SECURITY DEVICES" },
-                new CentralContractGroup {Name = "CG200", Description = "SERVER  SUBENTRY/ SWAP / EXCHANGE" },
-                new CentralContractGroup {Name = "CG210", Description = "SERVER ENTRY" },
-                new CentralContractGroup {Name = "CG220", Description = "SERVER MIDRANGE" },
-                new CentralContractGroup {Name = "CG230", Description = "SERVER HIGHEND" },
-                new CentralContractGroup {Name = "CG320", Description = "STORAGE MIDRANGE" },
-                new CentralContractGroup {Name = "CG310", Description = "STORAGE ENTRY" },
-                new CentralContractGroup {Name = "CG330", Description = "STORAGE HIGHEND" },
-                new CentralContractGroup {Name = "CG540", Description = "THIRD PARTY VENDORS" },
+                new CentralContractGroup {Code = "NA", Name = "UNASSIGNED" },
+                new CentralContractGroup {Code = "CG350", Name = "CENTRICSTOR" },
+                new CentralContractGroup {Code = "CG110", Name = "CLIENTS ENTRY" },
+                new CentralContractGroup {Code = "CG130", Name = "CLIENTS HIGHEND" },
+                new CentralContractGroup {Code = "CG120", Name = "CLIENTS MIDRANGE" },
+                new CentralContractGroup {Code = "CG100", Name = "CLIENTS SUBENTRY/ SWAP / EXCHANGE" },
+                new CentralContractGroup {Code = "CG041", Name = "DISPLAY W/O ODM" },
+                new CentralContractGroup {Code = "CG270", Name = "ENTERPRISE SERVER HIGHEND" },
+                new CentralContractGroup {Code = "CG260", Name = "ENTERPRISE SERVER MIDRANGE" },
+                new CentralContractGroup {Code = "CG050", Name = "PERIPHERALS" },
+                new CentralContractGroup {Code = "CG070", Name = "PRINTER" },
+                new CentralContractGroup {Code = "CG510", Name = "RETAIL PRODUCTS ENTRY" },
+                new CentralContractGroup {Code = "CG040", Name = "DISPLAYS" },
+                new CentralContractGroup {Code = "CG500", Name = "RETAIL SUBENTRY/ SWAP / EXCHANGE" },
+                new CentralContractGroup {Code = "CG060", Name = "SECURITY DEVICES" },
+                new CentralContractGroup {Code = "CG200", Name = "SERVER  SUBENTRY/ SWAP / EXCHANGE" },
+                new CentralContractGroup {Code = "CG210", Name = "SERVER ENTRY" },
+                new CentralContractGroup {Code = "CG220", Name = "SERVER MIDRANGE" },
+                new CentralContractGroup {Code = "CG230", Name = "SERVER HIGHEND" },
+                new CentralContractGroup {Code = "CG320", Name = "STORAGE MIDRANGE" },
+                new CentralContractGroup {Code = "CG310", Name = "STORAGE ENTRY" },
+                new CentralContractGroup {Code = "CG330", Name = "STORAGE HIGHEND" },
+                new CentralContractGroup {Code = "CG540", Name = "THIRD PARTY VENDORS" },
 
             });
 
@@ -626,29 +637,29 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             var repository = this.repositorySet.GetRepository<CentralContractGroup>();
 
-            var na = repository.GetAll().First(c => c.Name == "NA").Id;
-            var centricStor = repository.GetAll().First(c => c.Name == "CG350").Id;
-            var clientsEntry = repository.GetAll().First(c => c.Name == "CG110").Id;
-            var clientsHighend = repository.GetAll().First(c => c.Name == "CG130").Id;
-            var clientsMidrange = repository.GetAll().First(c => c.Name == "CG120").Id;
-            var clientsSubentry = repository.GetAll().First(c => c.Name == "CG100").Id;
-            var displayODM = repository.GetAll().First(c => c.Name == "CG041").Id;
-            var enterpriseServerHighend = repository.GetAll().First(c => c.Name == "CG270").Id;
-            var enterpriseServerMidrange = repository.GetAll().First(c => c.Name == "CG260").Id;
-            var peripherals = repository.GetAll().First(c => c.Name == "CG050").Id;
-            var pribter = repository.GetAll().First(c => c.Name == "CG070").Id;
-            var retailProducts = repository.GetAll().First(c => c.Name == "CG510").Id;
-            var displays = repository.GetAll().First(c => c.Name == "CG040").Id;
-            var retailSubentry = repository.GetAll().First(c => c.Name == "CG500").Id;
-            var securityDevices = repository.GetAll().First(c => c.Name == "CG060").Id;
-            var serverSubentry = repository.GetAll().First(c => c.Name == "CG200").Id;
-            var serverEntry = repository.GetAll().First(c => c.Name == "CG210").Id;
-            var serverMidrange = repository.GetAll().First(c => c.Name == "CG220").Id;
-            var serverHighend = repository.GetAll().First(c => c.Name == "CG230").Id;
-            var storageMidrange = repository.GetAll().First(c => c.Name == "CG320").Id;
-            var storageEntry = repository.GetAll().First(c => c.Name == "CG310").Id;
-            var storageHighend = repository.GetAll().First(c => c.Name == "CG330").Id;
-            var thirdPartyVendors = repository.GetAll().First(c => c.Name == "CG540").Id;
+            var na = repository.GetAll().First(c => c.Code == "NA").Id;
+            var centricStor = repository.GetAll().First(c => c.Code == "CG350").Id;
+            var clientsEntry = repository.GetAll().First(c => c.Code == "CG110").Id;
+            var clientsHighend = repository.GetAll().First(c => c.Code == "CG130").Id;
+            var clientsMidrange = repository.GetAll().First(c => c.Code == "CG120").Id;
+            var clientsSubentry = repository.GetAll().First(c => c.Code == "CG100").Id;
+            var displayODM = repository.GetAll().First(c => c.Code == "CG041").Id;
+            var enterpriseServerHighend = repository.GetAll().First(c => c.Code == "CG270").Id;
+            var enterpriseServerMidrange = repository.GetAll().First(c => c.Code == "CG260").Id;
+            var peripherals = repository.GetAll().First(c => c.Code == "CG050").Id;
+            var pribter = repository.GetAll().First(c => c.Code == "CG070").Id;
+            var retailProducts = repository.GetAll().First(c => c.Code == "CG510").Id;
+            var displays = repository.GetAll().First(c => c.Code == "CG040").Id;
+            var retailSubentry = repository.GetAll().First(c => c.Code == "CG500").Id;
+            var securityDevices = repository.GetAll().First(c => c.Code == "CG060").Id;
+            var serverSubentry = repository.GetAll().First(c => c.Code == "CG200").Id;
+            var serverEntry = repository.GetAll().First(c => c.Code == "CG210").Id;
+            var serverMidrange = repository.GetAll().First(c => c.Code == "CG220").Id;
+            var serverHighend = repository.GetAll().First(c => c.Code == "CG230").Id;
+            var storageMidrange = repository.GetAll().First(c => c.Code == "CG320").Id;
+            var storageEntry = repository.GetAll().First(c => c.Code == "CG310").Id;
+            var storageHighend = repository.GetAll().First(c => c.Code == "CG330").Id;
+            var thirdPartyVendors = repository.GetAll().First(c => c.Code == "CG540").Id;
 
             var clusterPlas = new List<ClusterPla>
             {
@@ -1715,6 +1726,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateRolecodes()
         {
+
             var roleCodes = new RoleCode[] {
                 new RoleCode { Name = "SEFS05" },
                 new RoleCode { Name = "SEFS06" },
@@ -1737,6 +1749,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportColumnType { Name = "boolean" },
                 new ReportColumnType { Name = "euro" },
                 new ReportColumnType { Name = "percent" },
+                new ReportColumnType { Name = "money" }
             };
 
             var repository = this.repositorySet.GetRepository<ReportColumnType>();
@@ -1750,9 +1763,23 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "text" },
                 new ReportFilterType { Name = "number" },
                 new ReportFilterType { Name = "boolean" },
+                new ReportFilterType { Name = "wg" , MultiSelect = false },
+                new ReportFilterType { Name = "sog" , MultiSelect = false },
+                new ReportFilterType { Name = "countrygroup" , MultiSelect = false },
+                new ReportFilterType { Name = "country" , MultiSelect = false },
+                new ReportFilterType { Name = "availability" , MultiSelect = false },
+                new ReportFilterType { Name = "duration" , MultiSelect = false },
+                new ReportFilterType { Name = "reactiontime" , MultiSelect = false },
+                new ReportFilterType { Name = "reactiontype" , MultiSelect = false },
+                new ReportFilterType { Name = "servicelocation" , MultiSelect = false },
+                new ReportFilterType { Name = "year" , MultiSelect = false },
+                new ReportFilterType { Name = "proactive" , MultiSelect = false },
+                new ReportFilterType { Name = "usercountry" , MultiSelect = false },
+                new ReportFilterType { Name = "swdigit" , MultiSelect = false },
+                new ReportFilterType { Name = "wgall" , MultiSelect = false },
+                new ReportFilterType { Name = "wgstandard" , MultiSelect = false },
+
                 new ReportFilterType { Name = "wg" , MultiSelect = true },
-                new ReportFilterType { Name = "sog" , MultiSelect = true },
-                new ReportFilterType { Name = "countrygroup" , MultiSelect = true },
                 new ReportFilterType { Name = "country" , MultiSelect = true },
                 new ReportFilterType { Name = "availability" , MultiSelect = true },
                 new ReportFilterType { Name = "duration" , MultiSelect = true },
@@ -1760,7 +1787,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "reactiontype" , MultiSelect = true },
                 new ReportFilterType { Name = "servicelocation" , MultiSelect = true },
                 new ReportFilterType { Name = "year" , MultiSelect = true },
-                new ReportFilterType { Name = "proactive" , MultiSelect = true }
+                new ReportFilterType { Name = "proactive" , MultiSelect = true },
+                new ReportFilterType { Name = "swdigit" , MultiSelect = true },
+                new ReportFilterType { Name = "wgstandard" , MultiSelect = true }
             };
 
             var repository = this.repositorySet.GetRepository<ReportFilterType>();
@@ -1774,16 +1803,16 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
             repository.Save(new List<ServiceLocation>
             {
-                new ServiceLocation {Name = "Material/Spares Service", ExternalName = "Material/Spares" },
-                new ServiceLocation {Name = "Bring-In Service", ExternalName = "Bring-In" },
-                new ServiceLocation {Name = "Send-In / Return-to-Base Service", ExternalName = "Send-In/Return-to-Base Service" },
-                new ServiceLocation {Name = "Collect & Return Service", ExternalName = "Collect & Return" },
-                new ServiceLocation {Name = "Collect & Return-Display Service", ExternalName = "Collect & Return-Display Service" },
-                new ServiceLocation {Name = "Door-to-Door Exchange Service", ExternalName = "Door-to-Door Exchange" },
-                new ServiceLocation {Name = "Desk-to-Desk Exchange Service", ExternalName = "Desk-to-Desk Exchange" },
-                new ServiceLocation {Name = "On-Site Service", ExternalName = "On-Site Service" },
-                new ServiceLocation {Name = "On-Site Exchange Service", ExternalName = "On-Site Exchange" },
-                new ServiceLocation {Name = "Remote", ExternalName = "Remote Service" },
+                new ServiceLocation {Name = "Material/Spares Service", ExternalName = "Material/Spares", Order = 1 },
+                new ServiceLocation {Name = "Bring-In Service", ExternalName = "Bring-In", Order = 2 },
+                new ServiceLocation {Name = "Send-In / Return-to-Base Service", ExternalName = "Send-In/Return-to-Base Service", Order = 3 },
+                new ServiceLocation {Name = "Collect & Return Service", ExternalName = "Collect & Return", Order = 4 },
+                new ServiceLocation {Name = "Collect & Return-Display Service", ExternalName = "Collect & Return-Display Service", Order = 5 },
+                new ServiceLocation {Name = "Door-to-Door Exchange Service", ExternalName = "Door-to-Door Exchange", Order = 6 },
+                new ServiceLocation {Name = "Desk-to-Desk Exchange Service", ExternalName = "Desk-to-Desk Exchange", Order = 7 },
+                new ServiceLocation {Name = "On-Site Service", ExternalName = "On-Site Service", Order = 8 },
+                new ServiceLocation {Name = "On-Site Exchange Service", ExternalName = "On-Site Exchange", Order = 9 },
+                new ServiceLocation {Name = "Remote", ExternalName = "Remote Service", Order = 10 },
 
             });
 
@@ -2013,7 +2042,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         private void CreateRegions()
         {
             var crAsia = new ClusterRegion { Name = "Asia" };
-            var crEmeia = new ClusterRegion { Name = "EMEIA" };
+            var crEmeia = new ClusterRegion { Name = "EMEIA", IsEmeia = true };
             var crJapan = new ClusterRegion { Name = "Japan" };
             var crLatinAmerica = new ClusterRegion { Name = "Latin America" };
             var crUnitedStates = new ClusterRegion { Name = "United States" };
@@ -2596,7 +2625,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Country { Name = "Somalia", SAPCountryCode = "SOM", ISO3CountryCode = "SOM", CountryGroup = noaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = noaCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Sudan", SAPCountryCode = "SUD", ISO3CountryCode = "SDN", CountryGroup = noaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = noaCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Togo", SAPCountryCode = "TGO", ISO3CountryCode = "TGO", CountryGroup = noaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = noaCG.RegionId, AssignedToMultiVendor = false },
-                new Country { Name = "Tunisia", CurrencyId = tnd, SAPCountryCode = "TUN", ISO3CountryCode = "TUN", CountryGroup = noaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = noaCG.RegionId, AssignedToMultiVendor = false },
+                new Country { Name = "Tunisia", CurrencyId = eur, SAPCountryCode = "TUN", ISO3CountryCode = "TUN", CountryGroup = noaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = noaCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Western Sahara", SAPCountryCode = "", ISO3CountryCode = "ESH", CountryGroup = noaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = noaCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Poland", CurrencyId = pln, SAPCountryCode = "POL", ISO3CountryCode = "POL", CountryGroup = polandCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = polandCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Portugal", SAPCountryCode = "POR", ISO3CountryCode = "PRT", CountryGroup = portugalCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = portugalCG.RegionId, AssignedToMultiVendor = false },
@@ -2638,7 +2667,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new Country { Name = "Nigeria", SAPCountryCode = "NIA", ISO3CountryCode = "NGA", CountryGroup = southAfricaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = southAfricaCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Rwanda", SAPCountryCode = "RWA", ISO3CountryCode = "RWA", CountryGroup = southAfricaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = southAfricaCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Saint Helena", SAPCountryCode = "STH", ISO3CountryCode = "", CountryGroup = southAfricaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = southAfricaCG.RegionId, AssignedToMultiVendor = false },
-                new Country { Name = "South Africa", CurrencyId = zar, SAPCountryCode = "RSA", ISO3CountryCode = "ZAF", CountryGroup = southAfricaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = southAfricaCG.RegionId, AssignedToMultiVendor = false },
+                new Country { Name = "South Africa", CurrencyId = eur, SAPCountryCode = "RSA", ISO3CountryCode = "ZAF", CountryGroup = southAfricaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = true, ClusterRegionId = emeiaClusterId, RegionId = southAfricaCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Swaziland", SAPCountryCode = "SWL", ISO3CountryCode = "SWZ", CountryGroup = southAfricaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = southAfricaCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Tanzania", SAPCountryCode = "TAN", ISO3CountryCode = "TZA", CountryGroup = southAfricaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = southAfricaCG.RegionId, AssignedToMultiVendor = false },
                 new Country { Name = "Uganda", SAPCountryCode = "UGA", ISO3CountryCode = "UGA", CountryGroup = southAfricaCG, CanOverrideTransferCostAndPrice = false, CanStoreListAndDealerPrices = false, IsMaster = false, ClusterRegionId = emeiaClusterId, RegionId = southAfricaCG.RegionId, AssignedToMultiVendor = false },
@@ -2661,23 +2690,20 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private void CreateCdCsConfiguration()
         {
-            var russiaConfig = new CdCsConfiguration()
-            {
-                CountryId = 41,
-                FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
-                FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Russia"
-            };
-            var germanyConfig = new CdCsConfiguration()
-            {
-                CountryId = 113,
-                FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
-                FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Germany"
-            };
-
             this.repositorySet.GetRepository<CdCsConfiguration>().Save(new List<CdCsConfiguration>()
             {
-                russiaConfig,
-                germanyConfig
+                new CdCsConfiguration()
+                {
+                    CountryId = 41,
+                    FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
+                    FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Russia"
+                },
+                new CdCsConfiguration()
+                {
+                    CountryId = 113,
+                    FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
+                    FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Germany"
+                }
             });
             this.repositorySet.Sync();
         }

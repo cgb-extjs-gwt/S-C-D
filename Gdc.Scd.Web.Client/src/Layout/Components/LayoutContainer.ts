@@ -8,8 +8,6 @@ import { WarrantyGroupGrid } from "../../Admin/WarrantyGroup/WarrantyGroupGrid";
 import * as Permissions from "../../Common/Constants/Permissions";
 import { buildComponentUrl } from "../../Common/Services/Ajax";
 import { MenuItem } from "../../Common/States/ExtStates";
-import ApprovalCostElementsLayout from "../../CostApproval/Components/ApprovalCostElementsLayout";
-import { OwnApprovalCostElementsLayout } from "../../CostApproval/Components/OwnApprovalCostElementsLayout";
 import { CostEditorContainer } from "../../CostEditor/Components/CostEditorContainer";
 import { PortfolioEditView, PortfolioView } from "../../Portfolio/index";
 import { CalcResultView } from "../../Report/CalcResultView";
@@ -19,6 +17,9 @@ import { TableViewContainer } from "../../TableView/Components/TableViewContaine
 import { loadMetaDataFromServer, openPage } from "../Actions/AppActions";
 import { CommonState, Role } from "../States/AppStates";
 import { Layout, LayoutActions, LayoutProps, RouteItem } from "./Layout";
+import { CostImportContainer } from "../../CostImport/Components/CostImportContainer";
+import { OwnApproveLayoutContainer } from "../../CostOwnApproval/Components/OwnApproveLayoutContainer";
+import { ApprovalLayoutContainer } from "../../CostApproval/Components/ApprovalLayoutContainer";
 
 interface RouteMenuItem extends RouteItem {
     text?: string
@@ -36,8 +37,9 @@ export interface LayoutContainerProps {
 const buildRouteMenuItems = () => <RouteMenuItem[]>[
     { path: '/input-cost-elements', text: 'Input Cost Elements', iconCls: 'x-fa fa-info', component: CostEditorContainer, isMenuItem: true, permission: Permissions.COST_EDITOR },
     { path: '/table-view', text: 'Central data input', iconCls: 'x-fa fa-table', component: TableViewContainer, isMenuItem: true, permission: Permissions.TABLE_VIEW },
-    { path: '/cost-approval', text: 'Approve cost elements', iconCls: 'x-fa fa-check-square-o', component: ApprovalCostElementsLayout, isMenuItem: true, permission: Permissions.APPROVAL },
-    { path: '/own-cost-approval', text: 'Own approve cost elements', iconCls: 'x-fa fa-check-square-o', component: OwnApprovalCostElementsLayout, isMenuItem: true, permission: Permissions.OWN_APPROVAL },
+    { path: '/cost-import', text: 'Cost import', iconCls: 'x-fa fa-arrow-circle-o-up', component: CostImportContainer, isMenuItem: true, permission: Permissions.COST_IMPORT },
+    { path: '/cost-approval', text: 'Approve cost elements', iconCls: 'x-fa fa-check-square-o', component: ApprovalLayoutContainer, isMenuItem: true, permission: Permissions.APPROVAL },
+    { path: '/own-cost-approval', text: 'Own approve cost elements', iconCls: 'x-fa fa-check-square-o', component: OwnApproveLayoutContainer, isMenuItem: true, permission: Permissions.OWN_APPROVAL },
     { path: '/portfolio', text: 'Portfolio', iconCls: 'x-fa fa-suitcase', component: PortfolioView, isMenuItem: true, permission: Permissions.PORTFOLIO, exact: true },
     { path: '/portfolio/edit', component: PortfolioEditView, permission: Permissions.PORTFOLIO },
     { path: '/report', text: 'Calculation Result', iconCls: 'x-fa fa-calculator', component: CalcResultView, isMenuItem: true, permission: Permissions.REPORT, exact: true },
@@ -181,10 +183,13 @@ const buildMapStateToProps = () => {
             }
         }
 
+        let appVersion = app.appVersion;
+
         return <LayoutProps>{
             title,
             menuItems,
-            routes
+            routes,
+            appVersion
         }
     }
 }

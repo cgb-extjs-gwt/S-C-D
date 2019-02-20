@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
@@ -23,7 +22,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.domainMeta = domainMeta;
         }
 
-        public SelectJoinSqlHelper BuildSelectHistoryValueQuery(HistoryContext historyContext, IEnumerable<BaseColumnInfo> addingSelectColumns = null)
+        public SelectJoinSqlHelper BuildSelectHistoryValueQuery(CostElementContext historyContext, IEnumerable<BaseColumnInfo> addingSelectColumns = null)
         {
             const string ValueColumnName = "value";
 
@@ -62,47 +61,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return selectQuery;
         }
 
-        public SqlHelper BuildSelectJoinApproveHistoryValueQuery(CostBlockHistory history, long? historyValueId = null, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
-        {
-            string inputLevelId;
-            InputLevelJoinType inputLevelJoinType;
-            IEnumerable<ReferenceFieldMeta> domainCoordinateFields;
-
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
-            var costElement = this.domainMeta.GetCostElement(history.Context);
-
-            if (historyValueId.HasValue)
-            {
-                var inputLevel = costElement.InputLevels.Last();
-
-                inputLevelId = inputLevel.Id;
-                inputLevelJoinType = InputLevelJoinType.All;
-                domainCoordinateFields = costBlockMeta.GetDomainCoordinateFields(history.Context.CostElementId);
-            }
-            else
-            {
-                inputLevelId = history.Context.InputLevelId;
-                inputLevelJoinType = InputLevelJoinType.HistoryContext;
-                domainCoordinateFields =
-                    costElement.FilterInputLevels(history.Context.InputLevelId)
-                               .Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id])
-                               .Concat(new[] { costBlockMeta.GetDomainDependencyField(history.Context.CostElementId) });
-            }
-
-            var selectColumns = new List<ColumnInfo>
-            {
-                new ColumnInfo(MetaConstants.IdFieldKey, costBlockMeta.HistoryMeta.Name, "HistoryValueId")
-            };
-
-            selectColumns.AddRange(this.GetCoordinateColumns(costBlockMeta, domainCoordinateFields));
-
-            var selectQuery = this.BuildSelectHistoryValueQuery(history.Context, selectColumns);
-            var joinInfos = this.GetCoordinateJoinInfos(costBlockMeta, domainCoordinateFields).ToList();
-
-            return this.BuildJoinApproveHistoryValueQuery(history, selectQuery, inputLevelJoinType, joinInfos, historyValueId, costBlockFilter);
-        }
-
-        public TQuery BuildJoinHistoryValueQuery<TQuery>(HistoryContext historyContext, TQuery query, JoinHistoryValueQueryOptions options = null)
+        public TQuery BuildJoinHistoryValueQuery<TQuery>(CostElementContext historyContext, TQuery query, JoinHistoryValueQueryOptions options = null)
             where TQuery : SqlHelper, IWhereSqlHelper<SqlHelper>, IJoinSqlHelper<TQuery>
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(historyContext);
@@ -175,7 +134,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var whereCondition =
                 SqlOperators.Equals(
                     costBlockMeta.HistoryMeta.CostBlockHistoryField.Name,
-                    "costBlockHistoryId",
                     history.Id,
                     costBlockMeta.HistoryMeta.Name);
 
@@ -183,7 +141,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 whereCondition = whereCondition.And(SqlOperators.Equals(
                     MetaConstants.IdFieldKey,
-                    "historyValueId",
                     historyValueId,
                     costBlockMeta.HistoryMeta.Name));
             }
@@ -197,19 +154,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return query.Where(whereCondition);
         }
 
-        private string GetAlias(BaseEntityMeta meta)
-        {
-            return $"{meta.Schema}_{meta.Name}";
-        }
-
-        private ConditionHelper BuildCostBlockJoinCondition(HistoryContext historyContext, CostBlockEntityMeta costBlockMeta, JoinHistoryValueQueryOptions options)
+        private ConditionHelper BuildCostBlockJoinCondition(CostElementContext historyContext, CostBlockEntityMeta costBlockMeta, JoinHistoryValueQueryOptions options)
         {
             var conditions = new List<ConditionHelper>();
 
             if (options.IsUseRegionCondition && historyContext.RegionInputId.HasValue)
             {
                 var region = this.domainMeta.GetCostElement(historyContext).RegionInput;
-                var historyRegionIdName = $"{nameof(CostBlockHistory.Context)}_{nameof(HistoryContext.RegionInputId)}";
+                var historyRegionIdName = $"{nameof(CostBlockHistory.Context)}_{nameof(CostElementContext.RegionInputId)}";
                 var regionCondition = SqlOperators.Equals(
                         new ColumnInfo(historyRegionIdName, nameof(CostBlockHistory)),
                         new ColumnInfo(region.Id, costBlockMeta.Name));
@@ -244,28 +196,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
 
             return ConditionHelper.And(conditions);
-        }
-
-        private IEnumerable<ColumnInfo> GetCoordinateColumns(CostBlockEntityMeta costBlockMeta, IEnumerable<ReferenceFieldMeta> domainCoordinateFields)
-        {
-            foreach (var dependecyField in domainCoordinateFields)
-            {
-                yield return new ColumnInfo(dependecyField.Name, costBlockMeta.Name);
-                yield return new ColumnInfo(
-                    dependecyField.ReferenceFaceField,
-                    this.GetAlias(dependecyField.ReferenceMeta),
-                    $"{dependecyField.Name}_Name");
-            }
-        }
-
-        private IEnumerable<JoinInfo> GetCoordinateJoinInfos(CostBlockEntityMeta costBlockMeta, IEnumerable<ReferenceFieldMeta> domainCoordinateFields)
-        {
-            return domainCoordinateFields.Select(field => new JoinInfo
-            {
-                Meta = costBlockMeta,
-                ReferenceFieldName = field.Name,
-                JoinedTableAlias = this.GetAlias(field.ReferenceMeta)
-            });
         }
     }
 }

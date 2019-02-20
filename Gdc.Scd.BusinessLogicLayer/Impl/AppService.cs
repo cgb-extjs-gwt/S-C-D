@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using Gdc.Scd.BusinessLogicLayer.Dto;
@@ -6,6 +7,7 @@ using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Dto;
 using Gdc.Scd.Core.Meta.Entities;
 
@@ -37,7 +39,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new AppData
             {
                 Meta = this.GetMetaDto(user),
-                UserRoles = this.GetRoleDtos(user)
+                UserRoles = this.GetRoleDtos(user),
+                AppVersion = ConfigurationManager.AppSettings["ApplicationVersion"]
             };
         }
 
@@ -60,8 +63,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             foreach (var costBlock in this.meta.CostBlocks)
             {
-                var isUsingCostEditor = false;
-                var isUsingTableView = false;
+                var usingInfo = new UsingInfo();
                 var costElementDtos = new List<CostElementDto>();
 
                 foreach (var costElement in costBlock.CostElements)
@@ -71,33 +73,33 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                     var costElementDto = new CostElementDto
                     {
-                        IsUsingCostEditor = (isManualInput || isReadonly) && this.ContainsRole(costElement.CostEditorRoles, user),
-                        IsUsingTableView = isManualInput && this.ContainsRole(costElement.TableViewRoles, user)
+                        UsingInfo = new UsingInfo
+                        {
+                            IsUsingCostEditor = (isManualInput || isReadonly) && this.ContainsRole(costElement.CostEditorRoles, user),
+                            IsUsingTableView = isManualInput && this.ContainsRole(costElement.TableViewRoles, user)
+                        }
                     };
+                    costElementDto.UsingInfo.IsUsingCostImport = 
+                        costElementDto.UsingInfo.IsAnyUsing() &&
+                        costElement.HasInputLevel(MetaConstants.WgInputLevelName);
 
-                    if (isAddingCostElement || costElementDto.IsUsingCostEditor || costElementDto.IsUsingTableView)
+                    if (isAddingCostElement || costElementDto.UsingInfo.IsUsingCostEditor || costElementDto.UsingInfo.IsUsingTableView)
                     {
-                        costElementDto.InputLevels = this.BuildInputLevelDtos(costElement);
+                        costElementDto.SetInputLevels(this.BuildInputLevelDtos(costElement));
 
                         this.Copy(costElement, costElementDto, nameof(CostElementDto.InputLevels));
 
                         costElementDtos.Add(costElementDto);
 
-                        if (!isUsingCostEditor)
-                        {
-                            isUsingCostEditor = costElementDto.IsUsingCostEditor;
-                        }
-
-                        if (!isUsingTableView)
-                        {
-                            isUsingTableView = costElementDto.IsUsingTableView;
-                        }
+                        usingInfo.IsUsingCostEditor = usingInfo.IsUsingCostEditor || costElementDto.UsingInfo.IsUsingCostEditor;
+                        usingInfo.IsUsingTableView = usingInfo.IsUsingTableView || costElementDto.UsingInfo.IsUsingTableView;
+                        usingInfo.IsUsingCostImport = usingInfo.IsUsingCostImport || costElementDto.UsingInfo.IsUsingCostImport;
                     }
                 }
 
                 if (costElementDtos.Count > 0)
                 {
-                    var costBlockDto = this.BuildCostBlockDto(costBlock, costElementDtos, isUsingCostEditor, isUsingTableView);
+                    var costBlockDto = this.BuildCostBlockDto(costBlock, costElementDtos, usingInfo);
 
                     costBlockDtos.Add(costBlockDto);
                 }
@@ -111,13 +113,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var inputLevelDtos = new MetaCollection<InputLevelDto>();
             var index = 0;
 
-            foreach (var inputLevel in costElementMeta.InputLevels)
+            foreach (var inputLevelInfo in costElementMeta.InputLevelMetaInfos)
             {
-                var inputLevelDto = this.Copy<InputLevelDto>(inputLevel, nameof(InputLevelDto.LevelNumber));
+                var inputLevelDto = this.Copy<InputLevelDto>(inputLevelInfo.InputLevel, nameof(InputLevelDto.LevelNumber));
 
                 inputLevelDto.LevelNumber = index++;
+                inputLevelDto.Hide = inputLevelInfo.Hide;
 
-                var inputLevelMeta = costElementMeta.GetFilterInputLevel(inputLevel.Id);
+                var inputLevelMeta = costElementMeta.GetFilterInputLevel(inputLevelInfo.InputLevel.Id);
 
                 if (inputLevelMeta != null)
                 {
@@ -131,13 +134,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return inputLevelDtos;
         }
 
-        private CostBlockDto BuildCostBlockDto(CostBlockMeta costBlock, IEnumerable<CostElementDto> costElementDtos, bool isUsingCostEditor, bool isUsingTableView)
+        private CostBlockDto BuildCostBlockDto(
+            CostBlockMeta costBlock, 
+            IEnumerable<CostElementDto> costElementDtos,
+            UsingInfo usingInfo)
         {
             var costBlockDto = new CostBlockDto
             {
                 CostElements = new MetaCollection<CostElementDto>(costElementDtos),
-                IsUsingCostEditor = isUsingCostEditor,
-                IsUsingTableView = isUsingTableView
+                UsingInfo = usingInfo
             };
 
             this.Copy(costBlock, costBlockDto, nameof(CostBlockDto.CostElements));
@@ -147,7 +152,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private DomainMetaDto BuildDomainMetaDto(DomainMeta domainMeta, IEnumerable<CostBlockDto> costBlockDtos)
         {
-            var applicationInfos = new Dictionary<string, (bool IsUsingCostEditor, bool IsUsingTableView)>();
+            var applicationInfos = new Dictionary<string, UsingInfo>();
 
             foreach(var costBlockDto in costBlockDtos)
             {
@@ -155,15 +160,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     if (applicationInfos.TryGetValue(applicationId, out var usingInfo))
                     {
-                        applicationInfos[applicationId] = (
-                            IsUsingCostEditor: usingInfo.IsUsingCostEditor || costBlockDto.IsUsingCostEditor,
-                            IsUsingTableView: usingInfo.IsUsingTableView || costBlockDto.IsUsingTableView);
+                        applicationInfos[applicationId] = new UsingInfo
+                        {
+                            IsUsingCostEditor = usingInfo.IsUsingCostEditor || costBlockDto.UsingInfo.IsUsingCostEditor,
+                            IsUsingTableView = usingInfo.IsUsingTableView || costBlockDto.UsingInfo.IsUsingTableView,
+                            IsUsingCostImport = usingInfo.IsUsingCostImport || costBlockDto.UsingInfo.IsUsingCostImport
+                        };
                     }
                     else
                     {
-                        applicationInfos[applicationId] = (
-                            IsUsingCostEditor: costBlockDto.IsUsingCostEditor,
-                            IsUsingTableView: costBlockDto.IsUsingTableView);
+                        applicationInfos[applicationId] = costBlockDto.UsingInfo;
                     }
                 }
             }
@@ -174,10 +180,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 var applicationDto = this.Copy<ApplicationDto>(domainMeta.Applications[applicationInfo.Key]);
 
-                applicationDto.IsUsingCostEditor = applicationInfo.Value.IsUsingCostEditor;
-                applicationDto.IsUsingTableView = applicationInfo.Value.IsUsingTableView;
+                applicationDto.UsingInfo = applicationInfo.Value;
 
-                applications.Add(applicationDto);
+                if (applicationDto.UsingInfo.IsAnyUsing())
+                {
+                    applications.Add(applicationDto);
+                }
             }
 
             var domainMetaDto = new DomainMetaDto

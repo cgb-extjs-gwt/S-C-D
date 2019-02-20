@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Interfaces;
+using System.Reflection;
+using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.Core.Meta.Helpers;
 using Gdc.Scd.Core.Meta.Interfaces;
 
 namespace Gdc.Scd.Core.Meta.Impl
 {
     public class DomainEnitiesMetaService : IDomainEnitiesMetaService
     {
-        private const string TypeKey = "Type";
-
         private const string ReferenceTypeKey = "Reference";
 
         private const string FlagTypeKey = "Flag";
@@ -43,7 +41,7 @@ namespace Gdc.Scd.Core.Meta.Impl
                 CostBlockHistory = costBlockHistory
             };
 
-            var customCoordinateMetas = this.coordinateEntityMetaProviders.SelectMany(provider => provider.GetCoordinateEntityMetas());
+            var customCoordinateMetas = this.coordinateEntityMetaProviders.SelectMany(provider => provider.GetCoordinateEntityMetas()).ToArray();
             var metaFactory = new CoordinateMetaFactory(customCoordinateMetas);
 
             foreach (var costBlockMeta in domainMeta.CostBlocks)
@@ -61,12 +59,12 @@ namespace Gdc.Scd.Core.Meta.Impl
                     {
                         this.BuildCostElement(costElementMeta, costBlockEntity, domainEnitiesMeta);
 
-                        if (costElementMeta.Dependency != null && costBlockEntity.DependencyFields[costElementMeta.Dependency.Id] == null)
+                        if (costElementMeta.Dependency != null && !costBlockEntity.DependencyFields.Contains(costElementMeta.Dependency.Id))
                         {
                             this.BuildDependencies(costElementMeta, costBlockEntity, domainEnitiesMeta, metaFactory);
                         }
 
-                        if (costElementMeta.RegionInput != null && costBlockEntity.InputLevelFields[costElementMeta.RegionInput.Id] == null)
+                        if (costElementMeta.RegionInput != null && !costBlockEntity.InputLevelFields.Contains(costElementMeta.RegionInput.Id))
                         {
                             this.BuildInputLevels(costElementMeta.RegionInput, costBlockEntity, domainEnitiesMeta, metaFactory);
                         }
@@ -78,12 +76,20 @@ namespace Gdc.Scd.Core.Meta.Impl
                 }
             }
 
+            domainEnitiesMeta.OtherMetas.AddRange(
+                customCoordinateMetas.Where(meta => domainEnitiesMeta[meta.FullName] == null));
+
+            domainEnitiesMeta.LocalPortfolio = this.BuildLocalPortfolioMeta(domainEnitiesMeta);
+
+            var countryMeta = domainEnitiesMeta.GetCountryEntityMeta();
+            domainEnitiesMeta.ExchangeRate = new ExchangeRateEntityMeta(countryMeta);
+
             return domainEnitiesMeta;
         }
 
         private void BuildDependencies(CostElementMeta costElementMeta, CostBlockEntityMeta costBlockEntity, DomainEnitiesMeta domainEnitiesMeta, CoordinateMetaFactory metaFactory)
         {
-            if (costElementMeta.Dependency != null && costBlockEntity.DependencyFields[costElementMeta.Dependency.Id] == null)
+            if (costElementMeta.Dependency != null && !costBlockEntity.DependencyFields.Contains(costElementMeta.Dependency.Id))
             {
                 var dependencyFullName = BaseEntityMeta.BuildFullName(costElementMeta.Dependency.Id, MetaConstants.DependencySchema);
                 var dependencyEntity = metaFactory.GetMeta(costElementMeta.Dependency.Id, MetaConstants.DependencySchema);
@@ -122,7 +128,7 @@ namespace Gdc.Scd.Core.Meta.Impl
 
             if (costElementMeta.TypeOptions != null)
             {
-                switch(costElementMeta.TypeOptions[TypeKey])
+                switch(costElementMeta.GetOptionsType())
                 {
                     case ReferenceTypeKey:
                         var entityName = costElementMeta.TypeOptions[NameKey];
@@ -220,6 +226,22 @@ namespace Gdc.Scd.Core.Meta.Impl
             var fields = fromCollection.Select(field => field.Clone()).Cast<T>();
 
             toCollection.AddRange(fields);
+        }
+
+        private EntityMeta BuildLocalPortfolioMeta(DomainEnitiesMeta domainEnitiesMeta)
+        {
+            var fields =
+                typeof(LocalPortfolio).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty)
+                                      .Where(prop => !prop.PropertyType.IsPrimitive && prop.PropertyType != typeof(string))
+                                      .Select(prop => new
+                                      {
+                                          PropertyName = prop.Name,
+                                          ReferenceEntity = domainEnitiesMeta.GetEntityMeta(MetaHelper.GetEntityInfo(prop.PropertyType)) as NamedEntityMeta
+                                      })
+                                      .Where(info => info.ReferenceEntity != null)
+                                      .Select(info => ReferenceFieldMeta.Build($"{info.PropertyName}Id", info.ReferenceEntity));
+
+            return new EntityMeta(MetaConstants.LocalPortfolioTableName, MetaConstants.PortfolioSchema, fields);
         }
 
         private class CoordinateMetaFactory

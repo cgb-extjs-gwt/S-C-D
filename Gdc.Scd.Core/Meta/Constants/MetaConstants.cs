@@ -20,6 +20,10 @@
 
         public const string CountryInputLevelName = "Country";
 
+        public const string EmeiaCountryInputLevelName = "EmeiaCountry";
+
+        public const string NonEmeiaCountryInputLevelName = "NonEmeiaCountry";
+
         public const string RegionLevel = "Region";
         
         public const string DefaultSchema = "dbo";
@@ -29,6 +33,8 @@
         public const string WgInputLevelName = "Wg";
 
         public const string ManualCostTable = "ManualCost";
+
+        public const string HddRetentionManualCostTable = "HddRetentionManualCost";
 
         public const string HardwareSchema = "Hardware";
 
@@ -48,6 +54,8 @@
 
         public const string PortfolioSchema = "Portfolio";
 
+        public const string LocalPortfolioTableName = "LocalPortfolio";
+
         public const string ClusterRegionInputLevel = "ClusterRegion";
         
         public const string SpoolerSchema = "Spooler";
@@ -65,5 +73,11 @@
         public const string NoneValue = "none";
 
         public const string RoleCodeInputLevel = "RoleCode";
+
+        public const string HwHddFspCodeTranslationTable = "HwHddFspCodeTranslation";
+
+        public const string CurrencyTable = "Currency";
+
+        public const string ExchangeRateTable = "ExchangeRate";
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
@@ -61,27 +62,22 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 }
             }
         }
-
-        public DirectoryEntry GetUserFromForestByUsername(string userName, string password, string domainName)
+        public SearchResultCollection GetUserFromForest(string search)
         {
-            if (string.IsNullOrEmpty(Configuration.ForestName) || string.IsNullOrEmpty(userName) ||
-                string.IsNullOrEmpty(password))
-                return null;
-            var domainContext = new DirectoryContext(DirectoryContextType.Forest, Configuration.ForestName, userName, password);
+            var domainContext = new DirectoryContext(DirectoryContextType.Forest, Configuration.ForestName);
             var currentForest = Forest.GetForest(domainContext);
             var gc = currentForest.FindGlobalCatalog();
-
             using (var userSearcher = gc.GetDirectorySearcher())
             {
-                userSearcher.Filter = "(&((&(objectCategory=Person)(objectClass=User)))(|(samaccountname=" + userName + ")(mail=" + userName + ")))";
-                var result = userSearcher.FindOne();
+                userSearcher.Filter = "(|(samaccountname=" + search + "*)(name=" + search + "*)(displayName=" + search + "*)(mail=" + search + "))";
+                var result = userSearcher.FindAll();
                 if (result == null)
                     return null;
-                return result.GetDirectoryEntry();
+                return result;
             }
         }
 
-        public List<UserPrincipal> SearchForUserByString(string search, int count = 5)
+        public List<UserPrincipal> GetUserFromDomain(string search, int count = 5)
         {
             var searchResults = new List<DirectoryEntry>();
             using (var context = new PrincipalContext(ContextType.Domain))
@@ -90,10 +86,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     var searchPrinciples = new List<UserPrincipal>();
                     searchPrinciples.Add(new UserPrincipal(context) { Surname = string.Format("{0}*", search) });
-                    searchPrinciples.Add(new UserPrincipal(context) { GivenName = string.Format("{0}*", search) });                 
-
+                    searchPrinciples.Add(new UserPrincipal(context) { GivenName = string.Format("{0}*", search) });
                     var results = new List<UserPrincipal>();
-                    
                     try
                     {
                         var searcher = new PrincipalSearcher();
@@ -113,6 +107,43 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 }
             }
         }
+        public List<User> SearchForUserByString(string search, int count = 5)
+        {
+            var foundUsers = new List<User>();
+            var foundDomainUsers = GetUserFromDomain(search, count);
+            if (foundDomainUsers.Count > 0)
+            {
+                foundUsers = foundDomainUsers.Select(
+                    user => new User
+                    {
+                        Name = user.DisplayName,
+                        Login = user.Sid.Translate(typeof(NTAccount)).ToString(),
+                        Email = user.EmailAddress
+                    }).OrderBy(x => x.Name).ToList();
+            }
+            else
+            {
+                var foundForestUsers = GetUserFromForest(search);
+                foreach (SearchResult foundForestUser in foundForestUsers)
+                {
+                    var userEntry = foundForestUser.GetDirectoryEntry();
+                    var login = GetLoginFromSearchResult(foundForestUser);
+                    if (!string.IsNullOrEmpty(login))
+                    {
+                        foundUsers.Add(
+                            new User
+                            {
+                                Email = Convert.ToString(userEntry.Properties["mail"].Value),
+                                Name = Convert.ToString(userEntry.Properties["displayName"].Value),
+                                Login = login
+                            }
+                        );
+                    }
+                }
+            }
+
+            return foundUsers;
+        }
         public UserPrincipal FindByIdentity(string userIdentity)
         {
             using (var context = new PrincipalContext(ContextType.Domain))
@@ -126,6 +157,22 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     return null;
                 }
+            }
+        }
+        private string GetLoginFromSearchResult(SearchResult result)
+        {
+            try
+            {
+                var propertyValues = result.Properties["objectsid"];
+                var objectsid = (byte[]) propertyValues[0];
+                var sid = new SecurityIdentifier(objectsid, 0);
+
+                var account = sid.Translate(typeof(NTAccount));
+                return account.ToString();
+            }
+            catch (Exception ex)
+            {
+                return string.Empty;
             }
         }
     }

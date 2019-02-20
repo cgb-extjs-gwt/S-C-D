@@ -14,6 +14,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<(Stream data, string fileName)> Excel(long reportId, ReportFilterCollection filter);
 
+        Task<(Stream data, string fileName)> Excel(string reportName, ReportFilterCollection filter);
+
         Task<(string json, int total)> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit);
     }
 }

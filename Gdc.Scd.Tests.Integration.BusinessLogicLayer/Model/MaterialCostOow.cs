@@ -16,13 +16,13 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
     {
         public long Id { get; set; }
         public long Wg { get; set; }
-        public long ClusterRegion { get; set; }
+        public long NonEmeiaCountry { get; set; }
         public Nullable<double> MaterialCostOow1 { get; set; }
         public Nullable<double> MaterialCostOow_Approved { get; set; }
         public System.DateTime CreatedDateTime { get; set; }
         public Nullable<System.DateTime> DeactivatedDateTime { get; set; }
     
-        public virtual ClusterRegion ClusterRegion1 { get; set; }
-        public virtual Wg Wg1 { get; set; }
+        public virtual Country1 Country1 { get; set; }
+        public virtual Wg1 Wg1 { get; set; }
     }
 }

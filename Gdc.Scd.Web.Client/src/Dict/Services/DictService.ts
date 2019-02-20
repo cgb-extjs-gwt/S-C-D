@@ -1,4 +1,4 @@
-import { NamedId } from "../../Common/States/CommonStates";
+import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
 import { AvailabilityService } from "../../Dict/Services/AvailabilityService";
 import { CountryService } from "../../Dict/Services/CountryService";
 import { DurationService } from "../../Dict/Services/DurationService";
@@ -9,11 +9,13 @@ import { WgService } from "../../Dict/Services/WgService";
 import { Country } from "../Model/Country";
 import { CountryGroupService } from "./CountryGroupService";
 import { CountryManagementService } from "./CountryManagementService";
+import { CurrencyService } from "./CurrencyService";
 import { IDictService } from "./IDictService";
 import { PlaService } from "./PlaService";
 import { ProActiveService } from "./ProActiveService";
 import { RoleService } from "./RoleService";
 import { SogService } from "./SogService";
+import { SwDigitService } from "./SwDigitService";
 import { UserCountryService } from "./UserCountryService";
 import { YearService } from "./YearService";
 
@@ -27,9 +29,19 @@ export class DictService implements IDictService {
         return cache ? srv.getAll() : srv.loadAll();
     }
 
+    public getMasterCountriesNames(): Promise<NamedId<string>[]> {
+        const srv = new CountryService();
+        return srv.getAllNames();
+    }
+
     public getUserCountries(cache: boolean): Promise<Country[]> {
         const srv = new UserCountryService();
         return cache ? srv.getAll() : srv.loadAll();
+    }
+
+    public getUserCountryNames(): Promise<NamedId[]> {
+        const srv = new UserCountryService();
+        return srv.getAllNames();
     }
 
     public getCountryGroups(): Promise<NamedId<string>[]> {
@@ -52,8 +64,20 @@ export class DictService implements IDictService {
         return new CountryManagementService().getQualityGroups();
     }
 
+    public getCurrencies(): Promise<NamedId<string>[]> {
+        return new CurrencyService().getAll();
+    }
+
     public getWG(): Promise<NamedId<string>[]> {
         return new WgService().getAll();
+    }
+
+    public getWgWithMultivendor(): Promise<NamedId<string>[]> {
+        return new WgService().allWithMultivendor();
+    }
+
+    public getStandardWg(): Promise<NamedId<string>[]> {
+        return new WgService().standard();
     }
 
     public getPla(): Promise<NamedId<string>[]> {
@@ -62,6 +86,10 @@ export class DictService implements IDictService {
 
     public getSog(): Promise<NamedId<string>[]> {
         return new SogService().getAll();
+    }
+
+    public getSwDigit(): Promise<NamedId<string>[]> {
+        return new SwDigitService().getAll();
     }
 
     public getAvailabilityTypes(): Promise<NamedId<string>[]> {
@@ -84,7 +112,7 @@ export class DictService implements IDictService {
         return new ReactionTimeService().getAll();
     }
 
-    public getServiceLocationTypes(): Promise<NamedId<string>[]> {
+    public getServiceLocationTypes(): Promise<SortableNamedId<string>[]> {
         return new ServiceLocationService().getAll();
     }
 

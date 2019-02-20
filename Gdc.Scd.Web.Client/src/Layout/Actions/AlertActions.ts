@@ -18,7 +18,9 @@ export interface LinkAction extends AlertAction {
 }
 
 export interface ReportAction extends AlertAction {
-    url: string
+    url: string,
+    report: string,
+    filter: any
 }
 
 export const remoteDefault = (text: string) => (<AlertAction>{
@@ -26,9 +28,13 @@ export const remoteDefault = (text: string) => (<AlertAction>{
     text: text
 })
 
-export const report = (caption: string, text: string, url: string) => (<ReportAction>{
+export const report = (caption: string, text: string, url: string, report: string, filter: any) => (<ReportAction>{
     type: APP_ALERT_REPORT,
     caption: caption || 'Report',
     text: text,
-    url: url
+
+    url: url,
+
+    report: report,
+    filter: filter
 })

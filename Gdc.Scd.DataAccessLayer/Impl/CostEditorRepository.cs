@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
@@ -33,57 +31,43 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context, IDictionary<string, IEnumerable<object>> filter = null)
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
-
             var nameField = costBlockMeta.InputLevelFields[context.InputLevelId];
-            var innerNameColumn = new ColumnInfo(nameField.ReferenceFaceField, nameField.ReferenceMeta.Name);
-            var innerNameIdColumn = new ColumnInfo(nameField.ReferenceValueField, nameField.ReferenceMeta.Name);
+
+            var nameColumn = new ColumnInfo(nameField.ReferenceFaceField, nameField.ReferenceMeta.Name);
+            var nameIdColumn = new ColumnInfo(nameField.ReferenceValueField, nameField.ReferenceMeta.Name);
+            var countColumn = SqlFunctions.Count(context.CostElementId, true, costBlockMeta.Name);
+
+            QueryColumnInfo maxValueColumn;
 
             var valueField = costBlockMeta.CostElementsFields[context.CostElementId];
-            var innerValueColumn = new ColumnInfo(valueField.Name);
-            var valueApprovedField = costBlockMeta.CostElementsApprovedFields[valueField];
-            var valueApprovedColumn = new ColumnInfo(valueApprovedField.Name);
+            var simpleValueField = valueField as SimpleFieldMeta;
+            if (simpleValueField != null && simpleValueField.Type == TypeCode.Boolean)
+            {
+                var valueColumn = new ColumnSqlBuilder { Name = simpleValueField.Name };
 
-            var innerApprovedColumn = new QueryColumnInfo(
-                new CaseSqlBuilder
-                {
-                    Cases = new[]
-                    {
-                        new CaseItem
-                        {
-                            When = SqlOperators.Equals(innerValueColumn, valueApprovedColumn).ToSqlBuilder(),
-                            Then = new RawSqlBuilder("1")
-                        }
-                    },
-                    Else = new RawSqlBuilder("0")
-                },
-                "IsApproved");
-
-            var innerQuery =
-                Sql.Select(innerNameIdColumn, innerNameColumn, innerValueColumn, innerApprovedColumn)
-                   .From(costBlockMeta)
-                   .Join(costBlockMeta, nameField.Name)
-                   .WhereNotDeleted(costBlockMeta, filter, costBlockMeta.Name);
-
-            var nameIdCoumn = new ColumnInfo(innerNameIdColumn.Name);
-            var nameColumn = new ColumnInfo(innerNameColumn.Name);
-
-            var maxValueColumn =
-                costBlockMeta.CostElementsFields[context.CostElementId] is SimpleFieldMeta simpleField && simpleField.Type == TypeCode.Boolean
-                    ? SqlFunctions.Max(
-                        SqlFunctions.Convert(new ColumnSqlBuilder(simpleField.Name), TypeCode.Int32))
-                    : SqlFunctions.Max(context.CostElementId);
-
-            var countColumn = SqlFunctions.Count(context.CostElementId, true);
-            var approvedColumn = new ColumnInfo(innerApprovedColumn.Alias);
+                maxValueColumn = SqlFunctions.Max(
+                    SqlFunctions.Convert(valueColumn, TypeCode.Int32),
+                    costBlockMeta.Name);
+            }
+            else
+            {
+                maxValueColumn = SqlFunctions.Max(context.CostElementId, costBlockMeta.Name);
+            }
 
             var query =
-                Sql.Select(nameIdCoumn, nameColumn, maxValueColumn, countColumn, approvedColumn)
-                   .FromQuery(innerQuery, "t")
-                   .GroupBy(nameIdCoumn, nameColumn, approvedColumn)
+                Sql.Select(nameIdColumn, nameColumn, maxValueColumn, countColumn)
+                   .From(costBlockMeta)
+                   .Join(costBlockMeta, nameField.Name)
+                   .WhereNotDeleted(costBlockMeta, filter, costBlockMeta.Name)
+                   .GroupBy(nameColumn, nameIdColumn)
                    .OrderBy(new OrderByInfo
                    {
                        Direction = SortDirection.Asc,
-                       SqlBuilder = new ColumnSqlBuilder(nameColumn.Name)
+                       SqlBuilder = new ColumnSqlBuilder
+                       {
+                           Table = nameColumn.TableName,
+                           Name = nameColumn.Name
+                       }
                    });
 
             return await this.repositorySet.ReadBySql(query, reader =>
@@ -96,55 +80,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     Name = reader.GetString(1),
                     Value = valueCount == 1 ? reader.GetValue(2) : null,
                     ValueCount = valueCount,
-                    IsApproved = reader.GetInt32(4) == 1
                 };
             });
-        }
-
-        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, IDictionary<string, IEnumerable<object>> filter = null)
-        {
-            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
-            var nameField = costBlockMeta.InputLevelFields[context.InputLevelId];
-
-            var query = 
-                Sql.Queries(
-                    editItems.Select(
-                        (editItem, index) => this.BuildUpdateValueQuery(costBlockMeta, editItem, context, index, filter)));
-
-            return await this.repositorySet.ExecuteSqlAsync(query);
-        }
-
-        public async Task<int> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, IDictionary<string, long[]> filter)
-        {
-            return await this.UpdateValues(editItems, context, filter.Convert());
-        }
-
-        private SqlHelper BuildUpdateValueQuery(
-            CostBlockEntityMeta meta,
-            EditItem editItem,
-            CostEditorContext context, 
-            int index, 
-            IDictionary<string, IEnumerable<object>> filter = null)
-        {
-            var updateColumn = new ValueUpdateColumnInfo(
-                context.CostElementId,
-                editItem.Value,
-                $"{context.CostElementId}_{index}");
-
-            //filter = new Dictionary<string, IEnumerable<object>>(filter ?? Enumerable.Empty<KeyValuePair<string, IEnumerable<object>>>())
-            filter = new Dictionary<string, IEnumerable<object>>(filter ?? new Dictionary<string, IEnumerable<object>>())       
-            {
-                [context.InputLevelId] = new object []
-                {
-                    new CommandParameterInfo
-                    {
-                        Name = $"{context.InputLevelId}_{index}",
-                        Value = editItem.Id
-                    }
-                }
-            };
-
-            return Sql.Update(meta, updateColumn).WhereNotDeleted(meta, filter);
         }
     }
 }

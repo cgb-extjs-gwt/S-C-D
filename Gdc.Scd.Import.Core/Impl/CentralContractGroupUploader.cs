@@ -49,27 +49,27 @@ namespace Gdc.Scd.Import.Core.Impl
 
             foreach (var item in items)
             {
-                var centralContractGroup = centralContractGroups.FirstOrDefault(ccg => ccg.Name.Equals(item.CentralContractGroupName,
+                var centralContractGroup = centralContractGroups.FirstOrDefault(ccg => ccg.Code.Equals(item.CentralContractGroupCode,
                     StringComparison.OrdinalIgnoreCase));
 
                 //Central Contract Group does not exist in database -> add it
                 if (centralContractGroup == null)
                 {
-                    _logger.Log(LogLevel.Debug, ImportConstants.ADD_NEW_CCG, item.CentralContractGroupName);
+                    _logger.Log(LogLevel.Debug, ImportConstants.ADD_NEW_CCG, item.CentralContractGroupCode);
 
                     CollectionHelper.AddEntry<CentralContractGroup>(newCentralContractGroups, new CentralContractGroup
                     {
                         Name = item.CentralContractGroupName,
-                        Description = item.CentralContractGroupDescription
+                        Code = item.CentralContractGroupCode
                     }, _logger);
                 }
 
                 else
                 {
-                    if (!centralContractGroup.Description.Equals(item.CentralContractGroupDescription, 
+                    if (!centralContractGroup.Name.Equals(item.CentralContractGroupName, 
                         StringComparison.OrdinalIgnoreCase))
                     {
-                        centralContractGroup.Description = item.CentralContractGroupDescription;
+                        centralContractGroup.Name = item.CentralContractGroupName;
                         CollectionHelper.AddEntry<CentralContractGroup>(newCentralContractGroups, centralContractGroup, _logger);
                     }
                 }
@@ -91,13 +91,13 @@ namespace Gdc.Scd.Import.Core.Impl
             var wgs = _repositoryWg.GetAll().ToList();
             var centralContractGroups = _repositoryCentralContractGroup.GetAll().ToList();
 
-            var uploadedCcg = items.Select(i => i.CentralContractGroupName).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            var uploadedCcg = items.Select(i => i.CentralContractGroupCode).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             var updatedWgs = new Dictionary<string, Wg>();
 
             foreach (var item in items)
             {
                 var dbCcg = centralContractGroups.FirstOrDefault(ccg =>
-                            ccg.Name.Equals(item.CentralContractGroupName, StringComparison.OrdinalIgnoreCase));
+                            ccg.Code.Equals(item.CentralContractGroupCode, StringComparison.OrdinalIgnoreCase));
 
                 if (dbCcg != null)
                 {

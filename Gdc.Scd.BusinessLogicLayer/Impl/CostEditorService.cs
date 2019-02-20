@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Gdc.Scd.BusinessLogicLayer.Dto;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.QualityGate;
 using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
@@ -31,6 +32,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IUserService userService;
 
+        private readonly ICostBlockService costBlockService;
+
+        private readonly IDomainService<Country> countryService;
+
         public CostEditorService(
             ICostEditorRepository costEditorRepository,
             ISqlRepository sqlRepository,
@@ -39,6 +44,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             ICostBlockFilterBuilder costBlockFilterBuilder,
             IQualityGateSevice qualityGateSevice,
             IUserService userService,
+            ICostBlockService costBlockService,
+            IDomainService<Country> countryService,
             DomainMeta meta,
             DomainEnitiesMeta domainEnitiesMeta)
         {
@@ -51,6 +58,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.costBlockFilterBuilder = costBlockFilterBuilder;
             this.qualityGateSevice = qualityGateSevice;
             this.userService = userService;
+            this.costBlockService = costBlockService;
+            this.countryService = countryService;
         }
 
         public async Task<IEnumerable<NamedId>> GetInputLevelFilterItems(CostEditorContext context)
@@ -59,7 +68,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 this.meta.GetCostElement(context)
                          .GetFilterInputLevel(context.InputLevelId);
 
-            return await this.GetDistinctItems(context, previousInputLevel.Id);
+            return await this.costBlockService.GetCoordinateItems(context, previousInputLevel.Id);
         }
 
         public async Task<IEnumerable<EditItem>> GetEditItems(CostEditorContext context)
@@ -90,87 +99,50 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public async Task<IEnumerable<NamedId>> GetCostElementReferenceValues(CostEditorContext context)
+        public async Task<CostEditorDto> GetCostElementData(CostEditorContext context)
         {
-            IEnumerable<NamedId> referenceValues = null;
-
-            var costBlock = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
-            if (costBlock.CostElementsFields[context.CostElementId] is ReferenceFieldMeta field)
+            return new CostEditorDto
             {
-                referenceValues = await this.GetDistinctItems(context, costBlock, field);
-            }
-
-            return referenceValues;
-        }
-
-        public async Task<CostElementData> GetCostElementData(CostEditorContext context)
-        {
-            var costElementMeta = this.meta.GetCostElement(context);
-            var userCountries = this.userService.GetCurrentUserCountries().ToArray();
-
-            return new CostElementData
-            {
-                Regions = await this.GetRegions(context, costElementMeta, userCountries),
-                Filters = await this.GetCostElementFilterItems(context, costElementMeta, userCountries),
-                ReferenceValues = await this.GetCostElementReferenceValues(context)
+                Regions = await this.GetRegions(context),
+                ReferenceValues = await this.GetCostElementReferenceValues(context),
             };
         }
 
         public async Task<QualityGateResult> UpdateValues(IEnumerable<EditItem> editItems, CostEditorContext context, ApprovalOption approvalOption)
         {
-            QualityGateResult checkResult;
+            var userCountries = this.userService.GetCurrentUserCountries();
+            var filter = this.costBlockFilterBuilder.BuildFilter(context, userCountries);
+            var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
 
-            if (approvalOption.IsApproving && !approvalOption.HasQualityGateErrors)
+            var editInfos = new[]
             {
-                var filter = this.costBlockFilterBuilder.BuildCoordinateFilter(context);
-                var editContext = new EditContext
+                new EditInfo
                 {
-                    Context = context,
-                    EditItemSets = new[] 
+                    Meta = costBlockMeta,
+                    ValueInfos = editItems.Select(editItem => new ValuesInfo
                     {
-                        new EditItemSet
+                        CoordinateFilter = new Dictionary<string, long[]>(filter)
                         {
-                            EditItems = editItems,
-                            CoordinateFilter = filter
+                            [context.InputLevelId] = new [] { editItem.Id }
+                        },
+                        Values = new Dictionary<string, object>
+                        {
+                            [context.CostElementId] = editItem.Value
                         }
-                    }
-                };
-
-                checkResult = await this.qualityGateSevice.Check(editContext, EditorType.CostEditor);
-            }
-            else
-            {
-                checkResult = new QualityGateResult();
-            }
-
-            if (!checkResult.HasErrors)
-            {
-                var userCountries = this.userService.GetCurrentUserCountries();
-                var filter = this.costBlockFilterBuilder.BuildFilter(context, userCountries);
-
-                using (var transaction = this.repositorySet.GetTransaction())
-                {
-                    try
-                    {
-                        var result = await this.costEditorRepository.UpdateValues(editItems, context, filter);
-
-                        await this.historySevice.Save(context, editItems, approvalOption, filter, EditorType.CostEditor);
-
-                        transaction.Commit();
-                    }
-                    catch
-                    {
-                        transaction.Rollback();
-
-                        throw;
-                    }
+                    }).ToArray()
                 }
-            }
+            };
 
-            return checkResult;
+            var qualityGateResultSet = await this.costBlockService.Update(editInfos, approvalOption, EditorType.CostEditor);
+            var qualityGateResultSetItem = qualityGateResultSet.Items.FirstOrDefault();
+
+            return 
+                qualityGateResultSetItem == null 
+                    ? new QualityGateResult() 
+                    : qualityGateResultSetItem.QualityGateResult;
         }
 
-        public async Task<IEnumerable<HistoryItem>> GetHistoryItems(CostEditorContext context, long editItemId, QueryInfo queryInfo = null)
+        public async Task<DataInfo<HistoryItemDto>> GetHistory(CostEditorContext context, long editItemId, QueryInfo queryInfo = null)
         {
             var userCountries = this.userService.GetCurrentUserCountries();
             var filter = this.costBlockFilterBuilder.BuildFilter(context, userCountries);
@@ -181,55 +153,47 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 filter.Add(context.InputLevelId, new long[] { editItemId });
             }
 
-            return await this.historySevice.GetHistoryItems(context, filter, queryInfo);
+            return await this.historySevice.GetHistory(context, filter, queryInfo);
         }
 
-        private async Task<IEnumerable<NamedId>> GetDistinctItems(CostEditorContext context, string referenceFieldName)
+        public async Task<RegionDto[]> GetRegions(CostEditorContext context)
         {
-            var meta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
-            var referenceField = (ReferenceFieldMeta)meta.GetField(referenceFieldName);
+            RegionDto[] regionDtos = null;
 
-            return await this.GetDistinctItems(context, meta, referenceField);
-        }
-
-        private async Task<IEnumerable<NamedId>> GetDistinctItems(CostEditorContext context, CostBlockEntityMeta meta, ReferenceFieldMeta referenceField)
-        {
-            var userCountries = this.userService.GetCurrentUserCountries();
-            var costBlockFilter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries).Convert();
-            var referenceFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(referenceField.ReferenceMeta);
-
-            return await this.sqlRepository.GetDistinctItems(meta, referenceField.Name, costBlockFilter, referenceFilter);
-        }
-
-        private async Task<IEnumerable<NamedId>> GetCostElementFilterItems(CostEditorContext context, CostElementMeta costElementMeta, IEnumerable<Country> userCountries)
-        {
-            IEnumerable<NamedId> filterItems = null;
-
-            if (costElementMeta.Dependency != null)
+            var regions = await this.costBlockService.GetRegions(context);
+            if (regions != null)
             {
-                filterItems = await this.GetDistinctItems(context, costElementMeta.Dependency.Id);
-            }
-
-            return filterItems;
-        }
-
-        private async Task<IEnumerable<NamedId>> GetRegions(CostEditorContext context, CostElementMeta costElementMeta, Country[] userCountries)
-        {
-            IEnumerable<NamedId> regions = null;
-
-            if (costElementMeta.RegionInput != null)
-            {
-                if (userCountries.Length == 0)
+                var costElement = this.meta.GetCostElement(context);
+                if (costElement.IsCountryCurrencyCost)
                 {
-                    regions = await this.sqlRepository.GetDistinctItems(context.CostBlockId, context.ApplicationId, costElementMeta.RegionInput.Id);
+                    var countryIds = regions.Select(region => region.Id).ToArray();
+
+                    regionDtos =
+                        this.countryService.GetAll()
+                                           .Where(country => countryIds.Contains(country.Id))
+                                           .Select(country => new RegionDto(country, country.Currency))
+                                           .ToArray();
                 }
                 else
                 {
-                    regions = userCountries.Select(country => new NamedId { Id = country.Id, Name = country.Name }).ToArray();
+                    regionDtos = regions.Select(region => new RegionDto(region)).ToArray();
                 }
             }
 
-            return regions;
+            return regionDtos;
+        }
+
+        private async Task<IEnumerable<NamedId>> GetCostElementReferenceValues(CostEditorContext context)
+        {
+            IEnumerable<NamedId> referenceValues = null;
+
+            var costBlock = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
+            if (costBlock.CostElementsFields[context.CostElementId] is ReferenceFieldMeta field)
+            {
+                referenceValues = await this.sqlRepository.GetNameIdItems(field.ReferenceMeta, field.ReferenceValueField, field.ReferenceFaceField);
+            }
+
+            return referenceValues;
         }
     }
 }

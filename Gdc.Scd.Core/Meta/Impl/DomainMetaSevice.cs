@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Core.Meta.Interfaces;
 
@@ -40,6 +41,8 @@ namespace Gdc.Scd.Core.Meta.Impl
         private const string InputLevelListNodeName = "InputLevels";
 
         private const string InputLevelNodeName = "InputLevel";
+
+        private const string InputLevelHideAttributeName = "Hide";
 
         private const string RegionInputListNodeName = "RegionInputs";
 
@@ -140,8 +143,8 @@ namespace Gdc.Scd.Core.Meta.Impl
 
             costElementMeta.Description = this.BuildCostElementDescription(node);
 
-            costElementMeta.InputLevels =
-                this.BuildItemCollectionByDomainInfo(node.Element(InputLevelListNodeName), InputLevelNodeName, defination.InputLevels);
+            costElementMeta.InputLevelMetaInfos =
+                this.BuildInputLevelMetaInfos(node.Element(InputLevelListNodeName), defination.InputLevels);
 
             costElementMeta.RegionInput = this.BuildItemByDomainInfo(node, RegionInputNodeName, defination.RegionInputs);
             costElementMeta.Dependency = this.BuildItemByDomainInfo(node, DependencyNodeName, defination.Dependencies);
@@ -160,6 +163,13 @@ namespace Gdc.Scd.Core.Meta.Impl
                 costElementMeta.TypeOptions = 
                     typeNode.Attributes()
                             .ToDictionary(attr => attr.Name.ToString(), attr => attr.Value.ToString());
+
+                if (costElementMeta.IsCountryCurrencyCost && 
+                    costElementMeta.RegionInput != null && 
+                    costElementMeta.RegionInput.Id != MetaConstants.CountryInputLevelName)
+                {
+                    throw new Exception($"Cost element {costElementMeta.Id} with 'CountryCurrencyCost' type option must have '{MetaConstants.CountryInputLevelName}' region input.");
+                }
             }
 
             costElementMeta.TableViewRoles = this.BuildRoles(node, TableViewNodeName);
@@ -186,6 +196,36 @@ namespace Gdc.Scd.Core.Meta.Impl
             return result;
         }
 
+        private MetaCollection<InputLevelMetaInfo<InputLevelMeta>> BuildInputLevelMetaInfos(XElement node, DomainInfo<InputLevelMeta> domainInfo)
+        {
+            var inputLevelInfos = new MetaCollection<InputLevelMetaInfo<InputLevelMeta>>();
+
+            if (node != null)
+            {
+                foreach (var inputLevelNode in node.Elements(InputLevelNodeName))
+                {
+                    var hideAttribute = inputLevelNode.Attribute(InputLevelHideAttributeName);
+
+                    inputLevelInfos.Add(new InputLevelMetaInfo<InputLevelMeta>
+                    {
+                        InputLevel = domainInfo.Items[inputLevelNode.Value],
+                        Hide = hideAttribute == null ? false : bool.Parse(hideAttribute.Value)
+                    });
+                }
+            }
+
+            if (inputLevelInfos.Count == 0)
+            {
+                inputLevelInfos.AddRange(
+                    domainInfo.DefaultItems.Select(inpuLevel => new InputLevelMetaInfo<InputLevelMeta>
+                    {
+                        InputLevel = inpuLevel
+                    }));
+            }
+
+            return inputLevelInfos;
+        }
+
         private MetaCollection<T> BuildItemCollectionByDomainInfo<T>(XElement node, string nodeItemName, DomainInfo<T> domainInfo) where T : BaseMeta
         {
             List<T> items = null;
@@ -194,7 +234,7 @@ namespace Gdc.Scd.Core.Meta.Impl
             {
                 items =
                     node.Elements(nodeItemName)
-                        .Select(inpuLevelNode => domainInfo.Items[inpuLevelNode.Value])
+                        .Select(innerNode => domainInfo.Items[innerNode.Value])
                         .ToList();
             }
 

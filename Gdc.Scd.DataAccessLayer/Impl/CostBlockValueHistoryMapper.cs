@@ -2,6 +2,7 @@
 using System.Data;
 using System.Linq;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.Approval;
 using Gdc.Scd.Core.Meta.Entities;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
@@ -17,6 +18,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         private readonly ReferenceFieldMeta dependencyField;
 
         public bool UseHistoryValueId { get; set; }
+
+        public bool OldValue { get; set; }
 
         public bool UsePeriodQualityGate { get; set; }
 
@@ -49,14 +52,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 Dependencies = new Dictionary<string, NamedId>()
             };
 
-            if (this.UsePeriodQualityGate)
+            if (this.OldValue)
             {
-                item.OldValue = this.GetDouble(reader, index++);
+                item.OldValue = reader.GetValue(index++);
             }
 
             if (this.UsetCountryGroupQualityGate)
             {
-                item.CountryGroupAvgValue = this.GetDouble(reader, index++);
+                item.CountryGroupAvgValue = reader.IsDBNull(index) ? default(double?) : reader.GetDouble(index);
+                index++;
             }
 
             if (this.UseHistoryValueId)
@@ -95,11 +99,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
 
             return item;
-        }
-
-        private double? GetDouble(IDataReader reader, int index)
-        {
-            return reader.IsDBNull(index) ? default(double?) : reader.GetDouble(index);
         }
     }
 }

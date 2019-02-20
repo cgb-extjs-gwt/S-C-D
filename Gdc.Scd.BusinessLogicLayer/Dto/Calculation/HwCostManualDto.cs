@@ -11,5 +11,7 @@
         public double? ListPrice { get; set; }
 
         public double? DealerDiscount { get; set; }
+
+        public double? ServiceTP_Released { get; set; }
     }
 }

@@ -140,12 +140,14 @@ namespace Gdc.Scd.Import.Por
             var reactonTimeValues = PorService.ReactionTimeService.GetAll().ToList();
             var availabilityValues = PorService.AvailabilityService.GetAll().ToList();
             var durationValues = PorService.DurationService.GetAll().ToList();
+            var proactiveValues = PorService.ProactiveService.GetAll().ToList();
 
             var locationDictionary = FillSlaDictionary(locationServiceValues);
             var reactionTimeDictionary = FillSlaDictionary(reactonTimeValues);
             var reactionTypeDictionary = FillSlaDictionary(reactionTypeValues);
             var availabilityDictionary = FillSlaDictionary(availabilityValues);
             var durationDictionary = FillSlaDictionary(durationValues);
+            var proactiveDictionary = FillSlaDictionary(proactiveValues);
 
             return new SlaDictsDto
             {
@@ -153,7 +155,8 @@ namespace Gdc.Scd.Import.Por
                 Duration = durationDictionary,
                 Locations = locationDictionary,
                 ReactionTime = reactionTimeDictionary,
-                ReactionType = reactionTypeDictionary
+                ReactionType = reactionTypeDictionary,
+                Proactive = proactiveDictionary
             };
         }
 

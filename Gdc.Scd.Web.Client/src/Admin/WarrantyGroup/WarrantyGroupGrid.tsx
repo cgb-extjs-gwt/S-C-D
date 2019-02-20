@@ -86,7 +86,7 @@ export class WarrantyGroupGrid extends React.Component<any> {
                 type: 'json'
             },
             api: {
-                read: buildMvcUrl(ROLECODE_CONTROLLER_NAME, 'GetAll')
+                read: buildMvcUrl(ROLECODE_CONTROLLER_NAME, 'GetAllActive')
             }
         },
         listeners: {
@@ -177,7 +177,7 @@ export class WarrantyGroupGrid extends React.Component<any> {
             if (this.state.render) {
                 if (data.roleCodeId > 0) {
                     const selectedItem = this.storeRoleCode.data.items.find(item => item.data.id === data.roleCodeId);
-                    result = selectedItem.data.name;
+                    result = selectedItem ? selectedItem.data.name : "UNKNOWN";
                 } else
                     result = "";
             }

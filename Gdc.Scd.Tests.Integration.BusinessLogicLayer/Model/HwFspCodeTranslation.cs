@@ -21,6 +21,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public Nullable<long> DurationId { get; set; }
         public string EKKey { get; set; }
         public string EKSAPKey { get; set; }
+        public Nullable<bool> IsStandardWarranty { get; set; }
         public string Name { get; set; }
         public Nullable<long> ProactiveSlaId { get; set; }
         public Nullable<long> ReactionTimeId { get; set; }
@@ -32,6 +33,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public string ServiceType { get; set; }
         public string Status { get; set; }
         public long WgId { get; set; }
+        public Nullable<int> SlaHash { get; set; }
     
         public virtual Availability Availability { get; set; }
         public virtual Duration Duration { get; set; }
@@ -39,7 +41,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public virtual ReactionTime ReactionTime { get; set; }
         public virtual ReactionType ReactionType { get; set; }
         public virtual ServiceLocation ServiceLocation { get; set; }
-        public virtual Country Country { get; set; }
-        public virtual Wg Wg { get; set; }
+        public virtual Country1 Country1 { get; set; }
+        public virtual Wg1 Wg1 { get; set; }
     }
 }

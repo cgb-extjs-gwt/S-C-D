@@ -29,5 +29,7 @@ namespace Gdc.Scd.Core.Entities.Calculation
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public double? DealerPrice { get; private set; }
+
+        public double? ServiceTP_Released { get; set; }
     }
 }

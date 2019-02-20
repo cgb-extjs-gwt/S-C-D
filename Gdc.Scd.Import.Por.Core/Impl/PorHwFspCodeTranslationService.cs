@@ -13,7 +13,7 @@ using Gdc.Scd.Import.Por.Core.Dto;
 
 namespace Gdc.Scd.Import.Por.Core.Impl
 {
-    public class PorHwFspCodeTranslationService : PorFspTranslationService<HwFspCodeTranslation>, IHwFspCodeTranslationService
+    public class PorHwFspCodeTranslationService : PorFspTranslationService<HwFspCodeTranslation>, IHwFspCodeTranslationService<HwFspCodeDto>
     {
         private readonly ILogger<LogLevel> _logger;
 
@@ -127,7 +127,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         wgs.Add(wg.Id);
                     }
 
-                    var sla = code.MapFspCodeToSla(slaDto);
+                    var sla = code.MapFspCodeToSla(slaDto, stdwSla.Proactive);
 
                     if (sla == null)
                     {
@@ -220,6 +220,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 throw ex;
             }
         }
+
         private bool UploadCodes (IEnumerable<SCD2_v_SAR_new_codes> hardwareCodes,
             Func<SCD2_v_SAR_new_codes, string> getCountryCode,
             HwSlaDto hwSla,
@@ -236,6 +237,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             {
                 foreach (var code in hardwareCodes)
                 {
+                    //map country
                     var countryCode = getCountryCode(code);
 
                     if (String.IsNullOrEmpty(countryCode) || !hwSla.Countries.ContainsKey(countryCode))
@@ -244,42 +246,15 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         continue;
                     }
 
-                    List<long> wgs = new List<long>();
+                    //map warranty groups
+                    var wgs = code.MapFspCodeToWgs(hwSla.Wgs, hwSla.Sogs, _logger);
 
-                    if (String.IsNullOrEmpty(code.WG) && String.IsNullOrEmpty(code.SOG))
-                    {
-                        _logger.Log(LogLevel.Warn, PorImportLoggingMessage.EMPTY_SOG_WG, code.Service_Code);
+                    if (!wgs.Any())
                         continue;
-                    }
 
-                    //If FSP Code is binded to SOG
-                    if (String.IsNullOrEmpty(code.WG))
-                    {
-                        var sog = hwSla.Sogs.FirstOrDefault(s => s.Name == code.SOG);
-                        if (sog == null)
-                        {
-                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_SOG, code.Service_Code, code.SOG);
-                            continue;
-                        }
-
-                        wgs.AddRange(hwSla.Wgs.Where(w => w.SogId == sog.Id).Select(w => w.Id));
-                    }
-
-                    //FSP Code is binded to WG
-                    else
-                    {
-                        var wg = hwSla.Wgs.FirstOrDefault(w => w.Name == code.WG);
-                        if (wg == null)
-                        {
-                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOW_WG, code.Service_Code, code.WG);
-                            continue;
-                        }
-
-                        wgs.Add(wg.Id);
-                    }
-
+                    //map sla
                     var sla = isProactive ? code.MapFspCodeToSla(slaDto, hwSla.Proactive, true, proactiveServiceType) :
-                                            code.MapFspCodeToSla(slaDto);
+                                            code.MapFspCodeToSla(slaDto, hwSla.Proactive);
 
                     if (sla == null)
                     {

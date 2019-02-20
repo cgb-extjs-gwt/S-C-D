@@ -7,6 +7,8 @@ using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Entities.Approval;
+using Gdc.Scd.Core.Entities.QualityGate;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
@@ -53,7 +55,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
             else
             {
-                result.Errors = Enumerable.Empty<BundleDetailGroup>();
+                result.Errors = Enumerable.Empty<BundleDetailGroupDto>();
             }
 
             return result;
@@ -72,7 +74,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
             else
             {
-                result.Errors = Enumerable.Empty<BundleDetailGroup>();
+                result.Errors = Enumerable.Empty<BundleDetailGroupDto>();
             }
 
             return result;
@@ -84,7 +86,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
             var costElementMeta = costBlockMeta.DomainMeta.CostElements[context.CostElementId];
 
-            if (costElementMeta.InputLevels[MetaConstants.WgInputLevelName] != null)
+            if (costElementMeta.HasInputLevel(MetaConstants.WgInputLevelName))
             {
                 var costElement = costBlockMeta.CostElementsFields[context.CostElementId] as SimpleFieldMeta;
                 if (costElement != null && costElement.Type == TypeCode.Double)
@@ -93,7 +95,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                     if (editorType == EditorType.CostEditor)
                     {
-                        option.IsCountyCheck = costElementMeta.InputLevels[MetaConstants.CountryInputLevelName] != null;
+                        option.IsCountyCheck = costElementMeta.HasInputLevel(MetaConstants.CountryInputLevelName);
                     }
                 }
             }

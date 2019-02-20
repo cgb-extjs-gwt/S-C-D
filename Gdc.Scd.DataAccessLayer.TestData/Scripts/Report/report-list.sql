@@ -9,6 +9,7 @@
 ('HDD-Retention-country', 'HDD retention reports on country level', 1, 1, 'Report.HddRetentionByCountry'),
 ('HDD-Retention-central', 'HDD retention reports as central report', 0, 1, 'Report.HddRetentionCentral'),
 ('HDD-Retention-parameter', 'HDD retention parameter', 0, 1, 'Report.HddRetentionParameter'),
+('HDD-RETENTION-CALC-RESULT', 'Hdd retention service costs', 0, 1, 'Report.HddRetentionCalcResult'),
 
 --Calculation Parameter Overview reports 
 ('Calculation-Parameter-hw', 'Calculation Parameter Overview reports for HW maintenance cost elements (approved)', 1,  0, 'Report.CalcParameterHw'),
@@ -25,7 +26,7 @@
 ('SolutionPack-Price-List-Details', 'SolutionPack Price List Detailed report', 0, 0, 'Report.SolutionPackPriceListDetail'),
 
 ('PO-Standard-Warranty-Material', 'PO Standard Warranty Material Report', 0, 0, 'Report.PoStandardWarrantyMaterial'),
-('FLAT-Fee-Reports', 'Availability Fee_Report (old FSL fee report)', 0, 0, 'Report.FlatFeeReport'),
+('FLAT-Fee-Reports', 'Availabiltiy Fee_Report', 0, 0, 'Report.FlatFeeReport'),
 
 --Software reports
 ('SW-Service-Price-List', 'Software services price list', 0, 0, 'Report.SwServicePriceList'),
@@ -39,12 +40,12 @@
 ('Logistic-cost-input-central', 'Logistics Cost Report input currency central with all country values', 1,  0, 'Report.LogisticCostInputCentral'),
 
 ('Logistic-cost-calc-country', 'Calculated logistics cost local per country', 1,  0, 'Report.LogisticCostCalcCountry'),
-('Logistic-cost-calc-central', 'Calculated logistics cost central with all country values', 1,  0, 'Report.LogisticCostCalcCentral')
+('Logistic-cost-calc-central', 'Calculated logistics cost central with all country values', 1,  0, 'Report.LogisticCostCalcCentral'),
 
+('HW-CALC-RESULT', 'Hardware service costs', 1,  1, 'Report.HwCalcResult'),
 
+('SW-CALC-RESULT', 'Software & Solution service costs', 1,  1, 'Report.SwCalcResult'),
 
-
-
-
+('SW-PROACTIVE-CALC-RESULT', 'Software & Solution proactive cost', 1,  1, 'Report.SwProactiveCalcResult');
 
 

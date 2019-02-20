@@ -3,13 +3,14 @@ import * as React from "react";
 import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
-import { buildComponentUrl, buildMvcUrl } from "../Common/Services/Ajax";
+import { buildComponentUrl, buildMvcUrl, post } from "../Common/Services/Ajax";
 import { FilterPanel } from "./Components/FilterPanel";
 import { NullStringColumn } from "./Components/NullStringColumn";
 import { ReadonlyCheckColumn } from "./Components/ReadonlyCheckColumn";
 import { PortfolioFilterModel } from "./Model/PortfolioFilterModel";
 import { IPortfolioService } from "./Services/IPortfolioService";
 import { PortfolioServiceFactory } from "./Services/PortfolioServiceFactory";
+import { UserCountryService } from "../Dict/Services/UserCountryService";
 
 export class PortfolioView extends React.Component<any, any> {
 
@@ -18,6 +19,10 @@ export class PortfolioView extends React.Component<any, any> {
     private filter: FilterPanel;
 
     private srv: IPortfolioService;
+
+    state = {
+        isCountryUser: true
+    };
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
         pageSize: 100,
@@ -28,11 +33,16 @@ export class PortfolioView extends React.Component<any, any> {
             api: {
                 read: buildMvcUrl('portfolio', 'allowed')
             },
+            actionMethods: {
+                read: 'POST'
+            },
             reader: {
                 type: 'json',
+                keepRawData: true,
                 rootProperty: 'items',
-                totalProperty: 'total'
-            }
+                totalProperty: 'total'             
+            },
+            paramsAsJson: true
         }
     });
 
@@ -44,11 +54,12 @@ export class PortfolioView extends React.Component<any, any> {
     public render() {
 
         let isLocalPortfolio = this.isLocalPortfolio();
+        let isCountryUser = this.state.isCountryUser;
 
         return (
             <Container scrollable={true}>
 
-                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} />
+                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} isCountryUser={isCountryUser}/>
 
                 <Toolbar docked="top">
                     <Button iconCls="x-fa fa-edit" text="Edit" handler={this.onEdit} />
@@ -63,7 +74,7 @@ export class PortfolioView extends React.Component<any, any> {
                     selectable="multi"
                     plugins={['pagingtoolbar']}>
 
-                    <NullStringColumn hidden={!isLocalPortfolio} flex="1" text="Country" dataIndex="country" />
+                    <NullStringColumn hidden={!isLocalPortfolio && !isCountryUser} flex="1" text="Country" dataIndex="country" />
 
                     <NullStringColumn flex="1" text="WG(Asset)" dataIndex="wg" />
                     <NullStringColumn flex="1" text="Availability" dataIndex="availability" />
@@ -73,9 +84,9 @@ export class PortfolioView extends React.Component<any, any> {
                     <NullStringColumn flex="2" text="Service location" dataIndex="serviceLocation" />
                     <NullStringColumn flex="2" text="ProActive" dataIndex="proActive" />
 
-                    <ReadonlyCheckColumn hidden={isLocalPortfolio} flex="1" text="Fujitsu principal portfolio" dataIndex="isGlobalPortfolio" />
-                    <ReadonlyCheckColumn hidden={isLocalPortfolio} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
-                    <ReadonlyCheckColumn hidden={isLocalPortfolio} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
+                    <ReadonlyCheckColumn hidden={isLocalPortfolio || isCountryUser} flex="1" text="Fujitsu principal portfolio" dataIndex="isGlobalPortfolio" />
+                    <ReadonlyCheckColumn hidden={isLocalPortfolio || isCountryUser} flex="1" text="Master portfolio" dataIndex="isMasterPortfolio" />
+                    <ReadonlyCheckColumn hidden={isLocalPortfolio || isCountryUser} flex="1" text="Core portfolio" dataIndex="isCorePortfolio" />
                 </Grid>
 
             </Container>
@@ -93,6 +104,9 @@ export class PortfolioView extends React.Component<any, any> {
         this.onDeny = this.onDeny.bind(this);
         this.onSearch = this.onSearch.bind(this);
         this.store.on('beforeload', this.onBeforeLoad, this);
+
+        const srv = new UserCountryService();
+        srv.isCountryUser().then(x => this.setState({ isCountryUser: x }));
     }
 
     private onEdit() {
@@ -112,8 +126,8 @@ export class PortfolioView extends React.Component<any, any> {
 
     private onBeforeLoad(s, operation) {
         let filter = this.filter.getModel();
-        let params = Ext.apply({}, operation.getParams(), filter);
-        operation.setParams(params);
+        let params = operation.getParams();
+        operation.setParams(filter);
     }
 
     private denyCombination(ids: string[]) {
@@ -132,7 +146,7 @@ export class PortfolioView extends React.Component<any, any> {
         let result = false;
         if (this.filter) {
             let filter = this.filter.getModel();
-            result = !!(filter && filter.country);
+            result = !!(filter && filter.country && filter.country.length > 0);
         }
         return result;
     }

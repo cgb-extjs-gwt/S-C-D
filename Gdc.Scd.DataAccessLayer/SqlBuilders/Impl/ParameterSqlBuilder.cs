@@ -12,7 +12,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Impl
 
         public string Build(SqlBuilderContext context)
         {
-            return $"@{this.ParamInfo.Name}";
+            return context.GetParameterName(this.ParamInfo.Value);
         }
 
         public IEnumerable<ISqlBuilder> GetChildrenBuilders()

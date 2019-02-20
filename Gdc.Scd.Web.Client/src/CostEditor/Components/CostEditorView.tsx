@@ -22,21 +22,21 @@ export interface CostEditorActions {
     onApplicationSelected?: (applicationId: string) => void;
     onCostBlockSelected?: (applicationId: string, costBlockId: string) => void;
     tabActions: {
-        onRegionSelected?: (regionId: string, costBlockId: string, applicationId: string,) => void
+        onRegionSelected?: (regionId: number, costBlockId: string, applicationId: string,) => void
         onCostElementSelected?: (applicationId: string, costBlockId: string, costElementId: string) => void
         onInputLevelSelected?: (applicationId: string, costBlockId: string, costElementId: string, inputLevelId: string) => void
         onCostElementFilterSelectionChanged?: (
             applicationId: string,
             costBlockId: string,
             costElementId: string, 
-            filterItemId: string,
+            filterItemId: number,
             isSelected: boolean) => void
         onInputLevelFilterSelectionChanged?: (
             applicationId: string,
             costBlockId: string,
             costElementId: string, 
             inputLevelId: string, 
-            filterItemId: string,
+            filterItemId: number,
             isSelected: boolean) => void
         onCostElementFilterReseted?: (applicationId: string, costBlockId: string, costElementId: string) => void
         onInputLevelFilterReseted?: (applicationId: string, costBlockId: string, costElementId: string, inputLevelId: string) => void
@@ -82,7 +82,7 @@ export class CostEditorView extends React.Component<CostEditorProps> {
                         tabBar={{
                             layout: { pack: 'left' }
                         }}
-                        activeTab={
+                        activeItem={
                             costBlocks.list.findIndex(costBlock => costBlock.id === costBlocks.selectedItemId)
                         }
                         onActiveItemChange={

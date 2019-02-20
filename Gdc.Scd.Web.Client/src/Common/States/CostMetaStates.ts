@@ -1,8 +1,11 @@
 import { NamedId } from "./CommonStates";
 
 export interface UsingInfo {
-    isUsingCostEditor: boolean
-    isUsingTableView: boolean
+    usingInfo: {
+        isUsingCostEditor: boolean
+        isUsingTableView: boolean
+        isUsingCostImport: boolean
+    }
 }
 
 export interface CostElementMeta extends NamedId, UsingInfo {
@@ -16,24 +19,24 @@ export interface CostElementMeta extends NamedId, UsingInfo {
     inputType: InputType
 }
 
-export interface CostBlockMeta extends NamedId {
+export interface CostBlockMeta extends NamedId, UsingInfo {
     applicationIds: string[]
     costElements: CostElementMeta[]
-    isUsingCostEditor: boolean
-    isUsingTableView: boolean
 }
 
 export interface InputLevelMeta extends NamedId {
     levelNumer: number
     hasFilter: boolean
     filterName
+    hide: boolean
 }
 
 export enum FieldType {
     Reference = "Reference",
     Double = "Double",
     Flag = "Flag",
-    Percent = "Percent"
+    Percent = "Percent",
+    CountryCurrencyCost = "CountryCurrencyCost"
 }
 
 export enum InputType {

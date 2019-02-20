@@ -10,8 +10,4 @@ export interface ApplicationState {
 
 export interface CostEditorState {
     applications: SelectList<ApplicationState>
-    dataLossInfo: {
-        isWarningDisplayed: boolean
-        action: Action<string>
-    }
 }

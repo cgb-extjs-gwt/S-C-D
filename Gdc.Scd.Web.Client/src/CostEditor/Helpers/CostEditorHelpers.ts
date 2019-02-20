@@ -43,7 +43,7 @@ export const findInputeLevelByState = (state: CostEditorState, applicationId?: s
 }
 
 export const getCheckedItemIds = (items: CheckItem[]) => {
-    let ids: string[] = [];
+    let ids: number[] = [];
 
     items && items.forEach(item => item.isChecked && ids.push(item.id));
 
@@ -55,10 +55,10 @@ export const buildCostEditorContext = (state: CostEditorState) => {
     const costBlock = findCostBlock(costBlocks);
     const { costBlockId, costElements } = costBlock;
 
-    let costElementFilterIds: string[] = null;
-    let inputLevelFilterIds: string[] = null;
+    let costElementFilterIds: number[] = null;
+    let inputLevelFilterIds: number[] = null;
     let inputLevelId: string = null;
-    let regionInputId: string = null;
+    let regionInputId: number = null;
 
     if (costElements.selectedItemId == null) {
         costElementFilterIds = [];
@@ -90,4 +90,4 @@ export const buildCostEditorContext = (state: CostEditorState) => {
     }
 }
 
-export const filterCostEditorItems = <T extends UsingInfo>(items: T[]) => items.filter(item => item.isUsingCostEditor);
+export const filterCostEditorItems = <T extends UsingInfo>(items: T[]) => items.filter(item => item.usingInfo.isUsingCostEditor);

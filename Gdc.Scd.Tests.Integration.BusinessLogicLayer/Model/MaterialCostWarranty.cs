@@ -23,7 +23,7 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         public Nullable<long> ClusterRegion { get; set; }
         public Nullable<long> Wg { get; set; }
     
-        public virtual ClusterRegion ClusterRegion1 { get; set; }
-        public virtual Wg Wg1 { get; set; }
+        public virtual ClusterRegion1 ClusterRegion1 { get; set; }
+        public virtual Wg1 Wg1 { get; set; }
     }
 }

@@ -24,6 +24,8 @@ namespace Gdc.Scd.Export.CdCs.Impl
         public static SpFileDownloader Downloader { get; private set; }
         public static ILogger<LogLevel> Logger { get; private set; }
 
+        private const string EUR_CUR = "EUR";
+
         static CdCsService()
         {
             Kernel = new StandardKernel(new Module());
@@ -126,11 +128,8 @@ namespace Gdc.Scd.Export.CdCs.Impl
                 var getProActiveCosts = Kernel.Get<GetProActiveCosts>();
                
                 Logger.Log(LogLevel.Info, CdCsMessages.READ_SERVICE);
-                foreach (var sla in slaList)
-                {
-                    var costs = getServiceCostsBySla.Execute(country, sla);
-                    costsList.Add(costs);
-                }
+                costsList = getServiceCostsBySla.Execute(country, slaList);
+
                 Logger.Log(LogLevel.Info, CdCsMessages.READ_PROACTIVE);
                 var proActiveList = getProActiveCosts.Execute(country);
                
@@ -185,9 +184,9 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     {
                         hddRetentionSheet.Cell(rowNum, HddRetentionColumns.Wg).Value = hdd.Wg;
                         hddRetentionSheet.Cell(rowNum, HddRetentionColumns.WgName).Value = hdd.WgName ?? string.Empty;
-                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.TP).Value = FormatCostValue(hdd.TransferPrice, currency);
-                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.DealerPrice).Value = FormatCostValue(hdd.DealerPrice, currency); 
-                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.ListPrice).Value = FormatCostValue(hdd.ListPrice, currency); 
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.TP).Value = FormatCostValue(hdd.TransferPrice, EUR_CUR);
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.DealerPrice).Value = FormatCostValue(hdd.DealerPrice, EUR_CUR); 
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.ListPrice).Value = FormatCostValue(hdd.ListPrice, EUR_CUR); 
                         rowNum++;
                     }
 

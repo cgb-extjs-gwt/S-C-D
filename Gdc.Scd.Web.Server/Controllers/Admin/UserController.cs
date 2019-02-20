@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.DirectoryServices;
 using System.Linq;
 using System.Security.Principal;
 using System.Web.Http;
@@ -39,19 +40,12 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
         }
 
         [HttpGet]
-        public DataInfo<User> SearchUser(string _dc, string searchString, int page = 1, int start = 0, int limit = 25)
+        public DataInfo<User> SearchUser(string searchString)
         {
             var searchCount = Int32.Parse(ConfigurationManager.AppSettings["UsersSearchCount"]);
             if (string.IsNullOrEmpty(searchString))
                 return new DataInfo<User> { Items = new List<User>(), Total = 0 };
-
-            var foundUsers = activeDirectoryService.SearchForUserByString(searchString, searchCount).Select(
-                user => new User
-                {
-                    Name = user.DisplayName,
-                    Login = user.Sid.Translate(typeof(NTAccount)).ToString(),
-                    Email = user.EmailAddress
-                }).OrderBy(x => x.Name).ToList();
+            var foundUsers = activeDirectoryService.SearchForUserByString(searchString, searchCount);
 
             return new DataInfo<User> { Items = foundUsers, Total = foundUsers.Count() };
         }

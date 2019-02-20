@@ -3,15 +3,25 @@ export interface NamedId<TId = string> {
     name: string;
 }
 
+export interface SortableNamedId<TId = string> {
+    id: TId;
+    name: string;
+    order: number;
+}
+
 export interface DataInfo<T>
 {
     items: T[];
     total: number;
 }
 
-export interface SelectList<T> {
-    selectedItemId: string;
+export interface SelectList<T, TId=string> {
+    selectedItemId: TId;
     list: T[]
+}
+
+export interface SelectListAdvanced<T, TId=string> extends SelectList<T, TId> {
+    onItemSelected?(id: TId)
 }
 
 export interface MultiSelectList<T> {

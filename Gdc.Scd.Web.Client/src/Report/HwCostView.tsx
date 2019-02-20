@@ -1,12 +1,21 @@
-﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
+﻿import { Button, Column, Container, Grid, NumberColumn, Panel, Toolbar, CheckColumn } from "@extjs/ext-react";
 import * as React from "react";
+import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
+import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { moneyRenderer, percentRenderer, yearRenderer, emptyRenderer } from "./Components/GridRenderer";
+import { emptyRenderer, IRenderer, localMoneyRendererFactory, localToEuroMoneyRendererFactory, percentRenderer, yearRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
+import { HwReleasePanel } from "./Components/HwReleasePanel";
+import { CurrencyType } from "./Model/CurrencyType";
 import { HwCostFilterModel } from "./Model/HwCostFilterModel";
+import { ExportService } from "./Services/ExportService";
+
+const localMoneyRenderer = localMoneyRendererFactory('Currency');
+const euroMoneyRenderer = localToEuroMoneyRendererFactory('ExchangeRate');
+const SELECTED_FIELD = 'selected';
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
@@ -14,14 +23,14 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private filter: HwCostFilter;
 
-    private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
+    private store = Ext.create('Ext.data.Store', {
 
         fields: [
-            'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail',
+            'Id', SELECTED_FIELD, 'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail',
             {
                 name: 'DealerPriceCalc',
                 calculate: function (d) {
-                    let result: any = '';
+                    let result: any;
                     if (d && d.ListPrice) {
                         result = d.ListPrice;
                         if (d.DealerDiscount) {
@@ -56,17 +65,26 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             api: {
                 read: buildMvcUrl('calc', 'gethwcost')
             },
+            actionMethods: {
+                read: 'POST'
+            },
             reader: {
                 type: 'json',
                 rootProperty: 'items',
                 idProperty: "Id",
                 totalProperty: 'total'
-            }
+            },
+            paramsAsJson: true
         },
         listeners: {
-            update: () => {
+            update: (store, record, operation, modifiedFieldNames, details) => {
                 const changed = this.store.getUpdatedRecords().length;
-                this.toggleToolbar(changed == 0);
+                if (modifiedFieldNames && modifiedFieldNames.length > 0 && modifiedFieldNames[0] == SELECTED_FIELD) {
+                    this.onCheckChange();
+                }
+                else {
+                    this.toggleToolbar(changed == 0);
+                }
             }
         }
     });
@@ -74,7 +92,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     public state = {
         disableSaveButton: true,
         disableCancelButton: true,
-        selectedCountry: null
+        selectedCountry: null,
+        showInLocalCurrency: true,
+        hideReleaseButton: true
     };
 
     public constructor(props: CalcCostProps) {
@@ -83,13 +103,40 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     public render() {
-        const canEditTC: boolean = this.canEditTC();
-        const canEditListPrice: boolean = this.canEditListPrice();
+
+        let canEditTC: boolean = false;
+        let canEditListPrice: boolean = false;
+        let moneyRndr: IRenderer;
+
+        if (this.state.showInLocalCurrency) {
+
+            //allow manual edit in LOCAL CURRENCY mode only for well view!!!
+
+            canEditTC = this.canEditTC();
+            canEditListPrice = this.canEditListPrice();
+            //
+            moneyRndr = localMoneyRenderer;
+        }
+        else {
+            moneyRndr = euroMoneyRenderer;
+        }
 
         return (
             <Container layout="fit">
 
-                <HwCostFilter ref={x => this.filter = x} docked="right" onSearch={this.onSearch} checkAccess={!this.props.approved} scrollable={true} />
+                <Panel {...this.props} docked="right" scrollable={true} >
+                    <HwCostFilter
+                        ref={x => this.filter = x}
+                        onSearch={this.onSearch}
+                        onChange={this.onFilterChange}
+                        onDownload={this.onDownload}
+                        checkAccess={!this.props.approved} />
+
+                    <HwReleasePanel
+                        onApprove={this.releaseCosts}
+                        checkAccess={!this.props.approved}
+                        hidden={this.state.hideReleaseButton} />
+                </Panel>
 
                 <Grid
                     ref={x => this.grid = x}
@@ -105,8 +152,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Dependencies"
                         dataIndex=""
                         cls="calc-cost-result-green"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
+                        defaults={{ align: 'center', minWidth: 50, flex: 1, cls: "x-text-el-wrap" }}>
 
+                        <CheckColumn dataIndex={SELECTED_FIELD} sortable={false} flex="0.2" hidden={!this.approved()}/>
                         <Column text="Country" dataIndex="Country" />
                         <Column text="WG(Asset)" dataIndex="Wg" />
                         <Column text="Availability" dataIndex="Availability" />
@@ -126,13 +174,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Cost block results"
                         dataIndex=""
                         cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
                         <NumberColumn text="Field service cost" dataIndex="FieldServiceCost" />
                         <NumberColumn text="Service support cost" dataIndex="ServiceSupportCost" />
                         <NumberColumn text="Logistic cost" dataIndex="Logistic" />
                         <NumberColumn text="Availability fee" dataIndex="AvailabilityFee" />
-                        <NumberColumn text="HDD retention" dataIndex="HddRet" />
                         <NumberColumn text="Reinsurance" dataIndex="Reinsurance" />
                         <NumberColumn text="Tax &amp; Duties iW period" dataIndex="TaxAndDutiesW" />
                         <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="TaxAndDutiesOow" />
@@ -149,12 +196,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Resulting costs"
                         dataIndex=""
                         cls="calc-cost-result-yellow"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRenderer }}>
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
                         <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
                         <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
                         <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
                         <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
+                        <NumberColumn text="Service TP(released)" dataIndex="ServiceTP_Released" />
 
                         <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
                         <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
@@ -178,8 +226,11 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private init() {
         this.onSearch = this.onSearch.bind(this);
+        this.onFilterChange = this.onFilterChange.bind(this);
+        this.onDownload = this.onDownload.bind(this);
         this.cancelChanges = this.cancelChanges.bind(this);
         this.saveRecords = this.saveRecords.bind(this);
+        this.releaseCosts = this.releaseCosts.bind(this);
 
         this.store.on('beforeload', this.onBeforeLoad, this);
     }
@@ -207,8 +258,44 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         }
     }
 
+    private releaseCosts() {
+        let recs = this.getSelectedRows();
+        let cnt = this.state.selectedCountry;
+
+        if (cnt) {
+            if (recs && recs.length > 0) {
+                recs = this.store.getData().items.filter(x => recs.includes(x.data.Id)).map(x => x.data);
+            }
+            else {
+                recs = this.store.getData().items.map(x => x.data);
+            }
+        }
+
+        ExtMsgHelper.confirm('Release', `Do you want to approve for release ${recs.length} record(s)?`, () => {
+            let me = this;
+            let p = post('calc', 'releasehwcost', { items: recs, countryId: cnt.id }).then(() => {
+                me.reset();
+                me.reload();
+            });
+            handleRequest(p);
+        });
+
+
+    }
+
     private onSearch(filter: HwCostFilterModel) {
         this.reload();
+    }
+
+    private onDownload(filter: HwCostFilterModel & any) {
+        filter = filter || {};
+        filter.local = filter.currency;
+        ExportService.Download('HW-CALC-RESULT', this.props.approved, filter);
+    }
+
+    private onFilterChange(filter: HwCostFilterModel) {
+        this.setState({ showInLocalCurrency: filter.currency === CurrencyType.Local });
+        this.grid.refresh();
     }
 
     private reload() {
@@ -217,11 +304,19 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private onBeforeLoad(s, operation) {
         this.reset();
-        //
+
         let filter = this.filter.getModel() as any;
         filter.approved = this.props.approved;
-        let params = Ext.apply({}, operation.getParams(), filter);
-        operation.setParams(params);
+        operation.setParams(filter);
+
+        const srv = new UserCountryService();
+        let cntId = 0;
+        if (this.state && this.state.selectedCountry) {
+            cntId = this.state.selectedCountry.id;
+            srv.isCountryUser(cntId).then(x => {
+                this.setState({ hideReleaseButton: !this.props.approved || !x || !this.state.disableSaveButton })
+            });
+        }
     }
 
     private pluginConf(): any {
@@ -244,11 +339,11 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             desktop.plugins.gridcellediting = true;
             desktop.plugins.selectionreplicator = true;
             desktop.selectable = {
-                rows: true,
                 cells: true,
+                rows: true,
                 columns: false,
                 drag: true,
-                extensible: 'y',
+                extensible: 'y'
             };
         }
 
@@ -306,5 +401,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             disableSaveButton: true,
             selectedCountry: this.filter.getCountry()
         });
+    }
+
+    private getSelectedRows(): string[] {
+        return this.store.getData().items.filter(record => record.data[SELECTED_FIELD] == true).map(record => record.data.Id)
+    }
+
+    private onCheckChange = () => {
+        this.grid.select(this.store.getData().items.filter(record => record.data[SELECTED_FIELD] == true));
     }
 }

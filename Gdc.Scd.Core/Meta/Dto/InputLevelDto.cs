@@ -7,5 +7,7 @@ namespace Gdc.Scd.Core.Meta.Dto
         public bool HasFilter { get; set; }
 
         public string FilterName { get; set; }
+
+        public bool Hide { get; set; }
     }
 }

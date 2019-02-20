@@ -63,7 +63,8 @@ namespace Gdc.Scd.Import.Core.Impl
                     continue;
                 }
 
-                var afrDb = afrs.FirstOrDefault(af => af.WgId == wg.Id && af.YearId == year.Id);
+                var afrDb = afrs.FirstOrDefault(af => af.WgId == wg.Id && af.YearId == year.Id && !af.DeactivatedDateTime.HasValue);
+
                 if (afrDb == null)
                 {
                     afrDb = new Afr();
@@ -71,6 +72,7 @@ namespace Gdc.Scd.Import.Core.Impl
                     afrDb.WgId = wg.Id;
                 }
                 afrDb.AFR = item.Afr;
+                afrDb.AFR_Approved = item.Afr;
                 batchList.Add(afrDb);
             }
 

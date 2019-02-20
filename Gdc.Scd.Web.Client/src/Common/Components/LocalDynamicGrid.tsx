@@ -245,22 +245,19 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
                 const records = this.filtrateStore(visibleColumns);
                 const dataSets = this.buildDataSets(records);
 
-                const headerId = dataIndex.replace('.', '');
+                const headerId = dataIndex.replace(/\./g, '');
                 const headerIndex = dataIndex;
-                const headerText = visibleColumns.find(x => x.dataIndex == dataIndex).title;
-                //TODO: Breaks editing
-                // const filterSymbol = "&#8704;"
-                // this.setColumnHeaderText(headerId, headerText + "  " + filterSymbol);
+                
+                Ext.getCmp(headerId).setCls('filtered-column');
 
                 this.filterDatas.forEach((filterData, dataIndex) => {
                     let allChecked = true;
 
                     filterData.store.each(record => allChecked = record.data.checked);
 
-                    //TODO: Breaks editing
-                    // if (allChecked && headerIndex == dataIndex) {
-                    //     this.setColumnHeaderText(headerId, headerText)
-                    // }
+                     if (allChecked && headerIndex == dataIndex) {
+                         Ext.getCmp(headerId).removeCls('filtered-column');
+                     }
 
                     if (allChecked && headerIndex != dataIndex) {
                         filterData.filteredDataSet = dataSets.get(dataIndex);
@@ -278,11 +275,6 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
             });
         }
     }
-    
-    //TODO: Breaks editing
-    // private setColumnHeaderText(headerId: string, text: string) {
-    //     Ext.getCmp(headerId).setText(text);
-    // }
 
     private fillFilterData() {
         if (this.executeFillFilterData) {
@@ -345,7 +337,7 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     }
 
     private replaceNullValue(value) {
-        return value == null ? ' ' : value;
+        return value == null ? undefined : value;
     }
 
     private getLastLevelVisibleColumns(columns: ColumnInfo[]) {

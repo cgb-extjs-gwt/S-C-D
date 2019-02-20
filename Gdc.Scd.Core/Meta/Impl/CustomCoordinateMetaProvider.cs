@@ -24,9 +24,15 @@ namespace Gdc.Scd.Core.Meta.Impl
             var sfabMeta = new SFabEntityMeta(plaMeta);
             var sogMeta = new BaseWgSogEntityMeta(MetaConstants.SogInputLevel, MetaConstants.InputLevelSchema, plaMeta, sfabMeta);
             var swDigitMeta = new SwDigitEnityMeta(sogMeta);
-            var clusterRegionMeta = new NamedEntityMeta(MetaConstants.ClusterRegionInputLevel, MetaConstants.InputLevelSchema);
-            var countryMeta = new CountryEntityMeta(clusterRegionMeta);
-            var roleCode = new NamedEntityMeta(MetaConstants.RoleCodeInputLevel, MetaConstants.InputLevelSchema);
+            var clusterRegionMeta = new ClusterRegionEntityMeta();
+            var currencyMeta = new NamedEntityMeta(MetaConstants.CurrencyTable, MetaConstants.ReferencesSchema);
+            var countryMeta = new CountryEntityMeta(MetaConstants.CountryInputLevelName, MetaConstants.InputLevelSchema, clusterRegionMeta, currencyMeta);
+            var nonEmeiaCountryMeta = new CountryEntityMeta(MetaConstants.NonEmeiaCountryInputLevelName, MetaConstants.InputLevelSchema, clusterRegionMeta, currencyMeta)
+            {
+                StoreType = StoreType.View,
+                RealMeta = countryMeta
+            };
+            var roleCode = new DeactivatableEntityMeta(MetaConstants.RoleCodeInputLevel, MetaConstants.InputLevelSchema);
             var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta, centralContractGroupMeta, roleCode);
 
             var customMetas = new[]
@@ -38,7 +44,9 @@ namespace Gdc.Scd.Core.Meta.Impl
                 centralContractGroupMeta,
                 wgMeta,
                 clusterRegionMeta,
+                currencyMeta,
                 countryMeta,
+                nonEmeiaCountryMeta,
                 roleCode
             };
 

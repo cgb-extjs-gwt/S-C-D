@@ -4,11 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("ExchangeRate", Schema = MetaConstants.ReferencesSchema)]
+    [Table(MetaConstants.ExchangeRateTable, Schema = MetaConstants.ReferencesSchema)]
     public class ExchangeRate : IIdentifiable
     {
+        public const string CurrencyIdColumn = "CurrencyId";
+
         [ForeignKey("Currency")]
-        [Column("CurrencyId")]
+        [Column(CurrencyIdColumn)]
         public long Id { get; set; }
 
         public Currency Currency { get; set; }

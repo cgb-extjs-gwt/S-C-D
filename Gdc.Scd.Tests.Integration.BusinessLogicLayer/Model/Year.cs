@@ -20,7 +20,10 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
             this.AFRs = new HashSet<AFR>();
             this.HddRetentions = new HashSet<HddRetention>();
             this.Reinsurances = new HashSet<Reinsurance>();
-            this.Year_Availability = new HashSet<Year_Availability>();
+            this.Year1 = new HashSet<Year1>();
+            this.Hardware_AFR = new HashSet<Hardware_AFR>();
+            this.Hardware_HddRetention = new HashSet<Hardware_HddRetention>();
+            this.Hardware_Reinsurance = new HashSet<Hardware_Reinsurance>();
         }
     
         public long Id { get; set; }
@@ -36,6 +39,12 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Reinsurance> Reinsurances { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Year_Availability> Year_Availability { get; set; }
+        public virtual ICollection<Year1> Year1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Hardware_AFR> Hardware_AFR { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Hardware_HddRetention> Hardware_HddRetention { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Hardware_Reinsurance> Hardware_Reinsurance { get; set; }
     }
 }

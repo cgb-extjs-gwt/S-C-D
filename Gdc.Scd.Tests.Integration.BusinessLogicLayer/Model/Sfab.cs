@@ -14,27 +14,10 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
     
     public partial class Sfab
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Sfab()
-        {
-            this.SwSpMaintenances = new HashSet<SwSpMaintenance>();
-            this.Sogs = new HashSet<Sog>();
-            this.Wgs = new HashSet<Wg>();
-        }
+        public long CostBlockHistory { get; set; }
+        public Nullable<long> Sfab1 { get; set; }
     
-        public long Id { get; set; }
-        public System.DateTime CreatedDateTime { get; set; }
-        public Nullable<System.DateTime> DeactivatedDateTime { get; set; }
-        public System.DateTime ModifiedDateTime { get; set; }
-        public string Name { get; set; }
-        public long PlaId { get; set; }
-    
-        public virtual Pla Pla { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SwSpMaintenance> SwSpMaintenances { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Sog> Sogs { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Wg> Wgs { get; set; }
+        public virtual CostBlockHistory CostBlockHistory1 { get; set; }
+        public virtual Sfab1 Sfab11 { get; set; }
     }
 }

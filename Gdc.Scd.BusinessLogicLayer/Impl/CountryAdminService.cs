@@ -2,8 +2,8 @@
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,11 +15,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<Country> _countryRepo;
 
-        public CountryAdminService(IRepositorySet repositorySet,
-            IRepository<Country> countryRepo)
+        private readonly IRepository<Currency> _currencyRepo;
+
+        public CountryAdminService(
+                IRepositorySet repositorySet,
+                IRepository<Country> countryRepo,
+                IRepository<Currency> currencyRepo
+            )
         {
             _repositorySet = repositorySet;
             _countryRepo = countryRepo;
+            _currencyRepo = currencyRepo;
         }
 
         public List<CountryDto> GetAll(int pageNumber, int limit, out int totalCount, AdminCountryFilterDto filter = null)
@@ -28,36 +34,35 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (filter != null)
             {
-                countries = countries.Where(x =>
-                    (filter.Country != null ? x.Name == filter.Country : true) &&
-                    (filter.Group != null ? x.CountryGroupId == filter.Group : true) &&
-                    (filter.Lut != null ? x.CountryGroup.LUTCode == filter.Lut : true) &&
-                    (filter.Digit != null ? x.CountryGroup.CountryDigit == filter.Digit : true) &&
-                    (filter.Iso != null ? x.ISO3CountryCode == filter.Iso : true) &&
-                    (filter.QualityGroup != null ? x.QualityGateGroup == filter.QualityGroup : true) &&
-                    (filter.IsMaster != null ? x.IsMaster == filter.IsMaster : true) &&
-                    (filter.StoreListAndDealer != null ? x.CanStoreListAndDealerPrices == filter.StoreListAndDealer : true) &&
-                    (filter.OverrideTCandTP != null ? x.CanOverrideTransferCostAndPrice == filter.OverrideTCandTP : true)
-                );
+                countries = countries.WhereIf(filter.Country != null, x => x.Name == filter.Country)
+                                     .WhereIf(filter.Group.HasValue, x => x.CountryGroupId == filter.Group.Value)
+                                     .WhereIf(filter.Lut != null, x => x.CountryGroup.LUTCode == filter.Lut)
+                                     .WhereIf(filter.Digit != null, x => x.CountryGroup.CountryDigit == filter.Digit)
+                                     .WhereIf(filter.Iso != null, x => x.ISO3CountryCode == filter.Iso)
+                                     .WhereIf(filter.QualityGroup != null, x => x.QualityGateGroup == filter.QualityGroup)
+                                     .WhereIf(filter.IsMaster.HasValue, x => x.IsMaster == filter.IsMaster.Value)
+                                     .WhereIf(filter.StoreListAndDealer.HasValue, x => x.CanStoreListAndDealerPrices == filter.StoreListAndDealer.Value)
+                                     .WhereIf(filter.OverrideTCandTP.HasValue, x => x.CanOverrideTransferCostAndPrice == filter.OverrideTCandTP.Value);
             }
 
             totalCount = countries.Count();
 
             countries = countries.OrderBy(c => c.Name).Skip((pageNumber - 1) * limit);
-          
+
             return countries.Select(c => new CountryDto
             {
                 CanOverrideTransferCostAndPrice = c.CanOverrideTransferCostAndPrice,
                 CanStoreListAndDealerPrices = c.CanStoreListAndDealerPrices,
-                CountryDigit = c.CountryGroup.CountryDigit ?? String.Empty,
+                CountryDigit = c.CountryGroup.CountryDigit ?? string.Empty,
                 CountryGroup = c.CountryGroup.Name,
                 CountryName = c.Name,
-                LUTCode = c.CountryGroup.LUTCode ?? String.Empty,
-                ISO3Code = c.ISO3CountryCode ?? String.Empty,
+                LUTCode = c.CountryGroup.LUTCode ?? string.Empty,
+                ISO3Code = c.ISO3CountryCode ?? string.Empty,
                 IsMaster = c.IsMaster,
-                QualityGroup = c.QualityGateGroup ?? String.Empty,
+                QualityGroup = c.QualityGateGroup ?? string.Empty,
+                Currency = c.Currency.Name,
                 CountryId = c.Id
-            }).OrderBy(x=>x.CountryName).ToList();
+            }).OrderBy(x => x.CountryName).ToList();
         }
 
         public void Save(IEnumerable<CountryDto> countries)
@@ -65,16 +70,26 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var countryDict = countries.ToDictionary(c => c.CountryId);
             var keys = countryDict.Select(d => d.Key).ToList();
             var countriesToUpdate = _countryRepo.GetAll().Where(c => keys.Contains(c.Id));
+            var currencies = SelectCurrencies(countries);
+
             foreach (var country in countriesToUpdate)
             {
-                country.CanOverrideTransferCostAndPrice = countryDict[country.Id].CanOverrideTransferCostAndPrice;
-                country.CanStoreListAndDealerPrices = countryDict[country.Id].CanStoreListAndDealerPrices;
-                country.QualityGateGroup = String.IsNullOrEmpty(countryDict[country.Id].QualityGroup?.Trim()) ? null : 
-                                                                countryDict[country.Id].QualityGroup.Trim();  
+                var dto = countryDict[country.Id];
+                //
+                country.CanOverrideTransferCostAndPrice = dto.CanOverrideTransferCostAndPrice;
+                country.CanStoreListAndDealerPrices = dto.CanStoreListAndDealerPrices;
+                country.QualityGateGroup = string.IsNullOrEmpty(dto.QualityGroup?.Trim()) ? null : dto.QualityGroup.Trim();
+                country.CurrencyId = currencies[dto.Currency].Id;
             }
 
             _countryRepo.Save(countriesToUpdate);
             _repositorySet.Sync();
+        }
+
+        private Dictionary<string, Currency> SelectCurrencies(IEnumerable<CountryDto> countries)
+        {
+            var keys = countries.Select(x => x.Currency);
+            return _currencyRepo.GetAll().Where(c => keys.Contains(c.Name)).ToDictionary(x => x.Name);
         }
     }
 }

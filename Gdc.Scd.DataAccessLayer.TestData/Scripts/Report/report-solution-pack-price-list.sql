@@ -2,31 +2,52 @@
   DROP FUNCTION Report.SolutionPackPriceList;
 go 
 
-CREATE FUNCTION Report.SolutionPackPriceList
+CREATE FUNCTION [Report].[SolutionPackPriceList]
 (
-    @sog bigint
+    @digit bigint
 )
-RETURNS TABLE 
-AS
-RETURN (
-    select 
-              sog.Description as SogDescription
-            , sog.Name as Sog
-            , fsp.Name
+RETURNS @tbl TABLE (
+	Digit nvarchar(max) NULL
+	,SogDescription nvarchar(max) NULL
+	,Sog nvarchar(max) NULL
+	
+	,Fsp nvarchar(max) NULL
+	,SpDescription nvarchar(max) NULL
+	,Sp nvarchar(max) NULL
 
+	,TP float NULL
+	,DealerPrice float NULL
+	,ListPrice float NULL
+)
+as
+begin
+	declare @digitList dbo.ListId; 
+	if @digit is not null insert into @digitList(id) select id from Portfolio.IntToListID(@digit);
+
+	declare @emptyAv dbo.ListId;
+	declare @emptyYear dbo.ListId;
+
+	insert into @tbl
+    select    dig.Name as Digit
+            , sog.Description as SogDescription
+            , sog.Name as Sog
+
+            , fsp.Name as Fsp
             , fsp.ServiceDescription as SpDescription
             , null as Sp
 
-            , sw.TransferPrice_Approved as TP
-            , sw.DealerPrice_Approved as DealerPrice
+            , sw.TransferPrice as TP
+            , sw.DealerPrice as DealerPrice
             , sw.MaintenanceListPrice as ListPrice
 
-    from SoftwareSolution.SwSpMaintenanceCostView sw
+    from SoftwareSolution.GetCosts(1, @digitList, @emptyAv, @emptyYear, -1, -1) sw
+    join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
     join InputAtoms.Sog sog on sog.id = sw.Sog
-    join Fsp.SwFspCodeTranslation fsp on fsp.SogId = sw.Sog
-    where (@sog is null or sw.Sog = @sog)
-)
-
+    left join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = sw.SwDigit
+                                          and fsp.AvailabilityId = sw.Availability
+                                          and fsp.DurationId = sw.Year
+return
+end
 GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'SOLUTIONPACK-PRICE-LIST');
@@ -34,6 +55,8 @@ declare @index int = 0;
 
 delete from Report.ReportColumn where ReportId = @reportId;
 
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Digit', 'SW Product Order no.', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SogDescription', 'Infrastructure Solution', 1, 1);
 set @index = @index + 1;
@@ -59,6 +82,6 @@ set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
 
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 5, 'sog', 'Service Offering Group');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit' and MultiSelect=0), 'digit', 'SW digit');
 
 GO

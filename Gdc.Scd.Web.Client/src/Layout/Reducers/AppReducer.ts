@@ -10,7 +10,8 @@ import { AppState } from "../States/AppStates";
 const defaultState = () => (<AppState>{
     appMetaData: null,
     currentPage: null,
-    userRoles: null
+    userRoles: null,
+    appVersion: null
 });
 
 const openPage: Reducer<AppState, OpenPageAction> = (state, action) => ({
@@ -23,7 +24,8 @@ const openPage: Reducer<AppState, OpenPageAction> = (state, action) => ({
 const loadAppData: Reducer<AppState, LoadingAppDataAction> = (state, action) => ({
     ...state,
     appMetaData: action.data.meta,
-    userRoles: action.data.userRoles
+    userRoles: action.data.userRoles,
+    appVersion: action.data.appVersion
 })
 
 export const appReducer: Reducer<AppState, Action<string>> = (state = defaultState(), action) => {

@@ -18,6 +18,7 @@ export interface ValueColumnProps {
     type: FieldType,
     selectedItems: NamedId<number>[]
     inputType: InputType
+    currency?: string
 }
 
 export interface EditGridActions {
@@ -36,10 +37,7 @@ export interface EditGridProps extends EditGridActions {
 
 export class EditGrid extends React.Component<EditGridProps> {
     public shouldComponentUpdate(nextProps: EditGridProps) {
-        return (
-            !objectPropsEqual(this.props, nextProps, 'url', 'nameColumnTitle') ||
-            !objectPropsEqual(this.props.valueColumn, nextProps.valueColumn)
-        );
+        return this.props.url != nextProps.url;
     }
 
     public render() {
@@ -76,6 +74,7 @@ export class EditGrid extends React.Component<EditGridProps> {
                 references: valueColumn.selectedItems,
                 inputType: valueColumn.inputType,
                 flex: 1,
+                currency: valueColumn.currency,
                 getCountFn: ({ data }) => data.valueCount
             })
         ] as ColumnInfo[]

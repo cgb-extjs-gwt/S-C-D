@@ -14,73 +14,10 @@ namespace Gdc.Scd.Tests.Integration.BusinessLogicLayer.Model
     
     public partial class Country
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Country()
-        {
-            this.UserRoles = new HashSet<UserRole>();
-            this.HwFspCodeTranslations = new HashSet<HwFspCodeTranslation>();
-            this.AvailabilityFees = new HashSet<AvailabilityFee>();
-            this.FieldServiceCosts = new HashSet<FieldServiceCost>();
-            this.InstallBases = new HashSet<InstallBase>();
-            this.LogisticsCosts = new HashSet<LogisticsCost>();
-            this.MarkupOtherCosts = new HashSet<MarkupOtherCost>();
-            this.MarkupStandardWaranties = new HashSet<MarkupStandardWaranty>();
-            this.ProActives = new HashSet<ProActive>();
-            this.ProlongationMarkups = new HashSet<ProlongationMarkup>();
-            this.ServiceSupportCosts = new HashSet<ServiceSupportCost>();
-            this.TaxAndDuties = new HashSet<TaxAndDuty>();
-            this.Matrices = new HashSet<Matrix>();
-            this.MatrixRules = new HashSet<MatrixRule>();
-            this.ProActiveSws = new HashSet<ProActiveSw>();
-        }
+        public long CostBlockHistory { get; set; }
+        public Nullable<long> Country1 { get; set; }
     
-        public long Id { get; set; }
-        public bool AssignedToMultiVendor { get; set; }
-        public bool CanOverrideTransferCostAndPrice { get; set; }
-        public bool CanStoreListAndDealerPrices { get; set; }
-        public Nullable<long> ClusterRegionId { get; set; }
-        public Nullable<long> CountryGroupId { get; set; }
-        public long CurrencyId { get; set; }
-        public string ISO3CountryCode { get; set; }
-        public bool IsMaster { get; set; }
-        public string Name { get; set; }
-        public string QualityGateGroup { get; set; }
-        public Nullable<long> RegionId { get; set; }
-        public string SAPCountryCode { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<UserRole> UserRoles { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<HwFspCodeTranslation> HwFspCodeTranslations { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<AvailabilityFee> AvailabilityFees { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<FieldServiceCost> FieldServiceCosts { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<InstallBase> InstallBases { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<LogisticsCost> LogisticsCosts { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<MarkupOtherCost> MarkupOtherCosts { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<MarkupStandardWaranty> MarkupStandardWaranties { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ProActive> ProActives { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ProlongationMarkup> ProlongationMarkups { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ServiceSupportCost> ServiceSupportCosts { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<TaxAndDuty> TaxAndDuties { get; set; }
-        public virtual ClusterRegion ClusterRegion { get; set; }
-        public virtual CountryGroup CountryGroup { get; set; }
-        public virtual Currency Currency { get; set; }
-        public virtual Region Region { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Matrix> Matrices { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<MatrixRule> MatrixRules { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<ProActiveSw> ProActiveSws { get; set; }
+        public virtual CostBlockHistory CostBlockHistory1 { get; set; }
+        public virtual Country1 Country11 { get; set; }
     }
 }
