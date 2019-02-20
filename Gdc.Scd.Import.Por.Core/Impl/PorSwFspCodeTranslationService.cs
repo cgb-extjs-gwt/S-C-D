@@ -78,6 +78,9 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                             continue;
                         }
 
+                        var serviceDescription = swRecords.FirstOrDefault()?.Service_Description;
+                        var shortDescription = swRecords.FirstOrDefault()?.Service_Short_Description;
+
                         _logger.Log(LogLevel.Debug, PorImportLoggingMessage.CHECKING_SW_PROACTIVE, digit.Name);
                         var proActive = model.ProActiveDigits.FirstOrDefault(d => d.DigitId.HasValue && d.DigitId == digit.Id);
                         var proActiveNullValue = model.Sla.Proactive[PorConstants.SlaNullValue];
@@ -93,7 +96,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                             Name = code.Service_Code,
                             SCD_ServiceType = code.SCD_ServiceType,
                             SecondSLA = code.SecondSLA,
-                            ServiceDescription = code.SAP_Kurztext_Englisch,
+                            ServiceDescription = serviceDescription,
+                            ShortDescription = shortDescription,
                             EKSAPKey = code.EKSchluesselSAP,
                             EKKey = code.EKSchluessel,
                             Status = code.VStatus,
