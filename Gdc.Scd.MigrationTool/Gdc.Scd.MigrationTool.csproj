@@ -69,7 +69,7 @@
     <Compile Include="Migrations\Migration_2019_02_14.cs" />
     <Compile Include="Migrations\Migration_2019_02_15_2.cs" />
     <Compile Include="Migrations\Migration_2019_02_18.cs" />
-         <Compile Include="Migrations\Migration_2019_02_18_2.cs" />
+    <Compile Include="Migrations\Migration_2019_02_18_2.cs" />
     <Compile Include="Migrations\Migration_2019_02_20.cs" />
     <Compile Include="Migrations\Migration_2019_02_20_2.cs" />
     <Compile Include="Migrations\Migration_2019_02_21.cs" />
@@ -131,11 +131,15 @@
     <Content Include="MigrationScripts\2019-02-20-17-39.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="MigrationScripts\2019-02-20-17-11.sql" />
+    <Content Include="MigrationScripts\2019-02-20-17-11.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="MigrationScripts\2019-02-20.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="MigrationScripts\2019-02-21.sql" />
+    <Content Include="MigrationScripts\2019-02-21.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj">
