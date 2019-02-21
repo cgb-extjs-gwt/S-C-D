@@ -120,3 +120,5 @@ DELETE FROM [History_RelatedItems].[CentralContractGroup]		  WHERE [CostBlockHis
 DELETE FROM [History_RelatedItems].[Wg]							  WHERE [CostBlockHistory] IN (SELECT [Id] FROM [History].[CostBlockHistory_MigrationBackup])
 DELETE FROM [History_RelatedItems].[ReactionTimeTypeAvailability] WHERE [CostBlockHistory] IN (SELECT [Id] FROM [History].[CostBlockHistory_MigrationBackup])
 DELETE FROM [History].[CostBlockHistory]						  WHERE [Id]			   IN (SELECT [Id] FROM [History].[CostBlockHistory_MigrationBackup])
+
+ALTER TABLE [History].[Hardware_MarkupStandardWaranty] DROP COLUMN [ReactionTimeTypeAvailability]
