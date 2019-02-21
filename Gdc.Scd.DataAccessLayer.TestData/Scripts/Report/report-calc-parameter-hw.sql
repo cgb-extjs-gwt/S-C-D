@@ -171,9 +171,6 @@ RETURN (
                                                and fsp.ReactionTypeId = m.ReactionTypeId
                                                and fsp.ServiceLocationId = m.ServiceLocationId
                                                and fsp.ProactiveSlaId = m.ProActiveSlaId
-		join InputAtoms.Country cnt on cnt.id = @cnt
-		join [References].Currency cur on cur.Id = cnt.CurrencyId
-		join [References].ExchangeRate er on er.CurrencyId = cur.Id
     )
     select    
                 m.Id
@@ -198,8 +195,8 @@ RETURN (
               , m.LabourCost * er.Value as LabourCost
               , m.TravelCost * er.Value as TravelCost
               , m.PerformanceRate * er.Value as PerformanceRate
-              , m.TravelTime * er.Value as TravelTime
-              , m.RepairTime * er.Value as RepairTime
+              , m.TravelTime
+              , m.RepairTime
               , m.OnsiteHourlyRate * er.Value as OnsiteHourlyRate
 
               , m.StandardHandling * er.Value as StandardHandling
@@ -257,6 +254,9 @@ RETURN (
                  ) * er.Value as LogisticTransportcost
 			 , cur.Name as Currency
     from CostCte m
+	join InputAtoms.Country cnt on cnt.id = @cnt
+	join [References].Currency cur on cur.Id = cnt.CurrencyId
+	join [References].ExchangeRate er on er.CurrencyId = cur.Id
 )
 GO
 
@@ -301,9 +301,9 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'PerformanceRate', 'Performance rate', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'TravelTime', 'Travel time (MTTT)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('number'), 'TravelTime', 'Travel time (MTTT)', 1, 1);
 set @index = @index + 1;                                                                                          
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'RepairTime', 'Repair time (MTTR)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('number'), 'RepairTime', 'Repair time (MTTR)', 1, 1);
 set @index = @index + 1;                                                                                          
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'OnsiteHourlyRate', 'Onsite hourly rate', 1, 1);
 

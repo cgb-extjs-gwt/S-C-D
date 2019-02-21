@@ -47,8 +47,7 @@ RETURN (
     JOIN InputAtoms.CountryView c on c.Id = m.CountryId
     join Dependencies.Duration dur on dur.Id = m.DurationId
     JOIN InputAtoms.WgSogView wg on wg.Id = m.WgId
-	join InputAtoms.Country cnt on cnt.id = @cnt
-	join [References].Currency cur on cur.Id = cnt.CurrencyId
+	join [References].Currency cur on cur.Id = c.CurrencyId
 	join [References].ExchangeRate er on er.CurrencyId = cur.Id
 )
 

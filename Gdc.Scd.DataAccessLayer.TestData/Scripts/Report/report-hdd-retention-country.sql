@@ -25,8 +25,7 @@ RETURN (
     join InputAtoms.CountryView c on c.Id = fsp.CountryId
     join InputAtoms.WgSogView wg on wg.id = fsp.WgId
     left join Hardware.HddRetentionView hdd on hdd.WgId = fsp.WgId
-	join InputAtoms.Country cnt on cnt.id = @cnt
-	join [References].Currency cur on cur.Id = cnt.CurrencyId
+	join [References].Currency cur on cur.Id = c.CurrencyId
 	join [References].ExchangeRate er on er.CurrencyId = cur.Id
 
     where     (@cnt is null or fsp.CountryId = @cnt)

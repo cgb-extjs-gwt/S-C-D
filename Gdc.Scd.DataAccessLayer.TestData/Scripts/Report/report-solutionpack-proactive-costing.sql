@@ -73,8 +73,7 @@ begin
     join InputAtoms.WgSogView sog on sog.id = pro.Sog
     left join SoftwareSolution.GetCosts(1, @digitList, @emptyAv, @yearList, -1, -1) sc on sc.Year = pro.DurationId and sc.Availability = pro.AvailabilityId and sc.SwDigit = pro.SwDigit
     left join Fsp.SwFspCodeTranslation fsp on fsp.Id = pro.FspId
-	join InputAtoms.Country cnt on cnt.id = @cnt
-	join [References].Currency cur on cur.Id = cnt.CurrencyId
+	join [References].Currency cur on cur.Id = c.CurrencyId
 	join [References].ExchangeRate er on er.CurrencyId = cur.Id
 return
 end
