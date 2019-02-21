@@ -149,11 +149,7 @@ RETURN (
                                                    AND moc.ReactionTypeId = m.ReactionTypeId 
                                                    AND moc.AvailabilityId = m.AvailabilityId
 
-        LEFT JOIN Hardware.MarkupStandardWarantyView msw on msw.Wg = m.WgId 
-                                                        AND msw.Country = m.CountryId 
-                                                        AND msw.ReactionTimeId = m.ReactionTimeId 
-                                                        AND msw.ReactionTypeId = m.ReactionTypeId 
-                                                        AND msw.AvailabilityId = m.AvailabilityId
+        LEFT JOIN Hardware.MarkupStandardWarantyView msw on msw.Wg = m.WgId AND msw.Country = m.CountryId
 
         LEFT JOIN Hardware.AvailabilityFeeCalc af on af.Country = m.CountryId AND af.Wg = m.WgId
 
