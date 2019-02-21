@@ -464,7 +464,7 @@
       </Elements>
     </Block>
 
-    <Block Name="MarkupStandardWaranty" Caption="Markup standard waranty">
+    <Block Name="MarkupStandardWaranty" Caption="Markup standard warranty">
       <Applications>
         <Application>Hardware</Application>
       </Applications>
