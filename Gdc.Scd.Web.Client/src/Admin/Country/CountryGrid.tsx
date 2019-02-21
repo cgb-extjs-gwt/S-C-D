@@ -29,6 +29,7 @@ export class CountryGrid extends React.Component {
         fields: [
             'countryId',
             'countryGroup',
+            'region',
             'countryName',
             'lUTCode',
             'countryDigit',
@@ -112,6 +113,7 @@ export class CountryGrid extends React.Component {
                     plugins={['gridcellediting']}>
                     <Column text="Country" dataIndex="countryName" flex={1} />
                     <Column text="Country Group" dataIndex="countryGroup" flex={1} />
+                    <Column text="Region" dataIndex="region" flex={1} />
                     <Column text="LUT" dataIndex="lutCode" flex={1} renderer={this.renderer} />
                     <Column text="Digit" dataIndex="countryDigit" flex={1} renderer={this.renderer} />
                     <Column text="ISO Code" dataIndex="isO3Code" flex={1} renderer={this.renderer} />

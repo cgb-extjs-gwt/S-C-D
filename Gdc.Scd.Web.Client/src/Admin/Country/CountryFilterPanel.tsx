@@ -9,6 +9,7 @@ import { CountryQualityGroupField } from "../../Dict/Components/CountryQualityGr
 import { DictField } from "../../Dict/Components/DictField";
 import { CountryFilterModel } from "./CountryFilterModel";
 import { NamedId } from "../../Common/States/CommonStates";
+import { RegionNameField } from "../../Dict/Components/RegionNameField";
 
 export interface FilterPanelProps extends PanelProps {
     onSearch(filter: CountryFilterModel): void;
@@ -19,6 +20,8 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
     private country: DictField<NamedId>;
 
     private group: DictField<NamedId>;
+
+    private region: DictField<NamedId>;
 
     private lut: DictField<NamedId>;
 
@@ -56,8 +59,9 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
                         queryMode: 'local',
                         clearable: 'true'
                     }}>
+                    <RegionNameField ref={x => this.region = x} label="Region:"/>
                     <CountryNameField ref={x => this.country = x} label="Country:" />
-                    <CountryGroupField ref={x => this.group = x} label="Group:" />
+                    <CountryGroupField ref={x => this.group = x} label="Country Group:" />
                     <CountryGroupLutField ref={x => this.lut = x} label="LUT:" />
                     <CountryGroupDigitField ref={x => this.digit = x} label="Digit:" />
                     <CountryGroupIsoCodeField ref={x => this.iso = x} label="ISO Code:" />        
@@ -92,6 +96,7 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
         let isMasterValue = (this.isMaster as any).getValues()['isMaster']
 
         return {
+            region: this.region.getSelected(),
             country: this.country.getSelectedValue(),
             group: this.group.getSelected(),
             lut: this.lut.getSelectedValue(),
