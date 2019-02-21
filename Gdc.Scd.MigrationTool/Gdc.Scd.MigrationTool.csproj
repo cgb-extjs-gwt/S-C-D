@@ -132,6 +132,9 @@
     <Content Include="MigrationScripts\2019-02-20-17-39.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="MigrationScripts\2019-02-20-17-11.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="MigrationScripts\2019-02-20.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
