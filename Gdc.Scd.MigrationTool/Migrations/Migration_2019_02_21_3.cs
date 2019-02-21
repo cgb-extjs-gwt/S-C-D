@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.MigrationTool.Migrations
 {
-    public class Migration_2019_02_21_2 : IMigrationAction
+    public class Migration_2019_02_21_3 : IMigrationAction
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 18;
+        public int Number => 19;
 
         public string Description => "Some reports are now in local currency";
 
-        public Migration_2019_02_21_2(IRepositorySet repositorySet)
+        public Migration_2019_02_21_3(IRepositorySet repositorySet)
         {
             this.repositorySet = repositorySet;
         }

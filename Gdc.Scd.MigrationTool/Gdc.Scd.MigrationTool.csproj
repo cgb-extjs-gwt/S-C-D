@@ -71,7 +71,7 @@
     <Compile Include="Migrations\Migration_2019_02_18.cs" />
     <Compile Include="Migrations\Migration_2019_02_18_2.cs" />
     <Compile Include="Migrations\Migration_2019_02_20.cs" />
-    <Compile Include="Migrations\Migration_2019_02_21_2.cs" />
+    <Compile Include="Migrations\Migration_2019_02_21_3.cs" />
     <Compile Include="Migrations\Migration_2019_02_20_2.cs" />
     <Compile Include="Migrations\Migration_2019_02_21.cs" />
     <Compile Include="Module.cs" />
