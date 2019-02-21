@@ -96,7 +96,7 @@ RETURN (
 
         LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = stdw.Country AND lc.Wg = stdw.Wg AND lc.ReactionTime = stdw.ReactionTimeId AND lc.ReactionType = stdw.ReactionTypeId
 
-        LEFT JOIN Hardware.MarkupStandardWarantyView msw on msw.Wg = m.WgId AND msw.Country = m.CountryId AND msw.ReactionTimeId = m.ReactionTimeId AND msw.ReactionTypeId = m.ReactionTypeId AND msw.AvailabilityId = m.AvailabilityId
+        LEFT JOIN Hardware.MarkupStandardWarantyView msw on msw.Wg = m.WgId AND msw.Country = m.CountryId
 
         LEFT JOIN Hardware.AvailabilityFeeCalc af on af.Country = m.CountryId AND af.Wg = m.WgId
 
@@ -176,7 +176,6 @@ RETURN (
                         then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost5, m.ServiceSupport, m.Logistic5, m.tax5, m.AFR5, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty5
-                , 0     as LocalServiceStandardWarranty1P
 
                 , case when m.StdWarranty >= 1 
                         then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost1_Approved, m.ServiceSupport_Approved, m.Logistic1_Approved, m.tax1_Approved, m.AFR1_Approved, 1 + m.MarkupFactorStandardWarranty_Approved, m.MarkupStandardWarranty_Approved)
@@ -198,7 +197,6 @@ RETURN (
                         then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost5_Approved, m.ServiceSupport_Approved, m.Logistic5_Approved, m.tax5_Approved, m.AFR5_Approved, 1 + m.MarkupFactorStandardWarranty_Approved, m.MarkupStandardWarranty_Approved)
                         else 0 
                     end as LocalServiceStandardWarranty5_Approved
-                , 0     as LocalServiceStandardWarranty1P_Approved
 
         from CostCte m
     )
@@ -214,13 +212,13 @@ RETURN (
          
             , (m.Duration + ' ' + m.ServiceLocation) as ServiceProduct
          
-            , Hardware.CalcByDur(m.Year, m.IsProlongation, m.LocalServiceStandardWarranty1, m.LocalServiceStandardWarranty2, m.LocalServiceStandardWarranty3, m.LocalServiceStandardWarranty4, m.LocalServiceStandardWarranty5, m.LocalServiceStandardWarranty1P) * er.Value as StandardWarranty
-            , Hardware.CalcByDur(m.Year, m.IsProlongation, m.LocalServiceStandardWarranty1_Approved, m.LocalServiceStandardWarranty2_Approved, m.LocalServiceStandardWarranty3_Approved, m.LocalServiceStandardWarranty4_Approved, m.LocalServiceStandardWarranty5_Approved, m.LocalServiceStandardWarranty1P_Approved) * er.Value as StandardWarranty_Approved
-			, cur.Name as Currency
-	from CostCte2 m
-	join InputAtoms.Country cnt on cnt.id = @cnt
-	join [References].Currency cur on cur.Id = cnt.CurrencyId
-	join [References].ExchangeRate er on er.CurrencyId = cur.Id
+            , m.LocalServiceStandardWarranty1 + m.LocalServiceStandardWarranty2 + m.LocalServiceStandardWarranty3 + m.LocalServiceStandardWarranty4 + m.LocalServiceStandardWarranty5 as LocalServiceStandardWarranty
+            , m.LocalServiceStandardWarranty1_Approved + m.LocalServiceStandardWarranty2_Approved + m.LocalServiceStandardWarranty3_Approved + m.LocalServiceStandardWarranty4_Approved + m.LocalServiceStandardWarranty5_Approved as StandardWarranty_Approved
+            , cur.Name as Currency
+    from CostCte2 m
+    join InputAtoms.Country cnt on cnt.id = @cnt
+    join [References].Currency cur on cur.Id = cnt.CurrencyId
+    join [References].ExchangeRate er on er.CurrencyId = cur.Id
 )
 
 GO
