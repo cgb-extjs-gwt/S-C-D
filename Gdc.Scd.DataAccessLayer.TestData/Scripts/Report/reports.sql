@@ -240,8 +240,41 @@ RETURN
 
     FROM Report.GetCostsFull(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
 )
-
-
 go
+
+IF OBJECT_ID('Report.GetReportColumnTypeByName') IS NOT NULL
+  DROP FUNCTION Report.GetReportColumnTypeByName;
+go 
+
+CREATE FUNCTION Report.GetReportColumnTypeByName
+(
+    @name nvarchar(max)
+)
+RETURNS bigint 
+AS
+BEGIN
+	DECLARE @Id bigint
+    select @Id=id from Report.ReportColumnType where Name=@name
+	RETURN @Id
+END
+GO
+
+IF OBJECT_ID('Report.GetReportFilterTypeByName') IS NOT NULL
+  DROP FUNCTION Report.GetReportFilterTypeByName;
+go 
+
+CREATE FUNCTION Report.GetReportFilterTypeByName
+(
+    @name nvarchar(max),
+	@multi bit
+)
+RETURNS bigint 
+AS
+BEGIN
+	DECLARE @Id bigint
+    select @Id= id from Report.ReportFilterType where MultiSelect = @multi and name = @name
+	RETURN @Id
+END
+GO
 
 
