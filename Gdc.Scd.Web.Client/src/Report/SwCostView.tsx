@@ -77,7 +77,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
                         <Column text="Service support cost" dataIndex="ServiceSupport" />
                         <Column text="Reinsurance" dataIndex="Reinsurance" />
-                        <Column text="Transer price" dataIndex="TransferPrice" />
+                        <Column text="Transfer price" dataIndex="TransferPrice" />
                         <Column text="Maintenance list price" dataIndex="MaintenanceListPrice" />
                         <Column text="Dealer reference price" dataIndex="DealerPrice" />
 
