@@ -173,7 +173,7 @@ CREATE NONCLUSTERED INDEX ix_Atom_MarkupOtherCosts
 GO
 
 CREATE NONCLUSTERED INDEX ix_Atom_MarkupStandardWaranty
-    ON [Hardware].[MarkupStandardWaranty] ([Country],[Wg], [ReactionTimeTypeAvailability])
+    ON [Hardware].[MarkupStandardWaranty] ([Country],[Wg])
     INCLUDE ([MarkupFactorStandardWarranty],[MarkupStandardWarranty])
 GO
 
