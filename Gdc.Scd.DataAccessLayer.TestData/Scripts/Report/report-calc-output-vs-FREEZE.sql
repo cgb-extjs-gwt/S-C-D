@@ -220,7 +220,6 @@ RETURN (
     join [References].Currency cur on cur.Id = cnt.CurrencyId
     join [References].ExchangeRate er on er.CurrencyId = cur.Id
 )
-
 GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CALCOUTPUT-VS-FREEZE');

@@ -180,7 +180,6 @@ RETURN (
               , m.ReactionTime
               , m.ReactionType
               , m.Availability
-              , m.Currency
 
              --FSP
               , m.Fsp

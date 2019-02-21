@@ -705,7 +705,6 @@ RETURN (
               , rtime.Name as ReactionTime
               , rtype.Name as ReactionType
               , av.Name as Availability
-              , c.Currency
 
              --FSP
               , fsp.Name Fsp
@@ -713,31 +712,31 @@ RETURN (
 
               --cost blocks
 
-              , fsc.LabourCost as LabourCost
-              , fsc.TravelCost as TravelCost
-              , fsc.PerformanceRate as PerformanceRate
+              , fsc.LabourCost * er.Value  as LabourCost
+              , fsc.TravelCost * er.Value  as TravelCost
+              , fsc.PerformanceRate * er.Value  as PerformanceRate
               , fsc.TravelTime as TravelTime
               , fsc.RepairTime as RepairTime
-              , fsc.OnsiteHourlyRates as OnsiteHourlyRate
+              , fsc.OnsiteHourlyRates * er.Value  as OnsiteHourlyRate
 
-              , lc.StandardHandling as StandardHandling
+              , lc.StandardHandling * er.Value  as StandardHandling
 
-              , lc.StandardHandling + 
+              , (lc.StandardHandling + 
                 lc.HighAvailabilityHandling + 
                 lc.StandardDelivery + 
                 lc.ExpressDelivery + 
                 lc.TaxiCourierDelivery + 
-                lc.ReturnDeliveryFactory as LogisticPerYear
+                lc.ReturnDeliveryFactory) * er.Value  as LogisticPerYear
 
-              , case when afEx.id is not null then af.Fee else 0 end as AvailabilityFee
+              , case when afEx.id is not null then af.Fee * er.Value else 0 end as AvailabilityFee
       
-              , tax.TaxAndDuties as TaxAndDutiesW
+              , tax.TaxAndDuties * er.Value  as TaxAndDutiesW
 
-              , moc.Markup       as MarkupOtherCost
-              , moc.MarkupFactor as MarkupFactorOtherCost
+              , moc.Markup * er.Value        as MarkupOtherCost
+              , moc.MarkupFactor * er.Value  as MarkupFactorOtherCost
 
-              , msw.MarkupFactorStandardWarranty as MarkupFactorStandardWarranty
-              , msw.MarkupStandardWarranty       as MarkupStandardWarranty
+              , msw.MarkupFactorStandardWarranty * er.Value  as MarkupFactorStandardWarranty
+              , msw.MarkupStandardWarranty * er.Value        as MarkupStandardWarranty
       
               , afr.AFR1  as AFR1
               , afr.AFR2  as AFR2
@@ -755,23 +754,24 @@ RETURN (
                             fsc.RepairTime, 
                             fsc.OnsiteHourlyRates, 
                             1
-                        ) as FieldServicePerYear
+                        ) * er.Value as FieldServicePerYear
 
-              , ssc.[1stLevelSupportCosts]           as [1stLevelSupportCosts]
-              , ssc.[2ndLevelSupportCosts]           as [2ndLevelSupportCosts]
+              , ssc.[1stLevelSupportCosts] * er.Value            as [1stLevelSupportCosts]
+              , ssc.[2ndLevelSupportCosts] * er.Value            as [2ndLevelSupportCosts]
            
-              , r.ReinsuranceFlatfee1                as ReinsuranceFlatfee1
-              , r.ReinsuranceFlatfee2                as ReinsuranceFlatfee2
-              , r.ReinsuranceFlatfee3                as ReinsuranceFlatfee3
-              , r.ReinsuranceFlatfee4                as ReinsuranceFlatfee4
-              , r.ReinsuranceFlatfee5                as ReinsuranceFlatfee5
-              , r.ReinsuranceFlatfeeP1               as ReinsuranceFlatfeeP1
-              , r.ReinsuranceUpliftFactor_4h_24x7    as ReinsuranceUpliftFactor_4h_24x7
-              , r.ReinsuranceUpliftFactor_4h_9x5     as ReinsuranceUpliftFactor_4h_9x5
-              , r.ReinsuranceUpliftFactor_NBD_9x5    as ReinsuranceUpliftFactor_NBD_9x5
+              , r.ReinsuranceFlatfee1 * er.Value                 as ReinsuranceFlatfee1
+              , r.ReinsuranceFlatfee2 * er.Value                 as ReinsuranceFlatfee2
+              , r.ReinsuranceFlatfee3 * er.Value                 as ReinsuranceFlatfee3
+              , r.ReinsuranceFlatfee4 * er.Value                 as ReinsuranceFlatfee4
+              , r.ReinsuranceFlatfee5 * er.Value                 as ReinsuranceFlatfee5
+              , r.ReinsuranceFlatfeeP1 * er.Value                as ReinsuranceFlatfeeP1
+              , r.ReinsuranceUpliftFactor_4h_24x7 * er.Value     as ReinsuranceUpliftFactor_4h_24x7
+              , r.ReinsuranceUpliftFactor_4h_9x5 * er.Value      as ReinsuranceUpliftFactor_4h_9x5
+              , r.ReinsuranceUpliftFactor_NBD_9x5 * er.Value     as ReinsuranceUpliftFactor_NBD_9x5
 
-              , mcw.MaterialCostWarranty as MaterialCostWarranty
-              , mco.MaterialCostOow as MaterialCostOow
+              , mcw.MaterialCostWarranty * er.Value  as MaterialCostWarranty
+              , mco.MaterialCostOow * er.Value       as MaterialCostOow
+			  , cur.Name as Currency
 
               , dur.Value as Duration
               , dur.IsProlongation
@@ -844,6 +844,9 @@ RETURN (
                                                and fsp.ReactionTypeId = m.ReactionTypeId
                                                and fsp.ServiceLocationId = m.ServiceLocationId
                                                and fsp.ProactiveSlaId = m.ProActiveSlaId
+		join InputAtoms.Country cnt on cnt.id = @cnt
+		join [References].Currency cur on cur.Id = cnt.CurrencyId
+		join [References].ExchangeRate er on er.CurrencyId = cur.Id
     )
     select    
                 m.Id
@@ -1108,7 +1111,6 @@ RETURN (
               , m.ReactionTime
               , m.ReactionType
               , m.Availability
-              , m.Currency
 
              --FSP
               , m.Fsp
@@ -1116,24 +1118,24 @@ RETURN (
 
               --cost blocks
 
-              , m.LabourCost
-              , m.TravelCost
-              , m.PerformanceRate
+              , m.LabourCost * er.Value as LabourCost
+              , m.TravelCost * er.Value as TravelCost
+              , m.PerformanceRate * er.Value as PerformanceRate
               , m.TravelTime
               , m.RepairTime
-              , m.OnsiteHourlyRate
+              , m.OnsiteHourlyRate * er.Value as OnsiteHourlyRate
 
-              , m.StandardHandling
+              , m.StandardHandling * er.Value as StandardHandling
 
-              , m.AvailabilityFee
+              , m.AvailabilityFee * er.Value as AvailabilityFee
       
-              , m.TaxAndDutiesW
+              , m.TaxAndDutiesW * er.Value as TaxAndDutiesW
 
-              , m.MarkupOtherCost
-              , m.MarkupFactorOtherCost
+              , m.MarkupOtherCost * er.Value as MarkupOtherCost
+              , m.MarkupFactorOtherCost * er.Value as MarkupFactorOtherCost
 
-              , m.MarkupFactorStandardWarranty
-              , m.MarkupStandardWarranty
+              , m.MarkupFactorStandardWarranty * er.Value as MarkupFactorStandardWarranty
+              , m.MarkupStandardWarranty * er.Value as MarkupStandardWarranty
       
               , m.AFR1   * 100 as AFR1
               , m.AFR2   * 100 as AFR2
@@ -1142,29 +1144,29 @@ RETURN (
               , m.AFR5   * 100 as AFR5
               , m.AFRP1  * 100 as AFRP1
 
-              , m.[1stLevelSupportCosts]
-              , m.[2ndLevelSupportCosts]
+              , m.[1stLevelSupportCosts] * er.Value as [1stLevelSupportCosts]
+              , m.[2ndLevelSupportCosts] * er.Value as [2ndLevelSupportCosts]
            
-              , m.ReinsuranceFlatfee1
-              , m.ReinsuranceFlatfee2
-              , m.ReinsuranceFlatfee3
-              , m.ReinsuranceFlatfee4
-              , m.ReinsuranceFlatfee5
-              , m.ReinsuranceFlatfeeP1
-              , m.ReinsuranceUpliftFactor_4h_24x7
-              , m.ReinsuranceUpliftFactor_4h_9x5
-              , m.ReinsuranceUpliftFactor_NBD_9x5
+              , m.ReinsuranceFlatfee1 * er.Value as ReinsuranceFlatfee1
+              , m.ReinsuranceFlatfee2 * er.Value as ReinsuranceFlatfee2
+              , m.ReinsuranceFlatfee3 * er.Value as ReinsuranceFlatfee3
+              , m.ReinsuranceFlatfee4 * er.Value as ReinsuranceFlatfee4
+              , m.ReinsuranceFlatfee5 * er.Value as ReinsuranceFlatfee5
+              , m.ReinsuranceFlatfeeP1 * er.Value as ReinsuranceFlatfeeP1
+              , m.ReinsuranceUpliftFactor_4h_24x7 * er.Value as ReinsuranceUpliftFactor_4h_24x7
+              , m.ReinsuranceUpliftFactor_4h_9x5 * er.Value as ReinsuranceUpliftFactor_4h_9x5
+              , m.ReinsuranceUpliftFactor_NBD_9x5 * er.Value as ReinsuranceUpliftFactor_NBD_9x5
 
-              , m.MaterialCostWarranty
-              , m.MaterialCostOow
+              , m.MaterialCostWarranty * er.Value as MaterialCostWarranty
+              , m.MaterialCostOow * er.Value as MaterialCostOow
 
               , m.Duration
 
-             , m.FieldServicePerYear * m.AFR1 as FieldServiceCost1
-             , m.FieldServicePerYear * m.AFR2 as FieldServiceCost2
-             , m.FieldServicePerYear * m.AFR3 as FieldServiceCost3
-             , m.FieldServicePerYear * m.AFR4 as FieldServiceCost4
-             , m.FieldServicePerYear * m.AFR5 as FieldServiceCost5
+             , m.FieldServicePerYear * m.AFR1 * er.Value as FieldServiceCost1
+             , m.FieldServicePerYear * m.AFR2 * er.Value as FieldServiceCost2
+             , m.FieldServicePerYear * m.AFR3 * er.Value as FieldServiceCost3
+             , m.FieldServicePerYear * m.AFR4 * er.Value as FieldServiceCost4
+             , m.FieldServicePerYear * m.AFR5 * er.Value as FieldServiceCost5
             
              , Hardware.CalcByDur(
                        m.Duration
@@ -1175,9 +1177,117 @@ RETURN (
                      , m.LogisticPerYear * m.AFR4 
                      , m.LogisticPerYear * m.AFR5 
                      , m.LogisticPerYear * m.AFRP1
-                 ) as LogisticTransportcost
-
+                 ) * er.Value as LogisticTransportcost
+			 , cur.Name as Currency
     from CostCte m
+	join InputAtoms.Country cnt on cnt.id = @cnt
+	join [References].Currency cur on cur.Id = cnt.CurrencyId
+	join [References].ExchangeRate er on er.CurrencyId = cur.Id
+)
+GO
+
+ALTER FUNCTION Report.PoStandardWarrantyMaterial
+(
+    @cnt bigint,
+    @wg bigint,
+    @av bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc bigint,
+    @pro bigint
+)
+RETURNS TABLE 
+AS
+RETURN (
+    with cte as (
+        select 
+                m.Id
+              , c.CountryGroup
+              , c.LUTCode
+              , wg.Name as Wg
+              , wg.Description as WgDescription
+              , pla.Name as Pla
+              , dur.Value as Year
+              , dur.IsProlongation
+              , (dur.Name + ' ' + loc.Name) as ServiceLevel
+              , rtime.Name as ReactionTime
+              , rtype.Name as ReactionType
+              , av.Name    as Availability
+              , prosla.ExternalName as ProActiveSla
+
+              , stdw.DurationValue as StdWarranty
+
+              , mcw.MaterialCostWarranty_Approved as MaterialCostWarranty
+
+              , afr.AFR1_Approved as AFR1
+              , afr.AFR2_Approved as AFR2
+              , afr.AFR3_Approved as AFR3
+              , afr.AFR4_Approved as AFR4
+              , afr.AFR5_Approved as AFR5
+
+              , null as SparesAvailability
+
+        from Portfolio.GetBySla(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc, @pro) m
+
+        JOIN InputAtoms.CountryView c on c.Id = m.CountryId
+
+        JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
+
+        JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
+
+        JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
+
+        JOIN Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
+
+        JOIN Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
+
+        JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
+
+        JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
+
+        LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId
+
+        LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
+
+        LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
+
+        LEFT JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
+    )
+    , cte2 as (
+        select    
+              m.*
+
+                , case when m.StdWarranty >= 1 then m.MaterialCostWarranty * m.AFR1 else 0 end as mat1
+                , case when m.StdWarranty >= 2 then m.MaterialCostWarranty * m.AFR2 else 0 end as mat2
+                , case when m.StdWarranty >= 3 then m.MaterialCostWarranty * m.AFR3 else 0 end as mat3
+                , case when m.StdWarranty >= 4 then m.MaterialCostWarranty * m.AFR4 else 0 end as mat4
+                , case when m.StdWarranty >= 5 then m.MaterialCostWarranty * m.AFR5 else 0 end as mat5
+        from cte m
+    )
+    select    m.Id
+            , m.CountryGroup
+            , m.LUTCode
+            , m.Wg
+            , m.WgDescription
+            , m.Pla
+            , m.ServiceLevel
+            , m.ReactionTime
+            , m.ReactionType
+            , m.Availability
+            , m.ProActiveSla
+
+            , m.mat1 + m.mat2 + m.mat3 + m.mat4 + m.mat5 as MaterialW
+
+            , m.MaterialCostWarranty
+
+            , m.AFR1
+            , m.AFR2
+            , m.AFR3
+            , m.AFR4
+            , m.AFR5
+
+            , m.SparesAvailability
+    from cte2 m
 )
 GO
 
