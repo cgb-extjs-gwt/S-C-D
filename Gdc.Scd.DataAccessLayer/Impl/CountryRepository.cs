@@ -13,7 +13,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public override IQueryable<Country> GetAll()
         {
-            return base.GetAll().Include(c => c.CountryGroup);
+            return base.GetAll().Include(c => c.CountryGroup).Include(c => c.Region);
         }
     }
 }

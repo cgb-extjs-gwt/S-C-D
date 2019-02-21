@@ -73,6 +73,7 @@
     <Compile Include="Migrations\Migration_2019_02_20.cs" />
     <Compile Include="Migrations\Migration_2019_02_20_2.cs" />
     <Compile Include="Migrations\Migration_2019_02_21.cs" />
+    <Compile Include="Migrations\Migration_2019_02_21_2.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -135,6 +136,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2019-02-20.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-02-21-16-33.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2019-02-21.sql">
