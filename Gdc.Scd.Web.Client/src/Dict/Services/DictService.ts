@@ -18,6 +18,7 @@ import { SogService } from "./SogService";
 import { SwDigitService } from "./SwDigitService";
 import { UserCountryService } from "./UserCountryService";
 import { YearService } from "./YearService";
+import { RegionService } from "./RegionService";
 
 export class DictService implements IDictService {
     public getCountries(): Promise<NamedId<string>[]> {
@@ -50,6 +51,10 @@ export class DictService implements IDictService {
 
     public getCountryGroupDigits(): Promise<NamedId<string>[]> {
         return new CountryGroupService().getDigit();
+    }
+
+    public getRegions(): Promise<NamedId<string>[]> {
+        return new RegionService().getAll();
     }
 
     public getCountryGroupLuts(): Promise<NamedId<string>[]> {

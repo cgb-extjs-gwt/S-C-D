@@ -4,6 +4,7 @@
     {
         public string CountryName { get; set; }
         public string CountryGroup { get; set; }
+        public string Region { get; set; }
         public string LUTCode { get; set; }
         public string CountryDigit { get; set; }
         public string QualityGroup { get; set; }
