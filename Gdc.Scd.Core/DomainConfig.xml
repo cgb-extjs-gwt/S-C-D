@@ -415,7 +415,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="MarkupFactor" Caption="Markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+        <Element Name="MarkupFactor" Caption="Markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
           <TypeOption Type="Percent"/>
           <CostEditor>
             <Roles>
@@ -425,7 +425,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+        <Element Name="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
           <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>

@@ -52,6 +52,8 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string DependencyNodeName = "Dependency";
 
+        private const string IncludeDisabledDependcyItemsAttributeName = "IncludeDisabledDependcyItems";
+
         private const string InputTypeAttributeName = "InputOption";
 
         private const string FilterAttributeName = "HideFilter";
@@ -174,6 +176,12 @@ namespace Gdc.Scd.Core.Meta.Impl
 
             costElementMeta.TableViewRoles = this.BuildRoles(node, TableViewNodeName);
             costElementMeta.CostEditorRoles = this.BuildRoles(node, CostEditorNodeName);
+
+            var includeDisabledDependcyItemsAttribute = node.Attribute(IncludeDisabledDependcyItemsAttributeName);
+            if (includeDisabledDependcyItemsAttribute != null)
+            {
+                costElementMeta.IncludeDisabledDependcyItems = bool.Parse(includeDisabledDependcyItemsAttribute.Value);
+            }
 
             return costElementMeta;
         }
