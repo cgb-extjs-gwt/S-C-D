@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 15;
+        public int Number => 16;
 
         public string Description => "Removing ReactionTimeTypeAvailability dependency from MarkupStandardWaranty";
 
