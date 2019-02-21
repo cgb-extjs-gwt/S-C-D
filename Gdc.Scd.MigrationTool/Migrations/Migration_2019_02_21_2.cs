@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 16;
+        public int Number => 18;
 
         public string Description => "Fix typo in Transfer Price";
 

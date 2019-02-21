@@ -12,7 +12,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 16;
+        public int Number => 17;
 
         public string Description => "Change columns in SW Price List and Software Price List Details";
 
