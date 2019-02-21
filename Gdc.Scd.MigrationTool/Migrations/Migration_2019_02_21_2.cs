@@ -18,7 +18,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         public void Execute()
         {
-            repositorySet.ExecuteFromFile("Migration_2019_02_21_2.sql");
+            repositorySet.ExecuteFromFile("2019-02-21-16-33.sql");
         }
     }
 }
