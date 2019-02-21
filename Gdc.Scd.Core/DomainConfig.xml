@@ -469,7 +469,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+        <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost (%)" InputOption="Manually">
           <TypeOption Type="Percent"/>
           <CostEditor>
             <Roles>
@@ -479,7 +479,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="MarkupStandardWarranty" Caption="Markup for standard warranty local cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+        <Element Name="MarkupStandardWarranty" Caption="Markup for standard warranty local cost" InputOption="Manually">
           <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
