@@ -75,7 +75,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc)
         {
-            return ReadBySql(query.ToSql(), mapFunc, query.GetParameters());
+            var queryData = query.ToQueryData();
+
+            return this.ReadBySql(queryData.Sql, mapFunc, queryData.Parameters);
         }
 
         public Task ReadBySql(string sql, Action<DbDataReader> mapFunc, params DbParameter[] parameters)
@@ -135,7 +137,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public int ExecuteSql(SqlHelper query)
         {
-            return this.ExecuteSql(query.ToSql(), query.GetParameters());
+            var queryData = query.ToQueryData();
+
+            return this.ExecuteSql(queryData.Sql, queryData.Parameters);
         }
 
         public async Task<int> ExecuteSqlAsync(string sql, IEnumerable<CommandParameterInfo> parameters = null)
@@ -147,7 +151,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<int> ExecuteSqlAsync(SqlHelper query)
         {
-            return await this.ExecuteSqlAsync(query.ToSql(), query.GetParameters());
+            var queryData = query.ToQueryData();
+
+            return await this.ExecuteSqlAsync(queryData.Sql, queryData.Parameters);
         }
 
         public int ExecuteProc(string procName, params DbParameter[] parameters)

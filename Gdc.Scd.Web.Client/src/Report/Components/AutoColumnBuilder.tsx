@@ -2,7 +2,9 @@
 import * as React from "react";
 import { AutoColumnModel } from "../Model/AutoColumnModel";
 import { AutoColumnType } from "../Model/AutoColumnType";
-import { IRenderer, moneyRenderer, numberRendererFactory, percentRenderer, stringRenderer, yesNoRenderer } from "./GridRenderer";
+import { IRenderer, moneyRenderer, localMoneyRendererFactory, numberRendererFactory, percentRenderer, stringRenderer, yesNoRenderer } from "./GridRenderer";
+
+const localMoneyRenderer = localMoneyRendererFactory('Currency');
 
 interface reactCmp {
     (key: number): JSX.Element;
@@ -27,6 +29,10 @@ export class AutoColumnBuilder {
 
             case AutoColumnType.EURO:
                 this.initEuro();
+                break;
+
+            case AutoColumnType.MONEY:
+                this.initMoney();
                 break;
 
             case AutoColumnType.PERCENT:
@@ -61,6 +67,11 @@ export class AutoColumnBuilder {
     private initEuro(): any {
         this.factory = this.columnCmp;
         this.rndr = moneyRenderer;
+    }
+
+    private initMoney(): any {
+        this.factory = this.columnCmp;
+        this.rndr = localMoneyRenderer;
     }
 
     private initNumber() {

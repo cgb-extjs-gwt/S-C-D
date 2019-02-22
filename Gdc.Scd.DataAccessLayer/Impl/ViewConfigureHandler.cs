@@ -21,6 +21,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly CombinedViewInfo[] combinedViewInfos;
 
+        public bool IsAlterView { get; set; }
+
         public ViewConfigureHandler(IRepositorySet repositorySet)
         {
             this.repositorySet = repositorySet;
@@ -52,9 +54,20 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         void IConfigureDatabaseHandler.Handle()
         {
+            Action<CombinedViewInfo> action;
+
+            if (this.IsAlterView)
+            {
+                action = viewInfo => this.CreateCombinedView<AlterViewSqlBuilder>(viewInfo);
+            }
+            else
+            {
+                action = viewInfo => this.CreateCombinedView<CreateViewSqlBuilder>(viewInfo);
+            }
+
             foreach (var viewInfo in this.combinedViewInfos)
             {
-                this.CreateCombinedView(viewInfo);
+                action(viewInfo);
             }
         }
 
@@ -102,7 +115,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return combinedMetas.Concat(referenceMetas.Values);
         }
 
-        private void CreateCombinedView(CombinedViewInfo viewInfo)
+        private void CreateCombinedView<T>(CombinedViewInfo viewInfo)
+            where T : BaseViewSqlBuilder, new()
         {
             var combinedEntityInfo = MetaHelper.GetEntityInfo(viewInfo.CombinedType);
             var combineEntity = new EntityMeta(combinedEntityInfo.Name, combinedEntityInfo.Schema);
@@ -110,7 +124,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             combineEntity.Fields.Add(new IdFieldMeta());
 
             var columnWithSpaces = new List<ISqlBuilder>();
-            var lastIndex = viewInfo.ReferenceInfos.Length - 1;
+
+            ISqlBuilder prevColumn = null;
 
             for (var index = 0; index < viewInfo.ReferenceInfos.Length; index++)
             {
@@ -125,24 +140,29 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     Table = meta.Name
                 };
 
-                columnWithSpaces.Add(new BracketsSqlBuilder
-                {
-                    Query = new CaseSqlBuilder
-                    {
-                        Input = column,
-                        Cases = new []
+                columnWithSpaces.Add(
+                    index == 0
+                        ? (ISqlBuilder)column
+                        : new BracketsSqlBuilder
                         {
-                            new CaseItem
+                            Query = new CaseSqlBuilder
                             {
-                                When = new StringValueSqlBuilder(MetaConstants.NoneValue),
-                                Then = new StringValueSqlBuilder("")
+                                Cases = new[]
+                                {
+                                    new CaseItem
+                                    {
+                                        When = 
+                                            SqlOperators.Equals(prevColumn, new StringValueSqlBuilder(MetaConstants.NoneValue))
+                                                        .And(SqlOperators.Equals(column, new StringValueSqlBuilder(MetaConstants.NoneValue)))
+                                                        .ToSqlBuilder(),
+                                        Then = new StringValueSqlBuilder("")
+                                    }
+                                },
+                                Else = SqlOperators.Add(new StringValueSqlBuilder(" "), column).ToSqlBuilder()
                             }
-                        },
-                        Else = index < lastIndex 
-                            ? SqlOperators.Add(column, new StringValueSqlBuilder(" ")).ToSqlBuilder() 
-                            : column
-                    }
-                });
+                        });
+
+                prevColumn = column;
             }
 
             var idColumn = new ColumnInfo(IdFieldMeta.DefaultId, combineEntity.Name, IdFieldMeta.DefaultId);
@@ -168,33 +188,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 query = query.Join(combineEntity, referenceInfo.ForeignColumn);
             }
 
-            var columns = innerColumns.Select(
-                column =>
-                    column == nameColumn
-                        ? new QueryColumnInfo
-                        {
-                            Alias = nameColumn.Alias,
-                            Query = new CaseSqlBuilder
-                            {
-                                Input = new ColumnSqlBuilder(nameColumn.Alias),
-                                Cases = new[]
-                                {
-                                    new CaseItem
-                                    {
-                                        When = new StringValueSqlBuilder(""),
-                                        Then = new StringValueSqlBuilder(MetaConstants.NoneValue)
-                                    }
-                                },
-                                Else = new ColumnSqlBuilder(nameColumn.Alias)
-                            }
-                        }
-                        : new ColumnInfo(column.Alias) as BaseColumnInfo);
-
-            var createViewQuery = new CreateViewSqlBuilder
+            var createViewQuery = new T
             {
                 Shema = MetaConstants.DependencySchema,
                 Name = viewInfo.ViewName,
-                Query = Sql.Select(columns.ToArray()).FromQuery(query, "t").ToSqlBuilder()
+                Query = query.ToSqlBuilder()
             };
 
             this.repositorySet.ExecuteSql(new SqlHelper(createViewQuery));

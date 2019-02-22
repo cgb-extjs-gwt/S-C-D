@@ -106,8 +106,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                               .Select(attr => attr as TableAttribute)
                               .FirstOrDefault(attr => attr != null);
 
-                    yield return Sql.AddDefault(tableAttr.Name, nameof(IDeactivatable.CreatedDateTime), this.GetDefaultExpresstion(), tableAttr.Schema).ToSql();
-                    yield return Sql.AddDefault(tableAttr.Name, nameof(IDeactivatable.ModifiedDateTime), this.GetDefaultExpresstion(), tableAttr.Schema).ToSql();
+                    yield return Sql.AddDefault(tableAttr.Name, nameof(IDeactivatable.CreatedDateTime), this.GetDefaultExpresstion(), tableAttr.Schema).ToQueryData().Sql;
+                    yield return Sql.AddDefault(tableAttr.Name, nameof(IDeactivatable.ModifiedDateTime), this.GetDefaultExpresstion(), tableAttr.Schema).ToQueryData().Sql;
                 }
             }
         }

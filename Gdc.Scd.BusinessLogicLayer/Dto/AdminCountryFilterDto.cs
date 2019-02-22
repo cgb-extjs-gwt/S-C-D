@@ -4,6 +4,7 @@
     {
         public string Country { get; set; }
         public long? Group {get;set;}
+        public long? Region { get; set; }
 
         public string Lut {get;set;}
         public string Digit {get;set;}

@@ -199,7 +199,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             var userCountries = this.userService.GetCurrentUserCountries();
             var costBlockFilter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries).Convert();
-            var referenceFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(referenceField.ReferenceMeta);
+            var referenceFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(costBlockMeta, context.CostElementId, coordinateId);
 
             return
                 await this.GetCoordinateItems(costBlockMeta, referenceField.Name, costBlockFilter, referenceFilter);
@@ -364,7 +364,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             var userCountries = this.userService.GetCurrentUserCountries();
             var costBlockFilter = this.costBlockFilterBuilder.BuildRegionFilter(context, userCountries).Convert();
-            var coordinateFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(coordinateField.ReferenceMeta);
+            var coordinateFilter = this.costBlockFilterBuilder.BuildCoordinateItemsFilter(costBlockMeta, context.CostElementId, coordinateId);
 
             if (portfolioField == null)
             {

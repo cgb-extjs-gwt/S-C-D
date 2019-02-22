@@ -2,21 +2,19 @@
   DROP FUNCTION Report.SwServicePriceListDetail;
 go 
 
-CREATE FUNCTION Report.SwServicePriceListDetail
+CREATE FUNCTION [Report].[SwServicePriceListDetail]
 (
     @digit bigint,
     @av bigint,
     @year bigint
 )
 RETURNS @tbl TABLE (
-	Digit nvarchar(max) NULL
-	,SogDescription nvarchar(max) NULL
+	 LicenseDescription nvarchar(max) NULL
+	,License nvarchar(max) NULL
 	,Sog nvarchar(max) NULL
-	,Fsp2 nvarchar(max) NULL
 	,Fsp nvarchar(max) NULL
-	
-	,SpDescription nvarchar(max) NULL
-	,Sp nvarchar(max) NULL
+	,ServiceDescription nvarchar(max) NULL
+	,ServiceShortDescription nvarchar(max) NULL
 
 	,ServiceSupport float NULL
 	,Reinsurance float NULL
@@ -37,14 +35,13 @@ begin
 	if @year is not null insert into @yearList(id) select id from Portfolio.IntToListID(@year);
 
 	insert into @tbl
-    select    dig.Name as Digit
-            , sog.Description as SogDescription
+    select    lic.Description as LicenseDescription
+            , lic.Name as License
             , sog.Name as Sog
-            , null as Fsp2
             , fsp.Name as Fsp
 
-            , fsp.ServiceDescription as SpDescription
-            , null as Sp
+            , fsp.ServiceDescription as ServiceDescription
+            , fsp.ShortDescription as ServiceShortDescription
 
             , sw.ServiceSupport as ServiceSupport
             , sw.Reinsurance as Reinsurance
@@ -56,6 +53,8 @@ begin
     from SoftwareSolution.GetCosts(1, @digitList, @avList, @yearList, -1, -1) sw
     join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
     join InputAtoms.Sog sog on sog.id = sw.Sog
+	left join InputAtoms.SwDigitLicense diglic on dig.Id = diglic.SwDigitId
+	left join InputAtoms.SwLicense lic on lic.Id = diglic.SwLicenseId
     left join Fsp.SwFspCodeTranslation fsp on fsp.AvailabilityId = sw.Availability
                                           and fsp.DurationId = sw.Year
                                           and fsp.SogId = sw.Sog
@@ -69,30 +68,38 @@ declare @index int = 0;
 delete from Report.ReportColumn where ReportId = @reportId;
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Digit', 'SW Product Order no.', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 
+(select top(1) Id from [Report].[ReportColumnType] where [Name] = 'text'), 'LicenseDescription', 'Software Product', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SogDescription', 'Infrastructure Solution', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 
+(select top(1) Id from [Report].[ReportColumnType] where [Name] = 'text'), 'License', 'SW Product Order no.', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Fsp2', 'SW Product Order no.', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 
+(select top(1) Id from [Report].[ReportColumnType] where [Name] = 'text'), 'Sog', 'Service Offering Group', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Sog', 'Service Offering Group', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 
+(select top(1) Id from [Report].[ReportColumnType] where [Name] = 'text'), 'Fsp', 'SW Service Product no.', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Fsp', 'SW Service Product no.', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 
+(select top(1) Id from [Report].[ReportColumnType] where [Name] = 'text'), 'ServiceDescription', 'SW Service Description', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SpDescription', 'SW Service Description', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 
+(select top(1) Id from [Report].[ReportColumnType] where [Name] = 'text'), 'ServiceShortDescription', 'SW Service Short Description', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Sp', 'SW Service Short Description', 1, 1);
-
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 
+(select top(1) Id from [Report].[ReportColumnType] where [Name] = 'euro'), 'ServiceSupport', 'SW Service Support cost', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ServiceSupport', 'Technical Solution Support cost', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 
+(select top(1) Id from [Report].[ReportColumnType] where [Name] = 'euro'), 'Reinsurance', 'Reinsurance', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'Reinsurance', 'Reinsurance', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 
+(select top(1) Id from [Report].[ReportColumnType] where [Name] = 'euro'), 'TP', 'Transfer Price', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'TP', 'Transfer Price', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 
+(select top(1) Id from [Report].[ReportColumnType] where [Name] = 'euro'), 'DealerPrice', 'Dealer Price (Central Reference)', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'DealerPrice', 'Dealer Price (Central Reference)', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'ListPrice', 'List Price (Central Reference)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 
+(select top(1) Id from [Report].[ReportColumnType] where [Name] = 'euro'), 'ListPrice', 'List Price (Central Reference)', 1, 1);
 
 set @index = 0;
 
@@ -101,9 +108,9 @@ delete from Report.ReportFilter where ReportId = @reportId;
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit' and MultiSelect=0), 'digit', 'SW digit');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 8, 'av', 'Availability');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'availability' and MultiSelect=0), 'av', 'Availability');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 13, 'year', 'Year');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'year' and MultiSelect=0), 'year', 'Year');
 
 GO
 

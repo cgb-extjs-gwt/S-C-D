@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
+﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 {
-    public class UnionSqlHelper : OffsetFetchSqlHelper, IUnionSqlHelper<OffsetFetchSqlHelper>
+    public class UnionSqlHelper : SqlHelper, IUnionSqlHelper<UnionSqlHelper>
     {
         public UnionSqlHelper(ISqlBuilder sqlBuilder) 
             : base(sqlBuilder)
         {
         }
 
-        public OffsetFetchSqlHelper Union(ISqlBuilder query, bool all = false)
+        public UnionSqlHelper Union(ISqlBuilder query, bool all = false)
         {
-            return new OffsetFetchSqlHelper(new UnionSqlBuilder
+            return new UnionSqlHelper(new UnionSqlBuilder
             {
                 All = all,
                 Query1 = this.ToSqlBuilder(),
@@ -23,7 +20,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             });
         }
 
-        public OffsetFetchSqlHelper Union(SqlHelper query, bool all = false)
+        public UnionSqlHelper Union(SqlHelper query, bool all = false)
         {
             return this.Union(query.ToSqlBuilder(), all);
         }

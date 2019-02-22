@@ -48,6 +48,10 @@ export class FakeDictService implements IDictService {
         throw new Error("Method not implemented.");
     }
 
+    public getRegions(): Promise<NamedId[]> {
+        throw new Error("Method not implemented.");
+    }
+
     public getCountryGroupIsoCode(): Promise<NamedId<string>[]> {
         throw new Error("Method not implemented.");
     }

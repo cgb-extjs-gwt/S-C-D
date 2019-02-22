@@ -288,7 +288,6 @@
           <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel>Country</InputLevel>
-            <InputLevel>Pla</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -303,7 +302,6 @@
           <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel>Country</InputLevel>
-            <InputLevel>Pla</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -318,7 +316,6 @@
           <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel>Country</InputLevel>
-            <InputLevel>Pla</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -332,7 +329,6 @@
         <Element Name="AverageContractDuration" Caption="Average contract duration" InputOption="Manually">
           <InputLevels>
             <InputLevel>Country</InputLevel>
-            <InputLevel>Pla</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -345,7 +341,7 @@
         </Element>
         <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="AutomaticallyReadonly" RegionInput="_none_">
           <InputLevels>
-            <InputLevel>Pla</InputLevel>
+            <InputLevel Hide="True">Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
           <CostEditor>
@@ -357,7 +353,7 @@
         </Element>
         <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="AutomaticallyReadonly" RegionInput="_none_">
           <InputLevels>
-            <InputLevel>Pla</InputLevel>
+            <InputLevel Hide="True">Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
           <CostEditor>
@@ -369,7 +365,7 @@
         </Element>
         <Element Name="MaxQty" Caption="MaxQty" InputOption="AutomaticallyReadonly" RegionInput="_none_">
           <InputLevels>
-            <InputLevel>Pla</InputLevel>
+            <InputLevel Hide="True">Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
           <CostEditor>
@@ -382,7 +378,7 @@
         <Element Name="JapanBuy" Caption="Japan Buy" InputOption="Manually">
           <TypeOption Type="Flag"/>
           <InputLevels>
-            <InputLevel>Pla</InputLevel>
+            <InputLevel Hide="True">Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
           <CostEditor>
@@ -419,7 +415,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="MarkupFactor" Caption="Markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+        <Element Name="MarkupFactor" Caption="Markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
           <TypeOption Type="Percent"/>
           <CostEditor>
             <Roles>
@@ -429,7 +425,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+        <Element Name="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
           <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
@@ -468,12 +464,12 @@
       </Elements>
     </Block>
 
-    <Block Name="MarkupStandardWaranty" Caption="Markup standard waranty">
+    <Block Name="MarkupStandardWaranty" Caption="Markup standard warranty">
       <Applications>
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+        <Element Name="MarkupFactorStandardWarranty" Caption="Markup factor for standard warranty local cost (%)" InputOption="Manually">
           <TypeOption Type="Percent"/>
           <CostEditor>
             <Roles>
@@ -483,7 +479,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="MarkupStandardWarranty" Caption="Markup for standard warranty local cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+        <Element Name="MarkupStandardWarranty" Caption="Markup for standard warranty local cost" InputOption="Manually">
           <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>

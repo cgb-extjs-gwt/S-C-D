@@ -140,15 +140,19 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             var countHistoryQuery = Sql.Select(SqlFunctions.Count()).FromQuery(historyQuery, "t");
 
-            var count = await this.repositorySet.ExecuteScalarAsync<int>(countHistoryQuery.ToSql(), countHistoryQuery.GetParameters());
+            var queryData = countHistoryQuery.ToQueryData();
+            var count = await this.repositorySet.ExecuteScalarAsync<int>(queryData.Sql, queryData.Parameters);
 
-            var historyItems = await this.repositorySet.ReadBySql(historyQuery.WithRownumPaging(queryInfo), reader => new HistoryItemDto
-                                {
-                                    Value = reader.GetValue(0),
-                                    EditDate = reader.GetDateTime(1),
-                                    EditUserId = reader.GetInt64(2),
-                                    EditUserName = reader.GetString(3)
-                                });
+            var historyItems = 
+                await this.repositorySet.ReadBySql(
+                    historyQuery.ByQueryInfo(queryInfo), 
+                    reader => new HistoryItemDto
+                    {
+                        Value = reader.GetValue(0),
+                        EditDate = reader.GetDateTime(1),
+                        EditUserId = reader.GetInt64(2),
+                        EditUserName = reader.GetString(3)
+                    });
 
             return new DataInfo<HistoryItemDto>
             {

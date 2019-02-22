@@ -14,10 +14,15 @@ namespace Gdc.Scd.DataAccessLayer.Entities
         {
         }
 
+        public CommandParameterInfo(object value)
+        {
+            this.Value = value;
+        }
+
         public CommandParameterInfo(string name, object value)
+            : this(value)
         {
             this.Name = name;
-            this.Value = value;
         }
     }
 }
