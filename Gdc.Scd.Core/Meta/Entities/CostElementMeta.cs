@@ -11,6 +11,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public MetaCollection<InputLevelMetaInfo<InputLevelMeta>> InputLevelMetaInfos { get; set; }
 
+        public bool IncludeDisabledDependcyItems { get; set; }
+
         public override IEnumerable<InputLevelMeta> InputLevels => this.InputLevelMetaInfos.Select(inputLevelInfo => inputLevelInfo.InputLevel);
 
         public IEnumerable<InputLevelMeta> SortInputLevel()

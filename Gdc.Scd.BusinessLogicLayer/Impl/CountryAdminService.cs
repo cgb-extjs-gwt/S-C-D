@@ -36,6 +36,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 countries = countries.WhereIf(filter.Country != null, x => x.Name == filter.Country)
                                      .WhereIf(filter.Group.HasValue, x => x.CountryGroupId == filter.Group.Value)
+                                     .WhereIf(filter.Region.HasValue, x => x.RegionId == filter.Region.Value)
                                      .WhereIf(filter.Lut != null, x => x.CountryGroup.LUTCode == filter.Lut)
                                      .WhereIf(filter.Digit != null, x => x.CountryGroup.CountryDigit == filter.Digit)
                                      .WhereIf(filter.Iso != null, x => x.ISO3CountryCode == filter.Iso)
@@ -61,7 +62,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IsMaster = c.IsMaster,
                 QualityGroup = c.QualityGateGroup ?? string.Empty,
                 Currency = c.Currency.Name,
-                CountryId = c.Id
+                CountryId = c.Id,
+                Region = c.Region.Name
             }).OrderBy(x => x.CountryName).ToList();
         }
 

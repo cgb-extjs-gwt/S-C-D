@@ -10,6 +10,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         IDictionary<string, long[]> BuildCoordinateFilter(CostEditorContext context);
 
+        IDictionary<string, IEnumerable<object>> BuildCoordinateItemsFilter(CostBlockEntityMeta costBlockMeta, string costElementId, string coordinateId);
+
         IDictionary<string, IEnumerable<object>> BuildCoordinateItemsFilter(BaseEntityMeta coordinateMeta);
 
         IDictionary<string, long[]> BuildFilter(CostEditorContext context, IEnumerable<Country> userCountries = null);
