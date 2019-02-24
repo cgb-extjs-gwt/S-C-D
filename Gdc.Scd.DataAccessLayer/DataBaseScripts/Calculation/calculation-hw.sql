@@ -1463,9 +1463,9 @@ CREATE VIEW [Hardware].[ReinsuranceView] as
            rta.AvailabilityId, 
            rta.ReactionTimeId,
 
-           r.ReinsuranceFlatfee * r.ReinsuranceUpliftFactor / 100 / er.Value as Cost,
+           r.ReinsuranceFlatfee * coalesce(r.ReinsuranceUpliftFactor / 100, 1) / er.Value as Cost,
 
-           r.ReinsuranceFlatfee_Approved * r.ReinsuranceUpliftFactor_Approved / 100 / er2.Value as Cost_Approved
+           r.ReinsuranceFlatfee_Approved * coalesce(r.ReinsuranceUpliftFactor_Approved / 100, 1) / er2.Value as Cost_Approved
 
     FROM Hardware.Reinsurance r
     JOIN Dependencies.ReactionTime_Avalability rta on rta.Id = r.ReactionTimeAvailability
@@ -2083,12 +2083,12 @@ RETURN
     )
     , CostCte6 as (
         select m.*
-                , m.ServiceTP1  - m.OtherDirect1  as ServiceTC1
-                , m.ServiceTP2  - m.OtherDirect2  as ServiceTC2
-                , m.ServiceTP3  - m.OtherDirect3  as ServiceTC3
-                , m.ServiceTP4  - m.OtherDirect4  as ServiceTC4
-                , m.ServiceTP5  - m.OtherDirect5  as ServiceTC5
-                , m.ServiceTP1P - m.OtherDirect1P as ServiceTC1P
+                , case when m.ServiceTP1  < m.OtherDirect1  then 0 else m.ServiceTP1  - m.OtherDirect1  end as ServiceTC1
+                , case when m.ServiceTP2  < m.OtherDirect2  then 0 else m.ServiceTP2  - m.OtherDirect2  end as ServiceTC2
+                , case when m.ServiceTP3  < m.OtherDirect3  then 0 else m.ServiceTP3  - m.OtherDirect3  end as ServiceTC3
+                , case when m.ServiceTP4  < m.OtherDirect4  then 0 else m.ServiceTP4  - m.OtherDirect4  end as ServiceTC4
+                , case when m.ServiceTP5  < m.OtherDirect5  then 0 else m.ServiceTP5  - m.OtherDirect5  end as ServiceTC5
+                , case when m.ServiceTP1P < m.OtherDirect1P then 0 else m.ServiceTP1P - m.OtherDirect1P end as ServiceTC1P
         from CostCte5 m
     )    
     select m.Id
