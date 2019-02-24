@@ -92,7 +92,7 @@ RETURN (
             , m.Availability
             , m.ProActiveSla
 
-            , Hardware.CalcByDur(m.Year, m.IsProlongation, m.mat1, m.mat2, m.mat3, m.mat4, m.mat5, 0) as MaterialW
+            , m.mat1 + m.mat2 + m.mat3 + m.mat4 + m.mat5 as MaterialW
 
             , m.MaterialCostWarranty
 

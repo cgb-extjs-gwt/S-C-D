@@ -31,22 +31,56 @@ SELECT
 	[Pla],
 	[CentralContractGroup],
 	[Wg],
+	--(
+	--	IIF(
+	--		[MarkupFactorStandardWarranty_Count] > 1, 
+	--		IIF([MarkupFactorStandardWarranty_Approved_Count] = 1, [MarkupFactorStandardWarranty_Approved], NULL), 
+	--		[MarkupFactorStandardWarranty])
+	--)	
+	--AS [MarkupFactorStandardWarranty],
 	(
-		IIF(
-			[MarkupFactorStandardWarranty_Count] > 1, 
-			IIF([MarkupFactorStandardWarranty_Approved_Count] = 1, [MarkupFactorStandardWarranty_Approved], NULL), 
-			[MarkupFactorStandardWarranty])
-	)	
+		CASE
+			WHEN [MarkupFactorStandardWarranty_Count] > 1 
+			THEN 
+				CASE
+					WHEN [MarkupFactorStandardWarranty_Approved_Count] = 1 THEN [MarkupFactorStandardWarranty_Approved] ELSE NULL
+				END
+			ELSE [MarkupFactorStandardWarranty]
+		END
+	)
 	AS [MarkupFactorStandardWarranty],
-	IIF([MarkupFactorStandardWarranty_Approved_Count] > 1, NULL, [MarkupFactorStandardWarranty_Approved]) AS [MarkupFactorStandardWarranty_Approved],
+	--IIF([MarkupFactorStandardWarranty_Approved_Count] > 1, NULL, [MarkupFactorStandardWarranty_Approved]) AS [MarkupFactorStandardWarranty_Approved],
 	(
-		IIF(
-			[MarkupStandardWarranty_Count] > 1, 
-			IIF([MarkupStandardWarranty_Approved_Count]	= 1, [MarkupStandardWarranty_Approved], NULL), 
-			[MarkupStandardWarranty])
+		CASE 
+			WHEN [MarkupFactorStandardWarranty_Approved_Count] > 1 THEN NULL ELSE [MarkupFactorStandardWarranty_Approved]
+		END
+	)
+	AS [MarkupFactorStandardWarranty_Approved],
+	--(
+	--	IIF(
+	--		[MarkupStandardWarranty_Count] > 1, 
+	--		IIF([MarkupStandardWarranty_Approved_Count]	= 1, [MarkupStandardWarranty_Approved], NULL), 
+	--		[MarkupStandardWarranty])
+	--) 
+	--AS [MarkupStandardWarranty],
+	(
+		CASE
+			WHEN [MarkupStandardWarranty_Count] > 1 
+			THEN
+				CASE
+					WHEN [MarkupStandardWarranty_Approved_Count] = 1 THEN [MarkupStandardWarranty_Approved] ELSE NULL
+				END
+			ELSE [MarkupStandardWarranty]
+		END
 	) 
 	AS [MarkupStandardWarranty],
-	IIF([MarkupStandardWarranty_Approved_Count]	> 1, NULL, [MarkupStandardWarranty_Approved]) AS [MarkupStandardWarranty_Approved],
+	--IIF([MarkupStandardWarranty_Approved_Count]	> 1, NULL, [MarkupStandardWarranty_Approved]) AS [MarkupStandardWarranty_Approved],
+	(
+		CASE
+			WHEN [MarkupStandardWarranty_Approved_Count] > 1 THEN NULL ELSE [MarkupStandardWarranty_Approved]
+		END
+	)
+	AS [MarkupStandardWarranty_Approved],
 	[CreatedDateTime],
 	[DeactivatedDateTime]
 FROM
