@@ -42,8 +42,9 @@ RETURN
 END
 GO
 
-CREATE FUNCTION [Report].[GetCostsFull](
-  @cnt bigint,
+CREATE FUNCTION [Report].[GetCosts]
+(
+    @cnt bigint,
     @wg bigint,
     @av bigint,
     @dur bigint,
@@ -53,82 +54,71 @@ CREATE FUNCTION [Report].[GetCostsFull](
     @pro bigint
 )
 RETURNS @tbl TABLE (
-           Fsp nvarchar(max) NULL
-         , FspDescription nvarchar(max) NULL
-           
-         , Id bigint NOT NULL
-           
-         , CountryId bigint NOT NULL
-         , Country nvarchar(max) NULL
-         , WgId bigint NOT NULL
-         , Wg nvarchar(max) NULL
-         , AvailabilityId bigint NOT NULL
-         , Availability nvarchar(max) NULL
-         , DurationId bigint NOT NULL
-         , Duration nvarchar(max) NULL
-         , Year int NOT NULL
-         , IsProlongation bit NOT NULL
-         , ReactionTimeId bigint NOT NULL
-         , ReactionTime nvarchar(max) NULL
-         , ReactionTypeId bigint NOT NULL
-         , ReactionType nvarchar(max) NULL
-         , ServiceLocationId bigint NOT NULL
-         , ServiceLocation nvarchar(max) NULL
-         , ProActiveSlaId bigint NOT NULL
-         , ProActiveSla nvarchar(max) NULL
-           
-         , StdWarranty int NULL
-           
-         --Cost
-           
-         , AvailabilityFee float NULL
-         , TaxAndDutiesW float NULL
-         , TaxAndDutiesOow float NULL
-         , Reinsurance float NULL
-         , ProActive float NULL
-         , ServiceSupportCost float NULL
-           
-         , MaterialW float NULL
-         , MaterialOow float NULL
-         , FieldServiceCost float NULL
-         , Logistic float NULL
-         , OtherDirect float NULL
-         
-         , LocalServiceStandardWarranty float NULL
-         
-         , Credits float NULL
-
-         , ServiceTC float NULL
-         , ServiceTP float NULL
-
-         , ServiceTC1 float NULL
-         , ServiceTC2 float NULL
-         , ServiceTC3 float NULL
-         , ServiceTC4 float NULL
-         , ServiceTC5 float NULL
-         , ServiceTC1P float NULL
-           
-         , ServiceTP1 float NULL
-         , ServiceTP2 float NULL
-         , ServiceTP3 float NULL
-         , ServiceTP4 float NULL
-         , ServiceTP5 float NULL
-         , ServiceTP1P float NULL
-           
-         , ListPrice float NULL
-         , DealerDiscount float NULL
-         , DealerPrice float NULL
-         , ServiceTCManual float NULL
-         , ServiceTPManual float NULL
-         , ChangeUserName nvarchar(max) NULL
-         , ChangeUserEmail nvarchar(max) NULL
-           
-         , ServiceTP_Released float NULL
-           
-         , SlaHash int NOT NULL
-) 
+           Id                                bigint
+         , Fsp                               nvarchar(255)
+         , FspDescription                    nvarchar(255)
+         , CountryId                         bigint
+         , Country                           nvarchar(255)
+         , CurrencyId                        bigint
+         , ExchangeRate                      float
+         , WgId                              bigint
+         , Wg                                nvarchar(255)
+         , AvailabilityId                    bigint
+         , Availability                      nvarchar(255)
+         , DurationId                        bigint
+         , Duration                          nvarchar(255)
+         , Year                              int
+         , IsProlongation                    bit
+         , ReactionTimeId                    bigint
+         , ReactionTime                      nvarchar(255)
+         , ReactionTypeId                    bigint
+         , ReactionType                      nvarchar(255)
+         , ServiceLocationId                 bigint
+         , ServiceLocation                   nvarchar(255)
+         , ProActiveSlaId                    bigint
+         , ProActiveSla                      nvarchar(255)
+         , Sla                               nvarchar(255)
+         , SlaHash                           int
+         , StdWarranty                       float
+         , AvailabilityFee                   float
+         , TaxAndDutiesW                     float
+         , TaxAndDutiesOow                   float
+         , Reinsurance                       float
+         , ProActive                         float
+         , ServiceSupportCost                float
+         , MaterialW                         float
+         , MaterialOow                       float
+         , FieldServiceCost                  float
+         , Logistic                          float
+         , OtherDirect                       float
+         , LocalServiceStandardWarranty      float
+         , Credits                           float
+         , ServiceTC                         float
+         , ServiceTP                         float
+         , ServiceTC1                        float
+         , ServiceTC2                        float
+         , ServiceTC3                        float
+         , ServiceTC4                        float
+         , ServiceTC5                        float
+         , ServiceTC1P                       float
+         , ServiceTP1                        float
+         , ServiceTP2                        float
+         , ServiceTP3                        float
+         , ServiceTP4                        float
+         , ServiceTP5                        float
+         , ServiceTP1P                       float
+         , ListPrice                         float
+         , DealerDiscount                    float
+         , DealerPrice                       float
+         , ServiceTCManual                   float
+         , ServiceTPManual                   float
+         , ServiceTP_Released                float
+         , ChangeUserName                    nvarchar(255)
+         , ChangeUserEmail                   nvarchar(255)
+)
 AS
 begin
+
     declare @cntTable dbo.ListId;
     if @cnt is not null insert into @cntTable(id) values(@cnt);
 
@@ -152,95 +142,84 @@ begin
 
     declare @proTable dbo.ListId;
     if @pro is not null insert into @proTable(id) values(@pro);
-
+    
     insert into @tbl
     select 
-           fsp.Name as Fsp
+           m.Id
+         , fsp.Name as Fsp
          , fsp.ServiceDescription as FspDescription
+         , m.CountryId
+         , m.Country
+         , m.CurrencyId
+         , m.ExchangeRate
+         , m.WgId
+         , m.Wg
+         , m.AvailabilityId
+         , m.Availability
+         , m.DurationId
+         , m.Duration
+         , m.Year
+         , m.IsProlongation
+         , m.ReactionTimeId
+         , m.ReactionTime
+         , m.ReactionTypeId
+         , m.ReactionType
+         , m.ServiceLocationId
+         , m.ServiceLocation
+         , m.ProActiveSlaId
+         , m.ProActiveSla
+         , m.Sla
+         , m.SlaHash
 
-         ,m.*
+         , m.StdWarranty
+         , m.AvailabilityFee
+         , m.TaxAndDutiesW
+         , m.TaxAndDutiesOow
+         , m.Reinsurance
+         , m.ProActive
+         , m.ServiceSupportCost
 
-    FROM Hardware.GetCostsFull(1, @cntTable, @wgTable, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable, 0, -1) m
-    LEFT JOIN Fsp.HwFspCodeTranslation fsp  on fsp.SlaHash = m.SlaHash 
-                                           and fsp.CountryId = m.CountryId
-                                           and fsp.WgId = m.WgId
-                                           and fsp.AvailabilityId = m.AvailabilityId
-                                           and fsp.DurationId= m.DurationId
-                                           and fsp.ReactionTimeId = m.ReactionTimeId
-                                           and fsp.ReactionTypeId = m.ReactionTypeId
-                                           and fsp.ServiceLocationId = m.ServiceLocationId
-                                           and fsp.ProactiveSlaId = m.ProActiveSlaId
+         , m.MaterialW
+         , m.MaterialOow
+         , m.FieldServiceCost
+         , m.Logistic
+         , m.OtherDirect
+         
+         , m.LocalServiceStandardWarranty
+         
+         , m.Credits
 
-return
+         , m.ServiceTC
+         , m.ServiceTP
 
+         , m.ServiceTC1
+         , m.ServiceTC2
+         , m.ServiceTC3
+         , m.ServiceTC4
+         , m.ServiceTC5
+         , m.ServiceTC1P
+
+         , m.ServiceTP1
+         , m.ServiceTP2
+         , m.ServiceTP3
+         , m.ServiceTP4
+         , m.ServiceTP5
+         , m.ServiceTP1P
+
+         , m.ListPrice
+         , m.DealerDiscount
+         , m.DealerPrice
+         , m.ServiceTCManual
+         , m.ServiceTPManual
+         , m.ServiceTP_Released
+
+         , m.ChangeUserName
+         , m.ChangeUserEmail
+
+    from Hardware.GetCosts(1, @cntTable, @wgTable, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable, -1, -1) m
+    LEFT JOIN Fsp.HwFspCodeTranslation fsp  on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla 
+return;
 end
-
-go
-
-CREATE FUNCTION [Report].[GetCosts](
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
-    @reactiontime bigint,
-    @reactiontype bigint,
-    @loc bigint,
-    @pro bigint
-)
-RETURNS TABLE 
-AS
-RETURN 
-(
-    select Id
-
-         , Fsp
-         , FspDescription
-
-         , CountryId
-         , Country
-         , WgId
-         , Wg
-         , DurationId
-         , Duration
-         , Year
-         , IsProlongation
-         , AvailabilityId
-         , Availability
-         , ReactionTimeId
-         , ReactionTime
-         , ReactionTypeId
-         , ReactionType
-         , ServiceLocationId
-         , ServiceLocation
-         , ProActiveSlaId
-         , ProActiveSla
-
-         , AvailabilityFee
-         , TaxAndDutiesW
-         , TaxAndDutiesOow
-         , Reinsurance
-         , ProActive
-         , ServiceSupportCost
-
-         , MaterialW
-         , MaterialOow
-         , FieldServiceCost
-         , Logistic
-         , OtherDirect
-         , LocalServiceStandardWarranty
-         , Credits
-
-         , ListPrice
-         , DealerDiscount
-         , DealerPrice
-
-         , coalesce(ServiceTCManual, ServiceTC) ServiceTC
-         , coalesce(ServiceTPManual, ServiceTP) ServiceTP
-         , ServiceTP_Released
-
-    FROM Report.GetCostsFull(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
-)
-go
 
 IF OBJECT_ID('Report.GetReportColumnTypeByName') IS NOT NULL
   DROP FUNCTION Report.GetReportColumnTypeByName;

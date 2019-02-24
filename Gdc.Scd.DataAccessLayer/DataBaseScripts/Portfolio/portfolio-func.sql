@@ -180,37 +180,36 @@ RETURNS @tbl TABLE
             )
 AS
 BEGIN
-    insert into @tbl
-    select rownum, Id, CountryId, WgId, AvailabilityId, DurationId, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProActiveSlaId, Sla, SlaHash, ReactionTime_Avalability, ReactionTime_ReactionType, ReactionTime_ReactionType_Avalability
-    from (
-            select ROW_NUMBER() over(
-                        order by m.CountryId
-                                , m.WgId
-                                , m.AvailabilityId
-                                , m.DurationId
-                                , m.ReactionTimeId
-                                , m.ReactionTypeId
-                                , m.ServiceLocationId
-                                , m.ProActiveSlaId
-                    ) as rownum
-                    , m.*
-            from Portfolio.LocalPortfolio m
-            where  exists(select id from @cnt where id = m.CountryId)
-
-                   AND (not exists(select 1 from @wg           ) or exists(select 1 from @wg           where id = m.WgId              ))
-                   AND (not exists(select 1 from @av           ) or exists(select 1 from @av           where id = m.AvailabilityId    ))
-                   AND (not exists(select 1 from @dur          ) or exists(select 1 from @dur          where id = m.DurationId        ))
-                   AND (not exists(select 1 from @reactiontime ) or exists(select 1 from @reactiontime where id = m.ReactionTimeId    ))
-                   AND (not exists(select 1 from @reactiontype ) or exists(select 1 from @reactiontype where id = m.ReactionTypeId    ))
-                   AND (not exists(select 1 from @loc          ) or exists(select 1 from @loc          where id = m.ServiceLocationId ))
-                   AND (not exists(select 1 from @pro          ) or exists(select 1 from @pro          where id = m.ProActiveSlaId    ))
     
-    ) t
-    where rownum > @lastid and rownum <= @lastid + @limit;
+    if @limit > 0
+    begin
+        insert into @tbl
+        select rownum, Id, CountryId, WgId, AvailabilityId, DurationId, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProActiveSlaId, Sla, SlaHash, ReactionTime_Avalability, ReactionTime_ReactionType, ReactionTime_ReactionType_Avalability
+        from (
+                select ROW_NUMBER() over(
+                            order by m.CountryId
+                                    , m.WgId
+                                    , m.AvailabilityId
+                                    , m.DurationId
+                                    , m.ReactionTimeId
+                                    , m.ReactionTypeId
+                                    , m.ServiceLocationId
+                                    , m.ProActiveSlaId
+                        ) as rownum
+                        , m.*
+                from Portfolio.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m    
+        ) t
+        where rownum > @lastid and rownum <= @lastid + @limit;
+    end
+    else
+    begin
+        insert into @tbl 
+        select -1 as rownum, Id, CountryId, WgId, AvailabilityId, DurationId, ReactionTimeId, ReactionTypeId, ServiceLocationId, ProActiveSlaId, Sla, SlaHash, ReactionTime_Avalability, ReactionTime_ReactionType, ReactionTime_ReactionType_Avalability
+        from Portfolio.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
+    end 
 
     RETURN;
 END;
-
 go
 
 CREATE NONCLUSTERED INDEX [IX_LocalPortfolio_Country_Wg]
