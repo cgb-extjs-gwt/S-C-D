@@ -258,7 +258,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
 
     //TODO: Breaks editing
     if (column.dataIndex != null) {
-      columnOption.id = column.dataIndex.replace(/\./g, "");
+      columnOption.itemId = column.dataIndex.replace(/\./g, "");
     }
 
     if (column.flex) {
