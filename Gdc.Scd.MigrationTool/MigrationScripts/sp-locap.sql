@@ -185,3 +185,4 @@ BEGIN
     inner join InputAtoms.WgSogView sog on sog.Id = c.WgId
 
 END
+
