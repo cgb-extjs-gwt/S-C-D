@@ -54,6 +54,11 @@ join Dependencies.ReactionTime_ReactionType rtt on rtt.ReactionTimeId = p.Reacti
 join Dependencies.ReactionTime_ReactionType_Avalability rtta on rtta.AvailabilityId = p.AvailabilityId and rtta.ReactionTimeId = p.ReactionTimeId and rtta.ReactionTypeId = p.ReactionTypeId
 go
 
+ALTER TABLE Portfolio.LocalPortfolio ALTER column ReactionTime_Avalability bigint NOT NULL;
+ALTER TABLE Portfolio.LocalPortfolio ALTER column ReactionTime_ReactionType bigint NOT NULL;
+ALTER TABLE Portfolio.LocalPortfolio ALTER column ReactionTime_ReactionType_Avalability bigint NOT NULL;
+go
+
 DROP INDEX [IX_HwFspCodeTranslation_AvailabilityId] ON [Fsp].[HwFspCodeTranslation]
 GO
 DROP INDEX [IX_HwFspCodeTranslation_CountryId] ON [Fsp].[HwFspCodeTranslation]

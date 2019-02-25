@@ -60,9 +60,10 @@ join Dependencies.ReactionTime_ReactionType_Avalability rtta on rtta.Availabilit
 
 go
 
-alter table Hardware.TaxAndDuties drop column TaxAndDuties_norm;
-alter table Hardware.TaxAndDuties drop column TaxAndDuties_norm_Approved;
-GO
+ALTER TABLE Portfolio.LocalPortfolio ALTER column ReactionTime_Avalability bigint NOT NULL;
+ALTER TABLE Portfolio.LocalPortfolio ALTER column ReactionTime_ReactionType bigint NOT NULL;
+ALTER TABLE Portfolio.LocalPortfolio ALTER column ReactionTime_ReactionType_Avalability bigint NOT NULL;
+go
 
 alter table Hardware.TaxAndDuties
     add TaxAndDuties_norm          as (TaxAndDuties / 100)
@@ -106,10 +107,6 @@ IF OBJECT_ID('[Hardware].[MarkupOtherCostsView]', 'V') IS NOT NULL
     drop VIEW [Hardware].[MarkupOtherCostsView]
 GO
 
-alter table Hardware.Reinsurance drop column ReinsuranceFlatfee_norm;
-alter table Hardware.Reinsurance drop column ReinsuranceFlatfee_norm_Approved;
-GO
-
 alter table Hardware.Reinsurance
     add ReinsuranceFlatfee_norm          as (ReinsuranceFlatfee * coalesce(ReinsuranceUpliftFactor / 100, 1))
       , ReinsuranceFlatfee_norm_Approved as (ReinsuranceFlatfee_Approved * coalesce(ReinsuranceUpliftFactor_Approved / 100, 1))
@@ -141,9 +138,6 @@ GO
 alter table Hardware.FieldServiceCost
     add TimeAndMaterialShare_norm          as (TimeAndMaterialShare / 100)
       , TimeAndMaterialShare_norm_Approved as (TimeAndMaterialShare_Approved / 100)
-GO
-
-DROP INDEX [ix_Hardware_FieldServiceCost] ON [Hardware].[FieldServiceCost]
 GO
 
 CREATE NONCLUSTERED INDEX [ix_Hardware_FieldServiceCost] ON [Hardware].[FieldServiceCost] ([Country],[Wg],[ServiceLocation],[ReactionTimeType])
