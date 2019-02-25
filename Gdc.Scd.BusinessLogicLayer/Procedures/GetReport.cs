@@ -19,17 +19,36 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             _repo = repo;
         }
 
-        public async Task<Stream> ExecuteExcelAsync(ReportSchemaDto schema, string func, DbParameter[] parameters)
+        public Task<Stream> ExecuteExcelAsync(ReportSchemaDto schema, string func, DbParameter[] parameters)
         {
-            var writer = new ReportExcelWriter(schema);
-            var sql = SelectAllQuery(func, parameters);
-
-            await _repo.ReadBySql(sql, writer.WriteBody, parameters);
-
-            return writer.GetData();
+            if (IsProcedure(func))
+            {
+                return ExecuteExcelProcAsync(schema, func, parameters);
+            }
+            else
+            {
+                return ExecuteExcelFuncAsync(schema, func, parameters);
+            }
         }
 
-        public async Task<(string json, int total)> ExecuteJsonAsync(
+        public Task<(string json, int total)> ExecuteJsonAsync(
+                string func,
+                int start,
+                int limit,
+                DbParameter[] parameters
+            )
+        {
+            if (IsProcedure(func))
+            {
+                return ExecuteProcAsJsonAsync(func, start, limit, parameters);
+            }
+            else
+            {
+                return ExecuteFuncAsJsonAsync(func, start, limit, parameters);
+            }
+        }
+
+        public async Task<(string json, int total)> ExecuteFuncAsJsonAsync(
                 string func,
                 int start,
                 int limit,
@@ -63,6 +82,31 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             var total = GetTotal(parameters);
 
             return (json, total);
+        }
+
+        private async Task<Stream> ExecuteExcelFuncAsync(ReportSchemaDto schema, string func, DbParameter[] parameters)
+        {
+            var writer = new ReportExcelWriter(schema);
+            var sql = SelectAllQuery(func, parameters);
+
+            await _repo.ReadBySql(sql, writer.WriteBody, parameters);
+
+            return writer.GetData();
+        }
+
+        private async Task<Stream> ExecuteExcelProcAsync(ReportSchemaDto schema, string func, DbParameter[] parameters)
+        {
+            var writer = new ReportExcelWriter(schema);
+
+            parameters = Prepare(parameters, -1, -1);
+            await _repo.ExecuteProcAsync(func, writer.WriteBody, parameters);
+
+            return writer.GetData();
+        }
+
+        private static bool IsProcedure(string func)
+        {
+            return func.Contains(".sp"); //TODO: remove stub form exec procedure
         }
 
         private static string CountQuery(string func, DbParameter[] parameters)
