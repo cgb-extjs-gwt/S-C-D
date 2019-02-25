@@ -97,7 +97,12 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
         return (
             <Container layout="fit">
 
-                <HddCostFilter ref={x => this.filter = x} docked="right" onSearch={this.onSearch} onDownload={this.onDownload} scrollable={true} />
+                <HddCostFilter
+                    ref={x => this.filter = x}
+                    docked="right"
+                    onSearch={this.onSearch}
+                    onDownload={this.onDownload}
+                    scrollable={true} />
 
                 <Grid
                     store={this.store}
@@ -175,7 +180,8 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onDownload(filter: HddCostFilterModel & any) {
-        ExportService.Download('HDD-RETENTION-CALC-RESULT', this.props.approved, {});
+        filter = filter || {};
+        ExportService.Download('HDD-RETENTION-CALC-RESULT', this.props.approved, filter);
     }
 
     private onBeforeLoad(s, operation) {
