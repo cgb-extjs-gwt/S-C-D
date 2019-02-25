@@ -47,6 +47,7 @@ namespace Gdc.Scd.Import.Por
             Bind<IPorSwProActiveService>().To<PorSwProActiveService>();
             Bind<ICostBlockService>().To<CostBlockService>();
             Bind<ICoordinateEntityMetaProvider>().To<CustomCoordinateMetaProvider>();
+            Bind<ICoordinateEntityMetaProvider>().To<ViewConfigureHandler>();
             //Comparators
             Bind(typeof(IEqualityComparer<>)).To(typeof(PorEqualityComparer<>));
 
