@@ -1,3 +1,24 @@
+CREATE TYPE [Portfolio].[Sla] AS TABLE(
+    [rownum] [int] NOT NULL,
+    [Id] [bigint] NOT NULL,
+    [CountryId] [bigint] NOT NULL,
+    [WgId] [bigint] NOT NULL,
+    [AvailabilityId] [bigint] NOT NULL,
+    [DurationId] [bigint] NOT NULL,
+    [ReactionTimeId] [bigint] NOT NULL,
+    [ReactionTypeId] [bigint] NOT NULL,
+    [ServiceLocationId] [bigint] NOT NULL,
+    [ProActiveSlaId] [bigint] NOT NULL,
+    [Sla] [nvarchar](255) NOT NULL,
+    [SlaHash] [int] NOT NULL,
+    [ReactionTime_Avalability] [bigint] NOT NULL,
+    [ReactionTime_ReactionType] [bigint] NOT NULL,
+    [ReactionTime_ReactionType_Avalability] [bigint] NOT NULL,
+    [Fsp] [nvarchar](255) NULL,
+    [FspDescription] [nvarchar](255) NULL
+)
+GO
+
 IF OBJECT_ID('Hardware.ManualCostView', 'V') IS NOT NULL
   DROP VIEW Hardware.ManualCostView;
 go
@@ -1716,7 +1737,6 @@ BEGIN
         order by Id
     end
 END
-
 go
 
 --######### REPORTS ###############

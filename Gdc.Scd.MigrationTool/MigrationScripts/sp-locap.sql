@@ -55,10 +55,7 @@ BEGIN
     join [References].Currency cur on cur.Id = m.CurrencyId
 
 END
-
-IF OBJECT_ID('Report.spLocapDetailed') IS NOT NULL
-  DROP PROCEDURE Report.spLocapDetailed;
-go 
+go
 
 IF OBJECT_ID('Report.spLocapDetailed') IS NOT NULL
   DROP PROCEDURE Report.spLocapDetailed;
@@ -132,9 +129,7 @@ BEGIN
 
 END
 
-IF OBJECT_ID('Report.spLocapGlobalSupport') IS NOT NULL
-  DROP PROCEDURE Report.spLocapGlobalSupport;
-go 
+go
 
 IF OBJECT_ID('Report.spLocapGlobalSupport') IS NOT NULL
   DROP PROCEDURE Report.spLocapGlobalSupport;
@@ -185,4 +180,4 @@ BEGIN
     inner join InputAtoms.WgSogView sog on sog.Id = c.WgId
 
 END
-
+go

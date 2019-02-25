@@ -33,13 +33,22 @@ CREATE VIEW InputAtoms.CountryView WITH SCHEMABINDING AS
 
 GO
 
+IF OBJECT_ID('Portfolio.IntToListID') IS NOT NULL
+  DROP FUNCTION Portfolio.IntToListID;
+go 
+
 CREATE FUNCTION Portfolio.IntToListID(@var bigint)
 RETURNS @tbl TABLE( id bigint NULL)
 AS
 BEGIN
-	insert @tbl(id) values (@var)
+    insert @tbl(id) values (@var)
 RETURN
 END
+GO
+
+
+IF OBJECT_ID('[Report].[GetCosts]') IS NOT NULL
+    DROP FUNCTION [Report].[GetCosts]
 GO
 
 CREATE FUNCTION [Report].[GetCosts]
@@ -119,108 +128,95 @@ RETURNS @tbl TABLE (
 AS
 begin
 
-    declare @cntTable dbo.ListId;
-    if @cnt is not null insert into @cntTable(id) values(@cnt);
-
-    declare @wgTable dbo.ListId;
-    if @wg is not null insert into @wgTable(id) values(@wg);
-
-    declare @avTable dbo.ListId;
-    if @av is not null insert into @avTable(id) values(@av);
-
-    declare @durTable dbo.ListId;
-    if @dur is not null insert into @durTable(id) values(@dur);
-
-    declare @rtimeTable dbo.ListId;
-    if @reactiontime is not null insert into @rtimeTable(id) values(@reactiontime);
-
-    declare @rtypeTable dbo.ListId;
-    if @reactiontype is not null insert into @rtypeTable(id) values(@reactiontype);
-
-    declare @locTable dbo.ListId;
-    if @loc is not null insert into @locTable(id) values(@loc);
-
-    declare @proTable dbo.ListId;
-    if @pro is not null insert into @proTable(id) values(@pro);
+    declare @sla Portfolio.Sla;
+    insert into @sla 
+        select -1 as rownum
+              , Id
+              , CountryId
+              , WgId
+              , AvailabilityId
+              , DurationId
+              , ReactionTimeId
+              , ReactionTypeId
+              , ServiceLocationId
+              , ProActiveSlaId
+              , Sla
+              , SlaHash
+              , ReactionTime_Avalability
+              , ReactionTime_ReactionType
+              , ReactionTime_ReactionType_Avalability
+              , m.Fsp
+              , m.FspDescription
+        from Portfolio.GetBySlaFspSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
     
-    insert into @tbl
+    insert into @tbl 
     select 
-           m.Id
-         , fsp.Name as Fsp
-         , fsp.ServiceDescription as FspDescription
-         , m.CountryId
-         , m.Country
-         , m.CurrencyId
-         , m.ExchangeRate
-         , m.WgId
-         , m.Wg
-         , m.AvailabilityId
-         , m.Availability
-         , m.DurationId
-         , m.Duration
-         , m.Year
-         , m.IsProlongation
-         , m.ReactionTimeId
-         , m.ReactionTime
-         , m.ReactionTypeId
-         , m.ReactionType
-         , m.ServiceLocationId
-         , m.ServiceLocation
-         , m.ProActiveSlaId
-         , m.ProActiveSla
-         , m.Sla
-         , m.SlaHash
-
-         , m.StdWarranty
-         , m.AvailabilityFee
-         , m.TaxAndDutiesW
-         , m.TaxAndDutiesOow
-         , m.Reinsurance
-         , m.ProActive
-         , m.ServiceSupportCost
-
-         , m.MaterialW
-         , m.MaterialOow
-         , m.FieldServiceCost
-         , m.Logistic
-         , m.OtherDirect
-         
-         , m.LocalServiceStandardWarranty
-         
-         , m.Credits
-
-         , m.ServiceTC
-         , m.ServiceTP
-
-         , m.ServiceTC1
-         , m.ServiceTC2
-         , m.ServiceTC3
-         , m.ServiceTC4
-         , m.ServiceTC5
-         , m.ServiceTC1P
-
-         , m.ServiceTP1
-         , m.ServiceTP2
-         , m.ServiceTP3
-         , m.ServiceTP4
-         , m.ServiceTP5
-         , m.ServiceTP1P
-
-         , m.ListPrice
-         , m.DealerDiscount
-         , m.DealerPrice
-         , m.ServiceTCManual
-         , m.ServiceTPManual
-         , m.ServiceTP_Released
-
-         , m.ChangeUserName
-         , m.ChangeUserEmail
-
-    from Hardware.GetCosts(1, @cntTable, @wgTable, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable, -1, -1) m
-    LEFT JOIN Fsp.HwFspCodeTranslation fsp  on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla 
-return;
+              Id                               
+            , Fsp                              
+            , FspDescription                   
+            , CountryId                        
+            , Country                          
+            , CurrencyId                       
+            , ExchangeRate                     
+            , WgId                             
+            , Wg                               
+            , AvailabilityId                   
+            , Availability                     
+            , DurationId                       
+            , Duration                         
+            , Year                             
+            , IsProlongation                   
+            , ReactionTimeId                   
+            , ReactionTime                     
+            , ReactionTypeId                   
+            , ReactionType                     
+            , ServiceLocationId                
+            , ServiceLocation                  
+            , ProActiveSlaId                   
+            , ProActiveSla                     
+            , Sla                              
+            , SlaHash                          
+            , StdWarranty                      
+            , AvailabilityFee                  
+            , TaxAndDutiesW                    
+            , TaxAndDutiesOow                  
+            , Reinsurance                      
+            , ProActive                        
+            , ServiceSupportCost               
+            , MaterialW                        
+            , MaterialOow                      
+            , FieldServiceCost                 
+            , Logistic                         
+            , OtherDirect                      
+            , LocalServiceStandardWarranty     
+            , Credits                          
+            , ServiceTC                        
+            , ServiceTP                        
+            , ServiceTC1                       
+            , ServiceTC2                       
+            , ServiceTC3                       
+            , ServiceTC4                       
+            , ServiceTC5                       
+            , ServiceTC1P                      
+            , ServiceTP1                       
+            , ServiceTP2                       
+            , ServiceTP3                       
+            , ServiceTP4                       
+            , ServiceTP5                       
+            , ServiceTP1P                      
+            , ListPrice                        
+            , DealerDiscount                   
+            , DealerPrice                      
+            , ServiceTCManual                  
+            , ServiceTPManual                  
+            , ServiceTP_Released               
+            , ChangeUserName                   
+            , ChangeUserEmail                  
+    from Hardware.GetCostsSla(1, @sla)
+    
+    return;
 end
-
+GO
 IF OBJECT_ID('Report.GetReportColumnTypeByName') IS NOT NULL
   DROP FUNCTION Report.GetReportColumnTypeByName;
 go 
