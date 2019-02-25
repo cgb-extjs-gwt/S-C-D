@@ -43,7 +43,7 @@ RETURN (
 
               , null as SparesAvailability
 
-        from Portfolio.GetBySla(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc, @pro) m
+        from Portfolio.GetBySlaSingle(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc, @pro) m
 
         JOIN InputAtoms.CountryView c on c.Id = m.CountryId
 
