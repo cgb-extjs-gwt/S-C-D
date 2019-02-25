@@ -150,7 +150,7 @@
     <Content Include="MigrationScripts\2019-02-21.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="MigrationScripts\locap-support-pack.sql" />
+    <Content Include="MigrationScripts\2019-02-25-report.sql" />
     <Content Include="MigrationScripts\portfolio-calc-2019-02-20.sql" />
     <Content Include="MigrationScripts\portfolio-calc-2019-02-24.sql" />
     <Content Include="MigrationScripts\portfolio-calc-2019-02-24_tst_data.sql" />

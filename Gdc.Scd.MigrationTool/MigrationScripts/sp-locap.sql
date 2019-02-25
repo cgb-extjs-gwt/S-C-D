@@ -128,7 +128,6 @@ BEGIN
     join [References].Currency cur on cur.Id = m.CurrencyId
 
 END
-
 go
 
 IF OBJECT_ID('Report.spLocapGlobalSupport') IS NOT NULL
