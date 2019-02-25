@@ -19,7 +19,7 @@ CREATE PROCEDURE [Report].[spLocapDetailed]
 AS
 BEGIN
 
-    select @total = count(id) from Portfolio.GetBySlaFspSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
+    if @limit > 0 select @total = count(id) from Portfolio.GetBySlaFspSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
 
     declare @sla Portfolio.Sla;
     insert into @sla select * from Portfolio.GetBySlaFspSinglePaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
@@ -69,8 +69,7 @@ BEGIN
     join [References].Currency cur on cur.Id = m.CurrencyId
 
 END
-go
-
+GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'LOCAP-DETAILED');
 declare @index int = 0;

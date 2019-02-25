@@ -19,7 +19,7 @@ CREATE PROCEDURE [Report].[spLocap]
 AS
 BEGIN
 
-    select @total = count(id) from Portfolio.GetBySlaFspSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
+    if @limit > 0 select @total = count(id) from Portfolio.GetBySlaFspSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
 
     declare @sla Portfolio.Sla;
     insert into @sla select * from Portfolio.GetBySlaFspSinglePaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m

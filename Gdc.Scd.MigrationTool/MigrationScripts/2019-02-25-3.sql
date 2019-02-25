@@ -811,6 +811,130 @@ RETURN (
 )
 GO
 
+CREATE PROCEDURE [Report].[spLocap]
+(
+    @cnt          bigint,
+    @wg           bigint,
+    @av           bigint,
+    @dur          bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc          bigint,
+    @pro          bigint,
+    @lastid       bigint,
+    @limit        int,
+    @total        int output
+)
+AS
+BEGIN
+
+    if @limit > 0 select @total = count(id) from Portfolio.GetBySlaFspSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
+
+    declare @sla Portfolio.Sla;
+    insert into @sla select * from Portfolio.GetBySlaFspSinglePaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
+
+    select m.Id
+         , m.Fsp
+         , wg.Description as WgDescription
+         , m.FspDescription as ServiceLevel
+
+         , m.ReactionTime
+         , m.Year as ServicePeriod
+         , wg.Name as Wg
+
+         , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
+         , m.ServiceTC * m.ExchangeRate as ServiceTC
+         , m.ServiceTP_Released  * m.ExchangeRate as ServiceTP_Released
+         , cur.Name as Currency
+         
+         , m.Country
+         , m.Availability                       + ', ' +
+               m.ReactionType                   + ', ' +
+               m.ReactionTime                   + ', ' +
+               cast(m.Year as nvarchar(1))      + ', ' +
+               m.ServiceLocation                + ', ' +
+               m.ProActiveSla as ServiceType
+
+         , null as PlausiCheck
+         , null as PortfolioType
+         , null as ReleaseCreated
+         , wg.Sog
+    from Hardware.GetCostsSla(1, @sla) m
+    join InputAtoms.WgSogView wg on wg.id = m.WgId
+    join [References].Currency cur on cur.Id = m.CurrencyId
+
+END
+GO
+
+CREATE PROCEDURE [Report].[spLocapDetailed]
+(
+    @cnt          bigint,
+    @wg           bigint,
+    @av           bigint,
+    @dur          bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc          bigint,
+    @pro          bigint,
+    @lastid       bigint,
+    @limit        int,
+    @total        int output
+)
+AS
+BEGIN
+
+    if @limit > 0 select @total = count(id) from Portfolio.GetBySlaFspSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
+
+    declare @sla Portfolio.Sla;
+    insert into @sla select * from Portfolio.GetBySlaFspSinglePaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
+
+    select m.Id
+         , m.Fsp
+         , wg.Description as WgDescription
+         , wg.Name as Wg
+         , wg.SogDescription as SogDescription
+         , m.ServiceLocation as ServiceLevel
+         , m.ReactionTime
+         , m.Year as ServicePeriod
+         , wg.Sog as Sog
+         , m.ProActiveSla
+         , m.Country
+
+         , m.ServiceTC * m.ExchangeRate as ServiceTC
+         , m.ServiceTP_Released * m.ExchangeRate as ServiceTP_Released
+         , m.ListPrice * m.ExchangeRate as ListPrice
+         , m.DealerPrice * m.ExchangeRate as DealerPrice
+         , m.FieldServiceCost * m.ExchangeRate as FieldServiceCost
+         , m.ServiceSupportCost * m.ExchangeRate as ServiceSupportCost 
+         , m.MaterialOow * m.ExchangeRate as MaterialOow
+         , m.MaterialW * m.ExchangeRate as MaterialW
+         , m.TaxAndDutiesW * m.ExchangeRate as TaxAndDutiesW
+         , m.Logistic * m.ExchangeRate as LogisticW
+         , m.Logistic * m.ExchangeRate as LogisticOow
+         , m.Reinsurance * m.ExchangeRate as Reinsurance
+         , m.Reinsurance * m.ExchangeRate as ReinsuranceOow
+         , m.OtherDirect * m.ExchangeRate as OtherDirect
+         , m.Credits * m.ExchangeRate as Credits
+         , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
+         , cur.Name as Currency
+
+         , null as IndirectCostOpex
+         , m.Availability                       + ', ' +
+               m.ReactionType                   + ', ' +
+               m.ReactionTime                   + ', ' +
+               cast(m.Year as nvarchar(1))      + ', ' +
+               m.ServiceLocation                + ', ' +
+               m.ProActiveSla as ServiceType
+         
+         , null as PlausiCheck
+         , null as PortfolioType
+    from Hardware.GetCostsSla(1, @sla) m
+    join InputAtoms.WgSogView wg on wg.id = m.WgId
+    join [References].Currency cur on cur.Id = m.CurrencyId
+
+END
+GO
+
 CREATE PROCEDURE [Report].[spLocapGlobalSupport]
 (
     @cnt     dbo.ListID readonly,
@@ -828,7 +952,7 @@ CREATE PROCEDURE [Report].[spLocapGlobalSupport]
 AS
 BEGIN
 
-    select @total = count(id) from Portfolio.GetBySlaFsp(@cnt, @wg, @av, @dur, @rtime, @rtype, @loc, @pro);
+    if @limit > 0 select @total = count(id) from Portfolio.GetBySlaFsp(@cnt, @wg, @av, @dur, @rtime, @rtype, @loc, @pro);
 
     declare @sla Portfolio.Sla;
     insert into @sla select * from Portfolio.GetBySlaFspPaging(@cnt, @wg, @av, @dur, @rtime, @rtype, @loc, @pro, @lastid, @limit) m
@@ -856,7 +980,15 @@ BEGIN
     inner join InputAtoms.WgSogView sog on sog.Id = c.WgId
 
 END
-go
+GO
+
+UPDATE Report.Report SET SqlFunc = 'Report.spLocap' WHERE upper(name) = 'LOCAP';
+UPDATE Report.Report SET SqlFunc = 'Report.spLocapDetailed' WHERE upper(name) = 'LOCAP-DETAILED';
+
+insert into Report.Report(Name, Title, CountrySpecific, HasFreesedVersion, SqlFunc) 
+  values ('Locap-Global-Support', 'Maintenance Service Costs and List Price Output - Global Support Packs', 1,  1, 'Report.spLocapGlobalSupport')
+GO
+
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = ('Locap-Global-Support'));
 declare @index int = 0;
 
