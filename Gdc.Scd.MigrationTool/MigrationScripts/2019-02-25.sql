@@ -1,3 +1,5 @@
+USE [Scd_2]
+
 IF OBJECT_ID('Report.HddRetentionCalcResult') IS NOT NULL
   DROP FUNCTION Report.HddRetentionCalcResult;
 go 
