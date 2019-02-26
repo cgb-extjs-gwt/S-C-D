@@ -544,7 +544,7 @@ AS BEGIN
                 , coalesce(fsp.ServiceLocationId  , fsp2.ServiceLocationId) as ServiceLocationId
                 , coalesce(fsp.ProactiveSlaId     , fsp2.ProactiveSlaId   ) as ProactiveSlaId   
         from Fsp2 fsp2
-        left join Fsp fsp on fsp.CountryId = fsp2.CountryId and fsp.WgId = fsp2.WgId
+        full join Fsp fsp on fsp.CountryId = fsp2.CountryId and fsp.WgId = fsp2.WgId
     )
     insert into Fsp.HwStandardWarranty(
                            Country
