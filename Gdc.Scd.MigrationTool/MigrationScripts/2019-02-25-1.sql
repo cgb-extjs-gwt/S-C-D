@@ -14,15 +14,7 @@ ALTER VIEW [InputAtoms].[WgView] WITH SCHEMABINDING as
     where wg.WgType = 1 and wg.DeactivatedDateTime is null
 GO
 
-ALTER TABLE Portfolio.LocalPortfolio drop column ReactionTime_Avalability;
-go
-ALTER TABLE Portfolio.LocalPortfolio drop column ReactionTime_ReactionType ;
-go
-ALTER TABLE Portfolio.LocalPortfolio drop column ReactionTime_ReactionType_Avalability ;
-go
 ALTER TABLE Portfolio.LocalPortfolio drop column SlaHash;
-go
-ALTER TABLE Portfolio.LocalPortfolio drop column Sla;
 go
 
 ALTER TABLE Portfolio.LocalPortfolio
@@ -80,10 +72,6 @@ ALTER VIEW [Hardware].[TaxAndDutiesView] as
     where DeactivatedDateTime is null
 GO
 
-alter table Hardware.MarkupStandardWaranty drop column MarkupFactorStandardWarranty_norm;
-alter table Hardware.MarkupStandardWaranty drop column MarkupFactorStandardWarranty_norm_Approved;
-GO
-
 alter table Hardware.MarkupStandardWaranty
     add MarkupFactorStandardWarranty_norm          as (MarkupFactorStandardWarranty / 100)
       , MarkupFactorStandardWarranty_norm_Approved as (MarkupFactorStandardWarranty_Approved / 100)
@@ -92,11 +80,6 @@ GO
 IF OBJECT_ID('[Hardware].[MarkupStandardWarantyView]', 'V') IS NOT NULL
     drop VIEW [Hardware].[MarkupStandardWarantyView]
 GO
-
-alter table Hardware.MarkupOtherCosts drop column MarkupFactor_norm;
-alter table Hardware.MarkupOtherCosts drop column MarkupFactor_norm_Approved;
-
-go
 
 alter table Hardware.MarkupOtherCosts
     add MarkupFactor_norm          as (MarkupFactor / 100)
@@ -125,14 +108,7 @@ ALTER VIEW [Hardware].[ReinsuranceView] as
     LEFT JOIN [References].ExchangeRate er2 on er2.CurrencyId = r.CurrencyReinsurance_Approved
 GO
 
-DROP INDEX ix_Hardware_Reinsurance_Sla ON [Hardware].[Reinsurance]
-GO
-
 CREATE NONCLUSTERED INDEX ix_Hardware_Reinsurance_Sla ON [Hardware].[Reinsurance] ([Wg],[Duration],[ReactionTimeAvailability])
-GO
-
-alter table Hardware.FieldServiceCost drop column TimeAndMaterialShare_norm;
-alter table Hardware.FieldServiceCost drop column TimeAndMaterialShare_norm_Approved;
 GO
 
 alter table Hardware.FieldServiceCost
@@ -140,6 +116,8 @@ alter table Hardware.FieldServiceCost
       , TimeAndMaterialShare_norm_Approved as (TimeAndMaterialShare_Approved / 100)
 GO
 
+DROP INDEX [ix_Hardware_FieldServiceCost] ON [Hardware].[FieldServiceCost]
+GO
 CREATE NONCLUSTERED INDEX [ix_Hardware_FieldServiceCost] ON [Hardware].[FieldServiceCost] ([Country],[Wg],[ServiceLocation],[ReactionTimeType])
 GO
 
@@ -182,11 +160,6 @@ GO
 
 CREATE INDEX IX_HwFspCodeTranslation_SlaHash ON Fsp.HwFspCodeTranslation(SlaHash);
 GO
-
-ALTER TABLE Fsp.HwStandardWarranty drop column ReactionTime_Avalability              ;
-ALTER TABLE Fsp.HwStandardWarranty drop column ReactionTime_ReactionType             ;
-ALTER TABLE Fsp.HwStandardWarranty drop column ReactionTime_ReactionType_Avalability ;
-go
 
 ALTER TABLE Fsp.HwStandardWarranty
     add  ReactionTime_Avalability              bigint
