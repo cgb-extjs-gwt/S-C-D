@@ -22,9 +22,6 @@ namespace Gdc.Scd.Import.Ebis.MCiW
         public override void Load()
         {
             Bind(typeof(IRepository<MaterialCostInWarranty>)).To(typeof(ImportRepository<MaterialCostInWarranty>)).InSingletonScope();
-            Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InSingletonScope();
-            Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InSingletonScope();
-            Bind<ISqlRepository>().To<SqlRepository>().InSingletonScope();
             Bind<ILogger<LogLevel>>().To<Core.Impl.Logger>().InSingletonScope();
 
             Bind<IDownloader>().To<FileDownloader>().InSingletonScope();
@@ -32,11 +29,6 @@ namespace Gdc.Scd.Import.Ebis.MCiW
             Bind(typeof(IUploader<>)).To(typeof(EbisMaterialCostUploader)).InSingletonScope();
             Bind<IImportManager>().To<ImportManager<MaterialCostDto>>().InSingletonScope();
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();
-
-            Kernel.RegisterEntity<ClusterRegion>();
-            Kernel.RegisterEntity<ImportConfiguration>();
-            Kernel.RegisterEntity<Wg>();
-            Kernel.RegisterEntity<MaterialCostInWarranty>();
         }
     }
 }

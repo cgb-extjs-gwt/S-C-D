@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.Core.Enums;
+using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Interfaces;
@@ -20,7 +21,8 @@ namespace Gdc.Scd.Import.AmberRoad
 
         static AmberRoadImportService()
         {
-            IKernel kernel = new StandardKernel(new Module());
+            NinjectExt.IsConsoleApplication = true;
+            IKernel kernel = CreateKernel();
             ConfigHandler = kernel.Get<IConfigHandler>();
             ImportManager = kernel.Get<IImportManager>();
             Logger = kernel.Get<ILogger<LogLevel>>();
@@ -39,6 +41,15 @@ namespace Gdc.Scd.Import.AmberRoad
                 ConfigHandler.UpdateImportResult(configuration, DateTime.Now);
             }
             Logger.Log(LogLevel.Info, ImportConstants.END_PROCESS);
+        }
+
+        private static StandardKernel CreateKernel()
+        {
+            return new StandardKernel(
+                new Scd.Core.Module(),
+                new Scd.DataAccessLayer.Module(),
+                new Scd.BusinessLogicLayer.Module(),
+                new Module());
         }
     }
 }
