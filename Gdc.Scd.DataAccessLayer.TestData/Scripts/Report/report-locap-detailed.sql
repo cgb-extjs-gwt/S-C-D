@@ -1,22 +1,30 @@
-﻿IF OBJECT_ID('Report.LocapDetailed') IS NOT NULL
-  DROP FUNCTION Report.LocapDetailed;
+﻿IF OBJECT_ID('Report.spLocapDetailed') IS NOT NULL
+  DROP PROCEDURE Report.spLocapDetailed;
 go 
 
-CREATE FUNCTION Report.LocapDetailed
+CREATE PROCEDURE [Report].[spLocapDetailed]
 (
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
+    @cnt          bigint,
+    @wg           bigint,
+    @av           bigint,
+    @dur          bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint,
-    @pro bigint
+    @loc          bigint,
+    @pro          bigint,
+    @lastid       bigint,
+    @limit        int,
+    @total        int output
 )
-RETURNS TABLE 
 AS
-RETURN (
-select     m.Id
+BEGIN
+
+    if @limit > 0 select @total = count(id) from Portfolio.GetBySlaFspSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
+
+    declare @sla Portfolio.Sla;
+    insert into @sla select * from Portfolio.GetBySlaFspSinglePaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
+
+    select m.Id
          , m.Fsp
          , wg.Description as WgDescription
          , wg.Name as Wg
@@ -26,27 +34,27 @@ select     m.Id
          , m.Year as ServicePeriod
          , wg.Sog as Sog
          , m.ProActiveSla
-		 , m.Country
+         , m.Country
 
-         , m.ServiceTC * er.Value as ServiceTC
-         , m.ServiceTP_Released * er.Value as ServiceTP_Released
-         , m.ListPrice * er.Value as ListPrice
-         , m.DealerPrice * er.Value as DealerPrice
-         , m.FieldServiceCost * er.Value as FieldServiceCost
-         , m.ServiceSupportCost * er.Value as ServiceSupportCost 
-         , m.MaterialOow * er.Value as MaterialOow
-         , m.MaterialW * er.Value as MaterialW
-         , m.TaxAndDutiesW * er.Value as TaxAndDutiesW
-         , m.Logistic * er.Value as LogisticW
-         , m.Logistic * er.Value as LogisticOow
-         , m.Reinsurance * er.Value as Reinsurance
-         , m.Reinsurance * er.Value as ReinsuranceOow
-         , m.OtherDirect * er.Value as OtherDirect
-         , m.Credits * er.Value as Credits
-         , m.LocalServiceStandardWarranty * er.Value as LocalServiceStandardWarranty
+         , m.ServiceTC * m.ExchangeRate as ServiceTC
+         , m.ServiceTP_Released * m.ExchangeRate as ServiceTP_Released
+         , m.ListPrice * m.ExchangeRate as ListPrice
+         , m.DealerPrice * m.ExchangeRate as DealerPrice
+         , m.FieldServiceCost * m.ExchangeRate as FieldServiceCost
+         , m.ServiceSupportCost * m.ExchangeRate as ServiceSupportCost 
+         , m.MaterialOow * m.ExchangeRate as MaterialOow
+         , m.MaterialW * m.ExchangeRate as MaterialW
+         , m.TaxAndDutiesW * m.ExchangeRate as TaxAndDutiesW
+         , m.Logistic * m.ExchangeRate as LogisticW
+         , m.Logistic * m.ExchangeRate as LogisticOow
+         , m.Reinsurance * m.ExchangeRate as Reinsurance
+         , m.Reinsurance * m.ExchangeRate as ReinsuranceOow
+         , m.OtherDirect * m.ExchangeRate as OtherDirect
+         , m.Credits * m.ExchangeRate as Credits
+         , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
          , cur.Name as Currency
 
-		 , null as IndirectCostOpex
+         , null as IndirectCostOpex
          , m.Availability                       + ', ' +
                m.ReactionType                   + ', ' +
                m.ReactionTime                   + ', ' +
@@ -56,13 +64,11 @@ select     m.Id
          
          , null as PlausiCheck
          , null as PortfolioType
-    from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
+    from Hardware.GetCostsSla(1, @sla) m
     join InputAtoms.WgSogView wg on wg.id = m.WgId
-	join InputAtoms.Country cnt on cnt.id = @cnt
-	join [References].Currency cur on cur.Id = cnt.CurrencyId
-	join [References].ExchangeRate er on er.CurrencyId = cur.Id
-)
+    join [References].Currency cur on cur.Id = m.CurrencyId
 
+END
 GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'LOCAP-DETAILED');

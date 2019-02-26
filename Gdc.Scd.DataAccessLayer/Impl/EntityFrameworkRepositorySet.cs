@@ -60,13 +60,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 }
 
                 var result = new List<T>(30);
-                var reader = await cmd.ExecuteReaderAsync();
-
-                if (reader.HasRows)
+                using (var reader = await cmd.ExecuteReaderAsync())
                 {
-                    while (await reader.ReadAsync())
+                    if (reader.HasRows)
                     {
-                        result.Add(mapFunc(reader));
+                        while (await reader.ReadAsync())
+                        {
+                            result.Add(mapFunc(reader));
+                        }
                     }
                 }
                 return (IEnumerable<T>)result;
@@ -87,16 +88,16 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 cmd.CommandText = sql;
                 cmd.AddParameters(parameters);
 
-                var reader = await cmd.ExecuteReaderAsync();
-
-                if (reader.HasRows)
+                using (var reader = await cmd.ExecuteReaderAsync())
                 {
-                    while (await reader.ReadAsync())
+                    if (reader.HasRows)
                     {
-                        mapFunc(reader);
+                        while (await reader.ReadAsync())
+                        {
+                            mapFunc(reader);
+                        }
                     }
                 }
-
                 return 0; //stub for correct task
             });
         }
@@ -105,26 +106,25 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             return WithCommand(async cmd =>
             {
-
                 cmd.CommandText = sql;
                 cmd.AddParameters(parameters);
 
-                var reader = await cmd.ExecuteReaderAsync();
-
-                if (reader.HasRows)
+                using (var reader = await cmd.ExecuteReaderAsync())
                 {
-                    var result = new List<T>(25);
-                    while (await reader.ReadAsync())
+                    if (reader.HasRows)
                     {
-                        result.Add(mapFunc(reader));
+                        var result = new List<T>(25);
+                        while (await reader.ReadAsync())
+                        {
+                            result.Add(mapFunc(reader));
+                        }
+                        return (IEnumerable<T>)result;
                     }
-                    return (IEnumerable<T>)result;
+                    else
+                    {
+                        return new T[0];
+                    }
                 }
-                else
-                {
-                    return new T[0];
-                }
-
             });
         }
 
@@ -166,6 +166,27 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             string sql = CreateSpCommand(procName, parameters);
             return Database.ExecuteSqlCommandAsync(sql, parameters);
+        }
+
+        public Task ExecuteProcAsync(string procName, Action<DbDataReader> mapFunc, params DbParameter[] parameters)
+        {
+            return WithCommand(async cmd =>
+            {
+                cmd.AsStoredProcedure(procName, parameters);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    if (reader.HasRows)
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            mapFunc(reader);
+                        }
+                    }
+                }
+
+                return 0; //stub for correct task
+            });
         }
 
         public List<T> ExecuteProc<T>(string procName, params DbParameter[] parameters) where T : new()
@@ -403,6 +424,5 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 conn.Close();
             }
         }
-
     }
 }
