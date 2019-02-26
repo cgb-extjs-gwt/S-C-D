@@ -69,7 +69,7 @@ RETURN (
               , afr.AFRP1 as AFRP1
 
               , Hardware.CalcFieldServiceCost(
-                            fsc.TimeAndMaterialShare, 
+                            fsc.TimeAndMaterialShare_norm, 
                             fsc.TravelCost, 
                             fsc.LabourCost, 
                             fsc.PerformanceRate, 
