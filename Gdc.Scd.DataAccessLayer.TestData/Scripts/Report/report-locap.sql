@@ -1,22 +1,29 @@
-﻿
-IF OBJECT_ID('Report.Locap') IS NOT NULL
-  DROP FUNCTION Report.Locap;
+﻿IF OBJECT_ID('Report.spLocap') IS NOT NULL
+  DROP PROCEDURE Report.spLocap;
 go 
 
-CREATE FUNCTION [Report].[Locap]
+CREATE PROCEDURE [Report].[spLocap]
 (
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
+    @cnt          bigint,
+    @wg           bigint,
+    @av           bigint,
+    @dur          bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint,
-    @pro bigint
+    @loc          bigint,
+    @pro          bigint,
+    @lastid       bigint,
+    @limit        int,
+    @total        int output
 )
-RETURNS TABLE 
 AS
-RETURN (
+BEGIN
+
+    if @limit > 0 select @total = count(id) from Portfolio.GetBySlaFspSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
+
+    declare @sla Portfolio.Sla;
+    insert into @sla select * from Portfolio.GetBySlaFspSinglePaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
+
     select m.Id
          , m.Fsp
          , wg.Description as WgDescription
@@ -26,12 +33,12 @@ RETURN (
          , m.Year as ServicePeriod
          , wg.Name as Wg
 
-         , m.LocalServiceStandardWarranty * er.Value as LocalServiceStandardWarranty
-         , m.ServiceTC * er.Value as ServiceTC
-         , m.ServiceTP_Released  * er.Value as ServiceTP_Released
-		 , cur.Name as Currency
+         , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
+         , m.ServiceTC * m.ExchangeRate as ServiceTC
+         , m.ServiceTP_Released  * m.ExchangeRate as ServiceTP_Released
+         , cur.Name as Currency
          
-		 , m.Country
+         , m.Country
          , m.Availability                       + ', ' +
                m.ReactionType                   + ', ' +
                m.ReactionTime                   + ', ' +
@@ -43,13 +50,12 @@ RETURN (
          , null as PortfolioType
          , null as ReleaseCreated
          , wg.Sog
-    from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
+    from Hardware.GetCostsSla(1, @sla) m
     join InputAtoms.WgSogView wg on wg.id = m.WgId
-	join InputAtoms.Country cnt on cnt.id = @cnt
-	join [References].Currency cur on cur.Id = cnt.CurrencyId
-	join [References].ExchangeRate er on er.CurrencyId = cur.Id
-)
-GO
+    join [References].Currency cur on cur.Id = m.CurrencyId
+
+END
+go
 
 declare @reportId bigint = (select Id from Report.Report where Name = 'Locap');
 declare @index int = 0;

@@ -35,30 +35,30 @@ RETURN (
 
               --cost blocks
 
-              , fsc.LabourCost * er.Value  as LabourCost
-              , fsc.TravelCost * er.Value  as TravelCost
-              , fsc.PerformanceRate * er.Value  as PerformanceRate
+              , fsc.LabourCost as LabourCost
+              , fsc.TravelCost as TravelCost
+              , fsc.PerformanceRate as PerformanceRate
               , fsc.TravelTime as TravelTime
               , fsc.RepairTime as RepairTime
-              , fsc.OnsiteHourlyRates * er.Value  as OnsiteHourlyRate
+              , hr.OnsiteHourlyRates as OnsiteHourlyRate
 
-              , lc.StandardHandling * er.Value  as StandardHandling
+              , lc.StandardHandling as StandardHandling
 
               , (lc.StandardHandling + 
                 lc.HighAvailabilityHandling + 
                 lc.StandardDelivery + 
                 lc.ExpressDelivery + 
                 lc.TaxiCourierDelivery + 
-                lc.ReturnDeliveryFactory) * er.Value  as LogisticPerYear
+                lc.ReturnDeliveryFactory) as LogisticPerYear
 
               , case when afEx.id is not null then af.Fee * er.Value else 0 end as AvailabilityFee
       
-              , tax.TaxAndDuties * er.Value  as TaxAndDutiesW
+              , tax.TaxAndDuties_norm * er.Value  as TaxAndDutiesW
 
               , moc.Markup * er.Value        as MarkupOtherCost
-              , moc.MarkupFactor * er.Value  as MarkupFactorOtherCost
+              , moc.MarkupFactor             as MarkupFactorOtherCost
 
-              , msw.MarkupFactorStandardWarranty * er.Value  as MarkupFactorStandardWarranty
+              , msw.MarkupFactorStandardWarranty             as MarkupFactorStandardWarranty
               , msw.MarkupStandardWarranty * er.Value        as MarkupStandardWarranty
       
               , afr.AFR1  as AFR1
@@ -69,15 +69,15 @@ RETURN (
               , afr.AFRP1 as AFRP1
 
               , Hardware.CalcFieldServiceCost(
-                            fsc.TimeAndMaterialShare, 
+                            fsc.TimeAndMaterialShare_norm, 
                             fsc.TravelCost, 
                             fsc.LabourCost, 
                             fsc.PerformanceRate, 
                             fsc.TravelTime, 
                             fsc.RepairTime, 
-                            fsc.OnsiteHourlyRates, 
+                            hr.OnsiteHourlyRates, 
                             1
-                        ) * er.Value as FieldServicePerYear
+                        ) as FieldServicePerYear
 
               , ssc.[1stLevelSupportCosts] * er.Value            as [1stLevelSupportCosts]
               , ssc.[2ndLevelSupportCosts] * er.Value            as [2ndLevelSupportCosts]
@@ -94,14 +94,18 @@ RETURN (
 
               , mcw.MaterialCostWarranty * er.Value  as MaterialCostWarranty
               , mco.MaterialCostOow * er.Value       as MaterialCostOow
-			  , cur.Name as Currency
+              , cur.Name as Currency
 
               , dur.Value as Duration
               , dur.IsProlongation
 
-        from Portfolio.GetBySla(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc, @pro) m
+        from Portfolio.GetBySlaSingle(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc, @pro) m
 
         INNER JOIN InputAtoms.CountryView c on c.Id = m.CountryId
+
+        INNER JOIN [References].Currency cur on cur.Id = c.CurrencyId
+
+        INNER JOIN [References].ExchangeRate er on er.CurrencyId = cur.Id
 
         INNER JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
 
@@ -119,19 +123,18 @@ RETURN (
 
         INNER JOIN Dependencies.ProActiveSla pro on pro.Id = m.ProActiveSlaId
 
+        LEFT JOIN Hardware.RoleCodeHourlyRates hr on hr.RoleCode = wg.RoleCodeId and hr.Country = m.CountryId
+
         LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
         --cost blocks
-        LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Wg = m.WgId 
+        LEFT JOIN Hardware.FieldServiceCost fsc ON fsc.Wg = m.WgId 
                                                 AND fsc.Country = m.CountryId 
-                                                AND fsc.ServiceLocation = m.ServiceLocationId
-                                                AND fsc.ReactionTypeId = m.ReactionTypeId
-                                                AND fsc.ReactionTimeId = m.ReactionTimeId
+                                                AND fsc.ReactionTimeType = m.ReactionTime_ReactionType
 
-        LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = m.CountryId 
+        LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId 
                                             AND lc.Wg = m.WgId
-                                            AND lc.ReactionTime = m.ReactionTimeId
-                                            AND lc.ReactionType = m.ReactionTypeId
+                                            AND lc.ReactionTimeType = m.ReactionTime_ReactionType
 
         LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
 
@@ -143,13 +146,9 @@ RETURN (
 
         LEFT JOIN Hardware.ReinsuranceYear r on r.Wg = m.WgId
 
-        LEFT JOIN Hardware.MarkupOtherCostsView moc on moc.Wg = m.WgId 
-                                                   AND moc.Country = m.CountryId 
-                                                   AND moc.ReactionTimeId = m.ReactionTimeId 
-                                                   AND moc.ReactionTypeId = m.ReactionTypeId 
-                                                   AND moc.AvailabilityId = m.AvailabilityId
+        LEFT JOIN Hardware.MarkupOtherCosts moc on moc.Wg = m.WgId AND moc.Country = m.CountryId AND moc.ReactionTimeTypeAvailability = m.ReactionTime_ReactionType_Avalability
 
-        LEFT JOIN Hardware.MarkupStandardWarantyView msw on msw.Wg = m.WgId AND msw.Country = m.CountryId 
+        LEFT JOIN Hardware.MarkupStandardWaranty msw on msw.Wg = m.WgId AND msw.Country = m.CountryId 
 
         LEFT JOIN Hardware.AvailabilityFeeCalc af on af.Country = m.CountryId AND af.Wg = m.WgId
 
@@ -158,18 +157,7 @@ RETURN (
                                             AND afEx.ReactionTypeId = m.ReactionTypeId 
                                             AND afEx.ServiceLocationId = m.ServiceLocationId
 
-        LEFT JOIN Fsp.HwFspCodeTranslation fsp  on fsp.SlaHash = m.SlaHash 
-                                               and fsp.CountryId = m.CountryId
-                                               and fsp.WgId = m.WgId
-                                               and fsp.AvailabilityId = m.AvailabilityId
-                                               and fsp.DurationId= m.DurationId
-                                               and fsp.ReactionTimeId = m.ReactionTimeId
-                                               and fsp.ReactionTypeId = m.ReactionTypeId
-                                               and fsp.ServiceLocationId = m.ServiceLocationId
-                                               and fsp.ProactiveSlaId = m.ProActiveSlaId
-		join InputAtoms.Country cnt on cnt.id = @cnt
-		join [References].Currency cur on cur.Id = cnt.CurrencyId
-		join [References].ExchangeRate er on er.CurrencyId = cur.Id
+        LEFT JOIN Fsp.HwFspCodeTranslation fsp  on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla
     )
     select    
                 m.Id

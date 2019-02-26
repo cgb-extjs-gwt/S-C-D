@@ -8,6 +8,8 @@ export interface AutoFilterModel {
 
     type?: AutoFilterType;
 
+    multiSelect?: boolean;
+
     value?: any;
 
 }

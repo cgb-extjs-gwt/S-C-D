@@ -36,6 +36,7 @@
     <None Remove="Scripts\Report\report-calc-parameter-hw-not-approved.sql" />
     <None Remove="Scripts\Report\report-calc-parameter-hw.sql" />
     <None Remove="Scripts\Report\report-hdd-retention-calc-result.sql" />
+    <None Remove="Scripts\Report\report-locap-support-pack.sql" />
     <None Remove="Scripts\Report\report-Logistic-cost-calc-central.sql" />
     <None Remove="Scripts\Report\report-logistic-cost-central.sql" />
     <None Remove="Scripts\Report\report-logistic-cost-country.sql" />
@@ -43,6 +44,10 @@
     <None Remove="Scripts\Report\report-Logistic-cost-input-country.sql" />
     <None Remove="Scripts\Report\report-solutionpack-proactive-costing.sql" />
     <None Remove="Scripts\Report\report-SW-Service-Price-List-detail.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\Report\report-locap-support-pack.sql" />
   </ItemGroup>
 
   <ItemGroup>

@@ -38,6 +38,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters);
 
+        Task ExecuteProcAsync(string procName, Action<DbDataReader> mapFunc, params DbParameter[] parameters);
+
         List<T> ExecuteProc<T>(string procName, params DbParameter[] parameters) where T : new();
 
         Task<DataTable> ExecuteProcAsTableAsync(string procName, params DbParameter[] parameters);
