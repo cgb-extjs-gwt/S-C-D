@@ -19,7 +19,7 @@ RETURNS TABLE
 AS
 RETURN (
     select    Country
-            , case when @local = 1 then c.Currency else 'EUR' end as Currency
+            , case when @local = 1 then c.Name else 'EUR' end as Currency
 
             , Wg
             , Availability
@@ -62,7 +62,7 @@ RETURN (
             , ChangeUserName + '[' + ChangeUserEmail + ']' as ChangeUser
 
     from Hardware.GetCosts(@approved, @country, @wg, @availability, @duration, @reactiontime, @reactiontype, @servicelocation, @proactive, -1, -1) costs
-    join InputAtoms.CountryView c on c.Name = costs.Country
+    join [References].Currency c on c.Id = costs.CurrencyId
 )
 
 GO

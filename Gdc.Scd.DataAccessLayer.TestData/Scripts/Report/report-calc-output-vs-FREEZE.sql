@@ -207,7 +207,7 @@ RETURN (
          
             , (m.Duration + ' ' + m.ServiceLocation) as ServiceProduct
          
-            , (m.LocalServiceStandardWarranty1 + m.LocalServiceStandardWarranty2 + m.LocalServiceStandardWarranty3 + m.LocalServiceStandardWarranty4 + m.LocalServiceStandardWarranty5) * m.ExchangeRate as LocalServiceStandardWarranty
+            , (m.LocalServiceStandardWarranty1 + m.LocalServiceStandardWarranty2 + m.LocalServiceStandardWarranty3 + m.LocalServiceStandardWarranty4 + m.LocalServiceStandardWarranty5) * m.ExchangeRate as StandardWarranty
             , (m.LocalServiceStandardWarranty1_Approved + m.LocalServiceStandardWarranty2_Approved + m.LocalServiceStandardWarranty3_Approved + m.LocalServiceStandardWarranty4_Approved + m.LocalServiceStandardWarranty5_Approved) * m.ExchangeRate  as StandardWarranty_Approved
             , cur.Name as Currency
     from CostCte2 m

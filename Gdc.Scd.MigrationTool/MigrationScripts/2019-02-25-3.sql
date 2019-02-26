@@ -203,7 +203,7 @@ RETURN (
          
             , (m.Duration + ' ' + m.ServiceLocation) as ServiceProduct
          
-            , (m.LocalServiceStandardWarranty1 + m.LocalServiceStandardWarranty2 + m.LocalServiceStandardWarranty3 + m.LocalServiceStandardWarranty4 + m.LocalServiceStandardWarranty5) * m.ExchangeRate as LocalServiceStandardWarranty
+            , (m.LocalServiceStandardWarranty1 + m.LocalServiceStandardWarranty2 + m.LocalServiceStandardWarranty3 + m.LocalServiceStandardWarranty4 + m.LocalServiceStandardWarranty5) * m.ExchangeRate as StandardWarranty
             , (m.LocalServiceStandardWarranty1_Approved + m.LocalServiceStandardWarranty2_Approved + m.LocalServiceStandardWarranty3_Approved + m.LocalServiceStandardWarranty4_Approved + m.LocalServiceStandardWarranty5_Approved) * m.ExchangeRate  as StandardWarranty_Approved
             , cur.Name as Currency
     from CostCte2 m
@@ -749,8 +749,8 @@ GO
 
 ALTER FUNCTION Report.HwCalcResult
 (
-    @approved bit,
-    @local bit,
+    @approved        bit,
+    @local           bit,
     @country         dbo.ListID readonly,
     @wg              dbo.ListID readonly,
     @availability    dbo.ListID readonly,
@@ -764,7 +764,7 @@ RETURNS TABLE
 AS
 RETURN (
     select    Country
-            , case when @local = 1 then c.Currency else 'EUR' end as Currency
+            , case when @local = 1 then c.Name else 'EUR' end as Currency
 
             , Wg
             , Availability
@@ -807,7 +807,7 @@ RETURN (
             , ChangeUserName + '[' + ChangeUserEmail + ']' as ChangeUser
 
     from Hardware.GetCosts(@approved, @country, @wg, @availability, @duration, @reactiontime, @reactiontype, @servicelocation, @proactive, -1, -1) costs
-    join InputAtoms.CountryView c on c.Name = costs.Country
+    join [References].Currency c on c.Id = costs.CurrencyId
 )
 GO
 
@@ -935,6 +935,17 @@ BEGIN
 END
 GO
 
+UPDATE Report.Report SET SqlFunc = 'Report.spLocap' WHERE upper(name) = 'LOCAP';
+UPDATE Report.Report SET SqlFunc = 'Report.spLocapDetailed' WHERE upper(name) = 'LOCAP-DETAILED';
+
+insert into Report.Report(Name, Title, CountrySpecific, HasFreesedVersion, SqlFunc) 
+  values ('Locap-Global-Support', 'Maintenance Service Costs and List Price Output - Global Support Packs', 1,  1, 'Report.spLocapGlobalSupport')
+GO
+
+IF OBJECT_ID('Report.spLocapGlobalSupport') IS NOT NULL
+  DROP PROCEDURE Report.spLocapGlobalSupport;
+go 
+
 CREATE PROCEDURE [Report].[spLocapGlobalSupport]
 (
     @cnt     dbo.ListID readonly,
@@ -962,8 +973,8 @@ BEGIN
             , c.Fsp
             , c.FspDescription
 
-            , sog.Description as SogDescription
-            , sog.Name        as Sog
+            , sog.SogDescription
+            , sog.Sog        
 
             , c.ServiceLocation
             , c.ReactionTime + ' ' + c.ReactionType + ' time, ' + c.Availability as ReactionTime
@@ -982,70 +993,62 @@ BEGIN
 END
 GO
 
-UPDATE Report.Report SET SqlFunc = 'Report.spLocap' WHERE upper(name) = 'LOCAP';
-UPDATE Report.Report SET SqlFunc = 'Report.spLocapDetailed' WHERE upper(name) = 'LOCAP-DETAILED';
-
-insert into Report.Report(Name, Title, CountrySpecific, HasFreesedVersion, SqlFunc) 
-  values ('Locap-Global-Support', 'Maintenance Service Costs and List Price Output - Global Support Packs', 1,  1, 'Report.spLocapGlobalSupport')
-GO
-
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = ('Locap-Global-Support'));
 declare @index int = 0;
 
 delete from Report.ReportColumn where ReportId = @reportId;
+
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, (select id from Report.ReportColumnType where name = 'text'), 'Fsp', 'Product_No', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Country', 'Country Name', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, (select id from Report.ReportColumnType where name = 'text'), 'WgDescription', 'Warranty Group Name', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'FspDescription', 'Portfolio Alignment', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, (select id from Report.ReportColumnType where name = 'text'), 'ServiceLevel', 'Service Level', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Fsp', 'Product_No', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, (select id from Report.ReportColumnType where name = 'text'), 'ReactionTime', 'Reaction Time', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ISO3CountryCode', 'Country specific order code', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, (select id from Report.ReportColumnType where name = 'text'), 'ServicePeriod', 'Service Period', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'SogDescription', 'Service Offering Group Name', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, (select id from Report.ReportColumnType where name = 'text'), 'Wg', 'WG', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ServiceLocation', 'Service Level', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, (select id from Report.ReportColumnType where name = 'euro'), 'LocalServiceStandardWarranty', 'Standard Warranty costs', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ReactionTime', 'Reaction time', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, (select id from Report.ReportColumnType where name = 'euro'), 'ServiceTC', 'Service TC', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ServicePeriod', 'Service Period', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, (select id from Report.ReportColumnType where name = 'euro'), 'ServiceTP_Released', 'Service TP (Released)', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Sog', 'SOG', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, (select id from Report.ReportColumnType where name = 'text'), 'Country', 'Country Name', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ServiceProduct', 'Service Product', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, (select id from Report.ReportColumnType where name = 'text'), 'ServiceType', 'Service type', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'LocalServiceStandardWarranty', 'Standard Warranty cost', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, (select id from Report.ReportColumnType where name = 'text'), 'PlausiCheck', 'Plausi Check', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'ServiceTP', 'Service TP (Full cost)', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, (select id from Report.ReportColumnType where name = 'text'), 'PortfolioType', 'Portfolio Type', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'DealerPrice', 'Dealer Price (local input) for non-FTS countries', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, (select id from Report.ReportColumnType where name = 'text'), 'ReleaseCreated', 'Release created', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, (select id from Report.ReportColumnType where name = 'text'), 'Sog', 'SOG', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'ListPrice', 'List Price (local input) for non-FTS countries', 1, 1);
 
 set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
 
-
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where MultiSelect = 1 and name ='country'         ), 'cnt', 'Country Name');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('country'         , 1), 'cnt', 'Country Name');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where MultiSelect = 1 and name ='wg'              ), 'wg', 'Warranty Group');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wg'              , 1), 'wg', 'Warranty Group');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where MultiSelect = 1 and name ='availability'    ), 'av', 'Availability');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('availability'    , 1), 'av', 'Availability');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where MultiSelect = 1 and name ='duration'        ), 'dur', 'Service period');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('duration'        , 1), 'dur', 'Service period');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where MultiSelect = 1 and name ='reactiontime'    ), 'rtime', 'Reaction time');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('reactiontime'    , 1), 'rtime', 'Reaction time');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where MultiSelect = 1 and name ='reactiontype'    ), 'rtype', 'Reaction type');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('reactiontype'    , 1), 'rtype', 'Reaction type');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where MultiSelect = 1 and name ='servicelocation' ), 'loc', 'Service location');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('servicelocation' , 1), 'loc', 'Service location');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where MultiSelect = 1 and name ='proactive'       ), 'pro', 'ProActive');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('proactive'       , 1), 'pro', 'ProActive');
 
 GO
+
 
 ALTER FUNCTION Report.LogisticCostCalcCentral
 (
