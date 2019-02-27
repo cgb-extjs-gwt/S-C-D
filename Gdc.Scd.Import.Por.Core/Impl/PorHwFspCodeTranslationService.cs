@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gdc.Scd.Import.Por.Core.Dto;
-
+using Gdc.Scd.Import.Por.Core.Import;
 
 namespace Gdc.Scd.Import.Por.Core.Impl
 {
@@ -54,12 +54,12 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                     _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes: Standard Warranty");
 
-                    Func<SCD2_v_SAR_new_codes, string> getCountryCode = code =>
+                    Func<SCD2_v_SAR_new_codes, List<string>> getCountryCode = code =>
                     {
-                        var mapping = model.LutCodes.FirstOrDefault(c => c.Service_Code.Equals(code.Service_Code));
-                        if (mapping == null)
-                            return null;
-                        return mapping.Country_Group;
+                        var mapping = model.LutCodes.Where(c => c.Service_Code.Equals(code.Service_Code));
+                        if (mapping.Count() == 0)
+                            return new List<string>();
+                        return mapping.Select(lut => lut.Country_Group).ToList();
                     };
 
 
@@ -82,7 +82,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         }
 
         private bool UploadStdws(IEnumerable<SCD2_v_SAR_new_codes> stdwCodes,
-            Func<SCD2_v_SAR_new_codes, string> getCountryCode, 
+            Func<SCD2_v_SAR_new_codes, List<string>> getCountryCode, 
             HwSlaDto stdwSla,
             SlaDictsDto slaDto,
             DateTime createdDateTime)
@@ -135,78 +135,60 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         continue;
                     }
 
-                    var countryCode = getCountryCode(code);
+                    var countryCodes = getCountryCode(code);
 
-                    if (String.IsNullOrEmpty(countryCode) || 
-                        !stdwSla.Countries.ContainsKey(countryCode))
+                    //if there are no records in LUT table for FSP code -> add nothing
+                    if (countryCodes.Count == 0)
                     {
-                        foreach (var wg in wgs)
-                        {
-                            var dbcode = new HwFspCodeTranslation
-                            {
-                                AvailabilityId = sla.Availability,
-                                DurationId = sla.Duration,
-                                ReactionTimeId = sla.ReactionTime,
-                                ReactionTypeId = sla.ReactionType,
-                                ServiceLocationId = sla.ServiceLocation,
-                                WgId = wg,
-                                Name = code.Service_Code,
-                                SCD_ServiceType = code.SCD_ServiceType,
-                                SecondSLA = code.SecondSLA,
-                                ServiceDescription = code.SAP_Kurztext_Englisch,
-                                EKSAPKey = code.EKSchluesselSAP,
-                                EKKey = code.EKSchluessel,
-                                Status = code.VStatus,
-                                ProactiveSlaId = sla.ProActive,
-                                ServiceType = code.ServiceType,
-                                CreatedDateTime = createdDateTime,
-                                IsStandardWarranty = true
-                            };
-
-                            _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
-                                       nameof(HwFspCodeTranslation), dbcode.Name);
-
-                            updatedFspCodes.Add(dbcode);
-                        }
+                        continue;
                     }
+     
+                    List<long?> alreadyUploadedCountryCodes = new List<long?>();
 
-                    else
+                    foreach (var countryCode in countryCodes)
                     {
-                        foreach (var country in stdwSla.Countries[countryCode])
+                        //if Country Group is unknown or empty and has not been added than add it only once with null country
+                        if (String.IsNullOrEmpty(countryCode) ||
+                            !stdwSla.Countries.ContainsKey(countryCode))
                         {
-                            foreach (var wg in wgs)
+                            if (!alreadyUploadedCountryCodes.Contains(null))
                             {
-                                var dbcode = new HwFspCodeTranslation
+                                foreach (var wg in wgs)
                                 {
-                                    AvailabilityId = sla.Availability,
-                                    CountryId = country,
-                                    DurationId = sla.Duration,
-                                    ReactionTimeId = sla.ReactionTime,
-                                    ReactionTypeId = sla.ReactionType,
-                                    ServiceLocationId = sla.ServiceLocation,
-                                    WgId = wg,
-                                    Name = code.Service_Code,
-                                    SCD_ServiceType = code.SCD_ServiceType,
-                                    SecondSLA = code.SecondSLA,
-                                    ServiceDescription = code.SAP_Kurztext_Englisch,
-                                    EKSAPKey = code.EKSchluesselSAP,
-                                    EKKey = code.EKSchluessel,
-                                    Status = code.VStatus,
-                                    ProactiveSlaId = sla.ProActive,
-                                    ServiceType = code.ServiceType,
-                                    CreatedDateTime = createdDateTime,
-                                    IsStandardWarranty = true
-                                };
+                                    var dbcode = AddStdwCode(sla, null, wg, code, createdDateTime);
 
-                                _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
-                                                nameof(HwFspCodeTranslation), dbcode.Name);
 
-                                updatedFspCodes.Add(dbcode);
+                                    _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                                               nameof(HwFspCodeTranslation), dbcode.Name);
+
+                                    updatedFspCodes.Add(dbcode);
+                                }
+
+                                alreadyUploadedCountryCodes.Add(null);
+                            }
+                        }
+
+                        else
+                        {
+                            foreach (var country in stdwSla.Countries[countryCode])
+                            {
+                                if (!alreadyUploadedCountryCodes.Contains(country))
+                                {
+                                    foreach (var wg in wgs)
+                                    {
+
+                                        var dbcode = AddStdwCode(sla, country, wg, code, createdDateTime);
+                                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                                                        nameof(HwFspCodeTranslation), dbcode.Name);
+
+                                        updatedFspCodes.Add(dbcode);
+                                    }
+
+                                    alreadyUploadedCountryCodes.Add(country);
+                                }
                             }
                         }
                     }
-
-                   
                 }
 
                 this.Save(updatedFspCodes);
@@ -306,6 +288,36 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             {
                 throw ex;
             }
+        }
+
+
+        private HwFspCodeTranslation AddStdwCode(SlaDto sla, long? country, long wg, SCD2_v_SAR_new_codes code, DateTime createdDateTime)
+        {
+            var dbcode = new HwFspCodeTranslation
+            {
+                AvailabilityId = sla.Availability,
+                DurationId = sla.Duration,
+                ReactionTimeId = sla.ReactionTime,
+                ReactionTypeId = sla.ReactionType,
+                ServiceLocationId = sla.ServiceLocation,
+                WgId = wg,
+                Name = code.Service_Code,
+                SCD_ServiceType = code.SCD_ServiceType,
+                SecondSLA = code.SecondSLA,
+                ServiceDescription = code.SAP_Kurztext_Englisch,
+                EKSAPKey = code.EKSchluesselSAP,
+                EKKey = code.EKSchluessel,
+                Status = code.VStatus,
+                ProactiveSlaId = sla.ProActive,
+                ServiceType = code.ServiceType,
+                CreatedDateTime = createdDateTime,
+                IsStandardWarranty = true
+            };
+
+            if (country.HasValue)
+                dbcode.CountryId = country.Value;
+
+            return dbcode;
         }
     }
 }
