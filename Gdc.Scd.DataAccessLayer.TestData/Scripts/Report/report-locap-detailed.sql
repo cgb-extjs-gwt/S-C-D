@@ -19,54 +19,90 @@ CREATE PROCEDURE [Report].[spLocapDetailed]
 AS
 BEGIN
 
-    if @limit > 0 select @total = count(id) from Portfolio.GetBySlaFspSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
-
     declare @sla Portfolio.Sla;
-    insert into @sla select * from Portfolio.GetBySlaFspSinglePaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
 
-    select m.Id
-         , m.Fsp
-         , wg.Description as WgDescription
-         , wg.Name as Wg
-         , wg.SogDescription as SogDescription
-         , m.ServiceLocation as ServiceLevel
-         , m.ReactionTime
-         , m.Year as ServicePeriod
-         , wg.Sog as Sog
-         , m.ProActiveSla
-         , m.Country
+    insert into @sla 
+        select   -1
+                , Id
+                , CountryId
+                , WgId
+                , AvailabilityId
+                , DurationId
+                , ReactionTimeId
+                , ReactionTypeId
+                , ServiceLocationId
+                , ProActiveSlaId
+                , Sla
+                , SlaHash
+                , ReactionTime_Avalability
+                , ReactionTime_ReactionType
+                , ReactionTime_ReactionType_Avalability
+                , null
+                , null
+    from Portfolio.GetBySlaSog(@cnt, (select SogId from InputAtoms.Wg where id = @wg), @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
 
-         , m.ServiceTC * m.ExchangeRate as ServiceTC
-         , m.ServiceTP_Released * m.ExchangeRate as ServiceTP_Released
-         , m.ListPrice * m.ExchangeRate as ListPrice
-         , m.DealerPrice * m.ExchangeRate as DealerPrice
-         , m.FieldServiceCost * m.ExchangeRate as FieldServiceCost
-         , m.ServiceSupportCost * m.ExchangeRate as ServiceSupportCost 
-         , m.MaterialOow * m.ExchangeRate as MaterialOow
-         , m.MaterialW * m.ExchangeRate as MaterialW
-         , m.TaxAndDutiesW * m.ExchangeRate as TaxAndDutiesW
-         , m.Logistic * m.ExchangeRate as LogisticW
-         , m.Logistic * m.ExchangeRate as LogisticOow
-         , m.Reinsurance * m.ExchangeRate as Reinsurance
-         , m.Reinsurance * m.ExchangeRate as ReinsuranceOow
-         , m.OtherDirect * m.ExchangeRate as OtherDirect
-         , m.Credits * m.ExchangeRate as Credits
-         , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
-         , cur.Name as Currency
+    with cte as (
+        select m.* 
+        from Hardware.GetCostsSlaSog(1, @sla) m
+        where m.WgId = @wg
+    )
+    , cte2 as (
+        select  
+                ROW_NUMBER() over(ORDER BY (SELECT 1)) as rownum
 
-         , null as IndirectCostOpex
-         , m.Availability                       + ', ' +
-               m.ReactionType                   + ', ' +
-               m.ReactionTime                   + ', ' +
-               cast(m.Year as nvarchar(1))      + ', ' +
-               m.ServiceLocation                + ', ' +
-               m.ProActiveSla as ServiceType
+                , m.*
+                , fsp.Name as Fsp
+                , fsp.ServiceDescription as ServiceLevel
+
+        from cte m
+        left join Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla
+    )
+    select     m.Id
+             , m.Fsp
+             , m.WgDescription
+             , m.Wg
+             , sog.Description as SogDescription
+             , m.ServiceLocation as ServiceLevel
+             , m.ReactionTime
+             , m.Year as ServicePeriod
+             , m.Sog
+             , m.ProActiveSla
+             , m.Country
+
+             , m.ServiceTcSog * m.ExchangeRate as ServiceTC
+             , m.ServiceTpSog * m.ExchangeRate as ServiceTP_Released
+             , m.ListPrice * m.ExchangeRate as ListPrice
+             , m.DealerPrice * m.ExchangeRate as DealerPrice
+             , m.FieldServiceCost * m.ExchangeRate as FieldServiceCost
+             , m.ServiceSupportCost * m.ExchangeRate as ServiceSupportCost 
+             , m.MaterialOow * m.ExchangeRate as MaterialOow
+             , m.MaterialW * m.ExchangeRate as MaterialW
+             , m.TaxAndDutiesW * m.ExchangeRate as TaxAndDutiesW
+             , m.Logistic * m.ExchangeRate as LogisticW
+             , m.Logistic * m.ExchangeRate as LogisticOow
+             , m.Reinsurance * m.ExchangeRate as Reinsurance
+             , m.Reinsurance * m.ExchangeRate as ReinsuranceOow
+             , m.OtherDirect * m.ExchangeRate as OtherDirect
+             , m.Credits * m.ExchangeRate as Credits
+             , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
+             , cur.Name as Currency
+
+             , null as IndirectCostOpex
+             , m.Availability                       + ', ' +
+                   m.ReactionType                   + ', ' +
+                   m.ReactionTime                   + ', ' +
+                   cast(m.Year as nvarchar(1))      + ', ' +
+                   m.ServiceLocation                + ', ' +
+                   m.ProActiveSla as ServiceType
          
-         , null as PlausiCheck
-         , null as PortfolioType
-    from Hardware.GetCostsSla(1, @sla) m
-    join InputAtoms.WgSogView wg on wg.id = m.WgId
+             , null as PlausiCheck
+             , null as PortfolioType
+
+    from cte2 m
+    join InputAtoms.Sog sog on sog.id = m.SogId
     join [References].Currency cur on cur.Id = m.CurrencyId
+
+    where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
 
 END
 GO
