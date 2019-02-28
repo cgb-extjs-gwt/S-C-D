@@ -114,6 +114,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-hdd-retention.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-proactive.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-servicecosts.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.triggers.sql"));
             foreach (var query in queries)
             {
                 this.repositorySet.ExecuteSql(query);

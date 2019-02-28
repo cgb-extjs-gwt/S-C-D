@@ -42,7 +42,7 @@ namespace Gdc.Scd.Import.SfabImport
             {
                 UpdateCostBlocks(result.UpdateOptions);
                 Logger.Log(LogLevel.Info, ImportConstants.UPDATING_CONFIGURATION);
-                ConfigHandler.UpdateImportResult(configuration, DateTime.Now);
+                ConfigHandler.UpdateImportResult(configuration, result.ModifiedDateTime);
             }
             Logger.Log(LogLevel.Info, ImportConstants.END_PROCESS);
         }

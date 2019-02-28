@@ -28,56 +28,57 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public bool UploadHardware(HwFspCodeDto model)
         {
-            using (var transaction = this._repositorySet.GetTransaction())
+
+            try
             {
-                try
+                _logger.Log(LogLevel.Info, PorImportLoggingMessage.DELETE_BEGIN, nameof(HwFspCodeTranslation));
+                _repository.DeleteAll();
+                _logger.Log(LogLevel.Info, PorImportLoggingMessage.DELETE_END);
+
+                _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes");
+                var hwResult = true;
+
+                _repository.DisableTrigger();
+                hwResult = UploadCodes(model.HardwareCodes, code => code.Country, model.HwSla, model.Sla,
+                                       model.CreationDate, model.ProactiveServiceTypes, false);
+
+                _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, hwResult ? "0" : "-1");
+
+                _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes: ProActive");
+
+
+                var proActiveResult = UploadCodes(model.ProactiveCodes, code => code.Country, model.HwSla, model.Sla, model.CreationDate,
+                                                  model.ProactiveServiceTypes, true);
+
+                _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, proActiveResult ? "0" : "-1");
+
+                _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes: Standard Warranty");
+
+                Func<SCD2_v_SAR_new_codes, List<string>> getCountryCode = code =>
                 {
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.DELETE_BEGIN, nameof(HwFspCodeTranslation));
-                    _repository.DeleteAll();
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.DELETE_END);
-
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes");
-                    var hwResult = true;
-
-                    hwResult = UploadCodes(model.HardwareCodes, code => code.Country, model.HwSla, model.Sla, 
-                                           model.CreationDate, model.ProactiveServiceTypes, false);
-
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, hwResult ? "0" : "-1");
-
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes: ProActive");
+                    var mapping = model.LutCodes.Where(c => c.Service_Code.Equals(code.Service_Code));
+                    if (mapping.Count() == 0)
+                        return new List<string>();
+                    return mapping.Select(lut => lut.Country_Group).ToList();
+                };
 
 
-                    var proActiveResult = UploadCodes(model.ProactiveCodes, code => code.Country, model.HwSla, model.Sla, model.CreationDate, 
-                                                      model.ProactiveServiceTypes, true);
+                var stdwResult = UploadStdws(model.StandardWarranties, getCountryCode, model.HwSla, model.Sla,
+                                            model.CreationDate);
 
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, proActiveResult ? "0" : "-1");
+                _repository.EnableTrigger();
 
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes: Standard Warranty");
+                _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, stdwResult ? "0" : "-1");
 
-                    Func<SCD2_v_SAR_new_codes, List<string>> getCountryCode = code =>
-                    {
-                        var mapping = model.LutCodes.Where(c => c.Service_Code.Equals(code.Service_Code));
-                        if (mapping.Count() == 0)
-                            return new List<string>();
-                        return mapping.Select(lut => lut.Country_Group).ToList();
-                    };
+                var result = hwResult && proActiveResult && stdwResult;
 
+                return result;
+            }
+            catch (Exception ex)
+            {
 
-                     var stdwResult = UploadStdws(model.StandardWarranties, getCountryCode, model.HwSla, model.Sla,
-                                                 model.CreationDate);
-
-                    _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_ENDS, stdwResult ? "0" : "-1");
-
-                    var result = hwResult && proActiveResult && stdwResult;
-                    transaction.Commit();
-                    return result;
-                }
-                catch(Exception ex)
-                {
-                    transaction.Rollback();
-                    _logger.Log(LogLevel.Error, ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
-                    return false;
-                }
+                _logger.Log(LogLevel.Error, ex, PorImportLoggingMessage.UNEXPECTED_ERROR);
+                return false;
             }
         }
 
