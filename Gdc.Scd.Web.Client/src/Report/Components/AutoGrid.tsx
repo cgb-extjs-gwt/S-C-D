@@ -74,6 +74,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
                     ref="grid"
                     store={this.store}
                     width="100%"
+                    cls="grid-paging-no-count"
                     defaults={{ minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}
                     plugins={['pagingtoolbar']}>
 

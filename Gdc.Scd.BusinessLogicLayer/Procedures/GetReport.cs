@@ -48,28 +48,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             }
         }
 
-        public async Task<(string json, int total)> ExecuteFuncAsJsonAsync(
+        public Task<(string json, int total)> ExecuteFuncAsJsonAsync(
                 string func,
                 int start,
                 int limit,
                 DbParameter[] parameters
             )
         {
-            string sql;
+            string sql = SelectQuery(func, parameters, start, limit);
 
-            sql = CountQuery(func, parameters);
+            return _repo.ExecuteAsJsonAsync(sql, parameters);
 
-            var total = await _repo.ExecuteScalarAsync<int>(sql, parameters);
-
-            parameters = parameters.Copy();
-            sql = SelectQuery(func, parameters, start, limit);
-
-            var json = await _repo.ExecuteAsJsonAsync(sql, parameters);
-
-            return (json, total);
+            //return (json, total);
         }
 
-        public async Task<(string json, int total)> ExecuteProcAsJsonAsync(
+        public Task<(string json, int total)> ExecuteProcAsJsonAsync(
                 string proc,
                 int start,
                 int limit,
@@ -78,10 +71,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         {
             parameters = Prepare(parameters, start, limit);
 
-            var json = await _repo.ExecuteProcAsJsonAsync(proc, parameters);
-            var total = GetTotal(parameters);
-
-            return (json, total);
+            return _repo.ExecuteProcAsJsonAsync(proc, parameters);
         }
 
         private async Task<Stream> ExecuteExcelFuncAsync(ReportSchemaDto schema, string func, DbParameter[] parameters)
@@ -147,7 +137,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             var pLimit = new DbParameterBuilder().WithName("limit");
             var pTotal = new DbParameterBuilder().WithName("total").WithType(DbType.Int32).WithDirection(ParameterDirection.Output);
 
-            if (start > 0)
+            if (start >= 0)
             {
                 pLastId.WithValue(start);
             }
