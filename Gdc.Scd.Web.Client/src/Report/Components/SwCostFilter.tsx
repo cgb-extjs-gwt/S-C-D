@@ -6,6 +6,7 @@ import { NamedId } from "../../Common/States/CommonStates";
 import { DictFactory } from "../../Dict/Services/DictFactory";
 import { IDictService } from "../../Dict/Services/IDictService";
 import { MultiSelect } from "../../Dict/Components/MultiSelect";
+import { MultiSelectField } from "../../Dict/Components/MultiSelectField";
 
 Ext.require('Ext.panel.Collapser');
 
@@ -62,10 +63,7 @@ export class SwCostFilter extends React.Component<FilterPanelProps, any> {
                     }}
                 >
 
-                    <Panel title='SW digit'
-                        {...panelProps}>
-                        <MultiSelect ref={x => this.digit = x} {...multiProps} store={this.dictSrv.getSwDigit} />
-                    </Panel>
+                    <MultiSelectField ref={x => this.digit = x} {...multiProps} store={this.dictSrv.getSwDigit} label='SW digit'/>
                     <Panel title='Availability'
                         {...panelProps}>
                         <MultiSelect ref={x => this.avail = x} {...multiProps} store={this.dictSrv.getAvailabilityTypes} />
