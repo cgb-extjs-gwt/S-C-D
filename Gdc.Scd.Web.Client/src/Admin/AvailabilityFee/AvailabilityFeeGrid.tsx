@@ -87,6 +87,7 @@ class AvailabilityFeeAdminGrid extends React.Component{
                 <Grid
                     title={'Availability Fee Settings'}
                     store={this.store}
+                    cls="filter-grid"
                     columnLines={true}
                     width="100%"
                     height="100%"
