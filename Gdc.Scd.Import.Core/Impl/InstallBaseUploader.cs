@@ -137,6 +137,8 @@ namespace Gdc.Scd.Import.Core.Impl
                 }
             }
 
+            _repositoryInstallBase.DisableTrigger();
+
             if (batchList.Any())
             {
                 _repositoryInstallBase.Save(batchList);
@@ -198,6 +200,9 @@ namespace Gdc.Scd.Import.Core.Impl
             {
                 _repositoryInstallBase.Save(notReceiveIbs);
             }
+
+            _repositoryInstallBase.EnableTrigger();
+
             _logger.Log(LogLevel.Info, ImportConstants.ZEROS_SET, notReceiveIbs.Count);
             return new List<UpdateQueryOption>();
         }

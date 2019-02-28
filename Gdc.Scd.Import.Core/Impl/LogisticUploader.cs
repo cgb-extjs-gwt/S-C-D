@@ -50,13 +50,14 @@ namespace Gdc.Scd.Import.Core.Impl
         public IEnumerable<UpdateQueryOption> Upload(IEnumerable<LogisticsDto> items, DateTime modifiedDateTime)
         {
             UpdateWg(items, modifiedDateTime);
+            _availabilityFeeRepo.DisableTrigger();
             var updateSuccess = UpdateAvailabilityFee();
             if (updateSuccess)
             {
                 var result = UpdateLogistic(items, modifiedDateTime);
                 _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_AVAILABILITY_FEE_END, result);
             }
-
+            _availabilityFeeRepo.EnableTrigger();
             return new List<UpdateQueryOption>();
         }
 

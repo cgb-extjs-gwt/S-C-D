@@ -56,6 +56,8 @@ namespace Gdc.Scd.Import.Core.Impl
             var modifiedDateTime = _downloader.GetModifiedDateTime(downloadDto);
             _logger.Log(LogLevel.Info, ImportConstants.CHECK_LAST_MODIFIED_DATE_END, modifiedDateTime.ToString());
 
+            importResult.ModifiedDateTime = modifiedDateTime;
+
             _logger.Log(LogLevel.Info, ImportConstants.CHECK_CONFIGURATION, 
                 configuration.FileName, configuration.ProcessedDateTime?.ToLongDateString(), configuration.Occurancy);
 
