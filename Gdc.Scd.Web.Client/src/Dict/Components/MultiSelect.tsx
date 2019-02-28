@@ -42,6 +42,11 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
         sorters.add(this.nameField);
         //
         this.props.store().then(x => store.setData(x));
+        store.on('endupdate', () => {
+            if (this.props.value) {
+                this.lst.select(+this.props.value);
+            }
+        })
     }
 
     public render() {

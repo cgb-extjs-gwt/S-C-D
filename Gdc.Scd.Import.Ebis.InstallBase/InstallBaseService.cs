@@ -1,13 +1,10 @@
 ﻿using Gdc.Scd.Core.Enums;
+using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Import.Core.Interfaces;
 using Ninject;
 using NLog;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.Ebis.InstallBase
 {
@@ -19,7 +16,8 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
 
         static InstallBaseService()
         {
-            IKernel kernel = new StandardKernel(new Module());
+            NinjectExt.IsConsoleApplication = true;
+            IKernel kernel = CreateKernel();
             ConfigHandler = kernel.Get<IConfigHandler>();
             ImportManager = kernel.Get<IImportManager>();
             Logger = kernel.Get<ILogger<LogLevel>>();
@@ -38,6 +36,15 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
                 ConfigHandler.UpdateImportResult(configuration, DateTime.Now);
             }
             Logger.Log(LogLevel.Info, ImportConstants.END_PROCESS);
+        }
+
+        private static StandardKernel CreateKernel()
+        {
+            return new StandardKernel(
+                new Scd.Core.Module(),
+                new Scd.DataAccessLayer.Module(),
+                new Scd.BusinessLogicLayer.Module(),
+                new Module());
         }
     }
 }

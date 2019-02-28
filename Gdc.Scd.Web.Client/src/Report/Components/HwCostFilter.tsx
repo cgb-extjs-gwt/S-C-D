@@ -120,7 +120,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                     </Panel>
                     <Panel title='ProActive'
                         {...panelProps}>
-                        <MultiSelectProActive ref={x => this.proactive = x} {...multiProps} store={this.dictSrv.getProActive} />
+                        <MultiSelectProActive ref={x => this.proactive = x} {...multiProps} store={this.dictSrv.getProActive} value="0"/>
                     </Panel>
                 </Container>
 

@@ -12,7 +12,7 @@ export class MultiSelectField extends MultiSelect {
 
     public render() {
 
-        let { width, height, maxHeight, title } = this.props;
+        let { width, height, maxHeight, title, onselect } = this.props;
 
         title = '<h4>' + title + '</h4>';
 
@@ -42,6 +42,7 @@ export class MultiSelectField extends MultiSelect {
                         maxHeight={maxHeight}
                         selectable="multi"
                         scrollable="true"
+                        onSelect={onselect}
                     />
                 </Container>
             </div>

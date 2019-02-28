@@ -5,6 +5,7 @@ import { NamedId } from "../../Common/States/CommonStates";
 import { DictFactory } from "../../Dict/Services/DictFactory";
 import { IDictService } from "../../Dict/Services/IDictService";
 import { MultiSelect } from "../../Dict/Components/MultiSelect";
+import { MultiSelectField } from "../../Dict/Components/MultiSelectField";
 
 Ext.require('Ext.panel.Collapser');
 
@@ -58,10 +59,10 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
         };
 
         if (this.props.checkAccess) {
-            countryField = <MultiSelect ref={x => this.cnt = x} {...multiProps} store={this.dictSrv.getUserCountryNames} onselect={this.onCountryChange} />
+            countryField = <MultiSelectField ref={x => this.cnt = x} {...multiProps} store={this.dictSrv.getUserCountryNames} onselect={this.onCountryChange} label='Country' />
         }
         else {
-            countryField = <MultiSelect ref={x => this.cnt = x} {...multiProps} store={this.dictSrv.getMasterCountriesNames} onselect={this.onCountryChange} />;
+            countryField = <MultiSelectField ref={x => this.cnt = x} {...multiProps} store={this.dictSrv.getMasterCountriesNames} onselect={this.onCountryChange} label='Country' />;
         }
 
         return (
@@ -77,14 +78,9 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
                     }}
                 >
 
-                    <Panel title='Country'
-                        {...panelProps}>
-                        {countryField}
-                    </Panel>
-                    <Panel title='SW digit'
-                        {...panelProps}>
-                        <MultiSelect ref={x => this.digit = x} {...multiProps} store={this.dictSrv.getSwDigit} />
-                    </Panel>
+
+                    {countryField}
+                    <MultiSelectField ref={x => this.digit = x} {...multiProps} store={this.dictSrv.getSwDigit} label='SW digit' />
                     <Panel title='Availability'
                         {...panelProps}>
                         <MultiSelect ref={x => this.av = x} {...multiProps} store={this.dictSrv.getAvailabilityTypes} />

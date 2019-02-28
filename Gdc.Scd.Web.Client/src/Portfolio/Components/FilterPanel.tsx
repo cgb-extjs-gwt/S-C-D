@@ -5,6 +5,7 @@ import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
 import { DictFactory } from "../../Dict/Services/DictFactory";
 import { IDictService } from "../../Dict/Services/IDictService";
 import { MultiSelect } from "../../Dict/Components/MultiSelect";
+import { MultiSelectField } from "../../Dict/Components/MultiSelectField";
 import { MultiSelectWg } from "../../Dict/Components/MultiSelectWg";
 import { MultiSelectProActive } from "../../Dict/Components/MultiSelectProActive";
 
@@ -83,10 +84,8 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
                             clearable: 'true'              
                         }}
                     > 
-                        <Panel title='Country'
-                            {...panelProps}>
-                            <MultiSelect ref={x => this.country = x} {...multiProps} hideCheckbox={false} store={this.dictSrv.getUserCountryNames}/>
-                        </Panel>
+
+                        <MultiSelectField ref={x => this.country = x} {...multiProps} hideCheckbox={false} store={this.dictSrv.getUserCountryNames} label='Country'/>
                         <Panel title='Asset(WG)'
                             {...panelProps}>
                             <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getWG} />
