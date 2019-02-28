@@ -912,45 +912,30 @@ END
 GO
 
 CREATE VIEW [Hardware].[AvailabilityFeeView] as 
-    with WgCte as (
-        select wg.*
-             , case 
-                    when wg.WgType = 0 then 1
-                    else 0
-               end as IsMultiVendor
-        from InputAtoms.Wg wg
-    )
-    select fee.Country,
-           fee.Wg,
-           wg.IsMultiVendor, 
+    select   fee.Country
+           , fee.Wg
            
-           fee.InstalledBaseHighAvailability as IB,
-           fee.InstalledBaseHighAvailability_Approved as IB_Approved,
+           , case  when wg.WgType = 0 then 1 else 0 end as IsMultiVendor
            
-           fee.TotalLogisticsInfrastructureCost          / er.Value as TotalLogisticsInfrastructureCost,
-           fee.TotalLogisticsInfrastructureCost_Approved / er.Value as TotalLogisticsInfrastructureCost_Approved,
-
-           (case 
-                when wg.IsMultiVendor = 1 then fee.StockValueMv 
-                else fee.StockValueFj 
-            end) / er.Value as StockValue,
-
-           (case  
-                when wg.IsMultiVendor = 1 then fee.StockValueMv_Approved 
-                else fee.StockValueFj_Approved 
-            end) / er.Value as StockValue_Approved,
-       
-           fee.AverageContractDuration,
-           fee.AverageContractDuration_Approved,
-       
-           case when fee.JapanBuy = 1          then fee.CostPerKitJapanBuy else fee.CostPerKit end as CostPerKit,
-        
-           case when fee.JapanBuy_Approved = 1 then fee.CostPerKitJapanBuy else fee.CostPerKit end as CostPerKit_Approved,
-        
-           fee.MaxQty
+           , fee.InstalledBaseHighAvailability as IB
+           , fee.InstalledBaseHighAvailability_Approved as IB_Approved
+           
+           , fee.TotalLogisticsInfrastructureCost          / er.Value as TotalLogisticsInfrastructureCost
+           , fee.TotalLogisticsInfrastructureCost_Approved / er.Value as TotalLogisticsInfrastructureCost_Approved
+           
+           , case when wg.WgType = 0 then fee.StockValueMv          else fee.StockValueFj          end / er.Value as StockValue
+           , case when wg.WgType = 0 then fee.StockValueMv_Approved else fee.StockValueFj_Approved end / er.Value as StockValue_Approved
+           
+           , fee.AverageContractDuration
+           , fee.AverageContractDuration_Approved
+           
+           , case when fee.JapanBuy = 1          then fee.CostPerKitJapanBuy else fee.CostPerKit end as CostPerKit
+           , case when fee.JapanBuy_Approved = 1 then fee.CostPerKitJapanBuy else fee.CostPerKit end as CostPerKit_Approved
+           
+           , fee.MaxQty
 
     from Hardware.AvailabilityFee fee
-    JOIN WgCte wg on wg.Id = fee.Wg
+    JOIN InputAtoms.Wg wg on wg.Id = fee.Wg
     JOIN InputAtoms.Country c on c.Id = fee.Country
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 GO
