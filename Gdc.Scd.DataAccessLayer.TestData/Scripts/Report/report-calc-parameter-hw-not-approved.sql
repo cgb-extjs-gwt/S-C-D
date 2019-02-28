@@ -88,9 +88,10 @@ RETURN (
               , r.ReinsuranceFlatfee4 * er.Value                 as ReinsuranceFlatfee4
               , r.ReinsuranceFlatfee5 * er.Value                 as ReinsuranceFlatfee5
               , r.ReinsuranceFlatfeeP1 * er.Value                as ReinsuranceFlatfeeP1
-              , r.ReinsuranceUpliftFactor_4h_24x7 * er.Value     as ReinsuranceUpliftFactor_4h_24x7
-              , r.ReinsuranceUpliftFactor_4h_9x5 * er.Value      as ReinsuranceUpliftFactor_4h_9x5
-              , r.ReinsuranceUpliftFactor_NBD_9x5 * er.Value     as ReinsuranceUpliftFactor_NBD_9x5
+
+              , r.ReinsuranceUpliftFactor_4h_24x7     as ReinsuranceUpliftFactor_4h_24x7
+              , r.ReinsuranceUpliftFactor_4h_9x5      as ReinsuranceUpliftFactor_4h_9x5
+              , r.ReinsuranceUpliftFactor_NBD_9x5     as ReinsuranceUpliftFactor_NBD_9x5
 
               , mcw.MaterialCostWarranty * er.Value  as MaterialCostWarranty
               , mco.MaterialCostOow * er.Value       as MaterialCostOow
@@ -214,6 +215,7 @@ RETURN (
               , m.ReinsuranceFlatfee4
               , m.ReinsuranceFlatfee5
               , m.ReinsuranceFlatfeeP1
+
               , m.ReinsuranceUpliftFactor_4h_24x7
               , m.ReinsuranceUpliftFactor_4h_9x5
               , m.ReinsuranceUpliftFactor_NBD_9x5
@@ -352,11 +354,11 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ReinsuranceFlatfeeP1', 'Reinsurance Flatfee 1 year prolongation', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ReinsuranceUpliftFactor_4h_24x7', 'Reinsurance uplift factor 4h 24x7', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'ReinsuranceUpliftFactor_4h_24x7', 'Reinsurance uplift factor 4h 24x7 (%)', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ReinsuranceUpliftFactor_4h_9x5', 'Reinsurance uplift factor 4h 9x5', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'ReinsuranceUpliftFactor_4h_9x5', 'Reinsurance uplift factor 4h 9x5 (%)', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ReinsuranceUpliftFactor_NBD_9x5', 'Reinsurance uplift factor NBD 9x5', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'ReinsuranceUpliftFactor_NBD_9x5', 'Reinsurance uplift factor NBD 9x5 (%)', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'MaterialCostWarranty', 'Material cost iW', 1, 1);
