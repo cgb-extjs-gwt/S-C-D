@@ -143,9 +143,23 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                 result[i] = parameters[i];
             }
 
-            result[i++] = new DbParameterBuilder().WithName("lastid").WithValue(start).Build();
-            result[i++] = new DbParameterBuilder().WithName("limit").WithValue(limit).Build();
-            result[i++] = new DbParameterBuilder().WithName("total").WithType(DbType.Int32).WithDirection(ParameterDirection.Output).Build();
+            var pLastId = new DbParameterBuilder().WithName("lastid");
+            var pLimit = new DbParameterBuilder().WithName("limit");
+            var pTotal = new DbParameterBuilder().WithName("total").WithType(DbType.Int32).WithDirection(ParameterDirection.Output);
+
+            if (start > 0)
+            {
+                pLastId.WithValue(start);
+            }
+
+            if(limit > 0)
+            {
+                pLimit.WithValue(limit);
+            }
+
+            result[i++] = pLastId.Build();
+            result[i++] = pLimit.Build();
+            result[i++] = pTotal.Build();
 
             return result;
         }
