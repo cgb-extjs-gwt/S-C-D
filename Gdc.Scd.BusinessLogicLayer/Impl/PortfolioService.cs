@@ -84,6 +84,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                              .WhereIf(filter.IsCorePortfolio.HasValue && filter.IsCorePortfolio.Value, x => x.IsCorePortfolio);
             }
 
+            var count = await query.GetCountAsync();
+
             var result = await query.Select(x => new PortfolioDto
             {
                 Id = x.Id,
@@ -99,9 +101,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IsGlobalPortfolio = x.IsGlobalPortfolio,
                 IsMasterPortfolio = x.IsMasterPortfolio,
                 IsCorePortfolio = x.IsCorePortfolio
-            }).PagingAsync(start, limit+1);
-
-            var count = result.Length > limit ? start+ limit + 1 : start + limit;
+            }).PagingAsync(start, limit);
 
             return (result, count);
         }
