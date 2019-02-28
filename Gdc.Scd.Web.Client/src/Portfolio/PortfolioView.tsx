@@ -72,7 +72,6 @@ export class PortfolioView extends React.Component<any, any> {
                     width="100%"
                     height="100%"
                     selectable="multi"
-                    cls="myGrid"
                     plugins={['pagingtoolbar']}>
 
                     <NullStringColumn hidden={!isLocalPortfolio && !isCountryUser} flex="1" text="Country" dataIndex="country" />

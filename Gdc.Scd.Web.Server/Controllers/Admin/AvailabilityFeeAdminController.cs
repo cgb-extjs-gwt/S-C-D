@@ -23,7 +23,7 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
         public DataInfo<AdminAvailabilityFeeViewDto> GetAll([FromUri] AdminAvailabilityFeeFilterDto filter, [FromUri] int page = 1, [FromUri] int start = 0, [FromUri] int limit = 25)
         {
             int totalCount;
-            var allAvailabilityFeeCombinations = availabilityFeeAdminService.GetAllCombinations(page, limit+1, out totalCount, filter);
+            var allAvailabilityFeeCombinations = availabilityFeeAdminService.GetAllCombinations(page, limit, out totalCount, filter);
 
             var mappedCombinations = new List<AdminAvailabilityFeeViewDto>();
 
@@ -47,7 +47,7 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
             var model = new DataInfo<AdminAvailabilityFeeViewDto>()
             {
                 Items = mappedCombinations,
-                Total = mappedCombinations.Count > limit ? page * limit + 1 : page * limit
+                Total = totalCount
             };
 
             return model;
