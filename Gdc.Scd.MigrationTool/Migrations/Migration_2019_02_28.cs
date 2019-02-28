@@ -12,7 +12,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 24;
+        public int Number => 26;
 
         public string Description => "Enable/Disable triggers Stored Procedures";
 
