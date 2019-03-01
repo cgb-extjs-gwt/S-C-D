@@ -12,9 +12,8 @@ CREATE PROCEDURE [Report].[spLocapDetailed]
     @reactiontype bigint,
     @loc          bigint,
     @pro          bigint,
-    @lastid       bigint,
-    @limit        int,
-    @total        int output
+    @lastid       int,
+    @limit        int
 )
 AS
 BEGIN

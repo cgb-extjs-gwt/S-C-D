@@ -1,6 +1,5 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Report;
 using Gdc.Scd.BusinessLogicLayer.Helpers;
-using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using System.Data;
@@ -56,10 +55,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             )
         {
             string sql = SelectQuery(func, parameters, start, limit);
-
             return _repo.ExecuteAsJsonAsync(sql, parameters);
-
-            //return (json, total);
         }
 
         public Task<(string json, int total)> ExecuteProcAsJsonAsync(
@@ -99,13 +95,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             return func.Contains(".sp"); //TODO: remove stub form exec procedure
         }
 
-        private static string CountQuery(string func, DbParameter[] parameters)
-        {
-            return new SqlStringBuilder()
-                    .Append("SELECT COUNT(*) FROM ").AppendFunc(func, parameters)
-                    .Build();
-        }
-
         private static string SelectAllQuery(string func, DbParameter[] parameters)
         {
             return new SqlStringBuilder()
@@ -125,7 +114,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         private static DbParameter[] Prepare(DbParameter[] parameters, int start, int limit)
         {
             var len = parameters.Length;
-            var result = new DbParameter[len + 3];
+            var result = new DbParameter[len + 2];
 
             int i = 0;
             for (; i < len; i++)
@@ -133,30 +122,22 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                 result[i] = parameters[i];
             }
 
-            var pLastId = new DbParameterBuilder().WithName("lastid");
-            var pLimit = new DbParameterBuilder().WithName("limit");
-            var pTotal = new DbParameterBuilder().WithName("total").WithType(DbType.Int32).WithDirection(ParameterDirection.Output);
+            var pLastId = new DbParameterBuilder().WithName("lastid").WithType(DbType.Int32).WithValue(start);
+            var pLimit = new DbParameterBuilder().WithName("limit").WithType(DbType.Int32);
 
-            if (start >= 0)
-            {
-                pLastId.WithValue(start);
-            }
-
-            if(limit > 0)
+            if (limit > 0)
             {
                 pLimit.WithValue(limit);
+            }
+            else
+            {
+                pLimit.WithNull();
             }
 
             result[i++] = pLastId.Build();
             result[i++] = pLimit.Build();
-            result[i++] = pTotal.Build();
 
             return result;
-        }
-
-        private static int GetTotal(DbParameter[] parameters)
-        {
-            return parameters[parameters.Length - 1].GetInt32();
         }
     }
 }

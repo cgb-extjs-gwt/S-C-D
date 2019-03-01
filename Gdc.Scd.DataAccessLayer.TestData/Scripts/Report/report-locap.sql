@@ -13,8 +13,7 @@ CREATE PROCEDURE [Report].[spLocap]
     @loc          bigint,
     @pro          bigint,
     @lastid       bigint,
-    @limit        int,
-    @total        int output
+    @limit        int
 )
 AS
 BEGIN
