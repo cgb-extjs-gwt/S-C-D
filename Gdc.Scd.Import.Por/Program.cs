@@ -208,7 +208,7 @@ namespace Gdc.Scd.Import.Por
                 step++;
 
                 //STEP 9: UPLOAD COST BLOCKS
-                 PorService.UpdateCostBlocks(step, PorService.UpdateQueryOptions);
+                PorService.UpdateCostBlocks(step, PorService.UpdateQueryOptions);
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.END_PROCESS);
             }
 
@@ -218,5 +218,6 @@ namespace Gdc.Scd.Import.Por
                 Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstantMessages.UNEXPECTED_ERROR, ex, null, null);
             }
         }
+        
     }
 }

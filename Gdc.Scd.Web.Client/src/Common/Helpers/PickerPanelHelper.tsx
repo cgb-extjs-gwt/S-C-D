@@ -63,17 +63,20 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
         }
     }
 
-    loadUsers = () => {
+    loadUsers = (combo, e) => {
         let value = this.pickerField.getValue()
-        if (value && value.length > 2) {
-            clearTimeout(this.typingTimer);
-            this.typingTimer = setTimeout(()=>this.storeLoad(value), this.doneTypingInterval);
-        }
-        else {
-            var userStore = this.pickerField.getStore();
-            userStore.removeAll();
-            this.pickerField.collapse();
-        }
+        if (e.keyCode != 38 && e.keyCode != 40)//arrow UP and DOWN
+        {
+            if (value && value.length > 2) {
+                clearTimeout(this.typingTimer);
+                this.typingTimer = setTimeout(() => this.storeLoad(value), this.doneTypingInterval);
+            }
+            else {
+                var userStore = this.pickerField.getStore();
+                userStore.removeAll();
+                this.pickerField.collapse();
+            }
+        }    
     }
 
     storeLoad = (value) => {
@@ -117,7 +120,7 @@ export default class PickerPanelHelper extends React.Component<PickerPanelProps,
                 valueField="item"
                 queryMode="remote"
                 labelAlign="placeholder"
-                onKeyUp={() => this.loadUsers()}
+                onKeyUp={(combo, e) => this.loadUsers(combo, e)}
                 onChange={onChange}
                 valueNotFoundText="no results"
                 value={value && value}
