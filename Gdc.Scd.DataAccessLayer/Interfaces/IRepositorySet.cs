@@ -44,9 +44,9 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<DataTable> ExecuteProcAsTableAsync(string procName, params DbParameter[] parameters);
 
-        Task<string> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters);
+        Task<(string json, int total)> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters);
 
-        Task<string> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters);
+        Task<(string json, int total)> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters);
 
         Task<Stream> ExecuteAsJsonStreamAsync(string sql, params DbParameter[] parameters);
 

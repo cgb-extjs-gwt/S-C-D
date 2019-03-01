@@ -43,7 +43,7 @@ namespace Gdc.Scd.Web.Server.Controllers.Admin
                     InnerId = af.Id ?? 0
                 }).ToList();
             }
-            
+
             var model = new DataInfo<AdminAvailabilityFeeViewDto>()
             {
                 Items = mappedCombinations,
