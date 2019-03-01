@@ -13,46 +13,80 @@ CREATE PROCEDURE [Report].[spLocap]
     @loc          bigint,
     @pro          bigint,
     @lastid       bigint,
-    @limit        int,
-    @total        int output
+    @limit        int
 )
 AS
 BEGIN
 
-    if @limit > 0 select @total = count(id) from Portfolio.GetBySlaFspSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
-
     declare @sla Portfolio.Sla;
-    insert into @sla select * from Portfolio.GetBySlaFspSinglePaging(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, @lastid, @limit) m
 
-    select m.Id
-         , m.Fsp
-         , wg.Description as WgDescription
-         , m.FspDescription as ServiceLevel
+    insert into @sla 
+        select   -1
+                , Id
+                , CountryId
+                , WgId
+                , AvailabilityId
+                , DurationId
+                , ReactionTimeId
+                , ReactionTypeId
+                , ServiceLocationId
+                , ProActiveSlaId
+                , Sla
+                , SlaHash
+                , ReactionTime_Avalability
+                , ReactionTime_ReactionType
+                , ReactionTime_ReactionType_Avalability
+                , null
+                , null
+    from Portfolio.GetBySlaSog(@cnt, (select SogId from InputAtoms.Wg where id = @wg), @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
 
-         , m.ReactionTime
-         , m.Year as ServicePeriod
-         , wg.Name as Wg
+    with cte as (
+        select m.* 
+        from Hardware.GetCostsSlaSog(1, @sla) m
+        where m.WgId = @wg
+    )
+    , cte2 as (
+        select  
+                ROW_NUMBER() over(ORDER BY (SELECT 1)) as rownum
 
-         , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
-         , m.ServiceTC * m.ExchangeRate as ServiceTC
-         , m.ServiceTP_Released  * m.ExchangeRate as ServiceTP_Released
-         , cur.Name as Currency
+                , m.*
+                , fsp.Name as Fsp
+                , fsp.ServiceDescription as ServiceLevel
+
+        from cte m
+        left join Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla
+    )
+    select    m.Id
+            , m.Fsp
+            , m.WgDescription
+            , m.ServiceLevel
+
+            , m.ReactionTime
+            , m.Year as ServicePeriod
+            , m.Wg
+
+            , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
+            , m.ServiceTcSog * m.ExchangeRate as ServiceTC
+            , m.ServiceTpSog  * m.ExchangeRate as ServiceTP_Released
+            , cur.Name as Currency
          
-         , m.Country
-         , m.Availability                       + ', ' +
-               m.ReactionType                   + ', ' +
-               m.ReactionTime                   + ', ' +
-               cast(m.Year as nvarchar(1))      + ', ' +
-               m.ServiceLocation                + ', ' +
-               m.ProActiveSla as ServiceType
+            , m.Country
+            , m.Availability                       + ', ' +
+                  m.ReactionType                   + ', ' +
+                  m.ReactionTime                   + ', ' +
+                  cast(m.Year as nvarchar(1))      + ', ' +
+                  m.ServiceLocation                + ', ' +
+                  m.ProActiveSla as ServiceType
 
-         , null as PlausiCheck
-         , null as PortfolioType
-         , null as ReleaseCreated
-         , wg.Sog
-    from Hardware.GetCostsSla(1, @sla) m
-    join InputAtoms.WgSogView wg on wg.id = m.WgId
+            , null as PlausiCheck
+            , null as PortfolioType
+            , null as ReleaseCreated
+            , m.Sog
+
+    from cte2 m
     join [References].Currency cur on cur.Id = m.CurrencyId
+
+    where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
 
 END
 go
