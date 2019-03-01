@@ -67,13 +67,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return (d, fn);
         }
 
-        public Task<(string json, int total)> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit)
+        public async Task<(string json, int total)> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit)
         {
             var r = GetSchemas().GetSchema(reportId);
             var func = r.Report.SqlFunc;
             var parameters = r.FillParameters(filter);
 
-            return new GetReport(repositorySet).ExecuteJsonAsync(func, start, limit, parameters);
+            var d = await new GetReport(repositorySet).ExecuteJsonAsync(func, start, limit + 1, parameters);
+
+            return (d.json, d.total < limit ? start + d.total : start + limit + 1);
         }
 
         public ReportDto[] GetReports()
