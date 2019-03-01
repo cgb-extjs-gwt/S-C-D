@@ -44,11 +44,13 @@ export abstract class DictField<T> extends React.Component<DictFieldProps, any> 
         sorters.add(this.nameField);
 
         this.getItems().then(x => store.setData(x));     
-        store.on('endupdate', () => {
-            if (this.props.value) {
-                this.combo.setValue(this.props.value);
-            }        
-        });
+        store.on('datachanged', this.setDefaultValue);
+    }
+
+    private setDefaultValue = () => {
+        if (this.props.value) {
+            this.combo.setValue(this.props.value);
+        }    
     }
 
     public getValue(): string {
