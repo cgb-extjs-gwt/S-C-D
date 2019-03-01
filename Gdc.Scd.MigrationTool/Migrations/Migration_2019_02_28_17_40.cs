@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 26;
+        public int Number => 28;
 
         public string Description => "Fix report locap, add calc by SOG";
 
