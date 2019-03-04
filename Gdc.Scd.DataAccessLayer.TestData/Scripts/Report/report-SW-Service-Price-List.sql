@@ -4,6 +4,7 @@ go
 
 CREATE FUNCTION [Report].[SwServicePriceList]
 (
+    @sog bigint,
     @digit bigint,
     @av bigint,
     @year bigint
@@ -24,6 +25,7 @@ begin
 
     declare @digitList dbo.ListId; 
     if @digit is not null insert into @digitList(id) values(@digit);
+    if @sog is not null insert into @digitList(id) select id from InputAtoms.SwDigit where SogId = @sog;
 
     declare @avList dbo.ListId; 
     if @av is not null insert into @avList(id) values(@av);
@@ -100,10 +102,12 @@ set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
 
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'swdigit' and MultiSelect=0), 'digit', 'SW digit');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('sog', 0), 'sog', 'SOG');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'availability' and MultiSelect=0), 'av', 'Availability');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('swdigit', 0), 'digit', 'SW digit');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, (select id from Report.ReportFilterType where Name = 'year' and MultiSelect=0), 'year', 'Year');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('availability', 0), 'av', 'Availability');
+set @index = @index + 1;
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('year', 0), 'year', 'Year');
 
 GO
