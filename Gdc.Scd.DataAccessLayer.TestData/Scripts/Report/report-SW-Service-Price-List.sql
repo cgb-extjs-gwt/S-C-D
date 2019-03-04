@@ -4,58 +4,64 @@ go
 
 CREATE FUNCTION [Report].[SwServicePriceList]
 (
-	@digit bigint,
-	@av bigint,
-	@year bigint
+    @digit bigint,
+    @av bigint,
+    @year bigint
 )
 RETURNS @tbl TABLE (
-	 LicenseDescription nvarchar(max) NULL
-	,Sog nvarchar(max) NULL
-	,Fsp nvarchar(max) NULL
-	,ServiceDescription nvarchar(max) NULL
-	,ServiceShortDescription nvarchar(max) NULL
-
-	,TP float NULL
-	,DealerPrice float NULL
-	,ListPrice float NULL
+      LicenseDescription nvarchar(max) NULL
+    , Sog nvarchar(max) NULL
+    , Fsp nvarchar(max) NULL
+    , ServiceDescription nvarchar(max) NULL
+    , ServiceShortDescription nvarchar(max) NULL
+      
+    , TP float NULL
+    , DealerPrice float NULL
+    , ListPrice float NULL
 )
 as
 begin
-	declare @digitList dbo.ListId; 
-	if @digit is not null insert into @digitList(id) select id from Portfolio.IntToListID(@digit);
 
-	declare @avList dbo.ListId; 
-	if @av is not null insert into @avList(id) select id from Portfolio.IntToListID(@av);
+    declare @digitList dbo.ListId; 
+    if @digit is not null insert into @digitList(id) values(@digit);
 
-	declare @yearList dbo.ListId; 
-	if @year is not null insert into @yearList(id) select id from Portfolio.IntToListID(@year);
+    declare @avList dbo.ListId; 
+    if @av is not null insert into @avList(id) values(@av);
 
-	insert into @tbl
-	select 
-			  dl.Description as LicenseDescription
-			, sog.Name as Sog
-			, fsp.Name as Fsp
+    declare @yearList dbo.ListId; 
+    if @year is not null insert into @yearList(id) values(@year);
 
-			, fsp.ServiceDescription as ServiceDescription
-			, fsp.ShortDescription as ServiceShortDescription
+    insert into @tbl
+    select 
+              lic.Description as LicenseDescription
+            , sog.Name as Sog
+            , fsp.Name as Fsp
 
-			, sw.TransferPrice as TP
-			, sw.DealerPrice as DealerPrice
-			, sw.MaintenanceListPrice as ListPrice
+            , fsp.ServiceDescription as ServiceDescription
+            , fsp.ShortDescription as ServiceShortDescription
 
-	from SoftwareSolution.GetCosts(1, @digitList, @avList, @yearList, -1, -1) sw
-	join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
-	join InputAtoms.Sog sog on sog.id = sw.Sog
-	left join (
-			SELECT SwDigitId, lic.Description, ROW_NUMBER() OVER (PARTITION BY SwDigitId ORDER BY digLic.Id DESC) AS rn
-			FROM InputAtoms.SwDigitLicense digLic
-			JOIN InputAtoms.SwLicense lic ON digLic.SwLicenseId = lic.Id
-			WHERE lic.Description IS NOT NULL) dl
-	ON dl.SwDigitId = dig.Id
-	left join Fsp.SwFspCodeTranslation fsp on fsp.AvailabilityId = sw.Availability
-										  and fsp.DurationId = sw.Year
-										  and fsp.SogId = sw.Sog
-return
+            , sw.TransferPrice as TP
+            , sw.DealerPrice as DealerPrice
+            , sw.MaintenanceListPrice as ListPrice
+
+    from SoftwareSolution.GetCosts(1, @digitList, @avList, @yearList, -1, -1) sw
+    join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
+    join InputAtoms.Sog sog on sog.id = sw.Sog
+
+    left join Fsp.SwFspCodeTranslation fsp on fsp.AvailabilityId = sw.Availability
+                                              and fsp.DurationId = sw.Year
+                                              and fsp.SwDigitId = sw.SwDigit
+
+    outer apply (
+
+        --get first existing row with valid description
+
+        SELECT top(1) lic.Description
+        FROM InputAtoms.SwLicense lic
+        WHERE lic.Description IS NOT NULL and exists (select * from InputAtoms.SwDigitLicense sdl where sdl.SwLicenseId = lic.Id and sdl.SwDigitId = dig.Id)
+    ) lic;
+
+    return
 end
 GO
 
