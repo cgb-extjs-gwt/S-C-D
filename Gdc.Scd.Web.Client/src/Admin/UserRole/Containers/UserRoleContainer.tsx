@@ -6,6 +6,7 @@ import { buildMvcUrl } from "../../../Common/Services/Ajax";
 import { UserRoleFilterPanel } from "../Filter/UserRoleFilterPanel"; 
 import { UserRoleFilterModel } from "../Filter/UserRoleFilterModel";
 import { UserRoleService } from "../Services/UserRoleService";
+import { ExportService } from "../../../Report/Services/ExportService";
 
 const CONTROLLER_NAME = 'UserRole';
 const USER_CONTROLLER_NAME = 'User';
@@ -152,6 +153,11 @@ export default class RoleCodesContainer extends React.Component {
         filter.country ? this.store.filterBy(record => record.data.countryId == filter.country) : false
     }
 
+    private onDownload(filter: UserRoleFilterModel & any) {
+        filter = filter || {};
+        ExportService.Download('User-Roles', null, filter);
+    }
+
     storeUser = Ext.create('Ext.data.Store', {
         model: 'User',
         autoLoad: false,
@@ -203,6 +209,7 @@ export default class RoleCodesContainer extends React.Component {
                     ref="filter"
                     docked="right"
                     onSearch={this.onSearch.bind(this)}
+                    onDownload={this.onDownload.bind(this)}
                     storeUser={this.storeUser}
                     roles={this.state.roles}
                     countries={this.state.countries}
