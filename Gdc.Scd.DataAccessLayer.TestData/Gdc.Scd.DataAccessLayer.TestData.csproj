@@ -44,6 +44,7 @@
     <None Remove="Scripts\Report\report-Logistic-cost-input-country.sql" />
     <None Remove="Scripts\Report\report-solutionpack-proactive-costing.sql" />
     <None Remove="Scripts\Report\report-SW-Service-Price-List-detail.sql" />
+    <None Remove="Scripts\triggers.sql" />
   </ItemGroup>
 
   <ItemGroup>
@@ -104,6 +105,9 @@
 
   <ItemGroup>
     <EmbeddedResource Include="..\Gdc.Scd.DataAccessLayer\DataBaseScripts\Portfolio\portfolio-func.sql" Link="Scripts\portfolio-func.sql" />
+    <EmbeddedResource Include="Scripts\triggers.sql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -117,12 +121,6 @@
 
   <ItemGroup>
     <Reference Include="System.Configuration" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Scripts\triggers.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
