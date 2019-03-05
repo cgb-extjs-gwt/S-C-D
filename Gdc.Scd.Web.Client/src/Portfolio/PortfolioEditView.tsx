@@ -3,18 +3,18 @@ import * as React from "react";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildComponentUrl } from "../Common/Services/Ajax";
-import { UserCountryField } from "../Dict/Components/UserCountryField";
-import { UserCountryService } from "../Dict/Services/UserCountryService";
+import { NamedId } from "../Common/States/CommonStates";
 import { DictField } from "../Dict/Components/DictField";
+import { MultiSelect } from "../Dict/Components/MultiSelect";
+import { MultiSelectProActive } from "../Dict/Components/MultiSelectProActive";
+import { MultiSelectWg } from "../Dict/Components/MultiSelectWg";
+import { UserCountryField } from "../Dict/Components/UserCountryField";
 import { DictFactory } from "../Dict/Services/DictFactory";
 import { IDictService } from "../Dict/Services/IDictService";
-import { MultiSelect } from "../Dict/Components/MultiSelect";
-import { MultiSelectWg } from "../Dict/Components/MultiSelectWg";
+import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { PortfolioEditModel } from "./Model/PortfolioEditModel";
 import { IPortfolioService } from "./Services/IPortfolioService";
 import { PortfolioServiceFactory } from "./Services/PortfolioServiceFactory";
-import { MultiSelectProActive } from "../Dict/Components/MultiSelectProActive";
-import { NamedId } from "../Common/States/CommonStates";
 
 const SELECT_MAX_HEIGHT: string = '260px';
 

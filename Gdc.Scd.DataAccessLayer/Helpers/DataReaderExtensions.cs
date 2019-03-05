@@ -47,21 +47,22 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return entities;
         }
 
-        public static string MapToJsonArray(this DbDataReader reader)
+        public static (string json, int total) MapToJsonArray(this DbDataReader reader)
         {
             if (IsEmpty(reader))
             {
-                return "[]";
+                return ("[]", 0);
             }
 
+            int total = 0;
             var sb = new StringBuilder(512);
 
             using (var writer = new JsonTextWriter(new StringWriter(sb)))
             {
-                WriteJsonArray(reader, writer);
+                total = WriteJsonArray(reader, writer);
             }
 
-            return sb.ToString();
+            return (sb.ToString(), total);
         }
 
         public static Stream MapToJsonArrayStream(this DbDataReader reader)
@@ -103,14 +104,16 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return reader == null || !reader.HasRows || reader.FieldCount <= 0;
         }
 
-        private static void WriteJsonArray(DbDataReader reader, JsonWriter writer)
+        private static int WriteJsonArray(DbDataReader reader, JsonWriter writer)
         {
+            int total = 0;
             int i, fieldCount = reader.FieldCount;
 
             writer.WriteStartArray();
 
             while (reader.Read())
             {
+                total++;
                 writer.WriteStartObject();
 
                 for (i = 0; i < fieldCount; i++)
@@ -128,6 +131,8 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             }
 
             writer.WriteEndArray();
+
+            return total;
         }
     }
 }

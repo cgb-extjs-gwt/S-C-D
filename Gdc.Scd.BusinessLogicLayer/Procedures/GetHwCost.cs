@@ -23,10 +23,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         {
             var parameters = Prepare(approved, filter, lastid, limit);
 
-            var json = await _repo.ExecuteProcAsJsonAsync(PROC, parameters);
+            
+            var d = await _repo.ExecuteProcAsJsonAsync(PROC, parameters);
             var total = GetTotal(parameters);
 
-            return (json, total);
+            return (d.json, total);
         }
 
         private static DbParameter[] Prepare(bool approved, HwFilterDto filter, int lastid, int limit)

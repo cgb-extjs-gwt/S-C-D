@@ -78,7 +78,9 @@ namespace Gdc.Scd.Import.Core.Impl
 
             if (batchList.Any())
             {
+                _repositoryAfr.DisableTrigger();
                 _repositoryAfr.Save(batchList);
+                _repositoryAfr.EnableTrigger();
             }
 
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, batchList.Count);

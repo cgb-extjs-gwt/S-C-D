@@ -185,7 +185,7 @@ export default class RoleCodesContainer extends React.Component {
         }
     }
     );   
-
+  
     render() {
         const { isVisibleForm, selectedRecord } = this.state;
 

@@ -215,7 +215,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
-        public Task<string> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters)
+        public Task<(string json, int total)> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>
             {
@@ -228,7 +228,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
-        public Task<string> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters)
+        public Task<(string json, int total)> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>
             {
