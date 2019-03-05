@@ -1228,9 +1228,6 @@ alter table Hardware.FieldServiceCost
       , TimeAndMaterialShare_norm_Approved as (TimeAndMaterialShare_Approved / 100)
 GO
 
-CREATE NONCLUSTERED INDEX [ix_Hardware_FieldServiceCost] ON [Hardware].[FieldServiceCost] ([Country],[Wg],[ServiceLocation],[ReactionTimeType])
-GO
-
 CREATE VIEW [Hardware].[FieldServiceCostView] AS
     SELECT  fsc.Country,
             fsc.Wg,
@@ -1271,6 +1268,159 @@ CREATE VIEW [Hardware].[FieldServiceCostView] AS
     LEFT JOIN Hardware.RoleCodeHourlyRates hr on hr.RoleCode = wg.RoleCodeId and hr.Country = fsc.Country
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 GO
+
+IF OBJECT_ID('Hardware.FieldServiceCalc', 'U') IS NOT NULL
+  DROP TABLE Hardware.FieldServiceCalc;
+go
+
+CREATE TABLE Hardware.FieldServiceCalc (
+      [Country]             bigint NOT NULL foreign key references InputAtoms.Country(Id)
+    , [Wg]                  bigint NOT NULL foreign key references InputAtoms.Wg(Id)
+    , [ServiceLocation]     bigint NOT NULL foreign key references Dependencies.ServiceLocation(Id)
+
+    , [RepairTime]          float
+    , [RepairTime_Approved] float
+    , [TravelTime]          float
+    , [TravelTime_Approved] float
+    , [TravelCost]          float
+    , [TravelCost_Approved] float
+    , [LabourCost]          float
+    , [LabourCost_Approved] float
+
+    CONSTRAINT PK_FieldServiceCalc PRIMARY KEY NONCLUSTERED (Country, Wg, ServiceLocation)
+)
+GO
+
+ALTER INDEX PK_FieldServiceCalc ON Hardware.FieldServiceCalc DISABLE;  
+go
+
+ALTER TABLE Hardware.FieldServiceCalc NOCHECK CONSTRAINT ALL
+go
+
+insert into Hardware.FieldServiceCalc(
+            Country
+          , Wg
+          , ServiceLocation
+          , RepairTime
+          , RepairTime_Approved
+          , TravelTime
+          , TravelTime_Approved
+          , TravelCost
+          , TravelCost_Approved
+          , LabourCost
+          , LabourCost_Approved)
+select    fsc.Country
+        , fsc.Wg
+        , fsc.ServiceLocation
+        , MIN(fsc.RepairTime)
+        , MIN(fsc.RepairTime_Approved)
+        , MIN(fsc.TravelTime)
+        , MIN(fsc.TravelTime_Approved)
+        , MIN(fsc.TravelCost)
+        , MIN(fsc.TravelCost_Approved)
+        , MIN(fsc.LabourCost)
+        , MIN(fsc.LabourCost_Approved)
+from Hardware.FieldServiceCost fsc
+group by fsc.Country, fsc.Wg, fsc.ServiceLocation;
+go
+
+ALTER INDEX PK_FieldServiceCalc ON Hardware.FieldServiceCalc REBUILD;  
+GO
+
+ALTER TABLE Hardware.FieldServiceCalc CHECK CONSTRAINT ALL
+go
+
+IF OBJECT_ID('Hardware.FieldServiceTimeCalc', 'U') IS NOT NULL
+  DROP TABLE Hardware.FieldServiceTimeCalc;
+go
+
+CREATE TABLE Hardware.FieldServiceTimeCalc (
+      [Country]                       bigint NOT NULL foreign key references InputAtoms.Country(Id)
+    , [Wg]                            bigint NOT NULL foreign key references InputAtoms.Wg(Id)
+    , [ReactionTimeType]              bigint NOT NULL foreign key references Dependencies.ReactionTime_ReactionType(Id)
+
+    , [PerformanceRate]               float
+    , [PerformanceRate_Approved]      float
+    , [TimeAndMaterialShare]          float
+    , [TimeAndMaterialShare_Approved] float
+
+    , [TimeAndMaterialShare_norm]          as (TimeAndMaterialShare / 100)
+    , [TimeAndMaterialShare_norm_Approved] as (TimeAndMaterialShare_Approved / 100)
+
+    CONSTRAINT PK_FieldServiceTimeCalc PRIMARY KEY NONCLUSTERED (Country, Wg, ReactionTimeType)
+)
+GO
+
+ALTER INDEX PK_FieldServiceTimeCalc ON Hardware.FieldServiceTimeCalc DISABLE;  
+go
+
+ALTER TABLE Hardware.FieldServiceTimeCalc NOCHECK CONSTRAINT ALL
+go
+
+insert into Hardware.FieldServiceTimeCalc(Country, Wg, ReactionTimeType, PerformanceRate, PerformanceRate_Approved, TimeAndMaterialShare, TimeAndMaterialShare_Approved)
+select    fsc.Country
+        , fsc.Wg
+        , fsc.ReactionTimeType
+        , MIN(fsc.PerformanceRate)
+        , MIN(fsc.PerformanceRate_Approved)
+        , MIN(fsc.TimeAndMaterialShare)
+        , MIN(fsc.TimeAndMaterialShare_Approved)
+from Hardware.FieldServiceCost fsc
+join Dependencies.ReactionTimeType rtt on rtt.id = fsc.ReactionTimeType and rtt.IsDisabled = 0
+group by fsc.Country, fsc.Wg, fsc.ReactionTimeType;
+go
+
+ALTER INDEX PK_FieldServiceTimeCalc ON Hardware.FieldServiceTimeCalc REBUILD;  
+go
+
+ALTER TABLE Hardware.FieldServiceTimeCalc CHECK CONSTRAINT ALL
+go
+
+IF OBJECT_ID('[Hardware].[FieldServiceCost_Updated]', 'TR') IS NOT NULL
+  DROP TRIGGER [Hardware].[FieldServiceCost_Updated];
+go
+
+CREATE TRIGGER [Hardware].[FieldServiceCost_Updated]
+ON [Hardware].[FieldServiceCost]
+After UPDATE
+AS BEGIN
+
+    with cte as (
+        select i.*
+        from inserted i
+        join deleted d on d.Id = i.Id
+    )
+    update fsc 
+            set RepairTime = c.RepairTime
+              , RepairTime_Approved = c.RepairTime_Approved
+
+              , TravelTime = c.TravelTime
+              , TravelTime_Approved = c.TravelTime_Approved
+              
+              , TravelCost = c.TravelCost
+              , TravelCost_Approved = c.TravelCost_Approved
+              
+              , LabourCost = c.LabourCost
+              , LabourCost_Approved = c.LabourCost_Approved
+    from Hardware.FieldServiceCalc fsc
+    join cte c on c.Country = fsc.Country and c.Wg = fsc.Wg and c.ServiceLocation = fsc.ServiceLocation;
+
+    with cte as (
+        select i.*
+        from inserted i
+        join deleted d on d.Id = i.Id
+    )
+    update fst 
+            set PerformanceRate = c.PerformanceRate
+              , PerformanceRate_Approved = c.PerformanceRate_Approved
+
+              , TimeAndMaterialShare = c.TimeAndMaterialShare
+              , TimeAndMaterialShare_Approved = c.TimeAndMaterialShare_Approved
+    from Hardware.FieldServiceTimeCalc fst
+    join cte c on c.Country = fst.Country and c.Wg = fst.Wg and c.ReactionTimeType = fst.ReactionTimeType
+
+END
+go
 
 alter table Hardware.TaxAndDuties
     add TaxAndDuties_norm          as (TaxAndDuties / 100)
@@ -1588,13 +1738,13 @@ RETURN
             --##### FIELD SERVICE COST STANDARD WARRANTY #########                                                                                               
             , case when @approved = 0 then fscStd.LabourCost                  else fscStd.LabourCost_Approved              end / er.Value as StdLabourCost             
             , case when @approved = 0 then fscStd.TravelCost                  else fscStd.TravelCost_Approved              end / er.Value as StdTravelCost             
-            , case when @approved = 0 then fscStd.PerformanceRate             else fscStd.PerformanceRate_Approved         end / er.Value as StdPerformanceRate        
+            , case when @approved = 0 then fstStd.PerformanceRate             else fstStd.PerformanceRate_Approved         end / er.Value as StdPerformanceRate        
 
             --##### FIELD SERVICE COST #########                                                                                               
             , case when @approved = 0 then fsc.LabourCost                     else fsc.LabourCost_Approved                 end / er.Value as LabourCost             
             , case when @approved = 0 then fsc.TravelCost                     else fsc.TravelCost_Approved                 end / er.Value as TravelCost             
-            , case when @approved = 0 then fsc.PerformanceRate                else fsc.PerformanceRate_Approved            end / er.Value as PerformanceRate        
-            , case when @approved = 0 then fsc.TimeAndMaterialShare_norm      else fsc.TimeAndMaterialShare_norm_Approved  end as TimeAndMaterialShare   
+            , case when @approved = 0 then fst.PerformanceRate                else fst.PerformanceRate_Approved            end / er.Value as PerformanceRate        
+            , case when @approved = 0 then fst.TimeAndMaterialShare_norm      else fst.TimeAndMaterialShare_norm_Approved  end as TimeAndMaterialShare   
             , case when @approved = 0 then fsc.TravelTime                     else fsc.TravelTime_Approved                 end as TravelTime             
             , case when @approved = 0 then fsc.RepairTime                     else fsc.RepairTime_Approved                 end as RepairTime             
             , case when @approved = 0 then hr.OnsiteHourlyRates               else hr.OnsiteHourlyRates_Approved           end as OnsiteHourlyRates      
@@ -1712,9 +1862,11 @@ RETURN
 
     LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Duration = m.DurationId AND r.ReactionTimeAvailability = m.ReactionTime_Avalability
 
-    LEFT JOIN Hardware.FieldServiceCost fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId AND fsc.ReactionTimeType = m.ReactionTime_ReactionType
+    LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId
+    LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Wg = m.WgId AND fst.Country = m.CountryId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
 
-    LEFT JOIN Hardware.FieldServiceCost fscStd ON fscStd.Country = stdw.Country AND fscStd.Wg = stdw.Wg AND fscStd.ServiceLocation = stdw.ServiceLocationId AND fscStd.ReactionTimeType = stdw.ReactionTime_ReactionType
+    LEFT JOIN Hardware.FieldServiceCalc fscStd ON fscStd.Country = stdw.Country AND fscStd.Wg = stdw.Wg AND fscStd.ServiceLocation = stdw.ServiceLocationId
+    LEFT JOIN Hardware.FieldServiceTimeCalc fstStd ON fstStd.Country = stdw.Country AND fstStd.Wg = stdw.Wg AND fstStd.ReactionTimeType = stdw.ReactionTime_ReactionType
 
     LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTimeType = m.ReactionTime_ReactionType
 
@@ -2068,13 +2220,13 @@ RETURN
             --##### FIELD SERVICE COST STANDARD WARRANTY #########                                                                                               
             , case when @approved = 0 then fscStd.LabourCost                  else fscStd.LabourCost_Approved              end / er.Value as StdLabourCost             
             , case when @approved = 0 then fscStd.TravelCost                  else fscStd.TravelCost_Approved              end / er.Value as StdTravelCost             
-            , case when @approved = 0 then fscStd.PerformanceRate             else fscStd.PerformanceRate_Approved         end / er.Value as StdPerformanceRate        
+            , case when @approved = 0 then fstStd.PerformanceRate             else fstStd.PerformanceRate_Approved         end / er.Value as StdPerformanceRate        
 
             --##### FIELD SERVICE COST #########                                                                                               
             , case when @approved = 0 then fsc.LabourCost                     else fsc.LabourCost_Approved                 end / er.Value as LabourCost             
             , case when @approved = 0 then fsc.TravelCost                     else fsc.TravelCost_Approved                 end / er.Value as TravelCost             
-            , case when @approved = 0 then fsc.PerformanceRate                else fsc.PerformanceRate_Approved            end / er.Value as PerformanceRate        
-            , case when @approved = 0 then fsc.TimeAndMaterialShare_norm      else fsc.TimeAndMaterialShare_norm_Approved  end as TimeAndMaterialShare   
+            , case when @approved = 0 then fst.PerformanceRate                else fst.PerformanceRate_Approved            end / er.Value as PerformanceRate        
+            , case when @approved = 0 then fst.TimeAndMaterialShare_norm      else fst.TimeAndMaterialShare_norm_Approved  end as TimeAndMaterialShare   
             , case when @approved = 0 then fsc.TravelTime                     else fsc.TravelTime_Approved                 end as TravelTime             
             , case when @approved = 0 then fsc.RepairTime                     else fsc.RepairTime_Approved                 end as RepairTime             
             , case when @approved = 0 then hr.OnsiteHourlyRates               else hr.OnsiteHourlyRates_Approved           end as OnsiteHourlyRates      
@@ -2192,9 +2344,11 @@ RETURN
 
     LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Duration = m.DurationId AND r.ReactionTimeAvailability = m.ReactionTime_Avalability
 
-    LEFT JOIN Hardware.FieldServiceCost fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId AND fsc.ReactionTimeType = m.ReactionTime_ReactionType
+    LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId
+    LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Wg = m.WgId AND fst.Country = m.CountryId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
 
-    LEFT JOIN Hardware.FieldServiceCost fscStd ON fscStd.Country = stdw.Country AND fscStd.Wg = stdw.Wg AND fscStd.ServiceLocation = stdw.ServiceLocationId AND fscStd.ReactionTimeType = stdw.ReactionTime_ReactionType
+    LEFT JOIN Hardware.FieldServiceCalc fscStd ON fscStd.Country = stdw.Country AND fscStd.Wg = stdw.Wg AND fscStd.ServiceLocation = stdw.ServiceLocationId
+    LEFT JOIN Hardware.FieldServiceTimeCalc fstStd ON fstStd.Country = stdw.Country AND fstStd.Wg = stdw.Wg AND fstStd.ReactionTimeType = stdw.ReactionTime_ReactionType
 
     LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTimeType = m.ReactionTime_ReactionType
 
@@ -2214,7 +2368,7 @@ RETURN
 
     LEFT JOIN dbo.[User] u on u.Id = man.ChangeUserId
 )
-GO
+go
 
 IF OBJECT_ID('[Hardware].[GetCostsSla]') IS NOT NULL
     DROP FUNCTION [Hardware].[GetCostsSla]
