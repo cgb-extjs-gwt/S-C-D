@@ -195,13 +195,12 @@ CREATE FUNCTION Portfolio.IsListEmpty(@list dbo.ListID readonly)
 RETURNS bit
 AS
 BEGIN
-	
-	declare @result bit = 1;
+    declare @result bit = 1;
 
     if exists(select 1 from @list)
        set @result = 0;
    
-   	RETURN @result;
+    RETURN @result;
 
 END
 go

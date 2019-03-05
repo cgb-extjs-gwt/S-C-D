@@ -1,5 +1,5 @@
 export class PortfolioEditModel {
-    public countryId: string;
+    public countries: string[];
 
     public wgs: string[];
 
@@ -23,7 +23,7 @@ export class PortfolioEditModel {
 
     public isValid() {
         let m = this;
-        let valid = m.countryId || m.isGlobalPortfolio || m.isMasterPortfolio || m.isCorePortfolio;
+        let valid = m.countries.length > 0 || m.isGlobalPortfolio || m.isMasterPortfolio || m.isCorePortfolio;
 
         if (valid) {
             valid =
