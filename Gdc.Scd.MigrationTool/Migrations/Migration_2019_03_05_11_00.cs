@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 29;
+        public int Number => 31;
 
         public string Description => "Normalize field service cost table";
 

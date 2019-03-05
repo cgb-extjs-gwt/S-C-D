@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 29;
+        public int Number => 30;
 
         public string Description => "Fix report sw, add filter by sog";
 
