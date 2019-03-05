@@ -22,7 +22,7 @@
 ('CalcOutput-new-vs-old', 'Country CalcOutput new vs. old report (e.g.  Germany_CalcOutput new vs. old)', 1, 0, 'Report.CalcOutputNewVsOld'),
 
 --Solution Pack reports 
-('SolutionPack-ProActive-Costing', 'Country SolutionPack ProActive Costing report (e.g.  Germany_SolutionPack ProActive Costing)', 1, 0, 'Report.SolutionPackProActiveCosting'),
+('SolutionPack-ProActive-Costing', 'Country SolutionPack ProActive Costing report', 1, 0, 'Report.SolutionPackProActiveCosting'),
 ('SolutionPack-Price-List', 'SolutionPack Price List report', 0, 0, 'Report.SolutionPackPriceList'),
 ('SolutionPack-Price-List-Details', 'SolutionPack Price List Detailed report', 0, 0, 'Report.SolutionPackPriceListDetail'),
 
@@ -47,6 +47,8 @@
 
 ('SW-CALC-RESULT', 'Software & Solution service costs', 1,  1, 'Report.SwCalcResult'),
 
-('SW-PROACTIVE-CALC-RESULT', 'Software & Solution proactive cost', 1,  1, 'Report.SwProactiveCalcResult');
+('SW-PROACTIVE-CALC-RESULT', 'Software & Solution proactive cost', 1,  1, 'Report.SwProactiveCalcResult'),
+
+('User-Roles', 'User roles', 0,  0, 'Report.UserRoles');
 
 
