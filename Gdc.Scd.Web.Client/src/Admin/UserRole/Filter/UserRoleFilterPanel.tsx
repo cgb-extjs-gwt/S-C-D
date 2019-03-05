@@ -6,7 +6,8 @@ export interface UserRoleFilterPanelProps extends PanelProps {
     storeUser?,
     roles: any[],
     countries: any[],
-    onSearch(filter: UserRoleFilterModel): void
+    onSearch(filter: UserRoleFilterModel): void,
+    onDownload(filter: UserRoleFilterModel): void
 }
 
 export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProps, any> {
@@ -29,7 +30,7 @@ export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProp
         let storeEmail = storeUser.data.items.slice().sort(this.compare);
 
         return (
-            <Panel title="Filter By" {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px" width="350px">
+            <Panel title="Filter By" {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px" width="350px" layout={{ type: 'vbox', align: 'left' }}> 
 
                 <Container margin="10px 0"
                     defaults={{
@@ -46,7 +47,9 @@ export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProp
                     <ComboBoxField ref="country" label="Country:" options={countries} />
                 </Container>
 
-                <Button text="Search" ui="action" width="100px" handler={this.onSearch} margin="20px auto" />
+                <Button text="Search" ui="action" width="100px" margin="20px auto" handler={this.onSearch} />
+
+                <Button text="Download" ui="action" minWidth="100px" margin="20px auto" iconCls="x-fa fa-download" handler={this.onDownload} />
 
             </Panel>
         );
@@ -69,11 +72,19 @@ export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProp
 
     private init() {
         this.onSearch = this.onSearch.bind(this);
+        this.onDownload = this.onDownload.bind(this);
     }
 
 
     private onSearch() {
         let handler = this.props.onSearch;
+        if (handler) {
+            handler(this.getModel());
+        }
+    }
+
+    private onDownload() {
+        let handler = this.props.onDownload;
         if (handler) {
             handler(this.getModel());
         }
