@@ -534,7 +534,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 costElementInfos.Select(info => info.Meta.InputLevelFields.Select(field => field.ReferenceMeta).OfType<NamedEntityMeta>())
                                 .ToArray();
 
-            var metas = coordinateLists[0];
+            var metas = coordinateLists.Count() > 0 ? coordinateLists[0] : Enumerable.Empty<NamedEntityMeta>();
 
             for (var index = 1; index < coordinateLists.Length; index++)
             {
