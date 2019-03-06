@@ -1778,6 +1778,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "proactive" , MultiSelect = false },
                 new ReportFilterType { Name = "usercountry" , MultiSelect = false },
                 new ReportFilterType { Name = "swdigit" , MultiSelect = false },
+                new ReportFilterType { Name = "swdigitsog" , MultiSelect = false },
                 new ReportFilterType { Name = "wgall" , MultiSelect = false },
                 new ReportFilterType { Name = "wgstandard" , MultiSelect = false },
 
@@ -1791,6 +1792,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "year" , MultiSelect = true },
                 new ReportFilterType { Name = "proactive" , MultiSelect = true },
                 new ReportFilterType { Name = "swdigit" , MultiSelect = true },
+                new ReportFilterType { Name = "swdigitsog" , MultiSelect = true },
                 new ReportFilterType { Name = "wgstandard" , MultiSelect = true }
             };
 

@@ -2,7 +2,7 @@
   DROP FUNCTION Report.CalcParameterHwNotApproved;
 go 
 
-CREATE FUNCTION Report.CalcParameterHwNotApproved
+CREATE FUNCTION [Report].[CalcParameterHwNotApproved]
 (
     @cnt bigint,
     @wg bigint,
@@ -37,7 +37,7 @@ RETURN (
 
               , fsc.LabourCost as LabourCost
               , fsc.TravelCost as TravelCost
-              , fsc.PerformanceRate as PerformanceRate
+              , fst.PerformanceRate as PerformanceRate
               , fsc.TravelTime as TravelTime
               , fsc.RepairTime as RepairTime
               , hr.OnsiteHourlyRates as OnsiteHourlyRate
@@ -55,11 +55,11 @@ RETURN (
       
               , tax.TaxAndDuties_norm * er.Value  as TaxAndDutiesW
 
-              , moc.Markup * er.Value        as MarkupOtherCost
+              , moc.Markup                   as MarkupOtherCost
               , moc.MarkupFactor             as MarkupFactorOtherCost
 
               , msw.MarkupFactorStandardWarranty             as MarkupFactorStandardWarranty
-              , msw.MarkupStandardWarranty * er.Value        as MarkupStandardWarranty
+              , msw.MarkupStandardWarranty                   as MarkupStandardWarranty
       
               , afr.AFR1  as AFR1
               , afr.AFR2  as AFR2
@@ -69,10 +69,10 @@ RETURN (
               , afr.AFRP1 as AFRP1
 
               , Hardware.CalcFieldServiceCost(
-                            fsc.TimeAndMaterialShare_norm, 
+                            fst.TimeAndMaterialShare_norm, 
                             fsc.TravelCost, 
                             fsc.LabourCost, 
-                            fsc.PerformanceRate, 
+                            fst.PerformanceRate, 
                             fsc.TravelTime, 
                             fsc.RepairTime, 
                             hr.OnsiteHourlyRates, 
@@ -129,9 +129,8 @@ RETURN (
         LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
         --cost blocks
-        LEFT JOIN Hardware.FieldServiceCost fsc ON fsc.Wg = m.WgId 
-                                                AND fsc.Country = m.CountryId 
-                                                AND fsc.ReactionTimeType = m.ReactionTime_ReactionType
+        LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId
+        LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Wg = m.WgId AND fst.Country = m.CountryId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
 
         LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId 
                                             AND lc.Wg = m.WgId
@@ -244,7 +243,7 @@ RETURN (
 
     from CostCte m
 )
-GO
+go
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CALCULATION-PARAMETER-HW-NOT-APPROVED');
 declare @index int = 0;
@@ -304,11 +303,11 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'TaxAndDutiesW', 'Tax & duties', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'MarkupFactorOtherCost', 'Markup factor for other cost', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'MarkupFactorOtherCost', 'Markup factor for other cost', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'MarkupOtherCost', 'Markup for other cost', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'MarkupFactorStandardWarranty', 'Markup factor for standard warranty local cost', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'MarkupFactorStandardWarranty', 'Markup factor for standard warranty local cost', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'MarkupStandardWarranty', 'Markup for standard warranty local cost', 1, 1);
 

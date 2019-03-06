@@ -20,6 +20,7 @@ import { DictFactory } from "../../Dict/Services/DictFactory";
 import { IDictService } from "../../Dict/Services/IDictService";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
 import { AutoFilterType } from "../Model/AutoFilterType";
+import { SwDigitSogField } from "../../Dict/Components/SwDigitSogField";
 
 export interface AutoFilterPanelProps extends PanelProps {
     filter: AutoFilterModel[];
@@ -115,6 +116,9 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
             case AutoFilterType.SWDIGIT:
                 return <SwDigitField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
+            case AutoFilterType.SWDIGITSOG:
+                return <SwDigitSogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+
             case AutoFilterType.TEXT:
             default:
                 return <TextField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
@@ -154,6 +158,8 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
             case AutoFilterType.SERVICELOCATION: store = this.dictSrv.getServiceLocationTypes; break;
 
             case AutoFilterType.SWDIGIT: store = this.dictSrv.getSwDigit; break;
+
+            case AutoFilterType.SWDIGITSOG: store = this.dictSrv.getSwDigitSog; break;
 
             default: return null;
         }

@@ -97,6 +97,10 @@ export class DictService implements IDictService {
         return new SwDigitService().getAll();
     }
 
+    getSwDigitSog(): Promise<NamedId<string>[]> {
+        return new SwDigitService().sog();
+    }
+
     public getAvailabilityTypes(): Promise<NamedId<string>[]> {
         return new AvailabilityService().getAll();
     }
