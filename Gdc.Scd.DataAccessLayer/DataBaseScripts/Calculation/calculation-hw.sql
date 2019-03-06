@@ -3235,7 +3235,7 @@ IF OBJECT_ID('Hardware.GetCostsSlaSog') IS NOT NULL
   DROP FUNCTION Hardware.GetCostsSlaSog;
 go
 
-CREATE FUNCTION Hardware.GetCostsSlaSog(@approved bit, @sla Portfolio.Sla readonly)
+CREATE FUNCTION [Hardware].[GetCostsSlaSog](@approved bit, @sla Portfolio.Sla readonly)
 RETURNS TABLE 
 AS
 RETURN 
@@ -3294,16 +3294,16 @@ RETURN
 
              , ib.InstalledBaseCountry
 
-             , (sum(m.ServiceTC * ib.InstalledBaseCountry)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_tc 
-             , (sum(ib.InstalledBaseCountry)                                             over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib
-             , (sum(m.ServiceTP_Released * ib.InstalledBaseCountry)                      over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_tp
+             , (sum(m.ServiceTC * ib.InstalledBaseCountry)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tc 
+             , (sum(case when m.ServiceTC > 0 then ib.InstalledBaseCountry end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tc
+             , (sum(m.ServiceTP_Released * ib.InstalledBaseCountry)                      over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp
              , (sum(case when m.ServiceTP_Released > 0 then ib.InstalledBaseCountry end) over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp
 
              , m.ListPrice
              , m.DealerDiscount
              , m.DealerPrice
 
-        from Hardware.CalcServiceCostSla(@approved, @sla) m
+        from Hardware.GetCostsSla(@approved, @sla) m
         join InputAtoms.Wg wg on wg.id = m.WgId
         join InputAtoms.Sog sog on sog.id = wg.SogId
         left join Hardware.InstallBase ib on ib.Country = m.CountryId and ib.Wg = m.WgId
@@ -3359,8 +3359,8 @@ RETURN
             , m.LocalServiceStandardWarranty
             , m.Credits
 
-            , m.sum_ib_tc / m.sum_ib       as ServiceTcSog
-            , m.sum_ib_tp / m.sum_ib_by_tp as ServiceTpSog
+            , case when m.sum_ib_by_tc > 0 then m.sum_ib_x_tc / m.sum_ib_by_tc end as ServiceTcSog
+            , case when m.sum_ib_by_tp > 0 then m.sum_ib_x_tp / m.sum_ib_by_tp end as ServiceTpSog
     
             , m.ListPrice
             , m.DealerDiscount
