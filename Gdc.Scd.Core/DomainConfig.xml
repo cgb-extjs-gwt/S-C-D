@@ -426,7 +426,8 @@
           </CostEditor>
         </Element>
         <Element Name="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
-          <CostEditor>
+            <TypeOption Type="CountryCurrencyCost"/>
+            <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
@@ -453,7 +454,8 @@
           </CostEditor>
         </Element>
         <Element Name="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
-          <CostEditor>
+            <TypeOption Type="CountryCurrencyCost"/>
+            <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
@@ -480,7 +482,8 @@
           </CostEditor>
         </Element>
         <Element Name="MarkupStandardWarranty" Caption="Markup for standard warranty local cost" InputOption="Manually">
-          <CostEditor>
+            <TypeOption Type="CountryCurrencyCost"/>
+            <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
