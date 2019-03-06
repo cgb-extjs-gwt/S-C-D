@@ -28,6 +28,7 @@ RETURN (
                 , wg.Name as Wg
         
             --SLA
+                , er.Value as ExchangeRate
                 , c.Name as Country
                 , dur.Name as Duration
                 , dur.Value as Year
@@ -48,23 +49,23 @@ RETURN (
 
                 , mcw.MaterialCostWarranty, mcw.MaterialCostWarranty_Approved
 
-                , coalesce(tax.TaxAndDuties, 0) as TaxAndDuties, coalesce(tax.TaxAndDuties_Approved, 0) as TaxAndDuties_Approved
+                , coalesce(tax.TaxAndDuties_norm, 0) as TaxAndDuties, coalesce(tax.TaxAndDuties_norm_Approved, 0) as TaxAndDuties_Approved
 
-                , fsc.TravelCost + fsc.LabourCost + coalesce(fsc.PerformanceRate, 0) as FieldServicePerYearStdw
-                , fsc.TravelCost_Approved + fsc.LabourCost_Approved + coalesce(fsc.PerformanceRate_Approved, 0)  as FieldServicePerYearStdw_Approved
+                , fsc.TravelCost + fsc.LabourCost + coalesce(fst.PerformanceRate, 0) / er.Value as FieldServicePerYearStdw
+                , fsc.TravelCost_Approved + fsc.LabourCost_Approved + coalesce(fst.PerformanceRate_Approved, 0) / er.Value  as FieldServicePerYearStdw_Approved
 
                 , ssc.ServiceSupport         , ssc.ServiceSupport_Approved
 
-                , lc.StandardHandling + lc.HighAvailabilityHandling + lc.StandardDelivery + lc.ExpressDelivery + lc.TaxiCourierDelivery + lc.ReturnDeliveryFactory as LogisticPerYearStdw
-                , lc.StandardHandling_Approved + lc.HighAvailabilityHandling_Approved + lc.StandardDelivery_Approved + lc.ExpressDelivery_Approved + lc.TaxiCourierDelivery_Approved + lc.ReturnDeliveryFactory_Approved as LogisticPerYearStdw_Approved
+                , (lc.StandardHandling + lc.HighAvailabilityHandling + lc.StandardDelivery + lc.ExpressDelivery + lc.TaxiCourierDelivery + lc.ReturnDeliveryFactory) / er.Value as LogisticPerYearStdw
+                , (lc.StandardHandling_Approved + lc.HighAvailabilityHandling_Approved + lc.StandardDelivery_Approved + lc.ExpressDelivery_Approved + lc.TaxiCourierDelivery_Approved + lc.ReturnDeliveryFactory_Approved) / er.Value as LogisticPerYearStdw_Approved
 
-                , coalesce(case when afEx.Id is not null then af.Fee end, 0) as AvailabilityFee
+                , coalesce(case when afEx.Id is not null then af.Fee end, 0)          as AvailabilityFee
                 , coalesce(case when afEx.Id is not null then af.Fee_Approved end, 0) as AvailabilityFee_Approved
 
-                , msw.MarkupFactorStandardWarranty , msw.MarkupFactorStandardWarranty_Approved  
+                , msw.MarkupFactorStandardWarranty_norm AS MarkupFactorStandardWarranty, msw.MarkupFactorStandardWarranty_norm_Approved AS MarkupFactorStandardWarranty_Approved  
                 , msw.MarkupStandardWarranty       , msw.MarkupStandardWarranty_Approved        
 
-        FROM Portfolio.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
+        FROM Portfolio.GetBySlaSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
 
         INNER JOIN InputAtoms.Country c on c.id = m.CountryId
 
@@ -82,6 +83,8 @@ RETURN (
 
         INNER JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
+        LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+
         LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId 
 
         LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
@@ -92,25 +95,18 @@ RETURN (
 
         LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
-        LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Country = stdw.Country AND fsc.Wg = stdw.Wg AND fsc.ServiceLocation = stdw.ServiceLocationId AND fsc.ReactionTypeId = stdw.ReactionTypeId AND fsc.ReactionTimeId = stdw.ReactionTimeId
+        LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Country = stdw.Country AND fsc.Wg = stdw.Wg AND fsc.ServiceLocation = stdw.ServiceLocationId
+        LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Country = stdw.Country AND fst.Wg = stdw.Wg AND fst.ReactionTimeType = stdw.ReactionTime_ReactionType
 
-        LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = stdw.Country AND lc.Wg = stdw.Wg AND lc.ReactionTime = stdw.ReactionTimeId AND lc.ReactionType = stdw.ReactionTypeId
+        LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = stdw.Country AND lc.Wg = stdw.Wg AND lc.ReactionTimeType = stdw.ReactionTime_ReactionType
 
-        LEFT JOIN Hardware.MarkupStandardWarantyView msw on msw.Wg = m.WgId AND msw.Country = m.CountryId AND msw.ReactionTimeId = m.ReactionTimeId AND msw.ReactionTypeId = m.ReactionTypeId AND msw.AvailabilityId = m.AvailabilityId
+        LEFT JOIN Hardware.MarkupStandardWaranty msw on msw.Wg = m.WgId AND msw.Country = m.CountryId
 
         LEFT JOIN Hardware.AvailabilityFeeCalc af on af.Country = m.CountryId AND af.Wg = m.WgId
 
         LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
 
-        LEFT JOIN Fsp.HwFspCodeTranslation fsp on   fsp.SlaHash = m.SlaHash 
-                                                and fsp.CountryId = m.CountryId
-                                                and fsp.WgId = m.WgId
-                                                and fsp.AvailabilityId = m.AvailabilityId
-                                                and fsp.DurationId = m.DurationId
-                                                and fsp.ReactionTimeId = m.ReactionTimeId
-                                                and fsp.ReactionTypeId = m.ReactionTypeId
-                                                and fsp.ServiceLocationId = m.ServiceLocationId
-                                                and fsp.ProactiveSlaId = m.ProActiveSlaId
+        LEFT JOIN Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla
     )
     , CostCte as (
         select    m.*
@@ -176,7 +172,6 @@ RETURN (
                         then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost5, m.ServiceSupport, m.Logistic5, m.tax5, m.AFR5, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                         else 0 
                     end as LocalServiceStandardWarranty5
-                , 0     as LocalServiceStandardWarranty1P
 
                 , case when m.StdWarranty >= 1 
                         then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost1_Approved, m.ServiceSupport_Approved, m.Logistic1_Approved, m.tax1_Approved, m.AFR1_Approved, 1 + m.MarkupFactorStandardWarranty_Approved, m.MarkupStandardWarranty_Approved)
@@ -198,7 +193,6 @@ RETURN (
                         then Hardware.CalcLocSrvStandardWarranty(m.FieldServiceCost5_Approved, m.ServiceSupport_Approved, m.Logistic5_Approved, m.tax5_Approved, m.AFR5_Approved, 1 + m.MarkupFactorStandardWarranty_Approved, m.MarkupStandardWarranty_Approved)
                         else 0 
                     end as LocalServiceStandardWarranty5_Approved
-                , 0     as LocalServiceStandardWarranty1P_Approved
 
         from CostCte m
     )
@@ -214,12 +208,14 @@ RETURN (
          
             , (m.Duration + ' ' + m.ServiceLocation) as ServiceProduct
          
-            , Hardware.CalcByDur(m.Year, m.IsProlongation, m.LocalServiceStandardWarranty1, m.LocalServiceStandardWarranty2, m.LocalServiceStandardWarranty3, m.LocalServiceStandardWarranty4, m.LocalServiceStandardWarranty5, m.LocalServiceStandardWarranty1P) as StandardWarranty
-            , Hardware.CalcByDur(m.Year, m.IsProlongation, m.LocalServiceStandardWarranty1_Approved, m.LocalServiceStandardWarranty2_Approved, m.LocalServiceStandardWarranty3_Approved, m.LocalServiceStandardWarranty4_Approved, m.LocalServiceStandardWarranty5_Approved, m.LocalServiceStandardWarranty1P_Approved) as StandardWarranty_Approved
+            , (m.LocalServiceStandardWarranty1 + m.LocalServiceStandardWarranty2 + m.LocalServiceStandardWarranty3 + m.LocalServiceStandardWarranty4 + m.LocalServiceStandardWarranty5) * m.ExchangeRate as StandardWarranty
+            , (m.LocalServiceStandardWarranty1_Approved + m.LocalServiceStandardWarranty2_Approved + m.LocalServiceStandardWarranty3_Approved + m.LocalServiceStandardWarranty4_Approved + m.LocalServiceStandardWarranty5_Approved) * m.ExchangeRate  as StandardWarranty_Approved
+            , cur.Name as Currency
     from CostCte2 m
+    join InputAtoms.Country cnt on cnt.id = @cnt
+    join [References].Currency cur on cur.Id = cnt.CurrencyId
 )
-
-GO
+go
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CALCOUTPUT-VS-FREEZE');
 declare @index int = 0;
@@ -227,46 +223,46 @@ declare @index int = 0;
 delete from Report.ReportColumn where ReportId = @reportId;
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Country', 'Country Name', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Country', 'Country Name', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SogDescription', 'Portfolio Alignment', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'SogDescription', 'Portfolio Alignment', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Fsp', 'Product_No', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Fsp', 'Product_No', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'WgDescription', 'Warranty Group Name', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'WgDescription', 'Warranty Group Name', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceLocation', 'Service Level', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ServiceLocation', 'Service Level', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ReactionTime', 'Reaction Time', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ReactionTime', 'Reaction Time', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ProActiveSla', 'ProActive SLA', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ProActiveSla', 'ProActive SLA', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Wg', 'Warranty Group', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Wg', 'Warranty Group', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ServiceProduct', 'Service Product', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ServiceProduct', 'Service Product', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'StandardWarranty', 'Not approved standard warranty', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'StandardWarranty', 'Not approved standard warranty', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 4, 'StandardWarranty_Approved', 'Approved standard warranty', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'StandardWarranty_Approved', 'Approved standard warranty', 1, 1);
 
 set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 7, 'cnt', 'Country Name');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('country', 0), 'cnt', 'Country Name');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 4, 'wg', 'Warranty Group');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wg', 0), 'wg', 'Warranty Group');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 8, 'av', 'Availability');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('availability', 0), 'av', 'Availability');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 9, 'dur', 'Service period');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('duration', 0), 'dur', 'Service period');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 10, 'reactiontime', 'Reaction time');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('reactiontime', 0), 'reactiontime', 'Reaction time');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 11, 'reactiontype', 'Reaction type');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('reactiontype', 0), 'reactiontype', 'Reaction type');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 12, 'loc', 'Service location');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('servicelocation', 0), 'loc', 'Service location');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, 14, 'pro', 'ProActive');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('proactive', 0), 'pro', 'ProActive');
 
 GO

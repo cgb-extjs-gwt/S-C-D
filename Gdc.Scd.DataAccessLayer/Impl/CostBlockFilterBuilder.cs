@@ -93,6 +93,23 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return regionFilter.Concat(coordinateFilter).ToDictionary(keyValue => keyValue.Key, keyValue => keyValue.Value);
         }
 
+        public IDictionary<string, IEnumerable<object>> BuildCoordinateItemsFilter(CostBlockEntityMeta costBlockMeta, string costElementId, string coordinateId)
+        {
+            IDictionary<string, IEnumerable<object>> filter = null;
+
+            var coordinateField = costBlockMeta.GetDomainCoordinateField(costElementId, coordinateId);
+            var costElementMeta = costBlockMeta.DomainMeta.CostElements[costElementId];
+
+            if (costElementMeta.Dependency?.Id == coordinateId && !costElementMeta.IncludeDisabledDependcyItems)
+            {
+                filter = this.BuildCoordinateItemsFilter(coordinateField.ReferenceMeta);
+            }
+
+            return filter;
+        }
+
+        // TODO: Need use BuildCoordinateItemsFilter(CostBlockEntityMeta costBlockMeta, string costElementId, string coordinateId)
+        // need to be redone in the future
         public IDictionary<string, IEnumerable<object>> BuildCoordinateItemsFilter(BaseEntityMeta coordinateMeta)
         {
             Dictionary<string, IEnumerable<object>> filter = null;

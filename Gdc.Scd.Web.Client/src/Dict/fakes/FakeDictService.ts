@@ -14,6 +14,12 @@ import { fakeWG } from "./FakeWG";
 import { fakeYears } from "./FakeYear";
 
 export class FakeDictService implements IDictService {
+    getSwDigitSog(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
+    getCurrencies(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
     getMasterCountriesNames(): Promise<NamedId<string>[]> {
         throw new Error("Method not implemented.");
     }
@@ -42,6 +48,10 @@ export class FakeDictService implements IDictService {
         throw new Error("Method not implemented.");
     }
     public getCountryGroupLuts(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
+
+    public getRegions(): Promise<NamedId[]> {
         throw new Error("Method not implemented.");
     }
 

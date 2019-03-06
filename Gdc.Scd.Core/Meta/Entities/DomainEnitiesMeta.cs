@@ -31,6 +31,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public EntityMeta LocalPortfolio { get; set; }
 
+        public ExchangeRateEntityMeta ExchangeRate { get; set; }
+
         public MetaCollection<BaseEntityMeta> OtherMetas { get; } = new MetaCollection<BaseEntityMeta>();
 
         public MetaCollection<RelatedItemsHistoryEntityMeta> RelatedItemsHistories { get; } = new MetaCollection<RelatedItemsHistoryEntityMeta>();
@@ -47,6 +49,11 @@ namespace Gdc.Scd.Core.Meta.Entities
                 if (this.LocalPortfolio != null)
                 {
                     yield return this.LocalPortfolio;
+                }
+
+                if (this.ExchangeRate != null)
+                {
+                    yield return this.ExchangeRate;
                 }
 
                 var fields =

@@ -38,13 +38,15 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters);
 
+        Task ExecuteProcAsync(string procName, Action<DbDataReader> mapFunc, params DbParameter[] parameters);
+
         List<T> ExecuteProc<T>(string procName, params DbParameter[] parameters) where T : new();
 
         Task<DataTable> ExecuteProcAsTableAsync(string procName, params DbParameter[] parameters);
 
-        Task<string> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters);
+        Task<(string json, int total)> ExecuteProcAsJsonAsync(string procName, params DbParameter[] parameters);
 
-        Task<string> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters);
+        Task<(string json, int total)> ExecuteAsJsonAsync(string sql, params DbParameter[] parameters);
 
         Task<Stream> ExecuteAsJsonStreamAsync(string sql, params DbParameter[] parameters);
 

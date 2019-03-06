@@ -28,7 +28,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IDomainService<Wg> wgService;
 
-        private readonly IDomainService<RoleCode> roleCodeService;
+        private readonly IRoleCodeService roleCodeService;
 
         private readonly ICostBlockService costBlockService;
 
@@ -41,7 +41,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             ICostBlockHistoryService costBlockHistoryService,
             IQualityGateSevice qualityGateSevice,
             IDomainService<Wg> wgService,
-            IDomainService<RoleCode> roleCodeService,
+            IRoleCodeService roleCodeService,
             ICostBlockService costBlockService,
             DomainEnitiesMeta meta)
         {
@@ -118,7 +118,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 CostBlockReferences = await this.tableViewRepository.GetReferences(costBlockInfos),
                 DependencyItems = await this.tableViewRepository.GetDependencyItems(costBlockInfos),
                 RoleCodeReferences = 
-                    this.roleCodeService.GetAll()
+                    (await this.roleCodeService.GetAllActive())
                                         .Select(roleCode => new NamedId { Id = roleCode.Id, Name = roleCode.Name })
                                         .ToArray()
             };

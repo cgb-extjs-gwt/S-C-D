@@ -75,5 +75,9 @@
         public const string RoleCodeInputLevel = "RoleCode";
 
         public const string HwHddFspCodeTranslationTable = "HwHddFspCodeTranslation";
+
+        public const string CurrencyTable = "Currency";
+
+        public const string ExchangeRateTable = "ExchangeRate";
     }
 }

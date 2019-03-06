@@ -11,7 +11,7 @@ namespace Gdc.Scd.Web.Server.Controllers
     /// </summary>
     public abstract class ReadonlyDomainController<T> : ApiController where T : IIdentifiable
     {
-        private BaseDomainController<T> ctrl;
+        protected BaseDomainController<T> ctrl;
 
         protected readonly IDomainService<T> domainService;
 

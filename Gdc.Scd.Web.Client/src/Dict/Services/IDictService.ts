@@ -22,6 +22,10 @@ export interface IDictService {
 
     getCountryQualityGroup(): Promise<NamedId[]>;
 
+    getRegions(): Promise<NamedId[]>;
+
+    getCurrencies(): Promise<NamedId[]>;
+
     getWG(): Promise<NamedId[]>;
 
     getWgWithMultivendor(): Promise<NamedId[]>;
@@ -33,6 +37,8 @@ export interface IDictService {
     getSog(): Promise<NamedId[]>;
 
     getSwDigit(): Promise<NamedId[]>;
+
+    getSwDigitSog(): Promise<NamedId[]>;
 
     getAvailabilityTypes(): Promise<NamedId[]>;
 

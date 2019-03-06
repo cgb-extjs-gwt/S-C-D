@@ -1,8 +1,10 @@
+import { Button, CheckColumn, Column, ComboBoxField, Container, Grid, TextField, Toolbar } from '@extjs/ext-react';
 import * as React from 'react';
-import { Grid, Column, CheckColumn, Toolbar, Button, TextField, Container } from '@extjs/ext-react';
-import { FilterPanel } from "./CountryFilterPanel";
-import { CountryFilterModel } from "./CountryFilterModel";
 import { buildMvcUrl } from "../../Common/Services/Ajax";
+import { CurrencyService } from '../../Dict/Services/CurrencyService';
+import { UserCountryService } from '../../Dict/Services/UserCountryService';
+import { CountryFilterModel } from "./CountryFilterModel";
+import { FilterPanel } from "./CountryFilterPanel";
 
 const CONTROLLER_NAME = 'CountryManagement';
 
@@ -10,8 +12,10 @@ export class CountryGrid extends React.Component {
 
     private filter: FilterPanel;
 
-    state = {
-        disableSaveButton: true
+    public state = {
+        disableSaveButton: true,
+        isAdmin: false,
+        curs: null
     };
 
     public constructor(props: any) {
@@ -19,12 +23,13 @@ export class CountryGrid extends React.Component {
         this.init();
     }
 
-    renderer = (value) => value ? value : " ";
+    private renderer = (value) => value ? value : " ";
 
-    store = Ext.create('Ext.data.Store', {
+    private store = Ext.create('Ext.data.Store', {
         fields: [
             'countryId',
             'countryGroup',
+            'region',
             'countryName',
             'lUTCode',
             'countryDigit',
@@ -72,7 +77,7 @@ export class CountryGrid extends React.Component {
         }
     });
 
-    saveRecords = () => {
+    private saveRecords = () => {
 
         this.store.sync({
             callback: function (batch, options) {
@@ -92,12 +97,11 @@ export class CountryGrid extends React.Component {
         });
     }
 
-
-    render() {
+    public render() {
         return (
             <Container scrollable={true} >
 
-                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} />
+                <FilterPanel ref={x => this.filter = x} docked="right" onSearch={this.onSearch} scrollable={true} />
 
                 <Grid
                     title={'Country Settings'}
@@ -109,15 +113,19 @@ export class CountryGrid extends React.Component {
                     plugins={['gridcellediting']}>
                     <Column text="Country" dataIndex="countryName" flex={1} />
                     <Column text="Country Group" dataIndex="countryGroup" flex={1} />
-                    <Column text="LUT" dataIndex="lutCode" flex={1} renderer={this.renderer.bind(this)} />
-                    <Column text="Digit" dataIndex="countryDigit" flex={1} renderer={this.renderer.bind(this)} />
-                    <Column text="ISO Code" dataIndex="isO3Code" flex={1} renderer={this.renderer.bind(this)} />
-                    <Column text="Currency Code" dataIndex="currency" flex={1} renderer={this.renderer.bind(this)} />
+                    <Column text="Region" dataIndex="region" flex={1} />
+                    <Column text="LUT" dataIndex="lutCode" flex={1} renderer={this.renderer} />
+                    <Column text="Digit" dataIndex="countryDigit" flex={1} renderer={this.renderer} />
+                    <Column text="ISO Code" dataIndex="isO3Code" flex={1} renderer={this.renderer} />
+
+                    <Column text="Currency Code" dataIndex="currency" flex={1} renderer={this.renderer} editable={this.canEditCurrency()}>
+                        {this.createCurrecyField()}
+                    </Column>
+
                     <CheckColumn text="Is Master" dataIndex="isMaster" flex={1} disabled={true} />
                     <CheckColumn text="Store List and Dealer Prices" dataIndex="canStoreListAndDealerPrices" flex={2} />
                     <CheckColumn text="Override TC and TP" dataIndex="canOverrideTransferCostAndPrice" flex={1} />
-                    <Column text="Quality Group" dataIndex="qualityGroup" flex={1} editable
-                        renderer={this.renderer.bind(this)} >
+                    <Column text="Quality Group" dataIndex="qualityGroup" flex={1} editable renderer={this.renderer} >
                         <TextField />
                     </Column>
 
@@ -135,16 +143,36 @@ export class CountryGrid extends React.Component {
     }
 
     public componentDidMount() {
-        this.filter = this.refs.filter as FilterPanel;
-        //
         this.reload();
+        new CurrencyService().getAll().then(x => this.setState({ curs: x }));
+        new UserCountryService().isAdminUser().then(x => this.setState({ isAdmin: x }));
+    }
+
+    private createCurrecyField() {
+        let cmp = null;
+
+        if (this.canEditCurrency()) {
+            cmp = <ComboBoxField
+                store={this.state.curs}
+                valueField="name"
+                displayField="name"
+                queryMode="local"
+                editable={false}
+                height="100%"
+                width="100%"
+            />;
+        }
+
+        return cmp;
+    }
+
+    private canEditCurrency() {
+        return this.state.isAdmin && this.state.curs;
     }
 
     private init() {
         this.onSearch = this.onSearch.bind(this);
-        this.onBeforeLoad = this.onBeforeLoad.bind(this);
-        //
-        this.store.on('beforeload', this.onBeforeLoad);
+        this.store.on('beforeload', this.onBeforeLoad, this);
     }
 
     private onSearch(filter: CountryFilterModel) {

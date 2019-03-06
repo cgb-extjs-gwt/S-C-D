@@ -1,36 +1,24 @@
-﻿import { CheckBoxField, Container, List, Panel } from "@extjs/ext-react";
+﻿import { CheckBoxField, Container, List, ListProps } from "@extjs/ext-react";
 import * as React from "react";
 import { ExtDataviewHelper } from "../../Common/Helpers/ExtDataviewHelper";
 import { NamedId } from "../../Common/States/CommonStates";
 
 const ID_PROP = 'id';
-const NAME_PROP: string = 'name';
 
-export interface MultiSelectProps {
+export interface MultiSelectProps extends ListProps {
 
-    width?: string;
-
-    maxWidth?: string;
-
-    height?: string;
-
-    maxHeight?: string;
-
-    title: string;
-
-    selectable?: string;
+    title?: string;
 
     store(): Promise<NamedId[]>;
 
-    onselect?: (field, records) => void;
-
     hideCheckbox?: boolean;
-
 }
 
 export class MultiSelect extends React.Component<MultiSelectProps, any> {
 
-    protected nameField: string = '{name}';
+    protected nameField: string = 'name';
+
+    protected nameFieldTpl: string = '{' + this.nameField + '}';
 
     protected cb: CheckBoxField & any;
 
@@ -50,15 +38,22 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
     public componentDidMount() {
         let store = this.lst.getStore() as any;
         let sorters = store.getSorters();
-        sorters.remove(NAME_PROP);
-        sorters.add(NAME_PROP);
+        sorters.remove(this.nameField);
+        sorters.add(this.nameField);
         //
         this.props.store().then(x => store.setData(x));
+        store.on('datachanged', this.setDefaultValue);
+    }
+
+    private setDefaultValue = () => {
+        if (this.props.value) {
+            this.lst.select(+this.props.value);
+        }
     }
 
     public render() {
 
-        let { width, height, maxHeight, title, selectable, onselect, hideCheckbox } = this.props;
+        let { width, height, maxHeight, title, selectable, onSelect, hideCheckbox } = this.props;
 
         title = '<h4>' + title + '</h4>';
 
@@ -76,19 +71,19 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
                     padding="7px"
                     bodyAlign="left"
                     onChange={this.onTopSelectionChange}
-                    hidden={hideCheckbox?hideCheckbox:false}
+                    hidden={hideCheckbox ? hideCheckbox : false}
                 />
                 <div onClick={this.onListClick}>
                     <Container>
                         <List
                             ref={x => this.lst = x}
-                            itemTpl={this.nameField}
+                            itemTpl={this.nameFieldTpl}
                             store={this.state.items}
                             height={height}
                             maxHeight={maxHeight}
                             selectable={selectable}
                             scrollable="true"
-                            onSelect={onselect}
+                            onSelect={onSelect}
                         />
                     </Container>
                 </div>
@@ -105,7 +100,7 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
     }
 
     public getSelectedKeysOrNull<T>(): T[] {
-        return ExtDataviewHelper.getListSelected(this.lst, ID_PROP).length > 0 ? ExtDataviewHelper.getListSelected(this.lst, ID_PROP): null;
+        return ExtDataviewHelper.getListSelected(this.lst, ID_PROP).length > 0 ? ExtDataviewHelper.getListSelected(this.lst, ID_PROP) : null;
     }
 
     public reset() {

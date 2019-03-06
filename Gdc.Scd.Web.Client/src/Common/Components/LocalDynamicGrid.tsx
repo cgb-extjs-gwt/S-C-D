@@ -247,16 +247,17 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
 
                 const headerId = dataIndex.replace(/\./g, '');
                 const headerIndex = dataIndex;
-                
-                Ext.getCmp(headerId).setCls('filtered-column');
+
+                let header = Ext.ComponentQuery.query(`[itemId="${headerId}"]`)[0];
+                if(header) header.addCls('filtered-column')
 
                 this.filterDatas.forEach((filterData, dataIndex) => {
                     let allChecked = true;
 
                     filterData.store.each(record => allChecked = record.data.checked);
 
-                     if (allChecked && headerIndex == dataIndex) {
-                         Ext.getCmp(headerId).removeCls('filtered-column');
+                    if (allChecked && headerIndex == dataIndex) {
+                        if (header) header.removeCls('filtered-column')
                      }
 
                     if (allChecked && headerIndex != dataIndex) {

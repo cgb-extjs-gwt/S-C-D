@@ -17,6 +17,7 @@
     PROACTIVE = 'proactive',
     SERVICELOCATION = 'servicelocation',
     YEAR = 'year',
-    SWDIGIT = 'swdigit'
+    SWDIGIT = 'swdigit',
+    SWDIGITSOG = 'swdigitsog'
 
 }

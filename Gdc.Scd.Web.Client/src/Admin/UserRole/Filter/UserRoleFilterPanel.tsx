@@ -6,7 +6,8 @@ export interface UserRoleFilterPanelProps extends PanelProps {
     storeUser?,
     roles: any[],
     countries: any[],
-    onSearch(filter: UserRoleFilterModel): void
+    onSearch(filter: UserRoleFilterModel): void,
+    onDownload(filter: UserRoleFilterModel): void
 }
 
 export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProps, any> {
@@ -17,30 +18,38 @@ export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProp
 
     private role: ComboBoxField;
 
+    private email: ComboBoxField;
+
     public constructor(props: any) {
         super(props);
         this.init();
     }
 
     public render() {
+        const { storeUser, roles, countries } = this.props;
+        let storeEmail = storeUser.data.items.slice().sort(this.compare);
+
         return (
-            <Panel title="Filter By" {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
+            <Panel title="Filter By" {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px" width="350px" layout={{ type: 'vbox', align: 'left' }}> 
 
                 <Container margin="10px 0"
                     defaults={{
-                        maxWidth: '200px',
                         valueField: 'id',
                         displayField: 'name',
                         queryMode: 'local',
-                        clearable: 'true'
+                        clearable: 'true',
+                        style: 'font-size:10px'
                     }}
                 >
-                    <ComboBoxField ref="user" label="User:" store={this.props.storeUser} />
-                    <ComboBoxField ref="role" label="Role:" options={this.props.roles} />
-                    <ComboBoxField ref="country" label="Country:" options={this.props.countries} />
+                    <ComboBoxField ref="user" label="User:" store={storeUser} />
+                    <ComboBoxField ref="email" label="E-mail:" options={storeEmail} displayField='email'/>
+                    <ComboBoxField ref="role" label="Role:" options={roles} />
+                    <ComboBoxField ref="country" label="Country:" options={countries} />
                 </Container>
 
-                <Button text="Search" ui="action" width="100px" handler={this.onSearch} margin="20px auto" />
+                <Button text="Search" ui="action" width="100px" margin="20px auto" handler={this.onSearch} />
+
+                <Button text="Download" ui="action" minWidth="100px" margin="20px auto" iconCls="x-fa fa-download" handler={this.onDownload} />
 
             </Panel>
         );
@@ -48,13 +57,14 @@ export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProp
 
     public componentDidMount() {
         this.user = this.refs.user as ComboBoxField;
+        this.email = this.refs.email as ComboBoxField;
         this.role = this.refs.role as ComboBoxField;
         this.country = this.refs.country as ComboBoxField;
     }
 
     public getModel(): UserRoleFilterModel {
         return {
-            user: this.getSelected(this.user),
+            user: this.getSelected(this.user) || this.getSelected(this.email),
             role: this.getSelected(this.role),
             country: this.getSelected(this.country)
         };
@@ -62,11 +72,19 @@ export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProp
 
     private init() {
         this.onSearch = this.onSearch.bind(this);
+        this.onDownload = this.onDownload.bind(this);
     }
 
 
     private onSearch() {
         let handler = this.props.onSearch;
+        if (handler) {
+            handler(this.getModel());
+        }
+    }
+
+    private onDownload() {
+        let handler = this.props.onDownload;
         if (handler) {
             handler(this.getModel());
         }
@@ -79,5 +97,15 @@ export class UserRoleFilterPanel extends React.Component<UserRoleFilterPanelProp
             result = selected.data.id;
         }
         return result;
+    }
+
+    private compare = (a, b) => {
+        if (a.data.email > b.data.email) {
+            return 1;
+        }
+        if (a.data.email < b.data.email) {
+            return -1;
+        }
+        return 0;
     }
 }

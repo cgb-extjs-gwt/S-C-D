@@ -91,6 +91,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-calc-result.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap-detailed.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap-support-pack.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-calc-central.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-calc-country.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-central.sql"));
@@ -113,6 +114,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-hdd-retention.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-proactive.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-servicecosts.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.triggers.sql"));
             foreach (var query in queries)
             {
                 this.repositorySet.ExecuteSql(query);
@@ -580,15 +582,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
 
         private ISqlBuilder BuildSelectIdByNameQuery(string table, string name)
         {
-            var paramName = name.Replace(" ", string.Empty);
-
             return
                 new BracketsSqlBuilder
                 {
                     Query =
                         Sql.Select(IdFieldMeta.DefaultId)
                            .From(table, MetaConstants.DependencySchema)
-                           .Where(SqlOperators.Equals(MetaConstants.NameFieldKey, paramName, name))
+                           .Where(SqlOperators.Equals(MetaConstants.NameFieldKey, name))
                            .ToSqlBuilder()
                 };
         }
@@ -1778,6 +1778,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "proactive" , MultiSelect = false },
                 new ReportFilterType { Name = "usercountry" , MultiSelect = false },
                 new ReportFilterType { Name = "swdigit" , MultiSelect = false },
+                new ReportFilterType { Name = "swdigitsog" , MultiSelect = false },
                 new ReportFilterType { Name = "wgall" , MultiSelect = false },
                 new ReportFilterType { Name = "wgstandard" , MultiSelect = false },
 
@@ -1791,6 +1792,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "year" , MultiSelect = true },
                 new ReportFilterType { Name = "proactive" , MultiSelect = true },
                 new ReportFilterType { Name = "swdigit" , MultiSelect = true },
+                new ReportFilterType { Name = "swdigitsog" , MultiSelect = true },
                 new ReportFilterType { Name = "wgstandard" , MultiSelect = true }
             };
 

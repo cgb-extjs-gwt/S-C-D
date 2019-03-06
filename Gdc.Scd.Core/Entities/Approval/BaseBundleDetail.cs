@@ -8,7 +8,7 @@
 
         public object NewValue { get; set; }
 
-        public double? OldValue { get; set; }
+        public object OldValue { get; set; }
 
         public double? CountryGroupAvgValue { get; set; }
 

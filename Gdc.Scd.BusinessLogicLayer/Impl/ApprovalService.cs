@@ -176,13 +176,23 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private async Task<IEnumerable<BundleDto>> GetApprovalBundles(CostBlockHistory[] histories)
         {
-            var historyInfos =
-                histories.Select(history => new
-                {
-                    History = history,
-                    RegionInput = this.domainMeta.GetCostElement(history.Context).RegionInput
-                });
 
+            var userCountriesIds = this.userService.GetCurrentUserCountries().Select(country => country.Id).ToArray();
+            if (userCountriesIds.Length > 0)
+            {
+                histories = histories.Where(history =>
+                    history.Context.RegionInputId.HasValue &&
+                    userCountriesIds.Contains(history.Context.RegionInputId.Value)).ToArray();
+            }
+            var historyInfos =
+                histories
+                    .Select(history => new
+                    {
+                        History = history,
+                        RegionInput = this.domainMeta.GetCostElement(history.Context).RegionInput
+                    });
+            
+            
             var historyInfoGroups = historyInfos.Where(info => info.RegionInput != null).GroupBy(info => info.RegionInput);
 
             var regionCache = new Dictionary<InputLevelMeta, Dictionary<long, NamedId>>();

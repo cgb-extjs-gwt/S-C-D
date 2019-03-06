@@ -11,10 +11,12 @@ namespace Gdc.Scd.Import.Core.Dto
     {
         public bool Skipped { get; set; }
         public IEnumerable<UpdateQueryOption> UpdateOptions { get; set; }
+        public DateTime ModifiedDateTime { get; set; }
 
         public ImportResultDto()
         {
             Skipped = false;
+            ModifiedDateTime = DateTime.Now;
         }
     }
 }

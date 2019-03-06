@@ -67,13 +67,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return (d, fn);
         }
 
-        public Task<(string json, int total)> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit)
+        public async Task<(string json, int total)> GetJsonArrayData(long reportId, ReportFilterCollection filter, int start, int limit)
         {
             var r = GetSchemas().GetSchema(reportId);
             var func = r.Report.SqlFunc;
             var parameters = r.FillParameters(filter);
 
-            return new GetReport(repositorySet).ExecuteJsonAsync(func, start, limit, parameters);
+            var d = await new GetReport(repositorySet).ExecuteJsonAsync(func, start, limit + 1, parameters);
+
+            return (d.json, d.total < limit ? start + d.total : start + limit + 1);
         }
 
         public ReportDto[] GetReports()
@@ -335,34 +337,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             builder.WithName(f.Name);
 
-            string value;
+            object value;
 
-            if (src != null)
+            if (f.Type.MultiSelect)
             {
-                if(src.TryGetVal(f.Name, out value))
-                {
-                    builder.WithValue(value);
-                }
-                else
-                {
-                    if (f.Type.MultiSelect)
-                    {
-                        if (src.Where(x => x.Key.Contains(String.Format("{0}[", f.Name))).Any())
-                        {
-                            var values = src.Where(x => x.Key.Contains(String.Format("{0}[", f.Name))).Select(x => Convert.ToInt64(x.Value)).ToArray();
-                            builder.WithListIdValue(values);
-                        }
-                        else
-                        {
-                            builder.WithListIdValue(null);
-                        }
-                    }
-                    else
-                    {
-                        builder.WithNull();
-                    }
-
-                }
+                long[] ids;
+                src.TryGetVal(f.Name, out ids);
+                builder.WithListIdValue(ids);
+            }
+            else if (src.TryGetVal(f.Name, out value))
+            {
+                builder.WithValue(value);
             }
             else
             {

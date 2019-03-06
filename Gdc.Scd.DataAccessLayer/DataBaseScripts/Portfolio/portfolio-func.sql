@@ -17,7 +17,91 @@ CREATE NONCLUSTERED INDEX [IX_PrincipalPortfolio_SLA] ON [Portfolio].[PrincipalP
     [ServiceLocationId] ASC,
     [WgId] ASC
 )
-INCLUDE ( 	[Id]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+INCLUDE ([Id]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
+ALTER TABLE Portfolio.LocalPortfolio
+    add  ReactionTime_Avalability              bigint
+       , ReactionTime_ReactionType             bigint
+       , ReactionTime_ReactionType_Avalability bigint
+       , Sla AS cast(CountryId         as nvarchar(20)) + 
+                    cast(WgId              as nvarchar(20)) + 
+                    cast(AvailabilityId    as nvarchar(20)) + 
+                    cast(DurationId        as nvarchar(20)) + 
+                    cast(ReactionTimeId    as nvarchar(20)) + 
+                    cast(ReactionTypeId    as nvarchar(20)) + 
+                    cast(ServiceLocationId as nvarchar(20)) + 
+                    cast(ProactiveSlaId    as nvarchar(20))
+
+       , SlaHash  AS checksum (
+                    cast(CountryId         as nvarchar(20)) + 
+                    cast(WgId              as nvarchar(20)) + 
+                    cast(AvailabilityId    as nvarchar(20)) + 
+                    cast(DurationId        as nvarchar(20)) + 
+                    cast(ReactionTimeId    as nvarchar(20)) + 
+                    cast(ReactionTypeId    as nvarchar(20)) + 
+                    cast(ServiceLocationId as nvarchar(20)) + 
+                    cast(ProactiveSlaId    as nvarchar(20)) 
+                );
+GO
+
+update p set  ReactionTime_Avalability = rta.Id
+            , ReactionTime_ReactionType = rtt.Id
+            , ReactionTime_ReactionType_Avalability = rtta.Id
+from Portfolio.LocalPortfolio p
+join Dependencies.ReactionTime_Avalability rta on rta.AvailabilityId = p.AvailabilityId and rta.ReactionTimeId = p.ReactionTimeId
+join Dependencies.ReactionTime_ReactionType rtt on rtt.ReactionTimeId = p.ReactionTimeId and rtt.ReactionTypeId = p.ReactionTypeId
+join Dependencies.ReactionTime_ReactionType_Avalability rtta on rtta.AvailabilityId = p.AvailabilityId and rtta.ReactionTimeId = p.ReactionTimeId and rtta.ReactionTypeId = p.ReactionTypeId
+go
+
+ALTER TABLE Portfolio.LocalPortfolio ALTER column ReactionTime_Avalability bigint NOT NULL;
+ALTER TABLE Portfolio.LocalPortfolio ALTER column ReactionTime_ReactionType bigint NOT NULL;
+ALTER TABLE Portfolio.LocalPortfolio ALTER column ReactionTime_ReactionType_Avalability bigint NOT NULL;
+go
+
+DROP INDEX [IX_HwFspCodeTranslation_AvailabilityId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_CountryId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_DurationId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_ProactiveSlaId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_ReactionTimeId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_ReactionTypeId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_ServiceLocationId] ON [Fsp].[HwFspCodeTranslation]
+GO
+DROP INDEX [IX_HwFspCodeTranslation_WgId] ON [Fsp].[HwFspCodeTranslation]
+GO
+
+ALTER TABLE Fsp.HwFspCodeTranslation 
+    ADD Sla  AS cast(coalesce(CountryId, 0) as nvarchar(20)) + 
+                cast(WgId                   as nvarchar(20)) + 
+                cast(AvailabilityId         as nvarchar(20)) + 
+                cast(DurationId             as nvarchar(20)) + 
+                cast(ReactionTimeId         as nvarchar(20)) + 
+                cast(ReactionTypeId         as nvarchar(20)) + 
+                cast(ServiceLocationId      as nvarchar(20)) + 
+                cast(ProactiveSlaId         as nvarchar(20))
+      
+      , SlaHash  AS checksum (
+                        cast(coalesce(CountryId, 0) as nvarchar(20)) + 
+                        cast(WgId                   as nvarchar(20)) + 
+                        cast(AvailabilityId         as nvarchar(20)) + 
+                        cast(DurationId             as nvarchar(20)) + 
+                        cast(ReactionTimeId         as nvarchar(20)) + 
+                        cast(ReactionTypeId         as nvarchar(20)) + 
+                        cast(ServiceLocationId      as nvarchar(20)) + 
+                        cast(ProactiveSlaId         as nvarchar(20))
+                    );
+GO
+
+CREATE INDEX IX_HwFspCodeTranslation_Sla ON Fsp.HwFspCodeTranslation(Sla);
+GO
+
+CREATE INDEX IX_HwFspCodeTranslation_SlaHash ON Fsp.HwFspCodeTranslation(SlaHash);
 GO
 
 IF OBJECT_ID('Portfolio.AllowPrincipalPortfolio') IS NOT NULL
@@ -72,10 +156,35 @@ IF TYPE_ID('dbo.ListID') IS NOT NULL
   DROP Type dbo.ListID;
 go
 
+IF OBJECT_ID('[Portfolio].[GetBySla]') IS NOT NULL
+  DROP FUNCTION [Portfolio].[GetBySla];
+go 
+
 CREATE TYPE dbo.ListID AS TABLE(
     id bigint NULL
 )
 go
+
+CREATE TYPE [Portfolio].[Sla] AS TABLE(
+    [rownum] [int] NOT NULL,
+    [Id] [bigint] NOT NULL,
+    [CountryId] [bigint] NOT NULL,
+    [WgId] [bigint] NOT NULL,
+    [AvailabilityId] [bigint] NOT NULL,
+    [DurationId] [bigint] NOT NULL,
+    [ReactionTimeId] [bigint] NOT NULL,
+    [ReactionTypeId] [bigint] NOT NULL,
+    [ServiceLocationId] [bigint] NOT NULL,
+    [ProActiveSlaId] [bigint] NOT NULL,
+    [Sla] [nvarchar](255) NOT NULL,
+    [SlaHash] [int] NOT NULL,
+    [ReactionTime_Avalability] [bigint] NOT NULL,
+    [ReactionTime_ReactionType] [bigint] NOT NULL,
+    [ReactionTime_ReactionType_Avalability] [bigint] NOT NULL,
+    [Fsp] [nvarchar](255) NULL,
+    [FspDescription] [nvarchar](255) NULL
+)
+GO
 
 CREATE NONCLUSTERED INDEX [IX_LocalPortfolio_Country_Wg]
 ON [Portfolio].[LocalPortfolio] ([CountryId],[WgId])
@@ -280,9 +389,13 @@ BEGIN
             AND (@isEmptyLoc = 1 or ServiceLocationId in (select id from @loc))
             AND (@isEmptyPro = 1 or ProActiveSlaId in (select id from @pro))
     )
-    INSERT INTO Portfolio.LocalPortfolio (CountryId, WgId, AvailabilityId, DurationId, ReactionTypeId, ReactionTimeId, ServiceLocationId, ProActiveSlaId)
-    SELECT @cnt, sla.WgId, sla.AvailabilityId, sla.DurationId, sla.ReactionTypeId, sla.ReactionTimeId, sla.ServiceLocationId, sla.ProActiveSlaId
+    INSERT INTO Portfolio.LocalPortfolio (CountryId, WgId, AvailabilityId, DurationId, ReactionTypeId, ReactionTimeId, ServiceLocationId, ProActiveSlaId, ReactionTime_Avalability, ReactionTime_ReactionType, ReactionTime_ReactionType_Avalability)
+    SELECT @cnt, sla.WgId, sla.AvailabilityId, sla.DurationId, sla.ReactionTypeId, sla.ReactionTimeId, sla.ServiceLocationId, sla.ProActiveSlaId, rta.Id, rtt.Id, rtta.Id
     FROM PrincipleSlaCte sla
+    JOIN Dependencies.ReactionTime_Avalability rta on rta.AvailabilityId = sla.AvailabilityId and rta.ReactionTimeId = sla.ReactionTimeId
+    JOIN Dependencies.ReactionTime_ReactionType rtt on rtt.ReactionTimeId = sla.ReactionTimeId and rtt.ReactionTypeId = sla.ReactionTypeId
+    JOIN Dependencies.ReactionTime_ReactionType_Avalability rtta on rtta.AvailabilityId = sla.AvailabilityId and rtta.ReactionTimeId = sla.ReactionTimeId and rtta.ReactionTypeId = sla.ReactionTypeId
+
     LEFT JOIN ExistSlaCte ex on ex.WgId = sla.WgId
                             and ex.AvailabilityId = sla.AvailabilityId
                             and ex.DurationId = sla.DurationId
@@ -297,7 +410,6 @@ BEGIN
     ALTER TABLE Portfolio.LocalPortfolio CHECK CONSTRAINT ALL;
 
 END
-
 go
 
 CREATE PROCEDURE Portfolio.CreatePrincipalPortfolio
@@ -511,3 +623,558 @@ END
 go
 
 
+IF OBJECT_ID('[Portfolio].[GetBySla]') IS NOT NULL
+  DROP FUNCTION [Portfolio].[GetBySla];
+go 
+
+CREATE FUNCTION [Portfolio].[GetBySla](
+    @cnt          dbo.ListID readonly,
+    @wg           dbo.ListID readonly,
+    @av           dbo.ListID readonly,
+    @dur          dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc          dbo.ListID readonly,
+    @pro          dbo.ListID readonly
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+    select m.*
+    from Portfolio.LocalPortfolio m
+    where   exists(select id from @cnt where id = m.CountryId)
+
+        AND (not exists(select 1 from @wg           ) or exists(select 1 from @wg           where id = m.WgId              ))
+        AND (not exists(select 1 from @av           ) or exists(select 1 from @av           where id = m.AvailabilityId    ))
+        AND (not exists(select 1 from @dur          ) or exists(select 1 from @dur          where id = m.DurationId        ))
+        AND (not exists(select 1 from @reactiontime ) or exists(select 1 from @reactiontime where id = m.ReactionTimeId    ))
+        AND (not exists(select 1 from @reactiontype ) or exists(select 1 from @reactiontype where id = m.ReactionTypeId    ))
+        AND (not exists(select 1 from @loc          ) or exists(select 1 from @loc          where id = m.ServiceLocationId ))
+        AND (not exists(select 1 from @pro          ) or exists(select 1 from @pro          where id = m.ProActiveSlaId    ))
+)
+GO
+
+IF OBJECT_ID('[Portfolio].[GetBySlaPaging]') IS NOT NULL
+  DROP FUNCTION [Portfolio].[GetBySlaPaging];
+go 
+
+CREATE FUNCTION [Portfolio].[GetBySlaPaging](
+    @cnt          dbo.ListID readonly,
+    @wg           dbo.ListID readonly,
+    @av           dbo.ListID readonly,
+    @dur          dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc          dbo.ListID readonly,
+    @pro          dbo.ListID readonly,
+    @lastid       bigint,
+    @limit        int
+)
+RETURNS @tbl TABLE 
+            (   
+                [rownum] [int] NOT NULL,
+                [Id] [bigint] NOT NULL,
+                [CountryId] [bigint] NOT NULL,
+                [WgId] [bigint] NOT NULL,
+                [AvailabilityId] [bigint] NOT NULL,
+                [DurationId] [bigint] NOT NULL,
+                [ReactionTimeId] [bigint] NOT NULL,
+                [ReactionTypeId] [bigint] NOT NULL,
+                [ServiceLocationId] [bigint] NOT NULL,
+                [ProActiveSlaId] [bigint] NOT NULL,
+                [Sla] nvarchar(255) NOT NULL,
+                [SlaHash] [int] NOT NULL,
+                [ReactionTime_Avalability] [bigint] NOT NULL,
+                [ReactionTime_ReactionType] [bigint] NOT NULL,
+                [ReactionTime_ReactionType_Avalability] [bigint] NOT NULL,
+                [Fsp] nvarchar(255) NULL,
+                [FspDescription] nvarchar(255) NULL
+            )
+AS
+BEGIN
+    
+    if @limit > 0
+    begin
+        insert into @tbl
+        select   rownum
+               , Id
+               , CountryId
+               , WgId
+               , AvailabilityId
+               , DurationId
+               , ReactionTimeId
+               , ReactionTypeId
+               , ServiceLocationId
+               , ProActiveSlaId
+               , Sla
+               , SlaHash
+               , ReactionTime_Avalability
+               , ReactionTime_ReactionType
+               , ReactionTime_ReactionType_Avalability
+               , null
+               , null
+        from (
+                select ROW_NUMBER() over(
+                            order by m.CountryId
+                                    , m.WgId
+                                    , m.AvailabilityId
+                                    , m.DurationId
+                                    , m.ReactionTimeId
+                                    , m.ReactionTypeId
+                                    , m.ServiceLocationId
+                                    , m.ProActiveSlaId
+                        ) as rownum
+                        , m.*
+                from Portfolio.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m    
+        ) t
+        where rownum > @lastid and rownum <= @lastid + @limit;
+    end
+    else
+    begin
+        insert into @tbl 
+        select   -1
+               , Id
+               , CountryId
+               , WgId
+               , AvailabilityId
+               , DurationId
+               , ReactionTimeId
+               , ReactionTypeId
+               , ServiceLocationId
+               , ProActiveSlaId
+               , Sla
+               , SlaHash
+               , ReactionTime_Avalability
+               , ReactionTime_ReactionType
+               , ReactionTime_ReactionType_Avalability
+               , null
+               , null
+        from Portfolio.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
+    end 
+
+    RETURN;
+END;
+go
+
+IF OBJECT_ID('[Portfolio].[GetBySlaFsp]') IS NOT NULL
+  DROP FUNCTION [Portfolio].[GetBySlaFsp];
+go 
+
+CREATE FUNCTION [Portfolio].[GetBySlaFsp](
+    @cnt          dbo.ListID readonly,
+    @wg           dbo.ListID readonly,
+    @av           dbo.ListID readonly,
+    @dur          dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc          dbo.ListID readonly,
+    @pro          dbo.ListID readonly
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+    select    m.*
+            , fsp.Name               as Fsp
+            , fsp.ServiceDescription as FspDescription
+    from Portfolio.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
+    left JOIN Fsp.HwFspCodeTranslation fsp  on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla 
+)
+GO
+
+IF OBJECT_ID('[Portfolio].[GetBySlaFspPaging]') IS NOT NULL
+  DROP FUNCTION [Portfolio].[GetBySlaFspPaging];
+go 
+
+CREATE FUNCTION [Portfolio].[GetBySlaFspPaging](
+    @cnt          dbo.ListID readonly,
+    @wg           dbo.ListID readonly,
+    @av           dbo.ListID readonly,
+    @dur          dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc          dbo.ListID readonly,
+    @pro          dbo.ListID readonly,
+    @lastid       bigint,
+    @limit        int
+)
+RETURNS @tbl TABLE 
+            (   
+                [rownum] [int] NOT NULL,
+                [Id] [bigint] NOT NULL,
+                [CountryId] [bigint] NOT NULL,
+                [WgId] [bigint] NOT NULL,
+                [AvailabilityId] [bigint] NOT NULL,
+                [DurationId] [bigint] NOT NULL,
+                [ReactionTimeId] [bigint] NOT NULL,
+                [ReactionTypeId] [bigint] NOT NULL,
+                [ServiceLocationId] [bigint] NOT NULL,
+                [ProActiveSlaId] [bigint] NOT NULL,
+                [Sla] nvarchar(255) NOT NULL,
+                [SlaHash] [int] NOT NULL,
+                [ReactionTime_Avalability] [bigint] NOT NULL,
+                [ReactionTime_ReactionType] [bigint] NOT NULL,
+                [ReactionTime_ReactionType_Avalability] [bigint] NOT NULL,
+                [Fsp] nvarchar(255) NULL,
+                [FspDescription] nvarchar(255) NULL
+            )
+AS
+BEGIN
+    
+    if @limit > 0
+    begin
+        insert into @tbl
+        select rownum
+              , Id
+              , CountryId
+              , WgId
+              , AvailabilityId
+              , DurationId
+              , ReactionTimeId
+              , ReactionTypeId
+              , ServiceLocationId
+              , ProActiveSlaId
+              , Sla
+              , SlaHash
+              , ReactionTime_Avalability
+              , ReactionTime_ReactionType
+              , ReactionTime_ReactionType_Avalability
+              , Fsp
+              , FspDescription
+        from (
+                select ROW_NUMBER() over(
+                            order by m.CountryId
+                                    , m.WgId
+                                    , m.AvailabilityId
+                                    , m.DurationId
+                                    , m.ReactionTimeId
+                                    , m.ReactionTypeId
+                                    , m.ServiceLocationId
+                                    , m.ProActiveSlaId
+                        ) as rownum
+                        , m.*
+                from Portfolio.GetBySlaFsp(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m    
+        ) t
+        where rownum > @lastid and rownum <= @lastid + @limit;
+    end
+    else
+    begin
+        insert into @tbl 
+        select -1 as rownum
+              , Id
+              , CountryId
+              , WgId
+              , AvailabilityId
+              , DurationId
+              , ReactionTimeId
+              , ReactionTypeId
+              , ServiceLocationId
+              , ProActiveSlaId
+              , Sla
+              , SlaHash
+              , ReactionTime_Avalability
+              , ReactionTime_ReactionType
+              , ReactionTime_ReactionType_Avalability
+              , m.Fsp
+              , m.FspDescription
+        from Portfolio.GetBySlaFsp(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
+    end 
+
+    RETURN;
+END;
+go
+
+IF OBJECT_ID('[Portfolio].[GetBySlaSingle]') IS NOT NULL
+  DROP FUNCTION [Portfolio].[GetBySlaSingle];
+go 
+
+CREATE FUNCTION [Portfolio].[GetBySlaSingle](
+    @cnt          bigint,
+    @wg           bigint,
+    @av           bigint,
+    @dur          bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc          bigint,
+    @pro          bigint
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+    select m.*
+    from Portfolio.LocalPortfolio m
+    where   m.CountryId = @cnt
+
+        AND (@wg           is null or @wg           = m.WgId              )
+        AND (@av           is null or @av           = m.AvailabilityId    )
+        AND (@dur          is null or @dur          = m.DurationId        )
+        AND (@reactiontime is null or @reactiontime = m.ReactionTimeId    )
+        AND (@reactiontype is null or @reactiontype = m.ReactionTypeId    )
+        AND (@loc          is null or @loc          = m.ServiceLocationId )
+        AND (@pro          is null or @pro          = m.ProActiveSlaId    )
+)
+GO
+
+IF OBJECT_ID('[Portfolio].[GetBySlaSinglePaging]') IS NOT NULL
+  DROP FUNCTION [Portfolio].[GetBySlaSinglePaging];
+go 
+
+CREATE FUNCTION [Portfolio].[GetBySlaSinglePaging](
+    @cnt          bigint,
+    @wg           bigint,
+    @av           bigint,
+    @dur          bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc          bigint,
+    @pro          bigint,
+    @lastid       bigint,
+    @limit        int
+)
+RETURNS @tbl TABLE 
+            (   
+                [rownum] [int] NOT NULL,
+                [Id] [bigint] NOT NULL,
+                [CountryId] [bigint] NOT NULL,
+                [WgId] [bigint] NOT NULL,
+                [AvailabilityId] [bigint] NOT NULL,
+                [DurationId] [bigint] NOT NULL,
+                [ReactionTimeId] [bigint] NOT NULL,
+                [ReactionTypeId] [bigint] NOT NULL,
+                [ServiceLocationId] [bigint] NOT NULL,
+                [ProActiveSlaId] [bigint] NOT NULL,
+                [Sla] nvarchar(255) NOT NULL,
+                [SlaHash] [int] NOT NULL,
+                [ReactionTime_Avalability] [bigint] NOT NULL,
+                [ReactionTime_ReactionType] [bigint] NOT NULL,
+                [ReactionTime_ReactionType_Avalability] [bigint] NOT NULL,
+                [Fsp] nvarchar(255) NULL,
+                [FspDescription] nvarchar(255) NULL
+            )
+AS
+BEGIN
+    
+    if @limit > 0
+    begin
+        insert into @tbl
+        select rownum
+              , Id
+              , CountryId
+              , WgId
+              , AvailabilityId
+              , DurationId
+              , ReactionTimeId
+              , ReactionTypeId
+              , ServiceLocationId
+              , ProActiveSlaId
+              , Sla
+              , SlaHash
+              , ReactionTime_Avalability
+              , ReactionTime_ReactionType
+              , ReactionTime_ReactionType_Avalability
+              , null as Fsp
+              , null as FspDescription
+        from (
+                select ROW_NUMBER() over(
+                            order by m.CountryId
+                                    , m.WgId
+                                    , m.AvailabilityId
+                                    , m.DurationId
+                                    , m.ReactionTimeId
+                                    , m.ReactionTypeId
+                                    , m.ServiceLocationId
+                                    , m.ProActiveSlaId
+                        ) as rownum
+                        , m.*
+                from Portfolio.GetBySlaSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m    
+        ) t
+        where rownum > @lastid and rownum <= @lastid + @limit;
+    end
+    else
+    begin
+        insert into @tbl 
+        select -1 as rownum
+              , Id
+              , CountryId
+              , WgId
+              , AvailabilityId
+              , DurationId
+              , ReactionTimeId
+              , ReactionTypeId
+              , ServiceLocationId
+              , ProActiveSlaId
+              , Sla
+              , SlaHash
+              , ReactionTime_Avalability
+              , ReactionTime_ReactionType
+              , ReactionTime_ReactionType_Avalability
+              , null as Fsp
+              , null as FspDescription
+        from Portfolio.GetBySlaSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
+    end 
+
+    RETURN;
+END;
+go
+
+IF OBJECT_ID('[Portfolio].[GetBySlaFspSingle]') IS NOT NULL
+  DROP FUNCTION [Portfolio].[GetBySlaFspSingle];
+go 
+
+CREATE FUNCTION [Portfolio].[GetBySlaFspSingle](
+    @cnt          bigint,
+    @wg           bigint,
+    @av           bigint,
+    @dur          bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc          bigint,
+    @pro          bigint
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+    select    m.*
+            , fsp.Name               as Fsp
+            , fsp.ServiceDescription as FspDescription
+    from Portfolio.GetBySlaSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
+    left JOIN Fsp.HwFspCodeTranslation fsp  on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla 
+)
+GO
+
+IF OBJECT_ID('[Portfolio].[GetBySlaFspSinglePaging]') IS NOT NULL
+  DROP FUNCTION [Portfolio].[GetBySlaFspSinglePaging];
+go 
+
+CREATE FUNCTION [Portfolio].[GetBySlaFspSinglePaging](
+    @cnt          bigint,
+    @wg           bigint,
+    @av           bigint,
+    @dur          bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc          bigint,
+    @pro          bigint,
+    @lastid       bigint,
+    @limit        int
+)
+RETURNS @tbl TABLE 
+            (   
+                [rownum] [int] NOT NULL,
+                [Id] [bigint] NOT NULL,
+                [CountryId] [bigint] NOT NULL,
+                [WgId] [bigint] NOT NULL,
+                [AvailabilityId] [bigint] NOT NULL,
+                [DurationId] [bigint] NOT NULL,
+                [ReactionTimeId] [bigint] NOT NULL,
+                [ReactionTypeId] [bigint] NOT NULL,
+                [ServiceLocationId] [bigint] NOT NULL,
+                [ProActiveSlaId] [bigint] NOT NULL,
+                [Sla] nvarchar(255) NOT NULL,
+                [SlaHash] [int] NOT NULL,
+                [ReactionTime_Avalability] [bigint] NOT NULL,
+                [ReactionTime_ReactionType] [bigint] NOT NULL,
+                [ReactionTime_ReactionType_Avalability] [bigint] NOT NULL,
+                [Fsp] nvarchar(255) NULL,
+                [FspDescription] nvarchar(255) NULL
+            )
+AS
+BEGIN
+    
+    if @limit > 0
+    begin
+        insert into @tbl
+        select rownum
+              , Id
+              , CountryId
+              , WgId
+              , AvailabilityId
+              , DurationId
+              , ReactionTimeId
+              , ReactionTypeId
+              , ServiceLocationId
+              , ProActiveSlaId
+              , Sla
+              , SlaHash
+              , ReactionTime_Avalability
+              , ReactionTime_ReactionType
+              , ReactionTime_ReactionType_Avalability
+              , Fsp
+              , FspDescription
+        from (
+                select ROW_NUMBER() over(
+                            order by m.CountryId
+                                    , m.WgId
+                                    , m.AvailabilityId
+                                    , m.DurationId
+                                    , m.ReactionTimeId
+                                    , m.ReactionTypeId
+                                    , m.ServiceLocationId
+                                    , m.ProActiveSlaId
+                        ) as rownum
+                        , m.*
+                from Portfolio.GetBySlaFspSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m    
+        ) t
+        where rownum > @lastid and rownum <= @lastid + @limit;
+    end
+    else
+    begin
+        insert into @tbl 
+        select -1 as rownum
+              , Id
+              , CountryId
+              , WgId
+              , AvailabilityId
+              , DurationId
+              , ReactionTimeId
+              , ReactionTypeId
+              , ServiceLocationId
+              , ProActiveSlaId
+              , Sla
+              , SlaHash
+              , ReactionTime_Avalability
+              , ReactionTime_ReactionType
+              , ReactionTime_ReactionType_Avalability
+              , m.Fsp
+              , m.FspDescription
+        from Portfolio.GetBySlaFspSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
+    end 
+
+    RETURN;
+END;
+go
+
+IF OBJECT_ID('Portfolio.GetBySlaSog') IS NOT NULL
+  DROP FUNCTION Portfolio.GetBySlaSog;
+go
+
+CREATE FUNCTION [Portfolio].[GetBySlaSog](
+    @cnt          bigint,
+    @sog          bigint,
+    @av           bigint,
+    @dur          bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc          bigint,
+    @pro          bigint
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+    select m.*
+    from Portfolio.LocalPortfolio m
+    where   m.CountryId = @cnt
+
+        AND (@sog          is null or exists(select 1 from InputAtoms.Wg where SogId = @sog and id = m.WgId))
+        AND (@av           is null or @av           = m.AvailabilityId    )
+        AND (@dur          is null or @dur          = m.DurationId        )
+        AND (@reactiontime is null or @reactiontime = m.ReactionTimeId    )
+        AND (@reactiontype is null or @reactiontype = m.ReactionTypeId    )
+        AND (@loc          is null or @loc          = m.ServiceLocationId )
+        AND (@pro          is null or @pro          = m.ProActiveSlaId    )
+)
+go

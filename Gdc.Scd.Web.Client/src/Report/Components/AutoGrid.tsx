@@ -7,7 +7,6 @@ import { AutoColumnBuilder } from "./AutoColumnBuilder";
 import { AutoFilter } from "./AutoFilter";
 
 export interface AutoGridProps {
-
     url: string;
 
     downloadUrl: string;
@@ -17,12 +16,11 @@ export interface AutoGridProps {
     filter: AutoFilterModel[];
 
     title?: string;
-
 }
 
 export class AutoGrid extends React.Component<AutoGridProps, any> {
 
-    private grid: Grid;
+    private grid: Grid & any;
 
     private filter: AutoFilter;
 
@@ -35,11 +33,15 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
             api: {
                 read: this.props.url
             },
+            actionMethods: {
+                read: 'POST'
+            },
             reader: {
                 type: 'json',
                 rootProperty: 'items',
                 totalProperty: 'total'
-            }
+            },
+            paramsAsJson: true
         }
     });
 
@@ -70,8 +72,9 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
                     ref="grid"
                     store={this.store}
                     width="100%"
+                    cls="grid-paging-no-count"
                     defaults={{ minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}
-                    plugins={['pagingtoolbar']}>
+                    plugins={{ type: 'pagingtoolbar', id: 'pagingtoolbar' }}>
 
                     {this.columns.map((x, i) => x.build(i))}
 
@@ -98,10 +101,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
 
     private onDownload() {
         let filter = this.filter.getModel() || {};
-        filter._dc = new Date().getTime();
-
-        let url = Ext.urlAppend(this.props.downloadUrl, Ext.urlEncode(filter, true));
-        AlertHelper.autoload(url);
+        AlertHelper.autoload(this.props.downloadUrl, '', filter);
     }
 
     private onSearch(filter: any) {
@@ -109,11 +109,12 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
     }
 
     private reload() {
+        this.grid.getPlugin('pagingtoolbar').setCurrentPage(1);
         this.store.load();
     }
 
     private onBeforeLoad(s, operation) {
-        let filter = this.filter.getModel();
+        let filter = { 'filter': JSON.stringify(this.filter.getModel()) };
         let params = Ext.apply({}, operation.getParams(), filter);
         operation.setParams(params);
     }
