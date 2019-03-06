@@ -196,7 +196,7 @@ RETURN (
               , m.MarkupFactorOtherCost as MarkupFactorOtherCost
 
               , m.MarkupFactorStandardWarranty as MarkupFactorStandardWarranty
-              , m.MarkupStandardWarranty * m.ExchangeRate as MarkupStandardWarranty
+              , m.MarkupStandardWarranty as MarkupStandardWarranty
       
               , m.AFR1   * 100 as AFR1
               , m.AFR2   * 100 as AFR2

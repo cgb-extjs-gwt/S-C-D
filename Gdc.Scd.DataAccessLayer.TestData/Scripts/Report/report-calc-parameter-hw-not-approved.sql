@@ -55,11 +55,11 @@ RETURN (
       
               , tax.TaxAndDuties_norm * er.Value  as TaxAndDutiesW
 
-              , moc.Markup * er.Value        as MarkupOtherCost
+              , moc.Markup                   as MarkupOtherCost
               , moc.MarkupFactor             as MarkupFactorOtherCost
 
               , msw.MarkupFactorStandardWarranty             as MarkupFactorStandardWarranty
-              , msw.MarkupStandardWarranty * er.Value        as MarkupStandardWarranty
+              , msw.MarkupStandardWarranty                   as MarkupStandardWarranty
       
               , afr.AFR1  as AFR1
               , afr.AFR2  as AFR2
