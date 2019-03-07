@@ -5,6 +5,8 @@ import { MultiSelect } from "./MultiSelect";
 
 export class MultiSelectWg extends MultiSelect {
 
+    protected plaField: string;
+
     public render() {
 
         let { width, height, maxHeight, title, selectable } = this.props;
@@ -32,7 +34,7 @@ export class MultiSelectWg extends MultiSelect {
                     <Container>
                         <List
                             ref={x => this.lst = x}
-                            itemTpl="{name}"
+                            itemTpl={wg => this.fillWgSogInfo(wg)}
                             store={this.state.items}
                             height={height}
                             maxHeight={maxHeight}
@@ -45,6 +47,12 @@ export class MultiSelectWg extends MultiSelect {
         );
     }
 
+    private fillWgSogInfo(wg) {
+        if (wg.sog === undefined || wg.sog === null)
+            return <div><strong>{wg.name}</strong></div>;
+        return <div><strong>{wg.name}</strong> | SOG: <strong>{wg.sog.name}</strong></div>
+    }
+
     protected init() {
         super.init();
         //
@@ -53,15 +61,27 @@ export class MultiSelectWg extends MultiSelect {
     }
 
     private onPlaChange(view: any, newValue: string, oldValue: string) {
+        this.plaField = newValue;
         this.filter('plaId', newValue);
     }
 
     private onSearch(view: any, newValue: string, oldValue: string) {
-        this.filter('name', newValue);
+        this.lst.getStore().clearFilter(true);
+        this.lst.getStore().filterBy(record => this.filterByWgOrSog(record, newValue));
     }
 
     private filter(key: string, val: string) {
         val = val || '';
         this.lst.getStore().filter(key, val);
+    }
+
+    private filterByWgOrSog(record: any, newValue: string) {
+        newValue = newValue || '';
+        let pla = this.plaField || '';
+        if ((pla === '' || pla === record.data.plaId) &&
+            (record.data.name.toLowerCase().startsWith(newValue.toLowerCase())
+            || (record.data.sog !== undefined && record.data.sog.name.toLowerCase().startsWith(newValue.toLowerCase()))))
+            return true;
+        return false;
     }
 }

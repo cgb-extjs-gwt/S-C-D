@@ -1781,10 +1781,10 @@ RETURN
                     else 0
                end as AvailabilityFee
 
-            , case when @approved = 0 then moc.Markup                              else moc.Markup_Approved                            end as MarkupOtherCost                      
+            , case when @approved = 0 then moc.Markup                              else moc.Markup_Approved                            end / er.Value as MarkupOtherCost                      
             , case when @approved = 0 then moc.MarkupFactor_norm                   else moc.MarkupFactor_norm_Approved                 end as MarkupFactorOtherCost                
                                                                                                                                      
-            , case when @approved = 0 then msw.MarkupStandardWarranty              else msw.MarkupStandardWarranty_Approved            end as MarkupStandardWarranty      
+            , case when @approved = 0 then msw.MarkupStandardWarranty              else msw.MarkupStandardWarranty_Approved            end / er.Value as MarkupStandardWarranty      
             , case when @approved = 0 then msw.MarkupFactorStandardWarranty_norm   else msw.MarkupFactorStandardWarranty_norm_Approved end as MarkupFactorStandardWarranty
 
             , case when @approved = 0 then pro.LocalRemoteAccessSetupPreparationEffort * pro.OnSiteHourlyRate
@@ -2263,10 +2263,10 @@ RETURN
                     else 0
                end as AvailabilityFee
 
-            , case when @approved = 0 then moc.Markup                              else moc.Markup_Approved                            end as MarkupOtherCost                      
+            , case when @approved = 0 then moc.Markup                              else moc.Markup_Approved                            end / er.Value as MarkupOtherCost                      
             , case when @approved = 0 then moc.MarkupFactor_norm                   else moc.MarkupFactor_norm_Approved                 end as MarkupFactorOtherCost                
                                                                                                                                      
-            , case when @approved = 0 then msw.MarkupStandardWarranty              else msw.MarkupStandardWarranty_Approved            end as MarkupStandardWarranty      
+            , case when @approved = 0 then msw.MarkupStandardWarranty              else msw.MarkupStandardWarranty_Approved            end / er.Value as MarkupStandardWarranty      
             , case when @approved = 0 then msw.MarkupFactorStandardWarranty_norm   else msw.MarkupFactorStandardWarranty_norm_Approved end as MarkupFactorStandardWarranty
 
             , case when @approved = 0 then pro.LocalRemoteAccessSetupPreparationEffort * pro.OnSiteHourlyRate

@@ -63,7 +63,7 @@ RETURN (
                 , coalesce(case when afEx.Id is not null then af.Fee_Approved end, 0) as AvailabilityFee_Approved
 
                 , msw.MarkupFactorStandardWarranty_norm AS MarkupFactorStandardWarranty, msw.MarkupFactorStandardWarranty_norm_Approved AS MarkupFactorStandardWarranty_Approved  
-                , msw.MarkupStandardWarranty       , msw.MarkupStandardWarranty_Approved        
+                , msw.MarkupStandardWarranty / er.Value  AS MarkupStandardWarranty, msw.MarkupStandardWarranty_Approved / er.Value AS MarkupStandardWarranty_Approved
 
         FROM Portfolio.GetBySlaSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
 
