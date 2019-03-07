@@ -55,7 +55,7 @@ const initByMeta: Reducer<CostEditorState, LoadingAppDataAction> = (state, { dat
 
     return <CostEditorState>{
         ...state,
-        applications: {
+        applications: appMetas.length > 0 ? {
             selectedItemId: appMetas[0].id,
             list: appMetas.map(appMeta => {
                 const appCostBlocks = costBockMetas.filter(
@@ -70,7 +70,7 @@ const initByMeta: Reducer<CostEditorState, LoadingAppDataAction> = (state, { dat
                     }
                 }
             })
-        }
+        } : null
     };
 }
 

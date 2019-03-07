@@ -41,7 +41,7 @@ const buildProps = (() => {
 
     function buildGridProps (tableViewInfo: TableViewInfo, meta: CostMetaData) {
         let readUrl: string;
-        
+        console.log(tableViewInfo);
         const columns: ColumnInfo<TableViewRecord>[] = [];
 
         if (tableViewInfo && meta) {
@@ -90,15 +90,15 @@ const buildProps = (() => {
                         inputLevelMap.set(inputLevel.id, inputLevel);
                     }
         
-                    if (inputLevelMap.size == coordinateIds.length) {
-                        return coordinateIds.map(coordinateId => (<ColumnInfo<TableViewRecord>>{
+                    //if (inputLevelMap.size == coordinateIds.length) {
+                        return coordinateIds.filter(x => inputLevelMap.get(x)).map(coordinateId => (<ColumnInfo<TableViewRecord>>{
                             title: inputLevelMap.get(coordinateId).name,
                             dataIndex: coordinateId,
                             type: ColumnType.Text,
                             width: 100,
                             mappingFn: (record: TableViewRecord) => record.coordinates[coordinateId].name,
                         }))
-                    }
+                    //}
                 }
             }
         }
