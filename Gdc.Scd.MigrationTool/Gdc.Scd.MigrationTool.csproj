@@ -87,6 +87,7 @@
     <Compile Include="Migrations\Migration_2019_03_05_09_00.cs" />
     <Compile Include="Migrations\Migration_2019_03_05_11_00.cs" />
     <Compile Include="Migrations\Migration_2019_03_06_15_15.cs" />
+    <Compile Include="Migrations\Migration_2019_03_11_10_30.cs" />
     <Compile Include="Migrations\Migration_2019_03_11_12_39.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
@@ -197,7 +198,9 @@
     <Content Include="MigrationScripts\2019-03-06-15-25.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="MigrationScripts\2019-03-11-12-39.sql" />
+    <Content Include="MigrationScripts\2019-03-11-12-39.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj">

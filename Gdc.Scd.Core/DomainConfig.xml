@@ -404,6 +404,7 @@
             <Roles>
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
+              <Role>Country key user</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -743,6 +744,7 @@
             <Roles>
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
+              <Role>PRS PSM</Role>
             </Roles>
           </CostEditor>
         </Element>

@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 33;
+        public int Number => 34;
 
         public string Description => "Add software parameter overview report";
 
