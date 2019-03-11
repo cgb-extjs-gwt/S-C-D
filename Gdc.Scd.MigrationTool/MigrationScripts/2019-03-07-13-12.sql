@@ -13,8 +13,3 @@ INSERT INTO [dbo].[RolePermission]
            ((select Id from dbo.Permission where Name='OwnApproval')
            ,(select Id from dbo.Role where Name='GTS User'))
 GO
-
-DELETE FROM [dbo].[RolePermission]
-WHERE [PermissionId]=(select top 1 Id from dbo.Permission where Name='Approval')
-        and [RoleId]=(select top 1 Id from dbo.Role where Name='PRS PSM')
-GO

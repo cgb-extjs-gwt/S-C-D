@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.TableView;
+using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
@@ -534,12 +535,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 costElementInfos.Select(info => info.Meta.InputLevelFields.Select(field => field.ReferenceMeta).OfType<NamedEntityMeta>())
                                 .ToArray();
 
-            var metas = coordinateLists.Count() > 0 ? coordinateLists[0] : Enumerable.Empty<NamedEntityMeta>();
-
-            for (var index = 1; index < coordinateLists.Length; index++)
-            {
-                metas = metas.Intersect(coordinateLists[index]);
-            }
+            var metas = coordinateLists.Count() > 0 ? coordinateLists[0].Where(coord=>coord.Name== MetaConstants.WgInputLevelName) : Enumerable.Empty<NamedEntityMeta>();
 
             return metas;
         }
