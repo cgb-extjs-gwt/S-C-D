@@ -86,6 +86,7 @@ const selectEndDate: Reducer<FilterState, CommonAction<Date>> = (state, action) 
 }
 
 const init: Reducer<FilterState, LoadingAppDataAction> = (state, { data }) => {
+    if (data.meta.applications.length < 1) return null;
     const applicationId = data.meta.applications[0].id;
     const costBlock = data.meta.costBlocks.find(item => item.applicationIds.includes(applicationId));
 

@@ -171,6 +171,7 @@
           </InputLevels>
           <CostEditor>
             <Roles>
+              <Role>GTS user</Role>
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
             </Roles>
@@ -688,6 +689,7 @@
               <Role>PRS PSM</Role>  
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
+              <Role>GTS user</Role>
             </Roles>
           </TableView>
         </Element>
