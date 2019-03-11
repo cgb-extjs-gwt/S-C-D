@@ -594,12 +594,14 @@ CREATE VIEW [Fsp].[HwStandardWarrantyView] AS
          , std.ReactionTimeId
          , std.ReactionTypeId
          , std.ServiceLocationId
+         , loc.Name as ServiceLocation
          , std.ProActiveSlaId
          , std.ReactionTime_Avalability
          , std.ReactionTime_ReactionType
          , std.ReactionTime_ReactionType_Avalability
     FROM fsp.HwStandardWarranty std
     INNER JOIN Dependencies.Duration dur on dur.Id = std.Duration
+    INNER JOIN Dependencies.ServiceLocation loc on loc.id = std.ServiceLocationId
 GO
 
 CREATE FUNCTION Hardware.CalcByDur
@@ -1718,6 +1720,7 @@ RETURN
             , m.SlaHash
 
             , stdw.DurationValue   as StdWarranty
+            , stdw.ServiceLocation as StdWarrantyLocation
 
             --Cost values
 
@@ -2580,6 +2583,7 @@ RETURN
          , m.SlaHash
 
          , m.StdWarranty
+         , m.StdWarrantyLocation
 
          --Cost
 
@@ -2636,7 +2640,7 @@ IF OBJECT_ID('Hardware.SpGetCosts') IS NOT NULL
   DROP PROCEDURE Hardware.SpGetCosts;
 go
 
-CREATE PROCEDURE Hardware.SpGetCosts
+CREATE PROCEDURE [Hardware].[SpGetCosts]
     @approved     bit,
     @local        bit,
     @cnt          dbo.ListID readonly,
@@ -2683,6 +2687,7 @@ BEGIN
              , ProActiveSla
 
              , StdWarranty
+             , StdWarrantyLocation
 
              --Cost
 
@@ -2738,6 +2743,7 @@ BEGIN
              , ProActiveSla
 
              , StdWarranty
+             , StdWarrantyLocation
 
              --Cost
 
