@@ -139,7 +139,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
                 using (var hddRetentionSheet = workbook.Worksheet(InputSheets.HddRetention))
                 {
                     var range = inputMctSheet.RangeUsed();
-                    for (var row = 2; row < range.RowCount(); row++)
+                    for (var row = 2; row <= range.RowCount(); row++)
                     {
                         range.Row(row).Clear();
                     }
