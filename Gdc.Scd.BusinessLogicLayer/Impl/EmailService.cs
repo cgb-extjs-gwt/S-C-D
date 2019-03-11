@@ -86,7 +86,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private string GenerateRejectGreeting(string username, string rejectionText, string approverName)
         {
             return
-                $"<b>Hello {username},</br>Your values are not approved.</br>Reason for rejection:</b> {rejectionText}. <b>Approver’s name: </b> {approverName}";
+                $"<b>Hello {username},</br>Your values are not approved.</br>Reason for rejection:</b> {rejectionText}.<br/><b>Approver’s name: </b> {approverName}";
         }
 
         private async Task<string> GetCountryNameAsync(string levelName, long regionId)

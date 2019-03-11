@@ -81,8 +81,20 @@ namespace Gdc.Scd.Core.Meta.Impl
             var assembly = Assembly.GetExecutingAssembly();
             var stream = assembly.GetManifestResourceStream($"{assembly.GetName().Name}.DomainConfig.xml");
             var doc = XDocument.Load(stream);
+            var domainMeta= this.BuilDomainMeta(doc.Root);
 
-            return this.BuilDomainMeta(doc.Root);
+            foreach (var costBlock in domainMeta.CostBlocks)
+            {
+                foreach (var costElement in costBlock.CostElements)
+                {
+                    if(costElement.TableViewRoles != null && !costElement.InputLevels.Where(x => x.Id == MetaConstants.WgInputLevelName).Any())
+                    {
+                        throw new Exception($"Cost element {costElement.Id} must have '{MetaConstants.WgInputLevelName}' Input Level.");
+                    }
+                }
+            }
+
+            return domainMeta;
         }
 
         private DomainMeta BuilDomainMeta(XElement configNode)

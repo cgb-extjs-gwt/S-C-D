@@ -43,7 +43,7 @@ BEGIN
     with cte as (
         select m.* 
         from Hardware.GetCostsSlaSog(1, @sla) m
-        where m.WgId = @wg
+        where (@wg is null or m.WgId = @wg)
     )
     , cte2 as (
         select  

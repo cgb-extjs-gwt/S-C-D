@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.TableView;
+using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
@@ -24,14 +25,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly ICostBlockFilterBuilder costBlockFilterBuilder;
 
+        private readonly DomainEnitiesMeta metas;
+
         public TableViewRepository(
             IRepositorySet repositorySet, 
             ISqlRepository sqlRepository, 
-            ICostBlockFilterBuilder costBlockFilterBuilder)
+            ICostBlockFilterBuilder costBlockFilterBuilder,
+            DomainEnitiesMeta metas)
         {
             this.repositorySet = repositorySet;
             this.sqlRepository = sqlRepository;
             this.costBlockFilterBuilder = costBlockFilterBuilder;
+            this.metas = metas;
         }
 
         public async Task<IEnumerable<Record>> GetRecords(CostElementInfo[] costElementInfos)
@@ -530,18 +535,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private IEnumerable<NamedEntityMeta> GetCoordinateMetas(CostElementInfo[] costElementInfos)
         {
-            var coordinateLists = 
-                costElementInfos.Select(info => info.Meta.InputLevelFields.Select(field => field.ReferenceMeta).OfType<NamedEntityMeta>())
-                                .ToArray();
+            var fullName = BaseEntityMeta.BuildFullName(MetaConstants.WgInputLevelName, MetaConstants.InputLevelSchema);
 
-            var metas = coordinateLists[0];
-
-            for (var index = 1; index < coordinateLists.Length; index++)
-            {
-                metas = metas.Intersect(coordinateLists[index]);
-            }
-
-            return metas;
+            yield return this.metas.InputLevels[fullName];
         }
 
         private class AdditionalDataInfo

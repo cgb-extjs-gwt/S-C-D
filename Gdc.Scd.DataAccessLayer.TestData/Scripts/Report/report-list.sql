@@ -49,6 +49,8 @@
 
 ('SW-PROACTIVE-CALC-RESULT', 'Software & Solution proactive cost', 1,  1, 'Report.SwProactiveCalcResult'),
 
+('SW-PARAM-OVERVIEW', 'Software & Solution calculation parameter overview', 1,  1, 'Report.SwParamOverview'),
+
 ('User-Roles', 'User roles', 0,  0, 'Report.UserRoles');
 
 
