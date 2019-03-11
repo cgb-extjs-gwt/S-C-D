@@ -14,6 +14,7 @@ using Gdc.Scd.Export.CdCs.Procedures;
 using System.Linq;
 using NLog;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.OperationResult;
 
 namespace Gdc.Scd.Export.CdCs.Impl
 {
@@ -34,8 +35,9 @@ namespace Gdc.Scd.Export.CdCs.Impl
             Logger = Kernel.Get<ILogger<LogLevel>>();
         }
 
-        public static void DoThings()
+        public static OperationResult<bool> DoThings()
         {
+
             try
             {
                 Logger.Log(LogLevel.Info, CdCsMessages.START_PROCESS);
@@ -62,11 +64,27 @@ namespace Gdc.Scd.Export.CdCs.Impl
                 Logger.Log(LogLevel.Info, CdCsMessages.WRITE_COUNTRY_COSTS);
                 FillCdCsAsync(downloadedcdCsFile, slaList);
                 Logger.Log(LogLevel.Info, CdCsMessages.END_PROCESS);
+
+                var result = new OperationResult<bool>
+                {
+                    IsSuccess = true,
+                    Result = true
+                };
+
+                return result;
             }
             catch(Exception ex)
             {
                 Logger.Log(LogLevel.Fatal, ex, CdCsMessages.UNEXPECTED_ERROR);
                 Fujitsu.GDC.ErrorNotification.Logger.Error(CdCsMessages.UNEXPECTED_ERROR, ex, null, null);
+
+                var result = new OperationResult<bool>
+                {
+                    IsSuccess = false,
+                    Result = true
+                };
+
+                return result;
             }
             
         }
