@@ -97,6 +97,10 @@ export class ReportListView extends React.Component<any, any> {
                         {
                             "text": "<a href='#' data-href='/report/SW-Service-Price-List-detailed'>b) Software services price list detailed</a>",
                             "leaf": true
+                        },
+                        {
+                            "text": "<a href='#' data-href='/report/SW-PARAM-OVERVIEW'>c) Software & Solution calculation parameter overview</a>",
+                            "leaf": true
                         }
                     ]
                 },
