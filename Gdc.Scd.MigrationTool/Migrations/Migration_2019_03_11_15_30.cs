@@ -9,7 +9,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 34;
+        public int Number => 35;
 
         public string Description => "Add permissions for 'GTS User' role";
 
