@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 35;
+        public int Number => 36;
 
         public string Description => "Add standard warranty service location to client result table";
 
