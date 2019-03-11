@@ -25,14 +25,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly ICostBlockFilterBuilder costBlockFilterBuilder;
 
+        private readonly DomainEnitiesMeta metas;
+
         public TableViewRepository(
             IRepositorySet repositorySet, 
             ISqlRepository sqlRepository, 
-            ICostBlockFilterBuilder costBlockFilterBuilder)
+            ICostBlockFilterBuilder costBlockFilterBuilder,
+            DomainEnitiesMeta metas)
         {
             this.repositorySet = repositorySet;
             this.sqlRepository = sqlRepository;
             this.costBlockFilterBuilder = costBlockFilterBuilder;
+            this.metas = metas;
         }
 
         public async Task<IEnumerable<Record>> GetRecords(CostElementInfo[] costElementInfos)
@@ -531,13 +535,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private IEnumerable<NamedEntityMeta> GetCoordinateMetas(CostElementInfo[] costElementInfos)
         {
-            var coordinateLists = 
-                costElementInfos.Select(info => info.Meta.InputLevelFields.Select(field => field.ReferenceMeta).OfType<NamedEntityMeta>())
-                                .ToArray();
-
-            var metas = coordinateLists.Count() > 0 ? coordinateLists[0].Where(coord=>coord.Name== MetaConstants.WgInputLevelName) : Enumerable.Empty<NamedEntityMeta>();
-
-            return metas;
+            return this.metas.InputLevels.Where(inputLevel => inputLevel.Name == MetaConstants.WgInputLevelName);
         }
 
         private class AdditionalDataInfo
