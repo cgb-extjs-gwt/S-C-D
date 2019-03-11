@@ -2107,6 +2107,7 @@ RETURN
          , m.SlaHash
 
          , m.StdWarranty
+         , m.StdWarrantyLocation
 
          --Cost
 
