@@ -535,7 +535,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private IEnumerable<NamedEntityMeta> GetCoordinateMetas(CostElementInfo[] costElementInfos)
         {
-            return this.metas.InputLevels.Where(inputLevel => inputLevel.Name == MetaConstants.WgInputLevelName);
+            var fullName = BaseEntityMeta.BuildFullName(MetaConstants.WgInputLevelName, MetaConstants.InputLevelSchema);
+
+            yield return this.metas.InputLevels[fullName];
         }
 
         private class AdditionalDataInfo
