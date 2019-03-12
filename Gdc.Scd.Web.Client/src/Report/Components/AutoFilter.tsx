@@ -31,6 +31,8 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
 
     private dictSrv: IDictService;
 
+    public state: any = {};
+
     public constructor(props: any) {
         super(props);
         this.init();
@@ -72,7 +74,7 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
                 return <NumberField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.WG:
-                return <WgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+                return <WgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} sog={this.state.sog} />;
 
             case AutoFilterType.WGALL:
                 return <WgAllField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
@@ -81,7 +83,7 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
                 return <StandardWgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.SOG:
-                return <SogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+                return <SogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} onChange={this.onSogChange} />;
 
             case AutoFilterType.COUNTRY:
                 return <CountryField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
@@ -114,10 +116,10 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
                 return <ServiceLocationField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.SWDIGIT:
-                return <SwDigitField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+                return <SwDigitField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} sog={this.state.sog} />;
 
             case AutoFilterType.SWDIGITSOG:
-                return <SwDigitSogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+                return <SwDigitSogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} onChange={this.onSogChange} />;
 
             case AutoFilterType.TEXT:
             default:
@@ -126,45 +128,48 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
     }
 
     private createMultiSelectField(model: AutoFilterModel, index: number): JSX.Element {
-        let store = null;
+        let cfg: any = {};
         switch (model.type) {
 
-            case AutoFilterType.WG: store = this.dictSrv.getWG; break;
+            case AutoFilterType.WG: cfg.store = this.dictSrv.getWG; break;
 
-            case AutoFilterType.WGALL: store = this.dictSrv.getWgWithMultivendor; break;
+            case AutoFilterType.WGALL: cfg.store = this.dictSrv.getWgWithMultivendor; break;
 
-            case AutoFilterType.WGSTANDARD: store = this.dictSrv.getStandardWg; break;
+            case AutoFilterType.WGSTANDARD: cfg.store = this.dictSrv.getStandardWg; break;
 
-            case AutoFilterType.SOG: store = this.dictSrv.getSog; break;
+            case AutoFilterType.SOG: cfg.store = this.dictSrv.getSog; break;
 
-            case AutoFilterType.COUNTRY: store = () => this.dictSrv.getMasterCountries(true); break;
+            case AutoFilterType.COUNTRY: cfg.store = () => this.dictSrv.getMasterCountries(true); break;
 
-            case AutoFilterType.USERCOUNTRY: store = () => this.dictSrv.getUserCountries(true); break;
+            case AutoFilterType.USERCOUNTRY: cfg.store = () => this.dictSrv.getUserCountries(true); break;
 
-            case AutoFilterType.COUNTRYGROUP: store = this.dictSrv.getCountryGroups; break;
+            case AutoFilterType.COUNTRYGROUP: cfg.store = this.dictSrv.getCountryGroups; break;
 
-            case AutoFilterType.AVAILABILITY: store = this.dictSrv.getAvailabilityTypes; break;
+            case AutoFilterType.AVAILABILITY: cfg.store = this.dictSrv.getAvailabilityTypes; break;
 
-            case AutoFilterType.DURATION: store = this.dictSrv.getDurationTypes; break;
+            case AutoFilterType.DURATION: cfg.store = this.dictSrv.getDurationTypes; break;
 
-            case AutoFilterType.YEAR: store = this.dictSrv.getYears; break;
+            case AutoFilterType.YEAR: cfg.store = this.dictSrv.getYears; break;
 
-            case AutoFilterType.REACTIONTIME: store = this.dictSrv.getReactionTimeTypes; break;
+            case AutoFilterType.REACTIONTIME: cfg.store = this.dictSrv.getReactionTimeTypes; break;
 
-            case AutoFilterType.REACTIONTYPE: store = this.dictSrv.getReactionTypes; break;
+            case AutoFilterType.REACTIONTYPE: cfg.store = this.dictSrv.getReactionTypes; break;
 
-            case AutoFilterType.PROACTIVE: store = this.dictSrv.getProActive; break;
+            case AutoFilterType.PROACTIVE: cfg.store = this.dictSrv.getProActive; break;
 
-            case AutoFilterType.SERVICELOCATION: store = this.dictSrv.getServiceLocationTypes; break;
+            case AutoFilterType.SERVICELOCATION: cfg.store = this.dictSrv.getServiceLocationTypes; break;
 
-            case AutoFilterType.SWDIGIT: store = this.dictSrv.getSwDigit; break;
+            case AutoFilterType.SWDIGIT:
+                cfg.store = this.dictSrv.getSwDigit
+                cfg.filter = { name: 'sogId', id: this.state.sog };
+                break;
 
-            case AutoFilterType.SWDIGITSOG: store = this.dictSrv.getSwDigitSog; break;
+            case AutoFilterType.SWDIGITSOG: cfg.store = this.dictSrv.getSwDigitSog; break;
 
             default: return null;
         }
 
-        return <SelectField key={index} ref={model.name} store={store} multiSelect={true} name={model.name} label={model.text} value={model.value} />;
+        return <SelectField key={index} ref={model.name} {...cfg} multiSelect={true} name={model.name} label={model.text} value={model.value} />;
     }
 
     public getModel(): any {
@@ -190,6 +195,8 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
         this.createMultiSelectField = this.createMultiSelectField.bind(this);
         this.dictSrv = DictFactory.getDictService();
         this.onSearch = this.onSearch.bind(this);
+        //
+        this.onSogChange = this.onSogChange.bind(this);
     }
 
     private onSearch() {
@@ -197,5 +204,9 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
         if (handler) {
             handler(this.getModel());
         }
+    }
+
+    private onSogChange(view: any, newValue: any, oldValue: any) {
+        this.setState({ sog: newValue });
     }
 }
