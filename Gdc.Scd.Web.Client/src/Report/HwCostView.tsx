@@ -112,8 +112,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
             //allow manual edit in LOCAL CURRENCY mode only for well view!!!
 
-            canEditTC = this.canEditTC();
-            canEditListPrice = this.canEditListPrice();
+            canEditTC = this.canEditTC() && this.state.userCanEdit;
+            canEditListPrice = this.canEditListPrice() && this.state.userCanEdit;
             //
             moneyRndr = localMoneyRenderer;
         }
@@ -179,13 +179,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
                         <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
-                        <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC && this.state.userCanEdit} />
+                        <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
                         <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
-                        <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC && this.state.userCanEdit} />
+                        <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
                         <NumberColumn text="Service TP(released)" dataIndex="ServiceTP_Released" />
 
-                        <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice && this.state.userCanEdit} />
-                        <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice && this.state.userCanEdit} renderer={percentRenderer} />
+                        <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
+                        <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
                         <Column flex="2" minWidth="250" text="Change user" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
