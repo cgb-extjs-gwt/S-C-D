@@ -89,8 +89,8 @@
     <Compile Include="Migrations\Migration_2019_03_06_15_15.cs" />
     <Compile Include="Migrations\Migration_2019_03_11_10_30.cs" />
     <Compile Include="Migrations\Migration_2019_03_11_12_39.cs" />
-    <Compile Include="Migrations\Migration_2019_03_11_17_30.cs" />
     <Compile Include="Migrations\Migration_2019_03_11_17_36.cs" />
+    <Compile Include="Migrations\Migration_2019_03_12_10_33.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
