@@ -21,6 +21,7 @@ RETURN (
     select    Country
             , case when @local = 1 then c.Name else 'EUR' end as Currency
 
+            , sog.Name as SOG
             , Wg
             , Availability
             , Duration
@@ -30,6 +31,7 @@ RETURN (
             , ProActiveSla
 
             , StdWarranty
+            , StdWarrantyLocation
 
             --Cost
 
@@ -63,6 +65,8 @@ RETURN (
 
     from Hardware.GetCosts(@approved, @country, @wg, @availability, @duration, @reactiontime, @reactiontype, @servicelocation, @proactive, -1, -1) costs
     join [References].Currency c on c.Id = costs.CurrencyId
+    join InputAtoms.Wg wg on wg.id = costs.WgId
+    LEFT JOIN InputAtoms.Sog sog on sog.Id = wg.SogId
 )
 
 GO
@@ -77,6 +81,8 @@ select @money = id from Report.ReportColumnType where upper(name) = 'MONEY';
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Country', 'Country', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SOG', 'SOG', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Wg', 'WG(Asset)', 1, 1);
 set @index = @index + 1;
@@ -93,6 +99,8 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ProActiveSla', 'ProActive SLA', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'StdWarranty', 'Standard warranty duration', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'StdWarrantyLocation', 'Standard Warranty Service Location', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'FieldServiceCost', 'Field service cost', 1, 1);

@@ -164,28 +164,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <Column text="Service location" dataIndex="ServiceLocation" />
                         <Column text="ProActive SLA" dataIndex="ProActiveSla" />
                         <Column text="Standard warranty duration" dataIndex="StdWarranty" renderer={yearRenderer} flex="0.5" />
-
-                    </Column>
-
-                    {/*cost block results*/}
-
-                    <Column
-                        isHeaderGroup={true}
-                        text="Cost block results"
-                        dataIndex=""
-                        cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
-
-                        <NumberColumn text="Field service cost" dataIndex="FieldServiceCost" />
-                        <NumberColumn text="Service support cost" dataIndex="ServiceSupportCost" />
-                        <NumberColumn text="Logistic cost" dataIndex="Logistic" />
-                        <NumberColumn text="Availability fee" dataIndex="AvailabilityFee" />
-                        <NumberColumn text="Reinsurance" dataIndex="Reinsurance" />
-                        <NumberColumn text="Tax &amp; Duties iW period" dataIndex="TaxAndDutiesW" />
-                        <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="TaxAndDutiesOow" />
-                        <NumberColumn text="Material cost iW period" dataIndex="MaterialW" />
-                        <NumberColumn text="Material cost OOW period" dataIndex="MaterialOow" />
-                        <NumberColumn text="ProActive" dataIndex="ProActive" />
+                        <Column text="Standard Warranty Service Location" dataIndex="StdWarrantyLocation" />
 
                     </Column>
 
@@ -213,6 +192,28 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
                         <NumberColumn text="Local service standard warranty" dataIndex="LocalServiceStandardWarranty" />
                         <NumberColumn text="Credits" dataIndex="Credits" />
+
+                    </Column>
+
+                    {/*cost block results*/}
+
+                    <Column
+                        isHeaderGroup={true}
+                        text="Cost block results"
+                        dataIndex=""
+                        cls="calc-cost-result-blue"
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
+
+                        <NumberColumn text="Field service cost" dataIndex="FieldServiceCost" />
+                        <NumberColumn text="Service support cost" dataIndex="ServiceSupportCost" />
+                        <NumberColumn text="Logistic cost" dataIndex="Logistic" />
+                        <NumberColumn text="Availability fee" dataIndex="AvailabilityFee" />
+                        <NumberColumn text="Reinsurance" dataIndex="Reinsurance" />
+                        <NumberColumn text="Tax &amp; Duties iW period" dataIndex="TaxAndDutiesW" />
+                        <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="TaxAndDutiesOow" />
+                        <NumberColumn text="Material cost iW period" dataIndex="MaterialW" />
+                        <NumberColumn text="Material cost OOW period" dataIndex="MaterialOow" />
+                        <NumberColumn text="ProActive" dataIndex="ProActive" />
 
                     </Column>
 
