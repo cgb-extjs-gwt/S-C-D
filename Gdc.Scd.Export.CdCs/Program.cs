@@ -8,6 +8,11 @@ namespace Gdc.Scd.Export.CdCs
 {
     class Program
     {
+        static void Main(string[] args)
+        {
+            CdCsService.DoThings();
+        }
+
         public OperationResult<bool> Output()
         {
             return CdCsService.DoThings();

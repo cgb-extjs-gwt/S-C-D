@@ -165,15 +165,15 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     var rowNum = 2;
                     foreach (var cost in costsList)
                     {
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.CountryGroup).Value = country;
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.FspCode).Value = cost.FspCode;
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTC).Value = FormatCostValue(cost.ServiceTC, format:"0.0000");
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP).Value = FormatCostValue(cost.ServiceTP, format: "0.0000"); 
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear1).Value = FormatCostValue(cost.ServiceTP_MonthlyYear1, format: "0.0000"); 
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear2).Value = FormatCostValue(cost.ServiceTP_MonthlyYear2, format: "0.0000"); 
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear3).Value = FormatCostValue(cost.ServiceTP_MonthlyYear3, format: "0.0000"); 
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear4).Value = FormatCostValue(cost.ServiceTP_MonthlyYear4, format: "0.0000"); 
-                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear5).Value = FormatCostValue(cost.ServiceTP_MonthlyYear5, format: "0.0000"); 
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.CountryGroup).SetValue(country);
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.FspCode).SetValue(cost.FspCode);
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTC).SetValue(FormatCostValue(cost.ServiceTC, format:"0.0000"));
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP).SetValue(FormatCostValue(cost.ServiceTP, format: "0.0000")); 
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear1).SetValue(FormatCostValue(cost.ServiceTP_MonthlyYear1, format: "0.0000")); 
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear2).SetValue(FormatCostValue(cost.ServiceTP_MonthlyYear2, format: "0.0000")); 
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear3).SetValue(FormatCostValue(cost.ServiceTP_MonthlyYear3, format: "0.0000")); 
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear4).SetValue(FormatCostValue(cost.ServiceTP_MonthlyYear4, format: "0.0000")); 
+                        inputMctSheet.Cell(rowNum, InputMctCdCsWGsColumns.ServiceTP_MonthlyYear5).SetValue(FormatCostValue(cost.ServiceTP_MonthlyYear5, format: "0.0000")); 
                         rowNum++;
                     }
                     Logger.Log(LogLevel.Info, CdCsMessages.WRITE_PROACTIVE);
@@ -181,12 +181,12 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     foreach (var pro in proActiveList)
                     {
                         proActiveSheet.Row(rowNum).Clear();
-                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.Wg).Value = pro.Wg;
-                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive6).Value = FormatCostValue(pro.ProActive6, currency);
-                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive7).Value = FormatCostValue(pro.ProActive7, currency);
-                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive3).Value = FormatCostValue(pro.ProActive3, currency);
-                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive4).Value = FormatCostValue(pro.ProActive4, currency);
-                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.OneTimeTask).Value = FormatCostValue(pro.OneTimeTasks, currency);
+                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.Wg).SetValue(pro.Wg);
+                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive6).SetValue(FormatCostValue(pro.ProActive6, currency));
+                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive7).SetValue(FormatCostValue(pro.ProActive7, currency));
+                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive3).SetValue(FormatCostValue(pro.ProActive3, currency));
+                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.ProActive4).SetValue(FormatCostValue(pro.ProActive4, currency));
+                        proActiveSheet.Cell(rowNum, ProActiveOutputColumns.OneTimeTask).SetValue(FormatCostValue(pro.OneTimeTasks, currency));
                         rowNum++;
                     }
                     Logger.Log(LogLevel.Info, CdCsMessages.WRITE_HDD_RETENTION);
@@ -200,11 +200,11 @@ namespace Gdc.Scd.Export.CdCs.Impl
 
                     foreach (var hdd in hddRetention)
                     {
-                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.Wg).Value = hdd.Wg;
-                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.WgName).Value = hdd.WgName ?? string.Empty;
-                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.TP).Value = FormatCostValue(hdd.TransferPrice, EUR_CUR);
-                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.DealerPrice).Value = FormatCostValue(hdd.DealerPrice, EUR_CUR); 
-                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.ListPrice).Value = FormatCostValue(hdd.ListPrice, EUR_CUR); 
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.Wg).SetValue(hdd.Wg);
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.WgName).SetValue(hdd.WgName ?? string.Empty);
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.TP).SetValue(FormatCostValue(hdd.TransferPrice, EUR_CUR));
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.DealerPrice).SetValue(FormatCostValue(hdd.DealerPrice, EUR_CUR)); 
+                        hddRetentionSheet.Cell(rowNum, HddRetentionColumns.ListPrice).SetValue(FormatCostValue(hdd.ListPrice, EUR_CUR)); 
                         rowNum++;
                     }
 
