@@ -47,7 +47,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
         private DbParameter[] Prepare(PortfolioRuleSetDto dto)
         {
             return new DbParameter[] {
-                new DbParameterBuilder().WithName("@cnt").WithValue(dto.CountryId).Build(),
+                new DbParameterBuilder().WithName("@cnt").WithType(System.Data.DbType.Int64).WithValue(dto.CountryId).Build(),
                 new DbParameterBuilder().WithName("@wg").WithListIdValue(dto.Wgs).Build(),
                 new DbParameterBuilder().WithName("@av").WithListIdValue(dto.Availabilities).Build(),
                 new DbParameterBuilder().WithName("@dur").WithListIdValue(dto.Durations).Build(),
