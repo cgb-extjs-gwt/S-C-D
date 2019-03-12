@@ -84,7 +84,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 }
                 else {
                     this.toggleToolbar(changed == 0);
-                }
+                }                              
             }
         }
     });
@@ -94,7 +94,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         disableCancelButton: true,
         selectedCountry: null,
         showInLocalCurrency: true,
-        hideReleaseButton: true
+        hideReleaseButton: true,
+        userCanEdit: false
     };
 
     public constructor(props: CalcCostProps) {
@@ -103,7 +104,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     public render() {
-
         let canEditTC: boolean = false;
         let canEditListPrice: boolean = false;
         let moneyRndr: IRenderer;
@@ -120,7 +120,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         else {
             moneyRndr = euroMoneyRenderer;
         }
-
+     
         return (
             <Container layout="fit">
 
@@ -135,7 +135,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     <HwReleasePanel
                         onApprove={this.releaseCosts}
                         checkAccess={!this.props.approved}
-                        hidden={this.state.hideReleaseButton} />
+                        hidden={this.state.hideReleaseButton}
+                        disabled={!this.state.disableSaveButton}/>
                 </Panel>
 
                 <Grid
@@ -178,13 +179,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
                         <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
-                        <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
+                        <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC && this.state.userCanEdit} />
                         <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
-                        <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
+                        <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC && this.state.userCanEdit} />
                         <NumberColumn text="Service TP(released)" dataIndex="ServiceTP_Released" />
 
-                        <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice} />
-                        <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice} renderer={percentRenderer} />
+                        <NumberColumn text="List price" dataIndex="ListPrice" editable={canEditListPrice && this.state.userCanEdit} />
+                        <NumberColumn text="Dealer discount in %" dataIndex="DealerDiscount" editable={canEditListPrice && this.state.userCanEdit} renderer={percentRenderer} />
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
                         <Column flex="2" minWidth="250" text="Change user" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
@@ -315,9 +316,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         if (this.state && this.state.selectedCountry) {
             cntId = this.state.selectedCountry.id;
             srv.isCountryUser(cntId).then(x => {
-                this.setState({ hideReleaseButton: !this.props.approved || !x || !this.state.disableSaveButton })
-            });
-        }
+                this.setState({
+                    hideReleaseButton: !this.props.approved || !x || !this.state.disableSaveButton,
+                    userCanEdit: x
+                });
+
+            })
+        };
     }
 
     private pluginConf(): any {
@@ -356,7 +361,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private canEdit(): boolean {
-        return this.canEditListPrice() || this.canEditTC();
+        return this.state.userCanEdit && (this.canEditListPrice() || this.canEditTC());
     }
 
     private canEditListPrice(): boolean {
