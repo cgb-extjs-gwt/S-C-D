@@ -10,7 +10,6 @@ import { buildComponentUrl } from "../../Common/Services/Ajax";
 import { MenuItem } from "../../Common/States/ExtStates";
 import { CostEditorContainer } from "../../CostEditor/Components/CostEditorContainer";
 import { PortfolioEditView, PortfolioView } from "../../Portfolio/index";
-import { CalcResultView } from "../../Report/CalcResultView";
 import { ReportView } from "../../Report/index";
 import { ReportListView } from "../../Report/ReportListView";
 import { TableViewContainer } from "../../TableView/Components/TableViewContainer";
@@ -20,6 +19,7 @@ import { Layout, LayoutActions, LayoutProps, RouteItem } from "./Layout";
 import { CostImportContainer } from "../../CostImport/Components/CostImportContainer";
 import { OwnApproveLayoutContainer } from "../../CostOwnApproval/Components/OwnApproveLayoutContainer";
 import { ApprovalLayoutContainer } from "../../CostApproval/Components/ApprovalLayoutContainer";
+import { CalcResultViewContainer } from "../../Report/CalcResultViewContainer";
 
 interface RouteMenuItem extends RouteItem {
     text?: string
@@ -42,7 +42,7 @@ const buildRouteMenuItems = () => <RouteMenuItem[]>[
     { path: '/own-cost-approval', text: 'Own approve cost elements', iconCls: 'x-fa fa-check-square-o', component: OwnApproveLayoutContainer, isMenuItem: true, permission: Permissions.OWN_APPROVAL },
     { path: '/portfolio', text: 'Portfolio', iconCls: 'x-fa fa-suitcase', component: PortfolioView, isMenuItem: true, permission: Permissions.PORTFOLIO, exact: true },
     { path: '/portfolio/edit', component: PortfolioEditView, permission: Permissions.PORTFOLIO },
-    { path: '/report', text: 'Calculation Result', iconCls: 'x-fa fa-calculator', component: CalcResultView, isMenuItem: true, permission: Permissions.REPORT, exact: true },
+    { path: '/report', text: 'Calculation Result', iconCls: 'x-fa fa-calculator', component: CalcResultViewContainer, isMenuItem: true, permission: Permissions.REPORT, exact: true },
     { path: '/report/all', text: 'Reports', iconCls: 'x-fa fa-bar-chart', component: ReportListView, isMenuItem: true, permission: Permissions.REPORT, exact: true },
     { path: '/report/:name', component: ReportView, exact: true, permission: Permissions.REPORT },
     {

@@ -8,6 +8,7 @@ export interface SelectFieldProps extends DictFieldProps, MultiSelectProps {
     itemTpl?: Function | string | string[] | any;
     store(): Promise<NamedId[]>;
     panelWidth?: string | number;
+    filter?: NamedId;
 }
 
 class DictFieldWrap extends DictField<NamedId> {
@@ -32,5 +33,12 @@ export class SelectField extends React.Component<SelectFieldProps, any> {
 
     public getValue(): string | string[] {
         return this.component.getValue();
+    }
+
+    public componentDidUpdate() {
+        let filter = this.props.filter;
+        if (filter && this.component.filter) {
+            this.component.filter(filter.name, filter.id);
+        }
     }
 }

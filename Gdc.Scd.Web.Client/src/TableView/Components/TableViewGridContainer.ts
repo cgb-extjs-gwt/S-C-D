@@ -41,7 +41,7 @@ const buildProps = (() => {
 
     function buildGridProps (tableViewInfo: TableViewInfo, meta: CostMetaData) {
         let readUrl: string;
-        
+
         const columns: ColumnInfo<TableViewRecord>[] = [];
 
         if (tableViewInfo && meta) {
