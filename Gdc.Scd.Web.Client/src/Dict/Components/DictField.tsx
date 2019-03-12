@@ -84,9 +84,21 @@ export abstract class DictField<T> extends React.Component<DictFieldProps, any> 
         this.combo.reset();
     }
 
-    public filter(key: string, val: string) {
-        val = val || '';
-        this.combo.getStore().filter(key, val);
+    public filter(key: string, val: string, exactMatch: boolean = false) {
+
+        let cfg: any = {
+            property: key
+        };
+
+        if (val) {
+            cfg.exactMatch = exactMatch;
+            cfg.value = val;
+        }
+        else {
+            cfg.value = '';
+        }
+
+        this.combo.getStore().filter(cfg);
     }
 
     protected canCache() {

@@ -7,6 +7,6 @@ export class SwDigitField extends DictField<NamedId> {
     }
 
     public componentDidUpdate() {
-        this.filter('sogId', this.props.sog);
+        this.filter('sogId', this.props.sog, true);
     }
 }
