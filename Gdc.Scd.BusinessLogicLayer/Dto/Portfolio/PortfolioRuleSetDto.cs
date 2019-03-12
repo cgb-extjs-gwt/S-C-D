@@ -2,7 +2,7 @@
 {
     public class PortfolioRuleSetDto
     {
-        public long[] Countries { get; set; }
+        public long? CountryId { get; set; }
 
         public long[] Wgs { get; set; }
         public long[] Availabilities { get; set; }
@@ -18,12 +18,12 @@
 
         public bool IsLocalPortfolio()
         {
-            return Len(Countries) > 0;
+            return CountryId.HasValue;
         }
 
         public bool IsValid()
         {
-            var valid = IsLocalPortfolio() || IsGlobalPortfolio || IsMasterPortfolio || IsCorePortfolio;
+            var valid = CountryId.HasValue || IsGlobalPortfolio || IsMasterPortfolio || IsCorePortfolio;
 
             if (valid)
             {
