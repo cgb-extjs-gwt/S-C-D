@@ -6,15 +6,15 @@ using Gdc.Scd.MigrationTool.Interfaces;
 
 namespace Gdc.Scd.MigrationTool.Migrations
 {
-    public class Migration_2019_03_11_17_30 : IMigrationAction
+    public class Migration_2019_03_12_10_33 : IMigrationAction
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 35;
+        public int Number => 37;
 
         public string Description => "Adding 'CalcResultSoftwareSolutionServiceCostNotApproved' permission for 'PRS PSM' role";
 
-        public Migration_2019_03_11_17_30(IRepositorySet repositorySet)
+        public Migration_2019_03_12_10_33(IRepositorySet repositorySet)
         {
             this.repositorySet = repositorySet;
         }
