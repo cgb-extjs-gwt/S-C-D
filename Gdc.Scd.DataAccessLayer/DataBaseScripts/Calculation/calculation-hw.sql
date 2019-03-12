@@ -3242,7 +3242,7 @@ IF OBJECT_ID('Hardware.GetCostsSlaSog') IS NOT NULL
   DROP FUNCTION Hardware.GetCostsSlaSog;
 go
 
-CREATE FUNCTION [Hardware].[GetCostsSlaSog](@approved bit, @sla Portfolio.Sla readonly)
+CREATE FUNCTION Hardware.GetCostsSlaSog(@approved bit, @sla Portfolio.Sla readonly)
 RETURNS TABLE 
 AS
 RETURN 
