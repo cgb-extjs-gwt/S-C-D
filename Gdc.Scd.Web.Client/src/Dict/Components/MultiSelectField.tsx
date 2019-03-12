@@ -53,6 +53,11 @@ export class MultiSelectField extends MultiSelect {
         return this.getSelectedKeysOrNull();
     }
 
+    public filter(key: string, val: string) {
+        val = val || '';
+        this.lst.getStore().filter(key, val);
+    }
+
     protected init() {
         super.init();
         this.onSearch = this.onSearch.bind(this);
@@ -70,10 +75,5 @@ export class MultiSelectField extends MultiSelect {
 
     private onSearch(view: any, newValue: string, oldValue: string) {
         this.filter(this.nameField, newValue);
-    }
-
-    private filter(key: string, val: string) {
-        val = val || '';
-        this.lst.getStore().filter(key, val);
     }
 }
