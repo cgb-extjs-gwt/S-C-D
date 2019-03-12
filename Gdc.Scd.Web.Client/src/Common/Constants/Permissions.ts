@@ -15,3 +15,7 @@ export const REVIEW_PROCESS = 'ReviewProcess';
 export const REPORT = 'Report';
 
 export const ADMIN = 'Admin';
+
+export const CALC_RESULT_HDD_SERVICE_COST_NOT_APPROVED = "CalcResultHddServiceCostNotApproved";
+
+export const CALC_RESULT_SOFTWARE_SERVICE_COST_NOT_APPROVED = "CalcResultSoftwareServiceCostNotApproved";
