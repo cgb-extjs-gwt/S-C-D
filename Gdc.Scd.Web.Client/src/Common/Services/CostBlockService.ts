@@ -7,10 +7,15 @@ import { ApprovalOption } from "../../QualityGate/States/ApprovalOption";
 const COST_BLOCK_CONTROLLER = 'CostBlock';
 
 export interface ImportData {
-    costElementId: CostElementIdentifier
+    context: {
+        applicationId: string
+        costBlockId:string
+        costElementId: string
+        inputLevelId: string
+        dependencyItemId?: number
+        regionId?: number
+    }
     approvalOption: ApprovalOption
-    dependencyItemId?: number
-    regionId?: number
     excelFile: string
 }
 
