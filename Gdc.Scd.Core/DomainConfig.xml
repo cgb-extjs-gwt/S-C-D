@@ -563,6 +563,7 @@
       </Applications>
       <Elements>
         <Element Name="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManualyAutomaticly">
+          <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>                    
             <InputLevel>RoleCode</InputLevel>
           </InputLevels>
