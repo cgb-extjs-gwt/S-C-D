@@ -13,7 +13,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<IEnumerable<BundleDto>> GetApprovalBundles(BundleFilter filter);
 
-        Task<IEnumerable<BundleDto>> GetOwnApprovalBundles(OwnApprovalFilter filter);
+        Task<IEnumerable<BundleDto>> GetOwnApprovalBundles(BundleFilter filter);
 
         Task<IEnumerable<BundleDetailGroupDto>> GetApproveBundleDetails(CostBlockHistory history, long? historyValueId = null, IDictionary<string, IEnumerable<object>> costBlockFilter = null);
 

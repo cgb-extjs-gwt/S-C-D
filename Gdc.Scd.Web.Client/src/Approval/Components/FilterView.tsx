@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { FormPanel, RadioField, CheckBoxField, Panel, Container, DatePickerField, Button } from '@extjs/ext-react';
+import { FormPanel, RadioField, CheckBoxField, Panel, Container, DatePickerField, Button, ComboBoxField } from '@extjs/ext-react';
 import { SelectList, NamedId } from '../../Common/States/CommonStates';
-import { CostElementId } from '../States/ApprovalState';
+import { CostElementId, ApprovalBundleState } from '../States/ApprovalState';
+import { Store } from '../../Common/States/ExtStates';
 
 export interface FilterActions{
     onApplicationSelect?(selectedItemId: string)
@@ -13,6 +14,7 @@ export interface FilterActions{
     onEndDateChange?(data: Date)
     onShowAllCostBlocksCheck?()
     onShowAllCostCostElementsCheck?()
+    onStateSelect?(state: ApprovalBundleState)
 }
 
 export interface CheckedItem {
@@ -34,17 +36,38 @@ export interface FilterProps extends FilterActions{
     endDate?: Date,
     isAllCostBlocksChecked?: boolean
     isAllCostElementsChecked?: boolean
+    isVisibleNotSentState: boolean
+    selectedState?: ApprovalBundleState
 }
 
 export class FilterView extends React.Component<FilterProps> {
-    preventCheckEvents = false
-    preventAllCheckEvents = false
+    private preventCheckEvents = false
+    private preventAllCheckEvents = false
+    private readonly stateStore: Store<NamedId<ApprovalBundleState>>
+
+    constructor(props: FilterProps){
+        super(props)
+
+        const states: NamedId<ApprovalBundleState>[] = [];
+
+        if (props.isVisibleNotSentState) {
+            states.push({ id: ApprovalBundleState.Saved, name: 'Not sent' });
+        }
+
+        states.push(
+            { id: ApprovalBundleState.Approving, name: 'Pending'  },
+            { id: ApprovalBundleState.Approved,  name: 'Approved' },
+            { id: ApprovalBundleState.Rejected,  name: 'Rejected' }
+        );
+
+        this.stateStore = Ext.create('Ext.data.Store', { data: states });
+    }
 
     render() {
         const applicationRadioFields = this.buildApplicationRadioFields();
         const costBlockCheckBoxes = this.buildCostBlockCheckBoxes();
         const costElementsCheckBoxes = this.buildCostElementsCheckBoxes();
-        const { onShowAllCostBlocksCheck, onShowAllCostCostElementsCheck, isAllCostBlocksChecked, isAllCostElementsChecked } = this.props;
+        const { onShowAllCostBlocksCheck, onShowAllCostCostElementsCheck, isAllCostBlocksChecked, isAllCostElementsChecked, selectedState } = this.props;
 
         return (
             <Container layout={{type: 'vbox', align: 'left'}}>
@@ -107,8 +130,24 @@ export class FilterView extends React.Component<FilterProps> {
                         onChange = {(el, newDate: Date) => this.props.onEndDateChange(newDate)}/>
                     </Panel>
                 </Container>
+
+                <ComboBoxField 
+                    label="State" 
+                    store={this.stateStore} 
+                    selection={this.stateStore.getById(selectedState)} 
+                    onChange={this.onStateChanged}
+                    valueField="id"
+                    displayField="name"
+                    queryMode="local"
+                />
             </Container>
         );
+    }
+
+    private onStateChanged = (combobox, newValue: ApprovalBundleState, oldValue: ApprovalBundleState) => {
+        const { onStateSelect } = this.props;
+
+        onStateSelect && onStateSelect(newValue);
     }
 
     private buildApplicationRadioFields() {

@@ -4,8 +4,8 @@ import { CostImportViewProps, ResultImportItem, CostImportView } from "./CostImp
 import { NamedId, SelectListAdvanced } from "../../Common/States/CommonStates";
 import { CostImportState } from "../States/CostImportState";
 import { CostMetaData, CostElementMeta } from "../../Common/States/CostMetaStates";
-import { getCostBlock, getCostElementByAppMeta } from "../../Common/Helpers/MetaHelper";
-import { selectApplication, selectCostBlock, selectCostElement, selectDependencyItem, selectFile, selectRegion, loadFileData, loadRegions, loadDependencyItems } from "../Actions/CostImportActions";
+import { getCostBlock, getCostElementByAppMeta, getSortedInputLevels } from "../../Common/Helpers/MetaHelper";
+import { selectApplication, selectCostBlock, selectCostElement, selectDependencyItem, selectFile, selectRegion, loadFileData, loadRegions, loadDependencyItems, selectInputLevel } from "../Actions/CostImportActions";
 import { importExcel, loadDependencyItemsFromServer, loadRegionsFromServer } from "../Actions/CostImportAsyncAtions";
 import * as CostBlockService from "../../Common/Services/CostBlockService";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
@@ -22,6 +22,10 @@ const buildProps = (() => {
             selectedItemId: null
         },
         costElements: {
+            list: null,
+            selectedItemId: null
+        },
+        inputLevels: {
             list: null,
             selectedItemId: null
         },
@@ -73,6 +77,11 @@ const buildProps = (() => {
                     selectedItemId: costImport.costElementId,
                     onItemSelected: onCostElementSelected
                 },
+                inputLevels: {
+                    list: getInputLevelItems(),
+                    selectedItemId: costImport.inputLevelId,
+                    onItemSelected: inputLevelId => dispatch(selectInputLevel(inputLevelId))
+                },
                 dependencyItems: {
                     list: costImport.dependencyItems.list,
                     selectedItemId: costImport.dependencyItems.selectedItemId,
@@ -101,7 +110,7 @@ const buildProps = (() => {
         function getApplicationItems() {
             return oldAppMetaData == appMetaData 
                 ? oldProps.applications.list
-                : appMetaData.applications.filter(application => application.usingInfo.isUsingCostImport) ;
+                : appMetaData.applications.filter(application => application.usingInfo.isUsingCostImport);
         }
 
         function getCostBlockItems() {
@@ -136,11 +145,28 @@ const buildProps = (() => {
             return costElementItems;
         }
 
+        function getInputLevelItems() {
+            let inputLevels: NamedId[];
+
+            if (oldAppMetaData == appMetaData && oldProps.costElements.selectedItemId == costImport.costElementId) {
+                inputLevels = oldProps.inputLevels.list;
+            } else {
+                const costElement = getCostElementByAppMeta(appMetaData, costImport.costBlockId, costImport.costElementId);
+
+                if (costElement) {
+                    inputLevels = getSortedInputLevels(costElement);
+                }
+            }
+
+            return inputLevels;
+        }
+
         function isImportButtonEnabled(costElement: CostElementMeta) {
             let result = !!(
                 costImport.applicationId && 
                 costImport.costBlockId &&
                 costImport.costElementId &&
+                costImport.inputLevelId &&
                 costImport.file.name
             );
 

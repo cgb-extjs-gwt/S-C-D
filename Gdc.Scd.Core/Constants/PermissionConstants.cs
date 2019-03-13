@@ -19,5 +19,9 @@
         public const string Report = "Report";
 
         public const string Admin = "Admin";
+
+        public const string CalcResultHddServiceCostNotApproved = "CalcResultHddServiceCostNotApproved";
+
+        public const string CalcResultSoftwareServiceCostNotApproved = "CalcResultSoftwareServiceCostNotApproved";
     }
 }

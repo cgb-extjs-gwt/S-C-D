@@ -87,9 +87,12 @@
     <Compile Include="Migrations\Migration_2019_03_05_09_00.cs" />
     <Compile Include="Migrations\Migration_2019_03_05_11_00.cs" />
     <Compile Include="Migrations\Migration_2019_03_06_15_15.cs" />
-    <Compile Include="Migrations\Migration_2019_03_11_15_30.cs" />
     <Compile Include="Migrations\Migration_2019_03_11_10_30.cs" />
     <Compile Include="Migrations\Migration_2019_03_11_12_39.cs" />
+    <Compile Include="Migrations\Migration_2019_03_11_15_30.cs" />
+    <Compile Include="Migrations\Migration_2019_03_11_17_36.cs" />
+    <Compile Include="Migrations\Migration_2019_03_12_10_33.cs" />
+    <Compile Include="Migrations\Migration_2019_03_12_12_30.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -203,6 +206,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2019-03-11-12-39.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-03-11-17-36.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-03-12-12-30.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

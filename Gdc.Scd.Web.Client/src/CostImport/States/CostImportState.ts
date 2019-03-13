@@ -10,6 +10,7 @@ export interface CostImportState {
     applicationId: string
     costBlockId: string
     costElementId: string
+    inputLevelId: string
     dependencyItems: SelectList<NamedId<number>, number>
     regions: SelectList<NamedId<number>, number>
     status: string[]

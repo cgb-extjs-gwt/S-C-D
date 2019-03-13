@@ -84,7 +84,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 }
                 else {
                     this.toggleToolbar(changed == 0);
-                }
+                }                              
             }
         }
     });
@@ -94,7 +94,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         disableCancelButton: true,
         selectedCountry: null,
         showInLocalCurrency: true,
-        hideReleaseButton: true
+        hideReleaseButton: true,
+        userCanEdit: false
     };
 
     public constructor(props: CalcCostProps) {
@@ -103,7 +104,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     public render() {
-
         let canEditTC: boolean = false;
         let canEditListPrice: boolean = false;
         let moneyRndr: IRenderer;
@@ -112,15 +112,15 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
             //allow manual edit in LOCAL CURRENCY mode only for well view!!!
 
-            canEditTC = this.canEditTC();
-            canEditListPrice = this.canEditListPrice();
+            canEditTC = this.canEditTC() && this.state.userCanEdit;
+            canEditListPrice = this.canEditListPrice() && this.state.userCanEdit;
             //
             moneyRndr = localMoneyRenderer;
         }
         else {
             moneyRndr = euroMoneyRenderer;
         }
-
+     
         return (
             <Container layout="fit">
 
@@ -135,7 +135,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     <HwReleasePanel
                         onApprove={this.releaseCosts}
                         checkAccess={!this.props.approved}
-                        hidden={this.state.hideReleaseButton} />
+                        hidden={this.state.hideReleaseButton}
+                        disabled={!this.state.disableSaveButton}/>
                 </Panel>
 
                 <Grid
@@ -164,28 +165,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <Column text="Service location" dataIndex="ServiceLocation" />
                         <Column text="ProActive SLA" dataIndex="ProActiveSla" />
                         <Column text="Standard warranty duration" dataIndex="StdWarranty" renderer={yearRenderer} flex="0.5" />
-
-                    </Column>
-
-                    {/*cost block results*/}
-
-                    <Column
-                        isHeaderGroup={true}
-                        text="Cost block results"
-                        dataIndex=""
-                        cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
-
-                        <NumberColumn text="Field service cost" dataIndex="FieldServiceCost" />
-                        <NumberColumn text="Service support cost" dataIndex="ServiceSupportCost" />
-                        <NumberColumn text="Logistic cost" dataIndex="Logistic" />
-                        <NumberColumn text="Availability fee" dataIndex="AvailabilityFee" />
-                        <NumberColumn text="Reinsurance" dataIndex="Reinsurance" />
-                        <NumberColumn text="Tax &amp; Duties iW period" dataIndex="TaxAndDutiesW" />
-                        <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="TaxAndDutiesOow" />
-                        <NumberColumn text="Material cost iW period" dataIndex="MaterialW" />
-                        <NumberColumn text="Material cost OOW period" dataIndex="MaterialOow" />
-                        <NumberColumn text="ProActive" dataIndex="ProActive" />
+                        <Column text="Standard Warranty Service Location" dataIndex="StdWarrantyLocation" />
 
                     </Column>
 
@@ -213,6 +193,28 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
                         <NumberColumn text="Local service standard warranty" dataIndex="LocalServiceStandardWarranty" />
                         <NumberColumn text="Credits" dataIndex="Credits" />
+
+                    </Column>
+
+                    {/*cost block results*/}
+
+                    <Column
+                        isHeaderGroup={true}
+                        text="Cost block results"
+                        dataIndex=""
+                        cls="calc-cost-result-blue"
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
+
+                        <NumberColumn text="Field service cost" dataIndex="FieldServiceCost" />
+                        <NumberColumn text="Service support cost" dataIndex="ServiceSupportCost" />
+                        <NumberColumn text="Logistic cost" dataIndex="Logistic" />
+                        <NumberColumn text="Availability fee" dataIndex="AvailabilityFee" />
+                        <NumberColumn text="Reinsurance" dataIndex="Reinsurance" />
+                        <NumberColumn text="Tax &amp; Duties iW period" dataIndex="TaxAndDutiesW" />
+                        <NumberColumn text="Tax &amp; Duties OOW period" dataIndex="TaxAndDutiesOow" />
+                        <NumberColumn text="Material cost iW period" dataIndex="MaterialW" />
+                        <NumberColumn text="Material cost OOW period" dataIndex="MaterialOow" />
+                        <NumberColumn text="ProActive" dataIndex="ProActive" />
 
                     </Column>
 
@@ -314,9 +316,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         if (this.state && this.state.selectedCountry) {
             cntId = this.state.selectedCountry.id;
             srv.isCountryUser(cntId).then(x => {
-                this.setState({ hideReleaseButton: !this.props.approved || !x || !this.state.disableSaveButton })
-            });
-        }
+                this.setState({
+                    hideReleaseButton: !this.props.approved || !x || !this.state.disableSaveButton,
+                    userCanEdit: x
+                });
+
+            })
+        };
     }
 
     private pluginConf(): any {
@@ -355,7 +361,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private canEdit(): boolean {
-        return this.canEditListPrice() || this.canEditTC();
+        return this.state.userCanEdit && (this.canEditListPrice() || this.canEditTC());
     }
 
     private canEditListPrice(): boolean {
