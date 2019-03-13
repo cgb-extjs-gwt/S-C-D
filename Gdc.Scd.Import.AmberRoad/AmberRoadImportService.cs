@@ -13,13 +13,13 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.AmberRoad
 {
-    public static class AmberRoadImportService
+    public class AmberRoadImportService
     {
-        public static IConfigHandler ConfigHandler { get; private set; }
-        public static IImportManager ImportManager { get; set; }
-        public static ILogger<LogLevel> Logger { get; private set; }
+        public IConfigHandler ConfigHandler { get; private set; }
+        public IImportManager ImportManager { get; set; }
+        public ILogger<LogLevel> Logger { get; private set; }
 
-        static AmberRoadImportService()
+        public AmberRoadImportService()
         {
             NinjectExt.IsConsoleApplication = true;
             IKernel kernel = CreateKernel();
@@ -28,7 +28,7 @@ namespace Gdc.Scd.Import.AmberRoad
             Logger = kernel.Get<ILogger<LogLevel>>();
         }
 
-        public static void UploadTaxAndDuties()
+        public void UploadTaxAndDuties()
         {
             Logger.Log(LogLevel.Info, ImportConstants.START_PROCESS);
             Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_START);
@@ -43,7 +43,7 @@ namespace Gdc.Scd.Import.AmberRoad
             Logger.Log(LogLevel.Info, ImportConstants.END_PROCESS);
         }
 
-        private static StandardKernel CreateKernel()
+        private StandardKernel CreateKernel()
         {
             return new StandardKernel(
                 new Scd.Core.Module(),
