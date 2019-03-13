@@ -56,8 +56,6 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string InputTypeAttributeName = "InputOption";
 
-        private const string CostImportAttributeName = "CostImport";
-
         private const string FilterAttributeName = "HideFilter";
 
         private const string TypeOptionNodeName = "TypeOption";
@@ -171,17 +169,6 @@ namespace Gdc.Scd.Core.Meta.Impl
                 InputType type;
                 Enum.TryParse(inputTypeAttribute.Value, out type);
                 costElementMeta.InputType = type;
-            }
-
-            var costImportAttribute = node.Attribute(CostImportAttributeName);
-            if (costImportAttribute != null)
-            {
-                Boolean.TryParse(inputTypeAttribute.Value, out bool type);
-                costElementMeta.CostImport = type;
-            }
-            else
-            {
-                costElementMeta.CostImport = true;
             }
 
             var typeNode = node.Element(TypeOptionNodeName);
