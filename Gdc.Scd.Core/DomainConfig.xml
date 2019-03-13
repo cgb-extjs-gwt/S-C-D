@@ -341,6 +341,7 @@
           </CostEditor>
         </Element>
         <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+          <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel Hide="True">Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
@@ -353,6 +354,7 @@
           </CostEditor>
         </Element>
         <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+          <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel Hide="True">Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
@@ -561,6 +563,7 @@
       </Applications>
       <Elements>
         <Element Name="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManualyAutomaticly">
+          <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>                    
             <InputLevel>RoleCode</InputLevel>
           </InputLevels>
@@ -721,6 +724,7 @@
           </CostEditor>
         </Element>
         <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually">
+          <TypeOption Type="CountryCurrencyCost"/>
           <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>

@@ -78,7 +78,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                             IsUsingTableView = isManualInput && this.ContainsRole(costElement.TableViewRoles, user)
                         }
                     };
-                    costElementDto.UsingInfo.IsUsingCostImport = costElementDto.UsingInfo.IsAnyUsing();
+
+                    costElementDto.UsingInfo.IsUsingCostImport =
+                        costElementDto.UsingInfo.IsAnyUsing() &&
+                        costElement.InputType != InputType.AutomaticallyReadonly;
 
                     if (isAddingCostElement || costElementDto.UsingInfo.IsUsingCostEditor || costElementDto.UsingInfo.IsUsingTableView)
                     {
