@@ -17,6 +17,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public InputType InputType { get; set; }
 
+        public bool CostImport { get; set; }
+
         public bool IsCountryCurrencyCost
         {
             get

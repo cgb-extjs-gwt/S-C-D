@@ -79,9 +79,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                             IsUsingTableView = isManualInput && this.ContainsRole(costElement.TableViewRoles, user)
                         }
                     };
+
+                    var doNotInclude = new List<string>() { "Cost per KIT", "Cost per KIT Japan-Buy", "MaxQty" };
                     costElementDto.UsingInfo.IsUsingCostImport = 
                         costElementDto.UsingInfo.IsAnyUsing() &&
-                        costElement.HasInputLevel(MetaConstants.WgInputLevelName);
+                        costElement.HasInputLevel(MetaConstants.WgInputLevelName) &&
+                        costElement.CostImport;
 
                     if (isAddingCostElement || costElementDto.UsingInfo.IsUsingCostEditor || costElementDto.UsingInfo.IsUsingTableView)
                     {

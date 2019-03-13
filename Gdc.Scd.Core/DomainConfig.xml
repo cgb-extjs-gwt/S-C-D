@@ -340,7 +340,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+        <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="AutomaticallyReadonly" RegionInput="_none_" CostImport="false">
           <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel Hide="True">Pla</InputLevel>
@@ -353,7 +353,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+        <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="AutomaticallyReadonly" RegionInput="_none_" CostImport="false">
           <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel Hide="True">Pla</InputLevel>
@@ -366,7 +366,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="MaxQty" Caption="MaxQty" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+        <Element Name="MaxQty" Caption="MaxQty" InputOption="AutomaticallyReadonly" RegionInput="_none_" CostImport="false">
           <InputLevels>
             <InputLevel Hide="True">Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
