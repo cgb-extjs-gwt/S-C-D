@@ -38,7 +38,7 @@ export class SelectField extends React.Component<SelectFieldProps, any> {
     public componentDidUpdate() {
         let filter = this.props.filter;
         if (filter && this.component.filter) {
-            this.component.filter(filter.name, filter.id);
+            this.component.filter(filter.name, filter.id, true);
         }
     }
 }

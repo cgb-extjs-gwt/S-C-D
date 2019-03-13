@@ -9,6 +9,7 @@ import { BundleDetailGroup } from "../../QualityGate/States/QualityGateResult";
 export const COST_IMPORT_SELECT_APPLICATION = 'COST_IMPORT.SELECT.APPLICATION'
 export const COST_IMPORT_SELECT_COST_BLOCK = 'COST_IMPORT.SELECT.COST_BLOCK'
 export const COST_IMPORT_SELECT_COST_ELEMENT = 'COST_IMPORT.SELECT.COST_ELEMENT'
+export const COST_IMPORT_SELECT_INPUT_LEVEL = 'COST_IMPORT.SELECT.INPUT_LEVEL'
 export const COST_IMPORT_LOAD_DEPENDENCY_ITEMS = 'COST_IMPORT.LOAD.DEPENDENCY_ITEMS'
 export const COST_IMPORT_SELECT_DEPENDENCY_ITEM = 'COST_IMPORT.SELECT.DEPENDENCY_ITEM'
 export const COST_IMPORT_LOAD_REGIONS = 'COST_IMPORT.LOAD.REGIONS'
@@ -31,6 +32,11 @@ export const selectCostBlock = (costBlockId: string) => (<ItemSelectedAction>{
 export const selectCostElement = (costElementId: string) => (<ItemSelectedAction>{
     type: COST_IMPORT_SELECT_COST_ELEMENT,
     selectedItemId: costElementId
+})
+
+export const selectInputLevel = (inputLevelId: string) => (<ItemSelectedAction>{
+    type: COST_IMPORT_SELECT_INPUT_LEVEL,
+    selectedItemId: inputLevelId
 })
 
 export const selectDependencyItem = (dependencyId: number) => (<ItemSelectedAction<number>>{

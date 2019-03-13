@@ -7,7 +7,6 @@ using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
-using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Dto;
 using Gdc.Scd.Core.Meta.Entities;
 
@@ -82,7 +81,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                     costElementDto.UsingInfo.IsUsingCostImport =
                         costElementDto.UsingInfo.IsAnyUsing() &&
-                        costElement.HasInputLevel(MetaConstants.WgInputLevelName) &&
                         costElement.InputType != InputType.AutomaticallyReadonly;
 
                     if (isAddingCostElement || costElementDto.UsingInfo.IsUsingCostEditor || costElementDto.UsingInfo.IsUsingTableView)

@@ -1,6 +1,6 @@
 import { Reducer, Action } from "redux";
 import { CostImportState, FileData } from "../States/CostImportState";
-import { COST_IMPORT_SELECT_APPLICATION, COST_IMPORT_SELECT_COST_BLOCK, COST_IMPORT_SELECT_COST_ELEMENT, COST_IMPORT_LOAD_IMPORT_STATUS, COST_IMPORT_SELECT_DEPENDENCY_ITEM, COST_IMPORT_SELECT_FILE, COST_IMPORT_SELECT_REGION, COST_IMPORT_LOAD_FILE_DATA, COST_IMPORT_LOAD_QUALITY_GATE_ERRORS, COST_IMPORT_LOAD_DEPENDENCY_ITEMS, COST_IMPORT_LOAD_REGIONS } from "../Actions/CostImportActions";
+import { COST_IMPORT_SELECT_APPLICATION, COST_IMPORT_SELECT_COST_BLOCK, COST_IMPORT_SELECT_COST_ELEMENT, COST_IMPORT_LOAD_IMPORT_STATUS, COST_IMPORT_SELECT_DEPENDENCY_ITEM, COST_IMPORT_SELECT_FILE, COST_IMPORT_SELECT_REGION, COST_IMPORT_LOAD_FILE_DATA, COST_IMPORT_LOAD_QUALITY_GATE_ERRORS, COST_IMPORT_LOAD_DEPENDENCY_ITEMS, COST_IMPORT_LOAD_REGIONS, COST_IMPORT_SELECT_INPUT_LEVEL } from "../Actions/CostImportActions";
 import { ItemSelectedAction, CommonAction } from "../../Common/Actions/CommonActions";
 import { SelectList, NamedId } from "../../Common/States/CommonStates";
 import { BundleDetailGroup } from "../../QualityGate/States/QualityGateResult";
@@ -47,6 +47,11 @@ const selectCostElement: Reducer<CostImportState, ItemSelectedAction> = (state, 
     ...state,
     ...reset(),
      costElementId: action.selectedItemId
+})
+
+const selectInputLevel: Reducer<CostImportState, ItemSelectedAction> = (state, action) => ({
+    ...state,
+    inputLevelId: action.selectedItemId
 })
 
 const selectDependencyItem: Reducer<CostImportState, ItemSelectedAction<number>> = (state, action) => ({
@@ -119,6 +124,9 @@ export const costImportReducer: Reducer<CostImportState, Action<string>> = (stat
 
         case COST_IMPORT_SELECT_COST_ELEMENT:
             return selectCostElement(state, <ItemSelectedAction>action);
+
+        case COST_IMPORT_SELECT_INPUT_LEVEL:
+            return selectInputLevel(state, <ItemSelectedAction>action);
 
         case COST_IMPORT_SELECT_DEPENDENCY_ITEM:
             return selectDependencyItem(state, <ItemSelectedAction<number>>action);
