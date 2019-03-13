@@ -58,16 +58,23 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public async Task<IEnumerable<BundleDto>> GetApprovalBundles(BundleFilter filter)
         {
-            var histories = this.costBlockHistoryService.GetByFilter(filter, CostBlockHistoryState.Approving).ToArray();
+            var histories = this.costBlockHistoryService.GetByFilter(filter);
 
-            return await this.GetApprovalBundles(histories);
+            if (filter.State == CostBlockHistoryState.Approved || filter.State == CostBlockHistoryState.Rejected)
+            {
+                var user = this.userService.GetCurrentUser();
+
+                histories = histories.Where(history => history.ApproveRejectUser.Id == user.Id);
+            }
+
+            return await this.GetApprovalBundles(histories.ToArray());
         }
 
-        public async Task<IEnumerable<BundleDto>> GetOwnApprovalBundles(OwnApprovalFilter filter)
+        public async Task<IEnumerable<BundleDto>> GetOwnApprovalBundles(BundleFilter filter)
         {
             var user = this.userService.GetCurrentUser();
             var histories = 
-                this.costBlockHistoryService.GetByFilter(filter, filter.State)
+                this.costBlockHistoryService.GetByFilter(filter)
                                             .Where(history => history.EditUser.Id == user.Id)
                                             .ToArray();
 

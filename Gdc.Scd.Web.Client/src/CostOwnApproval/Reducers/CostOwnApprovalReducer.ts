@@ -1,8 +1,11 @@
 import { buildApprovalReducer } from "../../Approval/Reducers/ApprovalReducerBuilder";
 import { OWN_COST_APPROVAL_PAGE } from "../Constants/CostOwnApprovalConstants";
-import { ownApprovalFilterReducer } from "./FilterReducer";
 import { qualityGateErrorsReducer } from "./QualityGateReducer";
+import { buildFilterReducer } from "../../Approval/Reducers/FilterReducer";
+import { ApprovalBundleState } from "../../Approval/States/ApprovalState";
 
-export const costOwnApprovalReducer = buildApprovalReducer(OWN_COST_APPROVAL_PAGE, ownApprovalFilterReducer, {
+const filterReducer = buildFilterReducer(ApprovalBundleState.Saved)
+
+export const costOwnApprovalReducer = buildApprovalReducer(OWN_COST_APPROVAL_PAGE, filterReducer, {
     qualityGateErrors: qualityGateErrorsReducer
 })
