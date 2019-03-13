@@ -53,9 +53,21 @@ export class MultiSelectField extends MultiSelect {
         return this.getSelectedKeysOrNull();
     }
 
-    public filter(key: string, val: string) {
-        val = val || '';
-        this.lst.getStore().filter(key, val);
+    public filter(key: string, val: string, exactMatch: boolean = false) {
+
+        let cfg: any = {
+            property: key
+        };
+
+        if (val) {
+            cfg.exactMatch = exactMatch;
+            cfg.value = val;
+        }
+        else {
+            cfg.value = '';
+        }
+
+        this.lst.getStore().filter(cfg);
     }
 
     protected init() {
