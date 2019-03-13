@@ -15,5 +15,7 @@ namespace Gdc.Scd.Core.Entities.Approval
         public string[] CostElementIds { get; set; }
 
         public long[] UserIds { get; set; }
+
+        public CostBlockHistoryState? State { get; set; }
     }
 }

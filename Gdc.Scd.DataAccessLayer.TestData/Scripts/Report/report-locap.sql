@@ -1,55 +1,95 @@
-﻿
-IF OBJECT_ID('Report.Locap') IS NOT NULL
-  DROP FUNCTION Report.Locap;
+﻿IF OBJECT_ID('Report.spLocap') IS NOT NULL
+  DROP PROCEDURE Report.spLocap;
 go 
 
-CREATE FUNCTION [Report].[Locap]
+CREATE PROCEDURE [Report].[spLocap]
 (
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
+    @cnt          bigint,
+    @wg           bigint,
+    @av           bigint,
+    @dur          bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint,
-    @pro bigint
+    @loc          bigint,
+    @pro          bigint,
+    @lastid       bigint,
+    @limit        int
 )
-RETURNS TABLE 
 AS
-RETURN (
-    select m.Id
-         , m.Fsp
-         , wg.Description as WgDescription
-         , m.FspDescription as ServiceLevel
+BEGIN
 
-         , m.ReactionTime
-         , m.Year as ServicePeriod
-         , wg.Name as Wg
+    declare @sla Portfolio.Sla;
 
-         , m.LocalServiceStandardWarranty * er.Value as LocalServiceStandardWarranty
-         , m.ServiceTC * er.Value as ServiceTC
-         , m.ServiceTP_Released  * er.Value as ServiceTP_Released
-		 , cur.Name as Currency
+    insert into @sla 
+        select   -1
+                , Id
+                , CountryId
+                , WgId
+                , AvailabilityId
+                , DurationId
+                , ReactionTimeId
+                , ReactionTypeId
+                , ServiceLocationId
+                , ProActiveSlaId
+                , Sla
+                , SlaHash
+                , ReactionTime_Avalability
+                , ReactionTime_ReactionType
+                , ReactionTime_ReactionType_Avalability
+                , null
+                , null
+    from Portfolio.GetBySlaSog(@cnt, (select SogId from InputAtoms.Wg where id = @wg), @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
+
+    with cte as (
+        select m.* 
+        from Hardware.GetCostsSlaSog(1, @sla) m
+        where (@wg is null or m.WgId = @wg)
+    )
+    , cte2 as (
+        select  
+                ROW_NUMBER() over(ORDER BY (SELECT 1)) as rownum
+
+                , m.*
+                , fsp.Name as Fsp
+                , fsp.ServiceDescription as ServiceLevel
+
+        from cte m
+        left join Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla
+    )
+    select    m.Id
+            , m.Fsp
+            , m.WgDescription
+            , m.ServiceLevel
+
+            , m.ReactionTime
+            , m.Year as ServicePeriod
+            , m.Wg
+
+            , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
+            , m.ServiceTcSog * m.ExchangeRate as ServiceTC
+            , m.ServiceTpSog  * m.ExchangeRate as ServiceTP_Released
+            , cur.Name as Currency
          
-		 , m.Country
-         , m.Availability                       + ', ' +
-               m.ReactionType                   + ', ' +
-               m.ReactionTime                   + ', ' +
-               cast(m.Year as nvarchar(1))      + ', ' +
-               m.ServiceLocation                + ', ' +
-               m.ProActiveSla as ServiceType
+            , m.Country
+            , m.Availability                       + ', ' +
+                  m.ReactionType                   + ', ' +
+                  m.ReactionTime                   + ', ' +
+                  cast(m.Year as nvarchar(1))      + ', ' +
+                  m.ServiceLocation                + ', ' +
+                  m.ProActiveSla as ServiceType
 
-         , null as PlausiCheck
-         , null as PortfolioType
-         , null as ReleaseCreated
-         , wg.Sog
-    from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
-    join InputAtoms.WgSogView wg on wg.id = m.WgId
-	join InputAtoms.Country cnt on cnt.id = @cnt
-	join [References].Currency cur on cur.Id = cnt.CurrencyId
-	join [References].ExchangeRate er on er.CurrencyId = cur.Id
-)
-GO
+            , null as PlausiCheck
+            , null as PortfolioType
+            , null as ReleaseCreated
+            , m.Sog
+
+    from cte2 m
+    join [References].Currency cur on cur.Id = m.CurrencyId
+
+    where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
+
+END
+go
 
 declare @reportId bigint = (select Id from Report.Report where Name = 'Locap');
 declare @index int = 0;

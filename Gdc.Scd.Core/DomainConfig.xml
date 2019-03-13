@@ -171,6 +171,7 @@
           </InputLevels>
           <CostEditor>
             <Roles>
+              <Role>GTS user</Role>
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
             </Roles>
@@ -340,6 +341,7 @@
           </CostEditor>
         </Element>
         <Element Name="CostPerKit" Caption="Cost per KIT" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+          <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel Hide="True">Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
@@ -352,6 +354,7 @@
           </CostEditor>
         </Element>
         <Element Name="CostPerKitJapanBuy" Caption="Cost per KIT Japan-Buy" InputOption="AutomaticallyReadonly" RegionInput="_none_">
+          <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>
             <InputLevel Hide="True">Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
@@ -404,6 +407,7 @@
             <Roles>
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
+              <Role>Country key user</Role>
             </Roles>
           </CostEditor>
         </Element>
@@ -426,7 +430,8 @@
           </CostEditor>
         </Element>
         <Element Name="Markup" Caption="Markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
-          <CostEditor>
+            <TypeOption Type="CountryCurrencyCost"/>
+            <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
@@ -442,7 +447,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
+        <Element Name="ProlongationMarkupFactor" Caption="Prolongation markup factor for other cost (%)" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
           <TypeOption Type="Percent"/>
           <CostEditor>
             <Roles>
@@ -452,8 +457,9 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability">
-          <CostEditor>
+        <Element Name="ProlongationMarkup" Caption="Prolongation markup for other cost" InputOption="Manually" Dependency="ReactionTimeTypeAvailability" IncludeDisabledDependcyItems="True">
+            <TypeOption Type="CountryCurrencyCost"/>
+            <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
@@ -480,7 +486,8 @@
           </CostEditor>
         </Element>
         <Element Name="MarkupStandardWarranty" Caption="Markup for standard warranty local cost" InputOption="Manually">
-          <CostEditor>
+            <TypeOption Type="CountryCurrencyCost"/>
+            <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
               <Role>Country key user</Role>
@@ -556,6 +563,7 @@
       </Applications>
       <Elements>
         <Element Name="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManualyAutomaticly">
+          <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>                    
             <InputLevel>RoleCode</InputLevel>
           </InputLevels>
@@ -684,6 +692,7 @@
               <Role>PRS PSM</Role>  
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
+              <Role>GTS user</Role>
             </Roles>
           </TableView>
         </Element>
@@ -715,6 +724,7 @@
           </CostEditor>
         </Element>
         <Element Name="OnSiteHourlyRate" Caption="On-Site Hourly Rate" InputOption="Manually">
+          <TypeOption Type="CountryCurrencyCost"/>
           <CostEditor>
             <Roles>
               <Role>Country Finance Director</Role>
@@ -740,6 +750,7 @@
             <Roles>
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
+              <Role>PRS PSM</Role>
             </Roles>
           </CostEditor>
         </Element>

@@ -20,5 +20,9 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
         void Delete(long id);
 
         void DeleteAll();
+
+        void DisableTrigger();
+
+        void EnableTrigger();
     }
 }

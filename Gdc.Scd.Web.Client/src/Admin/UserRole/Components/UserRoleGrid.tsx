@@ -109,6 +109,54 @@ export class UserRoleGrid extends React.Component<UserRoleGridProps> {
         )
     }
 
+    private getEmailColumn() {
+        let renderer: (value, data: { data }) => string;
+        const { storeUser } = this.props;
+        renderer = (value, { data }) => {
+            let result: string;
+            if (data.userId > 0) {
+                const selectedItem = storeUser.getById(data.userId);
+                result = selectedItem.data.email;
+            } else
+                result = "";
+            return result;
+        }
+        
+        return (
+            <Column
+                text="E-mail"
+                dataIndex=""
+                flex={1}
+                renderer={renderer.bind(this)}
+            />
+        )
+    }
+
+    private getActionColumn() {
+         return (
+            <Column
+                text="Actions"
+                flex={0.5}
+                dataIndex=""
+                renderer={() => { return " " }} //it displays some simbol otherwise
+            >
+                <GridCell
+                    tools={{
+                        gear: {
+                            tooltip: "Edit",
+                            handler: this.onEditButtonClick
+                        },
+                        close: {
+                            tooltip: "Delete",
+                            handler: this.onDeleteButtonClick
+                        }
+                    }}
+                />
+
+            </Column>
+        )
+    }
+
     render() {  
         const { store } = this.props;
         return (         
@@ -119,29 +167,12 @@ export class UserRoleGrid extends React.Component<UserRoleGridProps> {
                 columnLines={true}
                 shadow
             >
-                {this.getUserColumn()}              
+                {this.getUserColumn()} 
+                {this.getEmailColumn()}
                 {this.getRoleColumn()}  
                 {this.getCountryColumn()} 
-                <Column
-                    text="Actions"
-                    flex={1}
-                    dataIndex=""       
-                    renderer={() => { return " " }} //it displays some simbol otherwise
-                >
-                    <GridCell
-                        tools={{
-                            gear: {
-                                tooltip: "Edit",
-                                handler: this.onEditButtonClick
-                            },
-                            close: {
-                                tooltip: "Delete",
-                                handler: this.onDeleteButtonClick
-                            }
-                        }}                      
-                    />
+                {this.getActionColumn()}
 
-                 </Column>
                 <Toolbar docked="top">   
                     <Button
                         text="New"

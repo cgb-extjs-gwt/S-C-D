@@ -5,4 +5,8 @@ export class SwDigitService extends CacheDomainService<NamedId> {
     constructor() {
         super('swdigit');
     }
+
+    public sog(): Promise<NamedId[]> {
+        return this.getFromUrlAll<NamedId>('sog');
+    }
 }

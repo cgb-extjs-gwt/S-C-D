@@ -1,7 +1,10 @@
 ﻿using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Constants;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -48,10 +51,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public virtual void Delete(long id)
         {
-            var item = new T
+            var item = this.repositorySet.Find<T>(id);
+
+            if (item == null)
             {
-                Id = id
-            };
+                item = new T
+                {
+                    Id = id
+                };
+            }
 
             this.SetDeleteState(item);
         }
@@ -129,12 +137,35 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.repositorySet.ExecuteSql($"TRUNCATE TABLE {tableName}");
         }
 
+        public virtual void DisableTrigger()
+        {
+            ToogleTrigger(false);
+        }
+
+        public virtual void EnableTrigger()
+        {
+            ToogleTrigger(true);
+        }
+
         private string GetTableName()
         {
             var mapping = this.repositorySet.Model.FindEntityType(typeof(T)).Relational();
             var schema = mapping.Schema;
             var tableName = mapping.TableName;
             return $"[{schema}].[{tableName}]";
+        }
+
+        private void ToogleTrigger(bool enable)
+        {
+            var procedure = enable ? DataBaseConstants.EnableTriggerProc : 
+                                     DataBaseConstants.DisableTriggerProc;
+
+            var spParams = new DbParameter[] {
+                new DbParameterBuilder()
+                .WithName("@tableName")
+                .WithValue(GetTableName()).Build() };
+
+            this.repositorySet.ExecuteProc(procedure, spParams);
         }
     }
 }

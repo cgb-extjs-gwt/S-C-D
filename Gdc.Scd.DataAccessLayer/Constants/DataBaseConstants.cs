@@ -9,5 +9,8 @@ namespace Gdc.Scd.DataAccessLayer.Constants
         public const string IdFieldName = "Id";
 
         public const string InputAtomSchemaName = "InputAtoms";
+
+        public const string EnableTriggerProc = "EnableAndRunTriggerOnTable";
+        public const string DisableTriggerProc = "DisableTriggerOnTable";
     }
 }

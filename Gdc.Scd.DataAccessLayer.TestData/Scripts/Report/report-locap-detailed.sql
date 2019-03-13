@@ -1,68 +1,109 @@
-﻿IF OBJECT_ID('Report.LocapDetailed') IS NOT NULL
-  DROP FUNCTION Report.LocapDetailed;
+﻿IF OBJECT_ID('Report.spLocapDetailed') IS NOT NULL
+  DROP PROCEDURE Report.spLocapDetailed;
 go 
 
-CREATE FUNCTION Report.LocapDetailed
+CREATE PROCEDURE [Report].[spLocapDetailed]
 (
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
-    @dur bigint,
+    @cnt          bigint,
+    @wg           bigint,
+    @av           bigint,
+    @dur          bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint,
-    @pro bigint
+    @loc          bigint,
+    @pro          bigint,
+    @lastid       int,
+    @limit        int
 )
-RETURNS TABLE 
 AS
-RETURN (
-select     m.Id
-         , m.Fsp
-         , wg.Description as WgDescription
-         , wg.Name as Wg
-         , wg.SogDescription as SogDescription
-         , m.ServiceLocation as ServiceLevel
-         , m.ReactionTime
-         , m.Year as ServicePeriod
-         , wg.Sog as Sog
-         , m.ProActiveSla
-		 , m.Country
+BEGIN
 
-         , m.ServiceTC * er.Value as ServiceTC
-         , m.ServiceTP_Released * er.Value as ServiceTP_Released
-         , m.ListPrice * er.Value as ListPrice
-         , m.DealerPrice * er.Value as DealerPrice
-         , m.FieldServiceCost * er.Value as FieldServiceCost
-         , m.ServiceSupportCost * er.Value as ServiceSupportCost 
-         , m.MaterialOow * er.Value as MaterialOow
-         , m.MaterialW * er.Value as MaterialW
-         , m.TaxAndDutiesW * er.Value as TaxAndDutiesW
-         , m.Logistic * er.Value as LogisticW
-         , m.Logistic * er.Value as LogisticOow
-         , m.Reinsurance * er.Value as Reinsurance
-         , m.Reinsurance * er.Value as ReinsuranceOow
-         , m.OtherDirect * er.Value as OtherDirect
-         , m.Credits * er.Value as Credits
-         , m.LocalServiceStandardWarranty * er.Value as LocalServiceStandardWarranty
-         , cur.Name as Currency
+    declare @sla Portfolio.Sla;
 
-		 , null as IndirectCostOpex
-         , m.Availability                       + ', ' +
-               m.ReactionType                   + ', ' +
-               m.ReactionTime                   + ', ' +
-               cast(m.Year as nvarchar(1))      + ', ' +
-               m.ServiceLocation                + ', ' +
-               m.ProActiveSla as ServiceType
+    insert into @sla 
+        select   -1
+                , Id
+                , CountryId
+                , WgId
+                , AvailabilityId
+                , DurationId
+                , ReactionTimeId
+                , ReactionTypeId
+                , ServiceLocationId
+                , ProActiveSlaId
+                , Sla
+                , SlaHash
+                , ReactionTime_Avalability
+                , ReactionTime_ReactionType
+                , ReactionTime_ReactionType_Avalability
+                , null
+                , null
+    from Portfolio.GetBySlaSog(@cnt, (select SogId from InputAtoms.Wg where id = @wg), @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
+
+    with cte as (
+        select m.* 
+        from Hardware.GetCostsSlaSog(1, @sla) m
+        where (@wg is null or m.WgId = @wg)
+    )
+    , cte2 as (
+        select  
+                ROW_NUMBER() over(ORDER BY (SELECT 1)) as rownum
+
+                , m.*
+                , fsp.Name as Fsp
+                , fsp.ServiceDescription as ServiceLevel
+
+        from cte m
+        left join Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla
+    )
+    select     m.Id
+             , m.Fsp
+             , m.WgDescription
+             , m.Wg
+             , sog.Description as SogDescription
+             , m.ServiceLocation as ServiceLevel
+             , m.ReactionTime
+             , m.Year as ServicePeriod
+             , m.Sog
+             , m.ProActiveSla
+             , m.Country
+
+             , m.ServiceTcSog * m.ExchangeRate as ServiceTC
+             , m.ServiceTpSog * m.ExchangeRate as ServiceTP_Released
+             , m.ListPrice * m.ExchangeRate as ListPrice
+             , m.DealerPrice * m.ExchangeRate as DealerPrice
+             , m.FieldServiceCost * m.ExchangeRate as FieldServiceCost
+             , m.ServiceSupportCost * m.ExchangeRate as ServiceSupportCost 
+             , m.MaterialOow * m.ExchangeRate as MaterialOow
+             , m.MaterialW * m.ExchangeRate as MaterialW
+             , m.TaxAndDutiesW * m.ExchangeRate as TaxAndDutiesW
+             , m.Logistic * m.ExchangeRate as LogisticW
+             , m.Logistic * m.ExchangeRate as LogisticOow
+             , m.Reinsurance * m.ExchangeRate as Reinsurance
+             , m.Reinsurance * m.ExchangeRate as ReinsuranceOow
+             , m.OtherDirect * m.ExchangeRate as OtherDirect
+             , m.Credits * m.ExchangeRate as Credits
+             , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
+             , cur.Name as Currency
+
+             , null as IndirectCostOpex
+             , m.Availability                       + ', ' +
+                   m.ReactionType                   + ', ' +
+                   m.ReactionTime                   + ', ' +
+                   cast(m.Year as nvarchar(1))      + ', ' +
+                   m.ServiceLocation                + ', ' +
+                   m.ProActiveSla as ServiceType
          
-         , null as PlausiCheck
-         , null as PortfolioType
-    from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
-    join InputAtoms.WgSogView wg on wg.id = m.WgId
-	join InputAtoms.Country cnt on cnt.id = @cnt
-	join [References].Currency cur on cur.Id = cnt.CurrencyId
-	join [References].ExchangeRate er on er.CurrencyId = cur.Id
-)
+             , null as PlausiCheck
+             , null as PortfolioType
 
+    from cte2 m
+    join InputAtoms.Sog sog on sog.id = m.SogId
+    join [References].Currency cur on cur.Id = m.CurrencyId
+
+    where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
+
+END
 GO
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'LOCAP-DETAILED');

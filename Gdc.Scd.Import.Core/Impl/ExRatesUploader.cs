@@ -67,8 +67,10 @@ namespace Gdc.Scd.Import.Core.Impl
 
             if (batchList.Any())
             {
+                _repositoryExchangeRate.DisableTrigger();
                 _repositoryExchangeRate.Save(batchList);
                 _repositorySet.Sync();
+                _repositoryExchangeRate.EnableTrigger();
             }
 
             _logger.Log(LogLevel.Info, ImportConstants.UPLOAD_END, batchList.Count);

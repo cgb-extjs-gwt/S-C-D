@@ -38,6 +38,8 @@ export interface IDictService {
 
     getSwDigit(): Promise<NamedId[]>;
 
+    getSwDigitSog(): Promise<NamedId[]>;
+
     getAvailabilityTypes(): Promise<NamedId[]>;
 
     getDurationTypes(): Promise<NamedId[]>;

@@ -29,10 +29,17 @@ namespace Gdc.Scd.Core.Entities
         public double? StockValueMv { get; set; }
         public double? AverageContractDuration { get; set; }
         public double? CostPerKit { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public double? CostPerKit_Approved { get; set; }
+
         public double? CostPerKitJapanBuy { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public double? CostPerKitJapanBuy_Approved { get; set; }
+
         public double? MaxQty { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public double? MaxQty_Approved { get; set; }
         public bool? JapanBuy { get; set; }
         public double? InstalledBaseHighAvailability_Approved { get; set; }

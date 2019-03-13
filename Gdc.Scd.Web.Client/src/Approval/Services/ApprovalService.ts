@@ -13,9 +13,6 @@ export interface ApprovalBundleFilter {
     costBlockIds?: string[]
     costElementIds?: string[]
     userIds?: number[]
-}
-
-export interface OwnApprovalBundleFilter extends ApprovalBundleFilter {
     state: ApprovalBundleState
 }
 
@@ -25,7 +22,7 @@ export const reject = (historyId: number, message?: string) => post(CONTROLLER_N
 
 export const getBundles = (filter: ApprovalBundleFilter) => post<ApprovalBundleFilter, Bundle[]>(CONTROLLER_NAME, 'GetApprovalBundlesByFilter', filter);
 
-export const getOwnBundles = (filter: OwnApprovalBundleFilter) => post<OwnApprovalBundleFilter, Bundle[]>(CONTROLLER_NAME, 'GetOwnApprovalBundlesByFilter', filter);
+export const getOwnBundles = (filter: ApprovalBundleFilter) => post<ApprovalBundleFilter, Bundle[]>(CONTROLLER_NAME, 'GetOwnApprovalBundlesByFilter', filter);
 
 export const buildGetApproveBundleDetailUrl = (
     bundleId: number, 

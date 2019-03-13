@@ -91,6 +91,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hdd-retention-calc-result.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap-detailed.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap-support-pack.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-calc-central.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-calc-country.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-central.sql"));
@@ -108,11 +109,13 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hw-calc-result.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-calc-result.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-proactive-calc-result.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-param-overview.sql"));
 
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.split-string.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-hdd-retention.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-proactive.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-servicecosts.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.triggers.sql"));
             foreach (var query in queries)
             {
                 this.repositorySet.ExecuteSql(query);
@@ -211,6 +214,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var reviewProcessPermission = new Permission { Name = PermissionConstants.ReviewProcess };
             var reportPermission = new Permission { Name = PermissionConstants.Report };
             var adminPermission = new Permission { Name = PermissionConstants.Admin };
+            var calcResultHddServiceCostNotApprovedPermission = new Permission { Name = PermissionConstants.CalcResultHddServiceCostNotApproved };
+            var calcResultSoftwareSolutionServiceCostNotApprovedPermission = new Permission { Name = PermissionConstants.CalcResultSoftwareServiceCostNotApproved };
 
             var allPermissions = new List<Permission>
             {
@@ -222,7 +227,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 portfolioPermission,
                 reviewProcessPermission,
                 reportPermission,
-                adminPermission
+                adminPermission,
+                calcResultHddServiceCostNotApprovedPermission,
+                calcResultSoftwareSolutionServiceCostNotApprovedPermission
             };
 
             var allRolePermissions = allPermissions.Select(permission => new RolePermission { Permission = permission });
@@ -277,6 +284,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = approvalPermission },
                         new RolePermission { Permission = ownApprovalPermission },
                         new RolePermission { Permission = costImportPermission },
+                        new RolePermission { Permission = calcResultSoftwareSolutionServiceCostNotApprovedPermission },
                     }
                 },
                 new Role
@@ -1776,6 +1784,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "proactive" , MultiSelect = false },
                 new ReportFilterType { Name = "usercountry" , MultiSelect = false },
                 new ReportFilterType { Name = "swdigit" , MultiSelect = false },
+                new ReportFilterType { Name = "swdigitsog" , MultiSelect = false },
                 new ReportFilterType { Name = "wgall" , MultiSelect = false },
                 new ReportFilterType { Name = "wgstandard" , MultiSelect = false },
 
@@ -1789,6 +1798,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "year" , MultiSelect = true },
                 new ReportFilterType { Name = "proactive" , MultiSelect = true },
                 new ReportFilterType { Name = "swdigit" , MultiSelect = true },
+                new ReportFilterType { Name = "swdigitsog" , MultiSelect = true },
                 new ReportFilterType { Name = "wgstandard" , MultiSelect = true }
             };
 

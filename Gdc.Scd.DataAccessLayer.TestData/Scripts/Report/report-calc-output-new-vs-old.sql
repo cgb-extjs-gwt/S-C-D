@@ -14,20 +14,20 @@ CREATE FUNCTION Report.CalcOutputNewVsOld
     @pro bigint
 )
 RETURNS @tbl TABLE (
-	Id bigint NOT NULL
-	,Country nvarchar(max) NULL
-  ,SogDescription nvarchar(max) NULL
-  ,Name nvarchar(max) NULL
-  ,WgDescription nvarchar(max) NULL
-  ,ServiceLocation nvarchar(max) NULL
-  ,ReactionTime nvarchar(max) 
-  ,Wg nvarchar(max) NULL
-  ,ServiceProduct nvarchar(max) NULL
-  ,LocalServiceStandardWarranty nvarchar(max) NULL
-  ,StandardWarrantyOld nvarchar(max) NULL
-  ,Sog nvarchar(max) NULL
-  ,Bw float NULL
-  ,Currency nvarchar(max) NULL
+     Id bigint NOT NULL
+    ,Country nvarchar(max) NULL
+    ,SogDescription nvarchar(max) NULL
+    ,Name nvarchar(max) NULL
+    ,WgDescription nvarchar(max) NULL
+    ,ServiceLocation nvarchar(max) NULL
+    ,ReactionTime nvarchar(max) 
+    ,Wg nvarchar(max) NULL
+    ,ServiceProduct nvarchar(max) NULL
+    ,LocalServiceStandardWarranty nvarchar(max) NULL
+    ,StandardWarrantyOld nvarchar(max) NULL
+    ,Sog nvarchar(max) NULL
+    ,Bw float NULL
+    ,Currency nvarchar(max) NULL
 )
 AS
 begin

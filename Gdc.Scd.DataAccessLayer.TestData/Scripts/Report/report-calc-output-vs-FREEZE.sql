@@ -28,6 +28,7 @@ RETURN (
                 , wg.Name as Wg
         
             --SLA
+                , er.Value as ExchangeRate
                 , c.Name as Country
                 , dur.Name as Duration
                 , dur.Value as Year
@@ -48,23 +49,23 @@ RETURN (
 
                 , mcw.MaterialCostWarranty, mcw.MaterialCostWarranty_Approved
 
-                , coalesce(tax.TaxAndDuties, 0) as TaxAndDuties, coalesce(tax.TaxAndDuties_Approved, 0) as TaxAndDuties_Approved
+                , coalesce(tax.TaxAndDuties_norm, 0) as TaxAndDuties, coalesce(tax.TaxAndDuties_norm_Approved, 0) as TaxAndDuties_Approved
 
-                , fsc.TravelCost + fsc.LabourCost + coalesce(fsc.PerformanceRate, 0) as FieldServicePerYearStdw
-                , fsc.TravelCost_Approved + fsc.LabourCost_Approved + coalesce(fsc.PerformanceRate_Approved, 0)  as FieldServicePerYearStdw_Approved
+                , fsc.TravelCost + fsc.LabourCost + coalesce(fst.PerformanceRate, 0) / er.Value as FieldServicePerYearStdw
+                , fsc.TravelCost_Approved + fsc.LabourCost_Approved + coalesce(fst.PerformanceRate_Approved, 0) / er.Value  as FieldServicePerYearStdw_Approved
 
                 , ssc.ServiceSupport         , ssc.ServiceSupport_Approved
 
-                , lc.StandardHandling + lc.HighAvailabilityHandling + lc.StandardDelivery + lc.ExpressDelivery + lc.TaxiCourierDelivery + lc.ReturnDeliveryFactory as LogisticPerYearStdw
-                , lc.StandardHandling_Approved + lc.HighAvailabilityHandling_Approved + lc.StandardDelivery_Approved + lc.ExpressDelivery_Approved + lc.TaxiCourierDelivery_Approved + lc.ReturnDeliveryFactory_Approved as LogisticPerYearStdw_Approved
+                , (lc.StandardHandling + lc.HighAvailabilityHandling + lc.StandardDelivery + lc.ExpressDelivery + lc.TaxiCourierDelivery + lc.ReturnDeliveryFactory) / er.Value as LogisticPerYearStdw
+                , (lc.StandardHandling_Approved + lc.HighAvailabilityHandling_Approved + lc.StandardDelivery_Approved + lc.ExpressDelivery_Approved + lc.TaxiCourierDelivery_Approved + lc.ReturnDeliveryFactory_Approved) / er.Value as LogisticPerYearStdw_Approved
 
-                , coalesce(case when afEx.Id is not null then af.Fee end, 0) as AvailabilityFee
+                , coalesce(case when afEx.Id is not null then af.Fee end, 0)          as AvailabilityFee
                 , coalesce(case when afEx.Id is not null then af.Fee_Approved end, 0) as AvailabilityFee_Approved
 
-                , msw.MarkupFactorStandardWarranty , msw.MarkupFactorStandardWarranty_Approved  
-                , msw.MarkupStandardWarranty       , msw.MarkupStandardWarranty_Approved        
+                , msw.MarkupFactorStandardWarranty_norm AS MarkupFactorStandardWarranty, msw.MarkupFactorStandardWarranty_norm_Approved AS MarkupFactorStandardWarranty_Approved  
+                , msw.MarkupStandardWarranty / er.Value  AS MarkupStandardWarranty, msw.MarkupStandardWarranty_Approved / er.Value AS MarkupStandardWarranty_Approved
 
-        FROM Portfolio.GetBySla(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
+        FROM Portfolio.GetBySlaSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
 
         INNER JOIN InputAtoms.Country c on c.id = m.CountryId
 
@@ -82,6 +83,8 @@ RETURN (
 
         INNER JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
+        LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+
         LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId 
 
         LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
@@ -92,25 +95,18 @@ RETURN (
 
         LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
-        LEFT JOIN Hardware.FieldServiceCostView fsc ON fsc.Country = stdw.Country AND fsc.Wg = stdw.Wg AND fsc.ServiceLocation = stdw.ServiceLocationId AND fsc.ReactionTypeId = stdw.ReactionTypeId AND fsc.ReactionTimeId = stdw.ReactionTimeId
+        LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Country = stdw.Country AND fsc.Wg = stdw.Wg AND fsc.ServiceLocation = stdw.ServiceLocationId
+        LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Country = stdw.Country AND fst.Wg = stdw.Wg AND fst.ReactionTimeType = stdw.ReactionTime_ReactionType
 
-        LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = stdw.Country AND lc.Wg = stdw.Wg AND lc.ReactionTime = stdw.ReactionTimeId AND lc.ReactionType = stdw.ReactionTypeId
+        LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = stdw.Country AND lc.Wg = stdw.Wg AND lc.ReactionTimeType = stdw.ReactionTime_ReactionType
 
-        LEFT JOIN Hardware.MarkupStandardWarantyView msw on msw.Wg = m.WgId AND msw.Country = m.CountryId
+        LEFT JOIN Hardware.MarkupStandardWaranty msw on msw.Wg = m.WgId AND msw.Country = m.CountryId
 
         LEFT JOIN Hardware.AvailabilityFeeCalc af on af.Country = m.CountryId AND af.Wg = m.WgId
 
         LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
 
-        LEFT JOIN Fsp.HwFspCodeTranslation fsp on   fsp.SlaHash = m.SlaHash 
-                                                and fsp.CountryId = m.CountryId
-                                                and fsp.WgId = m.WgId
-                                                and fsp.AvailabilityId = m.AvailabilityId
-                                                and fsp.DurationId = m.DurationId
-                                                and fsp.ReactionTimeId = m.ReactionTimeId
-                                                and fsp.ReactionTypeId = m.ReactionTypeId
-                                                and fsp.ServiceLocationId = m.ServiceLocationId
-                                                and fsp.ProactiveSlaId = m.ProActiveSlaId
+        LEFT JOIN Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla
     )
     , CostCte as (
         select    m.*
@@ -212,15 +208,14 @@ RETURN (
          
             , (m.Duration + ' ' + m.ServiceLocation) as ServiceProduct
          
-            , (m.LocalServiceStandardWarranty1 + m.LocalServiceStandardWarranty2 + m.LocalServiceStandardWarranty3 + m.LocalServiceStandardWarranty4 + m.LocalServiceStandardWarranty5) * er.Value as LocalServiceStandardWarranty
-            , (m.LocalServiceStandardWarranty1_Approved + m.LocalServiceStandardWarranty2_Approved + m.LocalServiceStandardWarranty3_Approved + m.LocalServiceStandardWarranty4_Approved + m.LocalServiceStandardWarranty5_Approved) * er.Value  as StandardWarranty_Approved
+            , (m.LocalServiceStandardWarranty1 + m.LocalServiceStandardWarranty2 + m.LocalServiceStandardWarranty3 + m.LocalServiceStandardWarranty4 + m.LocalServiceStandardWarranty5) * m.ExchangeRate as StandardWarranty
+            , (m.LocalServiceStandardWarranty1_Approved + m.LocalServiceStandardWarranty2_Approved + m.LocalServiceStandardWarranty3_Approved + m.LocalServiceStandardWarranty4_Approved + m.LocalServiceStandardWarranty5_Approved) * m.ExchangeRate  as StandardWarranty_Approved
             , cur.Name as Currency
     from CostCte2 m
     join InputAtoms.Country cnt on cnt.id = @cnt
     join [References].Currency cur on cur.Id = cnt.CurrencyId
-    join [References].ExchangeRate er on er.CurrencyId = cur.Id
 )
-GO
+go
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CALCOUTPUT-VS-FREEZE');
 declare @index int = 0;

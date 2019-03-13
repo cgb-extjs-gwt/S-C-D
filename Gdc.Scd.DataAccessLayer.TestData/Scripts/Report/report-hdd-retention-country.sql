@@ -20,6 +20,7 @@ RETURN (
          , hdd.TransferPrice * er.Value as TransferPrice
          , hdd.DealerPrice * er.Value as DealerPrice
          , hdd.ListPrice * er.Value as ListPrice
+		 , cur.Name as Currency
 
     from Fsp.HwHddFspCodeTranslation fsp
     join InputAtoms.CountryView c on c.Id = fsp.CountryId

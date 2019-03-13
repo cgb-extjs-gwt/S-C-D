@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Import.Por.Core.DataAccessLayer;
@@ -54,7 +55,8 @@ namespace Gdc.Scd.Import.Por
 
         static PorService()
         {
-            IKernel kernel = new StandardKernel(new Module());
+            NinjectExt.IsConsoleApplication = true;
+            IKernel kernel = CreateKernel();
             Logger = kernel.Get<ILogger<LogLevel>>();
             SogImporter = kernel.Get<IDataImporter<SCD2_ServiceOfferingGroups>>();
             WgImporter = kernel.Get<IDataImporter<SCD2_WarrantyGroups>>();
@@ -209,6 +211,15 @@ namespace Gdc.Scd.Import.Por
             {
                 Logger.Log(LogLevel.Error, ex, ImportConstantMessages.UNEXPECTED_ERROR);
             }
+        }
+
+        private static StandardKernel CreateKernel()
+        {
+            return new StandardKernel(
+                new Scd.Core.Module(),
+                new DataAccessLayer.Module(),
+                new BusinessLogicLayer.Module(),
+                new Module());
         }
     }
 }

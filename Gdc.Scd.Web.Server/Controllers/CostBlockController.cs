@@ -42,23 +42,14 @@ namespace Gdc.Scd.Web.Server.Controllers
             var bytes = Convert.FromBase64String(importData.ExcelFile);
             var stream = new MemoryStream(bytes);
 
-            return await this.costElementExcelService.Import(
-                importData.CostElementId, 
-                stream, 
-                importData.ApprovalOption, 
-                importData.DependencyItemId,
-                importData.RegionId);
+            return await this.costElementExcelService.Import(importData.Context, stream, importData.ApprovalOption);
         }
 
         public class ImportData
         {
-            public CostElementIdentifier CostElementId { get; set; }
+            public CostImportContext Context { get; set; }
 
             public ApprovalOption ApprovalOption { get; set; }
-
-            public long? DependencyItemId { get; set; }
-
-            public long? RegionId { get; set; }
 
             public string ExcelFile { get; set; }
         }

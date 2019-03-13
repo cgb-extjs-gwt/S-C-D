@@ -22,9 +22,6 @@ namespace Gdc.Scd.Import.Ebis.Afr
         public override void Load()
         {
             Bind(typeof(IRepository<Gdc.Scd.Core.Entities.Afr>)).To(typeof(ImportRepository<Gdc.Scd.Core.Entities.Afr>)).InSingletonScope();
-            Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InSingletonScope();
-            Bind<IRepositorySet, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InSingletonScope();
-            Bind<ISqlRepository>().To<SqlRepository>().InSingletonScope();
             Bind<ILogger<LogLevel>>().To<Core.Impl.Logger>().InSingletonScope();
 
             Bind<IDownloader>().To<FileDownloader>().InSingletonScope();
@@ -32,11 +29,6 @@ namespace Gdc.Scd.Import.Ebis.Afr
             Bind(typeof(IUploader<>)).To(typeof(EbisAfrUploader)).InSingletonScope();
             Bind<IImportManager>().To<ImportManager<AfrDto>>().InSingletonScope();
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();
-
-            Kernel.RegisterEntity<Year>();
-            Kernel.RegisterEntity<ImportConfiguration>();
-            Kernel.RegisterEntity<Wg>();
-            Kernel.RegisterEntity<Gdc.Scd.Core.Entities.Afr>();
         }
     }
 }

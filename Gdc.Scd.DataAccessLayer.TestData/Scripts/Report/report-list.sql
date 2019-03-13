@@ -1,7 +1,8 @@
 ﻿insert into Report.Report(Name, Title, CountrySpecific, HasFreesedVersion, SqlFunc) values
 
-('Locap', 'LOCAP reports (for a specific country)', 1,  1, 'Report.Locap'),
-('Locap-Detailed', 'LOCAP reports detailed', 1,  1, 'Report.LocapDetailed'),
+('Locap', 'LOCAP reports (for a specific country)', 1,  1, 'Report.spLocap'),
+('Locap-Detailed', 'LOCAP reports detailed', 1,  1, 'Report.spLocapDetailed'),
+('Locap-Global-Support', 'Maintenance Service Costs and List Price Output - Global Support Packs', 1,  1, 'Report.spLocapGlobalSupport'),
 ('Contract', 'Contract reports', 1,  1, 'Report.Contract'),
 ('ProActive-reports', 'ProActive reports', 1, 0, 'Report.ProActive'),
 
@@ -21,7 +22,7 @@
 ('CalcOutput-new-vs-old', 'Country CalcOutput new vs. old report (e.g.  Germany_CalcOutput new vs. old)', 1, 0, 'Report.CalcOutputNewVsOld'),
 
 --Solution Pack reports 
-('SolutionPack-ProActive-Costing', 'Country SolutionPack ProActive Costing report (e.g.  Germany_SolutionPack ProActive Costing)', 1, 0, 'Report.SolutionPackProActiveCosting'),
+('SolutionPack-ProActive-Costing', 'Country SolutionPack ProActive Costing report', 1, 0, 'Report.SolutionPackProActiveCosting'),
 ('SolutionPack-Price-List', 'SolutionPack Price List report', 0, 0, 'Report.SolutionPackPriceList'),
 ('SolutionPack-Price-List-Details', 'SolutionPack Price List Detailed report', 0, 0, 'Report.SolutionPackPriceListDetail'),
 
@@ -46,6 +47,10 @@
 
 ('SW-CALC-RESULT', 'Software & Solution service costs', 1,  1, 'Report.SwCalcResult'),
 
-('SW-PROACTIVE-CALC-RESULT', 'Software & Solution proactive cost', 1,  1, 'Report.SwProactiveCalcResult');
+('SW-PROACTIVE-CALC-RESULT', 'Software & Solution proactive cost', 1,  1, 'Report.SwProactiveCalcResult'),
+
+('SW-PARAM-OVERVIEW', 'Software & Solution calculation parameter overview', 1,  1, 'Report.SwParamOverview'),
+
+('User-Roles', 'User roles', 0,  0, 'Report.UserRoles');
 
 

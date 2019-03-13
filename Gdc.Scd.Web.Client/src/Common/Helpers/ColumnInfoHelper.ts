@@ -89,6 +89,9 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
             if (currency != null) {
                 formatFn = value => Ext.util.Format.number(value, `0.## ${currency}`);
             }
+            else {
+                formatFn = value => Ext.util.Format.number(value, `0.## EUR`);
+            }
             break;
     }
 

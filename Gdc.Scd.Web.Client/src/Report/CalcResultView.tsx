@@ -6,30 +6,14 @@ import { HwCostView } from "./HwCostView";
 import { SwCostView } from "./SwCostView";
 import { SwProactiveCostView } from "./SwProactiveCostView";
 
-export class CalcResultView extends React.Component<any, any> {
+export interface CalcResultViewProps {
+    isVisibleHddNotApproved: boolean
+    isVisibleSwNotApproved: boolean
+}
 
-    public state = {
-        isAdmin: false
-    };
-
-    public componentDidMount() {
-        new UserCountryService().isAdminUser().then(x => this.setState({ isAdmin: x }));
-    }
-
+export class CalcResultView extends React.Component<CalcResultViewProps> {
     public render() {
-
-        let hdd = null, sw = null;
-
-        if (this.state.isAdmin) {
-
-            hdd = <Container title="Hdd retention<br>service costs" layout="fit">
-                <HddCostView approved={false} />
-            </Container>;
-
-            sw = <Container title="Software &amp; Solution<br>service costs" layout="fit" >
-                <SwCostView approved={false} />
-            </Container>;
-        }
+        const { isVisibleHddNotApproved, isVisibleSwNotApproved } = this.props;
 
         return (
             <Container layout="vbox">
@@ -44,13 +28,23 @@ export class CalcResultView extends React.Component<any, any> {
                         <HwCostView approved={true} />
                     </Container>
 
-                    {hdd}
+                    {
+                        isVisibleHddNotApproved &&
+                        <Container title="Hdd retention<br>service costs" layout="fit">
+                            <HddCostView approved={false} />
+                        </Container>
+                    }
 
                     <Container title="Hdd retention<br>service costs<br>(approved)" layout="fit">
                         <HddCostView approved={true} />
                     </Container>
 
-                    {sw}
+                    {
+                        isVisibleSwNotApproved &&
+                        <Container title="Software &amp; Solution<br>service costs" layout="fit" >
+                            <SwCostView approved={false} />
+                        </Container>
+                    }
 
                     <Container title="Software &amp; Solution<br>service costs<br>(approved)" layout="fit">
                         <SwCostView approved={true} />

@@ -12,6 +12,7 @@ export interface CostImportViewProps {
     applications: SelectListAdvanced<NamedId> 
     costBlocks: SelectListAdvanced<NamedId>
     costElements: SelectListAdvanced<NamedId>
+    inputLevels: SelectListAdvanced<NamedId>
     dependencyItems?: SelectListAdvanced<NamedId<number>, number>
     regions?: SelectListAdvanced<NamedId<number>, number>
     isVisibleDependencyItems: boolean
@@ -30,6 +31,7 @@ interface SelectListSelector {
 interface ComboboxData { 
     onChange(combobox, newValue, oldValue)
     selector: SelectListSelector
+    autoSelectLastItem: boolean
     buildConfig(): {
         store: Store<NamedId>
         selection: Model<NamedId>
@@ -40,30 +42,25 @@ interface ComboboxData {
 }
 
 export class CostImportView extends React.PureComponent<CostImportViewProps> {
-    private applicationData: ComboboxData
-    private costBlockData: ComboboxData
-    private costElementData: ComboboxData
-    private dependencyData: ComboboxData
-    private regionData: ComboboxData
-    private allComboboxData: ComboboxData[]
+    private readonly applicationData = this.buildComboboxData(props => props.applications)
+    private readonly costBlockData = this.buildComboboxData(props => props.costBlocks)
+    private readonly costElementData = this.buildComboboxData(props => props.costElements)
+    private readonly inputLevelData = this.buildComboboxData(props => props.inputLevels, true)
+    private readonly dependencyData = this.buildComboboxData(props => props.dependencyItems)
+    private readonly regionData = this.buildComboboxData(props => props.regions)
+    private readonly allComboboxData = [
+        this.applicationData,
+        this.costBlockData,
+        this.costElementData,
+        this.inputLevelData,
+        this.dependencyData,
+        this.regionData
+    ]
     private resultStore: Store<ResultImportItem>
     private fileField
 
     constructor(props: CostImportViewProps) {
         super(props)
-
-        this.applicationData = this.buildComboboxData(props => props.applications);
-        this.costBlockData = this.buildComboboxData(props => props.costBlocks);
-        this.costElementData = this.buildComboboxData(props => props.costElements);
-        this.dependencyData = this.buildComboboxData(props => props.dependencyItems);
-        this.regionData = this.buildComboboxData(props => props.regions);
-        this.allComboboxData = [
-            this.applicationData,
-            this.costBlockData,
-            this.costElementData,
-            this.dependencyData,
-            this.regionData
-        ];
         this.resultStore = this.createStore(props.resultImport);
 
         this.autoComboboxSelect(this.props);
@@ -91,18 +88,19 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
                 <Container flex={1}>
                     <Container layout="vbox" docked="top" width="30%" minWidth="200" padding="10" defaults={{labelAlign: 'left'}}>
                         <ComboBoxField label="Application"  {...this.applicationData.buildConfig()}/>
-                        <ComboBoxField label="Cost blocks" {...this.costBlockData.buildConfig()}/>
-                        <ComboBoxField label="Cost elements"  {...this.costElementData.buildConfig()}/>
+                        <ComboBoxField label="Cost block" {...this.costBlockData.buildConfig()}/>
+                        <ComboBoxField label="Cost element"  {...this.costElementData.buildConfig()}/>
                         {
                             isVisibleRegions 
-                                ? <ComboBoxField key="regions" label="Regions"{...this.regionData.buildConfig()}/>
+                                ? <ComboBoxField key="regions" label="Region"{...this.regionData.buildConfig()}/>
                                 : <div/>
                         }
                         {
                             isVisibleDependencyItems 
-                                ? <ComboBoxField key="dependencies" label="Dependencies"{...this.dependencyData.buildConfig()}/>
+                                ? <ComboBoxField key="dependencies" label="Dependency"{...this.dependencyData.buildConfig()}/>
                                 : <div/>
                         }
+                        <ComboBoxField label="Input level"  {...this.inputLevelData.buildConfig()}/>
                         <FileField label="Excel file" ref={button => this.fileField = button} onChange={this.onFileSelect}/>
                     </Container>
 
@@ -130,16 +128,17 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
         return (combobox, newValue, oldValue) => {
             const { onItemSelected } = selector(this.props);
             
-            onItemSelected && onItemSelected(newValue);
+            onItemSelected && onItemSelected(newValue == "" ? null : newValue);
         }
     }
 
-    private buildComboboxData(selector: SelectListSelector): ComboboxData {
+    private buildComboboxData(selector: SelectListSelector, autoSelectLastItem: boolean = false): ComboboxData {
         const onChange = this.buildComboboxChangeHandler(selector);
 
         return {
             onChange,
             selector,
+            autoSelectLastItem,
             buildConfig: () => {
                 const { list, selectedItemId } = selector(this.props);
                 const store = this.createStore(list);
@@ -180,8 +179,12 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
         this.allComboboxData.forEach(data => {
             const { list, selectedItemId, onItemSelected } = data.selector(props);
 
-            if (list && list.length == 1 && selectedItemId == null) {
-                onItemSelected(list[0].id);
+            if (list && list.length > 0 && selectedItemId == null) {
+                if (data.autoSelectLastItem) {
+                    onItemSelected(list[list.length - 1].id);
+                } else if (list.length == 1) {
+                    onItemSelected(list[0].id);
+                }
             }
         });
     }

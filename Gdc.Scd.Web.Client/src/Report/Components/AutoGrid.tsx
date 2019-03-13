@@ -7,7 +7,6 @@ import { AutoColumnBuilder } from "./AutoColumnBuilder";
 import { AutoFilter } from "./AutoFilter";
 
 export interface AutoGridProps {
-
     url: string;
 
     downloadUrl: string;
@@ -17,12 +16,11 @@ export interface AutoGridProps {
     filter: AutoFilterModel[];
 
     title?: string;
-
 }
 
 export class AutoGrid extends React.Component<AutoGridProps, any> {
 
-    private grid: Grid;
+    private grid: Grid & any;
 
     private filter: AutoFilter;
 
@@ -74,8 +72,9 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
                     ref="grid"
                     store={this.store}
                     width="100%"
+                    cls="grid-paging-no-count"
                     defaults={{ minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}
-                    plugins={['pagingtoolbar']}>
+                    plugins={{ type: 'pagingtoolbar', id: 'pagingtoolbar' }}>
 
                     {this.columns.map((x, i) => x.build(i))}
 
@@ -110,6 +109,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
     }
 
     private reload() {
+        this.grid.getPlugin('pagingtoolbar').setCurrentPage(1);
         this.store.load();
     }
 

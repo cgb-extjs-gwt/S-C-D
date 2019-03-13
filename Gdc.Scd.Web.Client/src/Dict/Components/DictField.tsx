@@ -33,6 +33,7 @@ export abstract class DictField<T> extends React.Component<DictFieldProps, any> 
             queryMode="local"
             clearable="true"
             forceSelection={true}
+            value={null}
         />;
     }
 
@@ -43,6 +44,13 @@ export abstract class DictField<T> extends React.Component<DictFieldProps, any> 
         sorters.add(this.nameField);
 
         this.getItems().then(x => store.setData(x));
+        store.on('datachanged', this.setDefaultValue);
+    }
+
+    private setDefaultValue = () => {
+        if (this.props.value) {
+            this.combo.setValue(this.props.value);
+        }
     }
 
     public getValue(): string {
@@ -74,6 +82,23 @@ export abstract class DictField<T> extends React.Component<DictFieldProps, any> 
 
     public reset() {
         this.combo.reset();
+    }
+
+    public filter(key: string, val: string, exactMatch: boolean = false) {
+
+        let cfg: any = {
+            property: key
+        };
+
+        if (val) {
+            cfg.exactMatch = exactMatch;
+            cfg.value = val;
+        }
+        else {
+            cfg.value = '';
+        }
+
+        this.combo.getStore().filter(cfg);
     }
 
     protected canCache() {

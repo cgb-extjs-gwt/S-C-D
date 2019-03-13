@@ -4,23 +4,24 @@ go
 
 CREATE FUNCTION Report.HwCalcResult
 (
-	@approved bit,
+    @approved bit,
     @local bit,
-    @country dbo.ListID readonly,
-    @wg dbo.ListID readonly,
-    @availability dbo.ListID readonly,
-    @duration dbo.ListID readonly,
-    @reactiontime dbo.ListID readonly,
-    @reactiontype dbo.ListID readonly,
+    @country         dbo.ListID readonly,
+    @wg              dbo.ListID readonly,
+    @availability    dbo.ListID readonly,
+    @duration        dbo.ListID readonly,
+    @reactiontime    dbo.ListID readonly,
+    @reactiontype    dbo.ListID readonly,
     @servicelocation dbo.ListID readonly,
-    @proactive dbo.ListID readonly
+    @proactive       dbo.ListID readonly
 )
 RETURNS TABLE 
 AS
 RETURN (
     select    Country
-            , case when @local = 1 then c.Currency else 'EUR' end as Currency
+            , case when @local = 1 then c.Name else 'EUR' end as Currency
 
+            , sog.Name as SOG
             , Wg
             , Availability
             , Duration
@@ -30,40 +31,42 @@ RETURN (
             , ProActiveSla
 
             , StdWarranty
+            , StdWarrantyLocation
 
             --Cost
 
-            , case when @local = 1 then AvailabilityFee * er.Value else AvailabilityFee end as AvailabilityFee 
-            , case when @local = 1 then TaxAndDutiesW * er.Value else TaxAndDutiesW end as TaxAndDutiesW
-            , case when @local = 1 then TaxAndDutiesOow * er.Value else TaxAndDutiesOow end as TaxAndDutiesOow
-            , case when @local = 1 then Reinsurance * er.Value else Reinsurance end as Reinsurance
-            , case when @local = 1 then ProActive * er.Value else ProActive end as ProActive
-            , case when @local = 1 then ServiceSupportCost * er.Value else ServiceSupportCost end as ServiceSupportCost
+            , case when @local = 1 then AvailabilityFee * costs.ExchangeRate else AvailabilityFee end as AvailabilityFee 
+            , case when @local = 1 then TaxAndDutiesW * costs.ExchangeRate else TaxAndDutiesW end as TaxAndDutiesW
+            , case when @local = 1 then TaxAndDutiesOow * costs.ExchangeRate else TaxAndDutiesOow end as TaxAndDutiesOow
+            , case when @local = 1 then Reinsurance * costs.ExchangeRate else Reinsurance end as Reinsurance
+            , case when @local = 1 then ProActive * costs.ExchangeRate else ProActive end as ProActive
+            , case when @local = 1 then ServiceSupportCost * costs.ExchangeRate else ServiceSupportCost end as ServiceSupportCost
                                                           
-            , case when @local = 1 then MaterialW * er.Value else MaterialW end as MaterialW
-            , case when @local = 1 then MaterialOow * er.Value else MaterialOow end as MaterialOow
-            , case when @local = 1 then FieldServiceCost * er.Value else FieldServiceCost end as FieldServiceCost
-            , case when @local = 1 then Logistic * er.Value else Logistic end as Logistic
-            , case when @local = 1 then OtherDirect * er.Value else OtherDirect end as OtherDirect
-            , case when @local = 1 then LocalServiceStandardWarranty * er.Value else LocalServiceStandardWarranty end as LocalServiceStandardWarranty
-            , case when @local = 1 then Credits * er.Value else Credits end as Credits
-            , case when @local = 1 then ServiceTC * er.Value else ServiceTC end as ServiceTC
-            , case when @local = 1 then ServiceTP * er.Value else ServiceTP end as ServiceTP
+            , case when @local = 1 then MaterialW * costs.ExchangeRate else MaterialW end as MaterialW
+            , case when @local = 1 then MaterialOow * costs.ExchangeRate else MaterialOow end as MaterialOow
+            , case when @local = 1 then FieldServiceCost * costs.ExchangeRate else FieldServiceCost end as FieldServiceCost
+            , case when @local = 1 then Logistic * costs.ExchangeRate else Logistic end as Logistic
+            , case when @local = 1 then OtherDirect * costs.ExchangeRate else OtherDirect end as OtherDirect
+            , case when @local = 1 then LocalServiceStandardWarranty * costs.ExchangeRate else LocalServiceStandardWarranty end as LocalServiceStandardWarranty
+            , case when @local = 1 then Credits * costs.ExchangeRate else Credits end as Credits
+            , case when @local = 1 then ServiceTC * costs.ExchangeRate else ServiceTC end as ServiceTC
+            , case when @local = 1 then ServiceTP * costs.ExchangeRate else ServiceTP end as ServiceTP
                                                           
-            , case when @local = 1 then ServiceTCManual * er.Value else ServiceTCManual end as ServiceTCManual
-            , case when @local = 1 then ServiceTPManual * er.Value else ServiceTPManual end as ServiceTPManual
+            , case when @local = 1 then ServiceTCManual * costs.ExchangeRate else ServiceTCManual end as ServiceTCManual
+            , case when @local = 1 then ServiceTPManual * costs.ExchangeRate else ServiceTPManual end as ServiceTPManual
                                                           
-            , case when @local = 1 then ServiceTP_Released * er.Value else ServiceTP_Released end as ServiceTP_Released
+            , case when @local = 1 then ServiceTP_Released * costs.ExchangeRate else ServiceTP_Released end as ServiceTP_Released
                                                           
-            , case when @local = 1 then ListPrice * er.Value else ListPrice end as ListPrice
-            , case when @local = 1 then DealerPrice * er.Value else DealerPrice end as DealerPrice
+            , case when @local = 1 then ListPrice * costs.ExchangeRate else ListPrice end as ListPrice
+            , case when @local = 1 then DealerPrice * costs.ExchangeRate else DealerPrice end as DealerPrice
             , DealerDiscount                               as DealerDiscount
                                                            
             , ChangeUserName + '[' + ChangeUserEmail + ']' as ChangeUser
 
     from Hardware.GetCosts(@approved, @country, @wg, @availability, @duration, @reactiontime, @reactiontype, @servicelocation, @proactive, -1, -1) costs
-    join InputAtoms.CountryView c on c.Name = costs.Country
-    join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+    join [References].Currency c on c.Id = costs.CurrencyId
+    join InputAtoms.Wg wg on wg.id = costs.WgId
+    LEFT JOIN InputAtoms.Sog sog on sog.Id = wg.SogId
 )
 
 GO
@@ -78,6 +81,8 @@ select @money = id from Report.ReportColumnType where upper(name) = 'MONEY';
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Country', 'Country', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'SOG', 'SOG', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Wg', 'WG(Asset)', 1, 1);
 set @index = @index + 1;
@@ -94,6 +99,8 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ProActiveSla', 'ProActive SLA', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'StdWarranty', 'Standard warranty duration', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'StdWarrantyLocation', 'Standard Warranty Service Location', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'FieldServiceCost', 'Field service cost', 1, 1);
