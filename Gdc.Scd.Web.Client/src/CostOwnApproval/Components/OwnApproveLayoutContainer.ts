@@ -2,7 +2,7 @@ import { CommonState } from "../../Layout/States/AppStates";
 import { connectAdvanced } from "react-redux";
 import { handleRequest } from "../../Common/Helpers/RequestHelper";
 import { BundleListLayoutProps } from "../../Approval/Components/BundleListLayout";
-import { OwnApprovalBundleFilter, getOwnBundles } from "../../Approval/Services/ApprovalService";
+import { getOwnBundles, ApprovalBundleFilter } from "../../Approval/Services/ApprovalService";
 import { buildBundleFilter } from "../../Approval/Helpers/FilterHelper";
 import { OWN_COST_APPROVAL_PAGE } from "../Constants/CostOwnApprovalConstants";
 import { loadBundles } from "../../Approval/Actions/BundleListActions";
@@ -12,10 +12,7 @@ export const OwnApproveLayoutContainer = connectAdvanced<CommonState, BundleList
     dispatch => ({ pages: { ownCostApproval } }) => ({
         bundles: ownCostApproval.bundles,
         onRefresh: () => {
-            const filter: OwnApprovalBundleFilter = {
-                ...buildBundleFilter(ownCostApproval.filter),
-                state: ownCostApproval.filter.selectedState
-            };
+            const filter = buildBundleFilter(ownCostApproval.filter);
 
             handleRequest(
                 getOwnBundles(filter).then(bundles => {
