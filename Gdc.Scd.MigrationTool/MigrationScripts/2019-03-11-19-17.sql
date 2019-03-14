@@ -1,4 +1,8 @@
-ALTER FUNCTION [Report].[GetProActiveByCountryAndWg]
+IF OBJECT_ID('Report.GetProActiveByCountryAndWg') IS NOT NULL
+  DROP FUNCTION Report.GetProActiveByCountryAndWg;
+go 
+
+CREATE FUNCTION [Report].[GetProActiveByCountryAndWg]
 (
     @cnt nvarchar(max),
     @wgList nvarchar(max)   
@@ -14,8 +18,14 @@ RETURN (
 		left join InputAtoms.Wg wg on wg.[Name] in (select Name from Report.SplitString(@wgList))
 		left join InputAtoms.Country cnt on cnt.Name = @cnt
 		where Wg=wg.Id and Country=cnt.Id and pro.[ProActiveSla] in (6,7,3,4))
-		
-ALTER FUNCTION [Report].[GetServiceCostsBySla]
+
+GO
+
+IF OBJECT_ID('Report.GetServiceCostsBySla') IS NOT NULL
+  DROP FUNCTION Report.GetServiceCostsBySla;
+go 
+
+CREATE FUNCTION [Report].[GetServiceCostsBySla]
 (
     @cnt nvarchar(200),
     @loc nvarchar(200),
