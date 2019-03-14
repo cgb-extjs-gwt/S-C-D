@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Impl;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Enums;
+using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.Import.Core.Interfaces;
@@ -23,7 +24,8 @@ namespace Gdc.Scd.Import.SfabImport
 
         static SFabService()
         {
-            IKernel kernel = new StandardKernel(new Module());
+            NinjectExt.IsConsoleApplication = true;
+            IKernel kernel = CreateKernel();
             ConfigHandler = kernel.Get<IConfigHandler>();
             ImportManager = kernel.Get<IImportManager>();
             Logger = kernel.Get<ILogger<LogLevel>>();
@@ -52,6 +54,15 @@ namespace Gdc.Scd.Import.SfabImport
             Logger.Log(LogLevel.Info, ImportConstants.UPDATE_COST_BLOCKS_START);
             CostBlockService.UpdateByCoordinates(updateOptions);
             Logger.Log(LogLevel.Info, ImportConstants.UPDATE_COST_BLOCKS_END);
+        }
+
+        private static StandardKernel CreateKernel()
+        {
+            return new StandardKernel(
+                new Scd.Core.Module(),
+                new Scd.DataAccessLayer.Module(),
+                new Scd.BusinessLogicLayer.Module(),
+                new Module());
         }
     }
 }

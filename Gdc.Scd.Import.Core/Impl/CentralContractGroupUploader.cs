@@ -2,7 +2,9 @@
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.Import.Core.DataAccess;
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Interfaces;
 using NLog;
@@ -30,7 +32,7 @@ namespace Gdc.Scd.Import.Core.Impl
                 throw new ArgumentNullException(nameof(logger));
 
             this._repositorySet = repositorySet;
-            this._repositoryWg = this._repositorySet.GetRepository<Wg>();
+            this._repositoryWg = new ImportRepository<Wg>((EntityFrameworkRepositorySet)repositorySet);
             this._repositoryCentralContractGroup = this._repositorySet.GetRepository<CentralContractGroup>();
             this._logger = logger;
         }
