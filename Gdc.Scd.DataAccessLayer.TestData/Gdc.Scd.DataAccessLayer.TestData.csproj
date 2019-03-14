@@ -38,7 +38,6 @@
     <None Remove="Scripts\Report\report-hdd-retention-calc-result.sql" />
     <None Remove="Scripts\Report\report-locap-support-pack.sql" />
     <None Remove="Scripts\Report\report-Logistic-cost-calc-central.sql" />
-    <None Remove="Scripts\Report\report-logistic-cost-central.sql" />
     <None Remove="Scripts\Report\report-logistic-cost-country.sql" />
     <None Remove="Scripts\Report\report-Logistic-cost-input-central.sql" />
     <None Remove="Scripts\Report\report-Logistic-cost-input-country.sql" />
@@ -93,7 +92,6 @@
     <EmbeddedResource Include="Scripts\Report\report-locap.sql" />
     <EmbeddedResource Include="Scripts\Report\report-Logistic-cost-calc-central.sql" />
     <EmbeddedResource Include="Scripts\Report\report-logistic-cost-calc-country.sql" />
-    <EmbeddedResource Include="Scripts\Report\report-logistic-cost-central.sql" />
     <EmbeddedResource Include="Scripts\Report\report-logistic-cost-country.sql" />
     <EmbeddedResource Include="Scripts\Report\report-Logistic-cost-input-central.sql" />
     <EmbeddedResource Include="Scripts\Report\report-Logistic-cost-input-country.sql" />

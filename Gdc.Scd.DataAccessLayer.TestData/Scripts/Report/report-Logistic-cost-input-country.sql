@@ -27,7 +27,7 @@ RETURN (
          , TaxiCourierDelivery
          , ReturnDeliveryFactory
 
-    FROM Report.LogisticCostInputCentral(coalesce(@cnt, -1), @wg, @reactiontime, @reactiontype)
+    FROM Report.LogisticCostInputCentral(@cnt, @wg, @reactiontime, @reactiontype)
 )
 
 GO
@@ -38,7 +38,7 @@ declare @index int = 0;
 delete from Report.ReportColumn where ReportId = @reportId;
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Region', 'Alias Region', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Region', 'Region', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Country', 'Country Name', 1, 1);
 set @index = @index + 1;

@@ -38,7 +38,7 @@ RETURN (
 
          , rep.Fee * er.Value as Fee
 		 , cur.Name as Currency
-    from Report.LogisticCostCalcCentral(coalesce(@cnt, -1), @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) rep
+    from Report.LogisticCostCalcCentral(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) rep
 	join InputAtoms.Country c on c.Id = @cnt
 	join [References].Currency cur on cur.Id = c.CurrencyId
 	join [References].ExchangeRate er on er.CurrencyId = cur.Id
@@ -52,7 +52,7 @@ declare @index int = 0;
 delete from Report.ReportColumn where ReportId = @reportId;
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Region', 'Alias Region', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Region', 'Region', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Country', 'Country Name', 1, 1);
 set @index = @index + 1;
