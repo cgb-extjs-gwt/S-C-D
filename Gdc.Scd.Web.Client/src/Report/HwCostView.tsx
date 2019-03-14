@@ -84,7 +84,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 }
                 else {
                     this.toggleToolbar(changed == 0);
-                }
+                }                              
             }
         }
     });
@@ -94,7 +94,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         disableCancelButton: true,
         selectedCountry: null,
         showInLocalCurrency: true,
-        hideReleaseButton: true
+        hideReleaseButton: true,
+        userCanEdit: false
     };
 
     public constructor(props: CalcCostProps) {
@@ -103,7 +104,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     public render() {
-
         let canEditTC: boolean = false;
         let canEditListPrice: boolean = false;
         let moneyRndr: IRenderer;
@@ -112,15 +112,15 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
             //allow manual edit in LOCAL CURRENCY mode only for well view!!!
 
-            canEditTC = this.canEditTC();
-            canEditListPrice = this.canEditListPrice();
+            canEditTC = this.canEditTC() && this.state.userCanEdit;
+            canEditListPrice = this.canEditListPrice() && this.state.userCanEdit;
             //
             moneyRndr = localMoneyRenderer;
         }
         else {
             moneyRndr = euroMoneyRenderer;
         }
-
+     
         return (
             <Container layout="fit">
 
@@ -135,7 +135,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     <HwReleasePanel
                         onApprove={this.releaseCosts}
                         checkAccess={!this.props.approved}
-                        hidden={this.state.hideReleaseButton} />
+                        hidden={this.state.hideReleaseButton}
+                        disabled={!this.state.disableSaveButton}/>
                 </Panel>
 
                 <Grid
@@ -315,9 +316,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         if (this.state && this.state.selectedCountry) {
             cntId = this.state.selectedCountry.id;
             srv.isCountryUser(cntId).then(x => {
-                this.setState({ hideReleaseButton: !this.props.approved || !x || !this.state.disableSaveButton })
-            });
-        }
+                this.setState({
+                    hideReleaseButton: !this.props.approved || !x || !this.state.disableSaveButton,
+                    userCanEdit: x
+                });
+
+            })
+        };
     }
 
     private pluginConf(): any {
@@ -356,7 +361,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private canEdit(): boolean {
-        return this.canEditListPrice() || this.canEditTC();
+        return this.state.userCanEdit && (this.canEditListPrice() || this.canEditTC());
     }
 
     private canEditListPrice(): boolean {

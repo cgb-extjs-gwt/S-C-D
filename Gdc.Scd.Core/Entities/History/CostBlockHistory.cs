@@ -8,15 +8,45 @@ namespace Gdc.Scd.Core.Entities
     [Table(MetaConstants.CostBlockHistoryTableName, Schema = MetaConstants.HistorySchema)]
     public class CostBlockHistory : IIdentifiable
     {
+        private User editUser;
+
+        private User approveRejectUser;
+
         public long Id { get; set; }
 
         public DateTime EditDate { get; set; }
 
-        public User EditUser { get; set; }
+        public long? EditUserId { get; set; }
+
+        public User EditUser
+        {
+            get
+            {
+                return this.editUser;
+            }
+            set
+            {
+                this.EditUserId = value?.Id;
+                this.editUser = value;
+            }
+        }
 
         public DateTime? ApproveRejectDate { get; set; }
 
-        public User ApproveRejectUser { get; set; }
+        public long? ApproveRejectUserId { get; set; }
+
+        public User ApproveRejectUser
+        {
+            get
+            {
+                return this.approveRejectUser;
+            }
+            set
+            {
+                this.ApproveRejectUserId = value?.Id;
+                this.approveRejectUser = value;
+            }
+        }
 
         public string RejectMessage { get; set; }
 

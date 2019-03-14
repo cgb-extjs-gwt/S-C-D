@@ -30,13 +30,14 @@ export const importExcel = (approvalOption: ApprovalOption) => asyncAction<Commo
     (dispatch, getState) => {
         const { pages: { costImport } } = getState();
         const importData: ImportData = {
-            costElementId: {
+            context: {
                 applicationId: costImport.applicationId, 
                 costBlockId: costImport.costBlockId,
-                costElementId: costImport.costElementId
+                costElementId: costImport.costElementId,
+                inputLevelId: costImport.inputLevelId,
+                dependencyItemId: costImport.dependencyItems.selectedItemId,
+                regionId: costImport.regions.selectedItemId,
             },
-            dependencyItemId: costImport.dependencyItems.selectedItemId,
-            regionId: costImport.regions.selectedItemId,
             excelFile: costImport.file.base64Data,
             approvalOption
         }
