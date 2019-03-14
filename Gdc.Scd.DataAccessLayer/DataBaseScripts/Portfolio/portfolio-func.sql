@@ -186,9 +186,22 @@ CREATE TYPE [Portfolio].[Sla] AS TABLE(
 )
 GO
 
-CREATE NONCLUSTERED INDEX [IX_LocalPortfolio_Country_Wg]
-ON [Portfolio].[LocalPortfolio] ([CountryId],[WgId])
-INCLUDE ([AvailabilityId],[DurationId],[ProActiveSlaId],[ReactionTimeId],[ReactionTypeId],[ServiceLocationId])
+CREATE NONCLUSTERED INDEX [IX_LocalPortfolio_Country_Wg] ON [Portfolio].[LocalPortfolio]
+(
+    [CountryId] ASC,
+    [WgId] ASC
+)
+INCLUDE (
+    [AvailabilityId],
+    [DurationId],
+    [ProActiveSlaId],
+    [ReactionTimeId],
+    [ReactionTypeId],
+    [ServiceLocationId],
+    [ReactionTime_ReactionType],
+    [ReactionTime_Avalability],
+    [ReactionTime_ReactionType_Avalability]
+) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
 
 CREATE FUNCTION Portfolio.IsListEmpty(@list dbo.ListID readonly)
