@@ -25,7 +25,8 @@ namespace Gdc.Scd.Import.Core.Impl
         private readonly IRepository<Sog> _repositorySog;
         private readonly ILogger<LogLevel> _logger;
 
-        public SfabUploader(IRepositorySet repositorySet, ILogger<LogLevel> logger)
+        public SfabUploader(IRepositorySet repositorySet, ILogger<LogLevel> logger, 
+            ImportRepository<Wg> wgRepository)
         {
             if (repositorySet == null)
                 throw new ArgumentNullException(nameof(repositorySet));
@@ -34,7 +35,7 @@ namespace Gdc.Scd.Import.Core.Impl
                 throw new ArgumentNullException(nameof(logger));
 
             this._repositorySet = repositorySet;
-            this._repositoryWg = new ImportRepository<Wg>((EntityFrameworkRepositorySet)repositorySet);
+            this._repositoryWg = wgRepository;
             this._repositorySfab = this._repositorySet.GetRepository<SFab>();
             this._repositorySog = this._repositorySet.GetRepository<Sog>();
             this._logger = logger;

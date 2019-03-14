@@ -23,7 +23,8 @@ namespace Gdc.Scd.Import.Core.Impl
         private readonly IRepository<Wg> _repositoryWg;
         private readonly ILogger<LogLevel> _logger;
 
-        public CentralContractGroupUploader(IRepositorySet repositorySet, ILogger<LogLevel> logger)
+        public CentralContractGroupUploader(IRepositorySet repositorySet, ILogger<LogLevel> logger,
+            ImportRepository<Wg> wgRepository)
         {
             if (repositorySet == null)
                 throw new ArgumentNullException(nameof(repositorySet));
@@ -32,7 +33,7 @@ namespace Gdc.Scd.Import.Core.Impl
                 throw new ArgumentNullException(nameof(logger));
 
             this._repositorySet = repositorySet;
-            this._repositoryWg = new ImportRepository<Wg>((EntityFrameworkRepositorySet)repositorySet);
+            this._repositoryWg = wgRepository;
             this._repositoryCentralContractGroup = this._repositorySet.GetRepository<CentralContractGroup>();
             this._logger = logger;
         }
