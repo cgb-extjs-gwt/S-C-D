@@ -14,6 +14,8 @@ namespace Gdc.Scd.Core.Entities.Calculation
 
         public string Wg { get; set; }
 
+        public string Sog { get; set; }
+
         public double? HddRet { get; set; }
 
         public double? HddRet_Approved { get; set; }
