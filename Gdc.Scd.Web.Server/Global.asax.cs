@@ -44,7 +44,7 @@ namespace Gdc.Scd.Web.Server
                 {
                     Identity = new FakeIIdentity
                     {
-                        Name = "g02\\testUser1",
+                        Name = "g02\\testUser122",
                         IsAuthenticated = true
                     }
                 };

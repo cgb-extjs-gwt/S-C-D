@@ -1,4 +1,5 @@
-﻿using System.Web.Http;
+﻿using System.Net.Http;
+using System.Web.Http;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 
@@ -16,7 +17,11 @@ namespace Gdc.Scd.Web.Server.Controllers
         [HttpGet]
         public AppData GetAppData()
         {
-            return this.appService.GetAppData();
+            var appData = this.appService.GetAppData();
+            if (appData.IsAuthorized)
+                return appData;
+            var message = new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized) { ReasonPhrase = "You are not authorized." };
+            throw new HttpResponseException(message);
         }
     }
 }
