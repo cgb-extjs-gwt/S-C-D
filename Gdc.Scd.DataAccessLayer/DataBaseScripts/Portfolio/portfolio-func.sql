@@ -905,8 +905,7 @@ RETURN
 (
     select m.*
     from Portfolio.LocalPortfolio m
-    where   m.CountryId = @cnt
-
+    where   (@cnt          is null or @cnt          = m.CountryId         )
         AND (@wg           is null or @wg           = m.WgId              )
         AND (@av           is null or @av           = m.AvailabilityId    )
         AND (@dur          is null or @dur          = m.DurationId        )
