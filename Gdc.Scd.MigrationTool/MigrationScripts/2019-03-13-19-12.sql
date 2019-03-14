@@ -17,7 +17,7 @@ CREATE VIEW [Hardware].[HddRetentionView] as
 
     FROM Hardware.HddRetention h
     JOIN InputAtoms.Wg wg on wg.id = h.Wg
-	JOIN InputAtoms.Sog sog on sog.id = wg.SogId
+	LEFT JOIN InputAtoms.Sog sog on sog.id = wg.SogId
     LEFT JOIN Hardware.HddRetentionManualCost hm on hm.WgId = h.Wg
     LEFT JOIN [dbo].[User] u on u.Id = hm.ChangeUserId
     WHERE h.DeactivatedDateTime is null 

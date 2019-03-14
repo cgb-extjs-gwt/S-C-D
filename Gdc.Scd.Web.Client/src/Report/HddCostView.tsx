@@ -113,7 +113,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                     { /*dependencies*/}
 
                     <Column
-                        flex="1"
+                        flex="2"
                         isHeaderGroup={true}
                         text="Dependencies"
                         dataIndex=""
@@ -121,7 +121,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                         <Column text="WG(Asset)" dataIndex="wg" />
-                        <Column text="Sog" dataIndex="sog" />
+                        <Column text="Sog" dataIndex="sog" renderer={value => (value ? value : " ")}/>
 
                     </Column>
 
