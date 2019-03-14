@@ -2,8 +2,9 @@ import * as React from "react";
 import { BundleListLayout } from "../../Approval/Components/BundleListLayout";
 import { BundleView } from "../../Approval/Components/BundleView";
 import { OwnApproveRejectContainerComponent } from "./OwnApproveRejectContainer";
-import { OwnApproveBundlesFilterContainer } from "./FilterContainer";
 import { Bundle, ApprovalBundleState } from "../../Approval/States/ApprovalState";
+import { FilterContainer } from "../../Approval/Components/FilterContainer";
+import { OWN_COST_APPROVAL_PAGE } from "../Constants/CostOwnApprovalConstants";
 
 export class OwnApprovalLayout extends BundleListLayout {
     protected bundleItemRender(bundle: Bundle) {
@@ -31,7 +32,7 @@ export class OwnApprovalLayout extends BundleListLayout {
 
     protected filterRender() {
         return (
-            <OwnApproveBundlesFilterContainer/>
+            <FilterContainer pageName={OWN_COST_APPROVAL_PAGE} isVisibleNotSentState={true}/>
         );
     }
 }

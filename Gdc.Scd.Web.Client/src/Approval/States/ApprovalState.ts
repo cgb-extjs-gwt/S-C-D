@@ -11,6 +11,7 @@ export interface FilterState {
     selectedCostElementIds: CostElementId[]
     startDate: Date
     endDate: Date
+    selectedState: ApprovalBundleState
 }
 
 export enum ApprovalBundleState {
@@ -35,7 +36,7 @@ export interface Bundle {
     state: ApprovalBundleState
 }
 
-export interface ApprovalCostElementsLayoutState<TFilter=FilterState> {
+export interface ApprovalCostElementsLayoutState {
     bundles: Bundle[]
-    filter: TFilter
+    filter: FilterState
 }

@@ -6,5 +6,6 @@ export const buildBundleFilter = (filterState: FilterState) => (<ApprovalBundleF
     dateTimeTo: filterState.endDate || null,
     applicationIds: filterState.selectedApplicationId ? [ filterState.selectedApplicationId ] : null,
     costBlockIds: filterState.selectedCostBlockIds || null,
-    costElementIds: filterState.selectedCostElementIds ? filterState.selectedCostElementIds.map(el => el.costElementId) : null
+    costElementIds: filterState.selectedCostElementIds ? filterState.selectedCostElementIds.map(el => el.costElementId) : null,
+    state: filterState.selectedState
 })

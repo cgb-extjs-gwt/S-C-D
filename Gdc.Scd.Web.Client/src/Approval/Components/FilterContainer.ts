@@ -5,9 +5,13 @@ import { ItemSelectedAction, CommonAction, PageItemSelectedAction, PageCommonAct
 import { Dispatch, Action } from "redux";
 import { CostBlockMeta, CostElementMeta } from "../../Common/States/CostMetaStates";
 import { mapCostElements } from "../../Common/Helpers/MetaHelper";
-import { FilterState, ApprovalCostElementsLayoutState, CostElementId } from "../States/ApprovalState";
-import { APPROVAL_FILTER_SELECT_APPLICATION, APPROVAL_FILTER_CHECK_COST_BLOCK, APPROVAL_FILTER_UNCHECK_COST_BLOCK, APPROVAL_FILTER_CHECK_COST_ELEMENT, APPROVAL_FILTER_UNCHECK_COST_ELEMENT, APPROVAL_FILTER_CHECK_MULTI_COST_BLOCKS, APPROVAL_FILTER_CHECK_MULTI_COST_ELEMENTS, APPROVAL_FILTER_SELECT_START_DATE, APPROVAL_FILTER_SELECT_END_DATE } from "../Actions/FilterActions";
+import { FilterState, ApprovalCostElementsLayoutState, CostElementId, ApprovalBundleState } from "../States/ApprovalState";
+import { APPROVAL_FILTER_SELECT_APPLICATION, APPROVAL_FILTER_CHECK_COST_BLOCK, APPROVAL_FILTER_UNCHECK_COST_BLOCK, APPROVAL_FILTER_CHECK_COST_ELEMENT, APPROVAL_FILTER_UNCHECK_COST_ELEMENT, APPROVAL_FILTER_CHECK_MULTI_COST_BLOCKS, APPROVAL_FILTER_CHECK_MULTI_COST_ELEMENTS, APPROVAL_FILTER_SELECT_START_DATE, APPROVAL_FILTER_SELECT_END_DATE, APPROVAL_FILTER_SELECT_STATE } from "../Actions/FilterActions";
 import { CheckedItem, FilterProps, CheckedCostBlock, CheckedCostElement, FilterActions, FilterView } from "./FilterView";
+
+export interface FilterContainerProps extends PageName {
+    isVisibleNotSentState: boolean
+} 
 
 const getVisibleCostBlocks = (costBlocks: CostBlockMeta[], filter: FilterState) => costBlocks.filter(
     costBlockMeta => costBlockMeta.applicationIds.includes(filter.selectedApplicationId)
@@ -21,7 +25,7 @@ const sortByName = <T extends { name: string }>(items: T[]) => items.sort(
     (item1, item2) => item1.name.localeCompare(item2.name)
 )
 
-const buildProps = (state: CommonState, { pageName }: PageName) => {
+const buildProps = (state: CommonState, { pageName, isVisibleNotSentState }: FilterContainerProps) => {
     let props: FilterProps;
 
     if (state.app.appMetaData) {
@@ -60,7 +64,7 @@ const buildProps = (state: CommonState, { pageName }: PageName) => {
             })
         )
 
-        return <FilterProps>{
+        props = <FilterProps>{
             application: {
                 selectedItemId: filter.selectedApplicationId,
                 list: meta.applications
@@ -70,12 +74,18 @@ const buildProps = (state: CommonState, { pageName }: PageName) => {
             startDate: filter.startDate || new Date(),
             endDate: filter.endDate || new Date(),
             isAllCostBlocksChecked: isAllItemsChecked(costBlocks),
-            isAllCostElementsChecked: isAllItemsChecked(costElements)
+            isAllCostElementsChecked: isAllItemsChecked(costElements),
+            isVisibleNotSentState,
+            selectedState: filter.selectedState
         }
 
     } else {
-        props = {};
+        props = {
+            isVisibleNotSentState
+        };
     }
+
+    return props;
 }
 
 const buildActions = (state: CommonState, { pageName }: PageName, dispatch: Dispatch) => (<FilterActions>{
@@ -161,10 +171,15 @@ const buildActions = (state: CommonState, { pageName }: PageName, dispatch: Disp
         type: APPROVAL_FILTER_SELECT_END_DATE,
         data: selectedDate,
         pageName
+    }),
+    onStateSelect: approvalState => dispatch(<PageItemSelectedAction<ApprovalBundleState>>{ 
+        type: APPROVAL_FILTER_SELECT_STATE,
+        selectedItemId: approvalState,
+        pageName
     })
 })
 
-export const FilterContainer = connectAdvanced<CommonState, FilterProps, PageName>(
+export const FilterContainer = connectAdvanced<CommonState, FilterProps, FilterContainerProps>(
     dispatch => (state, ownProps) => ({
         ...buildProps(state, ownProps),
         ...buildActions(state, ownProps, dispatch)
