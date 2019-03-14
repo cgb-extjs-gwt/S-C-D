@@ -11,7 +11,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         public int Number => 39;
 
-        public string Description => "Rename column 'Alias Region' to 'Region'";
+        public string Description => "Logistic Reports. Remove central reports. Rename column 'Alias Region' to 'Region'";
 
         public Migration_2019_03_14_12_09(IRepositorySet repositorySet)
         {
@@ -20,35 +20,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         public void Execute()
         {
-            var reportRepository = this.repositorySet.GetRepository<Report>();
-            var reportColumnRepository = this.repositorySet.GetRepository<ReportColumn>();
-
-            var report = reportRepository.GetAll().Where(rep => rep.Name.ToUpper() == "LOGISTIC-COST-COUNTRY").FirstOrDefault();
-            var column = reportColumnRepository.GetAll().Where(col => col.Report == report && col.Name == "Region").FirstOrDefault();
-            if (column != null)
-            {
-                column.Text = "Report";
-            }
-            reportColumnRepository.Save(column);
-
-            report = reportRepository.GetAll().Where(rep=>rep.Name.ToUpper()== "LOGISTIC-COST-INPUT-COUNTRY").FirstOrDefault();
-            column = reportColumnRepository.GetAll().Where(col => col.Report == report && col.Name=="Region").FirstOrDefault();
-            if (column != null)
-            {
-                column.Text = "Report";
-            }
-            reportColumnRepository.Save(column);
-
-
-            report = reportRepository.GetAll().Where(rep => rep.Name.ToUpper() == "LOGISTIC-COST-CALC-COUNTRY").FirstOrDefault();
-            column = reportColumnRepository.GetAll().Where(col => col.Report == report && col.Name == "Region").FirstOrDefault();
-            if (column != null)
-            {
-                column.Text = "Report";
-            }
-            reportColumnRepository.Save(column);
-
-            this.repositorySet.Sync();
+            repositorySet.ExecuteFromFile("2019-03-14-14-11.sql");
         }
     }
 }

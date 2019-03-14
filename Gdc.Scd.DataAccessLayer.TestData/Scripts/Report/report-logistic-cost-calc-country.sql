@@ -17,11 +17,11 @@ RETURNS TABLE
 AS
 RETURN (
     select rep.Id
-         , rep.Region
+         , c.Region
          , rep.Country
          , rep.Wg
 
-         , rep.ServiceLevel
+         , rep.ServiceLocation as ServiceLevel
          , rep.ReactionTime
          , rep.ReactionType
          , rep.Duration
@@ -29,17 +29,18 @@ RETURN (
          , rep.ProActiveSla
 
          , rep.ServiceTC * er.Value as ServiceTC
-         , rep.Handling * er.Value as Handling
+         , lc.StandardHandling_Approved * er.Value as Handling
          , rep.TaxAndDutiesW * er.Value as TaxAndDutiesW
          , rep.TaxAndDutiesOow * er.Value as TaxAndDutiesOow
 
-         , rep.LogisticW * er.Value as LogisticW
-         , rep.LogisticOow * er.Value as LogisticOow
+         , rep.Logistic * er.Value as LogisticW
+         , null as LogisticOow
 
-         , rep.Fee * er.Value as Fee
+         , rep.AvailabilityFee * er.Value as Fee
 		 , cur.Name as Currency
-    from Report.LogisticCostCalcCentral(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) rep
-	join InputAtoms.Country c on c.Id = @cnt
+    from Report.GetCosts(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) rep
+    join InputAtoms.CountryView c on c.Id = rep.CountryId
+    LEFT JOIN Hardware.LogisticsCostView lc on lc.Country = rep.CountryId AND lc.Wg = rep.WgId AND lc.ReactionTime = rep.ReactionTimeId AND lc.ReactionType = rep.ReactionTypeId
 	join [References].Currency cur on cur.Id = c.CurrencyId
 	join [References].ExchangeRate er on er.CurrencyId = cur.Id
 )
