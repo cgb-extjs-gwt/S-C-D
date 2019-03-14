@@ -40,8 +40,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var queryData = new CostBlockSelectQueryData
             {
                 CostBlock = costBlockMeta,
-                CostElementId = context.CostElementId,
-                JoinReferenceFields = new[] { context.InputLevelId },
+                CostElementInfos = new[] 
+                {
+                    new CostBlockSelectCostElementInfo { CostElementId = context.CostElementId }
+                },
+                GroupedFields = new[] { context.InputLevelId }, 
+                JoinedReferenceFields = new[] { context.InputLevelId },
                 Filter = filter
             };
 

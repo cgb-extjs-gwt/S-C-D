@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
@@ -22,9 +23,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         public OrderBySqlHelper BuildSelectQuery(CostBlockSelectQueryData queryData)
         {
             var joinFields =
-                queryData.JoinReferenceFields == null
+                queryData.JoinedReferenceFields == null
                     ? new ReferenceFieldMeta[0]
-                    : queryData.JoinReferenceFields.Select(queryData.CostBlock.GetField).Cast<ReferenceFieldMeta>().ToArray();
+                    : queryData.JoinedReferenceFields.Select(queryData.CostBlock.GetField).Cast<ReferenceFieldMeta>().ToArray();
 
             var joinedColumns =
                 joinFields.SelectMany(field => new[]
@@ -34,23 +35,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                           })
                           .ToArray();
 
-            var valueField = queryData.CostBlock.CostElementsFields[queryData.CostElementId];
-            var innerValueColumn = new ColumnInfo(valueField.Name);
-            var valueApprovedField = queryData.CostBlock.CostElementsApprovedFields[valueField];
-            var valueApprovedColumn = new ColumnInfo(valueApprovedField.Name);
-            var innerApprovedColumn = BuildApprovedColumn();
-
-            var maxValueColumn =
-                queryData.CostBlock.CostElementsFields[queryData.CostElementId] is SimpleFieldMeta simpleField && 
-                simpleField.Type == TypeCode.Boolean
-                    ? SqlFunctions.Max(
-                        SqlFunctions.Convert(new ColumnSqlBuilder(simpleField.Name), TypeCode.Int32))
-                    : SqlFunctions.Max(queryData.CostElementId);
-
-            var countColumn = SqlFunctions.Count(queryData.CostElementId, true);
-            var approvedColumn = new ColumnInfo(innerApprovedColumn.Alias);
-            var selectColumns = joinedColumns.Concat(new BaseColumnInfo[] { maxValueColumn, countColumn, approvedColumn }).ToArray();
-            var groupByColumns = joinedColumns.Concat(new[] { approvedColumn }).ToArray();
+            var selectColumns = joinedColumns.Concat(queryData.CostElementInfos.SelectMany(BuildSelectColumns)).ToArray();
+            var groupByColumns = queryData.GroupedFields.Select(fieldName => new ColumnInfo(fieldName)).Concat(joinedColumns).ToArray();
 
             var selectQuery = Sql.Select(selectColumns);
             var query = queryData.IntoTable == null ? selectQuery : selectQuery.Into(queryData.IntoTable);
@@ -59,8 +45,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 query.FromQuery(BuildInnerQuery(), queryData.Alias ?? "t")
                      .GroupBy(groupByColumns);
 
-            QueryColumnInfo BuildApprovedColumn()
+            string BuildApprovedColumnAlias(string costElementId) => $"{costElementId}_IsApproved";
+
+            QueryColumnInfo BuildApprovedColumn(FieldMeta valueField)
             {
+                var valueApprovedField = queryData.CostBlock.CostElementsApprovedFields[valueField];
+                var valueColumn = new ColumnInfo(valueField.Name);
+                var valueApprovedColumn = new ColumnInfo(valueApprovedField.Name);
+                var alias = BuildApprovedColumnAlias(valueField.Name);
+
                 return new QueryColumnInfo(
                     new CaseSqlBuilder
                     {
@@ -68,25 +61,53 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         {
                             new CaseItem
                             {
-                                When = SqlOperators.Equals(innerValueColumn, valueApprovedColumn).ToSqlBuilder(),
+                                When = SqlOperators.Equals(valueColumn, valueApprovedColumn).ToSqlBuilder(),
                                 Then = new RawSqlBuilder("1")
                             }
                         },
                         Else = new RawSqlBuilder("0")
                     },
-                    "IsApproved");
+                    alias);
             }
 
             GroupBySqlHelper BuildInnerQuery()
             {
-                var columns = joinedColumns.Concat(new BaseColumnInfo[] { innerValueColumn, innerApprovedColumn }).ToArray();
                 var joinInfos = joinFields.Select(field => new JoinInfo(queryData.CostBlock, field.Name));
+                var columns =
+                    queryData.CostElementInfos.Select(costElementInfo => queryData.CostBlock.CostElementsFields[costElementInfo.CostElementId])
+                             .SelectMany(valueField => new BaseColumnInfo[]
+                             {
+                                 new ColumnInfo(valueField.Name),
+                                 BuildApprovedColumn(valueField)
+                             })
+                             .Concat(joinedColumns)
+                             .ToArray();
 
                 return
                     Sql.Select(columns)
                        .From(queryData.CostBlock)
                        .Join(joinInfos)
                        .WhereNotDeleted(queryData.CostBlock, queryData.Filter, queryData.CostBlock.Name);
+            }
+
+            IEnumerable<BaseColumnInfo> BuildSelectColumns(CostBlockSelectCostElementInfo costElementInfo)
+            {
+                var valueField = queryData.CostBlock.CostElementsFields[costElementInfo.CostElementId];
+
+                var maxValueColumn =
+                    valueField is SimpleFieldMeta simpleField &&
+                    simpleField.Type == TypeCode.Boolean
+                        ? SqlFunctions.Max(
+                            SqlFunctions.Convert(new ColumnSqlBuilder(simpleField.Name), TypeCode.Int32), costElementInfo.ValueColumnAlias)
+                        : SqlFunctions.Max(valueField.Name, costElementInfo.ValueColumnAlias);
+
+                var countColumn = SqlFunctions.Count(valueField.Name, true, costElementInfo.CountColumnAlias);
+                var approvedColumnAlias = BuildApprovedColumnAlias(valueField.Name);
+                var approvedColumn = SqlFunctions.Min(approvedColumnAlias, costElementInfo.IsApprovedColumnAlias);
+
+                yield return maxValueColumn;
+                yield return countColumn;
+                yield return approvedColumn;
             }
         }
     }

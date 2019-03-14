@@ -7,9 +7,11 @@ namespace Gdc.Scd.DataAccessLayer.Entities
     {
         public CostBlockEntityMeta CostBlock { get; set; }
 
-        public string CostElementId { get; set; }
+        public CostBlockSelectCostElementInfo[] CostElementInfos { get; set; }
 
-        public string[] JoinReferenceFields { get; set; }
+        public string[] GroupedFields { get; set; }
+
+        public string[] JoinedReferenceFields { get; set; }
 
         public IDictionary<string, IEnumerable<object>> Filter { get; set; }
 
