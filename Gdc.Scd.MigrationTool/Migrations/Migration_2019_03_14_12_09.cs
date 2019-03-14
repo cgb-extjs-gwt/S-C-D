@@ -9,7 +9,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 39;
+        public int Number => 40;
 
         public string Description => "Logistic Reports. Remove central reports. Rename column 'Alias Region' to 'Region'";
 
