@@ -28,6 +28,7 @@ namespace Gdc.Scd.Import.CentralContractGroup
     {
         public override void Load()
         {
+            Bind<ImportRepository<Wg>>().ToSelf().InSingletonScope();
             Bind<ILogger<LogLevel>>().To<Core.Impl.Logger>().InSingletonScope();
 
             Bind<IDownloader>().To<FileDownloader>().InSingletonScope();

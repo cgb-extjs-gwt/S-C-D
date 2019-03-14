@@ -28,6 +28,7 @@ namespace Gdc.Scd.Import.SfabImport
     {
         public override void Load()
         {
+            Bind<ImportRepository<Wg>>().ToSelf().InSingletonScope();
             Bind(typeof(IRepository<Sog>)).To(typeof(ImportRepository<Sog>)).InSingletonScope();
             Bind(typeof(IRepository<SFab>)).To(typeof(ImportRepository<SFab>)).InSingletonScope();
             
