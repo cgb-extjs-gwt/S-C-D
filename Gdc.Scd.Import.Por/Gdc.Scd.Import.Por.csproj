@@ -53,9 +53,6 @@
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.5.10\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="OperationResult">
-      <HintPath>..\..\WAS\SCD\Gdc.Scd.Spooler\OperationResult\OperationResult.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ComponentModel.Annotations.4.5.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
@@ -116,6 +113,10 @@
     <ProjectReference Include="..\Gdc.Scd.Import.Por.Core\Gdc.Scd.Import.Por.Core.csproj">
       <Project>{2c7950f5-92ea-4a0c-a620-3c473bc21097}</Project>
       <Name>Gdc.Scd.Import.Por.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Spooler\Gdc.Scd.Spooler.csproj">
+      <Project>{c98a5155-a567-46c5-8d44-4f2568f41567}</Project>
+      <Name>Gdc.Scd.Spooler</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

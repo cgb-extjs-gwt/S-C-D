@@ -2804,6 +2804,7 @@ BEGIN
              , cur.Name as Currency
              , costs.ExchangeRate
 
+             , sog.Name as Sog
              , Wg
              , Availability
              , Duration
@@ -2848,6 +2849,8 @@ BEGIN
 
         from Hardware.GetCostsSla(@approved, @sla) costs
         join [References].Currency cur on cur.Id = costs.CurrencyId
+        join InputAtoms.Wg wg on wg.id = costs.WgId
+        left join InputAtoms.Sog sog on sog.id = wg.SogId
         order by Id
         
     end
@@ -2860,6 +2863,7 @@ BEGIN
              , 'EUR' as Currency
              , costs.ExchangeRate
 
+             , sog.Name as Sog
              , Wg
              , Availability
              , Duration
@@ -2903,6 +2907,8 @@ BEGIN
              , ChangeUserEmail               
 
         from Hardware.GetCostsSla(@approved, @sla) costs
+        join InputAtoms.Wg wg on wg.id = costs.WgId
+        left join InputAtoms.Sog sog on sog.id = wg.SogId
         order by Id
     end
 END

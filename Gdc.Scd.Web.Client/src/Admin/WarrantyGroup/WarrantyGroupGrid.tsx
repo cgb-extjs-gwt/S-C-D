@@ -166,6 +166,7 @@ export class WarrantyGroupGrid extends React.Component<any> {
                 displayField="name"
                 placeholder="Select role code"
                 queryMode="local"
+                clearable="true"
                 editable={false}
                 height="100%"
                 width="100%"
