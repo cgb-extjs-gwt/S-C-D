@@ -16,6 +16,9 @@ import { ExportService } from "./Services/ExportService";
 const localMoneyRenderer = localMoneyRendererFactory('Currency');
 const euroMoneyRenderer = localToEuroMoneyRendererFactory('ExchangeRate');
 const SELECTED_FIELD = 'selected';
+Ext.require([
+    'Ext.grid.plugin.Clipboard'
+])
 
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
@@ -95,7 +98,16 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         selectedCountry: null,
         showInLocalCurrency: true,
         hideReleaseButton: true,
-        userCanEdit: false
+        userCanEdit: false,
+        selectable: {
+            rows: true,
+            cells: true,
+            columns: true,
+            drag: true,
+            checkbox: false
+        },
+        extensible: 'both',
+        message: 'No Selection'
     };
 
     public constructor(props: CalcCostProps) {
@@ -107,7 +119,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         let canEditTC: boolean = false;
         let canEditListPrice: boolean = false;
         let moneyRndr: IRenderer;
-
+        const { selectable, extensible, message } = this.state;
         if (this.state.showInLocalCurrency) {
 
             //allow manual edit in LOCAL CURRENCY mode only for well view!!!
@@ -144,8 +156,19 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     store={this.store}
                     width="100%"
                     platformConfig={this.pluginConf()}
+                    plugins={{
+                        selectionreplicator: true,
+                        clipboard: true
+                    }} onSelectionChange={this.onSelectionChange}
+                    selectable={{
+                        extensible,
+                        ...selectable
+                    }}
+                    shadow
+                    
+                    
                 >
-
+                    
                     { /*dependencies*/}
 
                     <Column
@@ -203,8 +226,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Cost block results"
                         dataIndex=""
                         cls="calc-cost-result-blue"
-                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
-
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}
+                        editable
+                    >
+                        
                         <NumberColumn text="Field service cost" dataIndex="FieldServiceCost" />
                         <NumberColumn text="Service support cost" dataIndex="ServiceSupportCost" />
                         <NumberColumn text="Logistic cost" dataIndex="Logistic" />
@@ -225,7 +250,44 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             </Container>
         );
     }
+    toggleSelectable = field => {
+        this.setState({
+            selectable: { ...this.state.selectable, [field]: !this.state.selectable[field] }
+        });
+    }
 
+    setExtensible = extensible => {
+        this.setState({ extensible })
+    }
+    private onSelectionChange = (grid, records, selecting, selection) => {
+        let message = '??',
+            firstRowIndex,
+            firstColumnIndex,
+            lastRowIndex,
+            lastColumnIndex;
+
+        if (!selection) {
+            message = 'No selection';
+        }
+
+        else if (selection.isCells) {
+            firstRowIndex = selection.getFirstRowIndex();
+            firstColumnIndex = selection.getFirstColumnIndex();
+            lastRowIndex = selection.getLastRowIndex();
+            lastColumnIndex = selection.getLastColumnIndex();
+
+            message = 'Selected cells: ' + (lastColumnIndex - firstColumnIndex + 1) + 'x' + (lastRowIndex - firstRowIndex + 1) +
+                ' at (' + firstColumnIndex + ',' + firstRowIndex + ')';
+        }
+        else if (selection.isRows) {
+            message = 'Selected rows: ' + selection.getCount();
+        }
+        else if (selection.isColumns) {
+            message = 'Selected columns: ' + selection.getCount();
+        }
+
+        this.setState({ message });
+    }
     private init() {
         this.onSearch = this.onSearch.bind(this);
         this.onFilterChange = this.onFilterChange.bind(this);
