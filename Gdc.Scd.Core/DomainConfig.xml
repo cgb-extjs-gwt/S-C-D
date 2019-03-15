@@ -689,7 +689,6 @@
           </InputLevels>
           <TableView>
             <Roles>
-              <Role>GTS user</Role>
               <Role>PRS PSM</Role>  
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
