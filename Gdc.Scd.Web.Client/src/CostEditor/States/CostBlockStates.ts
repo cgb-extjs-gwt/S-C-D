@@ -5,6 +5,7 @@ import { BundleDetailGroup } from "../../QualityGate/States/QualityGateResult";
 export interface EditItem extends NamedId<number> {
     value: number
     valueCount: number
+    isApproved: boolean
 }
 
 export interface CheckItem extends NamedId<number> {
