@@ -6,6 +6,7 @@ export interface TableViewRecord {
         [key: string]: { 
             value, 
             count: number,
+            isApproved: boolean
         } 
     }
     additionalData: {

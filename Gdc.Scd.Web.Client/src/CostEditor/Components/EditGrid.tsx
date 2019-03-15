@@ -75,7 +75,8 @@ export class EditGrid extends React.Component<EditGridProps> {
                 inputType: valueColumn.inputType,
                 flex: 1,
                 currency: valueColumn.currency,
-                getCountFn: ({ data }) => data.valueCount
+                getCountFn: ({ data }) => data.valueCount,
+                getIsApprovedFn: ({ data }) => data.isApproved
             })
         ] as ColumnInfo[]
     }
