@@ -121,9 +121,27 @@ CREATE NONCLUSTERED INDEX ix_Atom_MarkupOtherCosts
     INCLUDE (MarkupFactor, MarkupFactor_Approved, Markup, Markup_Approved)
 GO
 
-CREATE NONCLUSTERED INDEX ix_Atom_MarkupStandardWaranty
-    ON [Hardware].[MarkupStandardWaranty] ([Country],[Wg])
-    INCLUDE ([MarkupFactorStandardWarranty],[MarkupStandardWarranty])
+CREATE NONCLUSTERED INDEX [ix_MarkupStandardWaranty_Country_Wg] ON [Hardware].[MarkupStandardWaranty]
+(
+	[Country] ASC,
+	[Wg] ASC
+)
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [IX_MaterialCostWarranty_Wg_ClusterRegion] ON [Hardware].[MaterialCostWarranty]
+(
+	[Wg] ASC, 
+    [ClusterRegion] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [ix_RoleCodeHourlyRates_Country_RoleCode] ON [Hardware].[RoleCodeHourlyRates]
+(
+	[Country] ASC,
+	[RoleCode] ASC
+)
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
 
 CREATE NONCLUSTERED INDEX ix_Hardware_ProActive
@@ -398,6 +416,66 @@ update Hardware.Reinsurance set ReinsuranceFlatfee = ReinsuranceFlatfee + 0;
 
 go
 
+IF OBJECT_ID('Hardware.GetReinsurance') IS NOT NULL
+  DROP FUNCTION Hardware.GetReinsurance;
+GO
+
+CREATE FUNCTION Hardware.GetReinsurance (@approved bit)
+RETURNS @tbl TABLE (   
+           Wg                       bigint
+         , Duration                 bigint
+         , ReactionTimeAvailability bigint
+         , Cost                     float
+         , PRIMARY KEY (Wg, Duration, ReactionTimeAvailability)
+    )
+AS
+BEGIN
+    
+    if @approved = 0
+    begin
+        insert into @tbl(Wg, Duration, ReactionTimeAvailability, Cost)
+        SELECT  r.Wg, 
+                r.Duration,
+                r.ReactionTimeAvailability,
+                r.ReinsuranceFlatfee_norm / er.Value                    
+        FROM Hardware.Reinsurance r
+        JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance
+    end
+    else
+    begin
+        insert into @tbl(Wg, Duration, ReactionTimeAvailability, Cost)
+        SELECT  r.Wg, 
+                r.Duration,
+                r.ReactionTimeAvailability,
+                r.ReinsuranceFlatfee_norm_Approved / er.Value 
+        FROM Hardware.Reinsurance r
+        JOIN [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance_Approved
+    end
+
+    RETURN;
+END;
+go
+
+CREATE NONCLUSTERED INDEX [ix_Hardware_Reinsurance_Currency] ON [Hardware].[Reinsurance]
+(
+	[CurrencyReinsurance] ASC
+)
+INCLUDE ( 	[Wg],
+	[Duration],
+	[ReactionTimeAvailability],
+	[ReinsuranceFlatfee_norm]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
+CREATE NONCLUSTERED INDEX [ix_Hardware_Reinsurance_Currency_Appr] ON [Hardware].[Reinsurance]
+(
+	[CurrencyReinsurance_Approved] ASC
+)
+INCLUDE ( 	[Wg],
+	[Duration],
+	[ReactionTimeAvailability],
+	[ReinsuranceFlatfee_norm_Approved]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+
 IF OBJECT_ID('Hardware.AFR_Updated', 'TR') IS NOT NULL
   DROP TRIGGER Hardware.AFR_Updated;
 go
@@ -437,18 +515,29 @@ IF OBJECT_ID('Fsp.HwStandardWarranty', 'U') IS NOT NULL
 go
 
 CREATE TABLE Fsp.HwStandardWarranty(
-    [Country] [bigint] NOT NULL foreign key references InputAtoms.Country(Id),
-    [Wg] [bigint] NOT NULL foreign key references InputAtoms.Wg(Id),
-    [AvailabilityId] [bigint] NOT NULL foreign key references Dependencies.Availability(Id),
-    [Duration] [bigint] NOT NULL foreign key references Dependencies.Duration(Id),
-    [ReactionTimeId] [bigint] NOT NULL foreign key references Dependencies.ReactionTime(id),
-    [ReactionTypeId] [bigint] NOT NULL foreign key references Dependencies.ReactionType(id),
-    [ServiceLocationId] [bigint] NOT NULL foreign key references Dependencies.ServiceLocation(id),
-    [ProActiveSlaId] [bigint] NOT NULL foreign key references Dependencies.ProActiveSla(id),
-    [ReactionTime_Avalability] bigint,
-    [ReactionTime_ReactionType] bigint,
-    [ReactionTime_ReactionType_Avalability] bigint,
-    CONSTRAINT PK_HwStandardWarranty PRIMARY KEY NONCLUSTERED (Country, Wg)
+    Country bigint NOT NULL foreign key references InputAtoms.Country(Id)
+  , Wg bigint NOT NULL foreign key references InputAtoms.Wg(Id)
+  
+  , AvailabilityId bigint NOT NULL foreign key references Dependencies.Availability(Id)
+
+  , DurationId bigint NOT NULL foreign key references Dependencies.Duration(Id)
+  , Duration nvarchar(50)
+  , IsProlongation bit
+  , DurationValue int
+
+  , ReactionTimeId bigint NOT NULL foreign key references Dependencies.ReactionTime(id)
+  , ReactionTypeId bigint NOT NULL foreign key references Dependencies.ReactionType(id)
+
+  , ServiceLocationId bigint NOT NULL foreign key references Dependencies.ServiceLocation(id)
+  , ServiceLocation nvarchar(50)
+
+  , ProActiveSlaId bigint NOT NULL foreign key references Dependencies.ProActiveSla(id)
+
+  , ReactionTime_Avalability bigint
+  , ReactionTime_ReactionType bigint
+  , ReactionTime_ReactionType_Avalability bigint
+
+  , CONSTRAINT PK_HwStandardWarranty PRIMARY KEY NONCLUSTERED (Country, Wg)
 )
 GO
 
@@ -475,24 +564,24 @@ AS BEGIN
     WITH StdCte AS (
 
     --remove duplicates in FSP
-      SELECT fsp.CountryId
-           , fsp.WgId
-           , fsp.AvailabilityId   
-           , fsp.DurationId       
-           , fsp.ReactionTimeId   
-           , fsp.ReactionTypeId   
-           , fsp.ServiceLocationId
-           , fsp.ProactiveSlaId   
-           , row_number() OVER(PARTITION BY fsp.CountryId, fsp.WgId
-                 ORDER BY 
-                     fsp.CountryId
-                   , fsp.WgId
-                   , fsp.AvailabilityId    
-                   , fsp.DurationId        
-                   , fsp.ReactionTimeId    
-                   , fsp.ReactionTypeId    
-                   , fsp.ServiceLocationId 
-                   , fsp.ProactiveSlaId    ) AS rownum
+        SELECT fsp.CountryId
+            , fsp.WgId
+            , fsp.AvailabilityId   
+            , fsp.DurationId       
+            , fsp.ReactionTimeId   
+            , fsp.ReactionTypeId   
+            , fsp.ServiceLocationId
+            , fsp.ProactiveSlaId   
+            , row_number() OVER(PARTITION BY fsp.CountryId, fsp.WgId
+                    ORDER BY 
+                        fsp.CountryId
+                    , fsp.WgId
+                    , fsp.AvailabilityId    
+                    , fsp.DurationId        
+                    , fsp.ReactionTimeId    
+                    , fsp.ReactionTypeId    
+                    , fsp.ServiceLocationId 
+                    , fsp.ProactiveSlaId    ) AS rownum
 
         from Fsp.HwFspCodeTranslation fsp
         where fsp.IsStandardWarranty = 1 
@@ -547,32 +636,53 @@ AS BEGIN
         full join Fsp fsp on fsp.CountryId = fsp2.CountryId and fsp.WgId = fsp2.WgId
     )
     insert into Fsp.HwStandardWarranty(
-                           Country
-                         , Wg
-                         , AvailabilityId
-                         , Duration
-                         , ReactionTimeId
-                         , ReactionTypeId
-                         , ServiceLocationId
-                         , ProactiveSlaId
-                         , ReactionTime_Avalability              
-                         , ReactionTime_ReactionType             
-                         , ReactionTime_ReactionType_Avalability)
+                          Country
+                        , Wg
+                        , AvailabilityId
+
+                        , DurationId 
+                        , Duration
+                        , IsProlongation
+                        , DurationValue 
+
+                        , ReactionTimeId
+                        , ReactionTypeId
+
+                        , ServiceLocationId
+                        , ServiceLocation
+
+                        , ProactiveSlaId
+                        , ReactionTime_Avalability              
+                        , ReactionTime_ReactionType             
+                        , ReactionTime_ReactionType_Avalability)
+
         select    fsp.CountryId
                 , fsp.WgId
                 , fsp.AvailabilityId
+
                 , fsp.DurationId
+                , dur.Name
+                , dur.IsProlongation
+                , dur.Value as DurationValue
+
                 , fsp.ReactionTimeId
                 , fsp.ReactionTypeId
+
                 , fsp.ServiceLocationId
+                , loc.Name as ServiceLocation
+        
                 , fsp.ProactiveSlaId
                 , rta.Id
                 , rtt.Id
                 , rtta.Id
         from StdFsp fsp
-        join Dependencies.ReactionTime_Avalability rta on rta.AvailabilityId = fsp.AvailabilityId and rta.ReactionTimeId = fsp.ReactionTimeId
-        join Dependencies.ReactionTime_ReactionType rtt on rtt.ReactionTimeId = fsp.ReactionTimeId and rtt.ReactionTypeId = fsp.ReactionTypeId
-        join Dependencies.ReactionTime_ReactionType_Avalability rtta on rtta.AvailabilityId = fsp.AvailabilityId and rtta.ReactionTimeId = fsp.ReactionTimeId and rtta.ReactionTypeId = fsp.ReactionTypeId
+        INNER JOIN Dependencies.ReactionTime_Avalability rta on rta.AvailabilityId = fsp.AvailabilityId and rta.ReactionTimeId = fsp.ReactionTimeId
+        INNER JOIN Dependencies.ReactionTime_ReactionType rtt on rtt.ReactionTimeId = fsp.ReactionTimeId and rtt.ReactionTypeId = fsp.ReactionTypeId
+        INNER JOIN Dependencies.ReactionTime_ReactionType_Avalability rtta on rtta.AvailabilityId = fsp.AvailabilityId and rtta.ReactionTimeId = fsp.ReactionTimeId and rtta.ReactionTypeId = fsp.ReactionTypeId
+
+        INNER JOIN Dependencies.Duration dur on dur.Id = fsp.DurationId
+        INNER JOIN Dependencies.ServiceLocation loc on loc.id = fsp.ServiceLocationId;
+
 
     -- Enable all table constraints
     ALTER TABLE Fsp.HwStandardWarranty CHECK CONSTRAINT ALL;
@@ -1380,6 +1490,16 @@ go
 ALTER TABLE Hardware.FieldServiceTimeCalc CHECK CONSTRAINT ALL
 go
 
+CREATE NONCLUSTERED INDEX ix_FieldServiceCalc_Country
+ON [Hardware].[FieldServiceCalc] ([Country])
+INCLUDE ([Wg],[ServiceLocation],[RepairTime],[RepairTime_Approved],[TravelTime],[TravelTime_Approved],[TravelCost],[TravelCost_Approved],[LabourCost],[LabourCost_Approved])
+GO
+
+CREATE NONCLUSTERED INDEX ix_FieldServiceTimeCalc_Country
+ON [Hardware].[FieldServiceTimeCalc] ([Country])
+INCLUDE ([Wg],[ReactionTimeType],[PerformanceRate],[PerformanceRate_Approved],[TimeAndMaterialShare_norm],[TimeAndMaterialShare_norm_Approved])
+GO
+
 IF OBJECT_ID('[Hardware].[FieldServiceCost_Updated]', 'TR') IS NOT NULL
   DROP TRIGGER [Hardware].[FieldServiceCost_Updated];
 go
@@ -1447,11 +1567,10 @@ CREATE VIEW [InputAtoms].[WgView] WITH SCHEMABINDING as
                 else 0
             end as IsMultiVendor, 
            pla.Id as Pla, 
-           cpla.Id as ClusterPla,
+           pla.ClusterPlaId as ClusterPla,
            wg.RoleCodeId
     from InputAtoms.Wg wg
     inner join InputAtoms.Pla pla on pla.id = wg.PlaId
-    inner join InputAtoms.ClusterPla cpla on cpla.id = pla.ClusterPlaId
     where wg.WgType = 1 and wg.DeactivatedDateTime is null
 GO
 
@@ -1738,7 +1857,7 @@ RETURN
                                                                                                                       
             , case when @approved = 0 then tax.TaxAndDuties_norm              else tax.TaxAndDuties_norm_Approved          end as TaxAndDuties
                                                                                                                       
-            , case when @approved = 0 then r.Cost                             else r.Cost_Approved                         end as Reinsurance
+            , r.Cost as Reinsurance
 
             --##### FIELD SERVICE COST STANDARD WARRANTY #########                                                                                               
             , case when @approved = 0 then fscStd.LabourCost                  else fscStd.LabourCost_Approved              end / er.Value as StdLabourCost             
@@ -1835,7 +1954,9 @@ RETURN
 
     INNER JOIN InputAtoms.Country c on c.id = m.CountryId
 
-    INNER JOIN InputAtoms.WgView wg on wg.id = m.WgId
+    INNER JOIN InputAtoms.Wg wg on wg.id = m.WgId
+
+    INNER JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
 
     INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 
@@ -1851,35 +1972,34 @@ RETURN
 
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 
-    LEFT JOIN Hardware.RoleCodeHourlyRates hr on hr.RoleCode = wg.RoleCodeId and hr.Country = m.CountryId
+    LEFT JOIN Hardware.RoleCodeHourlyRates hr on hr.Country = m.CountryId and hr.RoleCode = wg.RoleCodeId 
 
-    LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId
+    LEFT JOIN Fsp.HwStandardWarranty stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId
 
     LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
-    LEFT JOIN Hardware.ServiceSupportCost ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg.ClusterPla
+    LEFT JOIN Hardware.ServiceSupportCost ssc on ssc.Country = m.CountryId and ssc.ClusterPla = pla.ClusterPlaId
 
     LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
 
     LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
-    LEFT JOIN Hardware.MaterialCostOowCalc mco on mco.Wg = m.WgId AND mco.Country = m.CountryId
+    LEFT JOIN Hardware.MaterialCostOowCalc mco on mco.Country = m.CountryId AND mco.Wg = m.WgId
 
-    LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Duration = m.DurationId AND r.ReactionTimeAvailability = m.ReactionTime_Avalability
+    LEFT JOIN Hardware.GetReinsurance(@approved) r on r.Wg = m.WgId AND r.Duration = m.DurationId AND r.ReactionTimeAvailability = m.ReactionTime_Avalability
 
-    LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId
-    LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Wg = m.WgId AND fst.Country = m.CountryId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
+    LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Country = m.CountryId AND fsc.Wg = m.WgId AND fsc.ServiceLocation = m.ServiceLocationId
+    LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Country = m.CountryId AND fst.Wg = m.WgId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
 
     LEFT JOIN Hardware.FieldServiceCalc fscStd ON fscStd.Country = stdw.Country AND fscStd.Wg = stdw.Wg AND fscStd.ServiceLocation = stdw.ServiceLocationId
     LEFT JOIN Hardware.FieldServiceTimeCalc fstStd ON fstStd.Country = stdw.Country AND fstStd.Wg = stdw.Wg AND fstStd.ReactionTimeType = stdw.ReactionTime_ReactionType
 
-    LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTimeType = m.ReactionTime_ReactionType
-
     LEFT JOIN Hardware.LogisticsCosts lcStd on lcStd.Country = stdw.Country AND lcStd.Wg = stdw.Wg AND lcStd.ReactionTimeType = stdw.ReactionTime_ReactionType
+    LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTimeType = m.ReactionTime_ReactionType
 
     LEFT JOIN Hardware.MarkupOtherCosts moc on moc.Wg = m.WgId AND moc.Country = m.CountryId AND moc.ReactionTimeTypeAvailability = m.ReactionTime_ReactionType_Avalability
 
-    LEFT JOIN Hardware.MarkupStandardWaranty msw on msw.Wg = m.WgId AND msw.Country = m.CountryId
+    LEFT JOIN Hardware.MarkupStandardWaranty msw on msw.Country = m.CountryId AND msw.Wg = m.WgId 
 
     LEFT JOIN Hardware.AvailabilityFeeCalc af on af.Country = m.CountryId AND af.Wg = m.WgId
 
@@ -1890,8 +2010,9 @@ RETURN
     LEFT JOIN Hardware.ManualCost man on man.PortfolioId = m.Id
 
     LEFT JOIN dbo.[User] u on u.Id = man.ChangeUserId
+
 )
-GO
+go
 
 IF OBJECT_ID('[Hardware].[GetCosts]') IS NOT NULL
     DROP FUNCTION [Hardware].[GetCosts]
@@ -2206,6 +2327,7 @@ RETURN
             , m.SlaHash
 
             , stdw.DurationValue   as StdWarranty
+            , stdw.ServiceLocation as StdWarrantyLocation
 
             --Cost values
 
@@ -2221,7 +2343,7 @@ RETURN
                                                                                                                       
             , case when @approved = 0 then tax.TaxAndDuties_norm              else tax.TaxAndDuties_norm_Approved          end as TaxAndDuties
                                                                                                                       
-            , case when @approved = 0 then r.Cost                             else r.Cost_Approved                         end as Reinsurance
+            , r.Cost as Reinsurance
 
             --##### FIELD SERVICE COST STANDARD WARRANTY #########                                                                                               
             , case when @approved = 0 then fscStd.LabourCost                  else fscStd.LabourCost_Approved              end / er.Value as StdLabourCost             
@@ -2318,7 +2440,9 @@ RETURN
 
     INNER JOIN InputAtoms.Country c on c.id = m.CountryId
 
-    INNER JOIN InputAtoms.WgView wg on wg.id = m.WgId
+    INNER JOIN InputAtoms.Wg wg on wg.id = m.WgId
+
+    INNER JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
 
     INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 
@@ -2334,35 +2458,34 @@ RETURN
 
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 
-    LEFT JOIN Hardware.RoleCodeHourlyRates hr on hr.RoleCode = wg.RoleCodeId and hr.Country = m.CountryId
+    LEFT JOIN Hardware.RoleCodeHourlyRates hr on hr.Country = m.CountryId and hr.RoleCode = wg.RoleCodeId 
 
-    LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId
+    LEFT JOIN Fsp.HwStandardWarranty stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId
 
     LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
-    LEFT JOIN Hardware.ServiceSupportCost ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg.ClusterPla
+    LEFT JOIN Hardware.ServiceSupportCost ssc on ssc.Country = m.CountryId and ssc.ClusterPla = pla.ClusterPlaId
 
     LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
 
     LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
-    LEFT JOIN Hardware.MaterialCostOowCalc mco on mco.Wg = m.WgId AND mco.Country = m.CountryId
+    LEFT JOIN Hardware.MaterialCostOowCalc mco on mco.Country = m.CountryId AND mco.Wg = m.WgId
 
-    LEFT JOIN Hardware.ReinsuranceView r on r.Wg = m.WgId AND r.Duration = m.DurationId AND r.ReactionTimeAvailability = m.ReactionTime_Avalability
+    LEFT JOIN Hardware.GetReinsurance(@approved) r on r.Wg = m.WgId AND r.Duration = m.DurationId AND r.ReactionTimeAvailability = m.ReactionTime_Avalability
 
-    LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId
-    LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Wg = m.WgId AND fst.Country = m.CountryId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
+    LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Country = m.CountryId AND fsc.Wg = m.WgId AND fsc.ServiceLocation = m.ServiceLocationId
+    LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Country = m.CountryId AND fst.Wg = m.WgId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
 
     LEFT JOIN Hardware.FieldServiceCalc fscStd ON fscStd.Country = stdw.Country AND fscStd.Wg = stdw.Wg AND fscStd.ServiceLocation = stdw.ServiceLocationId
     LEFT JOIN Hardware.FieldServiceTimeCalc fstStd ON fstStd.Country = stdw.Country AND fstStd.Wg = stdw.Wg AND fstStd.ReactionTimeType = stdw.ReactionTime_ReactionType
 
-    LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTimeType = m.ReactionTime_ReactionType
-
     LEFT JOIN Hardware.LogisticsCosts lcStd on lcStd.Country = stdw.Country AND lcStd.Wg = stdw.Wg AND lcStd.ReactionTimeType = stdw.ReactionTime_ReactionType
+    LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTimeType = m.ReactionTime_ReactionType
 
     LEFT JOIN Hardware.MarkupOtherCosts moc on moc.Wg = m.WgId AND moc.Country = m.CountryId AND moc.ReactionTimeTypeAvailability = m.ReactionTime_ReactionType_Avalability
 
-    LEFT JOIN Hardware.MarkupStandardWaranty msw on msw.Wg = m.WgId AND msw.Country = m.CountryId
+    LEFT JOIN Hardware.MarkupStandardWaranty msw on msw.Country = m.CountryId AND msw.Wg = m.WgId 
 
     LEFT JOIN Hardware.AvailabilityFeeCalc af on af.Country = m.CountryId AND af.Wg = m.WgId
 

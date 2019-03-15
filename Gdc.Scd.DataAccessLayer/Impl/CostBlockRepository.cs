@@ -353,18 +353,5 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             public JoinInfo InnerJoinInfo { get; set; }
         }
-
-        //private class IndexInfo
-        //{
-        //    public int Index { get; set; }
-
-        //    public int MaxIndex { get; set; }
-
-        //    public IndexInfo(int index, int maxIndex)
-        //    {
-        //        this.Index = index;
-        //        this.MaxIndex = maxIndex;
-        //    }
-        //}
     }
 }

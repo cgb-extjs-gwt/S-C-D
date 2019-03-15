@@ -25,17 +25,21 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly ICostBlockFilterBuilder costBlockFilterBuilder;
 
+        private readonly ICostBlockQueryBuilder costBlockQueryBuilder;
+
         private readonly DomainEnitiesMeta metas;
 
         public TableViewRepository(
             IRepositorySet repositorySet, 
             ISqlRepository sqlRepository, 
             ICostBlockFilterBuilder costBlockFilterBuilder,
+            ICostBlockQueryBuilder costBlockQueryBuilder,
             DomainEnitiesMeta metas)
         {
             this.repositorySet = repositorySet;
             this.sqlRepository = sqlRepository;
             this.costBlockFilterBuilder = costBlockFilterBuilder;
+            this.costBlockQueryBuilder = costBlockQueryBuilder;
             this.metas = metas;
         }
 
@@ -74,10 +78,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     {
                         record.Data.Add(
                             costElementInfo.DataIndex,
-                            new ValueCount
+                            new TableViewCellData
                             {
                                 Value = reader[costElementInfo.ValueColumn],
                                 Count = (int)reader[costElementInfo.CountColumn],
+                                IsApproved = (int)reader[costElementInfo.IsApprovedColumn] == 1
                             });
                     }
                 }
@@ -263,7 +268,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private SqlHelper BuildGetRecordsQuery(QueryInfo queryInfo)
         {
-            var costBlockQueryInfos = queryInfo.DataInfos.Select(costBlockInfo => 
+            var costBlockQueries = queryInfo.DataInfos.Select(costBlockInfo => 
             {
                 IDictionary<string, IEnumerable<object>> filter = null;
 
@@ -275,34 +280,34 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     };
                 }
 
+                var costElementInfos = costBlockInfo.CostElementInfos.Select(costElementInfo => new CostBlockSelectCostElementInfo
+                {
+                    CostElementId = costElementInfo.CostElementId,
+                    ValueColumnAlias = costElementInfo.ValueColumn,
+                    CountColumnAlias = costElementInfo.CountColumn,
+                    IsApprovedColumnAlias = costElementInfo.IsApprovedColumn
+                });
+
+                var tempTable = $"#{costBlockInfo.Alias}";
+
                 return new
                 {
-                    SelectColumns = costBlockInfo.CostElementInfos.SelectMany(costElementInfo => new[]
-                    {
-                        SqlFunctions.Max(costElementInfo.CostElementId, costBlockInfo.Alias, costElementInfo.ValueColumn) as BaseColumnInfo,
-                        SqlFunctions.Count(costElementInfo.CostElementId, true, costBlockInfo.Alias, costElementInfo.CountColumn) as BaseColumnInfo
-                    }),
+                    TempTable = tempTable,
                     From = new
                     {
                         Meta = costBlockInfo.Meta,
                         Alias = costBlockInfo.Alias
                     },
-                    Filter = filter,
-                    GroupByColumns = queryInfo.CoordinateInfos.Select(info => new ColumnInfo(info.CoordinateMeta.Name, costBlockInfo.Alias)).ToArray(),
-                    TempTable = $"#{costBlockInfo.Alias}"
+                    Query = this.costBlockQueryBuilder.BuildSelectQuery(new CostBlockSelectQueryData
+                    {
+                        CostBlock = costBlockInfo.Meta,
+                        CostElementInfos = costElementInfos.ToArray(),
+                        Alias = costBlockInfo.Alias,
+                        GroupedFields = queryInfo.CoordinateInfos.Select(info =>info.CoordinateMeta.Name).ToArray(),
+                        Filter = filter,
+                        IntoTable = tempTable
+                    })
                 };
-            });
-
-            var costBlockQueries = costBlockQueryInfos.Select(info => new
-            {
-                info.From,
-                info.TempTable,
-                Query = Sql.Select(info.SelectColumns.Concat(info.GroupByColumns).ToArray())
-                           .Into(info.TempTable)
-                           .From(info.From.Meta, info.From.Alias)
-                           .WhereNotDeleted(info.From.Meta, info.Filter, info.From.Alias)
-                           .GroupBy(info.GroupByColumns)
-                           .ToSqlBuilder()
             }).ToArray();
 
             var coordinateIdColumns = new List<ColumnInfo>();
@@ -340,7 +345,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var dataColumns = queryInfo.DataInfos.SelectMany(costBlockInfo => costBlockInfo.CostElementInfos.SelectMany(costElementInfo => new[] 
             {
                 new ColumnInfo(costElementInfo.ValueColumn, costBlockInfo.Alias),
-                new ColumnInfo(costElementInfo.CountColumn, costBlockInfo.Alias)
+                new ColumnInfo(costElementInfo.CountColumn, costBlockInfo.Alias),
+                new ColumnInfo(costElementInfo.IsApprovedColumn, costBlockInfo.Alias),
             }));
 
             var columns = coordinateIdColumns.Concat(coordinateNameColumns).Concat(dataColumns).Concat(additionalColumns).ToArray();
@@ -372,7 +378,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             foreach(var info in costBlockQueries)
             {
-                createTaleQueries.Add(info.Query);
+                createTaleQueries.Add(info.Query.ToSqlBuilder());
                 dropTableQueries.Add(Sql.DropTable(info.TempTable).ToSqlBuilder());
             }
 
@@ -489,7 +495,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     CostElementId = costElementId,
                     DataIndex = dataIndex,
                     ValueColumn = $"{meta.Name}_{name}_value",
-                    CountColumn = $"{meta.Name}_{name}_count"
+                    CountColumn = $"{meta.Name}_{name}_count",
+                    IsApprovedColumn = $"{meta.Name}_{name}_isApproved"
                 };
             }
         }
@@ -567,6 +574,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             public string ValueColumn { get; set; }
 
             public string CountColumn { get; set; }
+
+            public string IsApprovedColumn { get; set; }
         }
 
         private class CostBlockQueryInfo

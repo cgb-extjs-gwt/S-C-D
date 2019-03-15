@@ -186,9 +186,22 @@ CREATE TYPE [Portfolio].[Sla] AS TABLE(
 )
 GO
 
-CREATE NONCLUSTERED INDEX [IX_LocalPortfolio_Country_Wg]
-ON [Portfolio].[LocalPortfolio] ([CountryId],[WgId])
-INCLUDE ([AvailabilityId],[DurationId],[ProActiveSlaId],[ReactionTimeId],[ReactionTypeId],[ServiceLocationId])
+CREATE NONCLUSTERED INDEX [IX_LocalPortfolio_Country_Wg] ON [Portfolio].[LocalPortfolio]
+(
+    [CountryId] ASC,
+    [WgId] ASC
+)
+INCLUDE (
+    [AvailabilityId],
+    [DurationId],
+    [ProActiveSlaId],
+    [ReactionTimeId],
+    [ReactionTypeId],
+    [ServiceLocationId],
+    [ReactionTime_ReactionType],
+    [ReactionTime_Avalability],
+    [ReactionTime_ReactionType_Avalability]
+) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
 
 CREATE FUNCTION Portfolio.IsListEmpty(@list dbo.ListID readonly)
@@ -1152,7 +1165,7 @@ go
 
 CREATE FUNCTION [Portfolio].[GetBySlaSog](
     @cnt          bigint,
-    @sog          bigint,
+    @wg           dbo.ListID readonly,
     @av           bigint,
     @dur          bigint,
     @reactiontime bigint,
@@ -1164,11 +1177,19 @@ RETURNS TABLE
 AS
 RETURN 
 (
+    with cte as (
+        select id
+        from InputAtoms.Wg 
+        where SogId in (
+                select wg.SogId from InputAtoms.Wg wg  where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = wg.Id))
+            )
+            and IsSoftware = 0
+    )
     select m.*
     from Portfolio.LocalPortfolio m
+    join cte wg on wg.Id = m.WgId
     where   m.CountryId = @cnt
 
-        AND (@sog          is null or exists(select 1 from InputAtoms.Wg where SogId = @sog and id = m.WgId))
         AND (@av           is null or @av           = m.AvailabilityId    )
         AND (@dur          is null or @dur          = m.DurationId        )
         AND (@reactiontime is null or @reactiontime = m.ReactionTimeId    )

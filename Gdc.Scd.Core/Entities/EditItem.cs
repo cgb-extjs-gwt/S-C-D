@@ -5,5 +5,7 @@
         public object Value { get; set; }
 
         public int ValueCount { get; set; }
+
+        public bool IsApproved { get; set; }
     }
 }

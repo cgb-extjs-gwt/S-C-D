@@ -23,7 +23,7 @@ RETURN (
                 , fsp.Name Fsp
                 , fsp.ServiceDescription as FspDescription
         
-                , wg.SogDescription as SogDescription
+                , sog.Description as SogDescription
                 , wg.Description as WgDescription
                 , wg.Name as Wg
         
@@ -69,9 +69,8 @@ RETURN (
 
         INNER JOIN InputAtoms.Country c on c.id = m.CountryId
 
-        INNER JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
-
-        INNER JOIN InputAtoms.WgView wg2 on wg2.id = m.WgId
+        INNER JOIN InputAtoms.Wg wg on wg.id = m.WgId
+        INNER JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
 
         INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 
@@ -83,13 +82,15 @@ RETURN (
 
         INNER JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
+        LEFT JOIN InputAtoms.Sog sog on sog.id = wg.SogId
+
         LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 
         LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId 
 
         LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
-        LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg2.ClusterPla
+        LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = pla.ClusterPlaId
 
         LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
 

@@ -33,5 +33,5 @@ export interface ColumnInfo<T=any> {
     width?: string | number
     mappingFn?(data: T): any
     editMappingFn?(data: Model<T>, dataIndex: string)
-    rendererFn?(value, record: Model<T>): any
+    rendererFn?(value, record: Model<T>, dataIndex: string, cell): any
 }
