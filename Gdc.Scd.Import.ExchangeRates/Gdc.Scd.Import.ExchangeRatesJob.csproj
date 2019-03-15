@@ -5,9 +5,9 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{E51D31BA-94BF-4200-80A3-535A95F95BD8}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>Gdc.Scd.Import.ExchangeRates</RootNamespace>
-    <AssemblyName>Gdc.Scd.Import.ExchangeRates</AssemblyName>
+    <AssemblyName>Gdc.Scd.Import.ExchangeRatesJob</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -32,6 +32,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fujitsu.GDC.ErrorNotification">
       <HintPath>..\SharedLibraries\Fujitsu.GDC.ErrorNotification.dll</HintPath>
@@ -44,6 +47,9 @@
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="OperationResult">
+      <HintPath>..\..\WAS\SCD\Gdc.Scd.Spooler\OperationResult\OperationResult.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Annotations">

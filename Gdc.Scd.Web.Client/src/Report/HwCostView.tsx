@@ -176,9 +176,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         text="Dependencies"
                         dataIndex=""
                         cls="calc-cost-result-green"
-                        defaults={{ align: 'center', minWidth: 50, flex: 1, cls: "x-text-el-wrap" }}>
+                        defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
-                        <CheckColumn dataIndex={SELECTED_FIELD} sortable={false} flex="0.2" hidden={!this.approved()}/>
+                        <CheckColumn dataIndex={SELECTED_FIELD} sortable={false} flex="0.5" minWidth="50" hidden={!this.approved()}/>
                         <Column text="Country" dataIndex="Country" />
                         <Column text="SOG" dataIndex="Sog" />
                         <Column text="WG(Asset)" dataIndex="Wg" />
@@ -188,7 +188,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <Column text="Reaction time" dataIndex="ReactionTime" />
                         <Column text="Service location" dataIndex="ServiceLocation" />
                         <Column text="ProActive SLA" dataIndex="ProActiveSla" />
-                        <Column text="Standard warranty duration" dataIndex="StdWarranty" renderer={yearRenderer} flex="0.5" />
+                        <Column text="Standard warranty duration" dataIndex="StdWarranty" renderer={yearRenderer} flex="0.5" minWidth="50"/>
                         <Column text="Standard Warranty Service Location" dataIndex="StdWarrantyLocation" />
 
                     </Column>

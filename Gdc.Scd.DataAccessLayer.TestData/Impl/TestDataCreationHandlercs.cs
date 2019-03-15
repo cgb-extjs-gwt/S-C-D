@@ -2702,18 +2702,28 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             this.repositorySet.GetRepository<CdCsConfiguration>().Save(new List<CdCsConfiguration>()
             {
-                new CdCsConfiguration()
-                {
-                    CountryId = 41,
-                    FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
-                    FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Russia"
-                },
-                new CdCsConfiguration()
-                {
-                    CountryId = 113,
-                    FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
-                    FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Germany"
-                }
+                //test
+                new CdCsConfiguration()  { CountryId = 41,FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Russia"},
+                new CdCsConfiguration()  { CountryId = 113, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC", FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Germany"}
+                //live
+                ,new CdCsConfiguration() { CountryId =113, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CGER",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CGER/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =80, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =144, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =97, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/UKandI",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/UKandI/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =121, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =142, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =120, FileWebUrl = "https://partners.ts.fujitsu.com/teams/cor/SCD/USA",  FileFolderUrl = "/teams/cor/SCD/USA/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =13, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =41, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CNEE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CNEE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =158, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =112, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CGER",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CGER/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =115, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CGER",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CGER/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =135, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CMEA",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CMEA/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =12, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CNEE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CNEE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =101, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CNOE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CNOE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =82, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =118, FileWebUrl = "https://partners.ts.fujitsu.com/teams/cor/SCD/Latin%20America",  FileFolderUrl = "/teams/cor/SCD/Latin%20America/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =156, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CMEA",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CMEA/CD_CS_CalculationTool"}
             });
             this.repositorySet.Sync();
         }
