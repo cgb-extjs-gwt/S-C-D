@@ -14,11 +14,11 @@ namespace Gdc.Scd.Import.Ebis.Afr
 {
     public class AfrService
     {
-        public static IConfigHandler ConfigHandler { get; private set; }
-        public static IImportManager ImportManager { get; set; }
-        public static ILogger<LogLevel> Logger { get; private set; }
+        public IConfigHandler ConfigHandler { get; private set; }
+        public IImportManager ImportManager { get; set; }
+        public ILogger<LogLevel> Logger { get; private set; }
 
-        static AfrService()
+        public AfrService()
         {
             NinjectExt.IsConsoleApplication = true;
             IKernel kernel = CreateKernel();
@@ -27,7 +27,7 @@ namespace Gdc.Scd.Import.Ebis.Afr
             Logger = kernel.Get<ILogger<LogLevel>>();
         }
 
-        public static void UploadAfrInfo()
+        public void UploadAfrInfo()
         {
             Logger.Log(LogLevel.Info, ImportConstants.START_PROCESS);
             Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_START);
@@ -42,7 +42,7 @@ namespace Gdc.Scd.Import.Ebis.Afr
             Logger.Log(LogLevel.Info, ImportConstants.END_PROCESS);
         }
 
-        private static StandardKernel CreateKernel()
+        private StandardKernel CreateKernel()
         {
             return new StandardKernel(
                 new Scd.Core.Module(),

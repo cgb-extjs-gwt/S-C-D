@@ -12,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.Logistics
 {
-    public static class LogisticsImportService
+    public class LogisticsImportService
     {
-        public static IConfigHandler ConfigHandler { get; private set; }
-        public static IImportManager ImportManager { get; set; }
-        public static ILogger<LogLevel> Logger { get; private set; }
+        public IConfigHandler ConfigHandler { get; private set; }
+        public IImportManager ImportManager { get; set; }
+        public ILogger<LogLevel> Logger { get; private set; }
 
-        static LogisticsImportService()
+        public LogisticsImportService()
         {
             NinjectExt.IsConsoleApplication = true;
             IKernel kernel = CreateKernel();
@@ -27,7 +27,7 @@ namespace Gdc.Scd.Import.Logistics
             Logger = kernel.Get<ILogger<LogLevel>>();
         }
 
-        public static void UploadLogisticInfo()
+        public void UploadLogisticInfo()
         {
             Logger.Log(LogLevel.Info, ImportConstants.START_PROCESS);
             Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_START);
@@ -42,7 +42,7 @@ namespace Gdc.Scd.Import.Logistics
             Logger.Log(LogLevel.Info, ImportConstants.END_PROCESS);
         }
 
-        private static StandardKernel CreateKernel()
+        private StandardKernel CreateKernel()
         {
             return new StandardKernel(
                 new Scd.Core.Module(),

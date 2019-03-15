@@ -14,11 +14,11 @@ namespace Gdc.Scd.Import.Ebis.MCiW
 {
     public class MaterialCostService
     {
-        public static IConfigHandler ConfigHandler { get; private set; }
-        public static IImportManager ImportManager { get; set; }
-        public static ILogger<LogLevel> Logger { get; private set; }
+        public  IConfigHandler ConfigHandler { get; private set; }
+        public  IImportManager ImportManager { get; set; }
+        public  ILogger<LogLevel> Logger { get; private set; }
 
-        static MaterialCostService()
+        public MaterialCostService()
         {
             NinjectExt.IsConsoleApplication = true;
             IKernel kernel = CreateKernel();
@@ -27,7 +27,7 @@ namespace Gdc.Scd.Import.Ebis.MCiW
             Logger = kernel.Get<ILogger<LogLevel>>();
         }
 
-        public static void UploadMaterialCostInfo()
+        public void UploadMaterialCostInfo()
         {
             Logger.Log(LogLevel.Info, ImportConstants.START_PROCESS);
             Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_START);
@@ -42,7 +42,7 @@ namespace Gdc.Scd.Import.Ebis.MCiW
             Logger.Log(LogLevel.Info, ImportConstants.END_PROCESS);
         }
 
-        private static StandardKernel CreateKernel()
+        private StandardKernel CreateKernel()
         {
             return new StandardKernel(
                 new Scd.Core.Module(),
