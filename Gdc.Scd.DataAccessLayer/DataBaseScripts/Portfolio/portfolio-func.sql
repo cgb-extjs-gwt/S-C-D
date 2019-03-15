@@ -918,8 +918,7 @@ RETURN
 (
     select m.*
     from Portfolio.LocalPortfolio m
-    where   m.CountryId = @cnt
-
+    where   (@cnt          is null or @cnt          = m.CountryId         )
         AND (@wg           is null or @wg           = m.WgId              )
         AND (@av           is null or @av           = m.AvailabilityId    )
         AND (@dur          is null or @dur          = m.DurationId        )
@@ -1166,7 +1165,7 @@ go
 
 CREATE FUNCTION [Portfolio].[GetBySlaSog](
     @cnt          bigint,
-    @sog          bigint,
+    @wg           dbo.ListID readonly,
     @av           bigint,
     @dur          bigint,
     @reactiontime bigint,
@@ -1178,11 +1177,19 @@ RETURNS TABLE
 AS
 RETURN 
 (
+    with cte as (
+        select id
+        from InputAtoms.Wg 
+        where SogId in (
+                select wg.SogId from InputAtoms.Wg wg  where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = wg.Id))
+            )
+            and IsSoftware = 0
+    )
     select m.*
     from Portfolio.LocalPortfolio m
+    join cte wg on wg.Id = m.WgId
     where   m.CountryId = @cnt
 
-        AND (@sog          is null or exists(select 1 from InputAtoms.Wg where SogId = @sog and id = m.WgId))
         AND (@av           is null or @av           = m.AvailabilityId    )
         AND (@dur          is null or @dur          = m.DurationId        )
         AND (@reactiontime is null or @reactiontime = m.ReactionTimeId    )

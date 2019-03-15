@@ -12,33 +12,44 @@ CREATE FUNCTION Report.LogisticCostInputCountry
 RETURNS TABLE 
 AS
 RETURN (
-    select Region
-         , Country
-         , Wg
+    select c.Region
+         , c.Name as Country
+         , wg.Name as Wg
 
-         , Currency
+         , c.Currency as Currency
 
-         , ReactionType
+         , (time.Name + ' ' + type.Name) as ReactionType
 
-         , StandardHandling
-         , HighAvailabilityHandling
-         , StandardDelivery
-         , ExpressDelivery
-         , TaxiCourierDelivery
-         , ReturnDeliveryFactory
+         , l.StandardHandling_Approved * er.Value as StandardHandling
+         , l.HighAvailabilityHandling_Approved * er.Value as HighAvailabilityHandling
+         , l.StandardDelivery_Approved * er.Value as StandardDelivery
+         , l.ExpressDelivery_Approved * er.Value as ExpressDelivery
+         , l.TaxiCourierDelivery_Approved * er.Value as TaxiCourierDelivery
+         , l.ReturnDeliveryFactory_Approved * er.Value as ReturnDeliveryFactory
 
-    FROM Report.LogisticCostInputCentral(coalesce(@cnt, -1), @wg, @reactiontime, @reactiontype)
+    FROM Hardware.LogisticsCosts l
+    join InputAtoms.CountryView c on c.Id = l.Country
+    join InputAtoms.WgSogView wg on wg.Id = l.Wg
+    JOIN Dependencies.ReactionTime_ReactionType rtt on rtt.Id = l.ReactionTimeType
+    JOIN Dependencies.ReactionTime time ON time.id = rtt.ReactionTimeId
+    JOIN Dependencies.ReactionType type ON type.Id = rtt.ReactionTypeId
+	join [References].Currency cur on cur.Id = c.CurrencyId
+	join [References].ExchangeRate er on er.CurrencyId = cur.Id
+
+    where (@cnt is null or l.Country = @cnt)
+      and (@wg is null or l.Wg = @wg)
+      and (@reactiontime is null or rtt.ReactionTimeId = @reactiontime)
+      and (@reactiontype is null or rtt.ReactionTypeId = @reactiontype)
 )
 
 GO
-
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'LOGISTIC-COST-INPUT-COUNTRY');
 declare @index int = 0;
 
 delete from Report.ReportColumn where ReportId = @reportId;
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Region', 'Alias Region', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Region', 'Region', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Country', 'Country Name', 1, 1);
 set @index = @index + 1;
