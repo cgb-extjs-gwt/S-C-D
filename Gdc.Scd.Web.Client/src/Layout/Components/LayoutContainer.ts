@@ -184,12 +184,14 @@ const buildMapStateToProps = () => {
         }
 
         let appVersion = app.appVersion;
+        let isAuthorized = app.userRoles && app.userRoles.length > 0;
 
         return <LayoutProps>{
             title,
             menuItems,
             routes,
-            appVersion
+            appVersion,
+            isAuthorized
         }
     }
 }
