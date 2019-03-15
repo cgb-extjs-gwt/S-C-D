@@ -43,14 +43,14 @@ export abstract class DictField<T> extends React.Component<DictFieldProps, any> 
         sorters.remove(this.nameField);
         sorters.add(this.nameField);
 
-        this.getItems().then(x => store.setData(x));     
+        this.getItems().then(x => store.setData(x));
         store.on('datachanged', this.setDefaultValue);
     }
 
     private setDefaultValue = () => {
         if (this.props.value) {
             this.combo.setValue(this.props.value);
-        }    
+        }
     }
 
     public getValue(): string {
@@ -59,7 +59,7 @@ export abstract class DictField<T> extends React.Component<DictFieldProps, any> 
 
     public getSelected(): string {
         let result: string = null;
-        let selected = this.combo.getSelection();    
+        let selected = this.combo.getSelection();
         if (selected) {
             result = selected.data.id;
         }
@@ -84,6 +84,23 @@ export abstract class DictField<T> extends React.Component<DictFieldProps, any> 
         this.combo.reset();
     }
 
+    public filter(key: string, val: string, exactMatch: boolean = false) {
+
+        let cfg: any = {
+            property: key
+        };
+
+        if (val) {
+            cfg.exactMatch = exactMatch;
+            cfg.value = val;
+        }
+        else {
+            cfg.value = '';
+        }
+
+        this.combo.getStore().filter(cfg);
+    }
+
     protected canCache() {
         return this.props.cache === undefined || this.props.cache;
     }
@@ -94,6 +111,6 @@ export abstract class DictField<T> extends React.Component<DictFieldProps, any> 
         this.srv = DictFactory.getDictService();
         this.state = {
             items: []
-        };    
+        };
     }
 }

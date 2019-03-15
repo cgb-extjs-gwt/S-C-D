@@ -61,25 +61,11 @@ export class ReportListView extends React.Component<any, any> {
                     ]
                 },
                 {
-                    "text": "7. New vs. old reports",
+                    "text": "7. Solution Pack reports",
                     "expanded": true,
                     "children": [
                         {
-                            "text": "<a href='#' data-href='/report/CalcOutput-vs-FREEZE'>a) Country_CalcOutput actual vs. FREEZE report (e.g. Germany_CalcOutput actual vs. FREEZE)</a>",
-                            "leaf": true
-                        },
-                        {
-                            "text": "<a href='#' data-href='/report/CalcOutput-new-vs-old'>b) Country_CalcOutput new vs. old report (e.g.Germany_CalcOutput new vs. old)</a>",
-                            "leaf": true
-                        }
-                    ]
-                },
-                {
-                    "text": "8. Solution Pack reports",
-                    "expanded": true,
-                    "children": [
-                        {
-                            "text": "<a href='#' data-href='/report/SolutionPack-ProActive-Costing'>a) Country SolutionPack ProActive Costing report (e.g. Germany_SolutionPack ProActive Costing)</a>",
+                            "text": "<a href='#' data-href='/report/SolutionPack-ProActive-Costing'>a) Country SolutionPack ProActive Costing report</a>",
                             "leaf": true
                         },
                         {
@@ -93,15 +79,15 @@ export class ReportListView extends React.Component<any, any> {
                     ]
                 },
                 {
-                    "text": "<a href='#' data-href='/report/PO-Standard-Warranty-Material'>9. PO Standard Warranty Material Report</a>",
+                    "text": "<a href='#' data-href='/report/PO-Standard-Warranty-Material'>8. PO Standard Warranty Material Report</a>",
                     "leaf": true
                 },
                 {
-                    "text": "<a href='#' data-href='/report/FLAT-Fee-Reports'>10. Availability fee report</a>",
+                    "text": "<a href='#' data-href='/report/FLAT-Fee-Reports'>9. Availability fee report</a>",
                     "leaf": true
                 },
                 {
-                    "text": "11. Software reports",
+                    "text": "10. Software reports",
                     "expanded": true,
                     "children": [
                         {
@@ -111,11 +97,15 @@ export class ReportListView extends React.Component<any, any> {
                         {
                             "text": "<a href='#' data-href='/report/SW-Service-Price-List-detailed'>b) Software services price list detailed</a>",
                             "leaf": true
+                        },
+                        {
+                            "text": "<a href='#' data-href='/report/SW-PARAM-OVERVIEW'>c) Software & Solution calculation parameter overview</a>",
+                            "leaf": true
                         }
                     ]
                 },
                 {
-                    "text": "12. Logistics reports",
+                    "text": "11. Logistics reports",
                     "expanded": true,
                     "children": [
                         {
@@ -124,10 +114,6 @@ export class ReportListView extends React.Component<any, any> {
                             "children": [
                                 {
                                     "text": "<a href='#' data-href='/report/Logistic-cost-country'>1. local per country</a>",
-                                    "leaf": true
-                                },
-                                {
-                                    "text": "<a href='#' data-href='/report/Logistic-cost-central'>2. central with all country values</a>",
                                     "leaf": true
                                 }
                             ]
@@ -139,10 +125,6 @@ export class ReportListView extends React.Component<any, any> {
                                 {
                                     "text": "<a href='#' data-href='/report/Logistic-cost-input-country'>1. local per country</a>",
                                     "leaf": true
-                                },
-                                {
-                                    "text": "<a href='#' data-href='/report/Logistic-cost-input-central'>2. central with all country values</a>",
-                                    "leaf": true
                                 }
                             ]
                         },
@@ -153,25 +135,21 @@ export class ReportListView extends React.Component<any, any> {
                                 {
                                     "text": "<a href='#' data-href='/report/Logistic-cost-calc-country'>1. local per country</a>",
                                     "leaf": true
-                                },
-                                {
-                                    "text": "<a href='#' data-href='/report/Logistic-cost-calc-central'>2. central with all country values</a>",
-                                    "leaf": true
                                 }
                             ]
                         }
                     ]
                 },
                 {
-                    "text": "<a href='#' data-href='/report/Locap-Global-Support'>13. LOCAP Global Support Packs(for all the countries)</a>",
+                    "text": "<a href='#' data-href='/report/Locap-Global-Support'>12. LOCAP Global Support Packs(for all the countries)</a>",
                     "leaf": true
                 },
                 {
-                    "text": "14. Output Warranty t",
+                    "text": "13. Standard Warranty overview",
                     "leaf": true
                 },
                 {
-                    "text": "15. AFR overview",
+                    "text": "14. AFR overview",
                     "leaf": true
                 }
             ]

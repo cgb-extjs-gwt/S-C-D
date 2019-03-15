@@ -98,7 +98,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 }
                 else
                 {
-                    selectColumns.Add(new ColumnInfo(costElementField.Name, costBlockMeta.HistoryMeta.Name, OldValueName));
+                    selectColumns.Add(new ColumnInfo(costBlockMeta.CostElementsApprovedFields[costElementField].Name, costBlockMeta.Name, OldValueName));
                 }
 
                 selectColumns.Add(new ColumnInfo(MetaConstants.IdFieldKey, costBlockMeta.HistoryMeta.Name, "HistoryValueId"));

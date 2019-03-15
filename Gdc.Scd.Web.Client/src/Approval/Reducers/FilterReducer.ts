@@ -10,12 +10,13 @@ import {
     APPROVAL_FILTER_ON_INIT,
     APPROVAL_FILTER_CHECK_MULTI_COST_BLOCKS,
     APPROVAL_FILTER_CHECK_MULTI_COST_ELEMENTS,
+    APPROVAL_FILTER_SELECT_STATE,
 } from '../Actions/FilterActions';
 import { PageInitAction, APP_PAGE_INIT, APP_LOAD_DATA, LoadingAppDataAction } from "../../Layout/Actions/AppActions";
 import { ItemSelectedAction, CommonAction, MultiItemSelectedAction } from "../../Common/Actions/CommonActions";
-import { FilterState, CostElementId } from "../States/ApprovalState";
+import { FilterState, CostElementId, ApprovalBundleState } from "../States/ApprovalState";
 
-const initState = () => {
+const initState = (selectedState: ApprovalBundleState) => {
     const startDateNow = new Date();
     startDateNow.setHours(0,0,0,0);
 
@@ -27,7 +28,8 @@ const initState = () => {
         selectedCostBlockIds: [],
         selectedCostElementIds: [],
         startDate: Ext.Date.add(startDateNow, Ext.Date.MONTH, -2),
-        endDate: endDateNow
+        endDate: endDateNow,
+        selectedState
     }
 
     return filter;
@@ -86,6 +88,7 @@ const selectEndDate: Reducer<FilterState, CommonAction<Date>> = (state, action) 
 }
 
 const init: Reducer<FilterState, LoadingAppDataAction> = (state, { data }) => {
+    if (data.meta.applications.length < 1) return null;
     const applicationId = data.meta.applications[0].id;
     const costBlock = data.meta.costBlocks.find(item => item.applicationIds.includes(applicationId));
 
@@ -115,29 +118,38 @@ const checkMultiCostElements: Reducer<FilterState, CommonAction<CostElementId[]>
     selectedCostElementIds: action.data
 })
 
-export const filterReducer: Reducer<FilterState, Action<string>> = (state = initState(), action) => {
-    switch(action.type){
-        case APPROVAL_FILTER_SELECT_APPLICATION:
-            return selectApplication(state, <ItemSelectedAction>action);
-        case APPROVAL_FILTER_CHECK_COST_BLOCK:
-            return checkCostBlock(state, <ItemSelectedAction>action);
-        case APPROVAL_FILTER_CHECK_COST_ELEMENT:
-            return checkCostElement(state, <CommonAction<CostElementId>>action);
-        case APPROVAL_FILTER_UNCHECK_COST_BLOCK:
-            return unCheckCostBlock(state, <ItemSelectedAction>action);
-        case APPROVAL_FILTER_UNCHECK_COST_ELEMENT:
-            return unCheckCostElement(state, <CommonAction<CostElementId>>action);
-        case APPROVAL_FILTER_SELECT_START_DATE:
-            return selectStartDate(state, <CommonAction<Date>>action);
-        case APPROVAL_FILTER_SELECT_END_DATE:
-            return selectEndDate(state, <CommonAction<Date>>action);
-        case APP_LOAD_DATA:
-            return init(state, <LoadingAppDataAction>action);
-        case APPROVAL_FILTER_CHECK_MULTI_COST_BLOCKS:
-            return checkMultiCostBlocks(state, <MultiItemSelectedAction>action);
-        case APPROVAL_FILTER_CHECK_MULTI_COST_ELEMENTS:
-            return checkMultiCostElements(state, <CommonAction<CostElementId[]>>action);
-        default:
-            return state;
+const selectState: Reducer<FilterState, ItemSelectedAction<ApprovalBundleState>> = (state, { selectedItemId }) => ({
+    ...state,
+    selectedState: selectedItemId
+})
+
+export const buildFilterReducer = (initSelectedState: ApprovalBundleState) => {
+    return (state = initState(initSelectedState), action) => {
+        switch(action.type){
+            case APPROVAL_FILTER_SELECT_APPLICATION:
+                return selectApplication(state, <ItemSelectedAction>action);
+            case APPROVAL_FILTER_CHECK_COST_BLOCK:
+                return checkCostBlock(state, <ItemSelectedAction>action);
+            case APPROVAL_FILTER_CHECK_COST_ELEMENT:
+                return checkCostElement(state, <CommonAction<CostElementId>>action);
+            case APPROVAL_FILTER_UNCHECK_COST_BLOCK:
+                return unCheckCostBlock(state, <ItemSelectedAction>action);
+            case APPROVAL_FILTER_UNCHECK_COST_ELEMENT:
+                return unCheckCostElement(state, <CommonAction<CostElementId>>action);
+            case APPROVAL_FILTER_SELECT_START_DATE:
+                return selectStartDate(state, <CommonAction<Date>>action);
+            case APPROVAL_FILTER_SELECT_END_DATE:
+                return selectEndDate(state, <CommonAction<Date>>action);
+            case APP_LOAD_DATA:
+                return init(state, <LoadingAppDataAction>action);
+            case APPROVAL_FILTER_CHECK_MULTI_COST_BLOCKS:
+                return checkMultiCostBlocks(state, <MultiItemSelectedAction>action);
+            case APPROVAL_FILTER_CHECK_MULTI_COST_ELEMENTS:
+                return checkMultiCostElements(state, <CommonAction<CostElementId[]>>action);
+            case APPROVAL_FILTER_SELECT_STATE:
+                return selectState(state, <ItemSelectedAction<ApprovalBundleState>>action);
+            default:
+                return state;
+        }
     }
 }

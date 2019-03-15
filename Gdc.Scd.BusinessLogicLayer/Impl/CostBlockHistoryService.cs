@@ -42,17 +42,47 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public IQueryable<CostBlockHistory> GetByFilter(BundleFilter filter)
         {
-            return this.FilterHistories(this.GetAll(), filter);
-        }
+            var query = this.GetAll();
 
-        public IQueryable<CostBlockHistory> GetByFilter(CostBlockHistoryState state)
-        {
-            return this.GetAll().Where(history => history.State == state);
-        }
+            if (filter != null)
+            {
+                if (filter.DateTimeFrom.HasValue)
+                {
+                    query = query.Where(history => filter.DateTimeFrom.Value <= history.EditDate);
+                }
 
-        public IQueryable<CostBlockHistory> GetByFilter(BundleFilter filter, CostBlockHistoryState state)
-        {
-            return this.FilterHistories(this.GetByFilter(state), filter);
+                if (filter.DateTimeTo.HasValue)
+                {
+                    query = query.Where(history => history.EditDate <= filter.DateTimeTo);
+                }
+
+                if (filter.ApplicationIds != null && filter.ApplicationIds.Length > 0)
+                {
+                    query = query.Where(history => filter.ApplicationIds.Contains(history.Context.ApplicationId));
+                }
+
+                if (filter.CostBlockIds != null && filter.CostBlockIds.Length > 0)
+                {
+                    query = query.Where(history => filter.CostBlockIds.Contains(history.Context.CostBlockId));
+                }
+
+                if (filter.CostElementIds != null && filter.CostElementIds.Length > 0)
+                {
+                    query = query.Where(history => filter.CostElementIds.Contains(history.Context.CostElementId));
+                }
+
+                if (filter.UserIds != null && filter.UserIds.Length > 0)
+                {
+                    query = query.Where(history => filter.UserIds.Contains(history.EditUser.Id));
+                }
+
+                if (filter.State.HasValue)
+                {
+                    query = query.Where(history => history.State == filter.State.Value);
+                }
+            }
+
+            return query;
         }
 
         public async Task<DataInfo<HistoryItemDto>> GetHistory(CostElementContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null)
@@ -136,44 +166,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             history.ApproveRejectDate = DateTime.UtcNow;
             history.ApproveRejectUser = this.userService.GetCurrentUser();
             history.State = state;
-        }
-
-        private IQueryable<CostBlockHistory> FilterHistories(IQueryable<CostBlockHistory> query, BundleFilter filter)
-        {
-            if (filter != null)
-            {
-                if (filter.DateTimeFrom.HasValue)
-                {
-                    query = query.Where(history => filter.DateTimeFrom.Value <= history.EditDate);
-                }
-
-                if (filter.DateTimeTo.HasValue)
-                {
-                    query = query.Where(history => history.EditDate <= filter.DateTimeTo);
-                }
-
-                if (filter.ApplicationIds != null && filter.ApplicationIds.Length > 0)
-                {
-                    query = query.Where(history => filter.ApplicationIds.Contains(history.Context.ApplicationId));
-                }
-
-                if (filter.CostBlockIds != null && filter.CostBlockIds.Length > 0)
-                {
-                    query = query.Where(history => filter.CostBlockIds.Contains(history.Context.CostBlockId));
-                }
-
-                if (filter.CostElementIds != null && filter.CostElementIds.Length > 0)
-                {
-                    query = query.Where(history => filter.CostElementIds.Contains(history.Context.CostElementId));
-                }
-
-                if (filter.UserIds != null && filter.UserIds.Length > 0)
-                {
-                    query = query.Where(history => filter.UserIds.Contains(history.EditUser.Id));
-                }
-            }
-
-            return query;
         }
     }
 }

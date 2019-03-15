@@ -2,7 +2,8 @@
 import * as React from "react";
 
 export interface ReleasePanelProps extends PanelProps {
-    onApprove(): void;
+    onApprove(): void,
+    disabled: boolean;
 }
 
 export class HwReleasePanel extends React.Component<ReleasePanelProps, any> {
@@ -17,7 +18,7 @@ export class HwReleasePanel extends React.Component<ReleasePanelProps, any> {
         return (
             <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
 
-                <Button text="Approve for Release" ui="action" minWidth="85px" margin="20px auto" handler={this.onApprove} />
+                <Button text="Approve for Release" ui="action" minWidth="85px" margin="20px auto" handler={this.onApprove} disabled={this.props.disabled} />
 
             </Panel>
         );

@@ -23,7 +23,7 @@ RETURN (
                 , fsp.Name Fsp
                 , fsp.ServiceDescription as FspDescription
         
-                , wg.SogDescription as SogDescription
+                , sog.Description as SogDescription
                 , wg.Description as WgDescription
                 , wg.Name as Wg
         
@@ -51,8 +51,8 @@ RETURN (
 
                 , coalesce(tax.TaxAndDuties_norm, 0) as TaxAndDuties, coalesce(tax.TaxAndDuties_norm_Approved, 0) as TaxAndDuties_Approved
 
-                , fsc.TravelCost + fsc.LabourCost + coalesce(fsc.PerformanceRate, 0) / er.Value as FieldServicePerYearStdw
-                , fsc.TravelCost_Approved + fsc.LabourCost_Approved + coalesce(fsc.PerformanceRate_Approved, 0) / er.Value  as FieldServicePerYearStdw_Approved
+                , fsc.TravelCost + fsc.LabourCost + coalesce(fst.PerformanceRate, 0) / er.Value as FieldServicePerYearStdw
+                , fsc.TravelCost_Approved + fsc.LabourCost_Approved + coalesce(fst.PerformanceRate_Approved, 0) / er.Value  as FieldServicePerYearStdw_Approved
 
                 , ssc.ServiceSupport         , ssc.ServiceSupport_Approved
 
@@ -63,15 +63,14 @@ RETURN (
                 , coalesce(case when afEx.Id is not null then af.Fee_Approved end, 0) as AvailabilityFee_Approved
 
                 , msw.MarkupFactorStandardWarranty_norm AS MarkupFactorStandardWarranty, msw.MarkupFactorStandardWarranty_norm_Approved AS MarkupFactorStandardWarranty_Approved  
-                , msw.MarkupStandardWarranty       , msw.MarkupStandardWarranty_Approved        
+                , msw.MarkupStandardWarranty / er.Value  AS MarkupStandardWarranty, msw.MarkupStandardWarranty_Approved / er.Value AS MarkupStandardWarranty_Approved
 
         FROM Portfolio.GetBySlaSingle(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro) m
 
         INNER JOIN InputAtoms.Country c on c.id = m.CountryId
 
-        INNER JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
-
-        INNER JOIN InputAtoms.WgView wg2 on wg2.id = m.WgId
+        INNER JOIN InputAtoms.Wg wg on wg.id = m.WgId
+        INNER JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
 
         INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
 
@@ -83,19 +82,22 @@ RETURN (
 
         INNER JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
+        LEFT JOIN InputAtoms.Sog sog on sog.id = wg.SogId
+
         LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 
         LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId 
 
         LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
-        LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg2.ClusterPla
+        LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = pla.ClusterPlaId
 
         LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
 
         LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
-        LEFT JOIN Hardware.FieldServiceCost fsc ON fsc.Country = stdw.Country AND fsc.Wg = stdw.Wg AND fsc.ServiceLocation = stdw.ServiceLocationId AND fsc.ReactionTimeType = stdw.ReactionTime_ReactionType
+        LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Country = stdw.Country AND fsc.Wg = stdw.Wg AND fsc.ServiceLocation = stdw.ServiceLocationId
+        LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Country = stdw.Country AND fst.Wg = stdw.Wg AND fst.ReactionTimeType = stdw.ReactionTime_ReactionType
 
         LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = stdw.Country AND lc.Wg = stdw.Wg AND lc.ReactionTimeType = stdw.ReactionTime_ReactionType
 
@@ -214,7 +216,7 @@ RETURN (
     join InputAtoms.Country cnt on cnt.id = @cnt
     join [References].Currency cur on cur.Id = cnt.CurrencyId
 )
-GO
+go
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'CALCOUTPUT-VS-FREEZE');
 declare @index int = 0;

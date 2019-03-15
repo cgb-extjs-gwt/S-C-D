@@ -8,8 +8,6 @@ using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.QualityGate;
-using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
@@ -19,30 +17,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     {
         private readonly ICostBlockService costBlockService;
 
-        private readonly IDomainService<Wg> wgService;
-
         private readonly ISqlRepository sqlRepository;
 
         private readonly DomainEnitiesMeta metas;
 
         public CostImportExcelService(
             ICostBlockService costBlockService,
-            IDomainService<Wg> wgService,
             ISqlRepository sqlRepository,
             DomainEnitiesMeta metas)
         {
             this.costBlockService = costBlockService;
-            this.wgService = wgService;
             this.sqlRepository = sqlRepository;
             this.metas = metas;
         }
 
-        public async Task<ExcelImportResult> Import(
-            ICostElementIdentifier costElementId, 
-            Stream excelStream, 
-            ApprovalOption approvalOption, 
-            long? dependencyItemId = null,
-            long? regionId = null)
+        public async Task<ExcelImportResult> Import(CostImportContext context, Stream excelStream, ApprovalOption approvalOption)
         {
             var result = new ExcelImportResult
             {
@@ -66,25 +55,25 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 }
                 else
                 {
-                    var wgRawValues = new Dictionary<string, string>();
+                    var rawValues = new Dictionary<string, string>();
 
                     foreach (var row in worksheetInfo.RowsUsed)
                     {
                         var rowIndex = row.RowNumber();
-                        var wgName = worksheetInfo.Worksheet.Cell(rowIndex, 1).GetValue<string>();
+                        var name = worksheetInfo.Worksheet.Cell(rowIndex, 1).GetValue<string>();
 
-                        if (!string.IsNullOrWhiteSpace(wgName))
+                        if (!string.IsNullOrWhiteSpace(name))
                         {
-                            var wgValue = worksheetInfo.Worksheet.Cell(rowIndex, 2).GetValue<string>();
+                            var value = worksheetInfo.Worksheet.Cell(rowIndex, 2).GetValue<string>();
 
-                            if (!string.IsNullOrWhiteSpace(wgValue))
+                            if (!string.IsNullOrWhiteSpace(value))
                             {
-                                wgRawValues[wgName] = wgValue;
+                                rawValues[name] = value;
                             }
                         }
                     }
 
-                    var editInfoResult = await this.BuildEditInfos(costElementId, dependencyItemId, regionId, wgRawValues);
+                    var editInfoResult = await this.BuildEditInfos(context, rawValues);
 
                     result.Errors.AddRange(editInfoResult.Errors);
 
@@ -100,7 +89,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     }
                     else
                     {
-                        result.Errors.Add($"Worksheet '{worksheetInfo.Worksheet.Name}' has not available warranty groups");
+                        result.Errors.Add($"Worksheet '{worksheetInfo.Worksheet.Name}' has not available items");
                     }
                 }
             }
@@ -117,50 +106,52 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return result;
         }
 
-        private async Task<(EditInfo EditInfo, IEnumerable<string> Errors)> BuildEditInfos(
-            ICostElementIdentifier costElementId,
-            long? dependencyItemId,
-            long? regionId,
-            IDictionary<string, string> wgRawValues)
+        private async Task<(EditInfo EditInfo, IEnumerable<string> Errors)> BuildEditInfos(CostImportContext context, IDictionary<string, string> rawValues)
         {
             var errors = new List<string>();
-            var wgs =
-                this.wgService.GetAll()
-                              .Where(wg => wgRawValues.Keys.Contains(wg.Name))
-                              .ToDictionary(wg => wg.Name);
 
-            var costBlockMeta = this.metas.GetCostBlockEntityMeta(costElementId);
-            var converter = await this.BuildConverter(costBlockMeta, costElementId.CostElementId);
+            var costBlockMeta = this.metas.GetCostBlockEntityMeta(context);
+            var inputLevelField = costBlockMeta.InputLevelFields[context.InputLevelId];
+
+            var inputLevelItems =
+                    await this.sqlRepository.GetNameIdItems(
+                        inputLevelField.ReferenceMeta, 
+                        inputLevelField.ReferenceValueField, 
+                        inputLevelField.ReferenceFaceField);
+
+            var inputLevelItemsDictionary = inputLevelItems.ToDictionary(item => item.Name);
+
+            var converter = await this.BuildConverter(costBlockMeta, context.CostElementId);
             var valueInfos = new List<ValuesInfo>();
-            var dependencyFilter = this.BuildFilter(costBlockMeta, costElementId, dependencyItemId, regionId);
-            var costElementField = costBlockMeta.CostElementsFields[costElementId.CostElementId];
+            var dependencyFilter = this.BuildFilter(costBlockMeta, context);
+            var costElementField = costBlockMeta.CostElementsFields[context.CostElementId];
 
-            foreach (var wgValue in wgRawValues)
+            foreach (var rawValue in rawValues)
             {
                 try
                 {
-                    if (wgs.TryGetValue(wgValue.Key, out var wg))
+                    if (inputLevelItemsDictionary.TryGetValue(rawValue.Key, out var inputLevelItem))
                     {
                         valueInfos.Add(new ValuesInfo
                         {
                             CoordinateFilter = new Dictionary<string, long[]>(dependencyFilter)
                             {
-                                [MetaConstants.WgInputLevelName] = new[] { wg.Id }
+                                [inputLevelField.Name] = new[] { inputLevelItem.Id }
                             },
                             Values = new Dictionary<string, object>
                             {
-                                [costElementId.CostElementId] = converter(wgValue.Value)
+                                [context.CostElementId] = converter(rawValue.Value)
                             }
                         });
                     }
                     else
                     {
-                        errors.Add($"Warranty group '{wgValue.Key}' not found");
+                        errors.Add($"{inputLevelField.ReferenceMeta.Name} '{rawValue.Key}' not found");
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    errors.Add($"Import error - warranty group '{wgValue.Key}', value '{wgValue.Value}'. {ex.Message}");
+                    errors.Add($"Import error - {inputLevelField.ReferenceMeta.Name} '{rawValue.Key}', value '{rawValue.Value}'. {ex.Message}");
                 }
             }
 
@@ -239,36 +230,32 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return converter;
         }
 
-        private IDictionary<string, long[]> BuildFilter(
-            CostBlockEntityMeta costBlockMeta,
-            ICostElementIdentifier costElementId,
-            long? dependencyItemId,
-            long? regionId)
+        private IDictionary<string, long[]> BuildFilter(CostBlockEntityMeta costBlockMeta, CostImportContext context)
         {
             var filter = new Dictionary<string, long[]>();
-            var costElement = costBlockMeta.DomainMeta.CostElements[costElementId.CostElementId];
+            var costElement = costBlockMeta.DomainMeta.CostElements[context.CostElementId];
 
-            if (dependencyItemId.HasValue)
+            if (context.DependencyItemId.HasValue)
             {
                 if (costElement.Dependency == null)
                 {
-                    throw new Exception($"Cost element '{costElementId.CostElementId}' has not dependency, but parameter 'dependencyItemId' has value");
+                    throw new Exception($"Cost element '{context.CostElementId}' has not dependency, but parameter 'dependencyItemId' has value");
                 }
                 else
                 {
-                    filter.Add(costElement.Dependency.Id, new [] { dependencyItemId.Value });
+                    filter.Add(costElement.Dependency.Id, new [] { context.DependencyItemId.Value });
                 }
             }
 
-            if (regionId.HasValue)
+            if (context.RegionId.HasValue)
             {
                 if (costElement.RegionInput == null)
                 {
-                    throw new Exception($"Cost element '{costElementId.CostElementId}' has not region, but parameter 'regionId' has value");
+                    throw new Exception($"Cost element '{context.CostElementId}' has not region, but parameter 'regionId' has value");
                 }
                 else
                 {
-                    filter.Add(costElement.RegionInput.Id, new[] { regionId.Value });
+                    filter.Add(costElement.RegionInput.Id, new[] { context.RegionId.Value });
                 }
             }
 
