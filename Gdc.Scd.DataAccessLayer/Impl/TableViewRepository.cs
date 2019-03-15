@@ -82,7 +82,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                             {
                                 Value = reader[costElementInfo.ValueColumn],
                                 Count = (int)reader[costElementInfo.CountColumn],
-                                IsApproved = (bool)reader[costElementInfo.IsApprovedColumn]
+                                IsApproved = (int)reader[costElementInfo.IsApprovedColumn] == 1
                             });
                     }
                 }
@@ -345,7 +345,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var dataColumns = queryInfo.DataInfos.SelectMany(costBlockInfo => costBlockInfo.CostElementInfos.SelectMany(costElementInfo => new[] 
             {
                 new ColumnInfo(costElementInfo.ValueColumn, costBlockInfo.Alias),
-                new ColumnInfo(costElementInfo.CountColumn, costBlockInfo.Alias)
+                new ColumnInfo(costElementInfo.CountColumn, costBlockInfo.Alias),
+                new ColumnInfo(costElementInfo.IsApprovedColumn, costBlockInfo.Alias),
             }));
 
             var columns = coordinateIdColumns.Concat(coordinateNameColumns).Concat(dataColumns).Concat(additionalColumns).ToArray();

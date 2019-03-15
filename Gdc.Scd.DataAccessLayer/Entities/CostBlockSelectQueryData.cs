@@ -11,7 +11,7 @@ namespace Gdc.Scd.DataAccessLayer.Entities
 
         public string[] GroupedFields { get; set; }
 
-        public string[] JoinedReferenceFields { get; set; }
+        public bool IsGroupedFieldsNameSelected { get; set; }
 
         public IDictionary<string, IEnumerable<object>> Filter { get; set; }
 

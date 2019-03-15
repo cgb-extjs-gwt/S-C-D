@@ -22,27 +22,33 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public OrderBySqlHelper BuildSelectQuery(CostBlockSelectQueryData queryData)
         {
-            var joinFields =
-                queryData.JoinedReferenceFields == null
-                    ? new ReferenceFieldMeta[0]
-                    : queryData.JoinedReferenceFields.Select(queryData.CostBlock.GetField).Cast<ReferenceFieldMeta>().ToArray();
+            var costBlockAlias = queryData.Alias ?? "t";
 
-            var joinedColumns =
-                joinFields.SelectMany(field => new[]
-                          {
-                              new ColumnInfo(field.ReferenceValueField, field.ReferenceMeta.Name),
-                              new ColumnInfo(field.ReferenceValueField, field.ReferenceMeta.Name)
-                          })
-                          .ToArray();
+            var joinFields = new List<ReferenceFieldMeta>();
+            var selectGroupByColumns = queryData.GroupedFields.Select(fieldName => new ColumnInfo(fieldName)).ToList();
 
-            var selectColumns = joinedColumns.Concat(queryData.CostElementInfos.SelectMany(BuildSelectColumns)).ToArray();
-            var groupByColumns = queryData.GroupedFields.Select(fieldName => new ColumnInfo(fieldName)).Concat(joinedColumns).ToArray();
+            if (queryData.IsGroupedFieldsNameSelected)
+            {
+                joinFields.AddRange(
+                    queryData.GroupedFields.Select(queryData.CostBlock.GetField).OfType<ReferenceFieldMeta>());
+
+                selectGroupByColumns.AddRange(
+                    joinFields.Select(
+                        field => 
+                            new ColumnInfo(
+                                field.ReferenceFaceField, 
+                                field.ReferenceMeta.Name, 
+                                $"{field.ReferenceMeta.Name}_{field.ReferenceFaceField}")));
+            }
+
+            var groupByColumns = selectGroupByColumns.Select(column => new ColumnInfo(column.Alias ?? column.Name)).ToArray();
+            var selectColumns = groupByColumns.Concat(queryData.CostElementInfos.SelectMany(BuildSelectColumns)).ToArray();
 
             var selectQuery = Sql.Select(selectColumns);
             var query = queryData.IntoTable == null ? selectQuery : selectQuery.Into(queryData.IntoTable);
 
             return
-                query.FromQuery(BuildInnerQuery(), queryData.Alias ?? "t")
+                query.FromQuery(BuildInnerQuery(), costBlockAlias)
                      .GroupBy(groupByColumns);
 
             string BuildApprovedColumnAlias(string costElementId) => $"{costElementId}_IsApproved";
@@ -80,7 +86,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                  new ColumnInfo(valueField.Name),
                                  BuildApprovedColumn(valueField)
                              })
-                             .Concat(joinedColumns)
+                             .Concat(selectGroupByColumns)
                              .ToArray();
 
                 return
@@ -98,12 +104,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     valueField is SimpleFieldMeta simpleField &&
                     simpleField.Type == TypeCode.Boolean
                         ? SqlFunctions.Max(
-                            SqlFunctions.Convert(new ColumnSqlBuilder(simpleField.Name), TypeCode.Int32), costElementInfo.ValueColumnAlias)
-                        : SqlFunctions.Max(valueField.Name, costElementInfo.ValueColumnAlias);
+                            SqlFunctions.Convert(
+                                new ColumnSqlBuilder(simpleField.Name, costBlockAlias),
+                                TypeCode.Int32),
+                            costElementInfo.ValueColumnAlias)
+                        : SqlFunctions.Max(valueField.Name, costBlockAlias, costElementInfo.ValueColumnAlias);
 
-                var countColumn = SqlFunctions.Count(valueField.Name, true, costElementInfo.CountColumnAlias);
+                var countColumn = SqlFunctions.Count(valueField.Name, true, costBlockAlias, costElementInfo.CountColumnAlias);
                 var approvedColumnAlias = BuildApprovedColumnAlias(valueField.Name);
-                var approvedColumn = SqlFunctions.Min(approvedColumnAlias, costElementInfo.IsApprovedColumnAlias);
+                var approvedColumn = SqlFunctions.Min(approvedColumnAlias, costBlockAlias, costElementInfo.IsApprovedColumnAlias);
 
                 yield return maxValueColumn;
                 yield return countColumn;

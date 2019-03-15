@@ -44,8 +44,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 {
                     new CostBlockSelectCostElementInfo { CostElementId = context.CostElementId }
                 },
-                GroupedFields = new[] { context.InputLevelId }, 
-                JoinedReferenceFields = new[] { context.InputLevelId },
+                GroupedFields = new[] { context.InputLevelId },
+                IsGroupedFieldsNameSelected = true,
                 Filter = filter
             };
 
@@ -54,7 +54,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                           .OrderBy(new OrderByInfo
                                           {
                                               Direction = SortDirection.Asc,
-                                              SqlBuilder = new ColumnSqlBuilder(nameField.ReferenceFaceField)
+                                              SqlBuilder = new ColumnSqlBuilder($"{context.InputLevelId}_{nameField.ReferenceFaceField}")
                                           });
 
             return await this.repositorySet.ReadBySql(query, reader =>
