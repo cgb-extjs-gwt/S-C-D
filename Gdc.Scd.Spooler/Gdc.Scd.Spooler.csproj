@@ -174,10 +174,6 @@
       <Project>{2c7950f5-92ea-4a0c-a620-3c473bc21097}</Project>
       <Name>Gdc.Scd.Import.Por.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Gdc.Scd.Import.Por\Gdc.Scd.Import.Por.csproj">
-      <Project>{741ebd7b-dcfd-4247-afd2-b5db5addfbce}</Project>
-      <Name>Gdc.Scd.Import.Por</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="JobLibraries\ExampleJob\ExampleJob.dll">
