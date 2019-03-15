@@ -120,6 +120,7 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
         let checked = this.lst.getSelections().length > 0;
 
         this.cb.setChecked(checked);
+        this.onSelectionChange();
     }
 
     protected onTopSelectionChange(cb: any, newVal: boolean, oldVal: boolean) {
@@ -133,5 +134,14 @@ export class MultiSelect extends React.Component<MultiSelectProps, any> {
             this.lst.deselectAll();
         }
         this.flag = true;
+        //
+        this.onSelectionChange();
+    }
+
+    protected onSelectionChange() {
+        let handler = this.props.onSelectionChange;
+        if (handler) {
+            handler(this, this.getSelected(), false, null);
+        }
     }
 }

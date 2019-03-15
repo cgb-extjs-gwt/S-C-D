@@ -398,6 +398,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
+                    cmd.CommandTimeout = 600;
                     return func(cmd);
                 }
             }
@@ -416,6 +417,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 await conn.OpenAsync();
                 using (var cmd = conn.CreateCommand())
                 {
+                    cmd.CommandTimeout = 600;
                     return await func(cmd);
                 }
             }

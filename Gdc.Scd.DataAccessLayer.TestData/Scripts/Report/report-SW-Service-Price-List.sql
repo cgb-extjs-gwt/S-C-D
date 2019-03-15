@@ -24,8 +24,19 @@ as
 begin
 
     declare @digitList dbo.ListId; 
-    if @digit is not null insert into @digitList(id) values(@digit);
-    if @sog is not null insert into @digitList(id) select id from InputAtoms.SwDigit where SogId = @sog;
+
+    if @sog is not null or @digit is not null
+    begin
+
+        insert into @digitList(id)
+        select Id
+        from InputAtoms.SwDigit 
+        where     (@sog is null   or SogId = @sog) 
+              and (@digit is null or Id = @digit);
+
+        if not exists(select * from @digitList) return;
+
+    end
 
     declare @avList dbo.ListId; 
     if @av is not null insert into @avList(id) values(@av);

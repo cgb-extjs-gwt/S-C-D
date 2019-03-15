@@ -23,7 +23,7 @@ export class ApprovalLayout extends BundleListLayout {
 
     protected filterRender() {
         return (
-            <FilterContainer pageName={COST_APPROVAL_PAGE}/>
+            <FilterContainer pageName={COST_APPROVAL_PAGE} isVisibleNotSentState={false}/>
         );
     }
 }

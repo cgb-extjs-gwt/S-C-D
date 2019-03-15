@@ -87,6 +87,18 @@
     <Compile Include="Migrations\Migration_2019_02_28_17_40.cs" />
     <Compile Include="Migrations\Migration_2019_03_05_09_00.cs" />
     <Compile Include="Migrations\Migration_2019_03_05_11_00.cs" />
+    <Compile Include="Migrations\Migration_2019_03_06_15_15.cs" />
+    <Compile Include="Migrations\Migration_2019_03_11_10_30.cs" />
+    <Compile Include="Migrations\Migration_2019_03_11_12_39.cs" />
+    <Compile Include="Migrations\Migration_2019_03_11_15_30.cs" />
+    <Compile Include="Migrations\Migration_2019_03_11_17_36.cs" />
+    <Compile Include="Migrations\Migration_2019_03_12_10_33.cs" />
+    <Compile Include="Migrations\Migration_2019_03_13.cs" />
+    <Compile Include="Migrations\Migration_2019_03_12_12_30.cs" />
+    <Compile Include="Migrations\Migration_2019_03_13_18_00.cs" />
+    <Compile Include="Migrations\Migration_2019_03_14_12_09.cs" />
+    <Compile Include="Migrations\Migration_2019_03_15_09_15.cs" />
+    <Compile Include="Migrations\Migration_2019_03_15_10_45.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -188,12 +200,42 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2019-02-28-16-17.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2019-03-05-09-00.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2019-03-05-11-00.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-03-07-13-12.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-03-06-15-25.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-03-11-12-39.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-03-11-17-36.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-03-13-19-12.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-03-14-14-11.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-03-12-12-30.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-03-13-18-00.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-03-15-09-15.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-03-15-10-45.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2019-03-11-19-17.sql" />

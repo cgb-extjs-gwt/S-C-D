@@ -109,6 +109,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-hw-calc-result.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-calc-result.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-proactive-calc-result.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-param-overview.sql"));
 
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.split-string.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-hdd-retention.sql"));
@@ -213,6 +214,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var reviewProcessPermission = new Permission { Name = PermissionConstants.ReviewProcess };
             var reportPermission = new Permission { Name = PermissionConstants.Report };
             var adminPermission = new Permission { Name = PermissionConstants.Admin };
+            var calcResultHddServiceCostNotApprovedPermission = new Permission { Name = PermissionConstants.CalcResultHddServiceCostNotApproved };
+            var calcResultSoftwareSolutionServiceCostNotApprovedPermission = new Permission { Name = PermissionConstants.CalcResultSoftwareServiceCostNotApproved };
 
             var allPermissions = new List<Permission>
             {
@@ -224,7 +227,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 portfolioPermission,
                 reviewProcessPermission,
                 reportPermission,
-                adminPermission
+                adminPermission,
+                calcResultHddServiceCostNotApprovedPermission,
+                calcResultSoftwareSolutionServiceCostNotApprovedPermission
             };
 
             var allRolePermissions = allPermissions.Select(permission => new RolePermission { Permission = permission });
@@ -279,6 +284,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = approvalPermission },
                         new RolePermission { Permission = ownApprovalPermission },
                         new RolePermission { Permission = costImportPermission },
+                        new RolePermission { Permission = calcResultSoftwareSolutionServiceCostNotApprovedPermission },
                     }
                 },
                 new Role

@@ -35,19 +35,18 @@
 
 --Logistics reports
 ('Logistic-cost-country', 'Logistics cost report local per country', 1,  0, 'Report.LogisticCostCountry'),
-('Logistic-cost-central', 'Logistics cost report central with all country values', 1,  0, 'Report.LogisticCostCentral'),
 
 ('Logistic-cost-input-country', 'Logistics Cost Report input currency local per country', 1,  0, 'Report.LogisticCostInputCountry'),
-('Logistic-cost-input-central', 'Logistics Cost Report input currency central with all country values', 1,  0, 'Report.LogisticCostInputCentral'),
 
 ('Logistic-cost-calc-country', 'Calculated logistics cost local per country', 1,  0, 'Report.LogisticCostCalcCountry'),
-('Logistic-cost-calc-central', 'Calculated logistics cost central with all country values', 1,  0, 'Report.LogisticCostCalcCentral'),
 
 ('HW-CALC-RESULT', 'Hardware service costs', 1,  1, 'Report.HwCalcResult'),
 
 ('SW-CALC-RESULT', 'Software & Solution service costs', 1,  1, 'Report.SwCalcResult'),
 
 ('SW-PROACTIVE-CALC-RESULT', 'Software & Solution proactive cost', 1,  1, 'Report.SwProactiveCalcResult'),
+
+('SW-PARAM-OVERVIEW', 'Software & Solution calculation parameter overview', 1,  1, 'Report.SwParamOverview'),
 
 ('User-Roles', 'User roles', 0,  0, 'Report.UserRoles');
 

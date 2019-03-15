@@ -266,8 +266,8 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     }
 
     if (column.rendererFn) {
-      columnOption.renderer = (value, record: Model) =>
-        this.replaceNullValue(column.rendererFn(value, record));
+      columnOption.renderer = (value, record: Model, dataIndex: string, cell) =>
+        this.replaceNullValue(column.rendererFn(value, record, dataIndex, cell));
     } else {
       columnOption.renderer = this.replaceNullValue;
     }

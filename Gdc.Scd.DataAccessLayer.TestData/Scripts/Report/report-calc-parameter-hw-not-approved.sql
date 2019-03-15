@@ -21,13 +21,15 @@ RETURN (
               , c.Name as Country
               , wg.Description as WgDescription
               , wg.Name as Wg
-              , wg.SogDescription
+              , sog.Description as SogDescription
               , wg.SCD_ServiceType
               , pro.ExternalName as Sla
               , loc.Name as ServiceLocation
               , rtime.Name as ReactionTime
               , rtype.Name as ReactionType
               , av.Name as Availability
+
+              , cur.Name as Currency
 
              --FSP
               , fsp.Name Fsp
@@ -55,11 +57,11 @@ RETURN (
       
               , tax.TaxAndDuties_norm * er.Value  as TaxAndDutiesW
 
-              , moc.Markup * er.Value        as MarkupOtherCost
+              , moc.Markup                   as MarkupOtherCost
               , moc.MarkupFactor             as MarkupFactorOtherCost
 
               , msw.MarkupFactorStandardWarranty             as MarkupFactorStandardWarranty
-              , msw.MarkupStandardWarranty * er.Value        as MarkupStandardWarranty
+              , msw.MarkupStandardWarranty                   as MarkupStandardWarranty
       
               , afr.AFR1  as AFR1
               , afr.AFR2  as AFR2
@@ -95,22 +97,20 @@ RETURN (
 
               , mcw.MaterialCostWarranty * er.Value  as MaterialCostWarranty
               , mco.MaterialCostOow * er.Value       as MaterialCostOow
-              , cur.Name as Currency
 
               , dur.Value as Duration
               , dur.IsProlongation
 
         from Portfolio.GetBySlaSingle(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc, @pro) m
 
-        INNER JOIN InputAtoms.CountryView c on c.Id = m.CountryId
+        INNER JOIN InputAtoms.Country c on c.Id = m.CountryId
 
         INNER JOIN [References].Currency cur on cur.Id = c.CurrencyId
 
-        INNER JOIN [References].ExchangeRate er on er.CurrencyId = cur.Id
+        INNER JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 
-        INNER JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
-
-        INNER JOIN InputAtoms.WgView wg2 on wg2.Id = m.WgId
+        INNER JOIN InputAtoms.Wg wg on wg.id = m.WgId
+        INNER JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
 
         INNER JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
 
@@ -124,12 +124,14 @@ RETURN (
 
         INNER JOIN Dependencies.ProActiveSla pro on pro.Id = m.ProActiveSlaId
 
-        LEFT JOIN Hardware.RoleCodeHourlyRates hr on hr.RoleCode = wg.RoleCodeId and hr.Country = m.CountryId
+        LEFT JOIN InputAtoms.Sog sog on sog.id = wg.SogId
+
+        LEFT JOIN Hardware.RoleCodeHourlyRates hr on hr.Country = m.CountryId and hr.RoleCode = wg.RoleCodeId 
 
         LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
         --cost blocks
-        LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Wg = m.WgId AND fsc.Country = m.CountryId AND fsc.ServiceLocation = m.ServiceLocationId
+        LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Country = m.CountryId AND fsc.Wg = m.WgId AND fsc.ServiceLocation = m.ServiceLocationId
         LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Wg = m.WgId AND fst.Country = m.CountryId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
 
         LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId 
@@ -140,15 +142,15 @@ RETURN (
 
         LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
 
-        LEFT JOIN Hardware.MaterialCostOowCalc mco on mco.Wg = m.WgId AND mco.Country = m.CountryId
+        LEFT JOIN Hardware.MaterialCostOowCalc mco on mco.Country = m.CountryId AND mco.Wg = m.WgId
 
-        LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = wg2.ClusterPla
+        LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = pla.ClusterPlaId
 
         LEFT JOIN Hardware.ReinsuranceYear r on r.Wg = m.WgId
 
         LEFT JOIN Hardware.MarkupOtherCosts moc on moc.Wg = m.WgId AND moc.Country = m.CountryId AND moc.ReactionTimeTypeAvailability = m.ReactionTime_ReactionType_Avalability
 
-        LEFT JOIN Hardware.MarkupStandardWaranty msw on msw.Wg = m.WgId AND msw.Country = m.CountryId 
+        LEFT JOIN Hardware.MarkupStandardWaranty msw on msw.Country = m.CountryId AND msw.Wg = m.WgId 
 
         LEFT JOIN Hardware.AvailabilityFeeCalc af on af.Country = m.CountryId AND af.Wg = m.WgId
 
@@ -303,11 +305,11 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'TaxAndDutiesW', 'Tax & duties', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'MarkupFactorOtherCost', 'Markup factor for other cost', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'MarkupFactorOtherCost', 'Markup factor for other cost', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'MarkupOtherCost', 'Markup for other cost', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'MarkupFactorStandardWarranty', 'Markup factor for standard warranty local cost', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'MarkupFactorStandardWarranty', 'Markup factor for standard warranty local cost', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'MarkupStandardWarranty', 'Markup for standard warranty local cost', 1, 1);
 

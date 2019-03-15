@@ -3,12 +3,9 @@ import * as React from "react";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildComponentUrl } from "../Common/Services/Ajax";
-import { NamedId } from "../Common/States/CommonStates";
-import { DictField } from "../Dict/Components/DictField";
 import { MultiSelect } from "../Dict/Components/MultiSelect";
 import { MultiSelectProActive } from "../Dict/Components/MultiSelectProActive";
 import { MultiSelectWg } from "../Dict/Components/MultiSelectWg";
-import { UserCountryField } from "../Dict/Components/UserCountryField";
 import { DictFactory } from "../Dict/Services/DictFactory";
 import { IDictService } from "../Dict/Services/IDictService";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
@@ -20,7 +17,7 @@ const SELECT_MAX_HEIGHT: string = '260px';
 
 export class PortfolioEditView extends React.Component<any, any> {
 
-    private country: DictField<NamedId>;
+    private country: MultiSelect;
 
     private wg: MultiSelect;
 
@@ -56,43 +53,34 @@ export class PortfolioEditView extends React.Component<any, any> {
         this.init();
     }
 
-    public render() {      
+    public render() {
         return (
             <Container layout="vbox" padding="10px" scrollable="true">
 
-                <UserCountryField
-                    ref={x => this.country = x}
-                    width="250px"
-                    label="Country:"
-                    labelAlign="left"
-                    labelWidth="80px"
-                    clearable="true"
-                    onChange={this.onCountryChange}
-                />
-
                 <div className="portfolio-edit-container">
                     <div>
+                        <MultiSelect ref={x => this.country = x} maxHeight={SELECT_MAX_HEIGHT} title="Country" store={this.countryStore} onSelectionChange={this.onCountryChange} />
+                    </div>
+                    <div>
                         <MultiSelectWg ref={x => this.wg = x} maxHeight="204px" title="Asset(WG)" store={this.dictSrv.getWG} />
+                    </div>
+                    <div>
+                        <MultiSelect ref={x => this.av = x} maxHeight={SELECT_MAX_HEIGHT} title="Availability" store={this.dictSrv.getAvailabilityTypes} />
+                    </div>
+                    <div>
+                        <MultiSelect ref={x => this.dur = x} maxHeight={SELECT_MAX_HEIGHT} title="Duration" store={this.dictSrv.getDurationTypes} />
+                    </div>
+                    <div>
+                        <MultiSelect ref={x => this.reacttype = x} maxHeight={SELECT_MAX_HEIGHT} title="Reaction type" store={this.dictSrv.getReactionTypes} />
+                    </div>
+                    <div>
+                        <MultiSelect ref={x => this.reacttime = x} maxHeight={SELECT_MAX_HEIGHT} title="Reaction time" store={this.dictSrv.getReactionTimeTypes} />
                     </div>
                     <div>
                         <MultiSelect ref={x => this.srvloc = x} maxHeight={SELECT_MAX_HEIGHT} title="Service location" store={this.dictSrv.getServiceLocationTypes} />
                     </div>
                     <div>
                         <MultiSelectProActive ref={x => this.proactive = x} maxHeight={SELECT_MAX_HEIGHT} title="ProActive" store={this.dictSrv.getProActive} />
-                    </div>
-                    <div className="portfolio-edit-small">
-                        <div>
-                            <MultiSelect ref={x => this.av = x} maxHeight={SELECT_MAX_HEIGHT} title="Availability" store={this.dictSrv.getAvailabilityTypes} />
-                        </div>
-                        <div>
-                            <MultiSelect ref={x => this.dur = x} maxHeight={SELECT_MAX_HEIGHT} title="Duration" store={this.dictSrv.getDurationTypes} />
-                        </div>
-                        <div>
-                            <MultiSelect ref={x => this.reacttype = x} maxHeight={SELECT_MAX_HEIGHT} title="Reaction type" store={this.dictSrv.getReactionTypes} />
-                        </div>
-                        <div>
-                            <MultiSelect ref={x => this.reacttime = x} maxHeight={SELECT_MAX_HEIGHT} title="Reaction time" store={this.dictSrv.getReactionTimeTypes} />
-                        </div>
                     </div>
                 </div>
 
@@ -116,6 +104,7 @@ export class PortfolioEditView extends React.Component<any, any> {
         this.srv = PortfolioServiceFactory.getPortfolioService();
         this.dictSrv = DictFactory.getDictService();
         //
+        this.countryStore = this.countryStore.bind(this);
         this.onCountryChange = this.onCountryChange.bind(this);
         this.onAllow = this.onAllow.bind(this);
         this.onDeny = this.onDeny.bind(this);
@@ -126,8 +115,12 @@ export class PortfolioEditView extends React.Component<any, any> {
         srv.isCountryUser().then(x => this.setState({ isCountryUser: x }));
     }
 
-    private onCountryChange(combo, newVal, oldVal) {
-        this.setState({ isPortfolio: !newVal });
+    private countryStore() {
+        return this.dictSrv.getUserCountries(true);
+    }
+
+    private onCountryChange(view: any, rows: any[]) {
+        this.setState({ isPortfolio: rows.length === 0 });
     }
 
     private onAllow() {
@@ -167,7 +160,7 @@ export class PortfolioEditView extends React.Component<any, any> {
         m.isMasterPortfolio = this.isMasterPortfolio();
         m.isCorePortfolio = this.isCorePortfolio();
 
-        m.countryId = this.country.getSelected();
+        m.countries = this.country.getSelectedKeys();
 
         m.wgs = this.wg.getSelectedKeys();
         m.availabilities = this.av.getSelectedKeys();

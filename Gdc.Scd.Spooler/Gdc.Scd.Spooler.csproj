@@ -38,19 +38,30 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="Fujitsu.GDC.ErrorNotification, Version=1.0.0.0, Culture=neutral, PublicKeyToken=a7a8f00083add7ed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\WAS\SCD\SharedLibraries\Fujitsu.GDC.ErrorNotification.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
+    <Reference Include="Ninject, Version=3.3.4.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.3.3.4\lib\net45\Ninject.dll</HintPath>
+    </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Gdc.Scd.Export.CdCs\bin\Debug\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.ComponentModel.Annotations">
+      <HintPath>..\..\WAS\SCD\Gdc.Scd.Import.ExchangeRates\bin\Debug\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
     </Reference>
@@ -126,6 +137,46 @@
     <ProjectReference Include="..\Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj">
       <Project>{8903EA84-F24A-4EF5-8CBA-6AAF1139D07D}</Project>
       <Name>Gdc.Scd.DataAccessLayer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.AmberRoad\Gdc.Scd.Import.AmberRoad.csproj">
+      <Project>{ec19442e-cffe-4b88-af6b-67d7122f82e7}</Project>
+      <Name>Gdc.Scd.Import.AmberRoad</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.CentralContractGroup\Gdc.Scd.Import.CentralContractGroup.csproj">
+      <Project>{72e3dba1-b2c5-4a32-a41d-54d84624400e}</Project>
+      <Name>Gdc.Scd.Import.CentralContractGroup</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Core\Gdc.Scd.Import.Core.csproj">
+      <Project>{0c98c07e-1fdf-43f1-93ea-d86ab3232f25}</Project>
+      <Name>Gdc.Scd.Import.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Ebis.Afr\Gdc.Scd.Import.Ebis.Afr.csproj">
+      <Project>{a2918b3f-9857-4a64-a2db-e28c1bace1ff}</Project>
+      <Name>Gdc.Scd.Import.Ebis.Afr</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Ebis.InstallBase\Gdc.Scd.Import.Ebis.InstallBase.csproj">
+      <Project>{9c4864ad-d649-4a6e-9c1e-45a9beb8fd75}</Project>
+      <Name>Gdc.Scd.Import.Ebis.InstallBase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Ebis.MCiW\Gdc.Scd.Import.Ebis.MCiW.csproj">
+      <Project>{f2d6315c-a276-433f-813b-bad4586145c6}</Project>
+      <Name>Gdc.Scd.Import.Ebis.MCiW</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.ExchangeRates\Gdc.Scd.Import.ExchangeRatesJob.csproj">
+      <Project>{e51d31ba-94bf-4200-80a3-535a95f95bd8}</Project>
+      <Name>Gdc.Scd.Import.ExchangeRatesJob</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Logistics\Gdc.Scd.Import.Logistics.csproj">
+      <Project>{a3772a95-3f11-4042-8c00-579d331627fb}</Project>
+      <Name>Gdc.Scd.Import.Logistics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Por.Core\Gdc.Scd.Import.Por.Core.csproj">
+      <Project>{2c7950f5-92ea-4a0c-a620-3c473bc21097}</Project>
+      <Name>Gdc.Scd.Import.Por.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Por\Gdc.Scd.Import.Por.csproj">
+      <Project>{741ebd7b-dcfd-4247-afd2-b5db5addfbce}</Project>
+      <Name>Gdc.Scd.Import.Por</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

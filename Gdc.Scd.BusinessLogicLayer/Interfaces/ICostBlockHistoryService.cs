@@ -12,10 +12,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
     {
         IQueryable<CostBlockHistory> GetByFilter(BundleFilter filter);
 
-        IQueryable<CostBlockHistory> GetByFilter(CostBlockHistoryState state);
-
-        IQueryable<CostBlockHistory> GetByFilter(BundleFilter filter, CostBlockHistoryState state);
-
         Task<DataInfo<HistoryItemDto>> GetHistory(CostElementContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null);
 
         Task Save(CostElementContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter, EditorType editorType);

@@ -5,7 +5,7 @@ go
 CREATE PROCEDURE [Report].[spLocap]
 (
     @cnt          bigint,
-    @wg           bigint,
+    @wg           dbo.ListID readonly,
     @av           bigint,
     @dur          bigint,
     @reactiontime bigint,
@@ -38,12 +38,12 @@ BEGIN
                 , ReactionTime_ReactionType_Avalability
                 , null
                 , null
-    from Portfolio.GetBySlaSog(@cnt, (select SogId from InputAtoms.Wg where id = @wg), @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
+    from Portfolio.GetBySlaSog(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
 
     with cte as (
         select m.* 
         from Hardware.GetCostsSlaSog(1, @sla) m
-        where m.WgId = @wg
+        where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = m.WgId))
     )
     , cte2 as (
         select  
@@ -131,7 +131,7 @@ delete from Report.ReportFilter where ReportId = @reportId;
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('country', 0), 'cnt', 'Country Name');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wg', 0), 'wg', 'Warranty Group');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wg', 1), 'wg', 'Warranty Group');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('availability', 0), 'av', 'Availability');
 set @index = @index + 1;

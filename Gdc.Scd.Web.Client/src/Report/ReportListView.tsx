@@ -97,6 +97,10 @@ export class ReportListView extends React.Component<any, any> {
                         {
                             "text": "<a href='#' data-href='/report/SW-Service-Price-List-detailed'>b) Software services price list detailed</a>",
                             "leaf": true
+                        },
+                        {
+                            "text": "<a href='#' data-href='/report/SW-PARAM-OVERVIEW'>c) Software & Solution calculation parameter overview</a>",
+                            "leaf": true
                         }
                     ]
                 },
@@ -111,10 +115,6 @@ export class ReportListView extends React.Component<any, any> {
                                 {
                                     "text": "<a href='#' data-href='/report/Logistic-cost-country'>1. local per country</a>",
                                     "leaf": true
-                                },
-                                {
-                                    "text": "<a href='#' data-href='/report/Logistic-cost-central'>2. central with all country values</a>",
-                                    "leaf": true
                                 }
                             ]
                         },
@@ -125,10 +125,6 @@ export class ReportListView extends React.Component<any, any> {
                                 {
                                     "text": "<a href='#' data-href='/report/Logistic-cost-input-country'>1. local per country</a>",
                                     "leaf": true
-                                },
-                                {
-                                    "text": "<a href='#' data-href='/report/Logistic-cost-input-central'>2. central with all country values</a>",
-                                    "leaf": true
                                 }
                             ]
                         },
@@ -138,10 +134,6 @@ export class ReportListView extends React.Component<any, any> {
                             "children": [
                                 {
                                     "text": "<a href='#' data-href='/report/Logistic-cost-calc-country'>1. local per country</a>",
-                                    "leaf": true
-                                },
-                                {
-                                    "text": "<a href='#' data-href='/report/Logistic-cost-calc-central'>2. central with all country values</a>",
                                     "leaf": true
                                 }
                             ]

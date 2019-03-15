@@ -10,11 +10,11 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
 {
     public class InstallBaseService
     {
-        public static IConfigHandler ConfigHandler { get; private set; }
-        public static IImportManager ImportManager { get; set; }
-        public static ILogger<LogLevel> Logger { get; private set; }
+        public IConfigHandler ConfigHandler { get; private set; }
+        public IImportManager ImportManager { get; set; }
+        public ILogger<LogLevel> Logger { get; private set; }
 
-        static InstallBaseService()
+        public InstallBaseService()
         {
             NinjectExt.IsConsoleApplication = true;
             IKernel kernel = CreateKernel();
@@ -23,7 +23,7 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
             Logger = kernel.Get<ILogger<LogLevel>>();
         }
 
-        public static void UploadInstallBaseInfo()
+        public void UploadInstallBaseInfo()
         {
             Logger.Log(LogLevel.Info, ImportConstants.START_PROCESS);
             Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_START);
@@ -38,7 +38,7 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
             Logger.Log(LogLevel.Info, ImportConstants.END_PROCESS);
         }
 
-        private static StandardKernel CreateKernel()
+        private StandardKernel CreateKernel()
         {
             return new StandardKernel(
                 new Scd.Core.Module(),

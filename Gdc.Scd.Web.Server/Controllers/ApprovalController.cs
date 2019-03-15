@@ -37,14 +37,14 @@ namespace Gdc.Scd.Web.Server.Controllers
 
         [HttpGet]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.OwnApproval })]
-        public async Task<IEnumerable<BundleDto>> GetOwnApprovalBundles([FromUri]OwnApprovalFilter filter = null)
+        public async Task<IEnumerable<BundleDto>> GetOwnApprovalBundles([FromUri]BundleFilter filter = null)
         {
             return await this.approvalService.GetOwnApprovalBundles(filter);
         }
 
         [HttpPost]
         [ScdAuthorize(Permissions = new[] { PermissionConstants.OwnApproval })]
-        public async Task<IEnumerable<BundleDto>> GetOwnApprovalBundlesByFilter(OwnApprovalFilter filter)
+        public async Task<IEnumerable<BundleDto>> GetOwnApprovalBundlesByFilter(BundleFilter filter)
         {
             return await this.approvalService.GetOwnApprovalBundles(filter);
         }
