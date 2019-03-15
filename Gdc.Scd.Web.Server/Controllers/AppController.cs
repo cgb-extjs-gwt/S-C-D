@@ -17,11 +17,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         [HttpGet]
         public AppData GetAppData()
         {
-            var appData = this.appService.GetAppData();
-            if (appData.IsAuthorized)
-                return appData;
-            var message = new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized) { ReasonPhrase = "You are not authorized." };
-            throw new HttpResponseException(message);
+            return this.appService.GetAppData();
         }
     }
 }

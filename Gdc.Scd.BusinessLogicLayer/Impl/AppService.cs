@@ -34,21 +34,20 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public AppData GetAppData()
         {
-            var user = this.userService.GetCurrentUser();
-            if (user == null)
-                return new AppData
-                {
-                    AppVersion = ConfigurationManager.AppSettings["ApplicationVersion"],
-                    IsAuthorized = false
-                };
+           var user = this.userService.GetCurrentUser();
 
-            return new AppData
+            var appData = new AppData()
             {
-                Meta = this.GetMetaDto(user),
-                UserRoles = this.GetRoleDtos(user),
-                AppVersion = ConfigurationManager.AppSettings["ApplicationVersion"],
-                IsAuthorized = true
+                AppVersion = ConfigurationManager.AppSettings["ApplicationVersion"]
             };
+
+            if (user == null)
+                return appData;
+
+            appData.Meta = this.GetMetaDto(user);
+            appData.UserRoles = this.GetRoleDtos(user);
+
+            return appData;
         }
 
         private IEnumerable<RoleDto> GetRoleDtos(User user)

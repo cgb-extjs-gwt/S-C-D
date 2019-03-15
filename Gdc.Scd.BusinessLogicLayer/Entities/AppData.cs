@@ -11,7 +11,5 @@ namespace Gdc.Scd.BusinessLogicLayer.Entities
         public IEnumerable<RoleDto> UserRoles { get; set; }
 
         public string AppVersion { get; set; }
-
-        public bool IsAuthorized { get; set; }
     }
 }
