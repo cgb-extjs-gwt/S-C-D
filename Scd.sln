@@ -50,7 +50,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Tests.Util", "Gdc.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Tests.Integration.BusinessLogicLayer", "Gdc.Scd.Tests.Integration.BusinessLogicLayer\Gdc.Scd.Tests.Integration.BusinessLogicLayer.csproj", "{4537345E-B8F7-47A6-8E02-F670B8359797}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Import.ExchangeRates", "Gdc.Scd.Import.ExchangeRates\Gdc.Scd.Import.ExchangeRates.csproj", "{E51D31BA-94BF-4200-80A3-535A95F95BD8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Import.ExchangeRatesJob", "Gdc.Scd.Import.ExchangeRates\Gdc.Scd.Import.ExchangeRatesJob.csproj", "{E51D31BA-94BF-4200-80A3-535A95F95BD8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Import.CentralContractGroup", "Gdc.Scd.Import.CentralContractGroup\Gdc.Scd.Import.CentralContractGroup.csproj", "{72E3DBA1-B2C5-4A32-A41D-54D84624400E}"
 EndProject

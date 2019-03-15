@@ -23,24 +23,26 @@ namespace Gdc.Scd.Export.CdCs.Procedures
         {
             var result = new List<ServiceCostDto>();
             var procName = Enums.Functions.GetServiceCostsBySla;
-            var data = _repository.ExecuteAsTable(procName, FillParameters(country, slaList));
-            
-            for(var i = 0; i < data.Rows.Count; i++)
+
+            foreach (var sla in slaList)
             {
-                result.Add(GetServiceCost(country, "123", data.Rows[i]));
+                var data = _repository.ExecuteAsTable(procName, FillParameters(country, sla));
+                var row = data != null && data.Rows.Count > 0 ? data.Rows[0] : null;
+                result.Add(GetServiceCost(country, sla.FspCode, row));
             }
+           
             return result;
         }
 
-        private DbParameter[] FillParameters(string country, List<SlaDto> sla)
+        private DbParameter[] FillParameters(string country, SlaDto sla)
         {
             var cnt = new DbParameterBuilder().WithName("cnt").WithValue(country);
-            var loc = new DbParameterBuilder().WithName("loc").WithListNameValue(sla.Select(x=>x.ServiceLocation).Distinct().ToArray());
-            var av = new DbParameterBuilder().WithName("av").WithListNameValue(sla.Select(x => x.Availability).Distinct().ToArray());
-            var reactiontime = new DbParameterBuilder().WithName("reactiontime").WithListNameValue(sla.Select(x => x.ReactionTime).Distinct().ToArray());
-            var reactiontype = new DbParameterBuilder().WithName("reactiontype").WithListNameValue(sla.Select(x => x.ReactionType).Distinct().ToArray());
-            var wg = new DbParameterBuilder().WithName("wg").WithListNameValue(sla.Select(x => x.WarrantyGroup).Distinct().ToArray());
-            var dur = new DbParameterBuilder().WithName("dur").WithListNameValue(sla.Select(x => x.Duration).Distinct().ToArray());
+            var loc = new DbParameterBuilder().WithName("loc").WithValue(sla.ServiceLocation);
+            var av = new DbParameterBuilder().WithName("av").WithValue(sla.Availability);
+            var reactiontime = new DbParameterBuilder().WithName("reactiontime").WithValue(sla.ReactionTime);
+            var reactiontype = new DbParameterBuilder().WithName("reactiontype").WithValue(sla.ReactionType);
+            var wg = new DbParameterBuilder().WithName("wg").WithValue(sla.WarrantyGroup);
+            var dur = new DbParameterBuilder().WithName("dur").WithValue(sla.Duration);
 
             var result = new DbParameter[] {
                 cnt.Build(),

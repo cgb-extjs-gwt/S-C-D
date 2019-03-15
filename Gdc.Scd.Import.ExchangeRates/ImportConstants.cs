@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gdc.Scd.Import.ExchangeRates
+namespace Gdc.Scd.Import.ExchangeRatesJob
 {
     public class ImportConstants
     {

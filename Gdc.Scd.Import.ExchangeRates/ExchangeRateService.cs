@@ -10,15 +10,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gdc.Scd.Import.ExchangeRates
+namespace Gdc.Scd.Import.ExchangeRatesJob
 {
     public class ExchangeRateService
     {
-        public static IConfigHandler ConfigHandler { get; private set; }
-        public static IImportManager ImportManager { get; set; }
-        public static ILogger<LogLevel> Logger { get; private set; }
+        public IConfigHandler ConfigHandler { get; private set; }
+        public IImportManager ImportManager { get; set; }
+        public ILogger<LogLevel> Logger { get; private set; }
 
-        static ExchangeRateService()
+        public ExchangeRateService()
         {
             NinjectExt.IsConsoleApplication = true;
             IKernel kernel = CreateKernel();
@@ -27,7 +27,7 @@ namespace Gdc.Scd.Import.ExchangeRates
             Logger = kernel.Get<ILogger<LogLevel>>();
         }
 
-        public static void UploadExchangeRates()
+        public void UploadExchangeRates()
         {
             Logger.Log(LogLevel.Info, ImportConstants.START_PROCESS);
             Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_START);
@@ -42,7 +42,7 @@ namespace Gdc.Scd.Import.ExchangeRates
             Logger.Log(LogLevel.Info, ImportConstants.END_PROCESS);
         }
 
-        private static StandardKernel CreateKernel()
+        private StandardKernel CreateKernel()
         {
             return new StandardKernel(
                 new Scd.Core.Module(),
