@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 13;
+        public int Number => 45;
 
         public string Description => "Add country folders for CD CS";
 
