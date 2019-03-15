@@ -157,6 +157,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                         <CheckColumn dataIndex={SELECTED_FIELD} sortable={false} flex="0.2" hidden={!this.approved()}/>
                         <Column text="Country" dataIndex="Country" />
+                        <Column text="SOG" dataIndex="Sog" />
                         <Column text="WG(Asset)" dataIndex="Wg" />
                         <Column text="Availability" dataIndex="Availability" />
                         <Column text="Duration" dataIndex="Duration" />
