@@ -1,6 +1,8 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Portfolio;
+using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
@@ -12,11 +14,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
     public class PortfolioService : IPortfolioService
     {
+        private const string PORTFOLIO_ROLE = "Portfolio";
+
         private readonly IRepositorySet repositorySet;
 
         private readonly IRepository<LocalPortfolio> localRepo;
 
         private readonly IRepository<PrincipalPortfolio> principalRepo;
+
+        private readonly IRepository<PortfolioHistory> historyRepo;
 
         private readonly IUserService userService;
 
@@ -24,28 +30,30 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 IRepositorySet repositorySet,
                 IRepository<LocalPortfolio> localRepo,
                 IRepository<PrincipalPortfolio> principalRepo,
+                IRepository<PortfolioHistory> historyRepo,
                 IUserService userService
             )
         {
             this.repositorySet = repositorySet;
             this.localRepo = localRepo;
             this.principalRepo = principalRepo;
+            this.historyRepo = historyRepo;
             this.userService = userService;
         }
 
         public Task Allow(PortfolioRuleSetDto m)
         {
-            return UpdatePortfolio(m, false);
+            return UpdatePortfolio(userService.GetCurrentUser(), m, false);
         }
 
         public Task Deny(PortfolioRuleSetDto m)
         {
-            return UpdatePortfolio(m, true);
+            return UpdatePortfolio(userService.GetCurrentUser(), m, true);
         }
 
         public Task Deny(long[] countryId, long[] ids)
         {
-            return new UpdateLocalPortfolio(repositorySet).DenyAsync(ids);
+            return DenyById(userService.GetCurrentUser(), ids);
         }
 
         public Task<(PortfolioDto[] items, int total)> GetAllowed(PortfolioFilterDto filter, int start, int limit)
@@ -140,7 +148,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return (result, count);
         }
 
-        private Task UpdatePortfolio(PortfolioRuleSetDto m, bool deny)
+        private async Task UpdatePortfolio(User changeUser, PortfolioRuleSetDto m, bool deny)
         {
             if (m == null)
             {
@@ -152,14 +160,66 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 throw new ArgumentException("No portfolio or SLA specified!");
             }
 
+            if (!CanEdit(changeUser, m))
+            {
+                throw new ArgumentException("Illegal access. User does not have <portfolio> role");
+            }
+
             if (m.IsLocalPortfolio())
             {
-                return new UpdateLocalPortfolio(repositorySet).UpdateAsync(m, deny);
+                await new UpdateLocalPortfolio(repositorySet).UpdateAsync(m, deny);
             }
             else
             {
-                return new UpdatePrincipalPortfolio(repositorySet).UpdateAsync(m, deny);
+                await new UpdatePrincipalPortfolio(repositorySet).UpdateAsync(m, deny);
             }
+            //
+            Log(changeUser, new PortfolioRuleSetDto[] { m }, deny);
+        }
+
+        private async Task DenyById(User changeUser, long[] ids)
+        {
+            var ruleSet = await localRepo.GetAll()
+                                       .Where(x => ids.Contains(x.Id))
+                                       .Select(x => new PortfolioRuleSetDto
+                                       {
+                                           CountryId = x.Country.Id,
+                                           Wgs = new long[] { x.Wg.Id },
+                                           Availabilities = new long[] { x.Availability.Id },
+                                           Durations = new long[] { x.Duration.Id },
+                                           ReactionTypes = new long[] { x.ReactionType.Id },
+                                           ReactionTimes = new long[] { x.ReactionTime.Id },
+                                           ServiceLocations = new long[] { x.ServiceLocation.Id },
+                                           ProActives = new long[] { x.ProActiveSla.Id }
+                                       })
+                                       .GetAsync();
+
+            await new UpdateLocalPortfolio(repositorySet).DenyAsync(ids);
+            //
+            Log(changeUser, ruleSet, true);
+        }
+
+        private void Log(User changeUser, PortfolioRuleSetDto[] ruleSet, bool deny)
+        {
+            for (var i = 0; i < ruleSet.Length; i++)
+            {
+                var r = ruleSet[i];
+                var h = new PortfolioHistory
+                {
+                    Deny = deny,
+                    CountryId = r.CountryId,
+                    EditDate = DateTime.Now,
+                    EditUser = changeUser,
+                    RuleSet = r.AsJson()
+                };
+                historyRepo.Save(h);
+            }
+            repositorySet.Sync();
+        }
+
+        public bool CanEdit(User usr, PortfolioRuleSetDto m)
+        {
+            return m.IsLocalPortfolio() || userService.HasRole(usr.Login, PORTFOLIO_ROLE);
         }
     }
 }

@@ -86,6 +86,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             /*---------domain business logic------------*/
             Kernel.RegisterEntity<LocalPortfolio>();
             Kernel.RegisterEntity<PrincipalPortfolio>();
+            Kernel.RegisterEntity<PortfolioHistory>();
             Kernel.RegisterEntity<HardwareManualCost>();
             Kernel.RegisterEntity<HddRetentionManualCost>();
             Kernel.RegisterEntity<HddRetentionView>();
