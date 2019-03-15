@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Entities;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
@@ -15,11 +14,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
     {
         private readonly IRepositorySet repositorySet;
 
+        private readonly ICostBlockQueryBuilder costBlockQueryBuilder;
+
         private readonly DomainEnitiesMeta domainEnitiesMeta;
 
-        public CostEditorRepository(IRepositorySet repositorySet, DomainEnitiesMeta domainEnitiesMeta)
+        public CostEditorRepository(
+            IRepositorySet repositorySet, 
+            ICostBlockQueryBuilder costBlockQueryBuilder, 
+            DomainEnitiesMeta domainEnitiesMeta)
         {
             this.repositorySet = repositorySet;
+            this.costBlockQueryBuilder = costBlockQueryBuilder;
             this.domainEnitiesMeta = domainEnitiesMeta;
         }
 
@@ -32,43 +37,25 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(context);
             var nameField = costBlockMeta.InputLevelFields[context.InputLevelId];
-
-            var nameColumn = new ColumnInfo(nameField.ReferenceFaceField, nameField.ReferenceMeta.Name);
-            var nameIdColumn = new ColumnInfo(nameField.ReferenceValueField, nameField.ReferenceMeta.Name);
-            var countColumn = SqlFunctions.Count(context.CostElementId, true, costBlockMeta.Name);
-
-            QueryColumnInfo maxValueColumn;
-
-            var valueField = costBlockMeta.CostElementsFields[context.CostElementId];
-            var simpleValueField = valueField as SimpleFieldMeta;
-            if (simpleValueField != null && simpleValueField.Type == TypeCode.Boolean)
+            var queryData = new CostBlockSelectQueryData
             {
-                var valueColumn = new ColumnSqlBuilder { Name = simpleValueField.Name };
-
-                maxValueColumn = SqlFunctions.Max(
-                    SqlFunctions.Convert(valueColumn, TypeCode.Int32),
-                    costBlockMeta.Name);
-            }
-            else
-            {
-                maxValueColumn = SqlFunctions.Max(context.CostElementId, costBlockMeta.Name);
-            }
+                CostBlock = costBlockMeta,
+                CostElementInfos = new[] 
+                {
+                    new CostBlockSelectCostElementInfo { CostElementId = context.CostElementId }
+                },
+                GroupedFields = new[] { context.InputLevelId },
+                IsGroupedFieldsNameSelected = true,
+                Filter = filter
+            };
 
             var query =
-                Sql.Select(nameIdColumn, nameColumn, maxValueColumn, countColumn)
-                   .From(costBlockMeta)
-                   .Join(costBlockMeta, nameField.Name)
-                   .WhereNotDeleted(costBlockMeta, filter, costBlockMeta.Name)
-                   .GroupBy(nameColumn, nameIdColumn)
-                   .OrderBy(new OrderByInfo
-                   {
-                       Direction = SortDirection.Asc,
-                       SqlBuilder = new ColumnSqlBuilder
-                       {
-                           Table = nameColumn.TableName,
-                           Name = nameColumn.Name
-                       }
-                   });
+                this.costBlockQueryBuilder.BuildSelectQuery(queryData)
+                                          .OrderBy(new OrderByInfo
+                                          {
+                                              Direction = SortDirection.Asc,
+                                              SqlBuilder = new ColumnSqlBuilder($"{context.InputLevelId}_{nameField.ReferenceFaceField}")
+                                          });
 
             return await this.repositorySet.ReadBySql(query, reader =>
             {
@@ -80,6 +67,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     Name = reader.GetString(1),
                     Value = valueCount == 1 ? reader.GetValue(2) : null,
                     ValueCount = valueCount,
+                    IsApproved = reader.GetInt32(4) == 1
                 };
             });
         }

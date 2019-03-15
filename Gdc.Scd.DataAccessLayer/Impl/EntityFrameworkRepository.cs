@@ -51,10 +51,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public virtual void Delete(long id)
         {
-            var item = new T
+            var item = this.repositorySet.Find<T>(id);
+
+            if (item == null)
             {
-                Id = id
-            };
+                item = new T
+                {
+                    Id = id
+                };
+            }
 
             this.SetDeleteState(item);
         }

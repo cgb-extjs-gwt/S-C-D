@@ -31,6 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ClosedXML, Version=0.93.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ClosedXML.0.93.1\lib\net46\ClosedXML.dll</HintPath>
@@ -187,6 +190,10 @@
     <ProjectReference Include="..\Gdc.Scd.Import.Core\Gdc.Scd.Import.Core.csproj">
       <Project>{0C98C07E-1FDF-43F1-93EA-D86AB3232F25}</Project>
       <Name>Gdc.Scd.Import.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Spooler\Gdc.Scd.Spooler.csproj">
+      <Project>{C98A5155-A567-46C5-8D44-4F2568F41567}</Project>
+      <Name>Gdc.Scd.Spooler</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

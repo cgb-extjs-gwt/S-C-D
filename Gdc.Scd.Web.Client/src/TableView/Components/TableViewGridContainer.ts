@@ -41,7 +41,7 @@ const buildProps = (() => {
 
     function buildGridProps (tableViewInfo: TableViewInfo, meta: CostMetaData) {
         let readUrl: string;
-        
+
         const columns: ColumnInfo<TableViewRecord>[] = [];
 
         if (tableViewInfo && meta) {
@@ -162,7 +162,8 @@ const buildProps = (() => {
                         return value == null ? ' ' : value;
                     },
                     editMappingFn: (record, dataIndex) => record.data.data[dataIndex].value = record.get(dataIndex),
-                    getCountFn: record => record.data.data[dataIndex].count
+                    getCountFn: record => record.data.data[dataIndex].count,
+                    getIsApprovedFn: record => record.data.data[dataIndex].isApproved,
                 })
             }
         }

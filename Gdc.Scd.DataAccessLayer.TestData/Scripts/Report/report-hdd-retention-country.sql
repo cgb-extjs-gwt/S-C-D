@@ -10,24 +10,42 @@ CREATE FUNCTION Report.HddRetentionByCountry
 RETURNS TABLE 
 AS
 RETURN (
-    SELECT c.CountryGroup
-         , c.Name as Country
-         , wg.Name as Wg
-         , wg.Description as WgDescription
-         , fsp.Name as Fsp
-         , fsp.Name as TopFsp
+    with HDDC as (
+        select * 
+        from Fsp.HwHddFspCodeTranslation fsp
+        where fsp.EKKey = 'HDDC'AND (@cnt is null or fsp.CountryId = @cnt)
+    )
+    , HDDT as (
+        select * 
+        from Fsp.HwHddFspCodeTranslation fsp
+        where fsp.EKKey = 'HDDT' AND (@cnt is null or fsp.CountryId = @cnt)
+    )
+    , HddFsp as (
+        select coalesce(c.CountryId, t.CountryId) as CountryId 
+             , coalesce(c.WgId, t.WgId) as WgId
+             , c.Name AS C_Fsp
+             , t.Name as T_Fsp
+        from HDDC c
+        full join HDDT t on t.WgId = c.WgId and t.CountryId = c.CountryId
+    )
+    SELECT    c.CountryGroup
+            , c.Name as Country
+            , wg.Name as Wg
+            , wg.Description as WgDescription
+            , wg.Sog as Sog
+            , fsp.C_Fsp as Fsp
+            , fsp.T_Fsp as TopFsp
 
-         , hdd.TransferPrice * er.Value as TransferPrice
-         , hdd.DealerPrice * er.Value as DealerPrice
-         , hdd.ListPrice * er.Value as ListPrice
-		 , cur.Name as Currency
+            , hdd.TransferPrice * er.Value as TransferPrice
+            , hdd.DealerPrice * er.Value as DealerPrice
+            , hdd.ListPrice * er.Value as ListPrice
+            , c.Currency
 
-    from Fsp.HwHddFspCodeTranslation fsp
+    from HddFsp fsp
     join InputAtoms.CountryView c on c.Id = fsp.CountryId
     join InputAtoms.WgSogView wg on wg.id = fsp.WgId
     left join Hardware.HddRetentionView hdd on hdd.WgId = fsp.WgId
-	join [References].Currency cur on cur.Id = c.CurrencyId
-	join [References].ExchangeRate er on er.CurrencyId = cur.Id
+    join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 
     where     (@cnt is null or fsp.CountryId = @cnt)
           and (@wg is null or fsp.WgId = @wg)
@@ -45,6 +63,8 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Country', 'Country Name', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Wg', 'Warranty Group', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Sog', 'SOG', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'WgDescription', 'Warranty Group Name', 1, 1);
 set @index = @index + 1;

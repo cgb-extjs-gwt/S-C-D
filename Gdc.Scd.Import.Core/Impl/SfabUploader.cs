@@ -2,8 +2,10 @@
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.Attributes;
+using Gdc.Scd.Import.Core.DataAccess;
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Interfaces;
 using NLog;
@@ -23,7 +25,8 @@ namespace Gdc.Scd.Import.Core.Impl
         private readonly IRepository<Sog> _repositorySog;
         private readonly ILogger<LogLevel> _logger;
 
-        public SfabUploader(IRepositorySet repositorySet, ILogger<LogLevel> logger)
+        public SfabUploader(IRepositorySet repositorySet, ILogger<LogLevel> logger, 
+            ImportRepository<Wg> wgRepository)
         {
             if (repositorySet == null)
                 throw new ArgumentNullException(nameof(repositorySet));
@@ -32,7 +35,7 @@ namespace Gdc.Scd.Import.Core.Impl
                 throw new ArgumentNullException(nameof(logger));
 
             this._repositorySet = repositorySet;
-            this._repositoryWg = this._repositorySet.GetRepository<Wg>();
+            this._repositoryWg = wgRepository;
             this._repositorySfab = this._repositorySet.GetRepository<SFab>();
             this._repositorySog = this._repositorySet.GetRepository<Sog>();
             this._logger = logger;

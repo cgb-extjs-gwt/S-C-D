@@ -23,10 +23,24 @@ export class PortfolioService implements IPortfolioService {
     }
 
     private postSequential(action: string, row: PortfolioEditModel): Promise<any> {
-        return this.getWgOrDefault(row.wgs).then(x => this.postSerial(action, x, row))
+        let countries = row.countries;
+        return this.getWgOrDefault(row.wgs).then(x => this.postSequentialByCountry(action, countries, x, row))
     }
 
-    private postSerial(action: string, arr: string[], row: PortfolioEditModel): Promise<any> {
+    private postSequentialByCountry(action: string, countries: string[], wgs: string[], row: PortfolioEditModel): Promise<any> {
+
+        let p = Promise.resolve();
+
+        for (let i = 0, len = countries.length; i < len; i++) {
+            let cnt = countries[i];
+            let wgCopy = [...wgs];
+            p = p.then(x => this.postSerial(action, cnt, wgCopy, row));
+        }
+
+        return p;
+    }
+
+    private postSerial(action: string, cnt: string, arr: string[], row: PortfolioEditModel): Promise<any> {
 
         //send batch update by 8wg only
 
@@ -38,7 +52,7 @@ export class PortfolioService implements IPortfolioService {
 
             if (k == max) {
                 let partCopy = part;
-                p = p.then(() => this.send(action, partCopy, row));
+                p = p.then(() => this.send(action, cnt, partCopy, row));
                 part = [];
                 k = 0;
             }
@@ -47,11 +61,11 @@ export class PortfolioService implements IPortfolioService {
             k++;
         }
 
-        return p.then(() => this.send(action, part, row));
+        return p.then(() => this.send(action, cnt, part, row));
     }
 
-    private send(action: string, wg: string[], row: PortfolioEditModel): Promise<any> {
-        return post(this.controllerName, action, { ...row, wgs: wg });
+    private send(action: string, cnt: string, wg: string[], row: PortfolioEditModel): Promise<any> {
+        return post(this.controllerName, action, { ...row, CountryId: cnt, wgs: wg });
     }
 
     private getWgOrDefault(wg: string[]): Promise<string[]> {
