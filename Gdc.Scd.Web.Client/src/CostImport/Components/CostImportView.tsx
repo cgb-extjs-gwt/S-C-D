@@ -150,7 +150,9 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
                     valueField: 'id',
                     displayField: 'name',
                     queryMode: 'local',
-                    selection
+                    selection,
+                    clearable: true,
+                    forceSelection: true                         
                 }
             }
         }
