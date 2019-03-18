@@ -7,9 +7,9 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 45;
+        public int Number => 46;
 
-        public string Description => "Change hardware get cost, add sog";
+        public string Description => "Add portfolio history";
 
         public Migration_2019_03_15_16_45(IRepositorySet repositorySet)
         {
