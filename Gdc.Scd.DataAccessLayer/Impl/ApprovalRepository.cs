@@ -75,7 +75,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     inputLevelId = history.Context.InputLevelId;
                     inputLevelJoinType = InputLevelJoinType.HistoryContext;
                     domainCoordinateFields =
-                        costElementMeta.FilterInputLevels(history.Context.InputLevelId)
+                        costElementMeta.SortInputLevel()
                                        .Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]);
 
                     var dependencyField = costBlockMeta.GetDomainDependencyField(history.Context.CostElementId);
