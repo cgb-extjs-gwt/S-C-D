@@ -49,9 +49,6 @@
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.5.10\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="OperationResult">
-      <HintPath>..\..\WAS\SCD\Gdc.Scd.Spooler\OperationResult\OperationResult.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ComponentModel.Annotations.4.5.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
@@ -102,6 +99,10 @@
     <ProjectReference Include="..\Gdc.Scd.Import.Core\Gdc.Scd.Import.Core.csproj">
       <Project>{0c98c07e-1fdf-43f1-93ea-d86ab3232f25}</Project>
       <Name>Gdc.Scd.Import.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Spooler\Gdc.Scd.Spooler.csproj">
+      <Project>{C98A5155-A567-46C5-8D44-4F2568F41567}</Project>
+      <Name>Gdc.Scd.Spooler</Name>
     </ProjectReference>
     <ProjectReference Include="..\Gdc.Scd.Tests.BusinessLogicLayer\Gdc.Scd.Tests.BusinessLogicLayer.csproj">
       <Project>{28974cf0-7147-43fb-9978-2fa104edbad9}</Project>
