@@ -43,19 +43,6 @@ namespace Gdc.Scd.Core.Meta.Entities
             return previousInputLevel;
         }
 
-        public IEnumerable<InputLevelMeta> FilterInputLevels(string maxInputLevelId)
-        {
-            foreach (var inputLevel in this.SortInputLevel())
-            {
-                yield return inputLevel;
-
-                if (inputLevel.Id == maxInputLevelId)
-                {
-                    break;
-                }
-            }
-        }
-
         public bool HasInputLevelFilter(string inputLevelId)
         {
             return this.GetFilterInputLevel(inputLevelId) != null;
