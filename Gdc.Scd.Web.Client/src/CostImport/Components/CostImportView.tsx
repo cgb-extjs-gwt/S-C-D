@@ -80,7 +80,7 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
     public render() {
         const { dependencyItems, isImportButtonEnabled, isVisibleDependencyItems, isVisibleRegions } = this.props;
         const qualityGateProps: QualityGateWindowContainerProps = { 
-            position: { left: '20%', top: '20%' }
+            position: { left: '400', top: '300' }
         };
 
         return (
