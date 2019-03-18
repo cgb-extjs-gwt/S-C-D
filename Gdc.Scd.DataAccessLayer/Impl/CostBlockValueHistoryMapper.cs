@@ -25,19 +25,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public bool UsetCountryGroupQualityGate { get; set; }
 
-        public CostBlockValueHistoryMapper(CostBlockEntityMeta costBlockMeta, string costElementId, string maxInputLevelId = null)
+        public CostBlockValueHistoryMapper(CostBlockEntityMeta costBlockMeta, string costElementId, string lastInputLevelId = null)
         {
             this.costBlockMeta = costBlockMeta;
 
             var costElement = costBlockMeta.DomainMeta.CostElements[costElementId];
 
-            var inputLevels = maxInputLevelId == null
-                ? costElement.InputLevels
-                : costElement.FilterInputLevels(maxInputLevelId);
+            this.inputLevelIds = costElement.SortInputLevel().Select(inputLevel => inputLevel.Id).ToArray();
 
-            this.inputLevelIds = inputLevels.Select(inputLevel => inputLevel.Id).ToArray();
-
-            this.lastInputLevel = this.inputLevelIds.Last();
+            this.lastInputLevel = lastInputLevelId ?? this.inputLevelIds.Last();
 
             this.dependencyField = this.costBlockMeta.GetDomainDependencyField(costElementId);
         }
