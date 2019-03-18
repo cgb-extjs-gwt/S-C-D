@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Dialog } from "@extjs/ext-react";
+import { Dialog, Container } from "@extjs/ext-react";
 import { QualityGateErrorView, QualityGateErrorProps } from "./QualityGateErrorView";
 import { QualityGateErrorContainer, QualityGateErrorContainerProps } from "./QualityGateErrorContainer";
 import { Position } from "../../Common/States/ExtStates";
@@ -15,22 +15,23 @@ export class QualityGateErrorWindow extends React.Component<QualityGateErrorWind
 
         return (
             hasErrors 
-                ? <Dialog 
-                    displayed={hasErrors} 
-                    title="Quality gate errors" 
-                    maximizable
-                    resizable={{
-                        dynamic: true,
-                        edges: 'all'
-                    }}
-                    minHeight="50%"
-                    minWidth="60%"
-                    layout="fit"
-                    closeAction="destroy"
-                    {...position}
-                >
-                    <QualityGateErrorContainer {...(this.props as any)}  />
-                </Dialog>
+                ? <Container {...position}>
+                    <Dialog 
+                        displayed={hasErrors} 
+                        title="Quality gate errors" 
+                        maximizable
+                        resizable={{
+                            dynamic: true,
+                            edges: 'all'
+                        }}
+                        height="50%"
+                        width="60%"
+                        layout="fit"
+                        closeAction="destroy"
+                    >
+                        <QualityGateErrorContainer {...(this.props as any)}  />
+                    </Dialog>
+                </Container>
                 : null
         );
     }

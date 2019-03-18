@@ -113,6 +113,7 @@ export class BundleDetailView extends React.Component<BundleDetailProps, BundleD
                 title="Details" 
                 closable 
                 maximizable
+                width='60%'
                 resizable={{
                     dynamic: true,
                     edges: 'all'
