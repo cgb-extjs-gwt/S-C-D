@@ -39,7 +39,7 @@ export class TableView extends React.Component<TableViewProps, TableViewState> {
                         isEnabled={isEnableHistoryButton}
                         flex={1}
                         windowPosition={{
-                            top: '25%',
+                            top: '300',
                             left: '25%'
                         }}
                         buidHistoryUrl={() => buildHistotyDataLoadUrl && buildHistotyDataLoadUrl(selection, selectedDataIndex)}
