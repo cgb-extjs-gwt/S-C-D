@@ -24,15 +24,13 @@ export class HistoryValuesGridView extends React.Component<HistoryValuesGridView
 
     public render() {
         return (
-            <Container>
-                <Grid ref={x => this.grid = x} masked={{ xtype: "loadmask" }}
-                    store={this.store} deferEmptyText={false} emptyText="No history is available..."
-                    columnLines={true} border={true} minHeight="400">
-                    <DateColumn dataIndex={EDIT_DATE_COLUMN_NAME} text="Date" format={DateFormats.dateTime} flex={1} groupable={false}/>
-                    <Column dataIndex={EDIT_USER_NAME_COLUMN_NAME} text="User" flex={1} groupable={false}/>
-                    <Column dataIndex={VALUE_COLUMN_NAME} text="Value" flex={1} groupable={false}/>
-                </Grid>
-            </Container>
+             <Grid ref={x => this.grid = x} masked={{ xtype: "loadmask" }}
+                store={this.store} deferEmptyText={false} emptyText="No history is available..."
+                columnLines={true} border={true} minHeight="400">
+                <DateColumn dataIndex={EDIT_DATE_COLUMN_NAME} text="Date" format={DateFormats.dateTime} flex={1} groupable={false}/>
+                <Column dataIndex={EDIT_USER_NAME_COLUMN_NAME} text="User" flex={1} groupable={false}/>
+                <Column dataIndex={VALUE_COLUMN_NAME} text="Value" flex={1} groupable={false}/>
+            </Grid>
         );
     }
 

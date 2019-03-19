@@ -1,6 +1,6 @@
 import * as React from "react";
 import { HistoryValuesGridViewProps, HistoryValuesGridView } from "./HistoryValuesGridView";
-import { Dialog } from "@extjs/ext-react";
+import { Dialog, Container } from "@extjs/ext-react";
 import { Position } from "../../Common/States/ExtStates"
 
 export interface HistoryWindowViewActions {
@@ -17,23 +17,25 @@ export class HistoryWindowView extends React.Component<HistoryWindowViewProps> {
         const { isVisible, onClose, position = {}, dataLoadUrl } = this.props;
 
         return (
-            <Dialog 
-                displayed={isVisible} 
-                title="History" 
-                closable 
-                maximizable
-                resizable={{
-                    dynamic: true,
-                    edges: 'all'
-                }}
-                minHeight="600"
-                minWidth="700"
-                onClose={onClose}
-                layout="fit"
-                {...position}
-            >
-                <HistoryValuesGridView dataLoadUrl={dataLoadUrl} />
-            </Dialog>
+            <Container {...position}>
+                <Dialog 
+                    displayed={isVisible} 
+                    title="History" 
+                    closable 
+                    maximizable
+                    resizable={{
+                        dynamic: true,
+                        edges: 'all'
+                    }}
+                    width="50%"
+                    height="60%"
+                    onClose={onClose}
+                    layout="fit"
+                >
+                    <HistoryValuesGridView dataLoadUrl={dataLoadUrl} />
+                </Dialog>
+            </Container>
+            
         );
     }
 }
