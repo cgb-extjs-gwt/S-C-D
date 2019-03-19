@@ -58,7 +58,7 @@ namespace Gdc.Scd.Web.Server.Controllers
             }
 
             return portfolioService
-                    .GetHistory(filter.Country, filter.Start, filter.Limit)
+                    .GetHistory(filter.Start, filter.Limit)
                     .ContinueWith(x => new DataInfo<PortfolioHistoryDto> { Items = x.Result.items, Total = x.Result.total });
         }
 
@@ -77,8 +77,6 @@ namespace Gdc.Scd.Web.Server.Controllers
 
     public class PortfolioHistoryFilterDto
     {
-        public long? Country { get; set; }
-
         public int Start { get; set; }
 
         public int Limit { get; set; }

@@ -155,9 +155,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return (result, count);
         }
 
-        public async Task<(PortfolioHistoryDto[] items, int total)> GetHistory(long? countryId, int start, int limit)
+        public async Task<(PortfolioHistoryDto[] items, int total)> GetHistory(int start, int limit)
         {
-            var query = historyRepo.GetAll().Where(x => x.CountryId == countryId);
+            var query = historyRepo.GetAll();
 
             var count = await query.GetCountAsync();
 
@@ -166,6 +166,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 EditUser = x.EditUser.Name + "[" + x.EditUser.Email + "]",
                 EditDate = x.EditDate,
                 Deny = x.Deny,
+                Country = x.Country == null ? null : x.Country.Name,
                 Json = x.Rules
 
             })

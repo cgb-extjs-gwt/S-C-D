@@ -33,7 +33,7 @@ namespace Gdc.Scd.Core.Entities
 
         public long? CountryId { get; set; }
 
-        private Country Country { get; set; }
+        public Country Country { get; set; }
 
         public string Rules { get; set; }
     }
