@@ -16,6 +16,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     {
         private const string PORTFOLIO_ROLE = "Portfolio";
 
+        private CacheDomainService cache;
+
         private readonly IRepositorySet repositorySet;
 
         private readonly IRepository<LocalPortfolio> localRepo;
@@ -39,6 +41,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.principalRepo = principalRepo;
             this.historyRepo = historyRepo;
             this.userService = userService;
+        }
+
+        public bool CanEdit(User usr, PortfolioRuleSetDto m)
+        {
+            return m.IsLocalPortfolio() || userService.HasRole(usr.Login, PORTFOLIO_ROLE);
         }
 
         public Task Allow(PortfolioRuleSetDto m)
@@ -174,12 +181,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 await new UpdatePrincipalPortfolio(repositorySet).UpdateAsync(m, deny);
             }
             //
-            Log(changeUser, new PortfolioRuleSetDto[] { m }, deny);
+            await Log(changeUser, new PortfolioRuleSetDto[] { m }, deny);
         }
 
         private async Task DenyById(User changeUser, long[] ids)
         {
-            var ruleSet = await localRepo.GetAll()
+            var rules = await localRepo.GetAll()
                                        .Where(x => ids.Contains(x.Id))
                                        .Select(x => new PortfolioRuleSetDto
                                        {
@@ -196,30 +203,57 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             await new UpdateLocalPortfolio(repositorySet).DenyAsync(ids);
             //
-            Log(changeUser, ruleSet, true);
+            await Log(changeUser, rules, true);
         }
 
-        private void Log(User changeUser, PortfolioRuleSetDto[] ruleSet, bool deny)
+        private async Task Log(User changeUser, PortfolioRuleSetDto[] rules, bool deny)
         {
-            for (var i = 0; i < ruleSet.Length; i++)
+            for (var i = 0; i < rules.Length; i++)
             {
-                var r = ruleSet[i];
+                var r = rules[i];
+                var p = await AsHistoryRule(r);
                 var h = new PortfolioHistory
                 {
                     Deny = deny,
                     CountryId = r.CountryId,
                     EditDate = DateTime.Now,
                     EditUser = changeUser,
-                    RuleSet = r.AsJson()
+                    RuleSet = p.AsJson()
                 };
                 historyRepo.Save(h);
             }
             repositorySet.Sync();
         }
 
-        public bool CanEdit(User usr, PortfolioRuleSetDto m)
+        private async Task<PortfolioHistroryRuleDto> AsHistoryRule(PortfolioRuleSetDto dto)
         {
-            return m.IsLocalPortfolio() || userService.HasRole(usr.Login, PORTFOLIO_ROLE);
+            if (cache == null)
+            {
+                cache = new CacheDomainService(repositorySet);
+            }
+
+            var p = new PortfolioHistroryRuleDto();
+
+            if (dto.IsLocalPortfolio())
+            {
+                p.Country = await cache.GetName<Country>(dto.CountryId.Value);
+            }
+            else
+            {
+                p.IsCorePortfolio = dto.IsCorePortfolio;
+                p.IsGlobalPortfolio = dto.IsGlobalPortfolio;
+                p.IsMasterPortfolio = dto.IsMasterPortfolio;
+            }
+
+            p.Wgs = await cache.GetNames<Wg>(dto.Wgs);
+            p.Availabilities = await cache.GetNames<Availability>(dto.Availabilities);
+            p.Durations = await cache.GetNames<Duration>(dto.Durations);
+            p.ReactionTimes = await cache.GetNames<ReactionTime>(dto.ReactionTimes);
+            p.ReactionTypes = await cache.GetNames<ReactionType>(dto.ReactionTypes);
+            p.ServiceLocations = await cache.GetNames<ServiceLocation>(dto.ServiceLocations);
+            p.ProActives = await cache.GetExtNames<ProActiveSla>(dto.ProActives);
+
+            return p;
         }
     }
 }
