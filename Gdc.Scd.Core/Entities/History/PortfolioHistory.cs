@@ -35,6 +35,6 @@ namespace Gdc.Scd.Core.Entities
 
         private Country Country { get; set; }
 
-        public string RuleSet { get; set; }
+        public string Rules { get; set; }
     }
 }

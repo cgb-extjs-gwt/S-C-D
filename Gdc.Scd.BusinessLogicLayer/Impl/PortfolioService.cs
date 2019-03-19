@@ -155,6 +155,26 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return (result, count);
         }
 
+        public async Task<(PortfolioHistoryDto[] items, int total)> GetHistory(long? countryId, int start, int limit)
+        {
+            var query = historyRepo.GetAll().Where(x => x.CountryId == countryId);
+
+            var count = await query.GetCountAsync();
+
+            var result = await query.Select(x => new PortfolioHistoryDto
+            {
+                EditUser = x.EditUser.Name + "[" + x.EditUser.Email + "]",
+                EditDate = x.EditDate,
+                Deny = x.Deny,
+                Json = x.Rules
+
+            })
+            .OrderByDescending(x => x.EditDate)
+            .PagingAsync(start, limit);
+
+            return (result, count);
+        }
+
         private async Task UpdatePortfolio(User changeUser, PortfolioRuleSetDto m, bool deny)
         {
             if (m == null)
@@ -218,7 +238,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     CountryId = r.CountryId,
                     EditDate = DateTime.Now,
                     EditUser = changeUser,
-                    RuleSet = p.AsJson()
+                    Rules = p.AsJson()
                 };
                 historyRepo.Save(h);
             }

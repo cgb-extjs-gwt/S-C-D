@@ -8,10 +8,13 @@ CREATE TABLE History.PortfolioHistory (
     [EditUserId] [bigint] NULL foreign key references [dbo].[User] ([Id]),
     [Deny] bit NOT NULL,
     [CountryId] [bigint] NULL foreign key references InputAtoms.Country(Id),
-    [RuleSet] nvarchar(max)
+    [Rules] nvarchar(max)
 )
 
 GO
+
+create index ix_PortfolioHistory_Country on [History].[PortfolioHistory](CountryId);
+go
 
 if not exists (select id from dbo.Role where name = 'Portfolio')
 begin
