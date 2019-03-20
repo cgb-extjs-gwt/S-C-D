@@ -57,6 +57,14 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     }
                     return result;
                 }
+            },
+            {
+                name: 'MonthlyTC',
+                calculate: d => this.calcMonthlyValue(d, "ServiceTC")
+            },
+            {
+                name: 'MonthlyTP',
+                calculate: d => this.calcMonthlyValue(d, "ServiceTP")
             }
         ],
 
@@ -180,7 +188,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
                         <CheckColumn dataIndex={SELECTED_FIELD} sortable={false} flex="0.5" minWidth="50" hidden={!this.approved()}/>
                         <Column text="Country" dataIndex="Country" />
-                        <Column text="SOG" dataIndex="Sog" />
+                        <Column text="SOG(Asset)" dataIndex="Sog" />
                         <Column text="WG(Asset)" dataIndex="Wg" />
                         <Column text="Availability" dataIndex="Availability" />
                         <Column text="Duration" dataIndex="Duration" />
@@ -202,8 +210,11 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-yellow"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
+                        <NumberColumn text="Monthly Service TC" dataIndex="MonthlyTC" />
                         <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
                         <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
+
+                        <NumberColumn text="Monthly Service TP" dataIndex="MonthlyTP" />
                         <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
                         <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
                         <NumberColumn text="Service TP(released)" dataIndex="ServiceTP_Released" />
@@ -478,5 +489,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private onCheckChange = () => {
         this.grid.select(this.store.getData().items.filter(record => record.data[SELECTED_FIELD] == true));
+    }
+
+    private calcMonthlyValue = (d, fieldName:string) => {
+        let result: any;
+        if (d && (d[fieldName] || d[fieldName] === 0)) {
+            result = d[fieldName] / 12;
+        }
+        return result;
     }
 }
