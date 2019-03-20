@@ -2,6 +2,7 @@
 using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
+using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.DataAccessLayer.Helpers;
@@ -14,8 +15,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
     public class PortfolioService : IPortfolioService
     {
-        private const string PORTFOLIO_ROLE = "Portfolio";
-
         private CacheDomainService cache;
 
         private readonly IRepositorySet repositorySet;
@@ -45,7 +44,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public bool CanEdit(User usr, PortfolioRuleSetDto m)
         {
-            return m.IsLocalPortfolio() || userService.HasRole(usr.Login, PORTFOLIO_ROLE);
+            return m.IsLocalPortfolio() || userService.HasPermission(usr.Login, PermissionConstants.Portfolio);
         }
 
         public Task Allow(PortfolioRuleSetDto m)

@@ -87,6 +87,8 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
             break;
 
         case FieldType.CountryCurrencyCost: 
+            columnType = ColumnType.Numeric;
+            
             if (currency != null) {
                 formatFn = value => Ext.util.Format.number(value, `0.## ${currency}`);
             }
