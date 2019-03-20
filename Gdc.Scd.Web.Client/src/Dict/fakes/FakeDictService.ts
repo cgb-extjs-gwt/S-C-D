@@ -14,6 +14,9 @@ import { fakeWG } from "./FakeWG";
 import { fakeYears } from "./FakeYear";
 
 export class FakeDictService implements IDictService {
+    getHardwareWg(): Promise<NamedId<string>[]> {
+        throw new Error("Method not implemented.");
+    }
     getSwDigitSog(): Promise<NamedId<string>[]> {
         throw new Error("Method not implemented.");
     }

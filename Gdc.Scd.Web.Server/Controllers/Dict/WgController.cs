@@ -35,5 +35,11 @@ namespace Gdc.Scd.Web.Server.Controllers.Dict
             return wgService.GetStandards().GetAsync();
         }
 
+        [HttpGet]
+        public Task<Wg[]> Hardware()
+        {
+            return wgService.GetHardware().GetAsync();
+        }
+
     }
 }
