@@ -1,4 +1,4 @@
-﻿import { Button, CheckBoxField, Container } from "@extjs/ext-react";
+﻿import { Button, CheckBoxField, Container, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
@@ -57,6 +57,13 @@ export class PortfolioEditView extends React.Component<any, any> {
         return (
             <Container layout="vbox" padding="10px" scrollable="true">
 
+                <Toolbar docked="top">
+                    <Button iconCls="x-fa fa-arrow-left" text="back to Portfolio" handler={this.onBack} />
+                    <Button text="Deny combinations" ui="decline" padding="0 10px 0 0" handler={this.onDeny} />
+                    <Button text="Allow combinations" padding="0 10px 0 0" handler={this.onAllow} />
+                    <Button iconCls="x-fa fa-history" text="History" ui="forward" handler={this.onViewHistory} />
+                </Toolbar>
+
                 <div className="portfolio-edit-container">
                     <div>
                         <MultiSelect ref={x => this.country = x} maxHeight={SELECT_MAX_HEIGHT} title="Country" store={this.countryStore} onSelectionChange={this.onCountryChange} />
@@ -90,12 +97,6 @@ export class PortfolioEditView extends React.Component<any, any> {
                     <CheckBoxField ref={x => this.corePort = x} boxLabel="Core portfolio" />
                 </Container>
 
-                <Container>
-                    <Button iconCls="x-fa fa-arrow-left" text="back to Portfolio" handler={this.onBack} />
-                    <Button text="Deny combinations" ui="decline" padding="0 10px 0 0" handler={this.onDeny} />
-                    <Button text="Allow combinations" padding="0 10px 0 0" handler={this.onAllow} />
-                </Container>
-
             </Container>
         );
     }
@@ -110,6 +111,7 @@ export class PortfolioEditView extends React.Component<any, any> {
         this.onDeny = this.onDeny.bind(this);
         this.onBack = this.onBack.bind(this);
         this.save = this.save.bind(this);
+        this.onViewHistory = this.onViewHistory.bind(this);
 
         const srv = new UserCountryService();
         srv.isCountryUser().then(x => this.setState({ isCountryUser: x }));
@@ -132,7 +134,15 @@ export class PortfolioEditView extends React.Component<any, any> {
     }
 
     private onBack() {
-        this.props.history.push(buildComponentUrl('/portfolio'));
+        this.openLink('/portfolio');
+    }
+
+    private onViewHistory() {
+        this.openLink('/portfolio/history');
+    }
+
+    private openLink(url: string) {
+        this.props.history.push(buildComponentUrl(url));
     }
 
     private showChangeDialog(deny: boolean) {

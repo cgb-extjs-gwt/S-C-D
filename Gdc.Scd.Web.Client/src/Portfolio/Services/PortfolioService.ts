@@ -23,8 +23,14 @@ export class PortfolioService implements IPortfolioService {
     }
 
     private postSequential(action: string, row: PortfolioEditModel): Promise<any> {
-        let countries = row.countries;
-        return this.getWgOrDefault(row.wgs).then(x => this.postSequentialByCountry(action, countries, x, row))
+
+        if (row.IsLocalPortfolio()) {
+            let countries = row.countries;
+            return this.getWgOrDefault(row.wgs).then(x => this.postSequentialByCountry(action, countries, x, row))
+        }
+        else {
+            return this.getWgOrDefault(row.wgs).then(x => this.postSerial(action, null, x, row));
+        }
     }
 
     private postSequentialByCountry(action: string, countries: string[], wgs: string[], row: PortfolioEditModel): Promise<any> {
@@ -40,7 +46,7 @@ export class PortfolioService implements IPortfolioService {
         return p;
     }
 
-    private postSerial(action: string, cnt: string, arr: string[], row: PortfolioEditModel): Promise<any> {
+    private postSerial(action: string, cnt: string, wgs: string[], row: PortfolioEditModel): Promise<any> {
 
         //send batch update by 8wg only
 
@@ -48,7 +54,7 @@ export class PortfolioService implements IPortfolioService {
 
         let max = 8, k = 0, part = [];
 
-        for (let i = 0, len = arr.length; i < len; i++) {
+        for (let i = 0, len = wgs.length; i < len; i++) {
 
             if (k == max) {
                 let partCopy = part;
@@ -57,7 +63,7 @@ export class PortfolioService implements IPortfolioService {
                 k = 0;
             }
 
-            part.push(arr[i]);
+            part.push(wgs[i]);
             k++;
         }
 
