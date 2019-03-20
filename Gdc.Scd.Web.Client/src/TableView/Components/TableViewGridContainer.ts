@@ -220,11 +220,18 @@ const buildActions = (() => {
                             record.reject();
                         }
                         else {
+                            const value = record.get(dataIndex);
                             const valueCount = record.data.data[dataIndex];
 
-                            if (valueCount && valueCount.count == 0) {
+                            if (value == null) {
+                                record.set(dataIndex, undefined);
+
+                                valueCount.count = 0;
+                            } else {
                                 valueCount.count = 1;
                             }
+
+                            valueCount.isApproved = false;
                         }
                         break;
                 }
