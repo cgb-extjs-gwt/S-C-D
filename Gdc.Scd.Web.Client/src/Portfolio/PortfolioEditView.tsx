@@ -134,7 +134,15 @@ export class PortfolioEditView extends React.Component<any, any> {
     }
 
     private onBack() {
-        this.props.history.push(buildComponentUrl('/portfolio'));
+        this.openLink('/portfolio');
+    }
+
+    private onViewHistory() {
+        this.openLink('/portfolio/history');
+    }
+
+    private openLink(url: string) {
+        this.props.history.push(buildComponentUrl(url));
     }
 
     private showChangeDialog(deny: boolean) {
@@ -204,9 +212,5 @@ export class PortfolioEditView extends React.Component<any, any> {
         this.globPort.reset();
         this.masterPort.reset();
         this.corePort.reset();
-    }
-
-    private onViewHistory() {
-        this.props.history.push(buildComponentUrl('/portfolio/history'));
     }
 }
