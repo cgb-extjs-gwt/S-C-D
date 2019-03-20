@@ -388,17 +388,13 @@ const clearEditItems = buildCostBlockChanger(
 const editItem = buildCostBlockChanger<ItemEditedAction>(
     (costBlock, action) => {
         const editedItems = costBlock.edit.editedItems;
-        const editedItem = <EditItem>{
-            ...action.item,
-            valueCount: 1
-        };
 
         return {
             ...costBlock,
             edit: {
                 ...costBlock.edit,
                 editedItems: editedItems.filter(item => item.id !== action.item.id)
-                                        .concat(editedItem)
+                                        .concat(action.item)
             }
         }
     }
