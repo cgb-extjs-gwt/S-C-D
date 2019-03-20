@@ -24,23 +24,23 @@ ALTER TABLE Portfolio.LocalPortfolio
     add  ReactionTime_Avalability              bigint
        , ReactionTime_ReactionType             bigint
        , ReactionTime_ReactionType_Avalability bigint
-       , Sla AS cast(CountryId         as nvarchar(20)) + 
-                    cast(WgId              as nvarchar(20)) + 
-                    cast(AvailabilityId    as nvarchar(20)) + 
-                    cast(DurationId        as nvarchar(20)) + 
-                    cast(ReactionTimeId    as nvarchar(20)) + 
-                    cast(ReactionTypeId    as nvarchar(20)) + 
-                    cast(ServiceLocationId as nvarchar(20)) + 
-                    cast(ProactiveSlaId    as nvarchar(20))
+       , Sla AS cast(CountryId         as nvarchar(20)) + ',' +
+                cast(WgId              as nvarchar(20)) + ',' +
+                cast(AvailabilityId    as nvarchar(20)) + ',' +
+                cast(DurationId        as nvarchar(20)) + ',' +
+                cast(ReactionTimeId    as nvarchar(20)) + ',' +
+                cast(ReactionTypeId    as nvarchar(20)) + ',' +
+                cast(ServiceLocationId as nvarchar(20)) + ',' +
+                cast(ProactiveSlaId    as nvarchar(20))
 
        , SlaHash  AS checksum (
-                    cast(CountryId         as nvarchar(20)) + 
-                    cast(WgId              as nvarchar(20)) + 
-                    cast(AvailabilityId    as nvarchar(20)) + 
-                    cast(DurationId        as nvarchar(20)) + 
-                    cast(ReactionTimeId    as nvarchar(20)) + 
-                    cast(ReactionTypeId    as nvarchar(20)) + 
-                    cast(ServiceLocationId as nvarchar(20)) + 
+                    cast(CountryId         as nvarchar(20)) + ',' +
+                    cast(WgId              as nvarchar(20)) + ',' +
+                    cast(AvailabilityId    as nvarchar(20)) + ',' +
+                    cast(DurationId        as nvarchar(20)) + ',' +
+                    cast(ReactionTimeId    as nvarchar(20)) + ',' +
+                    cast(ReactionTypeId    as nvarchar(20)) + ',' +
+                    cast(ServiceLocationId as nvarchar(20)) + ',' +
                     cast(ProactiveSlaId    as nvarchar(20)) 
                 );
 GO
@@ -77,23 +77,23 @@ DROP INDEX [IX_HwFspCodeTranslation_WgId] ON [Fsp].[HwFspCodeTranslation]
 GO
 
 ALTER TABLE Fsp.HwFspCodeTranslation 
-    ADD Sla  AS cast(coalesce(CountryId, 0) as nvarchar(20)) + 
-                cast(WgId                   as nvarchar(20)) + 
-                cast(AvailabilityId         as nvarchar(20)) + 
-                cast(DurationId             as nvarchar(20)) + 
-                cast(ReactionTimeId         as nvarchar(20)) + 
-                cast(ReactionTypeId         as nvarchar(20)) + 
-                cast(ServiceLocationId      as nvarchar(20)) + 
+    ADD Sla  AS cast(coalesce(CountryId, 0) as nvarchar(20)) + ',' +
+                cast(WgId                   as nvarchar(20)) + ',' +
+                cast(AvailabilityId         as nvarchar(20)) + ',' +
+                cast(DurationId             as nvarchar(20)) + ',' +
+                cast(ReactionTimeId         as nvarchar(20)) + ',' +
+                cast(ReactionTypeId         as nvarchar(20)) + ',' +
+                cast(ServiceLocationId      as nvarchar(20)) + ',' +
                 cast(ProactiveSlaId         as nvarchar(20))
       
       , SlaHash  AS checksum (
-                        cast(coalesce(CountryId, 0) as nvarchar(20)) + 
-                        cast(WgId                   as nvarchar(20)) + 
-                        cast(AvailabilityId         as nvarchar(20)) + 
-                        cast(DurationId             as nvarchar(20)) + 
-                        cast(ReactionTimeId         as nvarchar(20)) + 
-                        cast(ReactionTypeId         as nvarchar(20)) + 
-                        cast(ServiceLocationId      as nvarchar(20)) + 
+                        cast(coalesce(CountryId, 0) as nvarchar(20)) + ',' +
+                        cast(WgId                   as nvarchar(20)) + ',' +
+                        cast(AvailabilityId         as nvarchar(20)) + ',' +
+                        cast(DurationId             as nvarchar(20)) + ',' +
+                        cast(ReactionTimeId         as nvarchar(20)) + ',' +
+                        cast(ReactionTypeId         as nvarchar(20)) + ',' +
+                        cast(ServiceLocationId      as nvarchar(20)) + ',' +
                         cast(ProactiveSlaId         as nvarchar(20))
                     );
 GO
