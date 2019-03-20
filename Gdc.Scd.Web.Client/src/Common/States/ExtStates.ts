@@ -3,6 +3,7 @@ export interface Model<TData=any> {
     data: TData
     phantom: boolean
     set(fieldName: string, newValue, options?)
+    set(obj: { [key: string]: any }, options?)
     get(fieldName: string)
 }
 

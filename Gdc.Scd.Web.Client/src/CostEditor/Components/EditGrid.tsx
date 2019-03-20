@@ -115,9 +115,18 @@ export class EditGrid extends React.Component<EditGridProps> {
             if (modifiedFieldNames[0] === 'name') {
                 record.reject();
             } else {
-                const item = record.data as EditItem;
-    
-                record.set('valueCount', 1);
+                if (record.data.value == null) {
+                    record.set({ 
+                        valueCount: 0,
+                        value: undefined,
+                        isApproved: false
+                    });
+                } else {
+                    record.set({ 
+                        valueCount: 1,
+                        isApproved: false
+                    });
+                }
     
                 onItemEdited(record.data);
             }

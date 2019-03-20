@@ -230,10 +230,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
 
             case ColumnType.Numeric:
               editor = (
-                <NumberField
-                  required
-                  validators={{ type: "number", message: "Invalid value" }}
-                />
+                  <NumberField validators={{ type: "number", message: "Invalid value" }}/>
               );
               break;
 
@@ -329,7 +326,6 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
             case ColumnType.Numeric:
               columnOption.editor = {
                 xtype: "numberfield",
-                required: true,
                 validators: {
                   type: "number",
                   message: "Invalid value"
