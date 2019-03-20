@@ -84,16 +84,12 @@ BEGIN
              , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
              , cur.Name as Currency
 
-             , null as IndirectCostOpex
              , m.Availability                       + ', ' +
                    m.ReactionType                   + ', ' +
                    m.ReactionTime                   + ', ' +
                    cast(m.Year as nvarchar(1))      + ', ' +
                    m.ServiceLocation                + ', ' +
                    m.ProActiveSla as ServiceType
-         
-             , null as PlausiCheck
-             , null as PortfolioType
 
     from cte2 m
     join InputAtoms.Sog sog on sog.id = m.SogId
@@ -157,13 +153,7 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'LocalServiceStandardWarranty', 'Standard Warranty costs', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'IndirectCostOpex', 'Indirect cost and OPEX', 1, 1);
-set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ServiceType', 'Service type', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'PlausiCheck', 'Plausi Check', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'PortfolioType', 'Portfolio Type', 1, 1);
 
 set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
