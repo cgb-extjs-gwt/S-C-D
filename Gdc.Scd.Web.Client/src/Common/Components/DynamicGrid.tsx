@@ -347,10 +347,15 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
   }
 
   private getReferenceEditorOptions(column: ColumnInfo) {
-    return Array.from(column.referenceItems.values()).map(item => ({
+    const options = Array.from(column.referenceItems.values()).map(item => ({
       text: item.name,
       value: item.id
     }));
+
+    return [
+      { text: '(none)', value: undefined },
+      ...options
+    ]
   }
 
   private onColumnMenuCreated = (grid, column, menu) => {
