@@ -21,6 +21,10 @@ export class PortfolioEditModel {
 
     public isCorePortfolio: boolean;
 
+    public IsLocalPortfolio(): boolean {
+        return this.countries && this.countries.length > 0;
+    }
+
     public isValid() {
         let m = this;
         let valid = m.countries.length > 0 || m.isGlobalPortfolio || m.isMasterPortfolio || m.isCorePortfolio;

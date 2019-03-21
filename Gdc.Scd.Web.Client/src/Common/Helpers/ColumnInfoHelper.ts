@@ -87,6 +87,8 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
             break;
 
         case FieldType.CountryCurrencyCost: 
+            columnType = ColumnType.Numeric;
+            
             if (currency != null) {
                 formatFn = value => Ext.util.Format.number(value, `0.## ${currency}`);
             }
@@ -118,9 +120,9 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
             if (cell) {
                 const isApproved = getIsApprovedFn(record);
 
-                if (isApproved) {
-                    cell.setStyle({ background: 'rgba(0, 128, 0, 0.3)' });
-                }
+                cell.setStyle({ 
+                    background: isApproved ? 'rgba(0, 128, 0, 0.3)' : null
+                });
             }
 
             return count == 1 ? formatFn(value) : `(${count} values)`;

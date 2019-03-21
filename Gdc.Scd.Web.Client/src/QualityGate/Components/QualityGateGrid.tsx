@@ -99,7 +99,7 @@ export class QualityGateGrid extends React.PureComponent<QualityGateGridProps> {
                     },
                 },
                 'coordinates',
-                'newValue',
+                this.buildNullValueMappingField('newValue'),
                 this.buildNullValueMappingField('oldValue'),
                 this.buildNullValueMappingField('countryGroupAvgValue'),
                 'isPeriodError',
