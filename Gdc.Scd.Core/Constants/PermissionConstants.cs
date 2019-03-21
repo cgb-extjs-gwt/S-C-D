@@ -10,6 +10,8 @@
 
         public const string Approval = "Approval";
 
+        public const string ApprovalShowAllItems = "ApprovalShowAllItems";
+
         public const string OwnApproval = "OwnApproval";
 
         public const string Portfolio = "Portfolio";
