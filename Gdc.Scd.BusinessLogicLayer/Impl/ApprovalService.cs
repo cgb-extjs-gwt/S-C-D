@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Entities;
 using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
+using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Approval;
@@ -64,7 +65,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 var user = this.userService.GetCurrentUser();
 
-                histories = histories.Where(history => history.ApproveRejectUser.Id == user.Id);
+                if (!user.Permissions.Any(permission => permission.Name == PermissionConstants.ApprovalShowAllItems))
+                {
+                    histories = histories.Where(history => history.ApproveRejectUser.Id == user.Id);
+                }
             }
 
             return await this.GetApprovalBundles(histories.ToArray());
