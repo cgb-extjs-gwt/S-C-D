@@ -13,17 +13,14 @@ namespace Gdc.Scd.Import.Ebis.MCiW
     //{
     //    static void Main(string[] args)
     //    {
+    //        var materialCostService = new MaterialCostService();
     //        try
     //        {
-    //            MaterialCostService.UploadMaterialCostInfo();
-    //        }
-    //        catch (FileNotFoundException ex)
-    //        {
-    //            MaterialCostService.Logger.Log(LogLevel.Info, ex.Message);
+    //            materialCostService.UploadMaterialCostInfo();
     //        }
     //        catch (Exception ex)
     //        {
-    //            MaterialCostService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
+    //            materialCostService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
     //            Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstants.UNEXPECTED_ERROR, ex, null, null);
     //        }
     //    }
@@ -43,10 +40,6 @@ namespace Gdc.Scd.Import.Ebis.MCiW
                     IsSuccess = true,
                     Result = true
                 };
-            }
-            catch (FileNotFoundException ex)
-            {
-                materialCostService.Logger.Log(LogLevel.Info, ex.Message);
             }
             catch (Exception ex)
             {

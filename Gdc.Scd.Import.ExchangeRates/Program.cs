@@ -32,15 +32,6 @@ namespace Gdc.Scd.Import.ExchangeRatesJob
                     Result = true
                 };
             }
-            catch (FileNotFoundException ex)
-            {
-                exchangeRateService.Logger.Log(LogLevel.Info, ex.Message);
-                result = new OperationResult<bool>
-                {
-                    IsSuccess = false,
-                    Result = true
-                };
-            }
             catch (Exception ex)
             {
                 exchangeRateService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);

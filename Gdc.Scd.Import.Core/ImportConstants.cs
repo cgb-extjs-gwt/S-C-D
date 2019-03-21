@@ -15,7 +15,7 @@ namespace Gdc.Scd.Import.Core
         public static string PARSE_CANNOT_PARSE = "Value {0} can not be parsed to type {1}";
         public static string CHECK_LAST_MODIFIED_DATE = "Checking Last Modified Date...";
         public static string CHECK_LAST_MODIFIED_DATE_END = "Last Modified Date is {0}";
-        public static string CHECK_CONFIGURATION = "Checking if file {0} with last processed date {1} and occurence {2} should be uploaded.";
+        public static string CHECK_CONFIGURATION = "Checking if file {0} with last modified date {1} should be uploaded.";
         public static string SKIP_UPLOADING = "Uploading is skipped.";
         public static string DOWNLOAD_FILE_START = "Starting download file {0}";
         public static string DOWNLOAD_FILE_END = "File has been downloaded";
@@ -63,5 +63,7 @@ namespace Gdc.Scd.Import.Core
         public static string UPDATING_WGS_END = "WGs were updated.";
         public static string SET_ZEROS_INSTALL_BASE = "Set zero values for not received install bases";
         public static string ZEROS_SET = "Zero were set. {0} values were affected.";
+        public static string COULD_NOT_FIND_FILE = "File {0} couldn't be found.";
+        public static string FILE_WASNT_DELIVERED = "Uploiding is skipped as there are no file was delivered.";
     }
 }

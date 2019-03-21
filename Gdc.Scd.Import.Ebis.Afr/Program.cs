@@ -13,21 +13,19 @@ namespace Gdc.Scd.Import.Ebis.Afr
     //{
     //    static void Main(string[] args)
     //    {
+    //        var afrService = new AfrService();
     //        try
     //        {
-    //            AfrService.UploadAfrInfo();
-    //        }
-    //        catch (FileNotFoundException ex)
-    //        {
-    //            AfrService.Logger.Log(LogLevel.Info, ex.Message);
+    //            afrService.UploadAfrInfo();
     //        }
     //        catch (Exception ex)
     //        {
-    //            AfrService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
+    //            afrService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
     //            Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstants.UNEXPECTED_ERROR, ex, null, null);
     //        }
     //    }
     //}
+
     public class AfrJob
     {
         public OperationResult<bool> Output()
@@ -42,10 +40,6 @@ namespace Gdc.Scd.Import.Ebis.Afr
                     IsSuccess = true,
                     Result = true
                 };
-            }
-            catch (FileNotFoundException ex)
-            {
-                afrService.Logger.Log(LogLevel.Info, ex.Message);
             }
             catch (Exception ex)
             {
