@@ -54,15 +54,22 @@ namespace Gdc.Scd.Import.Core.Impl
 
             _logger.Log(LogLevel.Info, ImportConstants.CHECK_LAST_MODIFIED_DATE);
             var modifiedDateTime = _downloader.GetModifiedDateTime(downloadDto);
+            if (!modifiedDateTime.HasValue)
+            {
+                _logger.Log(LogLevel.Info, ImportConstants.FILE_WASNT_DELIVERED);
+                importResult.Skipped = true;
+                return importResult;
+            }
+
             _logger.Log(LogLevel.Info, ImportConstants.CHECK_LAST_MODIFIED_DATE_END, modifiedDateTime.ToString());
 
-            importResult.ModifiedDateTime = modifiedDateTime;
+            importResult.ModifiedDateTime = modifiedDateTime.Value;
 
             _logger.Log(LogLevel.Info, ImportConstants.CHECK_CONFIGURATION, 
-                configuration.FileName, configuration.ProcessedDateTime?.ToLongDateString(), configuration.Occurancy);
+                configuration.FileName, configuration.ProcessedDateTime?.ToLongDateString());
 
             if (!configuration.ProcessedDateTime.HasValue || 
-                ShouldUpload(configuration.Occurancy, modifiedDateTime, configuration.ProcessedDateTime.Value))
+                modifiedDateTime.Value > configuration.ProcessedDateTime.Value)
             {
                 _logger.Log(LogLevel.Info, ImportConstants.DOWNLOAD_FILE_START, configuration.FileName);
                 var downloadedInfo = _downloader.DownloadData(downloadDto);
@@ -106,22 +113,6 @@ namespace Gdc.Scd.Import.Core.Impl
             }
 
             return importResult;
-        }
-
-        private bool ShouldUpload(Occurancy occurancy, DateTime modifiedDateTime, 
-            DateTime lastRunDateTime)
-        {
-            switch (occurancy)
-            {
-                case Occurancy.PerMonth:
-                    return modifiedDateTime >= lastRunDateTime.AddMonths(1);
-                case Occurancy.PerWeek:
-                    return modifiedDateTime >= lastRunDateTime.AddDays(7);
-                case Occurancy.PerDay:
-                    return true;
-                default:
-                    throw new Exception($"Unknown Occurancy: {occurancy}");
-            }
         }
     }
 }

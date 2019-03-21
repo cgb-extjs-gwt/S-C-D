@@ -13,13 +13,10 @@ namespace Gdc.Scd.Import.SfabImport
     //{
     //    static void Main(string[] args)
     //    {
+    //        var sFabService = new SFabService();
     //        try
     //        {
-    //            SFabService.UploadSfabs();
-    //        }
-    //        catch (FileNotFoundException ex)
-    //        {
-    //            SFabService.Logger.Log(LogLevel.Info, ex.Message);
+    //            sFabService.UploadSfabs();
     //        }
     //        catch (Exception ex)
     //        {
@@ -40,15 +37,6 @@ namespace Gdc.Scd.Import.SfabImport
                 result = new OperationResult<bool>
                 {
                     IsSuccess = true,
-                    Result = true
-                };
-            }
-            catch (FileNotFoundException ex)
-            {
-                sFabService.Logger.Log(LogLevel.Info, ex.Message);
-                result = new OperationResult<bool>
-                {
-                    IsSuccess = false,
                     Result = true
                 };
             }

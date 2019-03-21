@@ -13,17 +13,14 @@ namespace Gdc.Scd.Import.CentralContractGroup
     //{
     //    static void Main(string[] args)
     //    {
+    //        var centralContractGroupService = new CentralContractGroupService();
     //        try
     //        {
-    //            CentralContractGroupService.UploadCentralContractGroups();
-    //        }
-    //        catch (FileNotFoundException ex)
-    //        {
-    //            CentralContractGroupService.Logger.Log(LogLevel.Info, ex.Message);
+    //            centralContractGroupService.UploadCentralContractGroups();
     //        }
     //        catch (Exception ex)
     //        {
-    //            CentralContractGroupService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
+    //            centralContractGroupService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
     //            Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstants.UNEXPECTED_ERROR, ex, null, null);
     //        }
     //    }
@@ -42,10 +39,6 @@ namespace Gdc.Scd.Import.CentralContractGroup
                     IsSuccess = true,
                     Result = true
                 };
-            }
-            catch (FileNotFoundException ex)
-            {
-                centralContractGroupService.Logger.Log(LogLevel.Info, ex.Message);
             }
             catch (Exception ex)
             {

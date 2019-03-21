@@ -13,17 +13,14 @@ namespace Gdc.Scd.Import.Logistics
     //{
     //    static void Main(string[] args)
     //    {
+    //        var logisticsImportService = new LogisticsImportService();
     //        try
     //        {
-    //            LogisticsImportService.UploadLogisticInfo();
-    //        }
-    //        catch (FileNotFoundException ex)
-    //        {
-    //            LogisticsImportService.Logger.Log(LogLevel.Info, ex.Message);
+    //            logisticsImportService.UploadLogisticInfo();
     //        }
     //        catch (Exception ex)
     //        {
-    //            LogisticsImportService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
+    //            logisticsImportService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
     //            Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstants.UNEXPECTED_ERROR, ex, null, null);
     //        }
     //    }
@@ -43,10 +40,6 @@ namespace Gdc.Scd.Import.Logistics
                     IsSuccess = true,
                     Result = true
                 };
-            }
-            catch (FileNotFoundException ex)
-            {
-                logisticsImportService.Logger.Log(LogLevel.Info, ex.Message);
             }
             catch (Exception ex)
             {
