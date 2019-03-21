@@ -85,6 +85,10 @@ export class DictService implements IDictService {
         return new WgService().standard();
     }
 
+    public getHardwareWg(): Promise<NamedId<string>[]> {
+        return new WgService().hardware();
+    }
+
     public getPla(): Promise<NamedId<string>[]> {
         return new PlaService().getAll();
     }

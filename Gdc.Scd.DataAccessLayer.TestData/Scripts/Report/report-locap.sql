@@ -38,7 +38,7 @@ BEGIN
                 , ReactionTime_ReactionType_Avalability
                 , null
                 , null
-    from Portfolio.GetBySlaSog(@cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
+    from Portfolio.GetBySlaSog(@wg, @cnt, @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
 
     with cte as (
         select m.* 
