@@ -35,4 +35,9 @@ export class AppService {
         return this.getRoles().then(x => x.some(y => y.isGlobal));
     }
 
+    public hasRole(role: string): Promise<boolean> {
+        role = role.toUpperCase();
+        return this.getRoles().then(x => x.some(y => y.name.toUpperCase() === role));
+    }
+
 }

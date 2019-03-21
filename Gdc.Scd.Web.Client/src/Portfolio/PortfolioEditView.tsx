@@ -8,7 +8,7 @@ import { MultiSelectProActive } from "../Dict/Components/MultiSelectProActive";
 import { MultiSelectWg } from "../Dict/Components/MultiSelectWg";
 import { DictFactory } from "../Dict/Services/DictFactory";
 import { IDictService } from "../Dict/Services/IDictService";
-import { UserCountryService } from "../Dict/Services/UserCountryService";
+import { AppService } from "../Layout/Services/AppService";
 import { PortfolioEditModel } from "./Model/PortfolioEditModel";
 import { IPortfolioService } from "./Services/IPortfolioService";
 import { PortfolioServiceFactory } from "./Services/PortfolioServiceFactory";
@@ -45,12 +45,16 @@ export class PortfolioEditView extends React.Component<any, any> {
 
     public state = {
         isPortfolio: true,
-        isCountryUser: true
+        canEditMaster: false
     };
 
     public constructor(props: any) {
         super(props);
         this.init();
+    }
+
+    public componentDidMount() {
+        new AppService().hasRole('portfolio').then(x => this.setState({ canEditMaster: x }));
     }
 
     public render() {
@@ -91,7 +95,7 @@ export class PortfolioEditView extends React.Component<any, any> {
                     </div>
                 </div>
 
-                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio, hidden: this.state.isCountryUser }} margin="15px 0">
+                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio, hidden: !this.state.canEditMaster }} margin="15px 0">
                     <CheckBoxField ref={x => this.globPort = x} boxLabel="Fujitsu principal portfolio" />
                     <CheckBoxField ref={x => this.masterPort = x} boxLabel="Master portfolio" />
                     <CheckBoxField ref={x => this.corePort = x} boxLabel="Core portfolio" />
@@ -112,9 +116,6 @@ export class PortfolioEditView extends React.Component<any, any> {
         this.onBack = this.onBack.bind(this);
         this.save = this.save.bind(this);
         this.onViewHistory = this.onViewHistory.bind(this);
-
-        const srv = new UserCountryService();
-        srv.isCountryUser().then(x => this.setState({ isCountryUser: x }));
     }
 
     private countryStore() {
@@ -150,8 +151,11 @@ export class PortfolioEditView extends React.Component<any, any> {
             let msg = deny ? 'Deny combinations' : 'Allow combinations';
             ExtMsgHelper.confirm(msg, 'Do you want to save the changes?', () => this.save(deny));
         }
-        else {
+        else if (this.state.canEditMaster) {
             Ext.Msg.alert('Invalid input!', 'Please choose master or local portfolio and SLA!');
+        }
+        else  {
+            Ext.Msg.alert('Invalid input!', 'Please choose country and SLA!');
         }
     }
 
