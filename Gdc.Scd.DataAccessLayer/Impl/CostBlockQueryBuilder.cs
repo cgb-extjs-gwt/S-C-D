@@ -67,7 +67,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         {
                             new CaseItem
                             {
-                                When = SqlOperators.Equals(valueColumn, valueApprovedColumn).ToSqlBuilder(),
+                                When = 
+                                    SqlOperators.Equals(valueColumn, valueApprovedColumn)
+                                                .OrBrackets(
+                                                    SqlOperators.IsNull(valueColumn)
+                                                                .And(SqlOperators.IsNull(valueApprovedColumn)))
+                                                .ToSqlBuilder(),
                                 Then = new RawSqlBuilder("1")
                             }
                         },
