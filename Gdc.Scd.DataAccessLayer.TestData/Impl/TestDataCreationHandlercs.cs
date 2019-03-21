@@ -209,6 +209,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var tableViewPermission = new Permission { Name = PermissionConstants.TableView };
             var costImportPermission = new Permission { Name = PermissionConstants.CostImport };
             var approvalPermission = new Permission { Name = PermissionConstants.Approval };
+            var approvalShowAllItemsPermission = new Permission { Name = PermissionConstants.ApprovalShowAllItems };
             var ownApprovalPermission = new Permission { Name = PermissionConstants.OwnApproval };
             var portfolioPermission = new Permission { Name = PermissionConstants.Portfolio };
             var reviewProcessPermission = new Permission { Name = PermissionConstants.ReviewProcess };
@@ -222,6 +223,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 costEditorPermission,
                 tableViewPermission,
                 approvalPermission,
+                approvalShowAllItemsPermission,
                 costImportPermission,
                 ownApprovalPermission,
                 portfolioPermission,
