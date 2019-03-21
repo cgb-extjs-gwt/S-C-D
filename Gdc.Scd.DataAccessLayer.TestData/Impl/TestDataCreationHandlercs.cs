@@ -1798,6 +1798,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "swdigitsog" , MultiSelect = false },
                 new ReportFilterType { Name = "wgall" , MultiSelect = false },
                 new ReportFilterType { Name = "wgstandard" , MultiSelect = false },
+                new ReportFilterType { Name = "wghardware" , MultiSelect = false },
 
                 new ReportFilterType { Name = "wg" , MultiSelect = true },
                 new ReportFilterType { Name = "country" , MultiSelect = true },
@@ -1810,7 +1811,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "proactive" , MultiSelect = true },
                 new ReportFilterType { Name = "swdigit" , MultiSelect = true },
                 new ReportFilterType { Name = "swdigitsog" , MultiSelect = true },
-                new ReportFilterType { Name = "wgstandard" , MultiSelect = true }
+                new ReportFilterType { Name = "wgstandard" , MultiSelect = true },
+                new ReportFilterType { Name = "wghardware" , MultiSelect = true }
             };
 
             var repository = this.repositorySet.GetRepository<ReportFilterType>();

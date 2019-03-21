@@ -11,6 +11,7 @@ import { SelectField } from "../../Dict/Components/SelectField";
 import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
 import { SogField } from "../../Dict/Components/SogField";
 import { StandardWgField } from "../../Dict/Components/StandardWgField";
+import { HardwareWgField } from "../../Dict/Components/HardwareWgField";
 import { SwDigitField } from "../../Dict/Components/SwDigitField";
 import { UserCountryField } from "../../Dict/Components/UserCountryField";
 import { WgAllField } from "../../Dict/Components/WgAllField";
@@ -82,6 +83,9 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
             case AutoFilterType.WGSTANDARD:
                 return <StandardWgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
+            case AutoFilterType.WGHARDWARE:
+                return <HardwareWgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+
             case AutoFilterType.SOG:
                 return <SogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} onChange={this.onSogChange} />;
 
@@ -136,6 +140,8 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
             case AutoFilterType.WGALL: cfg.store = this.dictSrv.getWgWithMultivendor; break;
 
             case AutoFilterType.WGSTANDARD: cfg.store = this.dictSrv.getStandardWg; break;
+
+            case AutoFilterType.WGHARDWARE: cfg.store = this.dictSrv.getHardwareWg; break;
 
             case AutoFilterType.SOG: cfg.store = this.dictSrv.getSog; break;
 
