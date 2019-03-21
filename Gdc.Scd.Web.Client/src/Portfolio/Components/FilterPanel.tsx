@@ -88,7 +88,7 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
                         <MultiSelectField ref={x => this.country = x} {...multiProps} hideCheckbox={false} store={this.dictSrv.getUserCountryNames} label='Country'/>
                         <Panel title='Asset(WG)'
                             {...panelProps}>
-                            <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getWG} />
+                            <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getHardwareWg} />
                         </Panel>
                         <Panel title='Availability'
                             {...panelProps}>

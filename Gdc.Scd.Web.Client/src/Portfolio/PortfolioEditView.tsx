@@ -73,7 +73,7 @@ export class PortfolioEditView extends React.Component<any, any> {
                         <MultiSelect ref={x => this.country = x} maxHeight={SELECT_MAX_HEIGHT} title="Country" store={this.countryStore} onSelectionChange={this.onCountryChange} />
                     </div>
                     <div>
-                        <MultiSelectWg ref={x => this.wg = x} maxHeight="204px" title="Asset(WG)" store={this.dictSrv.getWG} />
+                        <MultiSelectWg ref={x => this.wg = x} maxHeight="204px" title="Asset(WG)" store={this.dictSrv.getHardwareWg} />
                     </div>
                     <div>
                         <MultiSelect ref={x => this.av = x} maxHeight={SELECT_MAX_HEIGHT} title="Availability" store={this.dictSrv.getAvailabilityTypes} />
