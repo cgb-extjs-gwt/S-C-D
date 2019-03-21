@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 49;
+        public int Number => 51;
 
         public string Description => "Add WG Hardware filter";
 
