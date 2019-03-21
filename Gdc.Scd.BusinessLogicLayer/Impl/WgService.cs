@@ -22,7 +22,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public IQueryable<Wg> GetHardware()
         {
-            return origin.GetAll().Include(wg => wg.Sog).Where(wg=>wg.IsSoftware==false);
+            return origin.GetAll().Include(wg => wg.Sog).Where(wg=>wg.IsSoftware==false && !wg.DeactivatedDateTime.HasValue);
         }
     }
 }
