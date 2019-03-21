@@ -19,9 +19,7 @@ namespace Gdc.Scd.Web.Server.Controllers
         }
 
         [HttpPost]
-        public Task<DataInfo<PortfolioDto>> Allowed(
-                [FromBody]PortfolioFilterDto filter
-            )
+        public Task<DataInfo<PortfolioDto>> Allowed([FromBody]PortfolioFilterDto filter)
         {
             if (!IsRangeValid(filter.Start, filter.Limit))
             {
@@ -32,7 +30,7 @@ namespace Gdc.Scd.Web.Server.Controllers
                     .GetAllowed(filter, filter.Start, filter.Limit)
                     .ContinueWith(x => new DataInfo<PortfolioDto> { Items = x.Result.items, Total = x.Result.total });
         }
-      
+
         [HttpPost]
         public Task Allow([FromBody]PortfolioRuleSetDto m)
         {
@@ -51,6 +49,19 @@ namespace Gdc.Scd.Web.Server.Controllers
             return portfolioService.Deny(m.CountryId, m.Items);
         }
 
+        [HttpPost]
+        public Task<DataInfo<PortfolioHistoryDto>> History([FromBody]PortfolioHistoryFilterDto filter)
+        {
+            if (!IsRangeValid(filter.Start, filter.Limit))
+            {
+                return null;
+            }
+
+            return portfolioService
+                    .GetHistory(filter.Start, filter.Limit)
+                    .ContinueWith(x => new DataInfo<PortfolioHistoryDto> { Items = x.Result.items, Total = x.Result.total });
+        }
+
         private bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 100;
@@ -62,5 +73,12 @@ namespace Gdc.Scd.Web.Server.Controllers
         public long[] CountryId { get; set; }
 
         public long[] Items { get; set; }
+    }
+
+    public class PortfolioHistoryFilterDto
+    {
+        public int Start { get; set; }
+
+        public int Limit { get; set; }
     }
 }

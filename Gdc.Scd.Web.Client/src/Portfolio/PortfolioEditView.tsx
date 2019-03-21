@@ -1,4 +1,4 @@
-﻿import { Button, CheckBoxField, Container } from "@extjs/ext-react";
+﻿import { Button, CheckBoxField, Container, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
@@ -8,7 +8,7 @@ import { MultiSelectProActive } from "../Dict/Components/MultiSelectProActive";
 import { MultiSelectWg } from "../Dict/Components/MultiSelectWg";
 import { DictFactory } from "../Dict/Services/DictFactory";
 import { IDictService } from "../Dict/Services/IDictService";
-import { UserCountryService } from "../Dict/Services/UserCountryService";
+import { AppService } from "../Layout/Services/AppService";
 import { PortfolioEditModel } from "./Model/PortfolioEditModel";
 import { IPortfolioService } from "./Services/IPortfolioService";
 import { PortfolioServiceFactory } from "./Services/PortfolioServiceFactory";
@@ -45,7 +45,7 @@ export class PortfolioEditView extends React.Component<any, any> {
 
     public state = {
         isPortfolio: true,
-        isCountryUser: true
+        canEditMaster: false
     };
 
     public constructor(props: any) {
@@ -53,9 +53,20 @@ export class PortfolioEditView extends React.Component<any, any> {
         this.init();
     }
 
+    public componentDidMount() {
+        new AppService().hasRole('portfolio').then(x => this.setState({ canEditMaster: x }));
+    }
+
     public render() {
         return (
             <Container layout="vbox" padding="10px" scrollable="true">
+
+                <Toolbar docked="top">
+                    <Button iconCls="x-fa fa-arrow-left" text="back to Portfolio" handler={this.onBack} />
+                    <Button text="Deny combinations" ui="decline" padding="0 10px 0 0" handler={this.onDeny} />
+                    <Button text="Allow combinations" padding="0 10px 0 0" handler={this.onAllow} />
+                    <Button iconCls="x-fa fa-history" text="History" ui="forward" handler={this.onViewHistory} />
+                </Toolbar>
 
                 <div className="portfolio-edit-container">
                     <div>
@@ -84,16 +95,10 @@ export class PortfolioEditView extends React.Component<any, any> {
                     </div>
                 </div>
 
-                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio, hidden: this.state.isCountryUser }} margin="15px 0">
+                <Container layout={{ type: 'vbox', align: 'left' }} defaults={{ disabled: !this.state.isPortfolio, hidden: !this.state.canEditMaster }} margin="15px 0">
                     <CheckBoxField ref={x => this.globPort = x} boxLabel="Fujitsu principal portfolio" />
                     <CheckBoxField ref={x => this.masterPort = x} boxLabel="Master portfolio" />
                     <CheckBoxField ref={x => this.corePort = x} boxLabel="Core portfolio" />
-                </Container>
-
-                <Container>
-                    <Button iconCls="x-fa fa-arrow-left" text="back to Portfolio" handler={this.onBack} />
-                    <Button text="Deny combinations" ui="decline" padding="0 10px 0 0" handler={this.onDeny} />
-                    <Button text="Allow combinations" padding="0 10px 0 0" handler={this.onAllow} />
                 </Container>
 
             </Container>
@@ -110,9 +115,7 @@ export class PortfolioEditView extends React.Component<any, any> {
         this.onDeny = this.onDeny.bind(this);
         this.onBack = this.onBack.bind(this);
         this.save = this.save.bind(this);
-
-        const srv = new UserCountryService();
-        srv.isCountryUser().then(x => this.setState({ isCountryUser: x }));
+        this.onViewHistory = this.onViewHistory.bind(this);
     }
 
     private countryStore() {
@@ -132,7 +135,15 @@ export class PortfolioEditView extends React.Component<any, any> {
     }
 
     private onBack() {
-        this.props.history.push(buildComponentUrl('/portfolio'));
+        this.openLink('/portfolio');
+    }
+
+    private onViewHistory() {
+        this.openLink('/portfolio/history');
+    }
+
+    private openLink(url: string) {
+        this.props.history.push(buildComponentUrl(url));
     }
 
     private showChangeDialog(deny: boolean) {
@@ -140,8 +151,11 @@ export class PortfolioEditView extends React.Component<any, any> {
             let msg = deny ? 'Deny combinations' : 'Allow combinations';
             ExtMsgHelper.confirm(msg, 'Do you want to save the changes?', () => this.save(deny));
         }
-        else {
+        else if (this.state.canEditMaster) {
             Ext.Msg.alert('Invalid input!', 'Please choose master or local portfolio and SLA!');
+        }
+        else  {
+            Ext.Msg.alert('Invalid input!', 'Please choose country and SLA!');
         }
     }
 

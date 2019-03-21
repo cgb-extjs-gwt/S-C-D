@@ -209,6 +209,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var tableViewPermission = new Permission { Name = PermissionConstants.TableView };
             var costImportPermission = new Permission { Name = PermissionConstants.CostImport };
             var approvalPermission = new Permission { Name = PermissionConstants.Approval };
+            var approvalShowAllItemsPermission = new Permission { Name = PermissionConstants.ApprovalShowAllItems };
             var ownApprovalPermission = new Permission { Name = PermissionConstants.OwnApproval };
             var portfolioPermission = new Permission { Name = PermissionConstants.Portfolio };
             var reviewProcessPermission = new Permission { Name = PermissionConstants.ReviewProcess };
@@ -222,6 +223,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 costEditorPermission,
                 tableViewPermission,
                 approvalPermission,
+                approvalShowAllItemsPermission,
                 costImportPermission,
                 ownApprovalPermission,
                 portfolioPermission,
@@ -368,6 +370,15 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     RolePermissions = new List<RolePermission>
                     {
                         new RolePermission { Permission = reportPermission },
+                    }
+                },
+                new Role
+                {
+                    Name = "Portfolio",
+                    IsGlobal = true,
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = portfolioPermission },
                     }
                 }
             };
@@ -1817,13 +1828,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 new ServiceLocation {Name = "Material/Spares Service", ExternalName = "Material/Spares", Order = 1 },
                 new ServiceLocation {Name = "Bring-In Service", ExternalName = "Bring-In", Order = 2 },
-                new ServiceLocation {Name = "Send-In / Return-to-Base Service", ExternalName = "Send-In/Return-to-Base Service", Order = 3 },
                 new ServiceLocation {Name = "Collect & Return Service", ExternalName = "Collect & Return", Order = 4 },
                 new ServiceLocation {Name = "Collect & Return-Display Service", ExternalName = "Collect & Return-Display Service", Order = 5 },
                 new ServiceLocation {Name = "Door-to-Door Exchange Service", ExternalName = "Door-to-Door Exchange", Order = 6 },
                 new ServiceLocation {Name = "Desk-to-Desk Exchange Service", ExternalName = "Desk-to-Desk Exchange", Order = 7 },
                 new ServiceLocation {Name = "On-Site Service", ExternalName = "On-Site Service", Order = 8 },
-                new ServiceLocation {Name = "On-Site Exchange Service", ExternalName = "On-Site Exchange", Order = 9 },
                 new ServiceLocation {Name = "Remote", ExternalName = "Remote Service", Order = 10 },
 
             });

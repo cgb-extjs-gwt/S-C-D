@@ -230,10 +230,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
 
             case ColumnType.Numeric:
               editor = (
-                <NumberField
-                  required
-                  validators={{ type: "number", message: "Invalid value" }}
-                />
+                  <NumberField validators={{ type: "number", message: "Invalid value" }}/>
               );
               break;
 
@@ -329,7 +326,6 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
             case ColumnType.Numeric:
               columnOption.editor = {
                 xtype: "numberfield",
-                required: true,
                 validators: {
                   type: "number",
                   message: "Invalid value"
@@ -351,10 +347,15 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
   }
 
   private getReferenceEditorOptions(column: ColumnInfo) {
-    return Array.from(column.referenceItems.values()).map(item => ({
+    const options = Array.from(column.referenceItems.values()).map(item => ({
       text: item.name,
       value: item.id
     }));
+
+    return [
+      { text: '(none)', value: undefined },
+      ...options
+    ]
   }
 
   private onColumnMenuCreated = (grid, column, menu) => {
