@@ -328,7 +328,7 @@ RETURNS @tbl TABLE
                                                     
             FspId                                   bigint,
             Fsp                                     nvarchar(30),
-            FspServiceDescription                   nvarchar(100),
+            FspServiceDescription                   nvarchar(max),
             AvailabilityId                          bigint,
             DurationId                              bigint,
             ReactionTimeId                          bigint,
