@@ -21,7 +21,7 @@ namespace Gdc.Scd.Import.Ebis.MCiW
     {
         public override void Load()
         {
-            Bind(typeof(IRepository<MaterialCostInWarranty>)).To(typeof(ImportRepository<MaterialCostInWarranty>)).InSingletonScope();
+            Bind(typeof(IRepository<MaterialCostWarrantyEmeia>)).To(typeof(ImportRepository<MaterialCostWarrantyEmeia>)).InSingletonScope();
             Bind<ILogger<LogLevel>>().To<Core.Impl.Logger>().InSingletonScope();
 
             Bind<IDownloader>().To<FileDownloader>().InSingletonScope();

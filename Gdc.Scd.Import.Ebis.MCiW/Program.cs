@@ -9,22 +9,22 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.Ebis.MCiW
 {
-    //class Program
-    //{
-    //    static void Main(string[] args)
-    //    {
-    //        var materialCostService = new MaterialCostService();
-    //        try
-    //        {
-    //            materialCostService.UploadMaterialCostInfo();
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            materialCostService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
-    //            Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstants.UNEXPECTED_ERROR, ex, null, null);
-    //        }
-    //    }
-    //}
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var materialCostService = new MaterialCostService();
+            try
+            {
+                materialCostService.UploadMaterialCostInfo();
+            }
+            catch (Exception ex)
+            {
+                materialCostService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
+                Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstants.UNEXPECTED_ERROR, ex, null, null);
+            }
+        }
+    }
 
     public class MCiWJob
     {

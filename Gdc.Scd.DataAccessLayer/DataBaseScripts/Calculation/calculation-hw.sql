@@ -10,43 +10,45 @@ ALTER TABLE Hardware.AvailabilityFee
        , MaxQty_Approved              as (MaxQty)
 go
 
-IF OBJECT_ID('Hardware.MaterialCostOowCalc', 'U') IS NOT NULL
-  DROP TABLE Hardware.MaterialCostOowCalc;
+IF OBJECT_ID('Hardware.MaterialCostWarrantyCalc', 'U') IS NOT NULL
+  DROP TABLE Hardware.MaterialCostWarrantyCalc;
 go
 
-CREATE TABLE Hardware.MaterialCostOowCalc (
+CREATE TABLE Hardware.MaterialCostWarrantyCalc (
     [Country] [bigint] NOT NULL foreign key references InputAtoms.Country(Id),
     [Wg] [bigint] NOT NULL foreign key references InputAtoms.Wg(Id),
     [MaterialCostOow] [float] NULL,
     [MaterialCostOow_Approved] [float] NULL,
+	[MaterialCostIw] [float] NULL,
+	[MaterialCostIw_Approved] [float] NULL,
     CONSTRAINT PK_MaterialCostOowCalc PRIMARY KEY NONCLUSTERED (Country, Wg)
 )
 GO
 
-IF OBJECT_ID('Hardware.SpUpdateMaterialCostOowCalc') IS NOT NULL
-  DROP PROCEDURE Hardware.SpUpdateMaterialCostOowCalc;
+IF OBJECT_ID('Hardware.SpUpdateMaterialCostCalc') IS NOT NULL
+  DROP PROCEDURE Hardware.SpUpdateMaterialCostCalc;
 go
 
-CREATE PROCEDURE Hardware.SpUpdateMaterialCostOowCalc
+CREATE PROCEDURE Hardware.SpUpdateMaterialCostCalc
 AS
 BEGIN
 
     SET NOCOUNT ON;
 
-    truncate table Hardware.MaterialCostOowCalc;
+    truncate table Hardware.MaterialCostWarrantyCalc;
 
     -- Disable all table constraints
-    ALTER TABLE Hardware.MaterialCostOowCalc NOCHECK CONSTRAINT ALL;
+    ALTER TABLE Hardware.MaterialCostWarrantyCalc NOCHECK CONSTRAINT ALL;
 
-    INSERT INTO Hardware.MaterialCostOowCalc(Country, Wg, MaterialCostOow, MaterialCostOow_Approved)
-        select NonEmeiaCountry as Country, Wg, MaterialCostOow, MaterialCostOow_Approved
-        from Hardware.MaterialCostOow
+    INSERT INTO Hardware.MaterialCostWarrantyCalc(Country, Wg, MaterialCostOow, MaterialCostOow_Approved, MaterialCostIw, MaterialCostIw_Approved)
+        select NonEmeiaCountry as Country, Wg, MaterialCostOow, MaterialCostOow_Approved, MaterialCostIw, MaterialCostIw_Approved
+        from Hardware.MaterialCostWarranty
         where DeactivatedDateTime is null
 
         union 
 
-        SELECT cr.Id AS Country, Wg, MaterialCostOow, MaterialCostOow_Approved 
-		  FROM [Hardware].[MaterialCostOowEmeia] mc
+        SELECT cr.Id AS Country, Wg, MaterialCostOow, MaterialCostOow_Approved, MaterialCostIw, MaterialCostIw_Approved 
+		  FROM [Hardware].[MaterialCostWarrantyEmeia] mc
 		  CROSS JOIN (SELECT c.[Id]
 		  FROM [InputAtoms].[Country] c
 		  INNER JOIN [InputAtoms].[CountryGroup] cg
@@ -59,36 +61,36 @@ BEGIN
 		  where DeactivatedDateTime is null
 
     -- Enable all table constraints
-    ALTER TABLE Hardware.MaterialCostOowCalc CHECK CONSTRAINT ALL;
+    ALTER TABLE Hardware.MaterialCostWarrantyCalc CHECK CONSTRAINT ALL;
 
 END
 go
 
-IF OBJECT_ID('Hardware.MaterialCostOowUpdated', 'TR') IS NOT NULL
-  DROP TRIGGER Hardware.MaterialCostOowUpdated;
+IF OBJECT_ID('Hardware.MaterialCostUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.MaterialCostUpdated;
 go
 
-CREATE TRIGGER Hardware.MaterialCostOowUpdated
-ON Hardware.MaterialCostOow
+CREATE TRIGGER Hardware.MaterialCostUpdated
+ON Hardware.MaterialCostWarranty
 After INSERT, UPDATE
 AS BEGIN
-    exec Hardware.SpUpdateMaterialCostOowCalc;
+    exec Hardware.SpUpdateMaterialCostCalc;
 END
 go
 
-IF OBJECT_ID('Hardware.MaterialCostOowEmeiaUpdated', 'TR') IS NOT NULL
-  DROP TRIGGER Hardware.MaterialCostOowEmeiaUpdated;
+IF OBJECT_ID('Hardware.MaterialCostWarrantyEmeiaUpdated', 'TR') IS NOT NULL
+  DROP TRIGGER Hardware.MaterialCostWarrantyEmeiaUpdated;
 go
 
-CREATE TRIGGER Hardware.MaterialCostOowEmeiaUpdated
-ON Hardware.MaterialCostOowEmeia
+CREATE TRIGGER Hardware.MaterialCostWarrantyEmeiaUpdated
+ON Hardware.MaterialCostWarrantyEmeia
 After INSERT, UPDATE
 AS BEGIN
-    exec Hardware.SpUpdateMaterialCostOowCalc;
+    exec Hardware.SpUpdateMaterialCostCalc;
 END
 go
 
-exec Hardware.SpUpdateMaterialCostOowCalc;
+exec Hardware.SpUpdateMaterialCostCalc;
 go
 
 ALTER TABLE Hardware.ManualCost
