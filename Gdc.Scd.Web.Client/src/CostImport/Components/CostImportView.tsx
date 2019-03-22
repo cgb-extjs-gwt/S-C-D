@@ -33,7 +33,7 @@ interface ComboboxData {
     selector: SelectListSelector
     autoSelectLastItem: boolean
     buildConfig(): {
-        store: Store<NamedId>
+        options: NamedId<any>[]
         selection: Model<NamedId>
         displayField: string
         valueField: string
@@ -126,8 +126,8 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
 
     private buildComboboxChangeHandler(selector: SelectListSelector) {
         return (combobox, newValue, oldValue) => {
-            const { onItemSelected } = selector(this.props);
-            
+            const { onItemSelected, selectedItemId } = selector(this.props);
+            combobox.getStore().clearFilter(false);
             onItemSelected && onItemSelected(newValue == "" ? null : newValue);
         }
     }
@@ -143,16 +143,16 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
                 const { list, selectedItemId } = selector(this.props);
                 const store = this.createStore(list);
                 const selection = store.getById(selectedItemId);
-
+                let options = list ? list.slice() : null;
                 return {
-                    store,
+                    options,
                     onChange,
                     valueField: 'id',
                     displayField: 'name',
                     queryMode: 'local',
                     selection,
                     clearable: true,
-                    forceSelection: true                         
+                    forceSelection: true
                 }
             }
         }
