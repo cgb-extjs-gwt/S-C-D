@@ -15,6 +15,10 @@ import { ExportService } from "./Services/ExportService";
 
 const SELECTED_FIELD = 'selected';
 
+Ext.require([
+    'Ext.grid.plugin.Clipboard'
+]);
+
 export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private grid: Grid & any;
@@ -134,7 +138,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         let canEditTC: boolean = false;
         let canEditListPrice: boolean = false;
         let moneyRndr: IRenderer;
-        const { selectable, extensible, message } = this.state;
+        const { selectable, extensible } = this.state;
         if (this.state.showInLocalCurrency) {
 
             //allow manual edit in LOCAL CURRENCY mode only for well view!!!
