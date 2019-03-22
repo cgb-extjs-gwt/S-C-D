@@ -138,7 +138,8 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
 
             if (e.keyCode != 38 && e.keyCode != 40) //arrow UP and DOWN
             {
-                if (value && value.length > 0) {
+                combo.getStore().clearFilter(true);
+                if (value && value.length > 0) {                  
                     combo.getStore().filterBy(record => record.data.name.toLowerCase().startsWith(value.toLowerCase()));
                 }
             }
