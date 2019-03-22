@@ -33,7 +33,7 @@ interface ComboboxData {
     selector: SelectListSelector
     autoSelectLastItem: boolean
     buildConfig(): {
-        options: NamedId<any>[]
+        store: Store<NamedId>
         selection: Model<NamedId>
         displayField: string
         valueField: string
@@ -127,13 +127,28 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
     private buildComboboxChangeHandler(selector: SelectListSelector) {
         return (combobox, newValue, oldValue) => {
             const { onItemSelected, selectedItemId } = selector(this.props);
-            combobox.getStore().clearFilter(false);
+
             onItemSelected && onItemSelected(newValue == "" ? null : newValue);
+        }
+    }
+
+    private buildComboboxKeyUpHandler() {
+        return (combo, e) => {
+            let value = combo.getInputValue();
+
+            if (e.keyCode != 38 && e.keyCode != 40) //arrow UP and DOWN
+            {
+                if (value && value.length > 0) {
+                    combo.getStore().filterBy(record => record.data.name.toLowerCase().startsWith(value.toLowerCase()));
+                }
+            }
         }
     }
 
     private buildComboboxData(selector: SelectListSelector, autoSelectLastItem: boolean = false): ComboboxData {
         const onChange = this.buildComboboxChangeHandler(selector);
+        const onKeyUp = this.buildComboboxKeyUpHandler();
+        const onBlur = (combo, e) => { combo.getStore().clearFilter(false) }
 
         return {
             onChange,
@@ -143,21 +158,23 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
                 const { list, selectedItemId } = selector(this.props);
                 const store = this.createStore(list);
                 const selection = store.getById(selectedItemId);
-                let options = list ? list.slice() : null;
+
                 return {
-                    options,
+                    store,
                     onChange,
                     valueField: 'id',
                     displayField: 'name',
                     queryMode: 'local',
                     selection,
+                    forceSelection: true,
                     clearable: true,
-                    forceSelection: true
+                    onKeyUp,
+                    onBlur
                 }
             }
         }
     }
-
+    
     private updateStore<T>(prevItems: T[], nextItems: T[], store: Store<T>) {
         if (prevItems != nextItems) {
             store.loadData(nextItems);
