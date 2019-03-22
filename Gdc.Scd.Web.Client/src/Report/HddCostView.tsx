@@ -9,6 +9,10 @@ import { HddCostFilter } from "./Components/HddCostFilter";
 import { HddCostFilterModel } from "./Model/HddCostFilterModel";
 import { ExportService } from "./Services/ExportService";
 
+Ext.require([
+    'Ext.grid.plugin.Clipboard'
+]);
+
 export class HddCostView extends React.Component<CalcCostProps, any> {
 
     private filter: HddCostFilter;
@@ -74,6 +78,15 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
         }
     });
 
+    private selectable: any = {
+        extensible: 'both',
+        rows: true,
+        cells: true,
+        columns: true,
+        drag: true,
+        checkbox: false
+    };
+
     public state = {
         disableSaveButton: true,
         disableCancelButton: true,
@@ -108,6 +121,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                     store={this.store}
                     width="100%"
                     platformConfig={this.pluginConf()}
+                    selectable={this.selectable}
                 >
 
                     { /*dependencies*/}
@@ -121,7 +135,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                         <Column text="WG(Asset)" dataIndex="wg" />
-                        <Column text="SOG(Asset)" dataIndex="sog" renderer={value => (value ? value : " ")}/>
+                        <Column text="SOG(Asset)" dataIndex="sog" renderer={value => (value ? value : " ")} />
 
                     </Column>
 
@@ -198,12 +212,14 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
         let cfg: any = {
             'desktop': {
                 plugins: {
-                    gridpagingtoolbar: true
+                    gridpagingtoolbar: true,
+                    clipboard: true
                 }
             },
             '!desktop': {
                 plugins: {
-                    gridpagingtoolbar: true
+                    gridpagingtoolbar: true,
+                    clipboard: true
                 }
             }
         };

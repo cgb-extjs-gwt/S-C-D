@@ -13,6 +13,15 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
 
     private filter: SwProactiveCostFilter;
 
+    private selectable: any = {
+        extensible: 'both',
+        rows: true,
+        cells: true,
+        columns: true,
+        drag: true,
+        checkbox: false
+    };
+
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
 
         pageSize: 25,
@@ -52,7 +61,12 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
                     checkAccess={!this.props.approved}
                     scrollable={true} />
 
-                <Grid ref={x => this.grid = x} store={this.store} width="100%" plugins={['pagingtoolbar']}>
+                <Grid ref={x => this.grid = x}
+                    store={this.store}
+                    width="100%"
+                    plugins={['pagingtoolbar', 'clipboard']}
+                    selectable={this.selectable}
+                >
 
                     { /*dependencies*/}
 
