@@ -120,11 +120,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 };
             }
 
-            var costElement = this.domainMeta.GetCostElement(historyContext);
-            var whereCondition =
-                ConditionHelper.AndStatic(filter.Convert(), costBlockMeta.Name)
-                               .And(SqlOperators.IsNotNull(costElement.Id, costBlockMeta.HistoryMeta.Name));
-
             var userIdColumn = new ColumnInfo(nameof(User.Id), nameof(User));
             var options = new JoinHistoryValueQueryOptions
             {
@@ -132,11 +127,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 InputLevelJoinType = InputLevelJoinType.All
             };
 
+            var historyMeta = this.domainEnitiesMeta.CostBlockHistory;
+            var whereCondition =
+                ConditionHelper.AndStatic(filter.Convert(), costBlockMeta.Name)
+                               .And(SqlOperators.Equals(historyMeta.ContextApplicationIdField.Name, historyContext.ApplicationId, historyMeta.Name))
+                               .And(SqlOperators.Equals(historyMeta.ContextCostBlockIdField.Name, historyContext.CostBlockId, historyMeta.Name))
+                               .And(SqlOperators.Equals(historyMeta.ContextCostElementIdField.Name, historyContext.CostElementId, historyMeta.Name));
+
             var historyQuery =
                 this.historyQueryBuilder.BuildJoinHistoryValueQuery(historyContext, selectQuery, options)
                                         .Join(nameof(User), SqlOperators.Equals(histroryEditUserIdColumn, userIdColumn))
                                         .Where(whereCondition);
-                                        
 
             var countHistoryQuery = Sql.Select(SqlFunctions.Count()).FromQuery(historyQuery, "t");
 
