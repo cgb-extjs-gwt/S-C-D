@@ -33,11 +33,20 @@ export interface EditGridProps extends EditGridActions {
     nameColumnTitle: string
     valueColumn: ValueColumnProps
     url: string
+    hasChanges: boolean
 }
 
 export class EditGrid extends React.Component<EditGridProps> {
+    private innerGrid: AjaxDynamicGrid
+
     public shouldComponentUpdate(nextProps: EditGridProps) {
         return this.props.url != nextProps.url;
+    }
+
+    public componentWillReceiveProps(nextProps: EditGridProps) {
+        if (this.innerGrid && !nextProps.hasChanges) {
+            this.innerGrid.commitChanges();
+        }
     }
 
     public render() {
@@ -48,15 +57,19 @@ export class EditGrid extends React.Component<EditGridProps> {
             url &&
             <AjaxDynamicGrid 
                 flex={1}
+                ref={this.innerGridRef}
                 columns={columns} 
                 apiUrls={{ read: url }}
                 getSaveToolbar={this.getSaveToolbar}
                 onSelectionChange={this.onSelected}
                 onUpdateRecord={this.onUpdateRecord}
                 onCancel={this.onCancel}
-                onSave={this.onSave}
             />
         );
+    }
+
+    private innerGridRef = (grid: AjaxDynamicGrid) => {
+        this.innerGrid = grid;
     }
 
     private buildColumnInfos(nameColumnTitle: string, valueColumn: ValueColumnProps) {
@@ -83,17 +96,19 @@ export class EditGrid extends React.Component<EditGridProps> {
 
     private getSaveToolbar = (
         hasChanges: boolean, 
-        ref: (toolbar: SaveToolbar) => void, 
-        { cancel, save, saveWithCallback }: DynamicGrid
+        ref: (toolbar: SaveToolbar) => void,
+        { cancel }: DynamicGrid
     ) => {
+        const { onSave, onApprove } = this.props;
+
         return (
             <SaveApprovalToollbar 
                 ref={ref}
                 isEnableClear={hasChanges} 
                 isEnableSave={hasChanges}
                 onCancel={cancel}
-                onSave={save}
-                onApproval={() => saveWithCallback(this.props.onApprove)}
+                onSave={onSave}
+                onApproval={onApprove}
             />
         );
     }

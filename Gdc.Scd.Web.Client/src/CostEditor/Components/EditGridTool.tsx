@@ -21,8 +21,6 @@ export interface EditGridToolActions {
 }
 
 export interface EditGridToolProps extends EditGridToolActions {
-    isEnableSave: boolean
-    isEnableClear: boolean
     flex?: number
     editGrid: EditGridProps
     qualityGateErrors: BundleDetailGroup[]
