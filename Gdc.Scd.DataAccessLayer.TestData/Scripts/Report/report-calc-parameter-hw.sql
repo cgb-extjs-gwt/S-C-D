@@ -45,14 +45,10 @@ RETURN (
               , fsc.RepairTime_Approved as RepairTime
               , hr.OnsiteHourlyRates_Approved as OnsiteHourlyRate
 
-              , lc.StandardHandling_Approved as StandardHandling
 
-              , lc.StandardHandling_Approved + 
-                lc.HighAvailabilityHandling_Approved + 
-                lc.StandardDelivery_Approved + 
-                lc.ExpressDelivery_Approved + 
-                lc.TaxiCourierDelivery_Approved + 
-                lc.ReturnDeliveryFactory_Approved as LogisticPerYear
+              , lc.StandardHandling_Approved + lc.HighAvailabilityHandling_Approved as LogisticHandlingPerYear
+
+              , lc.StandardDelivery_Approved + lc.ExpressDelivery_Approved + lc.TaxiCourierDelivery_Approved + lc.ReturnDeliveryFactory_Approved as LogisticTransportPerYear
 
               , case when afEx.id is not null then af.Fee_Approved else 0 end as AvailabilityFee
       
@@ -187,8 +183,6 @@ RETURN (
               , m.RepairTime
               , m.OnsiteHourlyRate as OnsiteHourlyRate
 
-              , m.StandardHandling as StandardHandling
-
               , m.AvailabilityFee as AvailabilityFee
       
               , m.TaxAndDutiesW as TaxAndDutiesW
@@ -231,14 +225,25 @@ RETURN (
               , m.FieldServicePerYear * m.AFR5 as FieldServiceCost5
             
               , Hardware.CalcByDur(
+                      m.Duration
+                    , m.IsProlongation 
+                    , m.LogisticHandlingPerYear * m.AFR1 
+                    , m.LogisticHandlingPerYear * m.AFR2 
+                    , m.LogisticHandlingPerYear * m.AFR3 
+                    , m.LogisticHandlingPerYear * m.AFR4 
+                    , m.LogisticHandlingPerYear * m.AFR5 
+                    , m.LogisticHandlingPerYear * m.AFRP1
+                ) as LogisticsHandling
+
+             , Hardware.CalcByDur(
                        m.Duration
                      , m.IsProlongation 
-                     , m.LogisticPerYear * m.AFR1 
-                     , m.LogisticPerYear * m.AFR2 
-                     , m.LogisticPerYear * m.AFR3 
-                     , m.LogisticPerYear * m.AFR4 
-                     , m.LogisticPerYear * m.AFR5 
-                     , m.LogisticPerYear * m.AFRP1
+                     , m.LogisticTransportPerYear * m.AFR1 
+                     , m.LogisticTransportPerYear * m.AFR2 
+                     , m.LogisticTransportPerYear * m.AFR3 
+                     , m.LogisticTransportPerYear * m.AFR4 
+                     , m.LogisticTransportPerYear * m.AFR5 
+                     , m.LogisticTransportPerYear * m.AFRP1
                  ) as LogisticTransportcost
 
             , m.Currency
@@ -294,7 +299,7 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'OnsiteHourlyRate', 'Onsite hourly rate', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'StandardHandling', 'Logistics handling cost', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'LogisticsHandling', 'Logistics handling cost', 1, 1);
 set @index = @index + 1;                                                                                          
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'LogisticTransportcost', 'Logistics transport cost', 1, 1);
 
