@@ -16,42 +16,53 @@ import { isEqualCoordinates } from "../Helpers/TableViewHelper";
 import { CostElementIdentifier } from "../../Common/States/CostElementIdentifier";
 import { TableViewGridActions, TableViewGrid, TableViewGridProps } from "./TableViewGrid";
 import { buildCostElementColumn } from "../../Common/Helpers/ColumnInfoHelper";
+import { ApiUrls } from "../../Common/Components/AjaxDynamicGrid";
 
 const buildProps = (() => {
-    let oldMeta: CostMetaData
+    let oldMeta: CostMetaData;
     let oldTableViewInfo: TableViewInfo;
-    let oldProps = buildGridProps(oldTableViewInfo, oldMeta);
+    let oldEditedRecords: TableViewRecord[];
+    let oldProps = buildGridProps(oldTableViewInfo, oldEditedRecords, oldMeta);
+    let oldColumns = oldProps.columns;
+    let oldApiUrls = oldProps.apiUrls;
 
     return (state: CommonState) => {
         let newResult: TableViewGridProps;
 
         const newMeta = state.app.appMetaData;
         const newTableViewInfo = state.pages.tableView.info;
+        const newEditedRecords = state.pages.tableView.editedRecords;
 
-        if (oldMeta == newMeta && oldTableViewInfo == newTableViewInfo) {
+        if (oldMeta == newMeta && oldTableViewInfo == newTableViewInfo && oldEditedRecords == newEditedRecords) {
             newResult = oldProps;
         } else {
-            newResult = oldProps = buildGridProps(newTableViewInfo, newMeta);
+            newResult = oldProps = buildGridProps(newTableViewInfo, newEditedRecords, newMeta);
             oldMeta = newMeta;
             oldTableViewInfo = newTableViewInfo;
+            oldEditedRecords = newEditedRecords;
+            oldColumns = newResult.columns;
+            oldApiUrls = newResult.apiUrls;
         }
 
         return newResult;
     }
 
-    function buildGridProps (tableViewInfo: TableViewInfo, meta: CostMetaData) {
+    function buildGridProps (tableViewInfo: TableViewInfo, editedRecords: TableViewRecord[], meta: CostMetaData) {
         let readUrl: string;
+        let columns: ColumnInfo<TableViewRecord>[];
+        let apiUrls: ApiUrls;
 
-        const columns: ColumnInfo<TableViewRecord>[] = [];
+        const hasChanges = editedRecords && editedRecords.length > 0;
 
-        if (tableViewInfo && meta) {
-            readUrl = buildGetRecordsUrl();
-
+        if (tableViewInfo == oldTableViewInfo) {
+            columns = oldColumns;
+            apiUrls = oldApiUrls;
+        } else {
             const roleCodeReferences = new Map<number, NamedId<number>>();
 
             tableViewInfo.roleCodeReferences.forEach(roleCode => roleCodeReferences.set(roleCode.id, roleCode));
 
-            columns.push(
+            columns = [
                 ...buildCoordinateColumns(tableViewInfo.recordInfo.coordinates),
                 ...buildAdditionalColumns(),
                 {
@@ -70,14 +81,17 @@ const buildProps = (() => {
                     width: 100,
                 },
                 ...buildCostElementColumns()
-            );
+            ];
+
+            apiUrls = {
+                read: buildGetRecordsUrl()
+            };
         }
 
         return <TableViewGridProps>{
             columns,
-            apiUrls: {
-                read: readUrl
-            },
+            apiUrls: apiUrls,
+            hasChanges: editedRecords && editedRecords.length > 0
         };
 
         function buildCoordinateColumns (coordinateIds: string[]) { 
