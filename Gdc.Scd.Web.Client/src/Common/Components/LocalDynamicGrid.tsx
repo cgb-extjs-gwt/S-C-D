@@ -38,6 +38,7 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
     private innerColumns: ColumnInfo[]
     private prevProps: TProps
     private lastLevelVisibleColumns: ColumnInfo[]
+    private innerGrid: DynamicGrid
 
     public componentWillUnmount() {
         if (this.store) {
@@ -51,10 +52,27 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
         return (
             <DynamicGrid 
                 {...this.props}
+                ref={this.innerGridRef}
                 store={this.store} 
                 columns={this.innerColumns} 
             />
         );
+    }
+
+    public commitChanges = () => {
+        this.innerGrid.commitChanges();
+    }
+
+    public cancel = () => {
+        this.innerGrid.cancel();
+    }
+
+    public saveWithCallback = (callback: () => void) => {
+        this.innerGrid.saveWithCallback(callback);
+    }
+
+    public save = () => {
+        this.innerGrid.save();
     }
 
     protected init() {
@@ -88,6 +106,10 @@ export class LocalDynamicGrid<TData=any, TProps extends LocalDynamicGridProps<TD
 
     protected isUpdatingDataStore(prevProps: TProps, currentProps: TProps) {
         return !prevProps || prevProps.columns != currentProps.columns;
+    }
+
+    private innerGridRef = (grid: DynamicGrid) => {
+        this.innerGrid = grid;
     }
 
     private getInnerColumns(columns: ColumnInfo[]) {

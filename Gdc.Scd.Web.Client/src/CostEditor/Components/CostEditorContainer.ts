@@ -124,14 +124,13 @@ const costBlockTabMap = (
                         inputType: selectedCostElementMeta.inputType,
                         currency: getCurrencyName(selectedCostElement)
                     },
-                    url: costBlock.edit.editItemsUrl
+                    url: costBlock.edit.editItemsUrl,
+                    hasChanges
                 },
                 applicationId,
                 costBlockId: costBlock.costBlockId,
                 costElementId: costBlock.costElements.selectedItemId,
                 qualityGateErrors: costBlock.edit.saveErrors,
-                isEnableClear: hasChanges,
-                isEnableSave: hasChanges,
             }
         }
 
