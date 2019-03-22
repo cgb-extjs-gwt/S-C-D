@@ -27,7 +27,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public MetaCollection<NamedEntityMeta> InputLevels { get; } = new MetaCollection<NamedEntityMeta>();
 
-        public EntityMeta CostBlockHistory { get; set; }
+        public CostBlockHistoryEntityMeta CostBlockHistory { get; set; }
 
         public EntityMeta LocalPortfolio { get; set; }
 
