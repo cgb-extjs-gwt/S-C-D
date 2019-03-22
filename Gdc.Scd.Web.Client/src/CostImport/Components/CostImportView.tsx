@@ -126,7 +126,7 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
 
     private buildComboboxChangeHandler(selector: SelectListSelector) {
         return (combobox, newValue, oldValue) => {
-            const { onItemSelected, selectedItemId } = selector(this.props);
+            const { onItemSelected } = selector(this.props);
 
             onItemSelected && onItemSelected(newValue == "" ? null : newValue);
         }
@@ -166,8 +166,8 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
                     displayField: 'name',
                     queryMode: 'local',
                     selection,
-                    forceSelection: true,
                     clearable: true,
+                    forceSelection: true,
                     onKeyUp,
                     onBlur
                 }
