@@ -21,7 +21,6 @@ namespace Gdc.Scd.Core.Entities
 
         public string FileName { get; set; }
         public string FilePath { get; set; }
-        public Occurancy  Occurancy { get; set; }
         public ImportMode ImportMode { get; set; }
         public DateTime? ProcessedDateTime { get; set; }
         public string ProcessedFilesPath { get; set; }

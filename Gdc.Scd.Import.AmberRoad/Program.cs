@@ -14,21 +14,19 @@ namespace Gdc.Scd.Import.AmberRoad
     //{
     //    static void Main(string[] args)
     //    {
+    //        var amberRoadImportService = new AmberRoadImportService();
     //        try
     //        {
-    //            AmberRoadImportService.UploadTaxAndDuties();
+    //            amberRoadImportService.UploadTaxAndDuties();
     //        }
-    //        catch(FileNotFoundException ex)
+    //        catch (Exception ex)
     //        {
-    //            AmberRoadImportService.Logger.Log(LogLevel.Info, ex.Message);
-    //        }
-    //        catch(Exception ex)
-    //        {
-    //            AmberRoadImportService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
+    //            amberRoadImportService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
     //            Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstants.UNEXPECTED_ERROR, ex, null, null);
     //        }
     //    }
     //}
+
     public class AmberRoadJob
     {
         public OperationResult<bool> Output()
@@ -43,10 +41,6 @@ namespace Gdc.Scd.Import.AmberRoad
                     IsSuccess = true,
                     Result = true
                 };
-            }
-            catch (FileNotFoundException ex)
-            {
-                amberRoadImportService.Logger.Log(LogLevel.Info, ex.Message);
             }
             catch (Exception ex)
             {

@@ -105,6 +105,7 @@
     <Compile Include="Migrations\Migration_2019_03_20_14_00.cs" />
     <Compile Include="Migrations\Migration_2019_03_20_12_05.cs" />
     <Compile Include="Migrations\Migration_2019_03_21_10_29.cs" />
+    <Compile Include="Migrations\Migration_2019_03_21_12_22.cs" />
     <Compile Include="Migrations\Migration_2019_03_22_11_35.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />

@@ -11,7 +11,7 @@ namespace Gdc.Scd.Import.Core.Interfaces
     public interface IDownloader
     {
         StreamReader DownloadData(DownloadInfoDto info);
-        DateTime GetModifiedDateTime(DownloadInfoDto info);
+        DateTime? GetModifiedDateTime(DownloadInfoDto info);
         void MoveFile(DownloadInfoDto info);
     }
 }

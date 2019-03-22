@@ -14,12 +14,16 @@ namespace Gdc.Scd.Import.Core.Impl
         public StreamReader DownloadData(DownloadInfoDto info)
         {
             var filePath = CheckFile(info);
+            if (String.IsNullOrEmpty(filePath))
+                throw new FileNotFoundException(ImportConstants.COULD_NOT_FIND_FILE, info.File);
             return new StreamReader(filePath);
         }
 
-        public DateTime GetModifiedDateTime(DownloadInfoDto info)
+        public DateTime? GetModifiedDateTime(DownloadInfoDto info)
         {
             var filePath = CheckFile(info);
+            if (String.IsNullOrEmpty(filePath))
+                return null;
             var file = new FileInfo(filePath);
             return file.LastWriteTime;
         }
@@ -27,6 +31,8 @@ namespace Gdc.Scd.Import.Core.Impl
         public void MoveFile(DownloadInfoDto info)
         {
             var filePath = CheckFile(info);
+            if (String.IsNullOrEmpty(filePath))
+                throw new FileNotFoundException(ImportConstants.COULD_NOT_FIND_FILE, info.File);
             var fileName = Path.GetFileName(filePath);
             File.Copy(filePath, 
                 Path.Combine(info.ProcessedFilePath, $"{Path.GetFileNameWithoutExtension(fileName)}_{DateTime.Now.ToShortDateString()}{Path.GetExtension(fileName)}"), true);
@@ -37,7 +43,7 @@ namespace Gdc.Scd.Import.Core.Impl
         {
             var files = Directory.GetFiles(info.Path, info.File);
             if (files.Length == 0)
-                throw new FileNotFoundException("File cannot be found", info.File);
+                return String.Empty;
             var file =  files.Select(f => new FileInfo(Path.Combine(info.Path, f))).OrderByDescending(f => f.LastWriteTime).First();
             return file.FullName;
         }
