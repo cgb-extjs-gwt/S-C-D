@@ -1,6 +1,6 @@
-﻿const N_A = 'N/A';
+﻿export const N_A = 'N/A';
 
-const EUR = 'EUR';
+export const EUR = 'EUR';
 
 export interface IRenderer {
     (value: any, row: any): string;
@@ -26,15 +26,15 @@ export function moneyRenderer(value: any, row: any): string {
     return currencyRenderer(value, EUR);
 }
 
-export function localMoneyRendererFactory(currencyField: string): IRenderer {
+export function localMoneyRendererFactory(currency: string): IRenderer {
     return function (value: any, row: any): string {
-        return currencyRenderer(value, row.get(currencyField));
+        return currencyRenderer(value, currency);
     }
 }
 
-export function localToEuroMoneyRendererFactory(exchangeRateField: string): IRenderer {
+export function localToEuroMoneyRendererFactory(exchangeRate: number): IRenderer {
     return function (value: any, row: any): string {
-        return currencyRenderer(value / row.get(exchangeRateField), EUR);
+        return currencyRenderer(value / exchangeRate, EUR);
     }
 }
 
