@@ -41,8 +41,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
                 rootProperty: 'items',
                 totalProperty: 'total'
             },
-            paramsAsJson: true,
-            timeout: 600000
+            paramsAsJson: true
         }
     });
 
