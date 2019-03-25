@@ -2000,7 +2000,7 @@ BEGIN
 
         LEFT JOIN Hardware.ServiceSupportCost ssc ON ssc.Country = m.CountryId and ssc.ClusterPla = m.ClusterPlaId and ssc.DeactivatedDateTime is null
 
-        LEFT JOIN Hardware.MaterialCostWarrantyCalc mcw ON mcw.Country = m.Country and mcw.Wg = m.WgId
+        LEFT JOIN Hardware.MaterialCostWarrantyCalc mcw ON mcw.Country = m.CountryId and mcw.Wg = m.WgId
 
         LEFT JOIN Hardware.MarkupStandardWaranty msw ON msw.Country = m.CountryId AND msw.Wg = m.WgId and msw.DeactivatedDateTime is null
 
