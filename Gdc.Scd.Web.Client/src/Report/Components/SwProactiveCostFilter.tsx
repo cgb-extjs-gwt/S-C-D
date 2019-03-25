@@ -59,10 +59,10 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
         };
 
         if (this.props.checkAccess) {
-            countryField = <MultiSelectField ref={x => this.cnt = x} {...multiProps} store={this.dictSrv.getUserCountryNames} onselect={this.onCountryChange} label='Country' />
+            countryField = <MultiSelectField ref={x => this.cnt = x} {...multiProps} store={this.dictSrv.getUserCountryNames} onSelectionChange={this.onCountryChange} label='Country' />
         }
         else {
-            countryField = <MultiSelectField ref={x => this.cnt = x} {...multiProps} store={this.dictSrv.getMasterCountriesNames} onselect={this.onCountryChange} label='Country' />;
+            countryField = <MultiSelectField ref={x => this.cnt = x} {...multiProps} store={this.dictSrv.getMasterCountriesNames} onSelectionChange={this.onCountryChange} label='Country' />;
         }
 
         return (
@@ -117,7 +117,8 @@ export class SwProactiveCostFilter extends React.Component<FilterPanelProps, any
     }
 
     private onCountryChange() {
-        this.setState({ valid: !!this.cnt.getSelected() });
+        let selected = this.cnt.getSelected();
+        this.setState({ valid: selected && selected.length > 0 });
     }
 
     private onSearch() {
