@@ -2756,8 +2756,8 @@ RETURN
              , m.WgId
              , m.Wg
              , wg.Description as WgDescription
-             , wg.SogId
-             , sog.Name as Sog
+             , m.SogId
+             , m.Sog
 
              , m.AvailabilityId
              , m.Availability
@@ -2807,7 +2807,6 @@ RETURN
 
         from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, null, null) m
         join InputAtoms.Wg wg on wg.id = m.WgId
-        join InputAtoms.Sog sog on sog.id = wg.SogId
         left join Hardware.InstallBase ib on ib.Country = m.CountryId and ib.Wg = m.WgId
     )
     select    
