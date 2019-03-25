@@ -26,15 +26,15 @@ export function moneyRenderer(value: any, row: any): string {
     return currencyRenderer(value, EUR);
 }
 
-export function localMoneyRendererFactory(currency: string): IRenderer {
+export function localMoneyRendererFactory(currencyField: string): IRenderer {
     return function (value: any, row: any): string {
-        return currencyRenderer(value, currency);
+        return currencyRenderer(value, row.get(currencyField));
     }
 }
 
-export function localToEuroMoneyRendererFactory(exchangeRate: number): IRenderer {
+export function localToEuroMoneyRendererFactory(exchangeRateField: string): IRenderer {
     return function (value: any, row: any): string {
-        return currencyRenderer(value / exchangeRate, EUR);
+        return currencyRenderer(value / row.get(exchangeRateField), EUR);
     }
 }
 
