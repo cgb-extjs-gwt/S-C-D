@@ -1,12 +1,12 @@
 ﻿DELETE lp
-FROM [SCD_2_test].[Portfolio].[LocalPortfolio] lp
+FROM [Portfolio].[LocalPortfolio] lp
 join InputAtoms.Wg wg on wg.Id=lp.WgId
 where wg.IsSoftware=1
 GO
 
 DELETE pp
-FROM [SCD_2_test].[Portfolio].[PrincipalPortfolio] pp
-join InputAtoms.Wg wg on wg.Id=lp.WgId
+FROM [Portfolio].[PrincipalPortfolio] pp
+join InputAtoms.Wg wg on wg.Id=pp.WgId
 where wg.IsSoftware=1
 GO
 

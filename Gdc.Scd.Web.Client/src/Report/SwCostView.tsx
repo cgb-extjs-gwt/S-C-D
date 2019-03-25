@@ -7,11 +7,25 @@ import { SwCostFilter } from "./Components/SwCostFilter";
 import { SwCostFilterModel } from "./Model/SwCostFilterModel";
 import { ExportService } from "./Services/ExportService";
 
+Ext.require([
+    'Ext.grid.plugin.Clipboard'
+]);
+
 export class SwCostView extends React.Component<CalcCostProps, any> {
 
     private grid: Grid;
 
     private filter: SwCostFilter;
+
+    private selectable: any = {
+        rows: true,
+        cells: true,
+        columns: true,
+        drag: true,
+        checkbox: false
+    };
+
+    private extensible: string = 'both';
 
     private store: Ext.data.IStore = Ext.create('Ext.data.Store', {
 
@@ -46,7 +60,12 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
 
                 <SwCostFilter ref="filter" docked="right" onSearch={this.onSearch} onDownload={this.onDownload} scrollable={true} />
 
-                <Grid ref="grid" store={this.store} width="100%" plugins={['pagingtoolbar']}>
+                <Grid ref="grid"
+                    store={this.store}
+                    width="100%"
+                    plugins={['pagingtoolbar', 'clipboard']}
+                    selectable={{ extensible: this.extensible, ...this.selectable }}
+                >
 
                     { /*dependencies*/}
 

@@ -106,6 +106,10 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     );
   }
 
+  public commitChanges = () => {
+    this.store && this.store.commitChanges();
+  }
+
   public cancel = () => {
     const { onCancel } = this.props;
 
@@ -127,7 +131,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
         callback: save
       });
     } else {
-      this.store.commitChanges();
+      this.commitChanges();
       save();
     }
   };
