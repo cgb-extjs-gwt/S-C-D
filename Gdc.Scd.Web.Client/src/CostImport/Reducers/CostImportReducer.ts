@@ -46,7 +46,7 @@ const selectCostBlock: Reducer<CostImportState, ItemSelectedAction> = (state, ac
 const selectCostElement: Reducer<CostImportState, ItemSelectedAction> = (state, action) => ({
     ...state,
     ...reset(),
-     costElementId: action.selectedItemId
+    costElementId: action.selectedItemId
 })
 
 const selectInputLevel: Reducer<CostImportState, ItemSelectedAction> = (state, action) => ({

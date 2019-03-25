@@ -33,12 +33,9 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         public DomainEnitiesMeta Get(DomainMeta domainMeta)
         {
-            var costBlockHistory = new EntityMeta(MetaConstants.CostBlockHistoryTableName, MetaConstants.HistorySchema);
-            costBlockHistory.Fields.Add(new IdFieldMeta());
-
             var domainEnitiesMeta = new DomainEnitiesMeta
             {
-                CostBlockHistory = costBlockHistory
+                CostBlockHistory = new CostBlockHistoryEntityMeta()
             };
 
             var customCoordinateMetas = this.coordinateEntityMetaProviders.SelectMany(provider => provider.GetCoordinateEntityMetas()).ToArray();

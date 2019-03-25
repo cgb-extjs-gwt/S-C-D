@@ -39,7 +39,7 @@ export class HistoryValuesGridView extends React.Component<HistoryValuesGridView
             fields: [ 
                 { name: EDIT_DATE_COLUMN_NAME, type: 'date' },
                 { name: EDIT_USER_NAME_COLUMN_NAME, type: 'string' },
-                { name: VALUE_COLUMN_NAME }
+                { name: VALUE_COLUMN_NAME, mapping: ({ value }) => value == null ? ' ' : value }
             ],
             autoLoad: true,
             remoteSort: true,

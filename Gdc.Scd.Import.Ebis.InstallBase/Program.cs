@@ -13,17 +13,14 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
     //{
     //    static void Main(string[] args)
     //    {
+    //        var installBaseService = new InstallBaseService();
     //        try
     //        {
-    //            InstallBaseService.UploadInstallBaseInfo();
-    //        }
-    //        catch (FileNotFoundException ex)
-    //        {
-    //            InstallBaseService.Logger.Log(LogLevel.Info, ex.Message);
+    //            installBaseService.UploadInstallBaseInfo();
     //        }
     //        catch (Exception ex)
     //        {
-    //            InstallBaseService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
+    //            installBaseService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
     //            Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstants.UNEXPECTED_ERROR, ex, null, null);
     //        }
     //    }
@@ -42,10 +39,6 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
                     IsSuccess = true,
                     Result = true
                 };
-            }
-            catch (FileNotFoundException ex)
-            {
-                installBaseService.Logger.Log(LogLevel.Info, ex.Message);
             }
             catch (Exception ex)
             {
