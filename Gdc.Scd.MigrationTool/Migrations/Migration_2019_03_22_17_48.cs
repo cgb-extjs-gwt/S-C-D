@@ -12,7 +12,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 53;
+        public int Number => 54;
 
         public string Description => "Split Material Cost In Warranty into EMEIA and Non EMEIA";
 
