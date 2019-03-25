@@ -1,6 +1,3 @@
-USE SCD_2
-GO
-
 --BACKUP OLD TABLES
 sp_rename 'Hardware.MaterialCostWarranty', 'MaterialCostWarranty_Back'
 GO

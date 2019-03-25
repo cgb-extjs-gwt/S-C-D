@@ -277,7 +277,9 @@
     <Content Include="MigrationScripts\2019-03-22-17-45.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="MigrationScripts\2019-03-25-12-55.sql" />
+    <Content Include="MigrationScripts\2019-03-25-12-55.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj">
