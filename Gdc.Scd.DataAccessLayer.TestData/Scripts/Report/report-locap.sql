@@ -18,31 +18,36 @@ CREATE PROCEDURE [Report].[spLocap]
 AS
 BEGIN
 
-    declare @sla Portfolio.Sla;
+    declare @cntTable dbo.ListId; insert into @cntTable(id) values(@cnt);
 
-    insert into @sla 
-        select   -1
-                , Id
-                , CountryId
-                , WgId
-                , AvailabilityId
-                , DurationId
-                , ReactionTimeId
-                , ReactionTypeId
-                , ServiceLocationId
-                , ProActiveSlaId
-                , Sla
-                , SlaHash
-                , ReactionTime_Avalability
-                , ReactionTime_ReactionType
-                , ReactionTime_ReactionType_Avalability
-                , null
-                , null
-    from Portfolio.GetBySlaSog(@wg, @cnt, @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
+    declare @wg_SOG_Table dbo.ListId;
+    insert into @wg_SOG_Table
+    select id
+        from InputAtoms.Wg 
+        where SogId in (
+            select wg.SogId from InputAtoms.Wg wg  where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = wg.Id))
+        )
+        and IsSoftware = 0
+        and SogId is not null
+        and DeactivatedDateTime is null;
+
+    if not exists(select id from @wg_SOG_Table) return;
+
+    declare @avTable dbo.ListId; if @av is not null insert into @avTable(id) values(@av);
+
+    declare @durTable dbo.ListId; if @dur is not null insert into @durTable(id) values(@dur);
+
+    declare @rtimeTable dbo.ListId; if @reactiontime is not null insert into @rtimeTable(id) values(@reactiontime);
+
+    declare @rtypeTable dbo.ListId; if @reactiontype is not null insert into @rtypeTable(id) values(@reactiontype);
+
+    declare @locTable dbo.ListId; if @loc is not null insert into @locTable(id) values(@loc);
+
+    declare @proTable dbo.ListId; if @pro is not null insert into @proTable(id) values(@pro);
 
     with cte as (
         select m.* 
-        from Hardware.GetCostsSlaSog(1, @sla) m
+        from Hardware.GetCostsSlaSog(1, @cntTable, @wg_SOG_Table, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable) m
         where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = m.WgId))
     )
     , cte2 as (

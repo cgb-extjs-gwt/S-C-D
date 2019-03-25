@@ -498,27 +498,7 @@
       </Elements>
     </Block>
 
-   <Block Name="MaterialCostWarranty" Caption="Material cost iW" >
-      <Applications>
-        <Application>Hardware</Application>
-      </Applications>
-      <Elements>
-        <Element Name="MaterialCostWarranty" Caption="Material cost iW" InputOption="ManualyAutomaticly" RegionInput="ClusterRegion">
-          <InputLevels>
-            <InputLevel>Wg</InputLevel>
-          </InputLevels>
-          <TableView>
-            <Roles>
-              <Role>PRS PSM</Role>  
-              <Role>PRS Finance</Role>
-              <Role>SCD Admin</Role>
-            </Roles>
-          </TableView>
-        </Element>
-      </Elements>
-    </Block>
-
-    <Block Name="MaterialCostOowEmeia" Caption="Material cost OOW EMEIA">
+    <Block Name="MaterialCostWarrantyEmeia" Caption="Material cost Warranty EMEIA">
       <Applications>
         <Application>Hardware</Application>
       </Applications>
@@ -535,15 +515,38 @@
             </Roles>
           </TableView>
         </Element>
+        <Element Name="MaterialCostIw" Caption="Material cost iW EMEIA" InputOption="ManualyAutomaticly" RegionInput="_none_">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+          <TableView>
+            <Roles>
+              <Role>PRS PSM</Role>
+              <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </TableView>
+        </Element>
       </Elements>
     </Block>
 
-    <Block Name="MaterialCostOow" Caption="Material cost OOW">
+    <Block Name="MaterialCostWarranty" Caption="Material cost Warranty">
       <Applications>
         <Application>Hardware</Application>
       </Applications>
       <Elements>
         <Element Name="MaterialCostOow" Caption="Material cost OOW" InputOption="Manually" RegionInput="NonEmeiaCountry">
+          <InputLevels>
+            <InputLevel>Wg</InputLevel>
+          </InputLevels>
+          <CostEditor>
+            <Roles>
+              <Role>PRS Finance</Role>
+              <Role>SCD Admin</Role>
+            </Roles>
+          </CostEditor>
+        </Element>
+        <Element Name="MaterialCostIw" Caption="Material cost iW" InputOption="Manualy" RegionInput="NonEmeiaCountry">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>

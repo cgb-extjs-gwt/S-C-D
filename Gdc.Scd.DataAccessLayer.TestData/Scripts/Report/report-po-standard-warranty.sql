@@ -29,7 +29,7 @@ RETURN (
               , av.Name    as Availability
               , prosla.ExternalName as ProActiveSla
 
-              , mcw.MaterialCostWarranty_Approved as MaterialCostWarranty
+              , mcw.MaterialCostIw_Approved as MaterialCostWarranty
 
               , afr.AFR1_Approved as AFR1
               , afr.AFR2_Approved as AFR2
@@ -37,11 +37,11 @@ RETURN (
               , afr.AFR4_Approved as AFR4
               , afr.AFR5_Approved as AFR5
 
-              , case when stdw.DurationValue >= 1 then mcw.MaterialCostWarranty_Approved * afr.AFR1_Approved else 0 end as mat1
-              , case when stdw.DurationValue >= 2 then mcw.MaterialCostWarranty_Approved * afr.AFR2_Approved else 0 end as mat2
-              , case when stdw.DurationValue >= 3 then mcw.MaterialCostWarranty_Approved * afr.AFR3_Approved else 0 end as mat3
-              , case when stdw.DurationValue >= 4 then mcw.MaterialCostWarranty_Approved * afr.AFR4_Approved else 0 end as mat4
-              , case when stdw.DurationValue >= 5 then mcw.MaterialCostWarranty_Approved * afr.AFR5_Approved else 0 end as mat5
+              , case when stdw.DurationValue >= 1 then mcw.MaterialCostIw_Approved * afr.AFR1_Approved else 0 end as mat1
+              , case when stdw.DurationValue >= 2 then mcw.MaterialCostIw_Approved * afr.AFR2_Approved else 0 end as mat2
+              , case when stdw.DurationValue >= 3 then mcw.MaterialCostIw_Approved * afr.AFR3_Approved else 0 end as mat3
+              , case when stdw.DurationValue >= 4 then mcw.MaterialCostIw_Approved * afr.AFR4_Approved else 0 end as mat4
+              , case when stdw.DurationValue >= 5 then mcw.MaterialCostIw_Approved * afr.AFR5_Approved else 0 end as mat5
 
               , null as SparesAvailability
 
@@ -69,7 +69,7 @@ RETURN (
 
         LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
-        LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
+        LEFT JOIN Hardware.MaterialCostWarrantyCalc mcw on mcw.Country = m.CountryId and mcw.Wg = m.WgId
     )
     select    m.Id
             , m.CountryGroup
