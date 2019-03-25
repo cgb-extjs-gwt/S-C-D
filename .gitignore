@@ -223,3 +223,4 @@ FakesAssemblies/
 # Everything starting with dot in the root directory is considered hidden and private
 /.*
 *.pubxml.user
+Gdc.Scd.Web.Client/node_modules/
