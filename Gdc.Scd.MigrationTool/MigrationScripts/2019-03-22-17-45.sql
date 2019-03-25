@@ -291,31 +291,6 @@ INNER JOIN [Hardware].[MaterialCostOowEmeia] oow ON
 oow.Wg = mc.Wg
 GO
 
---MOVE DATA FROM MATERIAL COST IW NON EMEIA
---UPDATE mc 
---  SET mc.[MaterialCostIw] = inw.MaterialCostWarranty, 
---  mc.[MaterialCostIw_Approved] = inw.MaterialCostWarranty_Approved,
---  mc.DeactivatedDateTime = inw.DeactivatedDateTime
---  FROM [Hardware].[MaterialCostWarranty] mc
---  INNER JOIN 
---  (SELECT iw.[MaterialCostWarranty] AS [MaterialCostWarranty], 
---      iw.[MaterialCostWarranty_Approved] AS [MaterialCostWarranty_Approved], 
---	  iw.[DeactivatedDateTime] AS DeactivatedDateTime,
---	  iw.[Wg] AS Wg,
---	  iw.[ClusterRegion] AS ClusterRegionId, 
---	  cr.[Name] AS ClusterRegionName, 
---	  c.[Name] AS CountryName, c.Id AS CountryId
---	  FROM [Hardware].[MaterialCostWarranty_Back] iw
---	  INNER JOIN [InputAtoms].[ClusterRegion] cr ON
---	  iw.ClusterRegion = cr.Id
---	  INNER JOIN [InputAtoms].[Region] r ON
---	  r.ClusterRegionId = cr.Id
---	  INNER JOIN [InputAtoms].[Country] c ON
---	  c.RegionId = r.Id
---	  WHERE c.IsMaster = 1 AND iw.[ClusterRegion] != 2) AS inw
---  ON mc.Wg = inw.Wg AND mc.[NonEmeiaCountry] = inw.CountryId
---GO
-
 --MOVE DATA FROM MATERIAL COST IW EMEIA
 UPDATE mc
   SET mc.[MaterialCostIw] = iw.[MaterialCostWarranty],
@@ -326,12 +301,13 @@ UPDATE mc
   INNER JOIN [Hardware].[MaterialCostWarranty_Back] iw ON
   mc.Wg = iw.Wg
   WHERE iw.[ClusterRegion] = 2
-  GO
+GO
 
 --MOVE HISTORY FOR MATERIAL COST OOW NON EMEIA
 INSERT INTO [History].[Hardware_MaterialCostWarranty] ([Wg], [NonEmeiaCountry], [MaterialCostOow], [CostBlockHistory])
 SELECT [Wg], [NonEmeiaCountry], [MaterialCostOow], [CostBlockHistory]
 FROM [SCD_2].[History].[Hardware_MaterialCostOow]
+GO
 
 --MOVE HISTORY FOR MATERIAL COST OOW EMEIA
 INSERT INTO [History].[Hardware_MaterialCostWarrantyEmeia] ([Wg], [MaterialCostOow], [CostBlockHistory])
