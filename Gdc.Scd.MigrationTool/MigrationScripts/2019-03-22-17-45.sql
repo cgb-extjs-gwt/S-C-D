@@ -261,6 +261,7 @@ UPDATE [Hardware].[MaterialCostWarrantyEmeia] SET [DeactivatedDateTime] = '2018-
 EXCEPT
 SELECT  [Wg] FROM [#Coordinates]) AS [DelectedCoordinate] WHERE [DelectedCoordinate].[Wg] = [MaterialCostWarrantyEmeia].[Wg];
 DROP TABLE [#Coordinates]
+GO
 
 --FILL TABLE MATERIAL COST NON EMEIA
 SELECT  [Wg].[Id] AS [Wg], [NonEmeiaCountry].[Id] AS [NonEmeiaCountry] INTO [#Coordinates] FROM (SELECT  * FROM [InputAtoms].[Wg] WHERE [DeactivatedDateTime] IS NULL AND [WgType] = 1 AND [IsSoftware] = 0) AS [Wg] CROSS JOIN (SELECT  * FROM [InputAtoms].[NonEmeiaCountry] WHERE [IsMaster] = 1) AS [NonEmeiaCountry];
@@ -272,6 +273,7 @@ UPDATE [Hardware].[MaterialCostWarranty] SET [DeactivatedDateTime] = '2018-03-22
 EXCEPT
 SELECT  [Wg], [NonEmeiaCountry] FROM [#Coordinates]) AS [DelectedCoordinate] WHERE [DelectedCoordinate].[Wg] = [MaterialCostWarranty].[Wg] AND [DelectedCoordinate].[NonEmeiaCountry] = [MaterialCostWarranty].[NonEmeiaCountry];
 DROP TABLE [#Coordinates]
+GO
 
 --MOVE DATA FROM MATERIAL COST OOW NON EMEIA TABLE 
 UPDATE mc
@@ -282,6 +284,7 @@ mc.CreatedDateTime = oow.CreatedDateTime
 FROM  [Hardware].[MaterialCostWarranty] mc
 INNER JOIN [Hardware].[MaterialCostOow] oow ON
 oow.NonEmeiaCountry = mc.[NonEmeiaCountry] AND oow.Wg = mc.Wg
+GO
 
 --MOVE DATA FROM MATERIAL COST OOW EMEIA
 UPDATE mc
@@ -292,6 +295,7 @@ mc.DeactivatedDateTime = oow.DeactivatedDateTime
 FROM [Hardware].[MaterialCostWarrantyEmeia] mc
 INNER JOIN [Hardware].[MaterialCostOowEmeia] oow ON
 oow.Wg = mc.Wg
+GO
 
 --MOVE DATA FROM MATERIAL COST IW NON EMEIA
 --UPDATE mc 
@@ -316,6 +320,7 @@ oow.Wg = mc.Wg
 --	  c.RegionId = r.Id
 --	  WHERE c.IsMaster = 1 AND iw.[ClusterRegion] != 2) AS inw
 --  ON mc.Wg = inw.Wg AND mc.[NonEmeiaCountry] = inw.CountryId
+--GO
 
 --MOVE DATA FROM MATERIAL COST IW EMEIA
 UPDATE mc
@@ -327,6 +332,7 @@ UPDATE mc
   INNER JOIN [Hardware].[MaterialCostWarranty_Back] iw ON
   mc.Wg = iw.Wg
   WHERE iw.[ClusterRegion] = 2
+  GO
 
 --MOVE HISTORY FOR MATERIAL COST OOW NON EMEIA
 INSERT INTO [History].[Hardware_MaterialCostWarranty] ([Wg], [NonEmeiaCountry], [MaterialCostOow], [CostBlockHistory])
@@ -337,25 +343,31 @@ FROM [SCD_2].[History].[Hardware_MaterialCostOow]
 INSERT INTO [History].[Hardware_MaterialCostWarrantyEmeia] ([Wg], [MaterialCostOow], [CostBlockHistory])
 SELECT [Wg], [MaterialCostOow], [CostBlockHistory]
 FROM [History].[Hardware_MaterialCostOowEmeia]
+GO
 
 --MOVE HISTORY FOR MATERIAL COST IW EMEIA
 INSERT INTO [History].[Hardware_MaterialCostWarrantyEmeia] ([Wg], [MaterialCostIw], [CostBlockHistory])
 SELECT [Wg], [MaterialCostWarranty], [CostBlockHistory]
 FROM [History].[Hardware_MaterialCostWarranty_Back]
+GO
 
 --CLEAR RELATED ITEMS CLUSTER REGION
 DELETE FROM [History_RelatedItems].[ClusterRegion]
 WHERE CostBlockHistory IN (SELECT CostBlockHistory FROM [History].[Hardware_MaterialCostWarranty_Back])
+GO
 
 --UPDATE COST BLOCK HISTORY TABLE
 UPDATE [History].[CostBlockHistory]
 SET [Context_CostBlockId]='MaterialCostWarrantyEmeia', [Context_CostElementId] = 'MaterialCostIw'
 WHERE Id IN (SELECT CostBlockHistory FROM [History].[Hardware_MaterialCostWarranty_Back]) 
+GO
 
 UPDATE [History].[CostBlockHistory]
 SET [Context_CostBlockId]='MaterialCostWarrantyEmeia'
 WHERE Id IN (SELECT CostBlockHistory FROM [History].[Hardware_MaterialCostOowEmeia])
+GO
 
 UPDATE [History].[CostBlockHistory]
 SET [Context_CostBlockId]='MaterialCostWarranty'
 WHERE Id IN (SELECT CostBlockHistory FROM [History].[Hardware_MaterialCostOow])
+GO
