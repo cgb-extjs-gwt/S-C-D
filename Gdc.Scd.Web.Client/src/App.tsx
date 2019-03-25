@@ -9,6 +9,7 @@ declare var Ext: any;
 // Enable responsiveConfig app-wide. You can remove this if you don't plan to build a responsive UI.
 Ext.require('Ext.plugin.Responsive');
 Ext.Ajax.setTimeout(600000);
+Ext.override(Ext.data.proxy.Ajax, { timeout: 600000 });
 
 const store = storeFactory();
 

@@ -87,7 +87,7 @@ BEGIN
              , m.OtherDirect * m.ExchangeRate as OtherDirect
              , m.Credits * m.ExchangeRate as Credits
              , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
-             , cur.Name as Currency
+             , m.Currency
 
              , m.Availability                       + ', ' +
                    m.ReactionType                   + ', ' +
@@ -98,12 +98,11 @@ BEGIN
 
     from cte2 m
     join InputAtoms.Sog sog on sog.id = m.SogId
-    join [References].Currency cur on cur.Id = m.CurrencyId
 
     where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
 
 END
-GO
+go
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'LOCAP-DETAILED');
 declare @index int = 0;

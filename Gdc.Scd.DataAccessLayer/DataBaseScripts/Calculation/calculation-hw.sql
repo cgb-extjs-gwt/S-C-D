@@ -2000,7 +2000,7 @@ BEGIN
 
         LEFT JOIN Hardware.ServiceSupportCost ssc ON ssc.Country = m.CountryId and ssc.ClusterPla = m.ClusterPlaId and ssc.DeactivatedDateTime is null
 
-        LEFT JOIN Hardware.MaterialCostWarrantyCalc mcw ON mcw.Country = m.Country and mcw.Wg = m.WgId
+        LEFT JOIN Hardware.MaterialCostWarrantyCalc mcw ON mcw.Country = m.CountryId and mcw.Wg = m.WgId
 
         LEFT JOIN Hardware.MarkupStandardWaranty msw ON msw.Country = m.CountryId AND msw.Wg = m.WgId and msw.DeactivatedDateTime is null
 
@@ -2750,13 +2750,14 @@ RETURN
              , m.CountryId
              , m.Country
              , m.CurrencyId
+             , m.Currency
              , m.ExchangeRate
 
              , m.WgId
              , m.Wg
              , wg.Description as WgDescription
-             , wg.SogId
-             , sog.Name as Sog
+             , m.SogId
+             , m.Sog
 
              , m.AvailabilityId
              , m.Availability
@@ -2806,7 +2807,6 @@ RETURN
 
         from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, null, null) m
         join InputAtoms.Wg wg on wg.id = m.WgId
-        join InputAtoms.Sog sog on sog.id = wg.SogId
         left join Hardware.InstallBase ib on ib.Country = m.CountryId and ib.Wg = m.WgId
     )
     select    
@@ -2817,6 +2817,7 @@ RETURN
             , m.CountryId
             , m.Country
             , m.CurrencyId
+            , m.Currency
             , m.ExchangeRate
 
             , m.WgId
