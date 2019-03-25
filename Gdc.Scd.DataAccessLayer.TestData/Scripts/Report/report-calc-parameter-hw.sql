@@ -91,8 +91,8 @@ RETURN (
               , r.ReinsuranceUpliftFactor_4h_9x5_Approved     as ReinsuranceUpliftFactor_4h_9x5
               , r.ReinsuranceUpliftFactor_NBD_9x5_Approved    as ReinsuranceUpliftFactor_NBD_9x5
 
-              , mcw.MaterialCostWarranty_Approved as MaterialCostWarranty
-              , mco.MaterialCostOow_Approved as MaterialCostOow
+              , mcw.MaterialCostIw_Approved as MaterialCostWarranty
+              , mcw.MaterialCostOow_Approved as MaterialCostOow
 
               , dur.Value as Duration
               , dur.IsProlongation
@@ -136,9 +136,7 @@ RETURN (
 
         LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
 
-        LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
-
-        LEFT JOIN Hardware.MaterialCostOowCalc mco on mco.Country = m.CountryId AND mco.Wg = m.WgId
+        LEFT JOIN Hardware.MaterialCostWarrantyCalc mcw on mcw.Country = m.CountryId and mcw.Wg = m.WgId 
 
         LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = pla.ClusterPlaId
 

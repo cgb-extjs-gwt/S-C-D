@@ -1949,8 +1949,8 @@ BEGIN
               , stdw.ServiceLocation                          as StdServiceLocation
               , stdw.ServiceLocationId                        as StdServiceLocationId
 
-              , case when @approved = 0 then mcw.MaterialCostWarranty                else mcw.MaterialCostWarranty_Approved              end as MaterialCostWarranty
-              , case when @approved = 0 then mco.MaterialCostOow                     else mco.MaterialCostOow_Approved                   end as MaterialCostOow     
+              , case when @approved = 0 then mcw.MaterialCostIw                      else mcw.MaterialCostIw_Approved              end as MaterialCostWarranty
+              , case when @approved = 0 then mcw.MaterialCostOow                     else mcw.MaterialCostOow_Approved                   end as MaterialCostOow     
 
               , case when @approved = 0 then msw.MarkupStandardWarranty              else msw.MarkupStandardWarranty_Approved            end / m.ExchangeRate as MarkupStandardWarranty      
               , case when @approved = 0 then msw.MarkupFactorStandardWarranty_norm   else msw.MarkupFactorStandardWarranty_norm_Approved end                  as MarkupFactorStandardWarranty
@@ -2000,9 +2000,7 @@ BEGIN
 
         LEFT JOIN Hardware.ServiceSupportCost ssc ON ssc.Country = m.CountryId and ssc.ClusterPla = m.ClusterPlaId and ssc.DeactivatedDateTime is null
 
-        LEFT JOIN Hardware.MaterialCostWarranty mcw ON mcw.Wg = m.WgId AND mcw.ClusterRegion = m.ClusterRegionId and mcw.DeactivatedDateTime is null
-
-        LEFT JOIN Hardware.MaterialCostOowCalc mco ON mco.Country = m.CountryId AND mco.Wg = m.WgId
+        LEFT JOIN Hardware.MaterialCostWarrantyCalc mcw ON mcw.Country = m.Country and mcw.Wg = m.WgId
 
         LEFT JOIN Hardware.MarkupStandardWaranty msw ON msw.Country = m.CountryId AND msw.Wg = m.WgId and msw.DeactivatedDateTime is null
 
