@@ -1369,4 +1369,200 @@ insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@r
 
 go
 
+ALTER PROCEDURE [Report].[spLocap]
+(
+    @cnt          bigint,
+    @wg           dbo.ListID readonly,
+    @av           bigint,
+    @dur          bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc          bigint,
+    @pro          bigint,
+    @lastid       bigint,
+    @limit        int
+)
+AS
+BEGIN
+
+    declare @cntTable dbo.ListId; insert into @cntTable(id) values(@cnt);
+
+    declare @wg_SOG_Table dbo.ListId;
+    insert into @wg_SOG_Table
+    select id
+        from InputAtoms.Wg 
+        where SogId in (
+            select wg.SogId from InputAtoms.Wg wg  where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = wg.Id))
+        )
+        and IsSoftware = 0
+        and SogId is not null
+        and DeactivatedDateTime is null;
+
+    if not exists(select id from @wg_SOG_Table) return;
+
+    declare @avTable dbo.ListId; if @av is not null insert into @avTable(id) values(@av);
+
+    declare @durTable dbo.ListId; if @dur is not null insert into @durTable(id) values(@dur);
+
+    declare @rtimeTable dbo.ListId; if @reactiontime is not null insert into @rtimeTable(id) values(@reactiontime);
+
+    declare @rtypeTable dbo.ListId; if @reactiontype is not null insert into @rtypeTable(id) values(@reactiontype);
+
+    declare @locTable dbo.ListId; if @loc is not null insert into @locTable(id) values(@loc);
+
+    declare @proTable dbo.ListId; if @pro is not null insert into @proTable(id) values(@pro);
+
+    with cte as (
+        select m.* 
+        from Hardware.GetCostsSlaSog(1, @cntTable, @wg_SOG_Table, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable) m
+        where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = m.WgId))
+    )
+    , cte2 as (
+        select  
+                ROW_NUMBER() over(ORDER BY (SELECT 1)) as rownum
+
+                , m.*
+                , fsp.Name as Fsp
+                , fsp.ServiceDescription as ServiceLevel
+
+        from cte m
+        left join Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla
+    )
+    select    m.Id
+            , m.Fsp
+            , m.WgDescription
+            , m.ServiceLevel
+
+            , m.ReactionTime
+            , m.Year as ServicePeriod
+            , m.Wg
+
+            , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
+            , m.ServiceTcSog * m.ExchangeRate as ServiceTC
+            , m.ServiceTpSog  * m.ExchangeRate as ServiceTP_Released
+            , cur.Name as Currency
+         
+            , m.Country
+            , m.Availability                       + ', ' +
+                  m.ReactionType                   + ', ' +
+                  m.ReactionTime                   + ', ' +
+                  cast(m.Year as nvarchar(1))      + ', ' +
+                  m.ServiceLocation                + ', ' +
+                  m.ProActiveSla as ServiceType
+
+            , null as PlausiCheck
+            , null as PortfolioType
+            , null as ReleaseCreated
+            , m.Sog
+
+    from cte2 m
+    join [References].Currency cur on cur.Id = m.CurrencyId
+
+    where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
+
+END
+go
+
+ALTER PROCEDURE [Report].[spLocapDetailed]
+(
+    @cnt          bigint,
+    @wg           dbo.ListID readonly,
+    @av           bigint,
+    @dur          bigint,
+    @reactiontime bigint,
+    @reactiontype bigint,
+    @loc          bigint,
+    @pro          bigint,
+    @lastid       int,
+    @limit        int
+)
+AS
+BEGIN
+
+    declare @cntTable dbo.ListId; insert into @cntTable(id) values(@cnt);
+
+    declare @wg_SOG_Table dbo.ListId;
+    insert into @wg_SOG_Table
+    select id
+        from InputAtoms.Wg 
+        where SogId in (
+            select wg.SogId from InputAtoms.Wg wg  where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = wg.Id))
+        )
+        and IsSoftware = 0
+        and SogId is not null
+        and DeactivatedDateTime is null;
+
+    if not exists(select id from @wg_SOG_Table) return;
+
+    declare @avTable dbo.ListId; if @av is not null insert into @avTable(id) values(@av);
+
+    declare @durTable dbo.ListId; if @dur is not null insert into @durTable(id) values(@dur);
+
+    declare @rtimeTable dbo.ListId; if @reactiontime is not null insert into @rtimeTable(id) values(@reactiontime);
+
+    declare @rtypeTable dbo.ListId; if @reactiontype is not null insert into @rtypeTable(id) values(@reactiontype);
+
+    declare @locTable dbo.ListId; if @loc is not null insert into @locTable(id) values(@loc);
+
+    declare @proTable dbo.ListId; if @pro is not null insert into @proTable(id) values(@pro);
+
+    with cte as (
+        select m.* 
+        from Hardware.GetCostsSlaSog(1, @cntTable, @wg_SOG_Table, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable) m
+        where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = m.WgId))
+    )
+    , cte2 as (
+        select  
+                ROW_NUMBER() over(ORDER BY (SELECT 1)) as rownum
+
+                , m.*
+                , fsp.Name as Fsp
+                , fsp.ServiceDescription as ServiceLevel
+
+        from cte m
+        left join Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla
+    )
+    select     m.Id
+             , m.Fsp
+             , m.WgDescription
+             , m.Wg
+             , sog.Description as SogDescription
+             , m.ServiceLocation as ServiceLevel
+             , m.ReactionTime
+             , m.Year as ServicePeriod
+             , m.Sog
+             , m.ProActiveSla
+             , m.Country
+
+             , m.ServiceTcSog * m.ExchangeRate as ServiceTC
+             , m.ServiceTpSog * m.ExchangeRate as ServiceTP_Released
+             , m.FieldServiceCost * m.ExchangeRate as FieldServiceCost
+             , m.ServiceSupportCost * m.ExchangeRate as ServiceSupportCost 
+             , m.MaterialOow * m.ExchangeRate as MaterialOow
+             , m.MaterialW * m.ExchangeRate as MaterialW
+             , m.TaxAndDutiesW * m.ExchangeRate as TaxAndDutiesW
+             , m.Logistic * m.ExchangeRate as LogisticW
+             , m.Logistic * m.ExchangeRate as LogisticOow
+             , m.Reinsurance * m.ExchangeRate as Reinsurance
+             , m.Reinsurance * m.ExchangeRate as ReinsuranceOow
+             , m.OtherDirect * m.ExchangeRate as OtherDirect
+             , m.Credits * m.ExchangeRate as Credits
+             , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
+             , cur.Name as Currency
+
+             , m.Availability                       + ', ' +
+                   m.ReactionType                   + ', ' +
+                   m.ReactionTime                   + ', ' +
+                   cast(m.Year as nvarchar(1))      + ', ' +
+                   m.ServiceLocation                + ', ' +
+                   m.ProActiveSla as ServiceType
+
+    from cte2 m
+    join InputAtoms.Sog sog on sog.id = m.SogId
+    join [References].Currency cur on cur.Id = m.CurrencyId
+
+    where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
+
+END
+GO
 
