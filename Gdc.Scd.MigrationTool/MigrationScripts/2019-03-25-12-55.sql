@@ -1440,7 +1440,7 @@ BEGIN
             , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
             , m.ServiceTcSog * m.ExchangeRate as ServiceTC
             , m.ServiceTpSog  * m.ExchangeRate as ServiceTP_Released
-            , cur.Name as Currency
+            , m.Currency
          
             , m.Country
             , m.Availability                       + ', ' +
@@ -1456,7 +1456,6 @@ BEGIN
             , m.Sog
 
     from cte2 m
-    join [References].Currency cur on cur.Id = m.CurrencyId
 
     where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
 
@@ -1548,7 +1547,7 @@ BEGIN
              , m.OtherDirect * m.ExchangeRate as OtherDirect
              , m.Credits * m.ExchangeRate as Credits
              , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
-             , cur.Name as Currency
+             , m.Currency
 
              , m.Availability                       + ', ' +
                    m.ReactionType                   + ', ' +
@@ -1559,7 +1558,6 @@ BEGIN
 
     from cte2 m
     join InputAtoms.Sog sog on sog.id = m.SogId
-    join [References].Currency cur on cur.Id = m.CurrencyId
 
     where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
 

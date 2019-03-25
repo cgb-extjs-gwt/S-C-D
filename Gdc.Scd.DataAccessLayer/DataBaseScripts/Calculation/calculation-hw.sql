@@ -2750,6 +2750,7 @@ RETURN
              , m.CountryId
              , m.Country
              , m.CurrencyId
+             , m.Currency
              , m.ExchangeRate
 
              , m.WgId
@@ -2817,6 +2818,7 @@ RETURN
             , m.CountryId
             , m.Country
             , m.CurrencyId
+            , m.Currency
             , m.ExchangeRate
 
             , m.WgId

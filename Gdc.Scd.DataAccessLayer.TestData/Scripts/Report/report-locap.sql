@@ -73,7 +73,7 @@ BEGIN
             , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
             , m.ServiceTcSog * m.ExchangeRate as ServiceTC
             , m.ServiceTpSog  * m.ExchangeRate as ServiceTP_Released
-            , cur.Name as Currency
+            , m.Currency
          
             , m.Country
             , m.Availability                       + ', ' +
@@ -89,7 +89,6 @@ BEGIN
             , m.Sog
 
     from cte2 m
-    join [References].Currency cur on cur.Id = m.CurrencyId
 
     where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
 
