@@ -4,9 +4,6 @@ GO
 sp_rename 'History.Hardware_MaterialCostWarranty', 'Hardware_MaterialCostWarranty_Back'
 GO
 
-ALTER TABLE [Hardware].[MaterialCostWarranty_Back] DROP CONSTRAINT [FK_HardwareMaterialCostWarrantyWg_InputAtomsWg]
-GO
-
 ALTER TABLE [History].[Hardware_MaterialCostWarranty_Back] DROP CONSTRAINT [PK_History_Hardware_MaterialCostWarranty_Id]
 GO
 
