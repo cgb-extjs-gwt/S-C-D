@@ -27,7 +27,11 @@ BEGIN
         where SogId in (
             select wg.SogId from InputAtoms.Wg wg  where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = wg.Id))
         )
-        and IsSoftware = 0;
+        and IsSoftware = 0
+        and SogId is not null
+        and DeactivatedDateTime is null;
+
+    if not exists(select id from @wg_SOG_Table) return;
 
     declare @avTable dbo.ListId; if @av is not null insert into @avTable(id) values(@av);
 
