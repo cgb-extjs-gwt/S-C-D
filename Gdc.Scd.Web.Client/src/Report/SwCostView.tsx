@@ -64,7 +64,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
                 <Grid ref="grid"
                     store={this.store}
                     width="100%"
-                    plugins={[{ type: 'pagingtoolbar', id: 'gridpagingtoolbar' }, 'clipboard']}
+                    plugins={['pagingtoolbar', 'clipboard']}
                     selectable={{ extensible: this.extensible, ...this.selectable }}
                 >
 

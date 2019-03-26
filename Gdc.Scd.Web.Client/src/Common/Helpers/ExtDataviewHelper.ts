@@ -21,7 +21,14 @@ export class ExtDataviewHelper {
     }
 
     public static refreshToolbar(grid: Grid & any) {
-        grid.getPlugin('gridpagingtoolbar').setCurrentPage(1);
+        let plugins = grid.getPlugins() as Array<any>;
+        for (let i = 0, len = plugins.length; i < len; i++) {
+            let p = plugins[i];
+            if (p.type === 'pagingtoolbar' || p.type === 'gridpagingtoolbar') {
+                p.setCurrentPage(1);
+                return;
+            }
+        }
     }
 
     private static getSelected<T>(view: any): T[] {

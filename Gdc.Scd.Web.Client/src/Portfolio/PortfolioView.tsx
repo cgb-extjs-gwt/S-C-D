@@ -147,6 +147,7 @@ export class PortfolioView extends React.Component<any, any> {
     }
 
     private reload() {
+        ExtDataviewHelper.refreshToolbar(this.grid);
         this.store.load();
 
         this.setState({ ___: new Date().getTime() }); //stub, re-paint ext grid

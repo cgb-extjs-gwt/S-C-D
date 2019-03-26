@@ -65,7 +65,7 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
                 <Grid ref={x => this.grid = x}
                     store={this.store}
                     width="100%"
-                    plugins={[{ type: 'pagingtoolbar', id: 'gridpagingtoolbar' }, 'clipboard']}
+                    plugins={['pagingtoolbar', 'clipboard']}
                     selectable={this.selectable}
                 >
 
