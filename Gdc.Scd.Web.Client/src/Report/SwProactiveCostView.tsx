@@ -1,5 +1,6 @@
 ﻿import { Column, Container, Grid } from "@extjs/ext-react";
 import * as React from "react";
+import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { moneyRenderer, stringRenderer } from "./Components/GridRenderer";
@@ -9,7 +10,7 @@ import { ExportService } from "./Services/ExportService";
 
 export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
 
-    private grid: Grid;
+    private grid: Grid & any;
 
     private filter: SwProactiveCostFilter;
 
@@ -64,7 +65,7 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
                 <Grid ref={x => this.grid = x}
                     store={this.store}
                     width="100%"
-                    plugins={['pagingtoolbar', 'clipboard']}
+                    plugins={[{ type: 'pagingtoolbar', id: 'gridpagingtoolbar' }, 'clipboard']}
                     selectable={this.selectable}
                 >
 
@@ -120,6 +121,7 @@ export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
     }
 
     private reload() {
+        ExtDataviewHelper.refreshToolbar(this.grid);
         this.store.load();
     }
 

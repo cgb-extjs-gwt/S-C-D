@@ -1,5 +1,6 @@
 ﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
+import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
@@ -14,6 +15,8 @@ Ext.require([
 ]);
 
 export class HddCostView extends React.Component<CalcCostProps, any> {
+
+    private grid: Grid & any;
 
     private filter: HddCostFilter;
 
@@ -118,6 +121,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                     scrollable={true} />
 
                 <Grid
+                    ref={x => this.grid = x}
                     store={this.store}
                     width="100%"
                     platformConfig={this.pluginConf()}
@@ -242,6 +246,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
     }
 
     private reload() {
+        ExtDataviewHelper.refreshToolbar(this.grid);
         this.store.load();
     }
 

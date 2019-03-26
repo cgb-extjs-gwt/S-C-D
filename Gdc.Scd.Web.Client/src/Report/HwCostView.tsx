@@ -1,5 +1,6 @@
 ﻿import { Button, CheckColumn, Column, Container, Grid, NumberColumn, Panel, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
+import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { ExtMsgHelper } from "../Common/Helpers/ExtMsgHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
@@ -382,6 +383,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private reload() {
+        ExtDataviewHelper.refreshToolbar(this.grid);
         this.store.load();
     }
 
