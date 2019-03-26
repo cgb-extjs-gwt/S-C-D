@@ -184,6 +184,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return new ConditionHelper(isNull);
         }
 
+        public static ConditionHelper IsNull(ColumnInfo column)
+        {
+            return IsNull(new ColumnSqlBuilder(column));
+        }
+
         public static ConditionHelper IsNull(string columnName, string tableName = null)
         {
             var column = new ColumnSqlBuilder
@@ -203,6 +208,11 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             };
 
             return new ConditionHelper(isNotNull);
+        }
+
+        public static ConditionHelper IsNotNull(ColumnInfo column)
+        {
+            return IsNotNull(new ColumnSqlBuilder(column));
         }
 
         public static ConditionHelper IsNotNull(string columnName, string tableName = null)

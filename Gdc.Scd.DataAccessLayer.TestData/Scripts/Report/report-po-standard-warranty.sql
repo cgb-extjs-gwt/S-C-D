@@ -23,23 +23,25 @@ RETURN (
               , wg.Name as Wg
               , wg.Description as WgDescription
               , pla.Name as Pla
-              , dur.Value as Year
-              , dur.IsProlongation
               , (dur.Name + ' ' + loc.Name) as ServiceLevel
               , rtime.Name as ReactionTime
               , rtype.Name as ReactionType
               , av.Name    as Availability
               , prosla.ExternalName as ProActiveSla
 
-              , stdw.DurationValue as StdWarranty
-
-              , mcw.MaterialCostWarranty_Approved as MaterialCostWarranty
+              , mcw.MaterialCostIw_Approved as MaterialCostWarranty
 
               , afr.AFR1_Approved as AFR1
               , afr.AFR2_Approved as AFR2
               , afr.AFR3_Approved as AFR3
               , afr.AFR4_Approved as AFR4
               , afr.AFR5_Approved as AFR5
+
+              , case when stdw.DurationValue >= 1 then mcw.MaterialCostIw_Approved * afr.AFR1_Approved else 0 end as mat1
+              , case when stdw.DurationValue >= 2 then mcw.MaterialCostIw_Approved * afr.AFR2_Approved else 0 end as mat2
+              , case when stdw.DurationValue >= 3 then mcw.MaterialCostIw_Approved * afr.AFR3_Approved else 0 end as mat3
+              , case when stdw.DurationValue >= 4 then mcw.MaterialCostIw_Approved * afr.AFR4_Approved else 0 end as mat4
+              , case when stdw.DurationValue >= 5 then mcw.MaterialCostIw_Approved * afr.AFR5_Approved else 0 end as mat5
 
               , null as SparesAvailability
 
@@ -48,6 +50,8 @@ RETURN (
         JOIN InputAtoms.CountryView c on c.Id = m.CountryId
 
         JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
+
+        LEFT JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
 
         JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
 
@@ -61,24 +65,11 @@ RETURN (
 
         JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
 
-        LEFT JOIN Fsp.HwStandardWarrantyView stdw on stdw.Wg = m.WgId and stdw.Country = m.CountryId
+        LEFT JOIN Fsp.HwStandardWarranty stdw on stdw.Country = m.CountryId and stdw.Wg = m.WgId
 
         LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
 
-        LEFT JOIN Hardware.MaterialCostWarranty mcw on mcw.Wg = m.WgId AND mcw.ClusterRegion = c.ClusterRegionId
-
-        LEFT JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
-    )
-    , cte2 as (
-        select    
-              m.*
-
-                , case when m.StdWarranty >= 1 then m.MaterialCostWarranty * m.AFR1 else 0 end as mat1
-                , case when m.StdWarranty >= 2 then m.MaterialCostWarranty * m.AFR2 else 0 end as mat2
-                , case when m.StdWarranty >= 3 then m.MaterialCostWarranty * m.AFR3 else 0 end as mat3
-                , case when m.StdWarranty >= 4 then m.MaterialCostWarranty * m.AFR4 else 0 end as mat4
-                , case when m.StdWarranty >= 5 then m.MaterialCostWarranty * m.AFR5 else 0 end as mat5
-        from cte m
+        LEFT JOIN Hardware.MaterialCostWarrantyCalc mcw on mcw.Country = m.CountryId and mcw.Wg = m.WgId
     )
     select    m.Id
             , m.CountryGroup
@@ -103,7 +94,7 @@ RETURN (
             , m.AFR5
 
             , m.SparesAvailability
-    from cte2 m
+    from cte m
 )
 GO
 

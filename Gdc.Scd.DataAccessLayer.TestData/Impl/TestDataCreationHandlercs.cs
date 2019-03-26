@@ -92,11 +92,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap-detailed.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-locap-support-pack.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-calc-central.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-calc-country.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-central.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-logistic-cost-country.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-central.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-Logistic-cost-input-country.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-po-standard-warranty.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-proactive.sql"));
@@ -209,6 +206,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var tableViewPermission = new Permission { Name = PermissionConstants.TableView };
             var costImportPermission = new Permission { Name = PermissionConstants.CostImport };
             var approvalPermission = new Permission { Name = PermissionConstants.Approval };
+            var approvalShowAllItemsPermission = new Permission { Name = PermissionConstants.ApprovalShowAllItems };
             var ownApprovalPermission = new Permission { Name = PermissionConstants.OwnApproval };
             var portfolioPermission = new Permission { Name = PermissionConstants.Portfolio };
             var reviewProcessPermission = new Permission { Name = PermissionConstants.ReviewProcess };
@@ -222,6 +220,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 costEditorPermission,
                 tableViewPermission,
                 approvalPermission,
+                approvalShowAllItemsPermission,
                 costImportPermission,
                 ownApprovalPermission,
                 portfolioPermission,
@@ -368,6 +367,15 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     RolePermissions = new List<RolePermission>
                     {
                         new RolePermission { Permission = reportPermission },
+                    }
+                },
+                new Role
+                {
+                    Name = "Portfolio",
+                    IsGlobal = true,
+                    RolePermissions = new List<RolePermission>
+                    {
+                        new RolePermission { Permission = portfolioPermission },
                     }
                 }
             };
@@ -1787,6 +1795,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "swdigitsog" , MultiSelect = false },
                 new ReportFilterType { Name = "wgall" , MultiSelect = false },
                 new ReportFilterType { Name = "wgstandard" , MultiSelect = false },
+                new ReportFilterType { Name = "wghardware" , MultiSelect = false },
 
                 new ReportFilterType { Name = "wg" , MultiSelect = true },
                 new ReportFilterType { Name = "country" , MultiSelect = true },
@@ -1799,7 +1808,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "proactive" , MultiSelect = true },
                 new ReportFilterType { Name = "swdigit" , MultiSelect = true },
                 new ReportFilterType { Name = "swdigitsog" , MultiSelect = true },
-                new ReportFilterType { Name = "wgstandard" , MultiSelect = true }
+                new ReportFilterType { Name = "wgstandard" , MultiSelect = true },
+                new ReportFilterType { Name = "wghardware" , MultiSelect = true }
             };
 
             var repository = this.repositorySet.GetRepository<ReportFilterType>();
@@ -1815,13 +1825,11 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 new ServiceLocation {Name = "Material/Spares Service", ExternalName = "Material/Spares", Order = 1 },
                 new ServiceLocation {Name = "Bring-In Service", ExternalName = "Bring-In", Order = 2 },
-                new ServiceLocation {Name = "Send-In / Return-to-Base Service", ExternalName = "Send-In/Return-to-Base Service", Order = 3 },
                 new ServiceLocation {Name = "Collect & Return Service", ExternalName = "Collect & Return", Order = 4 },
                 new ServiceLocation {Name = "Collect & Return-Display Service", ExternalName = "Collect & Return-Display Service", Order = 5 },
                 new ServiceLocation {Name = "Door-to-Door Exchange Service", ExternalName = "Door-to-Door Exchange", Order = 6 },
                 new ServiceLocation {Name = "Desk-to-Desk Exchange Service", ExternalName = "Desk-to-Desk Exchange", Order = 7 },
                 new ServiceLocation {Name = "On-Site Service", ExternalName = "On-Site Service", Order = 8 },
-                new ServiceLocation {Name = "On-Site Exchange Service", ExternalName = "On-Site Exchange", Order = 9 },
                 new ServiceLocation {Name = "Remote", ExternalName = "Remote Service", Order = 10 },
 
             });
@@ -1944,7 +1952,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 FileName = "SCD_Duties_Taxes.csv",
                 ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
-                Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Amber road\processed",
                 Delimeter = ";",
                 HasHeader = true,
@@ -1958,7 +1965,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 FileName = "FeeCalculator-Upload_*.txt",
                 ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
-                Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\LogisticsCost\processed",
                 Delimeter = "|",
                 HasHeader = true,
@@ -1972,7 +1978,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 FileName = "SCD_FR_LOAD.csv",
                 ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
-                Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
                 Delimeter = ";",
                 HasHeader = true,
@@ -1986,7 +1991,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 FileName = "SCD_MATCO_LOAD.csv",
                 ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
-                Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
                 Delimeter = ";",
                 HasHeader = true,
@@ -2000,7 +2004,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 FileName = "SCD_FQR_LOAD.csv",
                 ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
-                Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\EBIS\processed",
                 Delimeter = ";",
                 HasHeader = true,
@@ -2014,7 +2017,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 FileName = "SWSolution_WG to SFAB mapping.csv",
                 ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
-                Occurancy = Core.Enums.Occurancy.PerWeek,
                 ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\Software_Solution\processed",
                 Delimeter = ";",
                 HasHeader = true,
@@ -2028,7 +2030,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 FileName = "Exchange Rate Import.csv",
                 ImportMode = Core.Enums.ImportMode.Automatic,
                 ProcessedDateTime = null,
-                Occurancy = Core.Enums.Occurancy.PerMonth,
                 ProcessedFilesPath = @"\\fsc.net\DFSRoot\PDB\Groups\Service_cost_db\ExchangeRates\processed",
                 Delimeter = ";",
                 HasHeader = true,
@@ -2702,18 +2703,28 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
         {
             this.repositorySet.GetRepository<CdCsConfiguration>().Save(new List<CdCsConfiguration>()
             {
-                new CdCsConfiguration()
-                {
-                    CountryId = 41,
-                    FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
-                    FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Russia"
-                },
-                new CdCsConfiguration()
-                {
-                    CountryId = 113,
-                    FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",
-                    FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Germany"
-                }
+                //test
+                new CdCsConfiguration()  { CountryId = 41,FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC",FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Russia"},
+                new CdCsConfiguration()  { CountryId = 113, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/Migration-GDC", FileFolderUrl = "/02/sites/p/Migration-GDC/Shared Documents/CD_CS calculation tool interface/Germany"}
+                //live
+                ,new CdCsConfiguration() { CountryId =113, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CGER",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CGER/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =80, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =144, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =97, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/UKandI",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/UKandI/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =121, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =142, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =120, FileWebUrl = "https://partners.ts.fujitsu.com/teams/cor/SCD/USA",  FileFolderUrl = "/teams/cor/SCD/USA/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =13, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =41, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CNEE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CNEE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =158, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =112, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CGER",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CGER/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =115, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CGER",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CGER/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =135, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CMEA",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CMEA/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =12, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CNEE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CNEE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =101, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CNOE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CNOE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =82, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CSWE",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CSWE/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =118, FileWebUrl = "https://partners.ts.fujitsu.com/teams/cor/SCD/Latin%20America",  FileFolderUrl = "/teams/cor/SCD/Latin%20America/CD_CS_CalculationTool"}
+                ,new CdCsConfiguration() { CountryId =156, FileWebUrl = "http://emeia.fujitsu.local/02/sites/p/ServiceCostDatabase/CMEA",  FileFolderUrl = "/02/sites/p/ServiceCostDatabase/CMEA/CD_CS_CalculationTool"}
             });
             this.repositorySet.Sync();
         }

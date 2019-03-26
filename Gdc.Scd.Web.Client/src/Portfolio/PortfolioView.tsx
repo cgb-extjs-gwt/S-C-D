@@ -20,7 +20,7 @@ export class PortfolioView extends React.Component<any, any> {
 
     private srv: IPortfolioService;
 
-    state = {
+    public state = {
         isCountryUser: true
     };
 
@@ -40,7 +40,7 @@ export class PortfolioView extends React.Component<any, any> {
                 type: 'json',
                 keepRawData: true,
                 rootProperty: 'items',
-                totalProperty: 'total'             
+                totalProperty: 'total'
             },
             paramsAsJson: true
         }
@@ -59,11 +59,12 @@ export class PortfolioView extends React.Component<any, any> {
         return (
             <Container scrollable={true}>
 
-                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} isCountryUser={isCountryUser}/>
+                <FilterPanel ref="filter" docked="right" onSearch={this.onSearch} scrollable={true} isCountryUser={isCountryUser} />
 
                 <Toolbar docked="top">
                     <Button iconCls="x-fa fa-edit" text="Edit" handler={this.onEdit} />
                     <Button iconCls="x-fa fa-undo" text="Deny combinations" ui="decline" disabled={!isLocalPortfolio} handler={this.onDeny} />
+                    <Button iconCls="x-fa fa-history" text="History" ui="forward" handler={this.onViewHistory} />
                 </Toolbar>
 
                 <Grid
@@ -103,14 +104,19 @@ export class PortfolioView extends React.Component<any, any> {
         this.onEdit = this.onEdit.bind(this);
         this.onDeny = this.onDeny.bind(this);
         this.onSearch = this.onSearch.bind(this);
+        this.onViewHistory = this.onViewHistory.bind(this);
         this.store.on('beforeload', this.onBeforeLoad, this);
 
         const srv = new UserCountryService();
         srv.isCountryUser().then(x => this.setState({ isCountryUser: x }));
     }
 
+    private openLink(url: string) {
+        this.props.history.push(buildComponentUrl(url));
+    }
+
     private onEdit() {
-        this.props.history.push(buildComponentUrl('/portfolio/edit'));
+        this.openLink('/portfolio/edit');
     }
 
     private onDeny() {
@@ -122,6 +128,10 @@ export class PortfolioView extends React.Component<any, any> {
 
     private onSearch(filter: PortfolioFilterModel) {
         this.reload();
+    }
+
+    private onViewHistory() {
+        this.openLink('/portfolio/history');
     }
 
     private onBeforeLoad(s, operation) {
@@ -137,6 +147,7 @@ export class PortfolioView extends React.Component<any, any> {
     }
 
     private reload() {
+        ExtDataviewHelper.refreshToolbar(this.grid);
         this.store.load();
 
         this.setState({ ___: new Date().getTime() }); //stub, re-paint ext grid

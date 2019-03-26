@@ -1,6 +1,6 @@
-﻿const N_A = 'N/A';
+﻿export const N_A = 'N/A';
 
-const EUR = 'EUR';
+export const EUR = 'EUR';
 
 export interface IRenderer {
     (value: any, row: any): string;

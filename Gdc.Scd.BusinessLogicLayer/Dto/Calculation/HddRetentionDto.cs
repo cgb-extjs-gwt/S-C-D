@@ -6,6 +6,8 @@
 
         public string Wg { get; set; }
 
+        public string Sog { get; set; }
+
         public double? HddRetention { get; set; }
 
         public double? TransferPrice { get; set; }

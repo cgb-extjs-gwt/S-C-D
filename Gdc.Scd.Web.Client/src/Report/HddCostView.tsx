@@ -1,5 +1,6 @@
 ﻿import { Button, Column, Container, Grid, NumberColumn, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
+import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
@@ -9,7 +10,13 @@ import { HddCostFilter } from "./Components/HddCostFilter";
 import { HddCostFilterModel } from "./Model/HddCostFilterModel";
 import { ExportService } from "./Services/ExportService";
 
+Ext.require([
+    'Ext.grid.plugin.Clipboard'
+]);
+
 export class HddCostView extends React.Component<CalcCostProps, any> {
+
+    private grid: Grid;
 
     private filter: HddCostFilter;
 
@@ -74,6 +81,15 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
         }
     });
 
+    private selectable: any = {
+        extensible: 'both',
+        rows: true,
+        cells: true,
+        columns: true,
+        drag: true,
+        checkbox: false
+    };
+
     public state = {
         disableSaveButton: true,
         disableCancelButton: true,
@@ -105,15 +121,17 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                     scrollable={true} />
 
                 <Grid
+                    ref={x => this.grid = x}
                     store={this.store}
                     width="100%"
                     platformConfig={this.pluginConf()}
+                    selectable={this.selectable}
                 >
 
                     { /*dependencies*/}
 
                     <Column
-                        flex="1"
+                        flex="2"
                         isHeaderGroup={true}
                         text="Dependencies"
                         dataIndex=""
@@ -121,6 +139,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap" }}>
 
                         <Column text="WG(Asset)" dataIndex="wg" />
+                        <Column text="SOG(Asset)" dataIndex="sog" renderer={value => (value ? value : " ")} />
 
                     </Column>
 
@@ -197,12 +216,14 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
         let cfg: any = {
             'desktop': {
                 plugins: {
-                    gridpagingtoolbar: true
+                    gridpagingtoolbar: true,
+                    clipboard: true
                 }
             },
             '!desktop': {
                 plugins: {
-                    gridpagingtoolbar: true
+                    gridpagingtoolbar: true,
+                    clipboard: true
                 }
             }
         };
@@ -225,6 +246,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
     }
 
     private reload() {
+        ExtDataviewHelper.refreshToolbar(this.grid);
         this.store.load();
     }
 

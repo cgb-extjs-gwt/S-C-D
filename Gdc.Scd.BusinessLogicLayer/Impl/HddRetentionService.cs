@@ -62,6 +62,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     WgId = x.WgId,
                     Wg = x.Wg,
+                    Sog = x.Sog,
                     HddRetention = approved ? x.HddRet_Approved : x.HddRet, //show hdd retention calc value for admin only
                     TransferPrice = x.TransferPrice,
                     ListPrice = x.ListPrice,
@@ -77,6 +78,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     WgId = x.WgId,
                     Wg = x.Wg,
+                    Sog = x.Sog,
                     TransferPrice = x.TransferPrice,
                     ListPrice = x.ListPrice,
                     DealerDiscount = x.DealerDiscount,

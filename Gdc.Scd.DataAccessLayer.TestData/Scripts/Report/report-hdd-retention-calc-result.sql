@@ -10,6 +10,7 @@ RETURNS TABLE
 AS
 RETURN (
     select h.Wg
+         , h.Sog
          , h.TransferPrice
          , h.ListPrice
          , h.DealerDiscount
@@ -27,6 +28,9 @@ delete from Report.ReportColumn where ReportId = @reportId;
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Wg', 'WG(Asset)', 1, 1);
+
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Sog', 'SOG(Asset)', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'TransferPrice', 'Transfer price', 1, 1);

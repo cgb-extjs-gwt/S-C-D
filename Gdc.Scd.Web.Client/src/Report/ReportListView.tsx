@@ -51,11 +51,11 @@ export class ReportListView extends React.Component<any, any> {
                             "leaf": true
                         },
                         {
-                            "text": "<a href='#' data-href='/report/Calculation-Parameter-hw-not-approved'>a) for HW maintenance cost elements (not approved)</a>",
+                            "text": "<a href='#' data-href='/report/Calculation-Parameter-hw-not-approved'>b) for HW maintenance cost elements (not approved)</a>",
                             "leaf": true
                         },
                         {
-                            "text": "<a href='#' data-href='/report/Calculation-Parameter-proactive'>b) for ProActive cost elements</a>",
+                            "text": "<a href='#' data-href='/report/Calculation-Parameter-proactive'>c) for ProActive cost elements</a>",
                             "leaf": true
                         }
                     ]
@@ -115,10 +115,6 @@ export class ReportListView extends React.Component<any, any> {
                                 {
                                     "text": "<a href='#' data-href='/report/Logistic-cost-country'>1. local per country</a>",
                                     "leaf": true
-                                },
-                                {
-                                    "text": "<a href='#' data-href='/report/Logistic-cost-central'>2. central with all country values</a>",
-                                    "leaf": true
                                 }
                             ]
                         },
@@ -129,10 +125,6 @@ export class ReportListView extends React.Component<any, any> {
                                 {
                                     "text": "<a href='#' data-href='/report/Logistic-cost-input-country'>1. local per country</a>",
                                     "leaf": true
-                                },
-                                {
-                                    "text": "<a href='#' data-href='/report/Logistic-cost-input-central'>2. central with all country values</a>",
-                                    "leaf": true
                                 }
                             ]
                         },
@@ -142,10 +134,6 @@ export class ReportListView extends React.Component<any, any> {
                             "children": [
                                 {
                                     "text": "<a href='#' data-href='/report/Logistic-cost-calc-country'>1. local per country</a>",
-                                    "leaf": true
-                                },
-                                {
-                                    "text": "<a href='#' data-href='/report/Logistic-cost-calc-central'>2. central with all country values</a>",
                                     "leaf": true
                                 }
                             ]

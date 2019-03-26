@@ -28,11 +28,7 @@ namespace Gdc.Scd.Import.CentralContractGroup
     {
         public override void Load()
         {
-            Bind(typeof(IRepository<Wg>)).To(typeof(ImportRepository<Wg>)).InSingletonScope();
-            Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InSingletonScope();
-            Bind<IRepositorySet, EntityFrameworkRepositorySet, IRegisteredEntitiesProvider>().To<EntityFrameworkRepositorySet>().InSingletonScope();
-
-            Bind<ISqlRepository>().To<SqlRepository>().InSingletonScope();
+            Bind<ImportRepository<Wg>>().ToSelf().InSingletonScope();
             Bind<ILogger<LogLevel>>().To<Core.Impl.Logger>().InSingletonScope();
 
             Bind<IDownloader>().To<FileDownloader>().InSingletonScope();
@@ -41,37 +37,7 @@ namespace Gdc.Scd.Import.CentralContractGroup
             Bind<IImportManager>().To<ImportManager<CentralContractGroupDto>>().InSingletonScope();
             Bind<IConfigHandler>().To<FileConfigHandler>().InSingletonScope();
 
-            //Cost Blocks and Meta 
-            Bind<ICostBlockRepository>().To<CostBlockRepository>().InSingletonScope();
-            Bind<ICostBlockService>().To<CostBlockService>();
-            Bind<ICoordinateEntityMetaProvider>().To<CustomCoordinateMetaProvider>();
-
-            Bind(typeof(DomainService<>)).ToSelf();
-            Bind<IDomainMetaSevice>().To<DomainMetaSevice>().InSingletonScope();
-            Bind<IDomainEnitiesMetaService>().To<DomainEnitiesMetaService>().InSingletonScope();
-
-            Bind<DomainMeta>().ToMethod(context => Kernel.Get<IDomainMetaSevice>().Get()).InSingletonScope();
-            Bind<DomainEnitiesMeta>().ToMethod(context =>
-            {
-                var domainMeta = Kernel.Get<DomainMeta>();
-                var domainEntitiesMetaService = Kernel.Get<IDomainEnitiesMetaService>();
-                return domainEntitiesMetaService.Get(domainMeta);
-            }).InSingletonScope();
-
-            Bind<IUserService>().To<UserService>().InSingletonScope();
-            this.Bind<Scd.Core.Interfaces.IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope();
-            Bind<IUserRepository, IRepository<User>>().To<UserRepository>().InSingletonScope();
-            Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InSingletonScope();
-            Bind<IQualityGateRepository>().To<QualityGateRepository>().InSingletonScope();
-            Bind<IQualityGateQueryBuilder>().To<QualityGateQueryBuilder>().InSingletonScope();
-            Bind<IQualityGateSevice>().To<QualityGateSevice>().InSingletonScope();
-            Bind<ICostBlockValueHistoryQueryBuilder>().To<CostBlockValueHistoryQueryBuilder>().InSingletonScope();
-            Bind<ICostBlockHistoryService>().To<CostBlockHistoryService>().InSingletonScope();
-            Bind<ICostBlockValueHistoryRepository>().To<CostBlockValueHistoryRepository>().InSingletonScope();
-
-            Kernel.RegisterEntity<Wg>();
-            Kernel.RegisterEntity<Gdc.Scd.Core.Entities.CentralContractGroup>();
-  
+            this.Bind<Scd.Core.Interfaces.IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope(); 
         }
     }
 }

@@ -66,7 +66,6 @@ export class UserRoleDialog extends React.Component<UserRoleDialogProps, any> {
                     valueField: 'id',
                     displayField: 'name',
                     queryMode: 'local',
-                    editable: false,
                     required: true
                 }}
             >

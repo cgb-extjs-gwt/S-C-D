@@ -106,6 +106,10 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     );
   }
 
+  public commitChanges = () => {
+    this.store && this.store.commitChanges();
+  }
+
   public cancel = () => {
     const { onCancel } = this.props;
 
@@ -127,7 +131,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
         callback: save
       });
     } else {
-      this.store.commitChanges();
+      this.commitChanges();
       save();
     }
   };
@@ -230,10 +234,7 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
 
             case ColumnType.Numeric:
               editor = (
-                <NumberField
-                  required
-                  validators={{ type: "number", message: "Invalid value" }}
-                />
+                  <NumberField validators={{ type: "number", message: "Invalid value" }}/>
               );
               break;
 
@@ -266,8 +267,8 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
     }
 
     if (column.rendererFn) {
-      columnOption.renderer = (value, record: Model) =>
-        this.replaceNullValue(column.rendererFn(value, record));
+      columnOption.renderer = (value, record: Model, dataIndex: string, cell) =>
+        this.replaceNullValue(column.rendererFn(value, record, dataIndex, cell));
     } else {
       columnOption.renderer = this.replaceNullValue;
     }
@@ -329,7 +330,6 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
             case ColumnType.Numeric:
               columnOption.editor = {
                 xtype: "numberfield",
-                required: true,
                 validators: {
                   type: "number",
                   message: "Invalid value"
@@ -351,10 +351,15 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
   }
 
   private getReferenceEditorOptions(column: ColumnInfo) {
-    return Array.from(column.referenceItems.values()).map(item => ({
+    const options = Array.from(column.referenceItems.values()).map(item => ({
       text: item.name,
       value: item.id
     }));
+
+    return [
+      { text: '(none)', value: undefined },
+      ...options
+    ]
   }
 
   private onColumnMenuCreated = (grid, column, menu) => {

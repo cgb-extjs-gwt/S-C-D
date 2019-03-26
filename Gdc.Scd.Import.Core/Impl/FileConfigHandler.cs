@@ -21,7 +21,6 @@ namespace Gdc.Scd.Import.Core.Impl
                 FileName = ConfigurationManager.AppSettings["FileName"],
                 FilePath = ConfigurationManager.AppSettings["FilePath"],
                 HasHeader = Boolean.Parse(ConfigurationManager.AppSettings["HasHeader"]),
-                Occurancy = (Occurancy)Int32.Parse(ConfigurationManager.AppSettings["Occurancy"]),
                 ProcessedFilesPath = ConfigurationManager.AppSettings["ProcessedFilesPath"]
             };
 

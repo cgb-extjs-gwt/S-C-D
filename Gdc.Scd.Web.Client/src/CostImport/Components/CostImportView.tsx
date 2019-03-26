@@ -80,37 +80,35 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
     public render() {
         const { dependencyItems, isImportButtonEnabled, isVisibleDependencyItems, isVisibleRegions } = this.props;
         const qualityGateProps: QualityGateWindowContainerProps = { 
-            position: { left: '20%', top: '20%' }
+            position: { left: '400', top: '300' }
         };
 
         return (
             <Container layout="vbox">
-                <Container flex={1}>
-                    <Container layout="vbox" docked="top" width="30%" minWidth="200" padding="10" defaults={{labelAlign: 'left'}}>
-                        <ComboBoxField label="Application"  {...this.applicationData.buildConfig()}/>
-                        <ComboBoxField label="Cost block" {...this.costBlockData.buildConfig()}/>
-                        <ComboBoxField label="Cost element"  {...this.costElementData.buildConfig()}/>
-                        {
-                            isVisibleRegions 
-                                ? <ComboBoxField key="regions" label="Region"{...this.regionData.buildConfig()}/>
-                                : <div/>
-                        }
-                        {
-                            isVisibleDependencyItems 
-                                ? <ComboBoxField key="dependencies" label="Dependency"{...this.dependencyData.buildConfig()}/>
-                                : <div/>
-                        }
-                        <ComboBoxField label="Input level"  {...this.inputLevelData.buildConfig()}/>
-                        <FileField label="Excel file" ref={button => this.fileField = button} onChange={this.onFileSelect}/>
-                    </Container>
-
-                    <Toolbar layout="hbox" docked="bottom">
-                        <Button text="Import" disabled={!isImportButtonEnabled} handler={this.onImport} flex={1}/>
-                    </Toolbar>                    
+                <Container layout="vbox" docked="top" height="50%" minWidth="300" maxWidth="30%" padding="10" defaults={{labelAlign: 'left'}} scrollable>
+                    <ComboBoxField label="Application"  {...this.applicationData.buildConfig()}/>
+                    <ComboBoxField label="Cost block" {...this.costBlockData.buildConfig()}/>
+                    <ComboBoxField label="Cost element"  {...this.costElementData.buildConfig()}/>
+                    {
+                        isVisibleRegions 
+                            ? <ComboBoxField key="regions" label="Region"{...this.regionData.buildConfig()}/>
+                            : <div/>
+                    }
+                    {
+                        isVisibleDependencyItems 
+                            ? <ComboBoxField key="dependencies" label="Dependency"{...this.dependencyData.buildConfig()}/>
+                            : <div/>
+                    }
+                    <ComboBoxField label="Input level"  {...this.inputLevelData.buildConfig()}/>
+                    <FileField label="Excel file" ref={button => this.fileField = button} onChange={this.onFileSelect}/>
                 </Container>
 
                 <Grid store={this.resultStore} sortable={false} grouped={false} flex={1}>
                     <Column text="Status" dataIndex="info" flex={1}/>
+
+                    <Toolbar layout="hbox" docked="top">
+                        <Button text="Import" disabled={!isImportButtonEnabled} handler={this.onImport} flex={1}/>
+                    </Toolbar>  
                 </Grid>
 
                 <QualityGateWindowContainer {...qualityGateProps as any} />
@@ -127,13 +125,29 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
     private buildComboboxChangeHandler(selector: SelectListSelector) {
         return (combobox, newValue, oldValue) => {
             const { onItemSelected } = selector(this.props);
-            
+
             onItemSelected && onItemSelected(newValue == "" ? null : newValue);
+        }
+    }
+
+    private buildComboboxKeyUpHandler() {
+        return (combo, e) => {
+            let value = combo.getInputValue();
+
+            if (e.keyCode != 38 && e.keyCode != 40) //arrow UP and DOWN
+            {
+                combo.getStore().clearFilter(true);
+                if (value && value.length > 0) {                  
+                    combo.getStore().filterBy(record => record.data.name.toLowerCase().startsWith(value.toLowerCase()));
+                }
+            }
         }
     }
 
     private buildComboboxData(selector: SelectListSelector, autoSelectLastItem: boolean = false): ComboboxData {
         const onChange = this.buildComboboxChangeHandler(selector);
+        const onKeyUp = this.buildComboboxKeyUpHandler();
+        const onBlur = (combo, e) => { combo.getStore().clearFilter(false) }
 
         return {
             onChange,
@@ -150,12 +164,16 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
                     valueField: 'id',
                     displayField: 'name',
                     queryMode: 'local',
-                    selection
+                    selection,
+                    clearable: true,
+                    forceSelection: true,
+                    onKeyUp,
+                    onBlur
                 }
             }
         }
     }
-
+    
     private updateStore<T>(prevItems: T[], nextItems: T[], store: Store<T>) {
         if (prevItems != nextItems) {
             store.loadData(nextItems);

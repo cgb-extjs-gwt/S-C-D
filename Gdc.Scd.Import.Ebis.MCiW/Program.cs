@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using Gdc.Scd.OperationResult;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,19 +13,54 @@ namespace Gdc.Scd.Import.Ebis.MCiW
     {
         static void Main(string[] args)
         {
+            var materialCostService = new MaterialCostService();
             try
             {
-                MaterialCostService.UploadMaterialCostInfo();
-            }
-            catch (FileNotFoundException ex)
-            {
-                MaterialCostService.Logger.Log(LogLevel.Info, ex.Message);
+                materialCostService.UploadMaterialCostInfo();
             }
             catch (Exception ex)
             {
-                MaterialCostService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
+                materialCostService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
                 Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstants.UNEXPECTED_ERROR, ex, null, null);
             }
+        }
+    }
+
+    public class MCiWJob
+    {
+        public OperationResult<bool> Output()
+        {
+            var result = new OperationResult<bool>();
+            var materialCostService = new MaterialCostService();
+            try
+            {
+                materialCostService.UploadMaterialCostInfo();
+                result = new OperationResult<bool>
+                {
+                    IsSuccess = true,
+                    Result = true
+                };
+            }
+            catch (Exception ex)
+            {
+                materialCostService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
+                Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstants.UNEXPECTED_ERROR, ex, null, null);
+                result = new OperationResult<bool>
+                {
+                    IsSuccess = false,
+                    Result = true
+                };
+            }
+            return result;
+        }
+        /// <summary>
+        /// Method should return job name
+        /// which should be similar as "JobName" column in [JobsSchedule] table
+        /// </summary>
+        /// <returns>Job name</returns>
+        public string WhoAmI()
+        {
+            return "MCiWJob";
         }
     }
 }

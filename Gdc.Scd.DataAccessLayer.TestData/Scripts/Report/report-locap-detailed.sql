@@ -5,7 +5,7 @@ go
 CREATE PROCEDURE [Report].[spLocapDetailed]
 (
     @cnt          bigint,
-    @wg           bigint,
+    @wg           dbo.ListID readonly,
     @av           bigint,
     @dur          bigint,
     @reactiontime bigint,
@@ -18,32 +18,37 @@ CREATE PROCEDURE [Report].[spLocapDetailed]
 AS
 BEGIN
 
-    declare @sla Portfolio.Sla;
+    declare @cntTable dbo.ListId; insert into @cntTable(id) values(@cnt);
 
-    insert into @sla 
-        select   -1
-                , Id
-                , CountryId
-                , WgId
-                , AvailabilityId
-                , DurationId
-                , ReactionTimeId
-                , ReactionTypeId
-                , ServiceLocationId
-                , ProActiveSlaId
-                , Sla
-                , SlaHash
-                , ReactionTime_Avalability
-                , ReactionTime_ReactionType
-                , ReactionTime_ReactionType_Avalability
-                , null
-                , null
-    from Portfolio.GetBySlaSog(@cnt, (select SogId from InputAtoms.Wg where id = @wg), @av, @dur, @reactiontime, @reactiontype, @loc, @pro);
+    declare @wg_SOG_Table dbo.ListId;
+    insert into @wg_SOG_Table
+    select id
+        from InputAtoms.Wg 
+        where SogId in (
+            select wg.SogId from InputAtoms.Wg wg  where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = wg.Id))
+        )
+        and IsSoftware = 0
+        and SogId is not null
+        and DeactivatedDateTime is null;
+
+    if not exists(select id from @wg_SOG_Table) return;
+
+    declare @avTable dbo.ListId; if @av is not null insert into @avTable(id) values(@av);
+
+    declare @durTable dbo.ListId; if @dur is not null insert into @durTable(id) values(@dur);
+
+    declare @rtimeTable dbo.ListId; if @reactiontime is not null insert into @rtimeTable(id) values(@reactiontime);
+
+    declare @rtypeTable dbo.ListId; if @reactiontype is not null insert into @rtypeTable(id) values(@reactiontype);
+
+    declare @locTable dbo.ListId; if @loc is not null insert into @locTable(id) values(@loc);
+
+    declare @proTable dbo.ListId; if @pro is not null insert into @proTable(id) values(@pro);
 
     with cte as (
         select m.* 
-        from Hardware.GetCostsSlaSog(1, @sla) m
-        where (@wg is null or m.WgId = @wg)
+        from Hardware.GetCostsSlaSog(1, @cntTable, @wg_SOG_Table, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable) m
+        where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = m.WgId))
     )
     , cte2 as (
         select  
@@ -70,8 +75,6 @@ BEGIN
 
              , m.ServiceTcSog * m.ExchangeRate as ServiceTC
              , m.ServiceTpSog * m.ExchangeRate as ServiceTP_Released
-             , m.ListPrice * m.ExchangeRate as ListPrice
-             , m.DealerPrice * m.ExchangeRate as DealerPrice
              , m.FieldServiceCost * m.ExchangeRate as FieldServiceCost
              , m.ServiceSupportCost * m.ExchangeRate as ServiceSupportCost 
              , m.MaterialOow * m.ExchangeRate as MaterialOow
@@ -84,27 +87,22 @@ BEGIN
              , m.OtherDirect * m.ExchangeRate as OtherDirect
              , m.Credits * m.ExchangeRate as Credits
              , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
-             , cur.Name as Currency
+             , m.Currency
 
-             , null as IndirectCostOpex
              , m.Availability                       + ', ' +
                    m.ReactionType                   + ', ' +
                    m.ReactionTime                   + ', ' +
                    cast(m.Year as nvarchar(1))      + ', ' +
                    m.ServiceLocation                + ', ' +
                    m.ProActiveSla as ServiceType
-         
-             , null as PlausiCheck
-             , null as PortfolioType
 
     from cte2 m
     join InputAtoms.Sog sog on sog.id = m.SogId
-    join [References].Currency cur on cur.Id = m.CurrencyId
 
     where (@limit is null) or (m.rownum > @lastid and m.rownum <= @lastid + @limit);
 
 END
-GO
+go
 
 declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'LOCAP-DETAILED');
 declare @index int = 0;
@@ -133,10 +131,6 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ServiceTP_Released', 'Service TP (Released)', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ListPrice', 'List Price (Bottom-up calculated)', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'DealerPrice', 'Dealer Price (Bottom-up calculated)', 1, 1);
-set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Country', 'Country Name', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'FieldServiceCost', 'Field Service Cost', 1, 1);
@@ -163,20 +157,14 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'LocalServiceStandardWarranty', 'Standard Warranty costs', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'IndirectCostOpex', 'Indirect cost and OPEX', 1, 1);
-set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ServiceType', 'Service type', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'PlausiCheck', 'Plausi Check', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'PortfolioType', 'Portfolio Type', 1, 1);
 
 set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('country', 0), 'cnt', 'Country Name');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wg', 0), 'wg', 'Warranty Group');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wg', 1), 'wg', 'Warranty Group');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('availability', 0), 'av', 'Availability');
 set @index = @index + 1;
@@ -188,5 +176,5 @@ insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@r
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('servicelocation', 0), 'loc', 'Service location');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('proactive', 0), 'pro', 'ProActive');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text, Value) values(@reportId, @index, Report.GetReportFilterTypeByName('proactive', 0), 'pro', 'ProActive', 1);
 GO

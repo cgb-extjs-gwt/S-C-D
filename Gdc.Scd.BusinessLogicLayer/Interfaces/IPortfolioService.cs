@@ -12,5 +12,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         Task Deny(long[] countryId, long[] ids);
 
         Task<(PortfolioDto[] items, int total)> GetAllowed(PortfolioFilterDto filter, int start, int limit);
+
+        Task<(PortfolioHistoryDto[] items, int total)> GetHistory(int start, int limit);
     }
 }

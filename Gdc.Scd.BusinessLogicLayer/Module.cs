@@ -77,7 +77,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<TaxAndDutiesEntity>();
             Kernel.RegisterEntity<Afr>();
             Kernel.RegisterEntity<InstallBase>();
-            Kernel.RegisterEntity<MaterialCostInWarranty>();
+            Kernel.RegisterEntity<MaterialCostWarrantyEmeia>();
             Kernel.RegisterEntity<CdCsConfiguration>();
             /*----------admin---------*/
             Kernel.RegisterEntity<AdminAvailabilityFee>();
@@ -86,6 +86,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             /*---------domain business logic------------*/
             Kernel.RegisterEntity<LocalPortfolio>();
             Kernel.RegisterEntity<PrincipalPortfolio>();
+            Kernel.RegisterEntity<PortfolioHistory>();
             Kernel.RegisterEntity<HardwareManualCost>();
             Kernel.RegisterEntity<HddRetentionManualCost>();
             Kernel.RegisterEntity<HddRetentionView>();

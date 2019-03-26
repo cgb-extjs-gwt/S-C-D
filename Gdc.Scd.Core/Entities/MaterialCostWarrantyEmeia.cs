@@ -9,22 +9,21 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.Core.Entities
 {
-    [Table("MaterialCostWarranty", Schema = MetaConstants.HardwareSchema)]
-    public class MaterialCostInWarranty : IIdentifiable, IDeactivatable
+    [Table("MaterialCostWarrantyEmeia", Schema = MetaConstants.HardwareSchema)]
+    public class MaterialCostWarrantyEmeia : IIdentifiable, IDeactivatable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
-        public double? MaterialCostWarranty { get; set; }
-        public double? MaterialCostWarranty_Approved { get; set; }
+        public double? MaterialCostOow { get; set; }
+        public double? MaterialCostOow_Approved { get; set; }
+
+        public double? MaterialCostIw { get; set; }
+        public double? MaterialCostIw_Approved { get; set; }
 
         [Column("Wg")]
         public long? WgId { get; set; }
         public Wg Wg { get; set; }
-
-        [Column("ClusterRegion")]
-        public long? RegionId { get; set; }
-        public ClusterRegion Region { get; set; }
 
         public DateTime CreatedDateTime { get; set; }
         public DateTime? DeactivatedDateTime { get; set; }

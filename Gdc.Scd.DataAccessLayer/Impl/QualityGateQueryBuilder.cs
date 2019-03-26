@@ -132,7 +132,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             {
                 var costBlockMeta = this.domainEnitiesMeta.GetCostBlockEntityMeta(history.Context);
 
-                options.MaxInputLevel = history.Context.InputLevelId;
                 options.CustomCheckColumns =
                     this.BuildQualityGateQueryCheckColumns(costBlockMeta, options)
                         .Select(column => SqlFunctions.Min(column.Alias, ResultQualityGateTable, column.Alias));
@@ -329,11 +328,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
 
             var costElement = costBlockMeta.DomainMeta.CostElements[historyContext.CostElementId];
-            var inputLevels = options.MaxInputLevel == null
-                ? costElement.InputLevels
-                : costElement.FilterInputLevels(options.MaxInputLevel);
-
-            var fields = inputLevels.Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]).ToList();
+            var fields = costElement.SortInputLevel().Select(inputLevel => costBlockMeta.InputLevelFields[inputLevel.Id]).ToList();
             var dependencyField = costBlockMeta.GetDomainDependencyField(historyContext.CostElementId);
             if (dependencyField != null)
             {
@@ -581,8 +576,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             public bool OnlyFailed { get; set; }
 
             public bool UseHistoryValueIdColumn { get; set; }
-
-            public string MaxInputLevel { get; set; }
 
             public bool UseCountryGroupCheck { get; set; }
         }

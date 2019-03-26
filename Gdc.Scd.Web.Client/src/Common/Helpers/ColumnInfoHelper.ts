@@ -40,6 +40,7 @@ export interface CostElementColumnOption<T=any> {
     mappingFn?(data: T): any
     editMappingFn?(data: Model<T>, dataIndex: string)
     getCountFn?(data: Model<T>): number
+    getIsApprovedFn?(data: Model<T>): boolean
 }
 
 export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>) => {
@@ -86,6 +87,8 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
             break;
 
         case FieldType.CountryCurrencyCost: 
+            columnType = ColumnType.Numeric;
+            
             if (currency != null) {
                 formatFn = value => Ext.util.Format.number(value, `0.## ${currency}`);
             }
@@ -95,7 +98,7 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
             break;
     }
 
-    const { width, flex, mappingFn, editMappingFn, getCountFn } = option;
+    const { width, flex, mappingFn, editMappingFn, getCountFn, getIsApprovedFn } = option;
 
     return <ColumnInfo<T>>{
         title,
@@ -111,8 +114,16 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
     };
 
     function rendererFnBuilder(formatFn = value => value) {
-        return (value, record: Model<T>) => {
+        return (value, record: Model<T>, dataIndex: string, cell) => {
             const count = getCountFn(record);
+
+            if (cell) {
+                const isApproved = getIsApprovedFn(record);
+
+                cell.setStyle({ 
+                    background: isApproved ? 'rgba(0, 128, 0, 0.3)' : null
+                });
+            }
 
             return count == 1 ? formatFn(value) : `(${count} values)`;
         }

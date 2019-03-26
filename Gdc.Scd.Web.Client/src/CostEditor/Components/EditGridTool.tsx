@@ -21,8 +21,6 @@ export interface EditGridToolActions {
 }
 
 export interface EditGridToolProps extends EditGridToolActions {
-    isEnableSave: boolean
-    isEnableClear: boolean
     flex?: number
     editGrid: EditGridProps
     qualityGateErrors: BundleDetailGroup[]
@@ -64,7 +62,7 @@ export class EditGridTool extends React.Component<EditGridToolProps, EditGridToo
                         editItemId={editItem}
                         isEnabled={isEnabledHistoryButton}
                         flex={1} 
-                        windowPosition={{ left: '40%', top: '20%' }}
+                        windowPosition={{ left: '20%', top: '20%' }}
                     />
                 </Toolbar>
 

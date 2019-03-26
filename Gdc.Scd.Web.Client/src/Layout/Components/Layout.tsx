@@ -4,6 +4,8 @@ import { Route, Switch } from 'react-router-dom';
 import { MenuItem } from '../../Common/States/ExtStates';
 import { NavMenuContainer } from './NavMenuContainer';
 import { AlertPanel } from './AlertPanel';
+import Unauth from './Unauth';
+import Default from './Default';
 
 Ext.require(['Ext.data.ChainedStore'])
 
@@ -24,6 +26,7 @@ export interface LayoutProps extends LayoutActions {
     routes: RouteItem[]
     menuItems: MenuItem[]
     appVersion: string
+    isAuthorized: boolean
 }
 
 /**
@@ -35,12 +38,13 @@ export class Layout extends React.Component<LayoutProps> {
     }
 
     render() {
-        const { title, routes, menuItems, appVersion } = this.props;
+        const { title, routes, menuItems, appVersion, isAuthorized } = this.props;
+        const titleBar = appVersion ? `SCD 2.0 ver.${appVersion}` : "SCD 2.0";
 
         return (
             <Container id={ROOT_LAYOUT_ID} fullscreen layout="fit">
                 <Panel scrollable docked="left" shadow zIndex={2}>
-                    <TitleBar title={`SCD 2.0 ver.${appVersion}`}  docked="top" />
+                    <TitleBar title={titleBar} docked="top" /> 
                     <NavMenuContainer items={menuItems} />
                 </Panel>
 
@@ -52,6 +56,10 @@ export class Layout extends React.Component<LayoutProps> {
                             routes.map(route => (
                                 <Route key={route.path} {...route} />
                             ))
+                        }
+                        {
+                            isAuthorized ? <Route component={Default} /> : 
+                                <Route component={Unauth} />
                         }
                     </Switch>
                 </Panel>

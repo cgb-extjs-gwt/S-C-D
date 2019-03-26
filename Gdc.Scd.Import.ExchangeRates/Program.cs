@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using Gdc.Scd.OperationResult;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,25 +7,53 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gdc.Scd.Import.ExchangeRates
+namespace Gdc.Scd.Import.ExchangeRatesJob
 {
-    class Program
+    //public class Program
+    //{
+    //    static void Main(string[] args)
+    //    {
+    //        var t = new ExchangeRatesJob();
+    //        t.Output();
+    //    }
+    //}
+    public class ExchangeRatesJob
     {
-        static void Main(string[] args)
+        public OperationResult<bool> Output()
         {
+            var result = new OperationResult<bool>();
+            var exchangeRateService = new ExchangeRateService();
             try
             {
-                ExchangeRateService.UploadExchangeRates();
-            }
-            catch (FileNotFoundException ex)
-            {
-                ExchangeRateService.Logger.Log(LogLevel.Info, ex.Message);
+                exchangeRateService.UploadExchangeRates();
+                result = new OperationResult<bool>
+                {
+                    IsSuccess = true,
+                    Result = true
+                };
             }
             catch (Exception ex)
             {
-                ExchangeRateService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
+                exchangeRateService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
                 Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstants.UNEXPECTED_ERROR, ex, null, null);
+                result = new OperationResult<bool>
+                {
+                    IsSuccess = false,
+                    Result = true
+                };
             }
+
+
+            return result;
+        }
+        /// <summary>
+        /// Method should return job name
+        /// which should be similar as "JobName" column in [JobsSchedule] table
+        /// </summary>
+        /// <returns>Job name</returns>
+        public string WhoAmI()
+        {
+            return "ExchangeRatesJob";
         }
     }
 }
