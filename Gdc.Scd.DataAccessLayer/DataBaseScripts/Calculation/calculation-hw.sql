@@ -1644,6 +1644,8 @@ CREATE VIEW [Hardware].[LogisticsCostView] AS
     JOIN Dependencies.ReactionTime_ReactionType rt on rt.Id = lc.ReactionTimeType
     JOIN InputAtoms.Country c on c.Id = lc.Country
     LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+
+    where lc.DeactivatedDateTime is null
 GO
 
 alter table Hardware.MarkupOtherCosts

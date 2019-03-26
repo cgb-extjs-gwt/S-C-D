@@ -2,7 +2,7 @@
   DROP FUNCTION Report.LogisticCostInputCountry;
 go 
 
-CREATE FUNCTION Report.LogisticCostInputCountry
+CREATE FUNCTION [Report].[LogisticCostInputCountry]
 (
     @cnt bigint,
     @wg bigint,
@@ -36,7 +36,8 @@ RETURN (
 	join [References].Currency cur on cur.Id = c.CurrencyId
 	join [References].ExchangeRate er on er.CurrencyId = cur.Id
 
-    where (@cnt is null or l.Country = @cnt)
+    where l.DeactivatedDateTime is null
+      and (@cnt is null or l.Country = @cnt)
       and (@wg is null or l.Wg = @wg)
       and (@reactiontime is null or rtt.ReactionTimeId = @reactiontime)
       and (@reactiontype is null or rtt.ReactionTypeId = @reactiontype)
