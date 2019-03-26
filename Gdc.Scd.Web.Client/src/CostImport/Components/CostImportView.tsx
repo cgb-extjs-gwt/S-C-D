@@ -85,32 +85,30 @@ export class CostImportView extends React.PureComponent<CostImportViewProps> {
 
         return (
             <Container layout="vbox">
-                <Container flex={1}>
-                    <Container layout="vbox" docked="top" width="30%" minWidth="200" padding="10" defaults={{labelAlign: 'left'}}>
-                        <ComboBoxField label="Application"  {...this.applicationData.buildConfig()}/>
-                        <ComboBoxField label="Cost block" {...this.costBlockData.buildConfig()}/>
-                        <ComboBoxField label="Cost element"  {...this.costElementData.buildConfig()}/>
-                        {
-                            isVisibleRegions 
-                                ? <ComboBoxField key="regions" label="Region"{...this.regionData.buildConfig()}/>
-                                : <div/>
-                        }
-                        {
-                            isVisibleDependencyItems 
-                                ? <ComboBoxField key="dependencies" label="Dependency"{...this.dependencyData.buildConfig()}/>
-                                : <div/>
-                        }
-                        <ComboBoxField label="Input level"  {...this.inputLevelData.buildConfig()}/>
-                        <FileField label="Excel file" ref={button => this.fileField = button} onChange={this.onFileSelect}/>
-                    </Container>
-
-                    <Toolbar layout="hbox" docked="bottom">
-                        <Button text="Import" disabled={!isImportButtonEnabled} handler={this.onImport} flex={1}/>
-                    </Toolbar>                    
+                <Container layout="vbox" docked="top" height="50%" minWidth="300" maxWidth="30%" padding="10" defaults={{labelAlign: 'left'}} scrollable>
+                    <ComboBoxField label="Application"  {...this.applicationData.buildConfig()}/>
+                    <ComboBoxField label="Cost block" {...this.costBlockData.buildConfig()}/>
+                    <ComboBoxField label="Cost element"  {...this.costElementData.buildConfig()}/>
+                    {
+                        isVisibleRegions 
+                            ? <ComboBoxField key="regions" label="Region"{...this.regionData.buildConfig()}/>
+                            : <div/>
+                    }
+                    {
+                        isVisibleDependencyItems 
+                            ? <ComboBoxField key="dependencies" label="Dependency"{...this.dependencyData.buildConfig()}/>
+                            : <div/>
+                    }
+                    <ComboBoxField label="Input level"  {...this.inputLevelData.buildConfig()}/>
+                    <FileField label="Excel file" ref={button => this.fileField = button} onChange={this.onFileSelect}/>
                 </Container>
 
                 <Grid store={this.resultStore} sortable={false} grouped={false} flex={1}>
                     <Column text="Status" dataIndex="info" flex={1}/>
+
+                    <Toolbar layout="hbox" docked="top">
+                        <Button text="Import" disabled={!isImportButtonEnabled} handler={this.onImport} flex={1}/>
+                    </Toolbar>  
                 </Grid>
 
                 <QualityGateWindowContainer {...qualityGateProps as any} />
