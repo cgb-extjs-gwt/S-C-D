@@ -14,7 +14,7 @@ Ext.require([
 
 export class SwCostView extends React.Component<CalcCostProps, any> {
 
-    private grid: Grid & any;
+    private grid: Grid;
 
     private filter: SwCostFilter;
 

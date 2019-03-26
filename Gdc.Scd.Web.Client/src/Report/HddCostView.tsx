@@ -16,7 +16,7 @@ Ext.require([
 
 export class HddCostView extends React.Component<CalcCostProps, any> {
 
-    private grid: Grid & any;
+    private grid: Grid;
 
     private filter: HddCostFilter;
 

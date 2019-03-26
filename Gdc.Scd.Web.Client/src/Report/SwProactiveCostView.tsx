@@ -10,7 +10,7 @@ import { ExportService } from "./Services/ExportService";
 
 export class SwProactiveCostView extends React.Component<CalcCostProps, any> {
 
-    private grid: Grid & any;
+    private grid: Grid;
 
     private filter: SwProactiveCostFilter;
 
