@@ -284,6 +284,25 @@
     <Content Include="MigrationScripts\2019-03-26-13-50.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="MigrationScripts\archive_report\afr.sql" />
+    <Content Include="MigrationScripts\archive_report\archive-fn.sql" />
+    <Content Include="MigrationScripts\archive_report\availabilityFee.sql" />
+    <Content Include="MigrationScripts\archive_report\fieldServiceCost.sql" />
+    <Content Include="MigrationScripts\archive_report\hddRetention.sql" />
+    <Content Include="MigrationScripts\archive_report\installBase.sql" />
+    <Content Include="MigrationScripts\archive_report\logisticsCosts.sql" />
+    <Content Include="MigrationScripts\archive_report\MarkupOtherCosts.sql" />
+    <Content Include="MigrationScripts\archive_report\MarkupStandardWaranty.sql" />
+    <Content Include="MigrationScripts\archive_report\MaterialCostWarranty.sql" />
+    <Content Include="MigrationScripts\archive_report\MaterialCostWarrantyEmeia.sql" />
+    <Content Include="MigrationScripts\archive_report\ProActive.sql" />
+    <Content Include="MigrationScripts\archive_report\ProActiveSw.sql" />
+    <Content Include="MigrationScripts\archive_report\ProlongationMarkup.sql" />
+    <Content Include="MigrationScripts\archive_report\Reinsurance.sql" />
+    <Content Include="MigrationScripts\archive_report\RoleCodeHourlyRates.sql" />
+    <Content Include="MigrationScripts\archive_report\ServiceSupportCost.sql" />
+    <Content Include="MigrationScripts\archive_report\SwSpMaintenance.sql" />
+    <Content Include="MigrationScripts\archive_report\TaxAndDuties.sql" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj">
