@@ -1,28 +1,37 @@
-select  c.Name as Country
-      , c.Region
-      , c.ClusterRegion
+if OBJECT_ID('Archive.spGetProActive') is not null
+    drop procedure Archive.spGetProActive;
+go
 
-      , wg.Name as Wg
-      , wg.Description as WgDescription
-      , wg.Pla
-      , wg.Sog
+create procedure Archive.spGetProActive
+AS
+begin
+    select  c.Name as Country
+          , c.Region
+          , c.ClusterRegion
 
-      , ccg.Name                             as ContractGroup
-      , ccg.Code                             as ContractGroupCode
+          , wg.Name as Wg
+          , wg.Description as WgDescription
+          , wg.Pla
+          , wg.Sog
 
-      , pro.LocalRemoteAccessSetupPreparationEffort_Approved as LocalRemoteAccessSetupPreparationEffort
-      , pro.LocalRegularUpdateReadyEffort_Approved           as LocalRegularUpdateReadyEffort
-      , pro.LocalPreparationShcEffort_Approved               as LocalPreparationShcEffort
-      , pro.CentralExecutionShcReportCost_Approved           as CentralExecutionShcReportCost
-      , pro.LocalRemoteShcCustomerBriefingEffort_Approved    as LocalRemoteShcCustomerBriefingEffort
-      , pro.LocalOnSiteShcCustomerBriefingEffort_Approved    as LocalOnSiteShcCustomerBriefingEffort
-      , pro.TravellingTime_Approved                          as TravellingTime
-      , pro.OnSiteHourlyRate_Approved                        as OnSiteHourlyRate
+          , ccg.Name                             as ContractGroup
+          , ccg.Code                             as ContractGroupCode
 
-from Hardware.ProActive pro
-join Archive.GetCountries() c on c.id = pro.Country
-join Archive.GetWg(null) wg on wg.id = pro.Wg
-join InputAtoms.CentralContractGroup ccg on ccg.Id = pro.CentralContractGroup
+          , pro.LocalRemoteAccessSetupPreparationEffort_Approved as LocalRemoteAccessSetupPreparationEffort
+          , pro.LocalRegularUpdateReadyEffort_Approved           as LocalRegularUpdateReadyEffort
+          , pro.LocalPreparationShcEffort_Approved               as LocalPreparationShcEffort
+          , pro.CentralExecutionShcReportCost_Approved           as CentralExecutionShcReportCost
+          , pro.LocalRemoteShcCustomerBriefingEffort_Approved    as LocalRemoteShcCustomerBriefingEffort
+          , pro.LocalOnSiteShcCustomerBriefingEffort_Approved    as LocalOnSiteShcCustomerBriefingEffort
+          , pro.TravellingTime_Approved                          as TravellingTime
+          , pro.OnSiteHourlyRate_Approved                        as OnSiteHourlyRate
 
-where pro.DeactivatedDateTime is null
-order by c.Name, wg.Name
+    from Hardware.ProActive pro
+    join Archive.GetCountries() c on c.id = pro.Country
+    join Archive.GetWg(null) wg on wg.id = pro.Wg
+    join InputAtoms.CentralContractGroup ccg on ccg.Id = pro.CentralContractGroup
+
+    where pro.DeactivatedDateTime is null
+    order by c.Name, wg.Name
+end
+go

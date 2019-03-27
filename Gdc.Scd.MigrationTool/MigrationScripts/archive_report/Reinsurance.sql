@@ -1,25 +1,34 @@
-select  wg.Name as Wg
-      , wg.Description as WgDescription
-      , wg.Pla
-      , wg.Sog
+if OBJECT_ID('Archive.spGetReinsurance') is not null
+    drop procedure Archive.spGetReinsurance;
+go
 
-      , dur.Name as Duration
-      , rta.Availability
-      , rta.ReactionTime
+create procedure Archive.spGetReinsurance
+AS
+begin
+    select  wg.Name as Wg
+          , wg.Description as WgDescription
+          , wg.Pla
+          , wg.Sog
 
-      , cur.Name as Currency
-      , er.Value as ExchangeRate
+          , dur.Name as Duration
+          , rta.Availability
+          , rta.ReactionTime
 
-      , r.ReinsuranceFlatfee_Approved      as ReinsuranceFlatfee
-      , r.ReinsuranceUpliftFactor_Approved as ReinsuranceUpliftFactor
+          , cur.Name as Currency
+          , er.Value as ExchangeRate
 
-from Hardware.Reinsurance r
-join Archive.GetWg(null) wg on wg.id = r.Wg
-join Dependencies.Duration dur on dur.Id = r.Duration
-join Archive.GetReactionTimeAvailability() rta on rta.Id = r.ReactionTimeAvailability
+          , r.ReinsuranceFlatfee_Approved      as ReinsuranceFlatfee
+          , r.ReinsuranceUpliftFactor_Approved as ReinsuranceUpliftFactor
 
-left join [References].Currency cur on cur.Id = r.CurrencyReinsurance_Approved
-left join [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance_Approved
+    from Hardware.Reinsurance r
+    join Archive.GetWg(null) wg on wg.id = r.Wg
+    join Dependencies.Duration dur on dur.Id = r.Duration
+    join Archive.GetReactionTimeAvailability() rta on rta.Id = r.ReactionTimeAvailability
 
-where r.DeactivatedDateTime is null
-order by wg.Name, dur.Name
+    left join [References].Currency cur on cur.Id = r.CurrencyReinsurance_Approved
+    left join [References].ExchangeRate er on er.CurrencyId = r.CurrencyReinsurance_Approved
+
+    where r.DeactivatedDateTime is null
+    order by wg.Name, dur.Name
+end
+go

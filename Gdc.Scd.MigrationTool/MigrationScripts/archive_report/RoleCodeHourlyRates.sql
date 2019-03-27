@@ -1,15 +1,24 @@
-select  c.Name as Country
-      , c.Region
-      , c.ClusterRegion
+if OBJECT_ID('Archive.spGetRoleCodeHourlyRates') is not null
+    drop procedure Archive.spGetRoleCodeHourlyRates;
+go
 
-      , rc.Name as RoleCode
+create procedure Archive.spGetRoleCodeHourlyRates
+AS
+begin
+    select  c.Name as Country
+          , c.Region
+          , c.ClusterRegion
 
-      , hr.OnsiteHourlyRates_Approved as OnsiteHourlyRates
+          , rc.Name as RoleCode
 
-from Hardware.RoleCodeHourlyRates hr
-join Archive.GetCountries() c on c.id = hr.Country
-left join InputAtoms.RoleCode rc on rc.Id = hr.RoleCode and rc.DeactivatedDateTime is null
+          , hr.OnsiteHourlyRates_Approved as OnsiteHourlyRates
 
-where hr.DeactivatedDateTime is null
+    from Hardware.RoleCodeHourlyRates hr
+    join Archive.GetCountries() c on c.id = hr.Country
+    left join InputAtoms.RoleCode rc on rc.Id = hr.RoleCode and rc.DeactivatedDateTime is null
 
-order by c.Name, rc.Name
+    where hr.DeactivatedDateTime is null
+
+    order by c.Name, rc.Name
+end
+go

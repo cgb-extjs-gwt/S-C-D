@@ -1,32 +1,41 @@
-select  c.Name as Country
-      , c.Region
-      , c.ClusterRegion
+if OBJECT_ID('Archive.spGetFieldServiceCost') is not null
+    drop procedure Archive.spGetFieldServiceCost;
+go
 
-      , wg.Name as Wg
-      , wg.Description as WgDescription
-      , wg.Pla
-      , wg.Sog
+create procedure Archive.spGetFieldServiceCost
+AS
+begin
+    select  c.Name as Country
+          , c.Region
+          , c.ClusterRegion
 
-      , loc.Name as ServiceLocation
+          , wg.Name as Wg
+          , wg.Description as WgDescription
+          , wg.Pla
+          , wg.Sog
 
-      , rtt.ReactionTime
-      , rtt.ReactionType
+          , loc.Name as ServiceLocation
 
-      , fsc.RepairTime_Approved           as RepairTime
-      , fsc.TravelTime_Approved           as TravelTime
-      , fsc.LabourCost_Approved           as LabourCost
-      , fsc.TravelCost_Approved           as TravelCost
-      , fsc.PerformanceRate_Approved      as PerformanceRate
-      , fsc.TimeAndMaterialShare_Approved as TimeAndMaterialShare
-      , fsc.CentralContractGroup          as CentralContractGroup
+          , rtt.ReactionTime
+          , rtt.ReactionType
 
-from Hardware.FieldServiceCost fsc
-join Archive.GetCountries() c on c.Id = fsc.Country
-join Archive.GetWg(null) wg on wg.id = fsc.Wg
-join Dependencies.ServiceLocation loc on loc.Id = fsc.ServiceLocation
+          , fsc.RepairTime_Approved           as RepairTime
+          , fsc.TravelTime_Approved           as TravelTime
+          , fsc.LabourCost_Approved           as LabourCost
+          , fsc.TravelCost_Approved           as TravelCost
+          , fsc.PerformanceRate_Approved      as PerformanceRate
+          , fsc.TimeAndMaterialShare_Approved as TimeAndMaterialShare
+          , fsc.CentralContractGroup          as CentralContractGroup
 
-join Archive.GetReactionTimeType() rtt on rtt.Id = fsc.ReactionTimeType
+    from Hardware.FieldServiceCost fsc
+    join Archive.GetCountries() c on c.Id = fsc.Country
+    join Archive.GetWg(null) wg on wg.id = fsc.Wg
+    join Dependencies.ServiceLocation loc on loc.Id = fsc.ServiceLocation
 
-where fsc.DeactivatedDateTime is null
+    join Archive.GetReactionTimeType() rtt on rtt.Id = fsc.ReactionTimeType
 
-order by c.Name, wg.Name
+    where fsc.DeactivatedDateTime is null
+
+    order by c.Name, wg.Name
+end
+go

@@ -1,22 +1,31 @@
-select  c.Name as Country
-      , c.Region
-      , c.ClusterRegion
+if OBJECT_ID('Archive.spGetMarkupStandardWaranty') is not null
+    drop procedure Archive.spGetMarkupStandardWaranty;
+go
 
-      , wg.Name as Wg
-      , wg.Description as WgDescription
-      , wg.Pla
-      , wg.Sog
+create procedure Archive.spGetMarkupStandardWaranty
+AS
+begin
+    select  c.Name as Country
+          , c.Region
+          , c.ClusterRegion
 
-      , ccg.Name                             as ContractGroup
-      , ccg.Code                             as ContractGroupCode
+          , wg.Name as Wg
+          , wg.Description as WgDescription
+          , wg.Pla
+          , wg.Sog
 
-      , msw.MarkupFactorStandardWarranty_Approved  as MarkupFactorStandardWarranty 
-      , msw.MarkupStandardWarranty_Approved        as MarkupStandardWarranty       
+          , ccg.Name                             as ContractGroup
+          , ccg.Code                             as ContractGroupCode
 
-from Hardware.MarkupStandardWaranty msw
-join Archive.GetCountries() c on c.id = msw.Country
-join Archive.GetWg(null) wg on wg.id = msw.Wg
-join InputAtoms.CentralContractGroup ccg on ccg.Id = msw.CentralContractGroup
+          , msw.MarkupFactorStandardWarranty_Approved  as MarkupFactorStandardWarranty 
+          , msw.MarkupStandardWarranty_Approved        as MarkupStandardWarranty       
 
-where msw.DeactivatedDateTime is null
-order by c.Name, wg.Name
+    from Hardware.MarkupStandardWaranty msw
+    join Archive.GetCountries() c on c.id = msw.Country
+    join Archive.GetWg(null) wg on wg.id = msw.Wg
+    join InputAtoms.CentralContractGroup ccg on ccg.Id = msw.CentralContractGroup
+
+    where msw.DeactivatedDateTime is null
+    order by c.Name, wg.Name
+end
+go

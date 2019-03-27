@@ -1,12 +1,21 @@
-select  c.Name as Country
-      , c.Region
-      , c.ClusterRegion
+if OBJECT_ID('Archive.spGetTaxAndDuties') is not null
+    drop procedure Archive.spGetTaxAndDuties;
+go
 
-      , tax.TaxAndDuties_Approved as Tax
+create procedure Archive.spGetTaxAndDuties
+AS
+begin
+    select  c.Name as Country
+          , c.Region
+          , c.ClusterRegion
 
-from Hardware.TaxAndDuties tax
-join Archive.GetCountries() c on c.id = tax.Country
+          , tax.TaxAndDuties_Approved as Tax
 
-where tax.DeactivatedDateTime is null
+    from Hardware.TaxAndDuties tax
+    join Archive.GetCountries() c on c.id = tax.Country
 
-order by c.Name
+    where tax.DeactivatedDateTime is null
+
+    order by c.Name
+end
+go

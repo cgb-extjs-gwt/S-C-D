@@ -1,27 +1,36 @@
-select  c.Name as Country
-      , c.Region
-      , c.ClusterRegion
+if OBJECT_ID('Archive.spGetMarkupOtherCosts') is not null
+    drop procedure Archive.spGetMarkupOtherCosts;
+go
 
-      , wg.Name as Wg
-      , wg.Description as WgDescription
-      , wg.Pla
-      , wg.Sog
+create procedure Archive.spGetMarkupOtherCosts
+AS
+begin
+    select  c.Name as Country
+          , c.Region
+          , c.ClusterRegion
 
-      , ccg.Name                             as ContractGroup
-      , ccg.Code                             as ContractGroupCode
+          , wg.Name as Wg
+          , wg.Description as WgDescription
+          , wg.Pla
+          , wg.Sog
 
-      , tta.Availability
-      , tta.ReactionTime
-      , tta.ReactionType
+          , ccg.Name                             as ContractGroup
+          , ccg.Code                             as ContractGroupCode
 
-      , moc.MarkupFactor_Approved  as MarkupFactor
-      , moc.Markup_Approved        as Markup
+          , tta.Availability
+          , tta.ReactionTime
+          , tta.ReactionType
 
-from Hardware.MarkupOtherCosts moc
-join Archive.GetCountries() c on c.id = moc.Country
-join Archive.GetWg(null) wg on wg.id = moc.Wg
-join InputAtoms.CentralContractGroup ccg on ccg.Id = moc.CentralContractGroup
-join Archive.GetReactionTimeTypeAvailability() tta on tta.Id = moc.ReactionTimeTypeAvailability
+          , moc.MarkupFactor_Approved  as MarkupFactor
+          , moc.Markup_Approved        as Markup
 
-where moc.DeactivatedDateTime is null
-order by c.Name, wg.Name
+    from Hardware.MarkupOtherCosts moc
+    join Archive.GetCountries() c on c.id = moc.Country
+    join Archive.GetWg(null) wg on wg.id = moc.Wg
+    join InputAtoms.CentralContractGroup ccg on ccg.Id = moc.CentralContractGroup
+    join Archive.GetReactionTimeTypeAvailability() tta on tta.Id = moc.ReactionTimeTypeAvailability
+
+    where moc.DeactivatedDateTime is null
+    order by c.Name, wg.Name
+end
+go
