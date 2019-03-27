@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{72E3DBA1-B2C5-4A32-A41D-54D84624400E}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>Gdc.Scd.Import.CentralContractGroup</RootNamespace>
     <AssemblyName>Gdc.Scd.Import.CentralContractGroupJob</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>

@@ -25,7 +25,6 @@ namespace Gdc.Scd.Import.CentralContractGroup
         {
             NinjectExt.IsConsoleApplication = true;
             IKernel kernel = CreateKernel();
-            ConfigHandler = kernel.Get<IConfigHandler>();
             ImportManager = kernel.Get<IImportManager>();
             Logger = kernel.Get<ILogger<LogLevel>>();
             CostBlockService = kernel.Get<ICostBlockService>();
@@ -33,11 +32,8 @@ namespace Gdc.Scd.Import.CentralContractGroup
 
         public void UploadCentralContractGroups()
         {
-            Logger.Log(LogLevel.Info, ImportConstants.START_PROCESS);
-            Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_START);
-            var configuration = ConfigHandler.ReadConfiguration("Default");
-            Logger.Log(LogLevel.Info, ImportConstants.CONFIG_READ_END);
-            var result = ImportManager.ImportData(configuration);
+            Logger.Log(LogLevel.Info, ImportConstants.START_PROCESS); 
+            var result = ImportManager.ImportData(null);
             if (!result.Skipped)
                 UpdateCostBlocks(result.UpdateOptions);
             Logger.Log(LogLevel.Info, ImportConstants.END_PROCESS);

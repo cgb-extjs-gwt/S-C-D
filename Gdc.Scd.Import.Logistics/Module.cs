@@ -24,7 +24,7 @@ namespace Gdc.Scd.Import.Logistics
             Bind<IDownloader>().To<FileDownloader>().InSingletonScope();
             Bind(typeof(IParser<>)).To(typeof(Parser<>)).InSingletonScope();
             Bind(typeof(IUploader<>)).To(typeof(LogisticUploader)).InSingletonScope();
-            Bind<IImportManager>().To<ImportManager<LogisticsDto>>().InSingletonScope();
+            Bind<IImportManager>().To<FileImportManager<LogisticsDto>>().InSingletonScope();
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();
         }
     }
