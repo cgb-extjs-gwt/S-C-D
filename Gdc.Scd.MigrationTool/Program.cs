@@ -61,6 +61,8 @@ namespace Gdc.Scd.MigrationTool
                     Console.ForegroundColor = defaultColor;
                     Console.WriteLine();
                 }
+
+                Console.WriteLine("DONE!");
             }
             catch(Exception ex)
             {
