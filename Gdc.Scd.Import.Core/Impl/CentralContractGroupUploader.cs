@@ -125,9 +125,9 @@ namespace Gdc.Scd.Import.Core.Impl
                                         [MetaConstants.CentralContractGroupInputLevel] = dbCcg.Id
                                     }));
                         wg.CentralContractGroupId = dbCcg.Id;
-                    }
 
-                    CollectionHelper.AddEntry<Wg>(updatedWgs, wg, _logger);
+                        CollectionHelper.AddEntry<Wg>(updatedWgs, wg, _logger);
+                    }
                 }
             }
 

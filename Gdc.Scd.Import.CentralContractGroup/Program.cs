@@ -9,22 +9,22 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.CentralContractGroup
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            var centralContractGroupService = new CentralContractGroupService();
-            try
-            {
-                centralContractGroupService.UploadCentralContractGroups();
-            }
-            catch (Exception ex)
-            {
-                centralContractGroupService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
-                Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstants.UNEXPECTED_ERROR, ex, null, null);
-            }
-        }
-    }
+    //class Program
+    //{
+    //    static void Main(string[] args)
+    //    {
+    //        var centralContractGroupService = new CentralContractGroupService();
+    //        try
+    //        {
+    //            centralContractGroupService.UploadCentralContractGroups();
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            centralContractGroupService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
+    //            Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstants.UNEXPECTED_ERROR, ex, null, null);
+    //        }
+    //    }
+    //}
     public class CentralContractGroupJob
     {
         public OperationResult<bool> Output()

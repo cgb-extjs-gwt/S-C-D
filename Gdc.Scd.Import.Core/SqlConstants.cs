@@ -11,6 +11,6 @@ namespace Gdc.Scd.Import.Core
         public static string GET_ALL_CENTRAL_CONTRACT_GROUPS = @"SELECT ZZWTY_WTY_GRP, ZZWTY_CONTR_GR, 
                                                                         ZZWTY_CONTR_GR_D 
                                                                  FROM [Partner_New].[dbo].[vw_EXT_zwty_wgcg_v]
-                                                                 WHERE ZZWTY_WTY_GRP IN ({0})";
+                                                                 WHERE [VKORG] = ''";
     }
 }
