@@ -25,7 +25,7 @@ namespace Gdc.Scd.Import.ExchangeRatesJob
             Bind<IDownloader>().To<FileDownloader>().InSingletonScope();
             Bind(typeof(IParser<>)).To(typeof(Parser<>)).InSingletonScope();
             Bind(typeof(IUploader<>)).To(typeof(ExRatesUploader)).InSingletonScope();
-            Bind<IImportManager>().To<ImportManager<ExchangeRateDto>>().InSingletonScope();
+            Bind<IImportManager>().To<FileImportManager<ExchangeRateDto>>().InSingletonScope();
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();          
         }
     }

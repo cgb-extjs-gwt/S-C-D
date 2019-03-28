@@ -44,7 +44,7 @@ namespace Gdc.Scd.Import.Core.Impl
             var files = Directory.GetFiles(info.Path, info.File);
             if (files.Length == 0)
                 return String.Empty;
-            var file =  files.Select(f => new FileInfo(Path.Combine(info.Path, f))).OrderByDescending(f => f.LastWriteTime).First();
+            var file =  files.Select(f => new FileInfo(Path.Combine(info.Path, f))).OrderBy(f => f.LastWriteTime).First();
             return file.FullName;
         }
     }

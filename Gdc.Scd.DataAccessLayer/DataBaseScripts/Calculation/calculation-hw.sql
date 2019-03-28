@@ -2394,9 +2394,9 @@ RETURN
     LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Country = m.CountryId AND fsc.Wg = m.WgId AND fsc.ServiceLocation = m.ServiceLocationId
     LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Country = m.CountryId AND fst.Wg = m.WgId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
 
-    LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTimeType = m.ReactionTime_ReactionType
+    LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId AND lc.Wg = m.WgId AND lc.ReactionTimeType = m.ReactionTime_ReactionType and lc.DeactivatedDateTime is null
 
-    LEFT JOIN Hardware.MarkupOtherCosts moc on moc.Wg = m.WgId AND moc.Country = m.CountryId AND moc.ReactionTimeTypeAvailability = m.ReactionTime_ReactionType_Avalability
+    LEFT JOIN Hardware.MarkupOtherCosts moc on moc.Wg = m.WgId AND moc.Country = m.CountryId AND moc.ReactionTimeTypeAvailability = m.ReactionTime_ReactionType_Avalability and moc.DeactivatedDateTime is null
 
     LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = m.ReactionTimeId AND afEx.ReactionTypeId = m.ReactionTypeId AND afEx.ServiceLocationId = m.ServiceLocationId
 
@@ -2808,8 +2808,8 @@ RETURN
              , m.DealerPrice
 
         from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, null, null) m
-        join InputAtoms.Wg wg on wg.id = m.WgId
-        left join Hardware.InstallBase ib on ib.Country = m.CountryId and ib.Wg = m.WgId
+        join InputAtoms.Wg wg on wg.id = m.WgId and wg.DeactivatedDateTime is null
+        left join Hardware.InstallBase ib on ib.Country = m.CountryId and ib.Wg = m.WgId and ib.DeactivatedDateTime is null
     )
     select    
             m.Id
@@ -2874,3 +2874,28 @@ RETURN
 )
 go
 
+IF OBJECT_ID('Hardware.SpReleaseCosts') IS NOT NULL
+  DROP PROCEDURE Hardware.SpReleaseCosts;
+go
+
+CREATE PROCEDURE [Hardware].[SpReleaseCosts]
+    @cnt          dbo.ListID readonly,
+    @wg           dbo.ListID readonly,
+    @av           dbo.ListID readonly,
+    @dur          dbo.ListID readonly,
+    @reactiontime dbo.ListID readonly,
+    @reactiontype dbo.ListID readonly,
+    @loc          dbo.ListID readonly,
+    @pro          dbo.ListID readonly
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+    
+	UPDATE mc
+	SET [ServiceTP_Released] = COALESCE(costs.ServiceTPManual, costs.ServiceTP)
+	FROM [Hardware].[ManualCost] mc
+	JOIN Hardware.GetCosts(1, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, 0, 0) costs on costs.Id = mc.PortfolioId
+
+   
+END
