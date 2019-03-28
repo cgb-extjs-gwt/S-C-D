@@ -1,5 +1,4 @@
 ﻿using Gdc.Scd.Archive;
-using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Tests.Util;
 using NUnit.Framework;
 using System;
@@ -59,9 +58,9 @@ namespace Gdc.Scd.Tests.Integration.Archive
 
             this.Output();
 
-            Assert.AreEqual(ScdLogLevel.Fatal, fakeLogger.Level);
+            Assert.True(fakeLogger.IsFatal);
             Assert.AreEqual("Archivation completed unsuccessfully. Please find details below.", fakeLogger.Message);
-            Assert.AreEqual("Big error...", fakeLogger.Error.Message);
+            Assert.AreEqual("Big error...", fakeLogger.Exception.Message);
         }
 
         [TestCase(TestName = "Check job success operation result")]

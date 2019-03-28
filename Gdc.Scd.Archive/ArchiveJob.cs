@@ -1,5 +1,4 @@
-﻿using Gdc.Scd.Core.Enums;
-using Gdc.Scd.Core.Interfaces;
+﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.OperationResult;
 using Ninject;
 using System;
@@ -26,7 +25,7 @@ namespace Gdc.Scd.Archive
             }
             catch (Exception e)
             {
-                logger.Log(ScdLogLevel.Fatal, e, ArchiveConstants.UNEXPECTED_ERROR);
+                logger.Fatal(e, ArchiveConstants.UNEXPECTED_ERROR);
                 Notify(ArchiveConstants.UNEXPECTED_ERROR, e);
                 return Result(false);
             }

@@ -1,5 +1,4 @@
-﻿using Gdc.Scd.Core.Enums;
-using NLog;
+﻿using NLog;
 using System;
 
 namespace Gdc.Scd.Import.Core.Impl
@@ -18,38 +17,74 @@ namespace Gdc.Scd.Import.Core.Impl
             _logger.Log(level, exception, string.Format("{0}: {1}", message, exception), args);
         }
 
-        public void Log(ScdLogLevel level, string message, params object[] args)
+        public void Debug(string message, params object[] args)
         {
-            Log(AsNlogLevel(level), message, args);
+            Log(LogLevel.Debug, message, args);
         }
 
-        public void Log(ScdLogLevel level, Exception exception, string message, params object[] args)
+        public void Debug(Exception exception, string message, params object[] args)
         {
-            Log(AsNlogLevel(level), exception, message, args);
+            Log(LogLevel.Debug, exception, message, args);
         }
 
-        public static LogLevel AsNlogLevel(ScdLogLevel level)
+        public void Error(string message, params object[] args)
         {
-            switch (level)
-            {
-                case ScdLogLevel.Trace: return LogLevel.Trace;
-
-                case ScdLogLevel.Debug: return LogLevel.Debug;
-
-                case ScdLogLevel.Info: return LogLevel.Info;
-
-                case ScdLogLevel.Warn: return LogLevel.Warn;
-
-                case ScdLogLevel.Error: return LogLevel.Error;
-
-                case ScdLogLevel.Fatal: return LogLevel.Fatal;
-
-                case ScdLogLevel.Off: return LogLevel.Off;
-
-                default:
-                    throw new NotImplementedException("Unknown Scd.Core.Enums.LogLevel: " + level.ToString());
-            }
+            Log(LogLevel.Error, message, args);
         }
 
+        public void Error(Exception exception, string message, params object[] args)
+        {
+            Log(LogLevel.Error, exception, message, args);
+        }
+
+        public void Fatal(string message, params object[] args)
+        {
+            Log(LogLevel.Fatal, message, args);
+        }
+
+        public void Fatal(Exception exception, string message, params object[] args)
+        {
+            Log(LogLevel.Fatal, exception, message, args);
+        }
+
+        public void Info(string message, params object[] args)
+        {
+            Log(LogLevel.Info, message, args);
+        }
+
+        public void Info(Exception exception, string message, params object[] args)
+        {
+            Log(LogLevel.Info, exception, message, args);
+        }
+
+        public void Off(string message, params object[] args)
+        {
+            Log(LogLevel.Off, message, args);
+        }
+
+        public void Off(Exception exception, string message, params object[] args)
+        {
+            Log(LogLevel.Off, exception, message, args);
+        }
+
+        public void Trace(string message, params object[] args)
+        {
+            Log(LogLevel.Trace, message, args);
+        }
+
+        public void Trace(Exception exception, string message, params object[] args)
+        {
+            Log(LogLevel.Trace, exception, message, args);
+        }
+
+        public void Warn(string message, params object[] args)
+        {
+            Log(LogLevel.Warn, message, args);
+        }
+
+        public void Warn(Exception exception, string message, params object[] args)
+        {
+            Log(LogLevel.Warn, exception, message, args);
+        }
     }
 }
