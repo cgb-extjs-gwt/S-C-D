@@ -2,7 +2,6 @@
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
-using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Import.Core.DataAccess;
 using Gdc.Scd.Import.Core.Dto;
@@ -11,8 +10,6 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.Core.Impl
 {
@@ -52,27 +49,27 @@ namespace Gdc.Scd.Import.Core.Impl
 
             foreach (var item in items)
             {
-                var centralContractGroup = centralContractGroups.FirstOrDefault(ccg => ccg.Code.Equals(item.CentralContractGroupCode,
+                var centralContractGroup = centralContractGroups.FirstOrDefault(ccg => ccg.Code.Equals(item.ZZWTY_CONTR_GR,
                     StringComparison.OrdinalIgnoreCase));
 
                 //Central Contract Group does not exist in database -> add it
                 if (centralContractGroup == null)
                 {
-                    _logger.Log(LogLevel.Debug, ImportConstants.ADD_NEW_CCG, item.CentralContractGroupCode);
+                    _logger.Log(LogLevel.Debug, ImportConstants.ADD_NEW_CCG, item.ZZWTY_CONTR_GR);
 
                     CollectionHelper.AddEntry<CentralContractGroup>(newCentralContractGroups, new CentralContractGroup
                     {
-                        Name = item.CentralContractGroupName,
-                        Code = item.CentralContractGroupCode
+                        Name = item.ZZWTY_CONTR_GR_D,
+                        Code = item.ZZWTY_CONTR_GR
                     }, _logger);
                 }
 
                 else
                 {
-                    if (!centralContractGroup.Name.Equals(item.CentralContractGroupName, 
+                    if (!centralContractGroup.Name.Equals(item.ZZWTY_CONTR_GR_D, 
                         StringComparison.OrdinalIgnoreCase))
                     {
-                        centralContractGroup.Name = item.CentralContractGroupName;
+                        centralContractGroup.Name = item.ZZWTY_CONTR_GR_D;
                         CollectionHelper.AddEntry<CentralContractGroup>(newCentralContractGroups, centralContractGroup, _logger);
                     }
                 }
@@ -94,22 +91,22 @@ namespace Gdc.Scd.Import.Core.Impl
             var wgs = _repositoryWg.GetAll().ToList();
             var centralContractGroups = _repositoryCentralContractGroup.GetAll().ToList();
 
-            var uploadedCcg = items.Select(i => i.CentralContractGroupCode).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            var uploadedCcg = items.Select(i => i.ZZWTY_CONTR_GR).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             var updatedWgs = new Dictionary<string, Wg>();
 
             foreach (var item in items)
             {
                 var dbCcg = centralContractGroups.FirstOrDefault(ccg =>
-                            ccg.Code.Equals(item.CentralContractGroupCode, StringComparison.OrdinalIgnoreCase));
+                            ccg.Code.Equals(item.ZZWTY_CONTR_GR, StringComparison.OrdinalIgnoreCase));
 
                 if (dbCcg != null)
                 {
                     var wg = wgs.FirstOrDefault(w =>
-                            w.Name.Equals(item.WgName, StringComparison.OrdinalIgnoreCase));
+                            w.Name.Equals(item.ZZWTY_WTY_GRP, StringComparison.OrdinalIgnoreCase));
 
                     if (wg == null)
                     {
-                        _logger.Log(LogLevel.Warn, ImportConstants.UNKNOWN_WARRANTY, item.WgName);
+                        _logger.Log(LogLevel.Warn, ImportConstants.UNKNOWN_WARRANTY, item.ZZWTY_WTY_GRP);
                         continue;
                     }
 
@@ -128,9 +125,9 @@ namespace Gdc.Scd.Import.Core.Impl
                                         [MetaConstants.CentralContractGroupInputLevel] = dbCcg.Id
                                     }));
                         wg.CentralContractGroupId = dbCcg.Id;
-                    }
 
-                    CollectionHelper.AddEntry<Wg>(updatedWgs, wg, _logger);
+                        CollectionHelper.AddEntry<Wg>(updatedWgs, wg, _logger);
+                    }
                 }
             }
 

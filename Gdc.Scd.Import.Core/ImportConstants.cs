@@ -65,5 +65,7 @@ namespace Gdc.Scd.Import.Core
         public static string ZEROS_SET = "Zero were set. {0} values were affected.";
         public static string COULD_NOT_FIND_FILE = "File {0} couldn't be found.";
         public static string FILE_WASNT_DELIVERED = "Uploiding is skipped as there are no file was delivered.";
+        public static string IMPORT_DATA_STARTED = "Starting importing {0}s...";
+        public static string IMPORT_DATA_END = "Importing was finished. {0} rows received.";
     }
 }

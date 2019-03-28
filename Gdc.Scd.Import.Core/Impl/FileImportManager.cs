@@ -14,14 +14,14 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.Core.Impl
 {
-    public class ImportManager<T> : IImportManager
+    public class FileImportManager<T> : IImportManager
     {
         private readonly ILogger<LogLevel> _logger;
         private readonly IDownloader _downloader;
         private readonly IParser<T> _parser;
         private readonly IUploader<T> _uploader;
 
-        public ImportManager(ILogger<LogLevel> logger, 
+        public FileImportManager(ILogger<LogLevel> logger, 
             IDownloader downloader, IParser<T> parser, 
             IUploader<T> uploader)
         {
