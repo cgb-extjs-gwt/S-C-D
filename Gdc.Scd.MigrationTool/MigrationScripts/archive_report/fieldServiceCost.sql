@@ -14,6 +14,9 @@ begin
           , wg.Pla
           , wg.Sog
 
+          , ccg.Name                             as ContractGroup
+          , ccg.Code                             as ContractGroupCode
+
           , loc.Name as ServiceLocation
 
           , rtt.ReactionTime
@@ -25,14 +28,13 @@ begin
           , fsc.TravelCost_Approved           as TravelCost
           , fsc.PerformanceRate_Approved      as PerformanceRate
           , fsc.TimeAndMaterialShare_Approved as TimeAndMaterialShare
-          , fsc.CentralContractGroup          as CentralContractGroup
 
     from Hardware.FieldServiceCost fsc
+    join Archive.GetReactionTimeType() rtt on rtt.Id = fsc.ReactionTimeType
     join Archive.GetCountries() c on c.Id = fsc.Country
     join Archive.GetWg(null) wg on wg.id = fsc.Wg
     join Dependencies.ServiceLocation loc on loc.Id = fsc.ServiceLocation
-
-    join Archive.GetReactionTimeType() rtt on rtt.Id = fsc.ReactionTimeType
+    join InputAtoms.CentralContractGroup ccg on ccg.Id = fsc.CentralContractGroup
 
     where fsc.DeactivatedDateTime is null
 
