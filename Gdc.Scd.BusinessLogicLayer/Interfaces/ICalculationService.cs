@@ -14,5 +14,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
         Task<(string json, int total)> GetSoftwareProactiveCost(bool approved, SwFilterDto filter, int start, int limit);
 
         void SaveHardwareCost(User changeUser, IEnumerable<HwCostManualDto> records, bool release = false);
+
+        Task ReleaseHardwareCost(HwFilterDto filter);
     }
 }
