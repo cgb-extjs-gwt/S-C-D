@@ -72,7 +72,7 @@ namespace Gdc.Scd.Tests.Integration.Archive
             Assert.True(res.Result);
         }
 
-        protected override void Init() { }
+        protected override void Init() { } //skip base initialization
 
         protected override void Notify(string msg, Exception e)
         {

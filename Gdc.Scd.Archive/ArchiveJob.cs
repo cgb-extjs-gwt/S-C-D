@@ -56,7 +56,7 @@ namespace Gdc.Scd.Archive
             Fujitsu.GDC.ErrorNotification.Logger.Error(msg, e, null, null);
         }
 
-        public OperationResult<bool> Result(bool ok)
+        public static OperationResult<bool> Result(bool ok)
         {
             return new OperationResult<bool> { IsSuccess = ok, Result = true };
         }
