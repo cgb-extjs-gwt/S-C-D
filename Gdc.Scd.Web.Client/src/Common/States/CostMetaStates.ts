@@ -43,7 +43,7 @@ export enum InputType {
     Manually = 0,
     Automatically = 1,
     Reference = 2,
-    ManualyAutomaticly = 3,
+    ManuallyAutomatically = 3,
     AutomaticallyReadonly = 4
 }
 
