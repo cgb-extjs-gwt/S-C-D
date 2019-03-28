@@ -16,11 +16,7 @@ using Gdc.Scd.Import.Core.Interfaces;
 using Ninject;
 using Ninject.Modules;
 using NLog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Configuration;
 
 namespace Gdc.Scd.Import.CentralContractGroup
 {
@@ -30,12 +26,13 @@ namespace Gdc.Scd.Import.CentralContractGroup
         {
             Bind<ImportRepository<Wg>>().ToSelf().InSingletonScope();
             Bind<ILogger<LogLevel>>().To<Core.Impl.Logger>().InSingletonScope();
-
-            Bind<IDownloader>().To<FileDownloader>().InSingletonScope();
-            Bind(typeof(IParser<>)).To(typeof(Parser<>)).InSingletonScope();
+            Bind<IDataAccessManager>().To<SqlManager>()
+                .InSingletonScope()
+                .WithConstructorArgument("connectionString", 
+                ConfigurationManager.ConnectionStrings["Partner_New"].ConnectionString);
+            Bind<IDataImporter<CentralContractGroupDto>>().To<CentralContractGroupImporter>().InSingletonScope();
+            Bind<IImportManager>().To<DbImportManager<CentralContractGroupDto>>().InSingletonScope();
             Bind(typeof(IUploader<>)).To(typeof(CentralContractGroupUploader)).InSingletonScope();
-            Bind<IImportManager>().To<ImportManager<CentralContractGroupDto>>().InSingletonScope();
-            Bind<IConfigHandler>().To<FileConfigHandler>().InSingletonScope();
 
             this.Bind<Scd.Core.Interfaces.IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope(); 
         }

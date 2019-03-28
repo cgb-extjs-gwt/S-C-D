@@ -37,7 +37,7 @@ namespace Gdc.Scd.Import.SfabImport
             Bind<IDownloader>().To<FileDownloader>().InSingletonScope();
             Bind(typeof(IParser<>)).To(typeof(Parser<>)).InSingletonScope();
             Bind(typeof(IUploader<>)).To(typeof(SfabUploader)).InSingletonScope();
-            Bind<IImportManager>().To<ImportManager<SFabDto>>().InSingletonScope();
+            Bind<IImportManager>().To<FileImportManager<SFabDto>>().InSingletonScope();
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();
             
             Bind<Scd.Core.Interfaces.IPrincipalProvider>().To<ConsolePrincipleProvider>().InSingletonScope();
