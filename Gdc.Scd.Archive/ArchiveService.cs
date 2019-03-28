@@ -14,7 +14,6 @@ namespace Gdc.Scd.Archive
         public virtual void Run()
         {
             logger.Info(ArchiveConstants.START_PROCESS);
-            logger.Info(ArchiveConstants.CONFIG_READ_START);
             //
             logger.Info(ArchiveConstants.END_PROCESS);
         }
