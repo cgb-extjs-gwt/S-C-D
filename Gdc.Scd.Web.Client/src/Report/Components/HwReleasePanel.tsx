@@ -2,7 +2,8 @@
 import * as React from "react";
 
 export interface ReleasePanelProps extends PanelProps {
-    onApprove(): void,
+    onRelease(): void,
+    onReleaseAll(): void,
     disabled: boolean;
 }
 
@@ -16,20 +17,27 @@ export class HwReleasePanel extends React.Component<ReleasePanelProps, any> {
     public render() {
 
         return (
-            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 20px">
-
-                <Button text="Approve for Release" ui="action" minWidth="85px" margin="20px auto" handler={this.onApprove} disabled={this.props.disabled} />
-
+            <Panel {...this.props} margin="0 0 5px 0" padding="4px 20px 7px 25px" layout={{ type: 'vbox', align: 'left' }}>
+                <Button text="Release selected" ui="action" minWidth="85px" margin="5px 0px" handler={this.onRelease} disabled={this.props.disabled} />
+                <Button text="Release all" ui="action" minWidth="85px" margin="5px 0px" handler={this.onReleaseAll} disabled={this.props.disabled} />
             </Panel>
         );
     }
 
     private init() {
-        this.onApprove = this.onApprove.bind(this);
+        this.onRelease = this.onRelease.bind(this);
+        this.onReleaseAll = this.onReleaseAll.bind(this);
     }
 
-    private onApprove() {
-        let handler = this.props.onApprove;
+    private onRelease() {
+        let handler = this.props.onRelease;
+        if (handler) {
+            handler();
+        }
+    }
+
+    private onReleaseAll() {
+        let handler = this.props.onReleaseAll;
         if (handler) {
             handler();
         }

@@ -121,6 +121,22 @@ namespace Gdc.Scd.Web.Api.Controllers
             }
         }
 
+        [HttpPost]
+        public Task ReleaseHwCostAll([FromBody]HwFilterDto filter)
+        {
+            if (filter != null &&
+               filter.Country != null &&
+               filter.Country.Length > 0 &&
+               HasAccess(false, filter.Country))
+            {
+                return calcSrv.ReleaseHardwareCost(filter);                             
+            }
+            else
+            {
+                return this.NotFoundContentAsync();
+            }
+        }
+
         private bool IsRangeValid(int start, int limit)
         {
             return start >= 0 && limit <= 50;
