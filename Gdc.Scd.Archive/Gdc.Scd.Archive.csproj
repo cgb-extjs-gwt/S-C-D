@@ -36,6 +36,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj">
+      <Project>{F587C0F8-3F2F-4F50-9EA2-2D8C74D8330B}</Project>
+      <Name>Gdc.Scd.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Import.Core\Gdc.Scd.Import.Core.csproj">
+      <Project>{0c98c07e-1fdf-43f1-93ea-d86ab3232f25}</Project>
+      <Name>Gdc.Scd.Import.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Gdc.Scd.Spooler\Gdc.Scd.Spooler.csproj">
       <Project>{C98A5155-A567-46C5-8D44-4F2568F41567}</Project>
       <Name>Gdc.Scd.Spooler</Name>

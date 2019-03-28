@@ -1,4 +1,6 @@
 ﻿using Gdc.Scd.Archive;
+using Gdc.Scd.Core.Enums;
+using Gdc.Scd.Tests.Util;
 using NUnit.Framework;
 using System;
 
@@ -11,11 +13,15 @@ namespace Gdc.Scd.Tests.Integration.Archive
 
         private FakeArchiveService fakeArchive;
 
+        private FakeLogger fakeLogger;
+
         [SetUp]
         public void Setup()
         {
             fakeArchive = new FakeArchiveService();
+            fakeLogger = new FakeLogger();
             srv = fakeArchive;
+            logger = fakeLogger;
         }
 
         [TestCase(TestName = "Check WhoAmI returns 'ArchiveJob' name of job")]
@@ -52,10 +58,9 @@ namespace Gdc.Scd.Tests.Integration.Archive
 
             this.Output();
 
-            Assert.AreEqual("Archivation completed unsuccessfully. Please find details below.", adminMsg);
-            Assert.AreEqual("Big error...", error.Message);
-
-            Assert.Fail();
+            Assert.AreEqual(ScdLogLevel.Fatal, fakeLogger.Level);
+            Assert.AreEqual("Archivation completed unsuccessfully. Please find details below.", fakeLogger.Message);
+            Assert.AreEqual("Big error...", fakeLogger.Error.Message);
         }
 
         [TestCase(TestName = "Check job success operation result")]

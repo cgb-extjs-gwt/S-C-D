@@ -1,4 +1,6 @@
-﻿using Gdc.Scd.OperationResult;
+﻿using Gdc.Scd.Core.Enums;
+using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.OperationResult;
 using System;
 
 namespace Gdc.Scd.Archive
@@ -8,6 +10,8 @@ namespace Gdc.Scd.Archive
         public const string ARCHIVE_UNEXPECTED_ERROR = "Archivation completed unsuccessfully. Please find details below.";
 
         protected ArchiveService srv;
+
+        protected ILogger logger;
 
         public ArchiveJob()
         {
@@ -23,6 +27,7 @@ namespace Gdc.Scd.Archive
             }
             catch (Exception e)
             {
+                logger.Log(ScdLogLevel.Fatal, e, ARCHIVE_UNEXPECTED_ERROR);
                 Notify(ARCHIVE_UNEXPECTED_ERROR, e);
                 return Result(false);
             }

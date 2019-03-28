@@ -52,9 +52,17 @@
       <Project>{d8dae070-26e3-451a-8611-8a2756342d49}</Project>
       <Name>Gdc.Scd.Archive</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Core\Gdc.Scd.Core.csproj">
+      <Project>{F587C0F8-3F2F-4F50-9EA2-2D8C74D8330B}</Project>
+      <Name>Gdc.Scd.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Gdc.Scd.Spooler\Gdc.Scd.Spooler.csproj">
       <Project>{C98A5155-A567-46C5-8D44-4F2568F41567}</Project>
       <Name>Gdc.Scd.Spooler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Tests.Util\Gdc.Scd.Tests.Util.csproj">
+      <Project>{920E1683-41C8-4C7C-AA52-E976FEAA4D2D}</Project>
+      <Name>Gdc.Scd.Tests.Util</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
