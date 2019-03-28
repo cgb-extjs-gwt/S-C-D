@@ -100,7 +100,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         SCD_ServiceType = porSog.SCD_ServiceType,
                         SFabId = defaultSFab?.Id,
                         IsSoftware = ImportHelper.IsSoftware(porSog.SCD_ServiceType, softwareServiceTypes),
-                        IsSolution = ImportHelper.IsSolution(porSog.Service_Types, solutionIdentifier)
+                        IsSolution = ImportHelper.IsSolution(porSog.Service_Types, solutionIdentifier),
+                        ServiceTypes = porSog.Service_Types
                     });
                 }
 

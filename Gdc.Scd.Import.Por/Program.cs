@@ -97,7 +97,7 @@ namespace Gdc.Scd.Import.Por
     //            //VStatus is ignored for STDWs 
     //            var fspcodes = PorService.FspCodesImporter.ImportData()
     //                                           .Where(fsp => (fsp.VStatus == "50" &&
-    //                                                         allowedServiceTypes.Contains(fsp.SCD_ServiceType)) || 
+    //                                                         allowedServiceTypes.Contains(fsp.SCD_ServiceType)) ||
     //                                                         (standardWarrantiesServiceTypes.Contains(fsp.SCD_ServiceType)
     //                                                         && fsp.Service_Code.Substring(11, 4).ToUpper().Equals("STDW")))
     //                                           .ToList();
@@ -109,7 +109,7 @@ namespace Gdc.Scd.Import.Por
     //            var countryValues = PorService.CountryService.GetAll().ToList();
 
 
-    //            var countries = FormatDataHelper.FillCountryDictionary(PorService.CountryService.GetAll().ToList(), 
+    //            var countries = FormatDataHelper.FillCountryDictionary(PorService.CountryService.GetAll().ToList(),
     //                PorService.CountryGroupService.GetAll().ToList());
 
     //            var sla = FormatDataHelper.FillSlasDictionaries();
@@ -214,7 +214,7 @@ namespace Gdc.Scd.Import.Por
     //            PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.END_PROCESS);
     //        }
 
-    //        catch(Exception ex)
+    //        catch (Exception ex)
     //        {
     //            PorService.Logger.Log(LogLevel.Fatal, ex, ImportConstantMessages.UNEXPECTED_ERROR);
     //            Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstantMessages.UNEXPECTED_ERROR, ex, null, null);
