@@ -7,10 +7,7 @@ namespace Gdc.Scd.Tests.Integration.Archive
     {
         public Exception exception;
 
-        public FakeArchiveService(): base(null)
-        {
-
-        }
+        public FakeArchiveService() : base(null) { }
 
         public void Fail(string err)
         {
@@ -19,7 +16,7 @@ namespace Gdc.Scd.Tests.Integration.Archive
 
         public override void Run()
         {
-            if(exception != null)
+            if (exception != null)
             {
                 throw exception;
             }

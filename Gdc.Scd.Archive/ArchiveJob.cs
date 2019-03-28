@@ -1,14 +1,13 @@
 ﻿using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.OperationResult;
+using Ninject;
 using System;
 
 namespace Gdc.Scd.Archive
 {
     public class ArchiveJob
     {
-        public const string ARCHIVE_UNEXPECTED_ERROR = "Archivation completed unsuccessfully. Please find details below.";
-
         protected ArchiveService srv;
 
         protected ILogger logger;
@@ -27,17 +26,12 @@ namespace Gdc.Scd.Archive
             }
             catch (Exception e)
             {
-                logger.Log(ScdLogLevel.Fatal, e, ARCHIVE_UNEXPECTED_ERROR);
-                Notify(ARCHIVE_UNEXPECTED_ERROR, e);
+                logger.Log(ScdLogLevel.Fatal, e, ArchiveConstants.UNEXPECTED_ERROR);
+                Notify(ArchiveConstants.UNEXPECTED_ERROR, e);
                 return Result(false);
             }
         }
 
-        /// <summary>
-        /// Method should return job name
-        /// which should be similar as "JobName" column in [JobsSchedule] table
-        /// </summary>
-        /// <returns>Job name</returns>
         public string WhoAmI()
         {
             return "ArchiveJob";
@@ -48,8 +42,10 @@ namespace Gdc.Scd.Archive
         /// </summary>
         protected virtual void Init()
         {
-            logger = new Gdc.Scd.Import.Core.Impl.Logger();
-            srv = new ArchiveService(logger);
+            var kernel = Module.CreateKernel();
+            //
+            logger = kernel.Get<ILogger>();
+            srv = kernel.Get<ArchiveService>();
         }
 
         /// <summary>
