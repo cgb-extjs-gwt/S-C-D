@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArchiveJobTest.cs" />
+    <Compile Include="FakeArchiveService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -50,6 +51,10 @@
     <ProjectReference Include="..\Gdc.Scd.Archive\Gdc.Scd.Archive.csproj">
       <Project>{d8dae070-26e3-451a-8611-8a2756342d49}</Project>
       <Name>Gdc.Scd.Archive</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.Spooler\Gdc.Scd.Spooler.csproj">
+      <Project>{C98A5155-A567-46C5-8D44-4F2568F41567}</Project>
+      <Name>Gdc.Scd.Spooler</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

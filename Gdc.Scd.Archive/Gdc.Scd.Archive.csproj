@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ArchiveJob.cs" />
+    <Compile Include="ArchiveService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -39,6 +40,11 @@
       <Project>{C98A5155-A567-46C5-8D44-4F2568F41567}</Project>
       <Name>Gdc.Scd.Spooler</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Fujitsu.GDC.ErrorNotification">
+      <HintPath>..\SharedLibraries\Fujitsu.GDC.ErrorNotification.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

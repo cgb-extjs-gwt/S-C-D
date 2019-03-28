@@ -1,14 +1,31 @@
 ﻿using Gdc.Scd.OperationResult;
+using System;
 
 namespace Gdc.Scd.Archive
 {
     public class ArchiveJob
     {
+        public const string ARCHIVE_UNEXPECTED_ERROR = "Archivation completed unsuccessfully. Please find details below.";
+
+        protected ArchiveService srv;
+
+        public ArchiveJob()
+        {
+            srv = new ArchiveService();
+        }
+
         public OperationResult<bool> Output()
         {
-            throw new System.NotImplementedException();
-            var result = new OperationResult<bool>();
-            return result;
+            try
+            {
+                srv.Run();
+                return Result(true);
+            }
+            catch (Exception e)
+            {
+                Notify(ARCHIVE_UNEXPECTED_ERROR, e);
+                return Result(false);
+            }
         }
 
         /// <summary>
@@ -19,6 +36,16 @@ namespace Gdc.Scd.Archive
         public string WhoAmI()
         {
             return "ArchiveJob";
+        }
+
+        protected virtual void Notify(string msg, Exception e)
+        {
+            Fujitsu.GDC.ErrorNotification.Logger.Error(msg, e, null, null);
+        }
+
+        public OperationResult<bool> Result(bool ok)
+        {
+            return new OperationResult<bool> { IsSuccess = ok, Result = true };
         }
     }
 }
