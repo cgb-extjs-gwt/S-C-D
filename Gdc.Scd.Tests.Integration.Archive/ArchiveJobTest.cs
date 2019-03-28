@@ -7,11 +7,12 @@ namespace Gdc.Scd.Tests.Integration.Archive
     public class ArchiveJobTest: ArchiveJob
     {
         private string adminMsg;
-        private Exception operException;
+        private Exception error;
 
         private FakeArchiveService fakeArchive;
 
-        public ArchiveJobTest()
+        [SetUp]
+        public void Setup()
         {
             fakeArchive = new FakeArchiveService();
             srv = fakeArchive;
@@ -23,8 +24,8 @@ namespace Gdc.Scd.Tests.Integration.Archive
             Assert.AreEqual("ArchiveJob", WhoAmI());
         }
 
-        [TestCase(TestName = "Check job operation result when error")]
-        public void Output_Should_Return_False_When_Error_Test()
+        [TestCase(TestName = "Check job fail operation result")]
+        public void Output_Fail_Result_Test()
         {
             fakeArchive.Fail("Sample error here");
 
@@ -41,13 +42,34 @@ namespace Gdc.Scd.Tests.Integration.Archive
             this.Output();
 
             Assert.AreEqual("Archivation completed unsuccessfully. Please find details below.", adminMsg);
-            Assert.AreEqual("Sample error here", operException.Message);
+            Assert.AreEqual("Sample error here", error.Message);
+        }
+
+        [TestCase(TestName = "Check job log error")]
+        public void Should_Log_Error_Test()
+        {
+            fakeArchive.Fail("Big error...");
+
+            this.Output();
+
+            Assert.AreEqual("Archivation completed unsuccessfully. Please find details below.", adminMsg);
+            Assert.AreEqual("Big error...", error.Message);
+
+            Assert.Fail();
+        }
+
+        [TestCase(TestName = "Check job success operation result")]
+        public void Output_Success_Result_Test()
+        {
+            var res = Output();
+            Assert.True(res.IsSuccess);
+            Assert.True(res.Result);
         }
 
         protected override void Notify(string msg, Exception e)
         {
             this.adminMsg = msg;
-            this.operException = e;
+            this.error = e;
         }
     }
 }
