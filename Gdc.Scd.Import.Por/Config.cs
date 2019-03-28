@@ -64,6 +64,14 @@ namespace Gdc.Scd.Import.Por
             }
         }
 
+        public static string SolutionIdentifier
+        {
+            get
+            {
+                return ConfigurationManager.AppSettings["SolutionIdentifier"];
+            }
+        }
+
         public static string[] AllServiceTypes
         {
             get
