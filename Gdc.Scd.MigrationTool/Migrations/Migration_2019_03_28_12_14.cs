@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 56;
+        public int Number => 58;
 
         public string Description => "Create [Hardware].[SpReleaseCosts] SP";
 

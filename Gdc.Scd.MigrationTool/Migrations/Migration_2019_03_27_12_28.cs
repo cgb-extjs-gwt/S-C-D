@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 55;
+        public int Number => 57;
 
         public string Description => "Availability fee report cost per KIT should be always shown in EUR";
 
