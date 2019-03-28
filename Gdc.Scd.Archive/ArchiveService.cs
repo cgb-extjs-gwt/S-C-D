@@ -1,13 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Gdc.Scd.Core.Interfaces;
 
 namespace Gdc.Scd.Archive
 {
     public class ArchiveService
     {
+        private ILogger logger;
+
+        public ArchiveService(ILogger logger)
+        {
+            this.logger = logger;
+        }
+
         public virtual void Run()
         {
 

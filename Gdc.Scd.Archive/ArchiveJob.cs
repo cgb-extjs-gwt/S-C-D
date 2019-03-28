@@ -15,7 +15,7 @@ namespace Gdc.Scd.Archive
 
         public ArchiveJob()
         {
-            srv = new ArchiveService();
+            Init();
         }
 
         public OperationResult<bool> Output()
@@ -43,6 +43,18 @@ namespace Gdc.Scd.Archive
             return "ArchiveJob";
         }
 
+        /// <summary>
+        /// for testing only
+        /// </summary>
+        protected virtual void Init()
+        {
+            logger = new Gdc.Scd.Import.Core.Impl.Logger();
+            srv = new ArchiveService(logger);
+        }
+
+        /// <summary>
+        /// for testing only
+        /// </summary>
         protected virtual void Notify(string msg, Exception e)
         {
             Fujitsu.GDC.ErrorNotification.Logger.Error(msg, e, null, null);

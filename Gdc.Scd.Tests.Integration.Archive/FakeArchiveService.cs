@@ -7,6 +7,11 @@ namespace Gdc.Scd.Tests.Integration.Archive
     {
         public Exception exception;
 
+        public FakeArchiveService(): base(null)
+        {
+
+        }
+
         public void Fail(string err)
         {
             exception = new Exception(err);

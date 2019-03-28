@@ -6,9 +6,10 @@ using System;
 
 namespace Gdc.Scd.Tests.Integration.Archive
 {
-    public class ArchiveJobTest: ArchiveJob
+    public class ArchiveJobTest : ArchiveJob
     {
         private string adminMsg;
+
         private Exception error;
 
         private FakeArchiveService fakeArchive;
@@ -70,6 +71,8 @@ namespace Gdc.Scd.Tests.Integration.Archive
             Assert.True(res.IsSuccess);
             Assert.True(res.Result);
         }
+
+        protected override void Init() { }
 
         protected override void Notify(string msg, Exception e)
         {
