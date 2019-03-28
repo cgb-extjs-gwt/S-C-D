@@ -1,4 +1,4 @@
-﻿IF OBJECT_ID('Hardware.SpGetCosts') IS NOT NULL
+﻿IF OBJECT_ID('Hardware.SpReleaseCosts') IS NOT NULL
   DROP PROCEDURE Hardware.SpReleaseCosts;
 go
 
