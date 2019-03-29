@@ -131,13 +131,6 @@ CREATE NONCLUSTERED INDEX [ix_MarkupStandardWaranty_Country_Wg] ON [Hardware].[M
 WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
 
-CREATE NONCLUSTERED INDEX [IX_MaterialCostWarranty_Wg_ClusterRegion] ON [Hardware].[MaterialCostWarranty]
-(
-	[Wg] ASC, 
-    [ClusterRegion] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-
 CREATE NONCLUSTERED INDEX [ix_RoleCodeHourlyRates_Country_RoleCode] ON [Hardware].[RoleCodeHourlyRates]
 (
 	[Country] ASC,
@@ -1861,23 +1854,47 @@ RETURNS @tbl TABLE  (
 
         , Fee                          float
 
+        , MatW1                        float
+        , MatW2                        float
+        , MatW3                        float
+        , MatW4                        float
+        , MatW5                        float
+        , MaterialW                    float
+
+        , MatOow1                      float
+        , MatOow2                      float
+        , MatOow3                      float
+        , MatOow4                      float
+        , MatOow5                      float
+        , MatOow1p                     float
+
         , MatCost1                     float
         , MatCost2                     float
         , MatCost3                     float
         , MatCost4                     float
         , MatCost5                     float
         , MatCost1P                    float
-        , MaterialW                    float
-        , MaterialOow                  float
-        
+
+        , TaxW1                        float
+        , TaxW2                        float
+        , TaxW3                        float
+        , TaxW4                        float
+        , TaxW5                        float
+        , TaxAndDutiesW                float
+
+        , TaxOow1                      float
+        , TaxOow2                      float
+        , TaxOow3                      float
+        , TaxOow4                      float
+        , TaxOow5                      float
+        , TaxOow1P                     float
+
         , TaxAndDuties1                float
         , TaxAndDuties2                float
         , TaxAndDuties3                float
         , TaxAndDuties4                float
         , TaxAndDuties5                float
         , TaxAndDuties1P               float
-        , TaxAndDutiesW                float
-        , TaxAndDutiesOow              float
 
         , ServiceSupportPerYear        float
         , LocalServiceStandardWarranty float
@@ -2064,34 +2081,28 @@ BEGIN
         from CostCte2 m
     )
     , CostCte3 as (
-        select      m.*
+        select   m.*
 
-            , m.mat1 + m.mat2 + m.mat3 + m.mat4 + m.mat5 as MaterialW
-            , m.matO1 + m.matO2 + m.matO3 + m.matO4 + m.matO5 as MaterialOow
-
-            , m.tax1 + m.tax2 + m.tax3 + m.tax4 + m.tax5 as TaxAndDutiesW
-            , m.taxO1 + m.taxO2 + m.taxO3 + m.taxO4 + m.taxO5 as TaxAndDutiesOow
-
-            , case when m.StdDurationValue >= 1 
-                    then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR1, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR1, m.tax1, m.AFR1, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
-                    else 0 
-                end as LocalServiceStandardWarranty1
-            , case when m.StdDurationValue >= 2 
-                    then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR2, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR2, m.tax2, m.AFR2, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
-                    else 0 
-                end as LocalServiceStandardWarranty2
-            , case when m.StdDurationValue >= 3 
-                    then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR3, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR3, m.tax3, m.AFR3, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
-                    else 0 
-                end as LocalServiceStandardWarranty3
-            , case when m.StdDurationValue >= 4 
-                    then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR4, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR4, m.tax4, m.AFR4, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
-                    else 0 
-                end as LocalServiceStandardWarranty4
-            , case when m.StdDurationValue >= 5 
-                    then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR5, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR5, m.tax5, m.AFR5, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
-                    else 0 
-                end as LocalServiceStandardWarranty5
+               , case when m.StdDurationValue >= 1 
+                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR1, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR1, m.tax1, m.AFR1, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                       else 0 
+                   end as LocalServiceStandardWarranty1
+               , case when m.StdDurationValue >= 2 
+                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR2, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR2, m.tax2, m.AFR2, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                       else 0 
+                   end as LocalServiceStandardWarranty2
+               , case when m.StdDurationValue >= 3 
+                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR3, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR3, m.tax3, m.AFR3, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                       else 0 
+                   end as LocalServiceStandardWarranty3
+               , case when m.StdDurationValue >= 4 
+                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR4, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR4, m.tax4, m.AFR4, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                       else 0 
+                   end as LocalServiceStandardWarranty4
+               , case when m.StdDurationValue >= 5 
+                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR5, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR5, m.tax5, m.AFR5, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                       else 0 
+                   end as LocalServiceStandardWarranty5
 
         from CostCte2_2 m
     )
@@ -2132,23 +2143,47 @@ BEGIN
                
                , Fee                          
 
-               , MatCost1
-               , MatCost2
-               , MatCost3
-               , MatCost4
-               , MatCost5
-               , MatCost1P
-               , MaterialW                    
-               , MaterialOow                  
-
-               , TaxAndDuties1
-               , TaxAndDuties2
-               , TaxAndDuties3
-               , TaxAndDuties4
-               , TaxAndDuties5
-               , TaxAndDuties1P
-               , TaxAndDutiesW                
-               , TaxAndDutiesOow              
+               , MatW1                
+               , MatW2                
+               , MatW3                
+               , MatW4                
+               , MatW5                
+               , MaterialW            
+               
+               , MatOow1              
+               , MatOow2              
+               , MatOow3              
+               , MatOow4              
+               , MatOow5              
+               , MatOow1p             
+               
+               , MatCost1             
+               , MatCost2             
+               , MatCost3             
+               , MatCost4             
+               , MatCost5             
+               , MatCost1P            
+               
+               , TaxW1                
+               , TaxW2                
+               , TaxW3                
+               , TaxW4                
+               , TaxW5                
+               , TaxAndDutiesW        
+               
+               , TaxOow1              
+               , TaxOow2              
+               , TaxOow3              
+               , TaxOow4              
+               , TaxOow5              
+               , TaxOow1P             
+               
+               , TaxAndDuties1        
+               , TaxAndDuties2        
+               , TaxAndDuties3        
+               , TaxAndDuties4        
+               , TaxAndDuties5        
+               , TaxAndDuties1P       
 
                , ServiceSupportPerYear
                , LocalServiceStandardWarranty 
@@ -2196,23 +2231,47 @@ BEGIN
 
             , m.Fee
 
+            , m.mat1                
+            , m.mat2                
+            , m.mat3                
+            , m.mat4                
+            , m.mat5                
+            , m.mat1 + m.mat2 + m.mat3 + m.mat4 + m.mat5 as MaterialW
+            
+            , m.matO1              
+            , m.matO2              
+            , m.matO3              
+            , m.matO4              
+            , m.matO5              
+            , m.matO1P
+            
             , m.mat1  + m.matO1  as matCost1
             , m.mat2  + m.matO2  as matCost2
             , m.mat3  + m.matO3  as matCost3
             , m.mat4  + m.matO4  as matCost4
             , m.mat5  + m.matO5  as matCost5
             , m.matO1P           as matCost1P
-            , m.MaterialW
-            , m.MaterialOow
-
+            
+            , m.tax1                
+            , m.tax2                
+            , m.tax3                
+            , m.tax4                
+            , m.tax5                
+            , m.tax1 + m.tax2 + m.tax3 + m.tax4 + m.tax5 as TaxAndDutiesW
+            
+            , m.TaxAndDutiesOrZero * m.matO1              
+            , m.TaxAndDutiesOrZero * m.matO2              
+            , m.TaxAndDutiesOrZero * m.matO3              
+            , m.TaxAndDutiesOrZero * m.matO4              
+            , m.TaxAndDutiesOrZero * m.matO5              
+            , m.TaxAndDutiesOrZero * m.matO1P             
+            
             , m.TaxAndDutiesOrZero * (m.mat1  + m.matO1)  as TaxAndDuties1
             , m.TaxAndDutiesOrZero * (m.mat2  + m.matO2)  as TaxAndDuties2
             , m.TaxAndDutiesOrZero * (m.mat3  + m.matO3)  as TaxAndDuties3
             , m.TaxAndDutiesOrZero * (m.mat4  + m.matO4)  as TaxAndDuties4
             , m.TaxAndDutiesOrZero * (m.mat5  + m.matO5)  as TaxAndDuties5
             , m.TaxAndDutiesOrZero * m.matO1P as TaxAndDuties1P
-            , m.TaxAndDutiesW
-            , m.TaxAndDutiesOow
 
             , m.ServiceSupportPerYear
 
@@ -2306,8 +2365,15 @@ RETURN
             , std.MatCost4
             , std.MatCost5
             , std.MatCost1P
+
+            , std.MatOow1 
+            , std.MatOow2 
+            , std.MatOow3 
+            , std.MatOow4 
+            , std.MatOow5 
+            , std.MatOow1p
+
             , std.MaterialW
-            , std.MaterialOow
 
             , std.TaxAndDuties1
             , std.TaxAndDuties2
@@ -2315,8 +2381,15 @@ RETURN
             , std.TaxAndDuties4
             , std.TaxAndDuties5
             , std.TaxAndDuties1P
+
+            , std.TaxOow1 
+            , std.TaxOow2 
+            , std.TaxOow3 
+            , std.TaxOow4 
+            , std.TaxOow5 
+            , std.TaxOow1P
+            
             , std.TaxAndDutiesW
-            , std.TaxAndDutiesOow
 
             , r.Cost as Reinsurance
 
@@ -2536,13 +2609,15 @@ RETURN
 
          , m.AvailabilityFee * m.Year as AvailabilityFee
          , m.TaxAndDutiesW
-         , m.TaxAndDutiesOow
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.TaxOow1, m.TaxOow2, m.TaxOow3, m.TaxOow4, m.TaxOow5, m.TaxOow1P) as TaxAndDutiesOow
+
+
          , m.Reinsurance
          , m.ProActive
          , m.Year * m.ServiceSupportPerYear as ServiceSupportCost
 
          , m.MaterialW
-         , m.MaterialOow
+         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.MatOow1, m.MatOow2, m.MatOow3, m.MatOow4, m.MatOow5, m.MatOow1P) as MaterialOow
 
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.FieldServiceCost1, m.FieldServiceCost2, m.FieldServiceCost3, m.FieldServiceCost4, m.FieldServiceCost5, m.FieldServiceCost1P) as FieldServiceCost
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.Logistic1, m.Logistic2, m.Logistic3, m.Logistic4, m.Logistic5, m.Logistic1P) as Logistic
