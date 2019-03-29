@@ -79,7 +79,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.reports.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-list.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-new-vs-old.sql"));
-            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-output-vs-FREEZE.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-hw-not-approved.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-hw.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-calc-parameter-proactive.sql"));
@@ -424,12 +423,15 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var count = 5;
             var sogs = this.BuildDeactivatableTestItems<Sog>(count).ToArray();
             var plas = this.repositorySet.GetRepository<Pla>().GetAll().Take(count).ToArray();
-            var sfabs = this.BuildDeactivatableTestItems<SFab>(count).ToArray();
+            var naPla = this.repositorySet.GetRepository<Pla>().GetAll().First(pla => pla.Name == "UNASSIGNED");
 
-            for (var i = 0; i < count; i++)
-            {
-                sfabs[i].PlaId = plas[i].Id;
-            }
+            var sfabs = new[] { new SFab {
+                    Name ="NA",
+                    CreatedDateTime = DateTime.Now,
+                    ModifiedDateTime = DateTime.Now,
+                    PlaId = naPla.Id
+                }
+            };
 
             this.repositorySet.GetRepository<SFab>().Save(sfabs);
             this.repositorySet.Sync();
@@ -437,7 +439,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             for (var i = 0; i < count; i++)
             {
                 sogs[i].PlaId = plas[i].Id;
-                sogs[i].SFabId = sfabs[i].Id;
+                sogs[i].SFabId = sfabs[0].Id;
             }
 
             this.repositorySet.GetRepository<Sog>().Save(sogs);
@@ -448,7 +450,6 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             for (var i = 0; i < count; i++)
             {
                 swDigit[i].SogId = sogs[i].Id;
-                sfabs[i].PlaId = plas[i].Id;
             }
 
             this.repositorySet.GetRepository<SwDigit>().Save(swDigit);
@@ -457,6 +458,14 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var swLicences = this.BuildDeactivatableTestItems<SwLicense>();
 
             this.repositorySet.GetRepository<SwLicense>().Save(swLicences);
+            var sogsDb = this.repositorySet.GetRepository<Sog>().GetAll().Where(s => s.IsSoftware);
+            var wgDb = this.repositorySet.GetRepository<Wg>().GetAll().Where(wg => wg.IsSoftware);
+            foreach (var sog in sogsDb)
+                sog.SFabId = sfabs[0].Id;
+            foreach (var wg in wgDb)
+                wg.SFabId = sfabs[0].Id;
+            this.repositorySet.GetRepository<Sog>().Save(sogsDb);
+            this.repositorySet.GetRepository<Wg>().Save(wgDb);
             this.repositorySet.Sync();
         }
 
@@ -692,109 +701,145 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         {
                             Name = "TC4",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsEntry
+                            CentralContractGroupId = clientsEntry,
+                           CreatedDateTime = DateTime.Now,
+                           ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "TC5",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsHighend
+                            CentralContractGroupId = clientsHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "TC6",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsHighend
+                            CentralContractGroupId = clientsHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "TC8",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsEntry
+                            CentralContractGroupId = clientsEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "TC7",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsEntry
+                            CentralContractGroupId = clientsEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "U05",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsEntry
+                            CentralContractGroupId = clientsEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "U11",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsHighend
+                            CentralContractGroupId = clientsHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "U13",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsHighend
+                            CentralContractGroupId = clientsHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "WSJ",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsMidrange
+                            CentralContractGroupId = clientsMidrange,                         
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "WSN",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsHighend
+                            CentralContractGroupId = clientsHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "WSS",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsHighend
+                            CentralContractGroupId = clientsHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "WSW",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsMidrange
+                            CentralContractGroupId = clientsMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "U02",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsMidrange
+                            CentralContractGroupId = clientsMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "U06",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsEntry
+                            CentralContractGroupId = clientsEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "U07",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsMidrange
+                            CentralContractGroupId = clientsMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "U12",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsMidrange
+                            CentralContractGroupId = clientsMidrange,                           
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "U14",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsEntry
+                            CentralContractGroupId = clientsEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "WRC",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsHighend
+                            CentralContractGroupId = clientsHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                     }
                 },
@@ -808,61 +853,83 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         {
                             Name = "HMD",
                             WgType = WgType.Por,
-                            CentralContractGroupId = peripherals
+                            CentralContractGroupId = peripherals,
+                           
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "NB6",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsMidrange
+                            CentralContractGroupId = clientsMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "NB1",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsMidrange
+                            CentralContractGroupId = clientsMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "NB2",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsMidrange
+                            CentralContractGroupId = clientsMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "NB5",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsMidrange
+                            CentralContractGroupId = clientsMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "ND3",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsMidrange
+                            CentralContractGroupId = clientsMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "NC1",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsHighend
+                            CentralContractGroupId = clientsHighend,
+                           
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "NC3",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsHighend
+                            CentralContractGroupId = clientsHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "NC9",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsMidrange
+                            CentralContractGroupId = clientsMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "TR7",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsMidrange
+                            CentralContractGroupId = clientsMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                     }
                 },
@@ -876,67 +943,89 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         {
                             Name = "DPE",
                             WgType = WgType.Por,
-                            CentralContractGroupId = displays
+                            CentralContractGroupId = displays,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "DPH",
                             WgType = WgType.Por,
-                            CentralContractGroupId = displays
+                            CentralContractGroupId = displays,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "DPM",
                             WgType = WgType.Por,
-                            CentralContractGroupId = displays
+                            CentralContractGroupId = displays,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "DPX",
                             WgType = WgType.Por,
-                            CentralContractGroupId = displayODM
+                            CentralContractGroupId = displayODM,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "IOA",
                             WgType = WgType.Por,
-                            CentralContractGroupId = peripherals
+                            CentralContractGroupId = peripherals,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "IOB",
                             WgType = WgType.Por,
-                            CentralContractGroupId = peripherals
+                            CentralContractGroupId = peripherals,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "IOC",
                             WgType = WgType.Por,
-                            CentralContractGroupId = peripherals
+                            CentralContractGroupId = peripherals,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "MD1",
                             WgType = WgType.Por,
-                            CentralContractGroupId = peripherals
+                            CentralContractGroupId = peripherals,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PSN",
                             WgType = WgType.Por,
-                            CentralContractGroupId = securityDevices
+                            CentralContractGroupId = securityDevices,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "SB2",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsEntry
+                            CentralContractGroupId = clientsEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "SB3",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsEntry
+                            CentralContractGroupId = clientsEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                     }
                 },
@@ -954,421 +1043,562 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         {
                             Name = "CD1",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CD2",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CE1",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CE2",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CD4",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CD5",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CD6",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CD7",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CDD",
                             WgType = WgType.Por,
-                            CentralContractGroupId = na
+                            CentralContractGroupId = na,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CD8",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,                           
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CD9",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "C70",
                             WgType = WgType.Por,
-                            CentralContractGroupId = centricStor
+                            CentralContractGroupId = centricStor,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CS8",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "C74",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "C75",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CS7",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageMidrange
+                            CentralContractGroupId = storageMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CS1",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CS2",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CS3",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "C16",
                             WgType = WgType.Por,
-                            CentralContractGroupId = centricStor
+                            CentralContractGroupId = centricStor,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "C18",
                             WgType = WgType.Por,
-                            CentralContractGroupId = centricStor
+                            CentralContractGroupId = centricStor,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "C33",
                             WgType = WgType.Por,
-                            CentralContractGroupId = centricStor
+                            CentralContractGroupId = centricStor,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CS5",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CS4",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CS6",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageMidrange
+                            CentralContractGroupId = storageMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "CS9",
                             WgType = WgType.Por,
-                            CentralContractGroupId = na
+                            CentralContractGroupId = na,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "C96",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "C97",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "C98",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "C71",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageMidrange
+                            CentralContractGroupId = storageMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "C73",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageMidrange
+                            CentralContractGroupId = storageMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "C80",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageMidrange
+                            CentralContractGroupId = storageMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "C84",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageMidrange
+                            CentralContractGroupId = storageMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F58",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F40",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F48",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F53",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F54",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F57",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F41",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F49",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F42",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F43",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F44",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F45",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F50",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F51",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F52",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F36",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F46",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F47",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F56",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F28",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageMidrange
+                            CentralContractGroupId = storageMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F29",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F35",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "F55",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend
+                            CentralContractGroupId = storageHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S14",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S17",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S15",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S16",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S50",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                           
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S51",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S18",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S35",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S36",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageMidrange
+                            CentralContractGroupId = storageMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S37",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageMidrange
+                            CentralContractGroupId = storageMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S39",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S40",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S55",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "VSH",
                             WgType = WgType.Por,
-                            CentralContractGroupId = na
+                            CentralContractGroupId = na,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                     }
                 },
@@ -1384,343 +1614,459 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         {
                             Name = "MN1",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "MN4",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PQ8",
                             WgType = WgType.Por,
-                            CentralContractGroupId = enterpriseServerHighend
+                            CentralContractGroupId = enterpriseServerHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y01",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverHighend
+                            CentralContractGroupId = serverHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y15",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PX1",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PY1",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PY4",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y09",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y12",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "MN2",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PX2",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PX3",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PXS",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PY2",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PY3",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "SD2",
                             WgType = WgType.Por,
-                            CentralContractGroupId = na
+                            CentralContractGroupId = na,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y03",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y17",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y21",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y32",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y06",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y13",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y28",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y30",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y31",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y37",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y38",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y39",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y40",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                           
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PX6",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PX8",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverHighend
+                            CentralContractGroupId = serverHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PRC",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "RTE",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y07",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y16",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y18",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y25",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                           
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y26",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y27",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y33",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "Y36",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverMidrange
+                            CentralContractGroupId = serverMidrange,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S41",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S42",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S43",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S44",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S45",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S46",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S47",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S48",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S49",
                             WgType = WgType.Por,
-                            CentralContractGroupId = serverEntry
+                            CentralContractGroupId = serverEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S52",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S53",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "S54",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageEntry
+                            CentralContractGroupId = storageEntry,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PQ0",
                             WgType = WgType.Por,
-                            CentralContractGroupId = enterpriseServerHighend
+                            CentralContractGroupId = enterpriseServerHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PQ5",
                             WgType = WgType.Por,
-                            CentralContractGroupId = enterpriseServerHighend
+                            CentralContractGroupId = enterpriseServerHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                         new Wg
                         {
                             Name = "PQ9",
                             WgType = WgType.Por,
-                            CentralContractGroupId = enterpriseServerHighend
+                            CentralContractGroupId = enterpriseServerHighend,
+                            CreatedDateTime = DateTime.Now,
+                            ModifiedDateTime = DateTime.Now
                         },
                     }
                 },

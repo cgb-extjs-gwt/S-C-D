@@ -20,7 +20,7 @@ namespace Gdc.Scd.Import.SfabImport
     //        }
     //        catch (Exception ex)
     //        {
-    //            SFabService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
+    //            sFabService.Logger.Log(LogLevel.Fatal, ex, ImportConstants.UNEXPECTED_ERROR);
     //            Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstants.UNEXPECTED_ERROR, ex, null, null);
     //        }
     //    }
