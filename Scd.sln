@@ -58,9 +58,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Tests.BusinessLogic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.MigrationTool", "Gdc.Scd.MigrationTool\Gdc.Scd.MigrationTool.csproj", "{D9A9C773-1E12-43C2-A665-711277962C00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Archive", "Gdc.Scd.Archive\Gdc.Scd.Archive.csproj", "{D8DAE070-26E3-451A-8611-8A2756342D49}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Export.Archive", "Gdc.Scd.Export.Archive\Gdc.Scd.Export.Archive.csproj", "{D8DAE070-26E3-451A-8611-8A2756342D49}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Tests.Integration.Archive", "Gdc.Scd.Tests.Integration.Archive\Gdc.Scd.Tests.Integration.Archive.csproj", "{2ED69B18-C56A-4836-9F04-AC24461C6FEF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Tests.Integration.Export.Archive", "Gdc.Scd.Tests.Integration.Export.Archive\Gdc.Scd.Tests.Integration.Export.Archive.csproj", "{2ED69B18-C56A-4836-9F04-AC24461C6FEF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

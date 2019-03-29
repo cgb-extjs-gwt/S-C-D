@@ -3,7 +3,7 @@ using Gdc.Scd.OperationResult;
 using Ninject;
 using System;
 
-namespace Gdc.Scd.Archive
+namespace Gdc.Scd.Export.Archive
 {
     public class ArchiveJob
     {

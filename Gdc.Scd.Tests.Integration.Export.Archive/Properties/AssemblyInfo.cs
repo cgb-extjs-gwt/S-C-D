@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Gdc.Scd.Archive")]
+[assembly: AssemblyTitle("Gdc.Scd.Tests.Integration.Export.Archive")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Gdc.Scd.Archive")]
+[assembly: AssemblyProduct("Gdc.Scd.Tests.Integration.Export.Archive")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("d8dae070-26e3-451a-8611-8a2756342d49")]
+[assembly: Guid("2ed69b18-c56a-4836-9f04-ac24461c6fef")]
 
 // Version information for an assembly consists of the following four values:
 //

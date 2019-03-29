@@ -1,7 +1,7 @@
-﻿using Gdc.Scd.Archive;
+﻿using Gdc.Scd.Export.Archive;
 using System;
 
-namespace Gdc.Scd.Tests.Integration.Archive
+namespace Gdc.Scd.Tests.Integration.Export.Archive
 {
     class FakeArchiveService : ArchiveService
     {

@@ -1,6 +1,6 @@
 ﻿using Gdc.Scd.Core.Interfaces;
 
-namespace Gdc.Scd.Archive
+namespace Gdc.Scd.Export.Archive
 {
     public class ArchiveService
     {

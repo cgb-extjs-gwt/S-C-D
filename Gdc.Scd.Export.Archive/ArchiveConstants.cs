@@ -1,4 +1,4 @@
-﻿namespace Gdc.Scd.Archive
+﻿namespace Gdc.Scd.Export.Archive
 {
     class ArchiveConstants
     {

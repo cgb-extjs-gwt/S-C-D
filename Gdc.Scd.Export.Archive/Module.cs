@@ -4,7 +4,7 @@ using Gdc.Scd.Import.Core.Impl;
 using Ninject;
 using Ninject.Modules;
 
-namespace Gdc.Scd.Archive
+namespace Gdc.Scd.Export.Archive
 {
     public class Module : NinjectModule
     {
