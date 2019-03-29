@@ -20,7 +20,6 @@ namespace Gdc.Scd.Export.Archive
             return new StandardKernel(
                 new Scd.Core.Module(),
                 new Scd.DataAccessLayer.Module(),
-                new Scd.BusinessLogicLayer.Module(),
                 new Module());
         }
     }

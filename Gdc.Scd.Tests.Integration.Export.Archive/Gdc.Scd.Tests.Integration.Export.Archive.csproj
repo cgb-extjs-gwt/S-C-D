@@ -9,8 +9,8 @@
     <ProjectGuid>{2ED69B18-C56A-4836-9F04-AC24461C6FEF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Gdc.Scd.Tests.Integration.Archive</RootNamespace>
-    <AssemblyName>Gdc.Scd.Tests.Integration.Archive</AssemblyName>
+    <RootNamespace>Gdc.Scd.Tests.Integration.Export.Archive</RootNamespace>
+    <AssemblyName>Gdc.Scd.Tests.Integration.Export.Archive</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
