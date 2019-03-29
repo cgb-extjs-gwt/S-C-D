@@ -48,7 +48,7 @@ begin
 
     from SoftwareSolution.GetCosts(1, @digitList, @emptyAv, @emptyYear, -1, -1) sw
     join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
-    join InputAtoms.Sog sog on sog.id = sw.Sog
+    join InputAtoms.Sog sog on sog.id = sw.Sog and sog.IsSoftware = 1 and sog.IsSolution = 1
     join Dependencies.Availability av on av.id = sw.Availability
     join Dependencies.Year y on y.Id = sw.Year
 

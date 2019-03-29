@@ -1,6 +1,3 @@
-USE [SCD_2]
-GO
-
 DECLARE @defaultPla AS bigint
 SELECT @defaultPla=Id FROM [InputAtoms].[Pla] WHERE Name='UNASSIGNED'
 
