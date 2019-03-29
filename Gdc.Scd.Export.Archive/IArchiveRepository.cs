@@ -4,6 +4,10 @@ namespace Gdc.Scd.Export.Archive
 {
     public interface IArchiveRepository
     {
-        void Save(string path, Stream stream);
+        CostBlockDto[] GetCostBlocks();
+
+        Stream GetData(CostBlockDto costBlock);
+
+        void Save(CostBlockDto costBlock, string path, Stream stream);
     }
 }

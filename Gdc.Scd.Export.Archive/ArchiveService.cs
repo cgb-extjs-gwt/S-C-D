@@ -1,4 +1,6 @@
 ﻿using Gdc.Scd.Core.Interfaces;
+using System;
+using System.IO;
 
 namespace Gdc.Scd.Export.Archive
 {
@@ -17,8 +19,39 @@ namespace Gdc.Scd.Export.Archive
         public virtual void Run()
         {
             logger.Info(ArchiveConstants.START_PROCESS);
-            //
+
+            var blocks = repo.GetCostBlocks();
+            for (var i = 0; i < blocks.Length; i++)
+            {
+                ProcessBlock(blocks[i]);
+            }
+
             logger.Info(ArchiveConstants.END_PROCESS);
+        }
+
+        private void ProcessBlock(CostBlockDto b)
+        {
+            logger.Info(string.Concat(ArchiveConstants.PROCESS_BLOCK, " ", b.TableName));
+
+            Stream data = null;
+
+            try
+            {
+                data = repo.GetData(b);
+                repo.Save(b, null, data);
+            }
+            catch(Exception e)
+            {
+                logger.Fatal(e, "Process cost block " + b.TableName + " failed!");
+                throw;
+            }
+            finally
+            {
+                if(data != null)
+                {
+                    data.Dispose();
+                }
+            }
         }
     }
 }
