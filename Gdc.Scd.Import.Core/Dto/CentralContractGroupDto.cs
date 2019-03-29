@@ -9,13 +9,10 @@ namespace Gdc.Scd.Import.Core.Dto
 {
     public class CentralContractGroupDto
     {
-        [ParseInfo(0)]
-        public string WgName { get; set; }
+        public string ZZWTY_WTY_GRP { get; set; }
 
-        [ParseInfo(2)]
-        public string CentralContractGroupCode { get; set; }
+        public string ZZWTY_CONTR_GR { get; set; }
 
-        [ParseInfo(3)]
-        public string CentralContractGroupName { get; set; }
+        public string ZZWTY_CONTR_GR_D { get; set; }
     }
 }

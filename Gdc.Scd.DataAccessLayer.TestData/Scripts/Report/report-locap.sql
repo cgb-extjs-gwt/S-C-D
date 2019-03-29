@@ -47,6 +47,7 @@ BEGIN
 
     with cte as (
         select m.* 
+               , case when m.IsProlongation = 1 then 'Prolongation' else CAST(m.Year as varchar(1)) end as ServicePeriod
         from Hardware.GetCostsSlaSog(1, @cntTable, @wg_SOG_Table, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable) m
         where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = m.WgId))
     )
@@ -67,7 +68,7 @@ BEGIN
             , m.ServiceLevel
 
             , m.ReactionTime
-            , m.Year as ServicePeriod
+            , m.ServicePeriod
             , m.Wg
 
             , m.LocalServiceStandardWarranty * m.ExchangeRate as LocalServiceStandardWarranty
@@ -79,7 +80,7 @@ BEGIN
             , m.Availability                       + ', ' +
                   m.ReactionType                   + ', ' +
                   m.ReactionTime                   + ', ' +
-                  cast(m.Year as nvarchar(1))      + ', ' +
+                  m.ServicePeriod                  + ', ' +
                   m.ServiceLocation                + ', ' +
                   m.ProActiveSla as ServiceType
 

@@ -79,6 +79,9 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 var defaultCentralContractGroup = this.repositorySet.GetRepository<CentralContractGroup>()
                                                     .GetAll().FirstOrDefault(ccg => ccg.Code == "NA");
 
+                var defaultSFab = this.repositorySet.GetRepository<SFab>()
+                                      .GetAll().FirstOrDefault(sf => sf.Name == "NA");
+
                 foreach (var porWg in wgs)
                 {
                     var pla = plas.FirstOrDefault(p => p.Name.Equals(porWg.Warranty_PLA, StringComparison.OrdinalIgnoreCase));
@@ -102,6 +105,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         PlaId = pla.Id,
                         SogId = sog?.Id,
                         CentralContractGroupId = defaultCentralContractGroup?.Id,
+                        SFabId = defaultSFab?.Id,
                         FabGrp = porWg.FabGrp,
                         WgType = Scd.Core.Enums.WgType.Por,
                         ExistsInLogisticsDb = false,

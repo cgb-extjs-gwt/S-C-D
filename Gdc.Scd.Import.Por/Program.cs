@@ -29,6 +29,7 @@ namespace Gdc.Scd.Import.Por
     //            var hardwareServiceTypes = Config.HwServiceTypes;
     //            var allowedServiceTypes = Config.AllServiceTypes;
     //            var hddServiceTypes = Config.HddServiceType;
+    //            var solutionIdentifier = Config.SolutionIdentifier;
 
     //            PorService.Logger.Log(LogLevel.Info, "Reading configuration is completed.");
 
@@ -56,7 +57,7 @@ namespace Gdc.Scd.Import.Por
     //            int step = 1;
 
     //            //STEP 1: UPLOADING SOGs
-    //            PorService.UploadSogs(plas, step, porSogs, softwareServiceTypes);
+    //            PorService.UploadSogs(plas, step, porSogs, softwareServiceTypes, solutionIdentifier);
     //            step++;
 
     //            //STEP 2: UPLOAD WGs
@@ -71,7 +72,7 @@ namespace Gdc.Scd.Import.Por
     //                .ToList();
     //            PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, "Software Info", porSoftware.Count);
 
-                
+
     //            var swInfo = FormatDataHelper.FillSwInfo(porSoftware);
     //            var rebuildRelationships = PorService.UploadSoftwareDigits(porSoftware, sogs, swInfo, step);
     //            step++;
@@ -88,7 +89,7 @@ namespace Gdc.Scd.Import.Por
     //                PorService.RebuildSoftwareInfo(digits, porSoftware, step);
     //                step++;
     //            }
-                
+
 
     //            //STEP 6: UPLOAD FSP CODES AND TRANSLATIONS
     //            PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, "FSP codes Translation");
@@ -96,19 +97,19 @@ namespace Gdc.Scd.Import.Por
     //            //VStatus is ignored for STDWs 
     //            var fspcodes = PorService.FspCodesImporter.ImportData()
     //                                           .Where(fsp => (fsp.VStatus == "50" &&
-    //                                                         allowedServiceTypes.Contains(fsp.SCD_ServiceType)) || 
+    //                                                         allowedServiceTypes.Contains(fsp.SCD_ServiceType)) ||
     //                                                         (standardWarrantiesServiceTypes.Contains(fsp.SCD_ServiceType)
     //                                                         && fsp.Service_Code.Substring(11, 4).ToUpper().Equals("STDW")))
     //                                           .ToList();
 
     //            PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, "FSP codes Translation", fspcodes.Count);
 
-                
+
     //            var proActiveValues = PorService.ProactiveService.GetAll().ToList();
     //            var countryValues = PorService.CountryService.GetAll().ToList();
 
 
-    //            var countries = FormatDataHelper.FillCountryDictionary(PorService.CountryService.GetAll().ToList(), 
+    //            var countries = FormatDataHelper.FillCountryDictionary(PorService.CountryService.GetAll().ToList(),
     //                PorService.CountryGroupService.GetAll().ToList());
 
     //            var sla = FormatDataHelper.FillSlasDictionaries();
@@ -178,7 +179,7 @@ namespace Gdc.Scd.Import.Por
     //            var swProActive = PorService.SwProActiveImporter.ImportData().ToList();
     //            PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, "Software ProActive", swProActive.Count);
 
-                
+
     //            var proActiveDigitModel = new SwProActiveDto
     //            {
     //                Proactive = proactiveDictionary,
@@ -213,13 +214,13 @@ namespace Gdc.Scd.Import.Por
     //            PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.END_PROCESS);
     //        }
 
-    //        catch(Exception ex)
+    //        catch (Exception ex)
     //        {
     //            PorService.Logger.Log(LogLevel.Fatal, ex, ImportConstantMessages.UNEXPECTED_ERROR);
     //            Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstantMessages.UNEXPECTED_ERROR, ex, null, null);
     //        }
     //    }
-        
+
     //}
 
     public class ImportPorJob
@@ -238,6 +239,7 @@ namespace Gdc.Scd.Import.Por
                 var hardwareServiceTypes = Config.HwServiceTypes;
                 var allowedServiceTypes = Config.AllServiceTypes;
                 var hddServiceTypes = Config.HddServiceType;
+                var solutionIdentifier = Config.SolutionIdentifier;
 
                 PorService.Logger.Log(LogLevel.Info, "Reading configuration is completed.");
 
@@ -265,7 +267,7 @@ namespace Gdc.Scd.Import.Por
                 int step = 1;
 
                 //STEP 1: UPLOADING SOGs
-                PorService.UploadSogs(plas, step, porSogs, softwareServiceTypes);
+                PorService.UploadSogs(plas, step, porSogs, softwareServiceTypes, solutionIdentifier);
                 step++;
 
                 //STEP 2: UPLOAD WGs

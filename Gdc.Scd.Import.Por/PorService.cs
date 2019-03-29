@@ -101,10 +101,11 @@ namespace Gdc.Scd.Import.Por
 
 
         public static void UploadSogs(List<Pla> plas, int step, 
-            List<SCD2_ServiceOfferingGroups> sogs, string[] softwareServiceTypes)
+            List<SCD2_ServiceOfferingGroups> sogs, string[] softwareServiceTypes, string solutionIdentifier)
         {
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_START, step, nameof(Sog));
-            var success = SogService.UploadSogs(sogs, plas, DateTime.Now, softwareServiceTypes, UpdateQueryOptions);
+            var success = SogService.UploadSogs(sogs, plas, DateTime.Now, softwareServiceTypes, 
+                UpdateQueryOptions, solutionIdentifier);
             if (success)
                 success = SogService.DeactivateSogs(sogs, DateTime.Now);
             Logger.Log(LogLevel.Info, ImportConstantMessages.UPLOAD_ENDS, step);

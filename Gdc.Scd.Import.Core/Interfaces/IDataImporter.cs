@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gdc.Scd.Core.Enums
+namespace Gdc.Scd.Import.Core.Interfaces
 {
-    public enum ImportMode
+    public interface IDataImporter<T>
     {
-        Manual,
-        Automatic,
-        ManuallyAutomatically
+        IEnumerable<T> ImportData();
     }
 }

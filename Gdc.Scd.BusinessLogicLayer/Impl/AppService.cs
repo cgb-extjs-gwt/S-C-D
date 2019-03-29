@@ -73,7 +73,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 foreach (var costElement in costBlock.CostElements)
                 {
-                    var isManualInput = costElement.InputType == InputType.Manually || costElement.InputType == InputType.ManualyAutomaticly;
+                    var isManualInput = costElement.InputType == InputType.Manually || costElement.InputType == InputType.ManuallyAutomatically;
                     var isReadonly = costElement.InputType == InputType.AutomaticallyReadonly;
 
                     var costElementDto = new CostElementDto

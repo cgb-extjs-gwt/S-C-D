@@ -66,7 +66,9 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         public bool UploadSogs(IEnumerable<SCD2_ServiceOfferingGroups> sogs, 
             IEnumerable<Pla> plas,
-            DateTime modifiedDateTime, IEnumerable<string> softwareServiceTypes, List<UpdateQueryOption> updateOptions)
+            DateTime modifiedDateTime, 
+            IEnumerable<string> softwareServiceTypes, 
+            List<UpdateQueryOption> updateOptions, string solutionIdentifier)
         {
             var result = true;
             _logger.Log(LogLevel.Info, PorImportLoggingMessage.ADD_STEP_BEGIN, nameof(Sog));
@@ -74,6 +76,9 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
             try
             {
+                var defaultSFab = this.repositorySet.GetRepository<SFab>()
+                                      .GetAll().FirstOrDefault(sf => sf.Name == "NA");
+
                 foreach (var porSog in sogs)
                 {
                     var pla = plas.FirstOrDefault(p => p.Name.Equals(porSog.SOG_PLA, StringComparison.OrdinalIgnoreCase));
@@ -93,7 +98,10 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         PlaId = pla.Id,
                         FabGrp = porSog.FabGrp,
                         SCD_ServiceType = porSog.SCD_ServiceType,
-                        IsSoftware = ImportHelper.IsSoftware(porSog.SCD_ServiceType, softwareServiceTypes)
+                        SFabId = defaultSFab?.Id,
+                        IsSoftware = ImportHelper.IsSoftware(porSog.SCD_ServiceType, softwareServiceTypes),
+                        IsSolution = ImportHelper.IsSolution(porSog.Service_Types, solutionIdentifier),
+                        ServiceTypes = porSog.Service_Types
                     });
                 }
 
