@@ -14,7 +14,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         Task<DataInfo<HistoryItemDto>> GetHistory(CostElementContext historyContext, IDictionary<string, long[]> filter, QueryInfo queryInfo = null);
 
-        Task Save(CostElementContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter, EditorType editorType);
+        Task<CostBlockHistory> Save(CostElementContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter, EditorType editorType);
 
         void Save(CostBlockHistory history, ApprovalOption approvalOption);
 

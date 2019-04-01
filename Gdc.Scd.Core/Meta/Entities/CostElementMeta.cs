@@ -15,6 +15,27 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public override IEnumerable<InputLevelMeta> InputLevels => this.InputLevelMetaInfos.Select(inputLevelInfo => inputLevelInfo.InputLevel);
 
+        public IEnumerable<BaseMeta> Coordinates
+        {
+            get
+            {
+                foreach (var inputLevel in this.InputLevels)
+                {
+                    yield return inputLevel;
+                }
+
+                if (this.RegionInput != null && !this.InputLevelMetaInfos.Contains(this.RegionInput.Id))
+                {
+                    yield return this.RegionInput;
+                }
+
+                if (this.Dependency != null)
+                {
+                    yield return this.Dependency;
+                }
+            }
+        }
+
         public IEnumerable<InputLevelMeta> SortInputLevel()
         {
             return this.InputLevels.OrderBy(inputLevel => inputLevel.LevelNumber);
