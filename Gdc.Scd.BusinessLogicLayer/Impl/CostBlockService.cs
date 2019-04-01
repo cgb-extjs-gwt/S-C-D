@@ -123,29 +123,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (!checkResult.HasErrors)
             {
-                using (var transaction = this.repositorySet.GetTransaction())
-                {
-                    try
-                    {
-                        await this.costBlockRepository.Update(editInfos);
-
-                        foreach (var editItemContext in editItemContexts)
-                        {
-                            await this.costBlockHistoryService.Save(editItemContext.Context, editItemContext.EditItems, approvalOption, editItemContext.Filter, editorType);
-                        }
-
-                        transaction.Commit();
-                    }
-                    catch
-                    {
-                        transaction.Rollback();
-
-                        throw;
-                    }
-                }
+                await this.Update(editInfos, approvalOption, editorType, editItemContexts);
             }
 
             return checkResult;
+        }
+
+        public async Task<CostBlockHistory[]> UpdateWithoutQualityGate(EditInfo[] editInfos, ApprovalOption approvalOption, EditorType editorType)
+        {
+            var editItemContexts = this.BuildEditItemContexts(editInfos).ToArray();
+
+            return await this.Update(editInfos, approvalOption, editorType, editItemContexts);
         }
 
         public async Task UpdateByCoordinatesAsync(
@@ -464,6 +452,37 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     costBlockFilter,
                     referenceFilter,
                     notDeletedCondition);
+        }
+
+        private async Task<CostBlockHistory[]> Update(EditInfo[] editInfos, ApprovalOption approvalOption, EditorType editorType, IEnumerable<EditItemContext> editItemContexts)
+        {
+            var histories = new List<CostBlockHistory>();
+
+            using (var transaction = this.repositorySet.GetTransaction())
+            {
+                try
+                {
+                    await this.costBlockRepository.Update(editInfos);
+
+                    foreach (var editItemContext in editItemContexts)
+                    {
+                        var history = 
+                            await this.costBlockHistoryService.Save(editItemContext.Context, editItemContext.EditItems, approvalOption, editItemContext.Filter, editorType);
+
+                        histories.Add(history);
+                    }
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+
+                    throw;
+                }
+            }
+
+            return histories.ToArray();
         }
     }
 }
