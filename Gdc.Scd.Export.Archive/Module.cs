@@ -1,5 +1,7 @@
 ﻿using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Impl;
+using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Export.Archive.Impl;
 using Gdc.Scd.Import.Core.Impl;
 using Ninject;
@@ -11,17 +13,16 @@ namespace Gdc.Scd.Export.Archive
     {
         public override void Load()
         {
-            Bind<ILogger>().To<Logger>().InSingletonScope();
-            Bind<IArchiveRepository>().To<ArchiveRepository>().InSingletonScope();
-            Bind<ArchiveService>().ToSelf().InSingletonScope();
+            Bind<IRepositorySet, IRegisteredEntitiesProvider, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InTransientScope();
+            Bind<ILogger>().To<Logger>().InTransientScope();
+            Bind<IArchiveRepository>().To<ArchiveRepository>().InTransientScope();
+            //Bind<ArchiveService>().ToSelf().InTransientScope();
         }
 
         public static StandardKernel CreateKernel()
         {
             NinjectExt.IsConsoleApplication = true;
             return new StandardKernel(
-                new Scd.Core.Module(),
-                new Scd.DataAccessLayer.Module(),
                 new Module()
             );
         }

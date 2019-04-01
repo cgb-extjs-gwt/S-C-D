@@ -8,24 +8,24 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
     {
         private FakeCostBlockDto[] blocks = new FakeCostBlockDto[]
         {
-            new FakeCostBlockDto { TableName = "spGetAfr"                      , Procedure = "spGetAfr"                       },
-            new FakeCostBlockDto { TableName = "spGetAvailabilityFee"          , Procedure = "spGetAvailabilityFee"           },
-            new FakeCostBlockDto { TableName = "spGetFieldServiceCost"         , Procedure = "spGetFieldServiceCost"          },
-            new FakeCostBlockDto { TableName = "spGetHddRetention"             , Procedure = "spGetHddRetention"              },
-            new FakeCostBlockDto { TableName = "spGetInstallBase"              , Procedure = "spGetInstallBase"               },
-            new FakeCostBlockDto { TableName = "spGetLogisticsCosts"           , Procedure = "spGetLogisticsCosts"            },
-            new FakeCostBlockDto { TableName = "spGetMarkupOtherCosts"         , Procedure = "spGetMarkupOtherCosts"          },
-            new FakeCostBlockDto { TableName = "spGetMarkupStandardWaranty"    , Procedure = "spGetMarkupStandardWaranty"     },
-            new FakeCostBlockDto { TableName = "spGetMaterialCostWarranty"     , Procedure = "spGetMaterialCostWarranty"      },
-            new FakeCostBlockDto { TableName = "spGetMaterialCostWarrantyEmeia", Procedure = "spGetMaterialCostWarrantyEmeia" },
-            new FakeCostBlockDto { TableName = "spGetProActive"                , Procedure = "spGetProActive"                 },
-            new FakeCostBlockDto { TableName = "spGetProActiveSw"              , Procedure = "spGetProActiveSw"               },
-            new FakeCostBlockDto { TableName = "spGetProlongationMarkup"       , Procedure = "spGetProlongationMarkup"        },
-            new FakeCostBlockDto { TableName = "spGetReinsurance"              , Procedure = "spGetReinsurance"               },
-            new FakeCostBlockDto { TableName = "spGetRoleCodeHourlyRates"      , Procedure = "spGetRoleCodeHourlyRates"       },
-            new FakeCostBlockDto { TableName = "spGetServiceSupportCost"       , Procedure = "spGetServiceSupportCost"        },
-            new FakeCostBlockDto { TableName = "spGetSwSpMaintenance"          , Procedure = "spGetSwSpMaintenance"           },
-            new FakeCostBlockDto { TableName = "spGetTaxAndDuties"             , Procedure = "spGetTaxAndDuties"              }
+            new FakeCostBlockDto { TableName = "Afr"                      , Procedure = "spGetAfr"                       },
+            new FakeCostBlockDto { TableName = "AvailabilityFee"          , Procedure = "spGetAvailabilityFee"           },
+            new FakeCostBlockDto { TableName = "FieldServiceCost"         , Procedure = "spGetFieldServiceCost"          },
+            new FakeCostBlockDto { TableName = "HddRetention"             , Procedure = "spGetHddRetention"              },
+            new FakeCostBlockDto { TableName = "InstallBase"              , Procedure = "spGetInstallBase"               },
+            new FakeCostBlockDto { TableName = "LogisticsCosts"           , Procedure = "spGetLogisticsCosts"            },
+            new FakeCostBlockDto { TableName = "MarkupOtherCosts"         , Procedure = "spGetMarkupOtherCosts"          },
+            new FakeCostBlockDto { TableName = "MarkupStandardWaranty"    , Procedure = "spGetMarkupStandardWaranty"     },
+            new FakeCostBlockDto { TableName = "MaterialCostWarranty"     , Procedure = "spGetMaterialCostWarranty"      },
+            new FakeCostBlockDto { TableName = "MaterialCostWarrantyEmeia", Procedure = "spGetMaterialCostWarrantyEmeia" },
+            new FakeCostBlockDto { TableName = "ProActive"                , Procedure = "spGetProActive"                 },
+            new FakeCostBlockDto { TableName = "ProActiveSw"              , Procedure = "spGetProActiveSw"               },
+            new FakeCostBlockDto { TableName = "ProlongationMarkup"       , Procedure = "spGetProlongationMarkup"        },
+            new FakeCostBlockDto { TableName = "Reinsurance"              , Procedure = "spGetReinsurance"               },
+            new FakeCostBlockDto { TableName = "RoleCodeHourlyRates"      , Procedure = "spGetRoleCodeHourlyRates"       },
+            new FakeCostBlockDto { TableName = "ServiceSupportCost"       , Procedure = "spGetServiceSupportCost"        },
+            new FakeCostBlockDto { TableName = "SwSpMaintenance"          , Procedure = "spGetSwSpMaintenance"           },
+            new FakeCostBlockDto { TableName = "TaxAndDuties"             , Procedure = "spGetTaxAndDuties"              }
         };
 
         public CostBlockDto[] GetCostBlocks()
