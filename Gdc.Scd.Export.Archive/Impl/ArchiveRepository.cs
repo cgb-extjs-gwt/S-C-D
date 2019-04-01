@@ -22,7 +22,7 @@ namespace Gdc.Scd.Export.Archive.Impl
 
         public virtual Stream GetData(CostBlockDto costBlock)
         {
-            return new GetExcelArchive(_repo).ExecuteExcelAsync(costBlock.TableName, costBlock.Procedure, null);
+            return new GetExcelArchive(_repo).ExecuteExcel(costBlock.TableName, costBlock.Procedure, null);
         }
 
         public virtual void Save(CostBlockDto dto, string path, Stream stream)

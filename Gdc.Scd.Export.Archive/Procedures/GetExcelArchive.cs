@@ -13,7 +13,7 @@ namespace Gdc.Scd.Export.Archive.Procedures
             _repo = repo;
         }
 
-        public Stream ExecuteExcelAsync(string tbl, string proc, DbParameter[] parameters)
+        public Stream ExecuteExcel(string tbl, string proc, DbParameter[] parameters)
         {
             var writer = new ExcelWriter(tbl);
 
