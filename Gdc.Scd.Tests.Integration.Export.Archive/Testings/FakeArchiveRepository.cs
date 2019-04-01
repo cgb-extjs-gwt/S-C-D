@@ -53,7 +53,7 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
 
         public bool IsAllSaved()
         {
-            return blocks.All(x => x.loaded);
+            return blocks.All(x => x.saved);
         }
 
         private class FakeCostBlockDto: CostBlockDto
