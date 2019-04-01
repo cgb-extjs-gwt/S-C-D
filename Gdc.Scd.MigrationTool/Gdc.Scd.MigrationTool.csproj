@@ -130,16 +130,13 @@
     <Compile Include="Migrations\Migration_2019_03_21_12_22.cs" />
     <Compile Include="Migrations\Migration_2019_03_22_11_35.cs" />
     <Compile Include="Migrations\Migration_2019_03_22_16_40.cs" />
+    <Compile Include="Migrations\Migration_2019_03_28_12_14.cs" />
     <Compile Include="Migrations\Migration_2019_03_27_12_28.cs" />
     <Compile Include="Migrations\Migration_2019_03_22_17_48.cs" />
     <Compile Include="Migrations\Migration_2019_03_26_13_50.cs" />
     <Compile Include="Migrations\Migration_2019_03_27_08_58.cs" />
-    <Compile Include="Migrations\Migration_2019_03_28_12_14.cs" />
     <Compile Include="Migrations\Migration_2019_03_28_14_54.cs" />
-    <Compile Include="Migrations\Migration_2019_03_28_14_41.cs" />
-    <Compile Include="Migrations\Migration_2019_03_28_15_50.cs" />
-    <Compile Include="Migrations\Migration_2019_03_29_09_58.cs" />
-    <Compile Include="Migrations\Migration_2019_03_29_11_19.cs" />
+    <Compile Include="Migrations\Migration_2019_03_28_14_54.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -153,7 +150,9 @@
     <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\2019-03-28 ESM SCD2-0 List %28sb%29.xlsx" />
     <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\Import Maschlanka SDC V2.0.xlsx" />
     <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\test import.xlsx" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="MigrationScripts\2019-02-12_101.sql">
@@ -325,18 +324,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2019-03-27-08-58.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="MigrationScripts\2019-03-28-14-41.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="MigrationScripts\2019-03-28-13-52.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="MigrationScripts\2019-03-29-09-58.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="MigrationScripts\2019-03-29-11-19.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
