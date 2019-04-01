@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace Gdc.Scd.Export.Archive.Impl
 {
     /// <summary>
-    /// Decorator, writes logs into buffer only
+    /// Proxy, writes logs into buffer only
     /// Flushes all logs exactly when needed into logging context 'ILogger'
     /// </summary>
     class BufferedLogger : ILogger
