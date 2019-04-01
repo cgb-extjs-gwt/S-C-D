@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArchiveJobTest.cs" />
+    <Compile Include="ArchiveServiceTest.cs" />
     <Compile Include="FakeArchiveService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
