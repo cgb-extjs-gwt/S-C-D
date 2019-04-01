@@ -1,5 +1,7 @@
-﻿using Gdc.Scd.Export.Archive;
+﻿using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.Export.Archive;
 using Gdc.Scd.Tests.Util;
+using Ninject;
 using NUnit.Framework;
 
 namespace Gdc.Scd.Tests.Integration.Export.Archive
@@ -15,8 +17,20 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
             var srv = new ArchiveService(repo, logger);
             srv.Run();
 
+            Assert.True(repo.GetCostBlocks().Length > 0);
             Assert.True(repo.IsAllLoaded());
             Assert.True(repo.IsAllSaved());
+        }
+
+        [TestCase(TestName = "Full integration test")]
+        public void Full_Test()
+        {
+            var kernel = Module.CreateKernel();
+            var repo = new FileArchiveRepository(kernel.Get<IRepositorySet>());
+            var logger = new FakeLogger();
+
+            var srv = new ArchiveService(repo, logger);
+            srv.Run();
         }
     }
 }

@@ -73,6 +73,7 @@ namespace Gdc.Scd.Export.Archive
             {
                 data = repo.GetData(b);
                 repo.Save(b, null, data);
+                log.Info(string.Concat(ArchiveConstants.PROCESS_BLOCK, " ", b.TableName, ". OK"));
             }
             catch (Exception e)
             {
