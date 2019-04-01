@@ -66,7 +66,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
                 if (f.HasValue())
                 {
-                    worksheet.Cell(currentRow, i + 1).Value = f.GetValue();
+                    f.SetValue(worksheet.Cell(currentRow, i + 1));
                 }
             }
         }
@@ -96,7 +96,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
             for (var i = 0; i < fieldCount; i++)
             {
-                formatters[i] = new ReportColumnFormat(reader, fields[i]);
+                formatters[i] = new ReportColumnFormat(reader, fields[i], worksheet.Column(i + 1));
             }
 
             this.prepared = true;
@@ -108,18 +108,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
             private ReportColumnDto col;
 
+            private IXLColumn xlCol;
+
             private int ordinal;
 
             private int CUR_ORDINAL;
 
-            private Func<object> fmt;
+            private Action<IXLCell> fmt;
 
-            public ReportColumnFormat(DbDataReader reader, ReportColumnDto col)
+            public ReportColumnFormat(DbDataReader reader, ReportColumnDto col, IXLColumn xlCol)
             {
                 this.reader = reader;
                 this.col = col;
+                this.xlCol = xlCol;
                 this.ordinal = reader.GetOrdinal(col.Name);
-                //
+
                 if (col.IsNumber())
                 {
                     InitNumber();
@@ -146,87 +149,79 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
                 }
             }
 
-            public object GetValue()
-            {
-                return fmt();
-            }
-
             public bool HasValue()
             {
                 return !reader.IsDBNull(ordinal);
             }
 
-            private object GetText()
+            public void SetValue(IXLCell cell)
             {
-                return reader[ordinal];
+                fmt(cell);
             }
 
-            private object GetNumber()
+            private void SetText(IXLCell cell)
             {
-                return ReportFormatter.Format4Decimals(reader.GetDouble(ordinal));
+                cell.Value = reader[ordinal];
             }
 
-            private object GetNumberFmt()
+            private void SetNumber(IXLCell cell)
             {
-                return ReportFormatter.FormatDecimals(reader.GetDouble(ordinal), col.Format);
+                cell.SetValue(reader.GetDouble(ordinal));
             }
 
-            private object GetBoolean()
+            private void SetBoolean(IXLCell cell)
             {
-                return ReportFormatter.FormatYesNo(reader.GetBoolean(ordinal));
+                cell.SetValue(ReportFormatter.FormatYesNo(reader.GetBoolean(ordinal)));
             }
 
-            private object GetEuro()
+            private void SetMoney(IXLCell cell)
             {
-                return ReportFormatter.FormatEuro(reader.GetDouble(ordinal));
-            }
-
-            private object GetPercent()
-            {
-                return ReportFormatter.FormatPercent(reader.GetDouble(ordinal));
-            }
-
-            private object GetMoney()
-            {
-                return ReportFormatter.FormatMoney(reader.GetDouble(ordinal), reader.GetString(CUR_ORDINAL));
+                cell.Style.NumberFormat.Format = CurrencyFmt(reader.GetString(CUR_ORDINAL));
+                cell.SetValue(reader.GetDouble(ordinal));
             }
 
             private void InitBoolean()
             {
-                fmt = GetBoolean;
+                fmt = SetBoolean;
             }
 
             private void InitEuro()
             {
-                fmt = GetEuro;
+                SetColumnFormat(CurrencyFmt("EUR"));
+                fmt = SetNumber;
             }
 
             private void InitMoney()
             {
                 CUR_ORDINAL = reader.GetOrdinal("Currency");
-                fmt = GetMoney;
+                fmt = SetMoney;
             }
 
             private void InitNumber()
             {
-                if (string.IsNullOrEmpty(col.Format))
-                {
-                    fmt = GetNumber;
-                }
-                else
-                {
-                    fmt = GetNumberFmt;
-                }
+                SetColumnFormat(@"0.00??");
+                fmt = SetNumber;
             }
 
             private void InitPercent()
             {
-                fmt = GetPercent;
+                SetColumnFormat(@"0.000\%");
+                fmt = SetNumber;
             }
 
             private void InitTxt()
             {
-                fmt = GetText;
+                fmt = SetText;
+            }
+
+            private void SetColumnFormat(string format)
+            {
+                xlCol.Style.NumberFormat.Format = format;
+            }
+
+            private string CurrencyFmt(string cur)
+            {
+                return string.Concat("0.00\\ [$", cur, "]");
             }
         }
     }

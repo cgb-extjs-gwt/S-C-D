@@ -46,8 +46,13 @@ RETURN (
               , hr.OnsiteHourlyRates_Approved as OnsiteHourlyRate
 
 
+              , lc.StandardHandling_Approved         as StandardHandling
+              , lc.HighAvailabilityHandling_Approved as HighAvailabilityHandling 
+              , lc.StandardDelivery_Approved         as StandardDelivery
+              , lc.ExpressDelivery_Approved          as ExpressDelivery
+              , lc.TaxiCourierDelivery_Approved      as TaxiCourierDelivery
+              , lc.ReturnDeliveryFactory_Approved    as ReturnDeliveryFactory 
               , lc.StandardHandling_Approved + lc.HighAvailabilityHandling_Approved as LogisticHandlingPerYear
-
               , lc.StandardDelivery_Approved + lc.ExpressDelivery_Approved + lc.TaxiCourierDelivery_Approved + lc.ReturnDeliveryFactory_Approved as LogisticTransportPerYear
 
               , case when afEx.id is not null then af.Fee_Approved else 0 end as AvailabilityFee
@@ -222,6 +227,13 @@ RETURN (
               , m.FieldServicePerYear * m.AFR4 as FieldServiceCost4
               , m.FieldServicePerYear * m.AFR5 as FieldServiceCost5
             
+              , m.StandardHandling
+              , m.HighAvailabilityHandling
+              , m.StandardDelivery
+              , m.ExpressDelivery
+              , m.TaxiCourierDelivery
+              , m.ReturnDeliveryFactory 
+
               , Hardware.CalcByDur(
                       m.Duration
                     , m.IsProlongation 
@@ -297,6 +309,18 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'OnsiteHourlyRate', 'Onsite hourly rate', 1, 1);
 
 set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'StandardHandling', 'Standard handling', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'HighAvailabilityHandling', 'High availability handling', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'StandardDelivery', 'Standard delivery', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ExpressDelivery', 'Express delivery', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'TaxiCourierDelivery', 'Taxi courier delivery', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ReturnDeliveryFactory', 'Return delivery factory', 1, 1);
+set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'LogisticsHandling', 'Logistics handling cost', 1, 1);
 set @index = @index + 1;                                                                                          
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'LogisticTransportcost', 'Logistics transport cost', 1, 1);
@@ -369,7 +393,7 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'MaterialCostOow', 'Material cost OOW', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'Duration', 'Warranty duration', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Duration', 'Warranty duration', 1, 1);
 
 ------------------------------------
 set @index = 0;

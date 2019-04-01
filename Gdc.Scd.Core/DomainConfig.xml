@@ -59,7 +59,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="AFR"  Caption="AFR (%)" InputOption="ManualyAutomaticly" RegionInput="_none_" Dependency="Year">
+        <Element Name="AFR"  Caption="AFR (%)" InputOption="ManuallyAutomatically" RegionInput="_none_" Dependency="Year">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -399,7 +399,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="InstalledBaseCountry" Caption="Installed base country" InputOption="ManualyAutomaticly" RegionInput="Country"> 
+        <Element Name="InstalledBaseCountry" Caption="Installed base country" InputOption="ManuallyAutomatically" RegionInput="Country"> 
             <InputLevels>
               <InputLevel>Wg</InputLevel>
             </InputLevels>      
@@ -515,7 +515,7 @@
             </Roles>
           </TableView>
         </Element>
-        <Element Name="MaterialCostIw" Caption="Material cost iW EMEIA" InputOption="ManualyAutomaticly" RegionInput="_none_">
+        <Element Name="MaterialCostIw" Caption="Material cost iW EMEIA" InputOption="ManuallyAutomatically" RegionInput="_none_">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -530,7 +530,7 @@
       </Elements>
     </Block>
 
-    <Block Name="MaterialCostWarranty" Caption="Material cost Warranty">
+    <Block Name="MaterialCostWarranty" Caption="Material cost">
       <Applications>
         <Application>Hardware</Application>
       </Applications>
@@ -546,7 +546,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="MaterialCostIw" Caption="Material cost iW" InputOption="Manualy" RegionInput="NonEmeiaCountry">
+        <Element Name="MaterialCostIw" Caption="Material cost iW" InputOption="Manually" RegionInput="NonEmeiaCountry">
           <InputLevels>
             <InputLevel>Wg</InputLevel>
           </InputLevels>
@@ -565,7 +565,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManualyAutomaticly">
+        <Element Name="OnsiteHourlyRates" Caption="Onsite Hourly Rates" InputOption="ManuallyAutomatically">
           <TypeOption Type="CountryCurrencyCost"/>
           <InputLevels>                    
             <InputLevel>RoleCode</InputLevel>

@@ -27,7 +27,7 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
             Bind<IDownloader>().To<FileDownloader>().InSingletonScope();
             Bind(typeof(IParser<>)).To(typeof(Parser<>)).InSingletonScope();
             Bind(typeof(IUploader<>)).To(typeof(InstallBaseUploader)).InSingletonScope();
-            Bind<IImportManager>().To<ImportManager<InstallBaseDto>>().InSingletonScope();
+            Bind<IImportManager>().To<FileImportManager<InstallBaseDto>>().InSingletonScope();
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();
         }
     }

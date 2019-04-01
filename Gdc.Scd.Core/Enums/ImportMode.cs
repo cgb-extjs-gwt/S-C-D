@@ -10,6 +10,6 @@ namespace Gdc.Scd.Core.Enums
     {
         Manual,
         Automatic,
-        ManualyAutomaticly
+        ManuallyAutomatically
     }
 }

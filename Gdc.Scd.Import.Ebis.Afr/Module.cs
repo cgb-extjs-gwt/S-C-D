@@ -27,7 +27,7 @@ namespace Gdc.Scd.Import.Ebis.Afr
             Bind<IDownloader>().To<FileDownloader>().InSingletonScope();
             Bind(typeof(IParser<>)).To(typeof(Parser<>)).InSingletonScope();
             Bind(typeof(IUploader<>)).To(typeof(EbisAfrUploader)).InSingletonScope();
-            Bind<IImportManager>().To<ImportManager<AfrDto>>().InSingletonScope();
+            Bind<IImportManager>().To<FileImportManager<AfrDto>>().InSingletonScope();
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();
         }
     }

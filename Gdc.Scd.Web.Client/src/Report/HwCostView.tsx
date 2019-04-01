@@ -165,7 +165,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         checkAccess={!this.props.approved} />
 
                     <HwReleasePanel
-                        onApprove={this.releaseCosts}
+                        onRelease={this.releaseSelected}
+                        onReleaseAll={this.releaseAll}
                         checkAccess={!this.props.approved}
                         hidden={this.state.hideReleaseButton}
                         disabled={!this.state.disableSaveButton} />
@@ -313,7 +314,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         this.onDownload = this.onDownload.bind(this);
         this.cancelChanges = this.cancelChanges.bind(this);
         this.saveRecords = this.saveRecords.bind(this);
-        this.releaseCosts = this.releaseCosts.bind(this);
+        this.releaseSelected = this.releaseSelected.bind(this);
+        this.releaseAll = this.releaseAll.bind(this);
 
         this.store.on('beforeload', this.onBeforeLoad, this);
         this.store.on('load', this.onLoad, this);
@@ -342,16 +344,13 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         }
     }
 
-    private releaseCosts() {
+    private releaseSelected() {
         let recs = this.getSelectedRows();
         let cnt = this.state.selectedCountry;
 
         if (cnt) {
             if (recs && recs.length > 0) {
                 recs = this.store.getData().items.filter(x => recs.includes(x.data.Id)).map(x => x.data);
-            }
-            else {
-                recs = this.store.getData().items.map(x => x.data);
             }
         }
 
@@ -365,6 +364,17 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         });
 
 
+    }
+
+    private releaseAll() {       
+        ExtMsgHelper.confirm('Release', `Do you want to approve for release all filtered records?`, () => {
+            let me = this;
+            let p = post('calc', 'releasehwcostall', { ...this.filter.getModel() }).then(() => {
+                me.reset();
+                me.reload();
+            });
+            handleRequest(p);
+        });
     }
 
     private onSearch(filter: HwCostFilterModel) {

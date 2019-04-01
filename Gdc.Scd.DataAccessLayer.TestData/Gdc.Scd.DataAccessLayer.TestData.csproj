@@ -74,7 +74,6 @@
     <EmbeddedResource Include="Scripts\country.sql" />
     <EmbeddedResource Include="Scripts\dropEverything.sql" />
     <EmbeddedResource Include="Scripts\Report\report-calc-output-new-vs-old.sql" />
-    <EmbeddedResource Include="Scripts\Report\report-calc-output-vs-FREEZE.sql" />
     <EmbeddedResource Include="Scripts\Report\report-hdd-retention-calc-result.sql" />
     <EmbeddedResource Include="Scripts\Report\report-hw-calc-result.sql" />
     <EmbeddedResource Include="Scripts\Report\report-calc-parameter-hw-not-approved.sql" />

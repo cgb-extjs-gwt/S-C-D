@@ -61,6 +61,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return new GetSwProActiveCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
         }
 
+        public async Task ReleaseHardwareCost(HwFilterDto filter)
+        {
+            if (filter == null || filter.Country == null || filter.Country.Length == 0)
+            {
+                throw new ArgumentException("No country specified");
+            }
+
+            await new ReleaseHwCost(repositorySet).ExecuteAsync(filter);
+        }
+
         public void SaveHardwareCost(User changeUser, IEnumerable<HwCostManualDto> records, bool release = false)
         {
             var recordsId = records.Select(x => x.Id);
