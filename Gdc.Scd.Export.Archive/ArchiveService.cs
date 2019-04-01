@@ -22,12 +22,23 @@ namespace Gdc.Scd.Export.Archive
         {
             logger.Info(ArchiveConstants.START_PROCESS);
 
-            RunParallel(repo.GetCostBlocks()).Wait();
+            var blocks = repo.GetCostBlocks();
+
+            //RunParallel(blocks);
+            RunSequential(blocks);
 
             logger.Info(ArchiveConstants.END_PROCESS);
         }
 
-        private Task RunParallel(CostBlockDto[] blocks)
+        public virtual void RunSequential(CostBlockDto[] blocks)
+        {
+            for (var i = 0; i < blocks.Length; i++)
+            {
+                ProcessBlock(logger, blocks[i]);
+            }
+        }
+
+        private void RunParallel(CostBlockDto[] blocks)
         {
             var len = blocks.Length;
             var tasks = new Subtask[len];
@@ -41,13 +52,15 @@ namespace Gdc.Scd.Export.Archive
                 tasks[i].Start();
             }
 
-            return Task.WhenAll(tasks).ContinueWith(x =>
+            var whenall=  Task.WhenAll(tasks).ContinueWith(x =>
             {
                 for (var i = 0; i < tasks.Length; i++)
                 {
                     tasks[i].WriteLog();
                 }
             });
+
+            whenall.Wait();
         }
 
         private void ProcessBlock(ILogger log, CostBlockDto b)

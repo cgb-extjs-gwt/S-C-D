@@ -6,13 +6,17 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
 {
     public class ArchiveServiceTest
     {
-        [TestCase(TestName = "Run full export integration test")]
-        public void Full_Export_Test()
+        [TestCase(TestName = "Archive service should load every table and save every excel to cloud")]
+        public void Should_Load_All_Tables_And_Save_To_Cload_Test()
         {
             var logger = new FakeLogger();
+            var repo = new FakeArchiveRepository();
 
-            var srv = new ArchiveService(null, logger);
+            var srv = new ArchiveService(repo, logger);
             srv.Run();
+
+            Assert.True(repo.IsAllLoaded());
+            Assert.True(repo.IsAllSaved());
         }
     }
 }

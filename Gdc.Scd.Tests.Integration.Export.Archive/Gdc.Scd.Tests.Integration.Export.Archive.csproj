@@ -42,8 +42,9 @@
   <ItemGroup>
     <Compile Include="ArchiveJobTest.cs" />
     <Compile Include="ArchiveServiceTest.cs" />
-    <Compile Include="FakeArchiveService.cs" />
+    <Compile Include="Testings\FakeArchiveService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Testings\FakeArchiveRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
