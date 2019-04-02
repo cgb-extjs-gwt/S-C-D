@@ -5,6 +5,30 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Scripts\archive_report\afr.sql" />
+    <None Remove="Scripts\archive_report\archive-fn.sql" />
+    <None Remove="Scripts\archive_report\availabilityFee.sql" />
+    <None Remove="Scripts\archive_report\FieldServiceCalc.sql" />
+    <None Remove="Scripts\archive_report\fieldServiceCost.sql" />
+    <None Remove="Scripts\archive_report\FieldServiceTimeCalc.sql" />
+    <None Remove="Scripts\archive_report\hddRetention.sql" />
+    <None Remove="Scripts\archive_report\HwCosts.sql" />
+    <None Remove="Scripts\archive_report\installBase.sql" />
+    <None Remove="Scripts\archive_report\logisticsCosts.sql" />
+    <None Remove="Scripts\archive_report\MarkupOtherCosts.sql" />
+    <None Remove="Scripts\archive_report\MarkupStandardWaranty.sql" />
+    <None Remove="Scripts\archive_report\MaterialCostWarranty.sql" />
+    <None Remove="Scripts\archive_report\MaterialCostWarrantyEmeia.sql" />
+    <None Remove="Scripts\archive_report\ProActive.sql" />
+    <None Remove="Scripts\archive_report\ProActiveSw.sql" />
+    <None Remove="Scripts\archive_report\ProlongationMarkup.sql" />
+    <None Remove="Scripts\archive_report\Reinsurance.sql" />
+    <None Remove="Scripts\archive_report\RoleCodeHourlyRates.sql" />
+    <None Remove="Scripts\archive_report\ServiceSupportCost.sql" />
+    <None Remove="Scripts\archive_report\SwCosts.sql" />
+    <None Remove="Scripts\archive_report\SwProActiveCosts.sql" />
+    <None Remove="Scripts\archive_report\SwSpMaintenance.sql" />
+    <None Remove="Scripts\archive_report\TaxAndDuties.sql" />
     <None Remove="Scripts\availabilityFee.sql" />
     <None Remove="Scripts\CD_CS\cd-cs-hdd-retention.sql" />
     <None Remove="Scripts\CD_CS\cd-cs-proactive.sql" />
@@ -47,6 +71,30 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Scripts\archive_report\afr.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\archive-fn.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\availabilityFee.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\FieldServiceCalc.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\fieldServiceCost.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\FieldServiceTimeCalc.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\hddRetention.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\HwCosts.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\installBase.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\logisticsCosts.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\MarkupOtherCosts.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\MarkupStandardWaranty.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\MaterialCostWarranty.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\MaterialCostWarrantyEmeia.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\ProActive.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\ProActiveSw.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\ProlongationMarkup.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\Reinsurance.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\RoleCodeHourlyRates.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\ServiceSupportCost.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\SwCosts.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\SwProActiveCosts.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\SwSpMaintenance.sql" />
+    <EmbeddedResource Include="Scripts\archive_report\TaxAndDuties.sql" />
     <EmbeddedResource Include="Scripts\Report\report-SW-param-overview.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
