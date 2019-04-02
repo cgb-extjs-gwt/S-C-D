@@ -1,10 +1,11 @@
 ﻿using ClosedXML.Excel;
+using System;
 using System.Data.Common;
 using System.IO;
 
 namespace Gdc.Scd.Export.Archive
 {
-    public class ExcelWriter
+    public class ExcelWriter : IDisposable
     {
         private const int DEFAULT_COL_WIDTH = 25;
 
@@ -31,9 +32,10 @@ namespace Gdc.Scd.Export.Archive
 
         public Stream GetData()
         {
-            var stream = new MemoryStream(3072); //3KB
+            var stream = new MemoryStream(1028 * 128); //128KB
             workbook.SaveAs(stream);
             stream.Seek(0, SeekOrigin.Begin);
+            Dispose();
             return stream;
         }
 
@@ -72,6 +74,14 @@ namespace Gdc.Scd.Export.Archive
         {
             WriteHeader(reader);
             this.prepared = true;
+        }
+
+        public void Dispose()
+        {
+            if (this.workbook != null)
+            {
+                this.workbook.Dispose();
+            }
         }
     }
 }

@@ -73,7 +73,7 @@ namespace Gdc.Scd.Export.Archive.Impl
             }
         }
 
-        public void Save(CountryDto cnt, string path, Stream stream)
+        public virtual void Save(CountryDto cnt, string path, Stream stream)
         {
             throw new System.NotImplementedException();
         }

@@ -22,12 +22,23 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
             return arr;
         }
 
-        public override void Save(CostBlockDto dto, string path, Stream stream)
+        public override void Save(CostBlockDto block, string path, Stream stream)
         {
-            string fn = dto.TableName + ".xlsx";
+            Save(block.TableName, stream);
+        }
+
+        public override void Save(CountryDto cnt, string path, Stream stream)
+        {
+            var fn = string.Concat(cnt.Name, "_", "HW_costs");
+            Save(fn, stream);
+        }
+
+        public void Save(string fn, Stream stream)
+        {
+            fn = fn + ".xlsx";
             string bin = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            path = Path.Combine(bin, "result");
+            var path = Path.Combine(bin, "result");
 
             if (!Directory.Exists(path))
             {

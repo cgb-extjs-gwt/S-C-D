@@ -16,11 +16,11 @@ namespace Gdc.Scd.Export.Archive.Procedures
 
         public Stream ExecuteExcel(string tbl, string proc, params DbParameter[] parameters)
         {
-            var writer = new ExcelWriter(tbl);
-
-            _repo.ExecuteProc(proc, writer.WriteBody, parameters);
-
-            return writer.GetData();
+            using (var writer = new ExcelWriter(tbl))
+            {
+                _repo.ExecuteProc(proc, writer.WriteBody, parameters);
+                return writer.GetData();
+            }
         }
 
         public Stream ExecuteCountryHwExcel(CountryDto cnt)
