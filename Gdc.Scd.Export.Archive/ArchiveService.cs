@@ -1,9 +1,6 @@
 ﻿using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.Export.Archive.Impl;
-using Ninject;
 using System;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Export.Archive
 {
@@ -24,100 +21,38 @@ namespace Gdc.Scd.Export.Archive
             logger.Info(ArchiveConstants.START_PROCESS);
 
             var blocks = repo.GetCostBlocks();
-
-            RunParallel(blocks);
-            //RunSequential(blocks);
+            for (var i = 0; i < blocks.Length; i++)
+            {
+                ProcessBlock(blocks[i]);
+            }
 
             logger.Info(ArchiveConstants.END_PROCESS);
         }
 
-        public virtual void RunSequential(CostBlockDto[] blocks)
+        private void ProcessBlock(CostBlockDto b)
         {
-            for (var i = 0; i < blocks.Length; i++)
-            {
-                ProcessBlock(logger, blocks[i]);
-            }
-        }
+            logger.Info(string.Concat(ArchiveConstants.PROCESS_BLOCK, " ", b.TableName));
 
-        private void RunParallel(CostBlockDto[] blocks)
-        {
-            var len = blocks.Length;
-            var tasks = new Subtask[len];
-
-            for (var i = 0; i < len; i++)
-            {
-                var block = blocks[i];
-                var buflog = new BufferedLogger(logger);
-                //
-                tasks[i] = new Subtask(buflog, block, () => ProcessBlock(buflog, block));
-                tasks[i].Start();
-            }
-
-            //var whenall=  Task.WhenAll(tasks).ContinueWith(x =>
-            //{
-            //    for (var i = 0; i < tasks.Length; i++)
-            //    {
-            //        tasks[i].WriteLog();
-            //    }
-            //});
-
-            //whenall.Wait();
-
-            Task.WhenAll(tasks).Wait();
-        }
-
-        private void ProcessBlock(ILogger log, CostBlockDto b)
-        {
-            log.Info(string.Concat(ArchiveConstants.PROCESS_BLOCK, " ", b.TableName));
-
-            StandardKernel kernel = null;
             Stream data = null;
 
             try
             {
-                kernel = Module.CreateKernel();
-                var archive = kernel.Get<IArchiveRepository>();
-                data = archive.GetData(b);
-                archive.Save(b, null, data);
-                log.Info(string.Concat(ArchiveConstants.PROCESS_BLOCK, " ", b.TableName, ". OK"));
+                data = repo.GetData(b);
+                repo.Save(b, null, data);
+                logger.Info(string.Concat(ArchiveConstants.PROCESS_BLOCK, " ", b.TableName, ". OK"));
             }
             catch (Exception e)
             {
-                log.Fatal(e, "Process cost block " + b.TableName + " failed!");
+                logger.Fatal(e, "Process cost block " + b.TableName + " failed!");
                 throw;
             }
             finally
             {
-                if(kernel != null)
-                {
-                    kernel.Dispose();
-                }
-
                 if (data != null)
                 {
                     data.Dispose();
                 }
             }
         }
-
-        class Subtask : Task
-        {
-            private CostBlockDto costBlock;
-
-            private BufferedLogger log;
-
-            public Subtask(BufferedLogger log, CostBlockDto block, Action action) : base(action)
-            {
-                this.costBlock = block;
-                this.log = log;
-            }
-
-            public void WriteLog()
-            {
-                this.log.Flush();
-            }
-        }
-
-
     }
 }

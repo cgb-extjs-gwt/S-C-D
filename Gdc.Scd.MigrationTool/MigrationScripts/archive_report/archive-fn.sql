@@ -14,6 +14,7 @@ returns @tbl table (
     , Region nvarchar(255)
     , ClusterRegion nvarchar(255)
     , Currency nvarchar(255)
+    , ExchangeRate float
 )
 begin
 
@@ -24,12 +25,14 @@ begin
         , r.Name as Region
         , cr.Name as ClusterRegion
         , cur.Name
+        , er.Value
 
     from InputAtoms.Country c 
     left join InputAtoms.CountryGroup cg on cg.id = c.CountryGroupId
     left join InputAtoms.Region r on r.id = c.RegionId
     left join InputAtoms.ClusterRegion cr on cr.Id = r.ClusterRegionId
     left join [References].Currency cur on cur.Id = c.CurrencyId
+    left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 
     return;
 

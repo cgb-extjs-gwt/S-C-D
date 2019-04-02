@@ -13,18 +13,15 @@ namespace Gdc.Scd.Export.Archive
     {
         public override void Load()
         {
-            Bind<IRepositorySet, IRegisteredEntitiesProvider, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InTransientScope();
-            Bind<ILogger>().To<Logger>().InTransientScope();
+            Bind<IRepositorySet>().To<EntityFrameworkRepositorySet>().InSingletonScope();
+            Bind<ILogger>().To<Logger>().InSingletonScope();
             Bind<IArchiveRepository>().To<ArchiveRepository>().InTransientScope();
-            //Bind<ArchiveService>().ToSelf().InTransientScope();
         }
 
         public static StandardKernel CreateKernel()
         {
             NinjectExt.IsConsoleApplication = true;
-            return new StandardKernel(
-                new Module()
-            );
+            return new StandardKernel(new Module());
         }
     }
 }

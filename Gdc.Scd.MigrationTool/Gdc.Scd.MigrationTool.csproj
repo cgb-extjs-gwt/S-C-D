@@ -315,7 +315,9 @@
     <Content Include="MigrationScripts\archive_report\afr.sql" />
     <Content Include="MigrationScripts\archive_report\archive-fn.sql" />
     <Content Include="MigrationScripts\archive_report\availabilityFee.sql" />
+    <Content Include="MigrationScripts\archive_report\FieldServiceCalc.sql" />
     <Content Include="MigrationScripts\archive_report\fieldServiceCost.sql" />
+    <Content Include="MigrationScripts\archive_report\FieldServiceTimeCalc.sql" />
     <Content Include="MigrationScripts\archive_report\hddRetention.sql" />
     <Content Include="MigrationScripts\archive_report\installBase.sql" />
     <Content Include="MigrationScripts\archive_report\logisticsCosts.sql" />

@@ -44,7 +44,7 @@ namespace Gdc.Scd.Export.Archive
             var kernel = Module.CreateKernel();
             //
             logger = kernel.Get<ILogger>();
-            srv = kernel.Get<ArchiveService>();
+            srv = new ArchiveService(kernel.Get<IArchiveRepository>(), logger);
         }
 
         /// <summary>

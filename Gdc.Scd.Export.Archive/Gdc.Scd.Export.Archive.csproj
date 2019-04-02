@@ -39,7 +39,6 @@
     <Compile Include="Helpers\ExcelWriter.cs" />
     <Compile Include="IArchiveRepository.cs" />
     <Compile Include="Impl\ArchiveRepository.cs" />
-    <Compile Include="Impl\BufferedLogger.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Procedures\GetExcelArchive.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

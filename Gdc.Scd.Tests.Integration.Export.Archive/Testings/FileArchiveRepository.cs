@@ -12,7 +12,10 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
         {
             new CostBlockDto { TableName = "Afr"                      , Procedure = "Archive.spGetAfr"                       },
             new CostBlockDto { TableName = "AvailabilityFee"          , Procedure = "Archive.spGetAvailabilityFee"           },
-            //new CostBlockDto { TableName = "FieldServiceCost"         , Procedure = "Archive.spGetFieldServiceCost"          },
+
+            new CostBlockDto { TableName = "FieldServiceCost"         , Procedure = "Archive.spGetFieldServiceCalc"          },
+            new CostBlockDto { TableName = "FieldServiceTime"         , Procedure = "Archive.spGetFieldServiceTimeCalc"      },
+
             new CostBlockDto { TableName = "HddRetention"             , Procedure = "Archive.spGetHddRetention"              },
             new CostBlockDto { TableName = "InstallBase"              , Procedure = "Archive.spGetInstallBase"               },
             new CostBlockDto { TableName = "LogisticsCosts"           , Procedure = "Archive.spGetLogisticsCosts"            },
