@@ -168,6 +168,27 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return Database.ExecuteSqlCommandAsync(sql, parameters);
         }
 
+        public int ExecuteProc(string procName, Action<DbDataReader> mapFunc, params DbParameter[] parameters)
+        {
+            return WithCommand(cmd =>
+            {
+                cmd.AsStoredProcedure(procName, parameters);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            mapFunc(reader);
+                        }
+                    }
+                }
+
+                return 0; //stub for correct task
+            });
+        }
+
         public Task ExecuteProcAsync(string procName, Action<DbDataReader> mapFunc, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>
