@@ -16,7 +16,7 @@ using Gdc.Scd.MigrationTool.Interfaces;
 
 namespace Gdc.Scd.MigrationTool.Migrations
 {
-    public class Migration_2019_03_28_14_54 : //IMigrationAction
+    public class Migration_2019_03_28_14_54 //: IMigrationAction
     {
         private readonly ICostBlockService costBlockService;
 
