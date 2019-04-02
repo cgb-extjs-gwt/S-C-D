@@ -16,6 +16,8 @@ namespace Gdc.Scd.Core.Meta.Entities
             }
         }
 
+        public IEnumerable<BaseMeta> Coordinates => this.CostElements.SelectMany(costElement => costElement.Coordinates).Distinct();
+
         public InputLevelMeta GetMaxInputLevel(IEnumerable<string> inputLevelIds)
         {
             var inputLevelMetas = this.InputLevels.ToDictionary(inputLevel => inputLevel.Id);
