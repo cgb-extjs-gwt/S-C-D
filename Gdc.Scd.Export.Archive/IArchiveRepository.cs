@@ -12,8 +12,8 @@ namespace Gdc.Scd.Export.Archive
 
         Stream GetData(CountryDto cnt);
 
-        void Save(CostBlockDto costBlock, string path, Stream stream);
+        void Save(CostBlockDto costBlock, Stream stream);
 
-        void Save(CountryDto cnt, string path, Stream stream);
+        void Save(CountryDto cnt, Stream stream);
     }
 }

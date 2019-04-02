@@ -58,24 +58,48 @@ namespace Gdc.Scd.Export.Archive.Impl
             return new GetExcelArchive(_repo).ExecuteCountryHwExcel(cnt);
         }
 
-        public virtual void Save(CostBlockDto dto, string path, Stream stream)
+        public void Save(CostBlockDto dto, Stream stream)
         {
-            var url = "";
-            var cred = new NetworkCredential();
+            Save(GenFn(dto), stream);
+        }
 
-            //path = string.Format("{0}/{1} {2}", config.FileFolderUrl, country, Config.CalculatiolToolFileName)
+        public void Save(CountryDto cnt, Stream stream)
+        {
+            Save(GenFn(cnt), stream);
+        }
+
+        public virtual void Save(string fn, Stream stream)
+        {
+            fn = fn + ".xlsx";
+
+            var url = Config.SpServiceHost;
+            var cred = new NetworkCredential()
+            {
+                Domain = Config.SpServiceDomain,
+                UserName = Config.SpServiceAccount,
+                Password = Config.SpServicePassword
+            };
+
+            var path = string.Format("{0}/{1}", Config.SpServiceFolder, fn);
 
             using (var ctx = new ClientContext(url))
             {
                 ctx.Credentials = cred;
+                ctx.ExecuteQuery();
 
                 Microsoft.SharePoint.Client.File.SaveBinaryDirect(ctx, path, stream, true);
+
             }
         }
 
-        public virtual void Save(CountryDto cnt, string path, Stream stream)
+        public string GenFn(CostBlockDto block)
         {
-            throw new System.NotImplementedException();
+            return block.TableName;
+        }
+
+        public string GenFn(CountryDto cnt)
+        {
+            return string.Concat(cnt.Name, "_", "HW_costs");
         }
     }
 }

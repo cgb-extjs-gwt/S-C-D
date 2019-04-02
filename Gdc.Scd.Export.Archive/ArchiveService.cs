@@ -46,7 +46,7 @@ namespace Gdc.Scd.Export.Archive
             try
             {
                 data = repo.GetData(b);
-                repo.Save(b, null, data);
+                repo.Save(b, data);
                 logger.Info(string.Concat(ArchiveConstants.PROCESS_BLOCK, " ", b.TableName, ". OK"));
             }
             catch (Exception e)
@@ -72,7 +72,7 @@ namespace Gdc.Scd.Export.Archive
             try
             {
                 data = repo.GetData(cnt);
-                repo.Save(cnt, null, data);
+                repo.Save(cnt, data);
                 logger.Info(string.Concat(ArchiveConstants.PROCESS_COUNTRY_HW, " ", cnt.Name, ". OK"));
             }
             catch (Exception e)

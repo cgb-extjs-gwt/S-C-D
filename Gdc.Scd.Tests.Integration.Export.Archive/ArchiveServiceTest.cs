@@ -48,11 +48,31 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
             Assert.NotNull(System.Array.Find(countries, x => string.CompareOrdinal(x.Name, "Belgium") == 0));
         }
 
-        [TestCase(TestName = "Full integration test")]
+        [TestCase(TestName = "Save to sharepoint integration test")]
+        public void Save_To_SharePoint_Test()
+        {
+            var kernel = Module.CreateKernel();
+            var repo = new ArchiveRepository(kernel.Get<IRepositorySet>());
+
+            repo.Save(new CountryDto { ISO = "none", Name = "none_____" }, new System.IO.MemoryStream(64));
+        }
+
+        [TestCase(TestName = "Full integration local file test")]
         public void Full_Test()
         {
             var kernel = Module.CreateKernel();
             var repo = new FileArchiveRepository(kernel.Get<IRepositorySet>());
+            var logger = kernel.Get<ILogger>();
+
+            var srv = new ArchiveService(repo, logger);
+            srv.Run();
+        }
+
+        [TestCase(TestName = "Full integration test")]
+        public void Full_Test2()
+        {
+            var kernel = Module.CreateKernel();
+            var repo = new ArchiveRepository(kernel.Get<IRepositorySet>());
             var logger = kernel.Get<ILogger>();
 
             var srv = new ArchiveService(repo, logger);

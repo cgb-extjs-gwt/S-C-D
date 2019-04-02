@@ -22,18 +22,7 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
             return arr;
         }
 
-        public override void Save(CostBlockDto block, string path, Stream stream)
-        {
-            Save(block.TableName, stream);
-        }
-
-        public override void Save(CountryDto cnt, string path, Stream stream)
-        {
-            var fn = string.Concat(cnt.Name, "_", "HW_costs");
-            Save(fn, stream);
-        }
-
-        public void Save(string fn, Stream stream)
+        public override void Save(string fn, Stream stream)
         {
             fn = fn + ".xlsx";
             string bin = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);

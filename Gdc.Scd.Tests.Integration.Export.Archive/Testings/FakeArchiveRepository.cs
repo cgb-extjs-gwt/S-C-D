@@ -64,13 +64,13 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
             return new MemoryStream(255);
         }
 
-        public void Save(CostBlockDto costBlock, string path, Stream stream)
+        public void Save(CostBlockDto costBlock, Stream stream)
         {
             var b = costBlock as FakeCostBlockDto;
             b.saved = true;
         }
 
-        public void Save(CountryDto cnt, string path, Stream stream)
+        public void Save(CountryDto cnt, Stream stream)
         {
             var b = cnt as FakeCountryDto;
             b.saved = true;
