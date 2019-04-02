@@ -20,7 +20,6 @@ namespace Gdc.Scd.Export.Archive
 
         public static StandardKernel CreateKernel()
         {
-            NinjectExt.IsConsoleApplication = true;
             return new StandardKernel(new Module());
         }
     }

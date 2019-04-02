@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.DataAccessLayer.Interfaces;
+﻿using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Export.Archive;
 using Gdc.Scd.Tests.Util;
 using Ninject;
@@ -27,7 +28,7 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
         {
             var kernel = Module.CreateKernel();
             var repo = new FileArchiveRepository(kernel.Get<IRepositorySet>());
-            var logger = new FakeLogger();
+            var logger = kernel.Get<ILogger>();
 
             var srv = new ArchiveService(repo, logger);
             srv.Run();
