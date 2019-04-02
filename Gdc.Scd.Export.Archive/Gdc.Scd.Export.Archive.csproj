@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D8DAE070-26E3-451A-8611-8A2756342D49}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Gdc.Scd.Export.Archive</RootNamespace>
     <AssemblyName>Gdc.Scd.Export.Archive</AssemblyName>
@@ -44,7 +44,6 @@
     <Compile Include="Impl\ArchiveRepository.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Procedures\GetExcelArchive.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
