@@ -16,7 +16,7 @@ using Gdc.Scd.MigrationTool.Interfaces;
 
 namespace Gdc.Scd.MigrationTool.Migrations
 {
-    public class Migration_2019_03_28_14_54 //: IMigrationAction
+    public class Migration_2019_03_28_14_54 : //IMigrationAction
     {
         private readonly ICostBlockService costBlockService;
 
@@ -28,6 +28,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         private readonly Dictionary<string, string> nameMapping = new Dictionary<string, string>
         {
+            ["Service Offering Group".ToUpper()] = "SOG".ToUpper(),
             ["Digit (SW licence)".ToUpper()] = "SW Digit".ToUpper(),
             ["Discount to Dealer Price".ToUpper()] = "Discount to Dealer price in %".ToUpper(),
             ["9x5 - 1 years".ToUpper()] = "1 Year 9x5".ToUpper(),
@@ -69,7 +70,8 @@ namespace Gdc.Scd.MigrationTool.Migrations
             {
                 Identity = new Identity
                 {
-                    Name = @"G02\MCHSBach",
+                    Name = @"G02\MCHSBach", 
+                    //Name = "g02\\testUser1",
                     IsAuthenticated = true
                 }
             };
@@ -83,7 +85,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
                 $"{folderName}.2019-03-28 CS200c SCD2-0 List (sb).xlsx",
                 $"{folderName}.2019-03-28 ESM SCD2-0 List (sb).xlsx",
                 $"{folderName}.Import Maschlanka SDC V2.0.xlsx",
-                //$"{folderName}.test import.xlsx"
+                $"{folderName}.2019-03-29 VIOM SCD 2-0 List (sb).xlsx"
             };
 
             var costBlocks = this.meta.CostBlocks.Where(costBlock => costBlock.Schema == MetaConstants.SoftwareSolutionSchema).ToArray();
