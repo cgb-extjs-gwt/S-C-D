@@ -136,7 +136,6 @@
     <Compile Include="Migrations\Migration_2019_03_26_13_50.cs" />
     <Compile Include="Migrations\Migration_2019_03_27_08_58.cs" />
     <Compile Include="Migrations\Migration_2019_03_28_14_54.cs" />
-    <Compile Include="Migrations\Migration_2019_03_28_14_54.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -149,7 +148,7 @@
     <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\2019-03-28 CS200c SCD2-0 List %28sb%29.xlsx" />
     <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\2019-03-28 ESM SCD2-0 List %28sb%29.xlsx" />
     <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\Import Maschlanka SDC V2.0.xlsx" />
-    <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\test import.xlsx" />
+    <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\2019-03-29 VIOM SCD 2-0 List %28sb%29.xlsx" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
