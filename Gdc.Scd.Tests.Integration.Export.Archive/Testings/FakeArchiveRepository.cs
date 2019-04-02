@@ -28,14 +28,38 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
             new FakeCostBlockDto { TableName = "TaxAndDuties"             , Procedure = "spGetTaxAndDuties"              }
         };
 
+        private FakeCountryDto[] countries = new FakeCountryDto[]
+        {
+            new FakeCountryDto { Id = 117, Name = "Argentina",  ISO = "ARG" },
+            new FakeCountryDto { Id = 99,  Name = "Australia",  ISO = "AUS" },
+            new FakeCountryDto { Id = 112, Name = "Austria",    ISO = "AUT" },
+            new FakeCountryDto { Id = 121, Name = "Belgium",    ISO = "BEL" },
+            new FakeCountryDto { Id = 118, Name = "Brazil",     ISO = "BRA" },
+            new FakeCountryDto { Id = 102, Name = "Chile",      ISO = "CHL" },
+            new FakeCountryDto { Id = 1,   Name = "China",      ISO = "CHN" },
+            new FakeCountryDto { Id = 110, Name = "Colombia",   ISO = "COL" }
+        };
+
         public CostBlockDto[] GetCostBlocks()
         {
             return blocks;
         }
 
+        public CountryDto[] GetCountries()
+        {
+            return countries;
+        }
+
         public Stream GetData(CostBlockDto costBlock)
         {
             var b = costBlock as FakeCostBlockDto;
+            b.loaded = true;
+            return new MemoryStream(255);
+        }
+
+        public Stream GetData(CountryDto cnt)
+        {
+            var b = cnt as FakeCountryDto;
             b.loaded = true;
             return new MemoryStream(255);
         }
@@ -46,17 +70,39 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
             b.saved = true;
         }
 
-        public bool IsAllLoaded()
+        public void Save(CountryDto cnt, string path, Stream stream)
+        {
+            var b = cnt as FakeCountryDto;
+            b.saved = true;
+        }
+
+        public bool IsBlocksLoaded()
         {
             return blocks.All(x => x.loaded);
         }
 
-        public bool IsAllSaved()
+        public bool IsBlocksSaved()
         {
             return blocks.All(x => x.saved);
         }
 
-        private class FakeCostBlockDto: CostBlockDto
+        public bool IsCountryCostLoaded()
+        {
+            return countries.All(x => x.loaded);
+        }
+
+        public bool IsCountryCostSaved()
+        {
+            return countries.All(x => x.saved);
+        }
+
+        private class FakeCostBlockDto : CostBlockDto
+        {
+            public bool loaded;
+            public bool saved;
+        }
+
+        private class FakeCountryDto : CountryDto
         {
             public bool loaded;
             public bool saved;

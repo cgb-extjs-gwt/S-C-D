@@ -53,6 +53,11 @@ namespace Gdc.Scd.Export.Archive.Impl
             return new GetExcelArchive(_repo).ExecuteExcel(costBlock.TableName, costBlock.Procedure, null);
         }
 
+        public Stream GetData(CountryDto cnt)
+        {
+            return new GetExcelArchive(_repo).ExecuteCountryHwExcel(cnt);
+        }
+
         public virtual void Save(CostBlockDto dto, string path, Stream stream)
         {
             var url = "";
@@ -66,6 +71,11 @@ namespace Gdc.Scd.Export.Archive.Impl
 
                 Microsoft.SharePoint.Client.File.SaveBinaryDirect(ctx, path, stream, true);
             }
+        }
+
+        public void Save(CountryDto cnt, string path, Stream stream)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

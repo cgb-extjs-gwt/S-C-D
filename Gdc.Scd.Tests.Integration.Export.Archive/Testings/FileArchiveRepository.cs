@@ -10,6 +10,18 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
     {
         public FileArchiveRepository(IRepositorySet repo) : base(repo) { }
 
+        public override CountryDto[] GetCountries()
+        {
+            var cnt = base.GetCountries();
+            var arr = new CountryDto[3];
+
+            arr[0] = cnt[0];
+            arr[1] = cnt[1];
+            arr[2] = cnt[2];
+
+            return arr;
+        }
+
         public override void Save(CostBlockDto dto, string path, Stream stream)
         {
             string fn = dto.TableName + ".xlsx";
