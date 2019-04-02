@@ -23,6 +23,16 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
             Assert.True(repo.IsAllSaved());
         }
 
+        [TestCase(TestName = "Check countries count test")]
+        public void GetCountries_Test()
+        {
+            var kernel = Module.CreateKernel();
+            var repo = new FileArchiveRepository(kernel.Get<IRepositorySet>());
+            var countries = repo.GetCountries();
+            Assert.Less(0, countries.Length);
+            Assert.NotNull(System.Array.Find(countries, x => string.CompareOrdinal(x.Name, "Belgium") == 0));
+        }
+
         [TestCase(TestName = "Full integration test")]
         public void Full_Test()
         {

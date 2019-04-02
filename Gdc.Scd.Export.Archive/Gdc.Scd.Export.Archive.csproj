@@ -39,10 +39,12 @@
     <Compile Include="ArchiveService.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Dto\CostBlockDto.cs" />
+    <Compile Include="Dto\CountryDto.cs" />
     <Compile Include="Helpers\ExcelWriter.cs" />
     <Compile Include="IArchiveRepository.cs" />
     <Compile Include="Impl\ArchiveRepository.cs" />
     <Compile Include="Module.cs" />
+    <Compile Include="Procedures\GetCountries.cs" />
     <Compile Include="Procedures\GetExcelArchive.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
