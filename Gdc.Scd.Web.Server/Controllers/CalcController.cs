@@ -129,7 +129,7 @@ namespace Gdc.Scd.Web.Api.Controllers
                filter.Country.Length > 0 &&
                HasAccess(false, filter.Country))
             {
-                return calcSrv.ReleaseHardwareCost(filter);                             
+                return calcSrv.ReleaseHardwareCost(this.CurrentUser(), filter);                             
             }
             else
             {

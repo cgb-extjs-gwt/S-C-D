@@ -2956,6 +2956,7 @@ IF OBJECT_ID('Hardware.SpReleaseCosts') IS NOT NULL
 go
 
 CREATE PROCEDURE [Hardware].[SpReleaseCosts]
+	@usr		  int, 
     @cnt          dbo.ListID readonly,
     @wg           dbo.ListID readonly,
     @av           dbo.ListID readonly,
@@ -2970,7 +2971,8 @@ BEGIN
     SET NOCOUNT ON;
     
 	UPDATE mc
-	SET [ServiceTP_Released] = COALESCE(costs.ServiceTPManual, costs.ServiceTP)
+	SET [ServiceTP_Released] = COALESCE(costs.ServiceTPManual, costs.ServiceTP),
+		[ChangeUserId] = @usr
 	FROM [Hardware].[ManualCost] mc
 	JOIN Hardware.GetCosts(1, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, 0, 0) costs on costs.Id = mc.PortfolioId
 
