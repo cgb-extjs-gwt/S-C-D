@@ -145,11 +145,11 @@ export class ReportListView extends React.Component<any, any> {
                     "leaf": true
                 },
                 {
-                    "text": "13. Standard Warranty overview",
+                    "text": "<a href='#' data-href='/report/standard-warranty-overview'>13. Standard Warranty overview</a>",
                     "leaf": true
                 },
                 {
-                    "text": "14. AFR overview",
+                    "text": "<a href='#' data-href='/report/afr'>14. AFR overview</a>",
                     "leaf": true
                 }
             ]

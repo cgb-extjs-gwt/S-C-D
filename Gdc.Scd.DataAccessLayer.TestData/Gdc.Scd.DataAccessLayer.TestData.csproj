@@ -63,6 +63,7 @@
     <None Remove="Scripts\Report\report-locap-support-pack.sql" />
     <None Remove="Scripts\Report\report-logistic-cost-country.sql" />
     <None Remove="Scripts\Report\report-Logistic-cost-input-country.sql" />
+    <None Remove="Scripts\Report\report-po-standard-warranty.sql" />
     <None Remove="Scripts\Report\report-solutionpack-proactive-costing.sql" />
     <None Remove="Scripts\Report\report-SW-param-overview.sql" />
     <None Remove="Scripts\Report\report-SW-Service-Price-List-detail.sql" />
@@ -95,6 +96,7 @@
     <EmbeddedResource Include="Scripts\archive_report\SwProActiveCosts.sql" />
     <EmbeddedResource Include="Scripts\archive_report\SwSpMaintenance.sql" />
     <EmbeddedResource Include="Scripts\archive_report\TaxAndDuties.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-po-standard-warranty.sql" />
     <EmbeddedResource Include="Scripts\Report\report-SW-param-overview.sql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -138,7 +140,7 @@
     <EmbeddedResource Include="Scripts\Report\report-logistic-cost-calc-country.sql" />
     <EmbeddedResource Include="Scripts\Report\report-logistic-cost-country.sql" />
     <EmbeddedResource Include="Scripts\Report\report-Logistic-cost-input-country.sql" />
-    <EmbeddedResource Include="Scripts\Report\report-po-standard-warranty.sql" />
+    <EmbeddedResource Include="Scripts\Report\report-standard-warranty-overview.sql" />
     <EmbeddedResource Include="Scripts\Report\report-proactive.sql" />
     <EmbeddedResource Include="Scripts\Report\report-solution-pack-price-list-detail.sql" />
     <EmbeddedResource Include="Scripts\Report\report-solution-pack-price-list.sql" />
