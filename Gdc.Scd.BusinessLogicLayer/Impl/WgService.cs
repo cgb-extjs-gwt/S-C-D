@@ -6,11 +6,11 @@ using System.Linq;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
-    public class WgService : DeactivateDecoratorService<Wg>, IWgService
+    public class WgService : DomainService<Wg>, IWgService
     {
         private readonly IWgRepository origin;
 
-        public WgService(DomainService<Wg> domain, IWgRepository wgRepo) : base(domain)
+        public WgService(IRepositorySet repositorySet, IWgRepository wgRepo) : base(repositorySet)
         {
             this.origin = wgRepo;
         }

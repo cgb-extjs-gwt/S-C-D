@@ -1,17 +1,18 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.DataAccessLayer.Interfaces;
 using System.Linq;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
-    public class SwDigitService : DeactivateDecoratorService<SwDigit>, ISwDigitService
+    public class SwDigitService : DomainService<SwDigit>, ISwDigitService
     {
-        private readonly DeactivateDecoratorService<Sog> sogSrv;
+        private readonly DomainService<Sog> sogSrv;
 
         public SwDigitService(
-                DomainService<SwDigit> domain,
-                DeactivateDecoratorService<Sog> sogSrv
-            ) : base(domain)
+                IRepositorySet repositorySet,
+                DomainService<Sog> sogSrv
+            ) : base(repositorySet)
         {
             this.sogSrv = sogSrv;
         }
@@ -19,7 +20,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         public IQueryable<Sog> GetDigitSog()
         {
             var digitSogs = base.GetAll().Select(x => x.SogId);
-            return sogSrv.GetAll().Where(x => digitSogs.Any(y => y == x.Id));
+            return sogSrv.GetAll().Where(x => digitSogs.Any(y => y == x.Id) && x.DeactivatedDateTime == null);
         }
     }
 }

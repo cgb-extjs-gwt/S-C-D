@@ -59,12 +59,27 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public void Save(T item)
         {
+            Timestamp(item);
             origin.Save(item);
         }
 
         public void Save(IEnumerable<T> items)
         {
+            foreach (var item in items)
+            {
+                Timestamp(item);
+            }
             origin.Save(items);
+        }
+
+        private static void Timestamp(T item)
+        {
+            var now = DateTime.Now;
+            if (item.Id == 0)
+            {
+                item.CreatedDateTime = now;
+            }
+            item.ModifiedDateTime = now;
         }
     }
 }

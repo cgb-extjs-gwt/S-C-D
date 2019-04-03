@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.Core.Entities;
+﻿using System;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
@@ -8,6 +9,7 @@ using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl.MetaBuilders;
+using Ninject.Activation;
 using Ninject.Modules;
 
 namespace Gdc.Scd.DataAccessLayer
@@ -16,6 +18,7 @@ namespace Gdc.Scd.DataAccessLayer
     {
         public override void Load()
         {
+            Bind(typeof(IRepository<>)).To(typeof(DeactivateDecoratorRepository<>)).When(this.IsDeactivatable).InScdRequestScope();
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InScdRequestScope();
             Bind<IRepositorySet, IRegisteredEntitiesProvider, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InScdRequestScope();
             Bind<ICostEditorRepository>().To<CostEditorRepository>().InScdRequestScope();
@@ -57,6 +60,13 @@ namespace Gdc.Scd.DataAccessLayer
             Kernel.RegisterEntityAsUniqueName<Role>();
             Kernel.RegisterEntityAsUniqueName<Permission>();
             Kernel.RegisterEntity<RolePermission>();
+        }
+
+        private bool IsDeactivatable(IRequest arg)
+        {
+            var type = arg.Service.GetGenericArguments();
+            var deactivatable = typeof(IDeactivatable);
+            return Array.Exists(type, x => deactivatable.IsAssignableFrom(x));
         }
     }
 }
