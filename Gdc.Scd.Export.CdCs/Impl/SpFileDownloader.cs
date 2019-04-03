@@ -1,20 +1,13 @@
-﻿using Gdc.Scd.Import.Core.Dto;
-using Gdc.Scd.Import.Core.Interfaces;
-using Microsoft.SharePoint.Client;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using Gdc.Scd.Export.CdCs.Dto;
+using Microsoft.SharePoint.Client;
 
-namespace Gdc.Scd.Export.CdCs
+namespace Gdc.Scd.Export.CdCs.Impl
 {
     public class SpFileDownloader
     {
-        NetworkCredential _networkCredential = null;
+        readonly NetworkCredential _networkCredential;
 
         public SpFileDownloader(NetworkCredential networkCredential)
         {
@@ -23,12 +16,12 @@ namespace Gdc.Scd.Export.CdCs
         
         public Stream DownloadData(SpFileDto fileDto)
         {
-            using (ClientContext ctx = new ClientContext(fileDto.WebUrl))
+            using (var ctx = new ClientContext(fileDto.WebUrl))
             {
                 ctx.Credentials = _networkCredential;
 
                 var item = CheckFile(ctx, fileDto);
-                FileInformation fileInformation = Microsoft.SharePoint.Client.File.OpenBinaryDirect(ctx,
+                var fileInformation = Microsoft.SharePoint.Client.File.OpenBinaryDirect(ctx,
                     (string)item["FileRef"]);
 
                 return fileInformation.Stream;
@@ -40,11 +33,9 @@ namespace Gdc.Scd.Export.CdCs
             var list = ctx.Web.Lists.GetByTitle(fileDto.ListName);
             var camlQuery = new CamlQuery
             {
-                ViewXml = String.Format(
-                    @"<View><Query><Where><Eq><FieldRef Name='FileLeafRef'/><Value Type='Text'>{0}</Value></Eq></Where><ViewFields><FieldRef Name='FileRef' /></ViewFields><RowLimit>1</RowLimit></Query></View>",
-                    fileDto.FileName),              
+                ViewXml = $@"<View><Query><Where><Eq><FieldRef Name='FileLeafRef'/><Value Type='Text'>{fileDto.FileName}</Value></Eq></Where><ViewFields><FieldRef Name='FileRef' /></ViewFields><RowLimit>1</RowLimit></Query></View>",
+                FolderServerRelativeUrl = fileDto.FolderServerRelativeUrl,
             };
-            camlQuery.FolderServerRelativeUrl = fileDto.FolderServerRelativeUrl;
             var listItems = list.GetItems(camlQuery);
             ctx.Load(list);
             ctx.Load(listItems);

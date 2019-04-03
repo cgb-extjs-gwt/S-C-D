@@ -20,7 +20,7 @@ namespace Gdc.Scd.Export.CdCs.Procedures
 
         public List<HddRetentionDto> Execute()
         {
-            var data = _service.ExecuteAsTable(Enums.Functions.HddRetention, FillParameters());
+            var data = _service.ExecuteAsTable(Enums.Enums.Functions.HddRetention, FillParameters());
             return GetHddRetentionCost(data);
         }
 
@@ -39,8 +39,6 @@ namespace Gdc.Scd.Export.CdCs.Procedures
                 for (var rowIndex = 0; rowIndex < table.Rows.Count; rowIndex++)
                 {
                     var row = table.Rows[rowIndex];
-
-                    var TransferPrice = Convert.ToDouble(row["TP"]);
 
                     var hddRetentionDto = new HddRetentionDto
                     {

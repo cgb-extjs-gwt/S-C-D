@@ -20,7 +20,7 @@ namespace Gdc.Scd.Export.CdCs.Procedures
 
         public List<ProActiveDto> Execute(string country)
         {
-            var data = _service.ExecuteAsTable(Enums.Functions.GetProActiveByCountryAndWg, FillParameters(country));
+            var data = _service.ExecuteAsTable(Enums.Enums.Functions.GetProActiveByCountryAndWg, FillParameters(country));
             return GetProActiveCost(data);
         }
 
