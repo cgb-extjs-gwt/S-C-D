@@ -6,11 +6,11 @@ using System.Linq;
 
 namespace Gdc.Scd.BusinessLogicLayer.Impl
 {
-    public class WgService : DomainService<Wg>, IWgService
+    public class WgService : DeactivateDecoratorService<Wg>, IWgService
     {
         private readonly IWgRepository origin;
 
-        public WgService(IRepositorySet repositorySet, IWgRepository wgRepo) : base(repositorySet)
+        public WgService(DomainService<Wg> domain, IWgRepository wgRepo) : base(domain)
         {
             this.origin = wgRepo;
         }
@@ -22,7 +22,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public IQueryable<Wg> GetHardware()
         {
-            return origin.GetAll().Include(wg => wg.Sog).Where(wg=>wg.IsSoftware==false && !wg.DeactivatedDateTime.HasValue);
+            return origin.GetAll().Include(wg => wg.Sog).Where(wg => wg.IsSoftware == false && !wg.DeactivatedDateTime.HasValue);
         }
     }
 }

@@ -10,9 +10,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     //Decorator for usage wg from por only
     public class WgPorDecoratorService : IWgPorService
     {
-        private readonly IDomainService<Wg> origin;
+        private readonly DeactivateDecoratorService<Wg> origin;
 
-        public WgPorDecoratorService(IDomainService<Wg> origin)
+        public WgPorDecoratorService(DeactivateDecoratorService<Wg> origin)
         {
             this.origin = origin;
         }

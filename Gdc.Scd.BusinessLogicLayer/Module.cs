@@ -18,6 +18,7 @@ namespace Gdc.Scd.BusinessLogicLayer
 
             Bind<IWgService>().To<WgService>().InScdRequestScope();
             Bind<IWgPorService>().To<WgPorDecoratorService>().InScdRequestScope();
+            Bind<IDomainService<Sog>>().To<DeactivateDecoratorService<Sog>>().InScdRequestScope();
             Bind<ISwDigitService>().To<SwDigitService>().InScdRequestScope();
             Bind<ICostEditorService>().To<CostEditorService>().InScdRequestScope();
             Bind<IPortfolioService>().To<PortfolioService>().InScdRequestScope();
