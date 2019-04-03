@@ -1831,7 +1831,7 @@ RETURNS @tbl TABLE  (
         , ClusterPlaId                 bigint
         , RoleCodeId                   bigint
 
-        , StdWarranty                  nvarchar(255)
+        , StdWarranty                  int
         , StdWarrantyLocation          nvarchar(255)
 
         , AFR1                         float 
@@ -2854,6 +2854,7 @@ RETURN
              , m.SlaHash
 
              , m.StdWarranty
+             , m.StdWarrantyLocation
 
              --Cost
 
@@ -2921,6 +2922,7 @@ RETURN
             , m.SlaHash
 
             , m.StdWarranty
+            , m.StdWarrantyLocation
 
             --Cost
 
