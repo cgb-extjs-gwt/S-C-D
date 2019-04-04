@@ -43,7 +43,7 @@ if OBJECT_ID('Archive.GetWg') is not null
     drop function Archive.GetWg;
 go
 
-create function Archive.GetWg(@software bit null)
+create function Archive.GetWg(@software bit)
 returns @tbl table (
       Id bigint not null primary key
     , Name nvarchar(255)
