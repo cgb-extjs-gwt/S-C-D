@@ -552,7 +552,10 @@ go
 CREATE TABLE Fsp.HwStandardWarranty(
     Country bigint NOT NULL foreign key references InputAtoms.Country(Id)
   , Wg bigint NOT NULL foreign key references InputAtoms.Wg(Id)
-  
+
+  , FspId bigint NOT NULL foreign key references Fsp.HwFspCodeTranslation(Id)
+  , Fsp nvarchar(255) NOT NULL
+
   , AvailabilityId bigint NOT NULL foreign key references Dependencies.Availability(Id)
 
   , DurationId bigint NOT NULL foreign key references Dependencies.Duration(Id)
@@ -599,7 +602,10 @@ AS BEGIN
     WITH StdCte AS (
 
     --remove duplicates in FSP
-        SELECT fsp.CountryId
+        SELECT 
+              fsp.Id   as FspId
+            , fsp.Name as Fsp
+            , fsp.CountryId
             , fsp.WgId
             , fsp.AvailabilityId   
             , fsp.DurationId       
@@ -610,13 +616,13 @@ AS BEGIN
             , row_number() OVER(PARTITION BY fsp.CountryId, fsp.WgId
                     ORDER BY 
                         fsp.CountryId
-                    , fsp.WgId
-                    , fsp.AvailabilityId    
-                    , fsp.DurationId        
-                    , fsp.ReactionTimeId    
-                    , fsp.ReactionTypeId    
-                    , fsp.ServiceLocationId 
-                    , fsp.ProactiveSlaId    ) AS rownum
+                      , fsp.WgId
+                      , fsp.AvailabilityId    
+                      , fsp.DurationId        
+                      , fsp.ReactionTimeId    
+                      , fsp.ReactionTypeId    
+                      , fsp.ServiceLocationId 
+                      , fsp.ProactiveSlaId    ) AS rownum
 
         from Fsp.HwFspCodeTranslation fsp
         where fsp.IsStandardWarranty = 1 
@@ -628,14 +634,7 @@ AS BEGIN
 
         --find FSP for countries
 
-        select    fsp.CountryId
-                , fsp.WgId
-                , fsp.AvailabilityId
-                , fsp.DurationId
-                , fsp.ReactionTimeId
-                , fsp.ReactionTypeId
-                , fsp.ServiceLocationId
-                , fsp.ProactiveSlaId
+        select   *
         from StdCte2 fsp
         where CountryId is not null
     )
@@ -643,7 +642,9 @@ AS BEGIN
         
         --create default country FSP
 
-        select    c.Id as CountryId
+        select    fsp.FspId
+                , fsp.Fsp
+                , c.Id as CountryId
                 , fsp.WgId
                 , fsp.AvailabilityId
                 , fsp.DurationId
@@ -659,7 +660,9 @@ AS BEGIN
         --get country FSP(if exists), or default country FSP
 
         select 
-                  coalesce(fsp.CountryId          , fsp2.CountryId        ) as CountryId        
+                  coalesce(fsp.FspId              , fsp2.FspId            ) as FspId
+                , coalesce(fsp.Fsp                , fsp2.Fsp              ) as Fsp
+                , coalesce(fsp.CountryId          , fsp2.CountryId        ) as CountryId        
                 , coalesce(fsp.WgId               , fsp2.WgId             ) as WgId             
                 , coalesce(fsp.AvailabilityId     , fsp2.AvailabilityId   ) as AvailabilityId   
                 , coalesce(fsp.DurationId         , fsp2.DurationId       ) as DurationId       
@@ -673,6 +676,8 @@ AS BEGIN
     insert into Fsp.HwStandardWarranty(
                           Country
                         , Wg
+                        , FspId
+                        , Fsp
                         , AvailabilityId
 
                         , DurationId 
@@ -690,9 +695,10 @@ AS BEGIN
                         , ReactionTime_Avalability              
                         , ReactionTime_ReactionType             
                         , ReactionTime_ReactionType_Avalability)
-
         select    fsp.CountryId
                 , fsp.WgId
+                , fsp.FspId
+                , fsp.Fsp
                 , fsp.AvailabilityId
 
                 , fsp.DurationId
@@ -723,7 +729,7 @@ AS BEGIN
     ALTER TABLE Fsp.HwStandardWarranty CHECK CONSTRAINT ALL;
 
 END
-GO
+go
 
 update fsp.HwFspCodeTranslation set Name = Name where id  < 10
 go
@@ -1831,6 +1837,9 @@ RETURNS @tbl TABLE  (
         , ClusterPlaId                 bigint
         , RoleCodeId                   bigint
 
+        , StdFspId                     bigint
+        , StdFsp                       nvarchar(255)
+
         , StdWarranty                  int
         , StdWarrantyLocation          nvarchar(255)
 
@@ -1956,6 +1965,8 @@ BEGIN
 
               , case when @approved = 0 then hr.OnsiteHourlyRates               else hr.OnsiteHourlyRates_Approved           end as OnsiteHourlyRates      
 
+              , stdw.FspId                                    as StdFspId
+              , stdw.Fsp                                      as StdFsp
               , stdw.AvailabilityId                           as StdAvailabilityId 
               , stdw.Duration                                 as StdDuration
               , stdw.DurationId                               as StdDurationId
@@ -2121,6 +2132,9 @@ BEGIN
                , ClusterPlaId                 
                , RoleCodeId                   
 
+               , StdFspId
+               , StdFsp  
+
                , StdWarranty         
                , StdWarrantyLocation 
                
@@ -2209,6 +2223,8 @@ BEGIN
             , m.ClusterPlaId
             , m.RoleCodeId  
 
+            , m.StdFspId
+            , m.StdFsp
             , m.StdDurationValue
             , m.StdServiceLocation
 
