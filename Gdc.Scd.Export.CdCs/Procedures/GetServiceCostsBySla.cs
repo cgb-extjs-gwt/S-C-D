@@ -65,11 +65,11 @@ namespace Gdc.Scd.Export.CdCs.Procedures
                 Sla = sla,
                 ServiceTC = CommonService.CheckDoubleField(row, "ServiceTC"),
                 ServiceTP = CommonService.CheckDoubleField(row, "ServiceTP"),
-                ServiceTP_MonthlyYear1 = CommonService.CheckDoubleField(row, "ServiceTP1"),
-                ServiceTP_MonthlyYear2 = CommonService.CheckDoubleField(row, "ServiceTP2"),
-                ServiceTP_MonthlyYear3 = CommonService.CheckDoubleField(row, "ServiceTP3"),
-                ServiceTP_MonthlyYear4 = CommonService.CheckDoubleField(row, "ServiceTP4"),
-                ServiceTP_MonthlyYear5 = CommonService.CheckDoubleField(row, "ServiceTP5")
+                ServiceTP_MonthlyYear1 = CommonService.CheckDoubleField(row, "ServiceTPMonthly1"),
+                ServiceTP_MonthlyYear2 = CommonService.CheckDoubleField(row, "ServiceTPMonthly2"),
+                ServiceTP_MonthlyYear3 = CommonService.CheckDoubleField(row, "ServiceTPMonthly3"),
+                ServiceTP_MonthlyYear4 = CommonService.CheckDoubleField(row, "ServiceTPMonthly4"),
+                ServiceTP_MonthlyYear5 = CommonService.CheckDoubleField(row, "ServiceTPMonthly5")
 
             };
             return serviceCost;
