@@ -22,24 +22,14 @@ namespace Gdc.Scd.Tests.Integration.Export.Archive
             return arr;
         }
 
-        public override void Save(string fn, Stream stream)
+        public void SetPath(string s)
         {
-            fn = fn + ".xlsx";
-            string bin = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            this.path = s;
+        }
 
-            var path = Path.Combine(bin, "result");
-
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-
-            path = Path.Combine(path, fn);
-
-            using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write))
-            {
-                stream.CopyTo(fileStream);
-            }
+        public static string PathToBin()
+        {
+            return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
     }
 }
