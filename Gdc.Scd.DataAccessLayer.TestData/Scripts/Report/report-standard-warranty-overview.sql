@@ -13,14 +13,14 @@ RETURNS @tbl TABLE (
     , Wg                           nvarchar(255)
     , WgDescription                nvarchar(255)
 
+    , Fsp                          nvarchar(255)
+
     , Duration                     nvarchar(255)
     , Location                     nvarchar(255)
 
     , MaterialW                    float
-    , MaterialAndTax               float
     , LocalServiceStandardWarranty float
-
-    , TaxAndDuties                 float
+    , StandardWarrantyAndMaterial  float
 )
 AS
 begin
@@ -34,20 +34,20 @@ begin
          , wg.Name as Wg
          , wg.Description as WgDescription
 
+         , std.StdFsp as Fsp
+
          , dur.Name as Duration
          , std.StdWarrantyLocation as Location
 
          , std.MaterialW
-         , std.MaterialW * std.TaxAndDutiesW as MaterialAndTax
          , std.LocalServiceStandardWarranty
 
-         , tax.TaxAndDuties_Approved as TaxAndDuties
+         , std.MaterialW + std.LocalServiceStandardWarranty as StandardWarrantyAndMaterial
 
     from Hardware.CalcStdw(1, @cntTbl, @wg) std
     join InputAtoms.Wg wg on wg.Id = std.WgId
     join InputAtoms.Pla pla on pla.Id = wg.PlaId
     join Dependencies.Duration dur on dur.Id = std.StdWarranty
-    left join Hardware.TaxAndDuties tax on tax.Country = std.CountryId and tax.DeactivatedDateTime is null;
 
     return;
 
@@ -69,17 +69,17 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'WgDescription', 'Warranty Group Name', 1, 1);
 set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Fsp', 'Product_No', 1, 1);
+set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Duration', 'Standard Warranty duration', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Location', 'Standard Warranty service location', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'MaterialW', 'Material Costs w/o tax & duties per warranty duration', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'MaterialAndTax', 'Material Cost with tax & duties per warrany duration', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'LocalServiceStandardWarranty', 'Standard Warranty Costs local', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'LocalServiceStandardWarranty', 'Standard Warranty Costs local (incl. tax & duties)', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('percent'), 'TaxAndDuties', 'Tax & Duties', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'StandardWarrantyAndMaterial', 'Standard Warranty Costs (incl. Material Costs)', 1, 1);
 
 ------------------------------------
 set @index = 0;
