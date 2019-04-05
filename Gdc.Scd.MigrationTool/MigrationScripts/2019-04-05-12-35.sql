@@ -1,3 +1,51 @@
+﻿update Report.Report set SqlFunc = 'Report.spHddRetentionCalcResult' where name = 'HDD-RETENTION-CALC-RESULT';
+
+if not exists(select * from Report.ReportFilterType where upper(name) = 'LOGIN')
+insert into Report.ReportFilterType(Name, MultiSelect) values ('login', 0);
+
+IF OBJECT_ID('Report.HddRetentionCalcResult') IS NOT NULL
+  DROP FUNCTION Report.HddRetentionCalcResult;
+go 
+
+IF OBJECT_ID('Report.spHddRetentionCalcResult') IS NOT NULL
+  DROP PROCEDURE Report.spHddRetentionCalcResult;
+go 
+
+IF OBJECT_ID('dbo.HasScdAdminRole') IS NOT NULL
+  DROP FUNCTION dbo.HasScdAdminRole;
+go 
+
+IF OBJECT_ID('dbo.HasRole') IS NOT NULL
+  DROP FUNCTION dbo.HasRole;
+go 
+
+CREATE FUNCTION dbo.HasRole(@login nvarchar(255), @role nvarchar(255))
+RETURNS bit
+AS
+BEGIN
+
+    declare @result bit = 0;
+
+    if exists(select * from dbo.UserRole ur
+                where ur.UserId = (select id from dbo.[User] where Login = @login)
+                      and ur.RoleId = (select id from dbo.Role where UPPER(Name) = UPPER(@role)))
+       set @result = 1;
+   
+    RETURN @result;
+
+END
+
+go
+
+CREATE FUNCTION dbo.HasScdAdminRole(@login nvarchar(255))
+RETURNS bit
+AS
+BEGIN
+    return dbo.HasRole(@login, 'SCD ADMIN');
+END
+
+go
+
 IF OBJECT_ID('Report.spHddRetentionCalcResult') IS NOT NULL
   DROP PROCEDURE Report.spHddRetentionCalcResult;
 go 
