@@ -2565,24 +2565,24 @@ RETURN
     , CostCte5 as (
         select m.*
 
-             , Hardware.PositiveValue(m.FieldServiceCost1  + m.ServiceSupportPerYear + m.matCost1  + m.Logistic1  + m.TaxAndDuties1  + m.ReinsuranceOrZero + m.OtherDirect1  + m.AvailabilityFeeOrZero - m.Credit1) as ServiceTP1
-             , Hardware.PositiveValue(m.FieldServiceCost2  + m.ServiceSupportPerYear + m.matCost2  + m.Logistic2  + m.TaxAndDuties2  + m.ReinsuranceOrZero + m.OtherDirect2  + m.AvailabilityFeeOrZero - m.Credit2) as ServiceTP2
-             , Hardware.PositiveValue(m.FieldServiceCost3  + m.ServiceSupportPerYear + m.matCost3  + m.Logistic3  + m.TaxAndDuties3  + m.ReinsuranceOrZero + m.OtherDirect3  + m.AvailabilityFeeOrZero - m.Credit3) as ServiceTP3
-             , Hardware.PositiveValue(m.FieldServiceCost4  + m.ServiceSupportPerYear + m.matCost4  + m.Logistic4  + m.TaxAndDuties4  + m.ReinsuranceOrZero + m.OtherDirect4  + m.AvailabilityFeeOrZero - m.Credit4) as ServiceTP4
-             , Hardware.PositiveValue(m.FieldServiceCost5  + m.ServiceSupportPerYear + m.matCost5  + m.Logistic5  + m.TaxAndDuties5  + m.ReinsuranceOrZero + m.OtherDirect5  + m.AvailabilityFeeOrZero - m.Credit5) as ServiceTP5
-             , Hardware.PositiveValue(m.FieldServiceCost1P + m.ServiceSupportPerYear + m.matCost1P + m.Logistic1P + m.TaxAndDuties1P + m.ReinsuranceOrZero + m.OtherDirect1P + m.AvailabilityFeeOrZero            ) as ServiceTP1P
+             , m.FieldServiceCost1  + m.ServiceSupportPerYear + m.matCost1  + m.Logistic1  + m.TaxAndDuties1  + m.ReinsuranceOrZero + m.OtherDirect1  + m.AvailabilityFeeOrZero - m.Credit1 as ServiceTP1
+             , m.FieldServiceCost2  + m.ServiceSupportPerYear + m.matCost2  + m.Logistic2  + m.TaxAndDuties2  + m.ReinsuranceOrZero + m.OtherDirect2  + m.AvailabilityFeeOrZero - m.Credit2 as ServiceTP2
+             , m.FieldServiceCost3  + m.ServiceSupportPerYear + m.matCost3  + m.Logistic3  + m.TaxAndDuties3  + m.ReinsuranceOrZero + m.OtherDirect3  + m.AvailabilityFeeOrZero - m.Credit3 as ServiceTP3
+             , m.FieldServiceCost4  + m.ServiceSupportPerYear + m.matCost4  + m.Logistic4  + m.TaxAndDuties4  + m.ReinsuranceOrZero + m.OtherDirect4  + m.AvailabilityFeeOrZero - m.Credit4 as ServiceTP4
+             , m.FieldServiceCost5  + m.ServiceSupportPerYear + m.matCost5  + m.Logistic5  + m.TaxAndDuties5  + m.ReinsuranceOrZero + m.OtherDirect5  + m.AvailabilityFeeOrZero - m.Credit5 as ServiceTP5
+             , m.FieldServiceCost1P + m.ServiceSupportPerYear + m.matCost1P + m.Logistic1P + m.TaxAndDuties1P + m.ReinsuranceOrZero + m.OtherDirect1P + m.AvailabilityFeeOrZero             as ServiceTP1P
 
         from CostCte3 m
     )
     , CostCte6 as (
         select m.*
 
-                , Hardware.PositiveValue(m.ServiceTP1  - m.OtherDirect1 ) as ServiceTC1
-                , Hardware.PositiveValue(m.ServiceTP2  - m.OtherDirect2 ) as ServiceTC2
-                , Hardware.PositiveValue(m.ServiceTP3  - m.OtherDirect3 ) as ServiceTC3
-                , Hardware.PositiveValue(m.ServiceTP4  - m.OtherDirect4 ) as ServiceTC4
-                , Hardware.PositiveValue(m.ServiceTP5  - m.OtherDirect5 ) as ServiceTC5
-                , Hardware.PositiveValue(m.ServiceTP1P - m.OtherDirect1P) as ServiceTC1P
+                , m.ServiceTP1  - m.OtherDirect1  as ServiceTC1
+                , m.ServiceTP2  - m.OtherDirect2  as ServiceTC2
+                , m.ServiceTP3  - m.OtherDirect3  as ServiceTC3
+                , m.ServiceTP4  - m.OtherDirect4  as ServiceTC4
+                , m.ServiceTP5  - m.OtherDirect5  as ServiceTC5
+                , m.ServiceTP1P - m.OtherDirect1P as ServiceTC1P
 
         from CostCte5 m
     )    
@@ -2643,8 +2643,8 @@ RETURN
        
          , m.Credits
 
-         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) as ServiceTC
-         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) as ServiceTP
+         , Hardware.PositiveValue(Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P)) as ServiceTC
+         , Hardware.PositiveValue(Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P)) as ServiceTP
 
          , m.ServiceTC1
          , m.ServiceTC2
@@ -2672,7 +2672,7 @@ RETURN
 
        from CostCte6 m
 )
-GO
+go
 
 IF OBJECT_ID('Hardware.SpGetCosts') IS NOT NULL
   DROP PROCEDURE Hardware.SpGetCosts;
