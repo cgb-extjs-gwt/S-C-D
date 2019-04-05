@@ -1,5 +1,4 @@
-﻿using Gdc.Scd.Core.Helpers;
-using Gdc.Scd.Core.Interfaces;
+﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Impl;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Export.Archive.Impl;
