@@ -2,11 +2,13 @@
 using Gdc.Scd.BusinessLogicLayer.Helpers;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.BusinessLogicLayer.Procedures;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
@@ -28,24 +30,28 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<ReportFilter> filterRepo;
 
+        private readonly IUserService userService;
+
         public ReportService(
                 IRepositorySet repositorySet,
                 IRepository<Report> reportRepo,
                 IRepository<ReportColumn> columnRepo,
-                IRepository<ReportFilter> filterRepo
+                IRepository<ReportFilter> filterRepo,
+                IUserService userService
             )
         {
             this.repositorySet = repositorySet;
             this.reportRepo = reportRepo;
             this.columnRepo = columnRepo;
             this.filterRepo = filterRepo;
+            this.userService = userService;
         }
 
         public async Task<(Stream data, string fileName)> Excel(long reportId, ReportFilterCollection filter)
         {
             var r = GetSchemas().GetSchema(reportId);
             var func = r.Report.SqlFunc;
-            var parameters = r.FillParameters(filter);
+            var parameters = r.FillParameters(filter, userService.GetCurrentUser());
             var schema = r.AsSchemaDto();
 
             var fn = FileNameHelper.Excel(schema.Name);
@@ -58,7 +64,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var r = GetSchemas().GetSchema(reportName);
             var func = r.Report.SqlFunc;
-            var parameters = r.FillParameters(filter);
+            var parameters = r.FillParameters(filter, userService.GetCurrentUser());
             var schema = r.AsSchemaDto();
 
             var fn = FileNameHelper.Excel(schema.Name);
@@ -71,7 +77,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         {
             var r = GetSchemas().GetSchema(reportId);
             var func = r.Report.SqlFunc;
-            var parameters = r.FillParameters(filter);
+            var parameters = r.FillParameters(filter, userService.GetCurrentUser());
 
             var d = await new GetReport(repositorySet).ExecuteJsonAsync(func, start, limit + 1, parameters);
 
@@ -313,25 +319,20 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return result;
         }
 
-        public DbParameter[] FillParameters()
-        {
-            return FillParameters(null);
-        }
-
-        public DbParameter[] FillParameters(ReportFilterCollection src)
+        public DbParameter[] FillParameters(ReportFilterCollection src, User user)
         {
             int len = filters.Length;
             var result = new DbParameter[len];
 
             for (var i = 0; i < len; i++)
             {
-                result[i] = FillParameter(filters[i], src);
+                result[i] = FillParameter(filters[i], src, user);
             }
 
             return result;
         }
 
-        public DbParameter FillParameter(ReportFilter f, ReportFilterCollection src)
+        public DbParameter FillParameter(ReportFilter f, ReportFilterCollection src, User user)
         {
             var builder = new DbParameterBuilder();
 
@@ -339,7 +340,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             object value;
 
-            if (f.Type.MultiSelect)
+            if (f.Type.IsLogin())
+            {
+                //inject user login as parameter
+                builder.WithValue(user.Login);
+            }
+            else if (f.Type.MultiSelect)
             {
                 long[] ids;
                 src.TryGetVal(f.Name, out ids);
