@@ -1,18 +1,23 @@
 ﻿using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.Export.Archive.Procedures;
-using Microsoft.SharePoint.Client;
+using System;
 using System.IO;
-using System.Net;
 
 namespace Gdc.Scd.Export.Archive.Impl
 {
     public class ArchiveRepository : IArchiveRepository
     {
-        private readonly IRepositorySet _repo;
+        private readonly IRepositorySet repo;
+
+        protected DateTime timestamp;
+
+        protected string path;
 
         public ArchiveRepository(IRepositorySet repo)
         {
-            _repo = repo;
+            this.repo = repo;
+            this.timestamp = DateTime.Now;
+            this.path = Config.FilePath;
         }
 
         public virtual CostBlockDto[] GetCostBlocks()
@@ -45,17 +50,17 @@ namespace Gdc.Scd.Export.Archive.Impl
 
         public virtual CountryDto[] GetCountries()
         {
-            return new GetCountries(_repo).Execute();
+            return new GetCountries(repo).Execute();
         }
 
         public virtual Stream GetData(CostBlockDto costBlock)
         {
-            return new GetExcelArchive(_repo).ExecuteExcel(costBlock.TableName, costBlock.Procedure, null);
+            return new GetExcelArchive(repo).ExecuteExcel(costBlock.TableName, costBlock.Procedure, null);
         }
 
         public Stream GetData(CountryDto cnt)
         {
-            return new GetExcelArchive(_repo).ExecuteCountryHwExcel(cnt);
+            return new GetExcelArchive(repo).ExecuteCountryHwExcel(cnt);
         }
 
         public void Save(CostBlockDto dto, Stream stream)
@@ -72,23 +77,18 @@ namespace Gdc.Scd.Export.Archive.Impl
         {
             fn = fn + ".xlsx";
 
-            var url = Config.SpServiceHost;
-            var cred = new NetworkCredential()
+            var path = GetPath();
+
+            if (!Directory.Exists(path))
             {
-                Domain = Config.SpServiceDomain,
-                UserName = Config.SpServiceAccount,
-                Password = Config.SpServicePassword
-            };
+                Directory.CreateDirectory(path);
+            }
 
-            var path = string.Format("{0}/{1}", Config.SpServiceFolder, fn);
+            path = Path.Combine(path, fn);
 
-            using (var ctx = new ClientContext(url))
+            using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write))
             {
-                ctx.Credentials = cred;
-                ctx.ExecuteQuery();
-
-                Microsoft.SharePoint.Client.File.SaveBinaryDirect(ctx, path, stream, true);
-
+                stream.CopyTo(fileStream);
             }
         }
 
@@ -100,6 +100,11 @@ namespace Gdc.Scd.Export.Archive.Impl
         public string GenFn(CountryDto cnt)
         {
             return string.Concat(cnt.Name, "_", "HW_costs");
+        }
+
+        public string GetPath()
+        {
+            return Path.Combine(path, timestamp.ToString("yyyy-MM-dd"));
         }
     }
 }

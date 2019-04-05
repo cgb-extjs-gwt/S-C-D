@@ -9,6 +9,12 @@ namespace Gdc.Scd.Export.Archive
         private IArchiveRepository repo;
 
         private ILogger logger;
+        private object p;
+
+        public ArchiveService(object p)
+        {
+            this.p = p;
+        }
 
         public ArchiveService(IArchiveRepository repo, ILogger logger)
         {
