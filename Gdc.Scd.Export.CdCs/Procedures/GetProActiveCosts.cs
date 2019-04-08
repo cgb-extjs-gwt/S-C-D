@@ -53,7 +53,7 @@ namespace Gdc.Scd.Export.CdCs.Procedures
                     ProActive4 = CommonService.CheckDoubleField(pro4, "Cost"),
                     ProActive6 = CommonService.CheckDoubleField(pro6, "Cost"),
                     ProActive7 = CommonService.CheckDoubleField(pro7, "Cost"),
-                    OneTimeTasks = CommonService.CheckDoubleField(oneTime, "Cost")
+                    OneTimeTasks = CommonService.CheckDoubleField(oneTime, "OneTimeTasks")
                 };
                 proList.Add(proActiveCost);
             }
