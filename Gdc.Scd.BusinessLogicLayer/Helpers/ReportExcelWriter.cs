@@ -1,12 +1,14 @@
 ﻿using ClosedXML.Excel;
 using Gdc.Scd.BusinessLogicLayer.Dto.Report;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 
 namespace Gdc.Scd.BusinessLogicLayer.Helpers
 {
-    public class ReportExcelWriter
+    public class ReportExcelWriter : IDisposable
     {
         private const int DEFAULT_COL_WIDTH = 25;
 
@@ -14,33 +16,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
         private int currentRow;
 
-        private ReportColumnFormat[] formatters;
+        private ReportSchemaDto schema;
 
-        private readonly ReportColumnDto[] fields;
+        private ReportColumnFormat[] fields;
 
-        private readonly int fieldCount;
+        private IXLWorkbook workbook;
 
-        private readonly IXLWorkbook workbook;
-
-        private readonly IXLWorksheet worksheet;
+        private IXLWorksheet worksheet;
 
         public ReportExcelWriter(ReportSchemaDto schema)
         {
-            this.fields = schema.Fields;
-            this.fieldCount = fields.Length;
-
-            this.currentRow = 1;
-            this.workbook = new XLWorkbook();
-
-            var sheetName = schema.Name;
-            if (sheetName.Length > 31)
-            {
-                sheetName = sheetName.Substring(0, 31); //ClosedXML limit
-            }
-
-            this.worksheet = workbook.Worksheets.Add(sheetName);
-            //
-            WriteHeader();
+            this.schema = schema;
         }
 
         public Stream GetData()
@@ -48,6 +34,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             var stream = new MemoryStream(3072); //3KB
             workbook.SaveAs(stream);
             stream.Seek(0, SeekOrigin.Begin);
+            Dispose();
             return stream;
         }
 
@@ -60,9 +47,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
             currentRow++;
 
-            for (var i = 0; i < fieldCount; i++)
+            for (var i = 0; i < fields.Length; i++)
             {
-                var f = formatters[i];
+                var f = fields[i];
 
                 if (f.HasValue())
                 {
@@ -73,33 +60,73 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
         private void WriteHeader()
         {
-            worksheet.ColumnWidth = DEFAULT_COL_WIDTH;
-
-            for (var i = 0; i < fieldCount; i++)
+            for (var i = 0; i < fields.Length; i++)
             {
                 var f = fields[i];
-
                 if (f.Flex > 1)
                 {
                     worksheet.Column(i + 1).Width = f.Flex * DEFAULT_COL_WIDTH;
                 }
 
                 var cell = worksheet.Cell(currentRow, i + 1);
-                cell.Value = f.Text;
+                cell.Value = f.Caption;
                 cell.Style.Font.Bold = true;
             }
         }
 
         private void Prepare(DbDataReader reader)
         {
-            formatters = new ReportColumnFormat[fieldCount];
+            this.InitWorkbook();
+            //
+            this.fields = PrepareFields(reader);
+            this.WriteHeader();
+            //
+            this.prepared = true;
+        }
 
-            for (var i = 0; i < fieldCount; i++)
+        private ReportColumnFormat[] PrepareFields(DbDataReader reader)
+        {
+            var schemaFields = schema.Fields;
+            var len = schemaFields.Length;
+            var result = new List<ReportColumnFormat>(len);
+
+            for (int i = 0, k = 0; i < len; i++)
             {
-                formatters[i] = new ReportColumnFormat(reader, fields[i], worksheet.Column(i + 1));
+                var f = schemaFields[i];
+                if (reader.HasField(f.Name))
+                {
+                    //ok, column exists in select dataset
+                    //add thit column to report
+                    //
+                    result.Add(new ReportColumnFormat(reader, f, worksheet.Column(k + 1)));
+                    k++;
+                }
             }
 
-            this.prepared = true;
+            return result.ToArray();
+        }
+
+        private void InitWorkbook()
+        {
+            this.currentRow = 1;
+            this.workbook = new XLWorkbook();
+
+            var sheetName = schema.Name;
+            if (sheetName.Length > 31)
+            {
+                sheetName = sheetName.Substring(0, 31); //ClosedXML limit
+            }
+
+            this.worksheet = workbook.Worksheets.Add(sheetName);
+            this.worksheet.ColumnWidth = DEFAULT_COL_WIDTH;
+        }
+
+        public void Dispose()
+        {
+            if (this.workbook != null)
+            {
+                this.workbook.Dispose();
+            }
         }
 
         private class ReportColumnFormat
@@ -148,6 +175,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
                     InitTxt();
                 }
             }
+
+            public int Flex { get { return col.Flex; } }
+
+            public string Caption { get { return col.Text; } }
 
             public bool HasValue()
             {

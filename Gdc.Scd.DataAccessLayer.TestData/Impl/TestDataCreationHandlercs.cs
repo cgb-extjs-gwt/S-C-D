@@ -107,6 +107,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-proactive-calc-result.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-SW-param-overview.sql"));
 
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-afr.sql"));
+            queries.AddRange(this.BuildFromFile(@"Scripts.Report.report-standard-warranty-overview.sql"));
+
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.split-string.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-hdd-retention.sql"));
             queries.AddRange(this.BuildFromFile(@"Scripts.CD_CS.cd-cs-proactive.sql"));
@@ -765,7 +768,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         {
                             Name = "WSJ",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsMidrange,                         
+                            CentralContractGroupId = clientsMidrange,
                             CreatedDateTime = DateTime.Now,
                             ModifiedDateTime = DateTime.Now
                         },
@@ -821,7 +824,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         {
                             Name = "U12",
                             WgType = WgType.Por,
-                            CentralContractGroupId = clientsMidrange,                           
+                            CentralContractGroupId = clientsMidrange,
                             CreatedDateTime = DateTime.Now,
                             ModifiedDateTime = DateTime.Now
                         },
@@ -854,7 +857,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                             Name = "HMD",
                             WgType = WgType.Por,
                             CentralContractGroupId = peripherals,
-                           
+
                             CreatedDateTime = DateTime.Now,
                             ModifiedDateTime = DateTime.Now
                         },
@@ -903,7 +906,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                             Name = "NC1",
                             WgType = WgType.Por,
                             CentralContractGroupId = clientsHighend,
-                           
+
                             CreatedDateTime = DateTime.Now,
                             ModifiedDateTime = DateTime.Now
                         },
@@ -1115,7 +1118,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         {
                             Name = "CD8",
                             WgType = WgType.Por,
-                            CentralContractGroupId = storageHighend,                           
+                            CentralContractGroupId = storageHighend,
                             CreatedDateTime = DateTime.Now,
                             ModifiedDateTime = DateTime.Now
                         },
@@ -1524,7 +1527,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                             Name = "S50",
                             WgType = WgType.Por,
                             CentralContractGroupId = storageEntry,
-                           
+
                             CreatedDateTime = DateTime.Now,
                             ModifiedDateTime = DateTime.Now
                         },
@@ -1847,7 +1850,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                             Name = "Y40",
                             WgType = WgType.Por,
                             CentralContractGroupId = serverMidrange,
-                           
+
                             CreatedDateTime = DateTime.Now,
                             ModifiedDateTime = DateTime.Now
                         },
@@ -1912,7 +1915,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                             Name = "Y25",
                             WgType = WgType.Por,
                             CentralContractGroupId = serverMidrange,
-                           
+
                             CreatedDateTime = DateTime.Now,
                             ModifiedDateTime = DateTime.Now
                         },
@@ -2155,7 +2158,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "swdigit" , MultiSelect = true },
                 new ReportFilterType { Name = "swdigitsog" , MultiSelect = true },
                 new ReportFilterType { Name = "wgstandard" , MultiSelect = true },
-                new ReportFilterType { Name = "wghardware" , MultiSelect = true }
+                new ReportFilterType { Name = "wghardware" , MultiSelect = true },
+
+                new ReportFilterType { Name = "login" }
             };
 
             var repository = this.repositorySet.GetRepository<ReportFilterType>();
