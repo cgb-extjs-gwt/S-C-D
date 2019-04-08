@@ -8,18 +8,16 @@ import { WarrantyGroupGrid } from "../../Admin/WarrantyGroup/WarrantyGroupGrid";
 import * as Permissions from "../../Common/Constants/Permissions";
 import { buildComponentUrl } from "../../Common/Services/Ajax";
 import { MenuItem } from "../../Common/States/ExtStates";
+import { ApprovalLayoutContainer } from "../../CostApproval/Components/ApprovalLayoutContainer";
 import { CostEditorContainer } from "../../CostEditor/Components/CostEditorContainer";
-import { PortfolioEditView, PortfolioView, PortfolioHistoryView } from "../../Portfolio/index";
-import { ReportView } from "../../Report/index";
-import { ReportListView } from "../../Report/ReportListView";
+import { CostImportContainer } from "../../CostImport/Components/CostImportContainer";
+import { OwnApproveLayoutContainer } from "../../CostOwnApproval/Components/OwnApproveLayoutContainer";
+import { PortfolioEditView, PortfolioHistoryView, PortfolioView } from "../../Portfolio/index";
+import { CalcResultViewContainer, ReportListView, ReportView } from "../../Report/index";
 import { TableViewContainer } from "../../TableView/Components/TableViewContainer";
 import { loadMetaDataFromServer, openPage } from "../Actions/AppActions";
 import { CommonState, Role } from "../States/AppStates";
 import { Layout, LayoutActions, LayoutProps, RouteItem } from "./Layout";
-import { CostImportContainer } from "../../CostImport/Components/CostImportContainer";
-import { OwnApproveLayoutContainer } from "../../CostOwnApproval/Components/OwnApproveLayoutContainer";
-import { ApprovalLayoutContainer } from "../../CostApproval/Components/ApprovalLayoutContainer";
-import { CalcResultViewContainer } from "../../Report/CalcResultViewContainer";
 
 interface RouteMenuItem extends RouteItem {
     text?: string
