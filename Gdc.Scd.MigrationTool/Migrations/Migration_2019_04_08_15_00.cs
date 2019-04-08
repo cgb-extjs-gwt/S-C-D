@@ -1,4 +1,5 @@
-﻿using Gdc.Scd.Core.Entities;
+﻿using System.Linq;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.MigrationTool.Interfaces;
 
@@ -20,27 +21,34 @@ namespace Gdc.Scd.MigrationTool.Migrations
         public void Execute()
         {
             var proActiveSla = repositorySet.GetRepository<ProActiveSla>();
-            proActiveSla.DeleteAll();
-            proActiveSla.Save(new ProActiveSla[]
-           {
-                new ProActiveSla { Name = "0", ExternalName = "none" },
-                new ProActiveSla { Name = "1", ExternalName = "with autocall" },
-                new ProActiveSla { Name = "2", ExternalName = "with 1x System Health Check & Patch Information incl. remote Technical Account Management (per year)" },
-                new ProActiveSla { Name = "3", ExternalName = "with 2x System Health Check & Patch Information incl. remote Technical Account Management (per year)",
-                    LocalPreparationShcRepetition =2, LocalRegularUpdateReadyRepetition=1, CentralExecutionShcReportRepetition=2, LocalRemoteShcCustomerBriefingRepetition=2
-                },
-                new ProActiveSla { Name = "4", ExternalName = "with 4x System Health Check & Patch Information incl. remote Technical Account Management (per year)",
-                    LocalPreparationShcRepetition =4, LocalRegularUpdateReadyRepetition=1, CentralExecutionShcReportRepetition=4, LocalRemoteShcCustomerBriefingRepetition=4
-                },
-                new ProActiveSla { Name = "6", ExternalName = "with 2x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
-                    LocalPreparationShcRepetition =2, LocalRegularUpdateReadyRepetition=1, CentralExecutionShcReportRepetition=2, LocalRemoteShcCustomerBriefingRepetition=0,
-                    TravellingTimeRepetition=2, LocalOnsiteShcCustomerBriefingRepetition=2
-                },
-                new ProActiveSla { Name = "7", ExternalName = "with 4x System Health Check & Patch Information incl. onsite Technical Account Management (per year)",
-                    LocalPreparationShcRepetition =4, LocalRegularUpdateReadyRepetition=1, CentralExecutionShcReportRepetition=4, LocalRemoteShcCustomerBriefingRepetition=0,
-                    TravellingTimeRepetition=4, LocalOnsiteShcCustomerBriefingRepetition=4
-                }
-           });
+
+            var pro3 = proActiveSla.GetAll().First(p => p.Name == "3");
+            pro3.LocalPreparationShcRepetition = 2;
+            pro3.LocalRegularUpdateReadyRepetition = 1;
+            pro3.CentralExecutionShcReportRepetition = 2;
+            pro3.LocalRemoteShcCustomerBriefingRepetition = 2;
+
+            var pro4 = proActiveSla.GetAll().First(p => p.Name == "4");
+            pro4.LocalPreparationShcRepetition = 4;
+            pro4.LocalRegularUpdateReadyRepetition = 1;
+            pro4.CentralExecutionShcReportRepetition = 4;
+            pro4.LocalRemoteShcCustomerBriefingRepetition = 4;
+
+            var pro6 = proActiveSla.GetAll().First(p => p.Name == "6");
+            pro6.LocalPreparationShcRepetition = 2;
+            pro6.LocalRegularUpdateReadyRepetition = 1;
+            pro6.CentralExecutionShcReportRepetition = 2;
+            pro6.LocalRemoteShcCustomerBriefingRepetition = 0;
+            pro6.TravellingTimeRepetition = 2;
+            pro6.LocalOnsiteShcCustomerBriefingRepetition = 2;
+
+            var pro7 = proActiveSla.GetAll().First(p => p.Name == "7");
+            pro7.LocalPreparationShcRepetition = 4;
+            pro7.LocalRegularUpdateReadyRepetition = 1;
+            pro7.CentralExecutionShcReportRepetition = 4;
+            pro7.LocalRemoteShcCustomerBriefingRepetition = 0;
+            pro7.TravellingTimeRepetition = 4;
+            pro7.LocalOnsiteShcCustomerBriefingRepetition = 4;
 
             this.repositorySet.Sync();
         }
