@@ -18,15 +18,17 @@ namespace Gdc.Scd.Export.CdCs.Procedures
             _service = service;
         }
 
-        public List<HddRetentionDto> Execute()
+        public List<HddRetentionDto> Execute(string country)
         {
-            var data = _service.ExecuteAsTable(Enums.Enums.Functions.HddRetention, FillParameters());
+            var data = _service.ExecuteAsTable(Enums.Enums.Functions.HddRetention, FillParameters(country));
             return GetHddRetentionCost(data);
         }
 
-        private DbParameter[] FillParameters()
+        private DbParameter[] FillParameters(string country)
         {
-            var result = new DbParameter[] { };
+            var result = new DbParameter[] {
+                _service.FillParameter("cnt", country)
+            };
 
             return result;
         }

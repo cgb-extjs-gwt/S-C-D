@@ -25,8 +25,6 @@ namespace Gdc.Scd.Export.CdCs.Impl
         public static SpFileDownloader Downloader { get; }
         public static ILogger<LogLevel> Logger { get;  }
 
-        private const string EUR_CUR = "EUR";
-
         static CdCsService()
         {
             Kernel = new StandardKernel(new Module());
@@ -130,26 +128,26 @@ namespace Gdc.Scd.Export.CdCs.Impl
             Logger.Log(LogLevel.Info, CdCsMessages.READ_CONFIGURATION);
             var configHandler = Kernel.Get<ConfigHandler>();
             var configList = configHandler.ReadAllConfiguration().Take(3);
-
+          
+            var getServiceCostsBySla = Kernel.Get<GetServiceCostsBySla>();
+            var getProActiveCosts = Kernel.Get<GetProActiveCosts>();
             var getHddRetentionCosts = Kernel.Get<GetHddRetentionCosts>();
-            Logger.Log(LogLevel.Info, CdCsMessages.READ_HDD_RETENTION);
-            var hddRetention = getHddRetentionCosts.Execute();
 
             foreach (var config in configList)
             {
                 var country = config.Country.Name;
                 var currency = config.Country.Currency.Name;
                 Logger.Log(LogLevel.Info, CdCsMessages.READ_COUNTRY_COSTS, country);
-
-                var getServiceCostsBySla = Kernel.Get<GetServiceCostsBySla>();
-                var getProActiveCosts = Kernel.Get<GetProActiveCosts>();
-               
+                           
                 Logger.Log(LogLevel.Info, CdCsMessages.READ_SERVICE);
                 var costsList = getServiceCostsBySla.Execute(country, slaList);
 
                 Logger.Log(LogLevel.Info, CdCsMessages.READ_PROACTIVE);
                 var proActiveList = getProActiveCosts.Execute(country);
-               
+
+                Logger.Log(LogLevel.Info, CdCsMessages.READ_HDD_RETENTION);
+                var hddRetention = getHddRetentionCosts.Execute(country);
+
                 using (var workbook = new XLWorkbook(memoryStream))
                 using (var inputMctSheet = workbook.Worksheet(InputSheets.InputMctCdCsWGs))
                 using (var proActiveSheet = workbook.Worksheet(InputSheets.ProActiveOutput))
@@ -209,9 +207,9 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     {
                         SetCellAsString(hddRetentionSheet, rowNum, HddRetentionColumns.Wg, hdd.Wg);
                         SetCellAsString(hddRetentionSheet, rowNum, HddRetentionColumns.WgName, hdd.WgName ?? string.Empty);
-                        SetCellAsCurrency(hddRetentionSheet, rowNum, HddRetentionColumns.TP, hdd.TransferPrice, EUR_CUR);
-                        SetCellAsCurrency(hddRetentionSheet, rowNum, HddRetentionColumns.DealerPrice, hdd.DealerPrice, EUR_CUR);
-                        SetCellAsCurrency(hddRetentionSheet, rowNum, HddRetentionColumns.ListPrice, hdd.ListPrice, EUR_CUR);
+                        SetCellAsCurrency(hddRetentionSheet, rowNum, HddRetentionColumns.TP, hdd.TransferPrice, currency);
+                        SetCellAsCurrency(hddRetentionSheet, rowNum, HddRetentionColumns.DealerPrice, hdd.DealerPrice, currency);
+                        SetCellAsCurrency(hddRetentionSheet, rowNum, HddRetentionColumns.ListPrice, hdd.ListPrice, currency);
                         rowNum++;
                     }
 
