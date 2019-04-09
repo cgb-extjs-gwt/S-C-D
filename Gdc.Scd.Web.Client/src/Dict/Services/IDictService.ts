@@ -34,6 +34,8 @@ export interface IDictService {
 
     getHardwareWg(): Promise<NamedId[]>;
 
+    getWgWithSog(): Promise<NamedId[]>;
+
     getPla(): Promise<NamedId[]>;
 
     getSog(): Promise<NamedId[]>;

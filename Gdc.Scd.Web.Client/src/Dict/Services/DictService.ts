@@ -81,6 +81,10 @@ export class DictService implements IDictService {
         return new WgService().allWithMultivendor();
     }
 
+    public getWgWithSog(): Promise<NamedId<string>[]> {
+        return new WgService().getAll().then(x => x.filter((y: any) => !!y.sogId));
+    }
+
     public getStandardWg(): Promise<NamedId<string>[]> {
         return new WgService().standard();
     }
