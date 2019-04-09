@@ -2160,6 +2160,9 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportFilterType { Name = "wgstandard" , MultiSelect = true },
                 new ReportFilterType { Name = "wghardware" , MultiSelect = true },
 
+                new ReportFilterType { Name = "wgsog" },
+                new ReportFilterType { Name = "wgsog" , MultiSelect = true },
+
                 new ReportFilterType { Name = "login" }
             };
 

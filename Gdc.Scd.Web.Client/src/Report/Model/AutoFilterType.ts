@@ -7,6 +7,7 @@
     WGALL = 'wgall',
     WGSTANDARD = 'wgstandard',
     WGHARDWARE = 'wghardware',
+    WGSOG = 'wgsog',
     SOG = 'sog',
     COUNTRYGROUP = 'countrygroup',
     COUNTRY = 'country',
