@@ -1,4 +1,54 @@
-﻿ALTER FUNCTION [Hardware].[GetCostsSlaSog](
+﻿if OBJECT_ID('[Hardware].[GetInstallBaseOverSog]') is not null
+    drop function [Hardware].[GetInstallBaseOverSog];
+go
+
+CREATE function [Hardware].[GetInstallBaseOverSog](
+    @approved bit,
+    @cnt dbo.ListID readonly
+)
+returns @tbl table (
+      Country                      bigint
+    , Sog                          bigint
+    , Wg                           bigint
+    , InstalledBaseCountry         float
+    , InstalledBaseCountryNorm     float
+    , TotalInstalledBaseCountrySog float
+    , PRIMARY KEY CLUSTERED(Country, Wg)
+)
+begin
+
+    with IbCte as (
+        select  ib.Country
+              , ib.Wg
+              , wg.SogId
+
+              , coalesce(case when @approved = 0 then ib.InstalledBaseCountry else ib.InstalledBaseCountry_Approved end, 0) as InstalledBaseCountry
+
+        from Hardware.InstallBase ib
+        join InputAtoms.Wg wg on wg.id = ib.Wg and wg.SogId is not null 
+
+        where ib.Country in (select id from @cnt) and ib.DeactivatedDateTime is null
+    )
+    , IbSogCte as (
+        select  ib.*
+              , (sum(ib.InstalledBaseCountry) over(partition by ib.Country, ib.SogId)) as sum_ib_by_sog
+        from IbCte ib
+    )
+    insert into @tbl
+        select ib.Country
+             , ib.SogId
+             , ib.Wg
+             , ib.InstalledBaseCountry
+             , case when ib.sum_ib_by_sog > 0 then ib.InstalledBaseCountry else 1 end InstalledBaseCountryNorm_By_Sog
+             , ib.sum_ib_by_sog
+        from IbSogCte ib
+
+    return;
+
+end
+go
+
+ALTER FUNCTION [Hardware].[GetCostsSlaSog](
     @approved bit,
     @cnt dbo.ListID readonly,
     @wg dbo.ListID readonly,
@@ -67,16 +117,16 @@ RETURN
              , m.LocalServiceStandardWarranty
              , m.Credits
 
-             , ib.InstalledBaseCountry
+             , ib.InstalledBaseCountryNorm
 
-             , (sum(m.ServiceTC * ib.InstalledBaseCountry)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tc 
-             , (sum(case when m.ServiceTC > 0 then ib.InstalledBaseCountry end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tc
+             , (sum(m.ServiceTC * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tc 
+             , (sum(case when m.ServiceTC > 0 then ib.InstalledBaseCountryNorm end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tc
 
-             , (sum(m.ServiceTP_Released * ib.InstalledBaseCountry)                      over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp
-             , (sum(case when m.ServiceTP_Released > 0 then ib.InstalledBaseCountry end) over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp
+             , (sum(m.ServiceTP_Released * ib.InstalledBaseCountryNorm)                      over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp
+             , (sum(case when m.ServiceTP_Released > 0 then ib.InstalledBaseCountryNorm end) over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp
 
-             , (sum(m.ServiceTP * ib.InstalledBaseCountry)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp_approved
-             , (sum(case when m.ServiceTP > 0 then ib.InstalledBaseCountry end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp_approved
+             , (sum(m.ServiceTP * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp_approved
+             , (sum(case when m.ServiceTP > 0 then ib.InstalledBaseCountryNorm end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp_approved
 
              , m.ListPrice
              , m.DealerDiscount
@@ -84,7 +134,7 @@ RETURN
 
         from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, null, null) m
         join InputAtoms.Wg wg on wg.id = m.WgId and wg.DeactivatedDateTime is null
-        left join Hardware.InstallBase ib on ib.Country = m.CountryId and ib.Wg = m.WgId and ib.DeactivatedDateTime is null
+        left join Hardware.GetInstallBaseOverSog(@approved, @cnt) ib on ib.Country = m.CountryId and ib.Wg = m.WgId
     )
     select    
             m.Id

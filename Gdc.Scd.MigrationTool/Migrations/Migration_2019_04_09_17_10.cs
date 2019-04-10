@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 75;
+        public int Number => 74;
 
         public string Description => "Add new locap reports with approved values";
 
