@@ -22,9 +22,7 @@ namespace Gdc.Scd.Export.CdCs.Procedures
 
         public DataTable ExecuteAsTable(string func, DbParameter[] parameters)
         {
-            string sql;
-
-            sql = SelectQuery(func, parameters);
+            var sql = SelectQuery(func, parameters);
 
             return _repo.ExecuteAsTable(sql, parameters);
         }
@@ -56,7 +54,7 @@ namespace Gdc.Scd.Export.CdCs.Procedures
 
         public static double CheckDoubleField(DataRow row, string fieldName)
         {
-            if (row != null && row.Field<double?>(fieldName) != null)
+            if (row?.Field<double?>(fieldName) != null)
             {
                 return row.Field<double>(fieldName);
             }

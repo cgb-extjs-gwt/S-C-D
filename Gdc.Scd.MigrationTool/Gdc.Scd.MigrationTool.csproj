@@ -142,6 +142,8 @@
     <Compile Include="Migrations\Migration_2019_03_29_11_19.cs" />
     <Compile Include="Migrations\Migration_2019_03_29_12_32.cs" />
     <Compile Include="Migrations\Migration_2019_04_02_15_38.cs" />
+    <Compile Include="Migrations\Migration_2019_04_09_12_06.cs" />
+    <Compile Include="Migrations\Migration_2019_04_08_15_00.cs" />
     <Compile Include="Migrations\Migration_2019_04_02_16_23.cs" />
     <Compile Include="Migrations\Migration_2019_04_03_17_33.cs" />
     <Compile Include="Migrations\Migration_2019_04_03_13_45.cs" />
@@ -369,6 +371,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2019-04-08-19-00.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-04-09-12-06.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2019-04-05-12-35.sql">

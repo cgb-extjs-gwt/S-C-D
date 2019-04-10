@@ -18,15 +18,17 @@ namespace Gdc.Scd.Export.CdCs.Procedures
             _service = service;
         }
 
-        public List<HddRetentionDto> Execute()
+        public List<HddRetentionDto> Execute(string country)
         {
-            var data = _service.ExecuteAsTable(Enums.Functions.HddRetention, FillParameters());
+            var data = _service.ExecuteAsTable(Enums.Enums.Functions.HddRetention, FillParameters(country));
             return GetHddRetentionCost(data);
         }
 
-        private DbParameter[] FillParameters()
+        private DbParameter[] FillParameters(string country)
         {
-            var result = new DbParameter[] { };
+            var result = new DbParameter[] {
+                _service.FillParameter("cnt", country)
+            };
 
             return result;
         }
@@ -39,8 +41,6 @@ namespace Gdc.Scd.Export.CdCs.Procedures
                 for (var rowIndex = 0; rowIndex < table.Rows.Count; rowIndex++)
                 {
                     var row = table.Rows[rowIndex];
-
-                    var TransferPrice = Convert.ToDouble(row["TP"]);
 
                     var hddRetentionDto = new HddRetentionDto
                     {
