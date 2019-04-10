@@ -1,8 +1,8 @@
-﻿IF OBJECT_ID('Report.spLocapDetailed') IS NOT NULL
-  DROP PROCEDURE Report.spLocapDetailed;
+﻿IF OBJECT_ID('Report.spLocapDetailedApproved') IS NOT NULL
+  DROP PROCEDURE Report.spLocapDetailedApproved;
 go 
 
-CREATE PROCEDURE [Report].[spLocapDetailed]
+CREATE PROCEDURE [Report].[spLocapDetailedApproved]
 (
     @cnt          bigint,
     @wg           dbo.ListID readonly,
@@ -79,6 +79,8 @@ BEGIN
 
              , m.ServiceTcSog * m.ExchangeRate as ServiceTC
              , m.ServiceTpSog * m.ExchangeRate as ServiceTP_Released
+             , m.ServiceTpSog_Approved * m.ExchangeRate as ServiceTP_Approved
+
              , m.FieldServiceCost * m.ExchangeRate as FieldServiceCost
              , m.ServiceSupportCost * m.ExchangeRate as ServiceSupportCost 
              , m.MaterialOow * m.ExchangeRate as MaterialOow
@@ -108,7 +110,7 @@ BEGIN
 END
 go
 
-declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'LOCAP-DETAILED');
+declare @reportId bigint = (select Id from Report.Report where upper(Name) = 'LOCAP-DETAILED-APPROVED');
 declare @index int = 0;
 
 delete from Report.ReportColumn where ReportId = @reportId;
@@ -138,6 +140,8 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ServiceTC', 'Service TC', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ServiceTP_Released', 'Service TP (Released)', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ServiceTP_Approved', 'Service TP (Approved)', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Country', 'Country Name', 1, 1);
 set @index = @index + 1;
@@ -170,7 +174,7 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = 0;
 delete from Report.ReportFilter where ReportId = @reportId;
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('country', 0), 'cnt', 'Country Name');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('usercountry', 0), 'cnt', 'Country Name');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wgsog', 1), 'wg', 'Warranty Group');
 set @index = @index + 1;
