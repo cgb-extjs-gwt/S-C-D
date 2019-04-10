@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Gdc.Scd.Export.CdCs
+﻿namespace Gdc.Scd.Export.CdCs.Dto
 {
-    class ServiceCostDto
+    internal class ServiceCostDto
     {
-        public string Country { get; set; }
-        public string FspCode { get; set; }
+        public SlaDto Sla { get; set; }
         public double ServiceTC { get; set; }
         public double ServiceTP { get; set; }
         public double ServiceTP_MonthlyYear1 { get; set; }

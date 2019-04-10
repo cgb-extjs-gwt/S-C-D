@@ -18,7 +18,7 @@ namespace Gdc.Scd.Export.CdCs
         public static string WRITE_SERVICE = "Writing service costs...";
         public static string READ_PROACTIVE = "Reading pro active costs...";
         public static string WRITE_PROACTIVE = "Writing pro active costs...";
-        public static string READ_HDD_RETENTION = "Reading global HDD retention costs...";
+        public static string READ_HDD_RETENTION = "Reading HDD retention costs...";
         public static string WRITE_HDD_RETENTION = "Writing HDD retention costs...";
         public static string UPLOAD_FILE = "Uploading file...";
         public static string READ_SLA_FILE = "Reading SLA input file...";

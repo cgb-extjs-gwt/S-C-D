@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Gdc.Scd.Export.CdCs
+﻿namespace Gdc.Scd.Export.CdCs.Enums
 {
     public class Enums
     {
-        public static class InputFileCoumns
+        public static class InputFileColumns
         {
             public static readonly int FspCode = 1;
             public static readonly int ServiceLocation = 3;
@@ -21,15 +15,19 @@ namespace Gdc.Scd.Export.CdCs
 
         public static class InputMctCdCsWGsColumns
         {
-            public static readonly int CountryGroup = 1;
-            public static readonly int FspCode = 2;
-            public static readonly int ServiceTC = 4;
-            public static readonly int ServiceTP = 5;
-            public static readonly int ServiceTP_MonthlyYear1 = 6;
-            public static readonly int ServiceTP_MonthlyYear2 = 7;
-            public static readonly int ServiceTP_MonthlyYear3 = 8;
-            public static readonly int ServiceTP_MonthlyYear4 = 9;
-            public static readonly int ServiceTP_MonthlyYear5 = 10;
+            public static readonly int ServiceLocation = 1;
+            public static readonly int Availability = 2;
+            public static readonly int ReactionTime = 3;
+            public static readonly int ReactionType = 4;
+            public static readonly int WarrantyGroup = 5;
+            public static readonly int Duration = 6;
+            public static readonly int ServiceTC = 7;
+            public static readonly int ServiceTP = 8;
+            public static readonly int ServiceTP_MonthlyYear1 = 9;
+            public static readonly int ServiceTP_MonthlyYear2 = 10;
+            public static readonly int ServiceTP_MonthlyYear3 = 11;
+            public static readonly int ServiceTP_MonthlyYear4 = 12;
+            public static readonly int ServiceTP_MonthlyYear5 = 13;
         }
 
         public static class ProActiveOutputColumns
