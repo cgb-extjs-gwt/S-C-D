@@ -9,7 +9,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 73;
+        public int Number => 76;
 
         public string Description => "Fix CD CS functions";
 
