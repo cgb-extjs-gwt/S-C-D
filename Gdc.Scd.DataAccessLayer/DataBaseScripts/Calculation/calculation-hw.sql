@@ -552,7 +552,10 @@ go
 CREATE TABLE Fsp.HwStandardWarranty(
     Country bigint NOT NULL foreign key references InputAtoms.Country(Id)
   , Wg bigint NOT NULL foreign key references InputAtoms.Wg(Id)
-  
+
+  , FspId bigint NOT NULL foreign key references Fsp.HwFspCodeTranslation(Id)
+  , Fsp nvarchar(255) NOT NULL
+
   , AvailabilityId bigint NOT NULL foreign key references Dependencies.Availability(Id)
 
   , DurationId bigint NOT NULL foreign key references Dependencies.Duration(Id)
@@ -599,7 +602,10 @@ AS BEGIN
     WITH StdCte AS (
 
     --remove duplicates in FSP
-        SELECT fsp.CountryId
+        SELECT 
+              fsp.Id   as FspId
+            , fsp.Name as Fsp
+            , fsp.CountryId
             , fsp.WgId
             , fsp.AvailabilityId   
             , fsp.DurationId       
@@ -610,13 +616,13 @@ AS BEGIN
             , row_number() OVER(PARTITION BY fsp.CountryId, fsp.WgId
                     ORDER BY 
                         fsp.CountryId
-                    , fsp.WgId
-                    , fsp.AvailabilityId    
-                    , fsp.DurationId        
-                    , fsp.ReactionTimeId    
-                    , fsp.ReactionTypeId    
-                    , fsp.ServiceLocationId 
-                    , fsp.ProactiveSlaId    ) AS rownum
+                      , fsp.WgId
+                      , fsp.AvailabilityId    
+                      , fsp.DurationId        
+                      , fsp.ReactionTimeId    
+                      , fsp.ReactionTypeId    
+                      , fsp.ServiceLocationId 
+                      , fsp.ProactiveSlaId    ) AS rownum
 
         from Fsp.HwFspCodeTranslation fsp
         where fsp.IsStandardWarranty = 1 
@@ -628,14 +634,7 @@ AS BEGIN
 
         --find FSP for countries
 
-        select    fsp.CountryId
-                , fsp.WgId
-                , fsp.AvailabilityId
-                , fsp.DurationId
-                , fsp.ReactionTimeId
-                , fsp.ReactionTypeId
-                , fsp.ServiceLocationId
-                , fsp.ProactiveSlaId
+        select   *
         from StdCte2 fsp
         where CountryId is not null
     )
@@ -643,7 +642,9 @@ AS BEGIN
         
         --create default country FSP
 
-        select    c.Id as CountryId
+        select    fsp.FspId
+                , fsp.Fsp
+                , c.Id as CountryId
                 , fsp.WgId
                 , fsp.AvailabilityId
                 , fsp.DurationId
@@ -659,7 +660,9 @@ AS BEGIN
         --get country FSP(if exists), or default country FSP
 
         select 
-                  coalesce(fsp.CountryId          , fsp2.CountryId        ) as CountryId        
+                  coalesce(fsp.FspId              , fsp2.FspId            ) as FspId
+                , coalesce(fsp.Fsp                , fsp2.Fsp              ) as Fsp
+                , coalesce(fsp.CountryId          , fsp2.CountryId        ) as CountryId        
                 , coalesce(fsp.WgId               , fsp2.WgId             ) as WgId             
                 , coalesce(fsp.AvailabilityId     , fsp2.AvailabilityId   ) as AvailabilityId   
                 , coalesce(fsp.DurationId         , fsp2.DurationId       ) as DurationId       
@@ -673,6 +676,8 @@ AS BEGIN
     insert into Fsp.HwStandardWarranty(
                           Country
                         , Wg
+                        , FspId
+                        , Fsp
                         , AvailabilityId
 
                         , DurationId 
@@ -690,9 +695,10 @@ AS BEGIN
                         , ReactionTime_Avalability              
                         , ReactionTime_ReactionType             
                         , ReactionTime_ReactionType_Avalability)
-
         select    fsp.CountryId
                 , fsp.WgId
+                , fsp.FspId
+                , fsp.Fsp
                 , fsp.AvailabilityId
 
                 , fsp.DurationId
@@ -723,7 +729,7 @@ AS BEGIN
     ALTER TABLE Fsp.HwStandardWarranty CHECK CONSTRAINT ALL;
 
 END
-GO
+go
 
 update fsp.HwFspCodeTranslation set Name = Name where id  < 10
 go
@@ -1831,7 +1837,10 @@ RETURNS @tbl TABLE  (
         , ClusterPlaId                 bigint
         , RoleCodeId                   bigint
 
-        , StdWarranty                  nvarchar(255)
+        , StdFspId                     bigint
+        , StdFsp                       nvarchar(255)
+
+        , StdWarranty                  int
         , StdWarrantyLocation          nvarchar(255)
 
         , AFR1                         float 
@@ -1956,6 +1965,8 @@ BEGIN
 
               , case when @approved = 0 then hr.OnsiteHourlyRates               else hr.OnsiteHourlyRates_Approved           end as OnsiteHourlyRates      
 
+              , stdw.FspId                                    as StdFspId
+              , stdw.Fsp                                      as StdFsp
               , stdw.AvailabilityId                           as StdAvailabilityId 
               , stdw.Duration                                 as StdDuration
               , stdw.DurationId                               as StdDurationId
@@ -2121,6 +2132,9 @@ BEGIN
                , ClusterPlaId                 
                , RoleCodeId                   
 
+               , StdFspId
+               , StdFsp  
+
                , StdWarranty         
                , StdWarrantyLocation 
                
@@ -2209,6 +2223,8 @@ BEGIN
             , m.ClusterPlaId
             , m.RoleCodeId  
 
+            , m.StdFspId
+            , m.StdFsp
             , m.StdDurationValue
             , m.StdServiceLocation
 
@@ -2549,24 +2565,24 @@ RETURN
     , CostCte5 as (
         select m.*
 
-             , Hardware.PositiveValue(m.FieldServiceCost1  + m.ServiceSupportPerYear + m.matCost1  + m.Logistic1  + m.TaxAndDuties1  + m.ReinsuranceOrZero + m.OtherDirect1  + m.AvailabilityFeeOrZero - m.Credit1) as ServiceTP1
-             , Hardware.PositiveValue(m.FieldServiceCost2  + m.ServiceSupportPerYear + m.matCost2  + m.Logistic2  + m.TaxAndDuties2  + m.ReinsuranceOrZero + m.OtherDirect2  + m.AvailabilityFeeOrZero - m.Credit2) as ServiceTP2
-             , Hardware.PositiveValue(m.FieldServiceCost3  + m.ServiceSupportPerYear + m.matCost3  + m.Logistic3  + m.TaxAndDuties3  + m.ReinsuranceOrZero + m.OtherDirect3  + m.AvailabilityFeeOrZero - m.Credit3) as ServiceTP3
-             , Hardware.PositiveValue(m.FieldServiceCost4  + m.ServiceSupportPerYear + m.matCost4  + m.Logistic4  + m.TaxAndDuties4  + m.ReinsuranceOrZero + m.OtherDirect4  + m.AvailabilityFeeOrZero - m.Credit4) as ServiceTP4
-             , Hardware.PositiveValue(m.FieldServiceCost5  + m.ServiceSupportPerYear + m.matCost5  + m.Logistic5  + m.TaxAndDuties5  + m.ReinsuranceOrZero + m.OtherDirect5  + m.AvailabilityFeeOrZero - m.Credit5) as ServiceTP5
-             , Hardware.PositiveValue(m.FieldServiceCost1P + m.ServiceSupportPerYear + m.matCost1P + m.Logistic1P + m.TaxAndDuties1P + m.ReinsuranceOrZero + m.OtherDirect1P + m.AvailabilityFeeOrZero            ) as ServiceTP1P
+             , m.FieldServiceCost1  + m.ServiceSupportPerYear + m.matCost1  + m.Logistic1  + m.TaxAndDuties1  + m.ReinsuranceOrZero + m.OtherDirect1  + m.AvailabilityFeeOrZero - m.Credit1 as ServiceTP1
+             , m.FieldServiceCost2  + m.ServiceSupportPerYear + m.matCost2  + m.Logistic2  + m.TaxAndDuties2  + m.ReinsuranceOrZero + m.OtherDirect2  + m.AvailabilityFeeOrZero - m.Credit2 as ServiceTP2
+             , m.FieldServiceCost3  + m.ServiceSupportPerYear + m.matCost3  + m.Logistic3  + m.TaxAndDuties3  + m.ReinsuranceOrZero + m.OtherDirect3  + m.AvailabilityFeeOrZero - m.Credit3 as ServiceTP3
+             , m.FieldServiceCost4  + m.ServiceSupportPerYear + m.matCost4  + m.Logistic4  + m.TaxAndDuties4  + m.ReinsuranceOrZero + m.OtherDirect4  + m.AvailabilityFeeOrZero - m.Credit4 as ServiceTP4
+             , m.FieldServiceCost5  + m.ServiceSupportPerYear + m.matCost5  + m.Logistic5  + m.TaxAndDuties5  + m.ReinsuranceOrZero + m.OtherDirect5  + m.AvailabilityFeeOrZero - m.Credit5 as ServiceTP5
+             , m.FieldServiceCost1P + m.ServiceSupportPerYear + m.matCost1P + m.Logistic1P + m.TaxAndDuties1P + m.ReinsuranceOrZero + m.OtherDirect1P + m.AvailabilityFeeOrZero             as ServiceTP1P
 
         from CostCte3 m
     )
     , CostCte6 as (
         select m.*
 
-                , Hardware.PositiveValue(m.ServiceTP1  - m.OtherDirect1 ) as ServiceTC1
-                , Hardware.PositiveValue(m.ServiceTP2  - m.OtherDirect2 ) as ServiceTC2
-                , Hardware.PositiveValue(m.ServiceTP3  - m.OtherDirect3 ) as ServiceTC3
-                , Hardware.PositiveValue(m.ServiceTP4  - m.OtherDirect4 ) as ServiceTC4
-                , Hardware.PositiveValue(m.ServiceTP5  - m.OtherDirect5 ) as ServiceTC5
-                , Hardware.PositiveValue(m.ServiceTP1P - m.OtherDirect1P) as ServiceTC1P
+                , m.ServiceTP1  - m.OtherDirect1  as ServiceTC1
+                , m.ServiceTP2  - m.OtherDirect2  as ServiceTC2
+                , m.ServiceTP3  - m.OtherDirect3  as ServiceTC3
+                , m.ServiceTP4  - m.OtherDirect4  as ServiceTC4
+                , m.ServiceTP5  - m.OtherDirect5  as ServiceTC5
+                , m.ServiceTP1P - m.OtherDirect1P as ServiceTC1P
 
         from CostCte5 m
     )    
@@ -2627,8 +2643,8 @@ RETURN
        
          , m.Credits
 
-         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P) as ServiceTC
-         , Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P) as ServiceTP
+         , Hardware.PositiveValue(Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P)) as ServiceTC
+         , Hardware.PositiveValue(Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P)) as ServiceTP
 
          , m.ServiceTC1
          , m.ServiceTC2
@@ -2656,7 +2672,7 @@ RETURN
 
        from CostCte6 m
 )
-GO
+go
 
 IF OBJECT_ID('Hardware.SpGetCosts') IS NOT NULL
   DROP PROCEDURE Hardware.SpGetCosts;
@@ -2799,6 +2815,56 @@ BEGIN
 END
 GO
 
+if OBJECT_ID('[Hardware].[GetInstallBaseOverSog]') is not null
+    drop function [Hardware].[GetInstallBaseOverSog];
+go
+
+CREATE function [Hardware].[GetInstallBaseOverSog](
+    @approved bit,
+    @cnt dbo.ListID readonly
+)
+returns @tbl table (
+      Country                      bigint
+    , Sog                          bigint
+    , Wg                           bigint
+    , InstalledBaseCountry         float
+    , InstalledBaseCountryNorm     float
+    , TotalInstalledBaseCountrySog float
+    , PRIMARY KEY CLUSTERED(Country, Wg)
+)
+begin
+
+    with IbCte as (
+        select  ib.Country
+              , ib.Wg
+              , wg.SogId
+
+              , coalesce(case when @approved = 0 then ib.InstalledBaseCountry else ib.InstalledBaseCountry_Approved end, 0) as InstalledBaseCountry
+
+        from Hardware.InstallBase ib
+        join InputAtoms.Wg wg on wg.id = ib.Wg and wg.SogId is not null 
+
+        where ib.Country in (select id from @cnt) and ib.DeactivatedDateTime is null
+    )
+    , IbSogCte as (
+        select  ib.*
+              , (sum(ib.InstalledBaseCountry) over(partition by ib.Country, ib.SogId)) as sum_ib_by_sog
+        from IbCte ib
+    )
+    insert into @tbl
+        select ib.Country
+             , ib.SogId
+             , ib.Wg
+             , ib.InstalledBaseCountry
+             , case when ib.sum_ib_by_sog > 0 then ib.InstalledBaseCountry else 1 end InstalledBaseCountryNorm_By_Sog
+             , ib.sum_ib_by_sog
+        from IbSogCte ib
+
+    return;
+
+end
+go
+
 IF OBJECT_ID('Hardware.GetCostsSlaSog') IS NOT NULL
   DROP FUNCTION Hardware.GetCostsSlaSog;
 go
@@ -2854,6 +2920,7 @@ RETURN
              , m.SlaHash
 
              , m.StdWarranty
+             , m.StdWarrantyLocation
 
              --Cost
 
@@ -2871,12 +2938,16 @@ RETURN
              , m.LocalServiceStandardWarranty
              , m.Credits
 
-             , ib.InstalledBaseCountry
+             , ib.InstalledBaseCountryNorm
 
-             , (sum(m.ServiceTC * ib.InstalledBaseCountry)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tc 
-             , (sum(case when m.ServiceTC > 0 then ib.InstalledBaseCountry end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tc
-             , (sum(m.ServiceTP_Released * ib.InstalledBaseCountry)                      over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp
-             , (sum(case when m.ServiceTP_Released > 0 then ib.InstalledBaseCountry end) over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp
+             , (sum(m.ServiceTC * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tc 
+             , (sum(case when m.ServiceTC > 0 then ib.InstalledBaseCountryNorm end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tc
+
+             , (sum(m.ServiceTP_Released * ib.InstalledBaseCountryNorm)                      over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp
+             , (sum(case when m.ServiceTP_Released > 0 then ib.InstalledBaseCountryNorm end) over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp
+
+             , (sum(m.ServiceTP * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp_approved
+             , (sum(case when m.ServiceTP > 0 then ib.InstalledBaseCountryNorm end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp_approved
 
              , m.ListPrice
              , m.DealerDiscount
@@ -2884,7 +2955,7 @@ RETURN
 
         from Hardware.GetCosts(@approved, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, null, null) m
         join InputAtoms.Wg wg on wg.id = m.WgId and wg.DeactivatedDateTime is null
-        left join Hardware.InstallBase ib on ib.Country = m.CountryId and ib.Wg = m.WgId and ib.DeactivatedDateTime is null
+        left join Hardware.GetInstallBaseOverSog(@approved, @cnt) ib on ib.Country = m.CountryId and ib.Wg = m.WgId
     )
     select    
             m.Id
@@ -2921,6 +2992,7 @@ RETURN
             , m.SlaHash
 
             , m.StdWarranty
+            , m.StdWarrantyLocation
 
             --Cost
 
@@ -2938,15 +3010,17 @@ RETURN
             , m.LocalServiceStandardWarranty
             , m.Credits
 
-            , case when m.sum_ib_by_tc > 0 then m.sum_ib_x_tc / m.sum_ib_by_tc end as ServiceTcSog
-            , case when m.sum_ib_by_tp > 0 then m.sum_ib_x_tp / m.sum_ib_by_tp end as ServiceTpSog
-    
+            , case when m.sum_ib_x_tc > 0 and m.sum_ib_by_tc > 0 then m.sum_ib_x_tc / m.sum_ib_by_tc else 0 end as ServiceTcSog
+            , case when m.sum_ib_x_tp > 0 and m.sum_ib_by_tp > 0 then m.sum_ib_x_tp / m.sum_ib_by_tp else 0 end as ServiceTpSog
+            , case when m.sum_ib_x_tp_approved > 0 and m.sum_ib_by_tp_approved > 0 then m.sum_ib_x_tp / m.sum_ib_by_tp else 0 end as ServiceTpSog_Approved
+
             , m.ListPrice
             , m.DealerDiscount
             , m.DealerPrice  
 
     from cte m
 )
+
 go
 
 IF OBJECT_ID('Hardware.SpReleaseCosts') IS NOT NULL
@@ -2954,6 +3028,7 @@ IF OBJECT_ID('Hardware.SpReleaseCosts') IS NOT NULL
 go
 
 CREATE PROCEDURE [Hardware].[SpReleaseCosts]
+	@usr		  int, 
     @cnt          dbo.ListID readonly,
     @wg           dbo.ListID readonly,
     @av           dbo.ListID readonly,
@@ -2967,10 +3042,27 @@ BEGIN
 
     SET NOCOUNT ON;
     
-	UPDATE mc
-	SET [ServiceTP_Released] = COALESCE(costs.ServiceTPManual, costs.ServiceTP)
-	FROM [Hardware].[ManualCost] mc
-	JOIN Hardware.GetCosts(1, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, 0, 0) costs on costs.Id = mc.PortfolioId
+	SELECT * INTO #temp 
+	FROM Hardware.GetCosts(1, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, 0, 0)   
 
+	UPDATE mc
+	SET [ServiceTP_Released] = COALESCE(costs.ServiceTPManual, costs.ServiceTP),
+		[ChangeUserId] = @usr
+	FROM [Hardware].[ManualCost] mc
+	JOIN #temp costs on mc.PortfolioId = costs.Id
+	where costs.ServiceTPManual is not null or costs.ServiceTP is not null
+
+	INSERT INTO [Hardware].[ManualCost] 
+				([PortfolioId], 
+				[ChangeUserId], 
+				[ServiceTP_Released])
+	SELECT  costs.Id, 
+			@usr, 
+			COALESCE(costs.ServiceTPManual, costs.ServiceTP)
+	FROM [Hardware].[ManualCost] mc
+	RIGHT JOIN #temp costs on mc.PortfolioId = costs.Id
+	where mc.PortfolioId is null and (costs.ServiceTPManual is not null or costs.ServiceTP is not null)
+
+	DROP table #temp
    
 END

@@ -48,7 +48,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 {
                     var filter = regionFilter.Concat(editItemSet.CoordinateFilter).ToDictionary(keyValue => keyValue.Key, keyValue => keyValue.Value);
 
-                    bundleDetails.AddRange(await this.qualityGateRepository.Check(editContext.Context, editItemSet.EditItems, filter, option.IsCountyCheck));
+                    bundleDetails.AddRange(await this.qualityGateRepository.Check(editContext.Context, editItemSet.EditItems, filter, option.IsCountryCheck));
                 }
 
                 result.Errors = bundleDetails.ToBundleDetailGroups();
@@ -68,7 +68,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (this.IsUseCheck(option))
             {
-                var bundleDetails = await this.qualityGateRepository.Check(history, option.IsCountyCheck);
+                var bundleDetails = await this.qualityGateRepository.Check(history, option.IsCountryCheck);
 
                 result.Errors = bundleDetails.ToBundleDetailGroups();
             }
@@ -95,7 +95,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                     if (editorType == EditorType.CostEditor)
                     {
-                        option.IsCountyCheck = costElementMeta.HasInputLevel(MetaConstants.CountryInputLevelName);
+                        option.IsCountryCheck = costElementMeta.HasInputLevel(MetaConstants.CountryInputLevelName);
                     }
                 }
             }

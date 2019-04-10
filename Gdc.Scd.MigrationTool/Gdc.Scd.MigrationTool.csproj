@@ -32,6 +32,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ClosedXML, Version=0.94.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ClosedXML.0.94.2\lib\net46\ClosedXML.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.7.2.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.7.2\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelNumberFormat, Version=1.0.3.0, Culture=neutral, PublicKeyToken=23c6f5d73be07eca, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelNumberFormat.1.0.3\lib\net20\ExcelNumberFormat.dll</HintPath>
+    </Reference>
+    <Reference Include="FastMember, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FastMember.1.3.0\lib\net45\FastMember.dll</HintPath>
+    </Reference>
     <Reference Include="Ninject, Version=3.3.4.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <HintPath>..\packages\Ninject.3.3.4\lib\net45\Ninject.dll</HintPath>
     </Reference>
@@ -41,17 +53,27 @@
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.FileSystem.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.FileSystem.Primitives.4.0.1\lib\net46\System.IO.FileSystem.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Packaging, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Packaging.4.0.0\lib\net46\System.IO.Packaging.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\Identity.cs" />
     <Compile Include="Entities\Migration.cs" />
+    <Compile Include="Entities\Principal.cs" />
     <Compile Include="Helpers\RepositorySetExtensions.cs" />
     <Compile Include="Impl\MigrationService.cs" />
+    <Compile Include="Impl\PrincipalProvider.cs" />
     <Compile Include="Interfaces\IMigrationAction.cs" />
     <Compile Include="Interfaces\IMigrationService.cs" />
     <Compile Include="Migrations\Migration_2019_02_07.cs" />
@@ -108,15 +130,27 @@
     <Compile Include="Migrations\Migration_2019_03_21_12_22.cs" />
     <Compile Include="Migrations\Migration_2019_03_22_11_35.cs" />
     <Compile Include="Migrations\Migration_2019_03_22_16_40.cs" />
+    <Compile Include="Migrations\Migration_2019_03_28_12_14.cs" />
     <Compile Include="Migrations\Migration_2019_03_27_12_28.cs" />
     <Compile Include="Migrations\Migration_2019_03_22_17_48.cs" />
     <Compile Include="Migrations\Migration_2019_03_26_13_50.cs" />
     <Compile Include="Migrations\Migration_2019_03_27_08_58.cs" />
-    <Compile Include="Migrations\Migration_2019_03_28_12_14.cs" />
     <Compile Include="Migrations\Migration_2019_03_28_14_41.cs" />
+    <Compile Include="Migrations\Migration_2019_03_28_14_54.cs" />
     <Compile Include="Migrations\Migration_2019_03_28_15_50.cs" />
     <Compile Include="Migrations\Migration_2019_03_29_09_58.cs" />
     <Compile Include="Migrations\Migration_2019_03_29_11_19.cs" />
+    <Compile Include="Migrations\Migration_2019_03_29_12_32.cs" />
+    <Compile Include="Migrations\Migration_2019_04_02_15_38.cs" />
+    <Compile Include="Migrations\Migration_2019_04_02_16_23.cs" />
+    <Compile Include="Migrations\Migration_2019_04_03_17_33.cs" />
+    <Compile Include="Migrations\Migration_2019_04_03_13_45.cs" />
+    <Compile Include="Migrations\Migration_2019_04_04_14_11.cs" />
+    <Compile Include="Migrations\Migration_2019_04_05_09_12.cs" />
+    <Compile Include="Migrations\Migration_2019_04_05_12_35.cs" />
+    <Compile Include="Migrations\Migration_2019_04_08_19_00.cs" />
+    <Compile Include="Migrations\Migration_2019_04_09_14_20.cs" />
+    <Compile Include="Migrations\Migration_2019_04_09_17_10.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -126,7 +160,13 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config" />
+    <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\2019-03-28 CS200c SCD2-0 List %28sb%29.xlsx" />
+    <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\2019-03-28 ESM SCD2-0 List %28sb%29.xlsx" />
+    <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\Import Maschlanka SDC V2.0.xlsx" />
+    <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\2019-03-29 VIOM SCD 2-0 List %28sb%29.xlsx" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="MigrationScripts\2019-02-12_101.sql">
@@ -300,10 +340,10 @@
     <Content Include="MigrationScripts\2019-03-27-08-58.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="MigrationScripts\2019-03-28-14-41.sql">
+    <Content Include="MigrationScripts\2019-03-28-13-52.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="MigrationScripts\2019-03-28-13-52.sql">
+    <Content Include="MigrationScripts\2019-03-28-14-41.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2019-03-29-09-58.sql">
@@ -312,6 +352,39 @@
     <Content Include="MigrationScripts\2019-03-29-11-19.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="MigrationScripts\2019-03-29-12-21.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-04-03-17-33.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-04-03-13-45.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-04-04-14-11.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-04-05-09-12.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-04-08-19-00.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-04-05-12-35.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-04-09-14-20.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-04-09-17-10.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <EmbeddedResource Include="MigrationScripts\2019-04-02-16-23.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <None Include="MigrationScripts\2019-04-02-15-38.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gdc.Scd.BusinessLogicLayer\Gdc.Scd.BusinessLogicLayer.csproj">
@@ -327,5 +400,6 @@
       <Name>Gdc.Scd.DataAccessLayer</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

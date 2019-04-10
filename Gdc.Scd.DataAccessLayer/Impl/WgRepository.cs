@@ -6,9 +6,9 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
-    public class WgRepository : EntityFrameworkRepository<Wg>, IWgRepository
+    public class WgRepository : DeactivateDecoratorRepository<Wg>, IWgRepository
     {
-        public WgRepository(EntityFrameworkRepositorySet repositorySet) : base(repositorySet) { }
+        public WgRepository(EntityFrameworkRepository<Wg> repo) : base(repo) { }
 
         public IQueryable<Wg> GetStandards()
         {

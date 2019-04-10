@@ -90,7 +90,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return await this.costBlockValueHistoryRepository.GetHistory(historyContext, filter, queryInfo);
         }
 
-        public async Task Save(CostElementContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter, EditorType editorType)
+        public async Task<CostBlockHistory> Save(CostElementContext context, IEnumerable<EditItem> editItems, ApprovalOption approvalOption, IDictionary<string, long[]> filter, EditorType editorType)
         {
             if (approvalOption.HasQualityGateErrors && string.IsNullOrWhiteSpace(approvalOption.QualityGateErrorExplanation))
             {
@@ -122,6 +122,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             };
 
             await this.costBlockValueHistoryRepository.Save(history, editItemArray, relatedItems);
+
+            return history;
         }
 
         public void Save(CostBlockHistory history, ApprovalOption approvalOption)

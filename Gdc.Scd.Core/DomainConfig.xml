@@ -766,6 +766,7 @@
             <Roles>
               <Role>PRS Finance</Role>
               <Role>SCD Admin</Role>
+              <Role>PRS PSM</Role>
             </Roles>
           </CostEditor>
         </Element>

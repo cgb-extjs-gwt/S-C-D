@@ -51,7 +51,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                 if (valueInfos.Length > 1)
                 {
-                    queries.Insert(0, Sql.DisableTriggers(editInfo.Meta));
+                    queries.Insert(queries.Count - valueInfos.Length, Sql.DisableTriggers(editInfo.Meta));
                     queries.Insert(queries.Count - 1, Sql.EnableTriggers(editInfo.Meta));
                 }
             }

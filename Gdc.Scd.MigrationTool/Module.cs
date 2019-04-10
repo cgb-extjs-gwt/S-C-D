@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.MigrationTool.Entities;
 using Gdc.Scd.MigrationTool.Impl;
@@ -14,6 +15,7 @@ namespace Gdc.Scd.MigrationTool
             this.AutoRegistrationMigrations();
 
             this.Bind<IMigrationService>().To<MigrationService>().InTransientScope();
+            this.Bind<IPrincipalProvider>().To<PrincipalProvider>().InSingletonScope();
 
             this.Kernel.RegisterEntityAsUnique<Migration>(nameof(Migration.Number));
         }

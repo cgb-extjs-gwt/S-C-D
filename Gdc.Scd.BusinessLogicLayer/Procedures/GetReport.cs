@@ -72,22 +72,25 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
 
         private async Task<Stream> ExecuteExcelFuncAsync(ReportSchemaDto schema, string func, DbParameter[] parameters)
         {
-            var writer = new ReportExcelWriter(schema);
-            var sql = SelectAllQuery(func, parameters);
+            using (var writer = new ReportExcelWriter(schema))
+            {
+                var sql = SelectAllQuery(func, parameters);
 
-            await _repo.ReadBySql(sql, writer.WriteBody, parameters);
+                await _repo.ReadBySql(sql, writer.WriteBody, parameters);
 
-            return writer.GetData();
+                return writer.GetData();
+            }
         }
 
         private async Task<Stream> ExecuteExcelProcAsync(ReportSchemaDto schema, string func, DbParameter[] parameters)
         {
-            var writer = new ReportExcelWriter(schema);
+            using (var writer = new ReportExcelWriter(schema))
+            {
+                parameters = Prepare(parameters, -1, -1);
+                await _repo.ExecuteProcAsync(func, writer.WriteBody, parameters);
 
-            parameters = Prepare(parameters, -1, -1);
-            await _repo.ExecuteProcAsync(func, writer.WriteBody, parameters);
-
-            return writer.GetData();
+                return writer.GetData();
+            }
         }
 
         private static bool IsProcedure(string func)
