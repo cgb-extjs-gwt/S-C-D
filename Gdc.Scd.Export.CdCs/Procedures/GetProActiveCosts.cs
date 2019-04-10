@@ -20,7 +20,7 @@ namespace Gdc.Scd.Export.CdCs.Procedures
 
         public List<ProActiveDto> Execute(string country)
         {
-            var data = _service.ExecuteAsTable(Enums.Functions.GetProActiveByCountryAndWg, FillParameters(country));
+            var data = _service.ExecuteAsTable(Enums.Enums.Functions.GetProActiveByCountryAndWg, FillParameters(country));
             return GetProActiveCost(data);
         }
 
@@ -53,7 +53,7 @@ namespace Gdc.Scd.Export.CdCs.Procedures
                     ProActive4 = CommonService.CheckDoubleField(pro4, "Cost"),
                     ProActive6 = CommonService.CheckDoubleField(pro6, "Cost"),
                     ProActive7 = CommonService.CheckDoubleField(pro7, "Cost"),
-                    OneTimeTasks = CommonService.CheckDoubleField(oneTime, "Cost")
+                    OneTimeTasks = CommonService.CheckDoubleField(oneTime, "OneTimeTasks")
                 };
                 proList.Add(proActiveCost);
             }

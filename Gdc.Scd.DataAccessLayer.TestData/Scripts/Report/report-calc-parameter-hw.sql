@@ -15,151 +15,6 @@ CREATE FUNCTION [Report].[CalcParameterHw]
 RETURNS TABLE 
 AS
 RETURN (
-    with CostCte as (
-            select 
-                m.Id
-              , m.CountryId
-              , c.Name as Country
-              , wg.Description as WgDescription
-              , wg.Name as Wg
-              , sog.Description as SogDescription
-              , wg.SCD_ServiceType
-              , pro.ExternalName as Sla
-              , loc.Name as ServiceLocation
-              , rtime.Name as ReactionTime
-              , rtype.Name as ReactionType
-              , av.Name as Availability
-              , cur.Name as Currency
-              , er.Value as ExchangeRate
-
-             --FSP
-              , fsp.Name Fsp
-              , fsp.ServiceDescription as FspDescription
-
-              --cost blocks
-
-              , fsc.LabourCost_Approved as LabourCost
-              , fsc.TravelCost_Approved as TravelCost
-              , fst.PerformanceRate_Approved as PerformanceRate
-              , fsc.TravelTime_Approved as TravelTime
-              , fsc.RepairTime_Approved as RepairTime
-              , hr.OnsiteHourlyRates_Approved as OnsiteHourlyRate
-
-
-              , lc.StandardHandling_Approved         as StandardHandling
-              , lc.HighAvailabilityHandling_Approved as HighAvailabilityHandling 
-              , lc.StandardDelivery_Approved         as StandardDelivery
-              , lc.ExpressDelivery_Approved          as ExpressDelivery
-              , lc.TaxiCourierDelivery_Approved      as TaxiCourierDelivery
-              , lc.ReturnDeliveryFactory_Approved    as ReturnDeliveryFactory 
-              , lc.StandardHandling_Approved + lc.HighAvailabilityHandling_Approved as LogisticHandlingPerYear
-              , lc.StandardDelivery_Approved + lc.ExpressDelivery_Approved + lc.TaxiCourierDelivery_Approved + lc.ReturnDeliveryFactory_Approved as LogisticTransportPerYear
-
-              , case when afEx.id is not null then af.Fee_Approved else 0 end as AvailabilityFee
-      
-              , tax.TaxAndDuties_norm_Approved as TaxAndDutiesW
-
-              , moc.Markup_Approved       as MarkupOtherCost
-              , moc.MarkupFactor_Approved as MarkupFactorOtherCost
-
-              , msw.MarkupFactorStandardWarranty_Approved as MarkupFactorStandardWarranty
-              , msw.MarkupStandardWarranty_Approved       as MarkupStandardWarranty
-      
-              , afr.AFR1_Approved  as AFR1
-              , afr.AFR2_Approved  as AFR2
-              , afr.AFR3_Approved  as AFR3
-              , afr.AFR4_Approved  as AFR4
-              , afr.AFR5_Approved  as AFR5
-              , afr.AFRP1_Approved as AFRP1
-
-              , Hardware.CalcFieldServiceCost(
-                            fst.TimeAndMaterialShare_norm_Approved, 
-                            fsc.TravelCost_Approved, 
-                            fsc.LabourCost_Approved, 
-                            fst.PerformanceRate_Approved, 
-                            fsc.TravelTime_Approved, 
-                            fsc.RepairTime_Approved, 
-                            hr.OnsiteHourlyRates_Approved, 
-                            1
-                        ) as FieldServicePerYear
-
-              , ssc.[1stLevelSupportCosts_Approved]           as [1stLevelSupportCosts]
-              , ssc.[2ndLevelSupportCosts_Approved]           as [2ndLevelSupportCosts]
-           
-              , r.ReinsuranceFlatfee1_Approved                as ReinsuranceFlatfee1
-              , r.ReinsuranceFlatfee2_Approved                as ReinsuranceFlatfee2
-              , r.ReinsuranceFlatfee3_Approved                as ReinsuranceFlatfee3
-              , r.ReinsuranceFlatfee4_Approved                as ReinsuranceFlatfee4
-              , r.ReinsuranceFlatfee5_Approved                as ReinsuranceFlatfee5
-              , r.ReinsuranceFlatfeeP1_Approved               as ReinsuranceFlatfeeP1
-              , r.ReinsuranceUpliftFactor_4h_24x7_Approved    as ReinsuranceUpliftFactor_4h_24x7
-              , r.ReinsuranceUpliftFactor_4h_9x5_Approved     as ReinsuranceUpliftFactor_4h_9x5
-              , r.ReinsuranceUpliftFactor_NBD_9x5_Approved    as ReinsuranceUpliftFactor_NBD_9x5
-
-              , mcw.MaterialCostIw_Approved as MaterialCostWarranty
-              , mcw.MaterialCostOow_Approved as MaterialCostOow
-
-              , dur.Value as Duration
-              , dur.IsProlongation
-
-        from Portfolio.GetBySlaSingle(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc, @pro) m
-
-        INNER JOIN InputAtoms.Country c on c.Id = m.CountryId
-
-        INNER JOIN [References].Currency cur on cur.Id = c.CurrencyId
-
-        INNER JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
-
-        INNER JOIN InputAtoms.Wg wg on wg.id = m.WgId
-        INNER JOIN InputAtoms.Pla pla on pla.id = wg.PlaId
-
-        INNER JOIN Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
-
-        INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
-
-        INNER JOIN Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
-
-        INNER JOIN Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
-
-        INNER JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
-
-        INNER JOIN Dependencies.ProActiveSla pro on pro.Id = m.ProActiveSlaId
-
-        LEFT JOIN InputAtoms.Sog sog on sog.id = wg.SogId
-
-        LEFT JOIN Hardware.RoleCodeHourlyRates hr on hr.Country = m.CountryId and hr.RoleCode = wg.RoleCodeId 
-
-        LEFT JOIN Hardware.AfrYear afr on afr.Wg = m.WgId
-
-        --cost blocks
-        LEFT JOIN Hardware.FieldServiceCalc fsc ON fsc.Country = m.CountryId AND fsc.Wg = m.WgId AND fsc.ServiceLocation = m.ServiceLocationId
-        LEFT JOIN Hardware.FieldServiceTimeCalc fst ON fst.Wg = m.WgId AND fst.Country = m.CountryId AND fst.ReactionTimeType = m.ReactionTime_ReactionType
-
-        LEFT JOIN Hardware.LogisticsCosts lc on lc.Country = m.CountryId 
-                                            AND lc.Wg = m.WgId
-                                            AND lc.ReactionTimeType = m.ReactionTime_ReactionType
-
-        LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = m.CountryId
-
-        LEFT JOIN Hardware.MaterialCostWarrantyCalc mcw on mcw.Country = m.CountryId and mcw.Wg = m.WgId 
-
-        LEFT JOIN Hardware.ServiceSupportCostView ssc on ssc.Country = m.CountryId and ssc.ClusterPla = pla.ClusterPlaId
-
-        LEFT JOIN Hardware.ReinsuranceYear r on r.Wg = m.WgId
-
-        LEFT JOIN Hardware.MarkupOtherCosts moc on moc.Wg = m.WgId AND moc.Country = m.CountryId AND moc.ReactionTimeTypeAvailability = m.ReactionTime_ReactionType_Avalability
-
-        LEFT JOIN Hardware.MarkupStandardWaranty msw on msw.Country = m.CountryId AND msw.Wg = m.WgId 
-
-        LEFT JOIN Hardware.AvailabilityFeeCalc af on af.Country = m.CountryId AND af.Wg = m.WgId
-
-        LEFT JOIN Admin.AvailabilityFee afEx on afEx.CountryId = m.CountryId 
-                                            AND afEx.ReactionTimeId = m.ReactionTimeId 
-                                            AND afEx.ReactionTypeId = m.ReactionTypeId 
-                                            AND afEx.ServiceLocationId = m.ServiceLocationId
-
-        LEFT JOIN Fsp.HwFspCodeTranslation fsp  on fsp.SlaHash = m.SlaHash and fsp.Sla = m.Sla
-    )
     select    
                 m.Id
               , m.Country
@@ -196,36 +51,36 @@ RETURN (
               , m.MarkupFactorStandardWarranty as MarkupFactorStandardWarranty
               , m.MarkupStandardWarranty as MarkupStandardWarranty
       
-              , m.AFR1   * 100 as AFR1
-              , m.AFR2   * 100 as AFR2
-              , m.AFR3   * 100 as AFR3
-              , m.AFR4   * 100 as AFR4
-              , m.AFR5   * 100 as AFR5
-              , m.AFRP1  * 100 as AFRP1
+              , m.AFR1
+              , m.AFR2
+              , m.AFR3
+              , m.AFR4
+              , m.AFR5
+              , m.AFRP1
 
-              , m.[1stLevelSupportCosts] * m.ExchangeRate as [1stLevelSupportCosts]
-              , m.[2ndLevelSupportCosts] * m.ExchangeRate as [2ndLevelSupportCosts]
+              , m.[1stLevelSupportCosts]
+              , m.[2ndLevelSupportCosts]
            
-              , m.ReinsuranceFlatfee1 * m.ExchangeRate as ReinsuranceFlatfee1
-              , m.ReinsuranceFlatfee2 * m.ExchangeRate as ReinsuranceFlatfee2
-              , m.ReinsuranceFlatfee3 * m.ExchangeRate as ReinsuranceFlatfee3
-              , m.ReinsuranceFlatfee4 * m.ExchangeRate as ReinsuranceFlatfee4
-              , m.ReinsuranceFlatfee5 * m.ExchangeRate as ReinsuranceFlatfee5
-              , m.ReinsuranceFlatfeeP1 * m.ExchangeRate as ReinsuranceFlatfeeP1
+              , m.ReinsuranceFlatfee1
+              , m.ReinsuranceFlatfee2
+              , m.ReinsuranceFlatfee3
+              , m.ReinsuranceFlatfee4
+              , m.ReinsuranceFlatfee5
+              , m.ReinsuranceFlatfeeP1
               , m.ReinsuranceUpliftFactor_4h_24x7 as ReinsuranceUpliftFactor_4h_24x7
               , m.ReinsuranceUpliftFactor_4h_9x5 as ReinsuranceUpliftFactor_4h_9x5
               , m.ReinsuranceUpliftFactor_NBD_9x5 as ReinsuranceUpliftFactor_NBD_9x5
 
-              , m.MaterialCostWarranty * m.ExchangeRate as MaterialCostWarranty
-              , m.MaterialCostOow * m.ExchangeRate as MaterialCostOow
+              , m.MaterialCostWarranty
+              , m.MaterialCostOow
 
               , m.Duration
 
-              , m.FieldServicePerYear * m.AFR1 as FieldServiceCost1
-              , m.FieldServicePerYear * m.AFR2 as FieldServiceCost2
-              , m.FieldServicePerYear * m.AFR3 as FieldServiceCost3
-              , m.FieldServicePerYear * m.AFR4 as FieldServiceCost4
-              , m.FieldServicePerYear * m.AFR5 as FieldServiceCost5
+              , m.FieldServiceCost1
+              , m.FieldServiceCost2
+              , m.FieldServiceCost3
+              , m.FieldServiceCost4
+              , m.FieldServiceCost5
             
               , m.StandardHandling
               , m.HighAvailabilityHandling
@@ -234,30 +89,12 @@ RETURN (
               , m.TaxiCourierDelivery
               , m.ReturnDeliveryFactory 
 
-              , Hardware.CalcByDur(
-                      m.Duration
-                    , m.IsProlongation 
-                    , m.LogisticHandlingPerYear * m.AFR1 
-                    , m.LogisticHandlingPerYear * m.AFR2 
-                    , m.LogisticHandlingPerYear * m.AFR3 
-                    , m.LogisticHandlingPerYear * m.AFR4 
-                    , m.LogisticHandlingPerYear * m.AFR5 
-                    , m.LogisticHandlingPerYear * m.AFRP1
-                ) as LogisticsHandling
+              , m.LogisticsHandling
 
-             , Hardware.CalcByDur(
-                       m.Duration
-                     , m.IsProlongation 
-                     , m.LogisticTransportPerYear * m.AFR1 
-                     , m.LogisticTransportPerYear * m.AFR2 
-                     , m.LogisticTransportPerYear * m.AFR3 
-                     , m.LogisticTransportPerYear * m.AFR4 
-                     , m.LogisticTransportPerYear * m.AFR5 
-                     , m.LogisticTransportPerYear * m.AFRP1
-                 ) as LogisticTransportcost
+             , m.LogisticTransportcost
 
             , m.Currency
-    from CostCte m
+    from Report.GetParameterHw(1, @cnt, @wg, @av, @reactiontime, @reactiontype, @loc, @pro) m
 )
 go
 

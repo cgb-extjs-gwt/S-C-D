@@ -9,68 +9,22 @@ namespace Gdc.Scd.Export.CdCs
 {
     public static class Config
     {
-        public static string SpServiceDomain
-        {
-            get
-            {
-                return ConfigurationManager.AppSettings["SpServiceDomain"];
-            }
-        }
-        public static string SpServiceAccount
-        {
-            get
-            {
-                return ConfigurationManager.AppSettings["SpServiceAccount"];
-            }
-        }
-        public static string SpServicePassword
-        {
-            get
-            {
-                return ConfigurationManager.AppSettings["SpServicePassword"];
-            }
-        }
-        public static string CalculatiolToolWeb
-        {
-            get
-            {
-                return ConfigurationManager.AppSettings["CalculatiolToolWeb"];
-            }
-        }
-        public static string CalculatiolToolList
-        {
-            get
-            {
-                return ConfigurationManager.AppSettings["CalculatiolToolList"];
-            }
-        }
-        public static string CalculatiolToolFolder
-        {
-            get
-            {
-                return ConfigurationManager.AppSettings["CalculatiolToolFolder"];
-            }
-        }
-        public static string CalculatiolToolFileName
-        {
-            get
-            {
-                return ConfigurationManager.AppSettings["CalculatiolToolFileName"];
-            }
-        }
-        public static string CalculatiolToolInputFileName
-        {
-            get
-            {
-                return ConfigurationManager.AppSettings["CalculatiolToolInputFileName"];
-            }
-        }
-        public static string ProActiveWgList
-        {
-            get
-            {
-                return ConfigurationManager.AppSettings["ProActiveWgList"];
-            }
-        }
+        public static string SpServiceDomain => ConfigurationManager.AppSettings["SpServiceDomain"];
+
+        public static string SpServiceAccount => ConfigurationManager.AppSettings["SpServiceAccount"];
+
+        public static string SpServicePassword => ConfigurationManager.AppSettings["SpServicePassword"];
+
+        public static string CalculationToolWeb => ConfigurationManager.AppSettings["CalculationToolWeb"];
+
+        public static string CalculationToolList => ConfigurationManager.AppSettings["CalculationToolList"];
+
+        public static string CalculationToolFolder => ConfigurationManager.AppSettings["CalculationToolFolder"];
+
+        public static string CalculationToolFileName => ConfigurationManager.AppSettings["CalculationToolFileName"];
+
+        public static string CalculationToolInputFileName => ConfigurationManager.AppSettings["CalculationToolInputFileName"];
+
+        public static string ProActiveWgList => ConfigurationManager.AppSettings["ProActiveWgList"];
     }
 }
