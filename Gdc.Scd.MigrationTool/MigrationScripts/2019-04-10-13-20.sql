@@ -198,7 +198,7 @@ AS
 RETURN (
     with CountryCte as (
         select c.*
-             , cur.Id as Currency
+             , cur.Name as Currency
              , er.Value as ExchangeRate
              , case when @approved = 0 then tax.TaxAndDuties_norm else tax.TaxAndDuties_norm_Approved end as TaxAndDuties
         from InputAtoms.Country c 
@@ -389,6 +389,8 @@ RETURN (
               , m.ReactionType
               , m.Availability
 
+             , m.Currency
+
              --FSP
               , m.Fsp
               , m.FspDescription
@@ -472,7 +474,6 @@ RETURN (
                      , m.LogisticTransportPerYear * m.AFRP1
                  ) as LogisticTransportcost
 
-            , m.Currency
     from CostCte m
 )
 
