@@ -127,7 +127,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
 
             Logger.Log(LogLevel.Info, CdCsMessages.READ_CONFIGURATION);
             var configHandler = Kernel.Get<ConfigHandler>();
-            var configList = configHandler.ReadAllConfiguration().Take(3);
+            var configList = configHandler.ReadAllConfiguration();
           
             var getServiceCostsBySla = Kernel.Get<GetServiceCostsBySla>();
             var getProActiveCosts = Kernel.Get<GetProActiveCosts>();
