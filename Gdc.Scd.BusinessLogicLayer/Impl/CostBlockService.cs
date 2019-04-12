@@ -385,6 +385,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                         filters.Add(new FilterInfo(coordinateFilter, coordinateField.ReferenceMeta.Name));
                     }
 
+                    filters.Add(new FilterInfo(costBlockFilter, costBlockMeta.Name));
+
                     items = await this.sqlRepository.GetDistinctItems(new DistinctItemsInfo
                     {
                         Meta = costBlockMeta,
