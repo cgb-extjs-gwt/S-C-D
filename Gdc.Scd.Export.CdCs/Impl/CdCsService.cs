@@ -100,7 +100,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     var range = inputSheet.RangeUsed();
                     var rowCount = range.RowCount();
 
-                    for (var row = 2; row < rowCount; row++)
+                    for (var row = 2; row <= rowCount; row++)
                     {
                         slaList.Add(new SlaDto
                         {
@@ -200,6 +200,10 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     {
                         range.Row(row).Clear();
                     }
+
+                    //set Last update
+                    var today = DateTime.Today.ToString("dd.MM.yyyy");
+                    SetCellAsString(hddRetentionSheet, 1, HddRetentionColumns.ListPrice, $"Last update: {today}");
 
                     rowNum = 4;
 
