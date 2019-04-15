@@ -5,7 +5,7 @@
         Manually,
         Automatically,
         Reference,
-        ManualyAutomaticly,
+        ManuallyAutomatically,
         AutomaticallyReadonly
     }
 }

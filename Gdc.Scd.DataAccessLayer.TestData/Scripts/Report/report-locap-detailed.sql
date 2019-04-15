@@ -47,6 +47,7 @@ BEGIN
 
     with cte as (
         select m.* 
+               , case when m.IsProlongation = 1 then 'Prolongation' else CAST(m.Year as varchar(1)) end as ServicePeriod
         from Hardware.GetCostsSlaSog(1, @cntTable, @wg_SOG_Table, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable) m
         where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = m.WgId))
     )
@@ -68,10 +69,13 @@ BEGIN
              , sog.Description as SogDescription
              , m.ServiceLocation as ServiceLevel
              , m.ReactionTime
-             , m.Year as ServicePeriod
+             , m.ServicePeriod
              , m.Sog
              , m.ProActiveSla
              , m.Country
+
+             , m.StdWarranty
+             , m.StdWarrantyLocation
 
              , m.ServiceTcSog * m.ExchangeRate as ServiceTC
              , m.ServiceTpSog * m.ExchangeRate as ServiceTP_Released
@@ -92,7 +96,7 @@ BEGIN
              , m.Availability                       + ', ' +
                    m.ReactionType                   + ', ' +
                    m.ReactionTime                   + ', ' +
-                   cast(m.Year as nvarchar(1))      + ', ' +
+                   m.ServicePeriod                  + ', ' +
                    m.ServiceLocation                + ', ' +
                    m.ProActiveSla as ServiceType
 
@@ -116,6 +120,10 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Wg', 'WG', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'SogDescription', 'Service Offering Group (SOG) Name', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'StdWarranty', 'Standard Warranty Duration', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'StdWarrantyLocation', 'Standard Warranty Service Location', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ServiceLevel', 'Service Level', 1, 1);
 set @index = @index + 1;
@@ -164,7 +172,7 @@ delete from Report.ReportFilter where ReportId = @reportId;
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('country', 0), 'cnt', 'Country Name');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wg', 1), 'wg', 'Warranty Group');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('wgsog', 1), 'wg', 'Warranty Group');
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('availability', 0), 'av', 'Availability');
 set @index = @index + 1;
@@ -176,5 +184,5 @@ insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@r
 set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('servicelocation', 0), 'loc', 'Service location');
 set @index = @index + 1;
-insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('proactive', 0), 'pro', 'ProActive');
+insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text, Value) values(@reportId, @index, Report.GetReportFilterTypeByName('proactive', 0), 'pro', 'ProActive', 1);
 GO

@@ -1,6 +1,7 @@
 ﻿import { Button, Container, Grid, Toolbar } from "@extjs/ext-react";
 import * as React from "react";
 import { AlertHelper } from "../../Common/Helpers/AlertHelper";
+import { ExtDataviewHelper } from "../../Common/Helpers/ExtDataviewHelper";
 import { AutoColumnModel } from "../Model/AutoColumnModel";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
 import { AutoColumnBuilder } from "./AutoColumnBuilder";
@@ -109,7 +110,7 @@ export class AutoGrid extends React.Component<AutoGridProps, any> {
     }
 
     private reload() {
-        this.grid.getPlugin('pagingtoolbar').setCurrentPage(1);
+        ExtDataviewHelper.refreshToolbar(this.grid);
         this.store.load();
     }
 

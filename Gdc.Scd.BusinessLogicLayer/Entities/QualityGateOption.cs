@@ -4,6 +4,6 @@
     {
         public bool IsPeriodCheck { get; set; }
 
-        public bool IsCountyCheck { get; set; }
+        public bool IsCountryCheck { get; set; }
     }
 }

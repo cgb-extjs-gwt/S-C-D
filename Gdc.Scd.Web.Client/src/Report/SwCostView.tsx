@@ -1,5 +1,6 @@
 ﻿import { Column, Container, Grid } from "@extjs/ext-react";
 import * as React from "react";
+import { ExtDataviewHelper } from "../Common/Helpers/ExtDataviewHelper";
 import { buildMvcUrl } from "../Common/Services/Ajax";
 import { CalcCostProps } from "./Components/CalcCostProps";
 import { moneyRenderer } from "./Components/GridRenderer";
@@ -129,6 +130,7 @@ export class SwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private reload() {
+        ExtDataviewHelper.refreshToolbar(this.grid);
         this.store.load();
     }
 

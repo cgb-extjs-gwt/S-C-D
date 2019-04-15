@@ -27,7 +27,7 @@ namespace Gdc.Scd.Import.Ebis.MCiW
             Bind<IDownloader>().To<FileDownloader>().InSingletonScope();
             Bind(typeof(IParser<>)).To(typeof(Parser<>)).InSingletonScope();
             Bind(typeof(IUploader<>)).To(typeof(EbisMaterialCostUploader)).InSingletonScope();
-            Bind<IImportManager>().To<ImportManager<MaterialCostDto>>().InSingletonScope();
+            Bind<IImportManager>().To<FileImportManager<MaterialCostDto>>().InSingletonScope();
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();
         }
     }

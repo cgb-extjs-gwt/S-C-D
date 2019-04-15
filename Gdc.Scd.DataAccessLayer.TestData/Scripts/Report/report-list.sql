@@ -3,6 +3,9 @@
 ('Locap', 'LOCAP reports (for a specific country)', 1,  1, 'Report.spLocap'),
 ('Locap-Detailed', 'LOCAP reports detailed', 1,  1, 'Report.spLocapDetailed'),
 ('Locap-Global-Support', 'Maintenance Service Costs and List Price Output - Global Support Packs', 1,  1, 'Report.spLocapGlobalSupport'),
+('locap-approved', 'LOCAP reports(approved)', 'Report.spLocapApproved', 0, 0),
+('locap-detailed-approved', 'LOCAP reports detailed(approved)', 'Report.spLocapDetailedApproved', 0, 0),
+
 ('Contract', 'Contract reports', 1,  1, 'Report.Contract'),
 ('ProActive-reports', 'ProActive reports', 1, 0, 'Report.ProActive'),
 
@@ -10,7 +13,7 @@
 ('HDD-Retention-country', 'HDD retention reports on country level', 1, 1, 'Report.HddRetentionByCountry'),
 ('HDD-Retention-central', 'HDD retention reports as central report', 0, 1, 'Report.HddRetentionCentral'),
 ('HDD-Retention-parameter', 'HDD retention parameter', 0, 1, 'Report.HddRetentionParameter'),
-('HDD-RETENTION-CALC-RESULT', 'Hdd retention service costs', 0, 1, 'Report.HddRetentionCalcResult'),
+('HDD-RETENTION-CALC-RESULT', 'Hdd retention service costs', 0, 1, 'Report.spHddRetentionCalcResult'),
 
 --Calculation Parameter Overview reports 
 ('Calculation-Parameter-hw', 'Calculation Parameter Overview reports for HW maintenance cost elements (approved)', 1,  0, 'Report.CalcParameterHw'),
@@ -18,7 +21,6 @@
 ('Calculation-Parameter-proactive', 'Calculation Parameter Overview reports for ProActive cost elements', 1,  0, 'Report.CalcParameterProActive'),
 
 --New vs. old reports 
-('CalcOutput-vs-FREEZE', 'Country_CalcOutput actual vs. FREEZE report (e.g. Germany_CalcOutput actual vs. FREEZE)', 1, 0, 'Report.CalcOutputVsFREEZE'),
 ('CalcOutput-new-vs-old', 'Country CalcOutput new vs. old report (e.g.  Germany_CalcOutput new vs. old)', 1, 0, 'Report.CalcOutputNewVsOld'),
 
 --Solution Pack reports 
@@ -48,6 +50,10 @@
 
 ('SW-PARAM-OVERVIEW', 'Software & Solution calculation parameter overview', 1,  1, 'Report.SwParamOverview'),
 
-('User-Roles', 'User roles', 0,  0, 'Report.UserRoles');
+('User-Roles', 'User roles', 0,  0, 'Report.UserRoles'),
+
+('AFR', 'AFR overview', 1,  1, 'Report.Afr'),
+
+('Standard-Warranty-overview', 'Standard Warranty overview', 1,  1, 'Report.StandardWarranty');
 
 

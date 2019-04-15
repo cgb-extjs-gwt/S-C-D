@@ -155,6 +155,7 @@ namespace Gdc.Scd.Import.Core.Impl
             var result = 0;
             var wgs = _repositoryWg.GetAll().Where(wg => !wg.DeactivatedDateTime.HasValue && !wg.IsSoftware).ToList();
             var allAvFees = _availabilityFeeRepo.GetAll().ToList();
+
             foreach (var item in items)
             {
                 switch (item.Action.ToLower())

@@ -9,12 +9,32 @@ export class ReportListView extends React.Component<any, any> {
             "expanded": true,
             "children": [
                 {
-                    "text": "<a href='#' data-href='/report/Locap'>1. LOCAP reports (for a specific country)</a>",
-                    "leaf": true
+                    "text": "1. LOCAP reports (for a specific country)",
+                    "expanded": true,
+                    "children": [
+                        {
+                            "text": "<a href='#' data-href='/report/Locap'>a) Released</a>",
+                            "leaf": true
+                        },
+                        {
+                            "text": "<a href='#' data-href='/report/Locap-approved'>b) Approved</a>",
+                            "leaf": true
+                        }
+                    ]
                 },
                 {
-                    "text": "<a href='#' data-href='/report/Locap-Detailed'>2. LOCAP reports detailed</a>",
-                    "leaf": true
+                    "text": "2. LOCAP reports detailed",
+                    "expanded": true,
+                    "children": [
+                        {
+                            "text": "<a href='#' data-href='/report/Locap-Detailed'>a) Released</a>",
+                            "leaf": true
+                        },
+                        {
+                            "text": "<a href='#' data-href='/report/Locap-Detailed-approved'>b) Approved</a>",
+                            "leaf": true
+                        }
+                    ]
                 },
                 {
                     "text": "<a href='#' data-href='/report/Contract'>3. Contract reports</a>",
@@ -145,11 +165,11 @@ export class ReportListView extends React.Component<any, any> {
                     "leaf": true
                 },
                 {
-                    "text": "13. Standard Warranty overview",
+                    "text": "<a href='#' data-href='/report/standard-warranty-overview'>13. Standard Warranty overview</a>",
                     "leaf": true
                 },
                 {
-                    "text": "14. AFR overview",
+                    "text": "<a href='#' data-href='/report/afr'>14. AFR overview</a>",
                     "leaf": true
                 }
             ]

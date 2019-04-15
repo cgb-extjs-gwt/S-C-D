@@ -4,6 +4,7 @@
     {
         CostEditor,
         TableView,
-        CostImport
+        CostImport,
+        Migration
     }
 }

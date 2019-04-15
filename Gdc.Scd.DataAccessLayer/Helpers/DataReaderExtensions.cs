@@ -99,6 +99,18 @@ namespace Gdc.Scd.DataAccessLayer.Helpers
             return tbl;
         }
 
+        public static bool HasField(this DbDataReader reader, string field)
+        {
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                if (string.CompareOrdinal(reader.GetName(i), field) == 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private static bool IsEmpty(DbDataReader reader)
         {
             return reader == null || !reader.HasRows || reader.FieldCount <= 0;

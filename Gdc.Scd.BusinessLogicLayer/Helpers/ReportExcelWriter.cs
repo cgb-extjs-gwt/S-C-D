@@ -1,12 +1,14 @@
 ﻿using ClosedXML.Excel;
 using Gdc.Scd.BusinessLogicLayer.Dto.Report;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 
 namespace Gdc.Scd.BusinessLogicLayer.Helpers
 {
-    public class ReportExcelWriter
+    public class ReportExcelWriter : IDisposable
     {
         private const int DEFAULT_COL_WIDTH = 25;
 
@@ -14,33 +16,17 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
         private int currentRow;
 
-        private ReportColumnFormat[] formatters;
+        private ReportSchemaDto schema;
 
-        private readonly ReportColumnDto[] fields;
+        private ReportColumnFormat[] fields;
 
-        private readonly int fieldCount;
+        private IXLWorkbook workbook;
 
-        private readonly IXLWorkbook workbook;
-
-        private readonly IXLWorksheet worksheet;
+        private IXLWorksheet worksheet;
 
         public ReportExcelWriter(ReportSchemaDto schema)
         {
-            this.fields = schema.Fields;
-            this.fieldCount = fields.Length;
-
-            this.currentRow = 1;
-            this.workbook = new XLWorkbook();
-
-            var sheetName = schema.Name;
-            if (sheetName.Length > 31)
-            {
-                sheetName = sheetName.Substring(0, 31); //ClosedXML limit
-            }
-
-            this.worksheet = workbook.Worksheets.Add(sheetName);
-            //
-            WriteHeader();
+            this.schema = schema;
         }
 
         public Stream GetData()
@@ -48,6 +34,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             var stream = new MemoryStream(3072); //3KB
             workbook.SaveAs(stream);
             stream.Seek(0, SeekOrigin.Begin);
+            Dispose();
             return stream;
         }
 
@@ -60,46 +47,86 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
             currentRow++;
 
-            for (var i = 0; i < fieldCount; i++)
+            for (var i = 0; i < fields.Length; i++)
             {
-                var f = formatters[i];
+                var f = fields[i];
 
                 if (f.HasValue())
                 {
-                    worksheet.Cell(currentRow, i + 1).Value = f.GetValue();
+                    f.SetValue(worksheet.Cell(currentRow, i + 1));
                 }
             }
         }
 
         private void WriteHeader()
         {
-            worksheet.ColumnWidth = DEFAULT_COL_WIDTH;
-
-            for (var i = 0; i < fieldCount; i++)
+            for (var i = 0; i < fields.Length; i++)
             {
                 var f = fields[i];
-
                 if (f.Flex > 1)
                 {
                     worksheet.Column(i + 1).Width = f.Flex * DEFAULT_COL_WIDTH;
                 }
 
                 var cell = worksheet.Cell(currentRow, i + 1);
-                cell.Value = f.Text;
+                cell.Value = f.Caption;
                 cell.Style.Font.Bold = true;
             }
         }
 
         private void Prepare(DbDataReader reader)
         {
-            formatters = new ReportColumnFormat[fieldCount];
+            this.InitWorkbook();
+            //
+            this.fields = PrepareFields(reader);
+            this.WriteHeader();
+            //
+            this.prepared = true;
+        }
 
-            for (var i = 0; i < fieldCount; i++)
+        private ReportColumnFormat[] PrepareFields(DbDataReader reader)
+        {
+            var schemaFields = schema.Fields;
+            var len = schemaFields.Length;
+            var result = new List<ReportColumnFormat>(len);
+
+            for (int i = 0, k = 0; i < len; i++)
             {
-                formatters[i] = new ReportColumnFormat(reader, fields[i]);
+                var f = schemaFields[i];
+                if (reader.HasField(f.Name))
+                {
+                    //ok, column exists in select dataset
+                    //add thit column to report
+                    //
+                    result.Add(new ReportColumnFormat(reader, f, worksheet.Column(k + 1)));
+                    k++;
+                }
             }
 
-            this.prepared = true;
+            return result.ToArray();
+        }
+
+        private void InitWorkbook()
+        {
+            this.currentRow = 1;
+            this.workbook = new XLWorkbook();
+
+            var sheetName = schema.Name;
+            if (sheetName.Length > 31)
+            {
+                sheetName = sheetName.Substring(0, 31); //ClosedXML limit
+            }
+
+            this.worksheet = workbook.Worksheets.Add(sheetName);
+            this.worksheet.ColumnWidth = DEFAULT_COL_WIDTH;
+        }
+
+        public void Dispose()
+        {
+            if (this.workbook != null)
+            {
+                this.workbook.Dispose();
+            }
         }
 
         private class ReportColumnFormat
@@ -108,18 +135,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
 
             private ReportColumnDto col;
 
+            private IXLColumn xlCol;
+
             private int ordinal;
 
             private int CUR_ORDINAL;
 
-            private Func<object> fmt;
+            private Action<IXLCell> fmt;
 
-            public ReportColumnFormat(DbDataReader reader, ReportColumnDto col)
+            public ReportColumnFormat(DbDataReader reader, ReportColumnDto col, IXLColumn xlCol)
             {
                 this.reader = reader;
                 this.col = col;
+                this.xlCol = xlCol;
                 this.ordinal = reader.GetOrdinal(col.Name);
-                //
+
                 if (col.IsNumber())
                 {
                     InitNumber();
@@ -146,87 +176,83 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
                 }
             }
 
-            public object GetValue()
-            {
-                return fmt();
-            }
+            public int Flex { get { return col.Flex; } }
+
+            public string Caption { get { return col.Text; } }
 
             public bool HasValue()
             {
                 return !reader.IsDBNull(ordinal);
             }
 
-            private object GetText()
+            public void SetValue(IXLCell cell)
             {
-                return reader[ordinal];
+                fmt(cell);
             }
 
-            private object GetNumber()
+            private void SetText(IXLCell cell)
             {
-                return ReportFormatter.Format4Decimals(reader.GetDouble(ordinal));
+                cell.Value = reader[ordinal];
             }
 
-            private object GetNumberFmt()
+            private void SetNumber(IXLCell cell)
             {
-                return ReportFormatter.FormatDecimals(reader.GetDouble(ordinal), col.Format);
+                cell.SetValue(reader.GetDouble(ordinal));
             }
 
-            private object GetBoolean()
+            private void SetBoolean(IXLCell cell)
             {
-                return ReportFormatter.FormatYesNo(reader.GetBoolean(ordinal));
+                cell.SetValue(ReportFormatter.FormatYesNo(reader.GetBoolean(ordinal)));
             }
 
-            private object GetEuro()
+            private void SetMoney(IXLCell cell)
             {
-                return ReportFormatter.FormatEuro(reader.GetDouble(ordinal));
-            }
-
-            private object GetPercent()
-            {
-                return ReportFormatter.FormatPercent(reader.GetDouble(ordinal));
-            }
-
-            private object GetMoney()
-            {
-                return ReportFormatter.FormatMoney(reader.GetDouble(ordinal), reader.GetString(CUR_ORDINAL));
+                cell.Style.NumberFormat.Format = CurrencyFmt(reader.GetString(CUR_ORDINAL));
+                cell.SetValue(reader.GetDouble(ordinal));
             }
 
             private void InitBoolean()
             {
-                fmt = GetBoolean;
+                fmt = SetBoolean;
             }
 
             private void InitEuro()
             {
-                fmt = GetEuro;
+                SetColumnFormat(CurrencyFmt("EUR"));
+                fmt = SetNumber;
             }
 
             private void InitMoney()
             {
                 CUR_ORDINAL = reader.GetOrdinal("Currency");
-                fmt = GetMoney;
+                fmt = SetMoney;
             }
 
             private void InitNumber()
             {
-                if (string.IsNullOrEmpty(col.Format))
-                {
-                    fmt = GetNumber;
-                }
-                else
-                {
-                    fmt = GetNumberFmt;
-                }
+                SetColumnFormat(@"0.00??");
+                fmt = SetNumber;
             }
 
             private void InitPercent()
             {
-                fmt = GetPercent;
+                SetColumnFormat(@"0.000\%");
+                fmt = SetNumber;
             }
 
             private void InitTxt()
             {
-                fmt = GetText;
+                fmt = SetText;
+            }
+
+            private void SetColumnFormat(string format)
+            {
+                xlCol.Style.NumberFormat.Format = format;
+            }
+
+            private string CurrencyFmt(string cur)
+            {
+                return string.Concat("0.00\\ [$", cur, "]");
             }
         }
     }

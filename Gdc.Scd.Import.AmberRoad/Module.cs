@@ -27,7 +27,7 @@ namespace Gdc.Scd.Import.AmberRoad
             Bind<IDownloader>().To<FileDownloader>().InSingletonScope();
             Bind(typeof(IParser<>)).To(typeof(Parser<>)).InSingletonScope();
             Bind(typeof(IUploader<>)).To(typeof(AmberRoadUploader)).InSingletonScope();
-            Bind<IImportManager>().To<ImportManager<TaxAndDutiesDto>>().InSingletonScope();
+            Bind<IImportManager>().To<FileImportManager<TaxAndDutiesDto>>().InSingletonScope();
             Bind<IConfigHandler>().To<DataBaseConfigHandler>().InSingletonScope();
         }
     }

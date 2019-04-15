@@ -104,7 +104,7 @@ namespace Gdc.Scd.Import.Core.Impl
             var sfabs = items.Select(i => i.Sfab).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
             var notActiveSfabs = _repositorySfab.GetAll()
-                .Where(sf => !sfabs.Contains(sf.Name, StringComparer.OrdinalIgnoreCase) && !sf.DeactivatedDateTime.HasValue)
+                .Where(sf => !sfabs.Contains(sf.Name, StringComparer.OrdinalIgnoreCase) && !sf.DeactivatedDateTime.HasValue && sf.Name != "NA")
                 .ToList();
 
             foreach (var notActiveSfab in notActiveSfabs)

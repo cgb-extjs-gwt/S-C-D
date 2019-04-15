@@ -9,5 +9,10 @@ namespace Gdc.Scd.Core.Entities.Report
         public string ExecSql { get; set; }
 
         public bool MultiSelect { get; set; }
+
+        public bool IsLogin()
+        {
+            return string.Compare(this.Name, "LOGIN", true) == 0;
+        }
     }
 }

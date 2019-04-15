@@ -25,5 +25,13 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
             return result;
         }
+
+        public static bool IsSolution(string serviceType, string solutionIdentifier)
+        {
+            if (String.IsNullOrEmpty(serviceType) || String.IsNullOrEmpty(solutionIdentifier))
+                return false;
+
+            return serviceType.ToLower().Contains(solutionIdentifier.ToLower());
+        }
     }
 }
