@@ -100,7 +100,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     var range = inputSheet.RangeUsed();
                     var rowCount = range.RowCount();
 
-                    for (var row = 2; row < rowCount; row++)
+                    for (var row = 2; row <= rowCount; row++)
                     {
                         slaList.Add(new SlaDto
                         {
@@ -127,7 +127,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
 
             Logger.Log(LogLevel.Info, CdCsMessages.READ_CONFIGURATION);
             var configHandler = Kernel.Get<ConfigHandler>();
-            var configList = configHandler.ReadAllConfiguration();
+            var configList = configHandler.ReadAllConfiguration().Take(3);
           
             var getServiceCostsBySla = Kernel.Get<GetServiceCostsBySla>();
             var getProActiveCosts = Kernel.Get<GetProActiveCosts>();
@@ -200,6 +200,10 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     {
                         range.Row(row).Clear();
                     }
+
+                    //set Last update
+                    var today = DateTime.Today.ToString("dd.MM.yyyy");
+                    SetCellAsString(hddRetentionSheet, 1, HddRetentionColumns.ListPrice, $"Last update: {today}");
 
                     rowNum = 4;
 
