@@ -18,6 +18,8 @@ namespace Gdc.Scd.Core.Entities
         public double? C2ndLevelSupportCosts { get; set; }
         [Column("2ndLevelSupportCosts_Approved")]
         public double? C2ndLevelSupportCosts_Approved { get; set; }
+        public double? InstalledBaseSog { get; set; }
+        public double? InstalledBaseSog_Approved { get; set; }
         public DateTime CreatedDateTime { get; set; }
 
     }

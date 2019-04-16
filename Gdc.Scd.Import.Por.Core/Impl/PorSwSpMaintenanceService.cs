@@ -22,32 +22,46 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             IQueryable<SwSpMaintenance> swSpMaintenance)
         {
             var newDigits = digits.Where(x => x.CreatedDateTime.Date == DateTime.Today).ToList();
+
             foreach (var digit in newDigits)
             {
-                var approvedCosts = swSpMaintenance
-                    .Where(x => x.Sog == digit.SogId 
-                                && x.SwDigit != digit.Id)
-                    .Select(x => x.C2ndLevelSupportCosts_Approved);
+                var relevantMaintenance = swSpMaintenance
+                    .Where(x => x.Sog == digit.SogId
+                                && x.CreatedDateTime.Date != DateTime.Today);
 
-                if (approvedCosts.Any() && approvedCosts.All(x => x == approvedCosts.First()))
+                var approvedCosts = relevantMaintenance.Select(x => x.C2ndLevelSupportCosts_Approved);
+               
+                var approvedInstallBases = relevantMaintenance.Select(x => x.InstalledBaseSog_Approved);
+
+                var approvedCost = AllValuesEqual(approvedCosts)
+                    ? approvedCosts.First()
+                    : null;
+
+                var approvedInstallBase = AllValuesEqual(approvedInstallBases)
+                        ? approvedInstallBases.First()
+                        : null;
+     
+                var maintenanceList = swSpMaintenance.Where(x => x.SwDigit == digit.Id).ToList();
+
+                foreach (var maintenance in maintenanceList)
                 {
-                    var approvedCost = approvedCosts.First();
 
-                    var maintenanceList = swSpMaintenance.Where(x => x.SwDigit == digit.Id).ToList();
+                    maintenance.C2ndLevelSupportCosts = approvedCost;
+                    maintenance.C2ndLevelSupportCosts_Approved = approvedCost;
+                    maintenance.InstalledBaseSog = approvedInstallBase;
+                    maintenance.InstalledBaseSog_Approved = approvedInstallBase;
+                }
 
-                    foreach (var maintenance in maintenanceList)
-                    {
-
-                        maintenance.C2ndLevelSupportCosts = approvedCost;
-                        maintenance.C2ndLevelSupportCosts_Approved = approvedCost;
-                    }
-
-                    this.repository.Save(maintenanceList);
-                }                             
+                this.repository.Save(maintenanceList);
             }
            
             this.repositorySet.Sync();
             return true;
+
+            bool AllValuesEqual(IQueryable<double?> values)
+            {
+                return values.Any() && values.All(x => x == values.First());
+            }
         }
     }
 }
