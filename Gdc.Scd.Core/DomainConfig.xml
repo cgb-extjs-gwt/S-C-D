@@ -130,7 +130,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="TimeAndMaterialShare" Caption="Time and material share (%)" InputOption="Manually">
+        <Element Name="TimeAndMaterialShare" Caption="Time and material share (%)" InputOption="Manually" Dependency="ReactionTimeType">
           <TypeOption Type="Percent"/>
           <CostEditor>
             <Roles>
