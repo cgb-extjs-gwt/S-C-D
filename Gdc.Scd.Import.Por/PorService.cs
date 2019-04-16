@@ -41,9 +41,11 @@ namespace Gdc.Scd.Import.Por
         public static ImportService<SwDigit> DigitService { get; private set; }
         public static ImportService<SwLicense> LicenseService { get; private set; }
         public static DomainService<ProActiveDigit> ProActiveDigitService { get; set; }
+        public static DomainService<SwSpMaintenance> SwSpMaintenanceDomainService { get; set; }
         public static IPorSogService SogService { get; private set; }
         public static IPorWgService WgService { get; private set; }
         public static IPorSwDigitService SwDigitService { get; private set; }
+        public static IPorSwSpMaintenaceService SwSpMaintenanceService { get; private set; }
         public static IPorSwLicenseService SwLicenseService { get; private set; }
         public static IPorSwDigitLicenseService SwLicenseDigitService { get; private set; }
         public static IHwFspCodeTranslationService<HwFspCodeDto> HardwareService { get; private set; }
@@ -76,6 +78,7 @@ namespace Gdc.Scd.Import.Por
             CountryService = kernel.Get<DomainService<Country>>();
             CountryGroupService = kernel.Get<DomainService<CountryGroup>>();
             ProActiveDigitService = kernel.Get<DomainService<ProActiveDigit>>();
+            SwSpMaintenanceDomainService = kernel.Get<DomainService<SwSpMaintenance>>();
 
             SFabDomainService = kernel.Get<ImportService<SFab>>();
             SogDomainService = kernel.Get<ImportService<Sog>>();
@@ -95,6 +98,7 @@ namespace Gdc.Scd.Import.Por
             SoftwareService = kernel.Get<ISwFspCodeTranslationService>();
             SoftwareProactiveService = kernel.Get<IPorSwProActiveService>();
             CostBlockService = kernel.Get<ICostBlockService>();
+            SwSpMaintenanceService = kernel.Get<IPorSwSpMaintenaceService>();
 
             UpdateQueryOptions = new List<UpdateQueryOption>();
         }
@@ -209,6 +213,22 @@ namespace Gdc.Scd.Import.Por
                 Logger.Log(LogLevel.Info, ImportConstantMessages.UPDATE_COST_BLOCKS_END);
             }
             catch(Exception ex)
+            {
+                Logger.Log(LogLevel.Error, ex, ImportConstantMessages.UNEXPECTED_ERROR);
+            }
+        }
+
+        public static void Update2ndLevelSupportCosts(int step)
+        {
+            try
+            {
+                Logger.Log(LogLevel.Info, ImportConstantMessages.UPDATE_COSTS_START, step);
+
+                SwSpMaintenanceService.Update2ndLevelSupportCosts(DigitService.GetAllActive(), SwSpMaintenanceDomainService.GetAll());
+
+                Logger.Log(LogLevel.Info, ImportConstantMessages.UPDATE_COSTS_END);
+            }
+            catch (Exception ex)
             {
                 Logger.Log(LogLevel.Error, ex, ImportConstantMessages.UNEXPECTED_ERROR);
             }
