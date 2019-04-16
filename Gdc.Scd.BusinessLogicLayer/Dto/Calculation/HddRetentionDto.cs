@@ -1,4 +1,6 @@
-﻿namespace Gdc.Scd.BusinessLogicLayer.Dto.Calculation
+﻿using System;
+
+namespace Gdc.Scd.BusinessLogicLayer.Dto.Calculation
 {
     public class HddRetentionDto
     {
@@ -21,5 +23,7 @@
         public string ChangeUserName { get; set; }
 
         public string ChangeUserEmail { get; set; }
+
+        public DateTime? ChangeDate { get; set; }
     }
 }

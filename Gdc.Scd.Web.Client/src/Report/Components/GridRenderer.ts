@@ -59,6 +59,8 @@ export function yearRenderer(val: number, row) {
     }
 }
 
+export const ddMMyyyyRenderer = Ext.util.Format.dateRenderer('Y-m-d');
+
 export function yesNoRenderer(val, row) {
     return isEmpty(val) ? '' : val ? 'YES' : 'NO';
 }

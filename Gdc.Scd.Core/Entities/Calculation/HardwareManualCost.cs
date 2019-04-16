@@ -1,6 +1,7 @@
 ﻿using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities.Calculation
@@ -18,6 +19,8 @@ namespace Gdc.Scd.Core.Entities.Calculation
         //TODO: remove ChangeUserId
         public long? ChangeUserId { get; set; }
         public User ChangeUser { get; set; }
+
+        public DateTime? ChangeDate { get; set; }
 
         public double? ServiceTC { get; set; }
 
