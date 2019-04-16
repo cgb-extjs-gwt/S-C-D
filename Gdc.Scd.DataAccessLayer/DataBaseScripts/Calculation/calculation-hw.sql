@@ -3058,7 +3058,8 @@ BEGIN
 
 	UPDATE mc
 	SET [ServiceTP_Released] = COALESCE(costs.ServiceTPManual, costs.ServiceTP),
-		[ChangeUserId] = @usr
+		[ChangeUserId] = @usr,
+        [ChangeDate] = getdate()
 	FROM [Hardware].[ManualCost] mc
 	JOIN #temp costs on mc.PortfolioId = costs.Id
 	where costs.ServiceTPManual is not null or costs.ServiceTP is not null
@@ -3066,9 +3067,11 @@ BEGIN
 	INSERT INTO [Hardware].[ManualCost] 
 				([PortfolioId], 
 				[ChangeUserId], 
+                [ChangeDate],
 				[ServiceTP_Released])
 	SELECT  costs.Id, 
 			@usr, 
+            getdate(),
 			COALESCE(costs.ServiceTPManual, costs.ServiceTP)
 	FROM [Hardware].[ManualCost] mc
 	RIGHT JOIN #temp costs on mc.PortfolioId = costs.Id
