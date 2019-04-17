@@ -41,7 +41,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     private store = Ext.create('Ext.data.Store', {
 
         fields: [
-            'Id', SELECTED_FIELD, 'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail', 'ChangeDate',
+            'Id', SELECTED_FIELD, 'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail', 'ReleaseDate',
             {
                 name: 'DealerPriceCalc',
                 calculate: function (d) {
@@ -232,7 +232,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
                         <Column flex="2" minWidth="250" text="Change user" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
-                        <Column text="Change date" dataIndex="ChangeDate" renderer={ddMMyyyyRenderer} />
+                        <Column text="Release date" dataIndex="ReleaseDate" renderer={ddMMyyyyRenderer} />
 
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
                         <NumberColumn text="Local service standard warranty" dataIndex="LocalServiceStandardWarranty" />

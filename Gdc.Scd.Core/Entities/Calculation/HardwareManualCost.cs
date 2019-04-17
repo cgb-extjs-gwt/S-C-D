@@ -34,5 +34,7 @@ namespace Gdc.Scd.Core.Entities.Calculation
         public double? DealerPrice { get; private set; }
 
         public double? ServiceTP_Released { get; set; }
+
+        public DateTime? ReleaseDate { get; set; }
     }
 }
