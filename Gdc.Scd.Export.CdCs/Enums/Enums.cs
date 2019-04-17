@@ -2,16 +2,6 @@
 {
     public class Enums
     {
-        public static class InputFileColumns
-        {
-            public static readonly int FspCode = 1;
-            public static readonly int ServiceLocation = 3;
-            public static readonly int Availability = 4;
-            public static readonly int ReactionTime = 5;
-            public static readonly int ReactionType = 6;
-            public static readonly int WarrantyGroup = 7;
-            public static readonly int Duration = 8;
-        }
 
         public static class InputMctCdCsWGsColumns
         {
@@ -51,7 +41,6 @@
 
         public static class InputSheets
         {
-            public static readonly string CalculationToolInput = "CD_CS Calculation tool input";
             public static readonly string InputMctCdCsWGs = "Input_MCT_CD_CS_WGs";
             public static readonly string ProActiveOutput = "ProActive_SCD_Output";
             public static readonly string HddRetention = "HDD_Retention";          
