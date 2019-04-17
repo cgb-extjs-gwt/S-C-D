@@ -47,7 +47,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                             Worksheet = worksheet,
                                             RowsUsed = worksheet.RowsUsed()
                                         })
-                                       .FirstOrDefault(info => info.RowsUsed.Count() > 0);
+                                       .FirstOrDefault(info => info.RowsUsed.Any());
 
                 if (worksheetInfo == null)
                 {
@@ -66,10 +66,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                         {
                             var value = worksheetInfo.Worksheet.Cell(rowIndex, 2).GetValue<string>();
 
-                            if (!string.IsNullOrWhiteSpace(value))
-                            {
-                                rawValues[name] = value;
-                            }
+                            rawValues[name] = !string.IsNullOrWhiteSpace(value) ? value : null;
                         }
                     }
 
@@ -124,7 +121,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var converter = await this.BuildConverter(costBlockMeta, context.CostElementId);
             var valueInfos = new List<ValuesInfo>();
             var dependencyFilter = this.BuildFilter(costBlockMeta, context);
-            var costElementField = costBlockMeta.CostElementsFields[context.CostElementId];
 
             foreach (var rawValue in rawValues)
             {
@@ -136,11 +132,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                         {
                             CoordinateFilter = new Dictionary<string, long[]>(dependencyFilter)
                             {
-                                [inputLevelField.Name] = new[] { inputLevelItem.Id }
+                                [inputLevelField.Name] = new[] {inputLevelItem.Id}
                             },
                             Values = new Dictionary<string, object>
                             {
-                                [context.CostElementId] = converter(rawValue.Value)
+                                [context.CostElementId] = rawValue.Value != null ? converter(rawValue.Value) : null
                             }
                         });
                     }
