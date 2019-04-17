@@ -40,5 +40,10 @@
         {
             return string.Compare(Type, "percent", true) == 0;
         }
+
+        public bool IsDate()
+        {
+            return string.Compare(Type, "datetime", true) == 0;
+        }
     }
 }

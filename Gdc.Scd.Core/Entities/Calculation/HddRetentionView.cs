@@ -1,5 +1,6 @@
 ﻿using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Gdc.Scd.Core.Entities.Calculation
@@ -31,5 +32,7 @@ namespace Gdc.Scd.Core.Entities.Calculation
         public string ChangeUserName { get; set; }
 
         public string ChangeUserEmail { get; set; }
+
+        public DateTime? ChangeDate { get; set; }
     }
 }

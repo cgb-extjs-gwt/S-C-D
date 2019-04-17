@@ -7,7 +7,7 @@ import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { currencyRenderer, emptyRenderer, EUR, IRenderer, percentRenderer, yearRenderer } from "./Components/GridRenderer";
+import { currencyRenderer, ddMMyyyyRenderer, emptyRenderer, EUR, IRenderer, percentRenderer, yearRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwReleasePanel } from "./Components/HwReleasePanel";
 import { CurrencyType } from "./Model/CurrencyType";
@@ -41,7 +41,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     private store = Ext.create('Ext.data.Store', {
 
         fields: [
-            'Id', SELECTED_FIELD, 'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail',
+            'Id', SELECTED_FIELD, 'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail', 'ReleaseDate',
             {
                 name: 'DealerPriceCalc',
                 calculate: function (d) {
@@ -232,6 +232,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
                         <Column flex="2" minWidth="250" text="Change user" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
+                        <Column text="Release date" dataIndex="ReleaseDate" renderer={ddMMyyyyRenderer} />
 
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
                         <NumberColumn text="Local service standard warranty" dataIndex="LocalServiceStandardWarranty" />
@@ -366,7 +367,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     }
 
-    private releaseAll() {       
+    private releaseAll() {
         ExtMsgHelper.confirm('Release', `Do you want to approve for release all filtered records?`, () => {
             let me = this;
             let p = post('calc', 'releasehwcostall', { ...this.filter.getModel() }).then(() => {

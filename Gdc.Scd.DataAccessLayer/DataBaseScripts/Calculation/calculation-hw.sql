@@ -1355,11 +1355,11 @@ IF OBJECT_ID('Hardware.HddRetentionView', 'V') IS NOT NULL
   DROP VIEW Hardware.HddRetentionView;
 go
 
-CREATE VIEW Hardware.HddRetentionView as 
+CREATE VIEW [Hardware].[HddRetentionView] as 
     SELECT 
            h.Wg as WgId
          , wg.Name as Wg
-		 , sog.Name as Sog
+         , sog.Name as Sog
          , h.HddRet
          , HddRet_Approved
          , hm.TransferPrice 
@@ -1368,15 +1368,17 @@ CREATE VIEW Hardware.HddRetentionView as
          , hm.DealerPrice
          , u.Name as ChangeUserName
          , u.Email as ChangeUserEmail
+         , hm.ChangeDate
 
     FROM Hardware.HddRetention h
     JOIN InputAtoms.Wg wg on wg.id = h.Wg
-	LEFT JOIN InputAtoms.Sog sog on sog.id = wg.SogId
+    LEFT JOIN InputAtoms.Sog sog on sog.id = wg.SogId
     LEFT JOIN Hardware.HddRetentionManualCost hm on hm.WgId = h.Wg
     LEFT JOIN [dbo].[User] u on u.Id = hm.ChangeUserId
     WHERE h.DeactivatedDateTime is null 
       AND h.Year = (select id from Dependencies.Year where Value = 5 and IsProlongation = 0)
-go
+
+GO
 
 alter table Hardware.FieldServiceCost
     add TimeAndMaterialShare_norm          as (TimeAndMaterialShare / 100)
@@ -2459,6 +2461,7 @@ RETURN
             , man.ServiceTC          / std.ExchangeRate as ServiceTCManual                   
             , man.ServiceTP          / std.ExchangeRate as ServiceTPManual                   
             , man.ServiceTP_Released / std.ExchangeRate as ServiceTP_Released                  
+            , man.ChangeDate                            as ChangeDate
             , u.Name                                    as ChangeUserName
             , u.Email                                   as ChangeUserEmail
 
@@ -2493,7 +2496,7 @@ RETURN
 
     LEFT JOIN dbo.[User] u on u.Id = man.ChangeUserId
 )
-GO
+go
 
 IF OBJECT_ID('[Hardware].[GetCosts]') IS NOT NULL
     DROP FUNCTION [Hardware].[GetCosts]
@@ -2672,6 +2675,7 @@ RETURN
          , m.ServiceTPManual
          , m.ServiceTP_Released
 
+         , m.ChangeDate
          , m.ChangeUserName
          , m.ChangeUserEmail
 
@@ -2755,6 +2759,7 @@ BEGIN
              , DealerPrice                   * ExchangeRate  as DealerPrice
              , DealerDiscount                                as DealerDiscount
                                                        
+             , ChangeDate                                    as ChangeDate
              , ChangeUserName                                as ChangeUserName
              , ChangeUserEmail                               as ChangeUserEmail
 
@@ -2811,6 +2816,7 @@ BEGIN
              , DealerPrice                   
              , DealerDiscount                
                                              
+             , ChangeDate                                    
              , ChangeUserName                
              , ChangeUserEmail               
 
@@ -2818,7 +2824,7 @@ BEGIN
         order by Id
     end
 END
-GO
+go
 
 if OBJECT_ID('[Hardware].[GetInstallBaseOverSog]') is not null
     drop function [Hardware].[GetInstallBaseOverSog];
@@ -3052,7 +3058,8 @@ BEGIN
 
 	UPDATE mc
 	SET [ServiceTP_Released] = COALESCE(costs.ServiceTPManual, costs.ServiceTP),
-		[ChangeUserId] = @usr
+		[ChangeUserId] = @usr,
+        [ChangeDate] = getdate()
 	FROM [Hardware].[ManualCost] mc
 	JOIN #temp costs on mc.PortfolioId = costs.Id
 	where costs.ServiceTPManual is not null or costs.ServiceTP is not null
@@ -3060,9 +3067,11 @@ BEGIN
 	INSERT INTO [Hardware].[ManualCost] 
 				([PortfolioId], 
 				[ChangeUserId], 
+                [ChangeDate],
 				[ServiceTP_Released])
 	SELECT  costs.Id, 
 			@usr, 
+            getdate(),
 			COALESCE(costs.ServiceTPManual, costs.ServiceTP)
 	FROM [Hardware].[ManualCost] mc
 	RIGHT JOIN #temp costs on mc.PortfolioId = costs.Id

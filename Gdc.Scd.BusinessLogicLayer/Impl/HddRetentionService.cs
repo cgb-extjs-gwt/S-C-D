@@ -69,7 +69,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     DealerDiscount = x.DealerDiscount,
                     DealerPrice = x.DealerPrice,
                     ChangeUserName = x.ChangeUserName,
-                    ChangeUserEmail = x.ChangeUserEmail
+                    ChangeUserEmail = x.ChangeUserEmail,
+                    ChangeDate = x.ChangeDate
                 });
             }
             else
@@ -84,7 +85,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     DealerDiscount = x.DealerDiscount,
                     DealerPrice = x.DealerPrice,
                     ChangeUserName = x.ChangeUserName,
-                    ChangeUserEmail = x.ChangeUserEmail
+                    ChangeUserEmail = x.ChangeUserEmail,
+                    ChangeDate = x.ChangeDate
                 });
             }
 
