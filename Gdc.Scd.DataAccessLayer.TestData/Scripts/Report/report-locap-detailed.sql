@@ -79,6 +79,9 @@ BEGIN
 
              , m.ServiceTcSog * m.ExchangeRate as ServiceTC
              , m.ServiceTpSog * m.ExchangeRate as ServiceTP_Released
+
+             , m.ReleaseDate
+
              , m.FieldServiceCost * m.ExchangeRate as FieldServiceCost
              , m.ServiceSupportCost * m.ExchangeRate as ServiceSupportCost 
              , m.MaterialOow * m.ExchangeRate as MaterialOow
@@ -138,6 +141,8 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ServiceTC', 'Service TC', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ServiceTP_Released', 'Service TP (Released)', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('datetime'), 'ReleaseDate', 'Release date', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Country', 'Country Name', 1, 1);
 set @index = @index + 1;

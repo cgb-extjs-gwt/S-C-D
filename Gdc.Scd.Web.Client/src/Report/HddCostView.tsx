@@ -5,7 +5,7 @@ import { handleRequest } from "../Common/Helpers/RequestHelper";
 import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { emptyRenderer, moneyRenderer, percentRenderer } from "./Components/GridRenderer";
+import { emptyRenderer, moneyRenderer, percentRenderer, ddMMyyyyRenderer } from "./Components/GridRenderer";
 import { HddCostFilter } from "./Components/HddCostFilter";
 import { HddCostFilterModel } from "./Model/HddCostFilterModel";
 import { ExportService } from "./Services/ExportService";
@@ -23,7 +23,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
     private store = Ext.create('Ext.data.Store', {
 
         fields: [
-            'wgId', 'listPrice', 'dealerDiscount', 'changeUserName', 'changeUserEmail',
+            'wgId', 'listPrice', 'dealerDiscount', 'changeUserName', 'changeUserEmail', 'changeDate',
             {
                 name: 'dealerPriceCalc',
                 calculate: function (d) {
@@ -161,6 +161,7 @@ export class HddCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Dealer price" dataIndex="dealerPriceCalc" />
 
                         <Column flex="2" minWidth="250" text="Change user" dataIndex="changeUserCalc" renderer={emptyRenderer} />
+                        <Column text="Change date" dataIndex="changeDate" renderer={ddMMyyyyRenderer} />
 
                     </Column>
 

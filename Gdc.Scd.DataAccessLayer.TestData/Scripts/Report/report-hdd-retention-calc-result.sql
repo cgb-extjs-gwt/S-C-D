@@ -24,6 +24,7 @@ BEGIN
              , h.DealerDiscount
              , h.DealerPrice
              , h.ChangeUserName + '[' + h.ChangeUserEmail + ']' as ChangeUser
+             , h.ChangeDate
         from Hardware.HddRetentionView h
         where Portfolio.IsListEmpty(@wg) = 1 or h.WgId in (select Id from @wg)
 
@@ -38,6 +39,7 @@ BEGIN
              , h.DealerDiscount
              , h.DealerPrice
              , h.ChangeUserName + '[' + h.ChangeUserEmail + ']' as ChangeUser
+             , h.ChangeDate
         from Hardware.HddRetentionView h
         where Portfolio.IsListEmpty(@wg) = 1 or h.WgId in (select Id from @wg)
     end
@@ -70,6 +72,8 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ChangeUser', 'Change user', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('datetime'), 'ChangeDate', 'Change date', 1, 1);
 
 --------------------
 

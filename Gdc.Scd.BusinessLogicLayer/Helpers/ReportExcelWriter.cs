@@ -170,6 +170,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
                 {
                     InitMoney();
                 }
+                else if (col.IsDate())
+                {
+                    InitDatetime();
+                }
                 else
                 {
                     InitTxt();
@@ -211,6 +215,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
                 cell.SetValue(reader.GetDouble(ordinal));
             }
 
+            private void SetDate(IXLCell cell)
+            {
+                cell.Style.NumberFormat.Format = "yyyy-MM-dd";
+                cell.SetValue(reader.GetDateTime(ordinal));
+            }
+
             private void InitBoolean()
             {
                 fmt = SetBoolean;
@@ -220,6 +230,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Helpers
             {
                 SetColumnFormat(CurrencyFmt("EUR"));
                 fmt = SetNumber;
+            }
+
+            private void InitDatetime()
+            {
+                fmt = SetDate;
             }
 
             private void InitMoney()

@@ -111,6 +111,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     {
                         hwManual.ServiceTP_Released = rec.ServiceTP_Released;
                         hwManual.ChangeUser = changeUser;
+                        hwManual.ReleaseDate = DateTime.Now;
                         hwManualRepo.Save(hwManual);
                     }
                     else

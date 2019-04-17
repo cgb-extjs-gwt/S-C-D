@@ -154,7 +154,7 @@ namespace Gdc.Scd.Import.Core.Impl
         {
             var result = 0;
             var wgs = _repositoryWg.GetAll().Where(wg => !wg.DeactivatedDateTime.HasValue && !wg.IsSoftware).ToList();
-            var avFees = _availabilityFeeRepo.GetAll().ToList();
+            var allAvFees = _availabilityFeeRepo.GetAll().ToList();
 
             foreach (var item in items)
             {
@@ -171,7 +171,7 @@ namespace Gdc.Scd.Import.Core.Impl
                             else
                                 pred = af => af.WgId == wg.Id && _allCountries.Contains(af.CountryId.Value) && !af.DeactivatedDateTime.HasValue;
 
-                            var itemsToUpdate = avFees.Where(pred).ToList();
+                            var itemsToUpdate = allAvFees.Where(pred).ToList();
                             var batchList = new List<AvailabilityFee>();
                             foreach (var itemToUpdate in itemsToUpdate)
                             {
