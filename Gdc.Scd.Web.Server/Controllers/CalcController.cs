@@ -104,37 +104,27 @@ namespace Gdc.Scd.Web.Api.Controllers
         }
 
         [HttpPost]
-        public void ReleaseHwCost([FromBody]SaveCostManualDto m)
+        public Task ReleaseHwCost([FromBody]SaveCostManualDto m)
         {
             if (HasAccess(m.CountryId))
             {
-                var items = m.Items.Select(x => new HwCostManualDto
-                {
-                    Id = x.Id,
-                    ServiceTP_Released = x.ServiceTPManual ?? x.ServiceTP
-                });
-                calcSrv.SaveHardwareCost(this.CurrentUser(), items, true);
+                return calcSrv.ReleaseSelectedHardwareCost(this.CurrentUser(), m.Filter, m.Items);
             }
-            else
-            {
-                throw this.NotFoundException();
-            }
+
+            throw this.NotFoundException();
         }
 
         [HttpPost]
         public Task ReleaseHwCostAll([FromBody]HwFilterDto filter)
         {
-            if (filter != null &&
-               filter.Country != null &&
-               filter.Country.Length > 0 &&
-               HasAccess(false, filter.Country))
+            if (filter?.Country != null
+                && filter.Country.Length > 0 
+                && HasAccess(false, filter.Country))
             {
                 return calcSrv.ReleaseHardwareCost(this.CurrentUser(), filter);                             
             }
-            else
-            {
-                return this.NotFoundContentAsync();
-            }
+
+            return this.NotFoundContentAsync();
         }
 
         private bool IsRangeValid(int start, int limit)
@@ -152,9 +142,9 @@ namespace Gdc.Scd.Web.Api.Controllers
             return hasAccess;
         }
 
-        private bool HasAccess(long countryIds)
+        private bool HasAccess(long countryId)
         {
-            return userCountrySrv.HasCountryAccess(this.CurrentUser(), countryIds);
+            return userCountrySrv.HasCountryAccess(this.CurrentUser(), countryId);
         }
 
         private bool HasAccess(bool approved, long[] countryIds)
@@ -187,6 +177,8 @@ namespace Gdc.Scd.Web.Api.Controllers
     {
         public long CountryId { get; set; }
 
-        public HwCostDto[] Items { get; set; }
+        public HwFilterDto Filter { get; set; }
+
+        public HwCostDto[] Items { get; set; }    
     }
 }

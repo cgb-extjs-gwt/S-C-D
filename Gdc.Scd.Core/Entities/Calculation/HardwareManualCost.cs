@@ -31,10 +31,7 @@ namespace Gdc.Scd.Core.Entities.Calculation
         public double? DealerDiscount { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double? DealerPrice { get; private set; }
-
-        public double? ServiceTP_Released { get; set; }
-
+        public double? DealerPrice { get; private set; }      
         public DateTime? ReleaseDate { get; set; }
     }
 }

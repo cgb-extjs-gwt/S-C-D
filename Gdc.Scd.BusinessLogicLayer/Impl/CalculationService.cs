@@ -21,10 +21,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private readonly IRepository<HardwareManualCost> hwManualRepo;
 
         public CalculationService(
-                IRepositorySet repositorySet,
-                IRepository<HardwareManualCost> hwManualRepo,
-                IRepository<LocalPortfolio> portfolioRepo
-            )
+            IRepositorySet repositorySet,
+            IRepository<HardwareManualCost> hwManualRepo,
+            IRepository<LocalPortfolio> portfolioRepo
+        )
         {
             this.repositorySet = repositorySet;
             this.hwManualRepo = hwManualRepo;
@@ -42,21 +42,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         }
 
         public Task<(string json, int total)> GetSoftwareCost(
-                bool approved,
-                SwFilterDto filter,
-                int lastId,
-                int limit
-            )
+            bool approved,
+            SwFilterDto filter,
+            int lastId,
+            int limit
+        )
         {
             return new GetSwCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
         }
 
         public Task<(string json, int total)> GetSoftwareProactiveCost(
-                bool approved,
-                SwFilterDto filter,
-                int lastId,
-                int limit
-            )
+            bool approved,
+            SwFilterDto filter,
+            int lastId,
+            int limit
+        )
         {
             return new GetSwProActiveCost(repositorySet).ExecuteJsonAsync(approved, filter, lastId, limit);
         }
@@ -71,19 +71,29 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             await new ReleaseHwCost(repositorySet).ExecuteAsync(changeUser.Id, filter);
         }
 
-        public void SaveHardwareCost(User changeUser, IEnumerable<HwCostManualDto> records, bool release = false)
+        public async Task ReleaseSelectedHardwareCost(User changeUser, HwFilterDto filter, HwCostDto[] items)
+        {
+            if (items == null || items.Length == 0)
+            {
+                throw new ArgumentException("No records specified");
+            }
+
+            await new ReleaseSelectedHwCost(repositorySet).ExecuteAsync(changeUser.Id, filter, items);
+        }
+
+        public void SaveHardwareCost(User changeUser, IEnumerable<HwCostManualDto> records)
         {
             var recordsId = records.Select(x => x.Id);
 
             var entities = (from p in portfolioRepo.GetAll().Where(x => recordsId.Contains(x.Id))
-                            from hw in hwManualRepo.GetAll().Where(x => x.Id == p.Id).DefaultIfEmpty()
-                            select new
-                            {
-                                Portfolio = p,
-                                p.Country,
-                                Manual = hw
-                            })
-                           .ToDictionary(x => x.Portfolio.Id, y => y);
+                    from hw in hwManualRepo.GetAll().Where(x => x.Id == p.Id).DefaultIfEmpty()
+                    select new
+                    {
+                        Portfolio = p,
+                        p.Country,
+                        Manual = hw
+                    })
+                .ToDictionary(x => x.Portfolio.Id, y => y);
 
             if (entities.Count == 0)
             {
@@ -105,35 +115,26 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     var e = entities[rec.Id];
                     var country = e.Country;
                     var p = e.Portfolio;
-                    var hwManual = e.Manual ?? new HardwareManualCost { LocalPortfolio = p }; //create new if does not exist
+                    var hwManual = e.Manual ?? new HardwareManualCost
+                                       {LocalPortfolio = p}; //create new if does not exist
 
-                    if (release)
+                    if (country.CanOverrideTransferCostAndPrice)
                     {
-                        hwManual.ServiceTP_Released = rec.ServiceTP_Released;
+                        hwManual.ServiceTC = rec.ServiceTC;
+                        hwManual.ServiceTP = rec.ServiceTP;
                         hwManual.ChangeUser = changeUser;
-                        hwManual.ReleaseDate = DateTime.Now;
+                        //
                         hwManualRepo.Save(hwManual);
                     }
-                    else
-                    {
-                        if (country.CanOverrideTransferCostAndPrice)
-                        {
-                            hwManual.ServiceTC = rec.ServiceTC;
-                            hwManual.ServiceTP = rec.ServiceTP;
-                            hwManual.ChangeUser = changeUser;
-                            //
-                            hwManualRepo.Save(hwManual);
-                        }
 
-                        if (country.CanStoreListAndDealerPrices)
-                        {
-                            hwManual.ListPrice = rec.ListPrice;
-                            hwManual.DealerDiscount = rec.DealerDiscount;
-                            hwManual.ChangeUser = changeUser;
-                            //
-                            hwManualRepo.Save(hwManual);
-                        }
-                    }                   
+                    if (country.CanStoreListAndDealerPrices)
+                    {
+                        hwManual.ListPrice = rec.ListPrice;
+                        hwManual.DealerDiscount = rec.DealerDiscount;
+                        hwManual.ChangeUser = changeUser;
+                        //
+                        hwManualRepo.Save(hwManual);
+                    }
                 }
 
                 repositorySet.Sync();
@@ -141,15 +142,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
             catch
             {
-                transaction.Rollback();
+                transaction?.Rollback();
                 throw;
             }
             finally
             {
-                if (transaction != null)
-                {
-                    transaction.Dispose();
-                }
+                transaction?.Dispose();
             }
         }
     }
