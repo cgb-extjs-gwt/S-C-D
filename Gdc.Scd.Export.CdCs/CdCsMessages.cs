@@ -21,8 +21,7 @@ namespace Gdc.Scd.Export.CdCs
         public static string READ_HDD_RETENTION = "Reading HDD retention costs...";
         public static string WRITE_HDD_RETENTION = "Writing HDD retention costs...";
         public static string UPLOAD_FILE = "Uploading file...";
-        public static string READ_SLA_FILE = "Reading SLA input file...";
-        public static string PARSE_SLA_FILE = "Parsing SLA input file...";
+        public static string PARSE_SLA_SHEET = "Parsing SLA input sheet...";
         public static string READ_COUNTRY_COSTS = "Reading costs for {0}...";
         public static string WRITE_COUNTRY_COSTS = "Filling CD CS template file for each country...";
     }
