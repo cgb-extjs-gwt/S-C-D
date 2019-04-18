@@ -27,17 +27,17 @@ RETURN (
          , m.Availability
          , m.ProActiveSla
 
-        , case when m.DurationId >= 1 then  (m.ServiceTP_Released * m.ExchangeRate) / dur.Value else null end as ServiceTP1
-        , case when m.DurationId >= 2 then  (m.ServiceTP_Released * m.ExchangeRate) / dur.Value else null end as ServiceTP2
-        , case when m.DurationId >= 3 then  (m.ServiceTP_Released * m.ExchangeRate) / dur.Value else null end as ServiceTP3
-        , case when m.DurationId >= 4 then  (m.ServiceTP_Released * m.ExchangeRate) / dur.Value else null end as ServiceTP4
-        , case when m.DurationId >= 5 then  (m.ServiceTP_Released * m.ExchangeRate) / dur.Value else null end as ServiceTP5
+        , case when m.DurationId >= 1 then (m.ServiceTP_Released * m.ExchangeRate) / dur.Value end as ServiceTP1
+        , case when m.DurationId >= 2 then (m.ServiceTP_Released * m.ExchangeRate) / dur.Value end as ServiceTP2
+        , case when m.DurationId >= 3 then (m.ServiceTP_Released * m.ExchangeRate) / dur.Value end as ServiceTP3
+        , case when m.DurationId >= 4 then (m.ServiceTP_Released * m.ExchangeRate) / dur.Value end as ServiceTP4
+        , case when m.DurationId >= 5 then (m.ServiceTP_Released * m.ExchangeRate) / dur.Value end as ServiceTP5
 
-        , case when m.DurationId >= 1 then  (m.ServiceTP_Released * m.ExchangeRate) / dur.Value / 12 else null end as ServiceTPMonthly1
-        , case when m.DurationId >= 2 then  (m.ServiceTP_Released * m.ExchangeRate) / dur.Value / 12 else null end as ServiceTPMonthly2
-        , case when m.DurationId >= 3 then  (m.ServiceTP_Released * m.ExchangeRate) / dur.Value / 12 else null end as ServiceTPMonthly3
-        , case when m.DurationId >= 4 then  (m.ServiceTP_Released * m.ExchangeRate) / dur.Value / 12 else null end as ServiceTPMonthly4
-        , case when m.DurationId >= 5 then  (m.ServiceTP_Released * m.ExchangeRate) / dur.Value / 12 else null end as ServiceTPMonthly5
+        , case when m.DurationId >= 1 then (m.ServiceTP_Released * m.ExchangeRate) / dur.Value / 12 end as ServiceTPMonthly1
+        , case when m.DurationId >= 2 then (m.ServiceTP_Released * m.ExchangeRate) / dur.Value / 12 end as ServiceTPMonthly2
+        , case when m.DurationId >= 3 then (m.ServiceTP_Released * m.ExchangeRate) / dur.Value / 12 end as ServiceTPMonthly3
+        , case when m.DurationId >= 4 then (m.ServiceTP_Released * m.ExchangeRate) / dur.Value / 12 end as ServiceTPMonthly4
+        , case when m.DurationId >= 5 then (m.ServiceTP_Released * m.ExchangeRate) / dur.Value / 12 end as ServiceTPMonthly5
         , cur.Name as Currency
 
          , m.StdWarranty as WarrantyLevel
