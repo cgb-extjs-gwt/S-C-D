@@ -15,12 +15,12 @@ using Gdc.Scd.OperationResult;
 
 namespace Gdc.Scd.Import.Por
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            try
-            {
+    //class Program
+    //{
+    //    static void Main(string[] args)
+    //    {
+    //        try
+    //        {
                 ////CONFIGURATION
                 //PorService.Logger.Log(LogLevel.Info, "Reading configuration...");
                 //var softwareServiceTypes = Config.SoftwareSolutionTypes;
@@ -107,7 +107,6 @@ namespace Gdc.Scd.Import.Por
 
                 //var proActiveValues = PorService.ProactiveService.GetAll().ToList();
 
-
                 //var countries = FormatDataHelper.FillCountryDictionary(PorService.CountryService.GetAll().ToList(),
                 //    PorService.CountryGroupService.GetAll().ToList());
 
@@ -165,7 +164,8 @@ namespace Gdc.Scd.Import.Por
                 //    Sla = sla,
                 //    OtherHardwareServiceTypes = hardwareServiceTypes,
                 //    ProactiveServiceTypes = proactiveServiceTypes,
-                //    StandardWarrantiesServiceTypes = standardWarrantiesServiceTypes
+    //                StandardWarrantiesServiceTypes = standardWarrantiesServiceTypes,
+    //                GlobalSupportPackIdentity = Config.GlobalSupportPackIdentifier
                 //};
 
                 ////UPLOAD HARDWARE
@@ -213,18 +213,17 @@ namespace Gdc.Scd.Import.Por
                 //PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.END_PROCESS);
 
                 //STEP 10: UPDATE 2ndLevelSupportCosts
-                var step = 1;
-                PorService.Update2ndLevelSupportCosts(step);
-            }
+    //            PorService.Update2ndLevelSupportCosts(step);
+    //        }
 
-            catch (Exception ex)
-            {
-                PorService.Logger.Log(LogLevel.Fatal, ex, ImportConstantMessages.UNEXPECTED_ERROR);
-                Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstantMessages.UNEXPECTED_ERROR, ex, null, null);
-            }
-        }
+    //        catch (Exception ex)
+    //        {
+    //            PorService.Logger.Log(LogLevel.Fatal, ex, ImportConstantMessages.UNEXPECTED_ERROR);
+    //            Fujitsu.GDC.ErrorNotification.Logger.Error(ImportConstantMessages.UNEXPECTED_ERROR, ex, null, null);
+    //        }
+    //    }
 
-    }
+    //}
 
     public class ImportPorJob
     {
@@ -378,7 +377,8 @@ namespace Gdc.Scd.Import.Por
                     Sla = sla,
                     OtherHardwareServiceTypes = hardwareServiceTypes,
                     ProactiveServiceTypes = proactiveServiceTypes,
-                    StandardWarrantiesServiceTypes = standardWarrantiesServiceTypes
+                    StandardWarrantiesServiceTypes = standardWarrantiesServiceTypes,
+                    GlobalSupportPackIdentity = Config.GlobalSupportPackIdentifier
                 };
 
                 //UPLOAD HARDWARE
