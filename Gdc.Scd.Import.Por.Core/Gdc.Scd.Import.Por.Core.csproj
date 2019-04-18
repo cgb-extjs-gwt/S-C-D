@@ -110,6 +110,7 @@
     <Compile Include="Impl\PorImportLoggingMessage.cs" />
     <Compile Include="Impl\PorSogService.cs" />
     <Compile Include="Impl\PorSwDigitLicenseService.cs" />
+    <Compile Include="Impl\PorSwSpMaintenanceService.cs" />
     <Compile Include="Impl\PorSwDigitService.cs" />
     <Compile Include="Impl\PorSwFspCodeTranslationService.cs" />
     <Compile Include="Impl\PorSwLicenseService.cs" />
@@ -119,6 +120,7 @@
     <Compile Include="Interfaces\IHwFspCodeTranslationService.cs" />
     <Compile Include="Interfaces\IPorSogService.cs" />
     <Compile Include="Interfaces\IPorSwDigitLicenseService.cs" />
+    <Compile Include="Interfaces\IPorSwSpMaintenaceService.cs" />
     <Compile Include="Interfaces\IPorSwDigitService.cs" />
     <Compile Include="Interfaces\IPorSwLicenseService.cs" />
     <Compile Include="Interfaces\IPorSwProActiveService.cs" />
