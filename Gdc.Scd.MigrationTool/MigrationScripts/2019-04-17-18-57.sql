@@ -1,23 +1,22 @@
-alter table Hardware.ManualCost drop column ServiceTP_Released;
+ALTER TABLE Hardware.ManualCost 
+ DROP COLUMN ServiceTP_Released;
 
-alter table Hardware.ManualCost
-add ServiceTP1_Released float null,
+ALTER TABLE Hardware.ManualCost
+ADD ServiceTP1_Released float null,
 	ServiceTP2_Released float null,
 	ServiceTP3_Released float null,
 	ServiceTP4_Released float null,
 	ServiceTP5_Released float null,
-    ServiceTP_Released as ( case when ServiceTP1_Released is null 
-								 then null 
-								 else			 ServiceTP1_Released + 
-										COALESCE(ServiceTP2_Released, 0) + 
-										COALESCE(ServiceTP3_Released, 0) + 
-										COALESCE(ServiceTP4_Released, 0) + 
-										COALESCE(ServiceTP5_Released, 0) end)
+    ServiceTP_Released AS ( ServiceTP1_Released + 
+							COALESCE(ServiceTP2_Released, 0) + 
+							COALESCE(ServiceTP3_Released, 0) + 
+							COALESCE(ServiceTP4_Released, 0) + 
+							COALESCE(ServiceTP5_Released, 0))
 GO
 
 IF OBJECT_ID('Hardware.SpReleaseCosts') IS NOT NULL
   DROP PROCEDURE Hardware.SpReleaseCosts;
-go
+GO
 
 CREATE PROCEDURE [Hardware].[SpReleaseCosts]
 	@usr		  int, 
