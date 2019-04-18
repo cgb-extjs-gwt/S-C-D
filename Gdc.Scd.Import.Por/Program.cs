@@ -106,8 +106,6 @@ namespace Gdc.Scd.Import.Por
 
 
     //            var proActiveValues = PorService.ProactiveService.GetAll().ToList();
-    //            var countryValues = PorService.CountryService.GetAll().ToList();
-
 
     //            var countries = FormatDataHelper.FillCountryDictionary(PorService.CountryService.GetAll().ToList(),
     //                PorService.CountryGroupService.GetAll().ToList());
@@ -166,7 +164,8 @@ namespace Gdc.Scd.Import.Por
     //                Sla = sla,
     //                OtherHardwareServiceTypes = hardwareServiceTypes,
     //                ProactiveServiceTypes = proactiveServiceTypes,
-    //                StandardWarrantiesServiceTypes = standardWarrantiesServiceTypes
+    //                StandardWarrantiesServiceTypes = standardWarrantiesServiceTypes,
+    //                GlobalSupportPackIdentity = Config.GlobalSupportPackIdentifier
     //            };
 
     //            //UPLOAD HARDWARE
@@ -316,7 +315,6 @@ namespace Gdc.Scd.Import.Por
 
 
                 var proActiveValues = PorService.ProactiveService.GetAll().ToList();
-                var countryValues = PorService.CountryService.GetAll().ToList();
 
 
                 var countries = FormatDataHelper.FillCountryDictionary(PorService.CountryService.GetAll().ToList(),
@@ -376,7 +374,8 @@ namespace Gdc.Scd.Import.Por
                     Sla = sla,
                     OtherHardwareServiceTypes = hardwareServiceTypes,
                     ProactiveServiceTypes = proactiveServiceTypes,
-                    StandardWarrantiesServiceTypes = standardWarrantiesServiceTypes
+                    StandardWarrantiesServiceTypes = standardWarrantiesServiceTypes,
+                    GlobalSupportPackIdentity = Config.GlobalSupportPackIdentifier
                 };
 
                 //UPLOAD HARDWARE
