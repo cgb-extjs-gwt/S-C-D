@@ -78,7 +78,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 throw new ArgumentException("No records specified");
             }
 
-            await new ReleaseSelectedHwCost(repositorySet).ExecuteAsync(changeUser.Id, filter, items);
+            await new ReleaseHwCost(repositorySet).ExecuteAsync(changeUser.Id, filter, items);
         }
 
         public void SaveHardwareCost(User changeUser, IEnumerable<HwCostManualDto> records)
