@@ -23,8 +23,6 @@ namespace Gdc.Scd.Export.CdCs
 
         public static string CalculationToolFileName => ConfigurationManager.AppSettings["CalculationToolFileName"];
 
-        public static string CalculationToolInputFileName => ConfigurationManager.AppSettings["CalculationToolInputFileName"];
-
         public static string ProActiveWgList => ConfigurationManager.AppSettings["ProActiveWgList"];
     }
 }

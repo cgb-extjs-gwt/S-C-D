@@ -120,7 +120,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="PerformanceRate" Caption="Performance rate" InputOption="Manually" Dependency="ReactionTimeType">
+        <Element Name="PerformanceRate" Caption="Performance rate" InputOption="Manually" Dependency="ReactionTimeType"  IncludeDisabledDependcyItems="True">
           <TypeOption Type="CountryCurrencyCost"/>
           <CostEditor>
             <Roles>
@@ -130,7 +130,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="TimeAndMaterialShare" Caption="Time and material share (%)" InputOption="Manually">
+        <Element Name="TimeAndMaterialShare" Caption="Time and material share (%)" InputOption="Manually" Dependency="ReactionTimeType">
           <TypeOption Type="Percent"/>
           <CostEditor>
             <Roles>
@@ -197,7 +197,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="StandardHandling" Caption="Standard handling in country" InputOption="Manually" Dependency="ReactionTimeType">
+        <Element Name="StandardHandling" Caption="Standard handling in country" InputOption="Manually" Dependency="ReactionTimeType"  IncludeDisabledDependcyItems="True">
           <TypeOption Type="CountryCurrencyCost"/>
           <CostEditor>
             <Roles>
@@ -208,7 +208,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="HighAvailabilityHandling" Caption="High availability handling in country" InputOption="Manually" Dependency="ReactionTimeType">
+        <Element Name="HighAvailabilityHandling" Caption="High availability handling in country" InputOption="Manually" Dependency="ReactionTimeType"  IncludeDisabledDependcyItems="True">
           <TypeOption Type="CountryCurrencyCost"/>
           <CostEditor>
             <Roles>
@@ -219,7 +219,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="StandardDelivery" Caption="Standard delivery" InputOption="Manually" Dependency="ReactionTimeType">
+        <Element Name="StandardDelivery" Caption="Standard delivery" InputOption="Manually" Dependency="ReactionTimeType"  IncludeDisabledDependcyItems="True">
           <TypeOption Type="CountryCurrencyCost"/>
           <CostEditor>
             <Roles>
@@ -230,7 +230,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="ExpressDelivery" Caption="Express delivery" InputOption="Manually" Dependency="ReactionTimeType">
+        <Element Name="ExpressDelivery" Caption="Express delivery" InputOption="Manually" Dependency="ReactionTimeType"  IncludeDisabledDependcyItems="True">
           <TypeOption Type="CountryCurrencyCost"/>
           <CostEditor>
             <Roles>
@@ -241,7 +241,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="TaxiCourierDelivery" Caption="Taxi/courier delivery" InputOption="Manually" Dependency="ReactionTimeType">
+        <Element Name="TaxiCourierDelivery" Caption="Taxi/courier delivery" InputOption="Manually" Dependency="ReactionTimeType"  IncludeDisabledDependcyItems="True">
           <TypeOption Type="CountryCurrencyCost"/>
           <CostEditor>
             <Roles>
@@ -252,7 +252,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="ReturnDeliveryFactory" Caption="Return delivery to factory" InputOption="Manually" Dependency="ReactionTimeType">
+        <Element Name="ReturnDeliveryFactory" Caption="Return delivery to factory" InputOption="Manually" Dependency="ReactionTimeType"  IncludeDisabledDependcyItems="True">
           <TypeOption Type="CountryCurrencyCost"/>
           <CostEditor>
             <Roles>

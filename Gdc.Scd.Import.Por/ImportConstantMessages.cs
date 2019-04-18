@@ -22,5 +22,7 @@ namespace Gdc.Scd.Import.Por
         public static string UNEXPECTED_ERROR = "POR Import completed unsuccessfully. Please find details below.";
         public static string UPDATE_COST_BLOCKS_START = "STEP {0}: Updating cost block process started...";
         public static string UPDATE_COST_BLOCKS_END = "Cost blocks were updated.";
+        public static string UPDATE_COSTS_START = "STEP {0}: Updating 2nd Level Support Costs of new digits process started...";
+        public static string UPDATE_COSTS_END = "2nd Level Support Costs were updated.";
     }
 }
