@@ -59,7 +59,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 var stdwResult = UploadStdws(model.StandardWarranties, 
                                                 GetCountryFunc(model), 
                                                 model.HwSla, model.Sla,
-                                                model.CreationDate, model.GlobalSupportPackIdentity);
+                                                model.CreationDate);
 
                 _repository.EnableTrigger();
 
@@ -81,8 +81,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             Func<SCD2_v_SAR_new_codes, List<string>> getCountryCode, 
             HwSlaDto stdwSla,
             SlaDictsDto slaDto,
-            DateTime createdDateTime,
-            string globalSPIdent)
+            DateTime createdDateTime)
         {
             var result = true;
             var updatedFspCodes = new List<HwFspCodeTranslation>();
@@ -140,8 +139,6 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         continue;
                     }
      
-                    var alreadyUploadedCountryCodes = new List<(long? CountryCode, bool IsGlobal)>();
-
                     foreach (var countryCode in countryCodes)
                     {
                         //if Country Group is unknown or empty than skip it
@@ -156,23 +153,13 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         {
                             foreach (var country in stdwSla.Countries[countryCode])
                             {
-                                var isGlobal = countryCode.Equals(globalSPIdent, StringComparison.OrdinalIgnoreCase);
-
-                                var added = alreadyUploadedCountryCodes.FirstOrDefault(c => c.CountryCode == country
-                                                                                            && c.IsGlobal == isGlobal);
-                                if (added.Equals(default((long?, bool))))
+                                foreach (var wg in wgs)
                                 {
-                                    foreach (var wg in wgs)
-                                    {
+                                    var dbcode = AddStdwCode(sla, country, wg, code, createdDateTime, countryCode);
+                                    _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                                                    nameof(HwFspCodeTranslation), dbcode.Name);
 
-                                        var dbcode = AddStdwCode(sla, country, wg, code, createdDateTime, isGlobal);
-                                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
-                                                        nameof(HwFspCodeTranslation), dbcode.Name);
-
-                                        updatedFspCodes.Add(dbcode);
-                                    }
-
-                                    alreadyUploadedCountryCodes.Add((country, isGlobal));
+                                    updatedFspCodes.Add(dbcode);
                                 }
                             }
                         }
@@ -281,7 +268,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
         private HwFspCodeTranslation AddStdwCode(SlaDto sla, long? country, 
             long wg, SCD2_v_SAR_new_codes code, 
-            DateTime createdDateTime, bool isGlobal)
+            DateTime createdDateTime, string lutCode)
         {
             var dbcode = new HwFspCodeTranslation
             {
@@ -302,7 +289,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 ServiceType = code.ServiceType,
                 CreatedDateTime = createdDateTime,
                 IsStandardWarranty = true,
-                IsGlobalSP = isGlobal
+                LUT = lutCode
             };
 
             if (country.HasValue)
