@@ -1965,7 +1965,7 @@ BEGIN
     , Std as (
         select  m.*
 
-              , case when @approved = 0 then hr.OnsiteHourlyRates               else hr.OnsiteHourlyRates_Approved           end as OnsiteHourlyRates      
+              , case when @approved = 0 then hr.OnsiteHourlyRates                     else hr.OnsiteHourlyRates_Approved                 end / m.ExchangeRate as OnsiteHourlyRates      
 
               , stdw.FspId                                    as StdFspId
               , stdw.Fsp                                      as StdFsp
@@ -1981,7 +1981,7 @@ BEGIN
               , stdw.ServiceLocation                          as StdServiceLocation
               , stdw.ServiceLocationId                        as StdServiceLocationId
 
-              , case when @approved = 0 then mcw.MaterialCostIw                      else mcw.MaterialCostIw_Approved              end as MaterialCostWarranty
+              , case when @approved = 0 then mcw.MaterialCostIw                      else mcw.MaterialCostIw_Approved                    end as MaterialCostWarranty
               , case when @approved = 0 then mcw.MaterialCostOow                     else mcw.MaterialCostOow_Approved                   end as MaterialCostOow     
 
               , case when @approved = 0 then msw.MarkupStandardWarranty              else msw.MarkupStandardWarranty_Approved            end / m.ExchangeRate as MarkupStandardWarranty      
