@@ -106,6 +106,14 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                             ProactiveSlaId = proActive == null ? proActiveNullValue : proActive.ProActiveId
                         };
 
+                        var swRecord = swRecords.FirstOrDefault();
+                        if (swRecord != null)
+                        {
+                            var swDigitLicense = digit.SwDigitLicenses.FirstOrDefault(x => x.SwLicense.Name == swRecord.Software_Lizenz);
+
+                            dbcode.SwLicenseId = swDigitLicense?.Id;
+                        }
+
                         _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
                                             nameof(SwFspCodeTranslation), dbcode.Name);
 
