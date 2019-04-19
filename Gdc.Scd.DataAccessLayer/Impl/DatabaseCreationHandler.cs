@@ -19,11 +19,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private readonly EntityFrameworkRepositorySet repositorySet;
 
-        public DatabaseCreationHandler(DomainEnitiesMeta meta, IKernel serviceProvider, EntityFrameworkRepositorySet repositorySet)
+        private readonly ICostBlockRepository costBlockRepository;
+
+        public DatabaseCreationHandler(
+            DomainEnitiesMeta meta, 
+            IKernel serviceProvider, 
+            EntityFrameworkRepositorySet repositorySet, 
+            ICostBlockRepository costBlockRepository)
         {
             this.meta = meta;
             this.serviceProvider = serviceProvider;
             this.repositorySet = repositorySet;
+            this.costBlockRepository = costBlockRepository;
         }
 
         public void Handle()
@@ -41,6 +48,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 {
                     this.repositorySet.ExecuteSql(command);
                 }
+
+                this.costBlockRepository.CreatRegionIndexes();
 
                 foreach (var configDatabaseHandler in this.serviceProvider.GetAll<IConfigureDatabaseHandler>())
                 {
