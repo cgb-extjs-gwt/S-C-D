@@ -20,6 +20,6 @@ namespace Gdc.Scd.Core.Entities
         public long WgId { get; set; }
 
         public bool? IsStandardWarranty { get; set; }
-        public bool? IsGlobalSP { get; set; }
+        public string LUT { get; set; }
     }
 }
