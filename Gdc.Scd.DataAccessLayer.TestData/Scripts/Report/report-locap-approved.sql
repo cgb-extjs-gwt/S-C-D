@@ -79,6 +79,7 @@ BEGIN
             , m.ServiceTcSog * m.ExchangeRate as ServiceTC
             , m.ServiceTpSog  * m.ExchangeRate as ServiceTP_Released
             , m.ServiceTpSog_Approved * m.ExchangeRate as ServiceTP_Approved
+			, m.ReleaseDate
 
             , m.Currency
          
@@ -92,7 +93,6 @@ BEGIN
 
             , null as PlausiCheck
             , null as PortfolioType
-            , null as ReleaseCreated
             , m.Sog
 
     from cte2 m
@@ -131,6 +131,8 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('money'), 'ServiceTP_Approved', 'Service TP (Approved)', 1, 1);
 set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ReleaseDate', 'Release date', 1, 1);
+set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Country', 'Country Name', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ServiceType', 'Service type', 1, 1);
@@ -138,8 +140,6 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'PlausiCheck', 'Plausi Check', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'PortfolioType', 'Portfolio Type', 1, 1);
-set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'ReleaseCreated', 'Release created', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Sog', 'SOG', 1, 1);
 
