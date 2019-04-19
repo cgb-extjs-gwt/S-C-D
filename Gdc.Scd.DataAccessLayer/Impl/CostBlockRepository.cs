@@ -253,14 +253,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private SqlHelper BuildDeleteRowsCostBlockQuery(CostBlockEntityMeta costBlockMeta)
         {
-            const string DelectedCoordinateTable = "DelectedCoordinate";
+            const string DeletedCoordinateTable = "DeletedCoordinate";
 
             var condition =
                 ConditionHelper.And(
                     costBlockMeta.CoordinateFields.Select(
                         field => 
                             SqlOperators.Equals(
-                                new ColumnInfo(field.Name, DelectedCoordinateTable), 
+                                new ColumnInfo(field.Name, DeletedCoordinateTable), 
                                 new ColumnInfo(field.Name, costBlockMeta.Name))));
 
             return
@@ -269,7 +269,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         Sql.Except(
                             this.BuildSelectFromCostBlockQuery(costBlockMeta),
                             this.BuildSelectFromCoordinateTalbeQuery(costBlockMeta)),
-                        DelectedCoordinateTable)
+                        DeletedCoordinateTable)
                    .Where(condition);
         }
 

@@ -2,7 +2,6 @@
 {
     public class SlaDto
     {
-        public string FspCode { get; set; }
         public string ServiceLocation { get; set; }
         public string Availability { get; set; }
         public string ReactionTime { get; set; }

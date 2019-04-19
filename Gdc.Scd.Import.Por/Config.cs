@@ -64,24 +64,17 @@ namespace Gdc.Scd.Import.Por
             }
         }
 
-        public static string SolutionIdentifier
-        {
-            get
-            {
-                return ConfigurationManager.AppSettings["SolutionIdentifier"];
-            }
-        }
+        public static string SolutionIdentifier => 
+            ConfigurationManager.AppSettings["SolutionIdentifier"];
 
-        public static string[] AllServiceTypes
-        {
-            get
-            {
-                return HwServiceTypes
-                        .Union(ProActiveServices)
-                        .Union(SoftwareSolutionTypes)
-                        .Union(HddServiceType)
-                        .ToArray();
-            }
-        }
+        public static string[] AllServiceTypes =>
+            HwServiceTypes
+                .Union(ProActiveServices)
+                .Union(SoftwareSolutionTypes)
+                .Union(HddServiceType)
+                .ToArray();
+
+        public static string GlobalSupportPackIdentifier => 
+            ConfigurationManager.AppSettings["GlobalSupportPackIdentifier"];
     }
 }

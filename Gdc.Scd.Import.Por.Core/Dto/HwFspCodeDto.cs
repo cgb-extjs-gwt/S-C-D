@@ -21,5 +21,6 @@ namespace Gdc.Scd.Import.Por.Core.Dto
         public string[] ProactiveServiceTypes { get; set; }
         public string[] StandardWarrantiesServiceTypes { get; set; }
         public string[] OtherHardwareServiceTypes { get; set; }
+        public string GlobalSupportPackIdentity { get; set; }
     }
 }

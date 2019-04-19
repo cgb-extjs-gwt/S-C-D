@@ -13,37 +13,6 @@ namespace Gdc.Scd.Import.Por
     public static class FormatDataHelper
     {
         /// <summary>
-        /// Construct Dictionary with SFab as key and PLA as value
-        /// </summary>
-        /// <param name="sogs"></param>
-        /// <param name="wgs"></param>
-        /// <returns></returns>
-        public static Dictionary<string, string> FillSFabDictionary(
-            IEnumerable<SCD2_ServiceOfferingGroups> sogs,
-            IEnumerable<SCD2_WarrantyGroups> wgs)
-        {
-            var porFabsDictionary = new Dictionary<string, string>();
-
-            foreach (var sog in sogs)
-            {
-                if (!porFabsDictionary.Keys.Contains(sog.FabGrp, StringComparer.OrdinalIgnoreCase))
-                {
-                    porFabsDictionary.Add(sog.FabGrp, sog.SOG_PLA);
-                }
-            }
-
-            foreach (var wg in wgs)
-            {
-                if (!porFabsDictionary.Keys.Contains(wg.FabGrp, StringComparer.OrdinalIgnoreCase))
-                {
-                    porFabsDictionary.Add(wg.FabGrp, wg.Warranty_PLA);
-                }
-            }
-
-            return porFabsDictionary;
-        }
-
-        /// <summary>
         /// Construct Dictionaries with keys Software Digits and Software License and SCD2_SW_Overview as value
         /// </summary>
         /// <param name="swInfo"></param>

@@ -347,7 +347,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
         ExtMsgHelper.confirm('Release', `Do you want to approve for release ${recs.length} record(s)?`, () => {
             let me = this;
-            let p = post('calc', 'releasehwcost', { items: recs, countryId: cnt.id }).then(() => {
+            let p = post('calc', 'releasehwcost', { items: recs, countryId: cnt.id, filter: this.filter.getModel() }).then(() => {
                 me.reset();
                 me.reload();
             });
