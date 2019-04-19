@@ -100,6 +100,17 @@ ALTER TABLE Hardware.ManualCost
    ADD DealerPrice as (ListPrice - (ListPrice * DealerDiscount / 100));
 GO
 
+ALTER TABLE Hardware.ManualCost
+   DROP COLUMN ServiceTP_Released;
+
+ALTER TABLE Hardware.ManualCost
+   ADD ServiceTP_Released AS ( ServiceTP1_Released + 
+							COALESCE(ServiceTP2_Released, 0) + 
+							COALESCE(ServiceTP3_Released, 0) + 
+							COALESCE(ServiceTP4_Released, 0) + 
+							COALESCE(ServiceTP5_Released, 0));
+GO
+
 ALTER TABLE Hardware.HddRetention
      ADD HddRet float,
          HddRet_Approved float
@@ -3047,36 +3058,51 @@ CREATE PROCEDURE [Hardware].[SpReleaseCosts]
     @reactiontime dbo.ListID readonly,
     @reactiontype dbo.ListID readonly,
     @loc          dbo.ListID readonly,
-    @pro          dbo.ListID readonly
+    @pro          dbo.ListID readonly,
+	@portfolioIds dbo.ListID readonly
 AS
 BEGIN
 
     SET NOCOUNT ON;
     
+
 	SELECT * INTO #temp 
-	FROM Hardware.GetCosts(1, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, 0, 0)   
+	FROM Hardware.GetCosts(1, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, 0, 0) costs
+	WHERE (not exists(select 1 from @portfolioIds) or costs.Id in (select Id from @portfolioIds))   
+	--TODO: @portfolioIds case to be fixed in a future release 
 
 	UPDATE mc
-	SET [ServiceTP_Released] = COALESCE(costs.ServiceTPManual, costs.ServiceTP),
+	SET [ServiceTP1_Released] = case when dur.Value >= 1 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP1) else null end,
+		[ServiceTP2_Released] = case when dur.Value >= 2 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP2) else null end,
+		[ServiceTP3_Released] = case when dur.Value >= 3 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP3) else null end,
+		[ServiceTP4_Released] = case when dur.Value >= 4 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP4) else null end,
+		[ServiceTP5_Released] = case when dur.Value >= 5 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP5) else null end,
 		[ChangeUserId] = @usr,
-        [ChangeDate] = getdate()
+        [ReleaseDate] = getdate()
 	FROM [Hardware].[ManualCost] mc
 	JOIN #temp costs on mc.PortfolioId = costs.Id
+	JOIN Dependencies.Duration dur on costs.DurationId = dur.Id
 	where costs.ServiceTPManual is not null or costs.ServiceTP is not null
 
 	INSERT INTO [Hardware].[ManualCost] 
 				([PortfolioId], 
 				[ChangeUserId], 
-                [ChangeDate],
-				[ServiceTP_Released])
+                [ReleaseDate],
+				[ServiceTP1_Released], [ServiceTP2_Released], [ServiceTP3_Released], [ServiceTP4_Released], [ServiceTP5_Released])
 	SELECT  costs.Id, 
 			@usr, 
             getdate(),
-			COALESCE(costs.ServiceTPManual, costs.ServiceTP)
+			case when dur.Value >= 1 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP1) else null end,
+			case when dur.Value >= 2 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP2) else null end,
+			case when dur.Value >= 3 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP3) else null end,
+			case when dur.Value >= 4 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP4) else null end,
+			case when dur.Value >= 5 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP5) else null end
 	FROM [Hardware].[ManualCost] mc
 	RIGHT JOIN #temp costs on mc.PortfolioId = costs.Id
+	JOIN Dependencies.Duration dur on costs.DurationId = dur.Id
 	where mc.PortfolioId is null and (costs.ServiceTPManual is not null or costs.ServiceTP is not null)
 
 	DROP table #temp
    
 END
+GO
