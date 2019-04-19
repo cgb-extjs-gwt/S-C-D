@@ -160,6 +160,7 @@
     <Compile Include="Migrations\Migration_2019_04_17_18_57.cs" />
     <Compile Include="Migrations\Migration_2019_04_16_14_53.cs" />
     <Compile Include="Migrations\Migration_2019_04_18.cs" />
+    <Compile Include="Migrations\Migration_2019_04_19_10_44.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -400,6 +401,7 @@
     <Content Include="MigrationScripts\2019-04-16-13-55.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="MigrationScripts\2019-04-19-10-44.sql" />
     <Content Include="MigrationScripts\2019-04-18-17-43.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

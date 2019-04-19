@@ -3,22 +3,22 @@ using Gdc.Scd.MigrationTool.Interfaces;
 
 namespace Gdc.Scd.MigrationTool.Migrations
 {
-    public class Migration_2019_04_18_12_52 : IMigrationAction
+    public class Migration_2019_04_19_10_44 : IMigrationAction
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 80;
+        public int Number => 83;
 
         public string Description => "Fix getcost by sla sog function, fix contract report";
 
-        public Migration_2019_04_18_12_52(IRepositorySet repositorySet)
+        public Migration_2019_04_19_10_44(IRepositorySet repositorySet)
         {
             this.repositorySet = repositorySet;
         }
 
         public void Execute()
         {
-            repositorySet.ExecuteFromFile("2019-04-18-12-52.sql");
+            repositorySet.ExecuteFromFile("2019-04-19-10-44.sql");
         }
     }
 }
