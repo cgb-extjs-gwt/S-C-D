@@ -54,6 +54,7 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
     switch (type) {
         case FieldType.Double:
             columnType = ColumnType.Numeric;
+            formatFn = value => value === 0 ? '0' : value;
             break;
 
         case FieldType.Flag:
