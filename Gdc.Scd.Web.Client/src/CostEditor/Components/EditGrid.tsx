@@ -40,7 +40,10 @@ export class EditGrid extends React.Component<EditGridProps> {
     private innerGrid: AjaxDynamicGrid
 
     public shouldComponentUpdate(nextProps: EditGridProps) {
-        return this.props.url != nextProps.url;
+        return (
+            this.props.url != nextProps.url ||
+            this.props.valueColumn.currency != nextProps.valueColumn.currency
+        );
     }
 
     public componentWillReceiveProps(nextProps: EditGridProps) {
