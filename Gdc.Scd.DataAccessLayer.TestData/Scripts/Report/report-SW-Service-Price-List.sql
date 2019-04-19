@@ -65,14 +65,7 @@ begin
                                               and fsp.DurationId = sw.Year
                                               and fsp.SwDigitId = sw.SwDigit
 
-    outer apply (
-
-        --get first existing row with valid description
-
-        SELECT top(1) lic.Description
-        FROM InputAtoms.SwLicense lic
-        WHERE lic.Description IS NOT NULL and exists (select * from InputAtoms.SwDigitLicense sdl where sdl.SwLicenseId = lic.Id and sdl.SwDigitId = dig.Id)
-    ) lic;
+    left join InputAtoms.SwLicense lic on fsp.SwLicenseId = lic.id
 
     return
 end
