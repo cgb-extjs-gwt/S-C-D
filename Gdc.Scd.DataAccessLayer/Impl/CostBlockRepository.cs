@@ -11,6 +11,7 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -72,6 +73,46 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var query = this.BuildUpdateByCoordinatesQuery(meta, updateOptions);
             this.repositorySet.ExecuteSql(query);
+        }
+
+        public void CreatRegionIndexes()
+        {
+            var costblockInfos =
+                this.domainEnitiesMeta.CostBlocks.Select(costBlock => new
+                {
+                    CostBlock = costBlock,
+                    RegionIds = 
+                        costBlock.DomainMeta.CostElements.Where(costElement => costElement.RegionInput != null)
+                                                         .GroupBy(costElement => costElement.RegionInput.Id)
+                                                         .Select(group => group.Key)
+                                                         .ToArray()
+                });
+
+            var queries = new List<ISqlBuilder>();
+
+            foreach (var costBlockInfo in costblockInfos.Where(info => info.RegionIds.Length > 0))
+            {
+                foreach (var regionId in costBlockInfo.RegionIds)
+                {
+                    var costBlock = costBlockInfo.CostBlock;
+
+                    queries.Add(new CreateIndexSqlBuilder
+                    {
+                        Name = $"IX_{costBlock.Schema}_{costBlock.Name}_{regionId}",
+                        Schema = costBlock.Schema,
+                        Table = costBlock.Name,
+                        Columns = new[]
+                        {
+                            new IndexColumn
+                            {
+                                ColumnName = regionId,
+                            }
+                        }
+                    });
+                }
+            }
+
+            this.repositorySet.ExecuteSql(Sql.Queries(queries));
         }
 
         private SqlHelper BuildUpdateByCoordinatesQuery(
