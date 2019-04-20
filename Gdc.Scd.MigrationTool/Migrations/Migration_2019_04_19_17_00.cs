@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 84;
+        public int Number => 85;
 
         public string Description => "Updating SwServicePriceList report";
 
