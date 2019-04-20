@@ -564,7 +564,7 @@ CREATE TABLE Fsp.HwStandardWarranty(
     Country bigint NOT NULL foreign key references InputAtoms.Country(Id)
   , Wg bigint NOT NULL foreign key references InputAtoms.Wg(Id)
 
-  , FspId bigint NOT NULL foreign key references Fsp.HwFspCodeTranslation(Id)
+  , FspId bigint NOT NULL
   , Fsp nvarchar(255) NOT NULL
 
   , AvailabilityId bigint NOT NULL foreign key references Dependencies.Availability(Id)
@@ -596,6 +596,54 @@ CREATE VIEW [InputAtoms].[WgStdView] AS
     where Id in (select Wg from Fsp.HwStandardWarranty) and WgType = 1
 GO
 
+if OBJECT_ID('Fsp.LutPriority', 'U') is not null
+    drop table Fsp.LutPriority;
+go
+
+create table Fsp.LutPriority(
+      LUT nvarchar(20) not null
+    , Priority int not null
+)
+go
+
+insert into Fsp.LutPriority(LUT, Priority) 
+    values 
+      ('ASP', 1)
+    , ('BEL', 1)
+    , ('CAM', 2)
+    , ('CRE', 1)
+    , ('D',   1)
+    , ('DAN', 1)
+    , ('FAM', 1)
+    , ('FIN', 1)
+    , ('FKR', 1)
+    , ('FUJ', 3)
+    , ('GBR', 1)
+    , ('GRI', 1)
+    , ('GSP', 1)
+    , ('IND', 1)
+    , ('INT', 1)
+    , ('ISR', 1)
+    , ('ITL', 1)
+    , ('LUX', 1)
+    , ('MDE', 1)
+    , ('ND ', 2)
+    , ('NDL', 1)
+    , ('NOA', 1)
+    , ('NOR', 1)
+    , ('OES', 1)
+    , ('POL', 1)
+    , ('POR', 1)
+    , ('RSA', 1)
+    , ('RUS', 1)
+    , ('SEE', 1)
+    , ('SPA', 1)
+    , ('SWD', 1)
+    , ('SWZ', 1)
+    , ('TRK', 1)
+    , ('UNG', 1);
+go
+
 IF OBJECT_ID('Fsp.HwFspCodeTranslation_Updated', 'TR') IS NOT NULL
   DROP TRIGGER Fsp.HwFspCodeTranslation_Updated;
 go
@@ -610,79 +658,13 @@ AS BEGIN
     -- Disable all table constraints
     ALTER TABLE Fsp.HwStandardWarranty NOCHECK CONSTRAINT ALL;
 
-    WITH StdCte AS (
+    with Std as (
+        select  row_number() OVER(PARTITION BY fsp.CountryId, fsp.WgId ORDER BY lut.Priority) AS [rn]
+              , fsp.*
+        from fsp.HwFspCodeTranslation fsp
+        join Fsp.LutPriority lut on lut.LUT = fsp.LUT
 
-    --remove duplicates in FSP
-        SELECT 
-              fsp.Id   as FspId
-            , fsp.Name as Fsp
-            , fsp.CountryId
-            , fsp.WgId
-            , fsp.AvailabilityId   
-            , fsp.DurationId       
-            , fsp.ReactionTimeId   
-            , fsp.ReactionTypeId   
-            , fsp.ServiceLocationId
-            , fsp.ProactiveSlaId   
-            , row_number() OVER(PARTITION BY fsp.CountryId, fsp.WgId
-                    ORDER BY 
-                        fsp.CountryId
-                      , fsp.WgId
-                      , fsp.AvailabilityId    
-                      , fsp.DurationId        
-                      , fsp.ReactionTimeId    
-                      , fsp.ReactionTypeId    
-                      , fsp.ServiceLocationId 
-                      , fsp.ProactiveSlaId    ) AS rownum
-
-        from Fsp.HwFspCodeTranslation fsp
-        where fsp.IsStandardWarranty = 1 
-    )
-    , StdCte2 as (
-        select * from StdCte WHERE rownum = 1
-    )
-    , Fsp as (
-
-        --find FSP for countries
-
-        select   *
-        from StdCte2 fsp
-        where CountryId is not null
-    )
-    , Fsp2 as (
-        
-        --create default country FSP
-
-        select    fsp.FspId
-                , fsp.Fsp
-                , c.Id as CountryId
-                , fsp.WgId
-                , fsp.AvailabilityId
-                , fsp.DurationId
-                , fsp.ReactionTimeId
-                , fsp.ReactionTypeId
-                , fsp.ServiceLocationId
-                , fsp.ProactiveSlaId
-        from StdCte2 fsp, InputAtoms.Country c
-        where fsp.CountryId is null and c.IsMaster = 1
-    )
-    , StdFsp as (
-
-        --get country FSP(if exists), or default country FSP
-
-        select 
-                  coalesce(fsp.FspId              , fsp2.FspId            ) as FspId
-                , coalesce(fsp.Fsp                , fsp2.Fsp              ) as Fsp
-                , coalesce(fsp.CountryId          , fsp2.CountryId        ) as CountryId        
-                , coalesce(fsp.WgId               , fsp2.WgId             ) as WgId             
-                , coalesce(fsp.AvailabilityId     , fsp2.AvailabilityId   ) as AvailabilityId   
-                , coalesce(fsp.DurationId         , fsp2.DurationId       ) as DurationId       
-                , coalesce(fsp.ReactionTimeId     , fsp2.ReactionTimeId   ) as ReactionTimeId   
-                , coalesce(fsp.ReactionTypeId     , fsp2.ReactionTypeId   ) as ReactionTypeId   
-                , coalesce(fsp.ServiceLocationId  , fsp2.ServiceLocationId) as ServiceLocationId
-                , coalesce(fsp.ProactiveSlaId     , fsp2.ProactiveSlaId   ) as ProactiveSlaId   
-        from Fsp2 fsp2
-        full join Fsp fsp on fsp.CountryId = fsp2.CountryId and fsp.WgId = fsp2.WgId
+        where fsp.IsStandardWarranty = 1
     )
     insert into Fsp.HwStandardWarranty(
                           Country
@@ -708,8 +690,8 @@ AS BEGIN
                         , ReactionTime_ReactionType_Avalability)
         select    fsp.CountryId
                 , fsp.WgId
-                , fsp.FspId
-                , fsp.Fsp
+                , fsp.Id
+                , fsp.Name
                 , fsp.AvailabilityId
 
                 , fsp.DurationId
@@ -727,20 +709,21 @@ AS BEGIN
                 , rta.Id
                 , rtt.Id
                 , rtta.Id
-        from StdFsp fsp
+        from Std fsp
         INNER JOIN Dependencies.ReactionTime_Avalability rta on rta.AvailabilityId = fsp.AvailabilityId and rta.ReactionTimeId = fsp.ReactionTimeId
         INNER JOIN Dependencies.ReactionTime_ReactionType rtt on rtt.ReactionTimeId = fsp.ReactionTimeId and rtt.ReactionTypeId = fsp.ReactionTypeId
         INNER JOIN Dependencies.ReactionTime_ReactionType_Avalability rtta on rtta.AvailabilityId = fsp.AvailabilityId and rtta.ReactionTimeId = fsp.ReactionTimeId and rtta.ReactionTypeId = fsp.ReactionTypeId
 
         INNER JOIN Dependencies.Duration dur on dur.Id = fsp.DurationId
-        INNER JOIN Dependencies.ServiceLocation loc on loc.id = fsp.ServiceLocationId;
-
+        INNER JOIN Dependencies.ServiceLocation loc on loc.id = fsp.ServiceLocationId
+        
+        where fsp.rn = 1 ;
 
     -- Enable all table constraints
     ALTER TABLE Fsp.HwStandardWarranty CHECK CONSTRAINT ALL;
 
 END
-go
+GO
 
 update fsp.HwFspCodeTranslation set Name = Name where id  < 10
 go
