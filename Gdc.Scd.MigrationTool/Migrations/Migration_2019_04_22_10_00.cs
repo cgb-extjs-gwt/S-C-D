@@ -9,7 +9,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
 
         public int Number => 87;
 
-        public string Description => "Change contract report, fix monthly service tp values";
+        public string Description => "Fix getcost by sla sog function. Change contract report, fix monthly service tp values";
 
         public Migration_2019_04_22_10_00(IRepositorySet repositorySet)
         {
