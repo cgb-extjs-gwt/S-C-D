@@ -215,8 +215,8 @@ AS
 RETURN 
 (
     with GermanyServiceCte as (
-        SELECT   ssc.ClusterPla
-                , case when @approved = 0 then ssc.[1stLevelSupportCostsCountry] else ssc.[1stLevelSupportCostsCountry_Approved] end / er.Value as [1stLevelSupportCosts]
+        SELECT top(1)
+                  case when @approved = 0 then ssc.[1stLevelSupportCostsCountry] else ssc.[1stLevelSupportCostsCountry_Approved] end / er.Value as [1stLevelSupportCosts]
                 , case when @approved = 0 then ssc.TotalIb else TotalIb_Approved end as TotalIb
 
         FROM Hardware.ServiceSupportCost ssc
@@ -256,15 +256,13 @@ RETURN
             LEFT JOIN [References].ExchangeRate er on er.CurrencyId = ssm.CurrencyReinsurance    
     )
     , SwSpMaintenanceCte as (
-        select m.*
+        select    m.*
                 , ssc.[1stLevelSupportCosts]
                 , ssc.TotalIb
 
                 , SoftwareSolution.CalcSrvSupportCost(ssc.[1stLevelSupportCosts], m.[2ndLevelSupportCosts], ssc.TotalIb, m.InstalledBaseSog) as ServiceSupportPerYear
 
-        from SwSpMaintenanceCte0 m 
-        join InputAtoms.Pla pla on pla.Id = m.Pla
-        left join GermanyServiceCte ssc on ssc.ClusterPla = pla.ClusterPlaId
+        from SwSpMaintenanceCte0 m, GermanyServiceCte ssc 
     )
     , SwSpMaintenanceCte2 as (
         select m.*
