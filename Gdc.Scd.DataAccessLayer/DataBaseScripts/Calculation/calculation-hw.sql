@@ -627,7 +627,7 @@ insert into Fsp.LutPriority(LUT, Priority)
     , ('ITL', 1)
     , ('LUX', 1)
     , ('MDE', 1)
-    , ('ND ', 2)
+    , ('ND',  2)
     , ('NDL', 1)
     , ('NOA', 1)
     , ('NOR', 1)
@@ -1959,7 +1959,7 @@ BEGIN
     , Std as (
         select  m.*
 
-              , case when @approved = 0 then hr.OnsiteHourlyRates               else hr.OnsiteHourlyRates_Approved           end as OnsiteHourlyRates      
+              , case when @approved = 0 then hr.OnsiteHourlyRates                     else hr.OnsiteHourlyRates_Approved                 end / m.ExchangeRate as OnsiteHourlyRates      
 
               , stdw.FspId                                    as StdFspId
               , stdw.Fsp                                      as StdFsp
@@ -1975,7 +1975,7 @@ BEGIN
               , stdw.ServiceLocation                          as StdServiceLocation
               , stdw.ServiceLocationId                        as StdServiceLocationId
 
-              , case when @approved = 0 then mcw.MaterialCostIw                      else mcw.MaterialCostIw_Approved              end as MaterialCostWarranty
+              , case when @approved = 0 then mcw.MaterialCostIw                      else mcw.MaterialCostIw_Approved                    end as MaterialCostWarranty
               , case when @approved = 0 then mcw.MaterialCostOow                     else mcw.MaterialCostOow_Approved                   end as MaterialCostOow     
 
               , case when @approved = 0 then msw.MarkupStandardWarranty              else msw.MarkupStandardWarranty_Approved            end / m.ExchangeRate as MarkupStandardWarranty      
@@ -2954,6 +2954,8 @@ RETURN
              , (sum(m.ServiceTP * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp_approved
              , (sum(case when m.ServiceTP > 0 then ib.InstalledBaseCountryNorm end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp_approved
 
+             , (max(m.ReleaseDate)                                                           over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as ReleaseDate
+
              , m.ListPrice
              , m.DealerDiscount
              , m.DealerPrice
@@ -3017,7 +3019,9 @@ RETURN
 
             , case when m.sum_ib_x_tc > 0 and m.sum_ib_by_tc > 0 then m.sum_ib_x_tc / m.sum_ib_by_tc else 0 end as ServiceTcSog
             , case when m.sum_ib_x_tp > 0 and m.sum_ib_by_tp > 0 then m.sum_ib_x_tp / m.sum_ib_by_tp else 0 end as ServiceTpSog
-            , case when m.sum_ib_x_tp_approved > 0 and m.sum_ib_by_tp_approved > 0 then m.sum_ib_x_tp / m.sum_ib_by_tp else 0 end as ServiceTpSog_Approved
+            , case when m.sum_ib_x_tp_approved > 0 and m.sum_ib_by_tp_approved > 0 then m.sum_ib_x_tp_approved / m.sum_ib_by_tp_approved else 0 end as ServiceTpSog_Approved
+
+            , m.ReleaseDate
 
             , m.ListPrice
             , m.DealerDiscount
@@ -3025,7 +3029,6 @@ RETURN
 
     from cte m
 )
-
 go
 
 IF OBJECT_ID('Hardware.SpReleaseCosts') IS NOT NULL
