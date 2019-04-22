@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 83;
+        public int Number => 84;
 
         public string Description => "Add released date to locap reports";
 

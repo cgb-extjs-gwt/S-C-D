@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 84;
+        public int Number => 86;
 
         public string Description => "Change FSP standard warranty insert, add compare by LUT";
 
