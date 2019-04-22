@@ -73,8 +73,5 @@ namespace Gdc.Scd.Import.Por
                 .Union(SoftwareSolutionTypes)
                 .Union(HddServiceType)
                 .ToArray();
-
-        public static string GlobalSupportPackIdentifier => 
-            ConfigurationManager.AppSettings["GlobalSupportPackIdentifier"];
     }
 }

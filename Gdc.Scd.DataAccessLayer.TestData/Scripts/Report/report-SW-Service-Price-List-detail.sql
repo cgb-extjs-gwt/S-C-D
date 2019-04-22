@@ -65,7 +65,7 @@ begin
 
     from SoftwareSolution.GetCosts(1, @digitList, @avList, @yearList, -1, -1) sw
     join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
-    join InputAtoms.Sog sog on sog.id = sw.Sog
+    join InputAtoms.Sog sog on sog.id = sw.Sog and sog.IsSoftware = 1 and sog.IsSolution = 0
     left join InputAtoms.SwDigitLicense diglic on dig.Id = diglic.SwDigitId
     left join InputAtoms.SwLicense lic on lic.Id = diglic.SwLicenseId
     left join Fsp.SwFspCodeTranslation fsp on fsp.AvailabilityId = sw.Availability
