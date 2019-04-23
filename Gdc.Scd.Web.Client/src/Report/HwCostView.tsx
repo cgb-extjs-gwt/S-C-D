@@ -32,11 +32,11 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private localMoneyRenderer: IRenderer = (value: any, row: any) => {
         return currencyRenderer(value, this.currency);
-    }
+    };
 
     private euroMoneyRenderer: IRenderer = (value: any, row: any) => {
         return currencyRenderer(value / this.exchangeRate, EUR);
-    }
+    };
 
     private store = Ext.create('Ext.data.Store', {
 
@@ -265,11 +265,11 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         this.setState({
             selectable: { ...this.state.selectable, [field]: !this.state.selectable[field] }
         });
-    }
+    };
 
     setExtensible = extensible => {
-        this.setState({ extensible })
-    }
+        this.setState({ extensible });
+    };
     private onSelectionChange = (grid, records, selecting, selection) => {
         let message = '??',
             firstRowIndex,
@@ -298,7 +298,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         }
 
         this.setState({ message });
-    }
+    };
+
     private init() {
         this.onSearch = this.onSearch.bind(this);
         this.onFilterChange = this.onFilterChange.bind(this);
@@ -369,6 +370,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onSearch(filter: HwCostFilterModel) {
+        ExtDataviewHelper.refreshToolbar(this.grid);
         this.reload();
     }
 
@@ -384,8 +386,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private reload() {
-        ExtDataviewHelper.refreshToolbar(this.grid);
-        this.store.load();
+        this.store.load();     
     }
 
     private onBeforeLoad(s, operation) {
@@ -405,7 +406,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     userCanEdit: x
                 });
 
-            })
+            });
         };
     }
 
@@ -511,10 +512,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private getSelectedRows(): string[] {
-        return this.store.getData().items.filter(record => record.data[SELECTED_FIELD] == true).map(record => record.data.Id)
+        return this.store.getData().items.filter(record => record.data[SELECTED_FIELD] === true).map(record => record.data.Id);
     }
 
     private onCheckChange = () => {
-        this.grid.select(this.store.getData().items.filter(record => record.data[SELECTED_FIELD] == true));
-    }
+        this.grid.select(this.store.getData().items.filter(record => record.data[SELECTED_FIELD] === true));
+    };
 }
