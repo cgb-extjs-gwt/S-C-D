@@ -52,7 +52,7 @@ export class Filter extends React.Component<FilterProps> {
                 height={height}
                 columnLines={true}
             >
-                <CheckColumn width="70" dataIndex="isChecked"/>
+                <CheckColumn width="70" dataIndex="isChecked" sortable={false}/>
                 <Column text={valueColumnText || ''}  dataIndex="name" flex={1}/>
     
                 <Toolbar docked="bottom">
