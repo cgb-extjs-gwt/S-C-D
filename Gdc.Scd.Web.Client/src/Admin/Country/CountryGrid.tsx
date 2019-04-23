@@ -180,7 +180,7 @@ export class CountryGrid extends React.Component {
     }
 
     private reload() {
-        this.store.currentPage = 1
+        this.store.currentPage = 1;
         this.store.load();
     }
 
