@@ -84,7 +84,7 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         batch.Add(dbItem);
                     }
 
-                    //check if it is active in the databse
+                    //check if it is active in the database
                     else
                     {
                         if (dbItem.DeactivatedDateTime.HasValue)

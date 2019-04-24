@@ -54,7 +54,7 @@ namespace Gdc.Scd.Import.Por
     //            PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, nameof(Wg), porWGs.Count);
 
     //            var plas = PorService.PlaService.GetAll().ToList();
-    //            int step = 1;
+    //            var step = 1;
 
     //            //STEP 1: UPLOADING SOGs
     //            PorService.UploadSogs(plas, step, porSogs, softwareServiceTypes, solutionIdentifier);
@@ -106,8 +106,6 @@ namespace Gdc.Scd.Import.Por
 
 
     //            var proActiveValues = PorService.ProactiveService.GetAll().ToList();
-    //            var countryValues = PorService.CountryService.GetAll().ToList();
-
 
     //            var countries = FormatDataHelper.FillCountryDictionary(PorService.CountryService.GetAll().ToList(),
     //                PorService.CountryGroupService.GetAll().ToList());
@@ -117,11 +115,11 @@ namespace Gdc.Scd.Import.Por
     //            var proactiveDictionary = FormatDataHelper.FillSlaDictionary(proActiveValues);
 
 
-    //            List<SCD2_v_SAR_new_codes> otherHardwareCodes = new List<SCD2_v_SAR_new_codes>();
-    //            List<SCD2_v_SAR_new_codes> stdwCodes = new List<SCD2_v_SAR_new_codes>();
-    //            List<SCD2_v_SAR_new_codes> proActiveCodes = new List<SCD2_v_SAR_new_codes>();
-    //            List<SCD2_v_SAR_new_codes> softwareCodes = new List<SCD2_v_SAR_new_codes>();
-    //            List<SCD2_v_SAR_new_codes> hddRetentionCodes = new List<SCD2_v_SAR_new_codes>();
+    //            var otherHardwareCodes = new List<SCD2_v_SAR_new_codes>();
+    //            var stdwCodes = new List<SCD2_v_SAR_new_codes>();
+    //            var proActiveCodes = new List<SCD2_v_SAR_new_codes>();
+    //            var softwareCodes = new List<SCD2_v_SAR_new_codes>();
+    //            var hddRetentionCodes = new List<SCD2_v_SAR_new_codes>();
 
     //            foreach (var code in fspcodes)
     //            {
@@ -193,6 +191,7 @@ namespace Gdc.Scd.Import.Por
 
     //            //STEP 8: UPLOAD SOFTWARE
     //            var proActiveDigits = PorService.ProActiveDigitService.GetAll().ToList();
+    //            var license = PorService.LicenseService.GetAll().ToList();
 
     //            var swModel = new SwFspCodeDto
     //            {
@@ -203,7 +202,8 @@ namespace Gdc.Scd.Import.Por
     //                Sogs = sogs,
     //                SoftwareServiceTypes = softwareServiceTypes,
     //                CreatedDateTime = DateTime.Now,
-    //                ProActiveDigits = proActiveDigits
+    //                ProActiveDigits = proActiveDigits,
+    //                License = license
     //            };
 
     //            PorService.UploadSwFspCodes(swModel, step);
@@ -212,6 +212,9 @@ namespace Gdc.Scd.Import.Por
     //            //STEP 9: UPLOAD COST BLOCKS
     //            PorService.UpdateCostBlocks(step, PorService.UpdateQueryOptions);
     //            PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.END_PROCESS);
+
+    //            //STEP 10: UPDATE 2ndLevelSupportCosts
+    //            PorService.Update2ndLevelSupportCosts(step);
     //        }
 
     //        catch (Exception ex)
@@ -264,7 +267,7 @@ namespace Gdc.Scd.Import.Por
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, nameof(Wg), porWGs.Count);
 
                 var plas = PorService.PlaService.GetAll().ToList();
-                int step = 1;
+                var step = 1;
 
                 //STEP 1: UPLOADING SOGs
                 PorService.UploadSogs(plas, step, porSogs, softwareServiceTypes, solutionIdentifier);
@@ -316,7 +319,6 @@ namespace Gdc.Scd.Import.Por
 
 
                 var proActiveValues = PorService.ProactiveService.GetAll().ToList();
-                var countryValues = PorService.CountryService.GetAll().ToList();
 
 
                 var countries = FormatDataHelper.FillCountryDictionary(PorService.CountryService.GetAll().ToList(),
@@ -327,11 +329,11 @@ namespace Gdc.Scd.Import.Por
                 var proactiveDictionary = FormatDataHelper.FillSlaDictionary(proActiveValues);
 
 
-                List<SCD2_v_SAR_new_codes> otherHardwareCodes = new List<SCD2_v_SAR_new_codes>();
-                List<SCD2_v_SAR_new_codes> stdwCodes = new List<SCD2_v_SAR_new_codes>();
-                List<SCD2_v_SAR_new_codes> proActiveCodes = new List<SCD2_v_SAR_new_codes>();
-                List<SCD2_v_SAR_new_codes> softwareCodes = new List<SCD2_v_SAR_new_codes>();
-                List<SCD2_v_SAR_new_codes> hddRetentionCodes = new List<SCD2_v_SAR_new_codes>();
+                var otherHardwareCodes = new List<SCD2_v_SAR_new_codes>();
+                var stdwCodes = new List<SCD2_v_SAR_new_codes>();
+                var proActiveCodes = new List<SCD2_v_SAR_new_codes>();
+                var softwareCodes = new List<SCD2_v_SAR_new_codes>();
+                var hddRetentionCodes = new List<SCD2_v_SAR_new_codes>();
 
                 foreach (var code in fspcodes)
                 {
@@ -403,6 +405,7 @@ namespace Gdc.Scd.Import.Por
 
                 //STEP 8: UPLOAD SOFTWARE
                 var proActiveDigits = PorService.ProActiveDigitService.GetAll().ToList();
+                var license = PorService.LicenseService.GetAll().ToList();
 
                 var swModel = new SwFspCodeDto
                 {
@@ -413,7 +416,8 @@ namespace Gdc.Scd.Import.Por
                     Sogs = sogs,
                     SoftwareServiceTypes = softwareServiceTypes,
                     CreatedDateTime = DateTime.Now,
-                    ProActiveDigits = proActiveDigits
+                    ProActiveDigits = proActiveDigits,
+                    License = license
                 };
 
                 PorService.UploadSwFspCodes(swModel, step);
@@ -421,6 +425,11 @@ namespace Gdc.Scd.Import.Por
 
                 //STEP 9: UPLOAD COST BLOCKS
                 PorService.UpdateCostBlocks(step, PorService.UpdateQueryOptions);
+                step++;
+
+                //STEP 10: UPDATE 2ndLevelSupportCosts
+                PorService.Update2ndLevelSupportCosts(step);
+
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.END_PROCESS);
                 result = new OperationResult<bool>
                 {

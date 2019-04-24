@@ -54,17 +54,12 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                 _logger.Log(LogLevel.Info, PorImportLoggingMessage.UPLOAD_HW_CODES_START, "HW Codes: Standard Warranty");
 
-                Func<SCD2_v_SAR_new_codes, List<string>> getCountryCode = code =>
-                {
-                    var mapping = model.LutCodes.Where(c => c.Service_Code.Equals(code.Service_Code));
-                    if (mapping.Count() == 0)
-                        return new List<string>();
-                    return mapping.Select(lut => lut.Country_Group).ToList();
-                };
 
 
-                var stdwResult = UploadStdws(model.StandardWarranties, getCountryCode, model.HwSla, model.Sla,
-                                            model.CreationDate);
+                var stdwResult = UploadStdws(model.StandardWarranties, 
+                                                GetCountryFunc(model), 
+                                                model.HwSla, model.Sla,
+                                                model.CreationDate);
 
                 _repository.EnableTrigger();
 
@@ -144,48 +139,27 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         continue;
                     }
      
-                    List<long?> alreadyUploadedCountryCodes = new List<long?>();
-
                     foreach (var countryCode in countryCodes)
                     {
-                        //if Country Group is unknown or empty and has not been added than add it only once with null country
+                        //if Country Group is unknown or empty than skip it
                         if (String.IsNullOrEmpty(countryCode) ||
                             !stdwSla.Countries.ContainsKey(countryCode))
                         {
-                            if (!alreadyUploadedCountryCodes.Contains(null))
-                            {
-                                foreach (var wg in wgs)
-                                {
-                                    var dbcode = AddStdwCode(sla, null, wg, code, createdDateTime);
-
-
-                                    _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
-                                               nameof(HwFspCodeTranslation), dbcode.Name);
-
-                                    updatedFspCodes.Add(dbcode);
-                                }
-
-                                alreadyUploadedCountryCodes.Add(null);
-                            }
+                            _logger.Log(LogLevel.Warn, PorImportLoggingMessage.UNKNOWN_COUNTRY_DIGIT, 
+                                code.Service_Code, countryCode);
                         }
 
                         else
                         {
                             foreach (var country in stdwSla.Countries[countryCode])
                             {
-                                if (!alreadyUploadedCountryCodes.Contains(country))
+                                foreach (var wg in wgs)
                                 {
-                                    foreach (var wg in wgs)
-                                    {
+                                    var dbcode = AddStdwCode(sla, country, wg, code, createdDateTime, countryCode);
+                                    _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
+                                                    nameof(HwFspCodeTranslation), dbcode.Name);
 
-                                        var dbcode = AddStdwCode(sla, country, wg, code, createdDateTime);
-                                        _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,
-                                                        nameof(HwFspCodeTranslation), dbcode.Name);
-
-                                        updatedFspCodes.Add(dbcode);
-                                    }
-
-                                    alreadyUploadedCountryCodes.Add(country);
+                                    updatedFspCodes.Add(dbcode);
                                 }
                             }
                         }
@@ -292,7 +266,9 @@ namespace Gdc.Scd.Import.Por.Core.Impl
         }
 
 
-        private HwFspCodeTranslation AddStdwCode(SlaDto sla, long? country, long wg, SCD2_v_SAR_new_codes code, DateTime createdDateTime)
+        private HwFspCodeTranslation AddStdwCode(SlaDto sla, long? country, 
+            long wg, SCD2_v_SAR_new_codes code, 
+            DateTime createdDateTime, string lutCode)
         {
             var dbcode = new HwFspCodeTranslation
             {
@@ -312,7 +288,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                 ProactiveSlaId = sla.ProActive,
                 ServiceType = code.ServiceType,
                 CreatedDateTime = createdDateTime,
-                IsStandardWarranty = true
+                IsStandardWarranty = true,
+                LUT = lutCode
             };
 
             if (country.HasValue)
@@ -320,5 +297,22 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
             return dbcode;
         }
+
+        private Func<SCD2_v_SAR_new_codes, List<string>> GetCountryFunc(HwFspCodeDto model)
+        {
+            return code =>
+            {
+                var mapping = model.LutCodes.Where(c => c.Service_Code.Equals(code.Service_Code))
+                                   .ToList();
+
+                if (mapping.Count == 0)
+                    return new List<string>();
+
+
+                return mapping.Select(lut => lut.Country_Group).ToList();
+            };
+        }
+
+        
     }
 }

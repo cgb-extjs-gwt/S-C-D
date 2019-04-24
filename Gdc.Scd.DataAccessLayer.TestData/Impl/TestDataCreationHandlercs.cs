@@ -2114,7 +2114,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 new ReportColumnType { Name = "boolean" },
                 new ReportColumnType { Name = "euro" },
                 new ReportColumnType { Name = "percent" },
-                new ReportColumnType { Name = "money" }
+                new ReportColumnType { Name = "money" },
+                new ReportColumnType { Name = "datetime" }
             };
 
             var repository = this.repositorySet.GetRepository<ReportColumnType>();
@@ -2459,14 +2460,14 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Argentina",
                 RegionId = laRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 AutoUploadInstallBase = false
             };
             var chinaCG = new CountryGroup
             {
                 Name = "China",
                 RegionId = asiaRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 CountryDigit = "CN",
                 AutoUploadInstallBase = false
             };
@@ -2474,7 +2475,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Hong Kong",
                 RegionId = asiaRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 CountryDigit = "HK",
                 AutoUploadInstallBase = false
             };
@@ -2482,7 +2483,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Indonesia",
                 RegionId = asiaRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 CountryDigit = "IO",
                 AutoUploadInstallBase = false
             };
@@ -2490,7 +2491,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Korea, South",
                 RegionId = asiaRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 CountryDigit = "KR",
                 AutoUploadInstallBase = false
             };
@@ -2498,7 +2499,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Malaysia",
                 RegionId = asiaRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 CountryDigit = "MY",
                 AutoUploadInstallBase = false
             };
@@ -2513,7 +2514,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Singapore",
                 RegionId = asiaRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 CountryDigit = "SG",
                 AutoUploadInstallBase = false
             };
@@ -2521,7 +2522,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Taiwan",
                 RegionId = asiaRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 CountryDigit = "TW",
                 AutoUploadInstallBase = false
             };
@@ -2529,7 +2530,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Thailand",
                 RegionId = asiaRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 CountryDigit = "TH",
                 AutoUploadInstallBase = false
             };
@@ -2537,7 +2538,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Vietnam",
                 RegionId = asiaRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 CountryDigit = "VN",
                 AutoUploadInstallBase = false
             };
@@ -2569,7 +2570,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Japan",
                 RegionId = japanRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 CountryDigit = "JP",
                 AutoUploadInstallBase = false
             };
@@ -2577,7 +2578,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Brazil",
                 RegionId = laRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 CountryDigit = "BR",
                 AutoUploadInstallBase = false
             };
@@ -2585,14 +2586,14 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Chile",
                 RegionId = laRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 AutoUploadInstallBase = false
             };
             var colombiaCG = new CountryGroup
             {
                 Name = "Colombia",
                 RegionId = laRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 AutoUploadInstallBase = false
             };
             var denmarkCG = new CountryGroup
@@ -2631,7 +2632,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Australia",
                 RegionId = oceaniaRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 CountryDigit = "AU",
                 AutoUploadInstallBase = false
             };
@@ -2639,7 +2640,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "New Zealand",
                 RegionId = oceaniaRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 AutoUploadInstallBase = false
             };
             var ukCG = new CountryGroup
@@ -2654,7 +2655,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "Mexico",
                 RegionId = usRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP;CAM",
                 CountryDigit = "MX",
                 AutoUploadInstallBase = false
             };
@@ -2662,7 +2663,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             {
                 Name = "United States",
                 RegionId = usRegion.Id,
-                LUTCode = "FUJ",
+                LUTCode = "FUJ;GSP",
                 CountryDigit = "US",
                 AutoUploadInstallBase = false
             };

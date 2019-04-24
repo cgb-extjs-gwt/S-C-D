@@ -100,6 +100,17 @@ ALTER TABLE Hardware.ManualCost
    ADD DealerPrice as (ListPrice - (ListPrice * DealerDiscount / 100));
 GO
 
+ALTER TABLE Hardware.ManualCost
+   DROP COLUMN ServiceTP_Released;
+
+ALTER TABLE Hardware.ManualCost
+   ADD ServiceTP_Released AS ( ServiceTP1_Released + 
+							COALESCE(ServiceTP2_Released, 0) + 
+							COALESCE(ServiceTP3_Released, 0) + 
+							COALESCE(ServiceTP4_Released, 0) + 
+							COALESCE(ServiceTP5_Released, 0));
+GO
+
 ALTER TABLE Hardware.HddRetention
      ADD HddRet float,
          HddRet_Approved float
@@ -553,7 +564,7 @@ CREATE TABLE Fsp.HwStandardWarranty(
     Country bigint NOT NULL foreign key references InputAtoms.Country(Id)
   , Wg bigint NOT NULL foreign key references InputAtoms.Wg(Id)
 
-  , FspId bigint NOT NULL foreign key references Fsp.HwFspCodeTranslation(Id)
+  , FspId bigint NOT NULL
   , Fsp nvarchar(255) NOT NULL
 
   , AvailabilityId bigint NOT NULL foreign key references Dependencies.Availability(Id)
@@ -585,6 +596,54 @@ CREATE VIEW [InputAtoms].[WgStdView] AS
     where Id in (select Wg from Fsp.HwStandardWarranty) and WgType = 1
 GO
 
+if OBJECT_ID('Fsp.LutPriority', 'U') is not null
+    drop table Fsp.LutPriority;
+go
+
+create table Fsp.LutPriority(
+      LUT nvarchar(20) not null
+    , Priority int not null
+)
+go
+
+insert into Fsp.LutPriority(LUT, Priority) 
+    values 
+      ('ASP', 1)
+    , ('BEL', 1)
+    , ('CAM', 2)
+    , ('CRE', 1)
+    , ('D',   1)
+    , ('DAN', 1)
+    , ('FAM', 1)
+    , ('FIN', 1)
+    , ('FKR', 1)
+    , ('FUJ', 3)
+    , ('GBR', 1)
+    , ('GRI', 1)
+    , ('GSP', 1)
+    , ('IND', 1)
+    , ('INT', 1)
+    , ('ISR', 1)
+    , ('ITL', 1)
+    , ('LUX', 1)
+    , ('MDE', 1)
+    , ('ND',  2)
+    , ('NDL', 1)
+    , ('NOA', 1)
+    , ('NOR', 1)
+    , ('OES', 1)
+    , ('POL', 1)
+    , ('POR', 1)
+    , ('RSA', 1)
+    , ('RUS', 1)
+    , ('SEE', 1)
+    , ('SPA', 1)
+    , ('SWD', 1)
+    , ('SWZ', 1)
+    , ('TRK', 1)
+    , ('UNG', 1);
+go
+
 IF OBJECT_ID('Fsp.HwFspCodeTranslation_Updated', 'TR') IS NOT NULL
   DROP TRIGGER Fsp.HwFspCodeTranslation_Updated;
 go
@@ -599,79 +658,13 @@ AS BEGIN
     -- Disable all table constraints
     ALTER TABLE Fsp.HwStandardWarranty NOCHECK CONSTRAINT ALL;
 
-    WITH StdCte AS (
+    with Std as (
+        select  row_number() OVER(PARTITION BY fsp.CountryId, fsp.WgId ORDER BY lut.Priority) AS [rn]
+              , fsp.*
+        from fsp.HwFspCodeTranslation fsp
+        join Fsp.LutPriority lut on lut.LUT = fsp.LUT
 
-    --remove duplicates in FSP
-        SELECT 
-              fsp.Id   as FspId
-            , fsp.Name as Fsp
-            , fsp.CountryId
-            , fsp.WgId
-            , fsp.AvailabilityId   
-            , fsp.DurationId       
-            , fsp.ReactionTimeId   
-            , fsp.ReactionTypeId   
-            , fsp.ServiceLocationId
-            , fsp.ProactiveSlaId   
-            , row_number() OVER(PARTITION BY fsp.CountryId, fsp.WgId
-                    ORDER BY 
-                        fsp.CountryId
-                      , fsp.WgId
-                      , fsp.AvailabilityId    
-                      , fsp.DurationId        
-                      , fsp.ReactionTimeId    
-                      , fsp.ReactionTypeId    
-                      , fsp.ServiceLocationId 
-                      , fsp.ProactiveSlaId    ) AS rownum
-
-        from Fsp.HwFspCodeTranslation fsp
-        where fsp.IsStandardWarranty = 1 
-    )
-    , StdCte2 as (
-        select * from StdCte WHERE rownum = 1
-    )
-    , Fsp as (
-
-        --find FSP for countries
-
-        select   *
-        from StdCte2 fsp
-        where CountryId is not null
-    )
-    , Fsp2 as (
-        
-        --create default country FSP
-
-        select    fsp.FspId
-                , fsp.Fsp
-                , c.Id as CountryId
-                , fsp.WgId
-                , fsp.AvailabilityId
-                , fsp.DurationId
-                , fsp.ReactionTimeId
-                , fsp.ReactionTypeId
-                , fsp.ServiceLocationId
-                , fsp.ProactiveSlaId
-        from StdCte2 fsp, InputAtoms.Country c
-        where fsp.CountryId is null and c.IsMaster = 1
-    )
-    , StdFsp as (
-
-        --get country FSP(if exists), or default country FSP
-
-        select 
-                  coalesce(fsp.FspId              , fsp2.FspId            ) as FspId
-                , coalesce(fsp.Fsp                , fsp2.Fsp              ) as Fsp
-                , coalesce(fsp.CountryId          , fsp2.CountryId        ) as CountryId        
-                , coalesce(fsp.WgId               , fsp2.WgId             ) as WgId             
-                , coalesce(fsp.AvailabilityId     , fsp2.AvailabilityId   ) as AvailabilityId   
-                , coalesce(fsp.DurationId         , fsp2.DurationId       ) as DurationId       
-                , coalesce(fsp.ReactionTimeId     , fsp2.ReactionTimeId   ) as ReactionTimeId   
-                , coalesce(fsp.ReactionTypeId     , fsp2.ReactionTypeId   ) as ReactionTypeId   
-                , coalesce(fsp.ServiceLocationId  , fsp2.ServiceLocationId) as ServiceLocationId
-                , coalesce(fsp.ProactiveSlaId     , fsp2.ProactiveSlaId   ) as ProactiveSlaId   
-        from Fsp2 fsp2
-        full join Fsp fsp on fsp.CountryId = fsp2.CountryId and fsp.WgId = fsp2.WgId
+        where fsp.IsStandardWarranty = 1
     )
     insert into Fsp.HwStandardWarranty(
                           Country
@@ -697,8 +690,8 @@ AS BEGIN
                         , ReactionTime_ReactionType_Avalability)
         select    fsp.CountryId
                 , fsp.WgId
-                , fsp.FspId
-                , fsp.Fsp
+                , fsp.Id
+                , fsp.Name
                 , fsp.AvailabilityId
 
                 , fsp.DurationId
@@ -716,20 +709,21 @@ AS BEGIN
                 , rta.Id
                 , rtt.Id
                 , rtta.Id
-        from StdFsp fsp
+        from Std fsp
         INNER JOIN Dependencies.ReactionTime_Avalability rta on rta.AvailabilityId = fsp.AvailabilityId and rta.ReactionTimeId = fsp.ReactionTimeId
         INNER JOIN Dependencies.ReactionTime_ReactionType rtt on rtt.ReactionTimeId = fsp.ReactionTimeId and rtt.ReactionTypeId = fsp.ReactionTypeId
         INNER JOIN Dependencies.ReactionTime_ReactionType_Avalability rtta on rtta.AvailabilityId = fsp.AvailabilityId and rtta.ReactionTimeId = fsp.ReactionTimeId and rtta.ReactionTypeId = fsp.ReactionTypeId
 
         INNER JOIN Dependencies.Duration dur on dur.Id = fsp.DurationId
-        INNER JOIN Dependencies.ServiceLocation loc on loc.id = fsp.ServiceLocationId;
-
+        INNER JOIN Dependencies.ServiceLocation loc on loc.id = fsp.ServiceLocationId
+        
+        where fsp.rn = 1 ;
 
     -- Enable all table constraints
     ALTER TABLE Fsp.HwStandardWarranty CHECK CONSTRAINT ALL;
 
 END
-go
+GO
 
 update fsp.HwFspCodeTranslation set Name = Name where id  < 10
 go
@@ -1355,11 +1349,11 @@ IF OBJECT_ID('Hardware.HddRetentionView', 'V') IS NOT NULL
   DROP VIEW Hardware.HddRetentionView;
 go
 
-CREATE VIEW Hardware.HddRetentionView as 
+CREATE VIEW [Hardware].[HddRetentionView] as 
     SELECT 
            h.Wg as WgId
          , wg.Name as Wg
-		 , sog.Name as Sog
+         , sog.Name as Sog
          , h.HddRet
          , HddRet_Approved
          , hm.TransferPrice 
@@ -1368,15 +1362,17 @@ CREATE VIEW Hardware.HddRetentionView as
          , hm.DealerPrice
          , u.Name as ChangeUserName
          , u.Email as ChangeUserEmail
+         , hm.ChangeDate
 
     FROM Hardware.HddRetention h
     JOIN InputAtoms.Wg wg on wg.id = h.Wg
-	LEFT JOIN InputAtoms.Sog sog on sog.id = wg.SogId
+    LEFT JOIN InputAtoms.Sog sog on sog.id = wg.SogId
     LEFT JOIN Hardware.HddRetentionManualCost hm on hm.WgId = h.Wg
     LEFT JOIN [dbo].[User] u on u.Id = hm.ChangeUserId
     WHERE h.DeactivatedDateTime is null 
       AND h.Year = (select id from Dependencies.Year where Value = 5 and IsProlongation = 0)
-go
+
+GO
 
 alter table Hardware.FieldServiceCost
     add TimeAndMaterialShare_norm          as (TimeAndMaterialShare / 100)
@@ -1963,7 +1959,7 @@ BEGIN
     , Std as (
         select  m.*
 
-              , case when @approved = 0 then hr.OnsiteHourlyRates               else hr.OnsiteHourlyRates_Approved           end as OnsiteHourlyRates      
+              , case when @approved = 0 then hr.OnsiteHourlyRates                     else hr.OnsiteHourlyRates_Approved                 end / m.ExchangeRate as OnsiteHourlyRates      
 
               , stdw.FspId                                    as StdFspId
               , stdw.Fsp                                      as StdFsp
@@ -1979,7 +1975,7 @@ BEGIN
               , stdw.ServiceLocation                          as StdServiceLocation
               , stdw.ServiceLocationId                        as StdServiceLocationId
 
-              , case when @approved = 0 then mcw.MaterialCostIw                      else mcw.MaterialCostIw_Approved              end as MaterialCostWarranty
+              , case when @approved = 0 then mcw.MaterialCostIw                      else mcw.MaterialCostIw_Approved                    end as MaterialCostWarranty
               , case when @approved = 0 then mcw.MaterialCostOow                     else mcw.MaterialCostOow_Approved                   end as MaterialCostOow     
 
               , case when @approved = 0 then msw.MarkupStandardWarranty              else msw.MarkupStandardWarranty_Approved            end / m.ExchangeRate as MarkupStandardWarranty      
@@ -2459,6 +2455,7 @@ RETURN
             , man.ServiceTC          / std.ExchangeRate as ServiceTCManual                   
             , man.ServiceTP          / std.ExchangeRate as ServiceTPManual                   
             , man.ServiceTP_Released / std.ExchangeRate as ServiceTP_Released                  
+            , man.ChangeDate                            as ChangeDate
             , u.Name                                    as ChangeUserName
             , u.Email                                   as ChangeUserEmail
 
@@ -2493,7 +2490,7 @@ RETURN
 
     LEFT JOIN dbo.[User] u on u.Id = man.ChangeUserId
 )
-GO
+go
 
 IF OBJECT_ID('[Hardware].[GetCosts]') IS NOT NULL
     DROP FUNCTION [Hardware].[GetCosts]
@@ -2672,6 +2669,7 @@ RETURN
          , m.ServiceTPManual
          , m.ServiceTP_Released
 
+         , m.ChangeDate
          , m.ChangeUserName
          , m.ChangeUserEmail
 
@@ -2755,6 +2753,7 @@ BEGIN
              , DealerPrice                   * ExchangeRate  as DealerPrice
              , DealerDiscount                                as DealerDiscount
                                                        
+             , ChangeDate                                    as ChangeDate
              , ChangeUserName                                as ChangeUserName
              , ChangeUserEmail                               as ChangeUserEmail
 
@@ -2811,6 +2810,7 @@ BEGIN
              , DealerPrice                   
              , DealerDiscount                
                                              
+             , ChangeDate                                    
              , ChangeUserName                
              , ChangeUserEmail               
 
@@ -2818,7 +2818,7 @@ BEGIN
         order by Id
     end
 END
-GO
+go
 
 if OBJECT_ID('[Hardware].[GetInstallBaseOverSog]') is not null
     drop function [Hardware].[GetInstallBaseOverSog];
@@ -2954,6 +2954,8 @@ RETURN
              , (sum(m.ServiceTP * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp_approved
              , (sum(case when m.ServiceTP > 0 then ib.InstalledBaseCountryNorm end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp_approved
 
+             , (max(m.ReleaseDate)                                                           over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as ReleaseDate
+
              , m.ListPrice
              , m.DealerDiscount
              , m.DealerPrice
@@ -3017,7 +3019,9 @@ RETURN
 
             , case when m.sum_ib_x_tc > 0 and m.sum_ib_by_tc > 0 then m.sum_ib_x_tc / m.sum_ib_by_tc else 0 end as ServiceTcSog
             , case when m.sum_ib_x_tp > 0 and m.sum_ib_by_tp > 0 then m.sum_ib_x_tp / m.sum_ib_by_tp else 0 end as ServiceTpSog
-            , case when m.sum_ib_x_tp_approved > 0 and m.sum_ib_by_tp_approved > 0 then m.sum_ib_x_tp / m.sum_ib_by_tp else 0 end as ServiceTpSog_Approved
+            , case when m.sum_ib_x_tp_approved > 0 and m.sum_ib_by_tp_approved > 0 then m.sum_ib_x_tp_approved / m.sum_ib_by_tp_approved else 0 end as ServiceTpSog_Approved
+
+            , m.ReleaseDate
 
             , m.ListPrice
             , m.DealerDiscount
@@ -3025,7 +3029,6 @@ RETURN
 
     from cte m
 )
-
 go
 
 IF OBJECT_ID('Hardware.SpReleaseCosts') IS NOT NULL
@@ -3041,33 +3044,51 @@ CREATE PROCEDURE [Hardware].[SpReleaseCosts]
     @reactiontime dbo.ListID readonly,
     @reactiontype dbo.ListID readonly,
     @loc          dbo.ListID readonly,
-    @pro          dbo.ListID readonly
+    @pro          dbo.ListID readonly,
+	@portfolioIds dbo.ListID readonly
 AS
 BEGIN
 
     SET NOCOUNT ON;
     
+
 	SELECT * INTO #temp 
-	FROM Hardware.GetCosts(1, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, 0, 0)   
+	FROM Hardware.GetCosts(1, @cnt, @wg, @av, @dur, @reactiontime, @reactiontype, @loc, @pro, 0, 0) costs
+	WHERE (not exists(select 1 from @portfolioIds) or costs.Id in (select Id from @portfolioIds))   
+	--TODO: @portfolioIds case to be fixed in a future release 
 
 	UPDATE mc
-	SET [ServiceTP_Released] = COALESCE(costs.ServiceTPManual, costs.ServiceTP),
-		[ChangeUserId] = @usr
+	SET [ServiceTP1_Released] = case when dur.Value >= 1 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP1) else null end,
+		[ServiceTP2_Released] = case when dur.Value >= 2 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP2) else null end,
+		[ServiceTP3_Released] = case when dur.Value >= 3 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP3) else null end,
+		[ServiceTP4_Released] = case when dur.Value >= 4 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP4) else null end,
+		[ServiceTP5_Released] = case when dur.Value >= 5 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP5) else null end,
+		[ChangeUserId] = @usr,
+        [ReleaseDate] = getdate()
 	FROM [Hardware].[ManualCost] mc
 	JOIN #temp costs on mc.PortfolioId = costs.Id
+	JOIN Dependencies.Duration dur on costs.DurationId = dur.Id
 	where costs.ServiceTPManual is not null or costs.ServiceTP is not null
 
 	INSERT INTO [Hardware].[ManualCost] 
 				([PortfolioId], 
 				[ChangeUserId], 
-				[ServiceTP_Released])
+                [ReleaseDate],
+				[ServiceTP1_Released], [ServiceTP2_Released], [ServiceTP3_Released], [ServiceTP4_Released], [ServiceTP5_Released])
 	SELECT  costs.Id, 
 			@usr, 
-			COALESCE(costs.ServiceTPManual, costs.ServiceTP)
+            getdate(),
+			case when dur.Value >= 1 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP1) else null end,
+			case when dur.Value >= 2 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP2) else null end,
+			case when dur.Value >= 3 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP3) else null end,
+			case when dur.Value >= 4 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP4) else null end,
+			case when dur.Value >= 5 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP5) else null end
 	FROM [Hardware].[ManualCost] mc
 	RIGHT JOIN #temp costs on mc.PortfolioId = costs.Id
+	JOIN Dependencies.Duration dur on costs.DurationId = dur.Id
 	where mc.PortfolioId is null and (costs.ServiceTPManual is not null or costs.ServiceTP is not null)
 
 	DROP table #temp
    
 END
+GO

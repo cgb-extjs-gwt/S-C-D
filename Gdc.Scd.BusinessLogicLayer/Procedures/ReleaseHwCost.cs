@@ -4,6 +4,7 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Parameters;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Procedures
@@ -19,13 +20,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             _repo = repo;
         }
 
-        public async Task ExecuteAsync(long userId, HwFilterDto filter )
+        public async Task ExecuteAsync(long userId, HwFilterDto filter, HwCostDto[] items = null)
         {
-            var parameters = Prepare(userId, filter);
+            var parameters = Prepare(userId, filter, items);
             await _repo.ExecuteProcAsync(PROC, parameters);
         }
     
-        private static DbParameter[] Prepare(long userId, HwFilterDto filter )
+        private static DbParameter[] Prepare(long userId, HwFilterDto filter, HwCostDto[] items)
         {
             var pUsr = new DbParameterBuilder().WithName("@usr");
             var pCnt = new DbParameterBuilder().WithName("@cnt");
@@ -36,6 +37,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             var pReactionType = new DbParameterBuilder().WithName("@reactiontype");
             var pLoc = new DbParameterBuilder().WithName("@loc");
             var pPro = new DbParameterBuilder().WithName("@pro");
+            var pPortfolio = new DbParameterBuilder().WithName("@portfolioIds");
 
             if (filter != null)
             {
@@ -48,6 +50,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                 pReactionTime.WithListIdValue(filter.ReactionTime);
                 pLoc.WithListIdValue(filter.ServiceLocation);
                 pPro.WithListIdValue(filter.ProActive);
+                pPortfolio.WithListIdValue(items?.Select(x=>x.Id).ToArray());
             }
 
             return new DbParameter[] {
@@ -59,7 +62,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                  pReactionTime.Build(),
                  pReactionType.Build(),
                  pLoc.Build(),
-                 pPro.Build()
+                 pPro.Build(),
+                 pPortfolio.Build()
             };
         }
     }

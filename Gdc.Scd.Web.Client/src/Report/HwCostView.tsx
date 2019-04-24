@@ -7,7 +7,7 @@ import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { currencyRenderer, emptyRenderer, EUR, IRenderer, percentRenderer, yearRenderer } from "./Components/GridRenderer";
+import { currencyRenderer, ddMMyyyyRenderer, emptyRenderer, EUR, IRenderer, percentRenderer, yearRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwReleasePanel } from "./Components/HwReleasePanel";
 import { CurrencyType } from "./Model/CurrencyType";
@@ -32,16 +32,16 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     private localMoneyRenderer: IRenderer = (value: any, row: any) => {
         return currencyRenderer(value, this.currency);
-    }
+    };
 
     private euroMoneyRenderer: IRenderer = (value: any, row: any) => {
         return currencyRenderer(value / this.exchangeRate, EUR);
-    }
+    };
 
     private store = Ext.create('Ext.data.Store', {
 
         fields: [
-            'Id', SELECTED_FIELD, 'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail',
+            'Id', SELECTED_FIELD, 'ListPrice', 'DealerDiscount', 'ChangeUserName', 'ChangeUserEmail', 'ReleaseDate',
             {
                 name: 'DealerPriceCalc',
                 calculate: function (d) {
@@ -69,14 +69,6 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     }
                     return result;
                 }
-            },
-            {
-                name: 'MonthlyTC',
-                calculate: d => this.calcMonthlyValue(d, "ServiceTC")
-            },
-            {
-                name: 'MonthlyTP',
-                calculate: d => this.calcMonthlyValue(d, "ServiceTP")
             }
         ],
 
@@ -218,11 +210,9 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         cls="calc-cost-result-yellow"
                         defaults={{ align: 'center', minWidth: 100, flex: 1, cls: "x-text-el-wrap", renderer: moneyRndr }}>
 
-                        <NumberColumn text="Monthly Service TC" dataIndex="MonthlyTC" />
                         <NumberColumn text="Service TC(calc)" dataIndex="ServiceTC" />
                         <NumberColumn text="Service TC(manual)" dataIndex="ServiceTCManual" editable={canEditTC} />
 
-                        <NumberColumn text="Monthly Service TP" dataIndex="MonthlyTP" />
                         <NumberColumn text="Service TP(calc)" dataIndex="ServiceTP" />
                         <NumberColumn text="Service TP(manual)" dataIndex="ServiceTPManual" editable={canEditTC} />
                         <NumberColumn text="Service TP(released)" dataIndex="ServiceTP_Released" />
@@ -232,6 +222,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <NumberColumn text="Dealer price" dataIndex="DealerPriceCalc" />
 
                         <Column flex="2" minWidth="250" text="Change user" dataIndex="ChangeUserCalc" renderer={emptyRenderer} />
+                        <Column text="Release date" dataIndex="ReleaseDate" renderer={ddMMyyyyRenderer} />
 
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
                         <NumberColumn text="Local service standard warranty" dataIndex="LocalServiceStandardWarranty" />
@@ -274,11 +265,11 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         this.setState({
             selectable: { ...this.state.selectable, [field]: !this.state.selectable[field] }
         });
-    }
+    };
 
     setExtensible = extensible => {
-        this.setState({ extensible })
-    }
+        this.setState({ extensible });
+    };
     private onSelectionChange = (grid, records, selecting, selection) => {
         let message = '??',
             firstRowIndex,
@@ -307,7 +298,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         }
 
         this.setState({ message });
-    }
+    };
+
     private init() {
         this.onSearch = this.onSearch.bind(this);
         this.onFilterChange = this.onFilterChange.bind(this);
@@ -356,7 +348,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
         ExtMsgHelper.confirm('Release', `Do you want to approve for release ${recs.length} record(s)?`, () => {
             let me = this;
-            let p = post('calc', 'releasehwcost', { items: recs, countryId: cnt.id }).then(() => {
+            let p = post('calc', 'releasehwcost', { items: recs, countryId: cnt.id, filter: this.filter.getModel() }).then(() => {
                 me.reset();
                 me.reload();
             });
@@ -366,7 +358,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
 
     }
 
-    private releaseAll() {       
+    private releaseAll() {
         ExtMsgHelper.confirm('Release', `Do you want to approve for release all filtered records?`, () => {
             let me = this;
             let p = post('calc', 'releasehwcostall', { ...this.filter.getModel() }).then(() => {
@@ -378,6 +370,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private onSearch(filter: HwCostFilterModel) {
+        ExtDataviewHelper.refreshToolbar(this.grid);
         this.reload();
     }
 
@@ -393,8 +386,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private reload() {
-        ExtDataviewHelper.refreshToolbar(this.grid);
-        this.store.load();
+        this.store.load();     
     }
 
     private onBeforeLoad(s, operation) {
@@ -414,7 +406,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                     userCanEdit: x
                 });
 
-            })
+            });
         };
     }
 
@@ -520,18 +512,10 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private getSelectedRows(): string[] {
-        return this.store.getData().items.filter(record => record.data[SELECTED_FIELD] == true).map(record => record.data.Id)
+        return this.store.getData().items.filter(record => record.data[SELECTED_FIELD] === true).map(record => record.data.Id);
     }
 
     private onCheckChange = () => {
-        this.grid.select(this.store.getData().items.filter(record => record.data[SELECTED_FIELD] == true));
-    }
-
-    private calcMonthlyValue = (d, fieldName: string) => {
-        let result: any;
-        if (d && (d[fieldName] || d[fieldName] === 0)) {
-            result = d[fieldName] / 12;
-        }
-        return result;
-    }
+        this.grid.select(this.store.getData().items.filter(record => record.data[SELECTED_FIELD] === true));
+    };
 }

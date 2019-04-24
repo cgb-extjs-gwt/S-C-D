@@ -62,6 +62,7 @@ RETURN (
             , DealerDiscount                               as DealerDiscount
                                                            
             , ChangeUserName + '[' + ChangeUserEmail + ']' as ChangeUser
+            , ChangeDate
 
     from Hardware.GetCosts(@approved, @country, @wg, @availability, @duration, @reactiontime, @reactiontype, @servicelocation, @proactive, -1, -1) costs
     join [References].Currency c on c.Id = costs.CurrencyId
@@ -143,6 +144,9 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ChangeUser', 'Change user', 1, 1);
+
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('datetime'), 'ChangeDate', 'Change date', 1, 1);
 
 
 set @index = @index + 1;

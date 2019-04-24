@@ -14,9 +14,9 @@ RETURNS TABLE
 AS
 RETURN (
     with GermanyServiceCte as (
-        SELECT   ssc.ClusterPla
-               , ssc.[1stLevelSupportCostsCountry_Approved] / er.Value as [1stLevelSupportCosts]
-               , ssc.TotalIb_Approved as TotalIb
+        SELECT top(1)
+                  ssc.[1stLevelSupportCostsCountry_Approved] / er.Value as [1stLevelSupportCosts]
+                , ssc.TotalIb_Approved as TotalIb
 
         FROM Hardware.ServiceSupportCost ssc
         JOIN InputAtoms.Country c on c.Id = ssc.Country and c.ISO3CountryCode = 'DEU' --install base by Germany!
@@ -51,10 +51,10 @@ RETURN (
            , fsp.Name as Fsp
            , fsp.ShortDescription FspDescription
 
-           , ssc.[1stLevelSupportCosts] as [1stLevelSupportCosts]
+           , (select [1stLevelSupportCosts] from GermanyServiceCte) as [1stLevelSupportCosts]
            , m.[2ndLevelSupportCosts_Approved] as [2ndLevelSupportCosts]
        
-           , ssc.TotalIb as TotalIb
+           , (select TotalIb from GermanyServiceCte) as TotalIb
            , sum(m.InstalledBaseSog_Approved) over(partition by m.Sfab) as IB_SFAB
 
            , cur.Name as CurrencyReinsurance
@@ -78,7 +78,6 @@ RETURN (
     join ProCte pro on pro.SwDigit = m.SwDigit
 
     join InputAtoms.Pla pla on pla.Id = m.Pla
-    left join GermanyServiceCte ssc on ssc.ClusterPla = pla.ClusterPlaId
 
     join InputAtoms.Country c on c.id = pro.Country
     join InputAtoms.Sog sog on sog.Id = m.Sog

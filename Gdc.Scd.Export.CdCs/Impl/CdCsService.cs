@@ -39,17 +39,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
             try
             {
                 Logger.Log(LogLevel.Info, CdCsMessages.START_PROCESS);
-                Logger.Log(LogLevel.Info, CdCsMessages.READ_SLA_FILE);
-                var inputFile = new SpFileDto
-                {
-                    WebUrl = Config.CalculationToolWeb,
-                    ListName = Config.CalculationToolList,
-                    FolderServerRelativeUrl = Config.CalculationToolFolder,
-                    FileName = Config.CalculationToolInputFileName
-                };
-                var downloadedInputFile = Downloader.DownloadData(inputFile);
-                Logger.Log(LogLevel.Info, CdCsMessages.PARSE_SLA_FILE);
-                var slaList = GetSlasFromFile(downloadedInputFile);
+
                 Logger.Log(LogLevel.Info, CdCsMessages.READ_TEMPLATE);
                 var cdCsFile = new SpFileDto
                 {
@@ -59,8 +49,15 @@ namespace Gdc.Scd.Export.CdCs.Impl
                     FileName = Config.CalculationToolFileName
                 };
                 var downloadedCdCsFile = Downloader.DownloadData(cdCsFile);
+                var masterFileStream = new MemoryStream();
+                CopyStream(downloadedCdCsFile, masterFileStream);
+
+                Logger.Log(LogLevel.Info, CdCsMessages.PARSE_SLA_SHEET);
+                var slaList = GetSlasFromFile(masterFileStream);           
+                
                 Logger.Log(LogLevel.Info, CdCsMessages.WRITE_COUNTRY_COSTS);
-                FillCdCsAsync(downloadedCdCsFile, slaList);
+                FillCdCsAsync(masterFileStream, slaList);
+
                 Logger.Log(LogLevel.Info, CdCsMessages.END_PROCESS);
 
                 var result = new OperationResult<bool>
@@ -87,44 +84,36 @@ namespace Gdc.Scd.Export.CdCs.Impl
             
         }
 
-        private static List<SlaDto> GetSlasFromFile(Stream inputFileStream)
+        private static List<SlaDto> GetSlasFromFile(Stream masterFileStream)
         {
             var slaList = new List<SlaDto>();
 
-            using (var inputMemoryStream = new MemoryStream())
+            using (var workbook = new XLWorkbook(masterFileStream))
+            using (var inputSheet = workbook.Worksheet(InputSheets.InputMctCdCsWGs))
             {
-                CopyStream(inputFileStream, inputMemoryStream);
-                using (var workbook = new XLWorkbook(inputMemoryStream))
-                using (var inputSheet = workbook.Worksheet(InputSheets.CalculationToolInput))
+                var range = inputSheet.RangeUsed();
+                var rowCount = range.RowCount();
+
+                for (var row = 2; row <= rowCount; row++)
                 {
-                    var range = inputSheet.RangeUsed();
-                    var rowCount = range.RowCount();
-
-                    for (var row = 2; row < rowCount; row++)
+                    slaList.Add(new SlaDto
                     {
-                        slaList.Add(new SlaDto
-                        {
-                            FspCode = inputSheet.Cell(row, InputFileColumns.FspCode).Value.ToString(),
-                            ServiceLocation = inputSheet.Cell(row, InputFileColumns.ServiceLocation).Value.ToString(),
-                            Availability = inputSheet.Cell(row, InputFileColumns.Availability).Value.ToString(),
-                            ReactionTime = inputSheet.Cell(row, InputFileColumns.ReactionTime).Value.ToString(),
-                            ReactionType = inputSheet.Cell(row, InputFileColumns.ReactionType).Value.ToString(),
-                            WarrantyGroup = inputSheet.Cell(row, InputFileColumns.WarrantyGroup).Value.ToString(),
-                            Duration = inputSheet.Cell(row, InputFileColumns.Duration).Value.ToString(),
-                        });
-                    }
-                    inputMemoryStream.Seek(0, SeekOrigin.Begin);
+                        ServiceLocation = inputSheet.Cell(row, InputMctCdCsWGsColumns.ServiceLocation).Value.ToString(),
+                        Availability = inputSheet.Cell(row, InputMctCdCsWGsColumns.Availability).Value.ToString(),
+                        ReactionTime = inputSheet.Cell(row, InputMctCdCsWGsColumns.ReactionTime).Value.ToString(),
+                        ReactionType = inputSheet.Cell(row, InputMctCdCsWGsColumns.ReactionType).Value.ToString(),
+                        WarrantyGroup = inputSheet.Cell(row, InputMctCdCsWGsColumns.WarrantyGroup).Value.ToString(),
+                        Duration = inputSheet.Cell(row, InputMctCdCsWGsColumns.Duration).Value.ToString(),
+                    });
                 }
+                masterFileStream.Seek(0, SeekOrigin.Begin);
             }
-
+            
             return slaList;
         }
 
-        private static void FillCdCsAsync(Stream cdCsFileStream,  List<SlaDto> slaList)
+        private static void FillCdCsAsync(Stream masterFileStream,  List<SlaDto> slaList)
         {
-            var memoryStream = new MemoryStream();
-            CopyStream(cdCsFileStream, memoryStream);
-
             Logger.Log(LogLevel.Info, CdCsMessages.READ_CONFIGURATION);
             var configHandler = Kernel.Get<ConfigHandler>();
             var configList = configHandler.ReadAllConfiguration().Take(3);
@@ -148,11 +137,12 @@ namespace Gdc.Scd.Export.CdCs.Impl
                 Logger.Log(LogLevel.Info, CdCsMessages.READ_HDD_RETENTION);
                 var hddRetention = getHddRetentionCosts.Execute(country);
 
-                using (var workbook = new XLWorkbook(memoryStream))
+                using (var workbook = new XLWorkbook(masterFileStream))
                 using (var inputMctSheet = workbook.Worksheet(InputSheets.InputMctCdCsWGs))
                 using (var proActiveSheet = workbook.Worksheet(InputSheets.ProActiveOutput))
                 using (var hddRetentionSheet = workbook.Worksheet(InputSheets.HddRetention))
                 {
+                    //SERVICE COSTS
                     var range = inputMctSheet.RangeUsed();
                     for (var row = 2; row <= range.RowCount(); row++)
                     {
@@ -179,6 +169,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
                         rowNum++;
                     }
 
+                    //PROACTIVE COSTS
                     Logger.Log(LogLevel.Info, CdCsMessages.WRITE_PROACTIVE);
                     rowNum = 8;
                     foreach (var pro in proActiveList)
@@ -194,12 +185,17 @@ namespace Gdc.Scd.Export.CdCs.Impl
                         rowNum++;
                     }
 
+                    //HDD RETENTION
                     Logger.Log(LogLevel.Info, CdCsMessages.WRITE_HDD_RETENTION);
                     range = hddRetentionSheet.RangeUsed();
                     for (var row = 4; row < range.RowCount(); row++)
                     {
                         range.Row(row).Clear();
                     }
+
+                    //set Last update
+                    var today = DateTime.Today.ToString("dd.MM.yyyy");
+                    SetCellAsString(hddRetentionSheet, 1, HddRetentionColumns.ListPrice, $"Last update: {today}");
 
                     rowNum = 4;
 
@@ -213,14 +209,16 @@ namespace Gdc.Scd.Export.CdCs.Impl
                         rowNum++;
                     }
 
-                    workbook.SaveAs(memoryStream);
-                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    //UPLOAD
                     Logger.Log(LogLevel.Info, CdCsMessages.UPLOAD_FILE);
+                    workbook.SaveAs(masterFileStream);
+                    masterFileStream.Seek(0, SeekOrigin.Begin);                  
                     using (var ctx = new ClientContext(config.FileWebUrl))
                     {
                         ctx.Credentials = NetworkCredential;
 
-                        File.SaveBinaryDirect(ctx, $"{config.FileFolderUrl}/{country} {Config.CalculationToolFileName}", memoryStream, true);
+                        File.SaveBinaryDirect(ctx, $"{config.FileFolderUrl}/{country} {Config.CalculationToolFileName}",
+                            masterFileStream, true);
                     }
                 }
             }
@@ -242,7 +240,7 @@ namespace Gdc.Scd.Export.CdCs.Impl
                 sheet.Cell(row, column).Style.NumberFormat.Format = $"0.00\\ [${cur}]";
             }
 
-            memoryStream.Dispose();
+            masterFileStream.Dispose();
         }
 
         private static void CopyStream(Stream source, Stream destination)

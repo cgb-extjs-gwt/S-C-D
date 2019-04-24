@@ -12,5 +12,7 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
         Task<int> UpdateByCoordinatesAsync(CostBlockEntityMeta meta, IEnumerable<UpdateQueryOption> updateOptions = null);
 
         void UpdateByCoordinates(CostBlockEntityMeta meta, IEnumerable<UpdateQueryOption> updateOptions = null);
+
+        void CreatRegionIndexes();
     }
 }

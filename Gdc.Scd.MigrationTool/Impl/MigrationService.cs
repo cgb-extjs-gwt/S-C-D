@@ -35,7 +35,7 @@ namespace Gdc.Scd.MigrationTool.Impl
             errorActionNames = 
                 this.migrationActions.GroupBy(action => action.Number)
                                      .Where(group => group.Count() > 1)
-                                     .Select(action => action.GetType().Name)
+                                     .SelectMany(group => group.Select(action => action.GetType().Name))
                                      .ToArray();
 
             if (errorActionNames.Length > 0)

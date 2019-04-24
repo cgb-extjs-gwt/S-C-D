@@ -59,21 +59,14 @@ begin
 
     from SoftwareSolution.GetCosts(1, @digitList, @avList, @yearList, -1, -1) sw
     join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
-    join InputAtoms.Sog sog on sog.id = sw.Sog
+    join InputAtoms.Sog sog on sog.id = sw.Sog and sog.IsSoftware = 1 and sog.IsSolution = 0
 
-    left join Fsp.SwFspCodeTranslation fsp on fsp.AvailabilityId = sw.Availability
-                                              and fsp.DurationId = sw.Year
-                                              and fsp.SwDigitId = sw.SwDigit
-
-    outer apply (
-
-        --get first existing row with valid description
-
-        SELECT top(1) lic.Description
-        FROM InputAtoms.SwLicense lic
-        WHERE lic.Description IS NOT NULL and exists (select * from InputAtoms.SwDigitLicense sdl where sdl.SwLicenseId = lic.Id and sdl.SwDigitId = dig.Id)
-    ) lic;
-
+    join Fsp.SwFspCodeTranslation fsp on fsp.AvailabilityId = sw.Availability
+										 and fsp.DurationId = sw.Year
+										 and fsp.SwDigitId = sw.SwDigit
+										 and fsp.Name is not null
+    join InputAtoms.SwLicense lic on fsp.SwLicenseId = lic.id
+								     and lic.Description is not null
     return
 end
 GO

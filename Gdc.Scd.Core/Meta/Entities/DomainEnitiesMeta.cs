@@ -85,7 +85,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public NamedEntityMeta GetInputLevel(string name)
         {
-            var fullName = BaseEntityMeta.BuildFullName(MetaConstants.CountryInputLevelName, MetaConstants.InputLevelSchema);
+            var fullName = BaseEntityMeta.BuildFullName(name, MetaConstants.InputLevelSchema);
 
             return this.InputLevels[fullName];
         }
