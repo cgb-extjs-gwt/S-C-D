@@ -111,9 +111,8 @@ namespace Gdc.Scd.Import.Por.Core.Impl
 
                         if (swRecord != null)
                         {
-                            var swDigitLicense = digit.SwDigitLicenses.FirstOrDefault(x => x.SwLicense.Name == swRecord.Software_Lizenz);
-
-                            dbcode.SwLicenseId = swDigitLicense?.Id;
+                            var swLicense = model.License.FirstOrDefault(x => x.Name == swRecord.Software_Lizenz);
+                            dbcode.SwLicenseId = swLicense?.Id;
                         }
 
                         _logger.Log(LogLevel.Debug, PorImportLoggingMessage.ADDED_OR_UPDATED_ENTITY,

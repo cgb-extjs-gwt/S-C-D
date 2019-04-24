@@ -191,6 +191,7 @@ namespace Gdc.Scd.Import.Por
 
     //            //STEP 8: UPLOAD SOFTWARE
     //            var proActiveDigits = PorService.ProActiveDigitService.GetAll().ToList();
+    //            var license = PorService.LicenseService.GetAll().ToList();
 
     //            var swModel = new SwFspCodeDto
     //            {
@@ -201,7 +202,8 @@ namespace Gdc.Scd.Import.Por
     //                Sogs = sogs,
     //                SoftwareServiceTypes = softwareServiceTypes,
     //                CreatedDateTime = DateTime.Now,
-    //                ProActiveDigits = proActiveDigits
+    //                ProActiveDigits = proActiveDigits,
+    //                License = license
     //            };
 
     //            PorService.UploadSwFspCodes(swModel, step);
@@ -403,6 +405,7 @@ namespace Gdc.Scd.Import.Por
 
                 //STEP 8: UPLOAD SOFTWARE
                 var proActiveDigits = PorService.ProActiveDigitService.GetAll().ToList();
+                var license = PorService.LicenseService.GetAll().ToList();
 
                 var swModel = new SwFspCodeDto
                 {
@@ -413,7 +416,8 @@ namespace Gdc.Scd.Import.Por
                     Sogs = sogs,
                     SoftwareServiceTypes = softwareServiceTypes,
                     CreatedDateTime = DateTime.Now,
-                    ProActiveDigits = proActiveDigits
+                    ProActiveDigits = proActiveDigits,
+                    License = license
                 };
 
                 PorService.UploadSwFspCodes(swModel, step);
