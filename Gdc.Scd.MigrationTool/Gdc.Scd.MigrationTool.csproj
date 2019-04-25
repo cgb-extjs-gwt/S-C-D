@@ -76,6 +76,7 @@
     <Compile Include="Impl\PrincipalProvider.cs" />
     <Compile Include="Interfaces\IMigrationAction.cs" />
     <Compile Include="Interfaces\IMigrationService.cs" />
+    <Compile Include="Migrations\Migration_2019_04_25.cs" />
     <Compile Include="Migrations\Migration_2019_02_07.cs" />
     <Compile Include="Migrations\Migration_2019_02_101.cs" />
     <Compile Include="Migrations\Migration_2019_02_11_2.cs" />
@@ -432,6 +433,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2019-04-22-14-47.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-04-25-12-00.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="MigrationScripts\2019-04-02-16-23.sql">
