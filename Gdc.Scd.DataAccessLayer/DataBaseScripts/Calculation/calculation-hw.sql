@@ -3058,11 +3058,12 @@ BEGIN
 	--TODO: @portfolioIds case to be fixed in a future release 
 
 	UPDATE mc
-	SET [ServiceTP1_Released] = case when dur.Value >= 1 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP1) else null end,
-		[ServiceTP2_Released] = case when dur.Value >= 2 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP2) else null end,
-		[ServiceTP3_Released] = case when dur.Value >= 3 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP3) else null end,
-		[ServiceTP4_Released] = case when dur.Value >= 4 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP4) else null end,
-		[ServiceTP5_Released] = case when dur.Value >= 5 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP5) else null end,
+	SET [ServiceTP1_Released] = case when dur.Value >= 1 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP1) else null end,
+		[ServiceTP2_Released] = case when dur.Value >= 2 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP2) else null end,
+		[ServiceTP3_Released] = case when dur.Value >= 3 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP3) else null end,
+		[ServiceTP4_Released] = case when dur.Value >= 4 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP4) else null end,
+		[ServiceTP5_Released] = case when dur.Value >= 5 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP5) else null end,
+		[ServiceTP1P_Released] = case when dur.IsProlongation = 1 then  COALESCE(costs.ServiceTPManual, costs.ServiceTP1P) else null end,
 		[ChangeUserId] = @usr,
         [ReleaseDate] = getdate()
 	FROM [Hardware].[ManualCost] mc
@@ -3074,15 +3075,16 @@ BEGIN
 				([PortfolioId], 
 				[ChangeUserId], 
                 [ReleaseDate],
-				[ServiceTP1_Released], [ServiceTP2_Released], [ServiceTP3_Released], [ServiceTP4_Released], [ServiceTP5_Released])
+				[ServiceTP1_Released], [ServiceTP2_Released], [ServiceTP3_Released], [ServiceTP4_Released], [ServiceTP5_Released], [ServiceTP1P_Released])
 	SELECT  costs.Id, 
 			@usr, 
             getdate(),
-			case when dur.Value >= 1 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP1) else null end,
-			case when dur.Value >= 2 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP2) else null end,
-			case when dur.Value >= 3 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP3) else null end,
-			case when dur.Value >= 4 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP4) else null end,
-			case when dur.Value >= 5 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP5) else null end
+			case when dur.Value >= 1 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP1) else null end,
+			case when dur.Value >= 2 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP2) else null end,
+			case when dur.Value >= 3 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP3) else null end,
+			case when dur.Value >= 4 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP4) else null end,
+			case when dur.Value >= 5 and dur.IsProlongation = 0 then  COALESCE(costs.ServiceTPManual / dur.Value, costs.ServiceTP5) else null end,
+			case when dur.IsProlongation = 1 then  COALESCE(costs.ServiceTPManual, costs.ServiceTP1P) else null end
 	FROM [Hardware].[ManualCost] mc
 	RIGHT JOIN #temp costs on mc.PortfolioId = costs.Id
 	JOIN Dependencies.Duration dur on costs.DurationId = dur.Id
