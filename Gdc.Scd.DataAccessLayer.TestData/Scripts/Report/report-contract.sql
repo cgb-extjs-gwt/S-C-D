@@ -15,7 +15,7 @@ CREATE FUNCTION Report.Contract
 RETURNS TABLE 
 AS
 RETURN (
-    WITH CountryCte as (
+        WITH CountryCte as (
         select c.*, cur.Name as Currency, er.Value as ExchangeRate
         from InputAtoms.Country c 
         left join [References].Currency cur on cur.Id = c.CurrencyId
