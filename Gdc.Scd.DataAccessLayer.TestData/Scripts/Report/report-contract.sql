@@ -4,50 +4,71 @@ go
 
 CREATE FUNCTION Report.Contract
 (
-    @cnt bigint,
-    @wg bigint,
-    @av bigint,
+    @cnt          bigint,
+    @wg           bigint,
+    @av           bigint,
     @reactiontime bigint,
     @reactiontype bigint,
-    @loc bigint,
-    @pro bigint
+    @loc          bigint,
+    @pro          bigint
 )
 RETURNS TABLE 
 AS
 RETURN (
+    WITH CountryCte as (
+        select c.*, cur.Name as Currency, er.Value as ExchangeRate
+        from InputAtoms.Country c 
+        left join [References].Currency cur on cur.Id = c.CurrencyId
+        left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+
+        where c.id = @cnt        
+    )
     select 
            m.Id
-         , m.Country
-         , wg.Name as Wg
-         , wg.Description as WgDescription
-         , null as SLA
-         , m.ServiceLocation
-         , m.ReactionTime
-         , m.ReactionType
-         , m.Availability
-         , m.ProActiveSla
+         , c.Name              as Country
+         , wg.Name             as Wg
+         , wg.Description      as WgDescription
+         , null                as SLA
+         , loc.Name            as ServiceLocation
+         , rtime.Name          as ReactionTime
+         , rtype.Name          as ReactionType
+         , av.Name             as Availability
+         , prosla.ExternalName as ProActiveSla
 
-        , case when m.DurationId >= 1 then mc.ServiceTP1_Released * m.ExchangeRate end as ServiceTP1
-        , case when m.DurationId >= 2 then mc.ServiceTP2_Released * m.ExchangeRate end as ServiceTP2
-        , case when m.DurationId >= 3 then mc.ServiceTP3_Released * m.ExchangeRate end as ServiceTP3
-        , case when m.DurationId >= 4 then mc.ServiceTP4_Released * m.ExchangeRate end as ServiceTP4
-        , case when m.DurationId >= 5 then mc.ServiceTP5_Released * m.ExchangeRate end as ServiceTP5
+         , mc.ServiceTP1_Released * c.ExchangeRate      as ServiceTP1
+         , mc.ServiceTP2_Released * c.ExchangeRate      as ServiceTP2
+         , mc.ServiceTP3_Released * c.ExchangeRate      as ServiceTP3
+         , mc.ServiceTP4_Released * c.ExchangeRate      as ServiceTP4
+         , mc.ServiceTP5_Released * c.ExchangeRate      as ServiceTP5
 
-        , case when m.DurationId >= 1 then mc.ServiceTP1_Released * m.ExchangeRate / 12 end as ServiceTPMonthly1
-        , case when m.DurationId >= 2 then mc.ServiceTP2_Released * m.ExchangeRate / 12 end as ServiceTPMonthly2
-        , case when m.DurationId >= 3 then mc.ServiceTP3_Released * m.ExchangeRate / 12 end as ServiceTPMonthly3
-        , case when m.DurationId >= 4 then mc.ServiceTP4_Released * m.ExchangeRate / 12 end as ServiceTPMonthly4
-        , case when m.DurationId >= 5 then mc.ServiceTP5_Released * m.ExchangeRate / 12 end as ServiceTPMonthly5
-        , cur.Name as Currency
+         , mc.ServiceTP1_Released * c.ExchangeRate / 12 as ServiceTPMonthly1
+         , mc.ServiceTP2_Released * c.ExchangeRate / 12 as ServiceTPMonthly2
+         , mc.ServiceTP3_Released * c.ExchangeRate / 12 as ServiceTPMonthly3
+         , mc.ServiceTP4_Released * c.ExchangeRate / 12 as ServiceTPMonthly4
+         , mc.ServiceTP5_Released * c.ExchangeRate / 12 as ServiceTPMonthly5
+         , c.Currency
+       
+          , stdw.DurationValue as WarrantyLevel
+          , null               as PortfolioType
+          , wg.Sog             as Sog
 
-         , m.StdWarranty as WarrantyLevel
-         , null as PortfolioType
-         , wg.Sog as Sog
+    FROM Portfolio.GetBySlaSingle(@cnt, @wg, @av, (select id from Dependencies.Duration where IsProlongation = 0 and Value = 5), @reactiontime, @reactiontype, @loc, @pro) m
 
-    from Report.GetCosts(@cnt, @wg, @av, (select top(1) id from Dependencies.Duration where IsProlongation = 0 and Value = 5), @reactiontime, @reactiontype, @loc, @pro) m
-    join InputAtoms.WgSogView wg on wg.id = m.WgId
-    join Dependencies.Duration dur on dur.id = m.DurationId and dur.IsProlongation = 0
-    join [References].Currency cur on cur.Id = m.CurrencyId
+    INNER JOIN CountryCte c on c.Id = m.CountryId
+
+    INNER JOIN InputAtoms.WgSogView wg on wg.id = m.WgId
+
+    INNER JOIN Dependencies.Availability av on av.Id= m.AvailabilityId
+
+    INNER JOIN Dependencies.ReactionTime rtime on rtime.Id = m.ReactionTimeId
+
+    INNER JOIN Dependencies.ReactionType rtype on rtype.Id = m.ReactionTypeId
+   
+    INNER JOIN Dependencies.ServiceLocation loc on loc.Id = m.ServiceLocationId
+
+    INNER JOIN Dependencies.ProActiveSla prosla on prosla.id = m.ProActiveSlaId
+
+    LEFT JOIN Fsp.HwStandardWarranty stdw ON stdw.Country = m.CountryId and stdw.Wg = m.WgId
 
     left join Hardware.ManualCost mc on mc.PortfolioId = m.Id
 )
