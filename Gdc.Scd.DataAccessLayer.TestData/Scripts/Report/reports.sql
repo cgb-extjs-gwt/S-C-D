@@ -305,11 +305,11 @@ RETURN (
         select c.*
              , cur.Name as Currency
              , er.Value as ExchangeRate
-             , case when @approved = 0 then tax.TaxAndDuties_norm else tax.TaxAndDuties_norm_Approved end as TaxAndDuties
+             , case when @approved = 0 then tax.TaxAndDuties else tax.TaxAndDuties_Approved end as TaxAndDuties
         from InputAtoms.Country c 
         INNER JOIN [References].Currency cur on cur.Id = c.CurrencyId
         INNER JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
-        LEFT JOIN Hardware.TaxAndDutiesView tax on tax.Country = c.Id
+        LEFT JOIN Hardware.TaxAndDuties tax on tax.Country = c.Id and tax.DeactivatedDateTime is null
         where c.Id = @cnt
     )
     , WgCte as (
@@ -509,7 +509,7 @@ RETURN (
               , m.RepairTime
               , m.OnsiteHourlyRate as OnsiteHourlyRate
 
-              , m.AvailabilityFee as AvailabilityFee
+              , m.AvailabilityFee * m.ExchangeRate as AvailabilityFee
       
               , m.TaxAndDutiesW as TaxAndDutiesW
 
@@ -581,5 +581,4 @@ RETURN (
 
     from CostCte m
 )
-
 go
