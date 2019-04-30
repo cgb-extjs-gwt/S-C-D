@@ -984,17 +984,18 @@ GO
 
 CREATE FUNCTION [Hardware].[CalcLocSrvStandardWarranty](
     @fieldServiceCost float,
-    @srvSupportCost float,
-    @logisticCost float,
-    @taxAndDutiesW float,
-    @afr float,
-    @markupFactor float,
-    @markup float
+    @srvSupportCost   float,
+    @logisticCost     float,
+    @taxAndDutiesW    float,
+    @afr              float,
+    @fee              float,
+    @markupFactor     float,
+    @markup           float
 )
 RETURNS float
 AS
 BEGIN
-    return Hardware.AddMarkup(@fieldServiceCost + @srvSupportCost + @logisticCost, @markupFactor, @markup) + @taxAndDutiesW * @afr;
+    return Hardware.AddMarkup(@fieldServiceCost + @srvSupportCost + @logisticCost, @markupFactor, @markup) + @taxAndDutiesW * @afr + @fee;
 END
 GO
 
@@ -1994,6 +1995,7 @@ BEGIN
                  end as TotalIbPla
 
               , case when @approved = 0 then af.Fee else af.Fee_Approved end as Fee
+              , afEx.id as StdFeeId
 
               --####### PROACTIVE COST ###################
 
@@ -2031,6 +2033,7 @@ BEGIN
         LEFT JOIN Hardware.MarkupStandardWaranty msw ON msw.Country = m.CountryId AND msw.Wg = m.WgId and msw.DeactivatedDateTime is null
 
         LEFT JOIN Hardware.AvailabilityFeeCalc af ON af.Country = m.CountryId AND af.Wg = m.WgId 
+        LEFT JOIN Admin.AvailabilityFee afEx ON afEx.CountryId = m.CountryId AND afEx.ReactionTimeId = stdw.ReactionTimeId AND afEx.ReactionTypeId = stdw.ReactionTypeId AND afEx.ServiceLocationId = stdw.ServiceLocationId
 
         LEFT JOIN Hardware.ProActive pro ON  pro.Country= m.CountryId and pro.Wg= m.WgId and pro.DeactivatedDateTime is null
 
@@ -2041,6 +2044,8 @@ BEGIN
     )
     , CostCte as (
         select    m.*
+
+                , coalesce(case when m.StdFeeId is not null then m.Fee end, 0) as StdFeeOrZero
 
                 , case when m.TaxAndDuties is null then 0 else m.TaxAndDuties end as TaxAndDutiesOrZero
 
@@ -2091,23 +2096,23 @@ BEGIN
         select   m.*
 
                , case when m.StdDurationValue >= 1 
-                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR1, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR1, m.tax1, m.AFR1, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR1, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR1, m.tax1, m.AFR1, m.StdFeeOrZero, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                        else 0 
                    end as LocalServiceStandardWarranty1
                , case when m.StdDurationValue >= 2 
-                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR2, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR2, m.tax2, m.AFR2, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR2, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR2, m.tax2, m.AFR2, m.StdFeeOrZero, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                        else 0 
                    end as LocalServiceStandardWarranty2
                , case when m.StdDurationValue >= 3 
-                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR3, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR3, m.tax3, m.AFR3, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR3, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR3, m.tax3, m.AFR3, m.StdFeeOrZero, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                        else 0 
                    end as LocalServiceStandardWarranty3
                , case when m.StdDurationValue >= 4 
-                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR4, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR4, m.tax4, m.AFR4, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR4, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR4, m.tax4, m.AFR4, m.StdFeeOrZero, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                        else 0 
                    end as LocalServiceStandardWarranty4
                , case when m.StdDurationValue >= 5 
-                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR5, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR5, m.tax5, m.AFR5, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
+                       then Hardware.CalcLocSrvStandardWarranty(m.FieldServicePerYearStdw * m.AFR5, m.ServiceSupportPerYear, m.LogisticPerYearStdw * m.AFR5, m.tax5, m.AFR5, m.StdFeeOrZero, 1 + m.MarkupFactorStandardWarranty, m.MarkupStandardWarranty)
                        else 0 
                    end as LocalServiceStandardWarranty5
 
@@ -2305,7 +2310,7 @@ BEGIN
 
     RETURN;
 END
-GO
+go
 
 IF OBJECT_ID('[Hardware].[GetCalcMember]') IS NOT NULL
   DROP FUNCTION [Hardware].[GetCalcMember];
