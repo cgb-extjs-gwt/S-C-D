@@ -760,8 +760,7 @@
         </Element>
         <Element Name="InstalledBaseSog" Caption="Installed base" InputOption="Manually" RegionInput="_none_">
           <InputLevels>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sfab</InputLevel>
+            <InputLevel Hide="True">Sfab</InputLevel>
             <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
