@@ -42,7 +42,7 @@ RETURN (
            , sog.Description as SogDescription
            , sog.Name as Sog
            , dig.Name as Digit
-           , l.Description as SwProduct
+           , l.Name as SwProduct
            , dig.Description as DigitDescription
 
            , av.Name as Availability
