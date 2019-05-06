@@ -1,4 +1,4 @@
-﻿import { Button, CheckBoxField, Column, ComboBoxField, Grid, Toolbar, TextField } from '@extjs/ext-react';
+﻿import { Button, CheckBoxField, Column, ComboBoxField, Grid, TextField, Toolbar } from '@extjs/ext-react';
 import * as React from 'react';
 import { buildComponentUrl, buildMvcUrl } from "../../Common/Services/Ajax";
 
@@ -34,7 +34,7 @@ export class WarrantyGroupGrid extends React.Component<any> {
             },
             {
                 name: 'responsiblePerson', type: 'string',
-                convert: function(val, row) {
+                convert: function (val, row) {
                     if (!val)
                         return " ";
                     return val;
@@ -105,7 +105,7 @@ export class WarrantyGroupGrid extends React.Component<any> {
         }
     }
 
-    saveRecords = () => {
+    private saveRecords = () => {
         this.store.sync({
             scope: this,
 
@@ -125,12 +125,12 @@ export class WarrantyGroupGrid extends React.Component<any> {
         });
     }
 
-    ManageRoleCodes = () => {
+    private ManageRoleCodes = () => {
         let path = buildComponentUrl("/admin/role-code-management");
         this.props.history.push(path);
     }
 
-    cancelChanges = () => {
+    private cancelChanges = () => {
         this.store.rejectChanges();
         this.setState({ disableCancelButton: true });
         this.store.load();
@@ -156,10 +156,13 @@ export class WarrantyGroupGrid extends React.Component<any> {
     }
 
     private getRoleCodeColumn() {
-        let selectField;
-        let renderer: (value, data: { data }) => string;
-
-        selectField = (
+        return <Column
+            text="Role code"
+            dataIndex="roleCodeId"
+            flex={1}
+            editable={true}
+            renderer={this.roleCodeRenderer}
+        >
             <ComboBoxField
                 store={this.storeRoleCode}
                 valueField="id"
@@ -171,31 +174,21 @@ export class WarrantyGroupGrid extends React.Component<any> {
                 height="100%"
                 width="100%"
             />
-        );
+        </Column>;
+    }
 
-        renderer = (value, { data }) => {
-            let result: string;
-            if (this.state.render) {
-                if (data.roleCodeId > 0) {
-                    const selectedItem = this.storeRoleCode.data.items.find(item => item.data.id === data.roleCodeId);
-                    result = selectedItem ? selectedItem.data.name : "UNKNOWN";
-                } else
-                    result = "";
+    private roleCodeRenderer = (value, row) => {
+        let result: string;
+        if (this.state.render) {
+            let data = row && row.data;
+            if (data && data.roleCodeId > 0) {
+                const selectedItem = this.storeRoleCode.data.items.find(item => item.data.id === data.roleCodeId);
+                result = selectedItem ? selectedItem.data.name : 'UNKNOWN';
+            } else {
+                result = '';
             }
-            return result;
         }
-
-        return (
-            <Column
-                text="Role code"
-                dataIndex="roleCodeId"
-                flex={1}
-                editable={true}
-                renderer={renderer.bind(this)}
-            >
-                {selectField}
-            </Column>
-        )
+        return result;
     }
 
     public render() {
