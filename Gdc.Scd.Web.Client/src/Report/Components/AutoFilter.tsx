@@ -139,7 +139,10 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
         let cfg: any = {};
         switch (model.type) {
 
-            case AutoFilterType.WG: cfg.store = this.dictSrv.getWG; break;
+            case AutoFilterType.WG:
+                cfg.store = this.dictSrv.getWG;
+                cfg.filter = { name: 'sogId', id: this.state.sog };
+                break;
 
             case AutoFilterType.WGALL: cfg.store = this.dictSrv.getWgWithMultivendor; break;
 
