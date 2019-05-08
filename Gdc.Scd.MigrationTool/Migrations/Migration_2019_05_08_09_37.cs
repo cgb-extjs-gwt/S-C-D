@@ -10,7 +10,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 97;
+        public int Number => 98;
 
         public string Description => "Hdd retension parameter report permission";
 
