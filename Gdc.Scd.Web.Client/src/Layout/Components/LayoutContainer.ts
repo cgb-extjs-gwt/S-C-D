@@ -13,11 +13,12 @@ import { CostEditorContainer } from "../../CostEditor/Components/CostEditorConta
 import { CostImportContainer } from "../../CostImport/Components/CostImportContainer";
 import { OwnApproveLayoutContainer } from "../../CostOwnApproval/Components/OwnApproveLayoutContainer";
 import { PortfolioEditView, PortfolioHistoryView, PortfolioView } from "../../Portfolio/index";
-import { CalcResultViewContainer, ReportListView, ReportView } from "../../Report/index";
+import { CalcResultViewContainer, ReportView } from "../../Report/index";
 import { TableViewContainer } from "../../TableView/Components/TableViewContainer";
 import { loadMetaDataFromServer, openPage } from "../Actions/AppActions";
 import { CommonState, Role } from "../States/AppStates";
 import { Layout, LayoutActions, LayoutProps, RouteItem } from "./Layout";
+import { ReportListViewContainer } from "../../Report/ReportListViewContainer";
 
 interface RouteMenuItem extends RouteItem {
     text?: string
@@ -42,7 +43,7 @@ const buildRouteMenuItems = () => <RouteMenuItem[]>[
     { path: '/portfolio/edit', component: PortfolioEditView, permission: Permissions.PORTFOLIO },
     { path: '/portfolio/history', component: PortfolioHistoryView, permission: Permissions.PORTFOLIO },
     { path: '/report', text: 'Calculation Result', iconCls: 'x-fa fa-calculator', component: CalcResultViewContainer, isMenuItem: true, permission: Permissions.REPORT, exact: true },
-    { path: '/report/all', text: 'Reports', iconCls: 'x-fa fa-bar-chart', component: ReportListView, isMenuItem: true, permission: Permissions.REPORT, exact: true },
+    { path: '/report/all', text: 'Reports', iconCls: 'x-fa fa-bar-chart', component: ReportListViewContainer, isMenuItem: true, permission: Permissions.REPORT, exact: true },
     { path: '/report/:name', component: ReportView, exact: true, permission: Permissions.REPORT },
     {
         path: '/admin', 
