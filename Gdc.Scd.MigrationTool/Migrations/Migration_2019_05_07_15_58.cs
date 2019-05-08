@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 97;
+        public int Number => 99;
 
         public string Description => "Fix release cost calculation, remove auto sum for ServiceTP_Released";
 
