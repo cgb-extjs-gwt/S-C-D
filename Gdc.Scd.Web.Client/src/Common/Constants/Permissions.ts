@@ -14,6 +14,8 @@ export const REVIEW_PROCESS = 'ReviewProcess';
 
 export const REPORT = 'Report';
 
+export const REPORT_HDD_RETENTION_PARAMETER = 'ReportHddRetentionParameter';
+
 export const ADMIN = 'Admin';
 
 export const CALC_RESULT_HDD_SERVICE_COST_NOT_APPROVED = "CalcResultHddServiceCostNotApproved";
