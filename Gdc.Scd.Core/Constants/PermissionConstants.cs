@@ -20,6 +20,8 @@
 
         public const string Report = "Report";
 
+        public const string ReportHddRetentionParameter = "ReportHddRetentionParameter";
+
         public const string Admin = "Admin";
 
         public const string CalcResultHddServiceCostNotApproved = "CalcResultHddServiceCostNotApproved";

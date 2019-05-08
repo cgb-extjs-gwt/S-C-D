@@ -213,6 +213,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             var portfolioPermission = new Permission { Name = PermissionConstants.Portfolio };
             var reviewProcessPermission = new Permission { Name = PermissionConstants.ReviewProcess };
             var reportPermission = new Permission { Name = PermissionConstants.Report };
+            var reportHddRetentionParameterPermission = new Permission { Name = PermissionConstants.ReportHddRetentionParameter };
             var adminPermission = new Permission { Name = PermissionConstants.Admin };
             var calcResultHddServiceCostNotApprovedPermission = new Permission { Name = PermissionConstants.CalcResultHddServiceCostNotApproved };
             var calcResultSoftwareSolutionServiceCostNotApprovedPermission = new Permission { Name = PermissionConstants.CalcResultSoftwareServiceCostNotApproved };
@@ -228,6 +229,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                 portfolioPermission,
                 reviewProcessPermission,
                 reportPermission,
+                reportHddRetentionParameterPermission,
                 adminPermission,
                 calcResultHddServiceCostNotApprovedPermission,
                 calcResultSoftwareSolutionServiceCostNotApprovedPermission
@@ -282,6 +284,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = tableViewPermission },
                         new RolePermission { Permission = costEditorPermission },
                         new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = reportHddRetentionParameterPermission },
                         new RolePermission { Permission = approvalPermission },
                         new RolePermission { Permission = ownApprovalPermission },
                         new RolePermission { Permission = costImportPermission },
@@ -323,6 +326,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                         new RolePermission { Permission = costEditorPermission },
                         new RolePermission { Permission = tableViewPermission },
                         new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = reportHddRetentionParameterPermission },
                         new RolePermission { Permission = approvalPermission },
                         new RolePermission { Permission = ownApprovalPermission },
                         new RolePermission { Permission = reviewProcessPermission },
@@ -337,6 +341,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     {
                         new RolePermission { Permission = tableViewPermission },
                         new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = reportHddRetentionParameterPermission },
                         new RolePermission { Permission = reviewProcessPermission },
                         new RolePermission { Permission = costImportPermission },
                     }
@@ -349,6 +354,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     {
                         new RolePermission { Permission = tableViewPermission },
                         new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = reportHddRetentionParameterPermission },
                         new RolePermission { Permission = reviewProcessPermission },
                         new RolePermission { Permission = costImportPermission },
                     }
@@ -369,6 +375,8 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
                     RolePermissions = new List<RolePermission>
                     {
                         new RolePermission { Permission = reportPermission },
+                        new RolePermission { Permission = reportHddRetentionParameterPermission },
+
                     }
                 },
                 new Role
