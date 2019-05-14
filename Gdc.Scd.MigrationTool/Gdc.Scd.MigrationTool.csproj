@@ -174,9 +174,10 @@
     <Compile Include="Migrations\Migration_2019_04_30_12_20.cs" />
     <Compile Include="Migrations\Migration_2019_05_06_11_40.cs" />
     <Compile Include="Migrations\Migration_2019_05_06_12_46.cs" />
-    <Compile Include="Migrations\Migration_2019_05_13_15_31.cs" />
     <Compile Include="Migrations\Migration_2019_05_07_15_58.cs" />
     <Compile Include="Migrations\Migration_2019_05_08_09_37.cs" />
+    <Compile Include="Migrations\Migration_2019_05_13_15_31.cs" />
+    <Compile Include="Migrations\Migration_2019_05_14_15_45.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
