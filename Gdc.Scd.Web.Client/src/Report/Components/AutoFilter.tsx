@@ -23,6 +23,7 @@ import { DictFactory } from "../../Dict/Services/DictFactory";
 import { IDictService } from "../../Dict/Services/IDictService";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
 import { AutoFilterType } from "../Model/AutoFilterType";
+import { fillWgSogInfo } from "../../Dict/Components/MultiSelectWg";
 
 export interface AutoFilterPanelProps extends PanelProps {
     filter: AutoFilterModel[];
@@ -76,19 +77,19 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
                 return <NumberField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
 
             case AutoFilterType.WG:
-                return <WgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} sog={this.state.sog} />;
+                return <WgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} sog={this.state.sog} itemTpl={fillWgSogInfo} />;
 
             case AutoFilterType.WGALL:
-                return <WgAllField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+                return <WgAllField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} itemTpl={fillWgSogInfo}/>;
 
             case AutoFilterType.WGSTANDARD:
-                return <StandardWgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+                return <StandardWgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} itemTpl={fillWgSogInfo}/>;
 
             case AutoFilterType.WGHARDWARE:
-                return <HardwareWgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+                return <HardwareWgField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} itemTpl={fillWgSogInfo}/>;
 
             case AutoFilterType.WGSOG:
-                return <WgSogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
+                return <WgSogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} itemTpl={fillWgSogInfo}/>;
 
             case AutoFilterType.SOG:
                 return <SogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} onChange={this.onSogChange} />;
@@ -142,15 +143,28 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
             case AutoFilterType.WG:
                 cfg.store = this.dictSrv.getWG;
                 cfg.filter = { name: 'sogId', id: this.state.sog };
+                cfg.itemTpl = fillWgSogInfo;
                 break;
 
-            case AutoFilterType.WGALL: cfg.store = this.dictSrv.getWgWithMultivendor; break;
+            case AutoFilterType.WGALL:
+                cfg.store = this.dictSrv.getWgWithMultivendor;
+                cfg.itemTpl = fillWgSogInfo;
+                break;
 
-            case AutoFilterType.WGSTANDARD: cfg.store = this.dictSrv.getStandardWg; break;
+            case AutoFilterType.WGSTANDARD:
+                cfg.store = this.dictSrv.getStandardWg;
+                cfg.itemTpl = fillWgSogInfo;
+                break;
 
-            case AutoFilterType.WGHARDWARE: cfg.store = this.dictSrv.getHardwareWg; break;
+            case AutoFilterType.WGHARDWARE:
+                cfg.store = this.dictSrv.getHardwareWg;
+                cfg.itemTpl = fillWgSogInfo;
+                break;
 
-            case AutoFilterType.WGSOG: cfg.store = this.dictSrv.getWgWithSog; break;
+            case AutoFilterType.WGSOG:
+                cfg.store = this.dictSrv.getWgWithSog;
+                cfg.itemTpl = fillWgSogInfo;
+                break;
 
             case AutoFilterType.SOG: cfg.store = this.dictSrv.getSog; break;
 

@@ -36,7 +36,7 @@ export class MultiSelectField extends MultiSelect {
                 <Container>
                     <List
                         ref={x => this.lst = x}
-                        itemTpl={this.nameFieldTpl}
+                        itemTpl={this.props.itemTpl || this.nameFieldTpl}
                         store={this.state.items}
                         height={height}
                         maxHeight={maxHeight}
