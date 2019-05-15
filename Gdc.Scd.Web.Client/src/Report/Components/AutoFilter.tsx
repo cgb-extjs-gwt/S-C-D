@@ -5,6 +5,7 @@ import { CountryField } from "../../Dict/Components/CountryField";
 import { CountryGroupField } from "../../Dict/Components/CountryGroupField";
 import { DurationField } from "../../Dict/Components/DurationField";
 import { HardwareWgField } from "../../Dict/Components/HardwareWgField";
+import { fillWgSogInfo } from "../../Dict/Components/MultiSelectWg";
 import { ProActiveField } from "../../Dict/Components/ProActiveField";
 import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
 import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
@@ -23,7 +24,6 @@ import { DictFactory } from "../../Dict/Services/DictFactory";
 import { IDictService } from "../../Dict/Services/IDictService";
 import { AutoFilterModel } from "../Model/AutoFilterModel";
 import { AutoFilterType } from "../Model/AutoFilterType";
-import { fillWgSogInfo } from "../../Dict/Components/MultiSelectWg";
 
 export interface AutoFilterPanelProps extends PanelProps {
     filter: AutoFilterModel[];
