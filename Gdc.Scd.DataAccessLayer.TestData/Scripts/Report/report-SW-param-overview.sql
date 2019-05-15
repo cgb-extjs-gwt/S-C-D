@@ -95,6 +95,7 @@ RETURN (
         AND (not exists(select 1 from @digit) or exists(select 1 from @digit where id = m.SwDigit     ))
         AND (not exists(select 1 from @av   ) or exists(select 1 from @av    where id = m.Availability))
         AND (not exists(select 1 from @year ) or exists(select 1 from @year  where id = dur.Id        ))
+		AND m.DeactivatedDateTime is null
 )
 GO
 

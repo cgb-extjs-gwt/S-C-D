@@ -205,8 +205,18 @@ export class ReportListView extends React.Component<ReportListViewProps> {
                         ]
                     },
                     {
-                        "text": "<a href='#' data-href='/report/Locap-Global-Support'>12. LOCAP Global Support Packs(for all the countries)</a>",
-                        "leaf": true
+                        "text": "12. LOCAP Global Support Packs(for all the countries)",
+                        "expanded": true,
+                        "children": [
+                            {
+                                "text": "<a href='#' data-href='/report/Locap-Global-Support'>a) Released</a>",
+                                "leaf": true
+                            },
+                            {
+                                "text": "<a href='#' data-href='/report/Locap-Global-Support-approved'>b) Approved</a>",
+                                "leaf": true
+                            }
+                        ]
                     },
                     {
                         "text": "<a href='#' data-href='/report/standard-warranty-overview'>13. Standard Warranty overview</a>",
