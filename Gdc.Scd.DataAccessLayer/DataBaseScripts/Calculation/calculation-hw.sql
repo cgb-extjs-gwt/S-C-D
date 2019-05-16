@@ -1165,8 +1165,8 @@ CREATE VIEW [Hardware].[AvailabilityFeeCalcView] as
         from AvFeeCte fee
     )
     select fee.*, 
-           case when IB = 0 or fee.MaxQty = 0 then 0 else Hardware.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) end as Fee,
-           case when IB_Approved = 0 or fee.MaxQty = 0 then 0 else Hardware.CalcAvailabilityFee(fee.CostPerKit_Approved, fee.MaxQty, fee.TISC_Approved, fee.YI_Approved, fee.Total_KC_MQ_IB_VENDOR_Approved) end as Fee_Approved
+           case when IB > 0 and fee.MaxQty > 0 then Hardware.CalcAvailabilityFee(fee.CostPerKit, fee.MaxQty, fee.TISC, fee.YI, fee.Total_KC_MQ_IB_VENDOR) else 0 end as Fee,
+           case when IB_Approved > 0 and fee.MaxQty > 0 then Hardware.CalcAvailabilityFee(fee.CostPerKit_Approved, fee.MaxQty, fee.TISC_Approved, fee.YI_Approved, fee.Total_KC_MQ_IB_VENDOR_Approved) else 0 end as Fee_Approved
     from AvFeeCte2 fee
 GO
 

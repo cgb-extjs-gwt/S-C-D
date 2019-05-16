@@ -3,6 +3,12 @@ import * as React from "react";
 import { PlaField } from "../../Dict/Components/PlaField";
 import { MultiSelect } from "./MultiSelect";
 
+export function fillWgSogInfo(wg) {
+    if (wg.sog === undefined || wg.sog === null)
+        return <div><strong>{wg.name}</strong></div>;
+    return <div><strong>{wg.name}</strong> | SOG: <strong>{wg.sog.name}</strong></div>
+};
+
 export class MultiSelectWg extends MultiSelect {
 
     protected plaField: string;
@@ -34,7 +40,7 @@ export class MultiSelectWg extends MultiSelect {
                     <Container>
                         <List
                             ref={x => this.lst = x}
-                            itemTpl={wg => this.fillWgSogInfo(wg)}
+                            itemTpl={fillWgSogInfo}
                             store={this.state.items}
                             height={height}
                             maxHeight={maxHeight}
@@ -45,12 +51,6 @@ export class MultiSelectWg extends MultiSelect {
                 </div>
             </Container>
         );
-    }
-
-    private fillWgSogInfo(wg) {
-        if (wg.sog === undefined || wg.sog === null)
-            return <div><strong>{wg.name}</strong></div>;
-        return <div><strong>{wg.name}</strong> | SOG: <strong>{wg.sog.name}</strong></div>
     }
 
     protected init() {
