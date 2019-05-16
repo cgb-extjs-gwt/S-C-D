@@ -6,6 +6,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Dto
     {
         public Currency Currency { get; set; }
 
+        public bool IsReadOnly { get; set; }
+
         public RegionDto()
         {
         }

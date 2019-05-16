@@ -58,6 +58,8 @@ namespace Gdc.Scd.Core.Meta.Impl
 
         private const string FilterAttributeName = "HideFilter";
 
+        private const string CountryReadOnlyColumnAttributeName = "CountryReadOnlyColumn";
+
         private const string TypeOptionNodeName = "TypeOption";
 
         private const string QualityGateNodeName = "QualityGate";
@@ -166,8 +168,7 @@ namespace Gdc.Scd.Core.Meta.Impl
             var inputTypeAttribute = node.Attribute(InputTypeAttributeName);
             if (inputTypeAttribute != null)
             {
-                InputType type;
-                Enum.TryParse(inputTypeAttribute.Value, out type);
+                Enum.TryParse(inputTypeAttribute.Value, out InputType type);
                 costElementMeta.InputType = type;
             }
 
@@ -193,6 +194,12 @@ namespace Gdc.Scd.Core.Meta.Impl
             if (includeDisabledDependcyItemsAttribute != null)
             {
                 costElementMeta.IncludeDisabledDependcyItems = bool.Parse(includeDisabledDependcyItemsAttribute.Value);
+            }
+
+            var countryReadOnlyColumnAttribute = node.Attribute(CountryReadOnlyColumnAttributeName);
+            if (countryReadOnlyColumnAttribute != null)
+            {
+                costElementMeta.CountryReadOnlyColumn = countryReadOnlyColumnAttribute.Value;
             }
 
             return costElementMeta;

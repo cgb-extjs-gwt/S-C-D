@@ -37,6 +37,7 @@ export class CountryGrid extends React.Component {
             'isMaster',
             'canStoreListAndDealerPrices',
             'canOverrideTransferCostAndPrice',
+            'canOverride2ndLevelSupportLocal',
             'qualityGroup'
         ],
         autoLoad: true,
@@ -125,6 +126,7 @@ export class CountryGrid extends React.Component {
                     <CheckColumn text="Is Master" dataIndex="isMaster" flex={1} disabled={true} />
                     <CheckColumn text="Store List and Dealer Prices" dataIndex="canStoreListAndDealerPrices" flex={2} />
                     <CheckColumn text="Override TC and TP" dataIndex="canOverrideTransferCostAndPrice" flex={1} />
+                    <CheckColumn text="Override 2nd Level Support local" dataIndex="canOverride2ndLevelSupportLocal" flex={2} />
                     <Column text="Quality Group" dataIndex="qualityGroup" flex={1} editable renderer={this.renderer} >
                         <TextField />
                     </Column>
