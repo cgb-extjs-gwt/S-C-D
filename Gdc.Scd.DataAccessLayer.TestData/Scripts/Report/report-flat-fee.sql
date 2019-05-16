@@ -30,9 +30,9 @@ RETURN (
     join InputAtoms.Wg wg on wg.id = fee.Wg
     left join [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
 
-    where     (@cnt is null or fee.Country = @cnt)
-          and (@wg is null or fee.Wg = @wg)
-)
+    where     fee.DeactivatedDateTime is null
+          and (@cnt is null or fee.Country = @cnt)
+          and (@wg is null or fee.Wg = @wg))
 
 GO
 
