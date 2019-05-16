@@ -10,6 +10,7 @@
         public string QualityGroup { get; set; }
         public bool CanStoreListAndDealerPrices { get; set; }
         public bool CanOverrideTransferCostAndPrice { get; set; }
+        public bool CanOverride2ndLevelSupportLocal { get; set; }
         public bool IsMaster { get; set; }
         public string ISO3Code { get; set; }
         public string Currency { get; set; }

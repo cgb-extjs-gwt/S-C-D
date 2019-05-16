@@ -72,6 +72,20 @@ const getCurrencyName = ({ region }: CostElementState) => {
     return currencyName;
 }
 
+const getReadOnly = ({ region }: CostElementState) => {
+    let readOnly = false;
+
+    if (region && region.list) {
+        const { isReadOnly } = region.list.find(item => item.id == region.selectedItemId);
+
+        if (isReadOnly) {
+            readOnly = isReadOnly;
+        }
+    }
+
+    return readOnly;
+}
+
 const costBlockTabMap = (
     applicationId: string,
     costBlock: CostBlockState, 
@@ -122,7 +136,8 @@ const costBlockTabMap = (
                         type: selectedCostElementMeta.typeOptions ? selectedCostElementMeta.typeOptions.Type : FieldType.Double,
                         selectedItems: selectedCostElement.referenceValues,
                         inputType: selectedCostElementMeta.inputType,
-                        currency: getCurrencyName(selectedCostElement)
+                        currency: getCurrencyName(selectedCostElement),
+                        readonly: getReadOnly(selectedCostElement)
                     },
                     url: costBlock.edit.editItemsUrl,
                     hasChanges

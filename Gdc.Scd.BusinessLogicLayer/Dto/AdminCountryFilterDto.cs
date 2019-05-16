@@ -14,5 +14,6 @@
         public bool? IsMaster {get;set;}
         public bool? StoreListAndDealer { get; set; }
         public bool? OverrideTCandTP { get; set; }
-}
+        public bool? Override2ndLevelSupportLocal { get; set; }
+    }
 }

@@ -21,6 +21,8 @@ namespace Gdc.Scd.Core.Entities
 
         public bool CanOverrideTransferCostAndPrice { get; set; }
 
+        public bool CanOverride2ndLevelSupportLocal { get; set; }
+
         public bool IsMaster { get; set; }
 
         public string QualityGateGroup { get; set; }

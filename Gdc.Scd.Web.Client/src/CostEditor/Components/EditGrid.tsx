@@ -19,6 +19,7 @@ export interface ValueColumnProps {
     selectedItems: NamedId<number>[]
     inputType: InputType
     currency?: string
+    readonly?: boolean
 }
 
 export interface EditGridActions {
@@ -92,7 +93,8 @@ export class EditGrid extends React.Component<EditGridProps> {
                 flex: 1,
                 currency: valueColumn.currency,
                 getCountFn: ({ data }) => data.valueCount,
-                getIsApprovedFn: ({ data }) => data.isApproved
+                getIsApprovedFn: ({ data }) => data.isApproved,
+                readonly: valueColumn.readonly
             })
         ] as ColumnInfo[]
     }
