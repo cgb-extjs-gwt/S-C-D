@@ -342,7 +342,7 @@ const loadCostElementData = buildCostBlockChanger<CostElementDataLoadedAction>(
                             selectedItemId: 
                                 costElement.region && costElement.region.selectedItemId || 
                                 costElementData.regions && costElementData.regions[0].id
-                        },
+                        }
                     })
                 )
             }
