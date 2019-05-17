@@ -7,7 +7,7 @@ import { buildMvcUrl, post } from "../Common/Services/Ajax";
 import { Country } from "../Dict/Model/Country";
 import { UserCountryService } from "../Dict/Services/UserCountryService";
 import { CalcCostProps } from "./Components/CalcCostProps";
-import { currencyRenderer, ddMMyyyyRenderer, emptyRenderer, EUR, IRenderer, percentRenderer, yearRenderer } from "./Components/GridRenderer";
+import { currencyRenderer, ddMMyyyyRenderer, emptyRenderer, EUR, IRenderer, percentRenderer, stringRenderer, yearRenderer } from "./Components/GridRenderer";
 import { HwCostFilter } from "./Components/HwCostFilter";
 import { HwReleasePanel } from "./Components/HwReleasePanel";
 import { CurrencyType } from "./Model/CurrencyType";
@@ -197,7 +197,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <Column text="Service location" dataIndex="ServiceLocation" />
                         <Column text="ProActive SLA" dataIndex="ProActiveSla" />
                         <Column text="Standard warranty duration" dataIndex="StdWarranty" renderer={yearRenderer} flex="0.5" minWidth="50" />
-                        <Column text="Standard Warranty Service Location" dataIndex="StdWarrantyLocation" />
+                        <Column text="Standard Warranty Service Location" dataIndex="StdWarrantyLocation" renderer={stringRenderer} />
 
                     </Column>
 
