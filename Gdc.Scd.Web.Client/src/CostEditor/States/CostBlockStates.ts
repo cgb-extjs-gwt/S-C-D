@@ -6,6 +6,7 @@ export interface EditItem extends NamedId<number> {
     value: number
     valueCount: number
     isApproved: boolean
+    readonly: boolean
 }
 
 export interface CheckItem extends NamedId<number> {
@@ -18,6 +19,7 @@ export interface Filter {
 
 export interface Region extends NamedId<number> {
     currency?: NamedId
+    isReadOnly?: boolean
 }
 
 export interface InputLevelState extends Filter {

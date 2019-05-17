@@ -41,6 +41,7 @@ export interface CostElementColumnOption<T=any> {
     editMappingFn?(data: Model<T>, dataIndex: string)
     getCountFn?(data: Model<T>): number
     getIsApprovedFn?(data: Model<T>): boolean
+    readonly?: boolean
 }
 
 export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>) => {
@@ -48,8 +49,8 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
     let referenceItems: Map<number, NamedId<number>>;
     let formatFn: (value, record?: Model<T>) => any;
 
-    const { title, type, dataIndex, inputType, references = [], currency } = option;
-    const readonly = inputType == InputType.AutomaticallyReadonly || inputType == InputType.Automatically;
+    const { title, type, dataIndex, inputType, references = [], currency, readonly } = option;
+    const editable = !readonly && inputType != InputType.AutomaticallyReadonly && inputType != InputType.Automatically;
 
     switch (type) {
         case FieldType.Double:
@@ -105,7 +106,7 @@ export const buildCostElementColumn = <T=any>(option: CostElementColumnOption<T>
         title,
         dataIndex,
         width,
-        isEditable: !readonly,
+        isEditable: editable,
         type: columnType,
         referenceItems,
         flex,

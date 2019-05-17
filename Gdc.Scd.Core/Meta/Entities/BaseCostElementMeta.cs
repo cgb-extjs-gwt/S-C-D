@@ -15,7 +15,7 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public IDictionary<string, string> TypeOptions { get; set; }
 
-        public InputType InputType { get; set; }
+        public InputType InputType { get; set; }    
 
         public bool IsCountryCurrencyCost
         {

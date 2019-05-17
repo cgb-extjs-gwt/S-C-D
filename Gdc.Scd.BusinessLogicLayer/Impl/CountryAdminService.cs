@@ -43,7 +43,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                                      .WhereIf(filter.QualityGroup != null, x => x.QualityGateGroup == filter.QualityGroup)
                                      .WhereIf(filter.IsMaster.HasValue, x => x.IsMaster == filter.IsMaster.Value)
                                      .WhereIf(filter.StoreListAndDealer.HasValue, x => x.CanStoreListAndDealerPrices == filter.StoreListAndDealer.Value)
-                                     .WhereIf(filter.OverrideTCandTP.HasValue, x => x.CanOverrideTransferCostAndPrice == filter.OverrideTCandTP.Value);
+                                     .WhereIf(filter.OverrideTCandTP.HasValue, x => x.CanOverrideTransferCostAndPrice == filter.OverrideTCandTP.Value)
+                                     .WhereIf(filter.Override2ndLevelSupportLocal.HasValue, x => x.CanOverride2ndLevelSupportLocal == filter.Override2ndLevelSupportLocal.Value);
             }
 
             totalCount = countries.Count();
@@ -53,6 +54,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return countries.Select(c => new CountryDto
             {
                 CanOverrideTransferCostAndPrice = c.CanOverrideTransferCostAndPrice,
+                CanOverride2ndLevelSupportLocal = c.CanOverride2ndLevelSupportLocal,
                 CanStoreListAndDealerPrices = c.CanStoreListAndDealerPrices,
                 CountryDigit = c.CountryGroup.CountryDigit ?? string.Empty,
                 CountryGroup = c.CountryGroup.Name,
@@ -80,6 +82,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 //
                 country.CanOverrideTransferCostAndPrice = dto.CanOverrideTransferCostAndPrice;
                 country.CanStoreListAndDealerPrices = dto.CanStoreListAndDealerPrices;
+                country.CanOverride2ndLevelSupportLocal = dto.CanOverride2ndLevelSupportLocal;
                 country.QualityGateGroup = string.IsNullOrEmpty(dto.QualityGroup?.Trim()) ? null : dto.QualityGroup.Trim();
                 country.CurrencyId = currencies[dto.Currency].Id;
             }

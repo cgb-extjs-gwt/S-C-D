@@ -17,6 +17,7 @@ export interface CostElementMeta extends NamedId, UsingInfo {
         Type: FieldType
     }
     inputType: InputType
+    readOnly: boolean
 }
 
 export interface CostBlockMeta extends NamedId, UsingInfo {

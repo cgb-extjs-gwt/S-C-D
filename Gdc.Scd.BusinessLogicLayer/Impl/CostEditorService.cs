@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Dto;
 using Gdc.Scd.BusinessLogicLayer.Entities;
@@ -7,6 +9,7 @@ using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Dto;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.QualityGate;
+using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
@@ -164,15 +167,30 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             if (regions != null)
             {
                 var costElement = this.meta.GetCostElement(context);
-                if (costElement.IsCountryCurrencyCost)
+
+                if (costElement.RegionInput != null &&
+                    costElement.RegionInput.Id == MetaConstants.CountryInputLevelName)
                 {
                     var countryIds = regions.Select(region => region.Id).ToArray();
+                    PropertyInfo prop = null;
+                    if (costElement.CountryReadOnlyColumn != null)
+                    {
+                        prop = typeof(Country).GetProperty(costElement.CountryReadOnlyColumn,
+                            BindingFlags.Instance | BindingFlags.Public);
+                    }
 
                     regionDtos =
                         this.countryService.GetAll()
-                                           .Where(country => countryIds.Contains(country.Id))
-                                           .Select(country => new RegionDto(country, country.Currency))
-                                           .ToArray();
+                            .Where(country => countryIds.Contains(country.Id))
+                            .Select(country => new RegionDto()
+                            {
+                                Id = country.Id,
+                                Name = country.Name,
+                                Currency = costElement.IsCountryCurrencyCost ? country.Currency : null,
+                                IsReadOnly = prop != null &&
+                                             !Convert.ToBoolean(prop.GetValue(country, null))
+                            })
+                            .ToArray();
                 }
                 else
                 {
