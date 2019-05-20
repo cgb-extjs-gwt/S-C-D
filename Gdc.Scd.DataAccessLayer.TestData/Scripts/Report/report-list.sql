@@ -2,7 +2,8 @@
 
 ('Locap', 'LOCAP reports (for a specific country)', 1,  1, 'Report.spLocap'),
 ('Locap-Detailed', 'LOCAP reports detailed', 1,  1, 'Report.spLocapDetailed'),
-('Locap-Global-Support', 'Maintenance Service Costs and List Price Output - Global Support Packs', 1,  1, 'Report.spLocapGlobalSupport'),
+('Locap-Global-Support', 'Maintenance Service Costs and List Price Output - Global Support Packs(released)', 1,  1, 'Report.spLocapGlobalSupportReleased'),
+('Locap-Global-Support-approved', 'Maintenance Service Costs and List Price Output - Global Support Packs(approved)', 0, 0, 'Report.spLocapGlobalSupportApproved'),
 ('locap-approved', 'LOCAP reports(approved)', 'Report.spLocapApproved', 0, 0),
 ('locap-detailed-approved', 'LOCAP reports detailed(approved)', 'Report.spLocapDetailedApproved', 0, 0),
 

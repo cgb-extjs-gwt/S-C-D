@@ -177,7 +177,7 @@
             </Roles>
           </CostEditor>
         </Element>
-        <Element Name="2ndLevelSupportCostsLocal" Caption="2nd Level Support costs local" InputOption="Manually" RegionInput="Country">
+        <Element Name="2ndLevelSupportCostsLocal" Caption="2nd Level Support costs local" InputOption="Manually" RegionInput="Country" CountryReadOnlyColumn="CanOverride2ndLevelSupportLocal">
           <InputLevels>
             <InputLevel>ClusterPla</InputLevel>
           </InputLevels>
@@ -748,6 +748,7 @@
           <InputLevels>
             <InputLevel>Pla</InputLevel>
             <InputLevel>Sfab</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>
@@ -759,8 +760,8 @@
         </Element>
         <Element Name="InstalledBaseSog" Caption="Installed base" InputOption="Manually" RegionInput="_none_">
           <InputLevels>
-            <InputLevel>Pla</InputLevel>
-            <InputLevel>Sfab</InputLevel>
+            <InputLevel Hide="True">Sfab</InputLevel>
+            <InputLevel>SwDigit</InputLevel>
           </InputLevels>
           <CostEditor>
             <Roles>

@@ -24,7 +24,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             Client = new SmtpClient
             {
                 Port = 25,
-                Host = "mail.fsc.net",
+                Host = "imrpool.fs.fujitsu.com",
                 Timeout = 10000,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
             };

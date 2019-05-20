@@ -76,6 +76,7 @@
     <Compile Include="Impl\PrincipalProvider.cs" />
     <Compile Include="Interfaces\IMigrationAction.cs" />
     <Compile Include="Interfaces\IMigrationService.cs" />
+    <Compile Include="Migrations\Migration_2019_04_25.cs" />
     <Compile Include="Migrations\Migration_2019_02_07.cs" />
     <Compile Include="Migrations\Migration_2019_02_101.cs" />
     <Compile Include="Migrations\Migration_2019_02_11_2.cs" />
@@ -167,6 +168,18 @@
     <Compile Include="Migrations\Migration_2019_04_22_10_00.cs" />
     <Compile Include="Migrations\Migration_2019_04_22_16_57.cs" />
     <Compile Include="Migrations\Migration_2019_04_22_14_47.cs" />
+    <Compile Include="Migrations\Migration_2019_04_26_16_10.cs" />
+    <Compile Include="Migrations\Migration_2019_04_29_11_00.cs" />
+    <Compile Include="Migrations\Migration_2019_04_30_11_04.cs" />
+    <Compile Include="Migrations\Migration_2019_04_30_12_20.cs" />
+    <Compile Include="Migrations\Migration_2019_05_06_11_40.cs" />
+    <Compile Include="Migrations\Migration_2019_05_06_12_46.cs" />
+    <Compile Include="Migrations\Migration_2019_05_07_15_58.cs" />
+    <Compile Include="Migrations\Migration_2019_05_08_09_37.cs" />
+    <Compile Include="Migrations\Migration_2019_05_13_15_31.cs" />
+    <Compile Include="Migrations\Migration_2019_05_14_15_45.cs" />
+    <Compile Include="Migrations\Migration_2019_05_15_11_58.cs" />
+    <Compile Include="Migrations\Migration_2019_05_15_11_28.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -407,6 +420,9 @@
     <Content Include="MigrationScripts\2019-04-16-13-55.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="MigrationScripts\2019-04-26-16-10.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="MigrationScripts\2019-04-19-15-46.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -432,6 +448,39 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MigrationScripts\2019-04-22-14-47.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-04-25-12-00.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-04-29-11-00.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-04-30-11-04.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-04-30-12-20.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-05-06-11-40.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-05-06-12-46.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-05-13-15-31.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-05-14-12-26.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-05-07-15-58.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-05-14-15-45.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-05-15-11-28.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="MigrationScripts\2019-04-02-16-23.sql">

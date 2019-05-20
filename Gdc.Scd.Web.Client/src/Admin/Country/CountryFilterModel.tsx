@@ -10,4 +10,5 @@
     isMaster?: boolean;
     storeListAndDealer?: boolean;
     overrideTCandTP?: boolean;
+    override2ndLevelSupportLocal?: boolean;
 }

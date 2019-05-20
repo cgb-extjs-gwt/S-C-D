@@ -37,6 +37,8 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
 
     private overrideTCandTP: CheckBoxField;
 
+    private override2ndLevelSupportLocal: CheckBoxField;
+
     public constructor(props: any) {
         super(props);
         this.init();
@@ -84,6 +86,11 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
                         <RadioField name="overrideTCandTP" boxLabel="Yes" value="True" />
                         <RadioField name="overrideTCandTP" boxLabel="No" value="False" />
                     </ContainerField>
+                    <ContainerField ref={x => this.override2ndLevelSupportLocal = x} label="Override 2nd Level Support Local" {...this.containerFieldProps}>
+                        <RadioField name="override2ndLevelSupportLocal" boxLabel="All" value="All" checked />
+                        <RadioField name="override2ndLevelSupportLocal" boxLabel="Yes" value="True" />
+                        <RadioField name="override2ndLevelSupportLocal" boxLabel="No" value="False" />
+                    </ContainerField>
                 </Container>
 
                 <Button text="Search" ui="action" minWidth="85px" handler={this.onSearch} margin="20px auto" />
@@ -106,7 +113,8 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
 
             isMaster: this.getCheckedRadio(this.isMaster, 'isMaster'),
             storeListAndDealer: this.getCheckedRadio(this.storeListAndDealer, 'storeListAndDealer'),
-            overrideTCandTP: this.getCheckedRadio(this.overrideTCandTP, 'overrideTCandTP')
+            overrideTCandTP: this.getCheckedRadio(this.overrideTCandTP, 'overrideTCandTP'),
+            override2ndLevelSupportLocal: this.getCheckedRadio(this.override2ndLevelSupportLocal, 'override2ndLevelSupportLocal')
         };
     }
 

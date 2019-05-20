@@ -42,7 +42,7 @@ RETURN (
            , sog.Description as SogDescription
            , sog.Name as Sog
            , dig.Name as Digit
-           , null as SwProduct
+           , l.Name as SwProduct
            , dig.Description as DigitDescription
 
            , av.Name as Availability
@@ -89,11 +89,13 @@ RETURN (
     left join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = m.SwDigit and fsp.AvailabilityId = av.Id and fsp.DurationId = dur.Id 
 
     left join [References].Currency cur on cur.id = m.CurrencyReinsurance_Approved
+	left join InputAtoms.SwLicense l on fsp.SwLicenseId = l.Id
 
     WHERE   (@sog is null or m.Sog = @sog)
         AND (not exists(select 1 from @digit) or exists(select 1 from @digit where id = m.SwDigit     ))
         AND (not exists(select 1 from @av   ) or exists(select 1 from @av    where id = m.Availability))
         AND (not exists(select 1 from @year ) or exists(select 1 from @year  where id = dur.Id        ))
+		AND m.DeactivatedDateTime is null
 )
 GO
 

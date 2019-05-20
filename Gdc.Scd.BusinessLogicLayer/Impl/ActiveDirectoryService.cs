@@ -170,7 +170,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 var account = sid.Translate(typeof(NTAccount));
                 return account.ToString();
             }
-            catch (Exception ex)
+            catch
             {
                 return string.Empty;
             }
