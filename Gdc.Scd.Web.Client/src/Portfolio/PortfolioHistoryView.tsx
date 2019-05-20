@@ -62,9 +62,11 @@ export class PortfolioHistoryView extends React.Component<any, any> {
                 store={this.store}
                 width="100%"
                 height="100%"
+                userCls="portfolio-history-grid"
+                itemCls="row"
                 plugins={['pagingtoolbar']}>
 
-                <DateColumn flex="1" text="Date" dataIndex="editDate" format={DateFormats.dateTime} />
+            <DateColumn flex="1" text="Date" dataIndex="editDate" format={DateFormats.dateTime} />
                 <Column flex="1" text="User" dataIndex="editUser" />
                 <Column flex="1" text="Country/Principal" dataIndex="country" renderer={this.countryRndr} >
                     <GridCell encodeHtml={false} />
