@@ -3,7 +3,7 @@ import { DictField } from "./DictField";
 import { NamedId } from "../../Common/States/CommonStates";
 
 export function fillSogInfo(sog) {
-    return <div><strong>{sog.name}</strong>({sog.description})</div>;
+    return <div><strong>{sog.name}</strong>&nbsp;({sog.description})</div>;
 };
 
 export class SogField extends DictField<NamedId> {

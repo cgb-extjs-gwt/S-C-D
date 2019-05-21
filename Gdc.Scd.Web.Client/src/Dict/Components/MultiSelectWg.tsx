@@ -8,7 +8,7 @@ export function fillWgSogInfo(wg) {
         return <div><strong>{wg.name}</strong> | <strong>{wg.sog.name}</strong><br />({wg.description}/{wg.sog.description})</div>;
     }
     else {
-        return <div><strong>{wg.name}</strong>({wg.description})</div>;
+        return <div><strong>{wg.name}</strong>&nbsp;({wg.description})</div>;
     }
 };
 
