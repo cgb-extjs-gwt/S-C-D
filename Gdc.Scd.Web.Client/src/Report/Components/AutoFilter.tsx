@@ -166,7 +166,10 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
                 cfg.itemTpl = fillWgSogInfo;
                 break;
 
-            case AutoFilterType.SOG: cfg.store = this.dictSrv.getSog; break;
+            case AutoFilterType.SOG:
+                cfg.store = this.dictSrv.getSog;
+                cfg.itemTpl = fillSogInfo;
+                break;
 
             case AutoFilterType.COUNTRY: cfg.store = () => this.dictSrv.getMasterCountries(true); break;
 
