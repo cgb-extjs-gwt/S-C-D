@@ -4,9 +4,12 @@ import { PlaField } from "../../Dict/Components/PlaField";
 import { MultiSelect } from "./MultiSelect";
 
 export function fillWgSogInfo(wg) {
-    if (wg.sog === undefined || wg.sog === null)
-        return <div><strong>{wg.name}</strong></div>;
-    return <div><strong>{wg.name}</strong> | SOG: <strong>{wg.sog.name}</strong></div>
+    if (wg.sog) {
+        return <div><strong>{wg.name}</strong> | <strong>{wg.sog.name}</strong><br />({wg.description}/{wg.sog.description})</div>;
+    }
+    else {
+        return <div><strong>{wg.name}</strong>({wg.description})</div>;
+    }
 };
 
 export class MultiSelectWg extends MultiSelect {
@@ -80,7 +83,7 @@ export class MultiSelectWg extends MultiSelect {
         let pla = this.plaField || '';
         if ((pla === '' || pla === record.data.plaId) &&
             (record.data.name.toLowerCase().startsWith(newValue.toLowerCase())
-            || (record.data.sog !== undefined && record.data.sog.name.toLowerCase().startsWith(newValue.toLowerCase()))))
+                || (record.data.sog !== undefined && record.data.sog.name.toLowerCase().startsWith(newValue.toLowerCase()))))
             return true;
         return false;
     }
