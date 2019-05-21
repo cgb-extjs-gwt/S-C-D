@@ -128,7 +128,7 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
                 return <SwDigitField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} sog={this.state.sog} />;
 
             case AutoFilterType.SWDIGITSOG:
-                return <SwDigitSogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} onChange={this.onSogChange} />;
+                return <SwDigitSogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} onChange={this.onSogChange} itemTpl={fillSogInfo} />;
 
             case AutoFilterType.TEXT:
             default:
@@ -196,7 +196,10 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
                 cfg.filter = { name: 'sogId', id: this.state.sog };
                 break;
 
-            case AutoFilterType.SWDIGITSOG: cfg.store = this.dictSrv.getSwDigitSog; break;
+            case AutoFilterType.SWDIGITSOG:
+                cfg.store = this.dictSrv.getSwDigitSog;
+                cfg.itemTpl = fillSogInfo;
+                break;
 
             default: return null;
         }
