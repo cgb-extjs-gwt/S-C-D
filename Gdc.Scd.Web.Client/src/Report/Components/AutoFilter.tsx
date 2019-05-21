@@ -11,7 +11,7 @@ import { ReactionTimeField } from "../../Dict/Components/ReactionTimeField";
 import { ReactionTypeField } from "../../Dict/Components/ReactionTypeField";
 import { SelectField } from "../../Dict/Components/SelectField";
 import { ServiceLocationField } from "../../Dict/Components/ServiceLocationField";
-import { SogField } from "../../Dict/Components/SogField";
+import { SogField, fillSogInfo } from "../../Dict/Components/SogField";
 import { StandardWgField } from "../../Dict/Components/StandardWgField";
 import { SwDigitField } from "../../Dict/Components/SwDigitField";
 import { SwDigitSogField } from "../../Dict/Components/SwDigitSogField";
@@ -92,7 +92,7 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
                 return <WgSogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} itemTpl={fillWgSogInfo}/>;
 
             case AutoFilterType.SOG:
-                return <SogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} onChange={this.onSogChange} />;
+                return <SogField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} onChange={this.onSogChange} itemTpl={fillSogInfo} />;
 
             case AutoFilterType.COUNTRY:
                 return <CountryField key={index} ref={model.name} name={model.name} label={model.text} value={model.value} />;
@@ -166,7 +166,10 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
                 cfg.itemTpl = fillWgSogInfo;
                 break;
 
-            case AutoFilterType.SOG: cfg.store = this.dictSrv.getSog; break;
+            case AutoFilterType.SOG:
+                cfg.store = this.dictSrv.getSog;
+                cfg.itemTpl = fillSogInfo;
+                break;
 
             case AutoFilterType.COUNTRY: cfg.store = () => this.dictSrv.getMasterCountries(true); break;
 
