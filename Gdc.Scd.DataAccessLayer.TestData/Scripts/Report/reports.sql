@@ -684,7 +684,6 @@ BEGIN
     where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = wg.Id))
           and (@sog is null or wg.SogId = @sog)
           and IsSoftware = 0
-          and SogId is not null
           and DeactivatedDateTime is null;
 
     insert into #tmp
