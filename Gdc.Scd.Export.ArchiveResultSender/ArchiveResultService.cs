@@ -29,8 +29,8 @@ namespace Gdc.Scd.Export.ArchiveResultSender
 
         public void Process()
         {
-            var periodStart = DateTime.Now.AddDays(-8).Date;
-            var periodEnd = DateTime.Now.AddDays(-2).Date.AddTicks(-1).AddDays(1);
+            var periodStart = DateTime.Now.AddDays(-6).Date;
+            var periodEnd = DateTime.Now.Date.AddTicks(-1).AddDays(1);
             
             Logger.Log(LogLevel.Info, $"Generating archive result report for {periodStart.ToString(Config.DateFormat)} - {periodEnd.ToString(Config.DateFormat)}");
             Logger.Log(LogLevel.Info, $"Getting folder info from {Config.ScdFolder}");
@@ -38,7 +38,8 @@ namespace Gdc.Scd.Export.ArchiveResultSender
             var info = ArchiveInfoGetter.GetArchiveResults(periodStart, periodEnd);
             Logger.Log(LogLevel.Info, $"{info.Count} folders were received.");
             Logger.Log(LogLevel.Info, $"Sending report message to {Config.MailTo}");
-            EmailService.SendArchiveResultEmail(info, Config.MailTo, periodStart.ToString(Config.DateFormat),
+            EmailService.SendArchiveResultEmail(info, Config.MailTo, Config.MailFrom,
+                periodStart.ToString(Config.DateFormat),
                 periodEnd.ToString(Config.DateFormat));
 
             Logger.Log(LogLevel.Info, "Email was sent successfully");
