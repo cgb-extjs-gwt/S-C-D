@@ -12,6 +12,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         void SendArchiveResultEmail(IList<ArchiveFolderDto> archiveFolderData,
             string emailTo,
+            string emailFrom,
             string periodStart, string periodEnd);
     }
 }

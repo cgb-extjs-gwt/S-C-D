@@ -68,18 +68,21 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public void SendArchiveResultEmail(IList<ArchiveFolderDto> archiveFolderData,
             string emailTo,
+            string emailFrom,
             string periodStart, string periodEnd)
         {
             var mailMessage = new MailMessage
             {
-                From = new MailAddress(emailTo),
+                From = new MailAddress(emailFrom),
                 IsBodyHtml = true,
                 Subject = $"SCD: Result of Archiving {periodStart}/{periodEnd}"
             };
 
             var body = GenerateArchiveEmailResult(archiveFolderData, periodStart, periodEnd);
             mailMessage.Body = body;
-            mailMessage.To.Add(emailTo);
+            var toAddresses = emailTo.Split(";,".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            foreach (var emailAddress in toAddresses)
+                mailMessage.To.Add(emailAddress.Trim());
             Client.Send(mailMessage);
         }
 
