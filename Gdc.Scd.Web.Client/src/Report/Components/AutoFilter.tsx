@@ -141,24 +141,16 @@ export class AutoFilter extends React.Component<AutoFilterPanelProps, any> {
                 return <WgMultiSelectField key={index} ref={model.name} filter={{ name: 'sogId', id: this.state.sog }} name={model.name} label={model.text} value={model.value} store={this.dictSrv.getWG} />;
 
             case AutoFilterType.WGALL:
-                cfg.store = this.dictSrv.getWgWithMultivendor;
-                cfg.itemTpl = fillWgSogInfo;
-                break;
+                return <WgMultiSelectField key={index} ref={model.name} filter={{ name: 'sogId', id: this.state.sog }} name={model.name} label={model.text} value={model.value} store={this.dictSrv.getWgWithMultivendor} />;
 
             case AutoFilterType.WGSTANDARD:
-                cfg.store = this.dictSrv.getStandardWg;
-                cfg.itemTpl = fillWgSogInfo;
-                break;
+                return <WgMultiSelectField key={index} ref={model.name} filter={{ name: 'sogId', id: this.state.sog }} name={model.name} label={model.text} value={model.value} store={this.dictSrv.getStandardWg} />;
 
             case AutoFilterType.WGHARDWARE:
-                cfg.store = this.dictSrv.getHardwareWg;
-                cfg.itemTpl = fillWgSogInfo;
-                break;
+                return <WgMultiSelectField key={index} ref={model.name} filter={{ name: 'sogId', id: this.state.sog }} name={model.name} label={model.text} value={model.value} store={this.dictSrv.getHardwareWg} />;
 
             case AutoFilterType.WGSOG:
-                cfg.store = this.dictSrv.getWgWithSog;
-                cfg.itemTpl = fillWgSogInfo;
-                break;
+                return <WgMultiSelectField key={index} ref={model.name} filter={{ name: 'sogId', id: this.state.sog }} name={model.name} label={model.text} value={model.value} store={this.dictSrv.getWgWithSog} />;
 
             case AutoFilterType.SOG:
                 cfg.store = this.dictSrv.getSog;
