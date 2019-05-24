@@ -293,6 +293,7 @@ create function [Report].[GetParameterHw]
     @cnt bigint,
     @wg bigint,
     @av bigint,
+    @duration     bigint,
     @reactiontime bigint,
     @reactiontype bigint,
     @loc bigint,
@@ -432,7 +433,7 @@ RETURN (
                 , dur.Value as Duration
                 , dur.IsProlongation
 
-        from Portfolio.GetBySlaSingle(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc, @pro) m
+        from Portfolio.GetBySlaSingle(@cnt, @wg, @av, @duration, @reactiontime, @reactiontype, @loc, @pro) m
 
         INNER JOIN CountryCte c on c.Id = m.CountryId
 
@@ -684,7 +685,6 @@ BEGIN
     where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = wg.Id))
           and (@sog is null or wg.SogId = @sog)
           and IsSoftware = 0
-          and SogId is not null
           and DeactivatedDateTime is null;
 
     insert into #tmp
