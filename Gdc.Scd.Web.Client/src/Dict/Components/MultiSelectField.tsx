@@ -85,7 +85,7 @@ export class MultiSelectField extends MultiSelect {
         };
     }
 
-    private onSearch(view: any, newValue: string, oldValue: string) {
+    protected onSearch(view: any, newValue: string, oldValue: string) {
         this.filter(this.nameField, newValue);
     }
 }
