@@ -293,6 +293,7 @@ create function [Report].[GetParameterHw]
     @cnt bigint,
     @wg bigint,
     @av bigint,
+    @duration     bigint,
     @reactiontime bigint,
     @reactiontype bigint,
     @loc bigint,
@@ -432,7 +433,7 @@ RETURN (
                 , dur.Value as Duration
                 , dur.IsProlongation
 
-        from Portfolio.GetBySlaSingle(@cnt, @wg, @av, null, @reactiontime, @reactiontype, @loc, @pro) m
+        from Portfolio.GetBySlaSingle(@cnt, @wg, @av, @duration, @reactiontime, @reactiontype, @loc, @pro) m
 
         INNER JOIN CountryCte c on c.Id = m.CountryId
 
