@@ -93,9 +93,15 @@ namespace Gdc.Scd.Web.Api.Controllers
                     ServiceTC = x.ServiceTCManual,
                     ServiceTP = x.ServiceTPManual,
                     ListPrice = x.ListPrice,
-                    DealerDiscount = x.DealerDiscount
+                    DealerDiscount = x.DealerDiscount,
+                    LocalServiceStandardWarranty = x.LocalServiceStandardWarrantyManual
+
                 });
-                calcSrv.SaveHardwareCost(this.CurrentUser(), items);
+
+                var usr = this.CurrentUser();
+
+                calcSrv.SaveHardwareCost(usr, items);
+                calcSrv.SaveStandardWarrantyCost(usr, items);
             }
             else
             {

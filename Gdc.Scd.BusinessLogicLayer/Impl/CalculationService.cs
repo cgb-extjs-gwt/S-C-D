@@ -20,15 +20,19 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<HardwareManualCost> hwManualRepo;
 
+        private readonly IRepository<StandardWarrantyManualCost> stdwRepo;
+
         public CalculationService(
-            IRepositorySet repositorySet,
-            IRepository<HardwareManualCost> hwManualRepo,
-            IRepository<LocalPortfolio> portfolioRepo
-        )
+                IRepositorySet repositorySet,
+                IRepository<HardwareManualCost> hwManualRepo,
+                IRepository<LocalPortfolio> portfolioRepo,
+                IRepository<StandardWarrantyManualCost> stdwRepo
+            )
         {
             this.repositorySet = repositorySet;
             this.hwManualRepo = hwManualRepo;
             this.portfolioRepo = portfolioRepo;
+            this.stdwRepo = stdwRepo;
         }
 
         public Task<(string json, int total)> GetHardwareCost(bool approved, HwFilterDto filter, int lastId, int limit)
@@ -134,6 +138,64 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                         hwManual.ChangeUser = changeUser;
                         //
                         hwManualRepo.Save(hwManual);
+                    }
+                }
+
+                repositorySet.Sync();
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction?.Rollback();
+                throw;
+            }
+            finally
+            {
+                transaction?.Dispose();
+            }
+        }
+
+        public void SaveStandardWarrantyCost(User changeUser, IEnumerable<HwCostManualDto> records)
+        {
+            var recordsId = records.Select(x => x.Id);
+
+            var entities = (from p in portfolioRepo.GetAll().Where(x => recordsId.Contains(x.Id))
+                            from stdw in stdwRepo.GetAll().Where(x => x.Country == p.Country && x.Wg == p.Wg).DefaultIfEmpty()
+                            select new
+                            {
+                                Portfolio = p,
+                                p.Country,
+                                p.Wg,
+                                Manual = stdw
+                            })
+                .ToDictionary(x => x.Portfolio.Id, y => y);
+
+            if (entities.Count == 0)
+            {
+                return;
+            }
+
+            ITransaction transaction = null;
+            try
+            {
+                transaction = repositorySet.GetTransaction();
+
+                foreach (var rec in records)
+                {
+                    if (!entities.ContainsKey(rec.Id))
+                    {
+                        continue;
+                    }
+
+                    var e = entities[rec.Id];
+                    var stdwManual = e.Manual ?? new StandardWarrantyManualCost{ Country = e.Country, Wg = e.Wg }; //create new if does not exist
+
+                    if (e.Country.CanOverrideTransferCostAndPrice)
+                    {
+                        stdwManual.StandardWarranty = rec.LocalServiceStandardWarranty;
+                        stdwManual.ChangeUser = changeUser;
+                        //
+                        stdwRepo.Save(stdwManual);
                     }
                 }
 

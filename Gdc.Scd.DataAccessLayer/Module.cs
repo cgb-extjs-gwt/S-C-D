@@ -41,6 +41,7 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<IApprovalRepository>().To<ApprovalRepository>().InScdRequestScope();
             Bind<IRepository<HardwareManualCost>>().To<HardwareManualCostRepository>().InScdRequestScope();
             Bind<IRepository<HddRetentionManualCost>>().To<HddRetentionManualCostRepository>().InScdRequestScope();
+            Bind<IRepository<StandardWarrantyManualCost>>().To<StandardWarrantyManualCostRepository>().InScdRequestScope();
             Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InScdRequestScope();
             Bind<ICostBlockQueryBuilder>().To<CostBlockQueryBuilder>().InScdRequestScope();
 

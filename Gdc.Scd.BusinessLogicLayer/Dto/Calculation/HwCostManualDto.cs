@@ -13,5 +13,7 @@
         public double? DealerDiscount { get; set; }
 
         public double? ServiceTP_Released { get; set; }
+
+        public double? LocalServiceStandardWarranty { get; set; }
     }
 }

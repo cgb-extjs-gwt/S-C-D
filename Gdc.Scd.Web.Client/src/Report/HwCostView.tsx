@@ -225,7 +225,8 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                         <Column text="Release date" dataIndex="ReleaseDate" renderer={ddMMyyyyRenderer} />
 
                         <NumberColumn text="Other direct cost" dataIndex="OtherDirect" />
-                        <NumberColumn text="Local service standard warranty" dataIndex="LocalServiceStandardWarranty" />
+                        <NumberColumn text="Local service standard warranty(calc)" dataIndex="LocalServiceStandardWarranty" />
+                        <NumberColumn text="Local service standard warranty(manual)" dataIndex="LocalServiceStandardWarrantyManual" editable={canEditTC} />
                         <NumberColumn text="Credits" dataIndex="Credits" />
 
                     </Column>
@@ -386,7 +387,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private reload() {
-        this.store.load();     
+        this.store.load();
     }
 
     private onBeforeLoad(s, operation) {
