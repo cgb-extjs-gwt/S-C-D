@@ -90,13 +90,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var recordsId = records.Select(x => x.Id);
 
             var entities = (from p in portfolioRepo.GetAll().Where(x => recordsId.Contains(x.Id))
-                    from hw in hwManualRepo.GetAll().Where(x => x.Id == p.Id).DefaultIfEmpty()
-                    select new
-                    {
-                        Portfolio = p,
-                        p.Country,
-                        Manual = hw
-                    })
+                            from hw in hwManualRepo.GetAll().Where(x => x.Id == p.Id).DefaultIfEmpty()
+                            select new
+                            {
+                                Portfolio = p,
+                                p.Country,
+                                Manual = hw
+                            })
                 .ToDictionary(x => x.Portfolio.Id, y => y);
 
             if (entities.Count == 0)
@@ -120,7 +120,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     var country = e.Country;
                     var p = e.Portfolio;
                     var hwManual = e.Manual ?? new HardwareManualCost
-                                       {LocalPortfolio = p}; //create new if does not exist
+                    { LocalPortfolio = p }; //create new if does not exist
 
                     if (country.CanOverrideTransferCostAndPrice)
                     {
@@ -155,62 +155,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public void SaveStandardWarrantyCost(User changeUser, IEnumerable<HwCostManualDto> records)
+        public void SaveStandardWarrantyCost(User changeUser, HwCostDto[] records)
         {
-            var recordsId = records.Select(x => x.Id);
-
-            var entities = (from p in portfolioRepo.GetAll().Where(x => recordsId.Contains(x.Id))
-                            from stdw in stdwRepo.GetAll().Where(x => x.Country == p.Country && x.Wg == p.Wg).DefaultIfEmpty()
-                            select new
-                            {
-                                Portfolio = p,
-                                p.Country,
-                                p.Wg,
-                                Manual = stdw
-                            })
-                .ToDictionary(x => x.Portfolio.Id, y => y);
-
-            if (entities.Count == 0)
-            {
-                return;
-            }
-
-            ITransaction transaction = null;
-            try
-            {
-                transaction = repositorySet.GetTransaction();
-
-                foreach (var rec in records)
-                {
-                    if (!entities.ContainsKey(rec.Id))
-                    {
-                        continue;
-                    }
-
-                    var e = entities[rec.Id];
-                    var stdwManual = e.Manual ?? new StandardWarrantyManualCost{ Country = e.Country, Wg = e.Wg }; //create new if does not exist
-
-                    if (e.Country.CanOverrideTransferCostAndPrice)
-                    {
-                        stdwManual.StandardWarranty = rec.LocalServiceStandardWarranty;
-                        stdwManual.ChangeUser = changeUser;
-                        //
-                        stdwRepo.Save(stdwManual);
-                    }
-                }
-
-                repositorySet.Sync();
-                transaction.Commit();
-            }
-            catch
-            {
-                transaction?.Rollback();
-                throw;
-            }
-            finally
-            {
-                transaction?.Dispose();
-            }
+            new UpdateStandardWarrantyManualCost(repositorySet).Execute(changeUser.Id, records);
         }
     }
 }

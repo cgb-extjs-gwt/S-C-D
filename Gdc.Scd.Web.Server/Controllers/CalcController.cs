@@ -90,18 +90,17 @@ namespace Gdc.Scd.Web.Api.Controllers
                 var items = m.Items.Select(x => new HwCostManualDto
                 {
                     Id = x.Id,
+
                     ServiceTC = x.ServiceTCManual,
                     ServiceTP = x.ServiceTPManual,
                     ListPrice = x.ListPrice,
-                    DealerDiscount = x.DealerDiscount,
-                    LocalServiceStandardWarranty = x.LocalServiceStandardWarrantyManual
-
+                    DealerDiscount = x.DealerDiscount
                 });
 
                 var usr = this.CurrentUser();
 
                 calcSrv.SaveHardwareCost(usr, items);
-                calcSrv.SaveStandardWarrantyCost(usr, items);
+                calcSrv.SaveStandardWarrantyCost(usr, m.Items);
             }
             else
             {

@@ -92,7 +92,12 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
             paramsAsJson: true
         },
         listeners: {
-            update: (store, record, operation, modifiedFieldNames, details) => {
+            update: (store, record, operation, modifiedFieldNames: string[], details) => {
+
+                if (modifiedFieldNames && modifiedFieldNames.indexOf('LocalServiceStandardWarrantyManual') !== -1) {
+                    this.updateStdw(store, record);
+                }
+
                 const changed = this.store.getUpdatedRecords().length;
                 if (modifiedFieldNames && modifiedFieldNames.length > 0 && modifiedFieldNames[0] == SELECTED_FIELD) {
                     this.onCheckChange();
@@ -519,4 +524,16 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     private onCheckChange = () => {
         this.grid.select(this.store.getData().items.filter(record => record.data[SELECTED_FIELD] === true));
     };
+
+    private updateStdw = (store: any, record: any) => {
+        let items = store.getData();
+        let cnt = record.get('Country');
+        let wg = record.get('Wg');
+        for (let i = 0, len = items.count(); i < len; i++) {
+            let row = items.getAt(i);
+            if (row.get('Country') === cnt && row.get('Wg') === wg) {
+                row.set('LocalServiceStandardWarrantyManual', record.get('LocalServiceStandardWarrantyManual'));
+            }
+        }
+    }
 }

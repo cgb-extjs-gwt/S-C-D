@@ -15,7 +15,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 
         void SaveHardwareCost(User changeUser, IEnumerable<HwCostManualDto> records);
 
-        void SaveStandardWarrantyCost(User user, IEnumerable<HwCostManualDto> items);
+        void SaveStandardWarrantyCost(User user, HwCostDto[] items);
 
         Task ReleaseHardwareCost(User changeUser, HwFilterDto filter);
 
