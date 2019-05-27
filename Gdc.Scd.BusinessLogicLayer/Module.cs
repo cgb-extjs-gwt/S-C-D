@@ -90,6 +90,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Kernel.RegisterEntity<PortfolioHistory>();
             Kernel.RegisterEntity<HardwareManualCost>();
             Kernel.RegisterEntity<HddRetentionManualCost>();
+            Kernel.RegisterEntity<StandardWarrantyManualCost>();
             Kernel.RegisterEntity<HddRetentionView>();
 
             /*---------reports----------*/
