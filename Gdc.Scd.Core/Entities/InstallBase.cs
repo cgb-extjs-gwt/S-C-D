@@ -21,6 +21,7 @@ namespace Gdc.Scd.Core.Entities
 
         public double? InstalledBaseCountry { get; set; }
         public double? InstalledBaseCountry_Approved { get; set; }
+        public double? InstalledBase1stLevel { get; set; }
 
         public DateTime CreatedDateTime { get; set; }
         public DateTime? DeactivatedDateTime { get; set; }
