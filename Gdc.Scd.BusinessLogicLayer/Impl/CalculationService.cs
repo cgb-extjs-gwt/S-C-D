@@ -21,10 +21,10 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
         private readonly IRepository<HardwareManualCost> hwManualRepo;
 
         public CalculationService(
-            IRepositorySet repositorySet,
-            IRepository<HardwareManualCost> hwManualRepo,
-            IRepository<LocalPortfolio> portfolioRepo
-        )
+                IRepositorySet repositorySet,
+                IRepository<HardwareManualCost> hwManualRepo,
+                IRepository<LocalPortfolio> portfolioRepo
+            )
         {
             this.repositorySet = repositorySet;
             this.hwManualRepo = hwManualRepo;
@@ -86,13 +86,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             var recordsId = records.Select(x => x.Id);
 
             var entities = (from p in portfolioRepo.GetAll().Where(x => recordsId.Contains(x.Id))
-                    from hw in hwManualRepo.GetAll().Where(x => x.Id == p.Id).DefaultIfEmpty()
-                    select new
-                    {
-                        Portfolio = p,
-                        p.Country,
-                        Manual = hw
-                    })
+                            from hw in hwManualRepo.GetAll().Where(x => x.Id == p.Id).DefaultIfEmpty()
+                            select new
+                            {
+                                Portfolio = p,
+                                p.Country,
+                                Manual = hw
+                            })
                 .ToDictionary(x => x.Portfolio.Id, y => y);
 
             if (entities.Count == 0)
@@ -116,7 +116,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                     var country = e.Country;
                     var p = e.Portfolio;
                     var hwManual = e.Manual ?? new HardwareManualCost
-                                       {LocalPortfolio = p}; //create new if does not exist
+                    { LocalPortfolio = p }; //create new if does not exist
 
                     if (country.CanOverrideTransferCostAndPrice)
                     {
@@ -149,6 +149,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             {
                 transaction?.Dispose();
             }
+        }
+
+        public void SaveStandardWarrantyCost(User changeUser, HwCostDto[] records)
+        {
+            new UpdateStandardWarrantyManualCost(repositorySet).Execute(changeUser.Id, records);
         }
     }
 }
