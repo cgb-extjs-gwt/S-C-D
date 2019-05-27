@@ -20,19 +20,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         private readonly IRepository<HardwareManualCost> hwManualRepo;
 
-        private readonly IRepository<StandardWarrantyManualCost> stdwRepo;
-
         public CalculationService(
                 IRepositorySet repositorySet,
                 IRepository<HardwareManualCost> hwManualRepo,
-                IRepository<LocalPortfolio> portfolioRepo,
-                IRepository<StandardWarrantyManualCost> stdwRepo
+                IRepository<LocalPortfolio> portfolioRepo
             )
         {
             this.repositorySet = repositorySet;
             this.hwManualRepo = hwManualRepo;
             this.portfolioRepo = portfolioRepo;
-            this.stdwRepo = stdwRepo;
         }
 
         public Task<(string json, int total)> GetHardwareCost(bool approved, HwFilterDto filter, int lastId, int limit)
