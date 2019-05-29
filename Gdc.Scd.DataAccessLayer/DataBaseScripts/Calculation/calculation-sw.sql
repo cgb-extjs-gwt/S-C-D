@@ -145,6 +145,7 @@ BEGIN
                 WHERE (@isEmptyDigit = 1 or ssm.SwDigit in (select id from @digit))
 					AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
 					AND (@isEmptyYear = 1 or ya.YearId in (select id from @year))
+                    and ssm.DeactivatedDateTime is null
             )
             insert @tbl
             select top(@limit)
@@ -195,6 +196,7 @@ BEGIN
             WHERE (@isEmptyDigit = 1 or ssm.SwDigit in (select id from @digit))
 					AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
 					AND (@isEmptyYear = 1 or ya.YearId in (select id from @year))
+                    and ssm.DeactivatedDateTime is null
 
         end
 

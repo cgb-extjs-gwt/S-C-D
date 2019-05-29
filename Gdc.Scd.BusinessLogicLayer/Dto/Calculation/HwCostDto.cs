@@ -56,6 +56,7 @@
 
         public double? LocalServiceStandardWarranty { get; set; }
         public double? LocalServiceStandardWarranty_Approved { get; set; }
+        public double? LocalServiceStandardWarrantyManual { get; set; }
 
         public double? Credits { get; set; }
         public double? Credits_Approved { get; set; }

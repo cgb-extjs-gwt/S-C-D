@@ -1,3 +1,20 @@
+IF OBJECT_ID('Hardware.StandardWarrantyManualCost', 'U') IS NOT NULL
+  DROP TABLE Hardware.StandardWarrantyManualCost;
+go
+
+CREATE TABLE Hardware.StandardWarrantyManualCost (
+    [Id] [bigint] primary key IDENTITY(1,1) NOT NULL,
+    [CountryId] [bigint] NOT NULL foreign key references InputAtoms.Country(Id),
+    [WgId] [bigint] NOT NULL foreign key references InputAtoms.Wg(Id),
+    [ChangeUserId] [bigint] NOT NULL foreign key references dbo.[User](Id),
+    [ChangeDate] [datetime] NOT NULL,
+    [StandardWarranty] [float] NULL
+)
+GO
+
+CREATE UNIQUE INDEX [ix_StandardWarrantyManualCost_Country_Wg] ON [Hardware].[StandardWarrantyManualCost]([CountryId] ASC, [WgId] ASC)
+GO
+
 ALTER TABLE Hardware.AvailabilityFee DROP COLUMN CostPerKit_Approved;
 go
 ALTER TABLE Hardware.AvailabilityFee DROP COLUMN CostPerKitJapanBuy_Approved;
@@ -1904,6 +1921,7 @@ RETURNS @tbl TABLE  (
 
         , ServiceSupportPerYear        float
         , LocalServiceStandardWarranty float
+        , LocalServiceStandardWarrantyManual float
         
         , Credit1                      float
         , Credit2                      float
@@ -2020,6 +2038,8 @@ BEGIN
               , case when @approved = 0 then lcStd.ReturnDeliveryFactory        else lcStd.ReturnDeliveryFactory_Approved    end / m.ExchangeRate as StdReturnDeliveryFactory   
               , case when @approved = 0 then lcStd.TaxiCourierDelivery          else lcStd.TaxiCourierDelivery_Approved      end / m.ExchangeRate as StdTaxiCourierDelivery     
 
+              , man.StandardWarranty / m.ExchangeRate as ManualStandardWarranty
+
         from WgCnt m
 
         LEFT JOIN Hardware.RoleCodeHourlyRates hr ON hr.Country = m.CountryId and hr.RoleCode = m.RoleCodeId and hr.DeactivatedDateTime is null
@@ -2041,6 +2061,8 @@ BEGIN
         LEFT JOIN Hardware.FieldServiceTimeCalc fstStd ON fstStd.Country = stdw.Country AND fstStd.Wg = stdw.Wg AND fstStd.ReactionTimeType = stdw.ReactionTime_ReactionType 
 
         LEFT JOIN Hardware.LogisticsCosts lcStd        ON lcStd.Country  = stdw.Country AND lcStd.Wg = stdw.Wg  AND lcStd.ReactionTimeType = stdw.ReactionTime_ReactionType and lcStd.DeactivatedDateTime is null
+
+        LEFT JOIN Hardware.StandardWarrantyManualCost man on man.CountryId = m.CountryId and man.WgId = m.WgId
     )
     , CostCte as (
         select    m.*
@@ -2202,6 +2224,7 @@ BEGIN
 
                , ServiceSupportPerYear
                , LocalServiceStandardWarranty 
+               , LocalServiceStandardWarrantyManual
                
                , Credit1                      
                , Credit2                      
@@ -2293,6 +2316,7 @@ BEGIN
             , m.ServiceSupportPerYear
 
             , m.LocalServiceStandardWarranty1 + m.LocalServiceStandardWarranty2 + m.LocalServiceStandardWarranty3 + m.LocalServiceStandardWarranty4 + m.LocalServiceStandardWarranty5 as LocalServiceStandardWarranty
+            , m.ManualStandardWarranty as LocalServiceStandardWarrantyManual
 
             , m.mat1 + m.LocalServiceStandardWarranty1 as Credit1
             , m.mat2 + m.LocalServiceStandardWarranty2 as Credit2
@@ -2446,6 +2470,7 @@ RETURN
             , std.CentralExecutionReport * proSla.CentralExecutionShcReportRepetition           as CentralExecutionReport
 
             , std.LocalServiceStandardWarranty
+            , std.LocalServiceStandardWarrantyManual
             , std.Credit1
             , std.Credit2
             , std.Credit3
@@ -2460,7 +2485,7 @@ RETURN
             , man.ServiceTC          / std.ExchangeRate as ServiceTCManual                   
             , man.ServiceTP          / std.ExchangeRate as ServiceTPManual                   
             , man.ServiceTP_Released / std.ExchangeRate as ServiceTP_Released                  
-            , man.ChangeDate                            as ChangeDate
+            , man.ReleaseDate                           as ReleaseDate
             , u.Name                                    as ChangeUserName
             , u.Email                                   as ChangeUserEmail
 
@@ -2496,6 +2521,7 @@ RETURN
     LEFT JOIN dbo.[User] u on u.Id = man.ChangeUserId
 )
 go
+
 
 IF OBJECT_ID('[Hardware].[GetCosts]') IS NOT NULL
     DROP FUNCTION [Hardware].[GetCosts]
@@ -2647,6 +2673,7 @@ RETURN
          , Hardware.CalcByDur(m.Year, m.IsProlongation, m.OtherDirect1, m.OtherDirect2, m.OtherDirect3, m.OtherDirect4, m.OtherDirect5, m.OtherDirect1P) as OtherDirect
        
          , m.LocalServiceStandardWarranty
+         , m.LocalServiceStandardWarrantyManual
        
          , m.Credits
 
@@ -2674,7 +2701,7 @@ RETURN
          , m.ServiceTPManual
          , m.ServiceTP_Released
 
-         , m.ChangeDate
+         , m.ReleaseDate
          , m.ChangeUserName
          , m.ChangeUserEmail
 
@@ -2745,6 +2772,7 @@ BEGIN
              , Logistic                      * ExchangeRate  as Logistic
              , OtherDirect                   * ExchangeRate  as OtherDirect
              , LocalServiceStandardWarranty  * ExchangeRate  as LocalServiceStandardWarranty
+             , LocalServiceStandardWarrantyManual  * ExchangeRate  as LocalServiceStandardWarrantyManual
              , Credits                       * ExchangeRate  as Credits
              , ServiceTC                     * ExchangeRate  as ServiceTC
              , ServiceTP                     * ExchangeRate  as ServiceTP
@@ -2758,7 +2786,7 @@ BEGIN
              , DealerPrice                   * ExchangeRate  as DealerPrice
              , DealerDiscount                                as DealerDiscount
                                                        
-             , ChangeDate                                    as ChangeDate
+             , ReleaseDate                                    
              , ChangeUserName                                as ChangeUserName
              , ChangeUserEmail                               as ChangeUserEmail
 
@@ -2802,6 +2830,7 @@ BEGIN
              , Logistic                      
              , OtherDirect                   
              , LocalServiceStandardWarranty  
+             , LocalServiceStandardWarrantyManual
              , Credits                       
              , ServiceTC                     
              , ServiceTP                     
@@ -2815,7 +2844,7 @@ BEGIN
              , DealerPrice                   
              , DealerDiscount                
                                              
-             , ChangeDate                                    
+             , ReleaseDate                                    
              , ChangeUserName                
              , ChangeUserEmail               
 
@@ -3293,3 +3322,50 @@ BEGIN
    
 END
 GO
+
+if OBJECT_ID('Hardware.SpUpdateStandardWarrantyManualCost') is not null
+    drop procedure Hardware.SpUpdateStandardWarrantyManualCost;
+go
+
+IF type_id('Hardware.StdwCost') IS NOT NULL
+    DROP TYPE Hardware.StdwCost;
+go
+
+CREATE TYPE Hardware.StdwCost AS TABLE(
+    [Country]          nvarchar(255) NOT NULL,
+    [Wg]               nvarchar(255) NOT NULL,
+    [StandardWarranty] float         NULL
+)
+GO
+
+CREATE PROCEDURE [Hardware].[SpUpdateStandardWarrantyManualCost]
+    @usr          int, 
+    @cost         Hardware.StdwCost readonly
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+    declare @now datetime = GETDATE();
+
+    select cnt.Id as CountryId, wg.Id as WgId, max(c.StandardWarranty) as StandardWarranty
+    into #temp
+    from @cost c 
+    join InputAtoms.Country cnt on UPPER(cnt.Name) = UPPER(c.Country) and cnt.CanOverrideTransferCostAndPrice = 1
+    join InputAtoms.Wg wg on UPPER(wg.Name) = UPPER(c.Wg)
+    group by cnt.Id, wg.Id;
+
+    update stdw set StandardWarranty = c.StandardWarranty, ChangeUserId = @usr, ChangeDate = @now
+    from Hardware.StandardWarrantyManualCost stdw 
+    join #temp c on c.CountryId = stdw.CountryId and c.WgId = stdw.WgId;
+
+    insert into Hardware.StandardWarrantyManualCost(CountryId, WgId, StandardWarranty, ChangeUserId, ChangeDate)
+    select c.CountryId, c.WgId, c.StandardWarranty, @usr, @now
+    from #temp c
+    left join Hardware.StandardWarrantyManualCost stdw on stdw.CountryId = c.CountryId and stdw.WgId = c.WgId
+    where stdw.Id is null;
+
+    DROP table #temp;
+
+END
+go
