@@ -5,11 +5,6 @@ ALTER TABLE [InputAtoms].[Country]
 ADD InstallbaseGroup nvarchar(300) null
 go
   
-UPDATE [InputAtoms].[Country]
-SET InstallbaseGroup = 'CEU'
-WHERE [Name] IN ('Austria', 'Germany', 'Switzerland', 'Liechtenstein')
-go
-  
 ALTER TABLE [Hardware].[InstallBase]
 ADD [InstalledBase1stLevel] float null
 go
