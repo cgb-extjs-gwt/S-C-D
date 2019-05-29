@@ -20,11 +20,12 @@ RETURNS @tbl TABLE (
 
     , MaterialW                    float
     , LocalServiceStandardWarranty float
+    , LocalServiceStandardWarrantyManual float
     , StandardWarrantyAndMaterial  float
+    , StandardWarrantyManualAndMaterial  float
 )
 AS
 begin
-
     declare @cntTbl dbo.ListID;
     insert into @cntTbl(id) values (@cnt);
 
@@ -41,8 +42,10 @@ begin
 
          , std.MaterialW
          , std.LocalServiceStandardWarranty
+         , std.LocalServiceStandardWarrantyManual
 
          , std.MaterialW + std.LocalServiceStandardWarranty as StandardWarrantyAndMaterial
+         , std.MaterialW + std.LocalServiceStandardWarrantyManual as StandardWarrantyManualAndMaterial
 
     from Hardware.CalcStdw(1, @cntTbl, @wg) std
     join InputAtoms.Wg wg on wg.Id = std.WgId
@@ -79,7 +82,11 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'LocalServiceStandardWarranty', 'Standard Warranty Costs local', 1, 1);
 set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'LocalServiceStandardWarrantyManual', 'Standard Warranty Costs local(manual)', 1, 1);
+set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'StandardWarrantyAndMaterial', 'Standard Warranty Costs (incl. Material Costs)', 1, 1);
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'StandardWarrantyManualAndMaterial', 'Standard Warranty Costs (incl. Material Costs, manual)', 1, 1);
 
 ------------------------------------
 set @index = 0;

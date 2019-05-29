@@ -2486,6 +2486,7 @@ RETURN
             , man.ServiceTP          / std.ExchangeRate as ServiceTPManual                   
             , man.ServiceTP_Released / std.ExchangeRate as ServiceTP_Released                  
             , man.ReleaseDate                           as ReleaseDate
+            , man.ChangeDate                            
             , u.Name                                    as ChangeUserName
             , u.Email                                   as ChangeUserEmail
 
@@ -2702,6 +2703,7 @@ RETURN
          , m.ServiceTP_Released
 
          , m.ReleaseDate
+         , m.ChangeDate
          , m.ChangeUserName
          , m.ChangeUserEmail
 
@@ -2974,7 +2976,7 @@ RETURN
              , m.FieldServiceCost
              , m.Logistic
              , m.OtherDirect
-             , m.LocalServiceStandardWarranty
+             , coalesce(m.LocalServiceStandardWarrantyManual, m.LocalServiceStandardWarranty) as LocalServiceStandardWarranty
              , m.Credits
 
              , ib.InstalledBaseCountryNorm

@@ -67,12 +67,12 @@ begin
          
             , (m.Duration + ' ' + m.ServiceLocation) as ServiceProduct
             
-            , m.LocalServiceStandardWarranty * er.Value as LocalServiceStandardWarranty
+            , coalesce(m.LocalServiceStandardWarrantyManual, m.LocalServiceStandardWarranty) * er.Value as LocalServiceStandardWarranty
             , null as StandardWarrantyOld
 
             , wg.Sog
 
-            , (100 * (m.LocalServiceStandardWarranty - null) / m.LocalServiceStandardWarranty) as Bw
+            , null as Bw
 			, cur.Name as Currency
     FROM Hardware.GetCostsFull(0, @cntTable, @wgTable, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable, 0, -1) m --not approved
 
