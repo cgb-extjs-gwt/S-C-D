@@ -47,7 +47,7 @@ RETURN (
             , case when @local = 1 then FieldServiceCost * costs.ExchangeRate else FieldServiceCost end as FieldServiceCost
             , case when @local = 1 then Logistic * costs.ExchangeRate else Logistic end as Logistic
             , case when @local = 1 then OtherDirect * costs.ExchangeRate else OtherDirect end as OtherDirect
-            , case when @local = 1 then LocalServiceStandardWarranty * costs.ExchangeRate else LocalServiceStandardWarranty end as LocalServiceStandardWarranty
+            , coalesce(LocalServiceStandardWarrantyManual, LocalServiceStandardWarranty) * iif(@local = 1, costs.ExchangeRate, 1) as LocalServiceStandardWarranty
             , case when @local = 1 then Credits * costs.ExchangeRate else Credits end as Credits
             , case when @local = 1 then ServiceTC * costs.ExchangeRate else ServiceTC end as ServiceTC
             , case when @local = 1 then ServiceTP * costs.ExchangeRate else ServiceTP end as ServiceTP
