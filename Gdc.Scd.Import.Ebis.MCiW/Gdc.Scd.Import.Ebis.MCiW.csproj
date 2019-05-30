@@ -50,7 +50,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Annotations">
-      <HintPath>..\Gdc.Scd.Import.AmberRoad\bin\Debug\System.ComponentModel.Annotations.dll</HintPath>
+      <HintPath>..\Gdc.Scd.DataAccessLayer\bin\Debug\net461\System.ComponentModel.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
