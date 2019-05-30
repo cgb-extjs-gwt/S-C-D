@@ -24,7 +24,8 @@ namespace Gdc.Scd.Import.Core.Impl
         private readonly IList<CountryGroup> _installBaseCountryGroups;
         private readonly IList<Country> _countries;
 
-        public InstallBaseUploader(IRepositorySet repositorySet, ImportRepository<InstallBase> ibRepo, ILogger<LogLevel> logger)
+        public InstallBaseUploader(IRepositorySet repositorySet, 
+            ImportRepository<InstallBase> ibRepo, ILogger<LogLevel> logger)
         {
             if (repositorySet == null)
                 throw new ArgumentNullException(nameof(repositorySet));
