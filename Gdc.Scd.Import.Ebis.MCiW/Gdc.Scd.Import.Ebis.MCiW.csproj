@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F2D6315C-A276-433F-813B-BAD4586145C6}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>Gdc.Scd.Import.Ebis.MCiW</RootNamespace>
     <AssemblyName>Gdc.Scd.Import.Ebis.MCiWJob</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
@@ -50,7 +50,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Annotations">
-      <HintPath>..\Gdc.Scd.Import.AmberRoad\bin\Debug\System.ComponentModel.Annotations.dll</HintPath>
+      <HintPath>..\Gdc.Scd.DataAccessLayer\bin\Debug\net461\System.ComponentModel.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />

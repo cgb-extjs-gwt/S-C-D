@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Gdc.Scd.Import.Core.DataAccess;
 
 namespace Gdc.Scd.Import.Core.Impl
 {
@@ -22,7 +23,9 @@ namespace Gdc.Scd.Import.Core.Impl
         private readonly IRepository<Afr> _repositoryAfr;
         private readonly ILogger<LogLevel> _logger;
 
-        public EbisAfrUploader(IRepositorySet repositorySet, ILogger<LogLevel> logger)
+        public EbisAfrUploader(IRepositorySet repositorySet,
+            ImportRepository<Afr> afrRepo,
+            ILogger<LogLevel> logger)
         {
             if (repositorySet == null)
                 throw new ArgumentNullException(nameof(repositorySet));
@@ -33,7 +36,7 @@ namespace Gdc.Scd.Import.Core.Impl
             this._repositorySet = repositorySet;
             this._repositoryWg = this._repositorySet.GetRepository<Wg>();
             this._repositoryYear = this._repositorySet.GetRepository<Year>();
-            this._repositoryAfr = this._repositorySet.GetRepository<Afr>();
+            this._repositoryAfr = afrRepo;
             this._logger = logger;
         }
 
