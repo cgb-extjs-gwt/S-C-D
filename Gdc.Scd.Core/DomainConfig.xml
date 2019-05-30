@@ -271,7 +271,7 @@
         <Application>Hardware</Application>
       </Applications>
       <Elements>
-        <Element Name="InstalledBaseHighAvailability" Caption="Installed base high availability" InputOption="Manually">
+        <Element Name="InstalledBaseHighAvailability" Caption="Installed base supported by local stock" InputOption="Manually">
           <InputLevels>
             <InputLevel Hide="True">Pla</InputLevel>
             <InputLevel>Wg</InputLevel>
