@@ -1,25 +1,22 @@
-﻿import { Button, Container, Panel, PanelProps, RadioField } from "@extjs/ext-react";
+﻿import { Container, Panel, PanelProps, RadioField } from "@extjs/ext-react";
 import * as React from "react";
-import { NamedId, SortableNamedId } from "../../Common/States/CommonStates";
+import { CountryField } from "../../Dict/Components/CountryField";
+import { MultiSelect } from "../../Dict/Components/MultiSelect";
+import { MultiSelectProActive } from "../../Dict/Components/MultiSelectProActive";
+import { MultiSelectWg } from "../../Dict/Components/MultiSelectWg";
+import { UserCountryField } from "../../Dict/Components/UserCountryField";
 import { Country } from "../../Dict/Model/Country";
-import { CurrencyType } from "../Model/CurrencyType";
-import { HwCostFilterModel } from "../Model/HwCostFilterModel";
 import { DictFactory } from "../../Dict/Services/DictFactory";
 import { IDictService } from "../../Dict/Services/IDictService";
-import { MultiSelect } from "../../Dict/Components/MultiSelect";
-import { MultiSelectWg } from "../../Dict/Components/MultiSelectWg";
-import { MultiSelectProActive } from "../../Dict/Components/MultiSelectProActive";
-import { CountryField } from "../../Dict/Components/CountryField";
-import { UserCountryField } from "../../Dict/Components/UserCountryField";
+import { CurrencyType } from "../Model/CurrencyType";
+import { HwCostFilterModel } from "../Model/HwCostFilterModel";
 
 Ext.require('Ext.panel.Collapser');
 
 const SELECT_MAX_HEIGHT: string = '200px';
 
 export interface FilterPanelProps extends PanelProps {
-    onSearch(filter: HwCostFilterModel): void;
     onChange(filter: HwCostFilterModel): void;
-    onDownload(filter: HwCostFilterModel): void;
 }
 
 export class HwCostFilter extends React.Component<FilterPanelProps, any> {
@@ -52,8 +49,6 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
     }
 
     public render() {
-        let valid = this.state && this.state.valid;
-
         let countryField;
 
         let multiProps = {
@@ -74,12 +69,12 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
         };
 
         if (this.props.checkAccess) {
-            countryField = <UserCountryField ref={x => this.cnt = x} margin="5px 5px 15px 15px" label="Country:" cache={false} onChange={this.onCountryChange} />;
+            countryField = <UserCountryField ref={x => this.cnt = x} margin="5px 5px 15px 15px" label="Country:" cache={false} onChange={this.onChange} />;
         }
         else {
-            countryField = <CountryField ref={x => this.cnt = x} margin="5px 5px 15px 15px" label="Country:" cache={false} onChange={this.onCountryChange} />;
+            countryField = <CountryField ref={x => this.cnt = x} margin="5px 5px 15px 15px" label="Country:" cache={false} onChange={this.onChange} />;
         }
-     
+
         return (
             <Panel {...this.props} margin="0 0 5px 0" padding="5px 5px 5px 5px" layout={{ type: 'vbox', align: 'left' }}>
 
@@ -120,7 +115,7 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                     </Panel>
                     <Panel title='ProActive'
                         {...panelProps}>
-                        <MultiSelectProActive ref={x => this.proactive = x} {...multiProps} store={this.dictSrv.getProActive} value="0"/>
+                        <MultiSelectProActive ref={x => this.proactive = x} {...multiProps} store={this.dictSrv.getProActive} value="0" />
                     </Panel>
                 </Container>
 
@@ -129,17 +124,14 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
                     <RadioField ref={x => this.euroCur = x} name="currency" boxLabel="Show in EUR" onCheck={this.onChange} />
                 </Container>
 
-                <Button text="Search" ui="action" minWidth="85px" margin="5px 20px" disabled={!valid} handler={this.onSearch} />
-
-                <Button text="Download" ui="action" minWidth="85px" margin="5px 20px" iconCls="x-fa fa-download" disabled={!valid} handler={this.onDownload} />
-
             </Panel>
         );
     }
 
     public getModel(): HwCostFilterModel {
+        let cnt = this.cnt.getSelected();
         return {
-            country: [this.cnt.getSelected()],
+            country: cnt ? [cnt] : null,
             wg: this.wg.getSelectedKeysOrNull(),
             availability: this.av.getSelectedKeysOrNull(),
             duration: this.dur.getSelectedKeysOrNull(),
@@ -157,32 +149,11 @@ export class HwCostFilter extends React.Component<FilterPanelProps, any> {
 
     private init() {
         this.dictSrv = DictFactory.getDictService();
-        this.onCountryChange = this.onCountryChange.bind(this);
-        this.onSearch = this.onSearch.bind(this);
         this.onChange = this.onChange.bind(this);
-        this.onDownload = this.onDownload.bind(this);
-    }
-
-    private onCountryChange() {
-        this.setState({ valid: !!this.cnt.getSelected() });
-    }
-
-    private onSearch() {
-        let handler = this.props.onSearch;
-        if (handler) {
-            handler(this.getModel());
-        }
     }
 
     private onChange() {
         let handler = this.props.onChange;
-        if (handler) {
-            handler(this.getModel());
-        }
-    }
-
-    private onDownload() {
-        let handler = this.props.onDownload;
         if (handler) {
             handler(this.getModel());
         }
