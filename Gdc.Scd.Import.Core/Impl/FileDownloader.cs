@@ -1,11 +1,8 @@
 ﻿using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.Core.Impl
 {
@@ -19,7 +16,7 @@ namespace Gdc.Scd.Import.Core.Impl
             return new StreamReader(filePath);
         }
 
-        public DateTime? GetModifiedDateTime(DownloadInfoDto info)
+        public virtual DateTime? GetModifiedDateTime(DownloadInfoDto info)
         {
             var filePath = CheckFile(info);
             if (String.IsNullOrEmpty(filePath))
@@ -28,7 +25,7 @@ namespace Gdc.Scd.Import.Core.Impl
             return file.LastWriteTime;
         }
 
-        public void MoveFile(DownloadInfoDto info)
+        public virtual void MoveFile(DownloadInfoDto info)
         {
             var filePath = CheckFile(info);
             if (String.IsNullOrEmpty(filePath))

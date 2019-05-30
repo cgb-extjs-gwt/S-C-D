@@ -3,14 +3,13 @@ using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.Import.Core.DataAccess;
 using Gdc.Scd.Import.Core.Dto;
 using Gdc.Scd.Import.Core.Interfaces;
 using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gdc.Scd.Import.Core.Impl
 {
@@ -25,7 +24,7 @@ namespace Gdc.Scd.Import.Core.Impl
         private readonly IList<CountryGroup> _installBaseCountryGroups;
         private readonly IList<Country> _countries;
 
-        public InstallBaseUploader(IRepositorySet repositorySet, ILogger<LogLevel> logger)
+        public InstallBaseUploader(IRepositorySet repositorySet, ImportRepository<InstallBase> ibRepo, ILogger<LogLevel> logger)
         {
             if (repositorySet == null)
                 throw new ArgumentNullException(nameof(repositorySet));
@@ -36,7 +35,7 @@ namespace Gdc.Scd.Import.Core.Impl
             this._repositorySet = repositorySet;
             this._repositoryWg = this._repositorySet.GetRepository<Wg>();
             this._repositoryCountry = this._repositorySet.GetRepository<Country>();
-            this._repositoryInstallBase = this._repositorySet.GetRepository<InstallBase>();
+            this._repositoryInstallBase = ibRepo;
             this._repositoryCountryGroup = this._repositorySet.GetRepository<CountryGroup>();
             this._logger = logger;
             this._installBaseCountryGroups = _repositoryCountryGroup.GetAll().Where(cg => cg.AutoUploadInstallBase).ToList();
@@ -47,7 +46,7 @@ namespace Gdc.Scd.Import.Core.Impl
         {
             var wgs = _repositoryWg.GetAll().Where(wg => wg.WgType == WgType.Por && !wg.IsSoftware).ToList();
             var installBase = _repositoryInstallBase.GetAll().Where(ib => !ib.DeactivatedDateTime.HasValue).ToList();
-            
+
 
             var countryMatches = new Dictionary<long, long>();
             foreach (var cm in InstallBaseConfig.CountryMatch)
@@ -61,17 +60,17 @@ namespace Gdc.Scd.Import.Core.Impl
             var batchList = new List<InstallBase>();
 
             var ibGroupedByCountryGroupAndWg = from ib in items
-                                                  group ib by new
-                                                  {
-                                                      ib.CountryGroup,
-                                                      ib.Wg
-                                                  } into ibg
-                                                  select new InstallBaseGroupingDto
-                                                  {
-                                                      CountryGroup = ibg.Key.CountryGroup,
-                                                      Wg = ibg.Key.Wg,
-                                                      InstallBase = ibg.Sum(i => i.InstallBase)
-                                                  };
+                                               group ib by new
+                                               {
+                                                   ib.CountryGroup,
+                                                   ib.Wg
+                                               } into ibg
+                                               select new InstallBaseGroupingDto
+                                               {
+                                                   CountryGroup = ibg.Key.CountryGroup,
+                                                   Wg = ibg.Key.Wg,
+                                                   InstallBase = ibg.Sum(i => i.InstallBase)
+                                               };
 
             foreach (var item in ibGroupedByCountryGroupAndWg)
             {
@@ -129,7 +128,7 @@ namespace Gdc.Scd.Import.Core.Impl
             //setting 0.0 values for IB EMEIA that wasn't received in EBIS File
             _logger.Log(LogLevel.Info, ImportConstants.SET_ZEROS_INSTALL_BASE);
             var emeiaCountryId = GetEmeiaMasterCountryIds();
-            var notReceiveIbs = installBase.Where(ib => !batchList.Contains(ib) 
+            var notReceiveIbs = installBase.Where(ib => !batchList.Contains(ib)
                                                         && emeiaCountryId.Contains(ib.CountryId.Value)).ToList();
             foreach (var ib in notReceiveIbs)
             {
