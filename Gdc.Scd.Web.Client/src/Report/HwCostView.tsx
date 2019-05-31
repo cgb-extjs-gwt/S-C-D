@@ -112,6 +112,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     public state = {
         disableSaveButton: true,
         disableCancelButton: true,
+        disableSearchButton: true,
         selectedCountry: null,
         showInLocalCurrency: true,
         hideReleaseButton: true,
@@ -156,9 +157,7 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 <Panel {...this.props} docked="right" scrollable={true} >
                     <HwCostFilter
                         ref={x => this.filter = x}
-                        onSearch={this.onSearch}
                         onChange={this.onFilterChange}
-                        onDownload={this.onDownload}
                         checkAccess={!this.props.approved} />
 
                     <HwReleasePanel
@@ -380,14 +379,17 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
         this.reload();
     }
 
-    private onDownload(filter: HwCostFilterModel & any) {
-        filter = filter || {};
+    private onDownload() {
+        let filter: any = this.filter.getModel() || {};
         filter.local = filter.currency;
         ExportService.Download('HW-CALC-RESULT', this.props.approved, filter);
     }
 
     private onFilterChange(filter: HwCostFilterModel) {
-        this.setState({ showInLocalCurrency: filter.currency === CurrencyType.Local });
+        this.setState({
+            showInLocalCurrency: filter.currency === CurrencyType.Local,
+            disableSearchButton: !(filter.country && filter.country.length > 0)
+        });
         this.grid.refresh();
     }
 
@@ -491,22 +493,39 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
     }
 
     private toolbar() {
-        if (this.canEdit()) {
-            return <Toolbar docked="top">
+
+        let invalid = this.state.disableSearchButton;
+        let canedit = this.canEdit();
+
+        return <Toolbar docked="top">
+            <Button
+                text="Search"
+                disabled={invalid}
+                handler={this.onSearch} />
+            <Button
+                text="Download"
+                iconCls="x-fa fa-download"
+                disabled={invalid}
+                handler={this.onDownload} />
+            {
+                canedit &&
                 <Button
                     text="Cancel"
                     iconCls="x-fa fa-trash"
                     handler={this.cancelChanges}
                     disabled={this.state.disableCancelButton}
                 />
+            }
+            {
+                canedit &&
                 <Button
                     text="Save"
                     iconCls="x-fa fa-save"
                     handler={this.saveRecords}
                     disabled={this.state.disableSaveButton}
                 />
-            </Toolbar>;
-        }
+            }
+        </Toolbar>;
     }
 
     private reset() {

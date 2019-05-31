@@ -4,15 +4,14 @@ using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Import.Core.Interfaces;
 using Ninject;
 using NLog;
-using System;
 
 namespace Gdc.Scd.Import.Ebis.InstallBase
 {
     public class InstallBaseService
     {
-        public IConfigHandler ConfigHandler { get; private set; }
+        public IConfigHandler ConfigHandler { get; protected set; }
         public IImportManager ImportManager { get; set; }
-        public ILogger<LogLevel> Logger { get; private set; }
+        public ILogger<LogLevel> Logger { get; protected set; }
 
         public InstallBaseService()
         {
@@ -38,7 +37,7 @@ namespace Gdc.Scd.Import.Ebis.InstallBase
             Logger.Log(LogLevel.Info, ImportConstants.END_PROCESS);
         }
 
-        private StandardKernel CreateKernel()
+        protected virtual StandardKernel CreateKernel()
         {
             return new StandardKernel(
                 new Scd.Core.Module(),

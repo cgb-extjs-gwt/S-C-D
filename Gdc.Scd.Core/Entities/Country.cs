@@ -41,5 +41,6 @@ namespace Gdc.Scd.Core.Entities
         public long CurrencyId { get; set; }
 
         public bool AssignedToMultiVendor { get; set; }
+        public string InstallbaseGroup { get; set; }
     }
 }
