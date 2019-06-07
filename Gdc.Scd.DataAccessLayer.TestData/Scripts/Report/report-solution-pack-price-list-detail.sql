@@ -18,7 +18,7 @@ RETURNS @tbl TABLE (
     , SpDescription nvarchar(max) NULL
     , Sp nvarchar(max) NULL
       
-    , SupportCost float NULL
+    , ServiceSupport float NULL
       
     , Reinsurance float NULL
       
@@ -44,9 +44,9 @@ begin
             , y.Name  as Year
 
             , fsp.ServiceDescription as SpDescription
-            , null as Sp
+            , sog.Description as Sp
 
-            , sw.[2ndLevelSupportCosts] as SupportCost
+            , sw.ServiceSupport
             
             , sw.Reinsurance as Reinsurance
 
@@ -98,7 +98,7 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'Sp', 'SolutionPack Service Short Description', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'SupportCost', 'Technical Solution Support cost', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'ServiceSupport', 'Service Support costs', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), 'Reinsurance', 'Reinsurance', 1, 1);
 set @index = @index + 1;
