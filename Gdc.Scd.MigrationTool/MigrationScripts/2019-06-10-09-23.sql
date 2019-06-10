@@ -93,6 +93,7 @@ BEGIN
                 WHERE (@isEmptyDigit = 1 or ssm.SwDigit in (select id from @digit))
                     AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
                     AND (@isEmptyYear = 1 or ya.YearId in (select id from @year))
+                    and ssm.DeactivatedDateTime is null
             )
             insert @tbl
             select top(@limit)
@@ -147,6 +148,7 @@ BEGIN
             WHERE (@isEmptyDigit = 1 or ssm.SwDigit in (select id from @digit))
                 AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
                 AND (@isEmptyYear = 1 or ya.YearId in (select id from @year))
+                and ssm.DeactivatedDateTime is null
 
         end
 
@@ -294,6 +296,7 @@ BEGIN
           , m.[1stLevelSupportCosts]
           , m.[2ndLevelSupportCosts]
           , m.InstalledBaseCountry
+          , m.InstalledBaseSog
           , m.TotalInstalledBaseSFab
           , m.Reinsurance
           , m.ServiceSupport
@@ -430,7 +433,6 @@ set @index = @index + 1;
 insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@reportId, @index, Report.GetReportFilterTypeByName('swdigit', 0), 'digit', 'SW digit');
 
 GO
-
 
 IF OBJECT_ID('Report.SolutionPackProActiveCosting') IS NOT NULL
   DROP FUNCTION Report.SolutionPackProActiveCosting;
