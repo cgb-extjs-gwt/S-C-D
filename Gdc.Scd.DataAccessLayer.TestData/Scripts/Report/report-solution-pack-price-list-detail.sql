@@ -61,7 +61,7 @@ begin
     join Dependencies.Availability av on av.id = sw.Availability
     join Dependencies.Year y on y.Id = sw.Year
 
-    left join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = sw.SwDigit
+    join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = sw.SwDigit
                                           and fsp.AvailabilityId = sw.Availability
                                           and fsp.DurationId = sw.Year
 
