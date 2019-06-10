@@ -1,7 +1,7 @@
---alter table SoftwareSolution.SwSpMaintenance
---    add    TotalIB int
---         , TotalIB_Approved int;
---go
+alter table SoftwareSolution.SwSpMaintenance
+    add    TotalIB int
+         , TotalIB_Approved int;
+go
 
 IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceUpdated', 'TR') IS NOT NULL
   DROP TRIGGER SoftwareSolution.SwSpMaintenanceUpdated;
