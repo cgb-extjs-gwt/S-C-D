@@ -1,7 +1,7 @@
-alter table SoftwareSolution.SwSpMaintenance
-    add    TotalIB int
-         , TotalIB_Approved int;
-go
+--alter table SoftwareSolution.SwSpMaintenance
+--    add    TotalIB int
+--         , TotalIB_Approved int;
+--go
 
 IF OBJECT_ID('SoftwareSolution.SwSpMaintenanceUpdated', 'TR') IS NOT NULL
   DROP TRIGGER SoftwareSolution.SwSpMaintenanceUpdated;
@@ -40,7 +40,277 @@ AS BEGIN
 END
 GO
 
+update SoftwareSolution.SwSpMaintenance set InstalledBaseSog = InstalledBaseSog + 0;
+go
 
+ALTER FUNCTION [SoftwareSolution].[GetSwSpMaintenancePaging] (
+    @approved bit,
+    @digit dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @year dbo.ListID readonly,
+    @lastid bigint,
+    @limit int
+)
+RETURNS @tbl TABLE 
+        (   
+            [rownum] [int] NOT NULL,
+            [Id] [bigint] NOT NULL,
+            [Pla] [bigint] NOT NULL,
+            [Sfab] [bigint] NOT NULL,
+            [Sog] [bigint] NOT NULL,
+            [SwDigit] [bigint] NOT NULL,
+            [Availability] [bigint] NOT NULL,
+            [Year] [bigint] NOT NULL,
+            [2ndLevelSupportCosts] [float] NULL,
+            [InstalledBaseSog] [float] NULL,
+            [TotalInstalledBaseSFab] [float] NULL,
+            [ReinsuranceFlatfee] [float] NULL,
+            [CurrencyReinsurance] [bigint] NULL,
+            [RecommendedSwSpMaintenanceListPrice] [float] NULL,
+            [MarkupForProductMarginSwLicenseListPrice] [float] NULL,
+            [ShareSwSpMaintenanceListPrice] [float] NULL,
+            [DiscountDealerPrice] [float] NULL
+        )
+AS
+BEGIN
+        declare @isEmptyDigit    bit = Portfolio.IsListEmpty(@digit);
+        declare @isEmptyAV    bit = Portfolio.IsListEmpty(@av);
+        declare @isEmptyYear    bit = Portfolio.IsListEmpty(@year);
+
+        if @limit > 0
+        begin
+            with cte as (
+                select ROW_NUMBER() over(
+                            order by ssm.SwDigit
+                                   , ya.AvailabilityId
+                                   , ya.YearId
+                        ) as rownum
+                      , ssm.*
+                      , ya.AvailabilityId
+                      , ya.YearId
+                FROM SoftwareSolution.SwSpMaintenance ssm
+                JOIN Dependencies.Duration_Availability ya on ya.Id = ssm.DurationAvailability
+                WHERE (@isEmptyDigit = 1 or ssm.SwDigit in (select id from @digit))
+                    AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
+                    AND (@isEmptyYear = 1 or ya.YearId in (select id from @year))
+            )
+            insert @tbl
+            select top(@limit)
+                    rownum
+                  , ssm.Id
+                  , ssm.Pla
+                  , ssm.Sfab
+                  , ssm.Sog
+                  , ssm.SwDigit
+                  , ssm.AvailabilityId
+                  , ssm.YearId
+              
+                  , case when @approved = 0 then ssm.[2ndLevelSupportCosts] else ssm.[2ndLevelSupportCosts_Approved] end
+                  , case when @approved = 0 then ssm.InstalledBaseSog else ssm.InstalledBaseSog_Approved end
+                  , case when @approved = 0 then ssm.TotalIB else ssm.TotalIB_Approved end
+
+                  , case when @approved = 0 then ssm.ReinsuranceFlatfee else ssm.ReinsuranceFlatfee_Approved end
+                  , case when @approved = 0 then ssm.CurrencyReinsurance else ssm.CurrencyReinsurance_Approved end
+                  , case when @approved = 0 then ssm.RecommendedSwSpMaintenanceListPrice else ssm.RecommendedSwSpMaintenanceListPrice_Approved end
+                  , case when @approved = 0 then ssm.MarkupForProductMarginSwLicenseListPrice else ssm.MarkupForProductMarginSwLicenseListPrice_Approved end
+                  , case when @approved = 0 then ssm.ShareSwSpMaintenanceListPrice else ssm.ShareSwSpMaintenanceListPrice_Approved end
+                  , case when @approved = 0 then ssm.DiscountDealerPrice else ssm.DiscountDealerPrice_Approved end
+
+            from cte ssm where rownum > @lastid
+        end
+    else
+        begin
+            insert @tbl
+            select -1 as rownum
+                  , ssm.Id
+                  , ssm.Pla
+                  , ssm.Sfab
+                  , ssm.Sog
+                  , ssm.SwDigit
+                  , ya.AvailabilityId
+                  , ya.YearId
+
+                  , case when @approved = 0 then ssm.[2ndLevelSupportCosts] else ssm.[2ndLevelSupportCosts_Approved] end
+                  , case when @approved = 0 then ssm.InstalledBaseSog else ssm.InstalledBaseSog_Approved end
+                  , case when @approved = 0 then ssm.TotalIB else ssm.TotalIB_Approved end
+
+                  , case when @approved = 0 then ssm.ReinsuranceFlatfee else ssm.ReinsuranceFlatfee_Approved end
+                  , case when @approved = 0 then ssm.CurrencyReinsurance else ssm.CurrencyReinsurance_Approved end
+                  , case when @approved = 0 then ssm.RecommendedSwSpMaintenanceListPrice else ssm.RecommendedSwSpMaintenanceListPrice_Approved end
+                  , case when @approved = 0 then ssm.MarkupForProductMarginSwLicenseListPrice else ssm.MarkupForProductMarginSwLicenseListPrice_Approved end
+                  , case when @approved = 0 then ssm.ShareSwSpMaintenanceListPrice else ssm.ShareSwSpMaintenanceListPrice_Approved end
+                  , case when @approved = 0 then ssm.DiscountDealerPrice else ssm.DiscountDealerPrice_Approved end
+
+            FROM SoftwareSolution.SwSpMaintenance ssm
+            JOIN Dependencies.Duration_Availability ya on ya.Id = ssm.DurationAvailability
+
+            WHERE (@isEmptyDigit = 1 or ssm.SwDigit in (select id from @digit))
+                AND (@isEmptyAV = 1 or ya.AvailabilityId in (select id from @av))
+                AND (@isEmptyYear = 1 or ya.YearId in (select id from @year))
+
+        end
+
+    RETURN;
+END
+go
+
+ALTER FUNCTION [SoftwareSolution].[GetCosts] (
+     @approved bit,
+    @digit dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @year dbo.ListID readonly,
+    @lastid bigint,
+    @limit int
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+    with GermanyServiceCte as (
+        SELECT top(1)
+                  case when @approved = 0 then ssc.[1stLevelSupportCostsCountry] else ssc.[1stLevelSupportCostsCountry_Approved] end / er.Value as [1stLevelSupportCosts]
+                , case when @approved = 0 then ssc.TotalIb else TotalIb_Approved end as TotalIb
+
+        FROM Hardware.ServiceSupportCost ssc
+        JOIN InputAtoms.Country c on c.Id = ssc.Country and c.ISO3CountryCode = 'DEU' --install base by Germany!
+        LEFT JOIN [References].ExchangeRate er on er.CurrencyId = c.CurrencyId
+    )
+    , SwSpMaintenanceCte0 as (
+            SELECT  ssm.rownum
+                    , ssm.Id
+                    , ssm.SwDigit
+                    , ssm.Sog
+                    , ssm.Pla
+                    , ssm.Sfab
+                    , ssm.Availability
+                    , ssm.Year
+                    , y.Value as YearValue
+                    , y.IsProlongation
+
+                    , ssm.[2ndLevelSupportCosts]
+                    , ssm.InstalledBaseSog
+                    , ssm.TotalInstalledBaseSFab
+           
+                    , case when ssm.ReinsuranceFlatfee is null 
+                            then ssm.ShareSwSpMaintenanceListPrice / 100 * ssm.RecommendedSwSpMaintenanceListPrice 
+                            else ssm.ReinsuranceFlatfee / er.Value
+                       end as Reinsurance
+
+                    , ssm.ShareSwSpMaintenanceListPrice / 100                      as ShareSwSpMaintenance
+
+                    , ssm.RecommendedSwSpMaintenanceListPrice                      as MaintenanceListPrice
+
+                    , ssm.MarkupForProductMarginSwLicenseListPrice / 100           as MarkupForProductMargin
+
+                    , ssm.DiscountDealerPrice / 100                                as DiscountDealerPrice
+
+            FROM SoftwareSolution.GetSwSpMaintenancePaging(@approved, @digit, @av, @year, @lastid, @limit) ssm
+            INNER JOIN Dependencies.Year y on y.Id = ssm.Year
+            LEFT JOIN [References].ExchangeRate er on er.CurrencyId = ssm.CurrencyReinsurance    
+    )
+    , SwSpMaintenanceCte as (
+        select    m.*
+                , ssc.[1stLevelSupportCosts]
+                , ssc.TotalIb
+
+                , SoftwareSolution.CalcSrvSupportCost(ssc.[1stLevelSupportCosts], m.[2ndLevelSupportCosts], ssc.TotalIb, m.TotalInstalledBaseSFab) as ServiceSupportPerYear
+
+        from SwSpMaintenanceCte0 m, GermanyServiceCte ssc 
+    )
+    , SwSpMaintenanceCte2 as (
+        select m.*
+
+                , m.ServiceSupportPerYear * m.YearValue as ServiceSupport
+
+                , SoftwareSolution.CalcTransferPrice(m.Reinsurance, m.ServiceSupportPerYear * m.YearValue) as TransferPrice
+
+            from SwSpMaintenanceCte m
+    )
+    , SwSpMaintenanceCte3 as (
+        select m.rownum
+                , m.Id
+                , m.SwDigit
+                , m.Sog
+                , m.Pla
+                , m.Sfab
+                , m.Availability
+                , m.Year
+                , m.[1stLevelSupportCosts]
+                , m.[2ndLevelSupportCosts]
+                , m.InstalledBaseSog
+                , m.TotalIb as InstalledBaseCountry
+                , m.TotalInstalledBaseSFab
+                , m.Reinsurance
+                , m.ShareSwSpMaintenance
+                , m.DiscountDealerPrice
+                , m.ServiceSupport
+                , m.TransferPrice
+
+            , case when m.MaintenanceListPrice is null 
+                        then SoftwareSolution.CalcMaintenanceListPrice(m.TransferPrice, m.MarkupForProductMargin)
+                        else m.MaintenanceListPrice
+                end as MaintenanceListPrice
+
+        from SwSpMaintenanceCte2 m
+    )
+    select m.*
+            , SoftwareSolution.CalcDealerPrice(m.MaintenanceListPrice, m.DiscountDealerPrice) as DealerPrice 
+    from SwSpMaintenanceCte3 m
+)
+go
+
+ALTER PROCEDURE [SoftwareSolution].[SpGetCosts]
+    @approved bit,
+    @digit dbo.ListID readonly,
+    @av dbo.ListID readonly,
+    @year dbo.ListID readonly,
+    @lastid bigint,
+    @limit int,
+    @total int output
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+
+	declare @isEmptyDigit    bit = Portfolio.IsListEmpty(@digit);
+	declare @isEmptyAV    bit = Portfolio.IsListEmpty(@av);
+	declare @isEmptyYear    bit = Portfolio.IsListEmpty(@year);
+
+    SELECT @total = COUNT(m.id)
+
+        FROM SoftwareSolution.SwSpMaintenance m 
+        JOIN Dependencies.Duration_Availability dav on dav.Id = m.DurationAvailability
+
+		WHERE (@isEmptyDigit = 1 or m.SwDigit in (select id from @digit))
+			AND (@isEmptyAV = 1 or dav.AvailabilityId in (select id from @av))
+			AND (@isEmptyYear = 1 or dav.YearId in (select id from @year))
+
+    select  m.rownum
+          , m.Id
+          , d.Name as SwDigit
+          , sog.Name as Sog
+          , av.Name as Availability 
+          , dr.Name as Duration
+          , m.[1stLevelSupportCosts]
+          , m.[2ndLevelSupportCosts]
+          , m.InstalledBaseCountry
+          , m.TotalInstalledBaseSFab
+          , m.Reinsurance
+          , m.ServiceSupport
+          , m.TransferPrice
+          , m.MaintenanceListPrice
+          , m.DealerPrice
+          , m.DiscountDealerPrice
+    from SoftwareSolution.GetCosts(@approved, @digit, @av, @year, @lastid, @limit) m
+    join InputAtoms.SwDigit d on d.Id = m.SwDigit
+    join InputAtoms.Sog sog on sog.Id = m.Sog
+    join Dependencies.Availability av on av.Id = m.Availability
+    join Dependencies.Duration dr on dr.Id = m.Year
+
+    order by m.SwDigit, m.Availability, m.Year
+
+END
+go
 
 IF OBJECT_ID('Report.SolutionPackPriceListDetail') IS NOT NULL
   DROP FUNCTION Report.SolutionPackPriceListDetail;
