@@ -8,24 +8,24 @@ After INSERT, UPDATE
 AS BEGIN
 
     declare @tbl table (
-          SwDigit bigint primary key
+            SwDigit bigint primary key
         , TotalIB int
         , TotalIB_Approved int
     );
 
     with cte as (
-        select  m.Sfab 
-              , m.SwDigit
-              , max(m.InstalledBaseSog) as Total_InstalledBaseSog
-              , max(m.InstalledBaseSog_Approved) as Total_InstalledBaseSog_Approved
+        select  m.Sog 
+                , m.SwDigit
+                , max(m.InstalledBaseSog) as Total_InstalledBaseSog
+                , max(m.InstalledBaseSog_Approved) as Total_InstalledBaseSog_Approved
         from SoftwareSolution.SwSpMaintenance m
         where m.DeactivatedDateTime is null 
-        group by m.Sfab, m.SwDigit
+        group by m.Sog, m.SwDigit
     )
     insert into @tbl(SwDigit, TotalIB, TotalIB_Approved)
     select  m.SwDigit
-          , sum(m.Total_InstalledBaseSog) over (partition by m.SFab) as Total_InstalledBaseSFab
-          , sum(m.Total_InstalledBaseSog_Approved) over (partition by m.SFab) as Total_InstalledBaseSFab_Approved
+            , sum(m.Total_InstalledBaseSog) over (partition by m.Sog) as Total_InstalledBaseSog
+            , sum(m.Total_InstalledBaseSog_Approved) over (partition by m.Sog) as Total_InstalledBaseSog_Approved
     from cte m;
 
     update m set TotalIB = t.TotalIB, TotalIB_Approved = t.TotalIB_Approved
@@ -156,7 +156,7 @@ RETURNS @tbl TABLE
             [Year] [bigint] NOT NULL,
             [2ndLevelSupportCosts] [float] NULL,
             [InstalledBaseSog] [float] NULL,
-            [TotalInstalledBaseSFab] [float] NULL,
+            [TotalInstalledBaseSog] [float] NULL,
             [ReinsuranceFlatfee] [float] NULL,
             [CurrencyReinsurance] [bigint] NULL,
             [RecommendedSwSpMaintenanceListPrice] [float] NULL,
@@ -284,7 +284,7 @@ RETURN
 
                     , ssm.[2ndLevelSupportCosts]
                     , ssm.InstalledBaseSog
-                    , ssm.TotalInstalledBaseSFab
+                    , ssm.TotalInstalledBaseSog
            
                     , case when ssm.ReinsuranceFlatfee is null 
                             then ssm.ShareSwSpMaintenanceListPrice / 100 * ssm.RecommendedSwSpMaintenanceListPrice 
@@ -308,7 +308,7 @@ RETURN
                 , ssc.[1stLevelSupportCosts]
                 , ssc.TotalIb
 
-                , SoftwareSolution.CalcSrvSupportCost(ssc.[1stLevelSupportCosts], m.[2ndLevelSupportCosts], ssc.TotalIb, m.TotalInstalledBaseSFab) as ServiceSupportPerYear
+                , SoftwareSolution.CalcSrvSupportCost(ssc.[1stLevelSupportCosts], m.[2ndLevelSupportCosts], ssc.TotalIb, m.TotalInstalledBaseSog) as ServiceSupportPerYear
 
         from SwSpMaintenanceCte0 m, GermanyServiceCte ssc 
     )
@@ -334,7 +334,7 @@ RETURN
                 , m.[2ndLevelSupportCosts]
                 , m.InstalledBaseSog
                 , m.TotalIb as InstalledBaseCountry
-                , m.TotalInstalledBaseSFab
+                , m.TotalInstalledBaseSog
                 , m.Reinsurance
                 , m.ShareSwSpMaintenance
                 , m.DiscountDealerPrice
@@ -611,7 +611,7 @@ BEGIN
           , m.[2ndLevelSupportCosts]
           , m.InstalledBaseCountry
           , m.InstalledBaseSog
-          , m.TotalInstalledBaseSFab
+          , m.TotalInstalledBaseSog
           , m.Reinsurance
           , m.ServiceSupport
           , m.TransferPrice
