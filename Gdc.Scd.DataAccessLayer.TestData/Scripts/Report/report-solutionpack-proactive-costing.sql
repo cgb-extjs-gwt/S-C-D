@@ -49,7 +49,7 @@ begin
             , fsp.Name as Fsp
 
             , fsp.ServiceDescription
-            , sog.Description as Sp
+            , fsp.ShortDescription as Sp
 
             , case 
                 when y.IsProlongation = 1 then 'Prolongation'

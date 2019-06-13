@@ -434,6 +434,67 @@ insert into Report.ReportFilter(ReportId, [Index], TypeId, Name, Text) values(@r
 
 GO
 
+ALTER FUNCTION [Report].[SolutionPackPriceList]
+(
+    @digit bigint
+)
+RETURNS @tbl TABLE (
+      License nvarchar(max) NULL
+    , SogDescription nvarchar(max) NULL
+    , Sog nvarchar(max) NULL
+
+    , Availability nvarchar(255) NULL
+    , Year nvarchar(255) NULL
+      
+    , Fsp nvarchar(max) NULL
+    , SpDescription nvarchar(max) NULL
+    , Sp nvarchar(max) NULL
+      
+    , TP float NULL
+    , DealerPrice float NULL
+    , ListPrice float NULL
+)
+as
+begin
+    declare @digitList dbo.ListId; 
+    if @digit is not null insert into @digitList(id) values(@digit);
+
+    declare @emptyAv dbo.ListId;
+    declare @emptyYear dbo.ListId;
+
+    insert into @tbl
+    select    lic.Name as License
+            , sog.Description as SogDescription
+            , sog.Name as Sog
+
+            , av.Name as Availability
+            , y.Name  as Year
+
+            , fsp.Name as Fsp
+            , fsp.ServiceDescription as SpDescription
+            , null as Sp
+
+            , sw.TransferPrice as TP
+            , sw.DealerPrice as DealerPrice
+            , sw.MaintenanceListPrice as ListPrice
+
+    from SoftwareSolution.GetCosts(1, @digitList, @emptyAv, @emptyYear, -1, -1) sw
+    join InputAtoms.SwDigit dig on dig.Id = sw.SwDigit
+    join InputAtoms.Sog sog on sog.id = sw.Sog and sog.IsSoftware = 1 and sog.IsSolution = 1
+    join Dependencies.Availability av on av.id = sw.Availability
+    join Dependencies.Year y on y.Id = sw.Year
+
+    join Fsp.SwFspCodeTranslation fsp on fsp.SwDigitId = sw.SwDigit
+                                          and fsp.AvailabilityId = sw.Availability
+                                          and fsp.DurationId = sw.Year
+
+    left join InputAtoms.SwDigitLicense dl on dl.SwDigitId = dig.Id
+    left join InputAtoms.SwLicense lic on lic.Id = dl.SwLicenseId
+
+    return
+end
+GO
+
 IF OBJECT_ID('Report.SolutionPackProActiveCosting') IS NOT NULL
   DROP FUNCTION Report.SolutionPackProActiveCosting;
 go 
@@ -485,7 +546,7 @@ begin
             , fsp.Name as Fsp
 
             , fsp.ServiceDescription
-            , sog.Description as Sp
+            , fsp.ShortDescription as Sp
 
             , case 
                 when y.IsProlongation = 1 then 'Prolongation'
