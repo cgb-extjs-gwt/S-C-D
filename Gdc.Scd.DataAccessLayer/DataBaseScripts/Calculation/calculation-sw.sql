@@ -308,7 +308,7 @@ RETURN
                 , ssc.[1stLevelSupportCosts]
                 , ssc.TotalIb
 
-                , SoftwareSolution.CalcSrvSupportCost(ssc.[1stLevelSupportCosts], m.[2ndLevelSupportCosts], ssc.TotalIb, m.TotalInstalledBaseSog) as ServiceSupportPerYear
+                , SoftwareSolution.CalcSrvSupportCost(ssc.[1stLevelSupportCosts], m.[2ndLevelSupportCosts], ssc.TotalIb, m.InstalledBaseSog) as ServiceSupportPerYear
 
         from SwSpMaintenanceCte0 m, GermanyServiceCte ssc 
     )

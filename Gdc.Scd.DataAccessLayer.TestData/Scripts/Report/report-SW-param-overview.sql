@@ -56,7 +56,7 @@ RETURN (
                , m.[2ndLevelSupportCosts_Approved] as [2ndLevelSupportCosts]
        
                , (select TotalIb from GermanyServiceCte) as TotalIb
-               , m.TotalIB_Approved as IB_SFAB
+               , m.InstalledBaseSog as IbDigit
 
                , cur.Name as CurrencyReinsurance
                , m.ReinsuranceFlatfee_Approved as ReinsuranceFlatfee
@@ -100,7 +100,7 @@ RETURN (
     )
     select *
            , case when TotalIb > 0 then [1stLevelSupportCosts] / TotalIb end as [1stLevelSupportCosts_Calc]
-           , case when IB_SFAB > 0 then [2ndLevelSupportCosts] / IB_SFAB end as [2ndLevelSupportCosts_Calc]
+           , case when IbDigit > 0 then [2ndLevelSupportCosts] / IbDigit end as [2ndLevelSupportCosts_Calc]
     from cte
 )
 GO
@@ -137,7 +137,7 @@ insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'TotalIb', 'Installed base country', 1, 1);
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'IB_SFAB', 'Installed base SFAB', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('text'), 'IbDigit', 'Installed base', 1, 1);
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('euro'), '1stLevelSupportCosts_Calc', 'Calculated 1st level support costs', 1, 1);
 set @index = @index + 1;
