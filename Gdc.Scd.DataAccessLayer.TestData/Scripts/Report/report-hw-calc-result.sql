@@ -56,12 +56,13 @@ RETURN (
             , case when @local = 1 then ServiceTPManual * costs.ExchangeRate else ServiceTPManual end as ServiceTPManual
                                                           
             , case when @local = 1 then ServiceTP_Released * costs.ExchangeRate else ServiceTP_Released end as ServiceTP_Released
-                                                          
+
             , case when @local = 1 then ListPrice * costs.ExchangeRate else ListPrice end as ListPrice
             , case when @local = 1 then DealerPrice * costs.ExchangeRate else DealerPrice end as DealerPrice
             , DealerDiscount                               as DealerDiscount
                                                            
             , ChangeUserName + '[' + ChangeUserEmail + ']' as ChangeUser
+            , ReleaseDate
             , ChangeDate
 
     from Hardware.GetCosts(@approved, @country, @wg, @availability, @duration, @reactiontime, @reactiontype, @servicelocation, @proactive, -1, -1) costs
@@ -146,8 +147,10 @@ set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, 1, 'ChangeUser', 'Change user', 1, 1);
 
 set @index = @index + 1;
-insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('datetime'), 'ChangeDate', 'Change date', 1, 1);
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('datetime'), 'ReleaseDate', 'Release date', 1, 1);
 
+set @index = @index + 1;
+insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, Report.GetReportColumnTypeByName('datetime'), 'ChangeDate', 'Change date', 1, 1);
 
 set @index = @index + 1;
 insert into Report.ReportColumn(ReportId, [Index], TypeId, Name, Text, AllowNull, Flex) values(@reportId, @index, @money, 'OtherDirect', 'Other direct cost', 1, 1);
