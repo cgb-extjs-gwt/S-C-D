@@ -14,7 +14,9 @@ export function fillWgSogInfo(wg) {
 
 export class MultiSelectWg extends MultiSelect {
 
-    protected plaField: string;
+    protected plaSearch: PlaField;
+
+    protected txtSearch: SearchField & any;
 
     public render() {
 
@@ -37,8 +39,8 @@ export class MultiSelectWg extends MultiSelect {
                     bodyAlign="left"
                     onChange={this.onTopSelectionChange}
                 />
-                <PlaField placeholder="PLA" onChange={this.onPlaChange} />
-                <SearchField placeholder="Search by wg/sog..." onChange={this.onSearch} />
+                <PlaField ref={x => this.plaSearch = x} placeholder="PLA" onChange={this.filterBy} onClearIconTap={this.filterBy} />
+                <SearchField ref={x => this.txtSearch = x} placeholder="Search by wg/sog..." onChange={this.filterBy} onClearIconTap={this.filterBy} />
                 <div onClick={this.onListClick}>
                     <Container>
                         <List
@@ -59,32 +61,44 @@ export class MultiSelectWg extends MultiSelect {
     protected init() {
         super.init();
         //
-        this.onPlaChange = this.onPlaChange.bind(this);
-        this.onSearch = this.onSearch.bind(this);
+        this.filterBy = this.filterBy.bind(this);
     }
 
-    private onPlaChange(view: any, newValue: string, oldValue: string) {
-        this.plaField = newValue;
-        this.filter('plaId', newValue);
-    }
+    private filterBy() {
+        let pla = this.plaSearch.getValue();
+        let query = this.txtSearch.getValue();
 
-    private onSearch(view: any, newValue: string, oldValue: string) {
         this.lst.getStore().clearFilter(true);
-        this.lst.getStore().filterBy(record => this.filterByWgOrSog(record, newValue));
-    }
+        this.lst.getStore().filterBy(function (record) {
 
-    private filter(key: string, val: string) {
-        val = val || '';
-        this.lst.getStore().filter(key, val);
-    }
+            record = record.data;
 
-    private filterByWgOrSog(record: any, newValue: string) {
-        newValue = newValue || '';
-        let pla = this.plaField || '';
-        if ((pla === '' || pla === record.data.plaId) &&
-            (record.data.name.toLowerCase().startsWith(newValue.toLowerCase())
-                || (record.data.sog !== undefined && record.data.sog.name.toLowerCase().startsWith(newValue.toLowerCase()))))
-            return true;
-        return false;
+            let plaOk = !pla || pla === record.plaId;
+
+            if (!plaOk) {
+                return false;
+            }
+
+            if (!query) {
+                return true;
+            }
+
+            if (query.length < 4) {
+                let regex = new RegExp('^' + query, 'i');
+                return regex.test(record.name) ? true : record.sog ? regex.test(record.sog.name) : false;
+            }
+
+            let regex = new RegExp(query, 'i');
+
+            if (regex.test(record.name) || regex.test(record.description)) {
+                return true;
+            }
+
+            if (record.sog) {
+                return regex.test(record.sog.name) || regex.test(record.sog.description);
+            }
+
+            return false;
+        });
     }
 }

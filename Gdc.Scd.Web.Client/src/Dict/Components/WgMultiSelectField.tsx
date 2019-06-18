@@ -8,37 +8,39 @@ export class WgMultiSelectField extends MultiSelectField {
         this.lst.setItemTpl(fillWgSogInfo);
     }
 
-    protected onSearch(view: any, newValue: string, oldValue: string) {
-        this.filterBy(newValue);
+    protected onSearch() {
+        this.filterBy(this.txtSearch.getValue());
     }
 
     private filterBy(query: string) {
         let store = this.lst.getStore();
         store.clearFilter(true);
 
-        if (query) {
-            store.filterBy(function (record) {
+        store.filterBy(function (record) {
 
-                record = record.data;
+            if (!query) {
+                return true;
+            }
 
-                if (query.length < 4) {
-                    let regex = new RegExp('^' + query, 'i');
-                    return regex.test(record.name) ? true : record.sog ? regex.test(record.sog.name) : false;
-                }
+            record = record.data;
 
-                let regex = new RegExp(query, 'i');
+            if (query.length < 4) {
+                let regex = new RegExp('^' + query, 'i');
+                return regex.test(record.name) ? true : record.sog ? regex.test(record.sog.name) : false;
+            }
 
-                if (regex.test(record.name) || regex.test(record.description)) {
-                    return true;
-                }
+            let regex = new RegExp(query, 'i');
 
-                if (record.sog) {
-                    return regex.test(record.sog.name) || regex.test(record.sog.description);
-                }
+            if (regex.test(record.name) || regex.test(record.description)) {
+                return true;
+            }
 
-                return false;
-            });
-        }
+            if (record.sog) {
+                return regex.test(record.sog.name) || regex.test(record.sog.description);
+            }
+
+            return false;
+        });
     }
 
 }
