@@ -45,7 +45,7 @@ begin
 
             , fsp.Name as Fsp
             , fsp.ServiceDescription as SpDescription
-            , null as Sp
+            , fsp.ShortDescription as Sp
 
             , sw.TransferPrice as TP
             , sw.DealerPrice as DealerPrice

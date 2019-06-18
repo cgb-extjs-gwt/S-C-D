@@ -49,7 +49,7 @@ begin
             , y.Name  as Year
 
             , fsp.ServiceDescription as SpDescription
-            , sog.Description as Sp
+            , fsp.ShortDescription as Sp
 
             , sw.ServiceSupport
             
