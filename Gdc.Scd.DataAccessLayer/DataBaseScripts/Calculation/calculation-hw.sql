@@ -759,11 +759,11 @@ RETURNS float
 AS
 BEGIN
 
-    if @markupFactor > 0
+    if @markupFactor is not null
         begin
             set @value = @value * @markupFactor;
         end
-    else if @markup > 0
+    else if @markup is not null
         begin
             set @value = @value + @markup;
         end
@@ -782,11 +782,11 @@ RETURNS float
 AS
 BEGIN
 
-    if @markupFactor > 0
+    if @markupFactor is not null
         begin
             return @value * @markupFactor;
         end
-    else if @fixed > 0
+    else if @fixed is not null
         begin
             return @fixed;
         end

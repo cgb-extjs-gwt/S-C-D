@@ -1,3 +1,49 @@
+ALTER FUNCTION [Hardware].[AddMarkup](
+    @value float,
+    @markupFactor float,
+    @markup float
+)
+RETURNS float
+AS
+BEGIN
+
+    if @markupFactor is not null
+        begin
+            set @value = @value * @markupFactor;
+        end
+    else if @markup is not null
+        begin
+            set @value = @value + @markup;
+        end
+
+    RETURN @value;
+
+END
+go
+
+ALTER FUNCTION [Hardware].[MarkupOrFixValue] (
+    @value float,
+    @markupFactor float,
+    @fixed float
+)
+RETURNS float 
+AS
+BEGIN
+
+    if @markupFactor is not null
+        begin
+            return @value * @markupFactor;
+        end
+    else if @fixed is not null
+        begin
+            return @fixed;
+        end
+
+    RETURN 0;
+
+END
+go
+
 alter FUNCTION [Hardware].[GetCosts](
     @approved bit,
     @cnt dbo.ListID readonly,
