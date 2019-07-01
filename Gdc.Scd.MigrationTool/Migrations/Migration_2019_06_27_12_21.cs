@@ -7,7 +7,7 @@ namespace Gdc.Scd.MigrationTool.Migrations
     {
         private readonly IRepositorySet repositorySet;
 
-        public int Number => 110;
+        public int Number => 111;
 
         public string Description => "Fix Tc/Tp calc, remove positive ";
 
