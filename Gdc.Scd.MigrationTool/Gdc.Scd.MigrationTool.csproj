@@ -189,6 +189,7 @@
     <Compile Include="Migrations\Migration_2019_06_10_09_23.cs" />
     <Compile Include="Migrations\Migration_2019_06_27_12_21.cs" />
     <Compile Include="Migrations\Migration_2019_07_04_10_05.cs" />
+    <Compile Include="Migrations\Migration_2019_07_04_13_40.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
