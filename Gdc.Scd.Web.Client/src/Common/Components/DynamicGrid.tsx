@@ -266,11 +266,13 @@ export class DynamicGrid extends React.PureComponent<StoreDynamicGridProps> {
       columnOption.flex = column.flex;
     }
 
-    if (column.rendererFn) {
-      columnOption.renderer = (value, record: Model, dataIndex: string, cell) =>
-        this.replaceNullValue(column.rendererFn(value, record, dataIndex, cell));
-    } else {
-      columnOption.renderer = this.replaceNullValue;
+    if (column.type != ColumnType.CheckBox) {
+      if (column.rendererFn) {
+        columnOption.renderer = (value, record: Model, dataIndex: string, cell) =>
+          this.replaceNullValue(column.rendererFn(value, record, dataIndex, cell));
+      } else {
+        columnOption.renderer = this.replaceNullValue;
+      }
     }
 
     if (column.filter) {

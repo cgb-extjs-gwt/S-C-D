@@ -33,7 +33,8 @@ const editRecord: Reducer<TableViewState, EditRecordAction> = (state, action) =>
                     data: changedData,
                     additionalData: actionRecord.additionalData,
                     wgRoleCodeId: actionRecord.wgRoleCodeId,
-                    wgResponsiblePerson: actionRecord.wgResponsiblePerson
+                    wgResponsiblePerson: actionRecord.wgResponsiblePerson,
+                    wgPsmRelease: actionRecord.wgPsmRelease
                 }
             ];
         }
@@ -49,7 +50,8 @@ const editRecord: Reducer<TableViewState, EditRecordAction> = (state, action) =>
                             },
                             additionalData: actionRecord.additionalData,
                             wgRoleCodeId: actionRecord.wgRoleCodeId,
-                            wgResponsiblePerson: actionRecord.wgResponsiblePerson
+                            wgResponsiblePerson: actionRecord.wgResponsiblePerson,
+                            wgPsmRelease: actionRecord.wgPsmRelease
                         }
                         : record
             );
