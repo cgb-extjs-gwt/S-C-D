@@ -48,7 +48,7 @@ BEGIN
     with cte as (
         select m.* 
                , case when m.IsProlongation = 1 then 'Prolongation' else CAST(m.Year as varchar(1)) end as ServicePeriod
-        from Hardware.GetCostsSlaSog(1, @cntTable, @wg_SOG_Table, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable) m
+        from Hardware.GetCostsSlaSog(0, @cntTable, @wg_SOG_Table, @avTable, @durTable, @rtimeTable, @rtypeTable, @locTable, @proTable) m
         where (not exists(select 1 from @wg) or exists(select 1 from @wg where id = m.WgId))
     )
     , cte2 as (
