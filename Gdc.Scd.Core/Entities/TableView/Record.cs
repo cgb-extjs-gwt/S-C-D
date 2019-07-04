@@ -14,6 +14,8 @@ namespace Gdc.Scd.Core.Entities.TableView
 
         public string WgResponsiblePerson { get; set; }
 
+        public bool WgPsmRelease { get; set; }
+
         public Record()
         {
             this.Coordinates = new Dictionary<string, NamedId>();

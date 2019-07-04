@@ -16,4 +16,5 @@ export interface TableViewRecord {
     }
     wgRoleCodeId?: number
     wgResponsiblePerson: string
+    wgPsmRelease: boolean
 }

@@ -80,6 +80,13 @@ const buildProps = (() => {
                     type: ColumnType.Text,
                     width: 100,
                 },
+                {
+                    title: 'PSM Release',
+                    dataIndex: 'wgPsmRelease',
+                    isEditable: true,
+                    type: ColumnType.CheckBox,
+                    width: 80,
+                },
                 ...buildCostElementColumns()
             ];
 
@@ -236,16 +243,18 @@ const buildActions = (() => {
                         else {
                             const value = record.get(dataIndex);
                             const valueCount = record.data.data[dataIndex];
-
-                            if (value == null) {
-                                record.set(dataIndex, undefined);
-
-                                valueCount.count = 0;
-                            } else {
-                                valueCount.count = 1;
+                            
+                            if (valueCount){
+                                if (value == null) {
+                                    record.set(dataIndex, undefined);
+    
+                                    valueCount.count = 0;
+                                } else {
+                                    valueCount.count = 1;
+                                }
+    
+                                valueCount.isApproved = false;
                             }
-
-                            valueCount.isApproved = false;
                         }
                         break;
                 }
