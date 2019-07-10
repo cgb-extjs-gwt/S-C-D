@@ -20,6 +20,8 @@ namespace Gdc.Scd.MigrationTool.Migrations
         {
             this.repositorySet.ExecuteSql(
                 "ALTER TABLE [InputAtoms].[Wg] ADD [PsmRelease] BIT NOT NULL DEFAULT(0)");
+
+            this.repositorySet.ExecuteFromFile("2019-07-04-13-40.sql");
         }
     }
 }
