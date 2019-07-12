@@ -58,9 +58,9 @@ begin
 
              , av.Name as Availability
 
-             , (sc.TransferPrice - coalesce(pro.ProActive, 0)) * er.Value as ReActive
+             , sc.TransferPrice * er.Value as ReActive
              , pro.ProActive * er.Value as ProActive
-             , sc.TransferPrice * er.Value as ServiceTP
+             , (sc.TransferPrice + coalesce(pro.ProActive, 0)) * er.Value as ServiceTP
              , cur.Name as Currency
 
     from SoftwareSolution.GetProActiveCosts(1, @cntList, @digitList, @emptyAv, @yearList, -1, -1) pro
