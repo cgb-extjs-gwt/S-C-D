@@ -58,7 +58,7 @@ begin
 
              , av.Name as Availability
 
-             , (sc.TransferPrice - pro.ProActive) * er.Value as ReActive
+             , (sc.TransferPrice - coalesce(pro.ProActive, 0)) * er.Value as ReActive
              , pro.ProActive * er.Value as ProActive
              , sc.TransferPrice * er.Value as ServiceTP
              , cur.Name as Currency
