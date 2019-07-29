@@ -1738,6 +1738,7 @@ RETURNS @tbl TABLE  (
         , AFRP1                        float
 
         , OnsiteHourlyRates            float
+		, CanOverrideTransferCostAndPrice	bit
 
         --####### PROACTIVE COST ###################
         , LocalRemoteAccessSetup       float
@@ -1835,6 +1836,7 @@ BEGIN
              , c.CurrencyId
              , cur.Name as Currency
              , c.ClusterRegionId
+			 , c.CanOverrideTransferCostAndPrice
              , er.Value as ExchangeRate 
              , case when @approved = 0 then tax.TaxAndDuties_norm              else tax.TaxAndDuties_norm_Approved          end as TaxAndDuties
 
@@ -2043,6 +2045,8 @@ BEGIN
 
                , OnsiteHourlyRates
 
+			   , CanOverrideTransferCostAndPrice
+
                , LocalRemoteAccessSetup     
                , LocalRegularUpdate         
                , LocalPreparation           
@@ -2133,6 +2137,7 @@ BEGIN
             , m.AFRP1
 
             , m.OnsiteHourlyRates
+			, m.CanOverrideTransferCostAndPrice
 
             , m.LocalRemoteAccessSetup     
             , m.LocalRegularUpdate         
@@ -2355,8 +2360,8 @@ RETURN
             , man.ListPrice          / std.ExchangeRate as ListPrice                   
             , man.DealerDiscount                        as DealerDiscount              
             , man.DealerPrice        / std.ExchangeRate as DealerPrice                 
-            , man.ServiceTC          / std.ExchangeRate as ServiceTCManual                   
-            , man.ServiceTP          / std.ExchangeRate as ServiceTPManual                   
+            , case when std.CanOverrideTransferCostAndPrice = 1 then (man.ServiceTC     / std.ExchangeRate) end as ServiceTCManual                   
+            , case when std.CanOverrideTransferCostAndPrice = 1 then (man.ServiceTP     / std.ExchangeRate) end as ServiceTPManual                   
             , man.ServiceTP_Released / std.ExchangeRate as ServiceTP_Released                  
             , man.ReleaseDate                           as ReleaseDate
             , man.ChangeDate                            
@@ -2573,6 +2578,8 @@ RETURN
          , m.DealerPrice
          , m.ServiceTCManual
          , m.ServiceTPManual
+		 , coalesce(m.ServiceTCManual, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTC1, m.ServiceTC2, m.ServiceTC3, m.ServiceTC4, m.ServiceTC5, m.ServiceTC1P)) as ServiceTCResult
+		 , coalesce(m.ServiceTPManual, Hardware.CalcByDur(m.Year, m.IsProlongation, m.ServiceTP1, m.ServiceTP2, m.ServiceTP3, m.ServiceTP4, m.ServiceTP5, m.ServiceTP1P)) as ServiceTPResult
          , m.ServiceTP_Released
 
          , m.ReleaseDate
@@ -2854,14 +2861,14 @@ RETURN
 
              , ib.InstalledBaseCountryNorm
 
-             , (sum(m.ServiceTC * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tc 
-             , (sum(case when m.ServiceTC <> 0 then ib.InstalledBaseCountryNorm end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tc
+             , (sum(m.ServiceTCResult * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tc 
+             , (sum(case when m.ServiceTCResult <> 0 then ib.InstalledBaseCountryNorm end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tc
 
              , (sum(m.ServiceTP_Released * ib.InstalledBaseCountryNorm)                      over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp
              , (sum(case when m.ServiceTP_Released <> 0 then ib.InstalledBaseCountryNorm end) over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp
 
-             , (sum(m.ServiceTP * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp_approved
-             , (sum(case when m.ServiceTP <> 0 then ib.InstalledBaseCountryNorm end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp_approved
+             , (sum(m.ServiceTPResult * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp_approved
+             , (sum(case when m.ServiceTPResult <> 0 then ib.InstalledBaseCountryNorm end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp_approved
 
              , (max(m.ReleaseDate)                                                           over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as ReleaseDate
 

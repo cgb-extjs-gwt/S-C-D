@@ -33,9 +33,9 @@ RETURN (
                     else CAST(dur.Value as varchar(1))
               end as Duration
 
-            , (m.ServiceTP - m.ProActive) * er.Value as ReActive
+            , (m.ServiceTPResult - m.ProActive) * er.Value as ReActive
             , m.ProActive * er.Value as ProActive
-            , m.ServiceTP * er.Value as ServiceTP
+            , m.ServiceTPResult * er.Value as ServiceTP
 			, cur.Name as Currency
 
             , wg.Sog

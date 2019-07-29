@@ -145,12 +145,14 @@ RETURNS @tbl TABLE (
          , ServiceTC4                        float
          , ServiceTC5                        float
          , ServiceTC1P                       float
+		 , ServiceTCResult					 float
          , ServiceTP1                        float
          , ServiceTP2                        float
          , ServiceTP3                        float
          , ServiceTP4                        float
          , ServiceTP5                        float
          , ServiceTP1P                       float
+		 , ServiceTPResult					 float
          , ListPrice                         float
          , DealerDiscount                    float
          , DealerPrice                       float
@@ -227,13 +229,15 @@ begin
             , c.ServiceTC3                       
             , c.ServiceTC4                       
             , c.ServiceTC5                       
-            , c.ServiceTC1P                      
+            , c.ServiceTC1P
+			, c.ServiceTCResult 
             , c.ServiceTP1                       
             , c.ServiceTP2                       
             , c.ServiceTP3                       
             , c.ServiceTP4                       
             , c.ServiceTP5                       
-            , c.ServiceTP1P                      
+            , c.ServiceTP1P
+			, c.ServiceTPResult
             , c.ListPrice                        
             , c.DealerDiscount                   
             , c.DealerPrice                      
