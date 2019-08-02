@@ -1,6 +1,3 @@
-USE [Scd_2]
-GO
-
 IF OBJECT_ID('dbo.EnableAndRunTriggerOnTable') IS NOT NULL
 	DROP PROCEDURE [dbo].[EnableAndRunTriggerOnTable]
 GO
