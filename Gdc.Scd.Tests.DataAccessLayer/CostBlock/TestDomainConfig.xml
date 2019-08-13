@@ -1,0 +1,67 @@
+<SCDConfiguration>
+    <InputLevels>
+        <InputLevel Name="SimpleInputLevel1"/>
+        <InputLevel Name="SimpleInputLevel2"/>
+        <InputLevel Name="SimpleInputLevel3"/>
+        <InputLevel Name="RelatedInputLevel1"/>
+        <InputLevel Name="RelatedInputLevel2"/>
+        <InputLevel Name="RelatedInputLevel3"/>
+
+        <Default>
+            <InputLevel>SimpleInputLevel1</InputLevel>
+            <InputLevel>SimpleInputLevel2</InputLevel>
+            <InputLevel>SimpleInputLevel3</InputLevel>
+        </Default>
+    </InputLevels>
+
+    <RegionInputs>
+        <InputLevel>SimpleInputLevel1</InputLevel>
+
+        <Default>
+            <InputLevel>SimpleInputLevel1</InputLevel>
+        </Default>
+    </RegionInputs>
+
+    <QualityGate>
+        <Default>
+            <CountryGroupCoeff>0.1</CountryGroupCoeff>
+            <PeriodCoeff>0.1</PeriodCoeff>
+        </Default>
+    </QualityGate>
+
+    <Dependencies>
+        <Dependency Name="Dependency1"/>
+        <Dependency Name="Dependency2"/>
+    </Dependencies>
+
+    <Applications>
+        <Application Name="Application1"/>
+    </Applications>
+
+    <Blocks>
+        <Block Name="CostBlock1">
+            <Applications>
+                <Application>Application1</Application>
+            </Applications>
+            <Elements>
+                <Element Name="CostElement1" InputOption="Manually" Dependency="Dependency1">
+                </Element>
+            </Elements>
+        </Block>
+      
+        <Block Name="CostBlock2">
+          <Applications>
+            <Application>Application1</Application>
+          </Applications>
+          <Elements>
+            <Element Name="CostElement1" InputOption="Manually" Dependency="Dependency2" RegionInput="RelatedInputLevel1">
+              <InputLevels>
+                <InputLevel>RelatedInputLevel1</InputLevel>
+                <InputLevel>RelatedInputLevel2</InputLevel>
+                <InputLevel>RelatedInputLevel3</InputLevel>
+              </InputLevels>
+            </Element>
+          </Elements>
+        </Block>
+    </Blocks>
+</SCDConfiguration>

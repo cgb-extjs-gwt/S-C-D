@@ -99,7 +99,12 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public CostBlockEntityMeta GetCostBlockEntityMeta(ICostBlockIdentifier costBlockIdentifier)
         {
-            var fullName = BaseEntityMeta.BuildFullName(costBlockIdentifier.CostBlockId, costBlockIdentifier.ApplicationId);
+            return this.GetCostBlockEntityMeta(costBlockIdentifier.ApplicationId, costBlockIdentifier.CostBlockId);
+        }
+
+        public CostBlockEntityMeta GetCostBlockEntityMeta(string applicationId, string costBlockId)
+        {
+            var fullName = BaseEntityMeta.BuildFullName(costBlockId, applicationId);
 
             return this.CostBlocks[fullName];
         }

@@ -82,7 +82,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             foreach (var entityMeta in entityMetas)
             {
-                if (entityMeta.StoreType == StoreType.Table)
+                if (entityMeta.AllFields.Any() && entityMeta.StoreType == StoreType.Table)
                 {
                     var tableBuilder = new CreateTableMetaSqlBuilder(this.serviceProvider)
                     {
