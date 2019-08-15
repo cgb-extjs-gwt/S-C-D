@@ -7,5 +7,6 @@ namespace Gdc.Scd.Tests.DataAccessLayer.CostBlock.Entities
     [Table(nameof(RelatedInputLevel3), Schema = MetaConstants.InputLevelSchema)]
     public class RelatedInputLevel3 : NamedId
     {
+        public long RelatedInputLevel2Id { get; set; }
     }
 }
