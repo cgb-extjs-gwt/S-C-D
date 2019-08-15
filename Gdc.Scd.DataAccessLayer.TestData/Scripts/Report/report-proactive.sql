@@ -33,10 +33,11 @@ RETURN (
                     else CAST(dur.Value as varchar(1))
               end as Duration
 
-            , (m.ServiceTPResult - m.ProActive) * er.Value as ReActive
-            , m.ProActive * er.Value as ProActive
-            , m.ServiceTPResult * er.Value as ServiceTP
-			, cur.Name as Currency
+             , m.ServiceTPResult * m.ExchangeRate as ReActive
+             , m.ProActive * m.ExchangeRate as ProActive
+             , (m.ServiceTPResult + coalesce(m.ProActive, 0)) * m.ExchangeRate as ServiceTP
+
+            , m.Currency
 
             , wg.Sog
             , wg.SogDescription
@@ -47,8 +48,6 @@ RETURN (
     JOIN InputAtoms.CountryView c on c.Id = m.CountryId
     join Dependencies.Duration dur on dur.Id = m.DurationId
     JOIN InputAtoms.WgSogView wg on wg.Id = m.WgId
-	join [References].Currency cur on cur.Id = c.CurrencyId
-	join [References].ExchangeRate er on er.CurrencyId = cur.Id
 )
 
 GO
