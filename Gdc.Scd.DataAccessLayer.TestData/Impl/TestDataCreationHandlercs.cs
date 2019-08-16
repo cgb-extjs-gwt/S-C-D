@@ -496,7 +496,7 @@ namespace Gdc.Scd.DataAccessLayer.TestData.Impl
             }
         }
 
-        private IEnumerable<T> BuildDeactivatableTestItems<T>(int count = 5) where T : NamedId, IDeactivatable, new()
+        private IEnumerable<T> BuildDeactivatableTestItems<T>(int count = 5) where T : NamedId, IModifiable, new()
         {
             var nowTime = DateTime.UtcNow;
 
