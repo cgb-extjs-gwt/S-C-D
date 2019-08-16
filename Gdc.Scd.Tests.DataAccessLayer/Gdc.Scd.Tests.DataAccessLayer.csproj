@@ -129,6 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CostBlock\CostBlockUpdateByCoordinateTest.cs" />
+    <Compile Include="CostBlock\Entities\ReferenceEntity1.cs" />
     <Compile Include="CostBlock\Entities\Dependency2.cs" />
     <Compile Include="CostBlock\Entities\Dependency1.cs" />
     <Compile Include="CostBlock\Entities\RelatedInputLevel3.cs" />

@@ -44,7 +44,15 @@
                 <Application>Application1</Application>
             </Applications>
             <Elements>
-                <Element Name="CostElement1" InputOption="Manually" Dependency="Dependency1">
+                <Element Name="SimpleCostElement" InputOption="Manually" Dependency="Dependency1"/>
+                <Element Name="PercentCostElement" InputOption="Manually" Dependency="Dependency1">
+                  <TypeOption Type="Percent"/>
+                </Element>
+                <Element Name="FlagCostElement" InputOption="Manually" Dependency="Dependency1">
+                  <TypeOption Type="Flag"/>
+                </Element>
+                <Element Name="ReferenceCostElement" InputOption="Manually" Dependency="Dependency1">
+                  <TypeOption Type="Reference" Schema="References" Name="ReferenceEntity1" IdFieldName="Id" FaceFieldName="Name"/>
                 </Element>
             </Elements>
         </Block>
@@ -54,7 +62,39 @@
             <Application>Application1</Application>
           </Applications>
           <Elements>
-            <Element Name="CostElement1" InputOption="Manually" Dependency="Dependency2" RegionInput="RelatedInputLevel1">
+            <!--<Element Name="CostElement1" InputOption="Manually" Dependency="Dependency2" RegionInput="RelatedInputLevel1">
+              <InputLevels>
+                <InputLevel>RelatedInputLevel1</InputLevel>
+                <InputLevel>RelatedInputLevel2</InputLevel>
+                <InputLevel>RelatedInputLevel3</InputLevel>
+              </InputLevels>
+            </Element>-->
+
+            <Element Name="SimpleCostElement" InputOption="Manually" Dependency="Dependency2" RegionInput="RelatedInputLevel1">
+              <InputLevels>
+                <InputLevel>RelatedInputLevel1</InputLevel>
+                <InputLevel>RelatedInputLevel2</InputLevel>
+                <InputLevel>RelatedInputLevel3</InputLevel>
+              </InputLevels>
+            </Element>
+            <Element Name="PercentCostElement" InputOption="Manually" Dependency="Dependency2" RegionInput="RelatedInputLevel1">
+              <TypeOption Type="Percent"/>
+              <InputLevels>
+                <InputLevel>RelatedInputLevel1</InputLevel>
+                <InputLevel>RelatedInputLevel2</InputLevel>
+                <InputLevel>RelatedInputLevel3</InputLevel>
+              </InputLevels>
+            </Element>
+            <Element Name="FlagCostElement" InputOption="Manually" Dependency="Dependency2" RegionInput="RelatedInputLevel1">
+              <TypeOption Type="Flag"/>
+              <InputLevels>
+                <InputLevel>RelatedInputLevel1</InputLevel>
+                <InputLevel>RelatedInputLevel2</InputLevel>
+                <InputLevel>RelatedInputLevel3</InputLevel>
+              </InputLevels>
+            </Element>
+            <Element Name="ReferenceCostElement" InputOption="Manually" Dependency="Dependency2" RegionInput="RelatedInputLevel1">
+              <TypeOption Type="Reference" Schema="References" Name="ReferenceEntity1" IdFieldName="Id" FaceFieldName="Name"/>
               <InputLevels>
                 <InputLevel>RelatedInputLevel1</InputLevel>
                 <InputLevel>RelatedInputLevel2</InputLevel>

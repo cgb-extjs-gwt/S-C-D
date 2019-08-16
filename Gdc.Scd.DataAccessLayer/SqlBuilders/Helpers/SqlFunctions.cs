@@ -1,5 +1,6 @@
 ﻿using System;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
@@ -18,6 +19,15 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateQueryColumnInfo<MaxSqlBuilder>(columnName, tableName, alias);
         }
 
+        public static QueryColumnInfo Max(FieldMeta field, string tableName = null, string alias = null)
+        {
+            return field is SimpleFieldMeta simpleField && simpleField.Type == TypeCode.Boolean
+                ? Max(
+                    Convert(new ColumnSqlBuilder(simpleField.Name, tableName), TypeCode.Int32),
+                    alias)
+                : Max(field.Name, tableName, alias);
+        }
+
         public static QueryColumnInfo Min(ISqlBuilder query, string alias = null)
         {
             return CreateQueryColumnInfo<MinSqlBuilder>(query, alias);
@@ -26,6 +36,15 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         public static QueryColumnInfo Min(string columnName, string tableName = null, string alias = null)
         {
             return CreateQueryColumnInfo<MinSqlBuilder>(columnName, tableName, alias);
+        }
+
+        public static QueryColumnInfo Min(FieldMeta field, string tableName = null, string alias = null)
+        {
+            return field is SimpleFieldMeta simpleField && simpleField.Type == TypeCode.Boolean
+                ? Min(
+                    Convert(new ColumnSqlBuilder(simpleField.Name, tableName), TypeCode.Int32),
+                    alias)
+                : Min(field.Name, tableName, alias);
         }
 
         public static QueryColumnInfo Count(string columnName = null, bool isDisctinct = false, string tableName = null, string alias = null)

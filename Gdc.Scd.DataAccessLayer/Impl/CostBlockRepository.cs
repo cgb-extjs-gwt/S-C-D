@@ -287,8 +287,8 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 var minMaxColumnInfos = costBlockMeta.CostElementsFields.Select(field => new
                 {
                     FieldName = field.Name,
-                    MinColumn = SqlFunctions.Min(field.Name, alias: $"{field.Name}Min"),
-                    MaxColumn = SqlFunctions.Max(field.Name, alias: $"{field.Name}Max")
+                    MinColumn = SqlFunctions.Min(field, alias: $"{field.Name}Min"),
+                    MaxColumn = SqlFunctions.Max(field, alias: $"{field.Name}Max")
                 }).ToArray();
 
                 var minMaxSelectColumns =

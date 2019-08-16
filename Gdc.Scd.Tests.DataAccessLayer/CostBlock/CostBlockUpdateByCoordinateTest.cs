@@ -135,7 +135,7 @@ namespace Gdc.Scd.Tests.DataAccessLayer.CostBlock
                 CostBlockMeta = costBlockMeta,
                 InputLevel = nameof(SimpleInputLevel2),
                 InputLevelItemId = this.RepositorySet.GetRepository<SimpleInputLevel2>().GetAll().Select(item => item.Id).First(),
-                CostElement = "CostElement1",
+                CostElement = "SimpleCostElement",
                 Value = 777
             };
 
@@ -196,7 +196,7 @@ namespace Gdc.Scd.Tests.DataAccessLayer.CostBlock
                 CostBlockMeta = costBlockMeta,
                 InputLevel = nameof(RelatedInputLevel2),
                 InputLevelItemId = relatedInputLevel2Item.Id,
-                CostElement = "CostElement1",
+                CostElement = "SimpleCostElement",
                 Value = 777
             };
 

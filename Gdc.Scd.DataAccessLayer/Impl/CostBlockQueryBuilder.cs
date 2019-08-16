@@ -104,17 +104,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             IEnumerable<BaseColumnInfo> BuildSelectColumns(CostBlockSelectCostElementInfo costElementInfo)
             {
                 var valueField = queryData.CostBlock.CostElementsFields[costElementInfo.CostElementId];
-
-                var maxValueColumn =
-                    valueField is SimpleFieldMeta simpleField &&
-                    simpleField.Type == TypeCode.Boolean
-                        ? SqlFunctions.Max(
-                            SqlFunctions.Convert(
-                                new ColumnSqlBuilder(simpleField.Name, costBlockAlias),
-                                TypeCode.Int32),
-                            costElementInfo.ValueColumnAlias)
-                        : SqlFunctions.Max(valueField.Name, costBlockAlias, costElementInfo.ValueColumnAlias);
-
+                var maxValueColumn = SqlFunctions.Min(valueField, costBlockAlias, costElementInfo.ValueColumnAlias);
                 var countColumn = SqlFunctions.Count(valueField.Name, true, costBlockAlias, costElementInfo.CountColumnAlias);
                 var approvedColumnAlias = BuildApprovedColumnAlias(valueField.Name);
                 var approvedColumn = SqlFunctions.Min(approvedColumnAlias, costBlockAlias, costElementInfo.IsApprovedColumnAlias);
