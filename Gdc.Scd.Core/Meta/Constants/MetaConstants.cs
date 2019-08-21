@@ -79,5 +79,7 @@
         public const string CurrencyTable = "Currency";
 
         public const string ExchangeRateTable = "ExchangeRate";
+
+        public const string ProActiveSlaTableName = "ProActiveSla";
     }
 }

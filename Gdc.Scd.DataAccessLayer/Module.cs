@@ -44,6 +44,7 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<IRepository<StandardWarrantyManualCost>>().To<StandardWarrantyManualCostRepository>().InScdRequestScope();
             Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InScdRequestScope();
             Bind<ICostBlockQueryBuilder>().To<CostBlockQueryBuilder>().InScdRequestScope();
+            Bind<IPivotGridRepository>().To<PivotGridRepository>().InScdRequestScope();
 
             Bind<BaseColumnMetaSqlBuilder<IdFieldMeta>>().To<IdColumnMetaSqlBuilder>().InTransientScope();
             Bind<BaseColumnMetaSqlBuilder<SimpleFieldMeta>>().To<SimpleColumnMetaSqlBuilder>().InTransientScope();
