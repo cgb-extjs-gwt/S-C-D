@@ -29,6 +29,8 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public CostBlockHistoryEntityMeta CostBlockHistory { get; set; }
 
+        public EntityMeta PrincipalPortfolio { get; set; }
+
         public EntityMeta LocalPortfolio { get; set; }
 
         public ExchangeRateEntityMeta ExchangeRate { get; set; }

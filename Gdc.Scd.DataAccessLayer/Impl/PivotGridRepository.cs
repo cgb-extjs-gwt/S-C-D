@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Gdc.Scd.Core.Entities.Pivot;
 using Gdc.Scd.Core.Meta.Entities;
+using Gdc.Scd.DataAccessLayer.Helpers;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
@@ -21,11 +22,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.repositorySet = repositorySet;
         }
 
-        public async Task<PivotResult> GetData(PivotRequest request, BaseEntityMeta meta)
+        public async Task<PivotResult> GetData(PivotRequest request, BaseEntityMeta meta, SqlHelper customQuery = null)
         {
             var axisDictionary = new Dictionary<RequestAxisItem, Dictionary<string, ResultAxisItem>>();
 
-            var query = this.BuildSql(request, meta);
+            var query = this.BuildSql(request, meta, customQuery);
             var resultItems = await this.repositorySet.ReadBySql(query, MapRow);
 
             return new PivotResult
@@ -117,7 +118,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
         }
 
-        private SqlHelper BuildSql(PivotRequest request, BaseEntityMeta meta)
+        private SqlHelper BuildSql(PivotRequest request, BaseEntityMeta meta, SqlHelper customQuery = null)
         {
             const string GroupedTableAlias = "Grouped";
 
@@ -148,7 +149,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         GroupedTableAlias)
                    .Join(joinInfos);
 
-            
             IEnumerable<SqlHelper> BuildGroupedQueries()
             {
                 var aggregateColumns = request.Aggregate.Select(BuildAggregateColumn).ToArray();
@@ -163,7 +163,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                         yield return
                             Sql.Select(leftAxisColumns.Concat(topAxisColumns).Concat(aggregateColumns).ToArray())
-                               .From(meta)
+                               .From(meta, customQuery)
                                .GroupBy(leftAxisColumns.Concat(topAxisColumns).OfType<ColumnInfo>().ToArray());
                     }
                 }
@@ -203,7 +203,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
                     return result;
                 }
-
             }
         }
 

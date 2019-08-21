@@ -61,12 +61,12 @@ export class PortfolioPivotGrid extends React.Component {
                 },
             ],
             topAxis: [
-                // {
-                //     id: 'Sog',
-                //     dataIndex: 'Sog',
-                //     header: 'Sog',
-                //     renderer
-                // },
+                {
+                    id: 'Sog',
+                    dataIndex: 'SogId',
+                    header: 'Sog',
+                    renderer: axisRenderer
+                },
                 {
                     id: 'Wg',
                     dataIndex: 'WgId',

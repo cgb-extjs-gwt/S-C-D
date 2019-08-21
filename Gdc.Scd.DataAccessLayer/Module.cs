@@ -45,6 +45,7 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<ICostBlockFilterBuilder>().To<CostBlockFilterBuilder>().InScdRequestScope();
             Bind<ICostBlockQueryBuilder>().To<CostBlockQueryBuilder>().InScdRequestScope();
             Bind<IPivotGridRepository>().To<PivotGridRepository>().InScdRequestScope();
+            Bind<IPortfolioPivotGridQueryBuilder>().To<PortfolioPivotGridQueryBuilder>().InSingletonScope();
 
             Bind<BaseColumnMetaSqlBuilder<IdFieldMeta>>().To<IdColumnMetaSqlBuilder>().InTransientScope();
             Bind<BaseColumnMetaSqlBuilder<SimpleFieldMeta>>().To<SimpleColumnMetaSqlBuilder>().InTransientScope();
