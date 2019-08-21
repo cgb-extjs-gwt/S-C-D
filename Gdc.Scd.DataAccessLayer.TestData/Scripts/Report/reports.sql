@@ -803,7 +803,7 @@ BEGIN
             , LOWER(c.Duration) + ' ' + c.ServiceLocation as ServiceProduct
 
             , c.LocalServiceStandardWarranty
-            , case when @approved = 1 then c.ServiceTpSog_Approved else c.ServiceTpSog end as ServiceTP
+            , case when @approved = 1 then c.ServiceTpSog else c.ServiceTpSog_Released end as ServiceTP
             , c.DealerPrice
             , c.ListPrice
     into #tmp
