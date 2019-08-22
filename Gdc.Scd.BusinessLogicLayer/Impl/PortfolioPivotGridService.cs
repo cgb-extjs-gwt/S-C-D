@@ -10,25 +10,25 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     {
         private readonly DomainEnitiesMeta meta;
 
-        private readonly IPivotGridRepository portfolioPivotGridRepository;
+        private readonly IPivotGridRepository pivotGridRepository;
 
         private readonly IPortfolioPivotGridQueryBuilder portfolioPivotGridQueryBuilder;
 
         public PortfolioPivotGridService(
             DomainEnitiesMeta meta, 
-            IPivotGridRepository portfolioPivotGridRepository, 
+            IPivotGridRepository pivotGridRepository, 
             IPortfolioPivotGridQueryBuilder portfolioPivotGridQueryBuilder)
         {
             this.meta = meta;
-            this.portfolioPivotGridRepository = portfolioPivotGridRepository;
+            this.pivotGridRepository = pivotGridRepository;
             this.portfolioPivotGridQueryBuilder = portfolioPivotGridQueryBuilder;
         }
 
         public async Task<PivotResult> GetData(PivotRequest request)
         {
-            var queryMeta = this.portfolioPivotGridQueryBuilder.Build();
+            var queryMeta = this.portfolioPivotGridQueryBuilder.Build(request);
 
-            return await this.portfolioPivotGridRepository.GetData(request, queryMeta.Meta, queryMeta.Query);
+            return await this.pivotGridRepository.GetData(request, queryMeta.Meta, queryMeta.Query);
         }
     }
 }

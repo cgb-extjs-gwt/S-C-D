@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Gdc.Scd.Core.Entities.Pivot;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
@@ -11,44 +12,51 @@ namespace Gdc.Scd.DataAccessLayer.Impl
     {
         private readonly DomainEnitiesMeta meta;
 
-        private readonly EntityMeta customPortfolioMeta;
+        private readonly EntityMeta portfolioMeta;
 
         public PortfolioPivotGridQueryBuilder(DomainEnitiesMeta meta)
         {
             this.meta = meta;
-            this.customPortfolioMeta = this.BuildCustomPortfolioMeta(meta);
+            this.portfolioMeta = meta.PrincipalPortfolio;
         }
 
-        public EntityMetaQuery Build()
+        public EntityMetaQuery Build(PivotRequest request)
         {
+            var customPortfolioMeta = this.BuildCustomPortfolioMeta(request);
+
             return new EntityMetaQuery
             {
-                Meta = this.customPortfolioMeta,
-                Query = this.BuildCustomPortfolioQuery()
+                Meta = customPortfolioMeta,
+                Query = this.BuildCustomPortfolioQuery(customPortfolioMeta)
             };
         }
 
-        private EntityMeta BuildCustomPortfolioMeta(DomainEnitiesMeta meta)
+        private EntityMeta BuildCustomPortfolioMeta(PivotRequest request)
         {
-            var fields = meta.PrincipalPortfolio.AllFields.Where(field => field.Name != "DurationId");
-            var portfolioMeta = new EntityMeta("PortfolioWithSog", meta.PrincipalPortfolio.Schema, fields);
+            var fields = 
+                request.GetAllAxisItems()
+                       .Select(axisItem => this.portfolioMeta.GetField(axisItem.DataIndex))
+                       .Where(field => field != null)
+                       .ToArray();
+
+            var customPortfolioMeta = new EntityMeta("PortfolioWithSog", this.portfolioMeta.Schema, fields);
             var wgMeta = (WgEnityMeta)this.meta.GetInputLevel(MetaConstants.WgInputLevelName);
             var sogMeta = this.meta.GetInputLevel(MetaConstants.SogInputLevel);
 
-            portfolioMeta.Fields.Add(ReferenceFieldMeta.Build(wgMeta.SogField.Name, sogMeta));
+            customPortfolioMeta.Fields.Add(ReferenceFieldMeta.Build(wgMeta.SogField.Name, sogMeta));
 
-            return portfolioMeta;
+            return customPortfolioMeta;
         }
 
-        private SqlHelper BuildCustomPortfolioQuery()
+        private SqlHelper BuildCustomPortfolioQuery(EntityMeta customPortfolioMeta)
         {
             var wgMeta = this.meta.GetInputLevel(MetaConstants.WgInputLevelName);
-            var wgField = this.meta.PrincipalPortfolio.GetFieldByReferenceMeta(wgMeta);
+            var wgField = this.portfolioMeta.GetFieldByReferenceMeta(wgMeta);
 
             return
-                Sql.SelectDistinct(this.customPortfolioMeta.AllFields)
-                   .From(this.meta.PrincipalPortfolio)
-                   .Join(this.meta.PrincipalPortfolio, wgField.Name);
+                Sql.SelectDistinct(customPortfolioMeta.AllFields)
+                   .From(this.portfolioMeta)
+                   .Join(this.portfolioMeta, wgField.Name);
         }
     }
 }

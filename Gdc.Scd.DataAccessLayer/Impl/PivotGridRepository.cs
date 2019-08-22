@@ -24,6 +24,17 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public async Task<PivotResult> GetData(PivotRequest request, BaseEntityMeta meta, SqlHelper customQuery = null)
         {
+            var nonExistFields =
+                request.GetAllAxisItems()
+                       .Select(axisItem => axisItem.DataIndex)
+                       .Except(meta.AllFields.Select(field => field.Name))
+                       .ToArray();
+
+            if (nonExistFields.Length > 0)
+            {
+                throw new Exception($"PivotRequest has non exist fields: {string.Join(",", nonExistFields)}");
+            }
+
             var axisDictionary = new Dictionary<RequestAxisItem, Dictionary<string, ResultAxisItem>>();
 
             var query = this.BuildSql(request, meta, customQuery);
@@ -122,7 +133,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             const string GroupedTableAlias = "Grouped";
 
-            var allAxisItems = request.LeftAxis.Concat(request.TopAxis).ToArray();
+            var allAxisItems = request.GetAllAxisItems().ToArray();
 
             var referenceFields = allAxisItems.Select(item => meta.GetField(item.DataIndex)).OfType<ReferenceFieldMeta>().ToArray();
             var faceColumns =
