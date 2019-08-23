@@ -2,30 +2,42 @@ import * as React from 'react';
 import { Container, Toolbar, Button } from '@extjs/ext-react';
 import { PivotGrid } from '@extjs/ext-react-pivot';
 import { buildMvcUrl } from '../../Common/Services/Ajax';
+import { FilterPanel } from '../../Portfolio/Components/FilterPanel';
 
 export class PortfolioPivotGrid extends React.Component {
+    private readonly configuratorPlugin;
+
+    private readonly matrix;
+
     private pivotGrid: PivotGrid & any; 
+
+    private filter: FilterPanel;
+
+    constructor(props) {
+        super(props)
+
+        this.configuratorPlugin = this.getConfiguratorPlugin();
+        this.matrix = this.getMatrix();
+    }
 
     render() {
         return (
             <Container layout="fit">
-                <Toolbar
-                    shadow={false}
-                    docked="top"
-                    ui="app-transparent-toolbar"
-                    padding="5 8"
-                    layout={{
-                        type: 'hbox',
-                        align: 'stretch'
-                    }}
-                >
-                    <Button shadow ui="action" text="Configurator" handler={this.showConfigurator}/>
+                <Toolbar docked="top" padding="5 8">
+                    <Button text="Configurator" handler={this.showConfigurator}/>
                 </Toolbar>
                 <PivotGrid 
                     ref={this.refPivotGrid}
-                    matrix={this.getMatrix()} 
+                    matrix={this.matrix} 
                     store={null} 
-                    plugins={[this.getConfiguratorPlugin()]}
+                    plugins={[this.configuratorPlugin]}
+                />
+                <FilterPanel 
+                    ref={this.refFilter}
+                    docked="right" 
+                    onSearch={this.applyFilter} 
+                    scrollable={true} 
+                    isCountryUser={true} 
                 />
             </Container>
         );
@@ -102,7 +114,7 @@ export class PortfolioPivotGrid extends React.Component {
     }
 
     private getMatrix() {
-        return {
+        return Ext.create('Ext.pivot.matrix.Remote', {
             type: 'remote',
             url: buildMvcUrl('PortfolioPivotGrid', 'GetData'),
             timeout: 600000,
@@ -111,12 +123,21 @@ export class PortfolioPivotGrid extends React.Component {
             colSubTotalsPosition: 'none',
             aggregate: this.getAggregateItems(),
             leftAxis: this.getLeftAxis().filter((item, index) => index < 3),
-            topAxis: this.getTopAxis()
-        };
+            topAxis: this.getTopAxis(),
+            listeners: {
+                beforerequest: (matrix, params) => {
+                    params.filter = this.filter.getModel();
+                }
+            }
+        });
     }
 
     private refPivotGrid = (grid: PivotGrid) => {
         this.pivotGrid = grid;
+    }
+
+    private refFilter = (filter: FilterPanel) => {
+        this.filter = filter;
     }
 
     private showConfigurator = () => {
@@ -151,5 +172,9 @@ export class PortfolioPivotGrid extends React.Component {
                 ...aggregateFields
             ]
         });
+    }
+
+    private applyFilter = () => {
+        this.pivotGrid.reconfigurePivot();
     }
 }

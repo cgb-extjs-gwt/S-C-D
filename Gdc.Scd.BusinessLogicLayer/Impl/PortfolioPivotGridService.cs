@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities.Pivot;
+using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
@@ -24,7 +25,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.portfolioPivotGridQueryBuilder = portfolioPivotGridQueryBuilder;
         }
 
-        public async Task<PivotResult> GetData(PivotRequest request)
+        public async Task<PivotResult> GetData(PortfolioPivotRequest request)
         {
             var queryMeta = this.portfolioPivotGridQueryBuilder.Build(request);
 

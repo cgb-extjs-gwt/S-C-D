@@ -92,7 +92,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                              .WhereIf(filter.ReactionType != null, x => filter.ReactionType.Contains(x.ReactionType.Id))
                              .WhereIf(filter.ReactionTime != null, x => filter.ReactionTime.Contains(x.ReactionTime.Id))
                              .WhereIf(filter.ServiceLocation != null, x => filter.ServiceLocation.Contains(x.ServiceLocation.Id))
-                             .WhereIf(filter.ProActive != null, x => filter.ProActive.Contains(x.ProActiveSla.Id))
+                             .WhereIf(filter.ProActiveSla != null, x => filter.ProActiveSla.Contains(x.ProActiveSla.Id))
                              .WhereIf(filter.IsGlobalPortfolio.HasValue && filter.IsGlobalPortfolio.Value, x => x.IsGlobalPortfolio)
                              .WhereIf(filter.IsMasterPortfolio.HasValue && filter.IsMasterPortfolio.Value, x => x.IsMasterPortfolio)
                              .WhereIf(filter.IsCorePortfolio.HasValue && filter.IsCorePortfolio.Value, x => x.IsCorePortfolio);
@@ -132,7 +132,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                              .WhereIf(filter.ReactionType != null, x => filter.ReactionType.Contains(x.ReactionType.Id))
                              .WhereIf(filter.ReactionTime != null, x => filter.ReactionTime.Contains(x.ReactionTime.Id))
                              .WhereIf(filter.ServiceLocation != null, x => filter.ServiceLocation.Contains(x.ServiceLocation.Id))
-                             .WhereIf(filter.ProActive != null, x => filter.ProActive.Contains(x.ProActiveSla.Id));
+                             .WhereIf(filter.ProActiveSla != null, x => filter.ProActiveSla.Contains(x.ProActiveSla.Id));
             }
 
             var count = await query.GetCountAsync();

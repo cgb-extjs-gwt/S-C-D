@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
@@ -80,6 +81,21 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             };
         }
 
+        public static QueryColumnInfo Convert(string columnName, TypeCode type, string tableName = null, string alias = null)
+        {
+            var column = new ColumnSqlBuilder
+            {
+                Table = tableName,
+                Name = columnName
+            };
+
+            return new QueryColumnInfo
+            {
+                Alias = alias,
+                Query = Convert(column, type)
+            };
+        }
+
         public static QueryColumnInfo RowNumber(SortInfo sortInfo, string alias = null)
         {
             return new QueryColumnInfo
@@ -99,19 +115,38 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             };
         }
 
-        public static QueryColumnInfo Convert(string columnName, TypeCode type, string tableName = null, string alias = null)
+        public static QueryColumnInfo Value(object value, string alias)
         {
-            var column = new ColumnSqlBuilder
-            {
-                Table = tableName,
-                Name = columnName
-            };
+            return new QueryColumnInfo(
+                new ValueSqlBuilder(value),
+                alias);
+        }
 
-            return new QueryColumnInfo
-            {
-                Alias = alias,
-                Query = Convert(column, type)
-            };
+        public static QueryColumnInfo Case(string alias, IEnumerable<CaseItem> caseItems, ISqlBuilder elseQuery = null, ISqlBuilder inputQuery = null)
+        {
+            return new QueryColumnInfo(
+                new CaseSqlBuilder
+                {
+                    Input = inputQuery,
+                    Cases = caseItems,
+                    Else = elseQuery
+                },
+                alias);
+        }
+
+        public static QueryColumnInfo IfElse(string alias, ConditionHelper whenQuery, ISqlBuilder thenQuery, ISqlBuilder elseQuery = null)
+        {
+            return Case(
+                alias,
+                new[]
+                {
+                    new CaseItem
+                    {
+                        When = whenQuery.ToSqlBuilder(),
+                        Then = thenQuery
+                    }
+                },
+                elseQuery);
         }
 
         private static QueryColumnInfo CreateQueryColumnInfo<T>(ISqlBuilder query, string alias = null) 

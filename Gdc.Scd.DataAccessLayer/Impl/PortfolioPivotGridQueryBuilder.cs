@@ -1,5 +1,6 @@
-﻿using System.Linq;
-using Gdc.Scd.Core.Entities.Pivot;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.Entities;
@@ -20,18 +21,18 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.portfolioMeta = meta.PrincipalPortfolio;
         }
 
-        public EntityMetaQuery Build(PivotRequest request)
+        public EntityMetaQuery Build(PortfolioPivotRequest request)
         {
             var customPortfolioMeta = this.BuildCustomPortfolioMeta(request);
 
             return new EntityMetaQuery
             {
                 Meta = customPortfolioMeta,
-                Query = this.BuildCustomPortfolioQuery(customPortfolioMeta)
+                Query = this.BuildCustomPortfolioQuery(customPortfolioMeta, request)
             };
         }
 
-        private EntityMeta BuildCustomPortfolioMeta(PivotRequest request)
+        private EntityMeta BuildCustomPortfolioMeta(PortfolioPivotRequest request)
         {
             var fields = 
                 request.GetAllAxisItems()
@@ -43,12 +44,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var wgMeta = (WgEnityMeta)this.meta.GetInputLevel(MetaConstants.WgInputLevelName);
             var sogMeta = this.meta.GetInputLevel(MetaConstants.SogInputLevel);
 
-            customPortfolioMeta.Fields.Add(ReferenceFieldMeta.Build(wgMeta.SogField.Name, sogMeta));
+            customPortfolioMeta.Fields.Add(ReferenceFieldMeta.Build(wgMeta.SogField.Name, sogMeta, wgMeta.SogField.IsNullOption));
 
             return customPortfolioMeta;
         }
 
-        private SqlHelper BuildCustomPortfolioQuery(EntityMeta customPortfolioMeta)
+        private SqlHelper BuildCustomPortfolioQuery(EntityMeta customPortfolioMeta, PortfolioPivotRequest request)
         {
             var wgMeta = this.meta.GetInputLevel(MetaConstants.WgInputLevelName);
             var wgField = this.portfolioMeta.GetFieldByReferenceMeta(wgMeta);
@@ -56,7 +57,34 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return
                 Sql.SelectDistinct(customPortfolioMeta.AllFields)
                    .From(this.portfolioMeta)
-                   .Join(this.portfolioMeta, wgField.Name);
+                   .Join(this.portfolioMeta, wgField.Name)
+                   .Where(GetFilter());
+
+            Dictionary<string, IEnumerable<object>> GetFilter()
+            {
+                Dictionary<string, IEnumerable<object>> filter = null;
+
+                if (request.Filter != null)
+                {
+                    filter =
+                        customPortfolioMeta.AllFields.Select(GetFilterInfo)
+                                                     .Where(info => info.FilterValues != null)
+                                                     .ToDictionary(
+                                                        info => info.Field.Name,
+                                                        info => info.FilterValues?.Cast<object>());
+                }
+
+                return filter;
+
+                (FieldMeta Field, long[] FilterValues) GetFilterInfo(FieldMeta field)
+                {
+                    var propertyName = field.Name.Substring(0, field.Name.Length - 2);
+                    var property = typeof(PortfolioFilterDto).GetProperty(propertyName);
+                    var values = (long[])property?.GetValue(request.Filter);
+
+                    return (field, values);
+                }
+            }
         }
     }
 }

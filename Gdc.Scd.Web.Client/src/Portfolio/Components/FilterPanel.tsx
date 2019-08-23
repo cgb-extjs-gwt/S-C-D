@@ -135,7 +135,7 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
             reactionType: this.reacttype.getSelectedKeysOrNull(),
             reactionTime: this.reacttime.getSelectedKeysOrNull(),
             serviceLocation: this.srvloc.getSelectedKeysOrNull(),
-            proActive: this.proactive.getSelectedKeysOrNull(),
+            proActiveSla: this.proactive.getSelectedKeysOrNull(),
 
             isGlobalPortfolio: this.getChecked(this.globPort),
             isMasterPortfolio: this.getChecked(this.masterPort),

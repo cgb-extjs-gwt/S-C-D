@@ -132,10 +132,12 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         private SqlHelper BuildSql(PivotRequest request, BaseEntityMeta meta, SqlHelper customQuery = null)
         {
             const string GroupedTableAlias = "Grouped";
+            const int NullDimensionId = -1;
 
             var allAxisItems = request.GetAllAxisItems().ToArray();
 
             var referenceFields = allAxisItems.Select(item => meta.GetField(item.DataIndex)).OfType<ReferenceFieldMeta>().ToArray();
+            var nullRefernceFields = referenceFields.Where(field => field.IsNullOption).ToDictionary(field => field.Name);
             var faceColumns =
                 referenceFields.Select(field => new ColumnInfo(
                     field.ReferenceFaceField,
@@ -148,71 +150,129 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                             .Concat(faceColumns)
                             .ToArray();
 
-            var joinInfos = referenceFields.Select(field => new JoinInfo(meta, field.Name, metaTableAlias: GroupedTableAlias)
-            {
-                JoinType = JoinType.Left
-            });
+            var joinInfos = 
+                referenceFields.Except(nullRefernceFields.Values)
+                               .Select(field => new JoinInfo(meta, field.Name, metaTableAlias: GroupedTableAlias)
+                                {
+                                    JoinType = JoinType.Left
+                                });
 
-            return
+            var query =
                 Sql.Select(selectColumns)
                    .FromQuery(
                         Sql.Union(BuildGroupedQueries(), true),
                         GroupedTableAlias)
                    .Join(joinInfos);
 
-            IEnumerable<SqlHelper> BuildGroupedQueries()
+            if (nullRefernceFields.Count > 0)
             {
-                var aggregateColumns = request.Aggregate.Select(BuildAggregateColumn).ToArray();
+                foreach (var field in nullRefernceFields.Values)
+                {
+                    var joinQuery =
+                        Sql.Select(
+                                SqlFunctions.Value(NullDimensionId, field.ReferenceValueField), 
+                                SqlFunctions.Value("Empty", field.ReferenceFaceField))
+                           .Union(
+                                Sql.Select(field.ReferenceValueField, field.ReferenceFaceField)
+                                   .From(field.ReferenceMeta),
+                                true);
 
+                    query = 
+                        query.JoinQuery(
+                            joinQuery, 
+                            SqlOperators.Equals(
+                                new ColumnInfo(field.Name, GroupedTableAlias), 
+                                new ColumnInfo(field.ReferenceValueField, field.ReferenceMeta.Name)),
+                            field.ReferenceMeta.Name,
+                            JoinType.Left);
+                }
+            }
+
+            return query;
+
+             IEnumerable<SqlHelper> BuildGroupedQueries()
+             {
                 for (var leftAxisIndex = 1; leftAxisIndex <= request.LeftAxis.Length; leftAxisIndex++)
                 {
-                    var leftAxisColumns = BuildColumns(request.LeftAxis, leftAxisIndex).ToArray();
+                    var leftAxisColumnInfos = BuildColumnInfos(request.LeftAxis, leftAxisIndex).ToArray();
 
                     for (var topAxisIndex = 1; topAxisIndex <= request.TopAxis.Length; topAxisIndex++)
                     {
-                        var topAxisColumns = BuildColumns(request.TopAxis, topAxisIndex).ToArray();
+                        var topAxisColumnInfos = BuildColumnInfos(request.TopAxis, topAxisIndex).ToArray();
+                        var leftTopAxisColumnInfos = leftAxisColumnInfos.Concat(topAxisColumnInfos).ToArray();
+                        var leftTopAxisColumns = leftTopAxisColumnInfos.Select(info => info.Column).ToArray();
+                        var groupedColumns = leftTopAxisColumns.Select(column => new ColumnInfo(column.Alias)).ToArray();
 
-                        yield return
-                            Sql.Select(leftAxisColumns.Concat(topAxisColumns).Concat(aggregateColumns).ToArray())
-                               .From(meta, customQuery)
-                               .GroupBy(leftAxisColumns.Concat(topAxisColumns).OfType<ColumnInfo>().ToArray());
+                        if (leftTopAxisColumnInfos.All(info => info.Type != ColumnType.NullReference))
+                        {
+                            yield return
+                                Sql.Select(leftTopAxisColumns.Concat(BuildAggregateColumns()).ToArray())
+                                   .From(meta, customQuery)
+                                   .GroupBy(groupedColumns);
+                        }
+                        else
+                        {
+                            const string WithouotNullTable = "WithouotNullTable";
+
+                            var columns =
+                                leftTopAxisColumns.Select(column => new ColumnInfo(column.Alias, WithouotNullTable))
+                                                  .Cast<BaseColumnInfo>()
+                                                  .Concat(BuildAggregateColumns(WithouotNullTable))
+                                                  .ToArray();
+
+                            yield return
+                               Sql.Select(columns)
+                                  .FromQuery(
+                                        Sql.Select(leftTopAxisColumns)
+                                           .From(meta, customQuery),
+                                        WithouotNullTable)
+                                  .GroupBy(groupedColumns);
+                        }
                     }
                 }
 
-                IEnumerable<BaseColumnInfo> BuildColumns(RequestAxisItem[] axisItems, int count)
+                IEnumerable<(BaseColumnInfo Column, ColumnType Type)> BuildColumnInfos(RequestAxisItem[] axisItems, int count)
                 {
                     for (var index = 0; index < count; index++)
                     {
                         var dataIndex = axisItems[index].DataIndex;
 
-                        yield return new ColumnInfo(dataIndex, alias: dataIndex);
+                        if (nullRefernceFields.TryGetValue(dataIndex, out var referenceField))
+                        {
+                            var column = SqlFunctions.IfElse(
+                                dataIndex,
+                                SqlOperators.IsNull(dataIndex),
+                                new ValueSqlBuilder(NullDimensionId),
+                                new ColumnSqlBuilder(dataIndex));
+
+                            yield return (column, ColumnType.NullReference);
+                        }
+                        else
+                        {
+                            yield return (new ColumnInfo(dataIndex, alias: dataIndex) , ColumnType.Data);
+                        }
                     }
 
                     for (var index = count; index < axisItems.Length; index++)
                     {
-                        var dataIndex = axisItems[index].DataIndex;
-
-                        yield return new QueryColumnInfo(
-                            new RawSqlBuilder("null"),
-                            dataIndex);
+                        yield return (SqlFunctions.Value(null, axisItems[index].DataIndex), ColumnType.NullValue);
                     }
                 }
 
-                QueryColumnInfo BuildAggregateColumn(RequestAxisItem aggregateItem)
+                IEnumerable<QueryColumnInfo> BuildAggregateColumns(string tableName = null)
                 {
-                    QueryColumnInfo result = null;
-
-                    switch (aggregateItem.Aggregator.ToUpper())
+                    foreach (var aggregateItem in request.Aggregate)
                     {
-                        case "COUNT":
-                            result = SqlFunctions.Count(alias: aggregateItem.DataIndex);
-                            break;
+                        switch (aggregateItem.Aggregator.ToUpper())
+                        {
+                            case "COUNT":
+                                yield return SqlFunctions.Count(alias: aggregateItem.DataIndex, tableName: tableName);
+                                break;
 
-                        default:
-                            throw new NotSupportedException();
+                            default:
+                                throw new NotSupportedException();
+                        }
                     }
-
-                    return result;
                 }
             }
         }
@@ -220,6 +280,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         private string BuildFaceValueColumn(string dataIndex)
         {
             return $"{dataIndex}_Face";
+        }
+
+        private enum ColumnType
+        {
+            Data,
+            NullValue,
+            NullReference
         }
     }
 }
