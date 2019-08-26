@@ -99,7 +99,6 @@ export class AlertPanel extends React.Component<ContainerProps, any> {
         this.onAlert = this.onAlert.bind(this);
         this.onCloseAlert = this.onCloseAlert.bind(this);
         //
-        RemoteNotify(this.onAlert);
         AlertHelper.init(this.onAlert);
     }
 
