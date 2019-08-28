@@ -9,5 +9,7 @@
         public string Direction { get; set; }
 
         public string Aggregator { get; set; }
+
+        public string Header { get; set; }
     }
 }

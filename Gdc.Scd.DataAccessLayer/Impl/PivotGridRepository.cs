@@ -129,7 +129,45 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
         }
 
-        private SqlHelper BuildSql(PivotRequest request, BaseEntityMeta meta, SqlHelper customQuery = null)
+        public async Task<DataTable> GetExportData(PivotRequest request, BaseEntityMeta meta, SqlHelper customQuery = null)
+        {
+            var query = this.BuildSql(request, meta, customQuery, true);
+            var allAxisItems = request.GetAllAxisItems().ToArray();
+            var dataTable = new DataTable();
+
+            foreach (var item in allAxisItems.Concat(request.Aggregate))
+            {
+                dataTable.Columns.Add(item.Header);
+            }
+
+            var rows = await this.repositorySet.ReadBySql(query, reader =>
+            {
+                var row = dataTable.NewRow();
+
+                foreach (var item in allAxisItems)
+                {
+                    var faceValueColumn = this.BuildFaceValueColumn(item.DataIndex);
+
+                    row[item.Header] = reader[faceValueColumn];
+                }
+
+                foreach (var item in request.Aggregate)
+                {
+                    row[item.Header] = reader[item.DataIndex];
+                }
+
+                return row;
+            });
+
+            foreach (var row in rows)
+            {
+                dataTable.Rows.Add(row);
+            }
+
+            return dataTable;
+        }
+
+        private SqlHelper BuildSql(PivotRequest request, BaseEntityMeta meta, SqlHelper customQuery = null, bool groupnlyLowerLevel = false)
         {
             const string GroupedTableAlias = "Grouped";
             const int NullDimensionId = -1;
@@ -153,14 +191,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var joinInfos = 
                 referenceFields.Except(nullRefernceFields.Values)
                                .Select(field => new JoinInfo(meta, field.Name, metaTableAlias: GroupedTableAlias)
-                                {
-                                    JoinType = JoinType.Left
-                                });
+                               {
+                                   JoinType = JoinType.Left
+                               });
 
             var query =
                 Sql.Select(selectColumns)
                    .FromQuery(
-                        Sql.Union(BuildGroupedQueries(), true),
+                        BuildGroupedQueries(),
                         GroupedTableAlias)
                    .Join(joinInfos);
 
@@ -190,48 +228,92 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             return query;
 
-             IEnumerable<SqlHelper> BuildGroupedQueries()
-             {
-                for (var leftAxisIndex = 1; leftAxisIndex <= request.LeftAxis.Length; leftAxisIndex++)
+            SqlHelper BuildGroupedQueries()
+            {
+                SqlHelper result;
+
+                if (groupnlyLowerLevel)
                 {
-                    var leftAxisColumnInfos = BuildColumnInfos(request.LeftAxis, leftAxisIndex).ToArray();
+                    var leftAxisColumnInfos = BuildColumnInfos(request.LeftAxis, request.LeftAxis.Length).ToArray();
+                    var topAxisColumnInfos = BuildColumnInfos(request.TopAxis, request.TopAxis.Length).ToArray();
 
-                    for (var topAxisIndex = 1; topAxisIndex <= request.TopAxis.Length; topAxisIndex++)
+                    result = BuildGroupedQuery(leftAxisColumnInfos, topAxisColumnInfos);
+                }
+                else
+                {
+                    var groupedQueris = new List<SqlHelper>();
+
+                    for (var leftAxisIndex = 1; leftAxisIndex <= request.LeftAxis.Length; leftAxisIndex++)
                     {
-                        var topAxisColumnInfos = BuildColumnInfos(request.TopAxis, topAxisIndex).ToArray();
-                        var leftTopAxisColumnInfos = leftAxisColumnInfos.Concat(topAxisColumnInfos).ToArray();
-                        var leftTopAxisColumns = leftTopAxisColumnInfos.Select(info => info.Column).ToArray();
-                        var groupedColumns = leftTopAxisColumns.Select(column => new ColumnInfo(column.Alias)).ToArray();
+                        var leftAxisColumnInfos = BuildColumnInfos(request.LeftAxis, leftAxisIndex).ToArray();
 
-                        if (leftTopAxisColumnInfos.All(info => info.Type != ColumnType.NullReference))
+                        for (var topAxisIndex = 1; topAxisIndex <= request.TopAxis.Length; topAxisIndex++)
                         {
-                            yield return
-                                Sql.Select(leftTopAxisColumns.Concat(BuildAggregateColumns()).ToArray())
-                                   .From(meta, customQuery)
-                                   .GroupBy(groupedColumns);
+                            var topAxisColumnInfos = BuildColumnInfos(request.TopAxis, topAxisIndex).ToArray();
+
+                            groupedQueris.Add(BuildGroupedQuery(leftAxisColumnInfos, topAxisColumnInfos));
                         }
-                        else
+                    }
+
+                    result = Sql.Union(groupedQueris, true);
+                }
+
+                return result;
+
+                SqlHelper BuildGroupedQuery(IEnumerable<GroupedQueryColumnInfo> leftAxisColumnInfos, IEnumerable<GroupedQueryColumnInfo> topAxisColumnInfos)
+                {
+                    SqlHelper groupedQuery;
+
+                    var leftTopAxisColumnInfos = leftAxisColumnInfos.Concat(topAxisColumnInfos).ToArray();
+                    var leftTopAxisColumns = leftTopAxisColumnInfos.Select(info => info.Column).ToArray();
+                    var groupedColumns = leftTopAxisColumns.Select(column => new ColumnInfo(column.Alias)).ToArray();
+
+                    if (leftTopAxisColumnInfos.All(info => info.Type != ColumnType.NullReference))
+                    {
+                        groupedQuery =
+                            Sql.Select(leftTopAxisColumns.Concat(BuildAggregateColumns()).ToArray())
+                               .From(meta, customQuery)
+                               .GroupBy(groupedColumns);
+                    }
+                    else
+                    {
+                        const string WithouotNullTable = "WithouotNullTable";
+
+                        var columns =
+                            leftTopAxisColumns.Select(column => new ColumnInfo(column.Alias, WithouotNullTable))
+                                              .Cast<BaseColumnInfo>()
+                                              .Concat(BuildAggregateColumns(WithouotNullTable))
+                                              .ToArray();
+
+                        groupedQuery =
+                           Sql.Select(columns)
+                              .FromQuery(
+                                    Sql.Select(leftTopAxisColumns)
+                                       .From(meta, customQuery),
+                                    WithouotNullTable)
+                              .GroupBy(groupedColumns);
+                    }
+
+                    return groupedQuery;
+
+                    IEnumerable<QueryColumnInfo> BuildAggregateColumns(string tableName = null)
+                    {
+                        foreach (var aggregateItem in request.Aggregate)
                         {
-                            const string WithouotNullTable = "WithouotNullTable";
+                            switch (aggregateItem.Aggregator.ToUpper())
+                            {
+                                case "COUNT":
+                                    yield return SqlFunctions.Count(alias: aggregateItem.DataIndex, tableName: tableName);
+                                    break;
 
-                            var columns =
-                                leftTopAxisColumns.Select(column => new ColumnInfo(column.Alias, WithouotNullTable))
-                                                  .Cast<BaseColumnInfo>()
-                                                  .Concat(BuildAggregateColumns(WithouotNullTable))
-                                                  .ToArray();
-
-                            yield return
-                               Sql.Select(columns)
-                                  .FromQuery(
-                                        Sql.Select(leftTopAxisColumns)
-                                           .From(meta, customQuery),
-                                        WithouotNullTable)
-                                  .GroupBy(groupedColumns);
+                                default:
+                                    throw new NotSupportedException();
+                            }
                         }
                     }
                 }
 
-                IEnumerable<(BaseColumnInfo Column, ColumnType Type)> BuildColumnInfos(RequestAxisItem[] axisItems, int count)
+                IEnumerable<GroupedQueryColumnInfo> BuildColumnInfos(RequestAxisItem[] axisItems, int count)
                 {
                     for (var index = 0; index < count; index++)
                     {
@@ -245,33 +327,29 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                 new ValueSqlBuilder(NullDimensionId),
                                 new ColumnSqlBuilder(dataIndex));
 
-                            yield return (column, ColumnType.NullReference);
+                            yield return new GroupedQueryColumnInfo
+                            {
+                                Column = column,
+                                Type = ColumnType.NullReference
+                            };
                         }
                         else
                         {
-                            yield return (new ColumnInfo(dataIndex, alias: dataIndex) , ColumnType.Data);
+                            yield return new GroupedQueryColumnInfo
+                            {
+                                Column = new ColumnInfo(dataIndex, alias: dataIndex),
+                                Type = ColumnType.Data
+                            };
                         }
                     }
 
                     for (var index = count; index < axisItems.Length; index++)
                     {
-                        yield return (SqlFunctions.Value(null, axisItems[index].DataIndex), ColumnType.NullValue);
-                    }
-                }
-
-                IEnumerable<QueryColumnInfo> BuildAggregateColumns(string tableName = null)
-                {
-                    foreach (var aggregateItem in request.Aggregate)
-                    {
-                        switch (aggregateItem.Aggregator.ToUpper())
+                        yield return new GroupedQueryColumnInfo
                         {
-                            case "COUNT":
-                                yield return SqlFunctions.Count(alias: aggregateItem.DataIndex, tableName: tableName);
-                                break;
-
-                            default:
-                                throw new NotSupportedException();
-                        }
+                            Column = SqlFunctions.Value(null, axisItems[index].DataIndex),
+                            Type = ColumnType.NullValue
+                        };
                     }
                 }
             }
@@ -280,6 +358,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         private string BuildFaceValueColumn(string dataIndex)
         {
             return $"{dataIndex}_Face";
+        }
+
+        private class GroupedQueryColumnInfo
+        {
+            public BaseColumnInfo Column { get; set; }
+
+            public ColumnType Type { get; set; }
         }
 
         private enum ColumnType
