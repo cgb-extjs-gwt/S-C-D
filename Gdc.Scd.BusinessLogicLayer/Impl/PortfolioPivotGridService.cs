@@ -60,7 +60,9 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                 foreach (var item in request.Aggregate)
                 {
-                    pivotTable.Values.Add(item.Header);
+                    var valueItem = pivotTable.Values.Add(item.Header);
+
+                    valueItem.SummaryFormula = XLPivotSummary.Sum;
                 }
 
                 stream = new MemoryStream();

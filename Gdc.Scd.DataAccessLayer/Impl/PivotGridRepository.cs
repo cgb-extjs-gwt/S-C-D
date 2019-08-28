@@ -135,9 +135,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var allAxisItems = request.GetAllAxisItems().ToArray();
             var dataTable = new DataTable();
 
-            foreach (var item in allAxisItems.Concat(request.Aggregate))
+            foreach (var item in allAxisItems)
             {
                 dataTable.Columns.Add(item.Header);
+            }
+
+            foreach (var item in request.Aggregate)
+            {
+                dataTable.Columns.Add(new DataColumn(item.Header, typeof(double)));
             }
 
             var rows = await this.repositorySet.ReadBySql(query, reader =>
