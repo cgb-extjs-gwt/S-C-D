@@ -1,5 +1,10 @@
 import { PortfolioFilterModel } from "../../Portfolio/Model/PortfolioFilterModel";
 
+export enum PortfolioType {
+    Local,
+    Principal
+}
+
 export interface RequestAxisItem {
     id: string
     dataIndex: string
@@ -15,4 +20,5 @@ export interface PortfolioPivotRequest {
     topAxis: RequestAxisItem[] 
     aggregate: RequestAxisItem[]
     filter: PortfolioFilterModel
+    portfolioType: PortfolioType
 }

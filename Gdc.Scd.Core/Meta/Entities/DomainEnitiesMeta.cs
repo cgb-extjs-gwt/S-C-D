@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
@@ -109,6 +110,27 @@ namespace Gdc.Scd.Core.Meta.Entities
             var fullName = BaseEntityMeta.BuildFullName(costBlockId, applicationId);
 
             return this.CostBlocks[fullName];
+        }
+
+        public EntityMeta GetPortfolioMeta(PortfolioType portfolioType)
+        {
+            EntityMeta meta;
+
+            switch (portfolioType)
+            {
+                case PortfolioType.Local:
+                    meta = this.LocalPortfolio;
+                    break;
+
+                case PortfolioType.Principal:
+                    meta = this.PrincipalPortfolio;
+                    break;
+
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return meta;
         }
     }
 }

@@ -13,12 +13,9 @@ namespace Gdc.Scd.DataAccessLayer.Impl
     {
         private readonly DomainEnitiesMeta meta;
 
-        private readonly EntityMeta portfolioMeta;
-
         public PortfolioPivotGridQueryBuilder(DomainEnitiesMeta meta)
         {
             this.meta = meta;
-            this.portfolioMeta = meta.PrincipalPortfolio;
         }
 
         public EntityMetaQuery Build(PortfolioPivotRequest request)
@@ -34,13 +31,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private EntityMeta BuildCustomPortfolioMeta(PortfolioPivotRequest request)
         {
+            var portfolioMeta = this.GetPortfolioMeta(request);
             var fields = 
                 request.GetAllAxisItems()
-                       .Select(axisItem => this.portfolioMeta.GetField(axisItem.DataIndex))
+                       .Select(axisItem => portfolioMeta.GetField(axisItem.DataIndex))
                        .Where(field => field != null)
                        .ToArray();
 
-            var customPortfolioMeta = new EntityMeta("PortfolioWithSog", this.portfolioMeta.Schema, fields);
+            var customPortfolioMeta = new EntityMeta("PortfolioWithSog", portfolioMeta.Schema, fields);
             var wgMeta = (WgEnityMeta)this.meta.GetInputLevel(MetaConstants.WgInputLevelName);
             var sogMeta = this.meta.GetInputLevel(MetaConstants.SogInputLevel);
 
@@ -51,13 +49,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private SqlHelper BuildCustomPortfolioQuery(EntityMeta customPortfolioMeta, PortfolioPivotRequest request)
         {
+            var portfolioMeta = this.GetPortfolioMeta(request);
             var wgMeta = this.meta.GetInputLevel(MetaConstants.WgInputLevelName);
-            var wgField = this.portfolioMeta.GetFieldByReferenceMeta(wgMeta);
+            var wgField = portfolioMeta.GetFieldByReferenceMeta(wgMeta);
 
             return
-                Sql.SelectDistinct(customPortfolioMeta.AllFields)
-                   .From(this.portfolioMeta)
-                   .Join(this.portfolioMeta, wgField.Name)
+                Sql.Select(customPortfolioMeta.AllFields)
+                   .From(portfolioMeta)
+                   .Join(portfolioMeta, wgField.Name)
                    .Where(GetFilter());
 
             Dictionary<string, IEnumerable<object>> GetFilter()
@@ -85,6 +84,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                     return (field, values);
                 }
             }
+        }
+
+        private EntityMeta GetPortfolioMeta(PortfolioPivotRequest request)
+        {
+            return this.meta.GetPortfolioMeta(request.PortfolioType);
         }
     }
 }

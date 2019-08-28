@@ -1,14 +1,17 @@
 import * as React from 'react';
 import { Container, Toolbar, Button, Menu, MenuItem } from '@extjs/ext-react';
 import { PivotGrid } from '@extjs/ext-react-pivot';
-import { buildMvcUrl } from '../../Common/Services/Ajax';
 import { FilterPanel } from '../../Portfolio/Components/FilterPanel';
-import { pivotExcelExport } from '../Services/PortfolioPivotGridService';
-import { PortfolioPivotRequest, RequestAxisItem } from '../States/PortfolioPivotRequest';
+import { pivotExcelExport, buildGetDataUrl } from '../Services/PortfolioPivotGridService';
+import { PortfolioPivotRequest, RequestAxisItem, PortfolioType } from '../States/PortfolioPivotRequest';
 
 Ext.require(['Ext.exporter.excel.PivotXlsx'])
 
-export class PortfolioPivotGrid extends React.Component {
+export interface PortfolioPivotGridProps {
+    portfolioType: PortfolioType
+}
+
+export class PortfolioPivotGrid extends React.Component<PortfolioPivotGridProps> {
     private readonly configuratorPlugin;
 
     private readonly exporterPlugin;
@@ -18,6 +21,10 @@ export class PortfolioPivotGrid extends React.Component {
     private pivotGrid: PivotGrid & any; 
 
     private filter: FilterPanel;
+
+    public static readonly Local = () => <PortfolioPivotGrid portfolioType={PortfolioType.Local}/>
+
+    public static readonly Principal = () => <PortfolioPivotGrid portfolioType={PortfolioType.Principal}/>
 
     constructor(props) {
         super(props)
@@ -77,6 +84,7 @@ export class PortfolioPivotGrid extends React.Component {
                     onSearch={this.applyFilter} 
                     scrollable={true} 
                     isCountryUser={true} 
+                    hideCountry={this.props.portfolioType == PortfolioType.Principal}
                 />
             </Container>
         );
@@ -87,7 +95,18 @@ export class PortfolioPivotGrid extends React.Component {
     }
 
     private getLeftAxis() {
-        return [
+        const items = [];
+
+        if (this.props.portfolioType == PortfolioType.Local) {
+            items.push({
+                id: 'Country',
+                dataIndex: 'CountryId',
+                header: 'Country',
+                renderer: this.axisRenderer
+            });
+        }
+
+        items.push( 
             {
                 id: 'ServiceLocation',
                 dataIndex: 'ServiceLocationId',
@@ -118,7 +137,15 @@ export class PortfolioPivotGrid extends React.Component {
                 header: 'ProActive',
                 renderer: this.axisRenderer
             },
-        ]
+            {
+                id: 'Duration',
+                dataIndex: 'DurationId',
+                header: 'Duration',
+                renderer: this.axisRenderer
+            }
+        )
+
+        return items;
     }
 
     private getTopAxis() {
@@ -155,17 +182,18 @@ export class PortfolioPivotGrid extends React.Component {
     private getMatrix() {
         return Ext.create('Ext.pivot.matrix.Remote', {
             type: 'remote',
-            url: buildMvcUrl('PortfolioPivotGrid', 'GetData'),
+            url: buildGetDataUrl(),
             timeout: 600000,
             rowGrandTotalsPosition: 'none',
             colGrandTotalsPosition: 'none',
             colSubTotalsPosition: 'none',
             aggregate: this.getAggregateItems(),
-            leftAxis: this.getLeftAxis().filter((item, index) => index < 3),
+            leftAxis: this.getLeftAxis().filter((item, index) => index < 2),
             topAxis: this.getTopAxis(),
             listeners: {
-                beforerequest: (matrix, params) => {
+                beforerequest: (matrix, params: PortfolioPivotRequest) => {
                     params.filter = this.filter.getModel();
+                    params.portfolioType = this.props.portfolioType;
                 }
             }
         });
@@ -217,17 +245,13 @@ export class PortfolioPivotGrid extends React.Component {
         this.pivotGrid.reconfigurePivot();
     }
 
-    private exportDocument = config => {
-        config = {
-            ...config,
+    private exportExcel = menuItem => {
+        const config = {
+            ...menuItem.cfg,
             title: 'Pivot grid export'
         };   
 
         this.pivotGrid.saveDocumentAs(config);
-    }
-
-    private exportExcel = menuItem => {
-        this.exportDocument(menuItem.cfg);
     }
 
     private exportPivotExcel = menuItem => {
@@ -245,7 +269,8 @@ export class PortfolioPivotGrid extends React.Component {
             aggregate: aggregate.items.map(buildAxisItem),
             leftAxis: leftAxis.dimensions.items.map(buildAxisItem),
             topAxis: topAxis.dimensions.items.map(buildAxisItem),
-            filter: this.filter.getModel()
+            filter: this.filter.getModel(),
+            portfolioType: this.props.portfolioType
         };
 
         function buildAxisItem(obj): RequestAxisItem {
