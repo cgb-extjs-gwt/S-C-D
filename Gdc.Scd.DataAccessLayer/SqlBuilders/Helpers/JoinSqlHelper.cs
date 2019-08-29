@@ -104,5 +104,28 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
             return joinHelper.ToSqlBuilder();
         }
+
+        public ISqlBuilder JoinQuery(ISqlBuilder query, ISqlBuilder condition, string alias, JoinType type = JoinType.Inner)
+        {
+            var joinQuery = new AliasSqlBuilder
+            {
+                Alias = alias,
+                Query = new BracketsSqlBuilder
+                {
+                    Query = query
+                }
+            };
+
+            return this.Join(joinQuery, condition, type);
+        }
+
+        public ISqlBuilder JoinQuery(SqlHelper query, ConditionHelper condition, string alias, JoinType type = JoinType.Inner)
+        {
+            return this.JoinQuery(
+                query.ToSqlBuilder(),
+                condition.ToSqlBuilder(),
+                alias,
+                type);
+        }
     }
 }

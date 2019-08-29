@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 
 namespace Gdc.Scd.Import.Por.Core.Impl
 {
-    public class ImportService<T> : DomainService<T> where T: NamedId, IDeactivatable, new()
+    public class ImportService<T> : DomainService<T> where T: NamedId, IModifiable, new()
     {
         private const int BATCH_NUMBER = 50;
         private readonly IEqualityComparer<T> _comparer;

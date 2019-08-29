@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
+﻿using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 
 namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces
 {

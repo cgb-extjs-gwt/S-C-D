@@ -30,8 +30,8 @@ namespace Gdc.Scd.Core.Meta.Entities
             this.NameField = nameField;
         }
 
-        public NamedEntityMeta(string name, string shema = null)
-            : this(name, new SimpleFieldMeta(MetaConstants.NameFieldKey, TypeCode.String), shema)
+        public NamedEntityMeta(string name, string shema = null, string nameField = null)
+            : this(name, new SimpleFieldMeta(nameField ?? MetaConstants.NameFieldKey, TypeCode.String), shema)
         {
         }
     }

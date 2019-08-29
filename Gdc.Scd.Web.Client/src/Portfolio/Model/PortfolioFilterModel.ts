@@ -6,7 +6,7 @@
     reactionType?: string[];
     reactionTime?: string[];
     serviceLocation?: string[];
-    proActive?: string[];
+    proActiveSla?: string[];
 
     isGlobalPortfolio?: boolean;
     isMasterPortfolio?: boolean;

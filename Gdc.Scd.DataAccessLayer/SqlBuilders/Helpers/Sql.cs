@@ -69,6 +69,13 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return new SqlHelper(query);
         }
 
+        public static SqlHelper Union(IEnumerable<SqlHelper> queries, bool all = false)
+        {
+            return Union(
+                queries.Select(query => query.ToSqlBuilder()),
+                all);
+        }
+
         public static SqlHelper Except(ISqlBuilder left, ISqlBuilder right)
         {
             return new SqlHelper(new ExceptSqlBuilder

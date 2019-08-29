@@ -27,7 +27,7 @@ namespace Gdc.Scd.Core.Meta.Entities
             NamedEntityMeta roleCode) 
             : base(MetaConstants.WgInputLevelName, MetaConstants.InputLevelSchema, plaMeta, sfabMeta)
         {
-            this.SogField = ReferenceFieldMeta.Build(nameof(Wg.SogId), sogMeta);
+            this.SogField = ReferenceFieldMeta.Build(nameof(Wg.SogId), sogMeta, true);
             this.WgTypeField = new SimpleFieldMeta(nameof(Wg.WgType), TypeCode.Int32);
             this.CentralContractGroupField = ReferenceFieldMeta.Build(nameof(Wg.CentralContractGroupId), centralContractGroupMeta);
             this.DescriptionField = new SimpleFieldMeta(nameof(Wg.Description), TypeCode.String);

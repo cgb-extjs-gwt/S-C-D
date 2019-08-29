@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Gdc.Scd.Import.Core.DataAccess
 {
     public class ImportRepository<T> : EntityFrameworkRepository<T>
-        where T : class, IIdentifiable, IDeactivatable, new()
+        where T : class, IIdentifiable, IModifiable, new()
     {
         private const int BATCH_NUMBER = 100;
 

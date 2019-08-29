@@ -21,11 +21,14 @@ namespace Gdc.Scd.DataAccessLayer.Impl
     {
         private readonly IKernel serviceProvider;
 
+        private readonly string connectionNameOrConnectionString;
+
         internal static IDictionary<Type, Action<EntityTypeBuilder>> RegisteredEntities { get; private set; } = new Dictionary<Type, Action<EntityTypeBuilder>>();
 
-        public EntityFrameworkRepositorySet(IKernel serviceProvider)
+        public EntityFrameworkRepositorySet(IKernel serviceProvider, string connectionNameOrConnectionString = "CommonDB")
         {
             this.serviceProvider = serviceProvider;
+            this.connectionNameOrConnectionString = connectionNameOrConnectionString;
 
             this.ChangeTracker.AutoDetectChangesEnabled = false;
             this.Database.SetCommandTimeout(600);
@@ -318,6 +321,13 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
+        public Task<T> ExecuteScalarAsync<T>(SqlHelper query)
+        {
+            var queryData = query.ToQueryData();
+
+            return this.ExecuteScalarAsync<T>(queryData.Sql, queryData.Parameters);
+        }
+
         public Task<T> ExecuteScalarAsync<T>(string sql, IEnumerable<CommandParameterInfo> parameters = null)
         {
             var dbParams = this.GetDbParameters(parameters).ToArray();
@@ -349,7 +359,16 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["CommonDB"].ConnectionString, opt => opt.UseRowNumberForPaging());
+
+            var connectionStringSettings = 
+                ConfigurationManager.ConnectionStrings.OfType<ConnectionStringSettings>()
+                                                      .FirstOrDefault(settings => settings.Name == this.connectionNameOrConnectionString);
+
+            var connectionString = connectionStringSettings == null 
+                ? this.connectionNameOrConnectionString 
+                : connectionStringSettings.ConnectionString;
+
+            optionsBuilder.UseSqlServer(connectionString, opt => opt.UseRowNumberForPaging());
         }
 
         private IEnumerable<DbParameter> GetDbParameters(IEnumerable<CommandParameterInfo> parameters, DbCommand command)

@@ -15,6 +15,7 @@ const SELECT_MAX_HEIGHT: string = '200px';
 
 export interface FilterPanelProps extends PanelProps {
     isCountryUser: boolean;
+    hideCountry?: boolean
     onSearch(filter: PortfolioFilterModel): void;
 }
 
@@ -84,8 +85,11 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
                             clearable: 'true'              
                         }}
                     > 
-
-                        <MultiSelectField ref={x => this.country = x} {...multiProps} hideCheckbox={false} store={this.dictSrv.getUserCountryNames} label='Country'/>
+                        {
+                            this.props.hideCountry 
+                                ? <div/>
+                                : <MultiSelectField ref={x => this.country = x} {...multiProps} hideCheckbox={false} store={this.dictSrv.getUserCountryNames} label='Country'/>
+                        }
                         <Panel title='Asset(WG)'
                             {...panelProps}>
                             <MultiSelectWg ref={x => this.wg = x} {...multiProps} store={this.dictSrv.getHardwareWg} />
@@ -128,14 +132,14 @@ export class FilterPanel extends React.Component<FilterPanelProps, any> {
 
     public getModel(): PortfolioFilterModel {
         return {
-            country: this.country.getSelectedKeysOrNull(),
+            country: this.country && this.country.getSelectedKeysOrNull(),
             wg: this.wg.getSelectedKeysOrNull(),
             availability: this.av.getSelectedKeysOrNull(),
             duration: this.dur.getSelectedKeysOrNull(),
             reactionType: this.reacttype.getSelectedKeysOrNull(),
             reactionTime: this.reacttime.getSelectedKeysOrNull(),
             serviceLocation: this.srvloc.getSelectedKeysOrNull(),
-            proActive: this.proactive.getSelectedKeysOrNull(),
+            proActiveSla: this.proactive.getSelectedKeysOrNull(),
 
             isGlobalPortfolio: this.getChecked(this.globPort),
             isMasterPortfolio: this.getChecked(this.masterPort),

@@ -7,7 +7,7 @@ using Gdc.Scd.Core.Meta.Constants;
 namespace Gdc.Scd.Core.Entities
 {
     [Table(MetaConstants.SfabInputLevel, Schema = MetaConstants.InputLevelSchema)]
-    public class SFab : NamedId, IDeactivatable
+    public class SFab : NamedId, IModifiable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id
