@@ -9,7 +9,7 @@ namespace Gdc.Scd.Core.Entities
 {
     [MustUpdateCoordinate(MetaConstants.SwDigitInputLevel)]
     [Table(MetaConstants.SwDigitInputLevel, Schema = MetaConstants.InputLevelSchema)]
-    public class SwDigit : NamedId, IDeactivatable
+    public class SwDigit : NamedId, IModifiable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id
@@ -34,7 +34,9 @@ namespace Gdc.Scd.Core.Entities
         }
 
         public DateTime CreatedDateTime { get; set; }
+
         public DateTime? DeactivatedDateTime { get; set; }
+
         public DateTime ModifiedDateTime { get; set; }
 
         public ICollection<SwDigitLicense> SwDigitLicenses { get; set; }

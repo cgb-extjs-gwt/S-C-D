@@ -49,5 +49,17 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         {
             return new SelectJoinSqlHelper(this.joinSqlHelper.Join(joinInfos));
         }
+
+        public SelectJoinSqlHelper JoinQuery(ISqlBuilder query, ISqlBuilder condition, string alias, JoinType type = JoinType.Inner)
+        {
+            return new SelectJoinSqlHelper(
+                this.joinSqlHelper.JoinQuery(query, condition, alias, type));
+        }
+
+        public SelectJoinSqlHelper JoinQuery(SqlHelper query, ConditionHelper condition, string alias, JoinType type = JoinType.Inner)
+        {
+            return new SelectJoinSqlHelper(
+                 this.joinSqlHelper.JoinQuery(query, condition, alias, type));
+        }
     }
 }

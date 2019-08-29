@@ -76,10 +76,14 @@ namespace Gdc.Scd.Core.Meta.Impl
             domainEnitiesMeta.OtherMetas.AddRange(
                 customCoordinateMetas.Where(meta => domainEnitiesMeta[meta.FullName] == null));
 
-            domainEnitiesMeta.LocalPortfolio = this.BuildLocalPortfolioMeta(domainEnitiesMeta);
+            domainEnitiesMeta.LocalPortfolio = this.BuildPortfolioMeta<LocalPortfolio>(domainEnitiesMeta);
+            domainEnitiesMeta.PrincipalPortfolio = this.BuildPortfolioMeta<PrincipalPortfolio>(domainEnitiesMeta);
 
             var countryMeta = domainEnitiesMeta.GetCountryEntityMeta();
-            domainEnitiesMeta.ExchangeRate = new ExchangeRateEntityMeta(countryMeta);
+            if (countryMeta != null)
+            {
+                domainEnitiesMeta.ExchangeRate = new ExchangeRateEntityMeta(countryMeta);
+            }
 
             return domainEnitiesMeta;
         }
@@ -225,20 +229,22 @@ namespace Gdc.Scd.Core.Meta.Impl
             toCollection.AddRange(fields);
         }
 
-        private EntityMeta BuildLocalPortfolioMeta(DomainEnitiesMeta domainEnitiesMeta)
+        private EntityMeta BuildPortfolioMeta<T>(DomainEnitiesMeta domainEnitiesMeta) where T : Portfolio
         {
             var fields =
-                typeof(LocalPortfolio).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty)
-                                      .Where(prop => !prop.PropertyType.IsPrimitive && prop.PropertyType != typeof(string))
-                                      .Select(prop => new
-                                      {
-                                          PropertyName = prop.Name,
-                                          ReferenceEntity = domainEnitiesMeta.GetEntityMeta(MetaHelper.GetEntityInfo(prop.PropertyType)) as NamedEntityMeta
-                                      })
-                                      .Where(info => info.ReferenceEntity != null)
-                                      .Select(info => ReferenceFieldMeta.Build($"{info.PropertyName}Id", info.ReferenceEntity));
+                typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty)
+                         .Where(prop => !prop.PropertyType.IsPrimitive && prop.PropertyType != typeof(string))
+                         .Select(prop => new
+                         {
+                             PropertyName = prop.Name,
+                             ReferenceEntity = domainEnitiesMeta.GetEntityMeta(MetaHelper.GetEntityInfo(prop.PropertyType)) as NamedEntityMeta
+                         })
+                         .Where(info => info.ReferenceEntity != null)
+                         .Select(info => ReferenceFieldMeta.Build($"{info.PropertyName}Id", info.ReferenceEntity));
 
-            return new EntityMeta(MetaConstants.LocalPortfolioTableName, MetaConstants.PortfolioSchema, fields);
+            var entityInfo = MetaHelper.GetEntityInfo<T>();
+
+            return new EntityMeta(entityInfo.Name, entityInfo.Schema, fields);
         }
 
         private class CoordinateMetaFactory

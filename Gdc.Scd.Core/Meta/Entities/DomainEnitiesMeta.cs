@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
@@ -28,6 +29,8 @@ namespace Gdc.Scd.Core.Meta.Entities
         public MetaCollection<NamedEntityMeta> InputLevels { get; } = new MetaCollection<NamedEntityMeta>();
 
         public CostBlockHistoryEntityMeta CostBlockHistory { get; set; }
+
+        public EntityMeta PrincipalPortfolio { get; set; }
 
         public EntityMeta LocalPortfolio { get; set; }
 
@@ -99,9 +102,35 @@ namespace Gdc.Scd.Core.Meta.Entities
 
         public CostBlockEntityMeta GetCostBlockEntityMeta(ICostBlockIdentifier costBlockIdentifier)
         {
-            var fullName = BaseEntityMeta.BuildFullName(costBlockIdentifier.CostBlockId, costBlockIdentifier.ApplicationId);
+            return this.GetCostBlockEntityMeta(costBlockIdentifier.ApplicationId, costBlockIdentifier.CostBlockId);
+        }
+
+        public CostBlockEntityMeta GetCostBlockEntityMeta(string applicationId, string costBlockId)
+        {
+            var fullName = BaseEntityMeta.BuildFullName(costBlockId, applicationId);
 
             return this.CostBlocks[fullName];
+        }
+
+        public EntityMeta GetPortfolioMeta(PortfolioType portfolioType)
+        {
+            EntityMeta meta;
+
+            switch (portfolioType)
+            {
+                case PortfolioType.Local:
+                    meta = this.LocalPortfolio;
+                    break;
+
+                case PortfolioType.Principal:
+                    meta = this.PrincipalPortfolio;
+                    break;
+
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return meta;
         }
     }
 }

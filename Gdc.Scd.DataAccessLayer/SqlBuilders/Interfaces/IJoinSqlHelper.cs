@@ -20,5 +20,9 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces
         TResult Join(BaseEntityMeta meta, ConditionHelper condition, JoinType type = JoinType.Inner, string aliasMetaTable = null);
 
         TResult Join(IEnumerable<JoinInfo> joinInfos);
+
+        TResult JoinQuery(ISqlBuilder query, ISqlBuilder condition, string alias, JoinType type = JoinType.Inner);
+
+        TResult JoinQuery(SqlHelper query, ConditionHelper condition, string alias, JoinType type = JoinType.Inner);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Gdc.Scd.BusinessLogicLayer.Dto.Portfolio;
+using Gdc.Scd.Core.Entities.Portfolio;
 using System.Threading.Tasks;
 
 namespace Gdc.Scd.BusinessLogicLayer.Interfaces
