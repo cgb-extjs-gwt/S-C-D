@@ -66,6 +66,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Export.ArchiveResul
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.Tests.Integration.Import.Ebis.InstallBase", "Gdc.Scd.Tests.Integration.Import.Ebis.InstallBase\Gdc.Scd.Tests.Integration.Import.Ebis.InstallBase.csproj", "{8C1102E1-3077-42D5-B0F5-0F473159BD25}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gdc.Scd.CopyDataTool", "Gdc.Scd.CopyDataTool\Gdc.Scd.CopyDataTool.csproj", "{67D52392-6E87-4DE4-91CD-C4C388E3B344}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -180,6 +182,10 @@ Global
 		{8C1102E1-3077-42D5-B0F5-0F473159BD25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C1102E1-3077-42D5-B0F5-0F473159BD25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C1102E1-3077-42D5-B0F5-0F473159BD25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67D52392-6E87-4DE4-91CD-C4C388E3B344}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67D52392-6E87-4DE4-91CD-C4C388E3B344}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67D52392-6E87-4DE4-91CD-C4C388E3B344}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67D52392-6E87-4DE4-91CD-C4C388E3B344}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
