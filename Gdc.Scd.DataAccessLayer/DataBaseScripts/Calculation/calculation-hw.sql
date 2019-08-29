@@ -2870,6 +2870,9 @@ RETURN
              , (sum(m.ServiceTPResult * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_tp
              , (sum(case when m.ServiceTPResult <> 0 then ib.InstalledBaseCountryNorm end)          over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_tp
 
+             , (sum(m.ProActive * ib.InstalledBaseCountryNorm)                               over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_x_pro
+             , (sum(case when m.ProActive <> 0 then ib.InstalledBaseCountryNorm end)         over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as sum_ib_by_pro
+
              , (max(m.ReleaseDate)                                                           over(partition by wg.SogId, m.AvailabilityId, m.DurationId, m.ReactionTimeId, m.ReactionTypeId, m.ServiceLocationId, m.ProActiveSlaId)) as ReleaseDate
 
              , m.ListPrice
@@ -2938,6 +2941,8 @@ RETURN
             , case when m.sum_ib_x_tp_Released <> 0 and m.sum_ib_by_tp_Released <> 0 then m.sum_ib_x_tp_Released / m.sum_ib_by_tp_Released 
                    when m.ReleaseDate is not null then 0 end as ServiceTpSog_Released
 
+            , case when m.sum_ib_x_pro <> 0 and m.sum_ib_by_pro <> 0 then m.sum_ib_x_pro / m.sum_ib_by_pro else 0 end as ProActiveSog
+
             , m.ReleaseDate
 
             , m.ListPrice
@@ -2946,7 +2951,7 @@ RETURN
 
     from cte m
 )
-go
+GO
 
 IF OBJECT_ID('Hardware.GetReleaseCosts') IS NOT NULL
   DROP FUNCTION Hardware.GetReleaseCosts;
