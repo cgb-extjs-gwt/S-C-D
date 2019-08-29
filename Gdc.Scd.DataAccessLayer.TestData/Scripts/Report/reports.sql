@@ -104,6 +104,7 @@ RETURNS @tbl TABLE (
          , CountryId                         bigint
          , Country                           nvarchar(255)
          , CurrencyId                        bigint
+         , Currency                          nvarchar(255)
          , ExchangeRate                      float
          , WgId                              bigint
          , Wg                                nvarchar(255)
@@ -145,14 +146,14 @@ RETURNS @tbl TABLE (
          , ServiceTC4                        float
          , ServiceTC5                        float
          , ServiceTC1P                       float
-		 , ServiceTCResult					 float
-         , ServiceTP1                        float
-         , ServiceTP2                        float
-         , ServiceTP3                        float
-         , ServiceTP4                        float
-         , ServiceTP5                        float
-         , ServiceTP1P                       float
-		 , ServiceTPResult					 float
+        , ServiceTCResult                   float
+        , ServiceTP1                        float
+        , ServiceTP2                        float
+        , ServiceTP3                        float
+        , ServiceTP4                        float
+        , ServiceTP5                        float
+        , ServiceTP1P                       float
+        , ServiceTPResult                   float
          , ListPrice                         float
          , DealerDiscount                    float
          , DealerPrice                       float
@@ -189,6 +190,7 @@ begin
             , c.CountryId                        
             , c.Country                          
             , c.CurrencyId                       
+            , c.Currency
             , c.ExchangeRate                     
             , c.WgId                             
             , c.Wg                               
@@ -230,14 +232,14 @@ begin
             , c.ServiceTC4                       
             , c.ServiceTC5                       
             , c.ServiceTC1P
-			, c.ServiceTCResult 
+			, c.ServiceTCResult                      
             , c.ServiceTP1                       
             , c.ServiceTP2                       
             , c.ServiceTP3                       
             , c.ServiceTP4                       
             , c.ServiceTP5                       
             , c.ServiceTP1P
-			, c.ServiceTPResult
+			, c.ServiceTPResult                      
             , c.ListPrice                        
             , c.DealerDiscount                   
             , c.DealerPrice                      
@@ -250,7 +252,7 @@ begin
     left join Fsp.HwFspCodeTranslation fsp on fsp.SlaHash = c.SlaHash and fsp.Sla = c.Sla    
     return;
 end
-GO
+go
 
 IF OBJECT_ID('Report.GetReportColumnTypeByName') IS NOT NULL
   DROP FUNCTION Report.GetReportColumnTypeByName;
@@ -803,7 +805,7 @@ BEGIN
             , LOWER(c.Duration) + ' ' + c.ServiceLocation as ServiceProduct
 
             , c.LocalServiceStandardWarranty
-            , case when @approved = 1 then c.ServiceTpSog_Approved else c.ServiceTpSog end as ServiceTP
+            , case when @approved = 1 then c.ServiceTpSog else c.ServiceTpSog_Released end as ServiceTP
             , c.DealerPrice
             , c.ListPrice
     into #tmp

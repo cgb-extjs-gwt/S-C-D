@@ -78,10 +78,10 @@ BEGIN
              , m.StdWarrantyLocation
 
              , m.ServiceTcSog * m.ExchangeRate as ServiceTC
-             , m.ServiceTpSog * m.ExchangeRate as ServiceTP_Released
-             , m.ServiceTpSog_Approved * m.ExchangeRate as ServiceTP_Approved
+             , m.ServiceTpSog * m.ExchangeRate as ServiceTP_Approved
+             , m.ServiceTpSog_Released * m.ExchangeRate as ServiceTP_Released
 
-			 , m.ReleaseDate
+             , m.ReleaseDate
 
              , m.FieldServiceCost * m.ExchangeRate as FieldServiceCost
              , m.ServiceSupportCost * m.ExchangeRate as ServiceSupportCost 

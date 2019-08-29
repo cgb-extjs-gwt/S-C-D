@@ -191,13 +191,17 @@
     <Compile Include="Migrations\Migration_2019_07_04_10_05.cs" />
     <Compile Include="Migrations\Migration_2019_07_04_13_40.cs" />
     <Compile Include="Migrations\Migration_2019_07_29.cs" />
+    <Compile Include="Migrations\Migration_2019_08_15_09_20.cs" />
+    <Compile Include="Migrations\Migration_2019_08_21_10_00.cs" />
+    <Compile Include="Migrations\Migration_2019_08_29_09_44.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlFormatter.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config">
+    <None Include="App.config" />
+    <None Include="obj\App.config">
       <SubType>Designer</SubType>
     </None>
     <EmbeddedResource Include="MigrationFiles\Migration_2019_03_28_14_54\2019-03-28 CS200c SCD2-0 List %28sb%29.xlsx" />
@@ -529,6 +533,15 @@
     </Content>
     <Content Include="MigrationScripts\2019-07-29.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-08-15-09-20.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-08-21-10-00.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MigrationScripts\2019-08-29-09-44.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="MigrationScripts\2019-04-02-16-23.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

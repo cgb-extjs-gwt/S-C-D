@@ -105,7 +105,20 @@ export class HwCostView extends React.Component<CalcCostProps, any> {
                 else {
                     this.toggleToolbar(changed == 0);
                 }
+
+                store.fixNullValue(record, 'ServiceTCManual');
+                store.fixNullValue(record, 'ServiceTPManual');
+                store.fixNullValue(record, 'ListPrice');
+                store.fixNullValue(record, 'DealerDiscount');
+                store.fixNullValue(record, 'LocalServiceStandardWarrantyManual');
             }
+        },
+        fixNullValue: function (record, field) {
+            var d = record.data;
+            //
+            //stub, for correct null imput
+            var v = typeof d[field] === 'number' ? d[field] : '';
+            record.set(field, v); 
         }
     });
 
