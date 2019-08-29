@@ -98,51 +98,16 @@ export class PortfolioPivotGrid extends React.Component<PortfolioPivotGridProps>
         const items = [];
 
         if (this.props.portfolioType == PortfolioType.Local) {
-            items.push({
-                id: 'Country',
-                dataIndex: 'CountryId',
-                header: 'Country',
-                renderer: this.axisRenderer
-            });
+            items.push(this.buildAxisItem('Country', 'CountryId', 'Country'));
         }
 
         items.push( 
-            {
-                id: 'ServiceLocation',
-                dataIndex: 'ServiceLocationId',
-                header: 'Service location',
-                renderer: this.axisRenderer
-            },
-            {
-                id: 'ReactionTime',
-                dataIndex: 'ReactionTimeId',
-                header: 'Reaction time',
-                renderer: this.axisRenderer
-            },
-            {
-                id: 'ReactionType',
-                dataIndex: 'ReactionTypeId',
-                header: 'Reaction type',
-                renderer: this.axisRenderer
-            },
-            {
-                id: 'Availability',
-                dataIndex: 'AvailabilityId',
-                header: 'Availability',
-                renderer: this.axisRenderer
-            },
-            {
-                id: 'ProActive',
-                dataIndex: 'ProActiveSlaId',
-                header: 'ProActive',
-                renderer: this.axisRenderer
-            },
-            {
-                id: 'Duration',
-                dataIndex: 'DurationId',
-                header: 'Duration',
-                renderer: this.axisRenderer
-            }
+            this.buildAxisItem('ServiceLocation', 'ServiceLocationId', 'Service location'),
+            this.buildAxisItem('ReactionTime', 'ReactionTimeId', 'Reaction time'),
+            this.buildAxisItem('ReactionType', 'ReactionTypeId', 'Reaction type'),
+            this.buildAxisItem('Availability', 'AvailabilityId', 'Availability'),
+            this.buildAxisItem('ProActive', 'ProActiveSlaId', 'ProActive'),
+            this.buildAxisItem('Duration', 'DurationId', 'Duration')
         )
 
         return items;
@@ -150,18 +115,8 @@ export class PortfolioPivotGrid extends React.Component<PortfolioPivotGridProps>
 
     private getTopAxis() {
         return [
-            {
-                id: 'Sog',
-                dataIndex: 'SogId',
-                header: 'Sog',
-                renderer: this.axisRenderer
-            },
-            {
-                id: 'Wg',
-                dataIndex: 'WgId',
-                header: 'Wg',
-                renderer: this.axisRenderer
-            },
+            this.buildAxisItem('Sog', 'SogId', 'Sog'),
+            this.buildAxisItem('Wg', 'WgId', 'Wg'),
         ]
     }
 
@@ -171,12 +126,27 @@ export class PortfolioPivotGrid extends React.Component<PortfolioPivotGridProps>
             dataIndex: 'count',
             header: 'Count',
             aggregator: 'count',
-            renderer: aggregateRenderer
+            renderer: value => value == null ? 0 : value
         }]
+    }
 
-        function aggregateRenderer(value) {
-            return value == null ? 0 : value;
-        }
+    private buildAxisItem(id: string, dataIndex: string, header: string) {
+        return {
+            id,
+            dataIndex,
+            header,
+            renderer: value => value == null ? ' ' : value,
+            sorterFn: (object1, object2) => {
+                const value1 = getComparedValue(object1);
+                const value2 = getComparedValue(object2);
+
+                return value1.localeCompare(value2);
+
+                function getComparedValue(obj): string {
+                    return obj.display == null ? obj.name : obj.display;
+                }
+            }
+        };
     }
 
     private getMatrix() {
