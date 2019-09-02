@@ -5,6 +5,7 @@ using Gdc.Scd.Core.Entities.Calculation;
 using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Core.Entities.Report;
 using Gdc.Scd.Core.Helpers;
+using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Helpers;
 using Ninject.Modules;
 
@@ -40,6 +41,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<ICostImportExcelService>().To<CostImportExcelService>().InScdRequestScope();
             Bind<IRoleCodeService>().To<RoleCodeService>().InScdRequestScope();
             Bind<IPortfolioPivotGridService>().To<PortfolioPivotGridService>().InScdRequestScope();
+            Bind<IAfterAddingInterceptor<Wg>>().To<WgNotificationInterceptor>().InScdRequestScope();
 
             /*----------dictionaries-----------*/
             Kernel.RegisterEntity<ClusterRegion>();

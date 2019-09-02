@@ -16,13 +16,18 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
     public class EmailService : IEmailService
     {
         private readonly DomainMeta domainMeta;
+
         private readonly DomainEnitiesMeta domainEnitiesMeta;
+
         private readonly ISqlRepository sqlRepository;
-        public SmtpClient Client { get; set; }
+
+        private readonly SmtpClient client;
+
+        private readonly IUserRepository userRepository;
 
         public EmailService()
         {
-            Client = new SmtpClient
+            this.client = new SmtpClient
             {
                 Port = 25,
                 Host = "imrpool.fs.fujitsu.com",
@@ -31,39 +36,35 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             };
         }
 
-        public EmailService(DomainMeta domainMeta, DomainEnitiesMeta domainEnitiesMeta, ISqlRepository sqlRepository)
+        public EmailService(
+            DomainMeta domainMeta, 
+            DomainEnitiesMeta domainEnitiesMeta, 
+            ISqlRepository sqlRepository, 
+            IUserRepository userRepository)
          : this()
         {
             this.domainMeta = domainMeta;
             this.domainEnitiesMeta = domainEnitiesMeta;
             this.sqlRepository = sqlRepository;
+            this.userRepository = userRepository;
         }
 
         public async Task SendApprovalMailAsync(CostBlockHistory history)
         {
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress("SCD_Admin@ts.fujitsu.com"),
-                IsBodyHtml = true,
-                Subject = "SCD: Approval granted",
-            };
-            var body = await GenerateDetailedBodyAsync(history);
-            mailMessage.Body = string.Concat(GenerateApprovedGreeting(history.EditUser.Name), body);
-            mailMessage.To.Add(history.EditUser.Email);
-            Client.Send(mailMessage);
+            var body = string.Concat(
+                this.GenerateApprovedGreeting(history.EditUser.Name), 
+                await this.GenerateDetailedBodyAsync(history));
+
+            this.Send("Approval granted", body, new[] { history.EditUser.Email });
         }
+
         public async Task SendRejectedMailAsync(CostBlockHistory history, string rejectionText, string approverName)
         {
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress("SCD_Admin@ts.fujitsu.com"),
-                IsBodyHtml = true,
-                Subject = "SCD: Approval was not granted",
-            };
-            var body = await GenerateDetailedBodyAsync(history);
-            mailMessage.Body = string.Concat(GenerateRejectGreeting(history.EditUser.Name, rejectionText, approverName), body);
-            mailMessage.To.Add(history.EditUser.Email);
-            Client.Send(mailMessage);
+            var body = string.Concat(
+                this.GenerateRejectGreeting(history.EditUser.Name, rejectionText, approverName), 
+                await this.GenerateDetailedBodyAsync(history));
+
+            this.Send("Approval was not granted", body, new[] { history.EditUser.Email });
         }
 
         public void SendArchiveResultEmail(IList<ArchiveFolderDto> archiveFolderData,
@@ -71,19 +72,54 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             string emailFrom,
             string periodStart, string periodEnd)
         {
+            var body = this.GenerateArchiveEmailResult(archiveFolderData, periodStart, periodEnd);
+            var toAddresses =
+                emailTo.Split(";,".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+                       .Select(address => address.Trim())
+                       .ToArray();
+
+            this.Send($"Result of Archiving {periodStart}/{periodEnd}", body, toAddresses, emailFrom);
+        }
+
+        public void SendNewWgEmail(IEnumerable<Wg> wgs)
+        {
+            var body = new StringBuilder("New warranty groups were added:");
+            body.AppendLine();
+
+            body.AppendLine("<ul>");
+
+            foreach (var wg in wgs)
+            {
+                body.AppendLine($"<li>{wg.Name}</li>");
+            }
+
+            body.AppendLine("</ul>");
+
+            var adminEmails = this.userRepository.GetAdmins().Select(admin => admin.Email).ToArray();
+
+            this.Send("New warranty groups", body.ToString(), adminEmails);
+        }
+
+        private void Send(
+            string subject, 
+            string htmlBody, 
+            IEnumerable<string> toAddresses, 
+            string fromAddress = "SCD_Admin@ts.fujitsu.com")
+        {
             var mailMessage = new MailMessage
             {
-                From = new MailAddress(emailFrom),
+                From = new MailAddress(fromAddress),
                 IsBodyHtml = true,
-                Subject = $"SCD: Result of Archiving {periodStart}/{periodEnd}"
+                Subject = $"SCD: {subject}",
+                Body = htmlBody
             };
 
-            var body = GenerateArchiveEmailResult(archiveFolderData, periodStart, periodEnd);
-            mailMessage.Body = body;
-            var toAddresses = emailTo.Split(";,".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            foreach (var emailAddress in toAddresses)
-                mailMessage.To.Add(emailAddress.Trim());
-            Client.Send(mailMessage);
+            foreach (var address in toAddresses)
+            {
+                mailMessage.To.Add(address);
+            }
+
+            this.client.Send(mailMessage);
         }
 
         private async Task<string> GenerateDetailedBodyAsync(CostBlockHistory history)
@@ -109,10 +145,12 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             return string.Concat(infos);
         }
+
         private string GenerateApprovedGreeting(string username)
         {
             return $"<b>Hello {username},</br>Your values have been approved.</b>";
         }
+
         private string GenerateRejectGreeting(string username, string rejectionText, string approverName)
         {
             return

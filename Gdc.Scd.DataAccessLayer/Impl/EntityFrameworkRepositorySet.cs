@@ -1,12 +1,4 @@
-﻿using Gdc.Scd.Core.Interfaces;
-using Gdc.Scd.DataAccessLayer.Entities;
-using Gdc.Scd.DataAccessLayer.Helpers;
-using Gdc.Scd.DataAccessLayer.Interfaces;
-using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Ninject;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -14,6 +6,14 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Gdc.Scd.Core.Interfaces;
+using Gdc.Scd.DataAccessLayer.Entities;
+using Gdc.Scd.DataAccessLayer.Helpers;
+using Gdc.Scd.DataAccessLayer.Interfaces;
+using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Ninject;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
@@ -48,7 +48,43 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public void Sync()
         {
+            var interceptorInfos = BuildInterceptorInfos().ToArray();
+
             this.SaveChanges();
+
+            foreach (var interceptorInfo in interceptorInfos)
+            {
+                var parameters = Array.CreateInstance(interceptorInfo.EntityType, interceptorInfo.Entities.Length);
+
+                interceptorInfo.Entities.CopyTo(parameters, 0);
+
+                interceptorInfo.Interceptor.GetType()
+                                           .GetMethod(nameof(IAfterAddingInterceptor<IIdentifiable>.Handle))
+                                           .Invoke(interceptorInfo.Interceptor, new[] { parameters });
+            }
+
+            IEnumerable<(Type EntityType, object[] Entities, object Interceptor)> BuildInterceptorInfos()
+            {
+                foreach (var entityType in RegisteredEntities.Keys)
+                {
+                    var interceptorType = typeof(IAfterAddingInterceptor<>).MakeGenericType(entityType);
+                    var interceptor = this.serviceProvider.TryGet(interceptorType);
+
+                    if (interceptor != null)
+                    {
+                        var entities =
+                            this.ChangeTracker.Entries()
+                                              .Where(entry => entry.State == EntityState.Added && entry.Entity.GetType() == entityType)
+                                              .Select(entry => entry.Entity)
+                                              .ToArray();
+
+                        if (entities.Length > 0)
+                        {
+                            yield return (entityType, entities, interceptor);
+                        }
+                    }
+                }
+            }
         }
 
         public Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
