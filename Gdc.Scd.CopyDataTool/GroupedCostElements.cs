@@ -9,7 +9,7 @@ namespace Gdc.Scd.CopyDataTool
     public class GroupedCostElements
     {
         public List<string> CostElements { get; set; }
-        public List<string> InputLevels { get; set; }
+        public List<string> InputLevels { get; set; } //Правильней это переименовать в Coordinates, там помимо InputLevels могут быть и Dependency
 
         public GroupedCostElements()
         {

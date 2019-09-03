@@ -51,6 +51,13 @@ namespace Gdc.Scd.CopyDataTool
                     config.CostBlocks.Cast<CostBlockElement>()
                         .Any(cb => cb.Name == costBlock.Name && cb.Schema == costBlock.Schema)).ToArray();
 
+            // Не во всех костблоках есть страна. 
+            if (string.IsNullOrEmpty(this.config.Country))
+            {
+                costBlocks = 
+                    costBlocks.Where(costBlock => costBlock.InputLevelFields[MetaConstants.CountryInputLevelName] != null)
+                              .ToArray();
+            }
 
             var sourceResult = GetSourceData(costBlocks);
             GetEditInfos(sourceResult, costBlocks);
