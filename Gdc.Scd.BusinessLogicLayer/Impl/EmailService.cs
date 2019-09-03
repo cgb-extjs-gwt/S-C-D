@@ -81,7 +81,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             this.Send($"Result of Archiving {periodStart}/{periodEnd}", body, toAddresses, emailFrom);
         }
 
-        public void SendNewWgEmail(IEnumerable<Wg> wgs)
+        public void SendNewWgEmail(IEnumerable<Wg> wgs, IEnumerable<string> emails)
         {
             var body = new StringBuilder("New warranty groups were added:");
             body.AppendLine();
@@ -95,9 +95,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             body.AppendLine("</ul>");
 
-            var adminEmails = this.userRepository.GetAdmins().Select(admin => admin.Email).ToArray();
-
-            this.Send("New warranty groups", body.ToString(), adminEmails);
+            this.Send("New warranty groups", body.ToString(), emails);
         }
 
         private void Send(

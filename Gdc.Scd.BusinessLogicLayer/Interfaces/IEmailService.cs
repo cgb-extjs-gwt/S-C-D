@@ -16,6 +16,6 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
             string emailFrom,
             string periodStart, string periodEnd);
 
-        void SendNewWgEmail(IEnumerable<Wg> wgs);
+        void SendNewWgEmail(IEnumerable<Wg> wgs, IEnumerable<string> emails);
     }
 }
