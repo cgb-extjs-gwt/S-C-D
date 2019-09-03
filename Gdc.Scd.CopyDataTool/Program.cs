@@ -17,9 +17,8 @@ namespace Gdc.Scd.CopyDataTool
     {
         static void Main(string[] args)
         {
-            var costBlockConfig = (CopyDetailsConfig) ConfigurationManager.GetSection("copyDetailsConfig");
             var dataCopyService = new DataCopyService();
-            dataCopyService.CopyData(costBlockConfig);
+            dataCopyService.CopyData();
         }
     }
 }

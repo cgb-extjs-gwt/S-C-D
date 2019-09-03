@@ -13,6 +13,10 @@ namespace Gdc.Scd.CopyDataTool.Configuration
         [ConfigurationCollection(typeof(CostBlockCollection))]
         public CostBlockCollection CostBlocks => (CostBlockCollection) this["costBlocks"];
 
+        [ConfigurationProperty("excludedCostElements")]
+        [ConfigurationCollection(typeof(ExcludedCostElementsCollection))]
+        public ExcludedCostElementsCollection ExcludedCostElements => (ExcludedCostElementsCollection) this["excludedCostElements"];
+
         [ConfigurationProperty("editUser", IsRequired = false)]
         public string EditUser => this["editUser"] == null ? String.Empty : (string) this["editUser"];
 

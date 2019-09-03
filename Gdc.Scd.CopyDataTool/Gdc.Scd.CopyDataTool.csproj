@@ -58,7 +58,10 @@
     <Compile Include="Configuration\CopyDetailsConfig.cs" />
     <Compile Include="Configuration\CostBlockCollection.cs" />
     <Compile Include="Configuration\CostBlockElement.cs" />
+    <Compile Include="Configuration\ExcludedCostElement.cs" />
+    <Compile Include="Configuration\ExcludedCostElementsCollection.cs" />
     <Compile Include="DataCopyService.cs" />
+    <Compile Include="GroupedCostElements.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -79,6 +82,10 @@
     <ProjectReference Include="..\Gdc.Scd.DataAccessLayer\Gdc.Scd.DataAccessLayer.csproj">
       <Project>{8903ea84-f24a-4ef5-8cba-6aaf1139d07d}</Project>
       <Name>Gdc.Scd.DataAccessLayer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gdc.Scd.MigrationTool\Gdc.Scd.MigrationTool.csproj">
+      <Project>{d9a9c773-1e12-43c2-a665-711277962c00}</Project>
+      <Name>Gdc.Scd.MigrationTool</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
