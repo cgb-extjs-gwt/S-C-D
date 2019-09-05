@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Constants;
 using Gdc.Scd.Core.Meta.Entities;
@@ -32,8 +33,9 @@ namespace Gdc.Scd.Core.Meta.Impl
                 StoreType = StoreType.View,
                 RealMeta = countryMeta
             };
-            var roleCode = new DeactivatableEntityMeta(MetaConstants.RoleCodeInputLevel, MetaConstants.InputLevelSchema);
-            var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta, centralContractGroupMeta, roleCode);
+            var roleCodeMeta = new DeactivatableEntityMeta(MetaConstants.RoleCodeInputLevel, MetaConstants.InputLevelSchema);
+            var wgMeta = new WgEnityMeta(plaMeta, sfabMeta, sogMeta, centralContractGroupMeta, roleCodeMeta);
+            var proActiveSlaMeta = new NamedEntityMeta(MetaConstants.ProActiveSlaTableName, MetaConstants.DependencySchema, nameof(ProActiveSla.ExternalName));
 
             var customMetas = new[]
             {
@@ -47,7 +49,8 @@ namespace Gdc.Scd.Core.Meta.Impl
                 currencyMeta,
                 countryMeta,
                 nonEmeiaCountryMeta,
-                roleCode
+                roleCodeMeta,
+                proActiveSlaMeta
             };
 
             var result = customMetas.ToDictionary(meta => BaseEntityMeta.BuildFullName(meta.Name, meta.Schema));

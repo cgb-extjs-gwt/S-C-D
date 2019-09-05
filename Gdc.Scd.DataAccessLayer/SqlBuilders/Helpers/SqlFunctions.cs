@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Gdc.Scd.Core.Entities;
+using Gdc.Scd.Core.Meta.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Entities;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Impl;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Interfaces;
@@ -18,6 +20,15 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateQueryColumnInfo<MaxSqlBuilder>(columnName, tableName, alias);
         }
 
+        public static QueryColumnInfo Max(FieldMeta field, string tableName = null, string alias = null)
+        {
+            return field is SimpleFieldMeta simpleField && simpleField.Type == TypeCode.Boolean
+                ? Max(
+                    Convert(new ColumnSqlBuilder(simpleField.Name, tableName), TypeCode.Int32),
+                    alias)
+                : Max(field.Name, tableName, alias);
+        }
+
         public static QueryColumnInfo Min(ISqlBuilder query, string alias = null)
         {
             return CreateQueryColumnInfo<MinSqlBuilder>(query, alias);
@@ -26,6 +37,15 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
         public static QueryColumnInfo Min(string columnName, string tableName = null, string alias = null)
         {
             return CreateQueryColumnInfo<MinSqlBuilder>(columnName, tableName, alias);
+        }
+
+        public static QueryColumnInfo Min(FieldMeta field, string tableName = null, string alias = null)
+        {
+            return field is SimpleFieldMeta simpleField && simpleField.Type == TypeCode.Boolean
+                ? Min(
+                    Convert(new ColumnSqlBuilder(simpleField.Name, tableName), TypeCode.Int32),
+                    alias)
+                : Min(field.Name, tableName, alias);
         }
 
         public static QueryColumnInfo Count(string columnName = null, bool isDisctinct = false, string tableName = null, string alias = null)
@@ -61,6 +81,21 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             };
         }
 
+        public static QueryColumnInfo Convert(string columnName, TypeCode type, string tableName = null, string alias = null)
+        {
+            var column = new ColumnSqlBuilder
+            {
+                Table = tableName,
+                Name = columnName
+            };
+
+            return new QueryColumnInfo
+            {
+                Alias = alias,
+                Query = Convert(column, type)
+            };
+        }
+
         public static QueryColumnInfo RowNumber(SortInfo sortInfo, string alias = null)
         {
             return new QueryColumnInfo
@@ -80,19 +115,38 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             };
         }
 
-        public static QueryColumnInfo Convert(string columnName, TypeCode type, string tableName = null, string alias = null)
+        public static QueryColumnInfo Value(object value, string alias)
         {
-            var column = new ColumnSqlBuilder
-            {
-                Table = tableName,
-                Name = columnName
-            };
+            return new QueryColumnInfo(
+                new ValueSqlBuilder(value),
+                alias);
+        }
 
-            return new QueryColumnInfo
-            {
-                Alias = alias,
-                Query = Convert(column, type)
-            };
+        public static QueryColumnInfo Case(string alias, IEnumerable<CaseItem> caseItems, ISqlBuilder elseQuery = null, ISqlBuilder inputQuery = null)
+        {
+            return new QueryColumnInfo(
+                new CaseSqlBuilder
+                {
+                    Input = inputQuery,
+                    Cases = caseItems,
+                    Else = elseQuery
+                },
+                alias);
+        }
+
+        public static QueryColumnInfo IfElse(string alias, ConditionHelper whenQuery, ISqlBuilder thenQuery, ISqlBuilder elseQuery = null)
+        {
+            return Case(
+                alias,
+                new[]
+                {
+                    new CaseItem
+                    {
+                        When = whenQuery.ToSqlBuilder(),
+                        Then = thenQuery
+                    }
+                },
+                elseQuery);
         }
 
         private static QueryColumnInfo CreateQueryColumnInfo<T>(ISqlBuilder query, string alias = null) 

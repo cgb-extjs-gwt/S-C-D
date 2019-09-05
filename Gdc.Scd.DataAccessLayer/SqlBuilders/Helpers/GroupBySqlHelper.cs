@@ -13,10 +13,16 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
 
         public OrderBySqlHelper GroupBy(params ColumnInfo[] columns)
         {
+            return this.GroupBy(GroupByType.Simple, columns);
+        }
+
+        public OrderBySqlHelper GroupBy(GroupByType type, params ColumnInfo[] columns)
+        {
             return new OrderBySqlHelper(new GroupBySqlBuilder
             {
                 Query = this.ToSqlBuilder(),
-                Columns = columns
+                Columns = columns,
+                Type = type
             });
         }
     }

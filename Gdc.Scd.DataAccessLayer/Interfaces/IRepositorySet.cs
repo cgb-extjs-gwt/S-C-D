@@ -60,6 +60,8 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         Task<T> ExecuteScalarAsync<T>(string sql, IEnumerable<CommandParameterInfo> parameters = null);
 
+        Task<T> ExecuteScalarAsync<T>(SqlHelper query);
+
         void Replace<T>(T oldEntity, T newEntity) where T : class;
 
         IEnumerable<Type> GetRegisteredEntities();

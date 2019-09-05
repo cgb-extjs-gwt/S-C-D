@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
-    public class DeactivateDecoratorRepository<T> : IRepository<T> where T : class, IIdentifiable, IDeactivatable, new()
+    public class ModifiableDecoratorRepository<T> : IRepository<T> where T : class, IIdentifiable, IModifiable, new()
     {
         private readonly EntityFrameworkRepository<T> origin;
 
-        public DeactivateDecoratorRepository(EntityFrameworkRepository<T> origin)
+        public ModifiableDecoratorRepository(EntityFrameworkRepository<T> origin)
         {
             this.origin = origin;
         }

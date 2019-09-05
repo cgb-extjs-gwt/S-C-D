@@ -39,6 +39,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<INotifyChannel>().To<MemoryChannel>().InSingletonScope();
             Bind<ICostImportExcelService>().To<CostImportExcelService>().InScdRequestScope();
             Bind<IRoleCodeService>().To<RoleCodeService>().InScdRequestScope();
+            Bind<IPortfolioPivotGridService>().To<PortfolioPivotGridService>().InScdRequestScope();
 
             /*----------dictionaries-----------*/
             Kernel.RegisterEntity<ClusterRegion>();
