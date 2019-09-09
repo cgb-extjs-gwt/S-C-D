@@ -37,7 +37,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 UsetCountryGroupQualityGate = userCountyGroupCheck
             };
 
-            return await this.repositorySet.ReadBySql(query, mapper.Map);
+            return await this.repositorySet.ReadBySqlAsync(query, mapper.Map);
         }
 
         public async Task<IEnumerable<BundleDetail>> Check(CostBlockHistory history, bool userCountyGroupCheck, IDictionary<string, IEnumerable<object>> costBlockFilter = null)
@@ -51,7 +51,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 UsetCountryGroupQualityGate = userCountyGroupCheck
             };
 
-            return await this.repositorySet.ReadBySql(query, mapper.Map);
+            return await this.repositorySet.ReadBySqlAsync(query, mapper.Map);
         }
     }
 }

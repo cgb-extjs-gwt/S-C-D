@@ -84,7 +84,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
         }
 
-        public Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
+        public Task<IEnumerable<T>> ReadBySqlAsync<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
         {
             return WithCommand(async cmd =>
             {
@@ -110,14 +110,47 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
-        public Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc)
+        public IEnumerable<T> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null)
+        {
+            return WithCommand(cmd =>
+            {
+                cmd.CommandText = sql;
+
+                if (parameters != null)
+                {
+                    cmd.Parameters.AddRange(this.GetDbParameters(parameters, cmd).ToArray());
+                }
+
+                var result = new List<T>(30);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            result.Add(mapFunc(reader));
+                        }
+                    }
+                }
+                return (IEnumerable<T>)result;
+            });
+        }
+
+        public IEnumerable<T> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc)
         {
             var queryData = query.ToQueryData();
 
             return this.ReadBySql(queryData.Sql, mapFunc, queryData.Parameters);
         }
 
-        public Task ReadBySql(string sql, Action<DbDataReader> mapFunc, params DbParameter[] parameters)
+        public Task<IEnumerable<T>> ReadBySqlAsync<T>(SqlHelper query, Func<IDataReader, T> mapFunc)
+        {
+            var queryData = query.ToQueryData();
+
+            return this.ReadBySqlAsync(queryData.Sql, mapFunc, queryData.Parameters);
+        }
+
+        public Task ReadBySqlAsync(string sql, Action<DbDataReader> mapFunc, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>
             {
@@ -138,7 +171,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
-        public Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<DbDataReader, T> mapFunc, params DbParameter[] parameters)
+        public Task<IEnumerable<T>> ReadBySqlAsync<T>(string sql, Func<DbDataReader, T> mapFunc, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>
             {
@@ -198,10 +231,10 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             return Database.ExecuteSqlCommand(sql, parameters);
         }
 
-        public Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters)
+        public async Task<int> ExecuteProcAsync(string procName, params DbParameter[] parameters)
         {
             string sql = CreateSpCommand(procName, parameters);
-            return Database.ExecuteSqlCommandAsync(sql, parameters);
+            return await Database.ExecuteSqlCommandAsync(sql, parameters);
         }
 
         public int ExecuteProc(string procName, Action<DbDataReader> mapFunc, params DbParameter[] parameters)

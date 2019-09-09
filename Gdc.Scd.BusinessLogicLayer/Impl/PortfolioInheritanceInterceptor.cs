@@ -1,9 +1,9 @@
 ﻿using System.Linq;
-using System.Threading.Tasks;
 using Gdc.Scd.BusinessLogicLayer.Dto.Portfolio;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Portfolio;
+using Gdc.Scd.Core.Enums;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 
@@ -29,65 +29,63 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public void Handle(Wg[] wgs)
         {
-            var task = this.HandlAsync(wgs);
-
-            task.Wait();
-        }
-
-        private async Task HandlAsync(Wg[] wgs)
-        {
             var wgGroups = 
-                wgs.GroupBy(wg => wg.PlaId)
+                wgs.Where(wg => wg.WgType == WgType.Por)
+                   .GroupBy(wg => wg.PlaId)
                    .ToDictionary(
                         group => group.Key, 
                         group => group.Select(wg => wg.Id).ToArray());
 
             var plaIds = wgGroups.Keys.ToArray();
 
-            var principalInheritances = await this.principalPortfolioRepository.GetInheritanceItems(plaIds);
-            var localInheritances = await this.localPortfolioRepository.GetInheritanceItems(plaIds);
-
-            var rules =
-                principalInheritances.Select(BuildPrincipalRule)
-                                     .Concat(localInheritances.Select(BuildLocalRule))
-                                     .GroupBy(rule => new
-                                     {
-                                         rule.CountryId,
-                                         rule.IsCorePortfolio,
-                                         rule.IsGlobalPortfolio,
-                                         rule.IsMasterPortfolio,
-                                         Availability = rule.Availabilities[0],
-                                         Duration = rule.Durations[0],
-                                         ProActive = rule.ProActives[0],
-                                         ReactionTime = rule.ReactionTimes[0],
-                                         ReactionType = rule.ReactionTypes[0],
-                                         Wgs = string.Join("_", rule.Wgs)
-                                     })
-                                     .Select(group => new PortfolioRuleSetDto
-                                     {
-                                         Availabilities = new[] { group.Key.Availability },
-                                         CountryId = group.Key.CountryId,
-                                         Durations = new[] { group.Key.Duration },
-                                         IsCorePortfolio = group.Key.IsCorePortfolio,
-                                         IsGlobalPortfolio = group.Key.IsGlobalPortfolio,
-                                         IsMasterPortfolio = group.Key.IsMasterPortfolio,
-                                         ProActives = new[] { group.Key.ProActive },
-                                         ReactionTimes = new[] { group.Key.ReactionTime },
-                                         ReactionTypes = new[] { group.Key.ReactionType },
-                                         Wgs = group.Key.Wgs.Split('_').Select(value => long.Parse(value)).ToArray(),
-                                         ServiceLocations = group.SelectMany(rule => rule.ServiceLocations).ToArray()
-                                     })
-                                     .ToArray();
-
-            foreach (var rule in rules)
+            if (plaIds.Length > 0)
             {
-                await this.portfolioService.Allow(rule);
+                var principalInheritances = this.principalPortfolioRepository.GetInheritanceItems(plaIds);
+                var localInheritances = this.localPortfolioRepository.GetInheritanceItems(plaIds);
+
+                var rules =
+                    principalInheritances.Select(BuildPrincipalRule)
+                                         .Concat(localInheritances.Select(BuildLocalRule))
+                                         .GroupBy(rule => new
+                                         {
+                                             rule.CountryId,
+                                             rule.IsCorePortfolio,
+                                             rule.IsGlobalPortfolio,
+                                             rule.IsMasterPortfolio,
+                                             Availability = rule.Availabilities[0],
+                                             Duration = rule.Durations[0],
+                                             ProActive = rule.ProActives[0],
+                                             ReactionTime = rule.ReactionTimes[0],
+                                             ReactionType = rule.ReactionTypes[0],
+                                             Wgs = string.Join("_", rule.Wgs)
+                                         })
+                                         .Select(group => new PortfolioRuleSetDto
+                                         {
+                                             Availabilities = new[] { group.Key.Availability },
+                                             CountryId = group.Key.CountryId,
+                                             Durations = new[] { group.Key.Duration },
+                                             IsCorePortfolio = group.Key.IsCorePortfolio,
+                                             IsGlobalPortfolio = group.Key.IsGlobalPortfolio,
+                                             IsMasterPortfolio = group.Key.IsMasterPortfolio,
+                                             ProActives = new[] { group.Key.ProActive },
+                                             ReactionTimes = new[] { group.Key.ReactionTime },
+                                             ReactionTypes = new[] { group.Key.ReactionType },
+                                             Wgs = group.Key.Wgs.Split('_').Select(value => long.Parse(value)).ToArray(),
+                                             ServiceLocations = group.SelectMany(rule => rule.ServiceLocations).ToArray()
+                                         })
+                                         .OrderBy(rule => rule.CountryId.HasValue);
+
+                foreach (var rule in rules)
+                {
+                    this.portfolioService.Allow(rule);
+                }
             }
 
             PortfolioRuleSetDto BuildRule(BasePortfolioInheritance item)
             {
                 return new PortfolioRuleSetDto
                 {
+                    IsGlobalPortfolio = true,
                     Availabilities = new[] { item.AvailabilityId },
                     Durations = new[] { item.DurationId },
                     ProActives = new[] { item.ProActiveSlaId },

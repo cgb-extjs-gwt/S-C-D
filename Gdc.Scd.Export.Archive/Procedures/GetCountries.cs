@@ -27,7 +27,7 @@ namespace Gdc.Scd.Export.Archive.Procedures
                                 from Portfolio.LocalPortfolio p
                                 group by p.CountryId) t on t.CountryId = c.Id";
 
-            return _repo.ReadBySql(sql, Read).Result.ToArray();
+            return _repo.ReadBySqlAsync(sql, Read).Result.ToArray();
         }
 
         private CountryDto Read(IDataReader r)

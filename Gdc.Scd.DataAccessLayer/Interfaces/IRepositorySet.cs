@@ -18,13 +18,17 @@ namespace Gdc.Scd.DataAccessLayer.Interfaces
 
         ITransaction GetTransaction();
 
-        Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null);
+        IEnumerable<T> ReadBySql<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null);
 
-        Task<IEnumerable<T>> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc);
+        IEnumerable<T> ReadBySql<T>(SqlHelper query, Func<IDataReader, T> mapFunc);
 
-        Task ReadBySql(string sql, Action<DbDataReader> mapFunc, params DbParameter[] parameters);
+        Task<IEnumerable<T>> ReadBySqlAsync<T>(string sql, Func<IDataReader, T> mapFunc, IEnumerable<CommandParameterInfo> parameters = null);
 
-        Task<IEnumerable<T>> ReadBySql<T>(string sql, Func<DbDataReader, T> mapFunc, params DbParameter[] parameters);
+        Task<IEnumerable<T>> ReadBySqlAsync<T>(SqlHelper query, Func<IDataReader, T> mapFunc);
+
+        Task ReadBySqlAsync(string sql, Action<DbDataReader> mapFunc, params DbParameter[] parameters);
+
+        Task<IEnumerable<T>> ReadBySqlAsync<T>(string sql, Func<DbDataReader, T> mapFunc, params DbParameter[] parameters);
 
         int ExecuteSql(string sql, IEnumerable<CommandParameterInfo> parameters = null);
 

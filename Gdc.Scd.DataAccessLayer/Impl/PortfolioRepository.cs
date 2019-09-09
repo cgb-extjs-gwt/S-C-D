@@ -24,7 +24,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.meta = meta;
         }
 
-        public async Task<IEnumerable<TInheritance>> GetInheritanceItems(long[] plaIds)
+        public IEnumerable<TInheritance> GetInheritanceItems(long[] plaIds)
         {
             IEnumerable<TInheritance> result;
 
@@ -46,7 +46,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             var fields = this.GetSelectFields(portfolioMeta).ToArray();
 
-            result = await this.repositorySet.ReadBySql(query, reader =>
+            result = this.repositorySet.ReadBySql(query, reader =>
             {
                 var plaId = (long)reader[PlaIdColumn];
 

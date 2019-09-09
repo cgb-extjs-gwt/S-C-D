@@ -38,7 +38,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var axisDictionary = new Dictionary<RequestAxisItem, Dictionary<string, ResultAxisItem>>();
 
             var query = this.BuildSql(request, meta, customQuery);
-            var resultItems = await this.repositorySet.ReadBySql(query, MapRow);
+            var resultItems = await this.repositorySet.ReadBySqlAsync(query, MapRow);
 
             return new PivotResult
             {
@@ -145,7 +145,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 dataTable.Columns.Add(new DataColumn(item.Header, typeof(double)));
             }
 
-            var rows = await this.repositorySet.ReadBySql(query, reader =>
+            var rows = await this.repositorySet.ReadBySqlAsync(query, reader =>
             {
                 var row = dataTable.NewRow();
 
