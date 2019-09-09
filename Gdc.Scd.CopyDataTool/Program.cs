@@ -17,8 +17,24 @@ namespace Gdc.Scd.CopyDataTool
     {
         static void Main(string[] args)
         {
-            var dataCopyService = new DataCopyService();
+            NinjectExt.IsConsoleApplication = true;
+            var kernel = CreateKernel();
+
+            var dataCopyService = new DataCopyService(kernel);
             dataCopyService.CopyData();
+
+            var manualCopyService = new ManualDataCopyService(kernel);
+            manualCopyService.CopyData();
+        }
+
+
+        private static StandardKernel CreateKernel()
+        {
+            return new StandardKernel(
+                new Core.Module(),
+                new DataAccessLayer.Module(),
+                new BusinessLogicLayer.Module(),
+                new Module());
         }
     }
 }

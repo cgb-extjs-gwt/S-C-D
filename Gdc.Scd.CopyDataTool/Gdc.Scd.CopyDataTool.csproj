@@ -33,6 +33,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.EntityFrameworkCore, Version=2.0.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Gdc.Scd.DataAccessLayer\bin\Debug\net461\Microsoft.EntityFrameworkCore.dll</HintPath>
@@ -47,6 +53,8 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -60,14 +68,129 @@
     <Compile Include="Configuration\CostBlockElement.cs" />
     <Compile Include="Configuration\ExcludedCostElement.cs" />
     <Compile Include="Configuration\ExcludedCostElementsCollection.cs" />
+    <Compile Include="DataCopyPrincipleProvider.cs" />
     <Compile Include="DataCopyService.cs" />
+    <Compile Include="Entities\Availability.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\Cache.cs" />
+    <Compile Include="Entities\CentralContractGroup.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\ClusterPla.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\ClusterRegion.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\Country.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\CountryGroup.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\Duration.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\Duration_Availability.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\Identity.cs" />
+    <Compile Include="Entities\LocalPortfolio.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\ManualCost.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\Pla.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\Principal.cs" />
+    <Compile Include="Entities\PrincipalPortfolio.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\ProActiveSla.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\ReactionTime.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\ReactionTime_Avalability.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\ReactionTime_ReactionType.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\ReactionTime_ReactionType_Avalability.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\ReactionType.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\Region.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\RoleCode.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\ServiceLocation.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\Sfab.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\Sog.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\SourceDB.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SourceDB.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\SourceDB.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\SourceDB.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SourceDB.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\SourceEntityFrameworkRepositorySet.cs" />
+    <Compile Include="Entities\StandardWarrantyManualCost.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\SwDigit.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\SwDigitLicense.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\SwLicense.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\Wg.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\Year.cs">
+      <DependentUpon>SourceDB.tt</DependentUpon>
+    </Compile>
     <Compile Include="GroupedCostElements.cs" />
+    <Compile Include="ManualDataCopyService.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <EntityDeploy Include="Entities\SourceDB.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>SourceDB.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="Entities\SourceDB.edmx.diagram">
+      <DependentUpon>SourceDB.edmx</DependentUpon>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -87,6 +210,21 @@
       <Project>{d9a9c773-1e12-43c2-a665-711277962c00}</Project>
       <Name>Gdc.Scd.MigrationTool</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Entities\SourceDB.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>SourceDB.edmx</DependentUpon>
+      <LastGenOutput>SourceDB.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="Entities\SourceDB.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>SourceDB.edmx</DependentUpon>
+      <LastGenOutput>SourceDB.cs</LastGenOutput>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

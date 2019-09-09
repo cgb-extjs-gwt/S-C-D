@@ -236,10 +236,27 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             });
         }
 
+        public static ConditionHelper NotIn(string column, SqlHelper valuesQuery, string table = null)
+        {
+            return NotIn(column, valuesQuery.ToSqlBuilder(), table);
+        }
+
+        public static ConditionHelper NotIn(string column, ISqlBuilder valuesQuery, string table = null)
+        {
+            return new ConditionHelper(new NotInSqlBuilder
+            {
+                Table = table,
+                Column = column,
+                Values = new[] { valuesQuery }
+            });
+        }
+
         public static ConditionHelper In(string column, SqlHelper valuesQuery, string table = null)
         {
             return In(column, valuesQuery.ToSqlBuilder(), table);
         }
+
+
 
         public static ConditionHelper Between(ISqlBuilder column, ISqlBuilder begin, ISqlBuilder end, bool isNot = false)
         {

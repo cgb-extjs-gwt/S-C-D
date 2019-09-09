@@ -25,5 +25,8 @@ namespace Gdc.Scd.CopyDataTool.Configuration
 
         [ConfigurationProperty("copyManualCosts", IsRequired = false, DefaultValue = false)]
         public bool CopyManualCosts => this["copyManualCosts"] != null && (bool)this["copyManualCosts"];
+
+        [ConfigurationProperty("exludedWgs", IsRequired = false)]
+        public string ExcludedWgs => this["exludedWgs"] == null ? String.Empty : (string) this["exludedWgs"];
     }
 }
