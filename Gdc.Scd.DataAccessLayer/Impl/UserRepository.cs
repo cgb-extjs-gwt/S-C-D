@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Gdc.Scd.Core.Constants;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.DataAccessLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +44,16 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             }
 
             base.Save(item);
+        }
+
+        public IQueryable<User> GetAdmins()
+        {
+            return
+                this.GetAll()
+                    .Where(
+                        user => user.UserRoles.Any(
+                            userRole => userRole.Role.RolePermissions.Any(
+                                rolePerm => rolePerm.Permission.Name == PermissionConstants.Admin)));
         }
     }
 }

@@ -115,10 +115,12 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             };
         }
 
-        public static QueryColumnInfo Value(object value, string alias)
+        public static QueryColumnInfo Value(object value, string alias = null, TypeCode? type = null)
         {
+            var valueSqlBuilder = new ValueSqlBuilder(value);
+
             return new QueryColumnInfo(
-                new ValueSqlBuilder(value),
+                type.HasValue ? Convert(valueSqlBuilder, type.Value) : (ISqlBuilder)valueSqlBuilder,
                 alias);
         }
 

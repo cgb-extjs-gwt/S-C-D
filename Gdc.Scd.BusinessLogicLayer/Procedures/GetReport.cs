@@ -76,7 +76,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             {
                 var sql = SelectAllQuery(func, parameters);
 
-                await _repo.ReadBySql(sql, writer.WriteBody, parameters);
+                await _repo.ReadBySqlAsync(sql, writer.WriteBody, parameters);
 
                 return writer.GetData();
             }

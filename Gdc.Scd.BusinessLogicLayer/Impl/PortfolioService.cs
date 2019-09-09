@@ -47,14 +47,16 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return m.IsLocalPortfolio() || userService.HasPermission(usr.Login, PermissionConstants.Portfolio);
         }
 
-        public Task Allow(PortfolioRuleSetDto m)
+        public void Allow(PortfolioRuleSetDto m)
         {
-            return UpdatePortfolio(userService.GetCurrentUser(), m, false);
+            UpdatePortfolio(userService.GetCurrentUser(), m, false);
         }
 
         public Task Deny(PortfolioRuleSetDto m)
         {
-            return UpdatePortfolio(userService.GetCurrentUser(), m, true);
+            UpdatePortfolio(userService.GetCurrentUser(), m, true);
+
+            return Task.CompletedTask;
         }
 
         public Task Deny(long[] countryId, long[] ids)
@@ -175,7 +177,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return (result, count);
         }
 
-        private async Task UpdatePortfolio(User changeUser, PortfolioRuleSetDto m, bool deny)
+        private void UpdatePortfolio(User changeUser, PortfolioRuleSetDto m, bool deny)
         {
             if (m == null)
             {
@@ -194,14 +196,14 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (m.IsLocalPortfolio())
             {
-                await new UpdateLocalPortfolio(repositorySet).UpdateAsync(m, deny);
+                new UpdateLocalPortfolio(repositorySet).Update(m, deny);
             }
             else
             {
-                await new UpdatePrincipalPortfolio(repositorySet).UpdateAsync(m, deny);
+                new UpdatePrincipalPortfolio(repositorySet).Update(m, deny);
             }
             //
-            await Log(changeUser, new PortfolioRuleSetDto[] { m }, deny);
+            Log(changeUser, new PortfolioRuleSetDto[] { m }, deny);
         }
 
         private async Task DenyById(User changeUser, long[] ids)
@@ -223,15 +225,15 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             await new UpdateLocalPortfolio(repositorySet).DenyAsync(ids);
             //
-            await Log(changeUser, rules, true);
+            Log(changeUser, rules, true);
         }
 
-        private async Task Log(User changeUser, PortfolioRuleSetDto[] rules, bool deny)
+        private void Log(User changeUser, PortfolioRuleSetDto[] rules, bool deny)
         {
             for (var i = 0; i < rules.Length; i++)
             {
                 var r = rules[i];
-                var p = await AsHistoryRule(r);
+                var p = AsHistoryRule(r);
                 var h = new PortfolioHistory
                 {
                     Deny = deny,
@@ -245,7 +247,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             repositorySet.Sync();
         }
 
-        private async Task<PortfolioHistroryRuleDto> AsHistoryRule(PortfolioRuleSetDto dto)
+        private PortfolioHistroryRuleDto AsHistoryRule(PortfolioRuleSetDto dto)
         {
             if (cache == null)
             {
@@ -256,7 +258,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
             if (dto.IsLocalPortfolio())
             {
-                p.Country = await cache.GetName<Country>(dto.CountryId.Value);
+                p.Country = cache.GetName<Country>(dto.CountryId.Value);
             }
             else
             {
@@ -265,13 +267,13 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
                 p.IsMasterPortfolio = dto.IsMasterPortfolio;
             }
 
-            p.Wgs = await cache.GetNames<Wg>(dto.Wgs);
-            p.Availabilities = await cache.GetNames<Availability>(dto.Availabilities);
-            p.Durations = await cache.GetNames<Duration>(dto.Durations);
-            p.ReactionTimes = await cache.GetNames<ReactionTime>(dto.ReactionTimes);
-            p.ReactionTypes = await cache.GetNames<ReactionType>(dto.ReactionTypes);
-            p.ServiceLocations = await cache.GetNames<ServiceLocation>(dto.ServiceLocations);
-            p.ProActives = await cache.GetExtNames<ProActiveSla>(dto.ProActives);
+            p.Wgs = cache.GetNames<Wg>(dto.Wgs);
+            p.Availabilities = cache.GetNames<Availability>(dto.Availabilities);
+            p.Durations = cache.GetNames<Duration>(dto.Durations);
+            p.ReactionTimes = cache.GetNames<ReactionTime>(dto.ReactionTimes);
+            p.ReactionTypes = cache.GetNames<ReactionType>(dto.ReactionTypes);
+            p.ServiceLocations = cache.GetNames<ServiceLocation>(dto.ServiceLocations);
+            p.ProActives = cache.GetExtNames<ProActiveSla>(dto.ProActives);
 
             return p;
         }

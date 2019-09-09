@@ -6,7 +6,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Interfaces
 {
     public interface IPortfolioService
     {
-        Task Allow(PortfolioRuleSetDto set);
+        void Allow(PortfolioRuleSetDto set);
 
         Task Deny(PortfolioRuleSetDto set);
 

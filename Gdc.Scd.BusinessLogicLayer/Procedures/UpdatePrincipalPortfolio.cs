@@ -18,7 +18,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
             this.repositorySet = repositorySet;
         }
 
-        public Task UpdateAsync(PortfolioRuleSetDto dto, bool deny)
+        public void Update(PortfolioRuleSetDto dto, bool deny)
         {
             var proc = deny ? PROC_DENY_PORTFOLIO : PROC_ALLOW_PORTFOLIO;
             var valid = dto.IsGlobalPortfolio || dto.IsMasterPortfolio || dto.IsCorePortfolio;
@@ -28,7 +28,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Procedures
                 throw new System.ArgumentException("No portfolio specified");
             }
 
-            return repositorySet.ExecuteProcAsync(proc, Prepare(dto));
+            repositorySet.ExecuteProc(proc, Prepare(dto));
         }
 
         private DbParameter[] Prepare(PortfolioRuleSetDto dto)

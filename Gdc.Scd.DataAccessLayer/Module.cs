@@ -1,6 +1,7 @@
 ﻿using System;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Entities.Calculation;
+using Gdc.Scd.Core.Entities.Portfolio;
 using Gdc.Scd.Core.Helpers;
 using Gdc.Scd.Core.Interfaces;
 using Gdc.Scd.Core.Meta.Entities;
@@ -46,6 +47,8 @@ namespace Gdc.Scd.DataAccessLayer
             Bind<ICostBlockQueryBuilder>().To<CostBlockQueryBuilder>().InScdRequestScope();
             Bind<IPivotGridRepository>().To<PivotGridRepository>().InScdRequestScope();
             Bind<IPortfolioPivotGridQueryBuilder>().To<PortfolioPivotGridQueryBuilder>().InSingletonScope();
+            Bind<IPortfolioRepository<PrincipalPortfolio, PrincipalPortfolioInheritance>, IRepository<PrincipalPortfolio>>().To<PortfolioRepository<PrincipalPortfolio, PrincipalPortfolioInheritance>>().InScdRequestScope();
+            Bind<IPortfolioRepository<LocalPortfolio, LocalPortfolioInheritance>, IRepository<LocalPortfolio>>().To<PortfolioRepository<LocalPortfolio, LocalPortfolioInheritance>>().InScdRequestScope();
 
             Bind<BaseColumnMetaSqlBuilder<IdFieldMeta>>().To<IdColumnMetaSqlBuilder>().InTransientScope();
             Bind<BaseColumnMetaSqlBuilder<SimpleFieldMeta>>().To<SimpleColumnMetaSqlBuilder>().InTransientScope();
