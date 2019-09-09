@@ -165,6 +165,9 @@ select    Country
 from History.Hardware_ProlongationMarkup;
 go
 
+update History.CostBlockHistory set Context_CostBlockId = 'MarkupOtherCosts' where Context_CostBlockId = 'ProlongationMarkup';
+go
+
 ALTER TABLE [Hardware].[MarkupOtherCosts] ADD CONSTRAINT [PK_Hardware_MarkupOtherCosts] PRIMARY KEY CLUSTERED 
 (
     [Country] ASC,
@@ -658,4 +661,7 @@ RETURN (
 
     from CostCte m
 )
+go
+
+sp_rename 'Hardware.ProlongationMarkup','ProlongationMarkup_Backup';
 go
