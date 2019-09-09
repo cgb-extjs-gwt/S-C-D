@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Gdc.Scd.BusinessLogicLayer.Interfaces;
 using Gdc.Scd.Core.Entities;
 using Gdc.Scd.Core.Interfaces;
@@ -23,15 +24,22 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
         public void Handle(Wg[] items)
         {
-            var admins = this.userRepository.GetAdmins();
-
-            this.emailService.SendNewWgEmail(items, admins.Select(admin => admin.Email));
-
-            var message = $"New warranty groups were added: {string.Join(", ", items.Select(item => item.Name))}";
-
-            foreach (var admin in admins)
+            try
             {
-                this.notifyChannel.Send(admin.Login, message);
+                var admins = this.userRepository.GetAdmins();
+
+                this.emailService.SendNewWgEmail(items, admins.Select(admin => admin.Email));
+
+                var message = $"New warranty groups were added: {string.Join(", ", items.Select(item => item.Name))}";
+
+                foreach (var admin in admins)
+                {
+                    this.notifyChannel.Send(admin.Login, message);
+                }
+            }
+            catch (Exception ex)
+            {
+                //TODO: need add logging
             }
         }
     }

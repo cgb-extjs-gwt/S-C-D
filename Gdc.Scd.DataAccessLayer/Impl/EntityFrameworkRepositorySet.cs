@@ -13,12 +13,15 @@ using Gdc.Scd.DataAccessLayer.Interfaces;
 using Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage;
 using Ninject;
 
 namespace Gdc.Scd.DataAccessLayer.Impl
 {
     public class EntityFrameworkRepositorySet : DbContext, IRepositorySet, IRegisteredEntitiesProvider
     {
+        private const int Timeout = 600;
+
         private readonly IKernel serviceProvider;
 
         private readonly string connectionNameOrConnectionString;
@@ -31,7 +34,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             this.connectionNameOrConnectionString = connectionNameOrConnectionString;
 
             this.ChangeTracker.AutoDetectChangesEnabled = false;
-            this.Database.SetCommandTimeout(600);
+            this.Database.SetCommandTimeout(Timeout);
         }
 
         public ITransaction GetTransaction()
@@ -48,7 +51,24 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         public void Sync()
         {
-            var interceptorInfos = BuildInterceptorInfos().ToArray();
+            var interceptorInfos =
+                    this.ChangeTracker.Entries()
+                                      .Where(entry => entry.State == EntityState.Added)
+                                      .Select(entry => entry.Entity)
+                                      .GroupBy(entity => entity.GetType())
+                                      .SelectMany(group => 
+                                      {
+                                          var interceptorType = typeof(IAfterAddingInterceptor<>).MakeGenericType(group.Key);
+                                          this.serviceProvider.GetAll(interceptorType);
+
+                                          return this.serviceProvider.GetAll(interceptorType).Select(interceptor => new
+                                          {
+                                              EntityType = group.Key,
+                                              Entities = group.ToArray(),
+                                              Interceptor = interceptor
+                                          });
+                                      })
+                                      .ToArray();
 
             this.SaveChanges();
 
@@ -61,29 +81,6 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 interceptorInfo.Interceptor.GetType()
                                            .GetMethod(nameof(IAfterAddingInterceptor<IIdentifiable>.Handle))
                                            .Invoke(interceptorInfo.Interceptor, new[] { parameters });
-            }
-
-            IEnumerable<(Type EntityType, object[] Entities, object Interceptor)> BuildInterceptorInfos()
-            {
-                foreach (var entityType in RegisteredEntities.Keys)
-                {
-                    var interceptorType = typeof(IAfterAddingInterceptor<>).MakeGenericType(entityType);
-                    var interceptor = this.serviceProvider.TryGet(interceptorType);
-
-                    if (interceptor != null)
-                    {
-                        var entities =
-                            this.ChangeTracker.Entries()
-                                              .Where(entry => entry.State == EntityState.Added && entry.Entity.GetType() == entityType)
-                                              .Select(entry => entry.Entity)
-                                              .ToArray();
-
-                        if (entities.Length > 0)
-                        {
-                            yield return (entityType, entities, interceptor);
-                        }
-                    }
-                }
             }
         }
 
@@ -471,10 +468,15 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
             try
             {
-                conn.Open();
+                if (conn.State != ConnectionState.Open)
+                {
+                    conn.Open();
+                }
+                
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandTimeout = 600;
+                    this.InitCommand(cmd);
+
                     return func(cmd);
                 }
             }
@@ -490,16 +492,31 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             var conn = this.Database.GetDbConnection();
             try
             {
-                await conn.OpenAsync();
+                if (conn.State != ConnectionState.Open)
+                {
+                    await conn.OpenAsync();
+                }
+
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandTimeout = 600;
+                    this.InitCommand(cmd);
+
                     return await func(cmd);
                 }
             }
             finally
             {
                 conn.Close();
+            }
+        }
+
+        private void InitCommand(DbCommand command)
+        {
+            command.CommandTimeout = Timeout;
+
+            if (this.Database.CurrentTransaction != null && command.Transaction == null)
+            {
+                command.Transaction = this.Database.CurrentTransaction.GetDbTransaction();
             }
         }
     }

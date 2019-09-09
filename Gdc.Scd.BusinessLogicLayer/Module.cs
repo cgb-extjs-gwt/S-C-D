@@ -42,6 +42,7 @@ namespace Gdc.Scd.BusinessLogicLayer
             Bind<IRoleCodeService>().To<RoleCodeService>().InScdRequestScope();
             Bind<IPortfolioPivotGridService>().To<PortfolioPivotGridService>().InScdRequestScope();
             Bind<IAfterAddingInterceptor<Wg>>().To<WgNotificationInterceptor>().InScdRequestScope();
+            Bind<IAfterAddingInterceptor<Wg>>().To<PortfolioInheritanceInterceptor>().InScdRequestScope();
 
             /*----------dictionaries-----------*/
             Kernel.RegisterEntity<ClusterRegion>();
