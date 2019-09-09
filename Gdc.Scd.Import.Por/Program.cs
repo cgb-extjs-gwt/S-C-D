@@ -37,19 +37,14 @@ namespace Gdc.Scd.Import.Por
     //            //Start Process
     //            PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.START_PROCESS);
 
-    //            Func<SCD2_ServiceOfferingGroups, bool> sogPredicate = sog => sog.Active_Flag == "1";
-    //            Func<SCD2_WarrantyGroups, bool> wgPredicate = wg => wg.Active_Flag == "1";
-
     //            PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, nameof(Sog));
     //            var porSogs = PorService.SogImporter.ImportData()
-    //                .Where(sogPredicate)
     //                .ToList();
 
     //            PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, nameof(Sog), porSogs.Count);
 
     //            PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, nameof(Wg));
     //            var porWGs = PorService.WgImporter.ImportData()
-    //                .Where(wgPredicate)
     //                .ToList();
     //            PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, nameof(Wg), porWGs.Count);
 
@@ -250,19 +245,14 @@ namespace Gdc.Scd.Import.Por
                 //Start Process
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.START_PROCESS);
 
-                Func<SCD2_ServiceOfferingGroups, bool> sogPredicate = sog => sog.Active_Flag == "1";
-                Func<SCD2_WarrantyGroups, bool> wgPredicate = wg => wg.Active_Flag == "1";
-
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, nameof(Sog));
                 var porSogs = PorService.SogImporter.ImportData()
-                    .Where(sogPredicate)
                     .ToList();
 
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, nameof(Sog), porSogs.Count);
 
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_START, nameof(Wg));
                 var porWGs = PorService.WgImporter.ImportData()
-                    .Where(wgPredicate)
                     .ToList();
                 PorService.Logger.Log(LogLevel.Info, ImportConstantMessages.FETCH_INFO_ENDS, nameof(Wg), porWGs.Count);
 
