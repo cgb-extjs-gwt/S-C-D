@@ -17,9 +17,18 @@ namespace Gdc.Scd.DataAccessLayer
 {
     public class Module : NinjectModule
     {
+        public bool IsPorImport { get; set; }
+
         public override void Load()
         {
-            Bind(typeof(IRepository<>)).To(typeof(ModifiableDecoratorRepository<>)).When(this.IsModifiable).InScdRequestScope();
+            if (!IsPorImport)
+            {
+                Bind(typeof(IRepository<>)).To(typeof(ModifiableDecoratorRepository<>)).When(this.IsModifiable).InScdRequestScope();
+            }
+            else
+            {
+                Bind(typeof(IRepository<>)).To(typeof(PorModifiableDecoratorRepository<>)).When(this.IsModifiable).InScdRequestScope();
+            }
             Bind(typeof(IRepository<>)).To(typeof(EntityFrameworkRepository<>)).InScdRequestScope();
             Bind<IRepositorySet, IRegisteredEntitiesProvider, EntityFrameworkRepositorySet>().To<EntityFrameworkRepositorySet>().InScdRequestScope();
             Bind<ICostEditorRepository>().To<CostEditorRepository>().InScdRequestScope();

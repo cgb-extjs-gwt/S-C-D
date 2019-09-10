@@ -238,7 +238,7 @@ namespace Gdc.Scd.Import.Por
         {
             return new StandardKernel(
                 new Scd.Core.Module(),
-                new DataAccessLayer.Module(),
+                new DataAccessLayer.Module { IsPorImport = true },
                 new BusinessLogicLayer.Module(),
                 new Module());
         }
