@@ -233,18 +233,41 @@ namespace Gdc.Scd.Core.Meta.Impl
         {
             var fields =
                 typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty)
-                         .Where(prop => !prop.PropertyType.IsPrimitive && prop.PropertyType != typeof(string))
-                         .Select(prop => new
-                         {
-                             PropertyName = prop.Name,
-                             ReferenceEntity = domainEnitiesMeta.GetEntityMeta(MetaHelper.GetEntityInfo(prop.PropertyType)) as NamedEntityMeta
-                         })
-                         .Where(info => info.ReferenceEntity != null)
-                         .Select(info => ReferenceFieldMeta.Build($"{info.PropertyName}Id", info.ReferenceEntity));
+                         .Select(BuildField)
+                         .Where(field => field != null)
+                         .GroupBy(field => field.Name)
+                         .Select(group => group.Count() == 1 ? group.First() : group.First(field => field is ReferenceFieldMeta));
 
             var entityInfo = MetaHelper.GetEntityInfo<T>();
 
             return new EntityMeta(entityInfo.Name, entityInfo.Schema, fields);
+
+            FieldMeta BuildField(PropertyInfo property)
+            {
+                FieldMeta field = null;
+
+                if (property.PropertyType.IsPrimitive || property.PropertyType == typeof(string))
+                {
+                    if (property.Name == IdFieldMeta.DefaultId && property.PropertyType == typeof(long))
+                    {
+                        field = new IdFieldMeta();
+                    }
+                    else
+                    {
+                        field = new SimpleFieldMeta(property.Name, Type.GetTypeCode(property.PropertyType));
+                    }
+                }
+                else
+                {
+                    var referenceEntity = domainEnitiesMeta.GetEntityMeta(property.PropertyType) as NamedEntityMeta;
+                    if (referenceEntity != null)
+                    {
+                        field = ReferenceFieldMeta.Build($"{property.Name}Id", referenceEntity);
+                    }
+                }
+
+                return field;
+            }
         }
 
         private class CoordinateMetaFactory

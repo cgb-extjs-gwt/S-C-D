@@ -32,7 +32,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
         {
             var query = Sql.SelectDistinct(columnName).From(tableName, schemaName).Where(filter);
 
-            return await this.repositorySet.ReadBySql(query, reader => reader[0].ToString());
+            return await this.repositorySet.ReadBySqlAsync(query, reader => reader[0].ToString());
         }
 
         public async Task<IEnumerable<NamedId>> GetDistinctItems(string entityName, string schema, string referenceFieldName, IDictionary<string, long[]> filter)
@@ -137,7 +137,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 joinQuery.Where(conditions)
                      .OrderBy(SortDirection.Asc, nameColumn);
 
-            return await this.repositorySet.ReadBySql(
+            return await this.repositorySet.ReadBySqlAsync(
                 query,
                 reader => new NamedId
                 {
@@ -193,7 +193,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                 }
             }
 
-            return await this.repositorySet.ReadBySql(
+            return await this.repositorySet.ReadBySqlAsync(
                 query,
                 reader => new NamedId
                 {

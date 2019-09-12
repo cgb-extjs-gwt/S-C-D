@@ -57,7 +57,7 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                                               SqlBuilder = new ColumnSqlBuilder($"{context.InputLevelId}_{nameField.ReferenceFaceField}")
                                           });
 
-            return await this.repositorySet.ReadBySql(query, reader =>
+            return await this.repositorySet.ReadBySqlAsync(query, reader =>
             {
                 var valueCount = reader.GetInt32(3);
 

@@ -56,7 +56,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
                 query
                     = Sql.Select()
                          .FromQuery(
-                             Sql.Select(new ColumnInfo(null, InnerTableAlias), SqlFunctions.RowNumber(queryInfo.Sort, RowNumberAlias))
+                             Sql.Select(new ColumnInfo((string)null, InnerTableAlias), SqlFunctions.RowNumber(queryInfo.Sort, RowNumberAlias))
                                 .FromQuery(this, InnerTableAlias),
                              "t2")
                          .Where(SqlOperators.Between(RowNumberAlias, skip, skip + take));

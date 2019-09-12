@@ -19,7 +19,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<EqualsSqlBuilder>(columnName, value, tableName);
         }
 
-        public static ConditionHelper Equals(ColumnInfo leftColumn, ColumnInfo rightColumn)
+        public static ConditionHelper Equals(BaseColumnInfo leftColumn, BaseColumnInfo rightColumn)
         {
             return CreateConditionHelper<EqualsSqlBuilder>(leftColumn, rightColumn);
         }
@@ -34,7 +34,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<NotEqualsSqlBuilder>(columnName, value, tableName);
         }
 
-        public static ConditionHelper NotEquals(ColumnInfo leftColumn, ColumnInfo rightColumn)
+        public static ConditionHelper NotEquals(BaseColumnInfo leftColumn, BaseColumnInfo rightColumn)
         {
             return CreateConditionHelper<NotEqualsSqlBuilder>(leftColumn, rightColumn);
         }
@@ -49,7 +49,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<GreaterSqlBuilder>(columnName, value, tableName);
         }
 
-        public static ConditionHelper Greater(ColumnInfo leftColumn, ColumnInfo rightColumn)
+        public static ConditionHelper Greater(BaseColumnInfo leftColumn, BaseColumnInfo rightColumn)
         {
             return CreateConditionHelper<GreaterSqlBuilder>(leftColumn, rightColumn);
         }
@@ -64,7 +64,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<GreaterOrEqualSqlBuilder>(columnName, value, tableName);
         }
 
-        public static ConditionHelper GreaterOrEqual(ColumnInfo leftColumn, ColumnInfo rightColumn)
+        public static ConditionHelper GreaterOrEqual(BaseColumnInfo leftColumn, BaseColumnInfo rightColumn)
         {
             return CreateConditionHelper<GreaterOrEqualSqlBuilder>(leftColumn, rightColumn);
         }
@@ -79,7 +79,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<LessSqlBuilder>(columnName, value, tableName);
         }
 
-        public static ConditionHelper Less(ColumnInfo leftColumn, ColumnInfo rightColumn)
+        public static ConditionHelper Less(BaseColumnInfo leftColumn, BaseColumnInfo rightColumn)
         {
             return CreateConditionHelper<LessSqlBuilder>(leftColumn, rightColumn);
         }
@@ -94,7 +94,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<LessOrEqualSqlBuilder>(columnName, value, tableName);
         }
 
-        public static ConditionHelper LessOrEqual(ColumnInfo leftColumn, ColumnInfo rightColumn)
+        public static ConditionHelper LessOrEqual(BaseColumnInfo leftColumn, BaseColumnInfo rightColumn)
         {
             return CreateConditionHelper<LessOrEqualSqlBuilder>(leftColumn, rightColumn);
         }
@@ -109,7 +109,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<AdditionSqlBuilder>(columnName, value, tableName);
         }
 
-        public static ConditionHelper Add(ColumnInfo leftColumn, ColumnInfo rightColumn)
+        public static ConditionHelper Add(BaseColumnInfo leftColumn, BaseColumnInfo rightColumn)
         {
             return CreateConditionHelper<AdditionSqlBuilder>(leftColumn, rightColumn);
         }
@@ -134,7 +134,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<SubtractionSqlBuilder>(operands);
         }
 
-        public static ConditionHelper Subtract(ColumnInfo leftColumn, ColumnInfo rightColumn)
+        public static ConditionHelper Subtract(BaseColumnInfo leftColumn, BaseColumnInfo rightColumn)
         {
             return CreateConditionHelper<SubtractionSqlBuilder>(leftColumn, rightColumn);
         }
@@ -149,7 +149,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<MultiplicationSqlBuilder>(columnName, value, tableName);
         }
 
-        public static ConditionHelper Multiply(ColumnInfo leftColumn, ColumnInfo rightColumn)
+        public static ConditionHelper Multiply(BaseColumnInfo leftColumn, BaseColumnInfo rightColumn)
         {
             return CreateConditionHelper<MultiplicationSqlBuilder>(leftColumn, rightColumn);
         }
@@ -169,7 +169,7 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return CreateConditionHelper<DivisionSqlBuilder>(columnName, value, tableName);
         }
 
-        public static ConditionHelper Devide(ColumnInfo leftColumn, ColumnInfo rightColumn)
+        public static ConditionHelper Devide(BaseColumnInfo leftColumn, BaseColumnInfo rightColumn)
         {
             return CreateConditionHelper<DivisionSqlBuilder>(leftColumn, rightColumn);
         }
@@ -290,10 +290,37 @@ namespace Gdc.Scd.DataAccessLayer.SqlBuilders.Helpers
             return binaryOperator;
         }
 
-        private static ConditionHelper CreateConditionHelper<T>(ColumnInfo leftColumn, ColumnInfo rightColumn)
+        private static ConditionHelper CreateConditionHelper<T>(BaseColumnInfo leftColumn, BaseColumnInfo rightColumn)
             where T : BinaryOperatorSqlBuilder, new()
         {
-            return CreateConditionHelper<T>(new ColumnSqlBuilder(leftColumn), new ColumnSqlBuilder(rightColumn));
+            var leftBuilder = GetColumnSqlBuilder(leftColumn);
+            var rigthBuilder = GetColumnSqlBuilder(rightColumn);
+
+            return CreateConditionHelper<T>(leftBuilder, rigthBuilder);
+
+            ISqlBuilder GetColumnSqlBuilder(BaseColumnInfo baseColumnInfo)
+            {
+                ISqlBuilder result;
+
+                switch (baseColumnInfo)
+                {
+                    case ColumnInfo column:
+                        result = new ColumnSqlBuilder(column);
+                        break;
+
+                    case QueryColumnInfo queryColumn:
+                        result = new BracketsSqlBuilder
+                        {
+                            Query = queryColumn.Query
+                        };
+                        break;
+
+                    default:
+                        throw new NotSupportedException();
+                }
+
+                return result;
+            }
         }
 
         private static ConditionHelper CreateConditionHelper<T>(ISqlBuilder leftOperand, ISqlBuilder rightOperand)
