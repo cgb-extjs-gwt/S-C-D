@@ -54,7 +54,7 @@ export class PortfolioEditView extends React.Component<any, any> {
     }
 
     public componentDidMount() {
-        new AppService().hasRole('portfolio').then(x => this.setState({ canEditMaster: x }));
+        new AppService().hasPermission('portfolio').then(x => this.setState({ canEditMaster: x }));
     }
 
     public render() {
