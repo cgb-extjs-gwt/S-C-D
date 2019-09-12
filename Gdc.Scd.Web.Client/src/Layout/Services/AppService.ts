@@ -40,4 +40,8 @@ export class AppService {
         return this.getRoles().then(x => x.some(y => y.name.toUpperCase() === role));
     }
 
+    public hasPermission(perm: string): Promise<boolean> {
+        perm = perm.toUpperCase();
+        return this.getRoles().then(x => x.some(y => y.permissions.some(p => p.toUpperCase() === perm)));
+    }
 }
