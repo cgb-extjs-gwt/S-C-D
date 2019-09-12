@@ -45,7 +45,7 @@ namespace Gdc.Scd.CopyDataTool
                 if (changedUser == null)
                     throw new Exception($"User {config.EditUser} could not be found in the target database");
 
-                UpdateStandardWarrantyManual(changedUser);
+                //UpdateStandardWarrantyManual(changedUser);
                 UpdateHardwareManualCosts(changedUser);
             }
         }
@@ -124,16 +124,16 @@ namespace Gdc.Scd.CopyDataTool
                     var manualCost = targetManualCosts.FirstOrDefault(tc => tc.Id == portfolio.Id) ?? new HardwareManualCost {LocalPortfolio = portfolio};
 
 
-                    manualCost.DealerDiscount = mc.DealerDiscount;
-                    manualCost.ListPrice = mc.ListPrice;
-                    manualCost.ServiceTC = mc.ServiceTC;
+                    //manualCost.DealerDiscount = mc.DealerDiscount;
+                    //manualCost.ListPrice = mc.ListPrice;
+                    //manualCost.ServiceTC = mc.ServiceTC;
                     manualCost.ServiceTP = mc.ServiceTP;
-                    manualCost.ReleaseDate = mc.ReleaseDate;
-                    manualCost.ServiceTP1_Released = mc.ServiceTP1_Released;
-                    manualCost.ServiceTP2_Released = mc.ServiceTP2_Released;
-                    manualCost.ServiceTP3_Released = mc.ServiceTP3_Released;
-                    manualCost.ServiceTP4_Released = mc.ServiceTP4_Released;
-                    manualCost.ServiceTP5_Released = mc.ServiceTP5_Released;
+                    //manualCost.ReleaseDate = mc.ReleaseDate;
+                    //manualCost.ServiceTP1_Released = mc.ServiceTP1_Released;
+                    //manualCost.ServiceTP2_Released = mc.ServiceTP2_Released;
+                    //manualCost.ServiceTP3_Released = mc.ServiceTP3_Released;
+                    //manualCost.ServiceTP4_Released = mc.ServiceTP4_Released;
+                    //manualCost.ServiceTP5_Released = mc.ServiceTP5_Released;
                     manualCost.ChangeUser = editor;
                     
 
