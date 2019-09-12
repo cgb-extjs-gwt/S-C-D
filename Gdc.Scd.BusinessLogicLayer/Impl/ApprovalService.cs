@@ -114,7 +114,7 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             return qualityGateResult;
         }
 
-        public async Task Approve(long historyId)
+        public async Task Approve(long historyId, bool turnOffNotification = false)
         {
             using (var transaction = this.repositorySet.GetTransaction())
             {
@@ -128,7 +128,8 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
 
                     try
                     {
-                        await this.emailService.SendApprovalMailAsync(history);
+                        if (!turnOffNotification)
+                            await this.emailService.SendApprovalMailAsync(history);
                     }
                     catch
                     {
@@ -144,11 +145,11 @@ namespace Gdc.Scd.BusinessLogicLayer.Impl
             }
         }
 
-        public async Task Reject(long historyId, string message = null)
+        public async Task Reject(long historyId, string message = null, bool turnOffNotification = false)
         {
             var history = this.costBlockHistoryService.SaveAsRejected(historyId, message);
 
-            if (message != null)
+            if (message != null && !turnOffNotification)
             {
                 await this.emailService.SendRejectedMailAsync(history, message, userService.GetCurrentUser().Name);
             }
