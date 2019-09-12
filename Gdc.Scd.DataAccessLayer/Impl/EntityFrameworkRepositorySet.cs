@@ -171,6 +171,29 @@ namespace Gdc.Scd.DataAccessLayer.Impl
             });
         }
 
+        public Task<DataTable> ReadBySql(SqlHelper query, string tableName)
+        {
+            var queryData = query.ToQueryData();
+
+            return WithCommand(async cmd =>
+            {
+                cmd.CommandText = queryData.Sql;
+
+                if (queryData.Parameters != null)
+                {
+                    cmd.Parameters.AddRange(this.GetDbParameters(queryData.Parameters, cmd).ToArray());
+                }
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    var dataTable = String.IsNullOrEmpty(tableName) ? new DataTable()
+                        : new DataTable(tableName);
+                    dataTable.Load(reader);
+                    return dataTable;
+                }
+
+            });
+        }
         public Task<IEnumerable<T>> ReadBySqlAsync<T>(string sql, Func<DbDataReader, T> mapFunc, params DbParameter[] parameters)
         {
             return WithCommand(async cmd =>

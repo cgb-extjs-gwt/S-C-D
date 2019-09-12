@@ -220,12 +220,10 @@ namespace Gdc.Scd.CopyDataTool
 
 
 
-                    var task = portfolioService.Allow(portfolioRule);
-                    task.Wait();
+                    portfolioService.Allow(portfolioRule);
 
                     portfolioRule.CountryId = Dependencies[nameof(TE.Country)][portfolio.Country.Name];
-                    task = portfolioService.Allow(portfolioRule);
-                    task.Wait();
+                    portfolioService.Allow(portfolioRule);
                 }
             }
         }
