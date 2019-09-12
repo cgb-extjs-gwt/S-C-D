@@ -13,7 +13,7 @@ namespace Gdc.Scd.Import.Por.Core.Extensions
     public static class EntityExtensions
     {
         public static void CopyModifiedValues<T>(this T sourceEntity, T targetEntity, DateTime modified) 
-            where T : IDeactivatable
+            where T : IModifiable
         {
             bool isModified = false;
             foreach (PropertyInfo pi in typeof(T).GetProperties())

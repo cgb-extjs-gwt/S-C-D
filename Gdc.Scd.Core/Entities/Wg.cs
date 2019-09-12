@@ -9,7 +9,7 @@ namespace Gdc.Scd.Core.Entities
 {
     [MustUpdateCoordinate(MetaConstants.WgInputLevelName)]
     [Table(MetaConstants.WgInputLevelName, Schema = MetaConstants.InputLevelSchema)]
-    public class Wg : BaseWgSog, IDeactivatable
+    public class Wg : BaseWgSog, IModifiable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override long Id

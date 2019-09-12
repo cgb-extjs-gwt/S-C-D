@@ -6,7 +6,7 @@ using Gdc.Scd.Core.Meta.Constants;
 namespace Gdc.Scd.Core.Entities
 {
     [Table(MetaConstants.AvailabilityFeeCostBlock, Schema = MetaConstants.HardwareSchema)]
-    public class AvailabilityFee : IIdentifiable, IDeactivatable
+    public class AvailabilityFee : ICostBlockEntity, IModifiable
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }

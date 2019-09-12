@@ -192,11 +192,11 @@ namespace Gdc.Scd.DataAccessLayer.Impl
                         this.BuildReferenceItemsQuery(fromMeta, costBlockMeta),
                         fromMeta.Name);
 
-            for (var i = 0; i < joinInfos.Count-1; i++)
+            for (var i = 0; i < joinInfos.Count - 1; i++)
             {
                 for (var j = i + 1; j < joinInfos.Count; j++)
                 {
-                    if(joinInfos[i].InnerJoinInfo.Meta.Name == joinInfos[j].ReferenceMeta.Name)
+                    if(joinInfos[i].InnerJoinInfo.Meta.FullName == joinInfos[j].ReferenceMeta.FullName)
                     {
                         var tmp = joinInfos[i];
                         joinInfos[i] = joinInfos[j];
@@ -235,14 +235,103 @@ namespace Gdc.Scd.DataAccessLayer.Impl
 
         private SqlHelper BuildCreateRowsCostBlockQuery(CostBlockEntityMeta costBlockMeta)
         {
-            var coordinateFieldNames = costBlockMeta.CoordinateFields.Select(field => field.Name).ToArray();
+            const string NewRowsTableName = "NewRows";
+            const string ValuesTableName = "Values";
+
+            var lastInputLevel = costBlockMeta.DomainMeta.InputLevels.Last();
+            var valuesQueryCoordinateFields = 
+                costBlockMeta.CoordinateFields.Where(field => field.Name != lastInputLevel.Name)
+                                              .ToArray();
+
+            var insertedFieldNames = 
+                costBlockMeta.CoordinateFields.Concat(costBlockMeta.CostElementsFields)
+                                              .Select(field => field.Name)
+                                              .ToArray();
+
+            var selectedColumns =
+                costBlockMeta.CoordinateFields.Select(field => new ColumnInfo(field.Name, NewRowsTableName))
+                                              .Concat(costBlockMeta.CostElementsFields.Select(field => new ColumnInfo(field.Name, ValuesTableName)))
+                                              .ToArray();
 
             return
-                 Sql.Insert(costBlockMeta, coordinateFieldNames)
+                 Sql.Insert(costBlockMeta, insertedFieldNames)
                     .Query(
-                        Sql.Except(
-                            this.BuildSelectFromCoordinateTalbeQuery(costBlockMeta),
-                            this.BuildSelectFromCostBlockQuery(costBlockMeta)));
+                        Sql.Select(selectedColumns)
+                           .FromQuery(
+                                Sql.Except(
+                                    this.BuildSelectFromCoordinateTalbeQuery(costBlockMeta),
+                                    this.BuildSelectFromCostBlockQuery(costBlockMeta)),
+                                NewRowsTableName)
+                           .Join(
+                                new AliasSqlBuilder
+                                {
+                                    Alias = ValuesTableName,
+                                    Query = new BracketsSqlBuilder
+                                    {
+                                        Query = BuildValuesQuery()
+                                    } 
+                                },
+                                ConditionHelper.And(
+                                    valuesQueryCoordinateFields.Select(
+                                        field => SqlOperators.Equals(
+                                            new ColumnInfo(field.Name, NewRowsTableName), 
+                                            new ColumnInfo(field.Name, ValuesTableName)))),
+                                JoinType.Left));
+
+            ISqlBuilder BuildValuesQuery()
+            {
+                const string MinMaxValuesTableName = "MinMaxValues";
+
+                var groupByColumns = valuesQueryCoordinateFields.Select(field => new ColumnInfo(field.Name)).ToArray();
+
+                var minMaxColumnInfos = costBlockMeta.CostElementsFields.Select(field => new
+                {
+                    FieldName = field.Name,
+                    MinColumn = SqlFunctions.Min(field, alias: $"{field.Name}Min"),
+                    MaxColumn = SqlFunctions.Max(field, alias: $"{field.Name}Max")
+                }).ToArray();
+
+                var minMaxSelectColumns =
+                    valuesQueryCoordinateFields.Select(field => new ColumnInfo(field.Name))
+                                               .Cast<BaseColumnInfo>()
+                                               .Concat(minMaxColumnInfos.SelectMany(info => new[] { info.MinColumn, info.MaxColumn }))
+                                               .ToArray();
+
+                var valueColumns = minMaxColumnInfos.Select(info => new QueryColumnInfo(
+                    new CaseSqlBuilder
+                    {
+                        Cases = new[]
+                        {
+                            new CaseItem
+                            {
+                                When =
+                                    SqlOperators.Equals(
+                                        new ColumnInfo(info.MinColumn.Alias, MinMaxValuesTableName),
+                                        new ColumnInfo(info.MaxColumn.Alias, MinMaxValuesTableName))
+                                                .ToSqlBuilder(),
+                                Then = new ColumnSqlBuilder(info.MinColumn.Alias, MinMaxValuesTableName)
+                            }
+                        },
+                        Else = new RawSqlBuilder("NULL")
+                    },
+                    info.FieldName));
+
+                var selectColumns =
+                    valuesQueryCoordinateFields.Select(field => new ColumnInfo(field.Name, MinMaxValuesTableName))
+                                               .Cast<BaseColumnInfo>()
+                                               .Concat(valueColumns)
+                                               .ToArray();
+
+                return
+                    Sql.Select(selectColumns)
+                       .FromQuery(
+                            Sql.Select(minMaxSelectColumns)
+                               .From(costBlockMeta)
+                               .WhereNotDeleted(costBlockMeta)
+                               .GroupBy(groupByColumns),
+                            MinMaxValuesTableName)
+                       .ToSqlBuilder();
+            }
         }
 
         /// <summary>

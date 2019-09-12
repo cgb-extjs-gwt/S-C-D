@@ -26,10 +26,10 @@ namespace Gdc.Scd.Import.Por.Core.Impl
             foreach (var digit in newDigits)
             {
                 var relevantMaintenance = swSpMaintenance
-                    .Where(x => x.Sog == digit.SogId
+                    .Where(x => x.SogId == digit.SogId
                                 && x.CreatedDateTime.Date != DateTime.Today);
 
-                var approvedCosts = relevantMaintenance.Select(x => x.C2ndLevelSupportCosts_Approved);
+                var approvedCosts = relevantMaintenance.Select(x => x.SecondLevelSupportCosts_Approved);
                
                 var approvedInstallBases = relevantMaintenance.Select(x => x.InstalledBaseSog_Approved);
 
@@ -41,13 +41,13 @@ namespace Gdc.Scd.Import.Por.Core.Impl
                         ? approvedInstallBases.First()
                         : null;
      
-                var maintenanceList = swSpMaintenance.Where(x => x.SwDigit == digit.Id).ToList();
+                var maintenanceList = swSpMaintenance.Where(x => x.SwDigitId == digit.Id).ToList();
 
                 foreach (var maintenance in maintenanceList)
                 {
 
-                    maintenance.C2ndLevelSupportCosts = approvedCost;
-                    maintenance.C2ndLevelSupportCosts_Approved = approvedCost;
+                    maintenance.SecondLevelSupportCosts = approvedCost;
+                    maintenance.SecondLevelSupportCosts_Approved = approvedCost;
                     maintenance.InstalledBaseSog = approvedInstallBase;
                     maintenance.InstalledBaseSog_Approved = approvedInstallBase;
                 }

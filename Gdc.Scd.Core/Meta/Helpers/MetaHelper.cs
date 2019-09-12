@@ -26,5 +26,10 @@ namespace Gdc.Scd.Core.Meta.Helpers
 
             return entityInfo;
         }
+
+        public static EntityInfo GetEntityInfo<T>()
+        {
+            return GetEntityInfo(typeof(T));
+        }
     }
 }
